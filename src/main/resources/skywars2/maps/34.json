@@ -2,8 +2,8 @@
   "id": "34",
   "name": "Map 34",
   "playerCapacity": 8,
-  "available": false,
-  "reason": "missing templates: swrg:34-13, swrg:34-2, swrg:34-3, swrg:34-4, swrg:34-8",
+  "available": true,
+  "reason": "",
   "placements": [
     {
       "template": "swrg:34-1",
@@ -19,45 +19,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:34-2",
-      "origin": [
-        -48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:34-3",
-      "origin": [
-        0,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:34-4",
-      "origin": [
-        48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:34-5",
       "origin": [
         -96,
@@ -114,19 +75,6 @@
       "origin": [
         0,
         96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:34-8",
-      "origin": [
-        48,
-        48,
         -48
       ],
       "rotation": "none",
@@ -214,19 +162,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:34-13",
-      "origin": [
-        -96,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:34-14",
       "origin": [
         -48,
@@ -292,6 +227,14 @@
       "mode": "strict"
     }
   ],
+  "omittedPlacements": [
+    "swrg:34-2",
+    "swrg:34-3",
+    "swrg:34-4",
+    "swrg:34-8",
+    "swrg:34-13"
+  ],
+  "parseErrors": [],
   "brokenPlacements": [
     {
       "template": "swrg:34-1",
@@ -307,45 +250,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:34-2",
-      "origin": [
-        -48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:34-3",
-      "origin": [
-        0,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:34-4",
-      "origin": [
-        48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:34-5",
       "origin": [
         -96,
@@ -402,19 +306,6 @@
       "origin": [
         0,
         96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:34-8",
-      "origin": [
-        48,
-        48,
         -48
       ],
       "rotation": "none",
@@ -502,19 +393,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:34-13",
-      "origin": [
-        -96,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:34-14",
       "origin": [
         -48,
@@ -580,5 +458,14 @@
       "mode": "strict"
     }
   ],
-  "brokenAvailable": false
+  "brokenOmittedPlacements": [
+    "swrg:34-2",
+    "swrg:34-3",
+    "swrg:34-4",
+    "swrg:34-8",
+    "swrg:34-13"
+  ],
+  "brokenParseErrors": [],
+  "brokenPlayerCapacity": 8,
+  "brokenAvailable": true
 }

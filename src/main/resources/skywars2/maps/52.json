@@ -2,8 +2,8 @@
   "id": "52",
   "name": "Map 52",
   "playerCapacity": 8,
-  "available": false,
-  "reason": "missing templates: swrg:52-17up2, swrg:52-18up2, swrg:52-19up2, swrg:52-20up2, swrg:52-21up2, swrg:52-22up2, swrg:52-23up2, swrg:52-24up2, swrg:52-25up2, swrg:52-26up2, swrg:52-27up2, swrg:52-28up2, swrg:52-29up2, swrg:52-30up2, swrg:52-31up2, swrg:52-32up2, swrg:52-33up2, swrg:52-34up2, swrg:52-35up2, swrg:52-36up2",
+  "available": true,
+  "reason": "",
   "placements": [
     {
       "template": "swrg:52-2",
@@ -500,266 +500,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:52-17up2",
-      "origin": [
-        -144,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-18up2",
-      "origin": [
-        -144,
-        120,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-19up2",
-      "origin": [
-        -144,
-        120,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-20up2",
-      "origin": [
-        -144,
-        120,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-21up2",
-      "origin": [
-        -144,
-        120,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-22up2",
-      "origin": [
-        -144,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-23up2",
-      "origin": [
-        96,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-24up2",
-      "origin": [
-        96,
-        120,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-25up2",
-      "origin": [
-        96,
-        120,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-26up2",
-      "origin": [
-        96,
-        120,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-27up2",
-      "origin": [
-        96,
-        120,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-28up2",
-      "origin": [
-        96,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-29up2",
-      "origin": [
-        -96,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-30up2",
-      "origin": [
-        -48,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-31up2",
-      "origin": [
-        0,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-32up2",
-      "origin": [
-        48,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-33up2",
-      "origin": [
-        -96,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-34up2",
-      "origin": [
-        -48,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-35up2",
-      "origin": [
-        0,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-36up2",
-      "origin": [
-        48,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:52-5up3",
       "origin": [
         -96,
@@ -812,6 +552,29 @@
       "mode": "strict"
     }
   ],
+  "omittedPlacements": [
+    "swrg:52-17up2",
+    "swrg:52-18up2",
+    "swrg:52-19up2",
+    "swrg:52-20up2",
+    "swrg:52-21up2",
+    "swrg:52-22up2",
+    "swrg:52-23up2",
+    "swrg:52-24up2",
+    "swrg:52-25up2",
+    "swrg:52-26up2",
+    "swrg:52-27up2",
+    "swrg:52-28up2",
+    "swrg:52-29up2",
+    "swrg:52-30up2",
+    "swrg:52-31up2",
+    "swrg:52-32up2",
+    "swrg:52-33up2",
+    "swrg:52-34up2",
+    "swrg:52-35up2",
+    "swrg:52-36up2"
+  ],
+  "parseErrors": [],
   "brokenPlacements": [
     {
       "template": "swrg:52-2",
@@ -1308,266 +1071,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:52-17up2",
-      "origin": [
-        -144,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-18up2",
-      "origin": [
-        -144,
-        120,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-19up2",
-      "origin": [
-        -144,
-        120,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-20up2",
-      "origin": [
-        -144,
-        120,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-21up2",
-      "origin": [
-        -144,
-        120,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-22up2",
-      "origin": [
-        -144,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-23up2",
-      "origin": [
-        96,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-24up2",
-      "origin": [
-        96,
-        120,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-25up2",
-      "origin": [
-        96,
-        120,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-26up2",
-      "origin": [
-        96,
-        120,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-27up2",
-      "origin": [
-        96,
-        120,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-28up2",
-      "origin": [
-        96,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-29up2",
-      "origin": [
-        -96,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-30up2",
-      "origin": [
-        -48,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-31up2",
-      "origin": [
-        0,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-32up2",
-      "origin": [
-        48,
-        120,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-33up2",
-      "origin": [
-        -96,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-34up2",
-      "origin": [
-        -48,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-35up2",
-      "origin": [
-        0,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:52-36up2",
-      "origin": [
-        48,
-        120,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:52-5up3",
       "origin": [
         -96,
@@ -1620,5 +1123,29 @@
       "mode": "strict"
     }
   ],
-  "brokenAvailable": false
+  "brokenOmittedPlacements": [
+    "swrg:52-17up2",
+    "swrg:52-18up2",
+    "swrg:52-19up2",
+    "swrg:52-20up2",
+    "swrg:52-21up2",
+    "swrg:52-22up2",
+    "swrg:52-23up2",
+    "swrg:52-24up2",
+    "swrg:52-25up2",
+    "swrg:52-26up2",
+    "swrg:52-27up2",
+    "swrg:52-28up2",
+    "swrg:52-29up2",
+    "swrg:52-30up2",
+    "swrg:52-31up2",
+    "swrg:52-32up2",
+    "swrg:52-33up2",
+    "swrg:52-34up2",
+    "swrg:52-35up2",
+    "swrg:52-36up2"
+  ],
+  "brokenParseErrors": [],
+  "brokenPlayerCapacity": 8,
+  "brokenAvailable": true
 }

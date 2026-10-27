@@ -2,8 +2,8 @@
   "id": "51",
   "name": "Map 51",
   "playerCapacity": 8,
-  "available": false,
-  "reason": "missing templates: swrg:51-16",
+  "available": true,
+  "reason": "",
   "placements": [
     {
       "template": "swrg:51-3",
@@ -149,19 +149,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:51-16",
-      "origin": [
-        48,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:51-2up",
       "origin": [
         -48,
@@ -396,6 +383,10 @@
       "mode": "strict"
     }
   ],
+  "omittedPlacements": [
+    "swrg:51-16"
+  ],
+  "parseErrors": [],
   "brokenPlacements": [
     {
       "template": "swrg:51-3",
@@ -541,19 +532,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:51-16",
-      "origin": [
-        48,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:51-2up",
       "origin": [
         -48,
@@ -788,5 +766,10 @@
       "mode": "strict"
     }
   ],
-  "brokenAvailable": false
+  "brokenOmittedPlacements": [
+    "swrg:51-16"
+  ],
+  "brokenParseErrors": [],
+  "brokenPlayerCapacity": 8,
+  "brokenAvailable": true
 }

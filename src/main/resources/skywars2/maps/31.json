@@ -2,75 +2,10 @@
   "id": "31",
   "name": "Map 31",
   "playerCapacity": 8,
-  "available": false,
-  "reason": "missing templates: swrg:31-1, swrg:31-12, swrg:31-13, swrg:31-14, swrg:31-15, swrg:31-16, swrg:31-2, swrg:31-3, swrg:31-4, swrg:31-5, swrg:31-8, swrg:31-9",
+  "available": true,
+  "reason": "",
   "placements": [
     {
-      "template": "swrg:31-1",
-      "origin": [
-        -96,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-2",
-      "origin": [
-        -48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-3",
-      "origin": [
-        0,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-4",
-      "origin": [
-        48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-5",
-      "origin": [
-        -96,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:31-6",
       "origin": [
         -48,
@@ -89,32 +24,6 @@
         0,
         48,
         -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-8",
-      "origin": [
-        48,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-9",
-      "origin": [
-        -96,
-        48,
-        0
       ],
       "rotation": "none",
       "mirror": "none",
@@ -147,140 +56,25 @@
       "integrity": 1.0,
       "seed": 1,
       "mode": "strict"
-    },
-    {
-      "template": "swrg:31-12",
-      "origin": [
-        48,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-13",
-      "origin": [
-        -96,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-14",
-      "origin": [
-        -48,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-15",
-      "origin": [
-        0,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-16",
-      "origin": [
-        48,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
     }
   ],
+  "omittedPlacements": [
+    "swrg:31-1",
+    "swrg:31-2",
+    "swrg:31-3",
+    "swrg:31-4",
+    "swrg:31-5",
+    "swrg:31-8",
+    "swrg:31-9",
+    "swrg:31-12",
+    "swrg:31-13",
+    "swrg:31-14",
+    "swrg:31-15",
+    "swrg:31-16"
+  ],
+  "parseErrors": [],
   "brokenPlacements": [
     {
-      "template": "swrg:31-1",
-      "origin": [
-        -96,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-2",
-      "origin": [
-        -48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-3",
-      "origin": [
-        0,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-4",
-      "origin": [
-        48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-5",
-      "origin": [
-        -96,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:31-6",
       "origin": [
         -48,
@@ -299,32 +93,6 @@
         0,
         48,
         -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-8",
-      "origin": [
-        48,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-9",
-      "origin": [
-        -96,
-        48,
-        0
       ],
       "rotation": "none",
       "mirror": "none",
@@ -357,72 +125,23 @@
       "integrity": 0.75,
       "seed": 1,
       "mode": "strict"
-    },
-    {
-      "template": "swrg:31-12",
-      "origin": [
-        48,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-13",
-      "origin": [
-        -96,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-14",
-      "origin": [
-        -48,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-15",
-      "origin": [
-        0,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:31-16",
-      "origin": [
-        48,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
     }
   ],
-  "brokenAvailable": false
+  "brokenOmittedPlacements": [
+    "swrg:31-1",
+    "swrg:31-2",
+    "swrg:31-3",
+    "swrg:31-4",
+    "swrg:31-5",
+    "swrg:31-8",
+    "swrg:31-9",
+    "swrg:31-12",
+    "swrg:31-13",
+    "swrg:31-14",
+    "swrg:31-15",
+    "swrg:31-16"
+  ],
+  "brokenParseErrors": [],
+  "brokenPlayerCapacity": 8,
+  "brokenAvailable": true
 }

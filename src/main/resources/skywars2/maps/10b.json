@@ -2,67 +2,15 @@
   "id": "10b",
   "name": "Map 10b",
   "playerCapacity": 4,
-  "available": false,
-  "reason": "missing templates: swrg:10b-1, swrg:10b-100, swrg:10b-100up, swrg:10b-12up, swrg:10b-13, swrg:10b-13up, swrg:10b-14up, swrg:10b-15up, swrg:10b-16, swrg:10b-16up, swrg:10b-17, swrg:10b-17up, swrg:10b-18, swrg:10b-18up, swrg:10b-1up, swrg:10b-2, swrg:10b-21, swrg:10b-21up, swrg:10b-22, swrg:10b-22up, swrg:10b-23, swrg:10b-23up, swrg:10b-24, swrg:10b-24up, swrg:10b-27, swrg:10b-27up, swrg:10b-28, swrg:10b-28up, swrg:10b-29, swrg:10b-29up, swrg:10b-2up, swrg:10b-32, swrg:10b-32up, swrg:10b-33, swrg:10b-33up, swrg:10b-36, swrg:10b-36up, swrg:10b-37, swrg:10b-37up, swrg:10b-38, swrg:10b-38up, swrg:10b-39, swrg:10b-39up, swrg:10b-3up, swrg:10b-4, swrg:10b-40, swrg:10b-40up, swrg:10b-41, swrg:10b-41up, swrg:10b-42, swrg:10b-42up, swrg:10b-43, swrg:10b-43up, swrg:10b-44, swrg:10b-44up, swrg:10b-45, swrg:10b-45up, swrg:10b-46, swrg:10b-46up, swrg:10b-47, swrg:10b-47up, swrg:10b-48, swrg:10b-48up, swrg:10b-49, swrg:10b-49up, swrg:10b-4up, swrg:10b-5, swrg:10b-50, swrg:10b-50up, swrg:10b-51, swrg:10b-51up, swrg:10b-52, swrg:10b-52up, swrg:10b-53, swrg:10b-53up, swrg:10b-54, swrg:10b-54up, swrg:10b-55, swrg:10b-55up, swrg:10b-56, swrg:10b-56up, swrg:10b-57, swrg:10b-57up, swrg:10b-58, swrg:10b-58up, swrg:10b-59, swrg:10b-59up, swrg:10b-5up, swrg:10b-60, swrg:10b-60up, swrg:10b-61, swrg:10b-61up, swrg:10b-62, swrg:10b-62up, swrg:10b-63, swrg:10b-63up, swrg:10b-64, swrg:10b-64up, swrg:10b-65, swrg:10b-65up, swrg:10b-66, swrg:10b-66up, swrg:10b-67, swrg:10b-67up, swrg:10b-68, swrg:10b-68up, swrg:10b-69, swrg:10b-69up, swrg:10b-70, swrg:10b-70up, swrg:10b-71, swrg:10b-71up, swrg:10b-72, swrg:10b-72up, swrg:10b-73, swrg:10b-73up, swrg:10b-74, swrg:10b-74up, swrg:10b-75, swrg:10b-75up, swrg:10b-76, swrg:10b-76up, swrg:10b-77, swrg:10b-77up, swrg:10b-78, swrg:10b-78up, swrg:10b-79, swrg:10b-79up, swrg:10b-8, swrg:10b-80, swrg:10b-80up, swrg:10b-81, swrg:10b-81up, swrg:10b-82, swrg:10b-82up, swrg:10b-83, swrg:10b-83up, swrg:10b-84, swrg:10b-84up, swrg:10b-85, swrg:10b-85up, swrg:10b-86, swrg:10b-86up, swrg:10b-87, swrg:10b-87up, swrg:10b-88, swrg:10b-88up, swrg:10b-89, swrg:10b-89up, swrg:10b-8up, swrg:10b-90, swrg:10b-90up, swrg:10b-91, swrg:10b-91up, swrg:10b-92, swrg:10b-92up, swrg:10b-93, swrg:10b-93up, swrg:10b-94, swrg:10b-94up, swrg:10b-95, swrg:10b-95up, swrg:10b-96, swrg:10b-96up, swrg:10b-97, swrg:10b-97up, swrg:10b-98, swrg:10b-98up, swrg:10b-99, swrg:10b-99up, swrg:10b-9up",
+  "available": true,
+  "reason": "",
   "placements": [
     {
-      "template": "swrg:10b-1",
-      "origin": [
-        -96,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-2",
-      "origin": [
-        -48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-3",
       "origin": [
         0,
         48,
         -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-4",
-      "origin": [
-        48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-5",
-      "origin": [
-        -96,
-        48,
-        -48
       ],
       "rotation": "none",
       "mirror": "none",
@@ -87,19 +35,6 @@
       "template": "swrg:10b-7",
       "origin": [
         0,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-8",
-      "origin": [
-        48,
         48,
         -48
       ],
@@ -162,19 +97,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-13",
-      "origin": [
-        -96,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-14",
       "origin": [
         -48,
@@ -193,45 +115,6 @@
         0,
         48,
         48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-16",
-      "origin": [
-        48,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-17",
-      "origin": [
-        -144,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-18",
-      "origin": [
-        -144,
-        48,
-        -96
       ],
       "rotation": "none",
       "mirror": "none",
@@ -266,58 +149,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-21",
-      "origin": [
-        -144,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-22",
-      "origin": [
-        -144,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-23",
-      "origin": [
-        96,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-24",
-      "origin": [
-        96,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-25",
       "origin": [
         96,
@@ -336,45 +167,6 @@
         96,
         48,
         0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-27",
-      "origin": [
-        96,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-28",
-      "origin": [
-        96,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-29",
-      "origin": [
-        -96,
-        48,
-        -144
       ],
       "rotation": "none",
       "mirror": "none",
@@ -409,32 +201,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-32",
-      "origin": [
-        48,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-33",
-      "origin": [
-        -96,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-34",
       "origin": [
         -48,
@@ -453,84 +219,6 @@
         0,
         48,
         96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-36",
-      "origin": [
-        48,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-1up",
-      "origin": [
-        -96,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-2up",
-      "origin": [
-        -48,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-3up",
-      "origin": [
-        0,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-4up",
-      "origin": [
-        48,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-5up",
-      "origin": [
-        -96,
-        96,
-        -48
       ],
       "rotation": "none",
       "mirror": "none",
@@ -565,32 +253,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-8up",
-      "origin": [
-        48,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-9up",
-      "origin": [
-        -96,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-10up",
       "origin": [
         -48,
@@ -609,97 +271,6 @@
         0,
         96,
         0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-12up",
-      "origin": [
-        48,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-13up",
-      "origin": [
-        -96,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-14up",
-      "origin": [
-        -48,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-15up",
-      "origin": [
-        0,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-16up",
-      "origin": [
-        48,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-17up",
-      "origin": [
-        -144,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-18up",
-      "origin": [
-        -144,
-        96,
-        -96
       ],
       "rotation": "none",
       "mirror": "none",
@@ -734,58 +305,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-21up",
-      "origin": [
-        -144,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-22up",
-      "origin": [
-        -144,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-23up",
-      "origin": [
-        96,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-24up",
-      "origin": [
-        96,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-25up",
       "origin": [
         96,
@@ -804,45 +323,6 @@
         96,
         96,
         0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-27up",
-      "origin": [
-        96,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-28up",
-      "origin": [
-        96,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-29up",
-      "origin": [
-        -96,
-        96,
-        -144
       ],
       "rotation": "none",
       "mirror": "none",
@@ -877,32 +357,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-32up",
-      "origin": [
-        48,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-33up",
-      "origin": [
-        -96,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-34up",
       "origin": [
         -48,
@@ -927,1744 +381,189 @@
       "integrity": 1.0,
       "seed": 1,
       "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-36up",
-      "origin": [
-        48,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-37",
-      "origin": [
-        -192,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-38",
-      "origin": [
-        -192,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-39",
-      "origin": [
-        -192,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-40",
-      "origin": [
-        -192,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-41",
-      "origin": [
-        -192,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-42",
-      "origin": [
-        -192,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-43",
-      "origin": [
-        -192,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-44",
-      "origin": [
-        -192,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-45",
-      "origin": [
-        144,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-46",
-      "origin": [
-        -144,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-47",
-      "origin": [
-        96,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-48",
-      "origin": [
-        -96,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-49",
-      "origin": [
-        48,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-50",
-      "origin": [
-        -48,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-51",
-      "origin": [
-        0,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-52",
-      "origin": [
-        144,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-53",
-      "origin": [
-        144,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-54",
-      "origin": [
-        144,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-55",
-      "origin": [
-        144,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-56",
-      "origin": [
-        144,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-57",
-      "origin": [
-        144,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-58",
-      "origin": [
-        144,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-59",
-      "origin": [
-        96,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-60",
-      "origin": [
-        48,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-61",
-      "origin": [
-        0,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-62",
-      "origin": [
-        -48,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-63",
-      "origin": [
-        -96,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-64",
-      "origin": [
-        -144,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-65",
-      "origin": [
-        -240,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-66",
-      "origin": [
-        -240,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-67",
-      "origin": [
-        -240,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-68",
-      "origin": [
-        -240,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-69",
-      "origin": [
-        -240,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-70",
-      "origin": [
-        -240,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-71",
-      "origin": [
-        -240,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-72",
-      "origin": [
-        -240,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-73",
-      "origin": [
-        -240,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-74",
-      "origin": [
-        -240,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-75",
-      "origin": [
-        -192,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-76",
-      "origin": [
-        -144,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-77",
-      "origin": [
-        -96,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-78",
-      "origin": [
-        -48,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-79",
-      "origin": [
-        0,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-80",
-      "origin": [
-        48,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-81",
-      "origin": [
-        96,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-82",
-      "origin": [
-        144,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-83",
-      "origin": [
-        192,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-84",
-      "origin": [
-        192,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-85",
-      "origin": [
-        192,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-86",
-      "origin": [
-        192,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-87",
-      "origin": [
-        192,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-88",
-      "origin": [
-        192,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-89",
-      "origin": [
-        192,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-90",
-      "origin": [
-        192,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-91",
-      "origin": [
-        192,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-92",
-      "origin": [
-        192,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-93",
-      "origin": [
-        144,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-94",
-      "origin": [
-        96,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-95",
-      "origin": [
-        48,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-96",
-      "origin": [
-        0,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-97",
-      "origin": [
-        -48,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-98",
-      "origin": [
-        -96,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-99",
-      "origin": [
-        -144,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-100",
-      "origin": [
-        -192,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-37up",
-      "origin": [
-        -192,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-38up",
-      "origin": [
-        -192,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-39up",
-      "origin": [
-        -192,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-40up",
-      "origin": [
-        -192,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-41up",
-      "origin": [
-        -192,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-42up",
-      "origin": [
-        -192,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-43up",
-      "origin": [
-        -192,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-44up",
-      "origin": [
-        -192,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-45up",
-      "origin": [
-        144,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-46up",
-      "origin": [
-        -144,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-47up",
-      "origin": [
-        96,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-48up",
-      "origin": [
-        -96,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-49up",
-      "origin": [
-        48,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-50up",
-      "origin": [
-        -48,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-51up",
-      "origin": [
-        0,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-52up",
-      "origin": [
-        144,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-53up",
-      "origin": [
-        144,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-54up",
-      "origin": [
-        144,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-55up",
-      "origin": [
-        144,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-56up",
-      "origin": [
-        144,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-57up",
-      "origin": [
-        144,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-58up",
-      "origin": [
-        144,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-59up",
-      "origin": [
-        96,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-60up",
-      "origin": [
-        48,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-61up",
-      "origin": [
-        0,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-62up",
-      "origin": [
-        -48,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-63up",
-      "origin": [
-        -96,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-64up",
-      "origin": [
-        -144,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-65up",
-      "origin": [
-        -240,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-66up",
-      "origin": [
-        -240,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-67up",
-      "origin": [
-        -240,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-68up",
-      "origin": [
-        -240,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-69up",
-      "origin": [
-        -240,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-70up",
-      "origin": [
-        -240,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-71up",
-      "origin": [
-        -240,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-72up",
-      "origin": [
-        -240,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-73up",
-      "origin": [
-        -240,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-74up",
-      "origin": [
-        -240,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-75up",
-      "origin": [
-        -192,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-76up",
-      "origin": [
-        -144,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-77up",
-      "origin": [
-        -96,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-78up",
-      "origin": [
-        -48,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-79up",
-      "origin": [
-        0,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-80up",
-      "origin": [
-        48,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-81up",
-      "origin": [
-        96,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-82up",
-      "origin": [
-        144,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-83up",
-      "origin": [
-        192,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-84up",
-      "origin": [
-        192,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-85up",
-      "origin": [
-        192,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-86up",
-      "origin": [
-        192,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-87up",
-      "origin": [
-        192,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-88up",
-      "origin": [
-        192,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-89up",
-      "origin": [
-        192,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-90up",
-      "origin": [
-        192,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-91up",
-      "origin": [
-        192,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-92up",
-      "origin": [
-        192,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-93up",
-      "origin": [
-        144,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-94up",
-      "origin": [
-        96,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-95up",
-      "origin": [
-        48,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-96up",
-      "origin": [
-        0,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-97up",
-      "origin": [
-        -48,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-98up",
-      "origin": [
-        -96,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-99up",
-      "origin": [
-        -144,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-100up",
-      "origin": [
-        -192,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
     }
   ],
+  "omittedPlacements": [
+    "swrg:10b-1",
+    "swrg:10b-2",
+    "swrg:10b-4",
+    "swrg:10b-5",
+    "swrg:10b-8",
+    "swrg:10b-13",
+    "swrg:10b-16",
+    "swrg:10b-17",
+    "swrg:10b-18",
+    "swrg:10b-21",
+    "swrg:10b-22",
+    "swrg:10b-23",
+    "swrg:10b-24",
+    "swrg:10b-27",
+    "swrg:10b-28",
+    "swrg:10b-29",
+    "swrg:10b-32",
+    "swrg:10b-33",
+    "swrg:10b-36",
+    "swrg:10b-1up",
+    "swrg:10b-2up",
+    "swrg:10b-3up",
+    "swrg:10b-4up",
+    "swrg:10b-5up",
+    "swrg:10b-8up",
+    "swrg:10b-9up",
+    "swrg:10b-12up",
+    "swrg:10b-13up",
+    "swrg:10b-14up",
+    "swrg:10b-15up",
+    "swrg:10b-16up",
+    "swrg:10b-17up",
+    "swrg:10b-18up",
+    "swrg:10b-21up",
+    "swrg:10b-22up",
+    "swrg:10b-23up",
+    "swrg:10b-24up",
+    "swrg:10b-27up",
+    "swrg:10b-28up",
+    "swrg:10b-29up",
+    "swrg:10b-32up",
+    "swrg:10b-33up",
+    "swrg:10b-36up",
+    "swrg:10b-37",
+    "swrg:10b-38",
+    "swrg:10b-39",
+    "swrg:10b-40",
+    "swrg:10b-41",
+    "swrg:10b-42",
+    "swrg:10b-43",
+    "swrg:10b-44",
+    "swrg:10b-45",
+    "swrg:10b-46",
+    "swrg:10b-47",
+    "swrg:10b-48",
+    "swrg:10b-49",
+    "swrg:10b-50",
+    "swrg:10b-51",
+    "swrg:10b-52",
+    "swrg:10b-53",
+    "swrg:10b-54",
+    "swrg:10b-55",
+    "swrg:10b-56",
+    "swrg:10b-57",
+    "swrg:10b-58",
+    "swrg:10b-59",
+    "swrg:10b-60",
+    "swrg:10b-61",
+    "swrg:10b-62",
+    "swrg:10b-63",
+    "swrg:10b-64",
+    "swrg:10b-65",
+    "swrg:10b-66",
+    "swrg:10b-67",
+    "swrg:10b-68",
+    "swrg:10b-69",
+    "swrg:10b-70",
+    "swrg:10b-71",
+    "swrg:10b-72",
+    "swrg:10b-73",
+    "swrg:10b-74",
+    "swrg:10b-75",
+    "swrg:10b-76",
+    "swrg:10b-77",
+    "swrg:10b-78",
+    "swrg:10b-79",
+    "swrg:10b-80",
+    "swrg:10b-81",
+    "swrg:10b-82",
+    "swrg:10b-83",
+    "swrg:10b-84",
+    "swrg:10b-85",
+    "swrg:10b-86",
+    "swrg:10b-87",
+    "swrg:10b-88",
+    "swrg:10b-89",
+    "swrg:10b-90",
+    "swrg:10b-91",
+    "swrg:10b-92",
+    "swrg:10b-93",
+    "swrg:10b-94",
+    "swrg:10b-95",
+    "swrg:10b-96",
+    "swrg:10b-97",
+    "swrg:10b-98",
+    "swrg:10b-99",
+    "swrg:10b-100",
+    "swrg:10b-37up",
+    "swrg:10b-38up",
+    "swrg:10b-39up",
+    "swrg:10b-40up",
+    "swrg:10b-41up",
+    "swrg:10b-42up",
+    "swrg:10b-43up",
+    "swrg:10b-44up",
+    "swrg:10b-45up",
+    "swrg:10b-46up",
+    "swrg:10b-47up",
+    "swrg:10b-48up",
+    "swrg:10b-49up",
+    "swrg:10b-50up",
+    "swrg:10b-51up",
+    "swrg:10b-52up",
+    "swrg:10b-53up",
+    "swrg:10b-54up",
+    "swrg:10b-55up",
+    "swrg:10b-56up",
+    "swrg:10b-57up",
+    "swrg:10b-58up",
+    "swrg:10b-59up",
+    "swrg:10b-60up",
+    "swrg:10b-61up",
+    "swrg:10b-62up",
+    "swrg:10b-63up",
+    "swrg:10b-64up",
+    "swrg:10b-65up",
+    "swrg:10b-66up",
+    "swrg:10b-67up",
+    "swrg:10b-68up",
+    "swrg:10b-69up",
+    "swrg:10b-70up",
+    "swrg:10b-71up",
+    "swrg:10b-72up",
+    "swrg:10b-73up",
+    "swrg:10b-74up",
+    "swrg:10b-75up",
+    "swrg:10b-76up",
+    "swrg:10b-77up",
+    "swrg:10b-78up",
+    "swrg:10b-79up",
+    "swrg:10b-80up",
+    "swrg:10b-81up",
+    "swrg:10b-82up",
+    "swrg:10b-83up",
+    "swrg:10b-84up",
+    "swrg:10b-85up",
+    "swrg:10b-86up",
+    "swrg:10b-87up",
+    "swrg:10b-88up",
+    "swrg:10b-89up",
+    "swrg:10b-90up",
+    "swrg:10b-91up",
+    "swrg:10b-92up",
+    "swrg:10b-93up",
+    "swrg:10b-94up",
+    "swrg:10b-95up",
+    "swrg:10b-96up",
+    "swrg:10b-97up",
+    "swrg:10b-98up",
+    "swrg:10b-99up",
+    "swrg:10b-100up"
+  ],
+  "parseErrors": [],
   "brokenPlacements": [
     {
-      "template": "swrg:10b-1",
-      "origin": [
-        -96,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-2",
-      "origin": [
-        -48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-3",
       "origin": [
         0,
         48,
         -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-4",
-      "origin": [
-        48,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-5",
-      "origin": [
-        -96,
-        48,
-        -48
       ],
       "rotation": "none",
       "mirror": "none",
@@ -2689,19 +588,6 @@
       "template": "swrg:10b-7",
       "origin": [
         0,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-8",
-      "origin": [
-        48,
         48,
         -48
       ],
@@ -2764,19 +650,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-13",
-      "origin": [
-        -96,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-14",
       "origin": [
         -48,
@@ -2795,45 +668,6 @@
         0,
         48,
         48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-16",
-      "origin": [
-        48,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-17",
-      "origin": [
-        -144,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-18",
-      "origin": [
-        -144,
-        48,
-        -96
       ],
       "rotation": "none",
       "mirror": "none",
@@ -2868,58 +702,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-21",
-      "origin": [
-        -144,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-22",
-      "origin": [
-        -144,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-23",
-      "origin": [
-        96,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-24",
-      "origin": [
-        96,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-25",
       "origin": [
         96,
@@ -2938,45 +720,6 @@
         96,
         48,
         0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-27",
-      "origin": [
-        96,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-28",
-      "origin": [
-        96,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-29",
-      "origin": [
-        -96,
-        48,
-        -144
       ],
       "rotation": "none",
       "mirror": "none",
@@ -3011,32 +754,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-32",
-      "origin": [
-        48,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-33",
-      "origin": [
-        -96,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-34",
       "origin": [
         -48,
@@ -3055,84 +772,6 @@
         0,
         48,
         96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-36",
-      "origin": [
-        48,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-1up",
-      "origin": [
-        -96,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-2up",
-      "origin": [
-        -48,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-3up",
-      "origin": [
-        0,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-4up",
-      "origin": [
-        48,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-5up",
-      "origin": [
-        -96,
-        96,
-        -48
       ],
       "rotation": "none",
       "mirror": "none",
@@ -3167,32 +806,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-8up",
-      "origin": [
-        48,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-9up",
-      "origin": [
-        -96,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-10up",
       "origin": [
         -48,
@@ -3211,97 +824,6 @@
         0,
         96,
         0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-12up",
-      "origin": [
-        48,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-13up",
-      "origin": [
-        -96,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-14up",
-      "origin": [
-        -48,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-15up",
-      "origin": [
-        0,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-16up",
-      "origin": [
-        48,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-17up",
-      "origin": [
-        -144,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-18up",
-      "origin": [
-        -144,
-        96,
-        -96
       ],
       "rotation": "none",
       "mirror": "none",
@@ -3336,58 +858,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-21up",
-      "origin": [
-        -144,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-22up",
-      "origin": [
-        -144,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-23up",
-      "origin": [
-        96,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-24up",
-      "origin": [
-        96,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-25up",
       "origin": [
         96,
@@ -3406,45 +876,6 @@
         96,
         96,
         0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-27up",
-      "origin": [
-        96,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-28up",
-      "origin": [
-        96,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-29up",
-      "origin": [
-        -96,
-        96,
-        -144
       ],
       "rotation": "none",
       "mirror": "none",
@@ -3479,32 +910,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:10b-32up",
-      "origin": [
-        48,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-33up",
-      "origin": [
-        -96,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:10b-34up",
       "origin": [
         -48,
@@ -3529,1684 +934,182 @@
       "integrity": 0.75,
       "seed": 1,
       "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-36up",
-      "origin": [
-        48,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-37",
-      "origin": [
-        -192,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-38",
-      "origin": [
-        -192,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-39",
-      "origin": [
-        -192,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-40",
-      "origin": [
-        -192,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-41",
-      "origin": [
-        -192,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-42",
-      "origin": [
-        -192,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-43",
-      "origin": [
-        -192,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-44",
-      "origin": [
-        -192,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-45",
-      "origin": [
-        144,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-46",
-      "origin": [
-        -144,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-47",
-      "origin": [
-        96,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-48",
-      "origin": [
-        -96,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-49",
-      "origin": [
-        48,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-50",
-      "origin": [
-        -48,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-51",
-      "origin": [
-        0,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-52",
-      "origin": [
-        144,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-53",
-      "origin": [
-        144,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-54",
-      "origin": [
-        144,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-55",
-      "origin": [
-        144,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-56",
-      "origin": [
-        144,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-57",
-      "origin": [
-        144,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-58",
-      "origin": [
-        144,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-59",
-      "origin": [
-        96,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-60",
-      "origin": [
-        48,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-61",
-      "origin": [
-        0,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-62",
-      "origin": [
-        -48,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-63",
-      "origin": [
-        -96,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-64",
-      "origin": [
-        -144,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-65",
-      "origin": [
-        -240,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-66",
-      "origin": [
-        -240,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-67",
-      "origin": [
-        -240,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-68",
-      "origin": [
-        -240,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-69",
-      "origin": [
-        -240,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-70",
-      "origin": [
-        -240,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-71",
-      "origin": [
-        -240,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-72",
-      "origin": [
-        -240,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-73",
-      "origin": [
-        -240,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-74",
-      "origin": [
-        -240,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-75",
-      "origin": [
-        -192,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-76",
-      "origin": [
-        -144,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-77",
-      "origin": [
-        -96,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-78",
-      "origin": [
-        -48,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-79",
-      "origin": [
-        0,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-80",
-      "origin": [
-        48,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-81",
-      "origin": [
-        96,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-82",
-      "origin": [
-        144,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-83",
-      "origin": [
-        192,
-        48,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-84",
-      "origin": [
-        192,
-        48,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-85",
-      "origin": [
-        192,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-86",
-      "origin": [
-        192,
-        48,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-87",
-      "origin": [
-        192,
-        48,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-88",
-      "origin": [
-        192,
-        48,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-89",
-      "origin": [
-        192,
-        48,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-90",
-      "origin": [
-        192,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-91",
-      "origin": [
-        192,
-        48,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-92",
-      "origin": [
-        192,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-93",
-      "origin": [
-        144,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-94",
-      "origin": [
-        96,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-95",
-      "origin": [
-        48,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-96",
-      "origin": [
-        0,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-97",
-      "origin": [
-        -48,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-98",
-      "origin": [
-        -96,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-99",
-      "origin": [
-        -144,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-100",
-      "origin": [
-        -192,
-        48,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-37up",
-      "origin": [
-        -192,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-38up",
-      "origin": [
-        -192,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-39up",
-      "origin": [
-        -192,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-40up",
-      "origin": [
-        -192,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-41up",
-      "origin": [
-        -192,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-42up",
-      "origin": [
-        -192,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-43up",
-      "origin": [
-        -192,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-44up",
-      "origin": [
-        -192,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-45up",
-      "origin": [
-        144,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-46up",
-      "origin": [
-        -144,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-47up",
-      "origin": [
-        96,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-48up",
-      "origin": [
-        -96,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-49up",
-      "origin": [
-        48,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-50up",
-      "origin": [
-        -48,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-51up",
-      "origin": [
-        0,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-52up",
-      "origin": [
-        144,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-53up",
-      "origin": [
-        144,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-54up",
-      "origin": [
-        144,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-55up",
-      "origin": [
-        144,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-56up",
-      "origin": [
-        144,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-57up",
-      "origin": [
-        144,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-58up",
-      "origin": [
-        144,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-59up",
-      "origin": [
-        96,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-60up",
-      "origin": [
-        48,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-61up",
-      "origin": [
-        0,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-62up",
-      "origin": [
-        -48,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-63up",
-      "origin": [
-        -96,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-64up",
-      "origin": [
-        -144,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-65up",
-      "origin": [
-        -240,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-66up",
-      "origin": [
-        -240,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-67up",
-      "origin": [
-        -240,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-68up",
-      "origin": [
-        -240,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-69up",
-      "origin": [
-        -240,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-70up",
-      "origin": [
-        -240,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-71up",
-      "origin": [
-        -240,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-72up",
-      "origin": [
-        -240,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-73up",
-      "origin": [
-        -240,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-74up",
-      "origin": [
-        -240,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-75up",
-      "origin": [
-        -192,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-76up",
-      "origin": [
-        -144,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-77up",
-      "origin": [
-        -96,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-78up",
-      "origin": [
-        -48,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-79up",
-      "origin": [
-        0,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-80up",
-      "origin": [
-        48,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-81up",
-      "origin": [
-        96,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-82up",
-      "origin": [
-        144,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-83up",
-      "origin": [
-        192,
-        96,
-        192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-84up",
-      "origin": [
-        192,
-        96,
-        144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-85up",
-      "origin": [
-        192,
-        96,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-86up",
-      "origin": [
-        192,
-        96,
-        48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-87up",
-      "origin": [
-        192,
-        96,
-        0
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-88up",
-      "origin": [
-        192,
-        96,
-        -48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-89up",
-      "origin": [
-        192,
-        96,
-        -96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-90up",
-      "origin": [
-        192,
-        96,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-91up",
-      "origin": [
-        192,
-        96,
-        -192
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-92up",
-      "origin": [
-        192,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-93up",
-      "origin": [
-        144,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-94up",
-      "origin": [
-        96,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-95up",
-      "origin": [
-        48,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-96up",
-      "origin": [
-        0,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-97up",
-      "origin": [
-        -48,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-98up",
-      "origin": [
-        -96,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-99up",
-      "origin": [
-        -144,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:10b-100up",
-      "origin": [
-        -192,
-        96,
-        -240
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
     }
   ],
-  "brokenAvailable": false
+  "brokenOmittedPlacements": [
+    "swrg:10b-1",
+    "swrg:10b-2",
+    "swrg:10b-4",
+    "swrg:10b-5",
+    "swrg:10b-8",
+    "swrg:10b-13",
+    "swrg:10b-16",
+    "swrg:10b-17",
+    "swrg:10b-18",
+    "swrg:10b-21",
+    "swrg:10b-22",
+    "swrg:10b-23",
+    "swrg:10b-24",
+    "swrg:10b-27",
+    "swrg:10b-28",
+    "swrg:10b-29",
+    "swrg:10b-32",
+    "swrg:10b-33",
+    "swrg:10b-36",
+    "swrg:10b-1up",
+    "swrg:10b-2up",
+    "swrg:10b-3up",
+    "swrg:10b-4up",
+    "swrg:10b-5up",
+    "swrg:10b-8up",
+    "swrg:10b-9up",
+    "swrg:10b-12up",
+    "swrg:10b-13up",
+    "swrg:10b-14up",
+    "swrg:10b-15up",
+    "swrg:10b-16up",
+    "swrg:10b-17up",
+    "swrg:10b-18up",
+    "swrg:10b-21up",
+    "swrg:10b-22up",
+    "swrg:10b-23up",
+    "swrg:10b-24up",
+    "swrg:10b-27up",
+    "swrg:10b-28up",
+    "swrg:10b-29up",
+    "swrg:10b-32up",
+    "swrg:10b-33up",
+    "swrg:10b-36up",
+    "swrg:10b-37",
+    "swrg:10b-38",
+    "swrg:10b-39",
+    "swrg:10b-40",
+    "swrg:10b-41",
+    "swrg:10b-42",
+    "swrg:10b-43",
+    "swrg:10b-44",
+    "swrg:10b-45",
+    "swrg:10b-46",
+    "swrg:10b-47",
+    "swrg:10b-48",
+    "swrg:10b-49",
+    "swrg:10b-50",
+    "swrg:10b-51",
+    "swrg:10b-52",
+    "swrg:10b-53",
+    "swrg:10b-54",
+    "swrg:10b-55",
+    "swrg:10b-56",
+    "swrg:10b-57",
+    "swrg:10b-58",
+    "swrg:10b-59",
+    "swrg:10b-60",
+    "swrg:10b-61",
+    "swrg:10b-62",
+    "swrg:10b-63",
+    "swrg:10b-64",
+    "swrg:10b-65",
+    "swrg:10b-66",
+    "swrg:10b-67",
+    "swrg:10b-68",
+    "swrg:10b-69",
+    "swrg:10b-70",
+    "swrg:10b-71",
+    "swrg:10b-72",
+    "swrg:10b-73",
+    "swrg:10b-74",
+    "swrg:10b-75",
+    "swrg:10b-76",
+    "swrg:10b-77",
+    "swrg:10b-78",
+    "swrg:10b-79",
+    "swrg:10b-80",
+    "swrg:10b-81",
+    "swrg:10b-82",
+    "swrg:10b-83",
+    "swrg:10b-84",
+    "swrg:10b-85",
+    "swrg:10b-86",
+    "swrg:10b-87",
+    "swrg:10b-88",
+    "swrg:10b-89",
+    "swrg:10b-90",
+    "swrg:10b-91",
+    "swrg:10b-92",
+    "swrg:10b-93",
+    "swrg:10b-94",
+    "swrg:10b-95",
+    "swrg:10b-96",
+    "swrg:10b-97",
+    "swrg:10b-98",
+    "swrg:10b-99",
+    "swrg:10b-100",
+    "swrg:10b-37up",
+    "swrg:10b-38up",
+    "swrg:10b-39up",
+    "swrg:10b-40up",
+    "swrg:10b-41up",
+    "swrg:10b-42up",
+    "swrg:10b-43up",
+    "swrg:10b-44up",
+    "swrg:10b-45up",
+    "swrg:10b-46up",
+    "swrg:10b-47up",
+    "swrg:10b-48up",
+    "swrg:10b-49up",
+    "swrg:10b-50up",
+    "swrg:10b-51up",
+    "swrg:10b-52up",
+    "swrg:10b-53up",
+    "swrg:10b-54up",
+    "swrg:10b-55up",
+    "swrg:10b-56up",
+    "swrg:10b-57up",
+    "swrg:10b-58up",
+    "swrg:10b-59up",
+    "swrg:10b-60up",
+    "swrg:10b-61up",
+    "swrg:10b-62up",
+    "swrg:10b-63up",
+    "swrg:10b-64up",
+    "swrg:10b-65up",
+    "swrg:10b-66up",
+    "swrg:10b-67up",
+    "swrg:10b-68up",
+    "swrg:10b-69up",
+    "swrg:10b-70up",
+    "swrg:10b-71up",
+    "swrg:10b-72up",
+    "swrg:10b-73up",
+    "swrg:10b-74up",
+    "swrg:10b-75up",
+    "swrg:10b-76up",
+    "swrg:10b-77up",
+    "swrg:10b-78up",
+    "swrg:10b-79up",
+    "swrg:10b-80up",
+    "swrg:10b-81up",
+    "swrg:10b-82up",
+    "swrg:10b-83up",
+    "swrg:10b-84up",
+    "swrg:10b-85up",
+    "swrg:10b-86up",
+    "swrg:10b-87up",
+    "swrg:10b-88up",
+    "swrg:10b-89up",
+    "swrg:10b-90up",
+    "swrg:10b-91up",
+    "swrg:10b-92up",
+    "swrg:10b-93up",
+    "swrg:10b-94up",
+    "swrg:10b-95up",
+    "swrg:10b-96up",
+    "swrg:10b-97up",
+    "swrg:10b-98up",
+    "swrg:10b-99up",
+    "swrg:10b-100up"
+  ],
+  "brokenParseErrors": [],
+  "brokenPlayerCapacity": 4,
+  "brokenAvailable": true
 }

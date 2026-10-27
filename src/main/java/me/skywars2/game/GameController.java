@@ -367,13 +367,7 @@ public final class GameController {
         if (failure != null) { tell(player, failure); return; }
         if (quick) {
             int count = online().size();
-            int[] pool = count <= 8 ? java.util.stream.IntStream.rangeClosed(1, 61).toArray()
-                    : count <= 12 ? new int[] {53,54,55,56,58,59,60,61,63}
-                    : count <= 16 ? new int[] {53,58,59,60,63}
-                    : count <= 20 ? new int[] {58,60,63} : count <= 24 ? new int[] {63} : new int[0];
-            List<MapManager.MapInfo> available = java.util.Arrays.stream(pool).mapToObj(id -> maps.info(Integer.toString(id)))
-                    .filter(m -> m != null && m.available() && m.playerCapacity() >= count
-                            && (!config.broken || maps.brokenAvailable(m.id()))).toList();
+            List<MapManager.MapInfo> available = maps.quickStartCandidates(count, config.broken);
             if (available.isEmpty()) { tell(player, text("game.quick_missing", count)); return; }
             String chosen = available.get(ThreadLocalRandom.current().nextInt(available.size())).id();
             if (!chosen.equals(readyMap) || readyBroken != config.broken) {

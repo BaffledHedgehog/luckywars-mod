@@ -8,6 +8,7 @@ resources into the Fabric mod.
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import shutil
@@ -173,54 +174,32 @@ def map_tokens() -> list[str]:
 
 
 def read_manifest(token: str, capacities: dict[str, int]) -> dict:
-    source = FUNCTIONS / f"{token}.mcfunction"
-    placements = []
-    missing = []
-    parse_errors = []
-    if source.is_file():
-        for line_number, raw in enumerate(source.read_text(encoding="utf-8").splitlines(), 1):
-            line = raw.strip()
-            if not line or line.startswith("#") or line.startswith("scoreboard "):
-                continue
-            match = PLACEMENT.match(line)
-            if not match:
-                parse_errors.append(f"{line_number}: {line}")
-                continue
-            row = match.groupdict()
-            namespace, template_id = row["id"].split(":", 1)
-            if namespace != "swrg":
-                missing.append(row["id"])
-            elif not (DEST_STRUCTURES / f"{template_id}.nbt").is_file():
-                missing.append(row["id"])
-            placements.append({
-                "template": row["id"],
-                "origin": [int(row["x"]), int(row["y"]), int(row["z"])],
-                "rotation": row["rotation"],
-                "mirror": row["mirror"],
-                "integrity": float(row["integrity"]),
-                "seed": int(row["seed"]),
-                "mode": row["mode"] or "strict",
-            })
-    else:
-        parse_errors.append(f"missing manifest: {source}")
-
+    placements, omitted, parse_errors = read_placements(token, DEST_STRUCTURES)
     capacity = sum(capacities.get(p["template"].split(":", 1)[1], 0) for p in placements)
-    broken_placements, broken_missing, broken_errors = read_placements(
+    broken_placements, broken_omitted, broken_errors = read_placements(
         f"{token}_broken", DEST_STRUCTURES
     )
+    broken_capacity = sum(capacities.get(p["template"].split(":", 1)[1], 0) for p in broken_placements)
+    available = bool(placements) and capacity >= 2 and not parse_errors
     map_info = {
         "id": token,
         "name": f"Map {token}",
         "playerCapacity": capacity,
-        "available": bool(placements) and not missing and not parse_errors,
-        "reason": "" if placements and not missing and not parse_errors else "; ".join(
-            ([("missing templates: " + ", ".join(sorted(set(missing))))] if missing else [])
-            + (["unsupported manifest: " + "; ".join(parse_errors)] if parse_errors else [])
-            + (["empty manifest"] if not placements and not parse_errors else [])
+        "available": available,
+        "reason": "" if available else "; ".join(
+            (["unsupported manifest: " + "; ".join(parse_errors)] if parse_errors else [])
+            + (["no existing template placements"] if not placements else [])
+            + ([f"fewer than two spawn markers: {capacity}"] if capacity < 2 else [])
         ),
         "placements": placements,
+        "omittedPlacements": omitted,
+        "parseErrors": parse_errors,
         "brokenPlacements": broken_placements,
-        "brokenAvailable": bool(broken_placements) and not broken_missing and not broken_errors,
+        "brokenOmittedPlacements": broken_omitted,
+        "brokenParseErrors": broken_errors,
+        "brokenPlayerCapacity": broken_capacity,
+        "brokenAvailable": available and bool(broken_placements) and not broken_errors
+                           and broken_capacity == capacity,
     }
     return map_info
 
@@ -242,8 +221,14 @@ def read_placements(token: str, structures: Path) -> tuple[list[dict], list[str]
             continue
         row = match.groupdict()
         namespace, template_id = row["id"].split(":", 1)
-        if namespace != "swrg" or not (structures / f"{template_id}.nbt").is_file():
+        if namespace != "swrg":
+            errors.append(f"{line_number}: unsupported template namespace: {row['id']}")
+            continue
+        # Author-confirmed unused Glekocode lines: a failed source /place is a
+        # no-op and subsequent existing template commands still execute.
+        if not (structures / f"{template_id}.nbt").is_file():
             missing.append(row["id"])
+            continue
         placements.append({
             "template": row["id"],
             "origin": [int(row["x"]), int(row["y"]), int(row["z"])],
@@ -275,20 +260,28 @@ def diagnose_loot() -> list[str]:
 
 
 def main() -> None:
-    if not MAPS.is_dir() or not FUNCTIONS.is_dir() or not LOOT.is_dir():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--maps-only", action="store_true",
+                        help="refresh map manifests/catalog/diagnostics without copying NBT or loot")
+    args = parser.parse_args()
+    if not FUNCTIONS.is_dir() or (not args.maps_only and (not MAPS.is_dir() or not LOOT.is_dir())):
         raise SystemExit(f"Legacy datapack source directories not found under {LEGACY}")
-    DEST_STRUCTURES.mkdir(parents=True, exist_ok=True)
-    DEST_LOOT.mkdir(parents=True, exist_ok=True)
+    if args.maps_only and not DEST_STRUCTURES.is_dir():
+        raise SystemExit(f"Imported structures required for --maps-only: {DEST_STRUCTURES}")
     DEST_MANIFESTS.mkdir(parents=True, exist_ok=True)
 
-    nbt_count = copy_tree_files(MAPS, DEST_STRUCTURES, ".nbt")
+    nbt_count = loot_count = 0
     loot_schema_stats: dict[str, int] = {}
-    loot_count = copy_tree_files(LOOT, DEST_LOOT, ".json", loot_schema_stats)
-    empty_legacy_loot = LOOT / "locked_suffix_tournament.json"
-    skipped_target = DEST_LOOT / "locked_suffix_tournament.json"
-    if empty_legacy_loot.is_file() and empty_legacy_loot.stat().st_size == 0 and skipped_target.is_file() and skipped_target.stat().st_size == 0:
-        skipped_target.unlink()
-        print(f"Removed stale empty imported loot table {skipped_target}")
+    if not args.maps_only:
+        DEST_STRUCTURES.mkdir(parents=True, exist_ok=True)
+        DEST_LOOT.mkdir(parents=True, exist_ok=True)
+        nbt_count = copy_tree_files(MAPS, DEST_STRUCTURES, ".nbt")
+        loot_count = copy_tree_files(LOOT, DEST_LOOT, ".json", loot_schema_stats)
+        empty_legacy_loot = LOOT / "locked_suffix_tournament.json"
+        skipped_target = DEST_LOOT / "locked_suffix_tournament.json"
+        if empty_legacy_loot.is_file() and empty_legacy_loot.stat().st_size == 0 and skipped_target.is_file() and skipped_target.stat().st_size == 0:
+            skipped_target.unlink()
+            print(f"Removed stale empty imported loot table {skipped_target}")
 
     capacities = spawn_counts()
     manifests = [read_manifest(token, capacities) for token in map_tokens()]
@@ -300,24 +293,31 @@ def main() -> None:
         json.dumps({"maps": manifests}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
     )
 
-    loot_diagnostics = diagnose_loot()
+    diagnostic_path = DEST_MANIFESTS / "resource_diagnostics.json"
+    diagnostics = json.loads(diagnostic_path.read_text(encoding="utf-8")) if args.maps_only and diagnostic_path.is_file() else {}
+    if not args.maps_only:
+        diagnostics.update(unresolvedLootReferences=diagnose_loot(), lootCompatibility=LOOT_COMPATIBILITY_NOTES)
     map_diagnostics = [
         f"map {entry['id']} unavailable: {entry['reason']}"
         for entry in manifests if not entry["available"]
     ]
-    (DEST_MANIFESTS / "resource_diagnostics.json").write_text(
-        json.dumps({"unresolvedLootReferences": loot_diagnostics, "unavailableMaps": map_diagnostics,
-                    "lootCompatibility": LOOT_COMPATIBILITY_NOTES},
-                   ensure_ascii=False, indent=2) + "\n",
+    diagnostics.update(unavailableMaps=map_diagnostics,
+                       omittedMapPlacements={entry["id"]: {
+                           "normal": entry["omittedPlacements"], "broken": entry["brokenOmittedPlacements"]
+                       } for entry in manifests if entry["omittedPlacements"] or entry["brokenOmittedPlacements"]})
+    diagnostic_path.write_text(
+        json.dumps(diagnostics, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8", newline="\n",
     )
     available = [m["id"] for m in manifests if m["available"]]
-    print(f"Imported {nbt_count} NBT structures, {loot_count} swrg loot tables")
-    print("Migrated loot schema fields: " + ", ".join(
-        f"{name}={amount}" for name, amount in sorted(loot_schema_stats.items())
-    ))
+    if not args.maps_only:
+        print(f"Imported {nbt_count} NBT structures, {loot_count} swrg loot tables")
+        print("Migrated loot schema fields: " + ", ".join(
+            f"{name}={amount}" for name, amount in sorted(loot_schema_stats.items())
+        ))
     print(f"Available maps ({len(available)}): {', '.join(available)}")
-    print(f"Unresolved loot references: {len(loot_diagnostics)}; incomplete maps: {len(map_diagnostics)}")
+    print(f"Unresolved loot references: {len(diagnostics.get('unresolvedLootReferences', []))}; unavailable maps: {len(map_diagnostics)}")
+    print(f"Omitted unused source references: {sum(len(m['omittedPlacements']) + len(m['brokenOmittedPlacements']) for m in manifests)}")
 
 
 if __name__ == "__main__":

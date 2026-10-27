@@ -2,8 +2,8 @@
   "id": "8b",
   "name": "Map 8b",
   "playerCapacity": 8,
-  "available": false,
-  "reason": "missing templates: swrg:8b-17, swrg:8b-22, swrg:8b-23, swrg:8b-28",
+  "available": true,
+  "reason": "",
   "placements": [
     {
       "template": "swrg:8b-1",
@@ -214,19 +214,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:8b-17",
-      "origin": [
-        -144,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:8b-18",
       "origin": [
         -144,
@@ -279,32 +266,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:8b-22",
-      "origin": [
-        -144,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:8b-23",
-      "origin": [
-        96,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:8b-24",
       "origin": [
         96,
@@ -349,19 +310,6 @@
         96,
         48,
         48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 1.0,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:8b-28",
-      "origin": [
-        96,
-        48,
-        96
       ],
       "rotation": "none",
       "mirror": "none",
@@ -474,6 +422,13 @@
       "mode": "strict"
     }
   ],
+  "omittedPlacements": [
+    "swrg:8b-17",
+    "swrg:8b-22",
+    "swrg:8b-23",
+    "swrg:8b-28"
+  ],
+  "parseErrors": [],
   "brokenPlacements": [
     {
       "template": "swrg:8b-1",
@@ -684,19 +639,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:8b-17",
-      "origin": [
-        -144,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:8b-18",
       "origin": [
         -144,
@@ -749,32 +691,6 @@
       "mode": "strict"
     },
     {
-      "template": "swrg:8b-22",
-      "origin": [
-        -144,
-        48,
-        96
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:8b-23",
-      "origin": [
-        96,
-        48,
-        -144
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
       "template": "swrg:8b-24",
       "origin": [
         96,
@@ -819,19 +735,6 @@
         96,
         48,
         48
-      ],
-      "rotation": "none",
-      "mirror": "none",
-      "integrity": 0.75,
-      "seed": 1,
-      "mode": "strict"
-    },
-    {
-      "template": "swrg:8b-28",
-      "origin": [
-        96,
-        48,
-        96
       ],
       "rotation": "none",
       "mirror": "none",
@@ -944,5 +847,13 @@
       "mode": "strict"
     }
   ],
-  "brokenAvailable": false
+  "brokenOmittedPlacements": [
+    "swrg:8b-17",
+    "swrg:8b-22",
+    "swrg:8b-23",
+    "swrg:8b-28"
+  ],
+  "brokenParseErrors": [],
+  "brokenPlayerCapacity": 8,
+  "brokenAvailable": true
 }

@@ -803,6 +803,12 @@ public final class GameChecks {
                                 case "sauvojen-meditation" -> { SauvojenMeditationChecks.run(game); return; }
                                 case "sauvojen-academy-nuclear-queue" -> { SauvojenAcademyChecks.nuclearQueue(game); return; }
                                 case "shared-status-hud" -> { SharedStatusHudChecks.run(game); return; }
+                                case "map-capacity" -> { MapCapacityChecks.run(game); return; }
+                                case "map-capacity-menu" -> { MapCapacityChecks.menu(game); return; }
+                                case "map-capacity-crowd" -> { MapCapacityChecks.crowd(game); return; }
+                                case "map-capacity-crowd-24" -> { MapCapacityChecks.begin(game,24); return; }
+                                case "map-capacity-match" -> { MapCapacityChecks.match(game); return; }
+                                case "map-capacity-cleanup" -> { MapCapacityChecks.cleanup(game); return; }
                                 case "sauvojen-stars" -> { SauvojenStarChecks.run(game); return; }
                                 case "sauvojen-academy-stop-probe" -> { SauvojenAcademyChecks.stopProbe(game); return; }
                                 case "sauvojen-academy-cleanup" -> { SauvojenAcademyChecks.cleanup(game); require(game.items().sauvojen().meditation().count()==0 && game.items().sauvojen().stars().count()==0,"combined Sauvojen meditation and star helpers clear after actual stop"); return; }

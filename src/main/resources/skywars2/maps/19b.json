@@ -3,8 +3,13 @@
   "name": "Map 19b",
   "playerCapacity": 0,
   "available": false,
-  "reason": "empty manifest",
+  "reason": "no existing template placements; fewer than two spawn markers: 0",
   "placements": [],
+  "omittedPlacements": [],
+  "parseErrors": [],
   "brokenPlacements": [],
+  "brokenOmittedPlacements": [],
+  "brokenParseErrors": [],
+  "brokenPlayerCapacity": 0,
   "brokenAvailable": false
 }

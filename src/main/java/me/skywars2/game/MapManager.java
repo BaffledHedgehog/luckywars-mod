@@ -184,6 +184,14 @@ public final class MapManager {
         return catalog.stream().filter(entry -> entry.id().equals(id)).findFirst().orElse(null);
     }
 
+    /** Use actual imported capacity; legacy numeric pools omitted valid large maps. */
+    public List<MapInfo> quickStartCandidates(int players, boolean broken) {
+        if (players < 1) return List.of();
+        return catalog.stream().filter(map -> map.id().matches("[0-9]+")
+                && map.available() && map.playerCapacity() >= players
+                && (!broken || brokenAvailable(map.id()))).toList();
+    }
+
     public boolean busy() {
         return busy;
     }

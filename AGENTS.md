@@ -1,3 +1,22 @@
+## Map capacity and unused template references - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[Author clarification, behavior and evidence](agent_notes/MAP_CAPACITY_FIX_2026_10_27.md).
+Missing source template references are intentional unused lines (user), not missing
+intended geometry. Maps-only import now omits those no-ops and keeps existing
+placements/order/coordinates. All63visibleSkyWars cards are playable. Quick start
+uses actual catalog capacity and broken availability, including39/54/59/61/64;
+BedWars geometry does not enable unported BedWars gameplay. Empty63 has no card.
+
+Build8624ee1c passed13native results in two actual matches (119.06s):16players on
+normal59 and24players on broken64, distinct native spawns and generated chests.
+Actual map23/54menu callbacks and full23load passed. Exact506sources/1443classes/
+3215resources; all175protected author paths and31live overrides unchanged. No RP
+edits. Automatic installation supersedes Sauvojen-only0c952772, includes all prior
+fixes, and waits for running main735d9905 to stop normally. No forced stop/restart.
+Keep current ready, preceding qualified Sauvojen and installed rollback; obsolete
+16502e73/25d7466b cleanup follows verified install. No physical-client/peakTPS claim.
+This author clarification supersedes historical incomplete-map assumptions below.
+
 ## Sauvojen shared consumers and broader audit - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [Behavior, audit and native evidence](agent_notes/SAUVOJEN_SHARED_FIXES_2026_10_27.md).

@@ -214,11 +214,11 @@ public final class GameMenus {
             boolean selected = map.id().equals(config.mapId);
             OriginalGuiDesign.SourceMapButton source = OriginalGuiDesign.sourceMapButton(player, map.id(), selected);
             Runnable selectMap =
-                    map.available() && source != null
+                    source != null
                             ? () -> {
                                 MapManager.MapInfo current = maps.info(map.id());
                                 if (current == null || !current.available()) {
-                                    player.sendSystemMessage(t("maps.now_unavailable"));
+                                    player.sendSystemMessage(current == null ? t("maps.now_unavailable") : current.unavailableReason());
                                     return;
                                 }
                                 if (current.playerCapacity() > 0

@@ -318,6 +318,8 @@
       "mode": "strict"
     }
   ],
+  "omittedPlacements": [],
+  "parseErrors": [],
   "brokenPlacements": [
     {
       "template": "swrg:48-2",
@@ -632,5 +634,8 @@
       "mode": "strict"
     }
   ],
+  "brokenOmittedPlacements": [],
+  "brokenParseErrors": [],
+  "brokenPlayerCapacity": 8,
   "brokenAvailable": true
 }
