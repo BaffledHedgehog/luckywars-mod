@@ -1,3 +1,41 @@
+## Devil Sword - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](agent_notes/DEVIL_SWORD_PORT_2026_10_27.md), [exact helper source](agent_notes/ENDER_DEVIL_MELEE_SOURCE_2026_10_27.md).
+Both current/legacy vanilla wooden sword leaves now use the complete native
+accepted-hit Strength ladder. All six source helpers retain descending live
+checks, later generic helper2, lower effect layers, exact200/1tick grants and
+helper6 task award. Non-arrow/fatal/indirect admission, native self-harm/Wither,
+existing hostile credit, source components and ordinary reforge acquisition pass.
+The actual five-item inventory challenge also passes; its accessory is a matching
+criterion fixture, not proof of that accessory's own ability. No RP changes.
+
+Build5b5b67e3 passed76 suite results,8 preparation results and2 scoped setup/
+cleanup results in two actual mode1 matches (96.01s). Exact464sources /
+1291classes /3157resources match the tested JAR. Actual native connection
+scheduler updates drive both probe players; no manual player/effect/world ticks.
+HarmI deals6HP and the full200tick curse matches an independent native /effect
+control, with natural expiry/no recursive refresh. Shared Classic Melee/Late
+Swords/Fevgalea/Sauvojen, grimoire, player/projectile, Time Stop, signed effects/
+layers/FOV and firearms pass. Rejected first-run scheduler assumptions and a
+PowerShell warning/log-capture failure retain exact evidence; production stayed
+unchanged. Physical client pixels/audio, latency and peakTPS remain unobserved.
+
+Installer11424 adopted5b5b67e3 over pendingd039db36 and waits for normal main
+shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825; no forced
+stop/restart. Ready:build/verification/skywars2-devil-sword-5b5b67e3.jar.
+Evidence/live receipt:build/verification/devil-sword/. Keep5b5b67e3,d039db36
+and installed1a8a3825; obsolete8a94c831 retired. Cumulative cleanup334JARs /
+11944468666bytes. All175 protected author paths and31 live grimoire overrides
+are byte-exact. TPS compensation remains feasibility-only and is not implemented.
+
+Next: [reactive inventory source preparation](agent_notes/REACTIVE_INVENTORY_SOURCE_2026_10_27.md)
+for mystical:2 and Sand Amulet. Inspect actual existing LbcMagic support before
+claiming or duplicating an artifact family. Ender and
+[Antimagic/Omen](agent_notes/ANTIMAGIC_OMEN_MELEE_SOURCE_2026_10_27.md) remain unenabled
+pending nearby-HurtTime target choices, alongside earlier Piston/Chaos, Gravity
+and Epic/Fragment questions in [PENDING_QUESTIONS.md](agent_notes/PENDING_QUESTIONS.md).
+These notes supersede historical remaining-work lists below.
+
 ## Feeding, Vampire and Sea Guardian - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](agent_notes/CLASSIC_MELEE_PORT_2026_10_27.md), [exact source](agent_notes/CLASSIC_MELEE_SOURCE_2026_10_27.md).

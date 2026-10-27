@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/devil_sword.json', 'data/lbc/loot_table/ported/legacy_devil_sword.json'
     include 'data/lbc/loot_table/ported/feeding_sword.json', 'data/lbc/loot_table/ported/legacy_feeding_sword.json', 'data/lbc/loot_table/ported/vampire_fang.json', 'data/lbc/loot_table/ported/legacy_vampire_fang.json', 'data/lbc/loot_table/ported/guardian_sword.json'
     include 'data/lbc/loot_table/ported/triple_golden_sword.json', 'data/lbc/loot_table/ported/blazefire_sword.json', 'data/lbc/loot_table/ported/kara_slab.json', 'data/lbc/loot_table/ported/kara_weathered_slab.json', 'data/lbc/loot_table/ported/kara_exposed_slab.json', 'data/lbc/loot_table/kit/blazefire.json'
     include 'data/lbc/loot_table/ported/fevgalea_star.json', 'data/skywars2/recipe/fevgalea_star.json'

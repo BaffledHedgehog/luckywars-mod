@@ -152,6 +152,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.items().chargedSwords().damaged(entity, damage);
             if (game != null) game.items().karaSlabs().damaged(entity, damage);
             if (game != null) game.items().classicMelee().damaged(entity, damage);
+            if (game != null) game.items().devilSword().damaged(entity, damage);
             if (game != null && damage.getEntity() instanceof ServerPlayer owner) game.items().fartus().melee(owner,entity,damage);
             if (game != null) game.items().wtf().melee(entity,damage);
             if (game != null) { game.items().specialTools().melee(entity,damage); game.items().specialTools().died(entity,damage); }

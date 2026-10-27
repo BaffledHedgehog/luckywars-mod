@@ -773,6 +773,7 @@ public final class GameChecks {
                                 case "classic-melee-menu" -> { ClassicMeleeChecks.setup(game); return; }
                                 case "classic-melee-lobby-cleanup" -> { ClassicMeleeChecks.cleanupLobby(game); return; }
                                 case "classic-melee" -> { ClassicMeleeChecks.run(game); return; }
+                                case "devil-sword" -> { DevilSwordChecks.run(game); return; }
                                 case "late-swords" -> { LateSwordChecks.run(game); return; }
                                 case "late-swords-stop-probe" -> { LateSwordChecks.stopProbe(game); return; }
                                 case "late-swords-cleanup" -> { LateSwordChecks.cleanup(game); return; }
@@ -1276,6 +1277,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            DevilSwordChecks.tick(game);
             MapLightingChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

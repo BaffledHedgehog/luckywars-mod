@@ -1,0 +1,69 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:wooden_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:item_model": "lbc:devilsword",
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "edkoedkoedkodaerisaiwisjfijf",
+                    "amount": 0,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "devil_sword",
+                  "color": "dark_red",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "devil_sword_old.lore.1",
+                  "italic": false,
+                  "color": "red"
+                },
+                {
+                  "translate": "devil_sword_old.lore.2",
+                  "italic": false,
+                  "color": "red"
+                },
+                {
+                  "translate": "devil_sword_old.lore.3",
+                  "italic": false,
+                  "color": "red"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{heal:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -136,3 +136,15 @@ shutdown; main disk remains1a8a3825. Cumulative removal:333JARs /
 11,904,757,830bytes. Exact qualification, installer and cleanup receipt:
 `build/verification/classic-melee/`. Current build/libs and protected author
 files remain; no running main JAR was replaced and no restart was forced.
+
+## Devil Sword ready checkpoint (27 October2026)
+
+Build5b5b67e3 passed76 suite results,8 preparation results and2 scoped setup/
+cleanup results in two actual matches. Verified obsolete Late Swords archive
+8a94c831 was removed (39,710,836bytes). Keep new Devil Sword5b5b67e3,
+preceding Classic Meleed039db36 and exact installed signed-effects1a8a3825
+fallback. Installer11424 adopted the new qualified request and waits for normal
+main shutdown; main disk remains1a8a3825. Cumulative removal:334JARs /
+11,944,468,666bytes. Exact qualification, installer and cleanup receipt:
+`build/verification/devil-sword/`. Current build/libs, small failure evidence,
+native audit tools and protected author files remain; no main restart was forced.
