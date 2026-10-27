@@ -1,3 +1,14 @@
+## Bulk Carpet player command ? QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+`/player spawn harus 15` requests native Carpet players harus1..harus15, skips
+online names and validates all generated names before spawning. Operator-only,
+optional Carpet integration; ordinary named player commands are preserved.
+[Contract and proof](agent_notes/BULK_PLAYER_COMMAND_2026_10_27.md).
+Build4fa80764 passed14batch checks and10fixture results in two actual mode1matches
+(71.27s).507sources/1445classes/3216resources verified;175author paths/31overrides
+unchanged. Normal shutdown/restoration passed. Main735d9905still runs; auto install
+supersedes antigravity-only7a747d86 without forced stop/restart. No RP changes.
+
 ## Antigravity input and floor repair - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [Cause, transport, native proof and limits](agent_notes/ANTIGRAVITY_INPUT_FIX_2026_10_27.md).

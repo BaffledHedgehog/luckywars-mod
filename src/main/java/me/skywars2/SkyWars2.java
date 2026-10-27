@@ -345,6 +345,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
+            me.skywars2.game.BulkPlayerCommand.register(dispatcher);
             var root = Commands.literal("sw").executes(ctx -> {
                 if (game != null) game.menus().open(ctx.getSource().getPlayerOrException()); return 1;
             });
