@@ -1,3 +1,20 @@
+## Core item and XP merging - QUALIFIED, AUTO INSTALL QUEUED (27 October 2026)
+
+[Settings, native implementation and evidence](agent_notes/CORE_ENTITY_MERGING_2026_10_27.md).
+Global item search now inflates2.5blocks XYZ, retaining native cadence, counts,
+components/pickup targets, display exclusions and causal trap/Metal Pipe guards.
+XP awards form one complete-value orb; nearby new orbs merge before publication
+within3blocks. Mixed denominations and legacy Count*Value remain conserved,
+with wide overflow guards, int Value persistence and safe native Mending math.
+Existing-orb scans keep native cadence; Time Stop stays shared. No global scan.
+Startup config/luckywars/core.json selects both radii; zero restores vanilla.
+Buildb54c8454 passed18results in2actual mode1matches (93.09s), exact523sources/
+1482classes/3224resources;195author paths/31live overrides unchanged. Native
+burst1000 retained one orb/all3997XP. Normal child stop/exact restoration passed.
+Installer PID15932 waits for main23a25d43 normal shutdown, without restart.
+No RP update. Live receipt: build/verification/entity-merging/main-install.json.
+Older status/artifact lists stay historical and are superseded by this entry.
+
 ## Warning bloom terrain regression - RP FIX READY (27 October 2026)
 
 [Cause, exact correction and GPU evidence](agent_notes/WARNING_BLOOM_FIX_2026_10_27.md).

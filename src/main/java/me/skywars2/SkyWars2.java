@@ -43,6 +43,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
     @Override
     public void onInitializeServer() {
         // Здесь связываются жизненный цикл сервера, игровые события и команды; состояние матча хранит контроллер.
+        CoreEntityMerging.load();
         MapManager.registerLoadingTicket();
         LbcHomes.registerTicket();
         LbcPortalDrops.registerTicket();

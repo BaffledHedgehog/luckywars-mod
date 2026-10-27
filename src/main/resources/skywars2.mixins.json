@@ -2,6 +2,9 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "CoreEntityMergeMixin$Items",
+    "CoreEntityMergeMixin$Orbs",
+    "CoreEntityMergeMixin$Level",
     "DeathCompassWardenMixin",
     "TpsAttackMixin",
     "TpsMiningMixin",
