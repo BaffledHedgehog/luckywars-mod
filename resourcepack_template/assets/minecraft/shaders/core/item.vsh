@@ -41,6 +41,7 @@ layout(location = 9) flat out int zoneMaterial;
 layout(location = 10) out vec3 zoneRelativePosition;
 layout(location = 11) out float meditationWarningFade;
 layout(location = 12) out float meditationWarningProgress;
+layout(location = 13) out vec2 meditationWarningQuadCoord;
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
@@ -58,6 +59,12 @@ void main() {
     #endif
 
     texCoord0 = UV0;
+    // Native item quads retain four sequential vertex indices, even with sorted OIT indices.
+    // This local coordinate is independent of atlas placement and sprite resolution.
+    int warningCorner = gl_VertexIndex & 3;
+    meditationWarningQuadCoord = vec2(
+        (warningCorner == 2 || warningCorner == 3) ? 1.0 : 0.0,
+        (warningCorner == 1 || warningCorner == 2) ? 1.0 : 0.0);
     #ifdef GLINT
     #ifdef GLINT_SPECIAL
     texCoordGlint = (TextureMat * vec4(UV3, 0.0, 1.0)).xy;

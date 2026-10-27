@@ -1,5 +1,14 @@
 # Meditation warning displays (26.3)
 
+## Update: analytic arena ring, 27 October 2026
+
+The latest ring fix requires the ring model PLUS the three shader files together.
+Follow [MEDITATION_RING_README.md](MEDITATION_RING_README.md); the earlier
+three-file countdown update below is historical. The existing ring marker,
+palette, alpha, scale and movement are unchanged. Ring coverage now comes from
+local quad coordinates and screen derivatives, with only the facing side drawn.
+No texture, post-chain, bloom-sampler or server-JAR change is required.
+
 ## Update: continuous red countdown and electric walls, 27 October 2026
 
 For an already updated pack, copy ONLY these three prepared files to the same
@@ -63,7 +72,7 @@ Beam world scale `(thickness*16, thickness*16, length)` gives its width and
 length; rotate +Z toward the destination. Annulus scale `(30,1,30)` gives the
 10..15-block radial band. Wall scale `(width,height,1)`; cube scale `(size,size,size)`;
 sphere scale `(diameter,diameter,diameter)`. Scale sphere geometry over time to
-expand it. Ring uses 96 overlapping flat sectors; sphere uses 48 longitudes by
+expand it. Ring uses one double-sided plane and an analytic annulus mask; sphere uses 48 longitudes by
 24 latitudes of rotated tangent patches (1152 elements, 2304 faces). Both are
 actual world geometry, visible from inside/outside, with no screen-facing proxy.
 Sphere patches overlap slightly at seams to close the surface; tiny seams and

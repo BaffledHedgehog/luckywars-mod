@@ -31,6 +31,7 @@ layout(location = 9) flat in int zoneMaterial;
 layout(location = 10) in vec3 zoneRelativePosition;
 layout(location = 11) in float meditationWarningFade;
 layout(location = 12) in float meditationWarningProgress;
+layout(location = 13) in vec2 meditationWarningQuadCoord;
 
 #ifndef OIT_ALPHA_ONLY
 layout(location = 0) out vec4 fragColor;
@@ -77,6 +78,11 @@ void main() {
     vec4 color = isMeditationWarning
         ? vec4(lbc_meditation_warning_color(rawColor, meditationWarningProgress), meditationBase * clamp(meditationWarningFade, 0.0, 1.0) * ColorModulator.a)
         : (isZoneBorder ? vec4(1.0, 0.0, 0.0, 26.0 / 255.0) : rawColor);
+    if (lbc_meditation_warning_is_ring(rawColor)) {
+        // Double-sided model: draw only the facing quad, also on no-cull layers.
+        if (!gl_FrontFacing) discard;
+        color.a *= lbc_meditation_warning_ring_coverage(meditationWarningQuadCoord);
+    }
     if (isZoneBorder) {
         color.a *= lbc_zone_window(zoneRelativePosition);
         if (color.a <= 0.0) discard;

@@ -1,3 +1,19 @@
+## Stone-arena ring - RESOURCE PACK UPDATE READY (27 October 2026)
+
+[Four-file application instructions](resourcepack_template/MEDITATION_RING_README.md),
+[diagnosis and GPU proof](agent_notes/MEDITATION_RING_2026_10_27.md).
+The authored pack had96overlapping coplanar sectors. Lighting was already bypassed
+and display shadow already0. New ring model uses one double-sided plane; exact
+existing marker selects analytic annulus coverage with derivative antialiasing.
+Only facing side contributes even on no-cull layers. Existing ring radii/color/
+alpha/fade/interpolation remain. Apply model + item.vsh + item.fsh + warning
+include TOGETHER; author pack remains read-only. No Java or main-JAR change;
+installed server stays746e62aa. Current shaders were read before preparing assets.
+Actual item shaders pass8GPU compile/link variants plus top/bottom/oblique,
+atlas offsets/native quad indices, cull/no-cull and additive contribution tests,
+fullbright/fade and11unchanged materials. No physical-client capture claimed.
+Evidence: build/verification/meditation-ring/. Earlier notes stay historical.
+
 ## Jammer audit and author decisions - QUALIFIED, INSTALLED (27 October 2026)
 
 [Author rulings and next questions](agent_notes/JAMMER_QUESTIONS.md),

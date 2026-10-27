@@ -15,6 +15,20 @@ float lbc_meditation_warning_base_alpha(vec4 rawColor) {
     return -1.0;
 }
 
+// Exact existing ring marker: all other item/terrain materials keep their path.
+bool lbc_meditation_warning_is_ring(vec4 rawColor) {
+    return all(equal(ivec4(round(rawColor * 255.0)), ivec4(43, 216, 147, 252)));
+}
+
+// A single world-space plane, outer radius .5 and inner radius 1/3.
+// Screen derivatives keep its silhouette smooth at oblique angles and distance.
+float lbc_meditation_warning_ring_coverage(vec2 quadCoord) {
+    float radius = length(quadCoord - vec2(0.5));
+    float edge = max(1.0 / 3.0 - radius, radius - 0.5);
+    float antialias = max(fwidth(radius) * 0.5, 0.000001);
+    return 1.0 - smoothstep(-antialias, antialias, edge);
+}
+
 // Only exact raw red-beam texture markers participate. Never sample terrain
 // or the composited scene for countdown colors. Fade is carried independently.
 vec3 lbc_meditation_warning_color(vec4 rawColor, float progress) {
