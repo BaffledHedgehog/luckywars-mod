@@ -1,3 +1,15 @@
+## Metasola strict terrain and player input - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[Cause, source parity, native proof and limits](agent_notes/METASOLA_REPAIR_2026_10_27.md).
+Radiant uses actual native strict818flags through shared resident placement;
+source integrity0.1 and exact4945cell mask remain. Vector forces are70percent,
+with additive player impulse instead of absolute motion that erased jumps.
+No explosion logic, visible explosion effects, teleport or client mod is added.
+Buildfe61bfdb passed30results in2actual mode1matches (61.58s); exact508sources/
+1446classes/3216resources,175author paths/31live overrides unchanged. No RP.
+Normal child shutdown/restoration passed. Main735d9905still runs; automatic
+installation supersedes bulk-only4fa80764 without forced stop/restart.
+
 ## Bulk Carpet player command ? QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 `/player spawn harus 15` requests native Carpet players harus1..harus15, skips

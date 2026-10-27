@@ -231,23 +231,97 @@ public final class SoulhunterChecks {
             // These probes advance the public field dispatch rather than writing private ages.
             var damage=souls.spawn(owner,at,Vec3.ZERO,1);var enemy=cow(at.add(0,0,3));for(int i=0;i<99;i++)souls.tickField(damage);require(enemy.getHealth()==20,"damage warmup99 ticks / age179 harmless");souls.tickField(damage);require(enemy.getHealth()==16&&enemy.getKillCredit()==owner,"type1 native magic4 at boundary200");souls.unloaded(damage.pig);
             var manaField=souls.spawn(owner,at,Vec3.ZERO,4);mana.set(owner,100);for(int i=0;i<39;i++)souls.tickField(manaField);require(mana.get(owner)==100,"mana warmup39 harmless");souls.tickField(manaField);require(mana.get(owner)==500,"mana field sets500 at40");mana.set(owner,600);souls.tickField(manaField);require(mana.get(owner)==600,"mana field leaves above500");souls.unloaded(manaField.pig);
-            var lift=souls.spawn(owner,at,Vec3.ZERO,3);owner.setDeltaMovement(Vec3.ZERO);for(int i=0;i<99;i++)souls.tickField(lift);require(owner.getDeltaMovement().lengthSqr()==0,"lift warmup99 harmless");souls.tickField(lift);require(Math.abs(owner.getDeltaMovement().y-.08)<1e-10&&owner.getDeltaMovement().horizontalDistanceSqr()>0,"type3 WILD applies to caster with lateral/up/forward motion");souls.unloaded(lift.pig);
+            var lift=souls.spawn(owner,at,Vec3.ZERO,3);owner.setDeltaMovement(Vec3.ZERO);for(int i=0;i<99;i++)souls.tickField(lift);require(owner.getDeltaMovement().lengthSqr()==0,"lift warmup99 harmless");souls.tickField(lift);require(owner.getDeltaMovement().distanceToSqr(new Vec3(.074*.7,.08*.7,.08*.7))<1e-10,"type3 WILD caster receives exactly70percent lateral/up/forward motion");souls.unloaded(lift.pig);
             owner.removeAllEffects();var shield=souls.spawn(owner,at,Vec3.ZERO,6);for(int i=0;i<99;i++)souls.tickField(shield);require(!owner.hasEffect(MobEffects.RESISTANCE),"shield warmup99 harmless");souls.tickField(shield);require(owner.hasEffect(MobEffects.RESISTANCE)&&owner.getEffect(MobEffects.RESISTANCE).getAmplifier()==4&&mana.score(owner,"void_resistance").get()>=2,"type6 native ResistanceV and void floor at100");souls.unloaded(shield.pig);
             owner.setHealth(1);var heal=souls.spawn(owner,at,Vec3.ZERO,2);for(int i=0;i<39;i++)souls.tickField(heal);require(owner.getHealth()==1,"healing warmup39 ticks / age59 harmless");souls.tickField(heal);require(owner.getHealth()>1,"native Instant HealthIII at80");souls.unloaded(heal.pig);
         }
+        void liftInput(){
+            move(owner,at.add(3,0,0));block(owner.blockPosition().below(),Blocks.STONE);
+            owner.setOnGround(true);owner.setSprinting(false);owner.setDeltaMovement(new Vec3(.13,0,-.09));
+            var connection=owner.connection;var recording=new ElementalGrimoireChecks.Recording(owner);
+            boolean sync=owner.syncVelocity,needs=owner.needsSync;
+            LbcSoulless.Field lift=null;
+            try{
+                owner.connection=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),recording,owner,
+                        new net.minecraft.server.network.CommonListenerCookie(owner.getGameProfile(),0,owner.clientInformation(),false));
+                owner.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());owner.connection.resetPosition();
+                lift=souls.spawn(owner,at,Vec3.ZERO,3);for(int i=0;i<99;i++)souls.tickField(lift);
+                owner.jumpFromGround();var jumped=owner.getDeltaMovement();require(Math.abs(jumped.y-.42)<1e-6,"native grounded vanilla jump starts before incoming field");
+                owner.syncVelocity=false;recording.packets.clear();var start=owner.position();souls.tickField(lift);
+                var force=new Vec3(-.08*.7,.08*.7,.074*.7);
+                require(owner.getDeltaMovement().distanceToSqr(jumped.add(force))<1e-10,"vortex adds exact70percent force without replacing native jump/horizontal input");
+                require(!owner.syncVelocity,"vortex avoids absolute native self-motion synchronization");
+                var packets=recording.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundExplodePacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundExplodePacket.class::cast).toList();
+                require(packets.size()==1,"one additive self force packet per field dispatch");
+                var bytes=new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),owner.registryAccess());
+                try{
+                    net.minecraft.network.protocol.game.ClientboundExplodePacket.STREAM_CODEC.encode(bytes,packets.getFirst());
+                    var wire=net.minecraft.network.protocol.game.ClientboundExplodePacket.STREAM_CODEC.decode(bytes);
+                    require(wire.playerKnockback().orElseThrow().distanceToSqr(force)<1e-12,"native encoded force remains the delta rather than accumulated server velocity");
+                    require(wire.radius()==0&&wire.blockCount()==0&&!wire.playSound()&&wire.blockParticles().isEmpty(),"native force packet has no explosion visuals/audio/block effects");
+                    var localInput=new Vec3(.29,.42,-.17);var applied=localInput.add(wire.playerKnockback().orElseThrow());
+                    require(Math.abs(applied.y-(.42+.056))<1e-7&&Math.abs(applied.x-(.29-.056))<1e-7&&Math.abs(applied.z-(-.17+.0518))<1e-7,"wire delta preserves a newer client jump and movement input");
+                    require(new Vec3(.11,-.0784,.07).add(wire.playerKnockback().orElseThrow()).y<0,"native resting downward velocity remains downward instead of creating a false airborne microhop");
+                }finally{bytes.release();}
+                require(recording.packets.stream().noneMatch(packet->packet instanceof net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket
+                        ||packet instanceof net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
+                        ||packet instanceof net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket),"field emits neither absolute motion nor teleport transport");
+                owner.connection.handleMovePlayer(new net.minecraft.network.protocol.game.ServerboundMovePlayerPacket.PosRot(start.x+.04,start.y+.42,start.z-.03,73,-19,false,false));
+                require(owner.position().distanceToSqr(start.add(.04,.42,-.03))<1e-10&&owner.getYRot()==73&&owner.getXRot()==-19,"native listener accepts rising jump/strafe/look input after vortex");
+                require(recording.packets.stream().noneMatch(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance),"native jump input does not trigger a correction");
+                other.setDeltaMovement(Vec3.ZERO);move(other,at.add(0,0,3));other.entityTags().add("sin_greed_active");
+                try{souls.tickField(lift);require(other.getDeltaMovement().lengthSqr()==0,"Greed blocks incoming vortex force");}finally{other.entityTags().remove("sin_greed_active");}
+                int age=lift.age;game.items().timeStop().begin(owner.level(),40);var previous=owner.getDeltaMovement();
+                try{souls.tickField(lift);require(lift.age==age&&owner.getDeltaMovement().equals(previous),"Time Stop pauses vortex lifetime and incoming force");}finally{game.items().timeStop().end(owner.level());}
+            }finally{if(lift!=null)souls.unloaded(lift.pig);owner.connection=connection;owner.syncVelocity=sync;owner.needsSync=needs;}
+        }
         void fireField(){
-            var source=game.server().getStructureTemplateManager().get(Identifier.parse("lbc:light_sphere_21x21")).orElseThrow();var origin=center.offset(-10,-10,-10);
+            var id=Identifier.parse("lbc:light_sphere_21x21");var source=game.server().getStructureTemplateManager().get(id).orElseThrow();var origin=center.offset(-10,-10,-10);
             var palette=new HashMap<BlockPos,net.minecraft.world.level.block.state.BlockState>();
             var settings=new net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings();
-            for(var type:List.of(Blocks.FIRE,Blocks.LAVA,Blocks.VOID_AIR))for(var cell:source.filterBlocks(origin,settings,type))palette.put(cell.pos(),cell.state());
+            int[] expectedCounts={2229,739,1977};int typeIndex=0;
+            for(var type:List.of(Blocks.FIRE,Blocks.LAVA,Blocks.VOID_AIR)){
+                var cells=source.filterBlocks(origin,settings,type);require(cells.size()==expectedCounts[typeIndex++],"exact decoded type5 mask count "+type);
+                for(var cell:cells)require(palette.put(cell.pos(),cell.state())==null,"unique source mask cell");
+            }
             require(palette.size()==4945,"source type5 exact sparse template retained");
-            for(var pos:BlockPos.betweenClosed(origin,origin.offset(20,20,20)))block(pos,Blocks.STONE);
-            var enemy=cow(at.add(0,0,3));var field=souls.spawn(owner,at,Vec3.ZERO,5);
-            for(int i=0;i<199;i++)souls.tickField(field);require(enemy.getHealth()==20,"type5 warmup199 harmless");souls.tickField(field);
-            require(enemy.isDeadOrDying()&&enemy.getKillCredit()==owner,"type5 WILD native in_fire20 inherits field owner");
-            require(Math.abs(field.pig.getY()-(at.y-.2))<1e-8,"type5 source host lowering .2");
-            int changed=0,retained=0;for(var pos:BlockPos.betweenClosed(origin,origin.offset(20,20,20))){var state=owner.level().getBlockState(pos);if(state.is(Blocks.STONE)){retained++;continue;}changed++;var expected=palette.get(pos);require(expected!=null&&(state.getBlock()==expected.getBlock()||expected.is(Blocks.FIRE)&&state.is(Blocks.AIR)),"fractional placement changes only sparse source palette cells "+pos+" actual="+state+" expected="+expected);}
-            require(changed>0&&retained>0,"one native integrity.1 placement both selects and omits cells");souls.unloaded(field.pig);
+            var blockTicks=new HashSet<BlockPos>();var fluidTicks=new HashSet<BlockPos>();
+            for(var pos:palette.keySet()){
+                if(owner.level().getBlockTicks().hasScheduledTick(pos,Blocks.FIRE))blockTicks.add(pos);
+                if(owner.level().getFluidTicks().hasScheduledTick(pos,net.minecraft.world.level.material.Fluids.LAVA))fluidTicks.add(pos);
+            }
+            // Unsupported source fire must survive the synchronous native placement boundary.
+            for(var pos:BlockPos.betweenClosed(origin,origin.offset(20,20,20)))owner.level().setBlock(pos,Blocks.AIR.defaultBlockState(),818);
+            game.maps().placeLoadedTemplateStrict(owner,id,origin,1);
+            int unsupported=0;
+            for(var pos:BlockPos.betweenClosed(origin,origin.offset(20,20,20))){
+                var actual=owner.level().getBlockState(pos);var expected=palette.get(pos);
+                // Native empty sections collapse VOID_AIR/CAVE_AIR to AIR on reads and skip air writes.
+                require(expected==null?actual.isAir():expected.isAir()?actual.isAir():actual.equals(expected),"full strict native placement preserves exact mask state "+pos+" actual="+actual+" expected="+expected);
+                if(actual.is(Blocks.FIRE)&&!actual.canSurvive(owner.level(),pos))unsupported++;
+            }
+            require(unsupported>0,"strict mask contains actual unsupported native fire");
+            noNewFireTicks(palette.keySet(),blockTicks,fluidTicks);
+            var enemy=cow(at.add(0,0,3));
+            for(int attempt=0;attempt<3;attempt++){
+                for(var pos:BlockPos.betweenClosed(origin,origin.offset(20,20,20)))owner.level().setBlock(pos,Blocks.STONE.defaultBlockState(),818);
+                var field=souls.spawn(owner,at,Vec3.ZERO,5);
+                try{
+                    for(int i=0;i<199;i++)souls.tickField(field);if(attempt==0)require(enemy.getHealth()==20,"type5 warmup199 harmless");souls.tickField(field);
+                    require(enemy.isDeadOrDying()&&enemy.getKillCredit()==owner,"type5 WILD native in_fire20 inherits field owner");
+                    require(Math.abs(field.pig.getY()-(at.y-.2))<1e-8,"type5 source host lowering .2");
+                    int changed=0,retained=0,fire=0,lava=0;
+                    for(var pos:BlockPos.betweenClosed(origin,origin.offset(20,20,20))){var state=owner.level().getBlockState(pos);if(state.is(Blocks.STONE)){retained++;continue;}changed++;var expected=palette.get(pos);require(expected!=null&&state.equals(expected),"fractional strict placement preserves every selected native source state "+pos+" actual="+state+" expected="+expected);if(state.is(Blocks.FIRE))fire++;if(state.is(Blocks.LAVA))lava++;}
+                    require(changed>0&&retained>0&&fire>0&&lava>0,"each native integrity.1 sample retains fire/lava and omits cells without a fixed selected count");
+                    noNewFireTicks(palette.keySet(),blockTicks,fluidTicks);
+                }finally{souls.unloaded(field.pig);}
+            }
+        }
+        void noNewFireTicks(Set<BlockPos> palette,Set<BlockPos> blockTicks,Set<BlockPos> fluidTicks){
+            for(var pos:palette){
+                require(blockTicks.contains(pos)||!owner.level().getBlockTicks().hasScheduledTick(pos,Blocks.FIRE),"strict placement introduces no native fire callback tick "+pos);
+                require(fluidTicks.contains(pos)||!owner.level().getFluidTicks().hasScheduledTick(pos,net.minecraft.world.level.material.Fluids.LAVA),"strict placement introduces no native lava callback tick "+pos);
+            }
         }
         void voidProtection(){
             mana.score(owner,"void_resistance").set(2);move(owner,new Vec3(at.x,-1,at.z));
@@ -277,7 +351,7 @@ public final class SoulhunterChecks {
     private static void freshItems(ServerPlayer player,Set<Entity> before){var fresh=new ArrayList<Entity>();player.level().getAllEntities().forEach(e->{if(!before.contains(e)&&(e instanceof net.minecraft.world.entity.item.ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb))fresh.add(e);});fresh.forEach(Entity::discard);}
     private record Case(String name,java.util.function.Consumer<Fixture> action){}
     public static void run(GameController game){
-        var failures=new ArrayList<String>();for(var test:List.of(new Case("presentation",Fixture::presentation),new Case("native crafts",Fixture::craft),new Case("native movement",Fixture::movement),new Case("native first melee/smash",Fixture::nativeMelee),new Case("native dash",Fixture::dash),new Case("splash/mask",Fixture::splash),new Case("support attribution",Fixture::supportAttribution),new Case("WILD ghosting",Fixture::ghosting),new Case("native Vex reward",Fixture::vexReward),new Case("six native hosts",Fixture::hosts),new Case("field boundaries",Fixture::fieldActions),new Case("type5 source template",Fixture::fireField),new Case("void protection",Fixture::voidProtection),new Case("field guards",Fixture::fieldGuards))){try(var f=new Fixture(game)){f.init();test.action.accept(f);}catch(RuntimeException error){failures.add(test.name+": "+error.getMessage());}}
+        var failures=new ArrayList<String>();for(var test:List.of(new Case("presentation",Fixture::presentation),new Case("native crafts",Fixture::craft),new Case("native movement",Fixture::movement),new Case("native first melee/smash",Fixture::nativeMelee),new Case("native dash",Fixture::dash),new Case("splash/mask",Fixture::splash),new Case("support attribution",Fixture::supportAttribution),new Case("WILD ghosting",Fixture::ghosting),new Case("native Vex reward",Fixture::vexReward),new Case("six native hosts",Fixture::hosts),new Case("field boundaries",Fixture::fieldActions),new Case("vortex native jump/input/wire",Fixture::liftInput),new Case("type5 source template",Fixture::fireField),new Case("void protection",Fixture::voidProtection),new Case("field guards",Fixture::fieldGuards))){try(var f=new Fixture(game)){f.init();test.action.accept(f);}catch(RuntimeException error){failures.add(test.name+": "+error.getMessage());}}
         require(failures.isEmpty(),String.join("; ",failures));SkyWars2.LOGGER.info("[check] PASS soulhunter (native menus/jump/item use, source mask/drop, WILD ghosting/Vex rewards, six hosts/physics and explicit field boundaries)");
     }
     private static Saved stopSaved;private static String stopEpoch;private static List<LbcSoulless.Field> stopFields;private static Set<Entity> stopBefore;

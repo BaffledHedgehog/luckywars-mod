@@ -1,3 +1,12 @@
+## Superseding correction - 27 October2026
+
+[Qualified radiant/vector repair](METASOLA_REPAIR_2026_10_27.md).
+Type3 now uses70percent force and additive player transport to preserve jumps.
+Type5 retains source integrity0.1 but now applies full native strict818write flags;
+previous knownShape-only placement could extinguish fire immediately. Historical
+qualification below predates this fix. Buildfe61bfdb passed30results in2actual
+matches and is queued for normal main shutdown installation. No RP changes.
+
 # Ordinary Soulless and six reward fields
 
 Implementation is `LbcSoulless.java`; this note does not claim runtime qualification.

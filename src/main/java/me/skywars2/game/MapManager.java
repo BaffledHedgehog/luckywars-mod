@@ -1099,9 +1099,21 @@ public final class MapManager {
         placeLoadedTemplate(owner,id,origin,integrity,net.minecraft.world.level.block.Rotation.NONE);
     }
 
+    /** Exact /place template ... strict semantics, including skipped onPlace/shape callbacks.
+     * KnownShape alone does not stop fire from removing itself during a template write. */
+    void placeLoadedTemplateStrict(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity) {
+        placeLoadedTemplate(owner,id,origin,integrity,net.minecraft.world.level.block.Rotation.NONE,
+                Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+    }
+
     /** Поворот учитывается в bounds до обрезки по загруженным чанкам; Wall использует исходную лестницу. */
     void placeLoadedTemplate(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity,
                              net.minecraft.world.level.block.Rotation rotation) {
+        placeLoadedTemplate(owner,id,origin,integrity,rotation,MAP_WRITE_FLAGS);
+    }
+
+    private void placeLoadedTemplate(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity,
+                                    net.minecraft.world.level.block.Rotation rotation,int writeFlags) {
         var level=owner.level(); var template=server.getStructureTemplateManager().get(id).orElse(null);
         if(template==null) return;
         var settings=new StructurePlaceSettings().setIgnoreEntities(true).setKnownShape(true)
@@ -1116,7 +1128,7 @@ public final class MapManager {
             for(int cz=bounds.minZ()>>4;cz<=bounds.maxZ()>>4;cz++) fullyLoaded &= level.hasChunk(cx,cz);
         if(fullyLoaded) {
             settings.setBoundingBox(new BoundingBox(bounds.minX(),lowY,bounds.minZ(),bounds.maxX(),highY,bounds.maxZ()));
-            placeMapSlice(level,template,origin,settings,seed);
+            placeMapSlice(level,template,origin,settings,seed,writeFlags);
             return;
         }
         // Ограничиваем каждую постановку загруженными чанками: template не подгружает мир ради заклинания.
@@ -1125,16 +1137,21 @@ public final class MapManager {
                 var chunkBounds=new BoundingBox(Math.max(bounds.minX(),cx*16),lowY,Math.max(bounds.minZ(),cz*16),
                         Math.min(bounds.maxX(),cx*16+15),highY,Math.min(bounds.maxZ(),cz*16+15));
                 settings.setBoundingBox(chunkBounds);
-                placeMapSlice(level,template,origin,settings,seed);
+                placeMapSlice(level,template,origin,settings,seed,writeFlags);
             }
     }
 
     /** Places a native template slice and preserves any writes under the visible lobby overlay. */
     void placeMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
                        StructurePlaceSettings settings, long seed) {
+        placeMapSlice(world,template,origin,settings,seed,MAP_WRITE_FLAGS);
+    }
+
+    private void placeMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
+                               StructurePlaceSettings settings,long seed,int writeFlags) {
         placingMapSlice = true;
         try {
-            template.placeInWorld(world, origin, origin, settings, RandomSource.create(seed), MAP_WRITE_FLAGS);
+            template.placeInWorld(world, origin, origin, settings, RandomSource.create(seed), writeFlags);
         } finally {
             placingMapSlice = false;
             try {
