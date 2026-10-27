@@ -20,6 +20,7 @@ public abstract class LbcEquipmentMixin {
             game.items().halloweenWind().jump(player);
             game.items().soulhunter().jump(player);
             game.items().mana().overload().armor().jump(player);
+            game.items().jumpArtifacts().jump(player);
         }
     }
     /** Normalize old miniguns before vanilla snapshots and applies equipment attribute modifiers. */

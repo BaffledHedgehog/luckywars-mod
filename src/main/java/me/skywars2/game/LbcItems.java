@@ -198,6 +198,7 @@ public final class LbcItems {
     private final LbcKaraSlabs karaSlabs;
     private final LbcClassicMelee classicMelee;
     private final LbcDevilSword devilSword;
+    private final LbcJumpArtifacts jumpArtifacts;
     private final LbcSheep sheep;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
@@ -771,6 +772,7 @@ public final class LbcItems {
         this.karaSlabs = new LbcKaraSlabs(game);
         this.classicMelee = new LbcClassicMelee(game);
         this.devilSword = new LbcDevilSword(game);
+        this.jumpArtifacts = new LbcJumpArtifacts(game);
         this.sheep = new LbcSheep(game,mana);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
@@ -951,6 +953,7 @@ public final class LbcItems {
     public LbcKaraSlabs karaSlabs() { return karaSlabs; }
     public LbcClassicMelee classicMelee() { return classicMelee; }
     public LbcDevilSword devilSword() { return devilSword; }
+    public LbcJumpArtifacts jumpArtifacts() { return jumpArtifacts; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }

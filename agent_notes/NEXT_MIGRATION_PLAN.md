@@ -1,3 +1,38 @@
+## Jump artifacts and vanilla Looper - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](JUMP_ARTIFACT_PORT_2026_10_27.md), [exact source](JUMP_ARTIFACT_SOURCE_2026_10_27.md).
+All three current and three old mystical3 inventory artifacts now use the actual
+native jump tail. The current impulse is preserved; new Jump Boost affects the
+next jump. Exact inventory0..40, duplicate/type order, current/old suppression,
+source effect order, signed combo layers, owner/teams/roles, no mana debit and
+source sound/particle recipients pass. All six remain exact vanilla carriers.
+Actual recipient Polymer conversion now exposes the existing Looper descriptions
+for vanilla current artifact stacks, preserves registered/old items and final
+unknown-item hiding, and round-trips to the unchanged authoritative item.
+
+Build435f3498 passed78 suite results,8 preparation results and2 setup/cleanup
+results in two actual mode1 matches (114.44s). Exact466sources /1300classes /
+3163resources match the tested JAR. Real native network scheduling proves the
+160/200tick combo expiry without manual player/effect/world ticks. Shared Devil/
+Classic Melee/Late Swords/Fevgalea/Sauvojen, grimoires, player/projectile, Time
+Stop, signed effects/layers/FOV and firearms pass. Child shutdown/restoration
+was normal. Physical pixels/audio, latency and peakTPS remain unobserved.
+No RP/template changes. TPS compensation remains feasibility-only.
+
+Installer11424 adopted435f3498 and waits for normal main shutdown/world unlock
+(24566, RCON off). Main disk remains1a8a3825; no forced stop/restart. Ready:
+build/verification/skywars2-jump-artifacts-435f3498.jar. Evidence/live receipts:
+build/verification/jump-artifacts/. Keep435f3498,5b5b67e3 and installed1a8a3825;
+obsolete d039db36 retired. Cumulative335JARs /11984214579bytes. All175 protected
+author paths and31 live grimoire overrides remain byte-exact.
+
+Next: [incoming-damage artifacts source audit](INCOMING_ARTIFACT_SOURCE_2026_10_27.md),
+which is preparation only; native event and self-harm reentrancy choices15/16
+are in [PENDING_QUESTIONS.md](PENDING_QUESTIONS.md). Earlier reactive-hit,
+Sand Amulet and sword questions remain pending. Whole legacy pools and explicit
+TMT trigger producers are not enabled by this six-variant release. These notes
+supersede historical remaining-work lists below.
+
 ## Devil Sword - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](DEVIL_SWORD_PORT_2026_10_27.md), [exact helper source](ENDER_DEVIL_MELEE_SOURCE_2026_10_27.md).

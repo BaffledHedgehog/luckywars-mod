@@ -39,9 +39,11 @@ public final class LbcSkills {
     public static void register() {
         if (registered) return;
         registered = true;
-        PolymerItemUtils.CONTEXT_ITEM_CHECK.register((stack, context) -> hidesKnowledge(context));
+        PolymerItemUtils.CONTEXT_ITEM_CHECK.register((stack, context) -> hidesKnowledge(context) || currentArtifact(stack));
         PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original, client, context) -> {
-            if (client.isEmpty() || !hidesKnowledge(context)) return client;
+            if (client.isEmpty()) return client;
+            client = projectArtifactLore(original, client, context);
+            if (!hidesKnowledge(context)) return client;
             // A callback may receive the original vanilla stack: never mutate either supplied reference.
             var projected = client.copy();
             projected.set(DataComponents.ITEM_NAME, Component.literal(UNKNOWN_ITEM));
@@ -71,6 +73,36 @@ public final class LbcSkills {
         var game = SkyWars2.game();
         // Packet encoding may run on Netty; the owner exposes only its published cosmetic snapshot.
         return player != null && game != null && game.lbc().hidesKnowledge(player);
+    }
+
+    private static boolean currentArtifact(net.minecraft.world.item.ItemInstance stack) {
+        var data = stack.get(DataComponents.CUSTOM_DATA);
+        var lore = stack.get(DataComponents.LORE);
+        if (data == null || lore == null || lore.lines().size() < 2) return false;
+        var flags = data.copyTag();
+        return artifactIndex(flags.getIntOr("mystical", 0), flags.getIntOr("type", 0)) != 0;
+    }
+
+    /** Vanilla loot carriers need the same recipient projection as the registered artifact item. */
+    private static ItemStack projectArtifactLore(ItemStack original, ItemStack client, PacketContext context) {
+        // The registered item already changed its tooltip before Polymer wrapped the rendered lines.
+        if (original.is(LbcMagic.MYSTICAL_ARTIFACT) || !currentArtifact(original)) return client;
+        var sourceLore = original.get(DataComponents.LORE);
+        var clientLore = client.get(DataComponents.LORE);
+        if (clientLore == null) return client;
+        var description = new ArrayList<Component>(sourceLore.styledLines());
+        artifactTooltip(description, original, context);
+        var expected = Component.empty().append(sourceLore.styledLines().get(1)).setStyle(PolymerItemUtils.CLEAN_STYLE);
+        var replacement = Component.empty().append(description.get(1)).setStyle(PolymerItemUtils.CLEAN_STYLE);
+        var lines = new ArrayList<Component>(clientLore.lines());
+        for (int i = 0; i < lines.size(); i++) if (lines.get(i).equals(expected)) {
+            if (lines.get(i).equals(replacement)) return client;
+            lines.set(i, replacement);
+            var projected = client.copy();
+            projected.set(DataComponents.LORE, new ItemLore(lines));
+            return projected;
+        }
+        return client;
     }
 
     /** Косметический доступ получателя: наблюдатели также могут смотреть свои выбранные билды. */
@@ -117,7 +149,7 @@ public final class LbcSkills {
         // Редкая смена доступа, не тик: полный список загруженных сущностей покрывает и крайние высоты Creative.
         for (var entity : player.level().getAllEntities()) {
             if (entity.isRemoved()) continue;
-            if (entity instanceof ItemEntity item && (allItems || item.getItem().is(LbcMagic.MYSTICAL_ARTIFACT))) {
+            if (entity instanceof ItemEntity item && (allItems || item.getItem().is(LbcMagic.MYSTICAL_ARTIFACT) || currentArtifact(item.getItem()))) {
                 if (!PlayerLookup.tracking(entity).contains(player)) continue;
                 var data = entity.getEntityData().getNonDefaultValues();
                 if (data != null) player.connection.send(new ClientboundSetEntityDataPacket(entity.getId(), data));
@@ -125,7 +157,7 @@ public final class LbcSkills {
                 ArrayList<Pair<EquipmentSlot, ItemStack>> equipment = null;
                 for (var slot : EQUIPMENT_SLOTS) {
                     var stack = living.getItemBySlot(slot);
-                    if (!stack.isEmpty() && (allItems || stack.is(LbcMagic.MYSTICAL_ARTIFACT))) {
+                    if (!stack.isEmpty() && (allItems || stack.is(LbcMagic.MYSTICAL_ARTIFACT) || currentArtifact(stack))) {
                         if (equipment == null) equipment = new ArrayList<>();
                         equipment.add(Pair.of(slot, stack));
                     }

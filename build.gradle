@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/artifact_jump_speed.json', 'data/lbc/loot_table/ported/artifact_jump_lift.json', 'data/lbc/loot_table/ported/artifact_jump_combo.json', 'data/lbc/loot_table/ported/legacy_artifact_jump_slow_falling.json', 'data/lbc/loot_table/ported/legacy_artifact_jump_levitation.json', 'data/lbc/loot_table/ported/legacy_artifact_jump_speed.json'
     include 'data/lbc/loot_table/ported/devil_sword.json', 'data/lbc/loot_table/ported/legacy_devil_sword.json'
     include 'data/lbc/loot_table/ported/feeding_sword.json', 'data/lbc/loot_table/ported/legacy_feeding_sword.json', 'data/lbc/loot_table/ported/vampire_fang.json', 'data/lbc/loot_table/ported/legacy_vampire_fang.json', 'data/lbc/loot_table/ported/guardian_sword.json'
     include 'data/lbc/loot_table/ported/triple_golden_sword.json', 'data/lbc/loot_table/ported/blazefire_sword.json', 'data/lbc/loot_table/ported/kara_slab.json', 'data/lbc/loot_table/ported/kara_weathered_slab.json', 'data/lbc/loot_table/ported/kara_exposed_slab.json', 'data/lbc/loot_table/kit/blazefire.json'

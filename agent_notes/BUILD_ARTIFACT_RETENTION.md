@@ -148,3 +148,16 @@ main shutdown; main disk remains1a8a3825. Cumulative removal:334JARs /
 11,944,468,666bytes. Exact qualification, installer and cleanup receipt:
 `build/verification/devil-sword/`. Current build/libs, small failure evidence,
 native audit tools and protected author files remain; no main restart was forced.
+
+## Jump artifacts ready checkpoint (27 October2026)
+
+Build435f3498 passed78 suite results,8 preparation results and2 scoped setup/
+cleanup results in two actual matches. Verified obsolete Classic Melee archive
+d039db36 was removed (39,745,913bytes). Keep new jump artifacts435f3498,
+preceding Devil Sword5b5b67e3 and exact installed signed-effects1a8a3825 fallback.
+Installer11424 adopted the new qualified request and waits for normal main
+shutdown; main disk remains1a8a3825. Cumulative removal:335JARs /
+11,984,214,579bytes. Exact qualification, installer and cleanup receipt:
+`build/verification/jump-artifacts/`. Current build/libs, the earlier successful
+build log, native audit tools and protected author files remain; no main restart
+was forced. The auxiliary Polymer audit JAR is not a retained mod version.
