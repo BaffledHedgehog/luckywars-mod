@@ -381,6 +381,9 @@ public final class GameChecks {
                                         }
                                 }
                                 case "respawn-island-prepare" -> { RespawnIslandChecks.prepare(game); return; }
+                                case "death-compass" -> { DeathCompassChecks.run(game); return; }
+                                case "death-compass-stop-probe" -> { DeathCompassChecks.stopProbe(game); return; }
+                                case "death-compass-cleanup" -> { DeathCompassChecks.cleanup(game); return; }
                                 case "respawn-island" -> { RespawnIslandChecks.run(game); return; }
                                 case "respawn-island-cleanup" -> { RespawnIslandChecks.cleanup(game); return; }
                                 case "lives" -> startLivesTest(game);
@@ -1306,6 +1309,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            DeathCompassChecks.tick(game);
             RespawnIslandChecks.tick(game);
             DevilSwordChecks.tick(game);
             JumpArtifactChecks.tick(game);
