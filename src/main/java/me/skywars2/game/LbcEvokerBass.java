@@ -69,10 +69,15 @@ public final class LbcEvokerBass {
                         &&game.items().wands().validTarget(e));
     }
     private void spawn(ServerPlayer owner,Vec3 position) {
-        if(!owner.level().hasChunkAt(BlockPos.containing(position)) || game.items().magic().suppressedAt(owner.level(),position))return;
+        spawnOwned(owner,position);
+    }
+    /** Shared native fang producer; callers may mark their own formation without losing its owner or lifecycle. */
+    EvokerFangs spawnOwned(ServerPlayer owner,Vec3 position) {
+        if(!owner.level().hasChunkAt(BlockPos.containing(position)) || game.items().magic().suppressedAt(owner.level(),position))return null;
         var fang=new EvokerFangs(owner.level(),position.x,position.y,position.z,0,0,owner);
         fang.entityTags().add(FANG);fang.entityTags().add("magic");game.items().markCurrentItemEpoch(fang);
-        if(owner.level().addFreshEntity(fang))fangs.add(fang);
+        if(owner.level().addFreshEntity(fang)){fangs.add(fang);return fang;}
+        return null;
     }
     void evoker(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         if(mode==1)for(var mob:mobs(owner,17)) {

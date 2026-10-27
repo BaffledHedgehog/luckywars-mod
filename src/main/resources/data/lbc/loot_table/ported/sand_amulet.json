@@ -1,0 +1,75 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:item_model": "lbc:gaara"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "sand_amulet",
+                  "color": "gold",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "accessory",
+                    "italic": false,
+                    "color": "white"
+                  }
+                ],
+                {
+                  "translate": "sand_amulet.lore.1",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "sand_amulet.lore.2",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "sand_amulet.lore.3",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,accessory:1,gaara:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

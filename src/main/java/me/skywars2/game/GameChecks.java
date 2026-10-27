@@ -780,6 +780,11 @@ public final class GameChecks {
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
                                 case "inventory-hazards" -> { InventoryHazardChecks.run(game); return; }
                                 case "passive-consumables" -> { PassiveConsumableChecks.run(game); return; }
+                                case "pending-combat" -> { PendingCombatChecks.run(game); return; }
+                                case "pending-swords" -> { PendingSwordChecks.run(game); return; }
+                                case "incoming-artifacts" -> { IncomingArtifactChecks.run(game); return; }
+                                case "reactive-artifacts" -> { ReactiveArtifactChecks.run(game); return; }
+                                case "fragment-knowledge" -> { FragmentKnowledgeChecks.run(game); return; }
                                 case "late-swords" -> { LateSwordChecks.run(game); return; }
                                 case "late-swords-stop-probe" -> { LateSwordChecks.stopProbe(game); return; }
                                 case "late-swords-cleanup" -> { LateSwordChecks.cleanup(game); return; }
@@ -1290,6 +1295,11 @@ public final class GameChecks {
             OrdinaryAccessoryChecks.tick(game);
             InventoryHazardChecks.tick(game);
             PassiveConsumableChecks.tick(game);
+            PendingCombatChecks.tick(game);
+            PendingSwordChecks.tick(game);
+            IncomingArtifactChecks.tick(game);
+            ReactiveArtifactChecks.tick(game);
+            FragmentKnowledgeChecks.tick(game);
             MapLightingChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

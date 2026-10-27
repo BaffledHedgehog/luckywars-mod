@@ -141,6 +141,10 @@ public final class LbcItems {
         karaSlabs.damaged(victim,source);
         classicMelee.damaged(victim,source);
         devilSword.damaged(victim,source);
+        pendingCombat.damaged(victim,source);
+        pendingSwords.damaged(victim,source);
+        incomingArtifacts.damaged(victim,source);
+        reactiveArtifacts.damaged(victim,source);
         if (!game.playing() && !debugItemUseWindow() || !inArena(victim) || LbcDamage.isArrowDamage(source)
                 || !(source.getEntity() instanceof ServerPlayer owner) || !active(owner)
                 || !owner.isAlive() || !inArena(owner)) return;
@@ -198,6 +202,10 @@ public final class LbcItems {
     private final LbcKaraSlabs karaSlabs;
     private final LbcClassicMelee classicMelee;
     private final LbcDevilSword devilSword;
+    private final LbcPendingCombat pendingCombat;
+    private final LbcPendingSwords pendingSwords;
+    private final LbcIncomingArtifacts incomingArtifacts;
+    private final LbcReactiveArtifacts reactiveArtifacts;
     private final LbcJumpArtifacts jumpArtifacts;
     private final LbcTraveller traveller;
     private final LbcPopit popit;
@@ -509,6 +517,7 @@ public final class LbcItems {
         hudPositive(component,"  \uE122 ",homing.curseSeconds(source),ChatFormatting.RED);
         hudPositive(component," \uE123 ",psycho.hudValue(source,"twitching"),ChatFormatting.RED);
         hudPositive(component,"  \uE129 ",curseTicks(source),ChatFormatting.RED);
+        hudPositive(component,"  \uE162 ",pendingCombat.curseSeconds(source),ChatFormatting.RED);
         // Overheaven is authored as matches remaining, not an elapsed-time estimate.
         hudPositive(component,"  \uE131 ",mana.hudValue(source,"overheaven"),ChatFormatting.GREEN);
         hudPositive(component,"  \uE135 ",kfcFood.gigaponosRemaining(source),ChatFormatting.WHITE);
@@ -777,6 +786,10 @@ public final class LbcItems {
         this.karaSlabs = new LbcKaraSlabs(game);
         this.classicMelee = new LbcClassicMelee(game);
         this.devilSword = new LbcDevilSword(game);
+        this.pendingCombat = new LbcPendingCombat(game);
+        this.pendingSwords = new LbcPendingSwords(game);
+        this.incomingArtifacts = new LbcIncomingArtifacts(game);
+        this.reactiveArtifacts = new LbcReactiveArtifacts(game);
         this.jumpArtifacts = new LbcJumpArtifacts(game);
         this.traveller = new LbcTraveller(game);
         this.popit = new LbcPopit(game);
@@ -879,6 +892,7 @@ public final class LbcItems {
         return LbcDamage.allowDamage(victim,source)
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source)
                     || (LbcTntDrops.managed(source.getDirectEntity()) || LbcCreeperDrops.managed(source.getDirectEntity())
+                        || LbcIncomingArtifacts.managed(source.getDirectEntity())
                         || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity())
                         || LbcTransformator.managed(source.getDirectEntity()) || LbcVexSword.managed(source.getDirectEntity())
                         || LbcDroneDrops.managed(source.getDirectEntity()) || LbcGodHedgehog.managed(source.getDirectEntity())
@@ -964,6 +978,10 @@ public final class LbcItems {
     public LbcKaraSlabs karaSlabs() { return karaSlabs; }
     public LbcClassicMelee classicMelee() { return classicMelee; }
     public LbcDevilSword devilSword() { return devilSword; }
+    public LbcPendingCombat pendingCombat() { return pendingCombat; }
+    public LbcPendingSwords pendingSwords() { return pendingSwords; }
+    public LbcIncomingArtifacts incomingArtifacts() { return incomingArtifacts; }
+    public LbcReactiveArtifacts reactiveArtifacts() { return reactiveArtifacts; }
     public LbcJumpArtifacts jumpArtifacts() { return jumpArtifacts; }
     public LbcTraveller traveller() { return traveller; }
     public LbcPopit popit() { return popit; }
@@ -1045,6 +1063,10 @@ public final class LbcItems {
         antDrops.loaded(entity);
         tntDrops.loaded(entity);
         inventoryHazards.loaded(entity);
+        pendingCombat.loaded(entity);
+        pendingSwords.loaded(entity);
+        incomingArtifacts.loaded(entity);
+        reactiveArtifacts.loaded(entity);
         creeperDrops.loaded(entity);
         cageDrops.loaded(entity);
         zombieTntDrops.loaded(entity);
@@ -1205,6 +1227,10 @@ public final class LbcItems {
         stalin.unloaded(entity);
         kfcRewards.entityUnloaded(entity);
         inventoryHazards.unloaded(entity);
+        pendingCombat.unloaded(entity);
+        pendingSwords.unloaded(entity);
+        incomingArtifacts.unloaded(entity);
+        reactiveArtifacts.unloaded(entity);
         magic.unloaded(entity);
         frost.unloaded(entity);
         clouds.unloaded(entity);
@@ -1615,6 +1641,10 @@ public final class LbcItems {
         traveller.tick();
         ordinaryAccessories.tick();
         classicMelee.tick();
+        pendingCombat.tick();
+        pendingSwords.tick();
+        incomingArtifacts.tick();
+        reactiveArtifacts.tick();
         inventoryHazards.tick();
         enderWiki.tick();
         prism.tick();
@@ -1720,7 +1750,7 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
@@ -1780,6 +1810,10 @@ public final class LbcItems {
         kfcFood.forget(player);
         kfcRewards.clear(player);
         inventoryHazards.forget(player);
+        pendingCombat.forget(player);
+        pendingSwords.forget(player);
+        incomingArtifacts.forget(player);
+        reactiveArtifacts.forget(player);
         indirectKills.clear(player);
         mana.forget(player);
         magic.clear(player);
@@ -1831,6 +1865,10 @@ public final class LbcItems {
         traveller.stop();
         ordinaryAccessories.stop();
         classicMelee.stop();
+        pendingCombat.stop();
+        pendingSwords.stop();
+        incomingArtifacts.stop();
+        reactiveArtifacts.stop();
         inventoryHazards.stop();
         psycho.stop();
         syringe.stop();

@@ -444,6 +444,7 @@ public final class LbcWands {
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
         if(LbcCommunism.matches(stack))return game.items().communism().use(player,hand);
         if(LbcPopit.matches(stack))return game.items().popit().use(player,hand);
+        if(LbcPendingCombat.isPiston(stack))return game.items().pendingCombat().use(player,hand);
         if(LbcSoulhunter.isMace(stack))return game.items().soulhunter().use(player,hand);
         if(LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0)return game.items().soulless().use(player,hand);
         if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
@@ -1544,6 +1545,7 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
+        if(LbcIncomingArtifacts.managed(source.getDirectEntity())) return game.items().incomingArtifacts().canAffect(source.getDirectEntity(),victim);
         if(SauvojenMeditation.managed(source.getDirectEntity())) return validTarget(victim);
         if(source instanceof LbcBabylonEffects.OwnerDamageSource||LbcVexSword.wild(source.getDirectEntity())) return validTarget(victim);
         if(LbcGodHedgehog.managed(source.getDirectEntity())

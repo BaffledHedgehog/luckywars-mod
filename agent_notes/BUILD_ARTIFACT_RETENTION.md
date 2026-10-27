@@ -229,3 +229,7 @@ evidence, auxiliary audit JAR, worlds and caches remain. Installer11424 adopted
 the new immutable qualification and waits for normal shutdown; main remains
 1a8a3825. No forced restart. Receipt:
 build/verification/passive-consumables/build-cleanup-receipt.json.
+
+## Answered swords and artifacts checkpoint -27 October2026
+
+Build736bbbc1 passed100 results in2actual matches and installed normally over95d0ec18 without restart. Keep new736bbbc1 and previous95d0ec18, which also supplies the exact installed-version rollback. Removed verified obsoleteb8cb2647 (40037602bytes) and former1a8a3825 (39326207bytes), after literal-parent/nonreparse/SHA/size/mtime checks. Both former main versions were replaced only after normal shutdown/world unlock; no old main game remains active on1a. Cumulative cleanup342JARs/12262920815bytes. Current build/libs, isolated fixture inputs and small proof manifests remain. Receipt:build/verification/answered-questions/build-cleanup-receipt.json.

@@ -146,6 +146,7 @@ public final class LbcIndirectKills {
         var controller=me.skywars2.SkyWars2.game();
         if(controller!=null && controller.items().communism().owner(source) instanceof ServerPlayer player)return player;
         var game=me.skywars2.SkyWars2.game();
+        if(game!=null && game.items().incomingArtifacts().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().cageDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().clouds().sourceAcidOwner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().electro().reflectedOwner(source)==null
@@ -396,6 +397,54 @@ public final class LbcIndirectKills {
         if(hazardWriter!=null && hazardLevel==level && hazardous(state))
             hazards.computeIfAbsent(level,ignored->new HashMap<>()).put(pos.immutable(),new Hazard(hazardWriter,state));
     }
+    /** Opaque rollback token: only exact terrain cells and potentially touched support leases. */
+    static final class TerrainProvenance {
+        private final ServerLevel level;
+        private final java.util.Set<BlockPos> cells;
+        private final Map<BlockPos,Owner> stoneBefore=new HashMap<>();
+        private final Map<BlockPos,Hazard> hazardsBefore=new HashMap<>();
+        private final java.util.Set<LivingEntity> supportTargets=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        private final Map<LivingEntity,Support> supportBefore=new java.util.IdentityHashMap<>();
+        private final Map<LivingEntity,Fall> fallsBefore=new java.util.IdentityHashMap<>();
+        private TerrainProvenance(ServerLevel level,java.util.Collection<BlockPos> cells){this.level=level;this.cells=java.util.Set.copyOf(cells);}
+    }
+    TerrainProvenance captureTerrain(ServerLevel level,java.util.Collection<BlockPos> cells){
+        var saved=new TerrainProvenance(level,cells);
+        var oldStone=stone.get(level);var oldHazards=hazards.get(level);
+        for(var pos:saved.cells){
+            if(oldStone!=null&&oldStone.containsKey(pos))saved.stoneBefore.put(pos,oldStone.get(pos));
+            if(oldHazards!=null&&oldHazards.containsKey(pos))saved.hazardsBefore.put(pos,oldHazards.get(pos));
+        }
+        // A diagonal chain must not query every entity chunk in its enclosing rectangle.
+        // Bound each query to one actual chain chunk and its own vertical extent; deduplicate edge witnesses.
+        var chunkBounds=new java.util.LinkedHashMap<net.minecraft.world.level.ChunkPos,net.minecraft.world.level.levelgen.structure.BoundingBox>();
+        for(var pos:saved.cells){
+            var chunk=new net.minecraft.world.level.ChunkPos(pos.getX()>>4,pos.getZ()>>4);
+            var bounds=chunkBounds.get(chunk);
+            if(bounds==null)chunkBounds.put(chunk,new net.minecraft.world.level.levelgen.structure.BoundingBox(pos));
+            else bounds.encapsulate(pos);
+        }
+        for(var box:chunkBounds.values()){
+            var area=new AABB(box.minX(),box.minY(),box.minZ(),box.maxX()+1,box.maxY()+1,box.maxZ()+1)
+                    .inflate(.001,.0625,.001).expandTowards(0,4,0);
+            saved.supportTargets.addAll(level.getEntitiesOfClass(LivingEntity.class,area,Entity::isAlive));
+        }
+        for(var target:saved.supportTargets){
+            var support=removedSupports.get(target);if(support!=null)saved.supportBefore.put(target,support);
+            var fall=falls.get(target);if(fall!=null)saved.fallsBefore.put(target,fall);
+        }
+        return saved;
+    }
+    /** Run after trapChanges finally: that finalizer can itself republish suffocation ownership. */
+    void restoreTerrain(TerrainProvenance saved){
+        var oldStone=stone.get(saved.level);if(oldStone!=null){saved.cells.forEach(oldStone::remove);if(oldStone.isEmpty())stone.remove(saved.level);}
+        var oldHazards=hazards.get(saved.level);if(oldHazards!=null){saved.cells.forEach(oldHazards::remove);if(oldHazards.isEmpty())hazards.remove(saved.level);}
+        if(!saved.stoneBefore.isEmpty())stone.computeIfAbsent(saved.level,ignored->new HashMap<>()).putAll(saved.stoneBefore);
+        if(!saved.hazardsBefore.isEmpty())hazards.computeIfAbsent(saved.level,ignored->new HashMap<>()).putAll(saved.hazardsBefore);
+        saved.supportTargets.forEach(removedSupports::remove);removedSupports.putAll(saved.supportBefore);
+        saved.supportTargets.forEach(falls::remove);falls.putAll(saved.fallsBefore);
+    }
+
     private static boolean hazardous(BlockState state) {
         return state.is(Blocks.FIRE) || state.is(Blocks.SOUL_FIRE) || state.is(Blocks.LAVA) || state.is(Blocks.MAGMA_BLOCK)
                 || state.is(Blocks.WATER);

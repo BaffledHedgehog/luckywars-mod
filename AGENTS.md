@@ -1,3 +1,40 @@
+## Author answers1..16 - QUALIFIED, INSTALLED (27 October2026)
+
+[Exact author decisions](agent_notes/AUTHOR_ANSWERS_2026_10_27.md),
+[complete integration and limits](agent_notes/ANSWERED_QUESTIONS_PORT_2026_10_27.md),
+[shared native review](agent_notes/ANSWERED_SHARED_REVIEW.md).
+Piston preflights the complete resident digital path before any write, preserves
+block entities/provenance on rollback, and commits native placement callbacks/
+block ticks without rectangular diagonal scans. Chaos uses the exact40 offsets.
+All seven Gravity modifiers are temporary, reapply safely and include random
+source knockback multiplier[-3,0]. Epic/Fragment retain all68 source branches,
+independent0/5/10 fang stages and approved flash audience75. Ender waits for all
+real native sweep victims, moving owner once; Antimagic/Omen/reactive target
+inputs bind actual victims without old HurtTime/radius scans.
+
+Both complete6-way current/legacy reactive and incoming artifact families are
+native. WILD100tick smoke has temporary mob range/targeting and independently
+restored blindness; raw clears never resurrect foreign effects. Incoming uses
+the actual native criterion with predeath admission, native Harm reentry,
+owner-preserving TNT children/wolves/sand and local4-damage radius1 shards.
+Looper reveals Fragment lore per recipient; the original17 inventory criterion
+is exercised.38 narrow migrated source leaves + exact minecraft:attacks tag
+are packaged. Existing tables are retained; no wider acquisition pool is added.
+Packaging/operator leaves do not prove unfinished old/IMBA/Chaos normal routes.
+Mom drop is a separate unported source producer, unrelated to JoJo Stand.
+
+Build736bbbc1 passed100 suite results +8preparation +2setup/cleanup in2actual
+mode1 matches (235.07s). Exact488sources/1398classes/
+3210resources match the tested JAR. All175 protected author paths
+and31 live overrides remain exact. No physical-client, latency or peakTPS claim.
+Evidence/receipt:build/verification/answered-questions/. Ready:build/verification/skywars2-answered-questions-736bbbc1.jar.
+Main installed normally without restart; no forced stop/restart.
+
+Question17 final Moses Speed is accepted, but full boots remain unenabled pending
+question18 sprint-counter choice. Other unanswered author decisions remain in
+PENDING_QUESTIONS.md. TPS compensation remains feasibility-only. This supersedes
+historical next-work lists below; preserve all existing (user) instructions.
+
 ## Passive consumables - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](agent_notes/PASSIVE_CONSUMABLE_PORT_2026_10_27.md), [Canned source](agent_notes/CANNED_FOOD_SOURCE_2026_10_27.md),

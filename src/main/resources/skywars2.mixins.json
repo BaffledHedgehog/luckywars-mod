@@ -177,7 +177,14 @@
     "SummonTargetAccess",
     "SyringeMobAccess$DeathLoot",
     "SyringeMobAccess$GhastPower",
-    "SyringeMobAccess$CreeperRadius"
+    "SyringeMobAccess$CreeperRadius",
+    "PendingSwordAttackMixin",
+    "IncomingArtifactCriterionMixin",
+    "IncomingArtifactCriterionMixin$HurtAttempt",
+    "IncomingArtifactCriterionMixin$SandPhysics",
+    "IncomingArtifactCriterionMixin$WolfTarget",
+    "ReactiveSmokeMixin",
+    "ReactiveSmokeMixin$Target"
   ],
   "injectors": {
     "defaultRequire": 1

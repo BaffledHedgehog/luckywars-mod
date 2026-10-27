@@ -40,6 +40,7 @@ public final class HazardPropagationMixins {
             var game=SkyWars2.game();
             if(game!=null) {
                 var authority=game.items().creeperDrops().owner(source);
+                if(authority==null) authority=game.items().incomingArtifacts().owner(source);
                 if(authority==null) authority=game.items().cageDrops().owner(source);
                 if(authority==null) authority=game.items().zombieTntDrops().owner(source);
                 if(authority==null) authority=game.items().droneDrops().owner(source);
@@ -92,6 +93,7 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().tntDrops().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().creeperDrops().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().inventoryHazards().explosionTarget(source,entity));
+                entities.removeIf(entity->!game.items().incomingArtifacts().explosionTarget(source,entity));
                 entities.removeIf(me.skywars2.game.LbcGreed::active);
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().zombieTntDrops().canAffect(source,entity));
@@ -135,6 +137,8 @@ public final class HazardPropagationMixins {
             if(godOwner!=null)return godOwner;
             var transformatorOwner=game.items().transformator().owner(blast.getDirectSourceEntity());
             if(transformatorOwner!=null) return transformatorOwner;
+            var incomingOwner=game.items().incomingArtifacts().owner(blast.getDirectSourceEntity());
+            if(incomingOwner!=null)return incomingOwner;
             var creeperOwner=game.items().creeperDrops().owner(blast.getDirectSourceEntity());
             if(creeperOwner!=null) return creeperOwner;
             var zombieOwner=game.items().zombieTntDrops().owner(blast.getDirectSourceEntity());
@@ -191,6 +195,7 @@ public final class HazardPropagationMixins {
             if(game!=null) {
                 game.items().tntDrops().inheritChain(source,spawned);
                 game.items().inventoryHazards().inheritChild(source,spawned);
+                game.items().incomingArtifacts().inheritChild(source,spawned);
                 game.items().creeperDrops().inheritChild(source,spawned);
                 game.items().cageDrops().inheritChild(source,spawned);
                 game.items().zombieTntDrops().inheritChild(source,spawned);

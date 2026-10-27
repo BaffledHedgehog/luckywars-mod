@@ -1,0 +1,60 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:gaara"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "sand_amulet",
+                  "color": "gold",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "sand_amulet.lore.1",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "sand_amulet_old.lore.2",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "sand_amulet.lore.3",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{gaara_old:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

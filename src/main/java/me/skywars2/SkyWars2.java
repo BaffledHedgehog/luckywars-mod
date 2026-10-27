@@ -153,6 +153,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.items().karaSlabs().damaged(entity, damage);
             if (game != null) game.items().classicMelee().damaged(entity, damage);
             if (game != null) game.items().devilSword().damaged(entity, damage);
+            if (game != null) game.items().pendingCombat().damaged(entity, damage);
+            if (game != null) game.items().pendingSwords().damaged(entity, damage);
+            if (game != null) game.items().incomingArtifacts().damaged(entity, damage);
+            if (game != null) game.items().reactiveArtifacts().damaged(entity, damage);
             if (game != null && damage.getEntity() instanceof ServerPlayer owner) game.items().fartus().melee(owner,entity,damage);
             if (game != null) game.items().wtf().melee(entity,damage);
             if (game != null) { game.items().specialTools().melee(entity,damage); game.items().specialTools().died(entity,damage); }
@@ -181,6 +185,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             // Original accessory/reforge stacks keep their vanilla carrier and enter the native two-hand dispatcher.
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcPendingCombat.isPiston(player.getItemInHand(hand)))
+                return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcPopit.matches(player.getItemInHand(hand)))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcChargedSwords.matches(player.getItemInHand(hand))
