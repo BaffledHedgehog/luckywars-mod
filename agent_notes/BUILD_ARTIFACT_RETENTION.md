@@ -113,3 +113,14 @@ size and timestamp checks, obsolete875fed3a was removed (39174864 bytes).
 Latest cumulative receipt supersedes the historical checkpoints above:
 323 JARs /11510486943 bytes. Evidence and receipt:
 `build/verification/sauvojen/build-cleanup-receipt.json`.
+
+## Late swords ready checkpoint (27 October2026)
+
+Build8a94c831 passed72 suite results plus8 preparation results in two actual
+matches. Verified obsolete Academy Sauvojen archivec6815dec was removed
+(39,595,426bytes). Keep new Late Swords8a94c831, preceding Fevgaleab8140165 and
+exact installed signed-effects1a8a3825 fallback. Installer11424 adopted the new
+qualified request and waits for normal main shutdown; main disk remains1a8a3825.
+Cumulative removal:332JARs /11,865,118,822bytes. Exact qualification, installer
+and cleanup receipt: `build/verification/late-swords/`. Current build/libs,
+native fixture inputs, small evidence logs and protected author files remain.

@@ -73,6 +73,14 @@
       "lockedKey": "lbc.adv.upgraded_tuntija.acid.lore"
     },
     {
+      "id": 19,
+      "page": 9000,
+      "slot": 19,
+      "table": "lbc:kit/blazefire",
+      "gate": "lbc:true_advancements/legends/academy/blazefire",
+      "lockedKey": "lbc.adv.upgraded_tuntija.blazefire.lore"
+    },
+    {
       "id": 22,
       "page": 9000,
       "slot": 22,

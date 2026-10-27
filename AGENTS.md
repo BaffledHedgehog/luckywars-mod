@@ -1,3 +1,41 @@
+## Triple Golden, Blazefire and Kara slabs - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](agent_notes/LATE_SWORDS_PORT.md), [exact sword source](agent_notes/SWORDS_PISTON_TRIPLE_BLAZE_SOURCE.md),
+[Kara/Chaos source](agent_notes/SWORDS_CHAOS_KARA_SOURCE.md).
+Three complete native families expose five scoped loot leaves. Triple retains
+shared charge8, three exact-matrix copies,1.2 flight/100 active ticks, native
+swept collision and a bounded final contact display without repeated damage.
+Blazefire retains charge9, source two-tick fire pulses after changing held item,
+unbounded loaded-world rays and source three-charge settlement. Kit19 is restored
+at page9000/slot19 with its Academy gate and existing ranked behavior. All three
+Kara slabs remain vanilla-placeable and create the source full-height0..319
+terrain fan with real container drops,100+1 child lifetime and original support/
+fatal-fall attribution. Charge HUD, independent hands, pause and stop cleanup pass.
+
+Build8a94c831 passed72 recorded suite results plus8 preparation results in two
+actual mode1 matches (76.02s). Exact460sources /1280classes /3150resources
+match the tested JAR. Shared Fevgalea/Sauvojen80/trial, grimoire, player/projectile,
+Time Stop, signed effects/layers/FOV and firearms regressions pass. Three rejected
+native runs and one constructor-API compilation failure retain their raw evidence.
+Final checks prove separate real-tick region preparation, actual target-query
+visibility and native fatal support-loss credit; Chaos tests now explicitly load
+their real emission origin. Physical pixels/audio, latency and peakTPS unobserved.
+
+Installer11424 adopted8a94c831 over pendingb8140165 and waits for normal main
+shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825; no forced
+stop/restart. Ready:build/verification/skywars2-late-swords-8a94c831.jar.
+Evidence/live receipt:build/verification/late-swords/. Keep8a94c831,b8140165 and
+installed1a8a3825; obsoletec6815dec retired. Cumulative cleanup332JARs /
+11865118822bytes. All175 protected author paths and31 live grimoire overrides
+are byte-exact. No RP/template update required; TPS compensation remains a
+feasibility question and is not implemented.
+
+Next: [classic accepted-hit melee audit](agent_notes/CLASSIC_MELEE_SOURCE_2026_10_27.md),
+starting with Feeding/Vampire/Sea Guardian. This audit is preparation, not native
+implementation. Piston/Chaos and Gravity's leaked knockback modifier await the
+choices in [PENDING_QUESTIONS.md](agent_notes/PENDING_QUESTIONS.md). These current
+remaining-work notes supersede the historical remaining-sword lists below.
+
 ## Standalone Fevgalea Star - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](agent_notes/FEVGALEA_STAR_PORT.md), [exact source audit](agent_notes/FEVGALEA_STAR_SOURCE.md).

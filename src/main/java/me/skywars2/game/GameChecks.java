@@ -768,6 +768,11 @@ public final class GameChecks {
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
                                 case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
+                                case "late-swords-prepare" -> { LateSwordChecks.prepare(game); return; }
+                                case "late-swords-preparation-cleanup" -> { LateSwordChecks.releasePreparation(game); return; }
+                                case "late-swords" -> { LateSwordChecks.run(game); return; }
+                                case "late-swords-stop-probe" -> { LateSwordChecks.stopProbe(game); return; }
+                                case "late-swords-cleanup" -> { LateSwordChecks.cleanup(game); return; }
                                 case "fevgalea-star" -> { FevgaleaStarChecks.run(game); return; }
                                 case "fevgalea-craft" -> { FevgaleaCraftChecks.run(game); return; }
                                 case "fevgalea-star-stop-probe" -> { FevgaleaStarChecks.stopProbe(game); return; }

@@ -664,6 +664,7 @@ public final class SauvojenAcademyChecks {
             var bolts=new ArrayList<Entity>();
             var managed=(Collection<?>)state(game.items().electro(),"liveBolts");
             var priorManaged=Collections.newSetFromMap(new IdentityHashMap<Object,Boolean>());priorManaged.addAll(managed);
+            net.minecraft.world.level.ChunkPos originChunk=null;boolean originForced=false;
             try {
                 // Outside build height no terrain can be destroyed; the native blast and lightning paths still execute.
                 owner.teleportTo(level,previous.x,level.getMaxY()+80,previous.z,Set.of(),yaw,pitch,true);owner.setDeltaMovement(Vec3.ZERO);
@@ -671,6 +672,11 @@ public final class SauvojenAcademyChecks {
                 level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,true,game.server());
                 game.config().tntProtection=0;
                 Vec3 origin=owner.getEyePosition().add(0,50,-60),direction=new Vec3(0,0,1),center=owner.getEyePosition().add(0,50,0);
+                // The producer origin is outside the separately proven center +/-35 cube; native admission checks both locations.
+                originChunk=new net.minecraft.world.level.ChunkPos(BlockPos.containing(origin).getX()>>4,BlockPos.containing(origin).getZ()>>4);
+                originForced=level.setChunkForced(originChunk.x(),originChunk.z(),true);
+                level.getChunkAt(BlockPos.containing(origin));
+                require(level.hasChunkAt(BlockPos.containing(origin)),"resident actual source Chaos emission origin");
                 base.recording.packets.clear();emit(stack,LbcSauvojen.Kind.AIR,11,origin,direction);
                 // The service adds an actual bolt only after addFreshEntity succeeds; outside-height sections can be absent from visible entity iteration.
                 for(var e:managed)if(!priorManaged.contains(e)&&e instanceof net.minecraft.world.entity.LightningBolt bolt&&!bolt.isRemoved()&&bolt.getCause()==owner)bolts.add(bolt);
@@ -683,9 +689,13 @@ public final class SauvojenAcademyChecks {
                 long packets=base.recording.packets.stream().filter(p->p.getClass().getSimpleName().equals("ClientboundExplodePacket")).count();
                 require(packets>0&&packets<=80&&game.items().exasperato().snapshot().isEmpty(),"source Chaos runs native immediate blasts without donor missile carrier");
             } finally{
-                var fresh=new ArrayList<Entity>();for(var e:managed)if(!priorManaged.contains(e)&&e instanceof net.minecraft.world.entity.LightningBolt bolt&&bolt.getCause()==owner)fresh.add(bolt);
-                fresh.forEach(Entity::discard);managed.removeAll(fresh);
-                clear();game.config().tntProtection=protection;level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,tnt,game.server());owner.teleportTo(level,previous.x,previous.y,previous.z,Set.of(),yaw,pitch,true);owner.setDeltaMovement(Vec3.ZERO);
+                try {
+                    var fresh=new ArrayList<Entity>();for(var e:managed)if(!priorManaged.contains(e)&&e instanceof net.minecraft.world.entity.LightningBolt bolt&&bolt.getCause()==owner)fresh.add(bolt);
+                    fresh.forEach(Entity::discard);managed.removeAll(fresh);
+                    clear();game.config().tntProtection=protection;level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,tnt,game.server());owner.teleportTo(level,previous.x,previous.y,previous.z,Set.of(),yaw,pitch,true);owner.setDeltaMovement(Vec3.ZERO);
+                } finally {
+                    if(originForced)level.setChunkForced(originChunk.x(),originChunk.z(),false);
+                }
             }
             var drone=launch(LbcSauvojen.Kind.AIR);Vec3 origin=drone.position;var target=cow(origin.add(0,0,6));
             drone.nextMode=12;drone.lifetime=10;base.recording.packets.clear();service.tick();

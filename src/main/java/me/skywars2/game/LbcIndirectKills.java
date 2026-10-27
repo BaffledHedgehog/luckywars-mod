@@ -421,6 +421,8 @@ public final class LbcIndirectKills {
         blockWrites(level,inherited!=null ? inherited : player==null ? null : new Owner(player.getUUID(),++order,friendlyFire,
                 source instanceof Projectile || source instanceof net.minecraft.world.entity.LightningBolt),writes);
     }
+    /** Moving terrain effects retain the original cast order across their child columns. */
+    void capturedWorldChanges(ServerLevel level,Owner source,Runnable writes){blockWrites(level,source,writes);}
     private void blockWrites(ServerLevel level, Owner source, Runnable writes) {
         var previous=hazardWriter; var previousLevel=hazardLevel;
         hazardWriter=source; hazardLevel=level;
