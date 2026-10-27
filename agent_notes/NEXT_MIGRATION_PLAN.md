@@ -1,3 +1,40 @@
+## Current Traveller armor - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](TRAVELLER_PORT_2026_10_27.md), [complete movement armor source](MOVEMENT_ARMOR_SOURCE_2026_10_27.md).
+All four current Traveller pieces retain their original vanilla leaves and native
+equipment attributes. Chest reads the existing prior airborne counter; helmet
+uses native one-tick Saturation and shared food_count. The full set performs six
+independent20-way cleanses and one11-way buff with exact owner-only source sounds.
+Selective Psycho/shock removal preserves unrelated statuses and manual item use.
+Equipped passives continue during active-input stun/ice under the author rule.
+
+Build17889115 passed80 suite results,8 preparation results and2 setup/cleanup
+results in two actual mode1 matches (147.37s). Exact468sources /
+1307classes /3163resources match the tested JAR. Native connection scheduling
+proves first equipment updates and the real200/300tick effect/food cadence,
+without manual player/effect/world ticks. Actual native kill-award dispatch
+validates the imported complete-set criterion; a new fatal player death is not
+claimed. Shared jump/Looper, Devil/Classic Melee/Late Swords/Fevgalea/Sauvojen,
+grimoires, player/projectile, Time Stop, signed effects/layers/FOV and firearms
+pass. Rejected fixture API, sound-window, scheduler and mana-debt assumptions
+retain exact evidence. Child shutdown/restoration was normal. Physical client
+pixels/audio, latency and peakTPS remain unobserved. No RP changes required.
+TPS compensation remains feasibility-only and is not implemented.
+
+Installer11424 adopted17889115 and waits for normal main shutdown/world unlock
+(24566, RCON off). Main disk remains1a8a3825; no forced stop/restart. Ready:
+build/verification/skywars2-traveller-17889115.jar. Evidence/live receipts:
+build/verification/movement-armor/. Keep17889115,435f3498 and installed1a8a3825;
+obsolete5b5b67e3 retired. Cumulative336JARs /12023993845bytes. All175 protected
+author paths and31 live grimoire overrides remain byte-exact.
+
+Next complete independent item: [standalone27-way Pop-It source](POPIT_SOURCE_2026_10_27.md),
+which remains preparation only. Techno, Moisei, old legacy-mode armor and the
+unestablished TNT-leggings acquisition are not enabled by this batch. Moisei
+questions17/18 join earlier artifact/sword choices in
+[PENDING_QUESTIONS.md](PENDING_QUESTIONS.md). Whole unresolved pools
+remain unenabled. These notes supersede historical remaining-work lists below.
+
 ## Jump artifacts and vanilla Looper - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](JUMP_ARTIFACT_PORT_2026_10_27.md), [exact source](JUMP_ARTIFACT_SOURCE_2026_10_27.md).

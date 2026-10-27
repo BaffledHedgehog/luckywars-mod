@@ -161,3 +161,16 @@ shutdown; main disk remains1a8a3825. Cumulative removal:335JARs /
 `build/verification/jump-artifacts/`. Current build/libs, the earlier successful
 build log, native audit tools and protected author files remain; no main restart
 was forced. The auxiliary Polymer audit JAR is not a retained mod version.
+
+## Traveller ready checkpoint (27 October2026)
+
+Build17889115 passed80 suite results,8 preparation results and2 setup/cleanup
+results in two actual matches. Verified obsolete Devil Sword archive5b5b67e3
+was removed (39,779,266bytes). Keep current Traveller17889115, preceding jump
+artifacts435f3498 and exact installed signed-effects1a8a3825 fallback.
+Installer11424 adopted the new qualified request and waits for normal main
+shutdown; main disk remains1a8a3825. Cumulative removal:336JARs /
+12,023,993,845bytes. Exact qualification, installer and cleanup receipt:
+`build/verification/movement-armor/`. Current build/libs, small rejected-fixture
+evidence, native audit tools and protected author files remain; no main restart
+was forced. The auxiliary Polymer audit JAR is not a retained mod version.

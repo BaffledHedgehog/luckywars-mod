@@ -152,6 +152,26 @@ public final class LbcPsycho {
         return switch(name) { case "scared"->effect.scared; case "lookback"->effect.lookback;
             case "twitching"->effect.twitching; case "piss"->effect.piss; default->0; };
     }
+    /** A random cleanse removes one owned status without releasing unrelated effects or manual item use. */
+    void clearStatus(LivingEntity entity,String name) {
+        if(!name.equals("lookback")&&!name.equals("piss")&&!name.equals("scared")&&!name.equals("twitching"))return;
+        // Keep source scoreboard consumers coherent even when no native affliction remains.
+        game.items().mana().score(entity,name).set(0);
+        var effect=effects.get(entity); if(effect==null)return;
+        switch(name) {
+            case "lookback" -> effect.lookback=0;
+            case "piss" -> { effect.piss=0; restoreFollowRange(entity,effect); }
+            case "scared" -> effect.scared=0;
+            case "twitching" -> {
+                effect.twitching=0;
+                if(entity instanceof ServerPlayer player)releaseForcedUse(player,effect);
+                else forgetForcedUse(effect);
+            }
+            default -> { return; }
+        }
+        if(effect.lookback<=0&&effect.scared<=0&&effect.twitching<=0&&effect.piss<=0&&effect.forcedItem==null)
+            removeEffect(entity);
+    }
     private boolean valid(ServerPlayer owner) { return owner!=null && game.items().mana().visible(owner); }
     private boolean paused(ServerPlayer owner) {
         return game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")

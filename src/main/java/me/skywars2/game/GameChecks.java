@@ -775,6 +775,7 @@ public final class GameChecks {
                                 case "classic-melee" -> { ClassicMeleeChecks.run(game); return; }
                                 case "devil-sword" -> { DevilSwordChecks.run(game); return; }
                                 case "jump-artifacts" -> { JumpArtifactChecks.run(game); return; }
+                                case "traveller" -> { TravellerChecks.run(game); return; }
                                 case "late-swords" -> { LateSwordChecks.run(game); return; }
                                 case "late-swords-stop-probe" -> { LateSwordChecks.stopProbe(game); return; }
                                 case "late-swords-cleanup" -> { LateSwordChecks.cleanup(game); return; }
@@ -1280,6 +1281,7 @@ public final class GameChecks {
         public static void tick(GameController game) {
             DevilSwordChecks.tick(game);
             JumpArtifactChecks.tick(game);
+            TravellerChecks.tick(game);
             MapLightingChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);
