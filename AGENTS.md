@@ -1,3 +1,21 @@
+## Void Arcanum eye chase and fluids - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[Author requirement, native cause and proof](agent_notes/VOID_ARCANUM_AIM_FLUIDS_2026_10_27.md).
+Only Arcanum pursuit now targets actual eyes plus0/0.5/1/1.5/2blocks for tiers1..5;
+nearest selection uses the same elevated point. Legacy total3D speed ceilings,
+acceleration, damage/pull, disc tilt and other black-hole destinations remain.
+Small-tier native destruction preserved fluids; it now also absorbs source/flowing
+water/lava and waterlogging residue, retaining original native block/container
+drops. Shared scanner and larger-hole direct-AIR erosion already include fluids.
+Build0a6a5f3f passed44results in2actual mode1matches (78.39s), exact517sources/
+1463classes/3221resources.175author paths/31live overrides unchanged. No RP changes.
+Installer PID16804 adopted this cumulative update instead of queued698e428c;
+running main6890ae59 will update after normal stop. Superseded698e428cready JAR
+was removed only after adoption. Retain0a6a5f3fready, main6890ae59 andc260a27d
+rollback, plus the separate Polymer audit tool. Live receipt:
+`build/verification/arcanum-aim-fluids/main-install.json`. Older lists remain
+historical and are superseded by this entry.
+
 ## Chef recovery and lifetime - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [Author requirements, causes and native proof](agent_notes/CHEF_RECOVERY_2026_10_27.md).

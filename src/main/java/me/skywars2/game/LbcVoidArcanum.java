@@ -248,6 +248,11 @@ public final class LbcVoidArcanum {
                 &&!game.items().magic().suppressedAt(hole.world,target.position())
                 &&(hole.wild||!(target instanceof ServerPlayer)||game.items().wands().projectileTarget(author,target));
     }
+    private static Vec3 chasePoint(Hole hole,LivingEntity target){
+        // Arcanum alone hovers above larger victims instead of ploughing along their feet.
+        // Keep the tier's legacy speed cap; this changes its destination, not its speed.
+        return target.getEyePosition().add(0,.5*(hole.level-1),0);
+    }
     void physics(Hole hole,ServerPlayer author,LbcIndirectKills.Owner cause){
         double influence=PULL[hole.level],hurt=HURT[hole.level];
         var source=hole.wild?new WildDamage(author):new DamageSource(author.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),author);
@@ -268,12 +273,12 @@ public final class LbcVoidArcanum {
         for(var entity:hole.world.getAllEntities()){
             if(!(entity instanceof LivingEntity target)||!physicalTarget(hole,author,target)
                     ||!resident(hole.world,target.position())||!hole.wild&&!game.items().wands().target(author,target))continue;
-            double distance=target.position().distanceToSqr(hole.point);
+            double distance=chasePoint(hole,target).distanceToSqr(hole.point);
             if(distance>=1&&distance<best){best=distance;nearest=target;}
         }
         var desiredTilt=new Quaternionf();
         if(nearest!=null){
-            Vec3 offset=nearest.position().subtract(hole.point);
+            Vec3 offset=chasePoint(hole,nearest).subtract(hole.point);
             // Bounded steering retains momentum while accelerating toward the current nearest target.
             // Slow down near contact, and never sweep an unbounded distance in one frame.
             double speed=Math.min(MAX_SPEED[hole.level],Math.max(0,offset.length()-1));
@@ -320,7 +325,14 @@ public final class LbcVoidArcanum {
                 used[0]=hole.terrain.step(allowance,deadline,(pos,state)->{
                     if(game.items().magic().suppressedAt(hole.world,Vec3.atCenterOf(pos)))return;
                     kills.supportRemoved(hole.world,terrainCause,pos);
-                    if(hole.level<=2){hole.world.destroyBlock(pos,true,owner);return;}
+                    if(hole.level<=2){
+                        // Native destruction supplies the small tiers' original drops, but
+                        // preserves fluid (also from waterlogged blocks). Absorption removes
+                        // that residue as well; higher tiers already replace directly with air.
+                        hole.world.destroyBlock(pos,true,owner);
+                        if(!state.getFluidState().isEmpty())hole.world.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
+                        return;
+                    }
                     if(hole.world.getBlockEntity(pos) instanceof net.minecraft.world.Container container)container.clearContent();
                     hole.world.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
                 })));

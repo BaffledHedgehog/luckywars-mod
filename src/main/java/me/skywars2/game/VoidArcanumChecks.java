@@ -24,6 +24,9 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
@@ -85,7 +88,8 @@ public final class VoidArcanumChecks {
         }
         ItemStack loot(){var rolls=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/void_arcanum");require(rolls.size()==1&&rolls.getFirst().getCount()==1,"live source single loot");return rolls.getFirst();}
         void move(ServerPlayer player,Vec3 p){player.teleportTo(player.level(),p.x,p.y,p.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);}
-        void block(BlockPos pos,Block type){require(owner.level().hasChunkAt(pos),"resident fixture cell");blocks.putIfAbsent(pos.immutable(),game.maps().snapshot(owner.level(),pos));owner.level().setBlock(pos,type.defaultBlockState(),2);}
+        void block(BlockPos pos,Block type){block(pos,type.defaultBlockState());}
+        void block(BlockPos pos,BlockState state){require(owner.level().hasChunkAt(pos),"resident fixture cell");blocks.putIfAbsent(pos.immutable(),game.maps().snapshot(owner.level(),pos));owner.level().setBlock(pos,state,2);}
         void init(){
             // Snapshot every resident cell and scheduler before clearing; neighbor updates must not
             // leak from a fixture into restored terrain. Never request an absent column.
@@ -199,6 +203,21 @@ public final class VoidArcanumChecks {
             }bodies();
             BlackHoleErosionChecks.run(game,owner,at,this::block);
         }
+        void fluidTerrain(){
+            prime();var center=BlockPos.containing(at);
+            var fluids=List.of(Blocks.WATER.defaultBlockState(),Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL,5),
+                    Blocks.LAVA.defaultBlockState(),Blocks.LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL,5),
+                    Blocks.OAK_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED,true));
+            var names=List.of("source water","flowing water","source lava","flowing lava","waterlogged slab");
+            for(int level=1;level<=2;level++)for(int sample=0;sample<fluids.size();sample++){
+                bodies();block(center,fluids.get(sample));
+                require(!owner.level().getFluidState(center).isEmpty()&&owner.level().getFluidState(center).isSource()==(sample!=1&&sample!=3),"actual native "+names.get(sample)+" input tier "+level);
+                var hole=spawn(owner,at);hole.level=level;hole.terrainCause=service.source(hole).cause();
+                for(int i=0;i<80;i++){service.terrain(hole,owner,8192,System.nanoTime()+100_000_000);if(!hole.terrain.hasWork())break;}
+                require(!hole.terrain.hasWork()&&owner.level().getBlockState(center).is(Blocks.AIR)&&owner.level().getFluidState(center).isEmpty(),"small-tier absorption leaves actual AIR without residual "+names.get(sample)+" tier "+level);
+            }
+            bodies();
+        }
         void denseTerrain(){
             prime();var center=BlockPos.containing(at);var dense=new ArrayList<BlockPos>();var core=new ArrayList<BlockPos>();var surface=new ArrayList<BlockPos>();
             for(var pos:BlockPos.betweenClosed(center.offset(-24,-24,-24),center.offset(24,24,24))){
@@ -231,6 +250,29 @@ public final class VoidArcanumChecks {
                         dense.size(),removed,surfaceRemoved,surface.size(),calls,inspected,firstInspected,firstRemoved,firstWall/1_000_000.0,sum/1_000_000.0,max/1_000_000.0);
             }finally{bodies();for(var pos:dense)block(pos,Blocks.AIR);}
         }
+        void elevatedChase(){
+            prime();double[] caps={0,.13,.13,.13,.13,.5};int clock=game.server().getTickCount();
+            for(int level=1;level<=5;level++){
+                bodies();var hole=spawn(owner,at);hole.level=level;var target=cow(at);
+                target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100000);target.setHealth(100000);
+                var aim=target.getEyePosition().add(0,.5*(level-1),0);var cause=service.source(hole).cause();
+                require(aim.y>at.y+1,"native eye position plus exact half-block tier elevation "+level);
+                service.physics(hole,owner,cause);
+                require(hole.point.y>at.y&&hole.velocity.y>0&&Math.abs(hole.velocity.x)<.000001&&Math.abs(hole.velocity.z)<.000001,"feet-centred hole steers vertically toward eyes plus tier elevation "+level);
+                for(int step=0;step<320;step++){
+                    var start=hole.point;service.physics(hole,owner,cause);
+                    require(hole.point.distanceTo(start)<=caps[level]+.000001&&hole.velocity.length()<=caps[level]+.000001,"elevated chase retains total 3D speed ceiling "+level);
+                    var normal=hole.tilt.transform(new org.joml.Vector3f(0,1,0));
+                    require(Float.isFinite(normal.x)&&Float.isFinite(normal.y)&&Float.isFinite(normal.z)&&normal.y>.99999,"pure vertical chase keeps finite upright disc tilt "+level);
+                }
+                // Momentum may cross the one-block slowdown boundary by at most one capped step.
+                double distance=hole.point.distanceTo(aim);
+                require(Math.abs(hole.point.x-at.x)<.000001&&Math.abs(hole.point.z-at.z)<.000001&&hole.point.y>at.y&&distance<=1.002&&distance>=1-caps[level]-.002&&hole.velocity.length()<.002,
+                        "native chase settles near actual eyes plus "+(.5*(level-1))+" blocks within capped one-block standoff at tier "+level);
+                game.items().indirectKills().clear(target);target.discard();mobs.remove(target);
+            }
+            require(game.server().getTickCount()==clock,"explicit elevated physics calls do not claim elapsed native ticks");bodies();
+        }
         void motion(){
             prime();LbcVoidArcanum.Hole hole=null;ProbeCow target=null;
             double[] acceleration={0,.025,.035,.018,.022,.025},caps={0,.13,.13,.13,.13,.5};
@@ -242,7 +284,7 @@ public final class VoidArcanumChecks {
                     require(Math.abs(speed-Math.min(caps[level],last+acceleration[level]))<.000001&&hole.velocity.subtract(velocity).length()<=acceleration[level]+.000001,"preserved acceleration with legacy tier ceiling "+level);last=speed;
                 }
                 // Exercise the cap boundary without claiming elapsed native travel time.
-                hole.velocity=new Vec3(caps[level]-acceleration[level]/2,0,0);var start=hole.point;service.physics(hole,owner,cause);
+                hole.velocity=target.getEyePosition().add(0,.5*(level-1),0).subtract(hole.point).normalize().scale(caps[level]-acceleration[level]/2);var start=hole.point;service.physics(hole,owner,cause);
                 require(Math.abs(hole.point.distanceTo(start)-caps[level])<.000001,"actual native displacement obeys tier speed cap "+level);
                 var cappedPoint=hole.point;var cappedVelocity=hole.velocity;var cappedTilt=new org.joml.Quaternionf(hole.tilt);
                 var originalTarget=target.position();
@@ -301,7 +343,7 @@ public final class VoidArcanumChecks {
             for(var entity:owner.level().getAllEntities())if(!before.contains(entity)&&(entity instanceof net.minecraft.world.entity.item.ItemEntity||entity instanceof net.minecraft.world.entity.ExperienceOrb))entity.discard();game.players().save();game.items().magic().flushCleansing();
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.motion();f.boundaries();f.denseTerrain();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, radial noisy erosion/lens, bounded moving/dense native erosion work, reduced nearest steering, tilt metadata and cleanup; explicit boundary ticks)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.fluidTerrain();f.elevatedChase();f.motion();f.boundaries();f.denseTerrain();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, radial noisy erosion/lens, small-tier source/flowing water/lava and waterlogged absorption, bounded moving/dense native erosion work, all-tier elevated eye chase/settling and speed caps, tilt metadata and cleanup; explicit boundary ticks)");}
 
     private static Saved stopSaved;private static String stopEpoch;private static LbcVoidArcanum.Hole stopHole;
     private static final Set<Entity> stopBefore=Collections.newSetFromMap(new IdentityHashMap<>());
