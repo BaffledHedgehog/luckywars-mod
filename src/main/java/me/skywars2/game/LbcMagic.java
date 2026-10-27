@@ -407,10 +407,13 @@ public final class LbcMagic {
     }
     /** Тот же фильтр для отложенных лучей без marker: артефакт и маяк проверяются в точке луча. */
     boolean suppressedAt(ServerLevel level,Vec3 position) {
+        return artifactSuppressedAt(level,position) || level==game.maps().level() && beaconSuppressed(position);
+    }
+    /** Free source accessories can use artifact-only admission without acquiring a new beacon gate. */
+    boolean artifactSuppressedAt(ServerLevel level,Vec3 position) {
         var area = new AABB(position, position).inflate(RADIUS + 1e-6);
         return !activeArtifacts.isEmpty() && !level.getEntitiesOfClass(ServerPlayer.class, area, player -> game.canUseGameplayItems(player)
-                && artifactActive(player) && position.distanceToSqr(player.position()) <= RADIUS_SQUARED).isEmpty()
-                || level==game.maps().level() && beaconSuppressed(position);
+                && artifactActive(player) && position.distanceToSqr(player.position()) <= RADIUS_SQUARED).isEmpty();
     }
     /** Home markers use the source artifact's 25-block deletion radius; beacon suppression stays 20. */
     boolean homeMarkerSuppressedAt(ServerLevel level, Vec3 position) {

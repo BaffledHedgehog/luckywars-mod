@@ -174,3 +174,17 @@ shutdown; main disk remains1a8a3825. Cumulative removal:336JARs /
 `build/verification/movement-armor/`. Current build/libs, small rejected-fixture
 evidence, native audit tools and protected author files remain; no main restart
 was forced. The auxiliary Polymer audit JAR is not a retained mod version.
+
+## Pop-It ready checkpoint (27 October2026)
+
+Build1e980f2c passed82 suite results,8 preparation results and2 setup/cleanup
+results in two actual matches. Verified obsolete jump-artifacts archive435f3498
+was removed (39,820,815bytes). Keep current Pop-It1e980f2c, preceding Traveller
+17889115 and exact installed signed-effects1a8a3825 fallback. Installer11424
+adopted the qualified request and waits for normal main shutdown; main disk
+remains1a8a3825. Cumulative removal:337JARs /12,063,814,660bytes.
+Exact qualification, live installer and cleanup receipt: `build/verification/popit/`.
+Current build/libs, the small rejected-focus/compile evidence and native audit
+tools remain. All175 protected author paths and31 live grimoire overrides are
+byte-exact. No main restart was forced. The auxiliary Polymer audit JAR is not
+a retained mod version.

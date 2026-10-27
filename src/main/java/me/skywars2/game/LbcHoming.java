@@ -109,6 +109,11 @@ public final class LbcHoming {
         for(var effect:destinies) if(effect.owner==player) effect.remaining++;
     }
     public void clearEffects(LivingEntity entity) { clear(entity); }
+    /** Release the source Target curse without canceling independent homing casts or projectiles. */
+    void clearCurse(ServerPlayer player) {
+        clear(player);
+        game.items().mana().score(player,"target").set(0);
+    }
     private boolean valid(ServerPlayer owner) { return owner!=null && game.items().mana().visible(owner); }
     private boolean paused(ServerPlayer owner) {
         return game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")

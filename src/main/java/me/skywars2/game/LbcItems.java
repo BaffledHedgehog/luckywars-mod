@@ -200,6 +200,7 @@ public final class LbcItems {
     private final LbcDevilSword devilSword;
     private final LbcJumpArtifacts jumpArtifacts;
     private final LbcTraveller traveller;
+    private final LbcPopit popit;
     private final LbcSheep sheep;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
@@ -775,6 +776,7 @@ public final class LbcItems {
         this.devilSword = new LbcDevilSword(game);
         this.jumpArtifacts = new LbcJumpArtifacts(game);
         this.traveller = new LbcTraveller(game);
+        this.popit = new LbcPopit(game);
         this.sheep = new LbcSheep(game,mana);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
@@ -957,6 +959,7 @@ public final class LbcItems {
     public LbcDevilSword devilSword() { return devilSword; }
     public LbcJumpArtifacts jumpArtifacts() { return jumpArtifacts; }
     public LbcTraveller traveller() { return traveller; }
+    public LbcPopit popit() { return popit; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }
@@ -1692,6 +1695,11 @@ public final class LbcItems {
         }
     }
 
+    /** Pop-It removes only the turn curse; rotation history retains its existing match lifetime. */
+    void clearTurnCurse(ServerPlayer player) {
+        turnCurses.remove(player.getUUID());
+        mana.score(player,"skill_issue").set(0);
+    }
     public int curseTicks(ServerPlayer player) {
         var curse = turnCurses.get(player.getUUID());
         return curse == null ? 0 : curse.remaining;

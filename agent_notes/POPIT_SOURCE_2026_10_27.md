@@ -2,6 +2,10 @@
 
 Read-only research. S=`E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/`. Only this new note written; no code/test/build/git/server/RP mutation. Source text inspected, old runtime unobserved. Existing native signed-effect layers/caps, Time Stop/input/Greed/role and original-owner lifecycle policy apply. Parent implements Traveller independently; no combined-release completion is claimed here.
 
+## Audit timing and native correction
+
+The original gap observations below describe preparation before the Pop-It implementation. [POPIT_NATIVE_BOUNDARIES_2026_10_27.md](POPIT_NATIVE_BOUNDARIES_2026_10_27.md) subsequently resolved native Skill Issue/Target ownership and the existing kit notification/acquisition routes. Runtime qualification is tracked separately in [POPIT_PORT_2026_10_27.md](POPIT_PORT_2026_10_27.md); this source audit alone is not a passing runtime result.
+
 ## Genuine gap and exact input
 
 No actual Java popit flag/item/model or workingitems/popit handler exists (checks excluded). Existing compiled transformables_accessory contains the raw source Popit leaf; JSON availability alone is not gameplay. Existing shared effect/counter services can perform much of its action but need selective owned-status reset APIs, not global purify.
@@ -62,7 +66,8 @@ Custom cleanup needs exact selective service adapters:
 - nomagic: LbcMana.noMagic(player,0) existing exact counter reset; reverse_mana: LbcMana.reverse(player,0) additionally clears reverse owner ledger. Neither should refill mana or clear all resource effects.
 - lookback/piss/scared/twitching: LbcPsycho tracks native Affliction fields/forced use/follow range. Raw scoreboard set0 alone is not effective native cleanup. Existing `clearEffects(player)` clears ALL psycho afflictions and ray, too broad for one draw. Expose per-status reset restoring only state owned by that status, leaving other active afflictions/timers/rays intact.
 - shock: LbcElectro owns shock pulses; raw shock score reset is insufficient. Expose selective remove-shock keeping charges/other electrical effects; full reset/clearEffects may clear too much. Reuse current owner ledger removal.
-- dimensional_shifting/skill_issue/target: source score resets exact names; no dedicated live gameplay producer was established by exact quoted search beyond KFC shared-score catalogue, so clear actual existing score without claiming an implemented phantom service. Do not confuse dimensional_shifting with other effect_dimshifting namespace without evidence.
+- dimensional_shifting: source score reset uses this exact name; no dedicated native producer is established. Clear the actual score without inventing a gameplay service or alias to similarly named counters.
+- skill_issue and target: the subsequent [native boundary audit](POPIT_NATIVE_BOUNDARIES_2026_10_27.md) corrects the earlier literal-key-only search. These statuses DO have native owners: `LbcItems.turnCurses` (HUD E129) and `LbcHoming.curses` (HUD E122), respectively. Remove those exact owned entries and reset matching compatibility scores; raw-score-only cleansing would leave both live. Preserve independent rotation history, homing casts/projectiles and unrelated curses.
 - greed_cursed: remove tag only, do not remove active Greed artifact/gen/sin state. Existing other producers already remove this same tag; this helper isn't global Greed purge.
 
 Native status-cleanse admission still follows established artifact/Greed policy. A self item removing beneficial water_breathing or a debuff is source table behavior, not reason to change signed-effect caps. Original-owner state must be removed with status so canceled damage cannot fire later; don't grant kill attribution for cleansing.

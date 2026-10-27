@@ -180,6 +180,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            // Original accessory/reforge stacks keep their vanilla carrier and enter the native two-hand dispatcher.
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcPopit.matches(player.getItemInHand(hand)))
+                return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcChargedSwords.matches(player.getItemInHand(hand))
                     &&!player.getItemInHand(hand).is(me.skywars2.game.LbcChargedSwords.TRIPLE)&&!player.getItemInHand(hand).is(me.skywars2.game.LbcChargedSwords.BLAZE))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;

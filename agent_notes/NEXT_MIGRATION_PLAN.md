@@ -1,3 +1,38 @@
+## Standalone Pop-It - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](POPIT_PORT_2026_10_27.md), [source27](POPIT_SOURCE_2026_10_27.md),
+[native ownership boundaries](POPIT_NATIVE_BOUNDARIES_2026_10_27.md).
+The unchanged vanilla accessory now accepts native item input in either enabled
+hand. One owner-only bubble sound precedes one uniform27-way draw; no mana,
+consumption, durability, cooldown or stat mutation. Whole native effect layers
+and exact death/reverse/Psycho/shock/turn/target ownership are cleaned selectively.
+Active-only infinite/preclear conditions grant the original task and existing
+kit unlock. Real scheduled turn punishment and homing cease after their clears.
+
+Build1e980f2c passed82 suite results,8 preparation results and2 setup/cleanup
+results in two actual mode1 matches (144.52s). Exact470sources /
+1316classes /3163resources match the tested JAR. Shared Traveller/jump/Looper,
+Devil/Classic Melee/Late Swords/Fevgalea/Sauvojen, grimoires, player/projectile,
+Time Stop, signed effects/layers/FOV and firearms pass. The rejected fixture
+raw-weight assumption is archived: native source conditions yield effective
+weights100, not raw500. Production loot probabilities were unchanged. The
+subsequent focus passed, followed by full qualification of the same candidate.
+Child shutdown/restoration was normal. Physical pixels/audio, latency and
+peakTPS are unobserved. No RP update. TPS compensation is feasibility-only.
+
+Installer11424 adopted1e980f2c and waits for normal main shutdown/world unlock
+(24566, RCON off). Main disk remains1a8a3825; no forced stop/restart. Ready:
+build/verification/skywars2-popit-1e980f2c.jar. Evidence/live receipts:
+build/verification/popit/. Keep1e980f2c,17889115 and installed1a8a3825;
+obsolete435f3498 retired. Cumulative337JARs /12063814660bytes. All175 protected
+author paths and31 live grimoire overrides remain byte-exact.
+
+Next coherent group: [Safety Platform, Magnet and Devil Stomach](ACCESSORY_REMAINING_SOURCE_2026_10_27.md),
+source preparation only. Whole unresolved pools and independent status producers
+remain unenabled. Earlier author choices stay in
+[PENDING_QUESTIONS.md](PENDING_QUESTIONS.md). These notes supersede
+historical remaining-work lists below.
+
 ## Current Traveller armor - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](TRAVELLER_PORT_2026_10_27.md), [complete movement armor source](MOVEMENT_ARMOR_SOURCE_2026_10_27.md).

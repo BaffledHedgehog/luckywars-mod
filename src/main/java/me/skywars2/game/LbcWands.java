@@ -443,6 +443,7 @@ public final class LbcWands {
         var stack=player.getItemInHand(hand);
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
         if(LbcCommunism.matches(stack))return game.items().communism().use(player,hand);
+        if(LbcPopit.matches(stack))return game.items().popit().use(player,hand);
         if(LbcSoulhunter.isMace(stack))return game.items().soulhunter().use(player,hand);
         if(LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0)return game.items().soulless().use(player,hand);
         if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
