@@ -777,6 +777,7 @@ public final class GameChecks {
                                 case "jump-artifacts" -> { JumpArtifactChecks.run(game); return; }
                                 case "traveller" -> { TravellerChecks.run(game); return; }
                                 case "popit" -> { PopitChecks.run(game); return; }
+                                case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
                                 case "late-swords" -> { LateSwordChecks.run(game); return; }
                                 case "late-swords-stop-probe" -> { LateSwordChecks.stopProbe(game); return; }
                                 case "late-swords-cleanup" -> { LateSwordChecks.cleanup(game); return; }
@@ -1284,6 +1285,7 @@ public final class GameChecks {
             JumpArtifactChecks.tick(game);
             TravellerChecks.tick(game);
             PopitChecks.tick(game);
+            OrdinaryAccessoryChecks.tick(game);
             MapLightingChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

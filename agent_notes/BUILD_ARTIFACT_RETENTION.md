@@ -188,3 +188,17 @@ Current build/libs, the small rejected-focus/compile evidence and native audit
 tools remain. All175 protected author paths and31 live grimoire overrides are
 byte-exact. No main restart was forced. The auxiliary Polymer audit JAR is not
 a retained mod version.
+
+## Ordinary accessories ready checkpoint (27 October2026)
+
+Build726e2521 passed84 suite results,8 preparation results and2 setup/cleanup
+results in two actual matches. Verified obsolete Traveller archive17889115
+was removed (39,860,961bytes). Keep current ordinary accessories726e2521,
+preceding Pop-It1e980f2c and exact installed signed-effects1a8a3825 fallback.
+Installer11424 adopted the qualified request and waits for normal main shutdown;
+main disk remains1a8a3825. Cumulative removal:338JARs /12,103,675,621bytes.
+Exact qualification, live installer and cleanup receipt:
+`build/verification/ordinary-accessories/`. Current build/libs, the small
+rejected-focus/source evidence and native audit tools remain. All175 protected
+author paths and31 live grimoire overrides are byte-exact. No main restart was
+forced. The auxiliary Polymer audit JAR is not a retained mod version.

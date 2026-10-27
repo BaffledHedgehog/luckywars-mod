@@ -201,6 +201,7 @@ public final class LbcItems {
     private final LbcJumpArtifacts jumpArtifacts;
     private final LbcTraveller traveller;
     private final LbcPopit popit;
+    private final LbcOrdinaryAccessories ordinaryAccessories;
     private final LbcSheep sheep;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
@@ -777,6 +778,7 @@ public final class LbcItems {
         this.jumpArtifacts = new LbcJumpArtifacts(game);
         this.traveller = new LbcTraveller(game);
         this.popit = new LbcPopit(game);
+        this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
         this.sheep = new LbcSheep(game,mana);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
@@ -960,6 +962,7 @@ public final class LbcItems {
     public LbcJumpArtifacts jumpArtifacts() { return jumpArtifacts; }
     public LbcTraveller traveller() { return traveller; }
     public LbcPopit popit() { return popit; }
+    public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }
@@ -1601,6 +1604,7 @@ public final class LbcItems {
         ruby.tick();
         consuming.tick();
         traveller.tick();
+        ordinaryAccessories.tick();
         enderWiki.tick();
         prism.tick();
         awakenedAcid.tick();
@@ -1813,6 +1817,7 @@ public final class LbcItems {
         kiuas.stop();
         blaze.stop();
         traveller.stop();
+        ordinaryAccessories.stop();
         psycho.stop();
         syringe.stop();
         communism.stop();

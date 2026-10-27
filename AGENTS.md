@@ -1,3 +1,43 @@
+## Ordinary accessories - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](agent_notes/ORDINARY_ACCESSORY_PORT_2026_10_27.md), [source closure](agent_notes/ACCESSORY_REMAINING_SOURCE_2026_10_27.md),
+[independent native boundaries](agent_notes/ORDINARY_ACCESSORY_BOUNDARIES_2026_10_27.md).
+Safety Platform, Magnet and Devil Stomach now use original vanilla source items.
+Three current and two legacy individual leaves preserve exact presentation and
+ordinary reforge acquisition. Source5/20-tick passives, inventory activation,
+broader native clear order, distinct beacons, whole25-cell STRICT placement,
+relative rescue versus absolute item teleport and native metadata are retained.
+Platform keeps source continuation after a failed fill. Stomach uses approved
+RegenVI cap, native Hunger256 and exact source health/food/feedback conditions.
+Platform levelup4 and Stomach kit1 use actual existing catalog gates; Magnet's
+new_skill notification does not pretend to expose its incomplete future perk.
+
+Build726e2521 passed84 suite results,8 preparation results and2 setup/cleanup
+results in two actual mode1 matches (167.34s). Exact472sources /
+1326classes /3168resources match the tested JAR. Independent native /tp controls
+match Platform movement and packets; actual210-tick scheduling proves Stomach
+refresh, metabolism and40/200-tick expiry. Shared Pop-It/Traveller/jump/Looper,
+weapons/grimoires/Time Stop/signed effects/FOV/firearms pass. A rejected fixture
+server-delta versus known-client-movement assumption retains exact evidence;
+production remained unchanged. Child shutdown/restoration was normal. No full
+Platform flight/fatal-fall, physical pixels/audio, latency or peakTPS claim.
+No RP update. TPS compensation remains feasibility-only.
+
+Installer11424 adopted726e2521 and waits for normal main shutdown/world unlock
+(24566, RCON off). Main disk remains1a8a3825; no forced stop/restart. Ready:
+build/verification/skywars2-ordinary-accessories-726e2521.jar. Evidence/live
+receipts:build/verification/ordinary-accessories/. Keep726e2521,1e980f2c and
+installed1a8a3825; obsolete17889115 retired. Cumulative338JARs /12103675621bytes.
+All175 protected author paths and31 live grimoire overrides remain byte-exact.
+
+Next finite family: Liquid Abyss in the [whole inventory-perk audit](agent_notes/ARMORED_INVENTORY_SOURCE_2026_10_27.md);
+verify its real live acquisition before enabling the complete hazard. The
+[Quiver/Belt dependency audit](agent_notes/QUIVER_REGEN_BELT_SOURCE_2026_10_27.md) retains
+new author choices19..22, saved in
+[PENDING_QUESTIONS.md](agent_notes/PENDING_QUESTIONS.md), with no questions sent
+in chat. Whole unresolved pools and future abilities remain unenabled. These
+notes supersede historical remaining-work lists below.
+
 ## Standalone Pop-It - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](agent_notes/POPIT_PORT_2026_10_27.md), [source27](agent_notes/POPIT_SOURCE_2026_10_27.md),
