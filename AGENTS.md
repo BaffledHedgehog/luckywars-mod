@@ -1,3 +1,23 @@
+## Gaycaster warning countdown and dense walls - QUALIFIED, AUTO INSTALL QUEUED (27 October 2026)
+
+[User changes, exact shader contract and proof](agent_notes/GAYCASTER_WARNING_TIMING_2026_10_27.md).
+Electric warning walls turn90degrees along laser travel; nine columns replace
+five by midpoint insertion, retaining endpoints, damage and wall spawn cadence.
+First phase now owns one30tick warning/beacon per attack, not three10tick pulses.
+Shared red beams use independent tint R=opacity/G=countdown/B=0: burgundy to bright
+red in the item shader, then final opacity fade. Three prepared shader files are
+required; actual RP is read-only. Old broad scene-bloom helper is inert, including
+when called by an older post sampler. No terrain-texture or post-chain changes.
+Build23c9e577 passed28results in2actual matches (126.94s), exact523sources/
+1482classes/3224resources;195other author paths/31live overrides unchanged.
+GPU8variants/768color-opacity/21other markers/96430terrain samples pass.
+Native same-display countdown, long-axis geometry, all9lane hits/gap and shared
+Time Stop/lifecycle pass. Initial unnormalised direction assertion was replaced
+by native matrix/normalized-axis proof; failed evidence retained separately.
+Installer PID15932 adopted this cumulative build instead of queuedb54c8454,
+waiting for main23a25d43 normal stop, without restart. Old status stays historical.
+Live: build/verification/gaycaster-warning-timing/main-install.json.
+
 ## Core item and XP merging - QUALIFIED, AUTO INSTALL QUEUED (27 October 2026)
 
 [Settings, native implementation and evidence](agent_notes/CORE_ENTITY_MERGING_2026_10_27.md).

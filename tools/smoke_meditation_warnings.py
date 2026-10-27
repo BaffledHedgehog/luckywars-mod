@@ -153,7 +153,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
         gamma_id = str(uuid.UUID(bytes=bytes(gamma_bytes)))
         gamma_paths = (world / "playerdata" / (gamma_id + ".dat"), world / "playerdata" / (gamma_id + ".dat_old"),
                        world / "stats" / (gamma_id + ".json"), world / "advancements" / (gamma_id + ".json"))
-        for path in (settings_path, profiles_path, world / "data/scoreboard.dat",
+        for path in (settings_path, allowed / "config/luckywars/core.json", profiles_path, world / "data/scoreboard.dat",
                      world / "data/scoreboard.dat_old", installed, *gamma_paths):
             backups[path] = path.read_bytes() if path.exists() else None
         # Durable recovery survives a Python interruption or a child shutdown timeout.

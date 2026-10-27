@@ -38,7 +38,8 @@ public final class GaycasterChecks {
         Cow victim;int phase,color=-1,waits,warmTicks;boolean rayReady,emptyDone,academy,warmed;double emptyDistance;long last=Long.MIN_VALUE;
         ItemStack meditation;LbcClouds.AcidProjectile seed;int trialTicks;final Set<Integer> trialPhases=new HashSet<>();
         final Set<LbcGaycasterAcademy.Hazard> trialSeen=Collections.newSetFromMap(new IdentityHashMap<>());
-        final int[] trialCounts=new int[7],warningCounts=new int[7];boolean cubeWire,warningPaused,beamFaded;
+        final int[] trialCounts=new int[7],warningCounts=new int[7];boolean cubeWire,warningPaused,beamFaded,wallDensityChecked;
+        final Map<LbcGaycasterAcademy.Hazard,TrialWarningVisual> firstBeam=new IdentityHashMap<>();
         final Set<TrialWarningVisual> warningsSeen=Collections.newSetFromMap(new IdentityHashMap<>());
         final Map<TrialWarningVisual,Integer> pausedWarnings=new IdentityHashMap<>();int warningPause,pausedRemaining;
         Fixture(GameController game){
@@ -161,19 +162,45 @@ public final class GaycasterChecks {
                 require(s.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("color",0)==i%7+1,"queued palette first red and wrap");}
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         }
+        void electricWallDensity(){
+            var academy=game.items().gaycasterAcademy();
+            var h=new LbcGaycasterAcademy.Hazard(4,at.add(0,0,6),new Vec3(0,0,1));
+            var targets=new ArrayList<net.minecraft.world.entity.LivingEntity>();Object trial=null;
+            try{
+                var trials=LbcGaycasterAcademy.class.getDeclaredField("trials");trials.setAccessible(true);
+                trial=((Map<?,?>)trials.get(academy)).get(owner);require(trial!=null,"real active trial for electric lane probe");
+                for(int i=0;i<10;i++){
+                    var cow=new Cow(EntityTypes.COW,owner.level());cow.setNoAi(true);cow.setNoGravity(true);
+                    cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);cow.setHealth(100);
+                    cow.setPos(h.at.add(i<9?-14+i*3.5:1.75,0,0));
+                    require(owner.level().addFreshEntity(cow),"native electric lane target publication");targets.add(cow);
+                }
+                var step=LbcGaycasterAcademy.class.getDeclaredMethod("tickHazard",trial.getClass(),LbcGaycasterAcademy.Hazard.class,List.class);step.setAccessible(true);
+                require(Boolean.FALSE.equals(step.invoke(academy,trial,h,targets)),"native wall remains active");
+                for(int i=0;i<9;i++)require(targets.get(i).getHealth()==92,"all nine old/midpoint columns deal native8damage; lane="+i);
+                require(targets.get(9).getHealth()==100,"gap between columns remains a gap");wallDensityChecked=true;
+            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            finally{
+                targets.forEach(Entity::discard);h.close();
+                if(trial!=null&&h.warning!=null)try{var warnings=trial.getClass().getDeclaredField("warnings");warnings.setAccessible(true);((List<?>)warnings.get(trial)).remove(h.warning);}
+                catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            }
+        }
         void observeTrial(){
             var academy=game.items().gaycasterAcademy();
+            if(!wallDensityChecked)electricWallDensity();
             for(var h:academy.hazardSnapshot(owner))if(h.kind<=5&&h.age>0){
                 if(h.kind==1&&h.age>=31)continue;
                 require(h.warning!=null,"actual phase owns warning "+h.kind);
                 var w=h.warning;
+                if(h.kind==1)require(!w.closed(),"red beam has no gap before attack31");
                 if(warningsSeen.add(w)){
                     warningCounts[h.kind]++;
                     String suffix=switch(h.kind){case 1->"beam_red";case 2->"sphere_orange";case 3->"beam_green";case 4->"wall_red";case 5->"cube_blue";default->throw new AssertionError();};
                     require(w.model().equals(Identifier.parse("lbc:meditation_warning_"+suffix))
                             &&w.model().equals(w.display().getItem().get(DataComponents.ITEM_MODEL)),"actual warning item model "+suffix);
                     var scale=w.display().getScale();
-                    if(h.kind==1)require(Math.abs(w.origin().distanceTo(w.end())-h.direction.length()*27)<1e-8&&Math.abs(scale.z()-h.direction.length()*27)<2e-5&&w.lifetime()==10,"27-block beam and source ten-tick pulse");
+                    if(h.kind==1)require(Math.abs(w.origin().distanceTo(w.end())-h.direction.length()*27)<1e-8&&Math.abs(scale.z()-h.direction.length()*27)<2e-5&&w.lifetime()==30,"one continuous 27-block warning until shot31");
                     if(h.kind==2)require(w.radius()==5&&w.lifetime()==48&&scale.x()<10,"sphere starts inside exact radius5 before blast49");
                     if(h.kind==3)require(w.end().y-w.origin().y==15&&w.end().x==w.origin().x&&w.end().z==w.origin().z&&w.lifetime()==30,"vertical acid fall preview and unaltered descent");
                     if(h.kind==4)require(scale.x()==30&&scale.y()==2&&w.lifetime()==80,"full red two-dimensional electric wall preview");
@@ -183,11 +210,25 @@ public final class GaycasterChecks {
                                 &&w.lifetime()==120,"blue cube covers complete future flooded bounds");
                     }
                 }
-                if(h.kind==1&&!w.closed()&&w.age()>=8){
+                if(h.kind==1&&!w.closed()){
                     var tint=w.display().getItem().get(DataComponents.CUSTOM_MODEL_DATA);
-                    require(tint!=null&&!tint.colors().isEmpty()&&tint.colors().getFirst()<0xffffff,"beam fade updates actual item-display tint");beamFaded=true;
+                    require(tint!=null&&!tint.colors().isEmpty(),"beam carries independent fade/countdown");
+                    int rgb=tint.colors().getFirst(),alpha=rgb>>>16&255,progress=rgb>>>8&255;
+                    var first=firstBeam.putIfAbsent(h,w);require(first==null||first==w,"one display, no age11/21 warning replacement");
+                    require((rgb&255)==0,"red beam reserves blue tint channel");
+                    if(w.age()<=20)require(alpha==255,"color ramp never changes opacity");
+                    if(w.age()==0)require(progress==0,"warning begins burgundy");
+                    if(w.age()>=20)require(progress==255,"bright red stays fixed during fade");
+                    if(w.age()>20){require(alpha<255&&alpha>0,"only final bright-red stage fades");beamFaded=true;}
+                    require(!w.closed(),"continuous warning through final prefire tick");
                 }
-                if(h.kind==4)require(w.origin().distanceTo(h.at.add(h.direction.scale(6.5)).add(0,.5,0))<1e-6,"red wall stays seven blocks ahead of current damaging step");
+                if(h.kind==4){
+                    require(w.origin().distanceTo(h.at.add(h.direction.scale(6.5)).add(0,.5,0))<1e-6,"red wall stays seven blocks ahead of current damaging step");
+                    var axis=new org.joml.Matrix4f().rotateY((float)Math.toRadians(-w.display().getYaw()))
+                            .transformDirection(new org.joml.Vector3f(1,0,0));
+                    double alignment=Math.abs(new Vec3(axis.x,axis.y,axis.z).normalize().dot(h.direction.normalize()));
+                    require(alignment>.99999,"wall long axis follows laser travel after90degree turn: alignment="+alignment+" yaw="+w.display().getYaw()+" direction="+h.direction);
+                }
                 if(h.kind==2&&!w.closed())require(Math.abs(w.display().getScale().x()-10*w.age()/47.0)<1e-5,"sphere expands toward existing blast radius");
             }
             for(var h:game.items().gaycasterAcademy().hazardSnapshot(owner))if(trialSeen.add(h)){
@@ -325,8 +366,8 @@ public final class GaycasterChecks {
                         &&warningsSeen.stream().allMatch(TrialWarningVisual::closed),"six natural phases / actual used hand ready / quiet helper cleanup: ticks="+trialTicks+" phases="+trialPhases+" data="+meditation.get(DataComponents.CUSTOM_DATA)+" alive="+owner.isAlive()+" hp="+owner.getHealth());
                 require(cubeWire&&trialCounts[1]==11&&trialCounts[2]==11&&trialCounts[3]==11&&trialCounts[4]>=0&&trialCounts[4]<=11
                         &&trialCounts[5]==1&&trialCounts[6]==448,"source helper counts11/11/11/chance50/1/448: "+Arrays.toString(trialCounts));
-                require(warningPaused&&beamFaded&&warningCounts[1]==33&&warningCounts[2]==11&&warningCounts[3]==11
-                        &&warningCounts[4]==trialCounts[4]&&warningCounts[5]==1,"all naturally scheduled warnings33/11/11/chance50/1: "+Arrays.toString(warningCounts));
+                require(wallDensityChecked&&warningPaused&&beamFaded&&warningCounts[1]==11&&firstBeam.size()==11&&warningCounts[2]==11&&warningCounts[3]==11
+                        &&warningCounts[4]==trialCounts[4]&&warningCounts[5]==1,"all naturally scheduled warnings11/11/11/chance50/1: "+Arrays.toString(warningCounts));
                 owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
                 owner.setItemInHand(InteractionHand.MAIN_HAND,meditation);
                 var actor=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());actor.setPos(at);actor.entityTags().add("magic_academy");owner.level().addFreshEntity(actor);

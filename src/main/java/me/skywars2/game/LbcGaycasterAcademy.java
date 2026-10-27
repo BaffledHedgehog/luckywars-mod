@@ -214,8 +214,8 @@ final class LbcGaycasterAcademy {
         h.age++;
         switch(h.kind){
             case 1->{
-                if(h.age==1||h.age==11||h.age==21){
-                    warning(t,h,TrialWarningVisual.beam(game,t.level,t.epoch,h.at,h.at.add(h.direction.scale(27)),false,10));
+                if(h.age==1){
+                    warning(t,h,TrialWarningVisual.beam(game,t.level,t.epoch,h.at,h.at.add(h.direction.scale(27)),false,30));
                     LbcOverload.sound(t.owner,h.at,"minecraft:block.beacon.activate",1,2,0);}
                 if(h.age<31)return false;
                 var hit=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
@@ -248,7 +248,7 @@ final class LbcGaycasterAcademy {
                 if(h.age==1)warning(t,h,TrialWarningVisual.wall(game,t.level,t.epoch,ahead,h.direction,30,2,80));
                 else if(h.warning!=null)h.warning.moveTo(ahead);
                 Vec3 left=new Vec3(h.direction.z,0,-h.direction.x);
-                for(int offset=-14;offset<=14;offset+=7){Vec3 point=h.at.add(left.scale(offset));
+                for(int lane=0;lane<9;lane++){double offset=-14+lane*3.5;Vec3 point=h.at.add(left.scale(offset));
                     trialParticles(t.owner,ParticleTypes.ELECTRIC_SPARK,point.add(0,1,0),5,0,1,0,0);
                     trialParticles(t.owner,new net.minecraft.core.particles.DustColorTransitionOptions(0x00ccff,0x269eb6,1.5f),point.add(0,1,0),5,0,1,0,0);
                     paint(t,point.add(0,-1,0),point.add(0,2,0),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE));

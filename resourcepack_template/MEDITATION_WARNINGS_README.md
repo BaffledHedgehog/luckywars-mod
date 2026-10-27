@@ -1,11 +1,44 @@
 # Meditation warning displays (26.3)
 
-Copy ONLY the six new `assets/lbc/items/meditation_warning_*`, corresponding
-`models/item/`, `textures/item/` files and
-`assets/lbc/shaders/include/meditation_warning.glsl` into the pack. Apply the
-two core-shader edits below to the CURRENT pack files, then F3+T. For the bloom
-regression fix, copy `assets/minecraft/shaders/post/bloom_sample.fsh` from this
-template over the current pack file. Do not
+## Update: continuous red countdown and electric walls, 27 October 2026
+
+For an already updated pack, copy ONLY these three prepared files to the same
+relative paths, then F3+T:
+
+- `assets/minecraft/shaders/core/item.vsh`
+- `assets/minecraft/shaders/core/item.fsh`
+- `assets/lbc/shaders/include/meditation_warning.glsl`
+
+They were patched from the current read-only author pack. No texture, item model,
+post-chain or bloom sampler replacement is required for this update. In
+particular, do not copy an emptied/applied template file as a shader. If the
+author pack changes before copying, merge the changes described below instead.
+
+The server update turns each electric warning wall 90 degrees so its long axis
+follows laser travel, and adds four midpoint columns: nine at spacing3.5 instead
+of five at spacing7, keeping the same outer columns. The first phase now owns
+one continuous30tick warning per attack instead of three10tick pulses. The
+attack still fires on31 and the warning activation sound plays once.
+
+All shared **red beam** warnings (including Sauvojen) interpolate in the item
+shader from burgundy `#600018` to bright red `#FF0E0E`. The color ramp completes
+before the final fade; only then does opacity fall while the red stays bright.
+This uses one texture and continuous GLSL `mix`, with tick-updated countdown
+bytes, not ten separate models/textures. Green beams, walls and other warnings
+keep their previous colors and opacity. Color recognition uses the exact raw
+warning texture marker, never the world scene. The old post-sampler helper is
+now an inert compatibility stub, so an unremoved old call cannot make terrain
+glow again. Material-only bloom remains subject to the limitation below.
+
+The three full files already contain the following merge changes. **Do not add
+them twice** when using the ready replacements.
+
+## Initial installation reference
+
+The six `assets/lbc/items/meditation_warning_*` item definitions, corresponding
+models and textures were supplied with the initial warning update. Already
+applied assets stay in the author pack; they are not recreated here. The
+core-shader merge reference below is for packs without the initial edits. Do not
 replace existing core shaders or `entity_outline.json`: their zone, black-hole,
 nuclear, signed-effect, zoom and bloom pipelines must stay intact.
 
@@ -38,10 +71,14 @@ less than 1% radius/silhouette approximation remain. These new rotation fields
 are supported by native 26.3 `CuboidModelElement` / `CuboidRotation`; do not use
 this model unchanged on a client that rejects arbitrary Euler rotations.
 
-`minecraft:custom_model_data.colors[0]` is an RGB grayscale fade byte:
-`grayRGB = opacityByte * 0x010101`, byte 0..255. Missing color defaults white.
-Opacity is `base alpha * opacityByte/255 * ColorModulator.a`; RGB stays at its
-fullbright bloom palette value. Floats/strings/flags are unused. Fade requires
+`minecraft:custom_model_data.colors[0]` is an RGB data tint. For red beams:
+R is opacityByte, G is countdownByte, B is0; each byte is0..255. The initial
+tint is `0xFF0000`, the bright full-opacity stage `0xFFFF00`. This data tint is
+not the rendered beam color. Other warnings keep the original grayscale fade
+`grayRGB = opacityByte * 0x010101`. Missing color defaults white.
+Opacity is `base alpha * opacityByte/255 * ColorModulator.a`; red-beam RGB comes
+from the countdown mix, other RGB stays at its fullbright palette value.
+Floats/strings/flags are unused. Fade/countdown updates require
 changing this component on the display stack; item display transform
 interpolation does not interpolate tint. The server should send enough steps
 for the desired fade. Zero opacity is discarded before OIT participation.
@@ -57,12 +94,14 @@ In `assets/minecraft/shaders/core/item.vsh`, add after location10 output:
 
 ```glsl
 layout(location = 11) out float meditationWarningFade;
+layout(location = 12) out float meditationWarningProgress;
 ```
 
 Inside `main`, immediately after setting `vertexColor`, add:
 
 ```glsl
 meditationWarningFade = Color.r; // raw grayscale tint, BEFORE directional light
+meditationWarningProgress = Color.g; // independent red-beam countdown
 ```
 
 Keep every existing statement and all `OIT_ALPHA_ONLY` / `GLINT` variants.
@@ -79,6 +118,7 @@ After the location10 input, add:
 
 ```glsl
 layout(location = 11) in float meditationWarningFade;
+layout(location = 12) in float meditationWarningProgress;
 ```
 
 After the current `alphaMarker` declaration in `main`, add:
@@ -94,7 +134,7 @@ the existing `vec4 color = isZoneBorder ? ... : rawColor;` declaration with:
 
 ```glsl
 vec4 color = isMeditationWarning
-    ? vec4(rawColor.rgb, meditationBase * clamp(meditationWarningFade, 0.0, 1.0) * ColorModulator.a)
+    ? vec4(lbc_meditation_warning_color(rawColor, meditationWarningProgress), meditationBase * clamp(meditationWarningFade, 0.0, 1.0) * ColorModulator.a)
     : (isZoneBorder ? vec4(1.0, 0.0, 0.0, 26.0 / 255.0) : rawColor);
 ```
 
@@ -133,15 +173,17 @@ remove these two lines from `assets/minecraft/shaders/post/bloom_sample.fsh`:
 outColor = max(outColor, lbc_meditation_warning_bloom(checkColor));
 ```
 
-Alternatively copy the supplied `bloom_sample.fsh`: it is the current author's
-file with only those two lines removed. Retain the existing 15-color list,
+The earlier correction supplied a `bloom_sample.fsh` replacement; once applied
+or emptied by the author, do not copy that old template again. The new warning
+include's compatibility stub makes the old call inert as well. Retain the existing 15-color list,
 tolerant red branch, blur/composite shaders and post-chain order.
 
 Keep the `meditation_warning.glsl` include in **item.fsh**: its exact texture
 RGBA marker recognition is still required for fullbright warnings and their
-transparency/fade. The unused bloom helper in that include can remain; nothing
-calls it after this fix. No model, texture, server JAR or post-chain change is
-needed. Existing warning geometry, color, opacity and fade remain; translucent
+transparency/fade/countdown. Its old bloom helper now returns zero for backwards
+compatibility; a remaining old post call is harmless. The bloom correction alone
+needs no server JAR change; the countdown/wall update requires the new server
+build as well as the three shaders above. Translucent
 warnings can have weaker/missing bloom after blending into the background.
 Independent material-only bloom needs a separate mask and is not implemented by
 this correction. Do not restore it by matching approximate scene colors.

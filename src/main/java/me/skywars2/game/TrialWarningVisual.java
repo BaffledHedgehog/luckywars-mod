@@ -28,7 +28,7 @@ final class TrialWarningVisual implements AutoCloseable {
     private final int lifetime;
     private final double radius;
     private Vec3 origin,end;
-    private int age,opacity=255;
+    private int age,opacity=255,progress;
     private boolean closed;
 
     private TrialWarningVisual(GameController game,ServerLevel level,String epoch,Kind kind,String suffix,
@@ -53,7 +53,8 @@ final class TrialWarningVisual implements AutoCloseable {
     }
     static TrialWarningVisual wall(GameController game,ServerLevel level,String epoch,Vec3 center,Vec3 direction,double width,double height,int life){
         var v=new TrialWarningVisual(game,level,epoch,Kind.WALL,"wall_red",center,center,life,0);
-        v.display.setYaw((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
+        // The warning plane's long local X axis follows the electric lanes.
+        v.display.setYaw((float)Math.toDegrees(Math.atan2(-direction.x,direction.z))+90);
         v.display.setScale(new Vector3f((float)width,(float)height,1));v.spawn();return v;
     }
     static TrialWarningVisual cube(GameController game,ServerLevel level,String epoch,Vec3 min,Vec3 max,int life){
@@ -72,7 +73,11 @@ final class TrialWarningVisual implements AutoCloseable {
     void moveTo(Vec3 at){if(closed)return;Vec3 delta=at.subtract(origin);origin=at;end=end.add(delta);}
     void cubeBounds(Vec3 min,Vec3 max){if(closed)return;origin=min.add(max).scale(.5);end=max;
         display.setScale(new Vector3f((float)(max.x-min.x),(float)(max.y-min.y),(float)(max.z-min.z)));}
-    private void alpha(int amount){opacity=amount;int rgb=amount*0x010101;
+    private boolean redBeam(){return kind==Kind.BEAM&&model.getPath().endsWith("beam_red");}
+    private void alpha(int amount){opacity=amount;
+        // R is opacity; for red beams G is countdown progress and B is reserved zero.
+        // Other warnings retain the original grayscale fade contract.
+        int rgb=redBeam()?(amount<<16|progress<<8):amount*0x010101;
         stack.set(DataComponents.CUSTOM_MODEL_DATA,new CustomModelData(List.of(),List.of(),List.of(),List.of(rgb)));}
     boolean tick(){
         if(closed)return true;
@@ -80,10 +85,11 @@ final class TrialWarningVisual implements AutoCloseable {
         refreshViewers();if(game.items().timeStop().stopped(level))return false;
         if(++age>=lifetime){close();return true;}
         if(kind==Kind.SPHERE)display.setScale(new Vector3f((float)(2*radius*age/Math.max(1,lifetime-1))));
-        // Alpha is an unlit marker tint, decoded by the template shader. It never darkens bloom RGB.
+        // Finish the color ramp before fading: hue changes do not modulate opacity.
         int fade=Math.max(1,Math.min(10,lifetime/3));
         int next=kind==Kind.SPHERE?255:(int)Math.round(255*Math.min(1,(lifetime-age)/(double)fade));
-        if(next!=opacity){alpha(next);display.setItem(stack.copy());}
+        int nextProgress=redBeam()?(int)Math.round(255*Math.min(1,age/(double)Math.max(1,lifetime-fade))):0;
+        if(next!=opacity||nextProgress!=progress){progress=nextProgress;alpha(next);display.setItem(stack.copy());}
         display.startInterpolation();holder.tick();return false;
     }
     private void refreshViewers(){
