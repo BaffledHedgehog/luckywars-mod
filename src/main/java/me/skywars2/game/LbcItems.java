@@ -211,6 +211,7 @@ public final class LbcItems {
     private final LbcTraveller traveller;
     private final LbcPopit popit;
     private final LbcOrdinaryAccessories ordinaryAccessories;
+    private final LbcArmorSets armorSets;
     private final LbcInventoryHazards inventoryHazards;
     private final LbcCannedFood cannedFood;
     private final LbcDeathCompass deathCompass;
@@ -808,6 +809,7 @@ public final class LbcItems {
         this.traveller = new LbcTraveller(game);
         this.popit = new LbcPopit(game);
         this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
+        this.armorSets = new LbcArmorSets(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
         this.cannedFood = new LbcCannedFood(game);
         this.deathCompass = new LbcDeathCompass(game);
@@ -1010,6 +1012,7 @@ public final class LbcItems {
     public LbcTraveller traveller() { return traveller; }
     public LbcPopit popit() { return popit; }
     public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
+    public LbcArmorSets armorSets() { return armorSets; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
     public LbcCannedFood cannedFood() { return cannedFood; }
     public LbcDeathCompass deathCompass() { return deathCompass; }
@@ -1678,6 +1681,7 @@ public final class LbcItems {
         consuming.tick();
         traveller.tick();
         ordinaryAccessories.tick();
+        armorSets.tick();
         classicMelee.tick();
         pendingCombat.tick();
         pendingSwords.tick();
@@ -1913,6 +1917,7 @@ public final class LbcItems {
         blaze.stop();
         traveller.stop();
         ordinaryAccessories.stop();
+        armorSets.stop();
         classicMelee.stop();
         pendingCombat.stop();
         pendingSwords.stop();

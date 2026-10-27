@@ -40,6 +40,24 @@
     "lbc:halloween/soulhunter_mace",
     "lbc:transformables_trident",
     "lbc:transformables_shield",
-    "lbc:electro_shield"
+    "lbc:electro_shield",
+    "lbc:neko_set_paladin",
+    "lbc:neko_set_paladin/helmet",
+    "lbc:neko_set_paladin/chestplate",
+    "lbc:neko_set_paladin/leggings",
+    "lbc:neko_set_paladin/boots",
+    "lbc:neko_set_shitty",
+    "lbc:neko_set_shitty/helmet",
+    "lbc:neko_set_shitty/chestplate",
+    "lbc:neko_set_shitty/leggings",
+    "lbc:neko_set_shitty/boots",
+    "lbc:neko_set_erosion",
+    "lbc:neko_set_erosion/helmet",
+    "lbc:neko_set_erosion/chestplate",
+    "lbc:neko_set_erosion/leggings",
+    "lbc:neko_set_erosion/boots",
+    "lbc:neko_set_paladin_full",
+    "lbc:neko_set_shitty_full",
+    "lbc:neko_set_erosion_full"
   ]
 }

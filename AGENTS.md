@@ -1,3 +1,25 @@
+## Three complete armor sets - QUALIFIED, INSTALLED (27 October2026)
+
+[Source, complete abilities and native evidence](agent_notes/ARMOR_SETS_PORT_2026_10_27.md).
+All12original Paladin/Shitty/Erosion pieces now have their worn abilities:
+Paladin four-piece ResistanceIV; source Shitty/Gownoman enemy aura and attributed
+poison/hunger/Wither; native Protection erosion every5ticks, all partial pieces or
+one uniform full-set slot, floor0. Passive stun/ice, Time Stop and role/dimension
+policies stay shared. No inventory scan/cache/task or new source item identity.
+Original stats, enchantments, model/lore and govnoq crafting flags are unchanged.
+The18ready roots/slot/full tables include3previously unpackaged exact *_full
+outfit tables; existing native ordinary/reforge selection retains source weights.
+No broader armor pool activation or RP addition is required.
+Build23a25d43 passed24results in2actual mode1matches (90.57s), exact520sources/
+1473classes/3224resources.175author paths/31live overrides unchanged; normal child
+shutdown/exact snapshot restoration passed. Cold entity-chunk readiness precedes
+single-shot assertions; actual native5/20tick listener schedule is checked.
+Installer PID18284 installed23a25d43 after normal main shutdown/world unlock,
+without restart. Retain23a25d43installed/ready,8d2f7513immediate rollback and
+6890ae59fallback; obsoletec260a27d was hash/path verified and removed only after
+actual new-main and8d2f7513backup verification. Live receipt:
+`build/verification/armor-sets/main-install.json`. Earlier lists stay historical.
+
 ## Meditation warning displays - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [User contract, source and proof](agent_notes/MEDITATION_WARNINGS_2026_10_27.md).

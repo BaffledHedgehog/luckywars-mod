@@ -793,6 +793,7 @@ public final class GameChecks {
                                 case "traveller" -> { TravellerChecks.run(game); return; }
                                 case "popit" -> { PopitChecks.run(game); return; }
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
+                                case "armor-sets" -> { ArmorSetChecks.run(game); return; }
                                 case "inventory-hazards" -> { InventoryHazardChecks.run(game); return; }
                                 case "passive-consumables" -> { PassiveConsumableChecks.run(game); return; }
                                 case "pending-combat" -> { PendingCombatChecks.run(game); return; }
@@ -1325,6 +1326,7 @@ public final class GameChecks {
             TravellerChecks.tick(game);
             PopitChecks.tick(game);
             OrdinaryAccessoryChecks.tick(game);
+            ArmorSetChecks.tick(game);
             InventoryHazardChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
