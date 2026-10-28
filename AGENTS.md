@@ -1,3 +1,28 @@
+## Nuclear mushroom twenty-second dissolve - QUALIFIED (28 October 2026)
+
+[Shader contract and native proof](agent_notes/NUCLEAR_FADE_20S_2026_10_28.md).
+(user) Updated nuclear shader clears base/stem upward, then slowly dissolves cap,
+retaining its world position. Current read-only guide in instances/26.3/blockbench
+nuclear_mushroom.txt supersedes old four-second tail and80/90tick quarantine.
+Only fade gets scale [R,1+removalAgeSeconds,R*(2+20)]; main keeps Z=R.
+R12 age8 means [12,9,264]; existing natural120tick/six-second main means [12,7,264].
+Hold fade420normal ticks after main removal:400animation+20delivery margin.
+Preserve one-tick overlap, fixed position/age, staged-stop correction,16nearest
+slots/quarantine, global freeze/Stand clocks and existing dimension/visual resync.
+One NuclearVisuals service covers Exoperso, Exasperato/Academy nuke and rare
+silverfish explosions, including future nuclear producers. Do not duplicate it.
+Build8b593d2c passed22results in2actual matches (36.35s), exact552sources/
+1570classes/3234resources plus build.gradle.198author paths/29overrides exact;
+normal owned-child shutdown and exact fixture restoration. Literal420deadline,
+90/240/400/419retention, fade-only customZ, natural/early/staged stop, freeze/
+Stand, dimension and shared producer/visual-reload regressions pass.
+Initial run rejected only Hedgehog's empty-region precondition after Academy
+lightning; run Hedgehog first. Same immutable artifact passes both full matches;
+initial proof/log retained. No RP edits or physical GPU/pixel/naturalTPS claim.
+Stopped-only auto installation: current receipt main-install.json under
+build/verification/nuclear-fade-20s/. Never force main stop/restart.
+Earlier entries below are historical.
+
 ## Complete Glass armor - QUALIFIED (28 October 2026)
 
 [Author decisions, source closure and native proof](agent_notes/GLASS_ARMOR_PORT_2026_10_28.md).

@@ -25,8 +25,10 @@ import java.util.Map;
 /** Per-client shader slots; each retiring main has an independent fade carrier. */
 public final class NuclearVisuals {
     private static final int SLOT_COUNT=16, GLOW_COLOR=15180800, FADE_COLOR=15181056;
-    // The shader fades for four seconds after removal: six active seconds + tail = ten.
-    private static final int SLOT_TAIL=90, LIFETIME=120, UPDATE_TICKS=2;
+    // Fade Z encodes duration; keep its live carrier for the complete tail plus delivery slack.
+    static final float FADE_SECONDS=20;
+    static final int SLOT_TAIL=420;
+    private static final int LIFETIME=120, UPDATE_TICKS=2;
     private final GameController game;
     private final List<Effect> effects=new ArrayList<>();
     private final Map<ServerGamePacketListenerImpl,Slot[]> viewers=new IdentityHashMap<>();
@@ -109,6 +111,10 @@ public final class NuclearVisuals {
         return new Vector3f(effect.radius,1+age/20f,effect.radius);
     }
 
+    private static Vector3f fadeScale(Effect effect,int age) {
+        return new Vector3f(effect.radius,1+age/20f,effect.radius*(2+FADE_SECONDS));
+    }
+
     private void refreshViewers() {
         var players=game.server().getPlayerList().getPlayers();
         var connected=new HashSet<>(players.stream().map(player->player.connection).toList());
@@ -180,7 +186,7 @@ public final class NuclearVisuals {
         display.setBillboardMode(Display.BillboardConstraints.FIXED);
         display.setGlowing(true); display.setGlowColorOverride((fading?FADE_COLOR:GLOW_COLOR)+index);
         display.setDisplaySize(0,0); display.setViewRange(64);
-        display.setTransformation(new Transformation(new Vector3f(),new Quaternionf(),scale(effect,age),new Quaternionf()));
+        display.setTransformation(new Transformation(new Vector3f(),new Quaternionf(),fading?fadeScale(effect,age):scale(effect,age),new Quaternionf()));
         display.setInterpolationDuration(fading?0:UPDATE_TICKS);
         return display;
     }
@@ -208,7 +214,7 @@ public final class NuclearVisuals {
         // A stop during the staged natural handoff freezes at the actual early age.
         if(!natural && slot.natural) {
             slot.natural=false; slot.fixedAge=slot.effect.age;
-            slot.fade.setScale(scale(slot.effect,slot.fixedAge)); slot.fadeHolder.tick();
+            slot.fade.setScale(fadeScale(slot.effect,slot.fixedAge)); slot.fadeHolder.tick();
         }
         slot.retiring=true;
         slot.availableAt=0; // The retention deadline starts only after main removal.
