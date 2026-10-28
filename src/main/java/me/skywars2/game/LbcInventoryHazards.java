@@ -150,7 +150,7 @@ public final class LbcInventoryHazards {
         var target=new LocalCoordinates(0,0,-5).apply(origin,rotation).add(0,5,0);if(!Level.isInSpawnableBounds(BlockPos.containing(target)))return;
         if(cause!=null)game.items().indirectKills().displaced(holder,cause);
         var relatives=Relative.union(Relative.position(true,true,true),Relative.direction(true,true,true),Relative.ROTATION);
-        if(holder.teleportTo(level,target.x-holder.getX(),target.y-holder.getY(),target.z-holder.getZ(),relatives,0,0,true)&&!holder.isFallFlying()){holder.setDeltaMovement(holder.getDeltaMovement().multiply(1,0,1));holder.setOnGround(true);}
+        holder.teleportTo(level,target.x-holder.getX(),target.y-holder.getY(),target.z-holder.getZ(),relatives,0,0,true);
     }
     private void multicast(ServerPlayer holder,ServerLevel level,Origin origin,LbcIndirectKills.Owner cause){
         int count=0;for(var entity:level.getAllEntities())if(!entity.entityTags().contains("spectator"))count++;

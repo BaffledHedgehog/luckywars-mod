@@ -1,3 +1,32 @@
+## Gameplay repairs - QUALIFIED, INSTALLED (28 October 2026)
+
+[Author requirements, shared mechanics and native evidence](agent_notes/GAYCASTER_LANES_AND_TELEPORT_MOMENTUM_2026_10_27.md).
+(user) Gaycaster electric attack has7lanes instead of9, spacing4.5instead of3.5,
+with one synchronized warning plane per lane. The wave count remains unchanged.
+(user) Camera/coordinate edits preserve momentum. Psycho/Erecto use rotation-only
+packets; common pose/connection teleports preserve separate client-local and
+server motion without rotating it. Explicit nonzero transitions/impulses remain.
+Copied /tp Y resets in command/accessories/horse/dimension transfer are removed;
+stun correction uses the same pose-only boundary. No new RP assets are needed.
+(user) Physical bow/dart/Baffled/Shulker impacts include self/allies/mobs; native
+initial owner departure, enemy acquisition, role guards and absolute Greed stay.
+Six ordinary darts and current/old smoke-grenade carriers now reuse shared native
+arrow and temporary smoke services. Source coefficients/potions/tints/fuse2 TNT/
+radius5BlindnessII and WILD collision/payloads retain causal ownership.
+(user) Incarnations heals16HP per20active ticks per target, shared across all
+fields/owners, with no duplicate owner heal or source-replacement stacking.
+Buildccac368f passed40results in2actual mode1matches (180.71s), plus2scoped third-
+player setup/cleanup checks; exact534sources/1515classes/3226resources,198author
+paths/29live override JSONs retained. Normal child stop/exact snapshots restored.
+Earlier obsolete cyan expectation, Mixin helper package, nested command dispatch
+and fixture attribution/knockback expectations are documented with failed logs.
+Final2line stun correction passed the complete final run; no failed build installed.
+Installer16596 installed exactccac368f over746e62aa after ordinary main shutdown,
+without forcing stop or restart; main hash verified. Receipt:
+`build/verification/gaycaster-wall-lanes/main-install.json`. Retainccac368fcurrent,
+746e62aarollback,154cc3a7fallback and network-audit tool; obsoletea4683fe2JAR was
+path/hash verified and removed. Earlier statuses below remain historical.
+
 ## Stone-arena ring - RESOURCE PACK UPDATE READY (27 October 2026)
 
 [Four-file application instructions](resourcepack_template/MEDITATION_RING_README.md),

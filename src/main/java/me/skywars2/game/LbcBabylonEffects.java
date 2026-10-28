@@ -104,6 +104,12 @@ public final class LbcBabylonEffects {
         actAt((ServerLevel)target.level(),target.position(),kind,cause);
     }
     void quiverExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){actAt(level,at,0,cause);}
+    /** Ordinary explosive darts retain native TNT strength and two-tick fuse in the shared child lifecycle. */
+    void primeExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
+        var owner=game.server().getPlayerList().getPlayer(cause.player());
+        var tnt=new net.minecraft.world.entity.item.PrimedTnt(level,at.x,at.y,at.z,owner);tnt.setFuse(2);
+        inheritChild(cause,tnt);level.addFreshEntity(tnt);
+    }
     private void actAt(ServerLevel level,Vec3 at,int kind,LbcIndirectKills.Owner cause){
         var owner=game.server().getPlayerList().getPlayer(cause.player());
         if(owner==null&&!cause.friendlyFire())return;

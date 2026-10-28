@@ -34,6 +34,7 @@ public abstract class LbcDamageMixin {
     private boolean skywars2$conduction(ServerPlayer victim,Player attacker,Operation<Boolean> original,
                                        @Local(argsOnly=true) DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
+        if(game!=null&&game.items().wands().physicalProjectileTarget(source.getDirectEntity(),victim))return true;
         if(victim==attacker&&game!=null&&(me.skywars2.game.LbcMoiseiBoots.managed(source.getDirectEntity())
                 ||game.items().quiver().managedSecondary(source.getDirectEntity())
                 ||game.items().babylonEffects().managedSecondary(source.getDirectEntity())

@@ -21,6 +21,8 @@ import smoke_game_cycle as cycle
 
 
 SUITES = (
+    "momentum-teleports",
+    "projectile-self-hits", "soulhunter", "ordinary-accessories", "inventory-hazards", "shulker-armor",
     "sauvojen-meditation", "gaycaster", "minigun-visual", "time-stop",
     "time-stop-contacts", "tps-compensation", "effect-layers", "speed-fov-transitions",
 )
@@ -263,7 +265,8 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
         result = {
             "success": success and normal_stop and restored and not cleanup_errors,
             "qualified": success and not focus and completed_matches == [1, 2]
-                         and not preparations and not setups
+                         and not preparations and (not setups if not needs_classic else setups == [
+                             {"match": 0, "suite": "classic-melee-menu"}, {"match": 0, "suite": "classic-melee-lobby-cleanup"}])
                          and normal_stop and restored and not cleanup_errors,
             "scope": "native-mode1-meditation-warnings",
             "completedMatches": completed_matches, "completed": completed,

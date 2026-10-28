@@ -52,9 +52,6 @@ public final class LbcHedgehogDimensions {
         var moved=target.teleport(new TeleportTransition(destination,point,target.getDeltaMovement(),
                 target.getYRot(),target.getXRot(),TeleportTransition.DO_NOTHING));
         if(!(moved instanceof LivingEntity arrival))return null;
-        if(!arrival.isFallFlying()){
-            arrival.setDeltaMovement(arrival.getDeltaMovement().multiply(1,0,1));arrival.setOnGround(true);
-        }
         if(arrival instanceof PathfinderMob mob)mob.getNavigation().stop();
         if(nexus){var gravity=arrival.getAttribute(Attributes.GRAVITY);if(gravity!=null)gravity.removeModifier(Identifier.parse("minecraft:antigravity_effect"));}
         game.items().indirectKills().teleported(arrival,owner,false);

@@ -33,6 +33,8 @@ import java.util.*;
 
 /** Source six-stage trial owns only its local helpers; colour casts use the shared resident ray queue. */
 final class LbcGaycasterAcademy {
+    private static final int ELECTRIC_LANES=7;
+    private static final double ELECTRIC_LANE_SPACING=4.5;
     private static final TagKey<Block> AIRS=tag("airs"),SOLID=tag("solid");
     private static final String[] MODES={"mode_red","mode_orange","mode_yellow","mode_green","mode_light_blue","mode_blue","mode_purple","mode_queued"};
     private static final int[] COLORS={0xff0000,0xff8000,0xffff00,0x00ff00,0x00ffff,0x0000ff,0xff00ff};
@@ -123,8 +125,9 @@ final class LbcGaycasterAcademy {
     }
     static final class Hazard {
         final int kind;Vec3 at;final Vec3 direction;int age;Entity display;UUID visual;TrialWarningVisual warning;
+        final List<TrialWarningVisual> laneWarnings=new ArrayList<>();
         Hazard(int kind,Vec3 at,Vec3 direction){this.kind=kind;this.at=at;this.direction=direction;}
-        void close(){if(display!=null)display.discard();if(warning!=null)warning.close();}
+        void close(){if(display!=null)display.discard();if(warning!=null)warning.close();laneWarnings.forEach(TrialWarningVisual::close);}
     }
     private final class Trial {
         final ServerPlayer owner;final InteractionHand hand;final ItemStack stack;final ServerLevel level;final String epoch;
@@ -245,10 +248,15 @@ final class LbcGaycasterAcademy {
             }
             case 4->{
                 Vec3 ahead=h.at.add(h.direction.scale(7)).add(0,.5,0);
-                if(h.age==1)warning(t,h,TrialWarningVisual.wall(game,t.level,t.epoch,ahead,h.direction,30,2,80));
-                else if(h.warning!=null)h.warning.moveTo(ahead);
                 Vec3 left=new Vec3(h.direction.z,0,-h.direction.x);
-                for(int lane=0;lane<9;lane++){double offset=-14+lane*3.5;Vec3 point=h.at.add(left.scale(offset));
+                for(int lane=0;lane<ELECTRIC_LANES;lane++){
+                    Vec3 lateral=left.scale((lane-(ELECTRIC_LANES-1)*.5)*ELECTRIC_LANE_SPACING);
+                    if(h.age==1){
+                        var visual=TrialWarningVisual.wall(game,t.level,t.epoch,ahead.add(lateral),h.direction,30,2,80);
+                        h.laneWarnings.add(visual);t.warnings.add(visual);
+                        if(lane==ELECTRIC_LANES/2)h.warning=visual;
+                    }else h.laneWarnings.get(lane).moveTo(ahead.add(lateral));
+                    Vec3 point=h.at.add(lateral);
                     trialParticles(t.owner,ParticleTypes.ELECTRIC_SPARK,point.add(0,1,0),5,0,1,0,0);
                     trialParticles(t.owner,new net.minecraft.core.particles.DustColorTransitionOptions(0x00ccff,0x269eb6,1.5f),point.add(0,1,0),5,0,1,0,0);
                     paint(t,point.add(0,-1,0),point.add(0,2,0),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE));

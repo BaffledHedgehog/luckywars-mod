@@ -467,8 +467,7 @@ public final class LbcPsycho {
         for(var angle:SCARE_ANGLES) if(entity.getRandom().nextFloat()<.15f) rotate(entity,angle[0],angle[1]);
     }
     private void rotate(LivingEntity entity,float yaw,float pitch) {
-        if(entity instanceof ServerPlayer player) player.teleportTo(player.level(),player.getX(),player.getY(),player.getZ(),Set.of(),
-                player.getYRot()+yaw,player.getXRot()+pitch,true);
+        if(entity instanceof ServerPlayer player) player.forceSetRotation(yaw,true,pitch,true);
         else { entity.setYRot(entity.getYRot()+yaw); entity.setXRot(entity.getXRot()+pitch); entity.setYHeadRot(entity.getYRot()); }
     }
     private void tickRays() {

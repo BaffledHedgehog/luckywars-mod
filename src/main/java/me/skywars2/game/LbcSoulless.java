@@ -63,6 +63,7 @@ public final class LbcSoulless {
     private final LbcMana mana;
     private final Map<LivingEntity,Ghosting> ghosts=new HashMap<>();
     private final List<Field> fields=new ArrayList<>();
+    private final Map<LivingEntity,Integer> incarnationCooldowns=new HashMap<>();
     private final List<GhostVex> vexes=new ArrayList<>();
     public LbcSoulless(GameController game,LbcMana mana){this.game=game;this.mana=mana;}
     public static void register(){}
@@ -249,7 +250,7 @@ public final class LbcSoulless {
         if(!fields.contains(f)||!valid(f)||paused(f.pig)||paused(f.display)||f.type>2)return;
         f.age+=20;if(f.age<DELAYS[f.type-1])return;
         if(f.type==1){LbcOverload.sound(f.owner,f.display.position(),"minecraft:entity.ravager.attack",.8f,2,0);for(var e:fieldTargets(f,10))if(!friendly(f,e)){damage(f,e,DamageTypes.MAGIC,4);particles(f.owner,e.position().add(0,1,0),ParticleTypes.SWEEP_ATTACK,1);}}
-        else for(var e:fieldTargets(f,10))if(friendly(f,e)){heal(f,e);if(e==f.owner)heal(f,e);}
+        else for(var e:fieldTargets(f,10))if(friendly(f,e)&&!incarnationCooldowns.containsKey(e)){incarnationCooldowns.put(e,20);heal(f,e);}
     }
     private void heal(Field f,LivingEntity target){game.items().indirectKills().withCause(target,f.cause,()->MobEffects.INSTANT_HEALTH.value().applyInstantaneousEffect(f.owner.level(),f.display,f.owner,target,2,1));particles(f.owner,target.position().add(0,2,0),ParticleTypes.HEART,1);LbcOverload.sound(f.owner,target.position(),"minecraft:entity.experience_orb.pickup",.5f,2,0);}
     private void damage(Field f,LivingEntity target,ResourceKey<net.minecraft.world.damagesource.DamageType> type,float amount){game.items().indirectKills().withCause(target,f.cause,()->target.hurtServer(f.owner.level(),new DamageSource(f.owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),f.owner),amount));}
@@ -263,7 +264,18 @@ public final class LbcSoulless {
         game.items().indirectKills().displaced(player,cause);
     }
     private void particles(ServerPlayer p,Vec3 at,net.minecraft.core.particles.ParticleOptions type,int n){p.level().sendParticles(type,at.x,at.y,at.z,n,.3,.3,.3,0);}
-    public void tick(){for(var e:List.copyOf(ghosts.entrySet()))tickGhost(e.getKey(),e.getValue());for(var f:List.copyOf(fields))tickField(f);for(var v:List.copyOf(vexes))if(!validVex(v))removeVex(v);}
+    public void tick(){
+        // All Incarnations share one native16HP pulse per target per20 active ticks.
+        // Keep the interval when a field disappears so replacing its source cannot stack it.
+        var cooldowns=incarnationCooldowns.entrySet().iterator();
+        while(cooldowns.hasNext()){
+            var entry=cooldowns.next();var target=entry.getKey();
+            if(target.isRemoved()||!target.isAlive()||target.level()!=game.maps().level()){cooldowns.remove();continue;}
+            if(paused(target))continue;
+            if(entry.getValue()<=1)cooldowns.remove();else entry.setValue(entry.getValue()-1);
+        }
+        for(var e:List.copyOf(ghosts.entrySet()))tickGhost(e.getKey(),e.getValue());for(var f:List.copyOf(fields))tickField(f);for(var v:List.copyOf(vexes))if(!validVex(v))removeVex(v);
+    }
     public ServerPlayer owner(Entity e){if(e instanceof GhostVex v)return v.caster;var f=find(e);return f==null?null:f.owner;}
     public net.minecraft.network.chat.Component hud(ServerPlayer p){
         int value=mana.hudValue(p,"effect_ghosting");
@@ -277,7 +289,7 @@ public final class LbcSoulless {
     List<? extends Vex> trialSnapshot(){return vexes.stream().filter(v->v.trial).toList();}
     public boolean loaded(Entity e){if(!managed(e))return false;if(find(e)==null&&!vexes.contains(e))e.discard();return true;}
     public static boolean managed(Entity e){return e!=null&&(e.entityTags().contains(BASE)||e.entityTags().contains(DISPLAY)||e.entityTags().contains(VEX)||e.entityTags().contains(TRIAL));}
-    public void unloaded(Entity e){if(e instanceof LivingEntity living&&ghosts.containsKey(living))clear(living);var f=find(e);if(f!=null)remove(f);if(e instanceof GhostVex v)removeVex(v);}
-    public void forget(ServerPlayer p){for(var e:List.copyOf(ghosts.entrySet()))if(e.getKey()==p||e.getValue().owner==p)clear(e.getKey());for(var f:List.copyOf(fields))if(f.owner==p)remove(f);for(var v:List.copyOf(vexes))if(v.caster==p)removeVex(v);}
-    public void stop(){for(var e:List.copyOf(ghosts.keySet()))clear(e);for(var f:List.copyOf(fields))remove(f);for(var v:List.copyOf(vexes))removeVex(v);}
+    public void unloaded(Entity e){incarnationCooldowns.remove(e);if(e instanceof LivingEntity living&&ghosts.containsKey(living))clear(living);var f=find(e);if(f!=null)remove(f);if(e instanceof GhostVex v)removeVex(v);}
+    public void forget(ServerPlayer p){incarnationCooldowns.remove(p);for(var e:List.copyOf(ghosts.entrySet()))if(e.getKey()==p||e.getValue().owner==p)clear(e.getKey());for(var f:List.copyOf(fields))if(f.owner==p)remove(f);for(var v:List.copyOf(vexes))if(v.caster==p)removeVex(v);}
+    public void stop(){incarnationCooldowns.clear();for(var e:List.copyOf(ghosts.keySet()))clear(e);for(var f:List.copyOf(fields))remove(f);for(var v:List.copyOf(vexes))removeVex(v);}
 }

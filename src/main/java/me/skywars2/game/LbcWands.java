@@ -1498,6 +1498,14 @@ public final class LbcWands {
     }
     /** Projectile impacts protect allied players; friendly mobs remain physical damage targets. */
     public boolean projectileTarget(ServerPlayer player,Entity entity) { return projectileTarget(player,entity,false); }
+    /** Physical missiles can return into their caster or cross a teammate; acquisition stays separate. */
+    public static boolean physicalProjectile(Entity projectile) {
+        return projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow
+                || projectile instanceof net.minecraft.world.entity.projectile.ShulkerBullet;
+    }
+    public boolean physicalProjectileTarget(Entity projectile,Entity target) {
+        return physicalProjectile(projectile) && validTarget(target);
+    }
     /** Accepted lethal hits still trigger their sword; role/team exclusions remain authoritative. */
     boolean projectileTarget(ServerPlayer player,Entity entity,boolean allowDying) {
         return entity!=player && !LbcGreed.active(entity) && validTarget(entity,allowDying)
@@ -1554,7 +1562,7 @@ public final class LbcWands {
         if(!game.items().teleport().canHit(projectile,target)) return false;
         if(!projectile.entityTags().contains(FIRE_PROJECTILE) && !projectile.entityTags().contains(AIR_PROJECTILE)) {
             var owner=LbcIndirectKills.playerSource(projectile);
-            return owner==null || nativeSelfTarget(projectile,target)
+            return owner==null || physicalProjectileTarget(projectile,target) || nativeSelfTarget(projectile,target)
                     || game.items().consuming().owner(projectile)==target || projectileTarget(owner,target);
         }
         return projectile.getOwner() instanceof ServerPlayer owner && !game.isObserver(owner)
@@ -1610,7 +1618,7 @@ public final class LbcWands {
         if(!(source.getDirectEntity() instanceof Projectile projectile)) return true;
         if(!projectile.entityTags().contains(AIR_PROJECTILE) && !isFireProjectile(projectile)) {
             var owner=LbcIndirectKills.playerSource(projectile);
-            return owner==null || nativeSelfTarget(projectile,victim)
+            return owner==null || physicalProjectileTarget(projectile,victim) || nativeSelfTarget(projectile,victim)
                     || game.items().consuming().owner(projectile)==victim || projectileTarget(owner,victim);
         }
         return projectile.getOwner() instanceof ServerPlayer owner && !game.isObserver(owner)

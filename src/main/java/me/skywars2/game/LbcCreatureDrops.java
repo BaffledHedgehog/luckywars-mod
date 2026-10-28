@@ -167,14 +167,18 @@ public final class LbcCreatureDrops {
     public boolean canAffect(Entity actor,Entity target){
         if(!managed(actor))return true;
         if(target==null || !active(actor) || !game.items().wands().validTarget(target))return false;
-        if(actor instanceof ShulkerBullet&&actor.entityTags().contains(ARMOR_SHELL)){
-            var current=owner(actor);
-            return target!=current&&(!(current instanceof ServerPlayer author)||game.items().wands().projectileTarget(author,target));
-        }
         if(actor instanceof ShulkerBullet || actor instanceof Vex && actor.entityTags().contains(NORMAL_VEX))return true; // WILD trap: self, allies and enemies are all eligible.
         return !(owner(actor) instanceof ServerPlayer author) || target==author || game.items().wands().target(author,target);
     }
-    public boolean canTarget(Entity actor,LivingEntity target){return target==null || canAffect(actor,target);}
+    public boolean canTarget(Entity actor,LivingEntity target){
+        if(target==null)return true;
+        // A shell may accidentally hit any participant without acquiring its caster or allies.
+        if(actor instanceof ShulkerBullet&&actor.entityTags().contains(ARMOR_SHELL)){
+            var current=owner(actor);
+            if(target==current||current instanceof ServerPlayer author&&!game.items().wands().projectileTarget(author,target))return false;
+        }
+        return canAffect(actor,target);
+    }
     public void loaded(Entity actor){if(!managed(actor))return;if(!active(actor)){actor.discard();return;}tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
     public void unloaded(Entity actor){if(managed(actor))tracked.remove(actor);}
     public void tick(){for(var actor:List.copyOf(tracked))if(actor.isRemoved())tracked.remove(actor);else if(!active(actor)){tracked.remove(actor);actor.discard();}}

@@ -239,7 +239,7 @@ public final class LbcHedgehog {
         HelperArrow(ServerLevel level,ServerPlayer p,Fish helper){super(level,helper,new ItemStack(Items.ARROW),null);author=p.getUUID();this.helper=helper.getUUID();cause=helper.cause;}
         @Override public boolean shouldBeSaved(){return false;}
         @Override protected boolean canHitEntity(Entity e){var p=getOwner() instanceof ServerPlayer current?current:player(author);if(e.getUUID().equals(helper)||p==null)return false;
-            return super.canHitEntity(e)&&(LbcGreed.active(e)||game.items().wands().validTarget(e)&&(!(e instanceof ServerPlayer)||game.items().wands().projectileTarget(p,e)));}
+            return super.canHitEntity(e)&&(LbcGreed.active(e)||game.items().wands().physicalProjectileTarget(this,e));}
         @Override protected void onHitBlock(BlockHitResult hit){super.onHitBlock(hit);discard();}
         @Override public void tick(){if(!game.playing()||!ownerValid(player(author))||!game.items().currentEpoch(this)||!resident((ServerLevel)level(),position())
                 ||suppressed((ServerLevel)level(),position())){discard();return;}if(!frozen(this))super.tick();}

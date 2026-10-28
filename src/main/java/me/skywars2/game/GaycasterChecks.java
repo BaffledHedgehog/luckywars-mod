@@ -120,7 +120,7 @@ public final class GaycasterChecks {
                             &&a.entityTags().contains("shield_blockable2")&&!a.entityTags().contains("great_acid")
                             &&!a.entityTags().contains("raycastacidbig")&&LbcClouds.acidLifetime(a)==300&&!a.isNoGravity()),
                             "ordinary green uses six300tick ordinary ballistic acids, not big/awakened acid");}
-                case 4->{var arcs=game.items().wands().electroSnapshot().stream().filter(a->a.owner==owner).toList();require(arcs.size()==4&&arcs.stream().allMatch(a->!a.mechanism)&&arcs.stream().map(a->a.lifetime).sorted().toList().equals(List.of(5,7,9,11)),"cyan four short magic arcs");}
+                case 4->{var arcs=game.items().wands().electroSnapshot().stream().filter(a->a.owner==owner).toList();require(arcs.size()==4&&arcs.stream().allMatch(a->a.mechanism)&&arcs.stream().map(a->a.lifetime).sorted().toList().equals(List.of(5,7,9,11)),"cyan four short TECH-intercepted arcs");}
                 case 5->{require(victim.hasEffect(MobEffects.CONDUIT_POWER)&&victim.getEffect(MobEffects.CONDUIT_POWER).getAmplifier()==1,"blue exact native enhanced conduit");
                     game.items().magic().colors().tickWater();require(owner.level().getBlockState(victim.blockPosition()).is(Blocks.WATER),"native indexed enhanced water");
                     victim.setInvulnerableTime(0);victim.damageCooldownTime=0;require(victim.hurtServer(owner.level(),owner.level().damageSources().drown(),1)&&victim.getKillCredit()==owner,"blue water native drowning inherits caster");}
@@ -142,7 +142,7 @@ public final class GaycasterChecks {
                 case 3->{var shots=game.items().clouds().acidSnapshot().stream().filter(a->a.getOwner()==owner&&a.entityTags().contains("great_acid")&&!a.isRemoved()).toList();
                     require(shots.size()==1&&LbcClouds.acidLifetime(shots.getFirst())==500&&shots.getFirst().isNoGravity()
                             &&Math.abs(shots.getFirst().getDeltaMovement().length()-.2)<1e-5,"Academy awakened seed lifetime500/straight .2 movement");}
-                case 4->require(game.items().wands().electroSnapshot().stream().filter(a->a.owner==owner&&!a.mechanism).count()==4,"source cyan four electric arcs");
+                case 4->require(game.items().wands().electroSnapshot().stream().filter(a->a.owner==owner&&a.mechanism).count()==4,"source cyan four TECH-intercepted electric arcs");
                 case 5->{require(owner.level().getBlockState(victim.blockPosition()).is(Blocks.WATER)&&!victim.hasEffect(MobEffects.CONDUIT_POWER),"source blue immediate native water");
                     victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
                     require(victim.hurtServer(owner.level(),owner.level().damageSources().drown(),1)&&victim.getKillCredit()==owner,"Academy water hits friendly mobs and inherits caster");}
@@ -169,20 +169,30 @@ public final class GaycasterChecks {
             try{
                 var trials=LbcGaycasterAcademy.class.getDeclaredField("trials");trials.setAccessible(true);
                 trial=((Map<?,?>)trials.get(academy)).get(owner);require(trial!=null,"real active trial for electric lane probe");
-                for(int i=0;i<10;i++){
+                for(int i=0;i<9;i++){
                     var cow=new Cow(EntityTypes.COW,owner.level());cow.setNoAi(true);cow.setNoGravity(true);
                     cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);cow.setHealth(100);
-                    cow.setPos(h.at.add(i<9?-14+i*3.5:1.75,0,0));
+                    cow.setPos(h.at.add(i<7?-13.5+i*4.5:i==7?2.25:15.25,0,0));
                     require(owner.level().addFreshEntity(cow),"native electric lane target publication");targets.add(cow);
                 }
                 var step=LbcGaycasterAcademy.class.getDeclaredMethod("tickHazard",trial.getClass(),LbcGaycasterAcademy.Hazard.class,List.class);step.setAccessible(true);
                 require(Boolean.FALSE.equals(step.invoke(academy,trial,h,targets)),"native wall remains active");
-                for(int i=0;i<9;i++)require(targets.get(i).getHealth()==92,"all nine old/midpoint columns deal native8damage; lane="+i);
-                require(targets.get(9).getHealth()==100,"gap between columns remains a gap");wallDensityChecked=true;
+                for(int i=0;i<7;i++)require(targets.get(i).getHealth()==92,"all seven spaced columns deal native8damage; lane="+i);
+                require(targets.get(7).getHealth()==100&&targets.get(8).getHealth()==100,"lane gaps and outside edge remain safe");
+                require(h.laneWarnings.size()==7,"each electric lane owns its warning");
+                var identities=Collections.newSetFromMap(new IdentityHashMap<TrialWarningVisual,Boolean>());
+                for(int i=0;i<7;i++){
+                    var w=h.laneWarnings.get(i);identities.add(w);
+                    require(w.origin().distanceTo(h.at.add(-13.5+i*4.5,.5,6.5))<1e-6,"native lane warning offset "+i);
+                }
+                require(identities.size()==7,"seven distinct warning displays");
+                require(Boolean.FALSE.equals(step.invoke(academy,trial,h,List.of())),"native moving wall remains active");
+                for(int i=0;i<7;i++)require(h.laneWarnings.get(i).origin().distanceTo(h.at.add(-13.5+i*4.5,.5,6.5))<1e-6,"all warning lanes advance with hazard "+i);
+                wallDensityChecked=true;
             }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
             finally{
                 targets.forEach(Entity::discard);h.close();
-                if(trial!=null&&h.warning!=null)try{var warnings=trial.getClass().getDeclaredField("warnings");warnings.setAccessible(true);((List<?>)warnings.get(trial)).remove(h.warning);}
+                if(trial!=null&&!h.laneWarnings.isEmpty())try{var warnings=trial.getClass().getDeclaredField("warnings");warnings.setAccessible(true);((List<?>)warnings.get(trial)).removeAll(h.laneWarnings);}
                 catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
             }
         }
@@ -224,6 +234,15 @@ public final class GaycasterChecks {
                 }
                 if(h.kind==4){
                     require(w.origin().distanceTo(h.at.add(h.direction.scale(6.5)).add(0,.5,0))<1e-6,"red wall stays seven blocks ahead of current damaging step");
+                    require(h.laneWarnings.size()==7&&h.laneWarnings.get(3)==w,"seven warnings with central representative");
+                    Vec3 left=new Vec3(h.direction.z,0,-h.direction.x);
+                    for(int lane=0;lane<7;lane++){
+                        var laneWarning=h.laneWarnings.get(lane);warningsSeen.add(laneWarning);
+                        Vec3 expected=w.origin().add(left.scale(-13.5+lane*4.5));
+                        require(laneWarning.origin().distanceTo(expected)<1e-6&&laneWarning.age()==w.age()
+                                &&laneWarning.closed()==w.closed()&&laneWarning.lifetime()==80,
+                                "every natural electric lane has synchronized warning "+lane);
+                    }
                     var axis=new org.joml.Matrix4f().rotateY((float)Math.toRadians(-w.display().getYaw()))
                             .transformDirection(new org.joml.Vector3f(1,0,0));
                     double alignment=Math.abs(new Vec3(axis.x,axis.y,axis.z).normalize().dot(h.direction.normalize()));

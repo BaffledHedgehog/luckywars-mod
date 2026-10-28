@@ -2,6 +2,9 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "TeleportMomentumMixin$Connection",
+    "TeleportMomentumMixin$Pose",
+    "TeleportMomentumMixin$Command",
     "CoreEntityMergeMixin$Items",
     "CoreEntityMergeMixin$Orbs",
     "CoreEntityMergeMixin$Level",

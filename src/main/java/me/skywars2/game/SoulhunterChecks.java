@@ -233,7 +233,30 @@ public final class SoulhunterChecks {
             var manaField=souls.spawn(owner,at,Vec3.ZERO,4);mana.set(owner,100);for(int i=0;i<39;i++)souls.tickField(manaField);require(mana.get(owner)==100,"mana warmup39 harmless");souls.tickField(manaField);require(mana.get(owner)==500,"mana field sets500 at40");mana.set(owner,600);souls.tickField(manaField);require(mana.get(owner)==600,"mana field leaves above500");souls.unloaded(manaField.pig);
             var lift=souls.spawn(owner,at,Vec3.ZERO,3);owner.setDeltaMovement(Vec3.ZERO);for(int i=0;i<99;i++)souls.tickField(lift);require(owner.getDeltaMovement().lengthSqr()==0,"lift warmup99 harmless");souls.tickField(lift);require(owner.getDeltaMovement().distanceToSqr(new Vec3(.074*.7,.08*.7,.08*.7))<1e-10,"type3 WILD caster receives exactly70percent lateral/up/forward motion");souls.unloaded(lift.pig);
             owner.removeAllEffects();var shield=souls.spawn(owner,at,Vec3.ZERO,6);for(int i=0;i<99;i++)souls.tickField(shield);require(!owner.hasEffect(MobEffects.RESISTANCE),"shield warmup99 harmless");souls.tickField(shield);require(owner.hasEffect(MobEffects.RESISTANCE)&&owner.getEffect(MobEffects.RESISTANCE).getAmplifier()==4&&mana.score(owner,"void_resistance").get()>=2,"type6 native ResistanceV and void floor at100");souls.unloaded(shield.pig);
-            owner.setHealth(1);var heal=souls.spawn(owner,at,Vec3.ZERO,2);for(int i=0;i<39;i++)souls.tickField(heal);require(owner.getHealth()==1,"healing warmup39 ticks / age59 harmless");souls.tickField(heal);require(owner.getHealth()>1,"native Instant HealthIII at80");souls.unloaded(heal.pig);
+            owner.setHealth(1);var heal=souls.spawn(owner,at,Vec3.ZERO,2);for(int i=0;i<39;i++)souls.tickField(heal);require(owner.getHealth()==1,"healing warmup39 ticks / age59 harmless");souls.tickField(heal);require(owner.getHealth()==17,"Incarnations heals its owner exactly16HP at80");souls.unloaded(heal.pig);
+        }
+        void incarnationHealing(){
+            for(var p:List.of(owner,other)){p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);p.setHealth(1);game.server().getScoreboard().addPlayerToTeam(p.getScoreboardName(),team);}
+            var first=souls.spawn(owner,at,Vec3.ZERO,2);
+            for(int i=0;i<40;i++)souls.tickField(first);
+            require(owner.getHealth()==17&&other.getHealth()==1,"one owner pulse heals16HP and respects radius10");
+            move(other,at.add(0,0,3));var second=souls.spawn(other,at,Vec3.ZERO,2);
+            for(int i=0;i<40;i++)souls.tickField(second);
+            require(owner.getHealth()==17&&other.getHealth()==17,"foreign overlapping source cannot stack; newly entering target has its own16HP budget");
+            souls.second(first);souls.second(second);
+            require(owner.getHealth()==17&&other.getHealth()==17,"repeated pulses in the same active interval cannot stack");
+            for(int i=0;i<10;i++)souls.tick();
+            game.items().timeStop().begin(owner.level(),40);
+            try{for(int i=0;i<20;i++)souls.tick();}finally{game.items().timeStop().end(owner.level());}
+            for(int i=0;i<9;i++)souls.tick();souls.second(first);souls.second(second);
+            require(owner.getHealth()==17&&other.getHealth()==17,"Time Stop preserves shared cooldown;19 active ticks cannot rearm healing");
+            souls.tick();
+            require(owner.getHealth()==33&&other.getHealth()==33,"20th active tick admits only one16HP pulse across both owners' fields");
+            souls.unloaded(first.pig);souls.unloaded(second.pig);
+            var replacement=souls.spawn(other,at,Vec3.ZERO,2);for(int i=0;i<40;i++)souls.tickField(replacement);
+            require(owner.getHealth()==33&&other.getHealth()==33,"removing and replacing every source preserves the targets' interval");
+            souls.stop();var fresh=souls.spawn(owner,at,Vec3.ZERO,2);for(int i=0;i<40;i++)souls.tickField(fresh);
+            require(owner.getHealth()==49&&other.getHealth()==49,"stop clears old incarnation intervals before a new lifecycle");
         }
         void liftInput(){
             move(owner,at.add(3,0,0));block(owner.blockPosition().below(),Blocks.STONE);
@@ -351,7 +374,7 @@ public final class SoulhunterChecks {
     private static void freshItems(ServerPlayer player,Set<Entity> before){var fresh=new ArrayList<Entity>();player.level().getAllEntities().forEach(e->{if(!before.contains(e)&&(e instanceof net.minecraft.world.entity.item.ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb))fresh.add(e);});fresh.forEach(Entity::discard);}
     private record Case(String name,java.util.function.Consumer<Fixture> action){}
     public static void run(GameController game){
-        var failures=new ArrayList<String>();for(var test:List.of(new Case("presentation",Fixture::presentation),new Case("native crafts",Fixture::craft),new Case("native movement",Fixture::movement),new Case("native first melee/smash",Fixture::nativeMelee),new Case("native dash",Fixture::dash),new Case("splash/mask",Fixture::splash),new Case("support attribution",Fixture::supportAttribution),new Case("WILD ghosting",Fixture::ghosting),new Case("native Vex reward",Fixture::vexReward),new Case("six native hosts",Fixture::hosts),new Case("field boundaries",Fixture::fieldActions),new Case("vortex native jump/input/wire",Fixture::liftInput),new Case("type5 source template",Fixture::fireField),new Case("void protection",Fixture::voidProtection),new Case("field guards",Fixture::fieldGuards))){try(var f=new Fixture(game)){f.init();test.action.accept(f);}catch(RuntimeException error){failures.add(test.name+": "+error.getMessage());}}
+        var failures=new ArrayList<String>();for(var test:List.of(new Case("presentation",Fixture::presentation),new Case("native crafts",Fixture::craft),new Case("native movement",Fixture::movement),new Case("native first melee/smash",Fixture::nativeMelee),new Case("native dash",Fixture::dash),new Case("splash/mask",Fixture::splash),new Case("support attribution",Fixture::supportAttribution),new Case("WILD ghosting",Fixture::ghosting),new Case("native Vex reward",Fixture::vexReward),new Case("six native hosts",Fixture::hosts),new Case("field boundaries",Fixture::fieldActions),new Case("Incarnations16HP shared interval",Fixture::incarnationHealing),new Case("vortex native jump/input/wire",Fixture::liftInput),new Case("type5 source template",Fixture::fireField),new Case("void protection",Fixture::voidProtection),new Case("field guards",Fixture::fieldGuards))){try(var f=new Fixture(game)){f.init();test.action.accept(f);}catch(RuntimeException error){failures.add(test.name+": "+error.getMessage());}}
         require(failures.isEmpty(),String.join("; ",failures));SkyWars2.LOGGER.info("[check] PASS soulhunter (native menus/jump/item use, source mask/drop, WILD ghosting/Vex rewards, six hosts/physics and explicit field boundaries)");
     }
     private static Saved stopSaved;private static String stopEpoch;private static List<LbcSoulless.Field> stopFields;private static Set<Entity> stopBefore;

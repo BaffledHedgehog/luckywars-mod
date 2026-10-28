@@ -743,11 +743,11 @@ public final class LbcShooters {
         target.setYRot(stun.yaw); target.setXRot(stun.pitch); target.setYHeadRot(stun.yaw);
         if(target instanceof ServerPlayer player) player.setLastClientInput(net.minecraft.world.entity.player.Input.EMPTY);
     }
-    /** Native correction retains current server velocity, unlike teleport(x,y,z,yaw,pitch). */
+    /** Correct only pose; the shared teleport policy keeps server and client momentum independently. */
     public void correctStun(ServerPlayer player) {
         if(!stunned(player)) return;
         prepareStunnedInput(player);
-        player.connection.teleport(net.minecraft.world.entity.PositionMoveRotation.of(player),Set.of());
+        player.connection.teleport(player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot());
     }
     private void tickStuns() {
         for(var target:List.copyOf(stuns.keySet())) {
@@ -959,7 +959,7 @@ public final class LbcShooters {
     public boolean canHit(Projectile projectile, Entity target) {
         return !trackedArrow(projectile)
                 || projectile.getOwner() instanceof ServerPlayer owner && !game.isObserver(owner)
-                && game.items().wands().projectileTarget(owner, target);
+                && game.items().wands().physicalProjectileTarget(projectile, target);
     }
     /** Source prein удаляет хвою в земле; перехватываем событие вместо чтения NBT каждого снаряда в тике. */
     public void hit(Projectile projectile, HitResult hit) {

@@ -35,9 +35,27 @@ public final class LbcHedgehogSpikes {
     private final List<SpikeArrow> arrows=new ArrayList<>();
     private final List<Pending> pending=new ArrayList<>();
     private final Map<LivingEntity,Water> water=new IdentityHashMap<>();
+    private static final String[] THROW_FLAGS={"confuse","blind","boom","standart","wither","poison","smoke","smoke_old"};
     private record Pending(LivingEntity target,SpikeKind kind,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){}
     private record Water(MobEffectInstance effect,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){}
     public LbcHedgehogSpikes(GameController game){this.game=game;}
+    /** Ordinary darts use the same native arrow transport as the wall's six spikes. */
+    public static int legacyThrow(ItemStack stack){
+        if(!stack.is(Items.SNOWBALL))return 0;
+        var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+        if(data.getIntOr("special",0)!=1)return 0;
+        for(int i=0;i<THROW_FLAGS.length;i++)if(data.getIntOr(THROW_FLAGS[i],0)==1)return i+1;
+        return 0;
+    }
+    public boolean useLegacy(ServerPlayer p,InteractionHand hand){
+        var stack=p.getItemInHand(hand);int variant=legacyThrow(stack);
+        if(variant==0||!game.playing()||game.stage()==GameController.Stage.ENDING||!p.isAlive()||game.isObserver(p)
+                ||!game.canUseGameplayItems(p)||!LbcDimensionItems.ordinary(p)||frozen(p)||game.items().actionsBlocked(p))return false;
+        var transport=new Snowball(p.level(),p,stack);transport.shootFromRotation(p,p.getXRot(),p.getYRot(),0,1.5f,1);
+        if(emitLegacy(p,variant,transport.position(),transport.getDeltaMovement())==null)return false;
+        LbcOverload.sound(p,p.position(),"minecraft:entity.snowball.throw",.5f,.4f/(p.getRandom().nextFloat()*.4f+.8f),0);
+        p.awardStat(Stats.ITEM_USED.get(stack.getItem()));stack.consume(1,p);return true;
+    }
     public static boolean managed(Entity e){return e!=null&&e.entityTags().contains(TAG);}
     private boolean resident(ServerLevel level,Vec3 at){var b=BlockPos.containing(at);return level.getChunkSource().getChunkNow(b.getX()>>4,b.getZ()>>4)!=null;}
     private boolean frozen(Entity e){return !game.server().tickRateManager().runsNormally()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped")
@@ -60,30 +78,35 @@ public final class LbcHedgehogSpikes {
     }
     private static double baseDamage(SpikeKind kind){return switch(kind){case STANDARD->10;case BLIND,POISON->1.5;case BOOM->.01;default->1;};}
     private static int color(SpikeKind kind){return switch(kind){case CONFUSE->16746227;case BLIND->16771895;case POISON->1119083;case WITHER->0;case BOOM->9079434;default->-1;};}
-    private static ItemStack pickup(SpikeKind kind){
+    private static ItemStack pickup(SpikeKind kind){return pickup(kind,0);}
+    private static ItemStack pickup(SpikeKind kind,int legacy){
         var result=new ItemStack(kind==SpikeKind.STANDARD?Items.ARROW:Items.TIPPED_ARROW);
-        if(kind!=SpikeKind.STANDARD){result.set(DataComponents.POTION_CONTENTS,new PotionContents(Optional.empty(),Optional.of(color(kind)),List.of(),Optional.empty()));result.set(DataComponents.POTION_DURATION_SCALE,1f);}
+        int tint=legacy==0?color(kind):switch(legacy){case 1->11733922;case 2->0;case 3->16756516;case 5->7368816;case 6->392982;default->16777215;};
+        if(kind!=SpikeKind.STANDARD){result.set(DataComponents.POTION_CONTENTS,new PotionContents(Optional.empty(),Optional.of(tint),List.of(),Optional.empty()));result.set(DataComponents.POTION_DURATION_SCALE,1f);}
         return result;
     }
     private final class SpikeArrow extends Arrow {
-        final SpikeKind kind;final UUID originalAuthor;boolean retired,blockDone;
-        SpikeArrow(ServerPlayer p,SpikeKind kind){super(p.level(),p,pickup(kind),null);this.kind=kind;originalAuthor=p.getUUID();setBaseDamage(baseDamage(kind));
-            if(kind!=SpikeKind.BOOM)pickup=AbstractArrow.Pickup.CREATIVE_ONLY;}
+        final SpikeKind kind;final UUID originalAuthor;final int legacy;boolean retired,blockDone;
+        SpikeArrow(ServerPlayer p,SpikeKind kind){this(p,kind,0);}
+        SpikeArrow(ServerPlayer p,SpikeKind kind,int legacy){super(p.level(),p,pickup(kind,legacy),null);this.kind=kind;this.legacy=legacy;originalAuthor=p.getUUID();
+            setBaseDamage(legacy==0?baseDamage(kind):switch(legacy){case 1->3;case 2,6->2.5;case 3->2;case 4->4;case 5->1.8;default->.01;});
+            if(kind!=SpikeKind.BOOM||legacy>0)pickup=legacy==3||legacy>=7?AbstractArrow.Pickup.DISALLOWED:AbstractArrow.Pickup.CREATIVE_ONLY;}
         @Override public boolean shouldBeSaved(){return false;}
         @Override protected boolean canHitEntity(Entity target){
             if(!(getOwner() instanceof ServerPlayer p))return false;
             // Greed must remain a physical contact so the native guard can reflect before any payload.
-            return super.canHitEntity(target)&&(LbcGreed.active(target)||game.items().wands().projectileTarget(p,target));
+            return super.canHitEntity(target)&&(LbcGreed.active(target)||game.items().wands().physicalProjectileTarget(this,target));
         }
         @Override public void tick(){if(!valid(this)){retire(this);return;}if(frozen(this))return;
-            if(game.items().magic().suppressedAt((ServerLevel)level(),position())){retire(this);return;}super.tick();}
+            if(legacy==0&&game.items().magic().suppressedAt((ServerLevel)level(),position())){retire(this);return;}super.tick();}
         @Override protected void doPostHurtEffects(LivingEntity target){
             // Native AbstractArrow invokes this only after an accepted hurt, including shield admission.
-            if(getOwner() instanceof ServerPlayer p)accepted(this,target,p);
+            if(getOwner() instanceof ServerPlayer p){if(legacy>0)legacyImpact(this,target,p,target.position());else accepted(this,target,p);}
         }
         @Override protected void onHitBlock(BlockHitResult result){
             super.onHitBlock(result);if(blockDone||retired)return;blockDone=true;
-            if(kind==SpikeKind.BOOM&&valid(this)&&getOwner() instanceof ServerPlayer p&&!game.items().magic().suppressedAt((ServerLevel)level(),position()))
+            if(legacy>0&&valid(this)&&getOwner() instanceof ServerPlayer p)legacyImpact(this,null,p,result.getLocation());
+            else if(kind==SpikeKind.BOOM&&valid(this)&&getOwner() instanceof ServerPlayer p&&!game.items().magic().suppressedAt((ServerLevel)level(),position()))
                 game.items().hedgehog().spawnWall((ServerLevel)level(),position(),p,Vec3.directionFromRotation(getXRot(),getYRot()));
             retire(this);
         }
@@ -94,8 +117,34 @@ public final class LbcHedgehogSpikes {
         var a=new SpikeArrow(p,kind);a.setPos(at);a.setDeltaMovement(velocity);a.entityTags().add(TAG);game.items().markCurrentItemEpoch(a);arrows.add(a);
         LbcShooters.orient(a);game.items().timeStop().prepareFrozen(a);if(!p.level().addFreshEntity(a)||a.isRemoved()){retire(a);return null;}return a;
     }
+    Arrow emitLegacy(ServerPlayer p,int variant,Vec3 at,Vec3 velocity){
+        if(variant<1||variant>8||!resident(p.level(),at))return null;
+        var kind=switch(variant){case 1->SpikeKind.CONFUSE;case 2->SpikeKind.BLIND;case 3->SpikeKind.BOOM;case 4->SpikeKind.STANDARD;case 5->SpikeKind.WITHER;default->SpikeKind.POISON;};
+        var arrow=new SpikeArrow(p,kind,variant);arrow.setPos(at);arrow.setDeltaMovement(velocity);arrow.entityTags().add(TAG);
+        game.items().markCurrentItemEpoch(arrow);arrows.add(arrow);LbcShooters.orient(arrow);game.items().timeStop().prepareFrozen(arrow);
+        if(!p.level().addFreshEntity(arrow)||arrow.isRemoved()){retire(arrow);return null;}return arrow;
+    }
+    private void legacyImpact(SpikeArrow arrow,LivingEntity target,ServerPlayer owner,Vec3 at){
+        if(!valid(arrow)||target!=null&&!game.items().wands().validTarget(target))return;
+        var cause=game.items().indirectKills().wildCause(owner);
+        switch(arrow.legacy){
+            case 1->{if(target!=null&&!immune(target)&&(!(target instanceof ServerPlayer player)||!game.items().magic().rejectCustomEffect(player))){
+                boolean borders=game.config().noBorders;var center=borders?target.position():Vec3.ZERO;
+                int ceiling=target.level().dimension().equals(net.minecraft.world.level.Level.NETHER)?120:target.level().getMaxY()-1;
+                var destination=LbcSurfaceTeleport.destination((ServerLevel)target.level(),center,borders?140:190,ceiling,owner.getRandom());
+                if(destination!=null&&target.teleportTo((ServerLevel)target.level(),destination.x,destination.y,destination.z,Set.of(),target.getYRot(),target.getXRot(),true))
+                    game.items().indirectKills().teleported(target,owner,true);
+            }}
+            case 2,5,6->{if(target!=null){var effect=ItemEffectLevels.create(arrow.legacy==2?MobEffects.BLINDNESS:arrow.legacy==5?MobEffects.WITHER:MobEffects.POISON,
+                    arrow.legacy==2?120:100,arrow.legacy==2?0:2);game.items().indirectKills().wildEffect(target,effect,cause);}}
+            case 3->{if((target==null||!immune(target))&&!game.items().magic().mechanismSuppressedAt(owner.level(),at)&&!game.items().magic().luckyEffectWarded(owner.level(),at))
+                    game.items().babylonEffects().primeExplosionAt(owner.level(),at,cause);}
+            case 7,8->game.items().reactiveArtifacts().grenadeSmoke(owner,at,arrow.legacy==8);
+            default->{}
+        }
+    }
     private void accepted(SpikeArrow arrow,LivingEntity target,ServerPlayer author){
-        if(!valid(arrow)||!effectTarget(target)||!game.items().wands().projectileTarget(author,target)||immune(target))return;
+        if(!valid(arrow)||!effectTarget(target)||!game.items().wands().physicalProjectileTarget(arrow,target)||immune(target))return;
         var cause=game.items().indirectKills().coldCause(author,true);
         switch(arrow.kind){
             case BLIND->game.items().psycho().afflict(target,author,0,0,0,6000);

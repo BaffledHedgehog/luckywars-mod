@@ -166,7 +166,8 @@ public final class LbcDamage {
         if(game!=null && !game.items().indirectKills().allowEnvironmentDamage(victim,source)) return false;
         if(game!=null && source.getDirectEntity()!=null && !isNativeLightning(source) && !allowsKfcFriendlyFire(source) && !allowsTrapFriendlyFire(source)) {
             var reflected=game.items().electro().reflectedOwner(source.getDirectEntity());
-            boolean admittedSelf=reflected==victim&&(LbcMoiseiBoots.managed(source.getDirectEntity())
+            boolean admittedSelf=game.items().wands().physicalProjectileTarget(source.getDirectEntity(),victim)
+                    ||reflected==victim&&(LbcMoiseiBoots.managed(source.getDirectEntity())
                     ||game.items().quiver().managedSecondary(source.getDirectEntity())
                     ||game.items().babylonEffects().managedSecondary(source.getDirectEntity()));
             if(reflected!=null && !admittedSelf && !game.items().wands().projectileTarget(reflected,victim)) return false;

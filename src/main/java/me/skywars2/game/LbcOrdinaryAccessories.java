@@ -69,7 +69,7 @@ public final class LbcOrdinaryAccessories {
         var from=BlockPos.containing(owner.getX()-2,1,owner.getZ()-2);
         var to=BlockPos.containing(owner.getX()+2,1,owner.getZ()+2);
         // Source commands continue independently: a failed teleport or fill does not cancel effects, consumption or the award.
-        // /tp ~ 2 ~ retains relative X/Z motion and rotation, unlike Magnet's entity destination.
+        // Relative X/Z and absolute Y edit only position; momentum is preserved by the common teleport policy.
         var relatives=Relative.union(Relative.direction(true,false,true),Relative.position(true,false,true),Relative.ROTATION);
         if(Level.isInSpawnableBounds(BlockPos.containing(owner.getX(),2,owner.getZ())))teleport(owner,0,2,0,0,0,relatives);
         owner.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,99,false,false,false),owner);
@@ -85,13 +85,9 @@ public final class LbcOrdinaryAccessories {
         owner.getInventory().setChanged();
         game.items().mana().award(owner,"lbc:true_advancements/accesories/save_platform");
     }
-    /** Match native /tp, including its movement reset; never rebuild an item or change its owner/age/custom payload. */
+    /** Coordinate edit only; never rebuild an item or change its momentum/owner/age/custom payload. */
     private static boolean teleport(Entity entity,double x,double y,double z,float yaw,float pitch,Set<Relative> relatives){
-        boolean moved=entity.teleportTo((net.minecraft.server.level.ServerLevel)entity.level(),x,y,z,relatives,Mth.wrapDegrees(yaw),Mth.wrapDegrees(pitch),true);
-        if(moved&&!(entity instanceof LivingEntity living&&living.isFallFlying())){
-            entity.setDeltaMovement(entity.getDeltaMovement().multiply(1,0,1));entity.setOnGround(true);
-        }
-        return moved;
+        return entity.teleportTo((net.minecraft.server.level.ServerLevel)entity.level(),x,y,z,relatives,Mth.wrapDegrees(yaw),Mth.wrapDegrees(pitch),true);
     }
     private void magnet(ServerPlayer owner){
         var level=owner.level();var at=owner.position();

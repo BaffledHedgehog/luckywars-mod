@@ -7,6 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.*;
 import net.minecraft.world.effect.*;
@@ -28,8 +29,13 @@ public final class LbcReactiveArtifacts {
     private final Set<LivingEntity> reduced=Collections.newSetFromMap(new IdentityHashMap<>());
     private boolean applying,producing;
     private static final class Window {int depth=1;final List<Runnable> moves=new ArrayList<>();}
-    private static final class Cloud {final ServerPlayer owner;final String epoch;final Vec3 center;int expires;Cloud(ServerPlayer p,String e){owner=p;epoch=e;center=p.position();expires=p.level().getServer().getTickCount()+100;}}
-    private static final class Blindness {MobEffectInstance baseline;int lastTick;Blindness(MobEffectInstance original,int tick){baseline=zeroLayer(original);lastTick=tick;}}
+    private static final class Cloud {
+        final ServerPlayer owner;final ServerLevel level;final String epoch;final Vec3 center;final double radius;final int amplifier,visual;int expires;
+        Cloud(ServerPlayer p,String e){this(p,e,p.position(),7,0,100,0);}
+        Cloud(ServerPlayer p,String e,Vec3 center,double radius,int amplifier,int life,int visual){owner=p;level=p.level();epoch=e;this.center=center;this.radius=radius;this.amplifier=amplifier;this.visual=visual;expires=p.level().getServer().getTickCount()+life;}
+    }
+    private static final class Blindness {MobEffectInstance baseline;final int amplifier;int lastTick;
+        Blindness(MobEffectInstance original,int tick,int amplifier){this.amplifier=amplifier;baseline=smokeLayer(original,amplifier);lastTick=tick;}}
     public LbcReactiveArtifacts(GameController game){this.game=game;}
     private boolean valid(ServerPlayer p){return p!=null&&p.isAlive()&&!p.isRemoved()&&p.level()==game.maps().level()&&game.canUseGameplayItems(p)&&!game.isObserver(p)&&game.stage()!=GameController.Stage.ENDING;}
     private boolean paused(ServerPlayer p){return game.items().wands().inputTimeStopped(p)||game.items().timeStop().stopped(p.level());}
@@ -86,30 +92,51 @@ public final class LbcReactiveArtifacts {
         owner.level().sendParticles(owner,ParticleTypes.SMOKE,false,false,at.x,at.y,at.z,10,.3,.3,.3,.05);
         clouds.add(new Cloud(owner,game.items().epoch()));updateSmoke(false);
     }
-    private static MobEffectInstance zeroLayer(MobEffectInstance value){for(var node=value;node!=null;node=((EffectLayers.Access)node).skywars2$layerHidden())if(node.getAmplifier()==0){var copy=new MobEffectInstance(node);((EffectLayers.Access)copy).skywars2$layerHidden(null);return copy;}return null;}
+    void grenadeSmoke(ServerPlayer owner,Vec3 at,boolean old){
+        if(!valid(owner))return;
+        clouds.add(new Cloud(owner,game.items().epoch(),at,5,1,1200,old?2:1));updateSmoke(false);
+    }
+    private static MobEffectInstance smokeLayer(MobEffectInstance value,int amplifier){for(var node=value;node!=null;node=((EffectLayers.Access)node).skywars2$layerHidden())if(node.getAmplifier()==amplifier){var copy=new MobEffectInstance(node);((EffectLayers.Access)copy).skywars2$layerHidden(null);return copy;}return null;}
     /** Native addEffect observer retains unrelated same-amplifier layers while smoke owns its short layer. */
-    public void externalBlindness(LivingEntity target,MobEffectInstance grant){if(applying||!grant.is(MobEffects.BLINDNESS)||grant.getAmplifier()!=0||!target.canBeAffected(grant))return;var state=blind.get(target);if(state==null)return;if(state.baseline==null)state.baseline=zeroLayer(grant);else EffectLayers.merge(state.baseline,grant);}
+    public void externalBlindness(LivingEntity target,MobEffectInstance grant){if(applying||!grant.is(MobEffects.BLINDNESS)||!target.canBeAffected(grant))return;var state=blind.get(target);if(state==null||grant.getAmplifier()!=state.amplifier)return;if(state.baseline==null)state.baseline=smokeLayer(grant,state.amplifier);else EffectLayers.merge(state.baseline,grant);}
     public void externalBlindnessRemoved(LivingEntity target){if(applying)return;var state=blind.get(target);if(state!=null)state.baseline=null;}
     private void restoreBlindness(LivingEntity target,Blindness state){
-        var retained=new ArrayList<MobEffectInstance>();for(var node=target.getEffect(MobEffects.BLINDNESS);node!=null;node=((EffectLayers.Access)node).skywars2$layerHidden())if(node.getAmplifier()!=0){var copy=new MobEffectInstance(node);((EffectLayers.Access)copy).skywars2$layerHidden(null);retained.add(copy);}
+        var retained=new ArrayList<MobEffectInstance>();for(var node=target.getEffect(MobEffects.BLINDNESS);node!=null;node=((EffectLayers.Access)node).skywars2$layerHidden())if(node.getAmplifier()!=state.amplifier){var copy=new MobEffectInstance(node);((EffectLayers.Access)copy).skywars2$layerHidden(null);retained.add(copy);}
         applying=true;try{target.removeEffect(MobEffects.BLINDNESS);for(var layer:retained)target.addEffect(layer);if(state.baseline!=null&&EffectLayers.live(state.baseline))target.addEffect(state.baseline);}finally{applying=false;}
     }
     private void reduce(LivingEntity target){var attribute=target.getAttribute(Attributes.FOLLOW_RANGE);if(attribute==null)return;attribute.removeModifier(RANGE);double additive=attribute.getBaseValue(),base=1,total=1;for(var modifier:attribute.getModifiers())switch(modifier.operation()){case ADD_VALUE->additive+=modifier.amount();case ADD_MULTIPLIED_BASE->base+=modifier.amount();case ADD_MULTIPLIED_TOTAL->total*=1+modifier.amount();}double factor=base*total;if(Double.isFinite(factor)&&Math.abs(factor)>1e-12)attribute.addTransientModifier(new AttributeModifier(RANGE,3/factor-additive,AttributeModifier.Operation.ADD_VALUE));reduced.add(target);if(target instanceof Mob mob&&mob.getTarget()!=null&&mob.distanceToSqr(mob.getTarget())>9){mob.setTarget(null);mob.getNavigation().stop();}}
     private void updateSmoke(boolean advance){
-        var players=new IdentityHashMap<LivingEntity,ServerPlayer>();var mobs=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
+        var players=new IdentityHashMap<LivingEntity,Cloud>();var mobs=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
         for(var cloud:List.copyOf(clouds)){
-            if(!valid(cloud.owner)||!cloud.epoch.equals(game.items().epoch())||game.server().getTickCount()>=cloud.expires){clouds.remove(cloud);continue;}if(paused(cloud.owner)){if(advance)cloud.expires++;continue;}
-            for(var target:cloud.owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(cloud.center,cloud.center).inflate(7),e->e.position().distanceToSqr(cloud.center)<=49&&wildTarget(e))){if(target instanceof ServerPlayer)players.put(target,cloud.owner);else if(target.getType().builtInRegistryHolder().is(MOBS)&&target.getAttribute(Attributes.FOLLOW_RANGE)!=null)mobs.add(target);}
+            boolean validSource=cloud.visual==0?valid(cloud.owner):game.playing()&&game.stage()!=GameController.Stage.ENDING&&cloud.level==game.maps().level();
+            if(!validSource||!cloud.epoch.equals(game.items().epoch())||game.server().getTickCount()>=cloud.expires){clouds.remove(cloud);continue;}
+            if(cloud.visual==0?paused(cloud.owner):game.items().timeStop().stopped(cloud.level)){if(advance)cloud.expires++;continue;}
+            for(var target:cloud.level.getEntitiesOfClass(LivingEntity.class,new AABB(cloud.center,cloud.center).inflate(cloud.radius),e->e.position().distanceToSqr(cloud.center)<=cloud.radius*cloud.radius&&wildTarget(e))){
+                if(target instanceof ServerPlayer){var previous=players.get(target);if(previous==null||cloud.amplifier>previous.amplifier)players.put(target,cloud);}
+                else if(target.getType().builtInRegistryHolder().is(MOBS)&&target.getAttribute(Attributes.FOLLOW_RANGE)!=null)mobs.add(target);
+            }
+            if(advance&&cloud.visual!=0){var at=cloud.center;
+                if(cloud.visual==2)cloud.level.sendParticles(ParticleTypes.POOF,true,false,at.x,at.y+1,at.z,70,2,.5,2,.1);
+                else cloud.level.sendParticles(new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK_MARKER,
+                        net.minecraft.world.level.block.Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.GRAY).defaultBlockState()),true,false,at.x,at.y+2.5,at.z,100,7,4,7,0);
+            }
 
         }
         for(var target:List.copyOf(blind.keySet()))if(!players.containsKey(target)){restoreBlindness(target,blind.remove(target));}
         for(var target:List.copyOf(reduced))if(!mobs.contains(target)){var range=target.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.removeModifier(RANGE);reduced.remove(target);}
-        for(var target:players.keySet()){var state=blind.computeIfAbsent(target,e->new Blindness(e.getEffect(MobEffects.BLINDNESS),game.server().getTickCount()));int now=game.server().getTickCount();if(state.baseline!=null&&!state.baseline.isInfiniteDuration()&&now>state.lastTick){int remaining=state.baseline.getDuration()-(now-state.lastTick);state.baseline=remaining<=0?null:ItemEffectLevels.create(MobEffects.BLINDNESS,remaining,0,state.baseline.isAmbient(),state.baseline.isVisible(),state.baseline.showIcon());}state.lastTick=now;applying=true;try{target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,2,0,false,false),players.get(target));}finally{applying=false;}}
+        for(var target:players.keySet()){
+            var cloud=players.get(target);var state=blind.get(target);
+            if(state!=null&&state.amplifier!=cloud.amplifier){restoreBlindness(target,state);blind.remove(target);state=null;}
+            int now=game.server().getTickCount();
+            if(state==null){state=new Blindness(target.getEffect(MobEffects.BLINDNESS),now,cloud.amplifier);blind.put(target,state);}
+            if(state.baseline!=null&&!state.baseline.isInfiniteDuration()&&now>state.lastTick){int remaining=state.baseline.getDuration()-(now-state.lastTick);state.baseline=remaining<=0?null:ItemEffectLevels.create(MobEffects.BLINDNESS,remaining,state.amplifier,state.baseline.isAmbient(),state.baseline.isVisible(),state.baseline.showIcon());}
+            state.lastTick=now;applying=true;try{target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,2,state.amplifier,false,false),cloud.owner);}finally{applying=false;}
+        }
         for(var mob:mobs)reduce(mob);
     }
     public boolean canTarget(Mob mob,LivingEntity target){return target==null||!reduced.contains(mob)||mob.distanceToSqr(target)<=9;}
     int cloudCount(){return clouds.size();}
-    public void tick(){if(game.items().timeStop().stopped(game.maps().level())){for(var state:blind.values())state.lastTick=game.server().getTickCount();for(var cloud:clouds)cloud.expires++;return;}updateSmoke(true);}
+    public void tick(){if(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(game.maps().level())){for(var state:blind.values())state.lastTick=game.server().getTickCount();for(var cloud:clouds)cloud.expires++;return;}updateSmoke(true);}
     public void loaded(Entity entity){if(entity instanceof LivingEntity target&&!reduced.contains(target)){var range=target.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.removeModifier(RANGE);}}
     public void unloaded(Entity entity){if(entity instanceof LivingEntity target){var state=blind.remove(target);if(state!=null)restoreBlindness(target,state);var range=target.getAttribute(Attributes.FOLLOW_RANGE);if(reduced.remove(target)&&range!=null)range.removeModifier(RANGE);}}
     public void clearEffects(ServerPlayer player){clouds.removeIf(c->c.owner==player);updateSmoke(false);blind.remove(player);var range=player.getAttribute(Attributes.FOLLOW_RANGE);if(reduced.remove(player)&&range!=null)range.removeModifier(RANGE);}

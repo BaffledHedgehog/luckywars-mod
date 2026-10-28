@@ -114,7 +114,7 @@ final class LbcErecto {
     }
     private static void rotate(ServerPlayer owner,Vec3 direction,float recoil){
         float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));float pitch=Mth.clamp((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()))+recoil,-90,90);
-        owner.teleportTo(owner.level(),owner.getX(),owner.getY(),owner.getZ(),Set.of(),yaw,pitch,true);
+        owner.forceSetRotation(yaw,false,pitch,false);
     }
     /** Shared resident DDA and native entity boxes resolve a cast-local focus without allocating a marker. */
     private HitResult first(ServerPlayer owner,double range,boolean entities){return firstAt(owner,owner.getEyePosition(),owner.getLookAngle(),range,entities);}

@@ -801,6 +801,8 @@ public final class GameChecks {
                                 case "jammer-spells" -> { JammerSpellChecks.run(game); return; }
                                 case "armor-suppression-stop-probe" -> { ArmorSuppressionChecks.stopProbe(game); return; }
                                 case "armor-suppression-cleanup" -> { ArmorSuppressionChecks.cleanup(game); return; }
+                                case "momentum-teleports" -> { TeleportMomentumChecks.run(game); return; }
+                                case "projectile-self-hits" -> { ProjectileSelfHitChecks.run(game); return; }
                                 case "shulker-armor" -> { ShulkerArmorChecks.run(game); return; }
                                 case "shulker-armor-stop-probe" -> { ShulkerArmorChecks.stopProbe(game); return; }
                                 case "shulker-armor-cleanup" -> { ShulkerArmorChecks.cleanup(game); return; }
