@@ -1,3 +1,44 @@
+## Complete Flesh armor and native HP load order - QUALIFIED (28 October 2026)
+
+[Author decisions, native source closure and qualification](agent_notes/FLESH_ARMOR_PORT_2026_10_28.md).
+(user) Flesh is physical: neither MAG nor TECH suppresses the full-set bonus.
+(user) Full set DOUBLES maximum health as described, superseding source x3.
+Keep original minecraft:44a8aa48-d53d-42c0-b229-4557d3c581b1, amount1
+ADD_MULTIPLIED_TOTAL. Exact head8/chest16/legs12/feet6 native ADD_VALUE gives
+base20+42=62 ->124HP. Four actual raw flesh:1 armor slots; carried pieces do
+not count. Use shared equipment notifications/armor owner/role/dimension lifecycle.
+No heal, ratio refill, effect clock or separate HP ledger. Permanent sourceID,
+idempotent live modifier, atomic legacy x3 repair via detached AttributeInstance;
+forget preserves current HP/save, loaded reconciles actual gear, stop removes
+only own online modifier. Other health/effect/shadow owners remain authoritative.
+Seven source tables (four leaves/root/pre/full) are public ready; pre/full packaged.
+Actual normal/Ultra acquisition, exact payload/presentation and original PvP goal
+remain; no unrelated broad LuckyBlock pool is enabled. No RP changes needed.
+Native LivingEntity reads Health before transient equipment attributes. Shared
+EquipmentHealthLoadMixin installs encoded gear and selected player inventory,
+runs the ordinary equipment engine/cache and reconciles saved Flesh before the
+ORIGINAL setHealth call. No post-load HP restoration/replayed heal. First native
+equipment update sees equivalent stacks, avoiding a second remove/readd clamp.
+Actual preconnection ShadowAbsorption.load also tried forceAddEffect/send before
+ServerPlayer.connection existed. Install its canonical active-map carrier during
+this load phase; normal join sync sends it. Connected publish/ledger math unchanged.
+Buildf6969660 passed32results in2actual mode1matches (102.36s), exact557sources/
+1581classes/3238resources plus build.gradle.198author paths/29overrides exact;
+normal owned-child shutdown/exact fixture restoration; no final crash signatures.
+Full110HP, boost+shadow120HP, non-Flesh selected-hand65HP and ordinary mob75HP
+native save/read and first-equipment checks pass without post-load fixture heals.
+Neighbor armor/effect/standalone shadow suites pass. No real socket reconnect,
+death/respawn, physical-client pixels or peakTPS claim.
+Initiala0c31f64 omitted native deferred MAX_HEALTH callback in fixture. Next1afbffc6
+found preconnection absorption bug and failed to restore borrowed advancement
+receiver.4036a16d passed Flesh but fixture's ALL-dirty callback registered an
+unpublished null-connection waypoint receiver, crashing the owned child. Preserve
+all rejected proofs/logs; snapshots restored. Final fixture restores receiver in
+finally and invokes only native MAX_HEALTH callback on unpublished probes; real
+registered players naturally run all callbacks. Gameplay unchanged after4036.
+Stopped-only installation receipt:build/verification/flesh-armor/main-install.json.
+Never force main shutdown/restart. Earlier entries below are historical.
+
 ## Complete Berserker armor - QUALIFIED (28 October 2026)
 
 [Author decisions, complete source closure and native proof](agent_notes/BERSERK_ARMOR_PORT_2026_10_28.md).

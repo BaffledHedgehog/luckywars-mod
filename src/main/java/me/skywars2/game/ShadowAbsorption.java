@@ -223,6 +223,12 @@ public final class ShadowAbsorption {
         s.positiveCapacity = Math.max(0, net(s));
         s.loading = false;
         reconcile(entity, false);
-        if (!s.entries.isEmpty()) publish(entity, null);
+        if (!s.entries.isEmpty()) {
+            // Player NBT is read before its connection exists. Like native loading,
+            // install the carrier directly; the normal join sync sends it afterward.
+            if (entity instanceof net.minecraft.server.level.ServerPlayer player && player.connection == null)
+                entity.getActiveEffectsMap().put(MobEffects.ABSORPTION, new MobEffectInstance(s.entries.values().iterator().next()));
+            else publish(entity, null);
+        }
     }
 }

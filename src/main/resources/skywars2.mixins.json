@@ -5,6 +5,7 @@
     "TeleportMomentumMixin$Connection",
     "TeleportMomentumMixin$Pose",
     "TeleportMomentumMixin$Command",
+    "EquipmentHealthLoadMixin",
     "CoreEntityMergeMixin$Items",
     "CoreEntityMergeMixin$Orbs",
     "CoreEntityMergeMixin$Level",

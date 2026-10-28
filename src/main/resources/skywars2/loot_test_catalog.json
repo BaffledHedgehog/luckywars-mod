@@ -7,6 +7,13 @@
     "lbc:ported/"
   ],
   "tables": [
+    "lbc:neko_set_flesh",
+    "lbc:neko_set_flesh/helmet",
+    "lbc:neko_set_flesh/chestplate",
+    "lbc:neko_set_flesh/leggings",
+    "lbc:neko_set_flesh/boots",
+    "lbc:neko_set_flesh_pre",
+    "lbc:neko_set_flesh_full",
     "lbc:neko_set_berserk",
     "lbc:neko_set_berserk/helmet",
     "lbc:neko_set_berserk/chestplate",
