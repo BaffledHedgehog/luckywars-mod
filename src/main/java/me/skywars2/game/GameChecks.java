@@ -797,6 +797,9 @@ public final class GameChecks {
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
                                 case "entity-merging" -> { CoreEntityMergeChecks.run(game); return; }
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
+                                case "nanobot-armor" -> { NanobotArmorChecks.run(game); return; }
+                                case "nanobot-armor-stop-probe" -> { NanobotArmorChecks.stopProbe(game); return; }
+                                case "nanobot-armor-cleanup" -> { NanobotArmorChecks.cleanup(game); return; }
                                 case "assassin-armor" -> { AssassinArmorChecks.run(game); return; }
                                 case "phantom-armor" -> { PhantomArmorChecks.run(game); return; }
                                 case "armor-suppression" -> { ArmorSuppressionChecks.run(game); return; }
@@ -1344,6 +1347,7 @@ public final class GameChecks {
             OrdinaryAccessoryChecks.tick(game);
             CoreEntityMergeChecks.tick(game);
             ArmorSetChecks.tick(game);
+            NanobotArmorChecks.tick(game);
             AssassinArmorChecks.tick(game);
             PhantomArmorChecks.tick(game);
             ShulkerArmorChecks.tick(game);

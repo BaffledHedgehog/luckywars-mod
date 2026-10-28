@@ -523,6 +523,10 @@ public final class LbcItems {
         hudPositive(component,"  \uE109 ",awakenedAcid.pending(source),ChatFormatting.GREEN);
         hudPositive(component,"  \uE112 ",blind.queued(source),ChatFormatting.GREEN);
         hudPositive(component,"  \uE113 ",psycho.hudValue(source,"lookback"),ChatFormatting.RED);
+        int nanobotTier=mana.hudValue(source,"nanobots_tier");
+        if(nanobotTier>=4)hudPositive(component,"  \uE114 ",nanobotTier,
+                nanobotTier<12?ChatFormatting.RED:nanobotTier<24?ChatFormatting.GOLD:
+                nanobotTier<40?ChatFormatting.YELLOW:nanobotTier<60?ChatFormatting.GREEN:ChatFormatting.AQUA);
         hudPositive(component,"  \uE115 ",mana.hudValue(source,"nomagic"),ChatFormatting.RED);
         hudPositive(component,"  \uE116 ",psycho.hudValue(source,"piss"),ChatFormatting.RED);
         hudPositive(component,"  \uE146 ",mana.hudValue(source,"effect_kiuaskivi"),ChatFormatting.RED);
@@ -1808,7 +1812,9 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { clear(player,true); }
+    // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
+    private void clear(ServerPlayer player,boolean resetNanobots) { if(resetNanobots)armorSets.nanobots().reset(player); moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
@@ -1884,7 +1890,7 @@ public final class LbcItems {
         mana.forget(player);
         magic.clear(player);
         resetRocket(player);
-        clear(player); rotations.remove(player.getUUID()); resetAttributes(player);
+        clear(player,false); rotations.remove(player.getUUID()); resetAttributes(player);
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {

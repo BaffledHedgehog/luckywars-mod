@@ -24,6 +24,7 @@ public abstract class IncomingArtifactCriterionMixin {
         var game=SkyWars2.game();if(game!=null){
             game.items().incomingArtifacts().incoming(player,source,originalDamage,actualDamage,blocked);
             game.items().shulkerArmor().incoming(player);
+            game.items().armorSets().nanobots().incoming(player);
         }
     }
     @Mixin(LivingEntity.class)
@@ -33,7 +34,8 @@ public abstract class IncomingArtifactCriterionMixin {
             var game=SkyWars2.game();
             if(game!=null&&(Object)this instanceof ServerPlayer player)
                 return game.items().incomingArtifacts().withIncomingAttempt(player,
-                        ()->game.items().shulkerArmor().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount)));
+                        ()->game.items().shulkerArmor().withIncomingAttempt(player,
+                                ()->game.items().armorSets().nanobots().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount))));
             return nativeHurt.call(level,source,amount);
         }
     }

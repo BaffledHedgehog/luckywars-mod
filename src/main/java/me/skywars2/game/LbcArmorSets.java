@@ -25,11 +25,13 @@ public final class LbcArmorSets {
     private final GameController game;
     private final LbcErosionSuppression erosionSuppression;
     private final LbcPhantomArmor phantom;
+    private final LbcNanobotArmor nanobots;
     private int phase;
     private String epoch;
 
-    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);this.phantom=new LbcPhantomArmor(game);}
+    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);this.phantom=new LbcPhantomArmor(game);this.nanobots=new LbcNanobotArmor(game);}
     public LbcPhantomArmor phantom(){return phantom;}
+    public LbcNanobotArmor nanobots(){return nanobots;}
 
     private boolean eligible(ServerPlayer player){
         return player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()
@@ -92,6 +94,7 @@ public final class LbcArmorSets {
     void pulse20(ServerPlayer player){if(admitted(player))pulse20(player,worn(player));}
 
     private void pulse20(ServerPlayer player,ItemStack[] stacks){
+        nanobots.pulse(player);
         if(count(stacks,"paladin")==4&&!game.items().magic().beaconSuppressed(player.position()))
             player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,60,3),player);
         // Author: the biological smell is never suppressed by either jammer.
@@ -137,6 +140,6 @@ public final class LbcArmorSets {
     public void inventoryChanged(ServerPlayer player){erosionSuppression.inventoryChanged(player);phantom.inventoryChanged(player);}
     public void loaded(Entity entity){erosionSuppression.loaded(entity);}
     public boolean recover(ItemStack stack,ServerLevel level){return erosionSuppression.recover(stack,level);}
-    public void stop(){phantom.stop();erosionSuppression.stop();phase=0;epoch=null;}
-    public void forget(ServerPlayer player){phantom.forget(player);erosionSuppression.forget(player);}
+    public void stop(){nanobots.stop();phantom.stop();erosionSuppression.stop();phase=0;epoch=null;}
+    public void forget(ServerPlayer player){nanobots.forget(player);phantom.forget(player);erosionSuppression.forget(player);}
 }

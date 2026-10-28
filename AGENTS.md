@@ -1,3 +1,39 @@
+## Complete Nanobots armor - QUALIFIED, INSTALLED (28 October 2026)
+
+[Source contract, author ruling and native proof](agent_notes/NANOBOT_ARMOR_PORT_2026_10_28.md).
+All four original pieces now charge native nanobots_tier/nanobots_coldown scores,
+refresh source ResistanceI..V/dust and use the existing shared20tick armor phase.
+Exact head/chest/legs/feet order2/4/3/1, per-addition119gate, signed full-set-4
+cooldown, positive-only natural decay and pre-growth Resistance order remain.
+The actual hurt-player criterion, including shield/absorption, removes5tier and
+adds5cooldown only when<=20; no duplicate generic accepted-hurt callback.
+(user) TECH only blocks new charge/full-set recovery and Resistance refresh.
+MAG remains ungated; existing40tick Resistance expires naturally. Damage loss
+and natural cooldown decay continue under TECH. (user) Unequipped stored charge
+continues Resistance refresh exactly as source. Native scoreboard writes remain
+authoritative; disconnect preserves scores, purify/death/respawn/stop reset them.
+Shared HUD now shows existingE114and source band colors. No RP changes required;
+all four models/equipment assets, existing glyph and RU/EN keys were read-verified.
+All7original tables remain byte-equivalent after schema migration; pre/full were
+present as source resources but needed explicit packaging, now supplied. Original
+normal/Ultra reforge acquisition and native imported PvP criterion are exercised;
+no invented Lucky Block pool enablement or new fatal-PvP claim.
+Builddb830314 passed34results in2actual mode1matches (111.07s), including
+200real registered-client ticks per Nanobots fixture, source loot/math/effect
+layers/HUD, TECH/MAG, stuns/noMagic, native rejected/absorbed/shield damage, actual
+disconnect/purify/stop and adjacent armor/combat/TimeStop regressions. Exact546
+sources/1551classes/3232resources;1302processed loot tables audited.198author
+paths/29live overrides unchanged; normal owned-child stop/exact snapshots restored.
+Initial6a82223dfailed only a fixture's absorption assertion: MAX_ABSORPTION default0
+silently rejected its10yellowHP. Set fixture capacity100 and assert actual10before
+the single incoming hit; production code unchanged. Initial evidence retained.
+Installer11820installeddb830314over31b84a20under stopped/world-unlocked conditions;
+receipt:build/verification/nanobot-armor/main-install.json. No forced stop/restart.
+Retain currentdb830314,31b84a20rollback,b3c13ce9fallback and network audit tool;
+obsoletec33bd703and failed6a82223darchives were path/SHA-verified and removed
+(81,920,772bytes); initial logs/results/proof remain.
+Earlier entries below are historical; no physical-client or peakTPS claim.
+
 ## Full melee knockback and authored source balance - QUALIFIED, INSTALLED (28 October 2026)
 
 [Direction/native proof](agent_notes/KNOCKBACK_DIRECTION_REPAIR_2026_10_28.md) and
