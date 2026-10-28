@@ -51,6 +51,7 @@ public final class HazardPropagationMixins {
                 if(authority==null) authority=game.items().transformator().owner(source);
                 if(authority==null) authority=game.items().godHedgehog().owner(source);
                 if(authority==null) authority=game.items().hedgehog().owner(source);
+                if(authority==null) authority=game.items().nukeEvent().owner(source);
                 if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
                 if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
@@ -60,6 +61,8 @@ public final class HazardPropagationMixins {
                 if(godCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,godCause);
                 var hedgehogCause=game.items().hedgehog().cause(source);
                 if(hedgehogCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,hedgehogCause);
+                var nuclearCause=game.items().nukeEvent().cause(source);
+                if(nuclearCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,nuclearCause);
                 damageSource=game.items().spellSources().damage(damageSource);
             }
         }
@@ -221,6 +224,8 @@ public final class HazardPropagationMixins {
                 game.items().inventoryHazards().inheritChild(source,spawned);
                 game.items().incomingArtifacts().inheritChild(source,spawned);
                 game.items().spellSources().inherit(source,spawned);
+                game.items().nukeEvent().inherit(source,spawned);
+                game.items().nukeEvent().inheritChild(spawned);
                 game.items().chaosTrapActors().inheritProjectile(source,spawned);
                 game.items().moiseiBoots().inheritChild(source,spawned);
                 game.items().quiver().inheritChild(source,spawned);

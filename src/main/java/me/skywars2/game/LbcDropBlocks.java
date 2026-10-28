@@ -13,6 +13,11 @@ final class LbcDropBlocks {
     private LbcDropBlocks() { }
     /** Same flags, neighbour-shape resolution and deferred updates as native /fill replace. */
     static void fill(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict) {
+        fill(level, from, to, block, strict, state -> true);
+    }
+    /** Source replace predicates share the same fill limits and native update semantics. */
+    static void fill(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict,
+            java.util.function.Predicate<BlockState> replace) {
         if (level.isOutsideBuildHeight(from) || level.isOutsideBuildHeight(to)) return;
         long volume = ((long)Math.abs(to.getX() - from.getX()) + 1)
                 * ((long)Math.abs(to.getY() - from.getY()) + 1)
@@ -23,7 +28,9 @@ final class LbcDropBlocks {
         var updated = strict ? null : new ArrayList<Updated>();
         for (var pos : BlockPos.betweenClosed(Math.min(from.getX(),to.getX()), Math.min(from.getY(),to.getY()), Math.min(from.getZ(),to.getZ()),
                 Math.max(from.getX(),to.getX()), Math.max(from.getY(),to.getY()), Math.max(from.getZ(),to.getZ()))) {
-            var old = strict ? null : level.getBlockState(pos);
+            var before = level.getBlockState(pos);
+            if (!replace.test(before)) continue;
+            var old = strict ? null : before;
             if (input.place(level, pos, strict ? 818 : 258) && updated != null) updated.add(new Updated(pos.immutable(), old));
         }
         if (updated != null) for (var update : updated) level.updateNeighboursOnBlockSet(update.pos(), update.oldState());

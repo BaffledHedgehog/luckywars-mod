@@ -158,7 +158,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_p
         profiles_path = allowed / "config/luckywars/players.json"
         installed = allowed / "mods/skywars2.jar"
         fixture_player_paths = []
-        for fixture_name in dict.fromkeys(("TestGamma", *EXTRA_FIXTURE_PLAYERS)):
+        for fixture_name in dict.fromkeys(("TestAlpha", "TestBeta", "TestGamma", *EXTRA_FIXTURE_PLAYERS)):
             fixture_bytes = bytearray(hashlib.md5(("OfflinePlayer:" + fixture_name).encode()).digest())
             fixture_bytes[6] = (fixture_bytes[6] & 0x0f) | 0x30
             fixture_bytes[8] = (fixture_bytes[8] & 0x3f) | 0x80
@@ -166,9 +166,14 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_p
             fixture_player_paths.extend((world / "playerdata" / (fixture_id + ".dat"),
                                          world / "playerdata" / (fixture_id + ".dat_old"),
                                          world / "stats" / (fixture_id + ".json"),
-                                         world / "advancements" / (fixture_id + ".json")))
+                                         world / "advancements" / (fixture_id + ".json"),
+                                         world / "players/data" / (fixture_id + ".dat"),
+                                         world / "players/data" / (fixture_id + ".dat_old"),
+                                         world / "players/stats" / (fixture_id + ".json"),
+                                         world / "players/advancements" / (fixture_id + ".json")))
         for path in (allowed / "server.properties", settings_path, profiles_path, allowed / "usercache.json", world / "data/scoreboard.dat",
-                     world / "data/scoreboard.dat_old", installed, *fixture_player_paths):
+                     world / "data/scoreboard.dat_old", world / "data/minecraft/scoreboard.dat",
+                     world / "data/minecraft/scoreboard.dat_old", installed, *fixture_player_paths):
             backups[path] = path.read_bytes() if path.exists() else None
         # Durable recovery survives a Python interruption or a child shutdown timeout.
         # Successful byte restoration removes this temporary old-JAR copy.

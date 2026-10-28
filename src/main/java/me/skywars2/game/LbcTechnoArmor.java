@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.tags.TagKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.damagesource.DamageSource;
@@ -120,11 +121,15 @@ public final class LbcTechnoArmor {
         for(var other:p.level().players()){
             if(other==p||other.isSpectator()||other.distanceToSqr(p)<1||game.items().magic().mechanismSuppressed(other))continue;
             var at=p.position().add(0,3,0);var direction=other.getEyePosition().subtract(at).normalize();
-            for(double offset:new double[]{.1,.5,.9,1.3,1.7,2.1,2.6,3.2}){
-                var point=at.add(direction.scale(offset));
-                // Source's nearest viewer is the wearer under normal admission; keep this private.
-                p.level().sendParticles(p,ParticleTypes.FLAME,false,false,point.x,point.y,point.z,1,0,0,0,0);
-            }
+            // Source's nearest viewer is the wearer under normal admission; keep this private.
+            directionParticles(p,at,direction,ParticleTypes.FLAME);
+        }
+    }
+    /** The helmet and All-Seeing Eye share the exact eight-point directional glyph. */
+    static void directionParticles(ServerPlayer viewer,Vec3 origin,Vec3 direction,ParticleOptions particle){
+        for(double offset:new double[]{.1,.5,.9,1.3,1.7,2.1,2.6,3.2}){
+            var point=origin.add(direction.scale(offset));
+            viewer.level().sendParticles(viewer,particle,false,false,point.x,point.y,point.z,1,0,0,0,0);
         }
     }
     static final class SelfWaterDamage extends DamageSource{

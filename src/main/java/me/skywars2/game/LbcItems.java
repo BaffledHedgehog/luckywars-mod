@@ -222,6 +222,10 @@ public final class LbcItems {
     private final LbcInfinity infinity;
     private final LbcAimbobRewards aimbobRewards;
     private final LbcMagicBean magicBean;
+    private final LbcAttributeFood attributeFood;
+    private final LbcEdibleSpells edibleSpells;
+    private final LbcFoodStatuses foodStatuses;
+    private final LbcNukeEvent nukeEvent;
     private final OwnedEffectLayers ownedEffects=new OwnedEffectLayers();
     private final LbcShulkerArmor shulkerArmor;
     private final LbcInventoryHazards inventoryHazards;
@@ -834,6 +838,10 @@ public final class LbcItems {
         this.infinity = new LbcInfinity(game);
         this.aimbobRewards = new LbcAimbobRewards(game);
         this.magicBean = new LbcMagicBean(game);
+        this.attributeFood = new LbcAttributeFood(game);
+        this.edibleSpells = new LbcEdibleSpells(game);
+        this.foodStatuses = new LbcFoodStatuses(game);
+        this.nukeEvent = new LbcNukeEvent(game);
         this.armorSets = new LbcArmorSets(game);
         this.shulkerArmor = new LbcShulkerArmor(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
@@ -890,6 +898,7 @@ public final class LbcItems {
         this.bolts = new LbcBolts(game);
         this.lightningAcquisition = new LbcLightningAcquisition(game);
         this.summons.prepare();
+        this.nukeEvent.prepare();
     }
 
     public String epoch() { return entityEpochTag; }
@@ -942,7 +951,7 @@ public final class LbcItems {
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source)
                     || babylonEffects.currentSource(source)
                     || (LbcTntDrops.managed(source.getDirectEntity()) || LbcCreeperDrops.managed(source.getDirectEntity())
-                        || LbcIncomingArtifacts.managed(source.getDirectEntity())
+                        || LbcIncomingArtifacts.managed(source.getDirectEntity()) || LbcEdibleSpells.managed(source.getDirectEntity()) || LbcNukeEvent.managed(source.getDirectEntity())
                         || spellSources.wild(source.getDirectEntity()) || LbcChaosTrapActors.managed(source.getDirectEntity())
                         || LbcMoiseiBoots.managed(source.getDirectEntity()) || quiver.managedSecondary(source.getDirectEntity()) || babylonEffects.managedSecondary(source.getDirectEntity())
                         || source.getDirectEntity()!=null&&source.getDirectEntity().entityTags().contains("skywars2.quiver.fang")
@@ -1049,6 +1058,10 @@ public final class LbcItems {
     public LbcInfinity infinity() { return infinity; }
     public LbcAimbobRewards aimbobRewards() { return aimbobRewards; }
     public LbcMagicBean magicBean() { return magicBean; }
+    public LbcAttributeFood attributeFood() { return attributeFood; }
+    public LbcEdibleSpells edibleSpells() { return edibleSpells; }
+    public LbcFoodStatuses foodStatuses() { return foodStatuses; }
+    public LbcNukeEvent nukeEvent() { return nukeEvent; }
     public OwnedEffectLayers ownedEffects() { return ownedEffects; }
     public LbcShulkerArmor shulkerArmor() { return shulkerArmor; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
@@ -1106,6 +1119,7 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
+        nukeEvent.inheritChild(entity);
         if (entity instanceof net.minecraft.world.entity.monster.Silverfish && entity.level() instanceof ServerLevel level
                 && godHedgehog.blocksSilverfish(level) && !godHedgehog.isBoss(entity)) { entity.discard(); return; }
         if (consuming.eraseLoaded(entity)) return;
@@ -1127,6 +1141,8 @@ public final class LbcItems {
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);
         magicBean.loaded(entity);
+        edibleSpells.loaded(entity);
+        nukeEvent.loaded(entity);
         luckyPigs.loaded(entity);
         libraryDrop.loaded(entity);
         beeDrops.loaded(entity);
@@ -1249,6 +1265,8 @@ public final class LbcItems {
         chaosTrapActors.unloaded(entity);
         sauvojenBoss.unloaded(entity);
         magicBean.unloaded(entity);
+        edibleSpells.unloaded(entity);
+        nukeEvent.unloaded(entity);
         pisaDrops.unloaded(entity);
         antigravity.unloaded(entity);
         portalDrops.unloaded(entity);
@@ -1672,6 +1690,7 @@ public final class LbcItems {
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
         timeStop.tick();
+        nukeEvent.tick();
         skyHazards.tick();
         lightningAcquisition.tick();
         nuclearVisuals.tick();
@@ -1723,6 +1742,8 @@ public final class LbcItems {
         stone.tick();
         bedrock.tick();
         magicBean.tick();
+        edibleSpells.tick();
+        foodStatuses.tick();
         stonekivi.tick();
         tanner.tick();
         kiuas.tick();
@@ -1863,7 +1884,7 @@ public final class LbcItems {
 
     public void clear(ServerPlayer player) { clear(player,true); }
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
-    private void clear(ServerPlayer player,boolean resetNanobots) { if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    private void clear(ServerPlayer player,boolean resetNanobots) { if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
@@ -1934,6 +1955,9 @@ public final class LbcItems {
         sauvojenBoss.forget(player);
         infinity.forget(player);
         aimbobRewards.forget(player);
+        edibleSpells.forget(player);
+        nukeEvent.forget(player);
+        foodStatuses.forget(player);
         ownedEffects.forget(player);
         moiseiBoots.forget(player);
         regenerationBelt.forget(player);
@@ -2048,6 +2072,9 @@ public final class LbcItems {
         infinity.stop();
         aimbobRewards.stop();
         magicBean.stop();
+        edibleSpells.stop();
+        nukeEvent.stop();
+        foodStatuses.stop();
         spellSources.stop();
         pisaDrops.stop();
         antigravity.stop();

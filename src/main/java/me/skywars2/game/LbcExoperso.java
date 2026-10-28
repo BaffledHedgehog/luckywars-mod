@@ -216,6 +216,9 @@ public final class LbcExoperso {
         }
     }
 
+    /** Edible Exoperso uses the same blast series and achievement/causal attribution as its wand. */
+    void edibleBurst(ServerPlayer owner, Vec3 point) { impact(owner, point); }
+
     private void impact(ServerPlayer owner, Vec3 point) {
         if (!validOwner(owner)) return;
         Series series = new Series(owner, game.items().epoch());

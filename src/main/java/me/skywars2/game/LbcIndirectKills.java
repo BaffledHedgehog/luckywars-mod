@@ -75,13 +75,17 @@ public final class LbcIndirectKills {
         final Owner cause;final DamageSource original;
         CapturedDamage(DamageSource source,Owner cause){super(source.typeHolder(),source.getDirectEntity(),source.getEntity());this.cause=cause;this.original=source;}
         @Override public net.minecraft.world.phys.Vec3 getSourcePosition(){return original.getSourcePosition();}
+        @Override public boolean scalesWithDifficulty(){return original.scalesWithDifficulty();}
+        @Override public net.minecraft.network.chat.Component getLocalizedDeathMessage(LivingEntity victim){return original.getLocalizedDeathMessage(victim);}
     }
     public void withCause(LivingEntity target,Owner cause,Runnable action){
         var previousTarget=causeTarget;var previousCause=activeCause;causeTarget=target;activeCause=cause;
         try{action.run();}finally{causeTarget=previousTarget;activeCause=previousCause;}
     }
     public DamageSource inheritDamage(LivingEntity target,DamageSource source){
-        return causeTarget==target&&activeCause!=null&&!(source instanceof CapturedDamage)?new CapturedDamage(source,activeCause):source;
+        if(source instanceof CapturedDamage)return source;
+        var accepted=causeTarget==target&&activeCause!=null?activeCause:babylonCause(source);
+        return accepted==null?source:new CapturedDamage(source,accepted);
     }
     /** Detached spell segments retain the original accepted effect's author and ordering. */
     public DamageSource captureDamage(DamageSource source,Owner cause){return cause==null?source:new CapturedDamage(source,cause);}
@@ -154,6 +158,8 @@ public final class LbcIndirectKills {
         if(game!=null && game.items().spellSources().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().chaosTrapActors().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().magicBean().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().edibleSpells().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().nukeEvent().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().incomingArtifacts().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().moiseiBoots().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().quiver().owner(source) instanceof ServerPlayer player) return player;
@@ -664,6 +670,8 @@ public final class LbcIndirectKills {
 
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
+        var nuclear=game.items().nukeEvent().cause(source.getDirectEntity());if(nuclear!=null)return nuclear;
+        var edible=game.items().edibleSpells().cause(source.getDirectEntity());if(edible!=null)return edible;
         var spell=game.items().spellSources().source(source.getDirectEntity());
         if(spell!=null)return spell.cause();
         if(LbcIncomingArtifacts.wild(source.getDirectEntity())){var author=game.items().incomingArtifacts().owner(source.getDirectEntity());if(author!=null)return wildCause(author);}

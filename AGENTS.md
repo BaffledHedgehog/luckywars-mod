@@ -1,3 +1,33 @@
+## Food dependency slice - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Source, native proof and remaining gate](agent_notes/FOOD_CHAIN_INTEGRATION_2026_10_29.md).
+(user) Aimbob helmet abilities TECH-only; MAG permits, issued NV expires normally.
+Keep original full25 Chaos pool and full-chain release gate. Main stays d9087f0a.
+New shared consume callbacks:11fixed/random attribute criteria,26edible flags,
+2native using criteria and3scoreboard-driven status consumers. Native food owns
+singledebit/components; no duplicate KFC/Aimbob/skill or private status clocks.
+Source output closure39tables,6exact original tables only functions/function ->
+modifier/type;8newly packaged outputs. Native original8+3attribute leaf expansion
+and actual food callbacks qualified in bounded fixture; not complete87foodroots.
+Bruh nuke engine retains global REPLACE schedule/native selectors/beacons/13air
+placements/24radius16nativeblasts per selectedsite and existing nuclear shader.
+Only real warning/timer/beacon/TimeStop/replacement/stop is native-tested; full700
+expiry/random target blast cascade and peakload remain UNQUALIFIED. No public
+nuclear acquisition or fullfood/catalog/Chaos readiness. No helper creepers.
+Shared accepted native damage cause now captured before TimeStopqueue, retaining
+WILD/order after child disappears; wrapper delegates position/difficulty/deathtext.
+Build0b2272aa passed18gameplay suites plus5setupchecks+2fixture setups,1actualmode1
+match,94.86s,normalownedchildexit/exactsnapshots;586sources/1675classes/3275resources
+and build.gradle exact.198authorpaths/31liveoverridefiles/main unchanged. Same
+pre-suite Polymer chunk-context diagnostic as prior stages; no new error/crash.
+Fixture runner now ALSO snapshots actual26.3 data/minecraft/scoreboard and native
+players/{data,stats,advancements} Alpha/Beta/Gamma paths. Rejected2886207e/aac03998
+proofs/logs retained; wrongpluralcodec, borrowedinput/terrain snapshot, layered
+Regen visibility and orphan reservedteam were fixture/adaptation corrections.
+No physical-client render/socket/ping or fullsourceclock/peakTPS claim. Named,
+Halloween,infinitefood and other full-chain dependencies remain pending; see notes.
+Never deploy staged/debug candidates or force main shutdown/restart.
+
 ## Chaos armor full-pool gate - IN PROGRESS, NOT RELEASED (29 October 2026)
 
 [Current integration and remaining chain](agent_notes/CHAOS_ARMOR_INTEGRATION_2026_10_29.md).

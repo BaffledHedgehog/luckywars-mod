@@ -35,8 +35,15 @@ public final class LbcHedgehogDimensions {
     boolean teleport(LivingEntity target,ServerPlayer owner,int roll){
         return transfer(target,owner,roll)!=null;
     }
+    /** Timed dimension shifting supplies the source world's RNG; the destination engine stays shared. */
+    boolean teleport(LivingEntity target,ServerPlayer owner,int roll,net.minecraft.util.RandomSource random){
+        return transfer(target,owner,roll,random)!=null;
+    }
     /** Actual native arrival also exists when its destination section is not entity-visible. */
     LivingEntity transfer(LivingEntity target,ServerPlayer owner,int roll){
+        return owner==null?null:transfer(target,owner,roll,owner.getRandom());
+    }
+    private LivingEntity transfer(LivingEntity target,ServerPlayer owner,int roll,net.minecraft.util.RandomSource random){
         if(target==null||owner==null||!game.canUseGameplayItems(owner)||!game.items().wands().validTarget(target)
                 ||target instanceof ServerPlayer player&&player!=owner&&owner.isAlliedTo(player)
                 ||!(target.level() instanceof ServerLevel from))return null;
@@ -44,7 +51,7 @@ public final class LbcHedgehogDimensions {
         if(destination==null||destination==from)return null;
         boolean nexus=destination.dimension().equals(NEXUS);
         double scale=DimensionType.getTeleportationScale(from.dimensionType(),destination.dimensionType());
-        Vec3 point=nexus?new Vec3(owner.getRandom().nextInt(9601)-4800,2332,owner.getRandom().nextInt(9601)-4800)
+        Vec3 point=nexus?new Vec3(random.nextInt(9601)-4800,2332,random.nextInt(9601)-4800)
                 :new Vec3(target.getX()*scale,target.getY(),target.getZ()*scale);
         if(!Level.isInSpawnableBounds(BlockPos.containing(point)))return null;
         // Native teleports intentionally acquire the destination chunk; no portal/safe-surface relocation.

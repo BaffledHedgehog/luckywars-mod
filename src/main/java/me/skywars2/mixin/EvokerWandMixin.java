@@ -14,6 +14,10 @@ public abstract class EvokerWandMixin {
     @Inject(method="dealDamageTo",at=@At("HEAD"),cancellable=true)
     private void skywars2$wandHit(LivingEntity target,CallbackInfo ci){
         var fang=(EvokerFangs)(Object)this;
+        if(me.skywars2.game.LbcEdibleSpells.managed(fang)){
+            var controller=SkyWars2.game();if(controller!=null)controller.items().edibleSpells().fangHit(fang,target);
+            ci.cancel();return;
+        }
         if(!fang.entityTags().contains("skywars2.evoker_wand"))return;
         var game=SkyWars2.game();if(game!=null)game.items().evokerBass().fangHit(fang,target);
         ci.cancel();

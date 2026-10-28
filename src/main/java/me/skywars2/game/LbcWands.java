@@ -1608,6 +1608,9 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
+        if(LbcEdibleSpells.wild(source))return validRoleTarget(victim,false);
+        if(LbcNukeEvent.managed(source.getDirectEntity()))return LbcIndirectKills.isWildCaptured(source)
+                ?validRoleTarget(victim,false):game.items().nukeEvent().canAffect(source.getDirectEntity(),victim);
         if(LbcChaosTrapActors.managed(source.getDirectEntity()))return game.items().chaosTrapActors().canAffect(source.getDirectEntity(),victim);
         if(game.items().spellSources().wild(source.getDirectEntity()))return game.items().sauvojenBoss().canAffect(source.getDirectEntity(),victim);
         var spellTarget=game.items().spellSources().target(LbcIndirectKills.playerSource(source.getEntity()),victim);

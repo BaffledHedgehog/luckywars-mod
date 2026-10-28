@@ -807,6 +807,9 @@ public final class GameChecks {
                                 case "hostile-electro" -> { HostileElectroChecks.run(game); return; }
                                 case "raw-raycast-spells" -> { RawRaycastSpellChecks.run(game); return; }
                                 case "magic-bean" -> { MagicBeanChecks.run(game); return; }
+                                case "attribute-food" -> { AttributeFoodChecks.start(game); return; }
+                                case "edible-spells" -> { EdibleSpellChecks.run(game); return; }
+                                case "nuke-event" -> { NukeEventChecks.run(game); return; }
                                 case "infinity" -> { InfinityChecks.run(game); return; }
                                 case "static-armor" -> { StaticArmorChecks.run(game); return; }
                                 case "techno-armor" -> { TechnoArmorChecks.run(game); return; }
@@ -1354,6 +1357,9 @@ public final class GameChecks {
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
             RawRaycastSpellChecks.tick(game);
+            AttributeFoodChecks.tick(game);
+            EdibleSpellChecks.tick(game);
+            NukeEventChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);

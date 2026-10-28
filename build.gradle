@@ -501,6 +501,15 @@ processResources {
             'data/lbc/loot_table/unstable_reactive.json'
     include 'data/lbc/loot_table/ported/death_compass.json'
     include 'data/lbc/loot_table/drops/magic_bean.json'
+    // Food consumers share original output tables; readiness remains behind the full Chaos chain.
+    include 'data/lbc/loot_table/attributefood.json',
+            'data/lbc/loot_table/random_eatable_slab_random_count.json',
+            'data/lbc/loot_table/random_eatable_slab_random_count_27.json',
+            'data/lbc/loot_table/random_eatable_slab_random_count_64.json',
+            'data/lbc/loot_table/rofls.json',
+            'data/lbc/loot_table/sussy_molten_penis.json',
+            'data/lbc/loot_table/imba/bucket_rofl.json',
+            'data/lbc/loot_table/imba/buckets.json'
     include 'data/lbc/loot_table/malevich_rnd.json', 'data/lbc/loot_table/ported/malevich.json'
     include 'data/lbc/loot_table/ported/canned_food.json', 'data/lbc/loot_table/ported/hylian_sword.json',
             'data/minecraft/tags/entity_type/monsters.json'

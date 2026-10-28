@@ -15,6 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LbcHolyShieldUseMixin {
     @Inject(method="trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/item/ItemStack;)V",at=@At("TAIL"))
     private void skywars2$holyShield(ServerPlayer player,ItemStack stack,CallbackInfo ci){
-        var game=SkyWars2.game();if(game!=null&&LbcHolyShield.matches(stack))LbcHolyShield.using(game,player,stack);
+        var game=SkyWars2.game();if(game==null)return;
+        if(LbcHolyShield.matches(stack))LbcHolyShield.using(game,player,stack);
+        game.items().edibleSpells().using(player,stack);
     }
 }

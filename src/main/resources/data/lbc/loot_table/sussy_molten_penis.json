@@ -8,20 +8,20 @@
                     "weight": 10,
                     "quality": 5,
                     "name": "minecraft:dried_kelp",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_u",
                                 "minecraft:item_model": "lbc:sussy_penis_health"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "penis_health",
@@ -30,7 +30,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "lore": [
                                 {
@@ -46,7 +46,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{random_health:1}"
                         }
                     ]
@@ -56,20 +56,20 @@
                     "weight": 10,
                     "quality": 10,
                     "name": "minecraft:poisonous_potato",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_u",
                                 "minecraft:item_model": "lbc:sussy_penis_damage"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "penis_damage",
@@ -78,7 +78,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "lore": [
                                 {
@@ -94,7 +94,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{random_damage:1}"
                         }
                     ]
@@ -104,20 +104,20 @@
                     "weight": 10,
                     "quality": 10,
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_u",
                                 "minecraft:item_model": "lbc:sussy_penis_speed"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "penis_speed",
@@ -126,7 +126,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "lore": [
                                 {
@@ -142,7 +142,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{random_speed:1}"
                         }
                     ]

@@ -6,20 +6,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style":"lbc:tier_c",
                                 "minecraft:item_model": "lbc:evokerwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "evoker_wand",
@@ -28,7 +28,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -94,7 +94,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_evoker:1}"
                         }
                     ]
@@ -102,20 +102,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style":"lbc:tier_b",
                                 "minecraft:item_model": "lbc:basswand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "bass_wand",
@@ -124,7 +124,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -205,7 +205,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_weakness:1}"
                         }
                     ]
@@ -213,20 +213,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style":"lbc:tier_c",
                                 "minecraft:item_model": "lbc:corruptwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "corruption_wand",
@@ -235,7 +235,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -321,7 +321,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_wither:1}"
                         }
                     ]
@@ -329,20 +329,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_b",
                                 "minecraft:item_model": "lbc:enderwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "ender_wand",
@@ -351,7 +351,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -404,7 +404,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_teleport:1,enderset:1}"
                         }
                     ]
@@ -412,20 +412,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_d",
                                 "minecraft:item_model": "lbc:vampirewand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "vampire_wand",
@@ -434,7 +434,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -515,7 +515,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_regeneration:1}"
                         }
                     ]
@@ -523,20 +523,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_c",
                                 "minecraft:item_model": "lbc:foxuswand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "confuse_wand",
@@ -545,7 +545,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -613,7 +613,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_buffs:1}"
                         }
                     ]
@@ -621,20 +621,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_c",
                                 "minecraft:item_model": "lbc:killingwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "blood_wand",
@@ -643,7 +643,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -724,7 +724,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_damage:1,eat_poison:1,eat_wither:1}"
                         }
                     ]
@@ -732,20 +732,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_u",
                                 "minecraft:item_model": "lbc:badwiki"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "bad_wiki",
@@ -754,7 +754,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -809,7 +809,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_book:1}"
                         }
                     ]
@@ -817,20 +817,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_c",
                                 "minecraft:item_model": "lbc:wallwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "wall_wand",
@@ -839,7 +839,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -912,7 +912,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_damage:1}"
                         }
                     ]
@@ -920,20 +920,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_a",
                                 "minecraft:item_model": "lbc:advancedenderwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "advanced_ender_wand",
@@ -943,7 +943,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -1029,7 +1029,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_teleport:1}"
                         }
                     ]
@@ -1037,20 +1037,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_b",
                                 "minecraft:item_model": "lbc:starwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "falling_stars_wand",
@@ -1060,7 +1060,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -1159,7 +1159,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_explode:1}"
                         }
                     ]
@@ -1167,20 +1167,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_b",
                                 "minecraft:item_model": "lbc:prism"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "unstable_prism",
@@ -1190,7 +1190,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -1276,7 +1276,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_glowing:1}"
                         }
                     ]
@@ -1284,9 +1284,9 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "blaze_wand",
@@ -1296,7 +1296,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -1351,14 +1351,14 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_c",
                                 "minecraft:item_model": "lbc:blazewand"
                             }
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_fire:1}"
                         }
                     ]
@@ -1366,9 +1366,9 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "unstable_spellbook",
@@ -1378,7 +1378,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -1532,14 +1532,14 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_a",
                                 "minecraft:item_model": "lbc:unstable_spellbook"
                             }
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_book:1}"
                         }
                     ]
@@ -1547,20 +1547,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_b",
                                 "minecraft:item_model": "lbc:hedgehogwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "hedgehog_wand",
@@ -1569,7 +1569,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -1676,7 +1676,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_damage:1}"
                         }
                     ]
@@ -1684,20 +1684,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_a",
                                 "minecraft:item_model": "lbc:sheepwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "sheep_wand",
@@ -1706,7 +1706,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -1777,7 +1777,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_polymorph:1}"
                         }
                     ]
@@ -1785,20 +1785,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_c",
                                 "minecraft:item_model": "lbc:psychowand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "psycho_wand",
@@ -1807,7 +1807,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -1898,7 +1898,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_psycho:1}"
                         }
                     ]
@@ -1906,20 +1906,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_b",
                                 "minecraft:item_model": "lbc:lightningwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "lightning_wand",
@@ -1929,7 +1929,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2033,7 +2033,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_lightning:1}"
                         }
                     ]
@@ -2041,20 +2041,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_c",
                                 "minecraft:item_model": "lbc:acidwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "acid_wand",
@@ -2064,7 +2064,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2163,7 +2163,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_poison:1}"
                         }
                     ]
@@ -2171,20 +2171,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_d",
                                 "minecraft:item_model": "lbc:omegaflag"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "omega_flag",
@@ -2194,7 +2194,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2265,7 +2265,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_damage_all:1}"
                         }
                     ]
@@ -2273,20 +2273,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_b",
                                 "minecraft:item_model": "lbc:neutralwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "neutral_wand",
@@ -2296,7 +2296,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2424,7 +2424,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_chaos_explode:1}"
                         }
                     ]
@@ -2432,20 +2432,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_a",
                                 "minecraft:item_model": "lbc:lightningboltwand"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "lightning_bolt_wand",
@@ -2455,7 +2455,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2539,7 +2539,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_lightning:1}"
                         }
                     ]
@@ -2547,20 +2547,20 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_a",
                                 "minecraft:item_model": "lbc:exoperso"
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "megumin_wand",
@@ -2570,7 +2570,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2641,7 +2641,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_big_explode:1}"
                         }
                     ]
@@ -2649,13 +2649,13 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:item_model": "minecraft:diamond_sword",
                                 "minecraft:attribute_modifiers": [
@@ -2675,7 +2675,7 @@
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "item.minecraft.diamond_sword",
@@ -2685,7 +2685,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2737,7 +2737,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_strength:1}"
                         }
                     ]
@@ -2745,13 +2745,13 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:item_model": "minecraft:diamond_pickaxe",
                                 "minecraft:attribute_modifiers": [
@@ -2771,7 +2771,7 @@
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "item.minecraft.diamond_pickaxe",
@@ -2781,7 +2781,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2833,7 +2833,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_haste:1}"
                         }
                     ]
@@ -2841,13 +2841,13 @@
                 {
                     "type": "minecraft:item",
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:item_model": "minecraft:diamond_axe",
                                 "minecraft:attribute_modifiers": [
@@ -2867,7 +2867,7 @@
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "item.minecraft.diamond_axe",
@@ -2877,7 +2877,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -2929,7 +2929,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_haste:1}"
                         }
                     ]
@@ -2938,13 +2938,13 @@
                     "type": "minecraft:item",
                     "quality": 8,
                     "name": "minecraft:golden_apple",
-                    "functions": [
+                    "modifier": [
                         {
-                            "function": "minecraft:set_count",
+                            "type": "minecraft:set_count",
                             "count": 1
                         },
                         {
-                            "function": "minecraft:set_components",
+                            "type": "minecraft:set_components",
                             "components": {
                                 "minecraft:tooltip_style": "lbc:tier_a",
                                 "minecraft:item_model": "lbc:danmaku",
@@ -2960,7 +2960,7 @@
                             }
                         },
                         {
-                            "function": "minecraft:set_name",
+                            "type": "minecraft:set_name",
                             "name": [
                                 {
                                     "translate": "danmaku_wand",
@@ -2970,7 +2970,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_lore",
+                            "type": "minecraft:set_lore",
                             "mode": "replace_all",
                             "entity": "this",
                             "lore": [
@@ -3040,7 +3040,7 @@
                             ]
                         },
                         {
-                            "function": "minecraft:set_custom_data",
+                            "type": "minecraft:set_custom_data",
                             "tag": "{eat_danmaku:1}"
                         }
                     ]

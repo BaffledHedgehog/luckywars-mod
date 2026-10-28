@@ -671,6 +671,8 @@ public final class GameController {
     public void consumed(ServerPlayer player, ItemStack stack) {
         items.kfcFood().consumed(player,stack);
         items.aimbobRewards().consumed(player,stack);
+        items.attributeFood().consumed(player,stack);
+        items.edibleSpells().consumed(player,stack);
         events.onConsumed(player, stack);
     }
     public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
