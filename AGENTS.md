@@ -1,3 +1,33 @@
+## Complete Berserker armor - QUALIFIED (28 October 2026)
+
+[Author decisions, complete source closure and native proof](agent_notes/BERSERK_ARMOR_PORT_2026_10_28.md).
+Four equipped raw berserk:1 pieces now use the existing shared native
+EntityHurtPlayerTrigger/pre-hurt admission bridge, including shield/absorption
+criteria. No duplicate generic damage hook, timer or private health tracker.
+(user) Remove the20HP/hplvl threshold ENTIRELY: proc at any health/absorption.
+Retain source70percent independent nextFloat roll, sourced native InstantHealthI
+one-tick instance,3hearts atY+1 spread.5/1/.5, wolf growl MASTER1/1 and visible
+RegenerationII100ticks. (user) MAG alone suppresses NEW procs; TECH does not.
+(user) Jammer must never clear already-granted effects. Native shared layer and
+signed-effect/item-cap behavior remains; no custom healing replacement.
+All seven source tables (four leaves/root/pre/full) are public ready entries;
+pre/full now explicitly packaged. Existing exact normal slot and Ultra-family
+reforges are concrete acquisition. Original attributes/IDs/components/presentation
+and imported Berserker advancement remain. No unrelated LuckyBlock pool enabled.
+Build22bd9562 passed28results in2actual mode1matches (101.86s), exact554sources/
+1577classes/3236resources plus build.gradle.198author paths/29overrides exact;
+normal owned-child shutdown and exact fixture restoration. AnyHP/absorption,
+chance.7boundary, actual signed attributes/reforges, accepted/rejected/shield/
+absorbed criteria, source effects/packets, MAG retention and shared neighbors pass.
+Initial95ea719c failed only the new Greed fixture's mistaken self-heal expectation:
+self grants accepted, existing signed instant tick benefit blocked by Greed;
+actual hostile hurt is rejected. Correct fixture only; all production bytecode
+unchanged. Initial log/proof retained. Fatal-boundary proof is an actual native
+criterion at temporary0HP under captured admission, not full death/elimination.
+No RP changes, physical-client pixels or naturalTPS claim. Stopped-only auto
+installation receipt:build/verification/berserk-armor/main-install.json.
+Never force main shutdown/restart. Earlier entries below are historical.
+
 ## Nuclear mushroom twenty-second dissolve - QUALIFIED (28 October 2026)
 
 [Shader contract and native proof](agent_notes/NUCLEAR_FADE_20S_2026_10_28.md).

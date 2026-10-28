@@ -26,6 +26,7 @@ public abstract class IncomingArtifactCriterionMixin {
             game.items().shulkerArmor().incoming(player);
             game.items().armorSets().glass().incoming(player,source);
             game.items().armorSets().nanobots().incoming(player);
+            game.items().armorSets().berserk().incoming(player);
         }
     }
     @Mixin(LivingEntity.class)
@@ -37,7 +38,8 @@ public abstract class IncomingArtifactCriterionMixin {
                 return game.items().incomingArtifacts().withIncomingAttempt(player,
                         ()->game.items().shulkerArmor().withIncomingAttempt(player,
                                 ()->game.items().armorSets().nanobots().withIncomingAttempt(player,
-                                        ()->game.items().armorSets().glass().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount)))));
+                                        ()->game.items().armorSets().glass().withIncomingAttempt(player,
+                                                ()->game.items().armorSets().berserk().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount))))));
             return nativeHurt.call(level,source,amount);
         }
     }
