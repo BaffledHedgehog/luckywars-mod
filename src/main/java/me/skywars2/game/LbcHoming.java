@@ -450,7 +450,7 @@ public final class LbcHoming {
         }
         if(nearest==null) return;
         var original=LbcIndirectKills.playerSource(trace.source());
-        if(original==null || original==nearest) trace.owner=chosen.owner;
+        if(original==null || original==nearest){trace.owner=chosen.owner;trace.sourcePolicy=null;trace.cause=null;}
         Vec3 direction=nearest.getEyePosition().subtract(trace.position);
         trace.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
         trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,Math.sqrt(direction.x*direction.x+direction.z*direction.z)));

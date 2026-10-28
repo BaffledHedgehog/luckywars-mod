@@ -520,6 +520,7 @@ public final class LbcElectro {
 
     /** Общая смена автора для отражений и Curse, без разворота скорости или повторного удара. */
     void assignOwner(Entity entity,ServerPlayer owner) {
+        game.items().spellSources().reflected(entity);
         if(entity instanceof net.minecraft.world.entity.projectile.Projectile projectile) projectile.setOwner(owner);
         else {
             if(entity instanceof net.minecraft.world.entity.AreaEffectCloud cloud) cloud.setOwner(owner);

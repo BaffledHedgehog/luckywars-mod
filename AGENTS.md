@@ -1,3 +1,17 @@
+## Chaos armor full-pool gate - IN PROGRESS, NOT RELEASED (29 October 2026)
+
+[Current integration and remaining chain](agent_notes/CHAOS_ARMOR_INTEGRATION_2026_10_29.md).
+(user) Keep ALL original25 trap entries; release ONLY after the full dependency
+chain is implemented and qualified. No temporary filtered pool. Chaos remains
+not public ready; installed main remains d9087f0a. New native actors/boss/Infinity
+and shared source hooks are staged work, not a qualified/deployable Chaos release.
+(user) Aimbob helmet abilities are TECH-only; MAG permits them. Preserve existing
+night vision, block new grants/cleansing in TECH. Apple remains source behavior.
+Author's bridge-under-wearer, MAG-only Chaos, outward arrows and one-wolf choices
+are resolved; earlier unanswered source-audit statements are historical.
+Never deploy debug candidates. Preserve protected author paths/live overrides,
+exact artifact proofs and rejected native logs. No forced main stop/restart.
+
 ## Multiplying and Randchanted armor - QUALIFIED (28 October 2026)
 
 [Exact source behavior and native proof](agent_notes/STATIC_ARMOR_PORT_2026_10_28.md).

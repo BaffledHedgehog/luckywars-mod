@@ -20,15 +20,17 @@ import java.util.Set;
 /** Shared dropped-token dispatcher: source order, one activation/debit per tick and epoch. */
 public final class LbcSpecialDrops {
     private final GameController game;
+    private static final String OWNER = "skywars2.special_drop_owner.";
     private record Pending(String epoch, LivingEntity owner) { }
     private final Map<ItemEntity, Pending> pending = new IdentityHashMap<>();
+    private final Map<java.util.UUID, LivingEntity> authors = new java.util.HashMap<>();
     private final Map<ItemEntity, Integer> lastAttempt = new IdentityHashMap<>();
     private int lastTick = Integer.MIN_VALUE;
 
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
+        return LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
     }
 
     public void loaded(Entity entity) {
@@ -37,8 +39,13 @@ public final class LbcSpecialDrops {
         if (entity instanceof ItemEntity token && recognized(token.getItem()) && active(token) && !stale(token)) {
             // Persist admission on the entity too: unloaded tokens cannot join a later match as fresh drops.
             game.items().markCurrentItemEpoch(token);
-            pending.putIfAbsent(token, new Pending(game.items().epoch(),
-                    token.getOwner() instanceof LivingEntity owner ? owner : null));
+            var cause = owner(token);
+            if (cause != null) {
+                authors.put(cause.getUUID(), cause);
+                token.entityTags().removeIf(tag -> tag.startsWith(OWNER));
+                token.entityTags().add(OWNER + cause.getUUID());
+            }
+            pending.putIfAbsent(token, new Pending(game.items().epoch(), cause));
         }
     }
 
@@ -46,7 +53,15 @@ public final class LbcSpecialDrops {
     public LivingEntity owner(ItemEntity token) {
         if (token.getOwner() instanceof LivingEntity living) return living;
         var entry = pending.get(token);
-        return entry == null ? null : entry.owner();
+        if (entry != null && entry.owner() != null) return entry.owner();
+        for (var tag : token.entityTags()) if (tag.startsWith(OWNER)) try {
+            var id = java.util.UUID.fromString(tag.substring(OWNER.length()));
+            var online = game.server().getPlayerList().getPlayer(id);
+            if (online != null) return online;
+            var cause = authors.get(id);
+            if (cause != null) return cause;
+        } catch (IllegalArgumentException ignored) { }
+        return null;
     }
 
     /** Only causal trap tokens reach this native merge guard; no world or tick scan. */
@@ -91,6 +106,9 @@ public final class LbcSpecialDrops {
         if (token.isRemoved() || token.getAge() >= 5999 || stale(token) || !active(token)
                 || !(token.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return false;
         if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token).epoch())) return false;
+        boolean chaosActors = LbcChaosTrapActors.matches(token.getItem());
+        boolean sauvojenBoss = LbcSauvojenBoss.recognized(token.getItem());
+        boolean infinity = LbcInfinity.recognized(token.getItem());
         boolean chest = LbcChestDropItem.kind(token.getItem()) != null;
         boolean tnt = LbcTntDropItem.matches(token.getItem());
         boolean creeper = LbcCreeperDropItem.kind(token.getItem()) != null;
@@ -125,7 +143,10 @@ public final class LbcSpecialDrops {
         boolean bees = LbcBeeDropItem.matches(token.getItem());
         boolean pigs = LbcLuckyPigDropItem.matches(token.getItem());
         boolean enzan = LbcLevitationDropItem.matches(token.getItem());
-        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !normalVex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants && !portal && !luckyRoom && !pisa && !antigravity && !ultraponos && !transformator && !stalin) return false;
+        if (!infinity && !chaosActors && !sauvojenBoss && !chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !normalVex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants && !portal && !luckyRoom && !pisa && !antigravity && !ultraponos && !transformator && !stalin) return false;
+        if (chaosActors && !game.items().chaosTrapActors().ready(token)) return false;
+        if (sauvojenBoss && !game.items().sauvojenBoss().ready(token)) return false;
+        if (infinity && !game.items().infinity().ready(token)) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
@@ -195,12 +216,19 @@ public final class LbcSpecialDrops {
         for (var kind : LbcFallingNetheriteDropItem.Kind.values()) {
             if (LbcFallingNetheriteDropItem.matches(token.getItem(), kind)) game.items().fallingNetheriteDrops().spawn(token, kind);
         }
+        if (infinity) game.items().infinity().spawn(token);
+        if (chaosActors) game.items().chaosTrapActors().spawn(token, "forest");
+        if (sauvojenBoss) game.items().sauvojenBoss().spawn(token);
         if (target != null) for (var kind : LbcHoleDropItem.Kind.values()) {
             if (LbcHoleDropItem.matches(token.getItem(), kind)) game.items().holeDrops().spawn(token, kind, target);
         }
         if (target != null) for (var kind : LbcCageDropItem.Kind.values()) {
-            if (LbcCageDropItem.matches(token.getItem(), kind)) game.items().cageDrops().spawn(token, kind, target);
+            if (kind != LbcCageDropItem.Kind.OBSIDIAN && LbcCageDropItem.matches(token.getItem(), kind))
+                game.items().cageDrops().spawn(token, kind, target);
         }
+        if (chaosActors) game.items().chaosTrapActors().spawn(token, "evilluckyblock");
+        if (target != null && LbcCageDropItem.matches(token.getItem(), LbcCageDropItem.Kind.OBSIDIAN))
+            game.items().cageDrops().spawn(token, LbcCageDropItem.Kind.OBSIDIAN, target);
         if (scare) {
             // This trap chooses any eligible nearest player, independently of allegiance.
             var victim = game.items().cageDrops().target(token);
@@ -227,10 +255,12 @@ public final class LbcSpecialDrops {
             game.items().feedbackDrops().spawn(token, LbcFeedbackDropItem.Kind.YAMETE);
         for (var kind : LbcOpAnvilDropItem.Kind.values())
             if (LbcOpAnvilDropItem.matches(token.getItem(), kind)) game.items().opAnvilDrops().spawn(token, kind);
+        if (chaosActors) game.items().chaosTrapActors().spawn(token, "aimbob");
         for (var kind : LbcSlabDropItem.Kind.values())
             if (LbcSlabDropItem.matches(token.getItem(), kind)) game.items().slabDrops().spawn(token, kind);
         if(fatSkeleton) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.FAT_SKELETON);
         if(skeleton) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.SKELETON_OLD);
+        if (chaosActors) game.items().chaosTrapActors().spawn(token, "bob");
         if(bob) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.BOB_OLD);
         if (pisa) game.items().pisaDrops().spawn(token);
         if (ultraponos) game.items().ultraponos().spawn(token);
@@ -290,6 +320,7 @@ public final class LbcSpecialDrops {
 
     public void stop() {
         pending.clear();
+        authors.clear();
         lastAttempt.clear();
         lastTick = Integer.MIN_VALUE;
     }

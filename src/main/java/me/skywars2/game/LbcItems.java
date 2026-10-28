@@ -215,6 +215,12 @@ public final class LbcItems {
     private final LbcPopit popit;
     private final LbcOrdinaryAccessories ordinaryAccessories;
     private final LbcArmorSets armorSets;
+    private final LbcChaosTraps chaosTraps;
+    private final LbcSpellSource spellSources;
+    private final LbcChaosTrapActors chaosTrapActors;
+    private final LbcSauvojenBoss sauvojenBoss;
+    private final LbcInfinity infinity;
+    private final LbcAimbobRewards aimbobRewards;
     private final OwnedEffectLayers ownedEffects=new OwnedEffectLayers();
     private final LbcShulkerArmor shulkerArmor;
     private final LbcInventoryHazards inventoryHazards;
@@ -820,6 +826,12 @@ public final class LbcItems {
         this.traveller = new LbcTraveller(game);
         this.popit = new LbcPopit(game);
         this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
+        this.chaosTraps = new LbcChaosTraps(game);
+        this.spellSources = new LbcSpellSource(game);
+        this.chaosTrapActors = new LbcChaosTrapActors(game);
+        this.sauvojenBoss = new LbcSauvojenBoss(game);
+        this.infinity = new LbcInfinity(game);
+        this.aimbobRewards = new LbcAimbobRewards(game);
         this.armorSets = new LbcArmorSets(game);
         this.shulkerArmor = new LbcShulkerArmor(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
@@ -929,6 +941,7 @@ public final class LbcItems {
                     || babylonEffects.currentSource(source)
                     || (LbcTntDrops.managed(source.getDirectEntity()) || LbcCreeperDrops.managed(source.getDirectEntity())
                         || LbcIncomingArtifacts.managed(source.getDirectEntity())
+                        || spellSources.wild(source.getDirectEntity()) || LbcChaosTrapActors.managed(source.getDirectEntity())
                         || LbcMoiseiBoots.managed(source.getDirectEntity()) || quiver.managedSecondary(source.getDirectEntity()) || babylonEffects.managedSecondary(source.getDirectEntity())
                         || source.getDirectEntity()!=null&&source.getDirectEntity().entityTags().contains("skywars2.quiver.fang")
                         || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity())
@@ -951,6 +964,7 @@ public final class LbcItems {
                 && potionSpawnerDrops.canAffect(source.getDirectEntity(),victim)
                 && droneDrops.canAffect(source.getDirectEntity(),victim)
                 && antDrops.canAffect(source.getDirectEntity(),victim)
+                && chaosTrapActors.canAffect(source.getDirectEntity(),victim)
                 && clouds.sourceAcidCanAffect(source.getDirectEntity(),victim);
     }
     public LbcKfcFood kfcFood() { return kfcFood; }
@@ -1026,6 +1040,12 @@ public final class LbcItems {
     public LbcPopit popit() { return popit; }
     public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
     public LbcArmorSets armorSets() { return armorSets; }
+    public LbcChaosTraps chaosTraps() { return chaosTraps; }
+    public LbcSpellSource spellSources() { return spellSources; }
+    public LbcChaosTrapActors chaosTrapActors() { return chaosTrapActors; }
+    public LbcSauvojenBoss sauvojenBoss() { return sauvojenBoss; }
+    public LbcInfinity infinity() { return infinity; }
+    public LbcAimbobRewards aimbobRewards() { return aimbobRewards; }
     public OwnedEffectLayers ownedEffects() { return ownedEffects; }
     public LbcShulkerArmor shulkerArmor() { return shulkerArmor; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
@@ -1100,6 +1120,9 @@ public final class LbcItems {
         stalin.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
         specialDrops.loaded(entity);
+        spellSources.loaded(entity);
+        chaosTrapActors.loaded(entity);
+        sauvojenBoss.loaded(entity);
         luckyPigs.loaded(entity);
         libraryDrop.loaded(entity);
         beeDrops.loaded(entity);
@@ -1218,6 +1241,9 @@ public final class LbcItems {
         if(entity instanceof ServerPlayer player)armorSets.phantom().forget(player);
         if(entity instanceof LivingEntity living)ownedEffects.forget(living);
         specialDrops.unloaded(entity);
+        spellSources.unloaded(entity);
+        chaosTrapActors.unloaded(entity);
+        sauvojenBoss.unloaded(entity);
         pisaDrops.unloaded(entity);
         antigravity.unloaded(entity);
         portalDrops.unloaded(entity);
@@ -1383,7 +1409,10 @@ public final class LbcItems {
         return false;
     }
 
-    void markCurrentItemEpoch(Entity entity) { entity.entityTags().add(entityEpochTag); }
+    void markCurrentItemEpoch(Entity entity) {
+        entity.entityTags().add(entityEpochTag);
+        spellSources.capture(entity);
+    }
 
     private void tickNanoTraps() {
         if (nanoTraps.isEmpty()) return;
@@ -1644,6 +1673,7 @@ public final class LbcItems {
         rifleZoom.tick();
         if(game.maps().level()!=null && timeStop.stopped(game.maps().level())) {
             armorSets.techno().pausedMaintenance();
+            armorSets.chaos().pausedMaintenance();
             exasperato.blastTick();
             // Исключения Stand: кулаки двигаются, ножи лишь выпускаются и ждут native thaw.
             blackHoleVisuals.tick();
@@ -1705,6 +1735,10 @@ public final class LbcItems {
         traveller.tick();
         ordinaryAccessories.tick();
         armorSets.tick();
+        spellSources.tick();
+        chaosTrapActors.tick();
+        sauvojenBoss.tick();
+        infinity.tick();
         shulkerArmor.tick();
         classicMelee.tick();
         pendingCombat.tick();
@@ -1769,7 +1803,7 @@ public final class LbcItems {
         tickNanoTraps();
         tickRockets();
         tickRocketCrafts();
-        for(var player:game.server().getPlayerList().getPlayers()) refreshHud(player);
+        for(var player:game.server().getPlayerList().getPlayers()) { aimbobRewards.tickPlayer(player);refreshHud(player); }
         if (turnCurses.isEmpty()) return;
         // Reuse a bounded snapshot: damage can synchronously remove an owner through AFTER_DEATH.
         tickBatch.addAll(turnCurses.values());
@@ -1890,6 +1924,10 @@ public final class LbcItems {
         incomingArtifacts.forget(player);
         shulkerArmor.forget(player);
         armorSets.forget(player);
+        spellSources.forget(player);
+        sauvojenBoss.forget(player);
+        infinity.forget(player);
+        aimbobRewards.forget(player);
         ownedEffects.forget(player);
         moiseiBoots.forget(player);
         regenerationBelt.forget(player);
@@ -1999,6 +2037,11 @@ public final class LbcItems {
         kfcFood.stop();
         helicopterEncounter.stop();
         specialDrops.stop();
+        chaosTrapActors.stop();
+        sauvojenBoss.stop();
+        infinity.stop();
+        aimbobRewards.stop();
+        spellSources.stop();
         pisaDrops.stop();
         antigravity.stop();
         ultraponos.stop();

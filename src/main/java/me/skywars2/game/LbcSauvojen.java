@@ -196,6 +196,33 @@ public final class LbcSauvojen {
             }
         }
     }
+    /** Stationary hostile emitters keep their source payloads and an independent causal author. */
+    void emitHostile(ServerPlayer author,Kind kind,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
+        if(!validOwner(author)||!author.level().hasChunkAt(BlockPos.containing(origin)))return;
+        try(var sourceScope=game.items().spellSources().scope(source)){
+            switch(kind){
+                case RUBY->game.items().ruby().sourceEmitter(author,origin,direction);
+                case TERRA->game.items().terra().sourceEmitter(author,origin,direction);
+                case ELECTRO->game.items().wands().hostileSauvojenElectro(author,origin,direction,source);
+                case AIR->game.items().air().sourceEmitter(author,origin,direction);
+                case ACID->{
+                    float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+                    float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+                    var shot=game.items().clouds().sourceAcid(author.level(),origin,yaw,pitch,300,true,author);shot.entityTags().add("magic");game.items().spellSources().capture(shot);
+                }
+                case TELEPORT->game.items().teleport().sourceEmitter(author,origin,direction);
+                case STONE->game.items().stone().flying(author,origin,direction);
+                case FIRE->{
+                    var shot=new SmallFireball(EntityTypes.SMALL_FIREBALL,author.level());
+                    game.items().wands().launchFire(author,shot,origin,direction.normalize().scale(.7));
+                    // Causal author stays in the explicit Source; native owner immunity belongs to the emitter.
+                    var emitter=author.level().getEntity(source.emitter());shot.setOwner(emitter);
+                    LbcOverload.sound(author,origin,"minecraft:entity.blaze.shoot",1,1,0);
+                }
+                case BLIND->game.items().blind().sourceEmitter(author,origin,direction);
+            }
+        }
+    }
     void emitAcademy(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,int mode,Vec3 origin,Vec3 direction){
         if(mode<0||mode>=kind.modes())throw new IllegalArgumentException("Sauvojen "+kind+" mode "+mode);
         if(!validOwner(owner)||!owner.level().hasChunkAt(BlockPos.containing(origin)))return;
@@ -259,7 +286,7 @@ public final class LbcSauvojen {
             else{drone.position=point;drone.carrier.setPos(point);sync(drone);}
         }
     }
-    private void sync(Drone drone){
+    void sync(Drone drone){
         drone.display.setYaw((float)Math.toDegrees(Math.atan2(-drone.direction.x,drone.direction.z)));
         drone.display.setPitch((float)-Math.toDegrees(Math.atan2(drone.direction.y,drone.direction.horizontalDistance())));
         var connected=game.server().getPlayerList().getPlayers();

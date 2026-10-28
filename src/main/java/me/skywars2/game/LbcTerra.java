@@ -223,6 +223,7 @@ public final class LbcTerra {
         private Kind kind = Kind.REGULAR;
         private int age;
         int sourceLifetime;
+        boolean emitterStyle;
         private boolean modelPaused;
         TerraProjectile(EntityType<? extends TerraProjectile> type, Level level) { super(type, level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
@@ -314,10 +315,14 @@ public final class LbcTerra {
         castAt(owner,origin,direction,kind,0);
     }
     TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime) {
+        return castAt(owner,origin,direction,kind,lifetime,false);
+    }
+    TerraProjectile sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){return castAt(owner,origin,direction,Kind.REGULAR,60,true);}
+    private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime,boolean emitterStyle) {
         var level = owner.level();
         if (level != game.maps().level() || !game.canUseGameplayItems(owner)) return null;
         var projectile = new TerraProjectile(TYPE, level);
-        projectile.kind = kind; projectile.sourceLifetime=lifetime;
+        projectile.kind = kind; projectile.sourceLifetime=lifetime;projectile.emitterStyle=emitterStyle;
         projectile.setOwner(owner);
         projectile.setPos(origin);
         projectile.setDeltaMovement(direction.normalize().scale(kind.speed));
@@ -333,8 +338,8 @@ public final class LbcTerra {
         if (level.addFreshEntity(projectile)) {
             projectiles.add(projectile);
             if (kind.lifetime == 0 && lifetime==0) game.items().lifetimes().track(projectile);
-            projectile.attachModel();
-            projectile.syncModel(visualEnd(projectile, owner));
+            if(emitterStyle){game.items().spellSources().capture(projectile);return projectile;}
+            projectile.attachModel();projectile.syncModel(visualEnd(projectile, owner));
             if (kind == Kind.TRUE_BEAM)
                 LbcOverload.sound(owner, origin, "minecraft:block.beacon.activate", .5f, 2, 0);
             else if (kind == Kind.TRUE_CHARGE || kind == Kind.RAZOR)
@@ -356,6 +361,7 @@ public final class LbcTerra {
         batch.addAll(projectiles);
         try {
             for (var projectile : batch) {
+                try(var sourceScope=game.items().spellSources().scope(projectile)){
                 if (!projectiles.contains(projectile)) continue;
                 if (projectile.isRemoved() || !(projectile.getOwner() instanceof ServerPlayer owner)
                         || owner.isRemoved() || !owner.isAlive() || owner.level() != projectile.level()
@@ -363,7 +369,7 @@ public final class LbcTerra {
                         || !game.canUseGameplayItems(owner) || game.stage() == GameController.Stage.ENDING) {
                     remove(projectile); continue;
                 }
-                if (stopped || owner.entityTags().contains("time_stopped")) {
+                if (stopped || (game.items().spellSources().current()!=null?projectile:owner).entityTags().contains("time_stopped")) {
                     if (!projectile.modelPaused) projectile.syncModel(projectile.position());
                     projectile.modelPaused = true;
                     continue;
@@ -377,11 +383,13 @@ public final class LbcTerra {
                         remove(projectile);
                     }
                 } else game.items().lifetimes().advance(projectile, projectile.age);
+                }
             }
         } finally { batch.clear(); }
     }
 
     private boolean step(TerraProjectile projectile, ServerPlayer owner) {
+        if(projectile.emitterStyle)return emitterStep(projectile,owner);
         var level = owner.level();
         Vec3 from = projectile.position(), motion = projectile.getDeltaMovement(), to = from.add(motion);
         if (!level.hasChunkAt(BlockPos.containing(from)) || motion.lengthSqr() < 1e-12
@@ -426,6 +434,25 @@ public final class LbcTerra {
             return false;
         }
         return true;
+    }
+
+    /** Original hostile Terra samples share vegetation and native collision, without the player's blade model. */
+    private boolean emitterStep(TerraProjectile projectile,ServerPlayer owner){
+        var level=owner.level();var from=projectile.position();var direction=projectile.getDeltaMovement().normalize();
+        var shield=game.items().wands().shieldHit(owner,from,from.add(direction.scale(1.8)));
+        for(int i=0;i<7;i++){
+            var at=from.add(direction.scale(i*.3));var cell=BlockPos.containing(at);
+            if(!level.hasChunkAt(cell)||game.items().magic().suppressedAt(level,at))return false;
+            if(shield!=null&&from.distanceToSqr(shield.getLocation())<=from.distanceToSqr(at))return false;
+            level.sendParticles(new DustColorTransitionOptions(0x00ff00,0x006600,1),true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
+            var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),projectile,owner);
+            int hits=0;
+            for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),e->e.position().distanceToSqr(at)<=100&&target(owner,e)&&!e.entityTags().contains("summoned_cultist"))){
+                target.hurtServer(level,damage,7);if(++hits==2)break;
+            }
+            if(!level.getBlockState(cell).is(AIRS)){growVegetation(level,BlockPos.containing(at.subtract(direction.scale(.3))),Kind.REGULAR);return false;}
+        }
+        projectile.setPos(from.add(direction.scale(1.8)));return true;
     }
 
     private void renderTrail(TerraProjectile projectile, Vec3 from, Vec3 end) {

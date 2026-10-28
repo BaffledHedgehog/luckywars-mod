@@ -39,6 +39,7 @@ import java.util.function.BooleanSupplier;
 /** Source incoming criterion artifacts and both independent Sand Amulet variants. */
 public final class LbcIncomingArtifacts {
     private static final String ACTOR="skywars2.incoming_artifact.actor";
+    private static final String WILD="skywars2.incoming_artifact.wild";
     private static final TagKey<EntityType<?>> ATTACKS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:attacks"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final TagKey<Block> SOLID=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:solid"));
@@ -274,7 +275,9 @@ public final class LbcIncomingArtifacts {
         try{actor.load(TagValueInput.create(ProblemReporter.DISCARDING,actor.registryAccess(),TagParser.parseCompoundFully(snbt)));}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
     }
-    private void track(ServerPlayer p,Entity actor){
+    void trackWild(ServerPlayer p,Entity actor){actor.entityTags().add(WILD);track(p,actor);}
+    public static boolean wild(Entity actor){return managed(actor)&&actor.entityTags().contains(WILD);}
+    void track(ServerPlayer p,Entity actor){
         if(!game.playing()||game.stage()==GameController.Stage.ENDING||actor.level()!=game.maps().level()){actor.discard();return;}
         actor.entityTags().add(ACTOR);game.items().markCurrentItemEpoch(actor);actors.put(actor,p.getUUID());
         game.items().timeStop().prepareFrozen(actor);if(!p.level().addFreshEntity(actor))actors.remove(actor);
@@ -289,11 +292,12 @@ public final class LbcIncomingArtifacts {
     public void inheritChild(Entity source,Entity child){
         if(!managed(source)||!(child instanceof PrimedTnt)||!actors.containsKey(source))return;
         var p=owner(source);if(p==null||!game.playing()||game.stage()==GameController.Stage.ENDING){child.discard();return;}
-        child.entityTags().add(ACTOR);game.items().markCurrentItemEpoch(child);actors.put(child,p.getUUID());game.items().timeStop().prepareFrozen(child);
+        child.entityTags().add(ACTOR);if(wild(source))child.entityTags().add(WILD);game.items().markCurrentItemEpoch(child);actors.put(child,p.getUUID());game.items().timeStop().prepareFrozen(child);
     }
     public boolean explosionTarget(Entity source,Entity target){return !managed(source)||canAffect(source,target);}
     public boolean canAffect(Entity source,Entity target){
-        var p=owner(source);return p!=null&&(target==p&&!(source instanceof Wolf)
+        var p=owner(source);if(p!=null&&wild(source))return !LbcGreed.active(target)&&game.items().wands().validRoleTarget(target,false);
+        return p!=null&&(target==p&&!(source instanceof Wolf)
                 ?!LbcGreed.active(target)&&game.items().wands().validRoleTarget(target,false):game.items().wands().projectileTarget(p,target));
     }
     public void targetChanged(Mob actor,LivingEntity target){if(managed(actor)&&target!=null&&!canAffect(actor,target))actor.setTarget(null);}
@@ -328,6 +332,8 @@ public final class LbcIncomingArtifacts {
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
         actors.keySet().removeIf(Entity::isRemoved);
         var level=game.maps().level();if(level==null||game.items().timeStop().stopped(level))return;
+        for(var actor:List.copyOf(actors.keySet()))if(actor instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow
+                &&actor.entityTags().contains("killedarrow")&&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())actor.discard();
         for(var column:List.copyOf(columns)){
             if(!game.items().currentEpoch(column.epoch)){columns.remove(column);continue;}
             if(!resident(column.level,column.center,column.center.above(3)))continue;

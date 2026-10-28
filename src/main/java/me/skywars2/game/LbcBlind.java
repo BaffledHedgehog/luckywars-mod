@@ -73,6 +73,7 @@ public final class LbcBlind {
         int age;
         int lifetime=ORDINARY_LIFETIME;
         boolean phantom;
+        boolean emitterStyle;
         InteractionHand trialHand;
         ServerPlayer trialOwner;
         boolean trial;
@@ -231,6 +232,12 @@ public final class LbcBlind {
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) charges.add(charge);
     }
+    void sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){
+        var charge=new Charge(TYPE,owner.level());charge.setOwner(owner);charge.setPos(origin);charge.setNoGravity(true);
+        charge.setDeltaMovement(direction.normalize().scale(.99));LbcShooters.orient(charge);charge.lifetime=120;charge.emitterStyle=true;
+        charge.entityTags().addAll(List.of("magic","shield_blockable"));game.items().markCurrentItemEpoch(charge);
+        if(owner.level().addFreshEntity(charge))charges.add(charge);
+    }
 
     void tick() {
         tick++;
@@ -246,18 +253,20 @@ public final class LbcBlind {
             // Damage callbacks can stop the match and clear the reusable batch during an impact.
             for(int index=0;index<batch.size();index++) {
                 Charge charge=batch.get(index);
+                try(var sourceScope=game.items().spellSources().scope(charge)){
                 if(!charges.contains(charge)) continue;
                 if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
                         || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
                         || !validOwner(owner) || owner.level()!=charge.level()) {
                     charges.remove(charge); charge.discard(); continue;
                 }
-                if(paused(owner)) continue;
+                if(game.items().spellSources().current()!=null?game.items().wands().timeStopped()||charge.entityTags().contains("time_stopped"):paused(owner)) continue;
                 Vec3 from=charge.position(),to=from.add(charge.getDeltaMovement());
                 if(!charge.level().hasChunkAt(BlockPos.containing(from))) { charges.remove(charge); charge.discard(); continue; }
                 if(game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)charge.level(),from)) {
                     charges.remove(charge); charge.discard(); continue;
                 }
+                if(charge.emitterStyle){if(!emitterStep(charge,owner)||++charge.age>=charge.lifetime){charges.remove(charge);charge.discard();}continue;}
                 var boundary=charge.phantom
                         ? unloadedBoundary((net.minecraft.server.level.ServerLevel)charge.level(),from,to) : null;
                 Vec3 collisionEnd=boundary==null?to:boundary.getLocation();
@@ -285,6 +294,7 @@ public final class LbcBlind {
                 if(!shieldBlocked && hit instanceof EntityHitResult entityHit)
                     blindImpact(charge,owner,entityHit.getEntity(),end);
                 if(hit!=null || boundary!=null || ++charge.age>=charge.lifetime) { charges.remove(charge); charge.discard(); }
+                }
             }
         } finally { batch.clear(); }
     }
@@ -292,6 +302,21 @@ public final class LbcBlind {
     private HitResult phantomHit(ServerPlayer owner,Vec3 from,Vec3 to) {
         return ProjectileUtil.getEntityHitResult(owner.level(),owner,from,to,new AABB(from,to).inflate(1),
                 entity->game.items().lifetimes().target(owner,entity),0);
+    }
+    private boolean emitterStep(Charge charge,ServerPlayer owner){
+        var from=charge.position();var direction=charge.getDeltaMovement().normalize();
+        var shield=game.items().wands().shieldHit(owner,from,from.add(direction.scale(.99)));
+        for(int i=0;i<4;i++){
+            var at=from.add(direction.scale(i*.33));var cell=BlockPos.containing(at);
+            if(!owner.level().hasChunkAt(cell)||game.items().magic().suppressedAt(owner.level(),at))return false;
+            if(shield!=null&&from.distanceToSqr(shield.getLocation())<=from.distanceToSqr(at))return false;
+            owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
+            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),e->e.position().distanceToSqr(at)<=225&&game.items().wands().target(owner,e))){
+                target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,80,0),owner);target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,80,1),owner);
+            }
+            if(!owner.level().getBlockState(cell).isAir())return false;
+        }
+        charge.setPos(from.add(direction.scale(.99)));return true;
     }
 
     /** DDA-проверка короткого шага обрывает траекторию у первого незагруженного блока без загрузки чанков. */

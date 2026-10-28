@@ -1,32 +1,32 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 0,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_x",
-                                "minecraft:item_model": "lbc:infinity"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{infinity_spawn:1,drop:1}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 0,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:infinity"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{infinity_spawn:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

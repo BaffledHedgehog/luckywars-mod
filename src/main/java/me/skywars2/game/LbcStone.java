@@ -159,13 +159,14 @@ public final class LbcStone {
         batch.addAll(charges);
         try {
             for(var charge:batch) {
+                try(var sourceScope=game.items().spellSources().scope(charge)){
                 if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
                         || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
                         || owner.level()!=charge.level() || !owner.isAlive() || owner.isRemoved()
                         || !game.canUseGameplayItems(owner) || game.stage()==GameController.Stage.ENDING) {
                     charge.discard(); continue;
                 }
-                if(game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) continue;
+                if(game.items().wands().timeStopped() || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
                 Vec3 from=charge.position(),to=from.add(charge.getDeltaMovement());
                 if(!owner.level().hasChunkAt(BlockPos.containing(from)) || game.items().magic().suppressedAt(owner.level(),from)) {
                     charge.discard(); continue;
@@ -195,6 +196,7 @@ public final class LbcStone {
                         } else impact(owner,to,false);
                     }
                 } else if(++charge.age>=charge.lifetime) charge.discard();
+                }
             }
         } finally { batch.clear(); charges.removeIf(Entity::isRemoved); }
     }

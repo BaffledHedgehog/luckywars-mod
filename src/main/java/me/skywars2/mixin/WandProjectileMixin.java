@@ -64,6 +64,12 @@ public abstract class WandProjectileMixin {
     /** Перед нативной физикой обновляем самонаведение; пауза не допускает лишнего шага полёта. */
     @Mixin(net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile.class)
     public static abstract class Homing {
+        @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="tick")
+        private void skywars2$emitterTick(com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original){
+            var game=SkyWars2.game();
+            if(game==null){original.call();return;}
+            try(var scope=game.items().spellSources().scope((Entity)(Object)this)){original.call();}
+        }
         @Inject(method="tick",at=@At("HEAD"),cancellable=true)
         private void skywars2$homingTick(CallbackInfo ci) {
             var game=SkyWars2.game();

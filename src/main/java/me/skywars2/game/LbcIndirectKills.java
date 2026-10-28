@@ -151,6 +151,8 @@ public final class LbcIndirectKills {
         var controller=me.skywars2.SkyWars2.game();
         if(controller!=null && controller.items().communism().owner(source) instanceof ServerPlayer player)return player;
         var game=me.skywars2.SkyWars2.game();
+        if(game!=null && game.items().spellSources().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().chaosTrapActors().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().incomingArtifacts().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().moiseiBoots().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().quiver().owner(source) instanceof ServerPlayer player) return player;
@@ -661,6 +663,9 @@ public final class LbcIndirectKills {
 
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
+        var spell=game.items().spellSources().source(source.getDirectEntity());
+        if(spell!=null)return spell.cause();
+        if(LbcIncomingArtifacts.wild(source.getDirectEntity())){var author=game.items().incomingArtifacts().owner(source.getDirectEntity());if(author!=null)return wildCause(author);}
         if (source instanceof LbcBabylonEffects.OwnerDamageSource owned) return owned.cause;
         if(source.getEntity()==null && game.items().electro().reflectedOwner(source.getDirectEntity())==null) {
             var carried=game.items().inventoryHazards().cause(source.getDirectEntity());

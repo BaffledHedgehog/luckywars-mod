@@ -123,11 +123,13 @@ public final class ElectroNativeMixins {
         @ModifyVariable(method="hurtServer",at=@At("HEAD"),argsOnly=true)
         private DamageSource skywars2$reflectedDamageSource(DamageSource source) {
             var game=SkyWars2.game();
-            if(game==null || source.getDirectEntity()==null) return source;
+            if(game==null) return source;
+            if(source.getDirectEntity()==null)return game.items().spellSources().damage(source);
             LivingEntity owner=game.items().electro().reflectedOwner(source.getDirectEntity());
             if(owner==null) owner=game.items().cageDrops().owner(source.getDirectEntity());
-            if(owner!=null) return source.getEntity()==owner ? source : new DamageSource(source.typeHolder(),source.getDirectEntity(),owner);
-            return game.items().inventoryHazards().inheritSource(source);
+            if(owner!=null) source=source.getEntity()==owner ? source : new DamageSource(source.typeHolder(),source.getDirectEntity(),owner);
+            else source=game.items().inventoryHazards().inheritSource(source);
+            return game.items().spellSources().damage(source);
         }
     }
 }

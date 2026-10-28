@@ -23,6 +23,7 @@ public abstract class LbcEquipmentMixin {
             game.items().jumpArtifacts().jump(player);
             game.items().shulkerArmor().jump(player);
             game.items().armorSets().techno().jump(player);
+            game.items().armorSets().chaos().jump(player);
         }
     }
     /** Normalize old miniguns before vanilla snapshots and applies equipment attribute modifiers. */

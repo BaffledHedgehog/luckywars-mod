@@ -107,11 +107,12 @@ public final class LbcTeleport {
     Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction){
         return castAt(owner,hand,0,ItemStack.EMPTY,origin,direction,60);
     }
+    Charge sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){return castAt(owner,InteractionHand.MAIN_HAND,0,ItemStack.EMPTY,origin,direction,60);}
     void castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction){
         castAt(owner,hand,mode,stack,origin,direction,0);
     }
     private Charge castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction,int lifetime){
-        LbcOverload.sound(owner,origin,"minecraft:entity.lightning_bolt.thunder",1,2,0);
+        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,origin,"minecraft:entity.lightning_bolt.thunder",1,2,0);
         Charge charge=new Charge(TYPE,owner.level());
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
         charge.setYRot(lifetime>0?(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)):owner.getYRot());
@@ -154,11 +155,12 @@ public final class LbcTeleport {
             batch.addAll(charges);
             try {
                 for(Charge charge:batch) {
+                    try(var sourceScope=game.items().spellSources().scope(charge)){
                     if(!charges.contains(charge)) continue;
                     if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
                             || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
                             || !validOwner(owner) || owner.level()!=charge.level()) { remove(charge); continue; }
-                    if(paused(owner)) continue;
+                    if(game.items().spellSources().current()!=null?game.items().wands().timeStopped()||charge.entityTags().contains("time_stopped"):paused(owner)) continue;
                     Vec3 from=charge.position();
                     if(!owner.level().hasChunkAt(BlockPos.containing(from))
                             || game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)charge.level(),from)) {
@@ -185,6 +187,7 @@ public final class LbcTeleport {
                     charge.age++;
                     if(charge.sourceLifetime>0) { if(charge.age>=charge.sourceLifetime) remove(charge); }
                     else game.items().lifetimes().advance(charge,charge.age);
+                    }
                 }
             } finally { batch.clear(); }
         }

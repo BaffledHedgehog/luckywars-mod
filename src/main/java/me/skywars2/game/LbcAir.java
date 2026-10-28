@@ -52,7 +52,7 @@ public final class LbcAir {
 
     public static final class Charge extends Projectile implements PolymerEntity {
         int age;
-        int sourceLifetime;boolean flyingStyle;
+        int sourceLifetime;boolean flyingStyle,emitterStyle;
         int mode;
         InteractionHand trialHand;
         Vec3 origin;
@@ -107,6 +107,7 @@ public final class LbcAir {
     Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction) {
         return spawn(owner,hand,0,ItemStack.EMPTY,origin,direction,120);
     }
+    Charge sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){var charge=spawn(owner,InteractionHand.MAIN_HAND,0,ItemStack.EMPTY,origin,direction,120);if(charge!=null)charge.emitterStyle=true;return charge;}
     void spawn(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction) {
         spawn(owner,hand,mode,stack,origin,direction,0);
     }
@@ -138,11 +139,12 @@ public final class LbcAir {
             // Прямой взрыв может завершить матч и очистить batch прямо из damage callback.
             for(int index=0;index<batch.size();index++) {
                 Charge charge=batch.get(index);
+                try(var sourceScope=game.items().spellSources().scope(charge)){
                 if(!charges.contains(charge)) continue;
                 if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
                         || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
                         || !validOwner(owner) || owner.level()!=charge.level()) { remove(charge); continue; }
-                if(game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) continue;
+                if(game.items().wands().timeStopped() || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
                 Vec3 from=charge.position();
                 if(!owner.level().hasChunkAt(BlockPos.containing(from))
                         || game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)charge.level(),from)) {
@@ -162,6 +164,7 @@ public final class LbcAir {
                 charge.age++;
                 if(charge.sourceLifetime>0) { if(charge.age>=charge.sourceLifetime) remove(charge); }
                 else game.items().lifetimes().advance(charge,charge.age);
+                }
             }
         } finally { batch.clear(); }
     }
@@ -205,6 +208,13 @@ public final class LbcAir {
 
     private void detonate(Charge charge,ServerPlayer owner,Vec3 point) {
         if(!validOwner(owner) || !game.items().currentEpoch(charge) || !owner.level().hasChunkAt(BlockPos.containing(point))) return;
+        if(charge.emitterStyle){
+            for(int i=0;i<3;i++){
+                var tnt=new net.minecraft.world.entity.item.PrimedTnt(owner.level(),point.x,point.y,point.z,owner);
+                tnt.setFuse(1);tnt.setDeltaMovement(Vec3.ZERO);game.items().incomingArtifacts().trackWild(owner,tnt);
+            }
+            return;
+        }
         if(charge.flyingStyle) {
             for(int i=0;i<3;i++) {
                 if(!validOwner(owner)||!game.items().currentEpoch(charge))break;

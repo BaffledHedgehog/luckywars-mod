@@ -800,6 +800,11 @@ public final class GameChecks {
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
                                 case "flesh-armor" -> { FleshArmorChecks.run(game); return; }
                                 case "mage-nyauwu" -> { MageNyauwuChecks.run(game); return; }
+                                case "chaos-armor" -> { ChaosArmorChecks.run(game); return; }
+                                case "chaos-armor-candidate" -> { ChaosArmorChecks.runCandidate(game); return; }
+                                case "aimbob-rewards" -> { AimbobRewardChecks.run(game); return; }
+                                case "sauvojen-boss" -> { SauvojenBossChecks.run(game); return; }
+                                case "infinity" -> { InfinityChecks.run(game); return; }
                                 case "static-armor" -> { StaticArmorChecks.run(game); return; }
                                 case "techno-armor" -> { TechnoArmorChecks.run(game); return; }
                                 case "berserk-armor" -> { BerserkArmorChecks.run(game); return; }

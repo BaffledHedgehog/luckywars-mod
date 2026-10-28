@@ -40,6 +40,7 @@ public final class HazardPropagationMixins {
             var game=SkyWars2.game();
             if(game!=null) {
                 var authority=game.items().creeperDrops().owner(source);
+                if(authority==null) authority=game.items().spellSources().owner(source);
                 if(authority==null) authority=game.items().incomingArtifacts().owner(source);
                 if(authority==null) authority=game.items().moiseiBoots().owner(source);
                 if(authority==null) authority=game.items().quiver().owner(source);
@@ -59,6 +60,7 @@ public final class HazardPropagationMixins {
                 if(godCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,godCause);
                 var hedgehogCause=game.items().hedgehog().cause(source);
                 if(hedgehogCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,hedgehogCause);
+                damageSource=game.items().spellSources().damage(damageSource);
             }
         }
 
@@ -110,6 +112,7 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().zombieTntDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().droneDrops().canAffect(source,entity));
+                entities.removeIf(entity->!game.items().chaosTrapActors().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().godHedgehog().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().hedgehog().explosionTarget(source,entity)
                         || !game.items().hedgehog().explosionTarget(level,entity));
@@ -217,6 +220,8 @@ public final class HazardPropagationMixins {
                 game.items().tntDrops().inheritChain(source,spawned);
                 game.items().inventoryHazards().inheritChild(source,spawned);
                 game.items().incomingArtifacts().inheritChild(source,spawned);
+                game.items().spellSources().inherit(source,spawned);
+                game.items().chaosTrapActors().inheritProjectile(source,spawned);
                 game.items().moiseiBoots().inheritChild(source,spawned);
                 game.items().quiver().inheritChild(source,spawned);
                 game.items().babylonEffects().inheritChild(source,spawned);

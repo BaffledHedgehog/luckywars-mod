@@ -670,6 +670,7 @@ public final class GameController {
     public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
     public void consumed(ServerPlayer player, ItemStack stack) {
         items.kfcFood().consumed(player,stack);
+        items.aimbobRewards().consumed(player,stack);
         events.onConsumed(player, stack);
     }
     public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
@@ -846,6 +847,8 @@ public final class GameController {
 
     /** Все зарегистрированные атрибуты, включая новые: оба вида modifiers снимаются только на границах матча. */
     private void resetAttributeValues(ServerPlayer player) {
+        // Infinity traits share the full match reset; ordinary cleansing/respawn does not consume them.
+        player.entityTags().removeAll(List.of("infinite_resistance","infinite_heal","infinite_saturation"));
         var attributes = player.getAttributes();
         for (var attribute : BuiltInRegistries.ATTRIBUTE) {
             var holder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute);

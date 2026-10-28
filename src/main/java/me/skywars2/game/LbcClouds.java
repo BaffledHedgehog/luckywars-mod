@@ -82,6 +82,11 @@ public final class LbcClouds {
             return entityTags().contains(FLYING_WAND_ACID)?1:super.getAirDrag();
         }
         @Override public void tick() {
+            var game=SkyWars2.game();
+            if(game==null){tickSource();return;}
+            try(var scope=game.items().spellSources().scope(this)){tickSource();}
+        }
+        private void tickSource() {
             // The awakened acid seed flies straight; its children use the shared reactive acid physics.
             boolean constantMotion=entityTags().contains(GREAT_ACID)||entityTags().contains(FLYING_WAND_ACID)||awakenedVariant(this)>0;Vec3 velocity=getDeltaMovement();
             if(awakenedVariant(this)==2)sweptFrom=position();
@@ -264,7 +269,9 @@ public final class LbcClouds {
         }
         cloudBatch.clear();
         acidBatch.addAll(acids.values());
-        for (AcidState state : acidBatch) if (!state.projectile.isRemoved()) tickAcid(state);
+        for (AcidState state : acidBatch) if (!state.projectile.isRemoved()) {
+            try(var sourceScope=game.items().spellSources().scope(state.projectile)){tickAcid(state);}
+        }
         acidBatch.clear();
     }
 
@@ -517,6 +524,10 @@ public final class LbcClouds {
     private boolean sourceAcidActive(Entity entity){return game.playing() && game.stage()!=GameController.Stage.ENDING
             && entity.level()==game.maps().level() && game.items().currentEpoch(entity);}
     public boolean sourceAcidCanAffect(Entity source,Entity target){
+        var authority=game.items().spellSources().source(source);
+        if(authority!=null)try(var scope=game.items().spellSources().scope(authority)){
+            return sourceAcidActive(source)&&Boolean.TRUE.equals(game.items().spellSources().target(game.items().spellSources().owner(source),target));
+        }
         return !sourceAcidManaged(source) || sourceAcidActive(source) && target!=null && game.items().wands().validTarget(target)
                 && (!source.entityTags().contains("skywars2.ant_acid") || game.items().antDrops().acidCanAffect(source,target));
     }

@@ -22,9 +22,9 @@ public abstract class CreatureDropIgniteMixin {
     private void skywars2$creatureFire(ServerLevel level,int enchantmentLevel,EnchantedItemInUse item,
                                       Entity target,Vec3 position,CallbackInfo ci) {
         var game=SkyWars2.game();
-        if(game!=null && (LbcCreatureDrops.managed(item.owner()) || LbcAntDrops.managed(item.owner()))
+        if(game!=null && (LbcCreatureDrops.managed(item.owner()) || LbcAntDrops.managed(item.owner()) || me.skywars2.game.LbcChaosTrapActors.managed(item.owner()))
                 && target instanceof LivingEntity living && game.items().creatureDrops().canAffect(item.owner(),target)
-                && game.items().antDrops().canAffect(item.owner(),target)) {
+                && game.items().antDrops().canAffect(item.owner(),target) && game.items().chaosTrapActors().canAffect(item.owner(),target)) {
             var author=LbcIndirectKills.playerSource(item.owner());
             if(author!=null)game.items().indirectKills().ignited(living,author,game.items().antDrops().wild(item.owner()));
         }

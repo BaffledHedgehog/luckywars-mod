@@ -26,7 +26,9 @@ public abstract class ZombieTntDropMixin {
                 || !game.items().slabDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().creatureDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().droneDrops().canTarget((Entity)(Object)this,target)
-                || !game.items().antDrops().canTarget((Entity)(Object)this,target))) ci.setReturnValue(false);
+                || !game.items().antDrops().canTarget((Entity)(Object)this,target)
+                || !game.items().chaosTrapActors().canTarget((Entity)(Object)this,target)
+                || game.items().spellSources().wild((Entity)(Object)this)&&!game.items().sauvojenBoss().canAffect((Entity)(Object)this,target))) ci.setReturnValue(false);
     }
 
     @Inject(method="setTarget", at=@At("HEAD"), cancellable=true)
@@ -39,7 +41,9 @@ public abstract class ZombieTntDropMixin {
                 || !game.items().slabDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().creatureDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().droneDrops().canTarget((Entity)(Object)this,target)
-                || !game.items().antDrops().canTarget((Entity)(Object)this,target))) ci.cancel();
+                || !game.items().antDrops().canTarget((Entity)(Object)this,target)
+                || !game.items().chaosTrapActors().canTarget((Entity)(Object)this,target)
+                || target!=null&&game.items().spellSources().wild((Entity)(Object)this)&&!game.items().sauvojenBoss().canAffect((Entity)(Object)this,target))) ci.cancel();
     }
 
     @Inject(method="doHurtTarget", at=@At("HEAD"), cancellable=true)
@@ -52,7 +56,9 @@ public abstract class ZombieTntDropMixin {
                 || !game.items().slabDrops().canAffect((Entity)(Object)this,target)
                 || !game.items().creatureDrops().canAffect((Entity)(Object)this,target)
                 || !game.items().droneDrops().canAffect((Entity)(Object)this,target)
-                || !game.items().antDrops().canAffect((Entity)(Object)this,target))) ci.setReturnValue(false);
+                || !game.items().antDrops().canAffect((Entity)(Object)this,target)
+                || !game.items().chaosTrapActors().canAffect((Entity)(Object)this,target)
+                || game.items().spellSources().wild((Entity)(Object)this)&&!game.items().sauvojenBoss().canAffect((Entity)(Object)this,target))) ci.setReturnValue(false);
     }
 
     // Stamp native drowning/lightning conversions before ENTITY_LOAD without replacing conversion.
@@ -69,6 +75,8 @@ public abstract class ZombieTntDropMixin {
             game.items().slabDrops().inheritConversion((Entity)(Object)this,converted);
             game.items().droneDrops().inheritConversion((Entity)(Object)this,converted);
             game.items().antDrops().inheritConversion((Entity)(Object)this,converted);
+            game.items().chaosTrapActors().inheritConversion((Entity)(Object)this,converted);
+            game.items().spellSources().inherit((Entity)(Object)this,converted);
         }
         return original.call(level,converted);
     }

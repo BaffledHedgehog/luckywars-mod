@@ -21,13 +21,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class IncomingArtifactCriterionMixin {
     @Inject(method="trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/damagesource/DamageSource;FFZ)V",at=@At("HEAD"))
     private void skywars2$incoming(ServerPlayer player,DamageSource source,float originalDamage,float actualDamage,boolean blocked,CallbackInfo ci){
-        var game=SkyWars2.game();if(game!=null){
+        var game=SkyWars2.game();if(game!=null)try(var scope=game.items().spellSources().scope((me.skywars2.game.LbcSpellSource.Source)null)){
             game.items().incomingArtifacts().incoming(player,source,originalDamage,actualDamage,blocked);
             game.items().shulkerArmor().incoming(player);
             game.items().armorSets().glass().incoming(player,source);
             game.items().armorSets().nanobots().incoming(player);
             game.items().armorSets().berserk().incoming(player);
             game.items().armorSets().techno().incoming(player);
+            game.items().armorSets().chaos().incoming(player);
         }
     }
     @Mixin(LivingEntity.class)
@@ -41,7 +42,7 @@ public abstract class IncomingArtifactCriterionMixin {
                                 ()->game.items().armorSets().nanobots().withIncomingAttempt(player,
                                         ()->game.items().armorSets().glass().withIncomingAttempt(player,
                                                 ()->game.items().armorSets().berserk().withIncomingAttempt(player,
-                                                        ()->game.items().armorSets().techno().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount)))))));
+                                                        ()->game.items().armorSets().techno().withIncomingAttempt(player,()->game.items().armorSets().chaos().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount))))))));
             return nativeHurt.call(level,source,amount);
         }
     }

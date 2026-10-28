@@ -116,12 +116,13 @@ public final class LbcRuby {
     Charge flying(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         return castAt(owner,origin,direction,false,50);
     }
+    Charge sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){return castAt(owner,origin,direction,false,60);}
     private void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose){
         castAt(owner,origin,direction,playerPose,0);
     }
     private Charge castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose,int lifetime){
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return null;
-        LbcOverload.sound(owner,origin,"minecraft:block.amethyst_cluster.break",1,1,0);
+        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,origin,"minecraft:block.amethyst_cluster.break",1,1,0);
         var charge=new Charge(TYPE,owner.level());
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true); charge.sourceLifetime=lifetime;
         charge.setYRot(playerPose?owner.getYRot():(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))); charge.setXRot(playerPose?owner.getXRot():(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
@@ -141,11 +142,12 @@ public final class LbcRuby {
         batch.addAll(charges);
         try {
             for(Charge charge:batch) {
+                try(var sourceScope=game.items().spellSources().scope(charge)){
                 if(!charges.contains(charge)) continue;
                 if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
                         || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
                         || !validOwner(owner) || owner.level()!=charge.level()) { remove(charge); continue; }
-                if(game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) continue;
+                if(game.items().wands().timeStopped() || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
                 if(game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)charge.level(),charge.position())) {
                     remove(charge); continue;
                 }
@@ -165,6 +167,7 @@ public final class LbcRuby {
                 charge.setPos(from.add(charge.getDeltaMovement()));
                 if(charge.sourceLifetime>0) { if(++charge.age>=charge.sourceLifetime) remove(charge); }
                 else game.items().lifetimes().advance(charge,++charge.age);
+                }
             }
         } finally { batch.clear(); }
     }
