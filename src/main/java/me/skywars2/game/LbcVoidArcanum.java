@@ -275,14 +275,18 @@ public final class LbcVoidArcanum {
             if(!(entity instanceof LivingEntity target)||!physicalTarget(hole,author,target)
                     ||!resident(hole.world,target.position())||!hole.wild&&!game.items().wands().target(author,target))continue;
             double distance=chasePoint(hole,target).distanceToSqr(hole.point);
-            if(distance>=1&&distance<best){best=distance;nearest=target;}
+            if(distance<best){best=distance;nearest=target;}
         }
         var desiredTilt=new Quaternionf();
         if(nearest!=null){
             Vec3 offset=chasePoint(hole,nearest).subtract(hole.point);
             // Bounded steering retains momentum while accelerating toward the current nearest target.
-            // Slow down near contact, and never sweep an unbounded distance in one frame.
-            double speed=Math.min(MAX_SPEED[hole.level],Math.max(0,offset.length()-1));
+            // Arrive at the chase point itself: a one-block exclusion shell made contact
+            // switch to farther targets, resembling physical repulsion by the victim.
+            double distance=offset.length(),acceleration=ACCELERATION[hole.level];
+            // Discrete braking distance: remove the old stand-off without orbiting the eyes.
+            double arrivalSpeed=Math.sqrt(acceleration*acceleration+2*acceleration*distance)-acceleration;
+            double speed=Math.min(MAX_SPEED[hole.level],Math.min(distance,arrivalSpeed));
             Vec3 desired=offset.normalize().scale(speed),change=desired.subtract(hole.velocity);
             double amount=change.length();
             if(amount>ACCELERATION[hole.level])change=change.scale(ACCELERATION[hole.level]/amount);

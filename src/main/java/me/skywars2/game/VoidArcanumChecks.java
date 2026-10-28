@@ -93,7 +93,7 @@ public final class VoidArcanumChecks {
         void block(BlockPos pos,BlockState state){require(owner.level().hasChunkAt(pos),"resident fixture cell");blocks.putIfAbsent(pos.immutable(),game.maps().snapshot(owner.level(),pos));owner.level().setBlock(pos,state,2);}
         void init(){
             // Chase scans the whole loaded dimension. A third fixture player must not become
-            // a replacement target when the measured cow enters the one-block standoff.
+            // a replacement target while the measured cow reaches the chase destination.
             for(var entity:before)if(entity instanceof net.minecraft.world.entity.LivingEntity&&entity!=owner&&entity!=other
                     &&!entity.entityTags().contains("strict_map_object")){
                 SkyWars2.LOGGER.info("[check] void-arcanum scoped bystander {} at {}",entity.getName().getString(),entity.position());
@@ -267,19 +267,42 @@ public final class VoidArcanumChecks {
                 require(aim.y>at.y+1,"native eye position plus exact half-block tier elevation "+level);
                 service.physics(hole,owner,cause);
                 require(hole.point.y>at.y&&hole.velocity.y>0&&Math.abs(hole.velocity.x)<.000001&&Math.abs(hole.velocity.z)<.000001,"feet-centred hole steers vertically toward eyes plus tier elevation "+level);
-                for(int step=0;step<320;step++){
+                for(int step=0;step<120;step++){
                     var start=hole.point;service.physics(hole,owner,cause);
                     require(hole.point.distanceTo(start)<=caps[level]+.000001&&hole.velocity.length()<=caps[level]+.000001,"elevated chase retains total 3D speed ceiling "+level);
                     var normal=hole.tilt.transform(new org.joml.Vector3f(0,1,0));
                     require(Float.isFinite(normal.x)&&Float.isFinite(normal.y)&&Float.isFinite(normal.z)&&normal.y>.99999,"pure vertical chase keeps finite upright disc tilt "+level);
                 }
-                // Momentum may cross the one-block slowdown boundary by at most one capped step.
                 double distance=hole.point.distanceTo(aim);
-                require(Math.abs(hole.point.x-at.x)<.000001&&Math.abs(hole.point.z-at.z)<.000001&&hole.point.y>at.y&&distance<=1.002&&distance>=1-caps[level]-.002&&hole.velocity.length()<.002,
-                        "native chase settles near actual eyes plus "+(.5*(level-1))+" blocks within capped one-block standoff at tier "+level);
+                require(Math.abs(hole.point.x-at.x)<.000001&&Math.abs(hole.point.z-at.z)<.000001&&hole.point.y>at.y&&distance<.002&&hole.velocity.length()<.002,
+                        "native chase settles at actual eyes plus "+(.5*(level-1))+" blocks without contact deadzone at tier "+level+" distance="+distance+" velocity="+hole.velocity);
                 game.items().indirectKills().clear(target);target.discard();mobs.remove(target);
             }
             require(game.server().getTickCount()==clock,"explicit elevated physics calls do not claim elapsed native ticks");bodies();
+        }
+        void closeChaseAndBodyPush(){
+            prime();bodies();var hole=spawn(owner,at);var target=cow(at);var decoy=cow(at.add(-6,0,0));
+            try{
+                target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100000);target.setHealth(100000);
+                target.setPos(at.add(.4,-target.getEyeHeight(),0));
+                var cause=service.source(hole).cause();service.physics(hole,owner,cause);
+                require(hole.velocity.x>0&&Math.abs(hole.velocity.y)<.000001&&Math.abs(hole.velocity.z)<.000001,
+                        "inside-one-block nearest chase target wins over farther opposite decoy");
+                hole.point=target.getEyePosition();hole.velocity=Vec3.ZERO;hole.marker.setPos(hole.point);
+                service.physics(hole,owner,cause);
+                require(hole.velocity.equals(Vec3.ZERO)&&hole.point.distanceTo(target.getEyePosition())<.000001,
+                        "overlapping nearest target stays selected instead of switching to farther decoy");
+                target.setPos(hole.point.add(.2,0,0));target.setDeltaMovement(.02,.03,.04);hole.marker.setDeltaMovement(.01,.02,.03);
+                var point=hole.point;var markerPosition=hole.marker.position();var velocity=hole.velocity;
+                var markerVelocity=hole.marker.getDeltaMovement();var mobVelocity=target.getDeltaMovement();
+                require(hole.marker.noPhysics,"real hole marker has native noPhysics");
+                hole.marker.push(target);target.push(hole.marker);
+                require(hole.point.equals(point)&&hole.velocity.equals(velocity)&&hole.marker.position().equals(markerPosition)
+                                &&hole.marker.getDeltaMovement().equals(markerVelocity)&&target.getDeltaMovement().equals(mobVelocity),
+                        "native pair push in either direction cannot displace hole marker or transfer body impulse");
+            }finally{
+                for(var mob:List.of(target,decoy)){game.items().indirectKills().clear(mob);mob.discard();mobs.remove(mob);}bodies();
+            }
         }
         void motion(){
             prime();LbcVoidArcanum.Hole hole=null;ProbeCow target=null;
@@ -352,7 +375,7 @@ public final class VoidArcanumChecks {
             for(var entity:owner.level().getAllEntities())if(!before.contains(entity)&&(entity instanceof net.minecraft.world.entity.item.ItemEntity||entity instanceof net.minecraft.world.entity.ExperienceOrb))entity.discard();game.players().save();game.items().magic().flushCleansing();
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.fluidTerrain();f.elevatedChase();f.motion();f.boundaries();f.denseTerrain();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, radial noisy erosion/lens, small-tier source/flowing water/lava and waterlogged absorption, bounded moving/dense native erosion work, all-tier elevated eye chase/settling and speed caps, tilt metadata and cleanup; explicit boundary ticks)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.fluidTerrain();f.elevatedChase();f.closeChaseAndBodyPush();f.motion();f.boundaries();f.denseTerrain();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, radial noisy erosion/lens, small-tier source/flowing water/lava and waterlogged absorption, bounded moving/dense native erosion work, all-tier elevated eye chase/settling and speed caps, closest contact target and marker body-push guard, tilt metadata and cleanup; explicit boundary ticks)");}
 
     private static Saved stopSaved;private static String stopEpoch;private static LbcVoidArcanum.Hole stopHole;
     private static final Set<Entity> stopBefore=Collections.newSetFromMap(new IdentityHashMap<>());

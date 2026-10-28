@@ -38,7 +38,7 @@ public final class GaycasterChecks {
         Cow victim;int phase,color=-1,waits,warmTicks;boolean rayReady,emptyDone,academy,warmed;double emptyDistance;long last=Long.MIN_VALUE;
         ItemStack meditation;LbcClouds.AcidProjectile seed;int trialTicks;final Set<Integer> trialPhases=new HashSet<>();
         final Set<LbcGaycasterAcademy.Hazard> trialSeen=Collections.newSetFromMap(new IdentityHashMap<>());
-        final int[] trialCounts=new int[7],warningCounts=new int[7];boolean cubeWire,warningPaused,beamFaded,wallDensityChecked,beamGeometryChecked,queuedGeometryStarted;
+        final int[] trialCounts=new int[7],warningCounts=new int[7];boolean cubeWire,warningPaused,beamFaded,wallDensityChecked,wallGeometryChecked,beamGeometryChecked,queuedGeometryStarted;
         int queuedGeometryPending;final List<String> queuedGeometryErrors=new ArrayList<>();
         final Map<LbcGaycasterAcademy.Hazard,TrialWarningVisual> firstBeam=new IdentityHashMap<>();
         final Set<TrialWarningVisual> warningsSeen=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -222,6 +222,56 @@ public final class GaycasterChecks {
                 if(hit)require(other.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.ARROW)&&other.getKillCredit()==owner,"native arrow7 and caster credit");
             }finally{h.close();}
         }
+        void electricWallGeometry(){
+            var academy=game.items().gaycasterAcademy();var restore=new GameChecks.WandThirdPlayerState(other,game.items().mana());
+            var profile=game.players().get(other.getUUID());int oldSkill=profile.lbcSkill,oldTrinket=profile.lbcTrinket;
+            try{
+                profile.lbcSkill=0;profile.lbcTrinket=0;other.setGameMode(GameType.SURVIVAL);other.getInventory().clearContent();other.removeAllEffects();
+                other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);other.setNoGravity(true);
+                var trials=LbcGaycasterAcademy.class.getDeclaredField("trials");trials.setAccessible(true);
+                Object trial=((Map<?,?>)trials.get(academy)).get(owner);require(trial!=null,"active trial for actual electric player probes");
+                var step=LbcGaycasterAcademy.class.getDeclaredMethod("tickHazard",trial.getClass(),LbcGaycasterAcademy.Hazard.class,List.class);step.setAccessible(true);
+                Vec3 point=at.add(0,10,10);double half=other.getBbWidth()*.5;
+                for(Vec3 direction:List.of(new Vec3(0,0,1),new Vec3(0,0,-1),new Vec3(1,0,0),new Vec3(-1,0,0),
+                        new Vec3(1,0,1).normalize(),new Vec3(-1,0,1).normalize())){
+                    Vec3 side=new Vec3(direction.z,0,-direction.x);
+                    electricWallProbe(step,trial,point,direction,point,true,"center "+direction);
+                    for(double sign:new double[]{-1,1}){
+                        electricWallProbe(step,trial,point,direction,point.add(side.scale(sign*.8)),false,"old broad box lateral "+sign+" "+direction);
+                        electricWallProbe(step,trial,point,direction,point.add(sign*(half-.01),0,0),true,"inside native X edge "+sign+" "+direction);
+                        electricWallProbe(step,trial,point,direction,point.add(sign*(half+.01),0,0),false,"outside native X edge "+sign+" "+direction);
+                        electricWallProbe(step,trial,point,direction,point.add(0,0,sign*(half-.01)),true,"inside native Z edge "+sign+" "+direction);
+                        electricWallProbe(step,trial,point,direction,point.add(0,0,sign*(half+.01)),false,"outside native Z edge "+sign+" "+direction);
+                        if(direction.x!=0&&direction.z!=0){
+                            electricWallProbe(step,trial,point,direction,point.add(direction.scale(sign*(half*Math.sqrt(2)-.01))),true,"inside diagonal front/back corner "+sign+" "+direction);
+                            electricWallProbe(step,trial,point,direction,point.add(direction.scale(sign*(half*Math.sqrt(2)+.01))),false,"outside diagonal front/back corner "+sign+" "+direction);
+                        }
+                    }
+                    electricWallProbe(step,trial,point,direction,point.add(0,1.52,0),false,"strand below feet "+direction);
+                    electricWallProbe(step,trial,point,direction,point.add(0,-.52-other.getBbHeight(),0),false,"strand above head "+direction);
+                    electricWallProbe(step,trial,point,direction,point.add(0,1.49,0),true,"feet inside strand top "+direction);
+                    electricWallProbe(step,trial,point,direction,point.add(0,-.49-other.getBbHeight(),0),true,"head inside strand bottom "+direction);
+                }
+                wallGeometryChecked=true;
+            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            finally{profile.lbcSkill=oldSkill;profile.lbcTrinket=oldTrinket;restore.restore(game);}
+        }
+        void electricWallProbe(java.lang.reflect.Method step,Object trial,Vec3 point,Vec3 direction,Vec3 position,boolean hit,String why)throws ReflectiveOperationException{
+            other.teleportTo(other.level(),position.x,position.y,position.z,Set.of(),0,0,true);other.setHealth(1000);other.setAbsorptionAmount(0);
+            other.setInvulnerableTime(0);other.damageCooldownTime=0;
+            var academy=game.items().gaycasterAcademy();int remaining=academy.remaining(owner);float ownerHealth=owner.getHealth();
+            var h=new LbcGaycasterAcademy.Hazard(4,point,direction);
+            try{
+                require(Boolean.FALSE.equals(step.invoke(academy,trial,h,List.of(other))),"electric wall remains active: "+why);
+                require(other.getHealth()==(hit?992:1000),"exact electric player hitbox / one native8 hit "+why+" hp="+other.getHealth()+" box="+other.getBoundingBox());
+                require(h.laneWarnings.size()==7,"electric probe creates seven lane warnings");
+                require(academy.remaining(owner)==remaining&&owner.getHealth()==ownerHealth,"electric probe preserves owner trial: "+why);
+                if(hit)require(other.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.ARROW)&&other.getKillCredit()==owner,"native electric arrow8 and caster credit");
+            }finally{
+                h.close();var warnings=trial.getClass().getDeclaredField("warnings");warnings.setAccessible(true);
+                ((List<?>)warnings.get(trial)).removeAll(h.laneWarnings);
+            }
+        }
         void electricWallDensity(){
             var academy=game.items().gaycasterAcademy();
             var h=new LbcGaycasterAcademy.Hazard(4,at.add(0,0,6),new Vec3(0,0,1));
@@ -260,6 +310,7 @@ public final class GaycasterChecks {
             var academy=game.items().gaycasterAcademy();
             if(!beamGeometryChecked)prismBeamGeometry();
             if(!wallDensityChecked)electricWallDensity();
+            if(!wallGeometryChecked)electricWallGeometry();
             for(var h:academy.hazardSnapshot(owner))if(h.kind<=5&&h.age>0){
                 if(h.kind==1&&h.age>=31)continue;
                 require(h.warning!=null,"actual phase owns warning "+h.kind);
@@ -448,7 +499,7 @@ public final class GaycasterChecks {
                         &&warningsSeen.stream().allMatch(TrialWarningVisual::closed),"six natural phases / actual used hand ready / quiet helper cleanup: ticks="+trialTicks+" phases="+trialPhases+" data="+meditation.get(DataComponents.CUSTOM_DATA)+" alive="+owner.isAlive()+" hp="+owner.getHealth());
                 require(cubeWire&&trialCounts[1]==11&&trialCounts[2]==11&&trialCounts[3]==11&&trialCounts[4]>=0&&trialCounts[4]<=11
                         &&trialCounts[5]==1&&trialCounts[6]==448,"source helper counts11/11/11/chance50/1/448: "+Arrays.toString(trialCounts));
-                require(wallDensityChecked&&warningPaused&&beamFaded&&warningCounts[1]==11&&firstBeam.size()==11&&warningCounts[2]==11&&warningCounts[3]==11
+                require(wallDensityChecked&&wallGeometryChecked&&warningPaused&&beamFaded&&warningCounts[1]==11&&firstBeam.size()==11&&warningCounts[2]==11&&warningCounts[3]==11
                         &&warningCounts[4]==trialCounts[4]&&warningCounts[5]==1,"all naturally scheduled warnings11/11/11/chance50/1: "+Arrays.toString(warningCounts));
                 owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
                 owner.setItemInHand(InteractionHand.MAIN_HAND,meditation);

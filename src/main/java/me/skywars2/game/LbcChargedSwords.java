@@ -113,7 +113,7 @@ public final class LbcChargedSwords {
             &&owner.level().hasChunkAt(BlockPos.containing(owner.getEyePosition()));}
     /** Called only for accepted, unblocked positive damage, including the native fatal-damage hook. */
     public void damaged(LivingEntity victim,DamageSource source){
-        if(!(source.getEntity() instanceof ServerPlayer owner)||!admitted(owner)||source.is(ARROW_ONLY)
+        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)
                 ||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;

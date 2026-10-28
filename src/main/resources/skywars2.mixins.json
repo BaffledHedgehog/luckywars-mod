@@ -138,6 +138,7 @@
     "AdvancementFilterMixin",
     "TrinketBowMixin",
     "WandProjectileMixin",
+    "ProjectileBodyCollisionMixin",
     "SilenceFallingBlockMixin",
     "WandProjectileMixin$ArrowAccess",
     "WandProjectileMixin$Potion",

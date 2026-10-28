@@ -10,7 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
@@ -30,19 +29,15 @@ import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
-/** Bounded native fixtures. Service stepping deliberately leaves unrelated world physics alone. */
+/** Bounded service boundaries followed by one naturally ticking delayed native blast. */
 public final class UltraponosDropChecks {
     private UltraponosDropChecks() { }
     private static String stopEpoch;
     private static ItemEntity stopToken;
-    private static List<Creeper> stopActors=List.of();
+    private static int stopBlasts;
+    private static Fixture running;
     private static void require(boolean ok,String message) {
         if(!ok)throw new IllegalStateException("Ultraponos drops: "+message);
-    }
-    private static CompoundTag saved(Entity entity,ServerLevel level) {
-        var out=net.minecraft.world.level.storage.TagValueOutput.createWithContext(
-                net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess());
-        entity.saveWithoutId(out); return out.buildResult();
     }
     private static ItemEntity token(ServerLevel level,Vec3 at,int count,ServerPlayer author) {
         var item=new ItemEntity(level,at.x,at.y,at.z,new ItemStack(LbcUltraponosDropItem.Kind.NORMAL.item(),count));
@@ -50,8 +45,10 @@ public final class UltraponosDropChecks {
         require(level.addFreshEntity(item),"native token admission");return item;
     }
     private static List<Creeper> actors(GameController game) {
-        return game.items().creeperDrops().snapshot().stream()
-                .filter(c->c.entityTags().contains(LbcCreeperDrops.ULTRAPONOS) && !c.isRemoved()).toList();
+        var helpers=new ArrayList<Creeper>();
+        for(var entity:game.maps().level().getAllEntities())if(entity instanceof Creeper creeper&&!creeper.isRemoved()
+                &&(creeper.entityTags().contains(LbcCreeperDrops.ULTRAPONOS)||creeper.entityTags().contains("govno_creeper")))helpers.add(creeper);
+        return helpers;
     }
     private static boolean govno(ItemStack item) {
         return item.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("govnoq",0)==1;
@@ -65,6 +62,10 @@ public final class UltraponosDropChecks {
         final Set<Long> forced=new HashSet<>();
         final boolean skills,griefing;final int skillA,skillB,mobKills;
         boolean retainForStop;
+        int phase,warmTicks,pauseTicks,previousRemaining=290,activeBlastTicks;long last=Long.MIN_VALUE;
+        Cow blastVictim,greedyVictim;final List<Cow> protectedVictims=new ArrayList<>();
+        net.minecraft.world.scores.PlayerTeam blastTeam,oldTeamA,oldTeamB;
+        Set<Entity> nativeBefore=Set.of();
         final Map<net.minecraft.stats.Stat<Identifier>,Integer> customStats=new LinkedHashMap<>();
         final Map<net.minecraft.stats.Stat<net.minecraft.world.item.Item>,Integer> itemStats=new LinkedHashMap<>();
         Fixture(GameController game) {
@@ -72,7 +73,7 @@ public final class UltraponosDropChecks {
             alpha=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             beta=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(game.playing() && alpha!=null && beta!=null,"two actual match participants");
-            require(game.items().ultraponos().emitterCount()==0 && actors(game).isEmpty(),"exclusive fixture actors");
+            require(game.items().ultraponos().emitterCount()==0 && game.items().ultraponos().pendingBlastCount()==0 && actors(game).isEmpty(),"exclusive fixture actors/queue");
             savedA=new GameChecks.WandThirdPlayerState(alpha,game.items().mana());
             savedB=new GameChecks.WandThirdPlayerState(beta,game.items().mana());
             skills=game.config().lbcSkills;skillA=game.players().get(alpha.getUUID()).lbcSkill;skillB=game.players().get(beta.getUUID()).lbcSkill;
@@ -113,15 +114,78 @@ public final class UltraponosDropChecks {
         }
         void ticks(int count){for(int i=0;i<count;i++)game.items().ultraponos().tick();}
         void clearRewards(){for(var e:owned)if(e instanceof ItemEntity item && govno(item.getItem()))item.discard();}
+        boolean warm(){
+            require(++warmTicks<600,"forced fixture chunks become entity-resident");
+            for(int x=(base.getX()-20)>>4;x<=(base.getX()+20)>>4;x++)for(int z=(base.getZ()-20)>>4;z<=(base.getZ()+20)>>4;z++)
+                if(!level.isPositionEntityTicking(new BlockPos(x*16,base.getY(),z*16)))return false;
+            return true;
+        }
+        Cow blastCow(Vec3 point){
+            var cow=new Cow(EntityTypes.COW,level);cow.setPos(point);cow.setNoAi(true);cow.setNoGravity(true);
+            cow.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);
+            require(level.addFreshEntity(cow),"native disposable blast witness");owned.add(cow);return cow;
+        }
+        void prepareNativeBlast(){
+            reset();activate();level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,true,game.server());
+            level.setBlock(base.above(4),Blocks.TNT.defaultBlockState(),818);
+            var board=game.server().getScoreboard();oldTeamA=alpha.getTeam();oldTeamB=beta.getTeam();
+            require(board.getPlayerTeam("codex_ultraponos_probe")==null,"native WILD fixture team available");
+            blastTeam=board.addPlayerTeam("codex_ultraponos_probe");blastTeam.setAllowFriendlyFire(false);
+            board.addPlayerToTeam(alpha.getScoreboardName(),blastTeam);board.addPlayerToTeam(beta.getScoreboardName(),blastTeam);
+            var point=Vec3.atCenterOf(base).add(1,4,0);
+            for(var player:List.of(alpha,beta)){
+                player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);player.setHealth(1000);player.setAbsorptionAmount(0);
+                player.setInvulnerableTime(0);player.damageCooldownTime=0;
+                player.teleportTo(level,point.x,point.y,point.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);
+            }
+            blastVictim=blastCow(point);blastVictim.setHealth(1);greedyVictim=blastCow(point);greedyVictim.entityTags().add("sin_greed_active");
+            for(String role:List.of("spectator","rcdenyalways","strict_map_object","sauvojen_tuntija","magic_academy","transformator")){
+                var witness=blastCow(point);witness.entityTags().add(role);protectedVictims.add(witness);
+            }
+            require(game.items().ultraponos().pendingBlasts().stream().allMatch(b->b.remainingTicks()==290&&b.owner()==alpha),"native delay begins290 with captured author");
+            nativeBefore=entities();previousRemaining=290;activeBlastTicks=0;phase=1;
+        }
+        boolean step(){
+            long now=level.getGameTime();if(last==now)return false;last=now;
+            if(phase==0){
+                if(!warm())return false;
+                presentation();geometry();cadence();mega();lightningCharge();threshold();particles();guardsAndPause();suppression();rewards();prepareNativeBlast();return false;
+            }
+            require(game.server().tickRateManager().runsNormally(),"native blast timing uses normal world ticks");
+            for(var entity:level.getAllEntities())if(!nativeBefore.contains(entity)&&entity.position().distanceTo(origin)<60
+                    &&(entity instanceof ItemEntity||entity instanceof net.minecraft.world.entity.ExperienceOrb||entity instanceof net.minecraft.world.entity.item.PrimedTnt))owned.add(entity);
+            var pending=game.items().ultraponos().pendingBlasts();
+            if(pauseTicks>0){
+                require(pending.size()==4&&pending.stream().allMatch(b->b.remainingTicks()==previousRemaining)&&blastVictim.getHealth()==1,
+                        "actual Time Stop freezes logical blast expiry and native damage");
+                if(--pauseTicks==0)game.items().timeStop().end(level);return false;
+            }
+            if(!pending.isEmpty()){
+                require(pending.size()==4&&pending.stream().allMatch(b->b.remainingTicks()==previousRemaining-1),"one normal active tick decrements all four delayed blasts once");
+                previousRemaining--;activeBlastTicks++;
+                require(blastVictim.getHealth()==1&&alpha.getHealth()==1000&&beta.getHealth()==1000,"no early native explosion damage before290 active ticks");
+                if(activeBlastTicks==10){game.items().timeStop().begin(level,200);pauseTicks=3;}
+                return false;
+            }
+            require(previousRemaining==1&&activeBlastTicks==289,"native explosions fire on exact290th active tick");
+            require(blastVictim.isDeadOrDying()&&blastVictim.getKillCredit()==alpha,"actual native explosion retains captured thrower kill credit");
+            require(alpha.getHealth()<1000&&beta.getHealth()<1000&&beta.getKillCredit()==alpha,"WILD native blast includes own thrower and allied participant");
+            require(greedyVictim.getHealth()==1000&&protectedVictims.stream().allMatch(c->c.getHealth()==1000),"native explosion preserves Greed and all protected roles");
+            var tnt=owned.stream().filter(net.minecraft.world.entity.item.PrimedTnt.class::isInstance).findFirst().orElseThrow(()->new IllegalStateException("native explosion must ignite nearby real TNT"));
+            require(LbcCreeperDrops.managed(tnt)&&game.items().creeperDrops().wild(tnt)&&game.items().creeperDrops().owner(tnt)==alpha,
+                    "source-null native blast gives actual chained TNT the original WILD owner/epoch lineage");
+            require(actors(game).isEmpty()&&game.items().ultraponos().emitterCount()==0,"native expiry leaves no helper creepers or emitter");
+            return true;
+        }
         void reset() {
-            game.items().ultraponos().stop();for(var c:actors(game))c.discard();game.items().creeperDrops().tick();
+            game.items().ultraponos().stop();require(actors(game).isEmpty(),"Ultraponos never creates helper creepers");
             owned.forEach(Entity::discard);for(var p:blocks.keySet())clearBlock(p);
         }
         void activate() {
             var t=drop(2);t.setTarget(beta.getUUID());require(game.items().ultraponos().ready(t),"resident service admission");
             require(game.items().specialDrops().spawn(t) && t.getItem().getCount()==1,"one shared debit");
             require(!game.items().specialDrops().spawn(t) && t.getItem().getCount()==1,"same-tick replay rejected");t.discard();
-            owned.addAll(actors(game));require(game.items().ultraponos().emitterCount()==1,"one finite emitter");
+            require(actors(game).isEmpty(),"activation creates no helper creepers");require(game.items().ultraponos().emitterCount()==1,"one finite emitter");
         }
         void presentation() {
             var stack=new ItemStack(LbcUltraponosDropItem.Kind.NORMAL.item());var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
@@ -148,20 +212,16 @@ public final class UltraponosDropChecks {
             require(level.getBlockEntity(base).saveWithFullMetadata(level.registryAccess()).getIntOr("TransferCooldown",-1)==0,"native source hopper transfer cooldown0");
             var types=List.of(Items.COCOA_BEANS,Items.NETHER_BRICK,Items.MELON_SEEDS,Items.FROGSPAWN,Items.DYE.pick(net.minecraft.world.item.DyeColor.BROWN));
             require(inventory.getContainerSize()==5,"five hopper slots");for(int i=0;i<5;i++)require(inventory.getItem(i).is(types.get(i)) && inventory.getItem(i).getCount()==64,"source hopper slot "+i);
-            var live=actors(game);require(live.size()==4,"normal four native delayed creepers");
+            var live=game.items().ultraponos().pendingBlasts();require(live.size()==4,"normal four logical native blasts");
             var radii=new HashSet<Integer>();double[] heights={-1.5,-2.5,.5,1.5};
-            for(var c:live) {
-                var tag=saved(c,level);int r=tag.getByteOr("ExplosionRadius",(byte)-1);require(r>=6 && r<=9 && radii.add(r),"unique normal blast radius");
-                require(c.position().distanceTo(Vec3.atCenterOf(base).add(0,heights[r-6]-.5,0))<1e-9,"floored source position and height");
-                require(c.isNoAi() && c.isNoGravity() && c.isSilent() && c.isInvulnerable() && tag.getShortOr("Fuse",(short)-1)==290
-                        && tag.getBooleanOr("ignited",false) && !tag.getBooleanOr("powered",false) && tag.getBooleanOr("PersistenceRequired",false)
-                        && c.entityTags().contains("govno_creeper") && !c.isCustomNameVisible(),"native source fuse and actor flags");
-                var effect=c.getEffect(MobEffects.INVISIBILITY);require(effect!=null && effect.getDuration()==288 && effect.getAmplifier()==0
-                        && effect.isAmbient() && !effect.isVisible() && !effect.showIcon(),"native288 invisible effect");
-                translated(c.getCustomName(),"megadrist",0xffff55);
-                require(game.items().currentEpoch(c) && game.items().creeperDrops().owner(c)==alpha,"shared actor epoch and captured thrower despite pickup target");
+            for(var blast:live){
+                int radius=blast.radius();require(radius>=6&&radius<=9&&radii.add(radius),"unique normal blast radius");
+                require(blast.position().distanceTo(Vec3.atCenterOf(base).add(0,heights[radius-6]-.5,0))<1e-9,"floored source position and height");
+                require(blast.remainingTicks()==290&&blast.owner()==alpha,"logical290 delay and captured thrower despite pickup target");
             }
+            require(actors(game).isEmpty(),"no source-named helper creepers in shared registry");
         }
+
         void cadence() {
             var initial=entities().stream().filter(e->e instanceof ItemEntity item && govno(item.getItem()) && !item.isRemoved()
                     && item.position().distanceTo(origin)<15).toList();owned.addAll(initial);
@@ -182,7 +242,8 @@ public final class UltraponosDropChecks {
             }
             require(minX<0 && maxX>0 && minZ<0 && maxZ>0 && separateAxes,"horizontal scatter varies on both axes rather than sharing one fixed value");
             require(game.items().ultraponos().emittedPulses()==280 && game.items().ultraponos().emitterCount()==0,"exact280 active single-item emissions");
-            var before=entities();ticks(50);require(addedItems(before).isEmpty() && game.items().ultraponos().emittedPulses()==280,"finite producer never resumes");
+            var before=entities();ticks(9);require(addedItems(before).isEmpty() && game.items().ultraponos().emittedPulses()==280,"finite producer never resumes before native blast");
+            require(game.items().ultraponos().pendingBlasts().stream().allMatch(b->b.remainingTicks()==1),"four native blasts remain pending through289 active service steps");
         }
         void particles() {
             reset();activate();
@@ -275,20 +336,50 @@ public final class UltraponosDropChecks {
             int forcedCount=level.getForceLoadedChunks().size();require(!game.items().ultraponos().ready(remote) && !game.items().specialDrops().spawn(remote)
                     && remote.getItem().getCount()==2 && level.getChunkSource().getChunkNow(x,z)==null && forcedCount==level.getForceLoadedChunks().size(),"unresident admission neither loads nor debits");
             activate();var before=entities();ticks(4);require(addedItems(before).size()==4 && game.items().ultraponos().emittedPulses()==4,"four active ticks emit four items before pause");
-            clearRewards();var pending=drop(2);before=entities();game.items().timeStop().begin(level,200);
+            clearRewards();var pending=drop(2);before=entities();var delayed=game.items().ultraponos().pendingBlasts();game.items().timeStop().begin(level,200);
             try {ticks(400);require(game.items().ultraponos().emitterCount()==1 && game.items().ultraponos().emittedPulses()==4 && addedItems(before).isEmpty()
-                        && !game.items().specialDrops().spawn(pending) && pending.getItem().getCount()==2,"dimension pause freezes emitter age and pending debit");}
+                        && game.items().ultraponos().pendingBlasts().equals(delayed)
+                        && !game.items().specialDrops().spawn(pending) && pending.getItem().getCount()==2,"dimension pause freezes emitter/blast ages and pending debit");}
             finally{game.items().timeStop().end(level);}
             ticks(1);require(addedItems(before).size()==1 && game.items().ultraponos().emittedPulses()==5,"thaw resumes with exactly one active-tick item");pending.discard();
         }
         void suppression() {
-            reset();activate();var live=List.copyOf(actors(game));
+            reset();activate();var live=game.items().ultraponos().pendingBlasts();
             var suppressor=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,level);
             suppressor.setPos(Vec3.atCenterOf(base).add(0,1,0));suppressor.entityTags().add("stopper");
             require(level.addFreshEntity(suppressor),"native mechanism suppressor");owned.add(suppressor);
             require(game.items().magic().mechanismSuppressedAt(level,suppressor.position()),"registered mechanism suppression fixture");
-            ticks(1);require(game.items().ultraponos().emitterCount()==0 && live.stream().noneMatch(Entity::isRemoved),"mechanism suppression permanently cancels only emitter");
-            suppressor.discard();var before=entities();ticks(300);require(addedItems(before).isEmpty() && game.items().ultraponos().emitterCount()==0,"removing suppressor cannot restart cancelled emitter");
+            ticks(1);require(game.items().ultraponos().emitterCount()==0 && game.items().ultraponos().pendingBlastCount()==live.size(),"mechanism suppression permanently cancels only emitter");
+            suppressor.discard();var before=entities();ticks(288);require(addedItems(before).isEmpty() && game.items().ultraponos().emitterCount()==0,"removing suppressor cannot restart cancelled emitter");
+            require(game.items().ultraponos().pendingBlasts().stream().allMatch(b->b.remainingTicks()==1),"suppressed producer leaves delayed native blasts armed");
+        }
+        void strike(Vec3 point,boolean visual) {
+            var bolt=new net.minecraft.world.entity.LightningBolt(EntityTypes.LIGHTNING_BOLT,level);
+            bolt.setPos(point);bolt.setSilent(true);bolt.setVisualOnly(visual);
+            require(level.addFreshEntity(bolt),"actual native lightning inserted");owned.add(bolt);
+            bolt.tick();bolt.discard();
+        }
+        void lightningCharge() {
+            reset();activate();var initial=game.items().ultraponos().pendingBlasts();
+            strike(Vec3.atCenterOf(base),true);
+            require(game.items().ultraponos().pendingBlasts().equals(initial),"visual-only lightning never charges native blast");
+            strike(Vec3.atCenterOf(base).add(4,0,0),false);
+            require(game.items().ultraponos().pendingBlasts().equals(initial),"lightning outside vanilla strike volume never charges blast");
+            strike(Vec3.atCenterOf(base),false);
+            require(game.items().ultraponos().pendingBlasts().stream().map(LbcUltraponos.BlastSnapshot::radius).toList().equals(List.of(12,14,16,18)),
+                    "real native non-visual lightning doubles all four nearby pending blast strengths");
+            var charged=game.items().ultraponos().pendingBlasts();strike(Vec3.atCenterOf(base),false);
+            require(game.items().ultraponos().pendingBlasts().equals(charged),"repeated lightning cannot stack beyond double or alter remaining delay/author");
+            reset();game.config().lbcSkills=true;game.players().get(alpha.getUUID()).lbcSkill=9;
+            alpha.teleportTo(level,origin.x,origin.y,origin.z,Set.of(),0,0,true);
+            try {
+                activate();strike(Vec3.atCenterOf(base),false);
+                require(game.items().ultraponos().pendingBlasts().stream().map(LbcUltraponos.BlastSnapshot::radius).toList().equals(List.of(24,28,32,36,12,14,16,18)),
+                        "charged mega trap doubles stronger and base blasts independently");
+            } finally {
+                game.config().lbcSkills=false;game.players().get(alpha.getUUID()).lbcSkill=0;
+                alpha.teleportTo(level,origin.x+35,origin.y+15,origin.z,Set.of(),0,0,true);reset();
+            }
         }
         void mega() {
             reset();game.config().lbcSkills=true;
@@ -298,52 +389,24 @@ public final class UltraponosDropChecks {
             board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
             beta.teleportTo(level,origin.x,origin.y,origin.z,Set.of(),0,0,true);
             try {
-                activate();var live=actors(game);require(live.size()==8,"skill9 nearest eligible ally produces eight source explosions");
+                activate();var live=game.items().ultraponos().pendingBlasts();require(live.size()==8,"skill9 nearest eligible ally queues eight source explosions");
                 var radii=new HashSet<Integer>();double[] heights={-1.5,-2.5,.5,1.5};
                 for(var c:live) {
-                    int r=saved(c,level).getByteOr("ExplosionRadius",(byte)-1);require(radii.add(r),"mega unique native radius");
+                    int r=c.radius();require(radii.add(r),"mega unique native radius");
                     int index= r>=12?r/2-6:r-6;require(index>=0 && index<4 && c.position().distanceTo(Vec3.atCenterOf(base).add(0,heights[index]-.5,0))<1e-9,"mega and base source height");
-                    require(game.items().creeperDrops().owner(c)==alpha,"nearest skill selector never replaces causal thrower");
+                    require(c.owner()==alpha,"nearest skill selector never replaces causal thrower");
                 }
                 require(radii.equals(Set.of(6,7,8,9,12,14,16,18)),"four amplified plus four retained normal radii");
+                require(live.stream().map(LbcUltraponos.BlastSnapshot::radius).toList().equals(List.of(12,14,16,18,6,7,8,9)),"amplified native blasts retain authored order before four base blasts");
                 reset();beta.entityTags().add("strict_map_object");
-                try {activate();require(actors(game).size()==4,"nearest protected-role skill9 cannot amplify trap");}
+                try {activate();require(game.items().ultraponos().pendingBlastCount()==4,"nearest protected-role skill9 cannot amplify trap");}
                 finally{beta.entityTags().remove("strict_map_object");}
-                reset();game.config().lbcSkills=false;activate();require(actors(game).size()==4,"disabled skills retain four normal creepers beside skill9 player");
+                reset();game.config().lbcSkills=false;activate();require(game.items().ultraponos().pendingBlastCount()==4,"disabled skills retain four normal blasts beside skill9 player");
             } finally {
                 board.removePlayerTeam(team);if(oldA!=null)board.addPlayerToTeam(alpha.getScoreboardName(),oldA);if(oldB!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldB);
                 game.config().lbcSkills=false;game.players().get(alpha.getUUID()).lbcSkill=0;game.players().get(beta.getUUID()).lbcSkill=0;
                 beta.teleportTo(level,origin.x+35,origin.y+15,origin.z,Set.of(),0,0,true);reset();
             }
-        }
-        void nativeBlast() {
-            reset();activate();var c=actors(game).getFirst();for(var other:actors(game))if(other!=c)other.discard();
-            require(game.items().creeperDrops().explosionTarget(c,alpha),"WILD blast includes own thrower");
-            var board=game.server().getScoreboard();var oldA=alpha.getTeam();var oldB=beta.getTeam();
-            require(board.getPlayerTeam("codex_ultraponos_probe")==null,"fixture team available");var team=board.addPlayerTeam("codex_ultraponos_probe");team.setAllowFriendlyFire(false);
-            try {
-                board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
-                require(game.items().creeperDrops().explosionTarget(c,beta),"WILD includes allied participant");
-                var hazard=base.above(3);
-                beta.teleportTo(level,hazard.getX()+.5,hazard.getY(),hazard.getZ()+.5,Set.of(),0,0,true);
-                game.items().indirectKills().worldChanges(level,c,()->level.setBlock(hazard,Blocks.LAVA.defaultBlockState(),818));
-                require(game.items().indirectKills().allowEnvironmentDamage(beta,beta.damageSources().lava()),
-                        "entity-write terrain context retains WILD for allied players");
-                game.items().indirectKills().environmentDamage(beta,beta.damageSources().lava());
-                require(beta.getKillCredit()==alpha,"terrain context retains actual trap author");
-                clearBlock(hazard);game.items().indirectKills().clear(beta);
-                beta.teleportTo(level,origin.x+35,origin.y+15,origin.z,Set.of(),0,0,true);
-            }
-            finally{board.removePlayerTeam(team);if(oldA!=null)board.addPlayerToTeam(alpha.getScoreboardName(),oldA);if(oldB!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldB);}
-            var cow=new Cow(EntityTypes.COW,level);cow.setPos(Vec3.atCenterOf(base).add(0,10,1));cow.setNoAi(true);cow.setNoGravity(true);cow.setHealth(1);
-            require(level.addFreshEntity(cow),"native disposable blast victim");owned.add(cow);
-            require(level.getEntitiesOfClass(Cow.class,cow.getBoundingBox().inflate(1),e->e==cow).contains(cow),"native blast victim is present in entity-section query");
-            for(String role:List.of("spectator","rcdenyalways","strict_map_object","sauvojen_tuntija","magic_academy","transformator")) {
-                cow.entityTags().add(role);try{require(!game.items().creeperDrops().explosionTarget(c,cow),"protected native role "+role);}finally{cow.entityTags().remove(role);}
-            }
-            c.setPos(Vec3.atCenterOf(base).add(0,10,0));level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,false,game.server());
-            var before=entities();for(int i=0;i<289;i++)c.tick();require(!c.isRemoved() && cow.getHealth()==1,"native delayed blast remains pending through289 ticks");
-            c.tick();addedItems(before);require(c.isRemoved() && cow.isDeadOrDying() && cow.getKillCredit()==alpha,"native290 fuse explodes and credits captured trap thrower");
         }
         void rewards() {
             reset();ItemStack edible=null,donor=null;var seen=new HashSet<String>();
@@ -362,8 +425,9 @@ public final class UltraponosDropChecks {
             require(menu.getCarried().is(LbcElectro.SHIT_KATANA) && grid.getItem(0).isEmpty() && grid.getItem(3).isEmpty(),"native craft consumes both inputs exactly once");grid.clearContent();menu.setCarried(ItemStack.EMPTY);
         }
         public void close() {
+            if(blastTeam!=null){var board=game.server().getScoreboard();board.removePlayerTeam(blastTeam);if(oldTeamA!=null)board.addPlayerToTeam(alpha.getScoreboardName(),oldTeamA);if(oldTeamB!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldTeamB);blastTeam=null;}
             if(!retainForStop){game.items().timeStop().end(level);game.items().ultraponos().stop();
-                for(var c:actors(game)) {owned.add(c);c.discard();}game.items().creeperDrops().tick();}
+                require(actors(game).isEmpty(),"no hidden helper creepers at cleanup");}
             for(var e:owned){if(e instanceof net.minecraft.world.entity.LivingEntity living)game.items().indirectKills().clear(living);e.discard();}
             for(var entry:blocks.entrySet()){if(level.getBlockEntity(entry.getKey()) instanceof Container c)c.clearContent();game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue());}
             level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,griefing,game.server());
@@ -379,18 +443,20 @@ public final class UltraponosDropChecks {
                 && !text.getStyle().isItalic() && text.getStyle().getColor()!=null && text.getStyle().getColor().getValue()==color,"source translated/style "+key);
     }
     public static void run(GameController game) {
-        try(var fixture=new Fixture(game)) {
-            fixture.initialize();fixture.presentation();fixture.geometry();fixture.cadence();fixture.mega();fixture.threshold();fixture.particles();fixture.guardsAndPause();fixture.suppression();fixture.nativeBlast();fixture.rewards();
-            SkyWars2.LOGGER.info("[check] PASS ultraponos-drops");
-        }
+        require(running==null,"exclusive asynchronous fixture");var fixture=new Fixture(game);running=fixture;
+        try{fixture.initialize();}catch(RuntimeException|Error error){running=null;fixture.close();throw error;}
+    }
+    public static void tick(GameController game){
+        var fixture=running;if(fixture==null)return;
+        try{if(fixture.step()){running=null;fixture.close();SkyWars2.LOGGER.info("[check] PASS ultraponos-drops");}}
+        catch(Throwable error){running=null;try{fixture.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL ultraponos-drops",error);}
     }
     public static void stopProbe(GameController game) {
         require(game.playing(),"actual match stop probe");
         try(var f=new Fixture(game)) {
-            f.initialize();f.activate();stopActors=List.copyOf(actors(game));
+            f.initialize();f.activate();stopBlasts=game.items().ultraponos().pendingBlastCount();
             stopEpoch=game.items().epoch();
-            // close() normally owns actors; temporarily detach them for actual GameItems.stop().
-            f.owned.removeAll(stopActors);
+            // Preserve logical emitter/blast state for the separate actual GameItems.stop().
             game.items().timeStop().begin(f.level,200);stopToken=token(f.level,f.origin.add(0,4,0),3,f.alpha);
             require(!game.items().specialDrops().spawn(stopToken) && stopToken.getItem().getCount()==3,"frozen pending token before stop");
             f.retainForStop=true;
@@ -399,8 +465,8 @@ public final class UltraponosDropChecks {
     }
     public static void cleanup(GameController game) {
         require(stopEpoch!=null && !game.items().currentEpoch(stopEpoch) && stopToken!=null && stopToken.getItem().getCount()==3
-                && game.items().ultraponos().emitterCount()==0 && stopActors.size()==4 && stopActors.stream().allMatch(Entity::isRemoved),"actual stop clears emitter and delayed actors, preserves pending debit");
+                && game.items().ultraponos().emitterCount()==0 && stopBlasts==4 && game.items().ultraponos().pendingBlastCount()==0 && actors(game).isEmpty(),"actual stop clears emitter and delayed native blasts, preserves pending debit");
         require(!game.items().ultraponos().ready(stopToken) && !game.items().specialDrops().spawn(stopToken),"off-stage old token cannot replay");
-        stopToken.discard();stopToken=null;stopEpoch=null;stopActors=List.of();SkyWars2.LOGGER.info("[check] PASS ultraponos-drops-cleanup");
+        stopToken.discard();stopToken=null;stopEpoch=null;stopBlasts=0;SkyWars2.LOGGER.info("[check] PASS ultraponos-drops-cleanup");
     }
 }

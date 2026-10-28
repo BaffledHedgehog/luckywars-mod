@@ -113,7 +113,7 @@ public final class LbcFevgaleaStar {
         marker.entityTags().add(SauvojenStars.TAG);return marker;
     }
     public void damaged(LivingEntity victim,DamageSource source){
-        if(!(source.getEntity() instanceof ServerPlayer owner)||!isSword(owner.getMainHandItem())||!admitted(owner)
+        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!isSword(owner.getMainHandItem())||!admitted(owner)
                 ||source.is(ARROW_ONLY)||source.getDirectEntity()!=null&&source.getDirectEntity().entityTags().contains(SauvojenStars.TAG)
                 ||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();

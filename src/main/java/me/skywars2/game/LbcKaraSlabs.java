@@ -62,7 +62,7 @@ public final class LbcKaraSlabs {
     private boolean paused(ServerPlayer owner){return game.items().timeStop().stopped(owner.level())
             ||owner.entityTags().contains("time_stopped")||game.items().timeStop().frozen(owner);}
     public void damaged(LivingEntity victim,DamageSource source){
-        if(!(source.getEntity() instanceof ServerPlayer owner)||!isSlab(owner.getMainHandItem())||!valid(owner)
+        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!isSlab(owner.getMainHandItem())||!valid(owner)
                 ||source.is(ARROW_ONLY)||!game.items().wands().validRoleTarget(victim,true)
                 ||paused(owner)||game.items().actionsBlocked(owner)||game.items().magic().suppressed(owner))return;
         var dimension=owner.level().dimension().identifier();

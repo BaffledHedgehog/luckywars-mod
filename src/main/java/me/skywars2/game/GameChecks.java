@@ -811,6 +811,7 @@ public final class GameChecks {
                                 case "armor-suppression-cleanup" -> { ArmorSuppressionChecks.cleanup(game); return; }
                                 case "momentum-teleports" -> { TeleportMomentumChecks.run(game); return; }
                                 case "projectile-self-hits" -> { ProjectileSelfHitChecks.run(game); return; }
+                                case "projectile-body-collision" -> { ProjectileBodyCollisionChecks.run(game); return; }
                                 case "shulker-armor" -> { ShulkerArmorChecks.run(game); return; }
                                 case "shulker-armor-stop-probe" -> { ShulkerArmorChecks.stopProbe(game); return; }
                                 case "shulker-armor-cleanup" -> { ShulkerArmorChecks.cleanup(game); return; }
@@ -908,6 +909,7 @@ public final class GameChecks {
                                 case "soulless-academy-stop-probe" -> { SoullessAcademyChecks.stopProbe(game); return; }
                                 case "soulless-academy-cleanup" -> { SoullessAcademyChecks.cleanup(game); return; }
                                 case "soulhunter" -> { SoulhunterChecks.run(game); return; }
+                                case "radiant-metasola" -> { RadiantMetasolaChecks.run(game); return; }
                                 case "soulhunter-stop-probe" -> { SoulhunterChecks.stopProbe(game); return; }
                                 case "soulhunter-cleanup" -> { SoulhunterChecks.cleanup(game); return; }
                                 case "chef" -> { ChefChecks.run(game); return; }
@@ -1379,6 +1381,8 @@ public final class GameChecks {
             ChefChecks.tick(game);
             AcidAcademyChecks.tick(game);
             SoullessAcademyChecks.tick(game);
+            RadiantMetasolaChecks.tick(game);
+            UltraponosDropChecks.tick(game);
             HelicopterEncounterChecks.tick(game);
                 if (game == null)
                         return;

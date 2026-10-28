@@ -38,7 +38,7 @@ public final class LbcClassicMelee {
 
     /** Called after accepted positive, unblocked native damage, including fatal and attributed indirect hits. */
     public void damaged(LivingEntity victim,DamageSource source){
-        if(!(source.getEntity() instanceof ServerPlayer owner)||!admitted(owner)||source.is(ARROW_ONLY)
+        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)
                 ||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;

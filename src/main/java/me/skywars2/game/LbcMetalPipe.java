@@ -77,7 +77,7 @@ public final class LbcMetalPipe {
     }
     /** Source accepted non-arrow damage while the pipe flag is in the main hand. No magic gate. */
     public void damaged(LivingEntity victim,DamageSource source){
-        if(source.getEntity() instanceof ServerPlayer owner&&admitted(owner)&&!source.is(ARROWS)
+        if(source.getEntity() instanceof ServerPlayer owner&&LbcDamage.isMeleeAttack(source,owner)&&admitted(owner)&&!source.is(ARROWS)
                 &&game.items().wands().validRoleTarget(victim,true)&&!game.items().actionsBlocked(owner)
                 &&!game.items().wands().inputTimeStopped(owner)&&!game.items().timeStop().stopped(owner.level())
                 &&LbcFartus.data(owner.getMainHandItem()).getIntOr("metal_pipe",0)==1)

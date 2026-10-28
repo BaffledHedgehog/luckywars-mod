@@ -70,7 +70,7 @@ public final class LbcPendingCombat {
         &&!game.items().magic().suppressedAt(owner.level(),owner.getEyePosition());}
     /** Shared accepted-damage callback supplies unblocked, positive and fatal native hits. */
     public void damaged(LivingEntity victim,DamageSource source){
-        if(!(source.getEntity() instanceof ServerPlayer owner)||!admitted(owner)||source.is(ARROW_ONLY)||!game.items().wands().validRoleTarget(victim,true))return;
+        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
         var data=LbcFartus.data(owner.getMainHandItem());

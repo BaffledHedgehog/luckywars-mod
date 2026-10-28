@@ -91,6 +91,23 @@ public final class MetalPipeChecks {
         @SuppressWarnings("unchecked") List<Object> packets(Object listener){return (List<Object>)read(read(listener,"connection"),"packets");}
         List<ClientboundSoundPacket> sounds(float volume,float pitch){return packets(client).stream().filter(ClientboundSoundPacket.class::isInstance).map(ClientboundSoundPacket.class::cast).filter(sound->sound.getSound().value().location().equals(Identifier.parse("minecraft:lbcsounds.metal_pipe"))&&sound.getSource()==SoundSource.MASTER&&sound.getVolume()==volume&&sound.getPitch()==pitch).toList();}
         void acknowledge(){call(client,"acknowledge");call(audience,"acknowledge");}
+        void attributedMobHits(int expectedSounds){
+            var summon=cow(landing.add(2,0,1));var target=cow(landing.add(0,0,1));
+            // Chef uses this exact native mob-attack type/direct-mob/causal-player source shape.
+            var damage=new net.minecraft.world.damagesource.DamageSource(level.damageSources().mobAttack(summon).typeHolder(),summon,owner);
+            require(target.hurtServer(level,damage,1)&&target.getHealth()==99&&target.getKillCredit()==owner,
+                    "accepted summon hit retains native damage and player attribution");
+            require(target.getLastDamageSource().getDirectEntity()==summon&&sounds(2,2).size()==expectedSounds,
+                    "attributed mob hit cannot proc owner's carried pipe sound");
+            var fatal=cow(landing.add(0,0,2));fatal.setHealth(1);
+            var beforeDeath=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
+            level.getEntitiesOfClass(Entity.class,fatal.getBoundingBox().inflate(3)).forEach(beforeDeath::add);
+            require(fatal.hurtServer(level,damage,1)&&fatal.isDeadOrDying()&&fatal.getKillCredit()==owner,
+                    "lethal summon hit retains native player kill credit");
+            require(sounds(2,2).size()==expectedSounds,"death callback cannot proc owner's carried pipe sound for summon hit");
+            for(var drop:level.getEntitiesOfClass(Entity.class,fatal.getBoundingBox().inflate(3),actor->!beforeDeath.contains(actor)
+                    &&(actor instanceof ItemEntity||actor instanceof net.minecraft.world.entity.ExperienceOrb)))actors.add(drop);
+        }
         void next(){boundary=game.server().getTickCount();stage++;}
         void clearActors(){for(var actor:actors)if(actor!=stopWitness)actor.discard();actors.clear();}
         boolean input(InteractionHand hand){owner.stopUsingItem();return owner.gameMode.useItem(owner,level,owner.getItemInHand(hand),hand).consumesAction();}
@@ -119,6 +136,7 @@ public final class MetalPipeChecks {
                 var target=cow(landing.add(0,0,1));owner.setItemInHand(InteractionHand.MAIN_HAND,raw("metal_pipe"));int before=sounds(2,2).size();require(target.hurtServer(level,level.damageSources().playerAttack(owner),1),"accepted attributed native melee damage");require(sounds(2,2).size()==before+1,"raw carried melee flag emits source forward MASTER2/pitch2 sound");
                 var sound=sounds(2,2).getLast();var forward=owner.position().add(owner.getLookAngle());require(new Vec3(sound.getX(),sound.getY(),sound.getZ()).distanceToSqr(forward)<.05,"native packet sound position is source forward one block");
                 var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(level,owner,new ItemStack(Items.ARROW),null);arrow.setPos(landing.add(0,4,0));arrow.setNoGravity(true);arrow.setDeltaMovement(Vec3.ZERO);actors.add(arrow);require(level.addFreshEntity(arrow),"native attributed arrow control inserted");target.setInvulnerableTime(0);require(target.hurtServer(level,level.damageSources().arrow(arrow,owner),1)&&sounds(2,2).size()==before+1,"accepted arrow damage excludes carried pipe sound");
+                attributedMobHits(before+1);
                 var fatal=cow(landing.add(0,0,2));fatal.setHealth(1);var deathBefore=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getEntitiesOfClass(Entity.class,fatal.getBoundingBox().inflate(3)).forEach(deathBefore::add);require(fatal.hurtServer(level,level.damageSources().playerAttack(owner),1)&&!fatal.isAlive()&&sounds(2,2).size()==before+2,"fatal native damage retains the melee sound");for(var drop:level.getEntitiesOfClass(Entity.class,fatal.getBoundingBox().inflate(3),actor->!deathBefore.contains(actor)&&(actor instanceof ItemEntity||actor instanceof net.minecraft.world.entity.ExperienceOrb)))actors.add(drop);var ordinary=cow(landing.add(0,0,2));owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);require(ordinary.hurtServer(level,level.damageSources().playerAttack(owner),1)&&sounds(2,2).size()==before+2,"independent ordinary accepted hit emits no pipe sound");clearActors();owner.getInventory().clearContent();source=item(pipe.copyWithCount(2),landing.add(0,3,0),false);far=item(raw("greed_greed").copyWithCount(3),landing.add(.5,3,0),false);write(service,"phase",0);boundary=now;stage=40;return false;
             }
             if(stage==40){int elapsed=now-boundary;if(elapsed<5){require(!source.isRemoved()&&!far.isRemoved(),"ground craft waits for real five-tick pulse");return false;}require(elapsed==5&&source.isRemoved()&&far.isRemoved(),"source ground craft consumes both entire stacked entities");gatherNewItems();var outputs=actors.stream().filter(ItemEntity.class::isInstance).map(ItemEntity.class::cast).filter(item->!item.isRemoved()).toList();require(outputs.size()==1&&LbcMetalPipe.divider(outputs.getFirst().getItem())&&outputs.getFirst().getItem().getCount()==1,"ground recipe emits one actual native Metal Divider");clearActors();stage=5;boundary=now;return false;}

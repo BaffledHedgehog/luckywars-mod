@@ -1,3 +1,38 @@
+## Native Ultraponos and contact repairs - QUALIFIED, INSTALL QUEUED (28 October 2026)
+
+[Source contract and proof](agent_notes/CONTACT_AND_RADIANT_REPAIR_2026_10_28.md).
+(user) Ultraponos must explode natively; nearby actual vanilla lightning doubles
+power once, preserving the former charged-creeper interaction. Four/eight logical
+blasts retain positions, base6..9/extra12..18 order,290resident active ticks,
+Time Stop/epoch/stop and WILD thrower attribution without helper creepers.
+Non-visual native lightning strike volume charges pending blasts; visual/far bolts
+and repeated flashes cannot stack power/reset time. Actual TNT children reuse
+existing WILD/nullable-owner/epoch/unload lifecycle. Initial source identity filters
+roles/Greed before native exposure, hurt and knockback, including ownerless blasts.
+(user) Gaycaster wall damage must intersect the actual visible strand. Shared exact
+vertical segment clip replaces fat AABB; particles align with warning height.
+(user) Projectile body bumps are unwanted. Cancel only Entity.push(Entity) when
+one side is a projectile; leave vector pushes, hits/reflection/Greed intact.
+Arcanum's apparent victim repulsion was actually its one-block target exclusion;
+remove dead zone and use bounded arrival braking, retaining legacy speed caps.
+(user) Radiant Metasola must retain unsupported fire/floating lava without updates.
+Full integrity1author ruling supersedes literal source0.1; exact strict sparse NBT,
+source-air and shared818knownShape path retained; no second placement engine.
+(user) Attributed Chef/summon hits cannot proc carried sword effects. Nine direct
+held-melee consumers use existing actual PLAYER_ATTACK/direct-owner predicate;
+keep kill credit, victim reactions and secret recursive artifact interactions.
+Build7350302f passed36results/two actual matches (201.97s), normal child shutdown,
+exact fixture restoration,550sources/1561classes/3232resources,198author paths/
+29live override JSONs unchanged. Real lightning,290active ticks, WILD self/ally,
+TNT lineage, six roles/Greed,320natural Radiant ticks and direct/fatal mob controls.
+Initialf1fc failures were a lava-over-air fixture assumption; source lava instead
+floats over unsupported fire. Initial735Babylon suite required fresh attribution
+and moved before combat; same immutable artifact passes both full matches.
+No RP changes or physical-client/naturalTPS/unload-transition claim. Main currently
+runs77354937; shared installer supersedes queued scale8ce5423f and waits normal
+shutdown/world unlock, without forcing stop/restart. Evidence:
+build/verification/gaycaster-wall-hitbox/. Earlier entries below are historical.
+
 ## Restore vanilla scale bounds - QUALIFIED, INSTALL QUEUED (28 October 2026)
 
 (user) scale must keep the vanilla0.0625..16 range; supersedes earlier unbinding.

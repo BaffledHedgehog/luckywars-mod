@@ -51,13 +51,13 @@ public final class LbcCreeperDrops {
         game.items().timeStop().prepareFrozen(creeper);
     }
 
-    /** Reuse native creeper lineage, chained TNT/cloud and save/unload handling for this WILD trap. */
-    void adoptUltraponos(Creeper creeper, LivingEntity owner) {
-        creeper.entityTags().add(CREEPER);
-        creeper.entityTags().add(ULTRAPONOS);
-        game.items().markCurrentItemEpoch(creeper);
-        causes.put(creeper,owner); tracked.add(creeper);
-        game.items().timeStop().prepareFrozen(creeper);
+    /** A native Ultraponos blast can ignite real TNT without allocating a helper creeper. */
+    public void adoptUltraponosChild(Entity child,LivingEntity owner) {
+        if(!(child instanceof PrimedTnt)) return;
+        child.entityTags().add(CHILD); child.entityTags().add(ULTRAPONOS);
+        game.items().markCurrentItemEpoch(child);
+        causes.put(child,owner); children.add(child);
+        game.items().timeStop().prepareFrozen(child);
     }
     public boolean wild(Entity entity) { return managed(entity) && entity.entityTags().contains(ULTRAPONOS); }
 

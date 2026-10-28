@@ -257,10 +257,11 @@ final class LbcGaycasterAcademy {
                         if(lane==ELECTRIC_LANES/2)h.warning=visual;
                     }else h.laneWarnings.get(lane).moveTo(ahead.add(lateral));
                     Vec3 point=h.at.add(lateral);
-                    trialParticles(t.owner,ParticleTypes.ELECTRIC_SPARK,point.add(0,1,0),5,0,1,0,0);
-                    trialParticles(t.owner,new net.minecraft.core.particles.DustColorTransitionOptions(0x00ccff,0x269eb6,1.5f),point.add(0,1,0),5,0,1,0,0);
+                    trialParticles(t.owner,ParticleTypes.ELECTRIC_SPARK,point.add(0,.5,0),5,0,1,0,0);
+                    trialParticles(t.owner,new net.minecraft.core.particles.DustColorTransitionOptions(0x00ccff,0x269eb6,1.5f),point.add(0,.5,0),5,0,1,0,0);
                     paint(t,point.add(0,-1,0),point.add(0,2,0),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE));
-                    for(var e:living)if(e.getBoundingBox().intersects(new AABB(point.add(-.99,-.49,-.99),point.add(1,1.5,1))))hurt(t,e,8,DamageTypes.ARROW);
+                    // This is a vertical electric strand, not a two-block-wide damage cube.
+                    for(var e:living)if(LbcBeamGeometry.intersects(e.getBoundingBox(),point.add(0,-.5,0),point.add(0,1.5,0)))hurt(t,e,8,DamageTypes.ARROW);
                 }LbcOverload.sound(t.owner,h.at,"minecraft:entity.firework_rocket.twinkle",.5f,1,0);h.at=h.at.add(h.direction.scale(.5));return h.age>=80;
             }
             case 5->{

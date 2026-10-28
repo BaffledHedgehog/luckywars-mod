@@ -31,7 +31,7 @@ public final class LbcDevilSword {
     }
     /** Native accepted positive/unblocked damage, including attributable indirect and fatal hits. */
     public void damaged(LivingEntity victim,DamageSource source){
-        if(!(source.getEntity() instanceof ServerPlayer owner)||!admitted(owner)||source.is(ARROW_ONLY)
+        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)
                 ||!game.items().wands().validRoleTarget(victim,true)||LbcFartus.data(owner.getMainHandItem()).getIntOr("heal",0)!=1)return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted"))||!magic(owner))return;

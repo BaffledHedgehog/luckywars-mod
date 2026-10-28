@@ -44,7 +44,7 @@ public final class LbcPendingSwords {
     public void endAttack(ServerPlayer owner){var attack=attacks.get(owner);if(attack==null||--attack.depth>0)return;attacks.remove(owner);if(!attack.victims.isEmpty()&&valid(owner))ender(owner,attack.origin,attack.victims);}
     /** Called by the common accepted-positive-damage hook, including fatal and indirect events. */
     public void damaged(LivingEntity victim,DamageSource source){
-        if(producing||source.getDirectEntity()!=null&&source.getDirectEntity().entityTags().contains(FANG)||!(source.getEntity() instanceof ServerPlayer owner)||!admitted(owner)||source.is(ARROW_ONLY)||!game.items().wands().projectileTarget(owner,victim,true))return;
+        if(producing||source.getDirectEntity()!=null&&source.getDirectEntity().entityTags().contains(FANG)||!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)||!game.items().wands().projectileTarget(owner,victim,true))return;
         var dim=owner.level().dimension().identifier();if(dim.equals(Identifier.parse("minecraft:nexus"))||dim.equals(Identifier.parse("minecraft:imprinted")))return;
         var data=LbcFartus.data(owner.getMainHandItem());
         if(data.getIntOr("ender",0)==1&&magic(owner,2)){var attack=attacks.get(owner);if(attack!=null)attack.victims.add(victim);else ender(owner,owner.position(),List.of(victim));}

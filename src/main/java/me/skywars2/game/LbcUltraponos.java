@@ -5,24 +5,23 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A finite source emitter; delayed explosions keep native creeper ticking and shared lineage. */
+/** A finite source emitter with resident-tick native explosions and shared WILD lineage. */
 public final class LbcUltraponos {
     private static final Identifier STRUCTURE=Identifier.parse("lbc:ponos");
     private static final double[] HEIGHTS={-1.5,-2.5,.5,1.5};
@@ -30,7 +29,24 @@ public final class LbcUltraponos {
     private static CompoundTag govno() { var tag=new CompoundTag(); tag.putInt("govnoq",1); return tag; }
     private final GameController game;
     private final List<Emitter> emitters=new ArrayList<>();
+    private final List<Blast> blasts=new ArrayList<>();
     private int pulses;
+    private DamageSource activeExplosion;
+    private LivingEntity activeOwner;
+    private static final class Blast {
+        final ServerLevel level;
+        final Vec3 position;
+        final int radius;
+        final String epoch;
+        final LivingEntity owner;
+        final LbcIndirectKills.Owner cause;
+        int remainingTicks=290;
+        boolean charged;
+        Blast(ServerLevel level,Vec3 position,int radius,String epoch,LivingEntity owner,LbcIndirectKills.Owner cause) {
+            this.level=level; this.position=position; this.radius=radius; this.epoch=epoch; this.owner=owner; this.cause=cause;
+        }
+    }
+    record BlastSnapshot(Vec3 position,int radius,int remainingTicks,LivingEntity owner) { }
     private static final class Emitter {
         final ServerLevel level;
         final Vec3 center;
@@ -70,29 +86,17 @@ public final class LbcUltraponos {
             if(candidate<distance) { nearest=player; distance=candidate; }
         }
         boolean mega=nearest!=null && game.config().lbcSkills && game.players().get(nearest.getUUID()).lbcSkill==9;
-        spawnCreepers(level,center,owner,mega);
+        scheduleBlasts(level,center,owner,mega);
         emitters.add(new Emitter(level,center,game.items().epoch(),author));
         LbcOverload.sound(level,token.position(),"minecraft:lbcsounds.ponos",1,1,0,0);
         return true;
     }
-    private void spawnCreepers(ServerLevel level,Vec3 center,LivingEntity owner,boolean mega) {
+    private void scheduleBlasts(ServerLevel level,Vec3 center,LivingEntity owner,boolean mega) {
+        var epoch=game.items().epoch();
+        var cause=owner instanceof ServerPlayer author?game.items().indirectKills().wildCause(author):null;
         // Author retained the datapack's additional four stronger blasts, followed by all four base blasts.
-        if(mega) for(int i=0;i<4;i++) creeper(level,center.add(0,HEIGHTS[i]-.5,0),owner,(i+6)*2);
-        for(int i=0;i<4;i++) creeper(level,center.add(0,HEIGHTS[i]-.5,0),owner,i+6);
-    }
-    private void creeper(ServerLevel level,Vec3 position,LivingEntity owner,int radius) {
-        var creeper=new Creeper(net.minecraft.world.entity.EntityTypes.CREEPER,level);
-        var preset=new CompoundTag();
-        preset.putShort("Fuse",(short)290); preset.putByte("ExplosionRadius",(byte)radius);
-        preset.putBoolean("ignited",true); preset.putBoolean("NoAI",true); preset.putBoolean("NoGravity",true);
-        preset.putBoolean("Silent",true); preset.putBoolean("Invulnerable",true); preset.putBoolean("PersistenceRequired",true);
-        creeper.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),preset));
-        creeper.setPos(position);
-        creeper.entityTags().add("govno_creeper");
-        creeper.setCustomName(Component.translatable("megadrist").withStyle(net.minecraft.ChatFormatting.YELLOW).withStyle(style->style.withItalic(false)));
-        creeper.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.INVISIBILITY,288,0,true,false,false));
-        game.items().creeperDrops().adoptUltraponos(creeper,owner);
-        if(!level.addFreshEntity(creeper)) creeper.discard();
+        if(mega) for(int i=0;i<4;i++) blasts.add(new Blast(level,center.add(0,HEIGHTS[i]-.5,0),(i+6)*2,epoch,owner,cause));
+        for(int i=0;i<4;i++) blasts.add(new Blast(level,center.add(0,HEIGHTS[i]-.5,0),i+6,epoch,owner,cause));
     }
     public void tick() {
         for(var emitter:List.copyOf(emitters)) {
@@ -102,7 +106,7 @@ public final class LbcUltraponos {
             if(game.items().timeStop().stopped(emitter.level)) continue;
             var cell=BlockPos.containing(emitter.center);
             if(emitter.level.getChunkSource().getChunkNow(cell.getX()>>4,cell.getZ()>>4)==null) continue;
-            // Source mecha-marker deletion is permanent; cancelling does not defuse existing creepers.
+            // Source mecha-marker deletion is permanent; cancelling does not defuse queued blasts.
             if(game.items().magic().mechanismSuppressedAt(emitter.level,emitter.center.add(0,1,0))) {
                 emitters.remove(emitter); continue;
             }
@@ -110,6 +114,39 @@ public final class LbcUltraponos {
             pulse(emitter);
             if(emitter.age>=280) emitters.remove(emitter);
         }
+        for(var blast:List.copyOf(blasts)) {
+            if(!game.playing() || game.stage()==GameController.Stage.ENDING || !game.items().currentEpoch(blast.epoch)) {
+                blasts.remove(blast); continue;
+            }
+            if(game.items().timeStop().stopped(blast.level)) continue;
+            var cell=BlockPos.containing(blast.position);
+            // Match an entity's ticking residency without tickets, chunk reads that load, or helper entities.
+            if(blast.level.getChunkSource().getChunkNow(cell.getX()>>4,cell.getZ()>>4)==null
+                    || !blast.level.isPositionEntityTicking(cell)) continue;
+            if(--blast.remainingTicks>0) continue;
+            blasts.remove(blast);
+            var kills=game.items().indirectKills();
+            var damage=kills.captureDamage(blast.level.damageSources().explosion(null,blast.owner),blast.cause);
+            var previous=activeExplosion; var previousOwner=activeOwner;
+            activeExplosion=damage; activeOwner=blast.owner;
+            try {
+                kills.trapChanges(blast.level,blast.cause,()->blast.level.explode(null,damage,null,
+                        blast.position.x,blast.position.y,blast.position.z,blast.radius*(blast.charged?2:1),false,Level.ExplosionInteraction.MOB));
+            } finally { activeExplosion=previous; activeOwner=previousOwner; }
+        }
+    }
+    /** Called only from vanilla's active, non-visual lightning damage phase. Repeated flashes never stack. */
+    public void lightning(LightningBolt bolt) {
+        if(!(bolt.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return;
+        var strike=new AABB(bolt.getX()-3,bolt.getY()-3,bolt.getZ()-3,bolt.getX()+3,bolt.getY()+9,bolt.getZ()+3);
+        for(var blast:blasts) if(blast.level==bolt.level() && game.items().currentEpoch(blast.epoch)
+                && strike.intersects(new AABB(blast.position.x-.3,blast.position.y,blast.position.z-.3,
+                        blast.position.x+.3,blast.position.y+1.7,blast.position.z+.3))) blast.charged=true;
+    }
+    public boolean isExplosion(DamageSource source) { return source!=null && source==activeExplosion; }
+    /** Native TNT is still a real actor; share its existing epoch, WILD and nullable-owner lineage. */
+    public void inheritExplosionChild(DamageSource source,net.minecraft.world.entity.Entity child) {
+        if(isExplosion(source)) game.items().creeperDrops().adoptUltraponosChild(child,activeOwner);
     }
     private void pulse(Emitter emitter) {
         pulses++;
@@ -134,6 +171,10 @@ public final class LbcUltraponos {
                 net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.RandomizationType.ALTERNATIVE);
     }
     public int emitterCount() { return emitters.size(); }
+    public int pendingBlastCount() { return blasts.size(); }
+    List<BlastSnapshot> pendingBlasts() {
+        return blasts.stream().map(blast->new BlastSnapshot(blast.position,blast.radius*(blast.charged?2:1),blast.remainingTicks,blast.owner)).toList();
+    }
     public int emittedPulses() { return pulses; }
-    public void stop() { emitters.clear(); pulses=0; }
+    public void stop() { emitters.clear(); blasts.clear(); pulses=0; }
 }

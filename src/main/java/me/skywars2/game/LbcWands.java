@@ -1572,6 +1572,7 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
+        if(game.items().ultraponos().isExplosion(source)) return validTarget(victim);
         if(LbcIncomingArtifacts.managed(source.getDirectEntity())) return game.items().incomingArtifacts().canAffect(source.getDirectEntity(),victim);
         if(SauvojenMeditation.managed(source.getDirectEntity())) return validTarget(victim);
         if(source instanceof LbcBabylonEffects.OwnerDamageSource){

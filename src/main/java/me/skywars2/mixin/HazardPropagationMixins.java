@@ -103,7 +103,8 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().quiver().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().babylonEffects().canAffect(source,entity));
                 var savedDamage=((ServerExplosion)(Object)this).getDamageSource();
-                if(savedDamage!=null && game.items().indirectKills().babylonCause(savedDamage)!=null)
+                if(savedDamage!=null && (game.items().indirectKills().babylonCause(savedDamage)!=null
+                        || game.items().ultraponos().isExplosion(savedDamage)))
                     entities.removeIf(entity->!game.items().wands().allowDamage(entity,savedDamage));
                 entities.removeIf(me.skywars2.game.LbcGreed::active);
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
@@ -219,7 +220,11 @@ public final class HazardPropagationMixins {
                 game.items().moiseiBoots().inheritChild(source,spawned);
                 game.items().quiver().inheritChild(source,spawned);
                 game.items().babylonEffects().inheritChild(source,spawned);
-                if(source==null&&explosion instanceof ServerExplosion blast)game.items().babylonEffects().inheritExplosionChild(blast.getDamageSource(),spawned);
+                if(source==null&&explosion instanceof ServerExplosion blast) {
+                    if(game.items().ultraponos().isExplosion(blast.getDamageSource()))
+                        game.items().ultraponos().inheritExplosionChild(blast.getDamageSource(),spawned);
+                    else game.items().babylonEffects().inheritExplosionChild(blast.getDamageSource(),spawned);
+                }
                 game.items().creeperDrops().inheritChild(source,spawned);
                 game.items().cageDrops().inheritChild(source,spawned);
                 game.items().zombieTntDrops().inheritChild(source,spawned);

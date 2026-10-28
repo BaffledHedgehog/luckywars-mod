@@ -149,7 +149,7 @@ public final class LbcItems {
         incomingArtifacts.damaged(victim,source);
         reactiveArtifacts.damaged(victim,source);
         if (!game.playing() && !debugItemUseWindow() || !inArena(victim) || LbcDamage.isArrowDamage(source)
-                || !(source.getEntity() instanceof ServerPlayer owner) || !active(owner)
+                || !(source.getEntity() instanceof ServerPlayer owner) || !LbcDamage.isMeleeAttack(source,owner) || !active(owner)
                 || !owner.isAlive() || !inArena(owner)) return;
         var held = owner.getMainHandItem();
         boolean iceSword = isIceSword(held), terraSword = LbcTerra.isSword(held), katana=LbcElectro.isAnyKatana(held);

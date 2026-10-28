@@ -334,8 +334,8 @@ public final class SoulhunterChecks {
                     require(enemy.isDeadOrDying()&&enemy.getKillCredit()==owner,"type5 WILD native in_fire20 inherits field owner");
                     require(Math.abs(field.pig.getY()-(at.y-.2))<1e-8,"type5 source host lowering .2");
                     int changed=0,retained=0,fire=0,lava=0;
-                    for(var pos:BlockPos.betweenClosed(origin,origin.offset(20,20,20))){var state=owner.level().getBlockState(pos);if(state.is(Blocks.STONE)){retained++;continue;}changed++;var expected=palette.get(pos);require(expected!=null&&state.equals(expected),"fractional strict placement preserves every selected native source state "+pos+" actual="+state+" expected="+expected);if(state.is(Blocks.FIRE))fire++;if(state.is(Blocks.LAVA))lava++;}
-                    require(changed>0&&retained>0&&fire>0&&lava>0,"each native integrity.1 sample retains fire/lava and omits cells without a fixed selected count");
+                    for(var pos:BlockPos.betweenClosed(origin,origin.offset(20,20,20))){var state=owner.level().getBlockState(pos);if(state.is(Blocks.STONE)){retained++;continue;}changed++;var expected=palette.get(pos);require(expected!=null&&state.equals(expected),"full strict field placement preserves every native source state "+pos+" actual="+state+" expected="+expected);if(state.is(Blocks.FIRE))fire++;if(state.is(Blocks.LAVA))lava++;}
+                    require(changed==4945&&retained==4316&&fire==2229&&lava==739,"author integrity1 places all4945 source cells and preserves4316 unspecified cells");
                     noNewFireTicks(palette.keySet(),blockTicks,fluidTicks);
                 }finally{souls.unloaded(field.pig);}
             }

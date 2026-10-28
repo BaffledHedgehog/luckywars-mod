@@ -49,6 +49,12 @@ public final class ElectroNativeMixins {
                     || !(bolt.level() instanceof ServerLevel level)) original.call();
             else game.items().indirectKills().worldChanges(level,bolt,()->original.call());
         }
+        @Inject(method="tick",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/level/Level;getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;",ordinal=1))
+        private void skywars2$chargeUltraponos(CallbackInfo ci) {
+            var game=SkyWars2.game();
+            if(game!=null) game.items().ultraponos().lightning((LightningBolt)(Object)this);
+        }
         @WrapOperation(method="tick",at=@At(value="INVOKE",target=
                 "Lnet/minecraft/world/entity/Entity;thunderHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LightningBolt;)V"))
         private void skywars2$lightningTarget(Entity target,ServerLevel level,LightningBolt bolt,Operation<Void> original) {
