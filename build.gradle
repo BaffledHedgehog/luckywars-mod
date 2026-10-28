@@ -291,6 +291,8 @@ processResources {
             'data/lbc/loot_table/neko_set_paladin.json',
             'data/lbc/loot_table/neko_set_paladin_full.json',
             'data/lbc/loot_table/neko_set_phantom.json',
+            'data/lbc/loot_table/neko_set_phantom_pre.json',
+            'data/lbc/loot_table/neko_set_phantom_full.json',
             'data/lbc/loot_table/neko_set_shitty.json',
             'data/lbc/loot_table/neko_set_shitty_full.json',
             'data/lbc/loot_table/neko_set_shulker.json',

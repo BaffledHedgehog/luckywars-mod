@@ -75,6 +75,7 @@ public final class VoidArcanumChecks {
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final List<ProbeCow> mobs=new ArrayList<>();
         final List<ScheduledTick<Block>> blockTicks=new ArrayList<>();final List<ScheduledTick<Fluid>> fluidTicks=new ArrayList<>();final BoundingBox bounds;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final Vec3 at;final net.minecraft.world.scores.PlayerTeam team;
+        final List<Entity> bystanders=new ArrayList<>();
         Fixture(GameController game){
             this.game=game;service=game.items().voidArcanum();owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(owner!=null&&other!=null&&game.playing()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two active participants");
@@ -91,6 +92,13 @@ public final class VoidArcanumChecks {
         void block(BlockPos pos,Block type){block(pos,type.defaultBlockState());}
         void block(BlockPos pos,BlockState state){require(owner.level().hasChunkAt(pos),"resident fixture cell");blocks.putIfAbsent(pos.immutable(),game.maps().snapshot(owner.level(),pos));owner.level().setBlock(pos,state,2);}
         void init(){
+            // Chase scans the whole loaded dimension. A third fixture player must not become
+            // a replacement target when the measured cow enters the one-block standoff.
+            for(var entity:before)if(entity instanceof net.minecraft.world.entity.LivingEntity&&entity!=owner&&entity!=other
+                    &&!entity.entityTags().contains("strict_map_object")){
+                SkyWars2.LOGGER.info("[check] void-arcanum scoped bystander {} at {}",entity.getName().getString(),entity.position());
+                entity.entityTags().add("strict_map_object");bystanders.add(entity);
+            }
             // Snapshot every resident cell and scheduler before clearing; neighbor updates must not
             // leak from a fixture into restored terrain. Never request an absent column.
             for(int x=bounds.minX()>>4;x<=bounds.maxX()>>4;x++)for(int z=bounds.minZ()>>4;z<=bounds.maxZ()>>4;z++){
@@ -334,6 +342,7 @@ public final class VoidArcanumChecks {
             var stale=new Marker(EntityTypes.MARKER,owner.level());stale.entityTags().add("skywars2.void_arcanum");owner.level().addFreshEntity(stale);service.loaded(stale);require(stale.isRemoved(),"unowned restored body rejected on native load");clear();
         }
         @Override public void close(){
+            for(var entity:bystanders)entity.entityTags().remove("strict_map_object");bystanders.clear();
             clear();for(var cow:mobs){game.items().indirectKills().clear(cow);cow.discard();}game.items().indirectKills().clear(owner);game.items().indirectKills().clear(other);
             owner.level().getBlockTicks().clearArea(bounds);owner.level().getFluidTicks().clearArea(bounds);
             for(var entry:blocks.entrySet()){if(owner.level().getBlockEntity(entry.getKey()) instanceof net.minecraft.world.Container container)container.clearContent();game.maps().restoreSnapshot(owner.level(),entry.getKey(),entry.getValue());}

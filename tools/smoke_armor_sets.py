@@ -21,8 +21,9 @@ import smoke_game_cycle as cycle
 
 
 SUITES = (
-    "assassin-armor", "armor-sets", "ordinary-accessories", "native-gear", "passive-consumables",
+    "phantom-armor", "assassin-armor", "armor-sets", "ordinary-accessories", "native-gear", "passive-consumables",
     "signed-effects-math", "effect-layers", "time-stop", "time-stop-contacts",
+    "danmaku", "void-arcanum", "minigun-visual", "rifle-main-hand", "projectile-self-hits",
 )
 PROBES = ()
 CLEANUP = ()

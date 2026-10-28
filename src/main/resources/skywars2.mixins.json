@@ -195,7 +195,11 @@
     "IncomingArtifactCriterionMixin$SandPhysics",
     "IncomingArtifactCriterionMixin$WolfTarget",
     "ReactiveSmokeMixin",
-    "ReactiveSmokeMixin$Target"
+    "ReactiveSmokeMixin$Target",
+    "PhantomActivityMixin",
+    "PhantomActivityMixin$Combat",
+    "PhantomActivityMixin$Punch",
+    "PhantomActivityMixin$Shots"
   ],
   "injectors": {
     "defaultRequire": 1

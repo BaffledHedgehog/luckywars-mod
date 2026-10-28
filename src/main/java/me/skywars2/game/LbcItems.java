@@ -36,6 +36,7 @@ import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -130,6 +131,7 @@ public final class LbcItems {
 
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
+        armorSets.phantom().damaged(victim,source);
         stand.onAcceptedDamage(victim,source);
         summons.damaged(victim,source);
         syringe.damaged(victim,source);
@@ -212,6 +214,7 @@ public final class LbcItems {
     private final LbcPopit popit;
     private final LbcOrdinaryAccessories ordinaryAccessories;
     private final LbcArmorSets armorSets;
+    private final OwnedEffectLayers ownedEffects=new OwnedEffectLayers();
     private final LbcShulkerArmor shulkerArmor;
     private final LbcInventoryHazards inventoryHazards;
     private final LbcCannedFood cannedFood;
@@ -1015,6 +1018,7 @@ public final class LbcItems {
     public LbcPopit popit() { return popit; }
     public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
     public LbcArmorSets armorSets() { return armorSets; }
+    public OwnedEffectLayers ownedEffects() { return ownedEffects; }
     public LbcShulkerArmor shulkerArmor() { return shulkerArmor; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
     public LbcCannedFood cannedFood() { return cannedFood; }
@@ -1095,6 +1099,7 @@ public final class LbcItems {
         slabDrops.loaded(entity);
         creatureDrops.loaded(entity);
         armorSets.loaded(entity);
+        if(entity instanceof Projectile shot)armorSets.phantom().projectile(shot);
         potionSpawnerDrops.loaded(entity);
         droneDrops.loaded(entity);
         antDrops.loaded(entity);
@@ -1201,6 +1206,8 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        if(entity instanceof ServerPlayer player)armorSets.phantom().forget(player);
+        if(entity instanceof LivingEntity living)ownedEffects.forget(living);
         specialDrops.unloaded(entity);
         pisaDrops.unloaded(entity);
         antigravity.unloaded(entity);
@@ -1868,6 +1875,7 @@ public final class LbcItems {
         incomingArtifacts.forget(player);
         shulkerArmor.forget(player);
         armorSets.forget(player);
+        ownedEffects.forget(player);
         moiseiBoots.forget(player);
         regenerationBelt.forget(player);
         quiver.forget(player);
@@ -1923,6 +1931,7 @@ public final class LbcItems {
         traveller.stop();
         ordinaryAccessories.stop();
         armorSets.stop();
+        ownedEffects.stop();
         shulkerArmor.stop();
         classicMelee.stop();
         pendingCombat.stop();

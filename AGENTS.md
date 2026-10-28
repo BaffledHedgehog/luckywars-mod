@@ -1,3 +1,34 @@
+## Complete Phantom armor - QUALIFIED, AUTO INSTALL QUEUED (28 October 2026)
+
+[Author decisions, source and native proof](agent_notes/PHANTOM_ARMOR_PORT_2026_10_28.md).
+(user) Existing five-minute InvisibilityII/StrengthII survive enemy approach,
+but any shot/item use/attack withdraws only the set's contributions for at least
+20active ticks; repeated/continuous actions extend it. Enemieswithin8prevent
+reactivation until they leave. Automatic reactivation repairs the source latch.
+(user) Only real accepted melee creates the BlindnessI100tick flash; mob hits
+still qualify. MAG protects the victim even when the caster is outside it.
+Other source levels and same-amplifier external grants must survive withdrawal.
+Shared native effect chains now have reversible owner leases with native duration
+clocks and clear/force-replacement handling. Ordinary roles, dimension, pause,
+Greed and lifecycle stay. Native action paths and fresh queued projectiles,
+Danmaku cards, minigun paid shots and held Void Arcanum cover activity admission.
+Old projectile flight/chain consequences do not count as new shots. Original
+four leaves/root/pre/full and normal/Ultra reforges are ready; no RP additions.
+Build723b2a3a passed38results in2actual mode1matches (123.62s) plus2scoped third-
+player setup/cleanup checks; exact539sources/1532classes/3230resources. All198
+protected author paths/29live override JSONs unchanged, normal child stop and
+exact snapshots restored. Earlierf0b0206bfailed only the old Void standoff
+fixture twice: unisolatedTestGamma became a world-wide chase candidate. Scoped
+bystander isolation retains all original motion/settling assertions; full rerun
+passes. Pre-target-MAGdffc4190also passed but was superseded before installation.
+Installer11752 adopts723b2a3ain place of78fc5140, waiting for normal mainccac368f
+shutdown/world unlock without forcing stop or restart. Receipt:
+`build/verification/phantom-armor/main-install.json`. Retain723b2a3aready,
+78fc5140previous qualified,ccac368fmain/rollback and network-audit tool; obsolete
+746e62aa/dffc4190JARs path/hash checked and removed (81,734,982bytes).
+Earlier status entries below are historical. No physical-client/peakTPS or
+fatal-PvP advancement verification is claimed.
+
 ## Complete Assassin armor - QUALIFIED, AUTO INSTALL QUEUED (28 October 2026)
 
 [Source contract, native verification and handoff](agent_notes/ASSASSIN_ARMOR_PORT_2026_10_28.md).

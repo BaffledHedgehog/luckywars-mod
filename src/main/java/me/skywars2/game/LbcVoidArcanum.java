@@ -121,6 +121,7 @@ public final class LbcVoidArcanum {
         if(!resident(owner.level(),at)||game.items().magic().suppressedAt(owner.level(),at)
                 ||!game.items().mana().trySpendWand(owner,config("void_arcanum_mana_activate")))return false;
         if(spawn(owner,at)==null)return false;
+        game.items().armorSets().phantom().activity(owner);
         game.items().mana().award(owner,"lbc:true_advancements/arcanums/black_hole");
         owner.level().sendParticles(ParticleTypes.END_ROD,owner.getX(),owner.getY()+1,owner.getZ(),20,1,1,1,0);
         LbcOverload.sound(owner,"minecraft:entity.evoker.cast_spell",1,1,0);
@@ -160,7 +161,7 @@ public final class LbcVoidArcanum {
             if(!game.items().mana().trySpendWand(player,entry.getValue())){
                 var state=hands.get(entry.getKey());if(state!=null){state.main=false;state.off=false;}
                 removeOwner(entry.getKey());
-            }
+            }else game.items().armorSets().phantom().activity(player);
         }
         // Rotate the first body each frame so a large hole cannot starve later bodies.
         var current=List.copyOf(holes);int size=current.size();var active=new ArrayList<Hole>();

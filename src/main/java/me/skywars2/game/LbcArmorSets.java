@@ -24,10 +24,12 @@ public final class LbcArmorSets {
             Blocks.CONCRETE_POWDER.pick(net.minecraft.world.item.DyeColor.BLACK).defaultBlockState());
     private final GameController game;
     private final LbcErosionSuppression erosionSuppression;
+    private final LbcPhantomArmor phantom;
     private int phase;
     private String epoch;
 
-    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);}
+    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);this.phantom=new LbcPhantomArmor(game);}
+    public LbcPhantomArmor phantom(){return phantom;}
 
     private boolean eligible(ServerPlayer player){
         return player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()
@@ -54,6 +56,7 @@ public final class LbcArmorSets {
     }
 
     public void tick(){
+        phantom.tick();
         if(!game.items().currentEpoch(epoch)){phase=0;epoch=game.items().epoch();}
         for(var player:game.server().getPlayerList().getPlayers())erosionSuppression.tick(player);
         if(game.maps().level()==null||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
@@ -131,9 +134,9 @@ public final class LbcArmorSets {
         return true;
     }
 
-    public void inventoryChanged(ServerPlayer player){erosionSuppression.inventoryChanged(player);}
+    public void inventoryChanged(ServerPlayer player){erosionSuppression.inventoryChanged(player);phantom.inventoryChanged(player);}
     public void loaded(Entity entity){erosionSuppression.loaded(entity);}
     public boolean recover(ItemStack stack,ServerLevel level){return erosionSuppression.recover(stack,level);}
-    public void stop(){erosionSuppression.stop();phase=0;epoch=null;}
-    public void forget(ServerPlayer player){erosionSuppression.forget(player);}
+    public void stop(){phantom.stop();erosionSuppression.stop();phase=0;epoch=null;}
+    public void forget(ServerPlayer player){phantom.forget(player);erosionSuppression.forget(player);}
 }

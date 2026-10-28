@@ -162,7 +162,7 @@ public final class LbcDanmaku {
     }
     private static int phase(int n,InteractionHand hand){return ((20-n%20)%20)/2;}
     private boolean valid(ServerPlayer p,Display.ItemDisplay d){return validOwner(p)&&!d.isRemoved()&&game.items().currentEpoch(d)&&p.level()==d.level()&&d.level().hasChunkAt(d.blockPosition())&&!game.items().magic().suppressedAt((ServerLevel)d.level(),d.position());}
-    Card card(ServerPlayer p,Vec3 pos,Vec3 direction,boolean homing){var d=display(p,pos,homing,false);if(d==null)return null;var c=new Card(p,d,direction,homing);cards.add(c);orient(c);return c;}
+    Card card(ServerPlayer p,Vec3 pos,Vec3 direction,boolean homing){var d=display(p,pos,homing,false);if(d==null)return null;var c=new Card(p,d,direction,homing);cards.add(c);orient(c);game.items().armorSets().phantom().activity(p);return c;}
     private Display.ItemDisplay display(ServerPlayer p,Vec3 pos,boolean homing,boolean bomb){
         if(!p.level().hasChunkAt(BlockPos.containing(pos)))return null;
         var d=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,p.level());

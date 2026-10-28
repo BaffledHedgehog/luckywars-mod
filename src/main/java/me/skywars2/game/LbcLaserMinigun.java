@@ -164,6 +164,7 @@ public final class LbcLaserMinigun {
                 || !game.items().mana().trySpendWand(owner,100)) return;
         if(spool.spread>=1100) spool.spread-=100;
         spool.shots++;
+        game.items().armorSets().phantom().activity(owner);
         if(spool.spread<=1000) game.items().mana().award(owner,"lbc:true_advancements/shooter/laser_minigun");
         sound(owner,"shot",2,0);
         nativeRay(spool,hand);
