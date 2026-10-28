@@ -453,6 +453,7 @@ public final class LbcWands {
         if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
         if(LbcElementalGrimoires.kind(stack)!=null)return LbcElementalGrimoires.use(game,player,hand);
         if(LbcLibrarySpells.kind(stack)!=null)return LbcLibrarySpells.use(game,player,hand);
+        if(LbcLibrarySpells.matchesRawRaycast(stack))return LbcLibrarySpells.useRawRaycast(game,player,hand);
         var ordinarySummon=LbcSummonerItems.kind(stack);
         if(ordinarySummon!=null)return game.items().summons().useOrdinary(player,hand,ordinarySummon);
         if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
@@ -1384,7 +1385,7 @@ public final class LbcWands {
     }
     private void electroHits(ElectroTrace trace,Vec3 from,Vec3 to,double spacing,float amount,int targetLimit) {
         var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(trace.hostileSauvojen ? DamageTypes.GENERIC : trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.statusWild?trace.owner:trace.source());
+                .getOrThrow(trace.hostileSauvojen ? LbcDamage.ELECTRIC : trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.statusWild?trace.owner:trace.source());
         LbcDamage.hurtSegment(trace.level,game.items().indirectKills().captureDamage(damage,traceCause(trace)),from,to,Vec3.ZERO,spacing,amount,targetLimit,
                 entity->entity.getType().builtInRegistryHolder().is(MOBS)
                         && (trace.statusWild?validTarget(entity):electroTarget(trace.source(),entity,trace.meditation)),trace.meditation||trace.statusWild||trace.sourcePolicy!=null);

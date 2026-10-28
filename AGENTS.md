@@ -1,6 +1,7 @@
 ## Chaos armor full-pool gate - IN PROGRESS, NOT RELEASED (29 October 2026)
 
 [Current integration and remaining chain](agent_notes/CHAOS_ARMOR_INTEGRATION_2026_10_29.md).
+[Further shared dependencies and exact staged proof](agent_notes/CHAOS_CHAIN_INTEGRATION_2026_10_29.md).
 (user) Keep ALL original25 trap entries; release ONLY after the full dependency
 chain is implemented and qualified. No temporary filtered pool. Chaos remains
 not public ready; installed main remains d9087f0a. New native actors/boss/Infinity

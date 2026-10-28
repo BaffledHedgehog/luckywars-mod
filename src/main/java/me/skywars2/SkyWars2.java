@@ -192,6 +192,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcMetalPipe.divider(player.getItemInHand(hand)))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
+            // Authored raw spell leaves retain their vanilla carrier, so enter the same two-hand dispatcher here.
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcLibrarySpells.matchesRawRaycast(player.getItemInHand(hand)))
+                return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcHedgehogSpikes.legacyThrow(player.getItemInHand(hand))!=0)
                 return game.items().hedgehogSpikes().useLegacy(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             // Original accessory/reforge stacks keep their vanilla carrier and enter the native two-hand dispatcher.

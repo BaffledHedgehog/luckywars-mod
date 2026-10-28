@@ -30,7 +30,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
+        return LbcMagicBean.recognized(stack) || LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
     }
 
     public void loaded(Entity entity) {
@@ -109,6 +109,7 @@ public final class LbcSpecialDrops {
         boolean chaosActors = LbcChaosTrapActors.matches(token.getItem());
         boolean sauvojenBoss = LbcSauvojenBoss.recognized(token.getItem());
         boolean infinity = LbcInfinity.recognized(token.getItem());
+        boolean magicBean = LbcMagicBean.recognized(token.getItem());
         boolean chest = LbcChestDropItem.kind(token.getItem()) != null;
         boolean tnt = LbcTntDropItem.matches(token.getItem());
         boolean creeper = LbcCreeperDropItem.kind(token.getItem()) != null;
@@ -143,10 +144,11 @@ public final class LbcSpecialDrops {
         boolean bees = LbcBeeDropItem.matches(token.getItem());
         boolean pigs = LbcLuckyPigDropItem.matches(token.getItem());
         boolean enzan = LbcLevitationDropItem.matches(token.getItem());
-        if (!infinity && !chaosActors && !sauvojenBoss && !chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !normalVex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants && !portal && !luckyRoom && !pisa && !antigravity && !ultraponos && !transformator && !stalin) return false;
+        if (!magicBean && !infinity && !chaosActors && !sauvojenBoss && !chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !normalVex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants && !portal && !luckyRoom && !pisa && !antigravity && !ultraponos && !transformator && !stalin) return false;
         if (chaosActors && !game.items().chaosTrapActors().ready(token)) return false;
         if (sauvojenBoss && !game.items().sauvojenBoss().ready(token)) return false;
         if (infinity && !game.items().infinity().ready(token)) return false;
+        if (magicBean && !game.items().magicBean().ready(token)) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
@@ -248,6 +250,7 @@ public final class LbcSpecialDrops {
         if (pigs) game.items().luckyPigs().spawn(token);
         if (portal) game.items().portalDrops().spawn(token);
         if (bees) game.items().beeDrops().spawn(token);
+        if (magicBean) game.items().magicBean().spawn(token);
         if(bullets) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.BULLETS);
         if(vex) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.VEX_OLD);
         if(normalVex) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.VEX);
@@ -289,10 +292,15 @@ public final class LbcSpecialDrops {
     }
 
     private static void place(ServerLevel level, BlockPos pos, LbcChestDropItem.Kind kind) {
+        placeLootChest(level, pos, kind.table());
+    }
+
+    /** Shared native replacement for dropped chests and growing Magic Bean rewards. */
+    static void placeLootChest(ServerLevel level, BlockPos pos, net.minecraft.resources.ResourceKey<net.minecraft.world.level.storage.loot.LootTable> table) {
         if (!replaceContainer(level, pos)) return;
         var oldState = level.getBlockState(pos);
         var tag = new CompoundTag();
-        tag.putString("LootTable", kind.table().identifier().toString());
+        tag.putString("LootTable", table.identifier().toString());
         // Same default-state shape resolution and flags as native /setblock ... replace.
         var input = new BlockInput(Blocks.CHEST.defaultBlockState(), Set.of(), tag);
         if (input.place(level, pos, 258)) level.updateNeighboursOnBlockSet(pos, oldState);

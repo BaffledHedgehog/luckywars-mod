@@ -54,6 +54,10 @@ final class LbcLibraryRandom {
     private boolean active(ServerPlayer p,String epoch,ServerLevel level){return game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&p.isAlive()&&!p.isRemoved()&&p.level()==level&&game.items().currentEpoch(epoch)&&game.canUseGameplayItems(p);}
     private void ray(ServerPlayer p,int type){
+        ray(p,type,()->true,()->{});
+    }
+    /** Raw consumable aliases share the original ray and payload; only terminal admission/debit differ. */
+    void ray(ServerPlayer p,int type,java.util.function.BooleanSupplier terminalAdmitted,Runnable afterImpact){
         var epoch=game.items().epoch();var level=p.level();var direction=p.getLookAngle();
         net.minecraft.core.particles.ParticleOptions particle=switch(type){
             case 13->ParticleTypes.END_ROD;case 16->ParticleTypes.EXPLOSION;
@@ -68,7 +72,12 @@ final class LbcLibraryRandom {
                     double distance=from.distanceTo(to);for(double d=0;d<=distance;d++){
                         var at=from.add(direction.scale(d));level.sendParticles(particle,true,false,at.x,at.y,at.z,1,0,0,0,.01);
                     }
-                }).thenAccept(hit->{if(hit!=null&&active(p,epoch,level))impact(p,hit.getLocation().subtract(direction.scale(hit instanceof net.minecraft.world.phys.BlockHitResult?1:0)),type);});
+                }).thenAccept(hit->{
+                    if(hit!=null&&active(p,epoch,level)&&terminalAdmitted.getAsBoolean()){
+                        impact(p,hit.getLocation().subtract(direction.scale(hit instanceof net.minecraft.world.phys.BlockHitResult?1:0)),type);
+                        afterImpact.run();
+                    }
+                });
     }
     void impact(ServerPlayer p,Vec3 at,int type){
         if(type==16){

@@ -782,16 +782,19 @@ ENTITY_DATA and native item components matter separately.
 |Nontrap drop aliases luckyspawner,magicbean,greedcurse,etc.|drops/specialdrops:26-27,45,63 plus their tick markers|Actual source dispatcher branches. Full Evil reward pool transitively reaches them even though initial25 trap pool does not. No catalog readiness claim follows from including their source tables.|
 |Supply Beacon|cyborgboss ENTITY_DATA creates item_display with supply_drop,new,rc_1sec -> raycastselector and other/techno/supply_crate/*|Raw supply_beacon flag has no direct selector because native ENTITY_DATA tags start the behavior. Its scripted crate child is a real dependency shared with Shish risk_of_rain; assigned root event work, not an inert flag.|
 
+Correction, 29 October: the classification above searched the `lbc` function
+namespace too narrowly. The original pack also has live `lbcr:raycast` and
+`lbcr:raycast_left` dispatch. They reach `krazha`, `shetka`, `drone_pult` and
+`lightning_bolt`; these are real consumers requiring native comparison, not
+inert flags. See [the raw spell audit](RAW_RAYCAST_SPELLS_2026_10_29.md).
+The counts and historical machine receipt above are triage evidence only.
+
 Specific false-positive/inert exceptions: raw `spell` and `projegadget` are
 category metadata, not individual effects. `gvozd` and `op` potion flags have no
 function/advancement consumers; their actual potion contents are native source
-components, so no invented flag engine should be added. `krazha` and `shetka`
-have no direct raw selector or consume criterion in the audited LBC functions,
-advancements, Paper Java or Ignite sources; preserve the source items without
-inventing lore behavior. `zaika` is used by loot-table inventory conditions
-instead of a function consumer, so its table gate matters. `drone_pult` appears
-only in an unreferenced clear helper in the audited functions, which is not
-evidence of a reachable right-click engine. `cunny_slab` is a subtype marker:
+components, so no invented flag engine should be added. `zaika` is used by
+loot-table inventory conditions instead of a function consumer, so its table
+gate matters. `cunny_slab` is a subtype marker:
 audit the general eat_slab source consumer and tag-based child cascade rather
 than declaring its raw flag inert or inventing an independent activation.
 

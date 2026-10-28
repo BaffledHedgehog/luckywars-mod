@@ -153,6 +153,7 @@ public final class LbcIndirectKills {
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().spellSources().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().chaosTrapActors().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().magicBean().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().incomingArtifacts().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().moiseiBoots().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().quiver().owner(source) instanceof ServerPlayer player) return player;

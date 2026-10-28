@@ -221,6 +221,7 @@ public final class LbcItems {
     private final LbcSauvojenBoss sauvojenBoss;
     private final LbcInfinity infinity;
     private final LbcAimbobRewards aimbobRewards;
+    private final LbcMagicBean magicBean;
     private final OwnedEffectLayers ownedEffects=new OwnedEffectLayers();
     private final LbcShulkerArmor shulkerArmor;
     private final LbcInventoryHazards inventoryHazards;
@@ -832,6 +833,7 @@ public final class LbcItems {
         this.sauvojenBoss = new LbcSauvojenBoss(game);
         this.infinity = new LbcInfinity(game);
         this.aimbobRewards = new LbcAimbobRewards(game);
+        this.magicBean = new LbcMagicBean(game);
         this.armorSets = new LbcArmorSets(game);
         this.shulkerArmor = new LbcShulkerArmor(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
@@ -1046,6 +1048,7 @@ public final class LbcItems {
     public LbcSauvojenBoss sauvojenBoss() { return sauvojenBoss; }
     public LbcInfinity infinity() { return infinity; }
     public LbcAimbobRewards aimbobRewards() { return aimbobRewards; }
+    public LbcMagicBean magicBean() { return magicBean; }
     public OwnedEffectLayers ownedEffects() { return ownedEffects; }
     public LbcShulkerArmor shulkerArmor() { return shulkerArmor; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
@@ -1123,6 +1126,7 @@ public final class LbcItems {
         spellSources.loaded(entity);
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);
+        magicBean.loaded(entity);
         luckyPigs.loaded(entity);
         libraryDrop.loaded(entity);
         beeDrops.loaded(entity);
@@ -1244,6 +1248,7 @@ public final class LbcItems {
         spellSources.unloaded(entity);
         chaosTrapActors.unloaded(entity);
         sauvojenBoss.unloaded(entity);
+        magicBean.unloaded(entity);
         pisaDrops.unloaded(entity);
         antigravity.unloaded(entity);
         portalDrops.unloaded(entity);
@@ -1717,6 +1722,7 @@ public final class LbcItems {
         exoperso.tick();
         stone.tick();
         bedrock.tick();
+        magicBean.tick();
         stonekivi.tick();
         tanner.tick();
         kiuas.tick();
@@ -2041,6 +2047,7 @@ public final class LbcItems {
         sauvojenBoss.stop();
         infinity.stop();
         aimbobRewards.stop();
+        magicBean.stop();
         spellSources.stop();
         pisaDrops.stop();
         antigravity.stop();

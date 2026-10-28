@@ -115,7 +115,10 @@ public final class AllGrimoireChecks {
             var wildArrow=base.game.items().vexSword().phantomShot(base.owner,base.owner,1,true);
             require(wildArrow!=null&&wildArrow.getOwner()==base.owner&&wildArrow.getPierceLevel()==100,"wild phantom selects its caster and retains owner/pierce");
             for(int n=0;n<10&&base.owner.getHealth()==health;n++)level.tickNonPassenger(wildArrow);
-            require(base.owner.getHealth()<health,"native wild phantom collision damages its caster");
+            require(base.owner.getHealth()<health,"native wild phantom collision damages its caster: health="+base.owner.getHealth()+" absorption="+base.owner.getAbsorptionAmount()
+                    +" invulnerable="+base.owner.getAbilities().invulnerable+" temporary="+base.owner.getInvulnerableTime()+" cooldown="+base.owner.damageCooldownTime
+                    +" changingDimension="+base.owner.isChangingDimension()+" clientLoaded="+base.owner.connection.hasClientLoaded()+" tags="+base.owner.entityTags()
+                    +" arrow="+wildArrow.position()+" removed="+wildArrow.isRemoved()+" motion="+wildArrow.getDeltaMovement()+" target="+base.owner.getBoundingBox());
             reset();var board=base.game.server().getScoreboard();var ownTeam=base.owner.getTeam();var betaTeam=beta.getTeam();
             require(board.getPlayerTeam("library_wild_fixture")==null,"exclusive wild-arrow team fixture");var team=board.addPlayerTeam("library_wild_fixture");team.setAllowFriendlyFire(false);
             try{

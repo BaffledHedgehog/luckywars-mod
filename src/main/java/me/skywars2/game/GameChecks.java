@@ -804,6 +804,9 @@ public final class GameChecks {
                                 case "chaos-armor-candidate" -> { ChaosArmorChecks.runCandidate(game); return; }
                                 case "aimbob-rewards" -> { AimbobRewardChecks.run(game); return; }
                                 case "sauvojen-boss" -> { SauvojenBossChecks.run(game); return; }
+                                case "hostile-electro" -> { HostileElectroChecks.run(game); return; }
+                                case "raw-raycast-spells" -> { RawRaycastSpellChecks.run(game); return; }
+                                case "magic-bean" -> { MagicBeanChecks.run(game); return; }
                                 case "infinity" -> { InfinityChecks.run(game); return; }
                                 case "static-armor" -> { StaticArmorChecks.run(game); return; }
                                 case "techno-armor" -> { TechnoArmorChecks.run(game); return; }
@@ -1350,6 +1353,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            RawRaycastSpellChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);

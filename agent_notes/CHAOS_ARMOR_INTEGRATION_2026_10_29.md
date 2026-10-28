@@ -106,11 +106,12 @@ complete. Absence of a flag literal in Java is only a triage signal: ordinary
 summoners and several other families already use generic admission. The audit
 records concrete live consumers and separates real gaps from metadata.
 
-Before release, adapt hostile Sauvojen's direct electrical damage to the common
-electric tags/immunity/armor rules while preserving its source generic-damage
-semantics and cooldown bypass. Its current staged generic source is not evidence
-that this final shared-rule integration is complete. Real frame-based scheduling,
-full boss reward conversion and actual nested player retaliation remain pending.
+Hostile Sauvojen's direct electrical damage now uses the common electric type,
+tags/immunity/armor rules with nonarrow identity and cooldown bypass. Its bounded
+native proof and the raw spell/bean continuation are recorded in
+[the next integration stage](CHAOS_CHAIN_INTEGRATION_2026_10_29.md).
+Real frame-based scheduling, full boss reward conversion and actual nested player
+retaliation remain pending; this does not close the full release gate.
 
 Do not mark Chaos ready, deploy this stage, shrink the pool, or describe initial
 mob/token activation as complete reward-chain coverage. Continue from the native

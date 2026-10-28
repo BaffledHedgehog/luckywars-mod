@@ -6,16 +6,16 @@
                     {
                         "type": "minecraft:item",
                         "name": "minecraft:repeating_command_block",
-                        "functions": [
+                        "modifier": [
                             {
-                                "function": "minecraft:set_components",
+                                "type": "minecraft:set_components",
                                 "components": {
                                     "minecraft:tooltip_style": "lbc:tier_u",
                                     "minecraft:item_model": "lbc:drop_not_trap"
                                 }
                             },
                             {
-                                "function": "minecraft:set_name",
+                                "type": "minecraft:set_name",
                                 "name": [
                                     {
                                         "translate": "drop_bean",
@@ -25,7 +25,7 @@
                                 ]
                             },
                             {
-                                "function": "minecraft:set_lore",
+                                "type": "minecraft:set_lore",
                                 "mode": "replace_all",
                                 "lore": [
                                     {
@@ -36,7 +36,7 @@
                                 ]
                             },
                             {
-                                "function": "minecraft:set_custom_data",
+                                "type": "minecraft:set_custom_data",
                                 "tag": "{magicbean:1,drop:1}"
                             }
                         ]
