@@ -101,14 +101,14 @@ public final class LbcSummons {
             int version=json.get("originalDataVersion").getAsInt();
             for(var entry:json.getAsJsonObject("presets").entrySet()) {
                 var tag=TagParser.parseCompoundFully(entry.getValue().getAsString());
-                result.put(entry.getKey(),(CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),version,
-                        SharedConstants.getCurrentVersion().dataVersion().version()).getValue());
+                result.put(entry.getKey(),SourceKnockbackBalance.entity((CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),version,
+                        SharedConstants.getCurrentVersion().dataVersion().version()).getValue()));
             }
             var ordinary=LbcSummonerItems.SOURCE;
             for(var entry:ordinary.getAsJsonObject("presets").entrySet()){
                 var tag=TagParser.parseCompoundFully(entry.getValue().getAsString());
-                result.put(entry.getKey(),(CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),
-                        ordinary.get("originalDataVersion").getAsInt(),SharedConstants.getCurrentVersion().dataVersion().version()).getValue());
+                result.put(entry.getKey(),SourceKnockbackBalance.entity((CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),
+                        ordinary.get("originalDataVersion").getAsInt(),SharedConstants.getCurrentVersion().dataVersion().version()).getValue()));
             }
         } catch(Exception error) { throw new IllegalStateException("Invalid original summons presets",error); }
         return Map.copyOf(result);

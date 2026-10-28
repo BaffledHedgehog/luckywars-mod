@@ -132,7 +132,7 @@ public final class EncounterEggChecks {
                 case FAT_SKELETON->{var s=(net.minecraft.world.entity.monster.skeleton.Skeleton)actor;
                     require(s.getAttributeValue(Attributes.MOVEMENT_SPEED)==.6&&s.getAttributeValue(Attributes.ARMOR)==20
                             &&s.getAttribute(Attributes.ATTACK_KNOCKBACK).getBaseValue()==100
-                            &&s.getAttributeValue(Attributes.ATTACK_KNOCKBACK)==10,"source skeleton base attributes and user-selected knockback cap10");
+                            &&s.getAttributeValue(Attributes.ATTACK_KNOCKBACK)==100,"imba egg keeps authored skeleton knockback without a runtime attribute cap");
                     require(s.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.BONE)&&s.getItemBySlot(EquipmentSlot.MAINHAND).getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).modifiers().isEmpty()&&s.getItemBySlot(EquipmentSlot.LEGS).isEmpty(),"egg skeleton remains distinct from normal bone modifiers/leg drops");
                     require(tag.getStringOr("DeathLootTable","").equals("lbc:fat_skeleton_rewards"),"complete native skeleton rewards alias");}
                 case LUCKY_PIG->require(actor instanceof net.minecraft.world.entity.animal.pig.Pig&&actor.isCustomNameVisible()&&tag.getStringOr("DeathLootTable","").equals("lbc:applepig"),"native named lucky-pig loot");

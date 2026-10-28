@@ -104,18 +104,37 @@ public final class AttackKnockbackChecks {
         }
         void directions(){
             var target=cow();
-            var horizontal=hit(target,2,0,0,true);require(horizontal.z>1&&Math.abs(horizontal.y-.4)<1e-5,"horizontal attribute retains base hurt lift and horizontal strength: "+horizontal);
+            for(boolean grounded:new boolean[]{true,false})for(float pitch:new float[]{-90,90,-45,0}){
+                var base=hit(target,0,90,pitch,grounded);
+                near(base,owner.getLookAngle().scale(.4),"zero-attribute melee base follows yaw/pitch both grounded and airborne");
+            }
+            ready(target,0,-90);target.setDeltaMovement(new Vec3(.6,.8,1));
+            owner.causeExtraKnockback(target,.4f,Vec3.ZERO,owner.damageSources().playerAttack(owner),2,false);
+            near(target.getDeltaMovement(),new Vec3(.3,.8,.5),"directed melee damps pre-existing motion equally across axes");
+            var horizontal=hit(target,2,0,0,true);require(Math.abs(horizontal.z-1.2)<1e-5&&Math.abs(horizontal.y)<1e-5,"horizontal melee directs base hurt and attribute without artificial lift: "+horizontal);
             var up2=hit(target,2,0,-90,true);var up4=hit(target,4,0,-90,true);
             near(up4.subtract(up2),new Vec3(0,1,0),"two more attribute points add one upward impulse");require(up4.y>2,"vertical attribute is not capped to native .4");
             var down=hit(target,4,0,90,true);require(down.y<-1.5&&Math.abs(down.z)<.3,"downward look drives the victim downward: "+down);
             var a=hit(target,2,90,-45,false);var b=hit(target,4,90,-45,false);
             near(b.subtract(a),new Vec3(-Math.sqrt(.5),Math.sqrt(.5),0),"airborne diagonal victim follows yaw and pitch");
             var maximum=hit(target,10,0,-90,false);require(maximum.y>4.99,"attribute10 provides full five-block/tick vertical impulse in air");
-            for(double resistance:new double[]{.5,-.5,1,2}){
+            for(double resistance:new double[]{.5,-.5,-10,-100,1,2}){
                 set(target,Attributes.KNOCKBACK_RESISTANCE,resistance);
                 a=hit(target,2,0,-90,false);b=hit(target,4,0,-90,false);
                 if(resistance>=1)require(a.lengthSqr()==0&&b.lengthSqr()==0,"native full/super resistance blocks all impulse");
                 else near(b.subtract(a),new Vec3(0,1-resistance,0),"signed resistance scales directed contribution");
+            }
+            set(target,Attributes.KNOCKBACK_RESISTANCE,0);
+            for(double attribute:new double[]{-4,-100,100,2_000_000_000d}){
+                var motion=hit(target,attribute,0,-90,false);
+                require(Math.abs(motion.y-(.2+attribute/2))<1e-5,"full signed uncapped native attack attribute="+attribute+": "+motion);
+            }
+            for(double attribute:new double[]{Double.MAX_VALUE,-Double.MAX_VALUE}){
+                set(target,Attributes.KNOCKBACK_RESISTANCE,-100);
+                var motion=hit(target,attribute,0,-90,false);
+                require(Double.isFinite(motion.x)&&Double.isFinite(motion.y)&&Double.isFinite(motion.z)
+                        &&Math.signum(motion.y)==Math.signum(attribute)&&Math.abs(motion.y)>1e300,
+                        "float-overflow attribute produces finite directed motion: "+motion);
             }
             set(target,Attributes.KNOCKBACK_RESISTANCE,0);target.discard();
         }
@@ -123,15 +142,31 @@ public final class AttackKnockbackChecks {
             var target=cow();set(owner,Attributes.ATTACK_KNOCKBACK,2);
             ready(target,0,-90);owner.attack(target);var normal=target.getDeltaMovement();
             ready(target,0,-90);owner.setSprinting(true);owner.setDeltaMovement(new Vec3(.5,.25,.75));owner.attack(target);
-            near(target.getDeltaMovement().subtract(normal),new Vec3(0,0,.5),"native sprint contribution remains horizontal");
+            near(target.getDeltaMovement().subtract(normal),new Vec3(0,.5,0),"native sprint contribution follows full look");
             near(owner.getDeltaMovement(),new Vec3(.3,.25,.45),"native attacker slowdown remains once");require(!owner.isSprinting(),"native attack clears sprint once");
             var sword=new ItemStack(net.minecraft.world.item.Items.WOODEN_SWORD);
             sword.enchant(owner.level().registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).getOrThrow(net.minecraft.world.item.enchantment.Enchantments.KNOCKBACK),2);
             owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,sword);ready(target,0,-90);owner.attack(target);
-            near(target.getDeltaMovement().subtract(normal),new Vec3(0,0,1),"real KnockbackII keeps its native horizontal remainder");owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
-            ready(target,0,-90);set(owner,Attributes.ATTACK_KNOCKBACK,0);owner.attack(target);near(target.getDeltaMovement(),new Vec3(0,.4,.4),"zero attribute retains ordinary native hurt push");
+            near(target.getDeltaMovement().subtract(normal),new Vec3(0,1,0),"real KnockbackII follows full look");owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+            owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,sword);ready(target,0,-90);set(owner,Attributes.ATTACK_KNOCKBACK,-2);owner.attack(target);
+            near(target.getDeltaMovement(),new Vec3(0,.4,0),"negative attribute plus enchantment cancels extra force without damping base hurt");
+            owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+            ready(target,0,-90);set(owner,Attributes.ATTACK_KNOCKBACK,0);owner.attack(target);near(target.getDeltaMovement(),new Vec3(0,.4,0),"zero attribute still directs ordinary native hurt push");
             ready(target,0,-90);set(owner,Attributes.ATTACK_KNOCKBACK,10);owner.causeExtraKnockback(target,.4f,Vec3.ZERO,owner.damageSources().playerAttack(owner),2,false);
-            near(target.getDeltaMovement(),new Vec3(0,.4,.4),"nonattribute native base/sweep calls keep vertical .4 clamp");
+            near(target.getDeltaMovement(),new Vec3(0,.4,0),"nonattribute native base/sweep calls follow full look");
+            ready(target,0,-90);
+            var magic=owner.damageSources().indirectMagic(owner,owner);
+            require(magic.getEntity()==owner&&magic.getDirectEntity()==owner,"non-melee spell retains direct player attribution");
+            require(target.hurtServer(owner.level(),magic,2),"actual direct-attributed magic hit accepted damage");
+            near(target.getDeltaMovement(),new Vec3(0,.4,.4),"direct-attributed magic keeps native hurt geometry");
+            ready(target,0,-90);
+            var projectile=owner.damageSources().source(net.minecraft.world.damagesource.DamageTypes.ARROW,owner,owner);
+            target.knockback(.4,0,-1,projectile,2,false);
+            near(target.getDeltaMovement(),new Vec3(0,.4,.4),"projectile source with direct owner stays outside melee direction");
+            ready(target,0,-90);
+            var spear=owner.damageSources().source(net.minecraft.world.damagesource.DamageTypes.SPEAR,owner,owner);
+            target.knockback(.4,0,-1,spear,2,false);
+            near(target.getDeltaMovement(),new Vec3(0,.4,0),"native direct spear melee also follows pitch");
             ready(target,0,-90);target.entityTags().add("sin_greed_active");owner.attack(target);require(target.getHealth()==100&&target.getDeltaMovement().lengthSqr()==0,"active Greed rejects actual native hit and impulse");
             owner.causeExtraKnockback(target,5,Vec3.ZERO,owner.damageSources().playerAttack(owner),2,true);require(target.getDeltaMovement().lengthSqr()==0,"direct extra path cannot bypass Greed guard");target.entityTags().remove("sin_greed_active");
             ready(target,0,-90);target.setPermanentlyInvulnerable(true);owner.attack(target);require(target.getDeltaMovement().lengthSqr()==0,"rejected native hurt never adds directed attribute force");target.setPermanentlyInvulnerable(false);target.discard();
@@ -145,6 +180,9 @@ public final class AttackKnockbackChecks {
                 require(mob.doHurtTarget(owner.level(),target),"native Mob.doHurtTarget accepted damage");
                 if(first==null)first=target.getDeltaMovement();else near(target.getDeltaMovement().subtract(first),new Vec3(0,Math.sqrt(.5),Math.sqrt(.5)),"native mob melee also gains diagonal vertical impulse");
             }
+            ready(target,0,0);target.setOnGround(false);mob.setYRot(0);mob.setXRot(-90);set(mob,Attributes.ATTACK_KNOCKBACK,-4);
+            require(mob.doHurtTarget(owner.level(),target),"native signed mob melee accepted damage");
+            require(Math.abs(target.getDeltaMovement().y+1.8)<1e-4,"negative native mob attribute reverses look-directed force");
             mob.discard();target.discard();
             var immune=new net.minecraft.world.entity.monster.creaking.Creaking(EntityTypes.CREAKING,owner.level());immune.setPos(at.add(0,0,1));actors.add(immune);owner.level().addFreshEntity(immune);
             try{var field=immune.getClass().getDeclaredField("CAN_MOVE");field.setAccessible(true);immune.getEntityData().set((net.minecraft.network.syncher.EntityDataAccessor<Boolean>)field.get(null),false);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
@@ -177,6 +215,59 @@ public final class AttackKnockbackChecks {
                 near(other.getDeltaMovement(),Vec3.ZERO,"native PvP restores old server movement after sending");require(!other.syncVelocity,"native PvP clears sent velocity flag");
             }finally{other.connection=previous;previous.resetPosition();move(other,at.add(7,0,0));}
         }
+        void carpetPlayers(){
+            ServerPlayer fake=null;
+            UUID uuid=GameChecks.offlineUuid("TestKnockback");
+            require(game.server().getPlayerList().getPlayer(uuid)==null,"fixed Carpet fixture identity is offline");
+            Map<UUID,Object> participants=uuidMap(game,"participants"),profiles=uuidMap(game.players(),"profiles");
+            Object priorParticipant=participants.remove(uuid),priorProfile=profiles.remove(uuid);
+            int priorLastAlive;
+            try{priorLastAlive=fieldInHierarchy(game.getClass(),"lastAliveTicks").getInt(game);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            try{
+                var profile=new com.mojang.authlib.GameProfile(uuid,"TestKnockback");
+                var type=Class.forName("carpet.patches.EntityPlayerMPFake");
+                fake=(ServerPlayer)type.getMethod("respawnFake",net.minecraft.server.MinecraftServer.class,net.minecraft.server.level.ServerLevel.class,com.mojang.authlib.GameProfile.class,net.minecraft.server.level.ClientInformation.class)
+                        .invoke(null,game.server(),owner.level(),profile,owner.clientInformation());
+                var connection=(net.minecraft.network.Connection)Class.forName("carpet.patches.FakeClientConnection").getConstructor(net.minecraft.network.protocol.PacketFlow.class).newInstance(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
+                game.server().getPlayerList().placeNewPlayer(connection,fake,new net.minecraft.server.network.CommonListenerCookie(profile,0,fake.clientInformation(),false));
+                require(game.returnFromGameModeCommand(fake,GameType.SURVIVAL),"actual Carpet fake enrolls in running match");
+                fake.setGameMode(GameType.SURVIVAL);fake.setNoGravity(true);fake.getInventory().clearContent();fake.removeAllEffects();
+                fake.hasChangedDimension();fake.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
+                require(fake.getClass()==type&&fake.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),"real Carpet victim and listener, without recording substitute");
+                move(fake,at.add(0,0,1.5));set(fake,Attributes.KNOCKBACK_RESISTANCE,-100);
+                for(float pitch:new float[]{-90,90,-45}){
+                    ready(fake,0,pitch);set(owner,Attributes.ATTACK_KNOCKBACK,4);owner.attack(fake);
+                    var motion=fake.getDeltaMovement();
+                    require(fake.getHealth()<fake.getMaxHealth(),"native melee damages actual fake victim");
+                    double expectedPower=222.2;
+                    near(motion,owner.getLookAngle().scale(expectedPower),"actual fake retains complete pitched melee impulse at resistance -100");
+                }
+                var target=cow();ready(target,0,0);target.setOnGround(false);
+                set(fake,Attributes.ATTACK_DAMAGE,2);set(fake,Attributes.ATTACK_SPEED,4);set(fake,Attributes.ATTACK_KNOCKBACK,100);
+                fake.setYRot(0);fake.setXRot(-90);fake.setYHeadRot(0);fake.setSprinting(false);fake.setOnGround(true);fake.fallDistance=0;
+                fieldInHierarchy(fake.getClass(),"attackStrengthTicker").setInt(fake,200);fieldInHierarchy(fake.getClass(),"itemSwapTicker").setInt(fake,200);
+                fake.attack(target);
+                require(target.getHealth()<100&&Math.abs(target.getDeltaMovement().y-50.2)<1e-4,"real Carpet attacker gains uncapped vertical native melee impulse");
+                game.items().indirectKills().clear(target);target.discard();
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("Native Carpet knockback fixture",error);}
+            finally{
+                if(fake!=null){
+                    game.items().indirectKills().clear(fake);game.items().shooters().clearStun(fake);
+                    if(game.server().getPlayerList().getPlayer(fake.getUUID())==fake)fake.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Knockback fixture cleanup")));
+                    fake.discard();
+                }
+                participants.remove(uuid);profiles.remove(uuid);
+                if(priorParticipant!=null)participants.put(uuid,priorParticipant);
+                if(priorProfile!=null)profiles.put(uuid,priorProfile);
+                game.players().save();
+                try{fieldInHierarchy(game.getClass(),"lastAliveTicks").setInt(game,priorLastAlive);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+                require(game.server().getPlayerList().getPlayer(uuid)==null,"actual Carpet fixture fully disconnected");
+            }
+        }
+        @SuppressWarnings("unchecked")
+        private Map<UUID,Object> uuidMap(Object object,String name){
+            try{return (Map<UUID,Object>)fieldInHierarchy(object.getClass(),name).get(object);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+        }
         public void close(){
             for(var actor:actors){if(actor instanceof LivingEntity living)game.items().indirectKills().clear(living);actor.discard();}
             for(var player:List.of(owner,other)){game.items().shooters().clearStun(player);game.items().indirectKills().clear(player);}
@@ -185,7 +276,7 @@ public final class AttackKnockbackChecks {
     }
     private static void near(Vec3 actual,Vec3 expected,String message){require(actual.distanceTo(expected)<1e-4,message+": actual="+actual+" expected="+expected);}
     public static void run(GameController game){
-        try(var fixture=new Fixture(game)){fixture.initialize();fixture.directions();fixture.nativeRemainder();fixture.mobsAndObjects();fixture.frozenTarget();fixture.pvpPacket();}
-        SkyWars2.LOGGER.info("[check] PASS attack-knockback (native player/mob melee, pitch/yaw/airborne/attribute10, signed resistance, sprint/enchantment/base remainders, immunity, nonliving push and actual PvP motion packet)");
+        try(var fixture=new Fixture(game)){fixture.initialize();fixture.directions();fixture.nativeRemainder();fixture.mobsAndObjects();fixture.frozenTarget();fixture.pvpPacket();fixture.carpetPlayers();}
+        SkyWars2.LOGGER.info("[check] PASS attack-knockback (native player/mob melee, pitch/yaw/airborne/unbounded signed attribute, strong negative resistance, look-directed sprint/enchantment/base force, immunity, nonliving push and actual PvP motion packet and real Carpet attacker/victim)");
     }
 }

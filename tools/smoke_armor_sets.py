@@ -30,6 +30,7 @@ CLEANUP = ()
 LOBBY_SUITES = ()
 LIVES_SCENARIO = False
 FIXTURE_LIVES = 3
+EXTRA_FIXTURE_PLAYERS = ()
 
 
 class NativeServer(cycle.Server):
@@ -154,14 +155,18 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
         settings_path = allowed / "config/luckywars/game.json"
         profiles_path = allowed / "config/luckywars/players.json"
         installed = allowed / "mods/skywars2.jar"
-        gamma_bytes = bytearray(hashlib.md5(b"OfflinePlayer:TestGamma").digest())
-        gamma_bytes[6] = (gamma_bytes[6] & 0x0f) | 0x30
-        gamma_bytes[8] = (gamma_bytes[8] & 0x3f) | 0x80
-        gamma_id = str(uuid.UUID(bytes=bytes(gamma_bytes)))
-        gamma_paths = (world / "playerdata" / (gamma_id + ".dat"), world / "playerdata" / (gamma_id + ".dat_old"),
-                       world / "stats" / (gamma_id + ".json"), world / "advancements" / (gamma_id + ".json"))
-        for path in (settings_path, profiles_path, world / "data/scoreboard.dat",
-                     world / "data/scoreboard.dat_old", installed, *gamma_paths):
+        fixture_player_paths = []
+        for fixture_name in dict.fromkeys(("TestGamma", *EXTRA_FIXTURE_PLAYERS)):
+            fixture_bytes = bytearray(hashlib.md5(("OfflinePlayer:" + fixture_name).encode()).digest())
+            fixture_bytes[6] = (fixture_bytes[6] & 0x0f) | 0x30
+            fixture_bytes[8] = (fixture_bytes[8] & 0x3f) | 0x80
+            fixture_id = str(uuid.UUID(bytes=bytes(fixture_bytes)))
+            fixture_player_paths.extend((world / "playerdata" / (fixture_id + ".dat"),
+                                         world / "playerdata" / (fixture_id + ".dat_old"),
+                                         world / "stats" / (fixture_id + ".json"),
+                                         world / "advancements" / (fixture_id + ".json")))
+        for path in (settings_path, profiles_path, allowed / "usercache.json", world / "data/scoreboard.dat",
+                     world / "data/scoreboard.dat_old", installed, *fixture_player_paths):
             backups[path] = path.read_bytes() if path.exists() else None
         # Durable recovery survives a Python interruption or a child shutdown timeout.
         # Successful byte restoration removes this temporary old-JAR copy.

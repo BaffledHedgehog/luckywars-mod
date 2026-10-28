@@ -17,7 +17,7 @@
                 "minecraft:tooltip_style": "lbc:tier_s",
                 "minecraft:item_model": "lbc:antimagic_stick",
                 "minecraft:enchantments": {
-                  "minecraft:knockback": 255
+                  "minecraft:knockback": 5
                 },
                 "minecraft:attribute_modifiers": [
                   {

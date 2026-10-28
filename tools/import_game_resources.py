@@ -93,11 +93,19 @@ def copy_tree_files(source: Path, destination: Path, suffix: str,
     return count
 
 
-def migrate_loot_schema(value: object, stats: dict[str, int] | None = None) -> None:
+def migrate_loot_schema(value: object, stats: dict[str, int] | None = None, *, preserve_imba: bool = False) -> None:
+    """Migrate a complete source tree, then apply ordinary authored balance once."""
+    from normalize_source_knockback import normalize_source_knockback
+    _migrate_loot_schema(value, stats)
+    if not preserve_imba:
+        normalize_source_knockback(value)
+
+
+def _migrate_loot_schema(value: object, stats: dict[str, int] | None = None) -> None:
     """Adapt legacy loot JSON discriminators and arrays to Minecraft 26.3 codecs."""
     if isinstance(value, list):
         for element in value:
-            migrate_loot_schema(element, stats)
+            _migrate_loot_schema(element, stats)
         return
     if not isinstance(value, dict):
         return
@@ -110,7 +118,7 @@ def migrate_loot_schema(value: object, stats: dict[str, int] | None = None) -> N
     # Recurse through the original tree first. A generated sequence's own
     # `functions` list is the current 26.3 codec shape and must remain intact.
     for child in list(value.values()):
-        migrate_loot_schema(child, stats)
+        _migrate_loot_schema(child, stats)
 
     if "function" in value:
         value["type"] = value.pop("function")

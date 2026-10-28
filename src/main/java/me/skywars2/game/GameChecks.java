@@ -781,6 +781,7 @@ public final class GameChecks {
                                 case "negative-mining" -> { NegativeMiningChecks.run(game); return; }
                                 case "negative-attributes" -> { NegativeAttributeChecks.run(game); return; }
                                 case "attack-knockback" -> { AttackKnockbackChecks.run(game); return; }
+                                case "source-knockback-balance" -> { SourceKnockbackBalanceChecks.run(game); return; }
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
                                 case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
@@ -7751,9 +7752,10 @@ public final class GameChecks {
                                 var shot=(net.minecraft.world.entity.projectile.Projectile)java.util.Objects.requireNonNull(type.create(level,net.minecraft.world.entity.EntitySpawnReason.TRIGGERED));
                                 spawned.add(shot); shot.setOwner(owner);
                                 require(wands.canHit(shot,friend) && wands.canHit(shot,summon)
-                                        && !wands.canHit(shot,ally) && !wands.canHit(shot,npc)
+                                        && wands.canHit(shot,ally)==(shot instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow)
+                                        && !wands.canHit(shot,npc)
                                         && wands.canHit(shot,owner)==(!ProjectileLifetimes.protectedWandProjectile(shot) && !(shot instanceof LbcClouds.AcidProjectile)),
-                                        "Native projectile owner guards allow friendly mobs and protect player/NPC roles: "+type);
+                                        "Native projectile guards retain WILD arrows, magical ally protection and NPC role protection: "+type);
                                 shot.discard();
                         }
                         // An actual common-path Blind charge collides and applies its native damage/effects.

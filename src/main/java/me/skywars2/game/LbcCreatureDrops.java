@@ -49,7 +49,7 @@ public final class LbcCreatureDrops {
     private final Set<Entity> tracked=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<UUID,ServerPlayer> authors=new HashMap<>();
     public LbcCreatureDrops(GameController game){this.game=game;}
-    private static CompoundTag preset(String snbt){try{return TagParser.parseCompoundFully(snbt);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new ExceptionInInitializerError(error);}}
+    private static CompoundTag preset(String snbt){try{return SourceKnockbackBalance.entity(TagParser.parseCompoundFully(snbt));}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new ExceptionInInitializerError(error);}}
     private static boolean matches(ItemEntity token,Kind kind){return LbcCreatureDropItem.matches(token.getItem(),switch(kind){case VEX_OLD->LbcCreatureDropItem.Kind.OLD_VEX;case VEX->LbcCreatureDropItem.Kind.VEX;case SKELETON_OLD->LbcCreatureDropItem.Kind.OLD_SKELETON;case FAT_SKELETON->LbcCreatureDropItem.Kind.FAT_SKELETON;case BOB_OLD->LbcCreatureDropItem.Kind.OLD_BOB;case BULLETS->LbcCreatureDropItem.Kind.BULLETS;});}
     public boolean ready(ItemEntity token,Kind kind){
         if(token.isRemoved() || token.getAge()>=5999 || !matches(token,kind) || !game.playing()

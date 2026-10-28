@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 public final class AttributePolicyChecks {
     private AttributePolicyChecks(){}
     private static final Set<String> UPPER=Set.of("movement_speed","flying_speed","jump_strength","step_height","sneaking_speed","friction_modifier","air_drag_modifier","bounciness","max_health","max_absorption","burning_time","name_tag_distance","waypoint_transmit_range","waypoint_receive_range");
-    private static final Set<String> BOTH=Set.of("gravity","scale","movement_efficiency","armor","armor_toughness","attack_damage","attack_speed","knockback_resistance","sweeping_damage_ratio","fall_damage_multiplier","safe_fall_distance","oxygen_bonus","block_break_speed","mining_efficiency","submerged_mining_speed","luck","camera_distance");
+    private static final Set<String> BOTH=Set.of("gravity","scale","movement_efficiency","armor","armor_toughness","attack_damage","attack_speed","attack_knockback","knockback_resistance","sweeping_damage_ratio","fall_damage_multiplier","safe_fall_distance","oxygen_bonus","block_break_speed","mining_efficiency","submerged_mining_speed","luck","camera_distance");
     private static final Set<String> NATIVE=Set.of("water_movement_efficiency","spawn_reinforcements","block_interaction_range","entity_interaction_range","follow_range","tempt_range","below_name_distance");
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Attribute policy: "+why);}
     public static void run(GameController game){
@@ -22,7 +22,6 @@ public final class AttributePolicyChecks {
                 String name=id.getPath();boolean vanilla=id.getNamespace().equals("minecraft");double expectedLo=lo,expectedHi=hi;
                 if(vanilla&&UPPER.contains(name)){expectedHi=Double.POSITIVE_INFINITY;checked++;}
                 else if(vanilla&&BOTH.contains(name)){expectedLo=Double.NEGATIVE_INFINITY;expectedHi=Double.POSITIVE_INFINITY;checked++;}
-                else if(vanilla&&name.equals("attack_knockback")){expectedLo=0;expectedHi=10;checked++;}
                 else if(vanilla&&name.equals("explosion_knockback_resistance")){expectedLo=Double.NEGATIVE_INFINITY;expectedHi=1;checked++;}
                 else if(vanilla&&NATIVE.contains(name))checked++;
                 require(ranged.getMinValue()==expectedLo&&ranged.getMaxValue()==expectedHi,"exact registry bounds "+id);

@@ -1,3 +1,45 @@
+## Full melee knockback and authored source balance - QUALIFIED, INSTALLED (28 October 2026)
+
+[Direction/native proof](agent_notes/KNOCKBACK_DIRECTION_REPAIR_2026_10_28.md) and
+[source audit/Punch derivation](agent_notes/KNOCKBACK_BALANCE_2026_10_28.md).
+(user) ALL native melee force follows attacker yaw AND pitch: base hurt, sprint,
+Knockback enchantment and attack_knockback, for players/mobs/actual Carpet fakes.
+Source-filtered native geometry preserves spells/projectiles and target override
+immunities. Directional force uses uniform motion damping, signed resistance,
+Greed/TimeStop guards and native PvP send/restoration; installed Carpet's own
+fake-player restoration exception remains authoritative. Both attribute bounds
+are removed, including signed/extreme finite calculations without float overflow.
+(user) Ordinary authored combined attribute+Knockback budget is5, lowering entity
+base then held positive modifier to0 before enchantment; source imba exceptions
+retain originals. Ordinary skeleton100+I becomes4+I; imba egg remains100+I.
+Antimagic swords255 becomeV in both leaves/shared pool. No inventory/tick/command
+normalization: runtime changes and author live loot overrides remain independent.
+(user) Bow bound must approximate old huge-velocity saturation, not naturalII.
+Derived source PunchVI from actual local Paper1.21.4 bytecode: per-axis packet3.9,
+base.4 + .6*6=4.0 first cardinal full-hit saturation. Diagonals/resistance/old
+motion mean NO single integer exactly reproduces all prior clipped vectors.
+Current authored bows<=II remain unchanged. Source DFU/parser/import boundaries
+handle ordinary equipment and future imports; unmarked raw imbadrops require
+explicit preserve_imba provenance. Do not rebalance read-only raw snapshots.
+Build31b84a20 passed38recorded results in2actual mode1matches (60.0s), plus2scoped
+third-player setup/cleanup records. Real Carpet victim/attacker, resistance-100,
+up/down/diagonal, zeroattr, signed/extreme attr, sprint/enchant, non-melee controls,
+source mob/bow/imba/runtime loot, native gear/combat/roles/stop regressions pass.
+Exact544sources/1544classes/3230resources;1300processed loot tables audited;
+198author paths/29live overrides unchanged. Normal owned-child stop and exact
+snapshots include fixedTestKnockback player files and usercache, no residue.
+Initial439d25c8attribute-only checks passed twice; qualification rejected stale
+pre-WILD arrow assertions and colliding retained TimeStop probe fixtures. Preserve
+initial evidence; update arrow expectations to prior user contract and retain only
+changed creature probe. Final full run passes without changing gameplay to hide it.
+Installer9360installed31b84a20overb3c13ce9under normal stopped/world-unlocked
+conditions, without restart. Receipt:build/verification/knockback-repair/main-install.json.
+No RP update or physical-client/peakTPS claim. Broad design-source checker retains
+an unrelated prior blazefire-kit source-vs-ported-item mismatch, not waived here.
+Retain31b84a20current,b3c13ce9rollback,c33bd703fallback and network audit tool.
+Remove failed439d25c8and obsoleteccac368farchives after exact path/SHA verification;
+initial logs/results/proof remain. Earlier entries below are historical.
+
 ## Actual Overworld map - QUALIFIED, INSTALLED, OBSOLETE WORLD REMOVED (28 October 2026)
 
 [Author decisions, cleanup and proof](agent_notes/OVERWORLD_MAP_2026_10_28.md).
