@@ -20,6 +20,11 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         NYAUWU_CHESTPLATE("nyauwu_chestplate",null),
         NYAUWU_LEGGINGS("nyauwu_leggings",null),
         NYAUWU_BOOTS("nyauwu_boots",null),
+        CYBERPUNK_HELMET("cyberpunk_helmet",null),
+        CYBERPUNK_CHESTPLATE("cyberpunk_chestplate",null),
+        CYBERPUNK_LEGGINGS("cyberpunk_leggings",null),
+        CYBERPUNK_BOOTS("cyberpunk_boots",null),
+        FLYING_BOOTS("flying_boots",null),
         COMMUNISM("communism_combine","communism"),
         TINY_REFORGE("tiny_reforge",null),
         REROLL_MACHINE("reroll_machine",null),
@@ -95,6 +100,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(kind==Kind.REROLL_MACHINE) return craftingKind(input)==kind ? LbcRerollCrafting.placeholder() : ItemStack.EMPTY;
         if(craftingKind(input)!=kind) return ItemStack.EMPTY;
         if(LbcNyauwuCrafting.kind(input)==kind)return LbcNyauwuCrafting.assemble(game,input);
+        if(LbcNyauwuCrafting.mk2Kind(input)==kind)return LbcNyauwuCrafting.assembleMk2(game,input);
+        if(kind==Kind.FLYING_BOOTS)return LbcNyauwuCrafting.assembleFlyingBoots(game,input);
         var result=game.lbc().rollTable(game.maps().level(),net.minecraft.world.phys.Vec3.ZERO,null,"lbc:ported/"+kind.loot);
         if(result.isEmpty()) return ItemStack.EMPTY;
         var stack=result.getFirst().copyWithCount(1);
@@ -125,6 +132,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
         var nyauwu=LbcNyauwuCrafting.kind(input);if(nyauwu!=null)return nyauwu;
+        var cyberpunk=LbcNyauwuCrafting.mk2Kind(input);if(cyberpunk!=null)return cyberpunk;
+        if(LbcNyauwuCrafting.flyingBootsMatches(input))return Kind.FLYING_BOOTS;
         int hammer=0,sickle=0;
         for(var stack:input.items())if(!stack.isEmpty()){
             var data=LbcFartus.data(stack);if(data.getIntOr("socializm",0)==1){if(data.getIntOr("hammer",0)==1)hammer++;else if(data.getIntOr("sickle",0)==1)sickle++;}
@@ -355,7 +364,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** (user) 60% сохранения донора: случайность только при настоящем расходе, не при preview. */
     @Override
     public net.minecraft.core.NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
-        if((kind==Kind.FEVGALEA||LbcNyauwuCrafting.kind(input)==kind)&&craftingKind(input)==kind)
+        if((kind==Kind.FEVGALEA||LbcNyauwuCrafting.kind(input)==kind||LbcNyauwuCrafting.mk2Kind(input)==kind||kind==Kind.FLYING_BOOTS)&&craftingKind(input)==kind)
             return net.minecraft.core.NonNullList.withSize(input.size(),ItemStack.EMPTY);
         var result=net.minecraft.world.item.crafting.CraftingRecipe.defaultCraftingReminder(input);
         var game=SkyWars2.game();
@@ -391,6 +400,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         var kind=craftingKind(input);
         if(kind==null) return;
         if(LbcNyauwuCrafting.kind(input)==kind){LbcNyauwuCrafting.crafted(player.level(),player.position());return;}
+        if(LbcNyauwuCrafting.mk2Kind(input)==kind){LbcNyauwuCrafting.craftedMk2(player.level(),player.position());return;}
+        if(kind==Kind.FLYING_BOOTS){LbcNyauwuCrafting.craftedFlyingBoots(player.level(),player.position());return;}
         if(kind==Kind.COMMUNISM){
             player.level().sendParticles(net.minecraft.core.particles.ParticleTypes.FIREWORK,player.getX(),player.getY(),player.getZ(),300,0,0,0,1);
             LbcOverload.sound(player,player.position(),"minecraft:entity.player.levelup",1,0,0);return;

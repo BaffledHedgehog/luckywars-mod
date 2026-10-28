@@ -172,7 +172,7 @@ public final class LbcDamage {
                     ||game.items().babylonEffects().managedSecondary(source.getDirectEntity()));
             if(reflected!=null && !admittedSelf && !game.items().wands().projectileTarget(reflected,victim)) return false;
         }
-        if (!isElectric(source)) return true;
+        if (!isElectric(source)||LbcTechnoArmor.selfShortCircuit(victim,source)) return true;
         // Флаги — серверная идентичность сета; Techno и MK2 можно смешивать в четырёх слотах.
         for (var slot : ARMOR) {
             var data = victim.getItemBySlot(slot).get(DataComponents.CUSTOM_DATA);

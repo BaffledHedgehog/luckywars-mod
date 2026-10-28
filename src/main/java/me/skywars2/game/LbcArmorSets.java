@@ -30,16 +30,18 @@ public final class LbcArmorSets {
     private final LbcBerserkArmor berserk;
     private final LbcFleshArmor flesh;
     private final LbcNyauwuArmor nyauwu;
+    private final LbcTechnoArmor techno;
     private int phase;
     private String epoch;
 
-    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);this.phantom=new LbcPhantomArmor(game);this.nanobots=new LbcNanobotArmor(game);this.glass=new LbcGlassArmor(game,this::admitted);this.berserk=new LbcBerserkArmor(game,this::admitted);this.flesh=new LbcFleshArmor(game,this::eligible);this.nyauwu=new LbcNyauwuArmor(game,this::eligible,this::admitted);}
+    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);this.phantom=new LbcPhantomArmor(game);this.nanobots=new LbcNanobotArmor(game);this.glass=new LbcGlassArmor(game,this::admitted);this.berserk=new LbcBerserkArmor(game,this::admitted);this.flesh=new LbcFleshArmor(game,this::eligible);this.nyauwu=new LbcNyauwuArmor(game,this::eligible,this::admitted);this.techno=new LbcTechnoArmor(game,this::eligible,this::admitted);}
     public LbcPhantomArmor phantom(){return phantom;}
     public LbcNanobotArmor nanobots(){return nanobots;}
     public LbcGlassArmor glass(){return glass;}
     public LbcBerserkArmor berserk(){return berserk;}
     public LbcFleshArmor flesh(){return flesh;}
     public LbcNyauwuArmor nyauwu(){return nyauwu;}
+    public LbcTechnoArmor techno(){return techno;}
 
     private boolean eligible(ServerPlayer player){
         return player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()
@@ -68,6 +70,7 @@ public final class LbcArmorSets {
     public void tick(){
         flesh.tick();
         nyauwu.tick();
+        for(var player:game.server().getPlayerList().getPlayers())techno.tickPlayer(player);
         phantom.tick();
         if(!game.items().currentEpoch(epoch)){phase=0;epoch=game.items().epoch();}
         for(var player:game.server().getPlayerList().getPlayers())erosionSuppression.tick(player);
@@ -147,9 +150,10 @@ public final class LbcArmorSets {
         return true;
     }
 
-    public void inventoryChanged(ServerPlayer player){flesh.inventoryChanged(player);nyauwu.inventoryChanged(player);erosionSuppression.inventoryChanged(player);phantom.inventoryChanged(player);}
-    public void loaded(Entity entity){erosionSuppression.loaded(entity);flesh.loaded(entity);nyauwu.loaded(entity);}
+    public void inventoryChanged(ServerPlayer player){flesh.inventoryChanged(player);nyauwu.inventoryChanged(player);techno.inventoryChanged(player);erosionSuppression.inventoryChanged(player);phantom.inventoryChanged(player);}
+    public void loaded(Entity entity){erosionSuppression.loaded(entity);flesh.loaded(entity);nyauwu.loaded(entity);techno.loaded(entity);}
+    public void unloaded(Entity entity){techno.unloaded(entity);}
     public boolean recover(ItemStack stack,ServerLevel level){return erosionSuppression.recover(stack,level);}
-    public void stop(){flesh.stop();nyauwu.stop();nanobots.stop();phantom.stop();erosionSuppression.stop();phase=0;epoch=null;}
-    public void forget(ServerPlayer player){flesh.forget(player);nyauwu.forget(player);nanobots.forget(player);phantom.forget(player);erosionSuppression.forget(player);}
+    public void stop(){flesh.stop();nyauwu.stop();techno.stop();nanobots.stop();phantom.stop();erosionSuppression.stop();phase=0;epoch=null;}
+    public void forget(ServerPlayer player){flesh.forget(player);nyauwu.forget(player);techno.forget(player);nanobots.forget(player);phantom.forget(player);erosionSuppression.forget(player);}
 }

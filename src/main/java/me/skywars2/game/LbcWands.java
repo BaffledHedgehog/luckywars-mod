@@ -1100,6 +1100,15 @@ public final class LbcWands {
         }
     }
     /** Три разряда расходятся случайным поворотом при полёте; сроки исходника различаются. */
+    /** Techno armor retaliates with the original three fifteen-tick mechanical arcs. */
+    void technoRetaliation(ServerPlayer owner) {
+        var direction=owner.getLookAngle();var origin=owner.getEyePosition();
+        for(int i=0;i<3;i++){
+            var trace=new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),15);
+            trace.mechanism=true;electroTraces.add(trace);
+        }
+        LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
+    }
     void electroVolley(ServerPlayer owner) {
         Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle();
         for(int i=0;i<3;i++)

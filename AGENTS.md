@@ -1,3 +1,40 @@
+## Complete Reactive, Techno and MK2 armor - QUALIFIED (28 October 2026)
+
+[Source closure, author decisions and native proof](agent_notes/TECHNO_ARMOR_PORT_2026_10_28.md).
+All three families and inherited flying boots are complete through shared armor
+admission, incoming criterion, electrical ray engine and native fusion framework.
+(user) Reactive helmet cleansing is physical/unjammable; other active abilities
+are TECH-only. MAG does not suppress. Intrinsic attributes/electric immunity stay.
+(user) Water shock WILD includes owner/allies. Owner bypasses ONLY the equipment
+electrical immunity; ordinary armor/Resistance/absorption/absolute Greed remain.
+(user) MK2 flight owns its layers and original gravity IDs, clears only its own
+physics; without MK2 legs descent uses explicit +0.1 rather than stale macro tmp.
+Preserve shared source fuel/nitro/shield/sound/cooldown objectives, source phase
+cadence and existing KFC/resource reset consumers. Native pitch/gravity flight,
+no teleport/input override. TECH cleanup includes own Reactive lift+landing and
+MK2 physics, even through LbcItems global Time Stop early return; no new grants
+or fuel/ability clock advances there. Previously issued NV/Resistance expire.
+Both live helmet visual consumers retained. Wyvern uses actual jump; Nitro uses
+ten radius1 native blasts, not creepers. Ordinary Techno accepted native hurt
+criterion emits3 shared electrical rays lifetime15 incl shield/absorption; rejected
+attempts do not. Full MK2 source100tick shield suppresses ordinary set bonuses.
+Exact23 bounded source tables ready: Reactive9,Techno7,MK2 6,Hermes1 dependency.
+No invented MK2 pre/chest ability, unrelated LuckyBlock pool or RP changes.
+Same-slot Reactive+Techno and Hermes+Reactive native grid/tracked ground fusions
+consume1each, retain surplus/components. Ground tiny electro+4iron gives original
+5-item Techno bundle incl old_exoskeleton and independent40percent wand debit.
+Preserve existing Nyauwu fusion using same service; no global item scan.
+Build94386bef passed36results in2actual mode1matches (104.75s), exact563sources/
+1596classes/3257resources plus build.gradle;198author paths/29overrides exact.
+Normal owned-child shutdown/exact snapshots. One pre-suite Polymer missing
+chunk-packet-context diagnostic on Carpet bot delivery also exists in previous
+Mage log; release-audit records exact messages/stack. No new armor fault/crash,
+physical-client render/network or natural peakTPS claim. Debug failures/proofs
+retained: catalog negative sentinel, nested-table fixture lookup, ground donor
+alias already consumed by native grid. Never deploy rejected/debug-only runs.
+Stopped-only receipt:build/verification/techno-armor/main-install.json.
+Never force main stop/restart. Earlier entries below are historical.
+
 ## Complete Mage and Nyauwu armor - QUALIFIED (28 October 2026)
 
 [Source closure, author decisions and native proof](agent_notes/MAGE_NYAUWU_PORT_2026_10_28.md).

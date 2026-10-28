@@ -547,6 +547,7 @@ public final class LbcItems {
         hudPositive(component,"  \uE131 ",mana.hudValue(source,"overheaven"),ChatFormatting.GREEN);
         hudPositive(component,"  \uE135 ",kfcFood.gigaponosRemaining(source),ChatFormatting.WHITE);
         mana.appendHudManaStatuses(source,component);
+        armorSets.techno().appendHud(source,component);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_1"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_2"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_3"),ChatFormatting.WHITE);
@@ -1270,6 +1271,7 @@ public final class LbcItems {
         gaycasterAcademy.unloaded(entity);
         kiuas.unloaded(entity);
         advancedSnow.unloaded(entity);
+        armorSets.unloaded(entity);
         neutral.unloaded(entity);
         nyauwuCrafting.unloaded(entity);
         evokerBass.unloaded(entity);
@@ -1641,6 +1643,7 @@ public final class LbcItems {
         nuclearVisuals.tick();
         rifleZoom.tick();
         if(game.maps().level()!=null && timeStop.stopped(game.maps().level())) {
+            armorSets.techno().pausedMaintenance();
             exasperato.blastTick();
             // Исключения Stand: кулаки двигаются, ножи лишь выпускаются и ждут native thaw.
             blackHoleVisuals.tick();
@@ -1820,7 +1823,7 @@ public final class LbcItems {
 
     public void clear(ServerPlayer player) { clear(player,true); }
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
-    private void clear(ServerPlayer player,boolean resetNanobots) { if(resetNanobots)armorSets.nanobots().reset(player); moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    private void clear(ServerPlayer player,boolean resetNanobots) { if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         corruptedGlyphs.forget(player);
         iceWand.forget(player);

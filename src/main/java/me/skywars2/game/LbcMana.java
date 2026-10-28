@@ -181,7 +181,7 @@ public final class LbcMana {
     }
     public void resetResources(ServerPlayer p) {
         maximum(p,5000); set(p,5000); baseRegen(p,10); write(p,"manaregen_visual",10);
-        clearEffects(p); overload.reset(p); write(p,"falltimer",0); write(p,"food_count",0); inventoryChanged(p);
+        clearEffects(p); overload.reset(p); game.items().armorSets().techno().reset(p); write(p,"falltimer",0); write(p,"food_count",0); inventoryChanged(p);
     }
     public void clearEffects(LivingEntity p) {
         game.items().bolts().clearChainStatus(p);

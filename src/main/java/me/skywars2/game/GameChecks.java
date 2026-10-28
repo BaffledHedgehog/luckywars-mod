@@ -800,6 +800,7 @@ public final class GameChecks {
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
                                 case "flesh-armor" -> { FleshArmorChecks.run(game); return; }
                                 case "mage-nyauwu" -> { MageNyauwuChecks.run(game); return; }
+                                case "techno-armor" -> { TechnoArmorChecks.run(game); return; }
                                 case "berserk-armor" -> { BerserkArmorChecks.run(game); return; }
                                 case "glass-armor" -> { GlassArmorChecks.run(game); return; }
                                 case "nanobot-armor" -> { NanobotArmorChecks.run(game); return; }
@@ -16014,8 +16015,10 @@ public final class GameChecks {
                 var suggestions=request.join().getList();
                 require(suggestions.stream().anyMatch(value->value.getText().equals("lbc:ported/phantom_knives")),
                         "Ready Phantom Knives appear in actual loot autocomplete");
-                require(suggestions.stream().noneMatch(value->value.getText().equals("lbc:neko_set_techno")
+                require(suggestions.stream().noneMatch(value->value.getText().equals("lbc:neko_set_chaos")
                                 || value.getText().startsWith("lbc:gui/")),"Legacy aggregate and internal GUI tables stay out of autocomplete");
+                require(suggestions.stream().anyMatch(value->value.getText().equals("lbc:neko_set_techno")),
+                        "Ready Techno family appears in actual loot autocomplete");
                 require(suggestions.stream().allMatch(value->{
                         var id=net.minecraft.resources.Identifier.tryParse(value.getText());
                         return id==null || LootTestCatalog.isSuggested(id);
