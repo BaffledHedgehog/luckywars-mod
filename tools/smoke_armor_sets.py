@@ -21,7 +21,7 @@ import smoke_game_cycle as cycle
 
 
 SUITES = (
-    "armor-sets", "ordinary-accessories", "native-gear", "passive-consumables",
+    "assassin-armor", "armor-sets", "ordinary-accessories", "native-gear", "passive-consumables",
     "signed-effects-math", "effect-layers", "time-stop", "time-stop-contacts",
 )
 PROBES = ()

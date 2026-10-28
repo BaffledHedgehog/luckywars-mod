@@ -795,6 +795,7 @@ public final class GameChecks {
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
                                 case "entity-merging" -> { CoreEntityMergeChecks.run(game); return; }
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
+                                case "assassin-armor" -> { AssassinArmorChecks.run(game); return; }
                                 case "armor-suppression" -> { ArmorSuppressionChecks.run(game); return; }
                                 case "suppression-summons" -> { SuppressionSummonChecks.run(game); return; }
                                 case "weapon-suppression" -> { WeaponSuppressionChecks.run(game); return; }
@@ -1340,6 +1341,7 @@ public final class GameChecks {
             OrdinaryAccessoryChecks.tick(game);
             CoreEntityMergeChecks.tick(game);
             ArmorSetChecks.tick(game);
+            AssassinArmorChecks.tick(game);
             ShulkerArmorChecks.tick(game);
             ArmorSuppressionChecks.tick(game);
             SuppressionSummonChecks.tick(game);

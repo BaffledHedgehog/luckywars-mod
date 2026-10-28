@@ -1,3 +1,26 @@
+## Complete Assassin armor - QUALIFIED, AUTO INSTALL QUEUED (28 October 2026)
+
+[Source contract, native verification and handoff](agent_notes/ASSASSIN_ARMOR_PORT_2026_10_28.md).
+All four original pieces now supply the source full-set ability: hidden
+InvisibilityII100ticks, Darkness/Blindness cleanse and sixteen authored decoy
+positions at two heights. Exactly32forced block-marker emissions per active tick
+are sent privately to enemy players; original asymmetry, density and style stay.
+Shared armor phases, native equipment/roles/dimensions, MAG-only source gate,
+Time Stop and effect lifecycle are reused. No new inventory scanner or actor.
+Existing ordinary effects expire naturally after gear removal or MAG entry.
+Original normal/Ultra reforge, four leaves, one-piece root and source five-draw
+pre/four-piece full tables are ready; all seven enter the public loot catalog.
+Original PvP advancement stays native. No new RP files; author pack read-only.
+Build78fc5140 passed26results in2actual mode1matches (104.69s), plus2scoped third-
+player setup/cleanup checks. Exact535sources/1517classes/3228resources;198author
+paths/29live overrides unchanged. Normal child stop/exact snapshots restored.
+Installer11752 waits for normal mainccac368f shutdown/world unlock without forcing
+stop or restart. Receipt: `build/verification/assassin-armor/main-install.json`.
+Retain78fc5140ready,ccac368fcurrent/rollback,746e62aafallback and network-audit tool.
+Obsolete154cc3a7JAR was path/hash checked and removed (40,740,830bytes).
+Earlier statuses below are historical; queued installation is not a running-
+process reload or physical-client/peakTPS/fatal-PvP verification claim.
+
 ## Gameplay repairs - QUALIFIED, INSTALLED (28 October 2026)
 
 [Author requirements, shared mechanics and native evidence](agent_notes/GAYCASTER_LANES_AND_TELEPORT_MOMENTUM_2026_10_27.md).

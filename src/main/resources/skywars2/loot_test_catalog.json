@@ -7,6 +7,13 @@
     "lbc:ported/"
   ],
   "tables": [
+    "lbc:neko_set_assasin",
+    "lbc:neko_set_assasin/helmet",
+    "lbc:neko_set_assasin/chestplate",
+    "lbc:neko_set_assasin/leggings",
+    "lbc:neko_set_assasin/boots",
+    "lbc:neko_set_assasin_pre",
+    "lbc:neko_set_assasin_full",
     "lbc:malevich_rnd",
     "lbc:metal_pipe",
     "lbc:transformables_arcanum",

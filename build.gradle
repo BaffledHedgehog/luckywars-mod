@@ -272,6 +272,8 @@ processResources {
             'data/lbc/loot_table/magnum_ammo.json',
             'data/lbc/loot_table/moisei_boots.json',
             'data/lbc/loot_table/neko_set_assasin.json',
+            'data/lbc/loot_table/neko_set_assasin_pre.json',
+            'data/lbc/loot_table/neko_set_assasin_full.json',
             'data/lbc/loot_table/neko_set_berserk.json',
             'data/lbc/loot_table/neko_set_chaos.json',
             'data/lbc/loot_table/neko_set_erosion.json',

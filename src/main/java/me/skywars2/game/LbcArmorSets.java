@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
@@ -11,10 +12,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.block.Blocks;
 
-/** Equipped Paladin, Shitty and Erosion passives, sharing the source five/one-second phase. */
+/** Equipped armor passives, sharing the source tick/five-tick/one-second phases. */
 public final class LbcArmorSets {
     private static final EquipmentSlot[] SLOTS={EquipmentSlot.FEET,EquipmentSlot.LEGS,EquipmentSlot.CHEST,EquipmentSlot.HEAD};
+    // The asymmetrical sixteen-point source pattern is repeated at two heights.
+    private static final int[][] ASSASSIN_OFFSETS={{0,0},{4,0},{-4,0},{0,4},{0,-4},{4,4},{-4,4},{-4,-4},{4,-4},
+            {8,-4},{8,0},{8,4},{8,8},{4,8},{0,8},{-4,8}};
+    private static final BlockParticleOption ASSASSIN_PARTICLE=new BlockParticleOption(ParticleTypes.BLOCK_MARKER,
+            Blocks.CONCRETE_POWDER.pick(net.minecraft.world.item.DyeColor.BLACK).defaultBlockState());
     private final GameController game;
     private final LbcErosionSuppression erosionSuppression;
     private int phase;
@@ -51,11 +58,31 @@ public final class LbcArmorSets {
         for(var player:game.server().getPlayerList().getPlayers())erosionSuppression.tick(player);
         if(game.maps().level()==null||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
         phase=(phase+1)%20;
-        if(phase%5!=0)return;
         for(var player:game.server().getPlayerList().getPlayers())if(admitted(player)){
             var stacks=worn(player);
-            erode(player,stacks);
+            assassin(player,stacks);
+            if(phase%5==0)erode(player,stacks);
             if(phase==0)pulse20(player,stacks);
+        }
+    }
+
+    void assassin(ServerPlayer player){if(admitted(player))assassin(player,worn(player));}
+
+    private void assassin(ServerPlayer player,ItemStack[] stacks){
+        if(count(stacks,"assasin")!=4||game.items().magic().beaconSuppressed(player.position()))return;
+        player.addEffect(ItemEffectLevels.create(MobEffects.INVISIBILITY,100,1,false,false),player);
+        player.removeEffect(MobEffects.DARKNESS);
+        player.removeEffect(MobEffects.BLINDNESS);
+        // These are private decoys for opponents, not a global particle broadcast or damage targeting.
+        // In particular, Greed does not suppress a viewer's ability to see someone else's visual.
+        for(var viewer:game.server().getPlayerList().getPlayers()){
+            if(viewer==player||viewer.level()!=player.level()||player.isAlliedTo(viewer)
+                    ||viewer.position().distanceToSqr(player.position())<.0001
+                    ||!game.canUseGameplayItems(viewer)||game.isObserver(viewer)
+                    ||!game.items().wands().validRoleTarget(viewer,false))continue;
+            for(double height:new double[]{1.6,.6})for(var offset:ASSASSIN_OFFSETS)
+                player.level().sendParticles(viewer,ASSASSIN_PARTICLE,true,false,
+                        player.getX()+offset[0],player.getY()+height,player.getZ()+offset[1],3,.2,.2,.2,0);
         }
     }
 
