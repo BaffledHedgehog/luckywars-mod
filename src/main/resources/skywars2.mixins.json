@@ -59,7 +59,6 @@
     "GreedGuardMixin$Projectiles",
     "GreedGuardMixin$Arrows",
     "LootSuggestionsMixin",
-    "ArenaFlatWorldMixin",
     "ArenaBlockMixin",
     "ArenaChunkAccess",
     "CreativeBlockDropsMixin",

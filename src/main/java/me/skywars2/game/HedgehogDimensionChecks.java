@@ -22,6 +22,7 @@ public final class HedgehogDimensionChecks {
         var victim=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
         require(owner!=null&&victim!=null&&game.allowDamage(owner)&&game.allowDamage(victim),"requires active Alpha/Beta participants");
         var dimensions=game.items().hedgehogDimensions();var arena=game.maps().level();
+        require(arena==game.server().overworld()&&arena.dimension()==Level.OVERWORLD,"actual legacy Overworld map, no dimension alias");
         var nether=game.server().getLevel(Level.NETHER);var end=game.server().getLevel(Level.END);
         var nexus=game.server().getLevel(LbcHedgehogDimensions.NEXUS);var imprinted=game.server().getLevel(LbcHedgehogDimensions.IMPRINTED);
         require(nether!=null&&end!=null&&nexus!=null&&imprinted!=null,"all five authored destination roles have real loaded worlds");
@@ -47,7 +48,7 @@ public final class HedgehogDimensionChecks {
             require(dimensions.teleport(victim,owner,1)&&victim.level()==nether,"actual player Nether transfer");
             close(victim.getX(),initial.x/8,"execute-in Nether xscale");close(victim.getZ(),initial.z/8,"execute-in Nether zscale");
             close(victim.getY(),initial.y,"ordinary branch retains y");close(victim.getYRot(),yaw,"retains yaw");close(victim.getXRot(),pitch,"retains pitch");
-            close(victim.getDeltaMovement().y,0,"native command clears vertical velocity for non-gliding entity");
+            close(victim.getDeltaMovement().y,-.7,"dimension changes preserve authored incoming velocity");
             require(game.allowDamage(victim)&&game.canUseGameplayItems(victim)&&game.alivePlayers().contains(victim),"crossworld participant retains life accounting and gameplay eligibility");
             require(dimensions.teleport(victim,owner,1)&&victim.level()==arena,"actual Nether to logicaloverworld arena return");
             close(victim.getX(),initial.x,"roundtrip coordinate scaling");

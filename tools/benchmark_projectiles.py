@@ -16,7 +16,7 @@ import socket
 import time
 import smoke_game_cycle as cycle
 
-ARENA = "skywars2:arena"
+ARENA = "minecraft:overworld"
 ACID = "skywars2:acid_projectile"
 TAG = "skywars2.perf"
 TARGET_TAG = "skywars2.perf_target"

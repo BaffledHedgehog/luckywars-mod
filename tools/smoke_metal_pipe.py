@@ -206,7 +206,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
                 for entity_type in ("minecraft:item", "minecraft:experience_orb"):
                     active.send(f"execute in minecraft:overworld run kill @e[type={entity_type}]")
                     if suite == "metal-pipe":
-                        active.send(f"execute in skywars2:arena run kill @e[type={entity_type}]")
+                        active.send(f"execute in minecraft:overworld run kill @e[type={entity_type}]")
                 (prepared_check if suite in ("late-swords", "late-swords-stop-probe") else check)(match, suite)
             if not focus:
                 for suite in PROBES:

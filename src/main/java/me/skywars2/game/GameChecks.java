@@ -153,6 +153,7 @@ public final class GameChecks {
                                 }
                                 case "terra-load-cleanup", "terra-academy-load-cleanup" -> cleanupTerraLoad(game);
                                 case "tnt-protection" -> checkTntProtection(game);
+                                case "map-world" -> MapWorldChecks.run(game);
                                 case "regressions" -> RegressionChecks.run(game);
                                 case "observer-match" -> RegressionChecks.match(game);
                                 case "air-regression" -> RegressionChecks.air(game);
@@ -11417,7 +11418,8 @@ public final class GameChecks {
                 var other=game.server().getPlayerList().getPlayer(offlineUuid("TestBeta"));
                 require(other!=null,"BlackHole virtual display fixture uses both connected bots");
                 var saved=new WandThirdPlayerState(other,game.items().mana()); var ownerSaved=new WandThirdPlayerState(owner,game.items().mana());
-                var visuals=game.items().blackHoleVisuals(); var level=game.maps().level(); var elsewhere=game.server().overworld();
+                var visuals=game.items().blackHoleVisuals(); var level=game.maps().level(); var elsewhere=game.server().getLevel(net.minecraft.world.level.Level.NETHER);
+                require(elsewhere!=null && elsewhere!=level,"BlackHole viewer fixture has an independent control dimension");
                 var nativeIds=new java.util.HashSet<UUID>(); for(var entity:level.getAllEntities()) nativeIds.add(entity.getUUID());
                 var handles=new java.util.ArrayList<BlackHoleVisuals.Handle>(); var point=Vec3.atCenterOf(DUPLICATING_FIXTURE);
                 float radius=.5f;
@@ -11486,7 +11488,7 @@ public final class GameChecks {
                 var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
                 require(owner!=null && game.allowDamage(owner),"Expand uses a live participant");
                 var level=game.maps().level(); var nether=game.server().getLevel(net.minecraft.world.level.Level.NETHER); var end=game.server().getLevel(net.minecraft.world.level.Level.END);
-                require(nether!=null && end!=null && level!=game.server().overworld(),"Expand source worlds exist and destination fixture is a distinct arena dimension");
+                require(nether!=null && end!=null && level==game.server().overworld() && level!=nether && level!=end,"Expand imports distinct Nether and End sources into the actual Overworld map");
                 var base=DUPLICATING_FIXTURE.atY(200); var service=game.items().duplicating(); var mana=game.items().mana(); var state=new WandThirdPlayerState(owner,mana);
                 var saved=new java.util.LinkedHashMap<net.minecraft.server.level.ServerLevel,java.util.Map<net.minecraft.core.BlockPos,MapManager.BlockSnapshot>>();
                 boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
@@ -11496,7 +11498,7 @@ public final class GameChecks {
                         duplicatingExpandRegion(game,nether,saved,base.offset(-8,5,-8),base.offset(-5,8,-5));
                         duplicatingExpandRegion(game,end,saved,base,base.offset(0,0,15));
                         duplicatingExpandRegion(game,end,saved,base,base.offset(0,15,0));
-                        for(var destination:java.util.List.of(level,game.server().overworld())) {
+                        for(var destination:java.util.List.of(level,end)) {
                                 duplicatingExpandRegion(game,destination,saved,base.offset(-5,5,-5),base.offset(-2,8,-2));
                                 duplicatingExpandRegion(game,destination,saved,base.offset(5,-5,5),base.offset(8,-2,8));
                                 duplicatingExpandRegion(game,destination,saved,base.offset(0,0,-16),base.offset(0,0,-1));
@@ -11510,14 +11512,14 @@ public final class GameChecks {
                         chest.setItem(0,new ItemStack(Items.DIAMOND,7)); chest.setChanged();
                         nether.setBlock(base.offset(-8,5,-8),net.minecraft.world.level.block.Blocks.EMERALD_BLOCK.defaultBlockState(),2);
                         end.setBlock(base,net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState(),2);
-                        var untouched=base.offset(-5,5,-5); game.server().overworld().setBlock(untouched,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);
+                        var untouched=base.offset(-5,5,-5); end.setBlock(untouched,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);
                         service.applyExpandSources(owner,Vec3.atCenterOf(base),0,0); drainDuplicating(game);
                         require(level.getBlockState(base.offset(-5,5,-5)).is(net.minecraft.world.level.block.Blocks.DIAMOND_BLOCK)
                                         && level.getBlockState(base.offset(5,-5,5)).is(net.minecraft.world.level.block.Blocks.EMERALD_BLOCK),"Expand imports both Nether fragments at exact coordinates without dimension scaling");
                         require(level.getBlockState(base.offset(0,0,-16)).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK)
                                         && level.getBlockState(base.offset(0,-16,0)).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK),"Expand imports both End lines into the actual current spell dimension");
                         require(duplicatingChestAt(game,base.offset(-4,5,-5)) && chest.getItem(0).getCount()==7,"Expand copies cross-dimension BlockEntity contents while retaining the source container");
-                        require(game.server().overworld().getBlockState(untouched).is(net.minecraft.world.level.block.Blocks.BEDROCK),"Expand does not redirect current-arena destinations into Overworld");
+                        require(end.getBlockState(untouched).is(net.minecraft.world.level.block.Blocks.BEDROCK),"Expand writes destinations only in the current Overworld map and preserves the End control cell");
                         owner.closeContainer(); owner.getInventory().clearContent(); owner.setShiftKeyDown(false); game.config().offhandWands=false;
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingMode(game,owner,2)); mana.set(owner,1000);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,"Actual Academy Expand cast costs1000");
@@ -13643,11 +13645,11 @@ public final class GameChecks {
                 var alphaState=new WandThirdPlayerState(alpha,game.items().mana());
                 var betaState=new WandThirdPlayerState(beta,game.items().mana());
                 var alphaLevel=alpha.level(); var betaLevel=beta.level();
-                var level=game.maps().level(); var elsewhere=game.server().overworld();
+                var level=game.maps().level(); var elsewhere=game.server().getLevel(net.minecraft.world.level.Level.NETHER);
                 var visuals=game.items().nuclearVisuals(); var timeStop=game.items().timeStop();
                 var tickManager=game.server().tickRateManager();
-                require(level!=elsewhere && !timeStop.stopped(level) && !timeStop.stopped(elsewhere),
-                                "Nuclear fixture starts with independent running arena and overworld");
+                require(elsewhere!=null && level!=elsewhere && !timeStop.stopped(level) && !timeStop.stopped(elsewhere),
+                                "Nuclear fixture starts with independent running map and Nether");
                 var nativeEntities=new java.util.HashSet<UUID>();
                 for(var world:java.util.List.of(level,elsewhere))
                         for(var entity:world.getAllEntities()) nativeEntities.add(entity.getUUID());
@@ -15953,11 +15955,12 @@ public final class GameChecks {
 
         private static void checkTimeStopSchedules(GameController game) {
                 var level=game.maps().level();
-                var overworld=game.server().overworld();
+                var controlLevel=game.server().getLevel(net.minecraft.world.level.Level.NETHER);
                 var stop=game.items().timeStop();
                 var scheduler=level.getBlockTicks();
-                require(level!=overworld && !stop.stopped(level) && !stop.stopped(overworld),
-                        "Scheduled-tick fixture starts with a separate, running arena and overworld");
+                require(controlLevel!=null && level==game.server().overworld() && level!=controlLevel
+                        && !stop.stopped(level) && !stop.stopped(controlLevel),
+                        "Scheduled-tick fixture starts with a running Overworld map and independent Nether");
                 require(game.server().tickRateManager().runsNormally(),"Scheduled-tick fixture requires normal server ticks");
                 // These coordinates are never loaded or written. Native tickCheck cannot drain this ghost chunk.
                 var chunk=new net.minecraft.world.level.ChunkPos(1_000_003,1_000_007);
@@ -15976,10 +15979,12 @@ public final class GameChecks {
                         long start=level.getGameTime();
                         scheduler.schedule(new net.minecraft.world.ticks.ScheduledTick<>(stone,oldPos,start+5,high,701));
                         stop.begin(level,400);
-                        for(int tick=0;tick<10;tick++) overworld.tick(()->true);
-                        require(overworld.getGameTime()==start+10 && level.getGameTime()==start+10,
-                                "Other dimension advances real shared gameTime during the arena stop");
-                        require(stop.remaining(level)==400 && stop.stopped(level) && !stop.stopped(overworld),
+                        // The Overworld owns the shared clock even while its simulation is stopped;
+                        // Nether ticks alone cannot advance gameTime. Tick both native worlds.
+                        for(int tick=0;tick<10;tick++) { level.tick(()->true); controlLevel.tick(()->true); }
+                        require(controlLevel.getGameTime()==start+10 && level.getGameTime()==start+10,
+                                "Stopped Overworld still advances real shared gameTime while the independent Nether ticks");
+                        require(stop.remaining(level)==400 && stop.stopped(level) && !stop.stopped(controlLevel),
                                 "Direct native world ticks leave the manager countdown and dimension scope intact");
                         scheduler.schedule(new net.minecraft.world.ticks.ScheduledTick<>(dirt,newPos,level.getGameTime()+3,low,702));
                         var oldTick=container.getAll().filter(tick->tick.pos().equals(oldPos)).findFirst().orElseThrow();
@@ -16003,7 +16008,7 @@ public final class GameChecks {
                                 "Resuming rebuilds the scheduler's earliest-container timestamp");
 
                         stop.begin(level,400);
-                        for(int tick=0;tick<10;tick++) overworld.tick(()->true);
+                        for(int tick=0;tick<10;tick++) { level.tick(()->true); controlLevel.tick(()->true); }
                         scheduler.removeContainer(chunk); attached=false;
                         saved=container.pack(level.getGameTime());
                         require(saved.size()==2 && saved.stream().anyMatch(tick->tick.pos().equals(oldPos) && tick.delay()==5)
@@ -16023,7 +16028,7 @@ public final class GameChecks {
                         container=new net.minecraft.world.ticks.LevelChunkTicks<>(saved);
                         container.unpack(level.getGameTime());
                         scheduler.addContainer(chunk,container); attached=true;
-                        for(int tick=0;tick<7;tick++) overworld.tick(()->true);
+                        for(int tick=0;tick<7;tick++) { level.tick(()->true); controlLevel.tick(()->true); }
                         saved=container.pack(level.getGameTime());
                         require(container.count()==2 && saved.stream().anyMatch(tick->tick.pos().equals(oldPos) && tick.delay()==5)
                                 && saved.stream().anyMatch(tick->tick.pos().equals(newPos) && tick.delay()==3),
@@ -16119,8 +16124,8 @@ public final class GameChecks {
                 var mobs=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
                 var entities=new java.util.ArrayList<net.minecraft.world.entity.Entity>();
                 var controlLevel=game.server().getLevel(net.minecraft.world.level.Level.NETHER);
-                if(controlLevel==level || controlLevel==null) controlLevel=game.server().overworld();
-                require(controlLevel!=level,"Independent control dimension exists");
+                if(controlLevel==level || controlLevel==null) controlLevel=game.server().getLevel(net.minecraft.world.level.Level.END);
+                require(controlLevel!=null && controlLevel!=level,"Independent control dimension exists");
                 try {
                         owner.closeContainer(); other.closeContainer();
                         owner.getInventory().clearContent(); other.getInventory().clearContent();
@@ -16649,7 +16654,9 @@ public final class GameChecks {
                         require(bolts.snapshot().isEmpty(),"Observer cannot cast the field"); game.spectators().remove(owner); owner.setGameMode(GameType.SURVIVAL);
                         // Leaving the real observer role clears its tool inventory; restore the tested item.
                         owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,field.copy());
-                        owner.teleportTo(game.server().overworld(),.5,281,50.5,java.util.Set.of(),0,0,true);
+                        var otherLevel=game.server().getLevel(net.minecraft.world.level.Level.NETHER);
+                        require(otherLevel!=null && otherLevel!=level,"Field rejection fixture has an independent dimension");
+                        owner.teleportTo(otherLevel,.5,281,50.5,java.util.Set.of(),0,0,true);
                         require(!field.getItem().use(owner.level(),owner,net.minecraft.world.InteractionHand.OFF_HAND).consumesAction()
                                 && bolts.snapshot().isEmpty(),"The actual item callback rejects use outside the arena dimension");
                         owner.teleportTo(level,.5,281,50.5,java.util.Set.of(),0,0,true);
@@ -27115,26 +27122,27 @@ public final class GameChecks {
                 arena.addFreshEntity(removed);
                 game.maps().cleanupLobbyEntities();
                 require(removed.isRemoved(), "New untagged entity is removed before the next periodic audit");
-                var overworld = game.server().overworld();
-                boolean alreadyForced = overworld.getForceLoadedChunks()
+                var otherLevel = game.server().getLevel(net.minecraft.world.level.Level.NETHER);
+                require(otherLevel != null && otherLevel != arena, "Lobby cleanup fixture has an independent dimension");
+                boolean alreadyForced = otherLevel.getForceLoadedChunks()
                                 .contains(net.minecraft.world.level.ChunkPos.pack(0, 0));
-                overworld.setChunkForced(0, 0, true);
-                overworld.getChunkAt(new net.minecraft.core.BlockPos(0, 128, 0));
-                var other = new net.minecraft.world.entity.decoration.ArmorStand(overworld, 0, 128, 0);
+                otherLevel.setChunkForced(0, 0, true);
+                otherLevel.getChunkAt(new net.minecraft.core.BlockPos(0, 128, 0));
+                var other = new net.minecraft.world.entity.decoration.ArmorStand(otherLevel, 0, 128, 0);
                 other.entityTags().add("strict_map_object");
-                require(overworld.addFreshEntity(other), "Other-dimension probe added");
+                require(otherLevel.addFreshEntity(other), "Other-dimension probe added");
                 // Forced chunks become visible asynchronously, especially on a fresh world.
                 deferredTicks = 100;
                 deferredCheck = () -> {
                         int visibleOther = 0;
-                        for (var entity : overworld.getAllEntities())
+                        for (var entity : otherLevel.getAllEntities())
                                 visibleOther++;
                         SkyWars2.LOGGER.info(
                                         "[check] lobby-rules otherWorld={} forced={} visible={} probeLookup={} removed={}",
                                         other.level().dimension().identifier(),
-                                        overworld.getForceLoadedChunks()
+                                        otherLevel.getForceLoadedChunks()
                                                         .contains(net.minecraft.world.level.ChunkPos.pack(0, 0)),
-                                        visibleOther, overworld.getEntity(other.getUUID()) != null, other.isRemoved());
+                                        visibleOther, otherLevel.getEntity(other.getUUID()) != null, other.isRemoved());
                         require(!kept.isRemoved(), "Arena map_object preserved");
                         require(!taggedAfterLoad.isRemoved(), "Arena tag assigned after addFreshEntity preserved");
                         require(removed.isRemoved(), "Untagged arena entity removed");
@@ -27143,7 +27151,7 @@ public final class GameChecks {
                         kept.discard();
                         taggedAfterLoad.discard();
                         if (!alreadyForced)
-                                overworld.setChunkForced(0, 0, false);
+                                otherLevel.setChunkForced(0, 0, false);
                         SkyWars2.LOGGER.info("[check] PASS lobby-rules");
                 };
         }
@@ -27607,6 +27615,7 @@ public final class GameChecks {
                                         "One life remains after real respawn callback");
                         require(respawned.gameMode.getGameModeForPlayer() == GameType.SURVIVAL,
                                         "Respawned player returns to survival");
+                        MapWorldChecks.respawn(game,respawned);
                         state.step = LivesStep.WAIT_SECOND_DEATH;
                         state.waitTicks = 0;
                         return;
@@ -30534,11 +30543,13 @@ public final class GameChecks {
                         require(!snowball.isRemoved(),
                                         "Non-arrow projectiles are outside the minecraft:arrows tag and survive");
 
+                        var otherLevel = game.server().getLevel(net.minecraft.world.level.Level.NETHER);
+                        require(otherLevel != null && otherLevel != level, "Arrow fixture has an independent dimension");
                         var otherDimension = new net.minecraft.world.entity.projectile.arrow.Arrow(
-                                        net.minecraft.world.entity.EntityTypes.ARROW, game.server().overworld());
+                                        net.minecraft.world.entity.EntityTypes.ARROW, otherLevel);
                         otherDimension.setNoGravity(true);
                         otherDimension.setPos(0, 200, 0);
-                        require(game.server().overworld().addFreshEntity(otherDimension),
+                        require(otherLevel.addFreshEntity(otherDimension),
                                         "Other-dimension arrow probe spawns");
                         probes.add(otherDimension);
                         magic.tickArrows();
@@ -30900,7 +30911,9 @@ public final class GameChecks {
                         var arrow = arrowProbe(level, probes, 1, 200, 0, holder);
                         magic.tickExplosions();
                         require(!arrow.isRemoved(), "Nonmatching arrow survives outside minecraft:unstable");
-                        var otherWorld = createUnstableProbe(game.server().overworld(), probes,
+                        var otherLevel = game.server().getLevel(net.minecraft.world.level.Level.NETHER);
+                        require(otherLevel != null && otherLevel != level, "Unstable fixture has an independent dimension");
+                        var otherWorld = createUnstableProbe(otherLevel, probes,
                                         unstableTypes.getFirst(), 0, 200, 0);
                         magic.tickExplosions();
                         require(otherWorld.isAlive(),

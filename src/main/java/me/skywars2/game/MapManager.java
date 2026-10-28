@@ -89,8 +89,6 @@ public final class MapManager {
     private static final String SWRG = "swrg.";
     private static final Identifier CHEST_COUNT_MODIFIER = Identifier.fromNamespaceAndPath("minecraft", "count");
     private static final Logger LOGGER = LoggerFactory.getLogger("skywars2-maps");
-    private static final ResourceKey<Level> ARENA_KEY = ResourceKey.create(
-            Registries.DIMENSION, Identifier.fromNamespaceAndPath("skywars2", "arena"));
     private static final TicketType LOADING_TICKET = new TicketType(TicketType.NO_TIMEOUT,
             TicketType.FLAG_LOADING | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
 
@@ -159,20 +157,22 @@ public final class MapManager {
 
     public MapManager(MinecraftServer server) {
         this.server = Objects.requireNonNull(server, "server");
-        this.level = server.getLevel(ARENA_KEY);
+        this.level = server.overworld();
+        // The old dimensionless arena journal belongs to a different world. Never
+        // replay its cleanup coordinates against an existing legacy overworld.
         this.boundsJournal = server.getWorldPath(LevelResource.ROOT)
-                .resolve("data/luckywars/arena-bounds.json");
+                .resolve("data/luckywars/overworld-bounds.json");
         this.catalog = readCatalog();
         activeBoxes.addAll(readBoundsJournal());
         diagnoseChestLootTables();
     }
 
-    /** The isolated void arena. A missing LevelStem is reported during load/lobby callbacks. */
+    /** The actual overworld, shared with legacy datapack dimension checks. */
     public ServerLevel level() {
         return level;
     }
 
-    /** Lobby spawn centered over the arena. */
+    /** Lobby spawn in the overworld, at the original imported coordinates. */
     public Vec3 lobbyPosition() {
         return new Vec3(0.5, 200.0, 0.5);
     }
@@ -363,7 +363,6 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.inspect_map", id, error.getMessage()));
             return;
         }
-        recoverLoadedFluidBounds();
         flushChangedBlockBounds();
         if (blockBoundsDirty) {
             fail(Component.translatable("skywars2.map.error.persist_changes"));
@@ -427,7 +426,6 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.inspect_lobby", error.getMessage()));
             return;
         }
-        recoverLoadedFluidBounds();
         flushChangedBlockBounds();
         if (blockBoundsDirty) {
             fail(Component.translatable("skywars2.map.error.persist_changes"));
@@ -792,24 +790,8 @@ public final class MapManager {
         blockBoundsDirty = true;
     }
 
-    /** Recover fluids left by older builds or direct chunk writers without scanning every cell. */
-    private void recoverLoadedFluidBounds() {
-        var cache = level.getChunkSource();
-        var holders = ((me.skywars2.mixin.ArenaChunkAccess) cache.chunkMap).skywars2$visibleChunks();
-        for (var holder : holders.values()) {
-            var pos = holder.getPos();
-            var chunk = cache.getChunkNow(pos.x(), pos.z());
-            if (chunk == null) continue;
-            var sections = chunk.getSections();
-            for (int index = 0; index < sections.length; index++) {
-                var section = sections[index];
-                if (section.hasOnlyAir() || !section.maybeHas(state -> !state.getFluidState().isEmpty())) continue;
-                int y = chunk.getSectionYFromSectionIndex(index) << 4;
-                recordBlockChange(new BlockPos(pos.getMinBlockX(), y, pos.getMinBlockZ()));
-                recordBlockChange(new BlockPos(pos.getMaxBlockX(), y + 15, pos.getMaxBlockZ()));
-            }
-        }
-    }
+    // Cleanup uses journaled map writes and native mutations only. Scanning all
+    // loaded fluid sections would claim unrelated legacy overworld terrain.
 
     private void flushChangedBlockBounds() {
         ticksSinceBoundsFlush = 0;
@@ -1087,7 +1069,9 @@ public final class MapManager {
         if (!Files.exists(boundsJournal)) return List.of();
         try (InputStream input = Files.newInputStream(boundsJournal)) {
             JsonObject root = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
-            if (root.get("version").getAsInt() != 1) throw new IOException("unsupported journal version");
+            if (root.get("version").getAsInt() != 2) throw new IOException("unsupported journal version");
+            if (!Level.OVERWORLD.identifier().toString().equals(root.get("dimension").getAsString()))
+                throw new IOException("cleanup journal belongs to a different dimension");
             JsonArray entries = root.getAsJsonArray("bounds");
             List<BoundingBox> loaded = new ArrayList<>();
             for (JsonElement entry : entries) {
@@ -1114,7 +1098,8 @@ public final class MapManager {
     /** Writes recovery bounds before any clearing or placement, then atomically replaces the journal. */
     private boolean writeBoundsJournal(List<BoundingBox> bounds) {
         JsonObject root = new JsonObject();
-        root.addProperty("version", 1);
+        root.addProperty("version", 2);
+        root.addProperty("dimension", Level.OVERWORLD.identifier().toString());
         JsonArray entries = new JsonArray();
         for (BoundingBox box : compactBounds(bounds)) {
             JsonArray values = new JsonArray();

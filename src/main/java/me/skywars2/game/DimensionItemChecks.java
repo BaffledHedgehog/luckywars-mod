@@ -13,7 +13,8 @@ public final class DimensionItemChecks {
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Dimension items: "+why);}
     private static void classification(GameController game){
         require(!LbcDimensionItems.ordinary("minecraft:nexus")&&!LbcDimensionItems.ordinary("minecraft:imprinted"),"both source excluded dimensions");
-        require(LbcDimensionItems.ordinary("minecraft:overworld")&&LbcDimensionItems.ordinary("minecraft:the_nether")&&LbcDimensionItems.ordinary("minecraft:the_end")&&LbcDimensionItems.ordinary("skywars2:arena"),"ordinary source worlds and native arena role");
+        require(LbcDimensionItems.ordinary("minecraft:overworld")&&LbcDimensionItems.ordinary("minecraft:the_nether")&&LbcDimensionItems.ordinary("minecraft:the_end")
+                &&game.maps().level()==game.server().overworld(),"ordinary source worlds and actual Overworld map");
         for(String flag:new String[]{"nexus_roadgun","nexus_corrupter","nexus_orb_gun","nexus_pulsar","nexus_compass","nexus_wire_red","cool","heall"}){
             var stack=new ItemStack(Items.CARROT_ON_A_STICK);var tag=new CompoundTag();tag.putInt(flag,1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
             require(LbcDimensionItems.nexusTool(stack)==java.util.Set.of("nexus_roadgun","nexus_corrupter","nexus_orb_gun","nexus_pulsar").contains(flag),"exact active Nexus RC exception "+flag);

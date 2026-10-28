@@ -14,7 +14,7 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 
-/** Real source destinations. The isolated match arena has the source overworld's logical role. */
+/** Native legacy destinations: the map itself is the actual Overworld. */
 public final class LbcHedgehogDimensions {
     static final ResourceKey<Level> NEXUS=key("minecraft:nexus"), IMPRINTED=key("minecraft:imprinted");
     private final GameController game;
@@ -24,14 +24,14 @@ public final class LbcHedgehogDimensions {
     ServerLevel destination(ServerLevel from,int roll){
         if(roll<1||roll>4)throw new IllegalArgumentException("Hedgehog dimension roll must be 1..4");
         var origin=from.dimension();
-        if(from==game.maps().level()||origin.equals(Level.OVERWORLD))return world(switch(roll){case 1->Level.NETHER;case 2->Level.END;case 3->NEXUS;default->IMPRINTED;});
+        if(origin.equals(Level.OVERWORLD))return world(switch(roll){case 1->Level.NETHER;case 2->Level.END;case 3->NEXUS;default->IMPRINTED;});
         if(origin.equals(Level.NETHER))return world(switch(roll){case 1->Level.OVERWORLD;case 2->Level.END;case 3->NEXUS;default->IMPRINTED;});
         if(origin.equals(Level.END))return world(switch(roll){case 1->Level.OVERWORLD;case 2->Level.NETHER;case 3->NEXUS;default->IMPRINTED;});
         if(origin.equals(IMPRINTED))return world(switch(roll){case 1->Level.NETHER;case 2->Level.END;case 3->NEXUS;default->Level.OVERWORLD;});
         // The authored dispatcher has no Nexus handler; unsupported dimensions also remain unchanged.
         return null;
     }
-    private ServerLevel world(ResourceKey<Level> key){return key.equals(Level.OVERWORLD)?game.maps().level():game.server().getLevel(key);}
+    private ServerLevel world(ResourceKey<Level> key){return game.server().getLevel(key);}
     boolean teleport(LivingEntity target,ServerPlayer owner,int roll){
         return transfer(target,owner,roll)!=null;
     }

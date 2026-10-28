@@ -476,7 +476,7 @@ processResources {
     include 'data/lbc/loot_table/ported/canned_food.json', 'data/lbc/loot_table/ported/hylian_sword.json',
             'data/minecraft/tags/entity_type/monsters.json'
     // Legacy assets stay in the working tree; their registries/advancements must not run
-    // alongside the new controller or override Minecraft 26.3's built-in dimensions.
+    // alongside the new controller. The map Overworld uses a native26.3 void-flat stem.
     include 'fabric.mod.json', 'skywars2.mixins.json', 'data/skywars2/**', 'data/swrg/structure/**',
             'data/swrg/loot_table/chests/**', 'data/swrg/loot_table/game/**',
             'data/swrg/loot_table/gui/**',
@@ -486,6 +486,7 @@ processResources {
             'data/lbc/advancement/true_advancements/**',
             'data/minecraft/tags/damage_type/cactus_only.json',
             'data/minecraft/dimension/nexus.json',
+            'data/minecraft/dimension/overworld.json',
             'data/minecraft/dimension/imprinted.json',
             'data/minecraft/dimension_type/nexus.json',
             'data/minecraft/dimension_type/imprinted.json',

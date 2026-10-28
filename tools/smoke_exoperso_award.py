@@ -79,17 +79,17 @@ def run(server_dir: Path) -> None:
         # Use a fixed arena coordinate; /data cannot query player NBT. The full
         # fixture remains comfortably inside the game's +/-500 horizontal guard.
         x, z = 300, 300
-        active.send(f"execute in skywars2:arena run forceload add {x - 2} {z - 3} {x + 34} {z + 3}")
+        active.send(f"execute in minecraft:overworld run forceload add {x - 2} {z - 3} {x + 34} {z + 3}")
         forced_fixture = True
-        await_probe(active, f"execute in skywars2:arena if loaded {x - 2} 259 {z - 3} "
+        await_probe(active, f"execute in minecraft:overworld if loaded {x - 2} 259 {z - 3} "
                     f"if loaded {x + 34} 259 {z + 3} run say EXOPERSO_FIXTURE_LOADED",
                     "EXOPERSO_FIXTURE_LOADED", timeout=30)
         commands = [
-            f"execute in skywars2:arena run fill {x - 2} 259 {z - 3} {x + 34} 259 {z + 3} minecraft:stone",
-            f"execute in skywars2:arena run fill {x + 30} 260 {z - 1} {x + 30} 264 {z + 1} minecraft:stone",
-            f"execute in skywars2:arena run tp TestAlpha {x + .5} 260 {z + .5}",
-            f"execute in skywars2:arena run tp TestBeta {x + 29.5} 260 {z - 2.5}",
-            f"execute in skywars2:arena run tp TestGamma {x + 29.5} 260 {z + 2.5}",
+            f"execute in minecraft:overworld run fill {x - 2} 259 {z - 3} {x + 34} 259 {z + 3} minecraft:stone",
+            f"execute in minecraft:overworld run fill {x + 30} 260 {z - 1} {x + 30} 264 {z + 1} minecraft:stone",
+            f"execute in minecraft:overworld run tp TestAlpha {x + .5} 260 {z + .5}",
+            f"execute in minecraft:overworld run tp TestBeta {x + 29.5} 260 {z - 2.5}",
+            f"execute in minecraft:overworld run tp TestGamma {x + 29.5} 260 {z + 2.5}",
             "clear TestAlpha",
             "clear TestBeta",
             "clear TestGamma",
@@ -113,7 +113,7 @@ def run(server_dir: Path) -> None:
 
         active.expect("LOADING -> LOBBY", cast_cursor, timeout=90)
         active.prepare_map(1)
-        active.send(f"execute in skywars2:arena run forceload remove {x - 2} {z - 3} {x + 34} {z + 3}")
+        active.send(f"execute in minecraft:overworld run forceload remove {x - 2} {z - 3} {x + 34} {z + 3}")
         forced_fixture = False
         active.stop()
         active = None
@@ -122,7 +122,7 @@ def run(server_dir: Path) -> None:
         try:
             if active is not None:
                 if forced_fixture:
-                    active.send(f"execute in skywars2:arena run forceload remove {x - 2} {z - 3} {x + 34} {z + 3}")
+                    active.send(f"execute in minecraft:overworld run forceload remove {x - 2} {z - 3} {x + 34} {z + 3}")
                 try:
                     cursor = active.send("sw stop")
                     active.expect("LOADING -> LOBBY", cursor, timeout=30)

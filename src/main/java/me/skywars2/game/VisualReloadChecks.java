@@ -192,7 +192,7 @@ public final class VisualReloadChecks {
                         &&data.packedItems().stream().anyMatch(v->v.value() instanceof ItemStack stack&&stack.is(Items.DIAMOND)&&stack.getCount()==3)),"existing holder replay uses metadata changed after reset");
             } finally {retired.destroy();late.destroy();}
             state.clearPackets();
-            var level=viewer.level();var elsewhere=game.server().overworld();var position=viewer.position();
+            var level=viewer.level();var elsewhere=game.server().getLevel(net.minecraft.world.level.Level.NETHER);var position=viewer.position();
             require(level!=elsewhere,"dimension roundtrip fixture uses independent worlds");
             viewer.teleportTo(elsewhere,position.x,position.y,position.z,Set.of(),0,0,true);
             viewer.hasChangedDimension();

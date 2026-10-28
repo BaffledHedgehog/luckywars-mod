@@ -1,3 +1,35 @@
+## Actual Overworld map - QUALIFIED, INSTALLED, OBSOLETE WORLD REMOVED (28 October 2026)
+
+[Author decisions, cleanup and proof](agent_notes/OVERWORLD_MAP_2026_10_28.md).
+(user) Maps/lobby must use minecraft:overworld everywhere for legacy-world
+compatibility. MapManager uses the actual server.overworld instance, native
+respawn anchors/blocks/visuals/item gates follow it, and dimension returns lose
+the old logical alias. Remove skywars2:arena stem/flat-reporting mixin; package
+native26.3 void-flat Overworld for new worlds. Existing generation metadata is
+not silently rewritten. Active test/tool dimension IDs are updated; independent
+control worlds use Nether/End. Native TimeStop shared clocks remain advancing.
+Cleanup journal is now data/luckywars/overworld-bounds.json v2 with explicit
+minecraft:overworld ownership. Old dimensionless bounds never clear another
+world; global fluid scanning no longer claims unrelated legacy terrain.
+(user) Old arena world is disposable. After ordinary shutdown/verified install,
+worker21728removed its1,151,792,092bytes plus68bytejournal under native session
+lock and closed-port/SHA/path/reparse checks. Both paths absent; author loot and
+settings preserved. No need to keep old arena copies. Journals are recovery
+bounds; map NBT already ships inJAR. Build-time decode/split baking is possible
+but NOT implemented; respawn restoration already uses in-memory snapshots.
+Buildb3c13ce9passed41results in2actual mode1matches plus real remaining-life
+respawn/elimination (82.95s), plus2third-player setup/cleanup records. Exact542
+sources/1540classes/3230resources;198author paths/29live overrides unchanged;
+normal owned-child stop/exact snapshots restored. Earlier harness-only failures
+(ready-map prerequisite, post-match inspection, third-player natural-end wait)
+are retained; final full harness passes without gameplay changes/weakened checks.
+Prior installer11752completedc33bd703overccac368fduring work; baseline explicitly
+advanced using its verified receipt. Installer3244installedb3c13ce9overc33bd703,
+no restart. Receipts: build/verification/overworld-map/{main-install,obsolete-world-cleanup}.json.
+Retainb3c13ce9current,c33bd703rollback,ccac368ffallback and audit tool; obsolete
+784b026barchive path/hash verified and removed (40,918,742bytes). No RP update.
+Earlier entries historical; no imported live legacy-world write or client-frame claim.
+
 ## Negative Glowing and no-break mining - QUALIFIED, AUTO INSTALL QUEUED (28 October 2026)
 
 [Author request, implementation and proof](agent_notes/SIGNED_GLOW_MINING_REPAIR_2026_10_28.md).

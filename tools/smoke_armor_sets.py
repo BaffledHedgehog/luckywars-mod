@@ -27,6 +27,9 @@ SUITES = (
 )
 PROBES = ()
 CLEANUP = ()
+LOBBY_SUITES = ()
+LIVES_SCENARIO = False
+FIXTURE_LIVES = 3
 
 
 class NativeServer(cycle.Server):
@@ -83,6 +86,9 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
         required.update(("classic-melee-menu", "classic-melee-lobby-cleanup"))
     if not focus:
         required.update(PROBES + CLEANUP)
+        required.update(LOBBY_SUITES)
+        if LIVES_SCENARIO:
+            required.add("lives")
     if missing := sorted(required - registered):
         raise ValueError(f"Native suites are not registered: {missing}")
 
@@ -177,7 +183,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
         if installed_sha != source_sha:
             raise AssertionError("Installed candidate differs from the exact selected artifact")
         settings = json.loads(backups[settings_path] or b"{}")
-        settings.update(lives=3, health=20, day=1, gameMode=1, countdownSeconds=1,
+        settings.update(lives=FIXTURE_LIVES, health=20, day=1, gameMode=1, countdownSeconds=1,
                         stageOneSeconds=1200, stageTwoSeconds=1800, endingSeconds=1,
                         stageOneEvent=0, stageTwoEvent=0, vanillaKits=False,
                         vanillaSkills=False, lbcKits=True, lbcSkills=True,
@@ -197,6 +203,8 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
         for match in ((1,) if focus else (1, 2)):
             if match == 2:
                 active.prepare_map(1)
+            for suite in LOBBY_SUITES:
+                check(match, suite)
             for suite in ("kfc-menu", "frost-menu", "slr-menu"):
                 check(match, suite)
             cursor = active.send("sw start")
@@ -217,6 +225,20 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
                 for suite in CLEANUP:
                     check(match, suite)
             completed_matches.append(match)
+        if LIVES_SCENARIO and not focus:
+            # Finished maps remain for inspection; explicitly request fresh spawn markers for the extra scenario.
+            active.prepare_map(1)
+            # The real remaining-life scenario creates/replaces the player through PERFORM_RESPAWN.
+            cursor = active.send("sw check lives")
+            match_active = True
+            active.expect("[check] PASS map-world-respawn", cursor, timeout=180)
+            active.expect("[check] PASS lives:", cursor, timeout=180)
+            # Other suites may retain a third participant: one elimination need not end this match.
+            cursor = active.send("sw stop")
+            active.expect("LOADING -> LOBBY", cursor, timeout=180)
+            match_active = False
+            completed.extend(({"match": 3, "suite": "map-world-respawn"}, {"match": 3, "suite": "lives"}))
+            check(3, "map-world")
         if classic_setup:
             check(0, "classic-melee-lobby-cleanup")
             classic_setup = False
