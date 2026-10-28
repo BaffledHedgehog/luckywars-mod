@@ -1,3 +1,10 @@
+Current author extension (28 October 2026, user): negative Glowing supplies
+growing invisibility tiers. Its shared metadata/native flags/player proxy use
+max(real invisibility, abs(negative Glowing)); no synthetic effect replaces real
+layers. The historical statement below about nonpositive Glowing being inert is
+superseded for negative levels; zero remains inert. Current qualification and
+packet details: [signed glow/mining repair](SIGNED_GLOW_MINING_REPAIR_2026_10_28.md).
+
 Root qualification: build1a8a3825 passed the dedicated native suite and broader
 regressions in two actual matches (68 results total); installed by worker19140.
 Evidence: build/verification/signed-effects-gameplay/.

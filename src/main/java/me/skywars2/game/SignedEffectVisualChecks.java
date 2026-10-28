@@ -59,11 +59,23 @@ public final class SignedEffectVisualChecks {
                 pig.removeAllEffects();
                 pig.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200, amplifier));
                 pig.tick();pig.updateDataBeforeSync();
-                require(pig.isCurrentlyGlowing() == (amplifier >= 0), "glowing nonpositive inert");
+                require(pig.isCurrentlyGlowing() == (amplifier >= 0), "nonpositive glowing has no outline");
+                require(pig.isInvisible() == (amplifier < -1), "negative glowing grants native invisibility");
+                require(SignedEffectVisuals.invisibilityLevel(pig)==Math.max(0,-((long)amplifier+1)),
+                        "negative glowing maps full signed magnitude to invisibility tier");
                 pig.setGlowingTag(true);
                 require(pig.isCurrentlyGlowing(), "command glowing tag preserved");
                 pig.setGlowingTag(false);
             }
+            pig.removeAllEffects();
+            pig.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,300,4));
+            pig.addEffect(new MobEffectInstance(MobEffects.GLOWING,200,-3));
+            pig.tick();pig.updateDataBeforeSync();
+            require(SignedEffectVisuals.invisibilityLevel(pig)==5,"stronger genuine invisibility survives negative glowing");
+            pig.removeEffect(MobEffects.INVISIBILITY);pig.tick();pig.updateDataBeforeSync();
+            require(pig.isInvisible()&&SignedEffectVisuals.invisibilityLevel(pig)==2,"removing genuine effect reveals independent negative-glow tier");
+            pig.removeEffect(MobEffects.GLOWING);pig.tick();pig.updateDataBeforeSync();
+            require(!pig.isInvisible(),"negative-glow removal restores native visibility without lingering synthetic effect");
             require(SignedEffectVisuals.visualTier(2147483648L) == 16
                     && SignedEffectVisuals.visualTier(-2147483647L) == 16, "extreme shader parameters finite");
         } finally { pig.removeAllEffects(); SignedEffectVisuals.removed(pig); }
@@ -116,8 +128,9 @@ public final class SignedEffectVisualChecks {
         require(eu.pb4.polymer.common.api.PolymerCommonUtils.getPlayer(context)==viewer,
                 "outbound packet context resolves actual viewer rather than unbound Carpet connection");
         try {
+            for(var source:List.of(MobEffects.INVISIBILITY,MobEffects.GLOWING)){
             viewer.removeAllEffects();target.removeAllEffects();
-            target.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,200,2,false,true,true));
+            target.addEffect(new MobEffectInstance(source,200,source.is(MobEffects.GLOWING)?-4:2,false,true,true));
             SignedEffectVisuals.effectsChanged(target);target.setInvisible(true);
             var overlay=eu.pb4.polymer.core.api.entity.PolymerEntity.get(target);
             require(overlay!=null,"player invisibility overlay installed");
@@ -170,6 +183,9 @@ public final class SignedEffectVisualChecks {
             }
             viewer.removeEffect(MobEffects.BLINDNESS);SignedEffectVisuals.effectsChanged(viewer);
             require(overlay.getPolymerEntityType(context)==EntityTypes.INTERACTION,"clear retracks full hidden form");
+            target.removeEffect(source);SignedEffectVisuals.effectsChanged(target);
+            require(overlay.getPolymerEntityType(context)==EntityTypes.PLAYER,"source removal restores real player representation");
+            }
         } finally {
             viewer.removeAllEffects();for(var effect:saved)viewer.addEffect(effect);
             target.removeAllEffects();for(var effect:targetSaved)target.addEffect(effect);

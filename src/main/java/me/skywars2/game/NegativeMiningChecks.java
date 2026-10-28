@@ -4,6 +4,17 @@ import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.network.Connection;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -20,6 +31,38 @@ import java.util.*;
 public final class NegativeMiningChecks {
     private NegativeMiningChecks() { }
     private static void require(boolean ok,String text) {if(!ok)throw new IllegalStateException("Negative mining: "+text);}
+    private static void aim(net.minecraft.server.level.ServerPlayer player,Vec3 point) {
+        Vec3 delta=point.subtract(player.getEyePosition());
+        player.setYRot((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));
+        player.setXRot((float)-Math.toDegrees(Math.atan2(delta.y,Math.hypot(delta.x,delta.z))));
+    }
+    private static final class Recording extends Connection {
+        final ServerPlayer player;final List<Packet<?>> packets=new ArrayList<>();
+        Recording(ServerPlayer player){super(PacketFlow.SERVERBOUND);this.player=player;}
+        @Override public boolean isMemoryConnection(){return true;}
+        @Override public boolean isConnected(){return true;}
+        @Override public PacketListener getPacketListener(){return player.connection;}
+        @Override public void send(Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){collect(packet);}
+        @Override public void flushChannel(){ }
+        private void collect(Packet<?> packet) {
+            if(packet instanceof ClientboundBundlePacket bundle)for(var child:bundle.subPackets())collect(child);
+            else packets.add(packet);
+        }
+        <T> T latest(Class<T> type) {
+            for(int i=packets.size()-1;i>=0;i--)if(type.isInstance(packets.get(i)))return type.cast(packets.get(i));
+            throw new IllegalStateException("Negative mining: missing outgoing "+type.getSimpleName());
+        }
+    }
+    private static final class Swap implements AutoCloseable {
+        final ServerPlayer player;final ServerGamePacketListenerImpl previous;final Recording recording;
+        Swap(GameController game,ServerPlayer player) {
+            this.player=player;previous=player.connection;recording=new Recording(player);
+            player.connection=new ServerGamePacketListenerImpl(game.server(),recording,player,
+                    new CommonListenerCookie(player.getGameProfile(),0,player.clientInformation(),false));
+            player.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
+        }
+        public void close(){player.connection=previous;previous.resetPosition();}
+    }
     public static void run(GameController game) {
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         require(game.playing() && player!=null && game.allowDamage(player),"actual participant");
@@ -95,7 +138,81 @@ public final class NegativeMiningChecks {
             require(level.getBlockState(source)==log,"negative creative START preserves source");player.gameMode.tick();
             require(level.getBlockState(target)==log,"creative negative progress uses same held clone");
             player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            level.setBlock(target,Blocks.AIR.defaultBlockState(),818);
+            level.setBlock(source,Blocks.BEDROCK.defaultBlockState(),818);
+            require(Blocks.BEDROCK.defaultBlockState().getDestroyProgress(player,level,source)==0
+                    && NegativeMiningClient.blocked(player),"unbreakable hardness cannot bypass signed client prohibition");
+            require(!player.gameMode.destroyBlock(source),"negative creative direct destruction protects unbreakable blocks too");
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            require(level.getBlockState(source).is(Blocks.BEDROCK),"negative creative START cannot bypass zero-progress unbreakable guard");
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            level.setBlock(source,log,818);
             player.setGameMode(GameType.SURVIVAL);level.setBlock(target,Blocks.AIR.defaultBlockState(),818);
+            require(!player.gameMode.destroyBlock(source) && level.getBlockState(source)==log,
+                    "direct native destruction cannot bypass effective negative rate");
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            speed.setBaseValue(1000);for(int i=0;i<3;i++)player.gameMode.tick();
+            require(level.getBlockState(source)==log,"stray STOP cannot leave delayed work to destroy after sign restoration");
+            speed.setBaseValue(-1000);
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            player.setYRot(180);player.gameMode.tick();player.setYRot(0);player.gameMode.tick();
+            require(level.getBlockState(target).isAir(),"turning away cancels hold without replay on return");
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Items.DIAMOND_PICKAXE));player.gameMode.tick();
+            require(level.getBlockState(target).isAir(),"changing held source tool cancels hold");
+            player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Items.DIAMOND_AXE));
+            // Eye-to-center chooses NORTH here, while the actual outlined hit enters the WEST face.
+            player.teleportTo(level,source.getX()-1.5,source.getY()-1,source.getZ()-3.1,Set.of(),0,0,true);
+            aim(player,new Vec3(source.getX()+.1,source.getY()+.5,source.getZ()+.99));
+            var oblique=NegativeMining.aimedBlock(player);
+            require(oblique!=null && oblique.getBlockPos().equals(source) && oblique.getDirection()==Direction.WEST,
+                    "oblique native outline hit selects WEST despite nearest center direction NORTH");
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            player.gameMode.tick();
+            require(level.getBlockState(source.west())==log && level.getBlockState(target).isAir(),"copy follows exact aimed WEST surface, ignoring inaccurate packet face");
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,Direction.WEST,level.getMaxY(),sequence++);
+            level.setBlock(source.west(),Blocks.AIR.defaultBlockState(),818);
+            // A bottom slab's top surface is at half height, not the full block boundary.
+            level.setBlock(source,Blocks.OAK_SLAB.defaultBlockState(),818);
+            player.teleportTo(level,source.getX()+.5,source.getY(),source.getZ()-1.5,Set.of(),0,0,true);
+            aim(player,new Vec3(source.getX()+.5,source.getY()+.5,source.getZ()+.5));
+            var slabHit=NegativeMining.aimedBlock(player);
+            require(slabHit!=null && slabHit.getBlockPos().equals(source) && slabHit.getDirection()==Direction.UP
+                    && Math.abs(slabHit.getLocation().y-source.getY()-.5)<1e-6,"native slab top outline face at half height");
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence++);
+            player.gameMode.tick();
+            require(level.getBlockState(source.above()).is(Blocks.OAK_SLAB),"slab copy grows from its actually aimed top");
+            player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,Direction.UP,level.getMaxY(),sequence++);
+            level.setBlock(source.above(),Blocks.AIR.defaultBlockState(),818);
+            player.teleportTo(level,source.getX()+.5,source.getY()-1,source.getZ()-3.5,Set.of(),0,0,true);
+            level.setBlock(source,log,818);
+            try(var swap=new Swap(game,player)) {
+                player.setGameMode(GameType.CREATIVE);speed.setBaseValue(-1000);
+                player.connection.send(new ClientboundUpdateAttributesPacket(player.getId(),List.of(efficiency)));
+                var projected=swap.recording.latest(ClientboundUpdateAttributesPacket.class);
+                require(projected.getValues().stream().anyMatch(value->value.attribute().equals(Attributes.BLOCK_BREAK_SPEED)
+                        && value.base()==0 && value.modifiers().isEmpty()),"native outgoing efficiency update includes zero owner break speed");
+                player.onUpdateAbilities();
+                require(!swap.recording.latest(ClientboundPlayerAbilitiesPacket.class).canInstabuild()
+                        && player.getAbilities().instabuild,"native creative ability resend disables only client instant break");
+                // Incoming real packet listener path, including native sequence acknowledgement admission.
+                player.connection.handlePlayerAction(new ServerboundPlayerActionPacket(
+                        ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,source,Direction.NORTH,sequence++));
+                player.gameMode.tick();
+                require(level.getBlockState(source)==log && level.getBlockState(target)==log,
+                        "real connection START preserves negative source and grows a copy");
+                player.connection.handlePlayerAction(new ServerboundPlayerActionPacket(
+                        ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK,source,Direction.NORTH,sequence++));
+                level.setBlock(target,Blocks.AIR.defaultBlockState(),818);speed.setBaseValue(1);player.gameMode.tick();
+                require(swap.recording.latest(ClientboundPlayerAbilitiesPacket.class).canInstabuild(),"positive transition restores client creative instant-build flag");
+                var restored=swap.recording.latest(ClientboundUpdateAttributesPacket.class);
+                require(restored.getValues().stream().anyMatch(value->value.attribute().equals(Attributes.BLOCK_BREAK_SPEED)
+                        && value.base()==speed.getBaseValue()),"positive transition restores actual native speed snapshot");
+                player.setGameMode(GameType.SURVIVAL);water.setBaseValue(-1000);
+                require(log.getDestroyProgress(player,level,source)>0 && !NegativeMiningClient.blocked(player),
+                        "negative submerged attribute on dry eyes does not prohibit positive mining");
+                water.setBaseValue(1);speed.setBaseValue(-1000);
+            }
             // Copy complete independently owned native block-entity state, including intentional inventory duplicates.
             level.setBlock(source,Blocks.CHEST.defaultBlockState(),818);
             var chest=(ChestBlockEntity)level.getBlockEntity(source);require(chest!=null,"native source chest");
@@ -113,6 +230,12 @@ public final class NegativeMiningChecks {
             copy.getItem(0).shrink(5);require(chest.getItem(0).getCount()==13,"copied inventory is deeply independent from source");
             require(level.getBlockState(source)==beforeCopy.state(),"container source state remains unchanged");
             for(var e:level.getAllEntities())if(!initial.contains(e) && e instanceof ItemEntity)require(e.isRemoved(),"cloning emits no block or inventory drops");
+            // The positive control intentionally produces ordinary loot through CreativeBlockDropsMixin.
+            // Run it after the unchanged no-drops assertion covering all negative cloning operations.
+            chest.clearContent();level.setBlock(source,log,818);
+            speed.setBaseValue(1);player.setGameMode(GameType.CREATIVE);
+            require(player.gameMode.destroyBlock(source) && level.getBlockState(source).isAir(),
+                    "positive native creative direct destruction remains functional");
         } finally {
             player.gameMode.handleBlockBreakAction(source,ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,Direction.NORTH,level.getMaxY(),sequence);
             game.items().timeStop().end(level);player.entityTags().remove("sin_greed_active");

@@ -1,3 +1,33 @@
+## Negative Glowing and no-break mining - QUALIFIED, AUTO INSTALL QUEUED (28 October 2026)
+
+[Author request, implementation and proof](agent_notes/SIGNED_GLOW_MINING_REPAIR_2026_10_28.md).
+(user) Negative Glowing supplies growing invisibility: abs(L), nativeI, particle-
+freeII, existing player proxyIII+. One combined tier feeds flags/metadata/proxy;
+real effects/layers/stronger invisibility remain independent. Negative Blindness
+reveals these tiers normally. No new RP/shader files are required.
+(user) Negative mining cannot destroy blocks, and copying uses the actual aimed
+face. Loaded-only native outline clipping replaces eye-to-centre approximation;
+held actions revalidate aim/tool. Final native destroyBlock, straySTOP/delayed
+and creative zero-progress unbreakable paths cannot bypass the prohibition.
+Owner packets project zero break speed and creative instabuild=false only on the
+client, retaining server state, scope flags/speeds and positive mining restoration.
+Full native block-entity copying and existing guards/clock stay. Normal packets
+have cheap relevance/sign checks, with no async terrain access.
+Buildc33bd703 passed38results in2actual mode1matches (71.13s), including actual
+connection/send, signed tiers/proxy/reveal, oblique/slab/native chest, attributes,
+TPS/effect layers/Phantom/scopes/FOV/TimeStop regressions. Exact542sources/1540
+classes/3230resources;198author paths/29live overrides unchanged; normal child
+stop/exact snapshots restored. Initial930dd2fbfailed only final no-drop checks:
+new positive creative control legitimately emitted a log before the assertion.
+Move that control after the unchanged assertion; preserve initial evidence.
+Existing one Polymer fake-player startup chunk-context warning also appears in
+prior beam run; no new warning count/no physical-client or latency claim.
+Installer11752 adoptsc33bd703in place of784b026b, waiting for normal mainccac368f
+shutdown/world unlock. Receipt: `build/verification/signed-glow-mining/main-install.json`.
+Retainc33bd703ready,784b026bprevious qualified,ccac368fmain/rollback and audit tool;
+obsolete723b2a3aarchive path/hash verified and removed (40,913,520bytes). Earlier
+entries are historical. No forced stop/restart or RP change.
+
 ## Exact laser hitboxes - QUALIFIED, AUTO INSTALL QUEUED (28 October 2026)
 
 [Author report, diagnosis and native proof](agent_notes/LASER_HITBOX_FIX_2026_10_28.md).

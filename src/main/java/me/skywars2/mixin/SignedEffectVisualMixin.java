@@ -36,7 +36,7 @@ public final class SignedEffectVisualMixin {
         @ModifyExpressionValue(method="updateInvisibilityStatus",at=@At(value="INVOKE",
                 target="Lnet/minecraft/world/entity/LivingEntity;hasEffect(Lnet/minecraft/core/Holder;)Z"))
         private boolean positiveInvisibility(boolean original) {
-            return original && SignedEffectVisuals.level((LivingEntity)(Object)this, MobEffects.INVISIBILITY) > 0;
+            return SignedEffectVisuals.invisibilityLevel((LivingEntity)(Object)this) > 0;
         }
         @ModifyExpressionValue(method="isCurrentlyGlowing",at=@At(value="INVOKE",
                 target="Lnet/minecraft/world/entity/LivingEntity;hasEffect(Lnet/minecraft/core/Holder;)Z"))

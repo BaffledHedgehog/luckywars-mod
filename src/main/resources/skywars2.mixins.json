@@ -68,6 +68,8 @@
     "DirectionalKnockbackMixin$Nonliving",
     "ArmorCalculationMixin",
     "NegativeMiningMixin",
+    "NegativeMiningClientMixin$Attributes",
+    "NegativeMiningClientMixin$Connection",
     "NegativePlayerAttackMixin",
     "NegativeMobAttackMixin",
     "NegativeLivingAttributesMixin",

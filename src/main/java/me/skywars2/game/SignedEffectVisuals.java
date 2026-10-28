@@ -34,6 +34,11 @@ public final class SignedEffectVisuals {
         var effect = entity.getEffect(type);
         return effect == null ? 0 : (long) effect.getAmplifier() + 1;
     }
+    /** Negative Glowing supplies the matching invisibility tier without replacing real effect layers. */
+    public static long invisibilityLevel(LivingEntity entity) {
+        long invisibility=level(entity,MobEffects.INVISIBILITY),glowing=level(entity,MobEffects.GLOWING);
+        return glowing<0?Math.max(invisibility,-glowing):invisibility;
+    }
     public static long effectiveInvisibility(long invisibility, ServerPlayer viewer) {
         return invisibility <= 0 ? 0 : Math.max(0, invisibility -
                 (viewer == null ? 0 : REVEAL.getOrDefault(viewer.getUUID(), 0L)));
@@ -49,7 +54,7 @@ public final class SignedEffectVisuals {
     }
     public static void effectsChanged(LivingEntity entity) {
         if (entity.level().isClientSide()) return;
-        long invisibility = level(entity, MobEffects.INVISIBILITY);
+        long invisibility = invisibilityLevel(entity);
         var particles = entity.getActiveEffects().stream().filter(MobEffectInstance::isVisible)
                 .map(MobEffectInstance::getParticleOptions).toList();
         if (invisibility != 0) {

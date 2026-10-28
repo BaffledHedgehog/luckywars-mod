@@ -15,7 +15,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
@@ -56,9 +55,8 @@ public final class FullInvisibility implements PolymerEntity {
     /** Добавление, ослабление, истечение, молоко и очистка эффектов используют один переход. */
     public static void effectsChanged(LivingEntity entity) {
         if (entity instanceof ServerPlayer player && PolymerEntity.get(player) instanceof FullInvisibility overlay) {
-            var effect = player.getEffect(MobEffects.INVISIBILITY);
             long previous = overlay.invisibilityLevel;
-            overlay.invisibilityLevel = effect == null ? 0 : (long) effect.getAmplifier() + 1;
+            overlay.invisibilityLevel = SignedEffectVisuals.invisibilityLevel(player);
             overlay.update(overlay.invisibilityLevel >= 3);
             if (previous != overlay.invisibilityLevel && previous >= 3 && overlay.invisibilityLevel >= 3)
                 for (var viewer : List.copyOf(PlayerLookup.tracking(player)))
