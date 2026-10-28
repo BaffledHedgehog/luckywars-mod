@@ -794,6 +794,7 @@ public final class LbcWands {
     /** Общие бонусы только исполнившегося заклинания; бесплатный отзыв комнаты их не выдаёт. */
     void wandCasted(ServerPlayer player) {
         if(mana.mageFullSet(player)) mana.maximum(player,mana.maximum(player)+mana.score(MAGE_BONUS,"lbc.math").get());
+        game.items().armorSets().nyauwu().wandCasted(player);
         game.items().trinkets().castWand(player);
     }
     void extraTiny(ServerPlayer p,int kind){

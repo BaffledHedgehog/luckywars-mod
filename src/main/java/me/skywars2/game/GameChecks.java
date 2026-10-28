@@ -799,6 +799,7 @@ public final class GameChecks {
                                 case "entity-merging" -> { CoreEntityMergeChecks.run(game); return; }
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
                                 case "flesh-armor" -> { FleshArmorChecks.run(game); return; }
+                                case "mage-nyauwu" -> { MageNyauwuChecks.run(game); return; }
                                 case "berserk-armor" -> { BerserkArmorChecks.run(game); return; }
                                 case "glass-armor" -> { GlassArmorChecks.run(game); return; }
                                 case "nanobot-armor" -> { NanobotArmorChecks.run(game); return; }

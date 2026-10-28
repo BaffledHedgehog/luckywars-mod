@@ -1,3 +1,38 @@
+## Complete Mage and Nyauwu armor - QUALIFIED (28 October 2026)
+
+[Source closure, author decisions and native proof](agent_notes/MAGE_NYAUWU_PORT_2026_10_28.md).
+Keep shared LbcMana Mage4/6/7/4 and existing successful wandCasted +150 maximum;
+all original Nyauwu leaves ALSO carry mage:1 and mixed sets remain compatible.
+(user) MAG suppresses all new bonuses; TECH does not. Head +20 persistent maximum
+per eligible tick near ANY other player incl allies; legs double whole rate only
+with no other original#mobs within0.01..10, before shared boost/plague. Source
+water chest +1 overcap retained; package original water block tag explicitly.
+Boots own only source916c89e6-ae62-4b11-91d7-10e7e57c726d amount1TOTAL, reconcile
+mana/equipment/role/MAG/stop/forget without private clock or unrelated modifiers.
+(user) Chest hits only actual accepted direct PLAYER_ATTACK, restore visual*70
+per hit WITHOUT mutating/compounding visual; shared signed/capped mana remains.
+(user) Full pulse only successful spell,25ARROW only magical/summoned NONPLAYER
+enemies within30, caster credit. Heal allied nonplayers using original native
+InstantHealthII/unholy opposite and10hearts. Target MAG protects BOTH healing and
+damage. Reuse shared magical predicate and actual managed Soulless ownership;
+teamless owned Metasola stays allied. Do not classify every owned NPC as magic.
+Native team aliases supported rather than hard-coded numeric command expansion.
+All13 actual source tables ready (Mage7/Nyauwu6); no invented Nyauwu pre. Keep
+exact source payloads, normal/Ultra acquisition and original RP presentation.
+Native same-slot Mage+Phantom grid and tracked ground fusion consume one each,
+retain surplus components, side-effect-free preview and source dust/sound20tick
+cadence; no global scan, mana/jammer craft gate or unrelated broad loot enabled.
+Build4549c289 passed34results in2actual mode1matches (101.59s), exact560sources/
+1585classes/3246resources plus build.gradle;198author paths/29overrides exact.
+Native ResultSlot/ground, all passives/casts/hits, MAG/TECH/roles/typed pulse,
+actual allied/foreign Metasola and adjacent armor/effect/TimeStop suites pass.
+Normal owned-child shutdown/exact snapshots; no final crash signatures. Initial
+6b0f9ce2 failed actual water assertions because Gradle omitted source water tag;
+preserve initial proof/results/log. Only original tag packaging fixes failure.
+No RP changes, physical-client pixels, socket reconnect/death or peakTPS claim.
+Stopped-only installation receipt:build/verification/mage-nyauwu/main-install.json.
+Never force main stop/restart. Earlier entries below are historical.
+
 ## Complete Flesh armor and native HP load order - QUALIFIED (28 October 2026)
 
 [Author decisions, native source closure and qualification](agent_notes/FLESH_ARMOR_PORT_2026_10_28.md).

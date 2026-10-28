@@ -302,6 +302,7 @@ public final class LbcMana {
         overload.beforeRegen(p);
         var equipment=equipment(p); int base=baseRegen(p), visual=base+equipment.regeneration()+equipment.belts()*2;
         if(equipment.belts()*2>base) award(p,"lbc:true_advancements/accesories/mana_belt");
+        if(equipment.mageMask()!=0)visual=game.items().armorSets().nyauwu().beforeRegeneration(p,visual);
         int duration=boost(p);
         if(duration>0) {
             int before=visual; visual=Math.floorDiv(visual*3,2); boost(p,duration-1);
@@ -309,7 +310,14 @@ public final class LbcMana {
             if(visual-before>=15) award(p,"lbc:true_advancements/potions/mana_temp");
         }
         write(p,"manaregen_visual",visual);
-        int mana=get(p), max=maximum(p), delta=effectiveRegeneration(p);
+        regenerate(p,effectiveRegeneration(p));
+        game.items().armorSets().nyauwu().refreshSpeed(p);
+        overload.afterRegen(p);
+        overload.armor().tick(p);
+    }
+    /** One signed/capped resource update for ordinary regeneration and native armor hit bonuses. */
+    void regenerate(ServerPlayer p,int delta) {
+        int mana=get(p), max=maximum(p);
         // The plague flips the applied rate in both directions; positive regeneration retains the cap.
         if(delta<0 || delta>0&&mana<max) {
             long next=(long)mana+delta;
@@ -318,8 +326,11 @@ public final class LbcMana {
         }
         set(p,mana);
         game.items().indirectKills().manaRecovered(p);
-        overload.afterRegen(p);
-        overload.armor().tick(p);
+    }
+    void hitRegeneration(ServerPlayer p) {
+        int gain=(int)Math.max(Integer.MIN_VALUE,Math.min(Integer.MAX_VALUE,(long)regeneration(p)*70));
+        if(reverse(p)<=0)regenerate(p,gain);
+        game.items().armorSets().nyauwu().refreshSpeed(p);
     }
     /** Source void resistance returns players below y=0 to y=320, then spends one second. */
     void voidProtectionSecond(ServerPlayer p) {

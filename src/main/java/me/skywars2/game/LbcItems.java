@@ -132,6 +132,7 @@ public final class LbcItems {
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
         armorSets.phantom().damaged(victim,source);
+        armorSets.nyauwu().damaged(victim,source);
         stand.onAcceptedDamage(victim,source);
         summons.damaged(victim,source);
         syringe.damaged(victim,source);
@@ -241,6 +242,7 @@ public final class LbcItems {
     private final LbcEnderWiki enderWiki;
     private final LbcLibraryRandom libraryRandom;
     private final LbcNeutral neutral;
+    private final LbcNyauwuCrafting nyauwuCrafting;
     private final LbcBloodConfuse bloodConfuse;
     private final LbcEvokerBass evokerBass;
     private final LbcLifestealer lifestealer;
@@ -851,6 +853,7 @@ public final class LbcItems {
         this.enderWiki = new LbcEnderWiki(game);
         this.libraryRandom = new LbcLibraryRandom(game);
         this.neutral = new LbcNeutral(game);
+        this.nyauwuCrafting = new LbcNyauwuCrafting(game);
         this.bloodConfuse = new LbcBloodConfuse(game);
         this.evokerBass = new LbcEvokerBass(game);
         this.lifestealer = new LbcLifestealer(game);
@@ -1157,6 +1160,7 @@ public final class LbcItems {
         kiuas.loaded(entity);
         advancedSnow.loaded(entity);
         neutral.loaded(entity);
+        nyauwuCrafting.loaded(entity);
         evokerBass.loaded(entity);
         lifestealer.loaded(entity);
         govnomet.loaded(entity);
@@ -1267,6 +1271,7 @@ public final class LbcItems {
         kiuas.unloaded(entity);
         advancedSnow.unloaded(entity);
         neutral.unloaded(entity);
+        nyauwuCrafting.unloaded(entity);
         evokerBass.unloaded(entity);
         lifestealer.unloaded(entity);
         mobgun.unloaded(entity);
@@ -1716,6 +1721,7 @@ public final class LbcItems {
         gaycasterAcademy.tick();
         advancedSnow.tick();
         neutral.tick();
+        nyauwuCrafting.tick();
         evokerBass.tick();
         lifestealer.tick();
         mobgun.tick();
@@ -1971,6 +1977,7 @@ public final class LbcItems {
         gaycasterAcademy.stop();
         advancedSnow.stop();
         neutral.stop();
+        nyauwuCrafting.stop();
         evokerBass.stop();
         lifestealer.stop();
         mobgun.stop();

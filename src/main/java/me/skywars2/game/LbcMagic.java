@@ -520,10 +520,12 @@ public final class LbcMagic {
         legacyMarkers.remove(entity);
         if (entity instanceof ServerPlayer player) clear(player);
     }
-    private boolean magical(Entity entity) {
+    /** Shared magical/summoned classification used by suppression and armor pulses. */
+    public boolean magical(Entity entity) {
         return !entity.entityTags().contains("spectator") && (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
                 && (entity.getType().builtInRegistryHolder().is(MAGIC_ENTITIES) || entity.entityTags().contains("magic")
-                || entity.entityTags().contains("summactivated") && entity.getType().builtInRegistryHolder().is(MOBS));
+                || entity.entityTags().contains("summactivated") && entity.getType().builtInRegistryHolder().is(MOBS)
+                || LbcSoulless.managed(entity) && game.items().soulless().owner(entity)!=null);
     }
     private static boolean inside(Beacon state, BlockPos pos) {
         long x = (long)state.pos.getX()-pos.getX(), y = (long)state.pos.getY()-pos.getY(), z = (long)state.pos.getZ()-pos.getZ();

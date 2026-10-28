@@ -107,6 +107,19 @@
     "lbc:neko_set_shulker/leggings",
     "lbc:neko_set_shulker/boots",
     "lbc:neko_set_shulker_pre",
-    "lbc:neko_set_shulker_full"
+    "lbc:neko_set_shulker_full",
+    "lbc:neko_set_mage",
+    "lbc:neko_set_mage/helmet",
+    "lbc:neko_set_mage/chestplate",
+    "lbc:neko_set_mage/leggings",
+    "lbc:neko_set_mage/boots",
+    "lbc:neko_set_mage_pre",
+    "lbc:neko_set_mage_full",
+    "lbc:neko_set_nyauwu",
+    "lbc:neko_set_femboy/helmet",
+    "lbc:neko_set_femboy/chestplate",
+    "lbc:neko_set_femboy/leggings",
+    "lbc:neko_set_femboy/boots",
+    "lbc:neko_set_femboy_full"
   ]
 }

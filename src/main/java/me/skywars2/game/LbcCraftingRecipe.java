@@ -16,6 +16,10 @@ import net.minecraft.world.level.Level;
 public final class LbcCraftingRecipe extends CustomRecipe {
     public enum Kind {
         ROCKET("rocket_boots_transfer",null),
+        NYAUWU_HELMET("nyauwu_helmet",null),
+        NYAUWU_CHESTPLATE("nyauwu_chestplate",null),
+        NYAUWU_LEGGINGS("nyauwu_leggings",null),
+        NYAUWU_BOOTS("nyauwu_boots",null),
         COMMUNISM("communism_combine","communism"),
         TINY_REFORGE("tiny_reforge",null),
         REROLL_MACHINE("reroll_machine",null),
@@ -90,6 +94,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(kind==Kind.TINY_REFORGE) return craftingKind(input)==kind ? LbcTinyReforge.placeholder() : ItemStack.EMPTY;
         if(kind==Kind.REROLL_MACHINE) return craftingKind(input)==kind ? LbcRerollCrafting.placeholder() : ItemStack.EMPTY;
         if(craftingKind(input)!=kind) return ItemStack.EMPTY;
+        if(LbcNyauwuCrafting.kind(input)==kind)return LbcNyauwuCrafting.assemble(game,input);
         var result=game.lbc().rollTable(game.maps().level(),net.minecraft.world.phys.Vec3.ZERO,null,"lbc:ported/"+kind.loot);
         if(result.isEmpty()) return ItemStack.EMPTY;
         var stack=result.getFirst().copyWithCount(1);
@@ -119,6 +124,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        var nyauwu=LbcNyauwuCrafting.kind(input);if(nyauwu!=null)return nyauwu;
         int hammer=0,sickle=0;
         for(var stack:input.items())if(!stack.isEmpty()){
             var data=LbcFartus.data(stack);if(data.getIntOr("socializm",0)==1){if(data.getIntOr("hammer",0)==1)hammer++;else if(data.getIntOr("sickle",0)==1)sickle++;}
@@ -349,7 +355,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** (user) 60% сохранения донора: случайность только при настоящем расходе, не при preview. */
     @Override
     public net.minecraft.core.NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
-        if(kind==Kind.FEVGALEA&&craftingKind(input)==kind)
+        if((kind==Kind.FEVGALEA||LbcNyauwuCrafting.kind(input)==kind)&&craftingKind(input)==kind)
             return net.minecraft.core.NonNullList.withSize(input.size(),ItemStack.EMPTY);
         var result=net.minecraft.world.item.crafting.CraftingRecipe.defaultCraftingReminder(input);
         var game=SkyWars2.game();
@@ -384,6 +390,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null) return;
+        if(LbcNyauwuCrafting.kind(input)==kind){LbcNyauwuCrafting.crafted(player.level(),player.position());return;}
         if(kind==Kind.COMMUNISM){
             player.level().sendParticles(net.minecraft.core.particles.ParticleTypes.FIREWORK,player.getX(),player.getY(),player.getZ(),300,0,0,0,1);
             LbcOverload.sound(player,player.position(),"minecraft:entity.player.levelup",1,0,0);return;
