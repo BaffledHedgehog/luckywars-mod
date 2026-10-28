@@ -7,6 +7,13 @@
     "lbc:ported/"
   ],
   "tables": [
+    "lbc:neko_set_glass",
+    "lbc:neko_set_glass/helmet",
+    "lbc:neko_set_glass/chestplate",
+    "lbc:neko_set_glass/leggings",
+    "lbc:neko_set_glass/boots",
+    "lbc:neko_set_glass_pre",
+    "lbc:neko_set_glass_full",
     "lbc:neko_set_nanobots",
     "lbc:neko_set_nanobots/helmet",
     "lbc:neko_set_nanobots/chestplate",

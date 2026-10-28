@@ -1,3 +1,37 @@
+## Complete Glass armor - QUALIFIED (28 October 2026)
+
+[Author decisions, source closure and native proof](agent_notes/GLASS_ARMOR_PORT_2026_10_28.md).
+All four original leaves plus root/pre/full now have the complete physical hurt
+passive and public readiness; existing normal/Ultra reforge paths remain intact.
+Reuse the actual shared EntityHurtPlayerTrigger and pre-hurt fatal admission,
+including shield/absorbed events, with no duplicate generic damage callback.
+Every equipped raw glass piece changes armor and toughness via floor(A*1000)*.00095.
+(user) Preserve all other components, durability, enchants and unrelated attributes;
+do not reproduce fresh-loot replacement. (user) Neither MAG nor TECH suppresses
+physical wear/shards. Source partial-set integer shard formula remains, multiplied
+by min(1,2/mean post-wear armor): fresh full40->38 deals about.5263HP rather than10.
+(user) Cover stops shards: vanilla COLLIDER hitbox exposure blocks full stone/glass
+walls and proportionally reduces partial stone/slab cover, within exact feet.001..7.
+(user) Shards must NEVER reactivate Glass, including shield-blocked impacts.
+Typed native ARROW source survives nested shared attribution wrappers; its Glass
+criterion is excluded before wear/burst. Ordinary arrows still activate normally.
+No queue, secondary retaliation state or delayed shard ticking remains. Do not
+turn this narrow exclusion into a global incoming-artifact/armor damage filter.
+Build76ff129e passed26results in2actual matches (103.02s), exact552sources/
+1570classes/3234resources plus build.gradle.198author paths/29live overrides exact;
+normal owned-child stop/exact fixture restoration. Source IDs and seven tables,
+actual normal/Ultra reforges, native accepted/rejected/shield/absorption criteria,
+component preservation, role/friendship/Greed, cover, physical jammer policy and
+unshielded/shielded/wrapped non-reentry with ordinary arrow controls all pass.
+Initial557d failed only partial-cover fixture geometry: grounded cow was fully
+hidden by its one-block wall. Raise only that witness. Initial proof/log retained.
+The old iterative retaliation proposal was superseded by the author's no-reentry
+instruction before final qualification. No RP or original-server writes; no new
+fatal PvP, physical-client or naturalTPS claim. Prior7350302f is now installed.
+New build uses stopped-only auto installer; see current exact main-install.json
+receipt under build/verification/glass-armor/. Never force main shutdown/restart.
+Earlier entries below are historical.
+
 ## Native Ultraponos and contact repairs - QUALIFIED, INSTALL QUEUED (28 October 2026)
 
 [Source contract and proof](agent_notes/CONTACT_AND_RADIANT_REPAIR_2026_10_28.md).

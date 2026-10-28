@@ -85,6 +85,11 @@ public final class LbcIndirectKills {
     }
     /** Detached spell segments retain the original accepted effect's author and ordering. */
     public DamageSource captureDamage(DamageSource source,Owner cause){return cause==null?source:new CapturedDamage(source,cause);}
+    /** Preserve source-specific behavior when native attribution has wrapped a damage source. */
+    static DamageSource originalDamage(DamageSource source){
+        while(source instanceof CapturedDamage captured)source=captured.original;
+        return source;
+    }
     /** Native ServerPlayer friendship admission runs before LivingEntity's damage callbacks. */
     public static boolean isWildCaptured(DamageSource source){return source instanceof CapturedDamage captured&&captured.cause.friendlyFire();}
     public void inheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){

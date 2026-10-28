@@ -26,12 +26,14 @@ public final class LbcArmorSets {
     private final LbcErosionSuppression erosionSuppression;
     private final LbcPhantomArmor phantom;
     private final LbcNanobotArmor nanobots;
+    private final LbcGlassArmor glass;
     private int phase;
     private String epoch;
 
-    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);this.phantom=new LbcPhantomArmor(game);this.nanobots=new LbcNanobotArmor(game);}
+    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);this.phantom=new LbcPhantomArmor(game);this.nanobots=new LbcNanobotArmor(game);this.glass=new LbcGlassArmor(game,this::admitted);}
     public LbcPhantomArmor phantom(){return phantom;}
     public LbcNanobotArmor nanobots(){return nanobots;}
+    public LbcGlassArmor glass(){return glass;}
 
     private boolean eligible(ServerPlayer player){
         return player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()

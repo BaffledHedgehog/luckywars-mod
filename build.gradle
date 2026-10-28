@@ -28,6 +28,7 @@ dependencies {
 processResources {
     include 'data/lbc/loot_table/stand_arrow.json'
     include 'data/lbc/loot_table/neko_set_nanobots_pre.json', 'data/lbc/loot_table/neko_set_nanobots_full.json'
+    include 'data/lbc/loot_table/neko_set_glass_pre.json', 'data/lbc/loot_table/neko_set_glass_full.json'
     include 'data/lbc/loot_table/ported/moisei_boots.json', 'data/lbc/loot_table/ported/regeneration_belt.json', 'data/lbc/loot_table/ported/infinite_quiver.json', 'data/lbc/loot_table/arrows.json'
     include 'data/lbc/loot_table/ported/save_platform.json', 'data/lbc/loot_table/ported/magnet.json', 'data/lbc/loot_table/ported/devil_stomach.json', 'data/lbc/loot_table/ported/legacy_save_platform.json', 'data/lbc/loot_table/ported/legacy_magnet.json'
     include 'data/lbc/loot_table/ported/artifact_jump_speed.json', 'data/lbc/loot_table/ported/artifact_jump_lift.json', 'data/lbc/loot_table/ported/artifact_jump_combo.json', 'data/lbc/loot_table/ported/legacy_artifact_jump_slow_falling.json', 'data/lbc/loot_table/ported/legacy_artifact_jump_levitation.json', 'data/lbc/loot_table/ported/legacy_artifact_jump_speed.json'

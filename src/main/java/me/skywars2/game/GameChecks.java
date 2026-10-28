@@ -798,6 +798,7 @@ public final class GameChecks {
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
                                 case "entity-merging" -> { CoreEntityMergeChecks.run(game); return; }
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
+                                case "glass-armor" -> { GlassArmorChecks.run(game); return; }
                                 case "nanobot-armor" -> { NanobotArmorChecks.run(game); return; }
                                 case "nanobot-armor-stop-probe" -> { NanobotArmorChecks.stopProbe(game); return; }
                                 case "nanobot-armor-cleanup" -> { NanobotArmorChecks.cleanup(game); return; }
