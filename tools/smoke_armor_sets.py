@@ -58,7 +58,7 @@ def next_server_tick(server):
     raise AssertionError("Native game clock did not advance between independent fixtures")
 
 
-def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
+def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_port=25576):
     allowed = (cycle.PROJECT / "build/verification/key-reuse-server").resolve()
     if server_dir.resolve() != allowed:
         raise ValueError("Only build/verification/key-reuse-server is authorized")
@@ -75,6 +75,8 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
     candidate.relative_to((cycle.PROJECT / "build").resolve())
     if not candidate.is_file():
         raise FileNotFoundError(candidate)
+    if fixture_port not in (25576, 25577):
+        raise ValueError("Only isolated fixture ports25576/25577 are authorized")
     planned = tuple(focus) if focus else SUITES
     needs_classic = bool(set(planned) & {"classic-melee", "devil-sword", "jump-artifacts", "traveller", "popit", "ordinary-accessories", "inventory-hazards", "passive-consumables", "pending-combat", "pending-swords", "incoming-artifacts", "reactive-artifacts", "fragment-knowledge", "moisei-boots", "regeneration-belt", "quiver", "dimension-items"})
     # Reject typo/unregistered commands before modifying or launching the fixture.
@@ -150,8 +152,8 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
     try:
         cycle.require_stopped(allowed)
         with socket.socket() as probe:
-            if probe.connect_ex(("127.0.0.1", 25576)) == 0:
-                raise RuntimeError("Isolated fixture port25576 is already accepting connections")
+            if probe.connect_ex(("127.0.0.1", fixture_port)) == 0:
+                raise RuntimeError(f"Isolated fixture port{fixture_port} is already accepting connections")
         settings_path = allowed / "config/luckywars/game.json"
         profiles_path = allowed / "config/luckywars/players.json"
         installed = allowed / "mods/skywars2.jar"
@@ -165,7 +167,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
                                          world / "playerdata" / (fixture_id + ".dat_old"),
                                          world / "stats" / (fixture_id + ".json"),
                                          world / "advancements" / (fixture_id + ".json")))
-        for path in (settings_path, profiles_path, allowed / "usercache.json", world / "data/scoreboard.dat",
+        for path in (allowed / "server.properties", settings_path, profiles_path, allowed / "usercache.json", world / "data/scoreboard.dat",
                      world / "data/scoreboard.dat_old", installed, *fixture_player_paths):
             backups[path] = path.read_bytes() if path.exists() else None
         # Durable recovery survives a Python interruption or a child shutdown timeout.
@@ -195,6 +197,13 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
                         lbcLevelups=True, lbcLevelupLimit=4, mapId="1", broken=False, noBorders=True)
         settings_path.parent.mkdir(parents=True, exist_ok=True)
         settings_path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+        if fixture_port != 25576:
+            # Another independent local server may occupy the default test port.
+            # Change only our stopped fixture and include exact bytes in recovery.
+            property_path = allowed / "server.properties"
+            raw = backups[property_path]
+            assert raw is not None and b"server-port=25576" in raw
+            property_path.write_bytes(raw.replace(b"server-port=25576", f"server-port={fixture_port}".encode()))
         active = NativeServer("armor-sets-gameplay")
         active.expect("LOADING -> LOBBY", timeout=180)
         active.expect("Selected map ready: 1", timeout=180)
@@ -300,7 +309,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None):
             "preparationContract": "Armor checks use registered native participants, scoped entities and the actual shared item scheduler; neighboring suites own their usual scoped preparation.",
             "checkFailures": failures, "cleanupErrors": cleanup_errors,
             "artifactSha256": installed_sha, "sourceArtifactSha256": source_sha,
-            "candidateArtifact": str(candidate), "serverDirectory": str(allowed), "serverPort": 25576,
+            "candidateArtifact": str(candidate), "serverDirectory": str(allowed), "serverPort": fixture_port,
             "normalChildShutdown": normal_stop, "exactSnapshotsRestored": restored,
             "recoveryArchive": str(recovery_archive) if recovery_archive is not None and recovery_archive.exists() else None,
             "liveChildPid": active.process.pid if live_child else None,

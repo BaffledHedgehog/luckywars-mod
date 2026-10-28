@@ -6,7 +6,7 @@
       "biome": "minecraft:plains",
       "features": false,
       "lakes": false,
-      "layers": [],
+      "layers": [{"block": "minecraft:air", "height": 1}],
       "structure_overrides": []
     }
   }

@@ -35,12 +35,13 @@ final class MapLighting {
         boolean finishing() { return finishing; }
         int chunkCount() { return affected.size(); }
         int sentPackets() { return sentPackets; }
+        boolean empty() { return changed.isEmpty(); }
 
         /** Called before a write. The one-chunk margin covers light crossing a chunk edge. */
         void changed(BlockPos pos) {
             if(completion.isDone())return;
-            // A late overlay/operator write invalidates an earlier lighting snapshot, too.
-            if(finishing) { propagation=null;resends.clear(); }
+            // Sealed batches are immutable: later writes must have their own send dependency.
+            if(finishing)throw new IllegalStateException("Lighting batch is already sealed");
             int x=pos.getX()>>4,z=pos.getZ()>>4;
             if(!changed.add(ChunkPos.pack(x,z)))return;
             for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++) {
@@ -77,14 +78,17 @@ final class MapLighting {
 
         /** Returns after propagation/publication and all final packets; never waits on the server thread. */
         boolean tick() {
+            return tick(System.nanoTime()+RESEND_NANOS);
+        }
+
+        boolean tick(long deadline) {
             if(completion.isDone())return true;
             if(!finishing)return false;
             if(propagation==null)scheduleBarriers();
             if(!propagation.isDone())return false;
             propagation.join(); // Completed only; propagate failures without a blocking wait.
-            long deadline=System.nanoTime()+RESEND_NANOS;
             for(int count=0;count<RESEND_CHUNKS_PER_TICK&&!resends.isEmpty();count++) {
-                if(count>0&&System.nanoTime()>=deadline)return false;
+                if(System.nanoTime()>=deadline)return false;
                 var pos=resends.removeFirst();
                 if(level.getChunkSource().getChunkNow(pos.x(),pos.z())==null)continue;
                 var viewers=level.getChunkSource().chunkMap.getPlayers(pos,false);

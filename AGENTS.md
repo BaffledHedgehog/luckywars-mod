@@ -1,3 +1,39 @@
+## Void Overworld and progressive chunk delivery - QUALIFIED, INSTALLED (28 October 2026)
+
+[Source/runtime diagnosis and native proof](agent_notes/OVERWORLD_VOID_AND_STREAMING_2026_10_28.md).
+(user) Actual minecraft:overworld must remain void like legacy; disposable old
+terrain can be removed. Explicit one-air-layer/no-features/no-lakes/no-structures
+stem packages the source intent. Native26.3 bakes datapack stems before saved
+settings for both old/new worlds: saved noise metadata is NOT active generation.
+Native actual-generator/FULL remote all-air chunk checks pass. Main old regions
+contained14natural structure starts and623unfinished structure-start chunks;
+changing a generator does not erase this terrain/history. Do not add a redundant
+world generator mixin or reinstate arena. Saved data paths are26.3 dimension-local.
+(user) Chunk starvation during minutes-long map loads is unacceptable. Seal map
+lighting by write tick, publish immutable batches independently, cap8pending and
+share3ms publication; retain native propagation/interior viewer light snapshots.
+Only map work joins these batches; unrelated edits cannot restart sealed barriers.
+24ms/384slices/64warm-ahead replaces4ms/64/4. Failure/stop cancels map batch gates;
+map success waits outstanding batches. Primitive diagnostics avoid per-write boxing.
+Build77354937 passed43results in2actual mode1matches plus remaining-life native
+respawn/elimination (131.98s). Actual60->61->1 loads twice captured full native
+chunk packets DURING placement for121/107previously gated edited chunks eachrun,
+and no residual final dependencies; light/dimension/visual/TimeStop regressionspass.
+Map60 write123/68ticks plus15-17sec preparation; map61 write132/103ticks.
+No identical-old-state speedup ratio, physical client or peakTPS claim.
+Exact547sources/1555classes/3232resources;198author paths/29overrides unchanged;
+1302processed source-knockback tables audited. Owned child normal stop and exact
+snapshot restoration. Use fixture25577 when default25576 belongs to unrelated
+local server; runner snapshots/restores its properties, never stops that server.
+Installer18240installed77354937overdb830314 stopped/world-unlocked, no restart.
+Cleanup16816removed10,748,813bytes only from main dimensions/minecraft/overworld
+and matching data/luckywars/overworld-bounds.json after exact path/SHA/lock/port
+checks. Both absent; root player/settings/datapack/other dimensions preserved.
+Evidence:build/verification/overworld-void/. Retain77354937current,db830314rollback,
+31b84a20fallback and networkaudit tool; retireb3c13ce9and initialdfe421e6archives
+only after path/SHA checks, retaining logs/proof. No resource-pack changes.
+Earlier entries below are historical.
+
 ## Complete Nanobots armor - QUALIFIED, INSTALLED (28 October 2026)
 
 [Source contract, author ruling and native proof](agent_notes/NANOBOT_ARMOR_PORT_2026_10_28.md).

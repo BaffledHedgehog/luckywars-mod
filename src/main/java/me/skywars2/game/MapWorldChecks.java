@@ -7,6 +7,7 @@ import me.skywars2.SkyWars2;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
 
 /** Checks the actual native world used by lobby, match and respawn transitions. */
 public final class MapWorldChecks {
@@ -38,6 +39,23 @@ public final class MapWorldChecks {
 
     public static void run(GameController game) {
         world(game);
+        var level = game.server().overworld();
+        // Saved WorldGenSettings can still name the old noise preset. Check the
+        // actual baked generator used by ServerChunkCache, then request FULL
+        // chunks far outside the imported maps so old terrain cannot mask it.
+        var generator = level.getChunkSource().getGenerator();
+        require(generator instanceof FlatLevelSource, "actual Overworld generator must be void-flat: "
+                + generator.getClass().getSimpleName());
+        var settings = ((FlatLevelSource) generator).settings();
+        require(settings.getLayers().stream().allMatch(state -> state == null || state.isAir()),
+                "Overworld flat layers contain no solid blocks or fluids");
+        require(settings.structureOverrides().isPresent()
+                && settings.structureOverrides().get().size() == 0, "no generated structures");
+        for (int offset = 0; offset < 2; offset++) {
+            var chunk = level.getChunk(75000 + offset, -75001);
+            for (var section : chunk.getSections())
+                require(section.hasOnlyAir(), "fresh FULL Overworld chunk contains terrain/fluids/features");
+        }
         if (game.inLobby()) {
             var players = game.server().getPlayerList().getPlayers();
             require(!players.isEmpty(), "actual connected lobby players");

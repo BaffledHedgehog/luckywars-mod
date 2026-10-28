@@ -82,8 +82,11 @@ public final class MapManager {
     private static final int TILE_XZ = 8;
     private static final int TILE_Y = 8;
     private static final int LOBBY_OFFSET_X = 0;
-    private static final long TICK_WORK_BUDGET_NANOS = 4_000_000L;
-    private static final int MAX_SLICES_PER_TICK = 64;
+    private static final long TICK_WORK_BUDGET_NANOS = 24_000_000L;
+    private static final int MAX_SLICES_PER_TICK = 384;
+    private static final int WARM_AHEAD_SLICES = 64;
+    private static final int MAX_PENDING_LIGHTING_BATCHES = 8;
+    private static final long LIGHT_PUBLICATION_NANOS = 3_000_000L;
     // Техническая замена карты не должна выбрасывать содержимое удаляемых контейнеров.
     private static final int MAP_WRITE_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
     private static final String SWRG = "swrg.";
@@ -131,6 +134,10 @@ public final class MapManager {
     private record ChunkLoad(ServerLevel world,ChunkPos position) { }
     private final Map<ChunkLoad, CompletableFuture<?>> chunkLoads = new HashMap<>();
     private MapLighting.Update mapLighting;
+    private final Queue<MapLighting.Update> pendingMapLighting = new ArrayDeque<>();
+    private final it.unimi.dsi.fastutil.longs.LongOpenHashSet streamingChangedChunks =
+            new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
+    private int completedLightingBatches;
     private final Queue<MapLighting.Update> overlayLighting = new ArrayDeque<>();
     private Map<Identifier, PreparedTemplate> preparedTemplates = Map.of();
     private CompletableFuture<Map<Identifier, PreparedTemplate>> preparation;
@@ -204,7 +211,10 @@ public final class MapManager {
     public boolean suspendsFluidTicks() { return busy && !reading; }
 
     public int loadingChunkCount() { return chunkLoads.size(); }
-    boolean lightingPending() { return mapLighting!=null&&mapLighting.finishing(); }
+    boolean lightingPending() { return !pendingMapLighting.isEmpty() || mapLighting!=null&&!mapLighting.empty(); }
+    int streamingPendingBatches() { return pendingMapLighting.size(); }
+    int streamingCompletedBatches() { return completedLightingBatches; }
+    Set<Long> streamingChangedChunks() { return Set.copyOf(streamingChangedChunks); }
 
     public boolean brokenAvailable(String id) {
         Manifest manifest = manifests.get(id);
@@ -242,12 +252,15 @@ public final class MapManager {
         long deadline = started + TICK_WORK_BUDGET_NANOS;
         workTicks++;
         try {
-            if(lightingPending()) { finishPlacement();return; }
-            // Warm only the next few slices; requests do not join chunk-generation futures.
+            drainMapLighting();
+            if(work.isEmpty()) { finishPlacement();return; }
+            // Apply backpressure to native light work without blocking any futures.
+            if(pendingMapLighting.size()>=MAX_PENDING_LIGHTING_BATCHES)return;
+            // Warm a bounded window; requests never wait on chunk-generation futures.
             int ahead = 0;
             for (Work next : work) {
                 chunksReady(next.bounds);
-                if (++ahead >= 4 || System.nanoTime() >= deadline) break;
+                if (++ahead >= WARM_AHEAD_SLICES || System.nanoTime() >= deadline) break;
             }
             for (int completed = 0; completed < MAX_SLICES_PER_TICK; completed++) {
                 Work next = work.peek();
@@ -269,11 +282,41 @@ public final class MapManager {
         } catch (RuntimeException error) {
             fail(Component.translatable("skywars2.map.error.placement", error.getMessage()));
         } finally {
+            if (operationStarted == preparationStarted && busy) {
+                try { sealMapLighting(); }
+                catch(RuntimeException error) {
+                    fail(Component.translatable("skywars2.map.error.placement",error.getMessage()));
+                }
+            }
             if (operationStarted == preparationStarted) {
                 maxWorkTickNanos = Math.max(maxWorkTickNanos, System.nanoTime() - started);
             }
             maintainLobbyOverlay();
         }
+    }
+
+    private void sealMapLighting() {
+        if(mapLighting==null)return;
+        var batch=mapLighting;
+        mapLighting=null;
+        if(batch.empty()) { batch.cancel();return; }
+        // Schedule only after all writes in this tick have queued their native light checks.
+        pendingMapLighting.add(batch);
+        batch.finishWrites();
+    }
+
+    private void drainMapLighting() {
+        long deadline=System.nanoTime()+LIGHT_PUBLICATION_NANOS;
+        for(var iterator=pendingMapLighting.iterator();iterator.hasNext();) {
+            var batch=iterator.next();
+            if(batch.tick(deadline)) { iterator.remove();completedLightingBatches++; }
+        }
+    }
+
+    private void cancelMapLighting() {
+        if(mapLighting!=null) { mapLighting.cancel();mapLighting=null; }
+        for(var batch:pendingMapLighting)batch.cancel();
+        pendingMapLighting.clear();
     }
 
     private boolean chunksReady(BoundingBox bounds) {
@@ -670,7 +713,11 @@ public final class MapManager {
 
     /** Called before native writes: hold chunk sends during map work and preserve the lobby overlay. */
     public void noteMapBlockWrite(Level source, BlockPos pos) {
-        if(source==level&&mapLighting!=null)mapLighting.changed(pos);
+        if(source==level&&applyingMapWork) {
+            if(mapLighting==null)mapLighting=new MapLighting.Update(level);
+            mapLighting.changed(pos);
+            streamingChangedChunks.add(ChunkPos.pack(pos.getX()>>4,pos.getZ()>>4));
+        }
         if (placingMapSlice && lobbyOverlayActive && source == level && insideLobby(pos))
             mapWritesUnderLobby.add(pos.immutable());
     }
@@ -678,12 +725,12 @@ public final class MapManager {
     /** Reveals the map state captured beneath the lobby immediately before match play. */
     public void removeLobbyOverlay() {
         if (!lobbyOverlayActive || level == null) return;
-        var lighting=mapLighting==null?new MapLighting.Update(level):mapLighting;
+        var lighting=new MapLighting.Update(level);
         for (LobbyCell cell : lobbyCells) {
             lighting.changed(cell.pos);
             restoreSnapshot(cell.pos, mapUnderLobby.getOrDefault(cell.pos, BlockSnapshot.air()));
         }
-        if(mapLighting==null) { lighting.finishWrites();overlayLighting.add(lighting); }
+        lighting.finishWrites();overlayLighting.add(lighting);
         lobbyOverlayActive = false;
         mapWritesUnderLobby.clear();
         removeLobbyEntities();
@@ -754,7 +801,7 @@ public final class MapManager {
         flushChangedBlockBounds();
         work.clear();
         preparedTemplates = Map.of();
-        if(mapLighting!=null) { mapLighting.cancel();mapLighting=null; }
+        cancelMapLighting();
         for(var lighting:overlayLighting)lighting.cancel();
         overlayLighting.clear();
         releaseChunkTickets();
@@ -823,7 +870,9 @@ public final class MapManager {
 
     private void begin(Consumer<Result> callback) {
         busy = true;
-        mapLighting=level==null?null:new MapLighting.Update(level);
+        cancelMapLighting();
+        streamingChangedChunks.clear();
+        completedLightingBatches=0;
         completion = callback == null ? ignored -> { } : callback;
         work.clear();
     }
@@ -1225,10 +1274,8 @@ public final class MapManager {
     }
 
     private void finishPlacement() {
-        if(mapLighting!=null) {
-            mapLighting.finishWrites();
-            if(!mapLighting.tick())return;
-        }
+        sealMapLighting();
+        if(!pendingMapLighting.isEmpty())return;
         if (level == null) {
             fail(Component.translatable("skywars2.map.error.dimension_missing"));
             return;
@@ -1406,10 +1453,8 @@ public final class MapManager {
             if (!sameSnapshot(cell.pos, cell.visible)) {
                 // External edits under the lobby become the new revealed map state.
                 mapUnderLobby.put(cell.pos, snapshot(cell.pos));
-                if(mapLighting==null) {
-                    if(lighting==null)lighting=new MapLighting.Update(level);
-                    lighting.changed(cell.pos);
-                }
+                if(lighting==null)lighting=new MapLighting.Update(level);
+                lighting.changed(cell.pos);
                 restoreSnapshot(cell.pos, cell.visible);
             }
         }
@@ -1536,7 +1581,7 @@ public final class MapManager {
     private void complete(Result result) {
         Consumer<Result> callback = completion;
         completion = null;
-        if(mapLighting!=null) { mapLighting.cancel();mapLighting=null; }
+        cancelMapLighting();
         busy = false;
         reading = false;
         work.clear();

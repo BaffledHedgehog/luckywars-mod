@@ -783,6 +783,7 @@ public final class GameChecks {
                                 case "attack-knockback" -> { AttackKnockbackChecks.run(game); return; }
                                 case "source-knockback-balance" -> { SourceKnockbackBalanceChecks.run(game); return; }
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
+                                case "map-streaming" -> { MapStreamingChecks.run(game); return; }
                                 case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
                                 case "late-swords-prepare" -> { LateSwordChecks.prepare(game); return; }
@@ -1368,6 +1369,7 @@ public final class GameChecks {
             ReactiveArtifactChecks.tick(game);
             FragmentKnowledgeChecks.tick(game);
             MapLightingChecks.tick(game);
+            MapStreamingChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);
             SheepChecks.tick(game);

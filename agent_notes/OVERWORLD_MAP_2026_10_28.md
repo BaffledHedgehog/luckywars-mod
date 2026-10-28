@@ -1,3 +1,5 @@
+> Follow-up (28 October 2026): [Void terrain cleanup and progressive chunk publication](OVERWORLD_VOID_AND_STREAMING_2026_10_28.md) supersedes the existing-terrain policy below. The actual generator already uses the datapack void stem even while saved world_gen_settings names noise. Old natural terrain/unfinished chunks have now been removed under the author's disposable-world permission; do not restore them or interpret saved preset metadata as the active generator.
+
 # Actual Overworld map world — 28 October 2026
 
 ## Author requirements (user)
