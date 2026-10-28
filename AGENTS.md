@@ -1,3 +1,27 @@
+## Exact laser hitboxes - QUALIFIED, AUTO INSTALL QUEUED (28 October 2026)
+
+[Author report, diagnosis and native proof](agent_notes/LASER_HITBOX_FIX_2026_10_28.md).
+(user) Lasers must intersect the native hitbox, not hit nearby players. Gaycaster
+meditation phase1 used shifted positive-XYZ one-block sampling cubes; God
+Hedgehog allowed two different creatures to satisfy its independent paired cells.
+Both now clip each native target against the actual beam/movement segment once.
+Particle samples remain visual; native damage/credit, pass-through terrain,
+roles/Greed/TimeStop/epoch/lifetime and warning geometry stay. The shared resident
+search/minigun path already has native zero-padding narrowphase and is retained;
+legitimate impact areas/electric column widths are not flattened into ray width.
+Native player probes cover reversed axes/diagonals/vertical/sloped, both sides,
+edge hits/misses, finite ends and above/below. God-ray probes reproduce separated
+former-cell targets plus true hits/credit, segment limits and paused victims.
+Build784b026b passed36results in2actual mode1matches (160.07s), including full
+Gaycaster/boss and neighboring ray/combat/stop cleanup regressions. Exact540
+sources/1533classes/3230resources;198author paths/29live override JSONs unchanged.
+Normal owned-child shutdown/exact snapshots restored. Installer11752 adopts
+784b026bin place of723b2a3a after mainccac368f stops normally, no forced stop or
+restart. Receipt: `build/verification/beam-collision/main-install.json`.
+Retain784b026bready,723b2a3aprevious qualified andccac368fmain/rollback plus audit
+tool; obsolete78fc5140archive path/hash verified and removed (40,870,566bytes).
+No RP update required. No physical-client/peakTPS claim; older entries historical.
+
 ## Complete Phantom armor - QUALIFIED, AUTO INSTALL QUEUED (28 October 2026)
 
 [Author decisions, source and native proof](agent_notes/PHANTOM_ARMOR_PORT_2026_10_28.md).

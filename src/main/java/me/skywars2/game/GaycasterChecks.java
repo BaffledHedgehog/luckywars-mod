@@ -38,7 +38,8 @@ public final class GaycasterChecks {
         Cow victim;int phase,color=-1,waits,warmTicks;boolean rayReady,emptyDone,academy,warmed;double emptyDistance;long last=Long.MIN_VALUE;
         ItemStack meditation;LbcClouds.AcidProjectile seed;int trialTicks;final Set<Integer> trialPhases=new HashSet<>();
         final Set<LbcGaycasterAcademy.Hazard> trialSeen=Collections.newSetFromMap(new IdentityHashMap<>());
-        final int[] trialCounts=new int[7],warningCounts=new int[7];boolean cubeWire,warningPaused,beamFaded,wallDensityChecked;
+        final int[] trialCounts=new int[7],warningCounts=new int[7];boolean cubeWire,warningPaused,beamFaded,wallDensityChecked,beamGeometryChecked,queuedGeometryStarted;
+        int queuedGeometryPending;final List<String> queuedGeometryErrors=new ArrayList<>();
         final Map<LbcGaycasterAcademy.Hazard,TrialWarningVisual> firstBeam=new IdentityHashMap<>();
         final Set<TrialWarningVisual> warningsSeen=Collections.newSetFromMap(new IdentityHashMap<>());
         final Map<TrialWarningVisual,Integer> pausedWarnings=new IdentityHashMap<>();int warningPause,pausedRemaining;
@@ -162,6 +163,65 @@ public final class GaycasterChecks {
                 require(s.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("color",0)==i%7+1,"queued palette first red and wrap");}
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         }
+        void queuedBeamGeometry(){
+            // Exercise the real resident search, including misses INSIDE its inflated candidate box.
+            queuedGeometryStarted=true;
+            Vec3[] directions={new Vec3(0,0,1),new Vec3(0,0,1),new Vec3(0,0,1),new Vec3(1,0,1).normalize(),new Vec3(1,0,1).normalize()};
+            double[] offsets={0,.8,-.8,0,1};
+            for(int i=0;i<directions.length;i++){
+                Vec3 from=at.add(0,8+i*3,8),direction=directions[i],side=new Vec3(direction.z,0,-direction.x);
+                var target=cow(from.add(direction.scale(4)).add(side.scale(offsets[i])).add(0,-.5,0));
+                boolean expected=offsets[i]==0;int index=i;queuedGeometryPending++;
+                game.items().exasperato().searchSpell(owner,from,direction,8,false,(p,s)->false,e->e==target,null)
+                        .thenAccept(hit->{
+                            boolean actual=hit instanceof net.minecraft.world.phys.EntityHitResult e&&e.getEntity()==target;
+                            if(actual!=expected)queuedGeometryErrors.add("native queued beam "+index+" expected="+expected+" hit="+hit);
+                            target.discard();queuedGeometryPending--;
+                        });
+            }
+        }
+        void prismBeamGeometry(){
+            var academy=game.items().gaycasterAcademy();var restore=new GameChecks.WandThirdPlayerState(other,game.items().mana());
+            var profile=game.players().get(other.getUUID());int oldSkill=profile.lbcSkill,oldTrinket=profile.lbcTrinket;
+            try{
+                profile.lbcSkill=0;profile.lbcTrinket=0;other.setGameMode(GameType.SURVIVAL);other.getInventory().clearContent();other.removeAllEffects();
+                other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);other.setNoGravity(true);
+                var trials=LbcGaycasterAcademy.class.getDeclaredField("trials");trials.setAccessible(true);
+                Object trial=((Map<?,?>)trials.get(academy)).get(owner);require(trial!=null,"active trial for actual prism damage probes");
+                var step=LbcGaycasterAcademy.class.getDeclaredMethod("tickHazard",trial.getClass(),LbcGaycasterAcademy.Hazard.class,List.class);step.setAccessible(true);
+                for(Vec3 direction:List.of(new Vec3(0,0,1),new Vec3(0,0,-1),new Vec3(1,0,0),new Vec3(-1,0,0),
+                        new Vec3(1,0,1).normalize(),new Vec3(-1,0,1).normalize(),new Vec3(0,1,0),new Vec3(.3,.5,.7).normalize())){
+                    Vec3 from=at.add(0,10,10),end=from.add(direction.scale(27)),mid=from.lerp(end,.5);
+                    Vec3 side=direction.horizontalDistance()>0?new Vec3(direction.z,0,-direction.x).normalize():new Vec3(1,0,0);
+                    Vec3 centered=mid.add(0,-.9,0);
+                    // Native standing player width is .6: points either side at .8 are safe but still hit the old positive cube.
+                    Vec3[] positions={centered,centered.add(side.scale(.8)),centered.subtract(side.scale(.8)),
+                            from.subtract(direction.scale(2)).add(0,-.9,0),end.add(direction.scale(2)).add(0,-.9,0)};
+                    for(int i=0;i<positions.length;i++)prismBeamProbe(step,trial,from,direction,positions[i],i==0,"direction="+direction+" case="+i);
+                }
+                Vec3 from=at.add(0,10,10),direction=new Vec3(0,0,1),mid=from.add(0,0,13.5);
+                double half=other.getBbWidth()*.5;
+                for(double sign:new double[]{-1,1}){
+                    prismBeamProbe(step,trial,from,direction,mid.add(sign*(half-.01),-.9,0),true,"inside native edge "+sign);
+                    prismBeamProbe(step,trial,from,direction,mid.add(sign*(half+.01),-.9,0),false,"outside native edge "+sign);
+                }
+                prismBeamProbe(step,trial,from,direction,mid.add(0,.02,0),false,"beam below feet");
+                prismBeamProbe(step,trial,from,direction,mid.add(0,-other.getBbHeight()-.02,0),false,"beam above head");
+                beamGeometryChecked=true;
+            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            finally{profile.lbcSkill=oldSkill;profile.lbcTrinket=oldTrinket;restore.restore(game);}
+        }
+        void prismBeamProbe(java.lang.reflect.Method step,Object trial,Vec3 from,Vec3 direction,Vec3 position,boolean hit,String why)throws ReflectiveOperationException{
+            other.teleportTo(other.level(),position.x,position.y,position.z,Set.of(),0,0,true);other.setHealth(1000);other.setAbsorptionAmount(0);
+            other.setInvulnerableTime(0);other.damageCooldownTime=0;
+            var h=new LbcGaycasterAcademy.Hazard(1,from,direction);h.age=30;
+            try{
+                require(Boolean.TRUE.equals(step.invoke(game.items().gaycasterAcademy(),trial,h,List.of(other))),"prism completes once: "+why);
+                require(other.getHealth()==(hit?993:1000),"exact player hitbox "+why+" hp="+other.getHealth()+" box="+other.getBoundingBox());
+                require(game.items().gaycasterAcademy().remaining(owner)>0,"probe never affects source trial");
+                if(hit)require(other.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.ARROW)&&other.getKillCredit()==owner,"native arrow7 and caster credit");
+            }finally{h.close();}
+        }
         void electricWallDensity(){
             var academy=game.items().gaycasterAcademy();
             var h=new LbcGaycasterAcademy.Hazard(4,at.add(0,0,6),new Vec3(0,0,1));
@@ -198,6 +258,7 @@ public final class GaycasterChecks {
         }
         void observeTrial(){
             var academy=game.items().gaycasterAcademy();
+            if(!beamGeometryChecked)prismBeamGeometry();
             if(!wallDensityChecked)electricWallDensity();
             for(var h:academy.hazardSnapshot(owner))if(h.kind<=5&&h.age>0){
                 if(h.kind==1&&h.age>=31)continue;
@@ -357,6 +418,8 @@ public final class GaycasterChecks {
             }
             if(phase==5){
                 if(game.items().exasperato().pendingSearches()>0){require(++waits<200,"queued palette completes");return false;}
+                if(!queuedGeometryStarted){clearActors();queuedBeamGeometry();return false;}
+                require(queuedGeometryPending==0&&queuedGeometryErrors.isEmpty(),"shared native ray geometry: "+queuedGeometryErrors);
                 clearActors();beginTrial();phase=6;return false;
             }
             if(phase==6){

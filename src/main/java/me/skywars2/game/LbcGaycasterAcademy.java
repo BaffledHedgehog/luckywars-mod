@@ -221,11 +221,11 @@ final class LbcGaycasterAcademy {
                     warning(t,h,TrialWarningVisual.beam(game,t.level,t.epoch,h.at,h.at.add(h.direction.scale(27)),false,30));
                     LbcOverload.sound(t.owner,h.at,"minecraft:block.beacon.activate",1,2,0);}
                 if(h.age<31)return false;
-                var hit=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
+                // Clip the complete beam once per target; visual samples must not become shifted one-block hit cubes.
+                Vec3 end=h.at.add(h.direction.scale(27));
+                for(var e:living)if(LbcBeamGeometry.intersects(e.getBoundingBox(),h.at,end))hurt(t,e,7,DamageTypes.ARROW);
                 for(int i=0;i<=90;i++){Vec3 point=h.at.add(h.direction.scale(i*.3));paint(t,point,point,Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.RED));
                     trialParticles(t.owner,ParticleTypes.FIREWORK,point,1,.01,.01,.01,.01);
-                    for(var e:living)if(!hit.contains(e)&&e.getBoundingBox().intersects(new AABB(point,point.add(1,1,1)))){
-                        hit.add(e);hurt(t,e,7,DamageTypes.ARROW);}
                 }LbcOverload.sound(t.owner,h.at,"minecraft:lbcsounds.laser_attack",1.5f,1,0);
                 trialParticles(t.owner,net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xffff0000),h.at,1,0,0,0,0);return true;
             }

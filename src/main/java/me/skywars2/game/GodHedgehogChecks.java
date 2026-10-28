@@ -98,11 +98,46 @@ public final class GodHedgehogChecks {
             var trophy=game.lbc().rollTable(level,at,owner,"lbc:god");require(trophy.size()==1&&trophy.getFirst().is(LbcHedgehogItems.GOD),"source boss trophy acquisition alias");
             var stack=trophy.getFirst();require(Identifier.parse("lbc:god").equals(stack.get(DataComponents.ITEM_MODEL))&&Identifier.parse("lbc:tier_x").equals(stack.get(DataComponents.TOOLTIP_STYLE))&&stack.get(DataComponents.LORE).lines().size()==10,"trophy model/tier/ten authored blank lore rows");
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();require(data.getIntOr("god",0)==1&&data.getIntOr("magicwand",0)==1,"inert trophy source flags");
+            sweptRayRegression();
             // Inject source age78. The next two ACTUAL updates exercise grow and detonation boundaries.
             var center=BlockPos.containing(at.add(12,0,0));for(int x=-3;x<=3;x++)for(int y=-3;y<=3;y++)for(int z=-3;z<=3;z++){var p=center.offset(x,y,z);terrain.put(p,level.getBlockState(p));level.setBlock(p,Blocks.STONE.defaultBlockState(),2);}
             eater=service.eaterBoundary(boss,Vec3.atLowerCornerOf(center),new Vec3(0,1,0),78);require(eater!=null,"actual native eater display at declared age78 boundary");phase=1;startTick=game.server().getTickCount();
         }
         LivingEntity cow(Vec3 at,String tag){var cow=EntityTypes.COW.create(level,EntitySpawnReason.COMMAND);require(cow!=null,"native cow");cow.setPos(at);cow.setNoAi(true);cow.setNoGravity(true);if(!tag.isEmpty())cow.entityTags().add(tag);fixtures.add(cow);require(level.addFreshEntity(cow),"native ray victim enters level");return cow;}
+        void sweptRayRegression(){
+            // Drive the real private actor updates once, so targets beyond this tick's segment stay observable.
+            try{
+                var actorType=Class.forName(LbcGodHedgehog.class.getName()+"$Actor");
+                var actorsField=LbcGodHedgehog.class.getDeclaredField("actors");actorsField.setAccessible(true);
+                var displayField=actorType.getDeclaredField("display");displayField.setAccessible(true);
+                var kindField=actorType.getDeclaredField("kind");kindField.setAccessible(true);
+                var whiteUpdate=LbcGodHedgehog.class.getDeclaredMethod("whiteTick",actorType);whiteUpdate.setAccessible(true);
+                var rayUpdate=LbcGodHedgehog.class.getDeclaredMethod("rayTick",actorType);rayUpdate.setAccessible(true);
+                var remove=LbcGodHedgehog.class.getDeclaredMethod("remove",actorType);remove.setAccessible(true);
+                for(var direction:List.of(new Vec3(1,0,0),new Vec3(-1,0,0),new Vec3(1,0,1).normalize())){
+                    var from=at.add(-8,5,-8);var to=from.add(direction.scale(2.5));var middle=from.add(direction.scale(1.25));
+                    var positive=cow(middle.add(.5,.2,.5),"");var negative=cow(middle.add(-.5,-1.6,-.5),"");
+                    require(positive.getBoundingBox().intersects(new net.minecraft.world.phys.AABB(middle,middle.add(1,1,1)))
+                            &&negative.getBoundingBox().intersects(new net.minecraft.world.phys.AABB(middle.add(-.99,-.99,-.99),middle.add(.01,.01,.01))),
+                            "two separate off-axis native hitboxes satisfy the former paired cubes");
+                    var crossed=cow(middle.add(0,-.7,0),"");
+                    var behind=cow(from.subtract(direction).add(0,-.7,0),"");var beyond=cow(to.add(direction).add(0,-.7,0),"");
+                    var paused=cow(middle.add(0,-.7,0),"time_stopped");
+                    var visual=service.whiteBoundary(boss,from,direction,39);require(visual!=null,"native one-tick white conversion regression");
+                    var actors=(List<?>)actorsField.get(service);Object whiteActor=null;
+                    for(var actor:actors)if(displayField.get(actor)==visual)whiteActor=actor;
+                    require(whiteActor!=null,"actual white actor selected");whiteUpdate.invoke(service,whiteActor);
+                    Object ray=null;for(var actor:actors)if(kindField.getInt(actor)==2)ray=actor;
+                    require(ray!=null,"actual marker ray created");rayUpdate.invoke(service,ray);
+                    require(positive.isAlive()&&negative.isAlive(),"off-axis targets cannot combine separate cubes into a remote kill: "+direction);
+                    require(!crossed.isAlive()&&crossed.getKillCredit()==owner,"swept native hitbox retains inherited WILD kill credit: "+direction);
+                    require(behind.isAlive()&&beyond.isAlive(),"targets before and beyond the finite2.5block segment survive: "+direction);
+                    require(paused.isAlive(),"native Time Stop target remains protected: "+direction);
+                    remove.invoke(service,ray);
+                    for(var victim:List.of(positive,negative,crossed,behind,beyond,paused))victim.discard();
+                }
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("God Hedgehog native swept-ray regression",error);}
+        }
         void killRay(){
             var p=at.add(-12,0,0);victims=new ArrayList<>();victims.add(cow(p,""));victims.add(cow(p,"sin_greed_active"));victims.add(cow(p,""));victims.add(cow(p,"spectator"));victims.add(cow(p,"strict_map_object"));
             game.items().mana().score(victims.get(2),"void_resistance").set(1);
