@@ -7,6 +7,16 @@
     "lbc:ported/"
   ],
   "tables": [
+    "lbc:set_multiplying",
+    "lbc:set_randchanted",
+    "lbc:neko_set_multiplying/helmet",
+    "lbc:neko_set_multiplying/chestplate",
+    "lbc:neko_set_multiplying/leggings",
+    "lbc:neko_set_multiplying/boots",
+    "lbc:neko_set_randchanted/helmet",
+    "lbc:neko_set_randchanted/chestplate",
+    "lbc:neko_set_randchanted/leggings",
+    "lbc:neko_set_randchanted/boots",
     "lbc:neko_set_flesh",
     "lbc:neko_set_flesh/helmet",
     "lbc:neko_set_flesh/chestplate",

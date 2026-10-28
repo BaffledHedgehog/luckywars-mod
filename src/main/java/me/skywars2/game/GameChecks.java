@@ -800,6 +800,7 @@ public final class GameChecks {
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
                                 case "flesh-armor" -> { FleshArmorChecks.run(game); return; }
                                 case "mage-nyauwu" -> { MageNyauwuChecks.run(game); return; }
+                                case "static-armor" -> { StaticArmorChecks.run(game); return; }
                                 case "techno-armor" -> { TechnoArmorChecks.run(game); return; }
                                 case "berserk-armor" -> { BerserkArmorChecks.run(game); return; }
                                 case "glass-armor" -> { GlassArmorChecks.run(game); return; }

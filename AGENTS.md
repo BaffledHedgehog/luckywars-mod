@@ -1,3 +1,31 @@
+## Multiplying and Randchanted armor - QUALIFIED (28 October 2026)
+
+[Exact source behavior and native proof](agent_notes/STATIC_ARMOR_PORT_2026_10_28.md).
+Two complete component-only armor families: all8 leaves plus2 singleton equal-
+weight roots now public ready. Already-packaged payloads/native behavior unchanged.
+Multiplying golden leaves retain original8 armor/toughness IDs, ADD_MULTIPLIED_BASE
+head2/chest4/legs3/feet1. Keep native (base+additives)*(1+sum), default modifier
+replacement, partial/mixed sets, no invented flat armor/full-set timer/wrapper.
+Randchanted iron uses original native enchant_with_levels uniform1..30, ordinary
+armor defaults, source names/lore/tier/flags. No custom random/enchant engine.
+Existing consumed normal slot/Ultra family acquisition retained; Ultra armor
+excludes sword/pickaxe/bow/axe ONLY. No invented Randchanted hoe or weapon-family
+qualification claim. Source PvP achievements need4 actual equipped raw flags;
+original parents/rewards remain. No new inventory-only criterion/reward engine.
+Buildd9087f0a passed38results in2actual mode1matches (135.47s), exact564sources/
+1599classes/3257resources plus build.gradle.198author paths/31live override files
+protected;31includes metadata/docs and29lootJSONs, no override changes. Exact10
+frozen source tables,24native seeds/leaf, consumed reforges, native equipment
+partial/full/mixed/carried/idempotent/unequip and real PvP criteria pass, neighbors
+pass. Normal owned-child shutdown/exact snapshots. Same pre-suite Polymer bot
+chunk-context diagnostic as Techno recorded; no crash/check failure, physical
+client/render/network, socket reconnect/death or natural peakTPS claim.
+No RP changes;17keys exist in read-only author RU/EN pack. Source-only Chaos audit
+is NEXT-family preparation with unanswered questions/trap dependency, NOT a Chaos
+implementation/completion claim. See CHAOS_STATIC_GEAR_SOURCE_2026_10_28.md.
+Stopped-only receipt:build/verification/static-armor/main-install.json.
+Never force main stop/restart. Earlier entries below are historical.
+
 ## Complete Reactive, Techno and MK2 armor - QUALIFIED (28 October 2026)
 
 [Source closure, author decisions and native proof](agent_notes/TECHNO_ARMOR_PORT_2026_10_28.md).
