@@ -10,8 +10,8 @@ import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 public final class AttributePolicyChecks {
     private AttributePolicyChecks(){}
     private static final Set<String> UPPER=Set.of("movement_speed","flying_speed","jump_strength","step_height","sneaking_speed","friction_modifier","air_drag_modifier","bounciness","max_health","max_absorption","burning_time","name_tag_distance","waypoint_transmit_range","waypoint_receive_range");
-    private static final Set<String> BOTH=Set.of("gravity","scale","movement_efficiency","armor","armor_toughness","attack_damage","attack_speed","attack_knockback","knockback_resistance","sweeping_damage_ratio","fall_damage_multiplier","safe_fall_distance","oxygen_bonus","block_break_speed","mining_efficiency","submerged_mining_speed","luck","camera_distance");
-    private static final Set<String> NATIVE=Set.of("water_movement_efficiency","spawn_reinforcements","block_interaction_range","entity_interaction_range","follow_range","tempt_range","below_name_distance");
+    private static final Set<String> BOTH=Set.of("gravity","movement_efficiency","armor","armor_toughness","attack_damage","attack_speed","attack_knockback","knockback_resistance","sweeping_damage_ratio","fall_damage_multiplier","safe_fall_distance","oxygen_bonus","block_break_speed","mining_efficiency","submerged_mining_speed","luck","camera_distance");
+    private static final Set<String> NATIVE=Set.of("scale","water_movement_efficiency","spawn_reinforcements","block_interaction_range","entity_interaction_range","follow_range","tempt_range","below_name_distance");
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Attribute policy: "+why);}
     public static void run(GameController game){
         int checked=0;
@@ -38,7 +38,24 @@ public final class AttributePolicyChecks {
         require(cow.getMaxHealth()==2_000_000_000f&&cow.getHealth()==2_000_000_000f,"native source2b HP remains uncapped");
         cow.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(-1);require(cow.getAttributeValue(Attributes.MOVEMENT_SPEED)==0,"native speed minimum remains zero");
         cow.getAttribute(Attributes.GRAVITY).setBaseValue(-2);require(cow.getAttributeValue(Attributes.GRAVITY)==-2,"negative gravity remains unbounded");
-        cow.getAttribute(Attributes.SCALE).setBaseValue(-2);require(cow.getAttributeValue(Attributes.SCALE)==-2,"negative scale remains unbounded");
+        // Registry bounds apply after base values AND equipment/effect modifiers;
+        // previously stored out-of-range bases must not produce invalid hitboxes.
+        var scale=cow.getAttribute(Attributes.SCALE);
+        for(double value:new double[]{-2,0,.0625,.5,1,16,64,Double.MAX_VALUE}) {
+            scale.setBaseValue(value);cow.refreshDimensions();
+            require(cow.getAttributeValue(Attributes.SCALE)==Math.max(.0625,Math.min(16,value)),
+                    "native scale clamps saved/command bases: "+value);
+            require(cow.getBbWidth()>0&&cow.getBbHeight()>0&&Float.isFinite(cow.getBbWidth())&&Float.isFinite(cow.getBbHeight()),
+                    "native scale always produces positive finite dimensions");
+        }
+        scale.setBaseValue(1);
+        var scaleProbe=net.minecraft.resources.Identifier.parse("skywars2:scale_limit_probe");
+        for(double amount:new double[]{-100,100}) {
+            scale.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(scaleProbe,amount,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+            require(cow.getAttributeValue(Attributes.SCALE)==(amount<0?.0625:16),"final modified scale retains vanilla bounds");
+            scale.removeModifier(scaleProbe);
+        }
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(owner!=null,"native player attack speed probe");
         var speed=owner.getAttribute(Attributes.ATTACK_SPEED);double saved=speed.getBaseValue();var modifiers=List.copyOf(speed.getModifiers());var permanent=Set.copyOf(speed.getPermanentModifiers());
         try{speed.removeModifiers();speed.setBaseValue(0);require(owner.getCurrentItemAttackStrengthDelay()==Float.POSITIVE_INFINITY,"zero attack speed uses native floating division");speed.setBaseValue(-4);require(owner.getCurrentItemAttackStrengthDelay()==-5,"negative attack speed remains finite without integer division failure");}

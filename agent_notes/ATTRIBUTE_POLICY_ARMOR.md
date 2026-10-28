@@ -1,3 +1,5 @@
+> (user, 28 October 2026) `scale` now keeps BOTH vanilla bounds: **0.0625..16**. This supersedes the earlier request to unbind scale; other attribute policies remain unchanged.
+
 # Selective native attributes and extended armor
 
 The user replaces the previous global RangedAttribute bypass with an explicit

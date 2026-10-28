@@ -1,3 +1,5 @@
+> (user, 28 October 2026) `scale` now keeps BOTH vanilla bounds: **0.0625..16**. This supersedes the earlier request to unbind scale; other attribute policies remain unchanged.
+
 # Attribute decisions, 25 October 2026
 
 These user decisions supersede the former blanket attribute limit removal.

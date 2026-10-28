@@ -10,7 +10,7 @@ public final class AttributePolicy {
     private static final Set<String> UPPER_ONLY=Set.of("movement_speed","flying_speed","jump_strength","step_height",
             "sneaking_speed","friction_modifier","air_drag_modifier","bounciness","max_health","max_absorption",
             "burning_time","name_tag_distance","waypoint_transmit_range","waypoint_receive_range");
-    private static final Set<String> BOTH=Set.of("gravity","scale","movement_efficiency","armor","armor_toughness",
+    private static final Set<String> BOTH=Set.of("gravity","movement_efficiency","armor","armor_toughness",
             "attack_damage","attack_speed","attack_knockback","knockback_resistance","sweeping_damage_ratio","fall_damage_multiplier",
             "safe_fall_distance","oxygen_bonus","block_break_speed","mining_efficiency","submerged_mining_speed","luck","camera_distance");
     public record Bounds(double minimum,double maximum){}

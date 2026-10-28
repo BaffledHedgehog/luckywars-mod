@@ -1,3 +1,19 @@
+## Restore vanilla scale bounds - QUALIFIED, INSTALL QUEUED (28 October 2026)
+
+(user) scale must keep the vanilla0.0625..16 range; supersedes earlier unbinding.
+Remove only scale from AttributePolicy.BOTH; native getters/sanitization now
+apply both limits, including final equipment/effect modifiers and old saved bases.
+Existing40-attribute registry check updated: negative/zero/large/finite endpoints,
+positive finite native hitboxes and modifier-100/+100 boundary regression.
+Build8ce5423f passed16results in2actual native matches (39.61s):
+attribute-policy, negative-attributes, signed-effects-math, effect-layers and menus.
+Exact547sources/1555classes/3232resources;198author paths/29overrides preserved;
+normal owned-child shutdown and exact fixture snapshots restored. No RP changes.
+Installer9968 waits main normal stop/world unlock to replace77354937 automatically;
+evidence build/verification/scale-vanilla/. A following wall-raycast repair may
+supersede this queued artifact; keep scale in the new candidate and rerun its check.
+Earlier entries below are historical.
+
 ## Void Overworld and progressive chunk delivery - QUALIFIED, INSTALLED (28 October 2026)
 
 [Source/runtime diagnosis and native proof](agent_notes/OVERWORLD_VOID_AND_STREAMING_2026_10_28.md).
