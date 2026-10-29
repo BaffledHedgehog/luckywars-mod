@@ -1,3 +1,24 @@
+## Witch authority passives - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Source behavior, shared-state repair and exact native proof](agent_notes/WITCH_PASSIVES_PORT_2026_10_29.md).
+LbcWitchPassives stages native Greed global loaded-heart activation/own heal/source
+modifier IDs/precise destroy/cleanse/void rescue/heartbeat, and Lust source regen/
+canonical falltimer plus source beacon gate/cooldown drains. Reuses absolute
+Greed guard/native effects and existing status/counter owners, no second engine.
+Psycho existing-status cleanup now distinguishes cleansing artifacts from Greed
+incoming immunity: existing Piss pauses, new incoming grants still reject.
+Source heart gate uses native unbounded GLOBAL @e; distance selectors stay local.
+Existing authority/role/dimension/TimeStop admission; undecided suppression remains
+literal source and is recorded in PENDING_QUESTIONS. No Witch acquisition/other
+authorities/active summon/checkpoint or complete Greed/Lust family claim.
+Buildc9e0794d passed10gameplay+5setup/1actualmode1match/44.01s;602sources/1741classes/
+3411resources+build.gradle5755 exact;198authorpaths/31overrides/main unchanged.
+Normalchildshutdown/exactsnapshots;666 normalized diagnostics identical to prior
+797a3cd1, no additions/removals. No client/network/peakTPS/full-source qualification.
+Full original25 Chaos transitive gate stays; main d9087f0a. No staged install.
+Next: bridge real score owners for Envy/Vanity; remaining Witch acquisition,
+authorities, actors, lifecycle and original reward chains. Keep goal active.
+
 ## Captured physical projectiles - NATIVE FOLLOW-UP, NOT RELEASED (29 October 2026)
 
 [Exact shared repair and bounded native proof](agent_notes/SOURCE_PROJECTILE_FOLLOWUP_2026_10_29.md).

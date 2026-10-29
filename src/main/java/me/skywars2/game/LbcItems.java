@@ -221,6 +221,7 @@ public final class LbcItems {
     private final LbcApocalypseEvents apocalypseEvents;
     private final LbcApocalypseActors apocalypseActors;
     private final LbcShishEncounter shishEncounter;
+    private final LbcWitchPassives witchPassives;
     private final LbcChaosTrapActors chaosTrapActors;
     private final LbcSauvojenBoss sauvojenBoss;
     private final LbcInfinity infinity;
@@ -844,6 +845,7 @@ public final class LbcItems {
         this.apocalypseEvents = new LbcApocalypseEvents(game);
         this.apocalypseActors = new LbcApocalypseActors(game);
         this.shishEncounter = new LbcShishEncounter(game);
+        this.witchPassives = new LbcWitchPassives(game);
         this.chaosTrapActors = new LbcChaosTrapActors(game);
         this.sauvojenBoss = new LbcSauvojenBoss(game);
         this.infinity = new LbcInfinity(game);
@@ -1071,6 +1073,7 @@ public final class LbcItems {
     public LbcApocalypseEvents apocalypseEvents(){return apocalypseEvents;}
     public LbcApocalypseActors apocalypseActors(){return apocalypseActors;}
     public LbcShishEncounter shishEncounter(){return shishEncounter;}
+    public LbcWitchPassives witchPassives(){return witchPassives;}
     public LbcChaosTrapActors chaosTrapActors() { return chaosTrapActors; }
     public LbcSauvojenBoss sauvojenBoss() { return sauvojenBoss; }
     public LbcInfinity infinity() { return infinity; }
@@ -1727,7 +1730,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
-        timeStop.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
+        timeStop.tick();witchPassives.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();
         skyHazards.tick();
         lightningAcquisition.tick();
@@ -1993,7 +1996,7 @@ public final class LbcItems {
         incomingArtifacts.forget(player);
         shulkerArmor.forget(player);
         armorSets.forget(player);
-        spellSources.forget(player);apocalypseEvents.forget(player);apocalypseActors.forget(player);shishEncounter.forget(player);
+        witchPassives.forget(player);spellSources.forget(player);apocalypseEvents.forget(player);apocalypseActors.forget(player);shishEncounter.forget(player);
         sauvojenBoss.forget(player);
         infinity.forget(player);
         aimbobRewards.forget(player);
@@ -2117,7 +2120,7 @@ public final class LbcItems {
         edibleSpells.stop();
         nukeEvent.stop();foodLifecycle.stop();oreshek.stop();legacyEffects.stop();
         foodStatuses.stop();
-        apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();
+        witchPassives.stop();apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();
         pisaDrops.stop();
         antigravity.stop();
         ultraponos.stop();

@@ -1,5 +1,10 @@
 # Witch Generals source closure, 29 October 2026
 
+Subsequent root work: [Greed/Lust passive stage and bounded native proof](WITCH_PASSIVES_PORT_2026_10_29.md).
+This does not implement acquisition or the other authority/actor/checkpoint paths.
+Scope correction: unbounded native `@e` in greed_tick searches loaded dimensions
+globally; the historical "current-dimension" shorthand below is not a world limit.
+
 Audit only; no native implementation, gameplay qualification or producer readiness claim. Original full25 Chaos pool and full dependency release gate remain. Existing author paths, overrides, resource pack and source data are read-only.
 
 Source root: `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/`. Function paths below are relative to `lbc/function/`; reward paths to `lbc/loot_table/`. This audit covers the shared acquisition and seven authorities. Detailed whale/snake/rabbit/invisible-hand actor algorithms belong to the separate actor audit and are not replaced by generic actors here.

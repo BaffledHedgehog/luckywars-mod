@@ -405,7 +405,7 @@ public final class LbcPsycho {
         for(var entry:List.copyOf(effects.entrySet())) {
             var entity=entry.getKey(); var effect=entry.getValue();
             if(!entity.isAlive() || entity.isRemoved() || !game.items().currentEpoch(effect.epoch)
-                    || entity.level()!=game.maps().level()&&!effect.persistentPiss || entity instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)
+                    || entity.level()!=game.maps().level()&&!effect.persistentPiss || entity instanceof ServerPlayer player && game.items().magic().cleansesCustomEffects(player)
                     || entity.isSpectator() || entity.entityTags().contains("spectator")) { removeEffect(entity); continue; }
             if(LbcGreed.active(entity) || game.items().wands().timeStopped() || entity.entityTags().contains("time_stopped") || game.items().frost().isFrozen(entity)) continue;
             if(entity instanceof ServerPlayer player && effect.forcedItem!=null) {
