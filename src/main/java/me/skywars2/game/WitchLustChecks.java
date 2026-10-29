@@ -37,13 +37,14 @@ public final class WitchLustChecks {
             var objective=game.server().getScoreboard().getObjective("lbc.math");var score=objective==null?null:game.server().getScoreboard().getPlayerScoreInfo(luck,objective);oldLuck=score==null?null:score.value();
             var cells=new ArrayList<BlockPos>();for(var pos:BlockPos.betweenClosed(base.center.offset(-16,-4,-16),base.center.offset(16,12,16)))cells.add(pos.immutable());terrain=game.items().indirectKills().captureTerrain(base.owner.level(),cells);
         }
-        void init(){base.init();base.move(base.owner,base.at);base.move(base.other,base.at.add(12,0,0));game.config().offhandWands=true;
+        void init(){base.init();base.move(base.owner,base.at.add(-12,0,0));base.move(base.other,base.at.add(12,0,0));game.config().offhandWands=true;
             for(var p:List.of(base.owner,base.other)){p.entityTags().removeAll(Set.of("sin_lust","nomagic_active","sin_greed_active","spectator"));p.setShiftKeyDown(false);}
             flesh=game.lbc().rollTable(base.owner.level(),base.at,base.owner,"lbc:lust_get").stream().filter(LbcWitchLust::matches).findFirst().orElseThrow();
             require(flesh.is(Items.CARROT_ON_A_STICK)&&flesh.get(DataComponents.ITEM_MODEL).equals(Identifier.parse("lbc:metamorph_flesh"))&&LbcFartus.data(flesh).getIntOr("magicwand",0)==1,"actual source Flesh payload");
             flesh.setCount(2);base.owner.setItemInHand(InteractionHand.MAIN_HAND,flesh.copy());base.owner.setItemInHand(InteractionHand.OFF_HAND,flesh.copy());base.owner.setOnGround(false);
             require(!input(InteractionHand.MAIN_HAND)&&!input(InteractionHand.OFF_HAND)&&service.snapshot().isEmpty(),"both hands require actual authority");base.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);base.owner.entityTags().add("sin_lust");resetCooldowns();
             swapTarget=base.cow(base.at.add(4,0,0));for(var level:game.server().getAllLevels())for(var e:level.getAllEntities())if(e!=swapTarget&&e.entityTags().add("owner"))owners.add(e);
+            jammer=jammer("stopper_magic");jammer.setPos(base.at.add(12,0,0));game.items().magic().unloaded(jammer);game.items().magic().loaded(jammer);
             start=mark=game.server().getTickCount();
         }
         boolean input(InteractionHand hand){return net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(base.owner,base.owner.level(),hand).consumesAction();}
@@ -51,7 +52,12 @@ public final class WitchLustChecks {
         void luck(int value){var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");require(objective!=null,"native math objective");board.getOrCreatePlayerScore(luck,objective,true).set(value);}
         void restoreLuck(){var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");if(objective!=null){if(oldLuck==null)board.resetSinglePlayerScore(luck,objective);else board.getOrCreatePlayerScore(luck,objective,true).set(oldLuck);}}
         void swap(){base.owner.setOnGround(true);base.owner.setDeltaMovement(new Vec3(.17,.23,-.31));swapTarget.setDeltaMovement(new Vec3(-.2,.12,.08));var from=base.owner.position();var dest=swapTarget.position();
-            var a=base.owner.getDeltaMovement();var b=swapTarget.getDeltaMovement();require(input(InteractionHand.MAIN_HAND),"grounded raw Flesh selects its native random target");
+            var a=base.owner.getDeltaMovement();var b=swapTarget.getDeltaMovement();
+            require(!game.items().magic().suppressed(base.owner)&&game.items().magic().suppressedAt(base.owner.level(),swapTarget.position()),"only target is inside actual antimagic area");
+            int mana=game.items().mana().get(base.owner);require(!input(InteractionHand.MAIN_HAND)&&base.owner.position().equals(from)&&swapTarget.position().equals(dest)
+                    &&base.owner.getDeltaMovement().equals(a)&&swapTarget.getDeltaMovement().equals(b)&&game.items().mana().get(base.owner)==mana,"protected target cannot swap or change either momentum when caster is outside");
+            clearJammer();require(!game.items().magic().suppressedAt(base.owner.level(),swapTarget.position()),"actual target protection ends after jammer removal");
+            require(input(InteractionHand.MAIN_HAND),"grounded raw Flesh selects its native random target after antimagic ends");
             require(base.owner.position().distanceTo(dest)<1e-6&&swapTarget.position().distanceTo(from)<1e-6,"real feet positions swap");
             require(base.owner.getDeltaMovement().equals(a)&&swapTarget.getDeltaMovement().equals(b)&&service.snapshot().isEmpty(),"swap preserves BOTH velocities and grounded use creates no dragon");
             for(var e:owners)e.entityTags().remove("owner");owners.clear();swapTarget.discard();base.move(base.owner,base.at);

@@ -9,6 +9,10 @@ could run both branches on the ground.
 (user) «Завершать превращение в антимагии» — an existing Lust dragon is retired
 when the controller or the dragon enters antimagic. TECH does not affect it.
 
+(user) «Да, защищать цель внутри антимагии» — swap candidates inside antimagic
+are excluded even when the caster is outside. Use the shared suppression query
+at the target's actual position and dimension, covering beacons and artifacts.
+
 The previously approved current authority holder owns control and future attacks.
 An accepted child retains its historical causal author. The rider must be hidden
 from other viewers and safe from its own dragon's native contact damage/push.
@@ -30,7 +34,7 @@ free-wand success callback without paid Mage maximum-mana growth.
 
 Grounded ordinary use keeps the native GLOBAL random `#minecraft:mobs` selector
 and the original `!owner`/`!spectator` exclusions, with shared protected-role,
-Greed and concealed-polymorph guards. Allies may swap. Position and rotation
+Greed, concealed-polymorph and target antimagic guards. Allies may swap. Position and rotation
 exchange through native teleport APIs; each entity keeps its own velocity.
 Cross-dimension mob teleport uses the returned native replacement identity and
 a zero relative velocity delta, avoiding double addition of its old momentum.
@@ -78,10 +82,10 @@ message/clear1/authority transfer order, real Flesh loot and original advancemen
 Only Vanity acquisition remains disconnected pending its full checkpoint.
 Offline/cross-restart authority reconciliation is not declared complete here.
 
-One optional source-policy question was sent in CHAT: whether a randomly selected
-swap target inside antimagic should be protected. Pending an answer, the exact
-source rule remains: only caster antimagic blocks the swap. HP theft protects
-the target as already approved; the new dragon retirement rule is implemented.
+The CHAT question about swap-target antimagic is answered and implemented.
+Protected entities are excluded from the random candidate pool. If no unprotected
+candidate remains, neither participant moves and the use emits no successful
+cast bonus. HP theft target protection and dragon retirement remain unchanged.
 
 ## Resources and source
 
@@ -150,3 +154,21 @@ animation is still native; only explicit retirement immediately discards it.
 All199 protected author paths,31 live loot overrides and installed main JAR must
 match the pre-stage baseline. The final receipt records normal child shutdown,
 exact fixture snapshot restoration, no retained locks and no main deployment.
+
+## Swap target protection follow-up
+
+Follow-up artifact SHA256:
+`0343e64cc74b9dbfab2c1d2c4a4a58ca32e62b79a47f6bc172d759bf7e9a4a95`.
+Offline build and the full focused `witch-lust` scenario passed in one native
+mode1 match (28.57seconds including setup). The new regression places the caster
+24 blocks from the jammer and its sole candidate8 blocks from it, proving target
+protection independently of caster admission. Rejected use preserves both
+positions, both momenta and mana. Removing the actual jammer permits the same
+raw input to swap immediately; all previous Lust fixture modes still pass.
+
+The11047 frozen inputs and5237 packaged entries match this exact tested artifact.
+199 author paths/31 live overrides/main d9087f0a remain unchanged; normal child
+shutdown, exact fixture restoration and no retained locks are recorded in
+`build/verification/witch-lust-swap/final-audit.json`. No additional RP assets,
+main installation, restart, push or question-file edit. This focused follow-up
+does not relabel the earlier12-suite artifact or open the full Chaos release gate.

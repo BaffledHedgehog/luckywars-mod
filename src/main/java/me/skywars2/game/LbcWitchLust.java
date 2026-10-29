@@ -56,7 +56,8 @@ public final class LbcWitchLust {
     private boolean positive(ServerPlayer p,String name){Integer n=new LbcSourceCounters(game).read(p,name);return n!=null&&n>0;}
     private boolean swap(ServerPlayer p){
         var targets=select(p.level(),p.position(),"@e[type=#minecraft:mobs,tag=!spectator,tag=!owner,sort=random]").stream()
-                .filter(e->e!=p&&game.items().wands().validRoleTarget(e,false)&&!game.items().polymorph().concealed(e)&&!LbcGreed.active(e)).toList();
+                .filter(e->e!=p&&game.items().wands().validRoleTarget(e,false)&&!game.items().polymorph().concealed(e)&&!LbcGreed.active(e)
+                        &&!game.items().magic().suppressedAt((ServerLevel)e.level(),e.position())).toList();
         if(targets.isEmpty())return false;var target=targets.getFirst();var from=p.position();var dest=target.position();var destination=(ServerLevel)target.level();
         var level=p.level();float yaw=p.getYRot(),pitch=p.getXRot();var motion=p.getDeltaMovement();
         try{p.teleportTo(destination,dest.x,dest.y,dest.z,TeleportMomentum.positionFlags(Set.of()),target.getYRot(),target.getXRot(),true);}

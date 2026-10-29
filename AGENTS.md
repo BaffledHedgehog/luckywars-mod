@@ -1,3 +1,14 @@
+## Lust swap target antimagic - NATIVE FOLLOW-UP (29 October 2026)
+
+(user) Protect the swap TARGET inside antimagic even when caster is outside.
+Shared target-world/position suppression query filters the native random pool.
+0343e64c build/focused witch-lust passed one actualmode1 match28.57s, including
+caster-outside/target-inside, unchanged both positions/momenta/mana on rejection
+and immediate normal swap after actual jammer removal.11047 inputs/5237 entries.
+199 author paths/31 overrides/main d9087f0a preserved; normalchildexit/exact
+snapshots/no locks. No maininstall/restart/push/RP edits. Full25 Chaos gate CLOSED.
+CHAT question resolved; see WITCH_LUST_PORT_2026_10_29.md follow-up evidence.
+
 ## Active Lust - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Source decisions and exact native proof](agent_notes/WITCH_LUST_PORT_2026_10_29.md).
@@ -14,7 +25,7 @@ archived; isolated, Envy-adjacent and final combined controls passed unchanged.
 snapshots/no locks. Existing author RP model/keys reused, no new template assets.
 Full original25 Chaos gate CLOSED; no maininstall/restart/push/questionfileedit.
 Next: FULL Vanity world/all-player/core rewind and authority offline reconciliation.
-Optional swap-target antimagic question sent in CHAT; source policy kept meanwhile.
+Swap-target antimagic question ANSWERED/implemented in the follow-up above.
 
 ## Witch acquisition - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
