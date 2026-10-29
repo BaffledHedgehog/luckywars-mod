@@ -28,7 +28,8 @@ public final class PolymorphChecks {
         final Map<net.minecraft.world.scores.Objective,Integer> scores=new LinkedHashMap<>();
         final List<Entity> own=new ArrayList<>();
         final LbcApocalypseEvents.Authority authority;
-        Cow cow;LbcWtf.Chef chef;Sheep cowBody,chefBody,playerBody;LbcPolymorph.Orb probe;
+        Cow cow;LbcWtf.Chef chef;Sheep cowBody,chefBody,playerBody,otherBody;LbcPolymorph.Orb probe;
+        final Map<UUID,Integer> lives=new LinkedHashMap<>();int allSheepTicks,partSheepTicks;
         ItemStack savedItem;int phase,at,start,scared;long launches;double speed,scale;float health;boolean stopped,closed;
         Fixture(GameController game){this.game=game;base=new ChefChecks.Fixture(game);service=game.items().polymorph();client=new ShishEncounterChecks.Client(game,base.owner);
             for(var objective:game.server().getScoreboard().getObjectives()){var score=game.server().getScoreboard().getPlayerScoreInfo(base.owner,objective);if(score!=null)scores.put(objective,score.value());}
@@ -38,6 +39,8 @@ public final class PolymorphChecks {
         private final Map<PlayerStat,Integer> entityStats=new LinkedHashMap<>();
         private record PlayerStat(ServerPlayer player,net.minecraft.stats.Stat<net.minecraft.world.entity.EntityType<?>> stat){}
         void init(){base.init();require(service.count()==0&&service.orbs().isEmpty()&&service.volleyCount()==0,"exclusive empty polymorph service");
+            require(game.alivePlayers().size()==2&&game.alivePlayers().containsAll(List.of(base.owner,base.other)),"exactly two real remaining match participants");
+            for(var p:game.alivePlayers())lives.put(p.getUUID(),game.lives(p.getUUID()));
             for(var p:List.of(base.owner,base.other))for(var type:net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE){var stat=net.minecraft.stats.Stats.ENTITY_KILLED.get(type);entityStats.put(new PlayerStat(p,stat),p.getStats().getValue(stat));}
             cow=base.cow(base.at.add(-6,0,2));cow.setCustomName(Component.literal("keep original identity"));cow.setHealth(13);cow.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,new ItemStack(Items.EMERALD,3));cow.addEffect(new MobEffectInstance(MobEffects.SPEED,1000,2));
             var target=base.cow(base.at.add(-3,0,6));chef=base.spawn(base.owner,target);chef.receive(20);chef.setPos(base.at.add(-3,0,2));
@@ -58,21 +61,32 @@ public final class PolymorphChecks {
             client.ack();
             client.listener.handleMovePlayer(new net.minecraft.network.protocol.game.ServerboundMovePlayerPacket.PosRot(p.position().add(.15,0,.1),70,15,false,false));
             require(Math.abs(p.getYRot()-70)<.01&&Math.abs(p.getXRot()-15)<.01,"native move packet preserves free controller look");p.setDeltaMovement(new Vec3(.05,0,.02));
-            require(p.hurtServer(p.level(),p.damageSources().generic(),2)&&playerBody.getHealth()==6,"damage to human shell reaches actual sheep HP");
+            require(p.hurtServer(p.level(),p.damageSources().generic(),2)&&playerBody.getHealth()==6&&p.getHealth()==6,"human shell damage synchronizes both HP immediately, before the next tick");
             p.attack(cowBody);require(cowBody.getHealth()==8,"real native player melee is blocked in sheep form");
             var before=p.getDeltaMovement();playerBody.push(p);require(p.getDeltaMovement().equals(before),"sheep cannot push its human controller");
             playerBody.setInvulnerableTime(0);playerBody.damageCooldownTime=0;
             require(playerBody.hurtServer(p.level(),p.damageSources().playerAttack(base.other),1)&&!p.getDeltaMovement().equals(before),"real body attack transfers its external impulse without replacing controller velocity");
+            require(p.getHealth()==playerBody.getHealth()&&p.getHealth()==5,"body damage synchronizes human HP in the same native call");
+            playerBody.heal(2);require(p.getHealth()==7&&p.getHealth()==playerBody.getHealth(),"native sheep healing synchronizes human HP immediately");
+            p.heal(10);require(p.getHealth()==7,"human food/healing cannot desynchronize sheep HP");
             game.items().timeStop().begin(p.level(),100);stopped=true;start=at=game.server().getTickCount();
         }
         boolean step(){client.ack();int now=game.server().getTickCount();require(now-start<650,"bounded real-tick fixture");
-            if(phase==0){require(service.remaining(cow)==200&&service.remaining(base.owner)==200,"real stopped ticks pause all forms");if(now-at<5)return false;game.items().timeStop().end(base.owner.level());stopped=false;phase=1;at=now;return false;}
+            if(phase<=1){
+                require(game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.alivePlayers().size()==2,"match continues with some or all remaining players polymorphed");
+                for(var p:List.of(base.owner,base.other))require(game.alivePlayers().contains(p)&&game.lives(p.getUUID())==lives.get(p.getUUID())&&!game.awaitingRespawn(p.getUUID()),"sheep remains the same living participant without consuming a life");
+                if(service.active(base.owner))require(base.owner.getHealth()==playerBody.getHealth(),"participant HP equals sheep HP throughout active form");
+                if(service.active(base.other)){require(base.other.getHealth()==otherBody.getHealth(),"second participant HP equals sheep HP");allSheepTicks++;}else if(service.active(base.owner))partSheepTicks++;
+            }
+            if(phase==0){require(service.remaining(cow)==200&&service.remaining(base.owner)==200,"real stopped ticks pause all forms");if(now-at<5)return false;game.items().timeStop().end(base.owner.level());stopped=false;
+                otherBody=service.transform(base.other,authority.cause());require(otherBody!=null&&service.count()==4&&game.alivePlayers().stream().allMatch(service::active),"every remaining real player becomes a sheep");phase=1;at=now;return false;}
             if(phase==1){
                 if(service.active(base.owner)){
                     require(base.owner.getActiveEffects().isEmpty()&&game.items().psycho().hudValue(base.owner,"scared")==scared,"native old effects and custom Scared remain suspended");
                     require(Math.abs(playerBody.getYRot()-base.owner.getYRot())<.01,"sheep copies controller look");return false;
                 }
                 require(now-at>=200,"ordinary polymorph lasts200 actual non-stopped ticks");
+                require(!service.active(base.other)&&otherBody.isRemoved()&&base.other.getHealth()==20&&allSheepTicks>=190&&partSheepTicks>=5,"both participants return after a whole natural all-sheep interval, without ending the match");
                 require(!service.active(cow)&&!service.active(chef)&&!cow.isRemoved()&&!chef.isRemoved()&&cowBody.isRemoved()&&chefBody.isRemoved(),"same cow and Chef return after natural expiry: cow="+cow.isRemoved()+" chef="+chef.isRemoved()+" cowBody="+cowBody.isRemoved()+" chefBody="+chefBody.isRemoved()+" timers="+service.remaining(cow)+"/"+service.remaining(chef)+" bodies="+cowBody.position()+"/"+chefBody.position()+" target="+chef.target.isAlive()+" owner="+base.owner.isAlive());
                 require(cow.getHealth()==13&&cow.getCustomName().getString().equals("keep original identity")&&cow.getMainHandItem().getCount()==3,"original HP/name/equipment preserved");
                 require(base.service.stasis(chef)>=198,"Chef knock clock stayed paused");
@@ -112,5 +126,5 @@ public final class PolymorphChecks {
     }
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.init();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}SkyWars2.LOGGER.info("[check] START polymorph");}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS polymorph (natural200tick cow/Chef/player identity and layered status restoration, death boundary, MAG, actual End49 volleys, native wall crossing and100tick orb lifetime)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL polymorph",error);}}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS polymorph (immediate shared HP, all remaining real participants sheep for200ticks without match end, natural cow/Chef/player identity and layered restoration, death boundary, MAG, End49 volleys, wall crossing and100tick orb lifetime)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL polymorph",error);}}
 }

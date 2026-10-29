@@ -80,3 +80,36 @@ Full original25 Chaos transitive release gate stays CLOSED. No main install,
 restart, push, author-question-file edit or old-JAR deletion. Remaining Witch
 acquisition/Indolence/Lust/full Vanity work is unchanged; do not narrow the
 world+all-player+core Vanity contract to a player-NBT-only checkpoint.
+
+## Immediate HP and all-sheep match follow-up
+
+(user) During temporary polymorph, human HP equals sheep HP. A match must not
+finish merely because all or almost all living participants became sheep.
+
+The previous native suite verified the sheep damage but not immediate human HP
+in the same call. The old tick-only copy left a short stale-health interval.
+Body.setHealth now mirrors every native HP change immediately, including healing
+and zero HP. On accepted lethal body damage, the existing finish/restoration and
+native player death callback run before hurtServer returns. The normal original
+HP restoration precedes the inherited lethal hit, so the already-zero mirrored
+HP cannot suppress the native die/life accounting. No death engine was replaced.
+
+GameController victory already counts registered participants with lives and
+observer roles, not wands.validTarget or visible mob identities. It needed no
+formula change. The expanded natural fixture verifies a partial-sheep interval,
+then both remaining native players as sheep for the full200tick lifetime, stable
+lives/participant identities, matching HP and successful return without match end.
+The separate polymorph-death scenario exercises actual lethal native body damage,
+exactly one life/death/attributed kill, the PERFORM_RESPAWN packet and replacement
+ServerPlayer, and continued two-player gameplay. This closes the earlier narrow
+replacement-player-death proof gap, not every possible death/latency combination.
+
+Candidate59df476169559d7a71de2de38aebd05f86c5ec931d9c25136656386932838b70
+passed polymorph, sheep, chef-execution, effect-layers and polymorph-death in an
+actual mode1 match (47.41s runner total). Build succeeded offline. Frozen11010
+inputs and5211 JAR entries match. Normal owned-child shutdown, exact fixture
+snapshots restored, no retained locks;199 author paths/31 live loot overrides and
+main d9087f0a unchanged. Evidence: build/verification/polymorph-hp/final-audit.json,
+59df4761-native.log,59df4761-results.json and inputs-59df4761.json.
+No RP changes or physical-client rendering/network-latency claim. Main release
+still waits for the full original25 Chaos transitive chain; no install/restart/push.

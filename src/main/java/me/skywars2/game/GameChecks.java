@@ -943,6 +943,7 @@ public final class GameChecks {
                                 case "soulhunter-stop-probe" -> { SoulhunterChecks.stopProbe(game); return; }
                                 case "soulhunter-cleanup" -> { SoulhunterChecks.cleanup(game); return; }
                                 case "polymorph" -> { PolymorphChecks.run(game); return; }
+                                case "polymorph-death" -> { PolymorphDeathChecks.run(game); return; }
                                 case "chef-execution" -> { ChefExecutionChecks.run(game); return; }
                                 case "chef" -> { ChefChecks.run(game); return; }
                                 case "chef-natural" -> { ChefChecks.startNatural(game); return; }

@@ -1,3 +1,21 @@
+## Polymorph HP and all-sheep match follow-up - NATIVE STAGE (29 October 2026)
+
+(user) Player HP must equal sheep HP during polymorph; transforming all/almost
+all remaining participants must not finish the match.
+Body native setHealth now immediately mirrors the player HP, including accepted
+body/shell damage and body healing; lethal body damage resolves the existing
+player death/lives pipeline before returning to its caller. No second death engine.
+GameController already counts participant lives/roles, not visible sheep targets;
+its victory formula is unchanged. Natural200tick all-sheep match and preceding
+partial-sheep interval passed. Actual lethal body attack spent exactly one life,
+credited one kill/death, then PERFORM_RESPAWN created the ordinary replacement
+player and the two-player match continued. This extends the earlier proof limit.
+59df4761 passed5 gameplay suites in one actual mode1 match47.41s;
+11010 frozen inputs/5211 JAR entries,199 protected paths/31 loot overrides and
+main d9087f0a unchanged. Normal child exit/exact snapshots/no retained locks.
+Evidence: build/verification/polymorph-hp/final-audit.json and59df4761 logs.
+Full original25 Chaos release gate remains CLOSED; no main install/restart/push.
+
 ## Polymorph and Magnesia - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Author decisions, implementation and exact proof](agent_notes/POLYMORPH_PORT_2026_10_29.md).

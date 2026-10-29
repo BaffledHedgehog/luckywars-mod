@@ -71,6 +71,11 @@ public final class LbcPolymorph {
     private static final class Body extends Sheep {
         private DamageSource lastHit;private int lastHitTick=Integer.MIN_VALUE;private boolean redirected,lastRedirected;
         Body(ServerLevel level){super(EntityTypes.SHEEP,level);setPersistenceRequired();}
+        @Override public void setHealth(float health){
+            super.setHealth(health);
+            var game=me.skywars2.SkyWars2.game();var form=game==null?null:game.items().polymorph().bodies.get(this);
+            if(form!=null&&form.original instanceof ServerPlayer player)player.setHealth(getHealth());
+        }
         @Override public boolean hurtServer(ServerLevel level,DamageSource source,float amount){
             int now=level.getServer().getTickCount();if(source==lastHit&&now==lastHitTick&&redirected!=lastRedirected)return false;
             var before=getDeltaMovement();boolean result=super.hurtServer(level,source,amount);
@@ -79,6 +84,9 @@ public final class LbcPolymorph {
                 if(form!=null&&form.original instanceof ServerPlayer player){var impulse=getDeltaMovement().subtract(before);
                     if(impulse.lengthSqr()>1e-12){player.addDeltaMovement(impulse);player.needsSync=true;player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));}
                 }
+                // Resolve native player death before returning to the attack caller. The
+                // saved human HP is restored by finish before the existing death pipeline.
+                if(form!=null&&!isAlive())game.items().polymorph().finish(form,true);
             }return result;
         }
         @Override public boolean shouldBeSaved(){return false;}
