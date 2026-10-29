@@ -1,3 +1,24 @@
+## Gluttony actors ? NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Implementation, decisions and exact proof](agent_notes/WITCH_GLUTTONY_PORT_2026_10_29.md).
+(user) Random eligible snake target; ONE rabbit/snake summon per use.
+(user) ZERO initial snake-head rotation; first fragment randomly activates HEAD,
+leaving that first child zero/unactivated. Preserve this legacy sequence.
+Native rabbit Type99/reproduction100, snake head/fragments79/sculk/WILD curses,
+actual Ghast5400/54000/Power30,3clones15000/HPsync,100tick continuing fog are staged.
+Raw main/offhand uses common wand dispatch/rays, terrain/effects/control/cause.
+GLOBAL native no-distance actor gates remain global. Common Summons leaves
+persistent native children with SpellSource; current holder owns future attacks,
+accepted old projectile causes persist. No fake author or duplicated terrain.
+5ed6d2dd passed12gameplay suites in2 actualmode1 matches58.52s/38.94s;10986
+exact source/processed inputs. Test snapshot119712cells causes ~14s child SETUP
+stall; no production peakTPS or natural long-range flight/client proof claimed.
+199dirty/31overrides/main preserved; normal owned-child shutdown/exact snapshots.
+Full original25 Chaos gate stays CLOSED; main d9087f0a, no staged install/restart.
+All three new snake/ray questions answered in CHAT; pending question file untouched.
+Next: Indolence/Lust active families, acquisition/remaining authorities and FULL
+Vanity world+all-player+core rewind, never a player-NBT-only checkpoint.
+
 ## Wrath and melee-only Witch progress - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Implementation and exact proof](agent_notes/WITCH_WRATH_MELEE_PORT_2026_10_29.md).

@@ -479,6 +479,7 @@ public final class LbcSummons {
             if(actor!=null) consequences.put(entity,actor.getUUID());
         }
         if(entity instanceof Projectile projectile) {
+            if(game.items().spellSources().persistent(entity))return;
             var owner=owner(projectile.getOwner());
             if(owner!=null) {
                 var pickup=projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow?arrow.pickup:null;

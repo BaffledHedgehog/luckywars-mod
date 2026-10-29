@@ -818,6 +818,7 @@ public final class GameChecks {
                                 case "witch-passives" -> { WitchPassiveChecks.run(game); return; }
                                 case "witch-envy" -> { WitchEnvyChecks.run(game); return; }
                                 case "witch-progress" -> { WitchProgressChecks.run(game); return; }
+                                case "witch-gluttony" -> { WitchGluttonyChecks.run(game); return; }
                                 case "witch-wrath" -> { WitchWrathChecks.run(game); return; }
                                 case "apocalypse-actors" -> { ApocalypseActorChecks.run(game); return; }
                                 case "apocalypse-events" -> { ApocalypseEventChecks.run(game); return; }
@@ -1371,7 +1372,7 @@ public final class GameChecks {
             RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
-            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);
+            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);
