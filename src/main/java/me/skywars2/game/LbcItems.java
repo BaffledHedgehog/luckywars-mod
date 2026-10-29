@@ -131,6 +131,7 @@ public final class LbcItems {
 
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
+        shishEncounter.damaged(victim,source);shishEncounter.incoming(victim);
         armorSets.phantom().damaged(victim,source);
         armorSets.nyauwu().damaged(victim,source);
         stand.onAcceptedDamage(victim,source);
@@ -217,6 +218,9 @@ public final class LbcItems {
     private final LbcArmorSets armorSets;
     private final LbcChaosTraps chaosTraps;
     private final LbcSpellSource spellSources;
+    private final LbcApocalypseEvents apocalypseEvents;
+    private final LbcApocalypseActors apocalypseActors;
+    private final LbcShishEncounter shishEncounter;
     private final LbcChaosTrapActors chaosTrapActors;
     private final LbcSauvojenBoss sauvojenBoss;
     private final LbcInfinity infinity;
@@ -562,7 +566,7 @@ public final class LbcItems {
         hudPositive(component,"  \uE131 ",mana.hudValue(source,"overheaven"),ChatFormatting.GREEN);
         hudPositive(component,"  \uE135 ",kfcFood.gigaponosRemaining(source),ChatFormatting.WHITE);
         mana.appendHudManaStatuses(source,component);
-        armorSets.techno().appendHud(source,component);
+        armorSets.techno().appendHud(source,component);component.append(shishEncounter.hud(source));
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_1"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_2"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_3"),ChatFormatting.WHITE);
@@ -837,6 +841,9 @@ public final class LbcItems {
         this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
         this.chaosTraps = new LbcChaosTraps(game);
         this.spellSources = new LbcSpellSource(game);
+        this.apocalypseEvents = new LbcApocalypseEvents(game);
+        this.apocalypseActors = new LbcApocalypseActors(game);
+        this.shishEncounter = new LbcShishEncounter(game);
         this.chaosTrapActors = new LbcChaosTrapActors(game);
         this.sauvojenBoss = new LbcSauvojenBoss(game);
         this.infinity = new LbcInfinity(game);
@@ -906,7 +913,7 @@ public final class LbcItems {
         this.bolts = new LbcBolts(game);
         this.lightningAcquisition = new LbcLightningAcquisition(game);
         this.summons.prepare();
-        this.nukeEvent.prepare();
+        this.nukeEvent.prepare();apocalypseEvents.prepare();
     }
 
     public String epoch() { return entityEpochTag; }
@@ -1061,6 +1068,9 @@ public final class LbcItems {
     public LbcArmorSets armorSets() { return armorSets; }
     public LbcChaosTraps chaosTraps() { return chaosTraps; }
     public LbcSpellSource spellSources() { return spellSources; }
+    public LbcApocalypseEvents apocalypseEvents(){return apocalypseEvents;}
+    public LbcApocalypseActors apocalypseActors(){return apocalypseActors;}
+    public LbcShishEncounter shishEncounter(){return shishEncounter;}
     public LbcChaosTrapActors chaosTrapActors() { return chaosTrapActors; }
     public LbcSauvojenBoss sauvojenBoss() { return sauvojenBoss; }
     public LbcInfinity infinity() { return infinity; }
@@ -1141,6 +1151,10 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
+        spellSources.capture(entity);apocalypseEvents.inheritChild(entity);shishEncounter.inheritChild(entity);
+        if(entity instanceof Snowball ball&&ball.getOwner() instanceof ServerPlayer player&&!LbcApocalypseEvents.kinds(ball.getItem()).isEmpty()){
+            if(apocalypseEvents.thrown(player,ball.getItem())&&LbcFartus.data(ball.getItem()).getIntOr("tmt_item",0)!=1){ball.discard();return;}
+        }
         nukeEvent.inheritChild(entity);foodLifecycle.inheritChild(entity);oreshek.inheritChild(entity);
         if (entity instanceof net.minecraft.world.entity.monster.Silverfish && entity.level() instanceof ServerLevel level
                 && godHedgehog.blocksSilverfish(level) && !godHedgehog.isBoss(entity)) { entity.discard(); return; }
@@ -1159,7 +1173,7 @@ public final class LbcItems {
         stalin.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
         specialDrops.loaded(entity);
-        spellSources.loaded(entity);
+        spellSources.loaded(entity);apocalypseEvents.loaded(entity);apocalypseActors.loaded(entity);shishEncounter.loaded(entity);
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);
         magicBean.loaded(entity);
@@ -1283,7 +1297,7 @@ public final class LbcItems {
         if(entity instanceof ServerPlayer player)armorSets.phantom().forget(player);
         if(entity instanceof LivingEntity living)ownedEffects.forget(living);
         specialDrops.unloaded(entity);
-        spellSources.unloaded(entity);
+        spellSources.unloaded(entity);apocalypseEvents.unloaded(entity);apocalypseActors.unloaded(entity);shishEncounter.unloaded(entity);
         chaosTrapActors.unloaded(entity);
         sauvojenBoss.unloaded(entity);
         magicBean.unloaded(entity);
@@ -1713,7 +1727,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
-        timeStop.tick();
+        timeStop.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();
         skyHazards.tick();
         lightningAcquisition.tick();
@@ -1979,7 +1993,7 @@ public final class LbcItems {
         incomingArtifacts.forget(player);
         shulkerArmor.forget(player);
         armorSets.forget(player);
-        spellSources.forget(player);
+        spellSources.forget(player);apocalypseEvents.forget(player);apocalypseActors.forget(player);shishEncounter.forget(player);
         sauvojenBoss.forget(player);
         infinity.forget(player);
         aimbobRewards.forget(player);
@@ -2103,7 +2117,7 @@ public final class LbcItems {
         edibleSpells.stop();
         nukeEvent.stop();foodLifecycle.stop();oreshek.stop();legacyEffects.stop();
         foodStatuses.stop();
-        spellSources.stop();
+        apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();
         pisaDrops.stop();
         antigravity.stop();
         ultraponos.stop();

@@ -1,300 +1,256 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 64,
+      "entries": [
         {
-            "rolls": 64,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:oak_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:dark_oak_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:acacia_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:jungle_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:spruce_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:birch_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:warped_stem",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:crimson_stem",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mangrove_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cherry_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:azalea_leaves",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:oak_log",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:dark_oak_log",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:acacia_log",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:jungle_log",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:spruce_log",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:birch_log",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:warped_stem",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:crimson_stem",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mangrove_log",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cherry_log",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:bamboo_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:panda_spawn_egg",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_u",
-                                "minecraft:item_model": "lbc:mystical_tree",
-                                "minecraft:entity_data": {
-                                    "id": "minecraft:marker",
-                                    "Tags": [
-                                        "slowraycast",
-                                        "mystical_tree",
-                                        "instant"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "mystical_tree",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{imba:1}"
-                        }
-                    ]
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:oak_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:dark_oak_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:acacia_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:jungle_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:spruce_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:birch_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:warped_stem",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:crimson_stem",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:mangrove_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:cherry_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:azalea_leaves",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:oak_log",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:dark_oak_log",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:acacia_log",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:jungle_log",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:spruce_log",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:birch_log",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:warped_stem",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:crimson_stem",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:mangrove_log",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:cherry_log",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:bamboo_block",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:panda_spawn_egg",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:mystical_tree",
+                "minecraft:entity_data": {
+                  "id": "minecraft:marker",
+                  "Tags": [
+                    "slowraycast",
+                    "mystical_tree",
+                    "instant"
+                  ]
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "mystical_tree",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

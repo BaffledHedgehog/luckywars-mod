@@ -77,8 +77,8 @@ public final class LbcTeleport {
 
     void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
-            if(!game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                    || !(charge.getOwner() instanceof ServerPlayer)) { cleanup(charge); return; }
+            if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
+                    || !(charge.getOwner() instanceof ServerPlayer))) { cleanup(charge); return; }
             charges.add(charge);
             if(charge.sourceLifetime==0) game.items().lifetimes().track(charge);
         }
@@ -112,15 +112,15 @@ public final class LbcTeleport {
         castAt(owner,hand,mode,stack,origin,direction,0);
     }
     private Charge castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction,int lifetime){
-        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,origin,"minecraft:entity.lightning_bolt.thunder",1,2,0);
-        Charge charge=new Charge(TYPE,owner.level());
-        charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
+        if(game.items().spellSources().current()==null)sourceSound(owner,origin,"minecraft:entity.lightning_bolt.thunder",1,2,0);
+        Charge charge=new Charge(TYPE,sourceLevel(owner));
+        charge.setOwner(nativeSourceOwner(owner)); charge.setPos(origin); charge.setNoGravity(true);
         charge.setYRot(lifetime>0?(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)):owner.getYRot());
         charge.setXRot(lifetime>0?(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())):owner.getXRot());
         charge.setDeltaMovement(direction.normalize().scale(lifetime==60?1.2:mode==0?1.8:3.0));
         charge.mode=mode; charge.sourceLifetime=lifetime;charge.flyingStyle=lifetime==60;
         game.items().markCurrentItemEpoch(charge);
-        if(owner.level().addFreshEntity(charge)) {
+        if(sourceLevel(owner).addFreshEntity(charge)) {
             charges.add(charge);
             if(lifetime==0) game.items().lifetimes().track(charge);
         }
@@ -132,10 +132,10 @@ public final class LbcTeleport {
     /** One native carrier for Teleport cloud and Boltbolt racer; steering precedes native physics. */
     void castRideableArrow(ServerPlayer owner,double speed,boolean racer) {
         Vec3 origin=owner.position().add(0,.01,0);
-        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
-        Arrow arrow=new Arrow(EntityTypes.ARROW,owner.level());
+        if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(origin))) return;
+        Arrow arrow=new Arrow(EntityTypes.ARROW,sourceLevel(owner));
         arrow.setOwner(owner); arrow.pickup=AbstractArrow.Pickup.DISALLOWED;
-        arrow.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,owner.registryAccess(),cloudPreset()));
+        arrow.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,sourceLevel(owner).registryAccess(),cloudPreset()));
         arrow.setOwner(owner); arrow.setNoGravity(true); arrow.setBaseDamage(0);
         arrow.setSoundEvent(SoundEvents.WOOL_STEP);
         arrow.setPos(origin);
@@ -145,7 +145,7 @@ public final class LbcTeleport {
         if(racer) arrow.entityTags().add(WIND_RACER);
         game.items().markCurrentItemEpoch(arrow);
         owner.stopRiding();
-        if(!owner.level().addFreshEntity(arrow)) { arrow.discard(); return; }
+        if(!sourceLevel(owner).addFreshEntity(arrow)) { arrow.discard(); return; }
         clouds.add(arrow);
         owner.startRiding(arrow,true,true);
     }
@@ -157,17 +157,16 @@ public final class LbcTeleport {
                 for(Charge charge:batch) {
                     try(var sourceScope=game.items().spellSources().scope(charge)){
                     if(!charges.contains(charge)) continue;
-                    if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
-                            || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                            || !validOwner(owner) || owner.level()!=charge.level()) { remove(charge); continue; }
-                    if(game.items().spellSources().current()!=null?game.items().wands().timeStopped()||charge.entityTags().contains("time_stopped"):paused(owner)) continue;
+                    var owner=game.items().spellSources().author(charge);
+                if(!liveSourceCharge(charge,owner)) { remove(charge); continue; }
+                    if(game.items().spellSources().current()!=null?game.items().timeStop().stopped((net.minecraft.server.level.ServerLevel)charge.level())||charge.entityTags().contains("time_stopped"):paused(owner)) continue;
                     Vec3 from=charge.position();
-                    if(!owner.level().hasChunkAt(BlockPos.containing(from))
+                    if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(from))
                             || game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)charge.level(),from)) {
                         remove(charge); continue;
                     }
                     Vec3 to=from.add(charge.getDeltaMovement());
-                    HitResult hit=charge.flyingStyle?LbcTerra.wallHit(owner.level(),from,to):game.items().wands().firstHit(owner,from,to);
+                    HitResult hit=charge.flyingStyle?LbcTerra.wallHit(sourceLevel(owner),from,to):game.items().wands().firstHit(owner,from,to);
                     var shield=game.items().wands().shieldHit(owner,from,hit==null?to:hit.getLocation());
                     if(shield!=null && !charge.level().getBlockState(BlockPos.containing(shield.getLocation())).isAir()) shield=null;
                     boolean shieldBlocked=shield!=null && (hit==null
@@ -198,10 +197,10 @@ public final class LbcTeleport {
         double distance=from.distanceTo(end);Vec3 direction=end.subtract(from).normalize();
         for(double step=0;step<=distance+1e-7;step+=.3) {
             Vec3 point=from.add(direction.scale(Math.min(step,distance)));
-            owner.level().sendParticles(ParticleTypes.ANGRY_VILLAGER,true,false,point.x,point.y,point.z,2,.1,.1,.1,0);
+            sourceLevel(owner).sendParticles(ParticleTypes.ANGRY_VILLAGER,true,false,point.x,point.y,point.z,2,.1,.1,.1,0);
             if(shieldBlocked&&step>=distance-1e-7)break;
             var area=new AABB(point,point.add(1,1,1));
-            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,area,
+            for(var target:sourceLevel(owner).getEntitiesOfClass(LivingEntity.class,area,
                     candidate->candidate.position().distanceToSqr(point)<=225&&game.items().lifetimes().target(owner,candidate))) {
                 if(target.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,40),owner))
                     game.items().indirectKills().levitated(target,owner);
@@ -213,9 +212,9 @@ public final class LbcTeleport {
         double distance=from.distanceTo(end);
         for(double step=0;step<=distance+1e-7;step+=.3) {
             Vec3 point=distance<1e-9?from:from.add(end.subtract(from).scale(Math.min(1,step/distance)));
-            owner.level().sendParticles(ParticleTypes.SCULK_CHARGE_POP,true,false,point.x,point.y,point.z,
+            sourceLevel(owner).sendParticles(ParticleTypes.SCULK_CHARGE_POP,true,false,point.x,point.y,point.z,
                     0,0,charge.mode==2?-1:1,0,charge.mode==1?1:.5);
-            owner.level().sendParticles(ParticleTypes.CLOUD,true,false,point.x,point.y,point.z,1,.1,.1,.1,.05);
+            sourceLevel(owner).sendParticles(ParticleTypes.CLOUD,true,false,point.x,point.y,point.z,1,.1,.1,.1,.05);
         }
     }
 
@@ -224,7 +223,7 @@ public final class LbcTeleport {
         var targets=new ArrayList<LivingEntity>(2);
         if(first instanceof LivingEntity target && game.items().lifetimes().target(owner,target)) targets.add(target);
         AABB near=new AABB(point,point).inflate(1e-5);
-        for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,near,
+        for(var target:sourceLevel(owner).getEntitiesOfClass(LivingEntity.class,near,
                 candidate->candidate!=first && game.items().lifetimes().target(owner,candidate))) {
             if(targets.size()==2) break;
             targets.add(target);
@@ -235,11 +234,11 @@ public final class LbcTeleport {
                 game.items().indirectKills().levitated(target,owner);
             game.items().electro().lightning(owner,target.position());
             placeCobweb(owner,target.position());
-            owner.level().sendParticles(ParticleTypes.FALLING_WATER,target.getX(),target.getY()+15,target.getZ(),300,.8,4,.8,0);
+            sourceLevel(owner).sendParticles(ParticleTypes.FALLING_WATER,target.getX(),target.getY()+15,target.getZ(),300,.8,4,.8,0);
         }
     }
     private void placeCobweb(ServerPlayer owner,Vec3 point) {
-        var level=owner.level();
+        var level=sourceLevel(owner);
         BlockPos center=BlockPos.containing(point).above(10);
         game.items().indirectKills().trapChanges(owner,()-> {
             for(int x=-1;x<=1;x++) for(int z=-1;z<=1;z++) {
@@ -252,7 +251,7 @@ public final class LbcTeleport {
     }
 
     private void inverted(ServerPlayer owner,LivingEntity target) {
-        var level=owner.level();
+        var level=sourceLevel(owner);
         BlockPos center=BlockPos.containing(target.position()), source=center.offset(-1,-1,-1), dest=source.below();
         if(level.isOutsideBuildHeight(source) || level.isOutsideBuildHeight(dest)) return;
         for(var pos:BlockPos.betweenClosed(dest,dest.offset(2,1,2))) if(!level.hasChunkAt(pos)) return;
@@ -282,7 +281,7 @@ public final class LbcTeleport {
     private void tickClouds() {
         for(Arrow arrow:List.copyOf(clouds)) {
             if(arrow.isRemoved() || !(arrow.getOwner() instanceof ServerPlayer owner)
-                    || !validOwner(owner) || owner.level()!=arrow.level() || arrow.level()!=game.maps().level()
+                    || !validOwner(owner) || sourceLevel(owner)!=arrow.level() || arrow.level()!=game.maps().level()
                     || !game.items().currentEpoch(arrow)) { removeCloud(arrow); continue; }
             if(!arrow.level().hasChunkAt(BlockPos.containing(arrow.position()))) { removeCloud(arrow); continue; }
             if(paused(owner)) continue;
@@ -296,8 +295,8 @@ public final class LbcTeleport {
             level.sendParticles(ParticleTypes.CLOUD,true,false,here.x,here.y,here.z,racer?50:60,2,racer?1.5:1,2,0);
             if(racer) {
                 if(owner.getRandom().nextFloat()<.3f) {
-                    LbcOverload.sound(owner,here,"minecraft:entity.firework_rocket.twinkle",1,1,0);
-                    LbcOverload.sound(owner,here,"minecraft:entity.lightning_bolt.thunder",10,1,0);
+                    sourceSound(owner,here,"minecraft:entity.firework_rocket.twinkle",1,1,0);
+                    sourceSound(owner,here,"minecraft:entity.lightning_bolt.thunder",10,1,0);
                     game.items().wands().racerLightning(owner,here);
                 }
             } else level.sendParticles(ParticleTypes.FALLING_WATER,here.x,here.y-.5,here.z,20,1,.1,1,0);
@@ -321,7 +320,7 @@ public final class LbcTeleport {
     }
     public boolean beforeCloudTick(Arrow arrow) {
         if(!(arrow.getOwner() instanceof ServerPlayer owner) || !validOwner(owner)
-                || !game.items().currentEpoch(arrow) || arrow.level()!=owner.level()) {
+                || !game.items().currentEpoch(arrow) || arrow.level()!=sourceLevel(owner)) {
             removeCloud(arrow); return false;
         }
         if(paused(owner)) return false;
@@ -335,7 +334,7 @@ public final class LbcTeleport {
             arrow.syncVelocity=true;
         }
         Vec3 from=arrow.position(),to=from.add(arrow.getDeltaMovement());
-        boolean loaded=net.minecraft.world.level.BlockGetter.traverseBlocks(from,to,owner.level(),
+        boolean loaded=net.minecraft.world.level.BlockGetter.traverseBlocks(from,to,sourceLevel(owner),
                 (world,pos)->world.hasChunkAt(pos)?null:Boolean.FALSE,world->Boolean.TRUE);
         if(!loaded) { removeCloud(arrow); return false; }
         return true;
@@ -343,7 +342,8 @@ public final class LbcTeleport {
     public void cloudLanded(Arrow arrow) { removeCloud(arrow); }
 
     private boolean validOwner(ServerPlayer owner) {
-        return owner!=null && !owner.isRemoved() && owner.isAlive() && owner.level()==game.maps().level()
+        if(persistentSource())return true;
+        return owner!=null && !owner.isRemoved() && owner.isAlive() && sourceLevel(owner)==game.maps().level()
                 && game.canUseGameplayItems(owner) && !game.isObserver(owner) && game.stage()!=GameController.Stage.ENDING;
     }
     private boolean paused(ServerPlayer owner) {
@@ -366,4 +366,15 @@ public final class LbcTeleport {
         for(Arrow arrow:List.copyOf(clouds)) cleanupCloud(arrow);
         charges.clear(); batch.clear(); clouds.clear();
     }
+    Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
+        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
+        else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);
+    }
+    private net.minecraft.server.level.ServerLevel sourceLevel(ServerPlayer owner){return game.items().spellSources().level(owner);}
+    private boolean persistentSource(){var source=game.items().spellSources().current();return source!=null&&source.persistent()&&game.items().currentEpoch(source.epoch())&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&sourceLevel(null)!=null&&LbcDimensionItems.ordinary(sourceLevel(null));}
+    private boolean boundSource(Entity entity){var source=game.items().spellSources().source(entity);return source!=null&&game.items().currentEpoch(source.epoch())&&LbcDimensionItems.ordinary(entity.level());}
+    private Entity nativeSourceOwner(ServerPlayer owner){var source=game.items().spellSources().current();return source==null?owner:sourceLevel(owner).getEntity(source.emitter());}
+    private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
+
 }

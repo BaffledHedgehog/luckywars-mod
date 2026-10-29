@@ -133,8 +133,8 @@ public final class LbcBlind {
     int cloudCount(ServerPlayer owner) { return (int)clouds.stream().filter(cloud->cloud.owner==owner).count(); }
     void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
-            if(!game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                    || !(charge.getOwner() instanceof ServerPlayer)) charge.discard();
+            if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
+                    || !(charge.getOwner() instanceof ServerPlayer))) charge.discard();
             else charges.add(charge);
         }
     }
@@ -149,7 +149,7 @@ public final class LbcBlind {
     public void cast(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack) {
         if(!validOwner(owner)) return;
         Vec3 origin=owner.getEyePosition();
-        LbcOverload.sound(owner,origin,"minecraft:entity.squid.squirt",1,1,0);
+        sourceSound(owner,origin,"minecraft:entity.squid.squirt",1,1,0);
         switch(mode) {
             case 0 -> spread(owner,hand,origin,5,false,30,20,LbcAcademy.trial(stack));
             case 1 -> spread(owner,hand,origin,7,false,30,20,false);
@@ -161,7 +161,7 @@ public final class LbcBlind {
     }
 
     void emitAt(ServerPlayer owner,InteractionHand hand,int mode,Vec3 origin,Vec3 direction){
-        LbcOverload.sound(owner,origin,"minecraft:entity.squid.squirt",1,1,0);
+        sourceSound(owner,origin,"minecraft:entity.squid.squirt",1,1,0);
         if(mode==2)rainAt(owner,origin,direction);
         else spreadAt(owner,hand,origin,mode==1?4:5,mode==1,30,20,false,direction,owner.getLookAngle());
     }
@@ -201,47 +201,47 @@ public final class LbcBlind {
     private void rain(ServerPlayer owner,Vec3 origin) {rainAt(owner,origin,owner.getLookAngle());}
     private void rainAt(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         Vec3 end=origin.add(direction.scale(100));
-        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
+        if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(origin))) return;
         HitResult hit=game.items().wands().firstHit(owner,origin,end);
         // Source rain preloop draws ink every .4 blocks, including an aim with no terminal hit.
         double distance=origin.distanceTo(hit==null?end:hit.getLocation());
         for(double step=0;step<=distance+1e-7;step+=.4) {
             var trail=origin.add(direction.scale(Math.min(step,distance)));
-            if(!owner.level().hasChunkAt(BlockPos.containing(trail)))break;
-            owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,trail.x,trail.y,trail.z,1,0,0,0,0);
+            if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(trail)))break;
+            sourceLevel(owner).sendParticles(ParticleTypes.SQUID_INK,true,false,trail.x,trail.y,trail.z,1,0,0,0,0);
         }
         if(hit==null) return;
-        if(hit instanceof BlockHitResult wall && !owner.level().hasChunkAt(wall.getBlockPos())) return;
+        if(hit instanceof BlockHitResult wall && !sourceLevel(owner).hasChunkAt(wall.getBlockPos())) return;
         Vec3 point=hit.getLocation();
         // Дождь ослепляет игроков у первой естественной точки контакта, сохраняя фильтр союзников.
-        for(ServerPlayer target:owner.level().getEntitiesOfClass(ServerPlayer.class,
+        for(ServerPlayer target:sourceLevel(owner).getEntitiesOfClass(ServerPlayer.class,
                 new AABB(point,point).inflate(5),player->player!=owner && game.items().wands().target(owner,player)
                         && player.position().distanceToSqr(point)<=25))
             target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,200,0,false,false),owner);
-        LbcOverload.sound(owner,point,"minecraft:entity.squid.squirt",1,1,0);
+        sourceSound(owner,point,"minecraft:entity.squid.squirt",1,1,0);
         var cloud=new RainCloud(owner,point.add(0,10,0),game.items().epoch());
         clouds.add(cloud);
-        LbcOverload.sound(owner,cloud.position,"minecraft:entity.squid.squirt",1,1,0);
+        sourceSound(owner,cloud.position,"minecraft:entity.squid.squirt",1,1,0);
     }
 
     void spawn(ServerPlayer owner,Vec3 origin,Vec3 velocity,boolean phantom,int lifetime,
                        InteractionHand hand,boolean trial) {
-        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
-        Charge charge=new Charge(TYPE,owner.level());
-        charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
+        if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(origin))) return;
+        Charge charge=new Charge(TYPE,sourceLevel(owner));
+        charge.setOwner(nativeSourceOwner(owner)); charge.setPos(origin); charge.setNoGravity(true);
         charge.setDeltaMovement(velocity); charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
         charge.phantom=phantom; charge.lifetime=lifetime; charge.trialHand=hand;
         charge.rainDrop=lifetime==RAIN_LIFETIME;
         charge.trialOwner=trial?owner:null; charge.trial=trial;
         charge.entityTags().add("magic"); charge.entityTags().add("shield_blockable2");
         game.items().markCurrentItemEpoch(charge);
-        if(owner.level().addFreshEntity(charge)) charges.add(charge);
+        if(sourceLevel(owner).addFreshEntity(charge)) charges.add(charge);
     }
     void sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){
-        var charge=new Charge(TYPE,owner.level());charge.setOwner(owner);charge.setPos(origin);charge.setNoGravity(true);
+        var charge=new Charge(TYPE,sourceLevel(owner));charge.setOwner(nativeSourceOwner(owner));charge.setPos(origin);charge.setNoGravity(true);
         charge.setDeltaMovement(direction.normalize().scale(.99));LbcShooters.orient(charge);charge.lifetime=120;charge.emitterStyle=true;
         charge.entityTags().addAll(List.of("magic","shield_blockable"));game.items().markCurrentItemEpoch(charge);
-        if(owner.level().addFreshEntity(charge))charges.add(charge);
+        if(sourceLevel(owner).addFreshEntity(charge))charges.add(charge);
     }
 
     void tick() {
@@ -260,12 +260,11 @@ public final class LbcBlind {
                 Charge charge=batch.get(index);
                 try(var sourceScope=game.items().spellSources().scope(charge)){
                 if(!charges.contains(charge)) continue;
-                if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
-                        || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                        || !validOwner(owner) || owner.level()!=charge.level()) {
+                var owner=game.items().spellSources().author(charge);
+                if(!liveSourceCharge(charge,owner)) {
                     charges.remove(charge); charge.discard(); continue;
                 }
-                if(game.items().spellSources().current()!=null?game.items().wands().timeStopped()||charge.entityTags().contains("time_stopped"):paused(owner)) continue;
+                if(game.items().spellSources().current()!=null?game.items().timeStop().stopped((net.minecraft.server.level.ServerLevel)charge.level())||charge.entityTags().contains("time_stopped"):paused(owner)) continue;
                 Vec3 from=charge.position(),to=from.add(charge.getDeltaMovement());
                 if(!charge.level().hasChunkAt(BlockPos.containing(from))) { charges.remove(charge); charge.discard(); continue; }
                 if(game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)charge.level(),from)) {
@@ -290,10 +289,10 @@ public final class LbcBlind {
                 charge.setPos(end);
                 double distance=from.distanceTo(end);
                 Vec3 travel=end.subtract(from);
-                owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,from.x,from.y,from.z,1,.1,.1,.1,0);
+                sourceLevel(owner).sendParticles(ParticleTypes.SQUID_INK,true,false,from.x,from.y,from.z,1,.1,.1,.1,0);
                 for(double step=.3;step<=distance+1e-7;step+=.3) {
                     double fraction=Math.min(1,step/distance);
-                    owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,
+                    sourceLevel(owner).sendParticles(ParticleTypes.SQUID_INK,true,false,
                             from.x+travel.x*fraction,from.y+travel.y*fraction,from.z+travel.z*fraction,1,.1,.1,.1,0);
                 }
                 if(!shieldBlocked && hit instanceof EntityHitResult entityHit)
@@ -305,7 +304,7 @@ public final class LbcBlind {
     }
 
     private HitResult phantomHit(ServerPlayer owner,Vec3 from,Vec3 to) {
-        return ProjectileUtil.getEntityHitResult(owner.level(),owner,from,to,new AABB(from,to).inflate(1),
+        return ProjectileUtil.getEntityHitResult(sourceLevel(owner),owner,from,to,new AABB(from,to).inflate(1),
                 entity->game.items().lifetimes().target(owner,entity),0);
     }
     private boolean emitterStep(Charge charge,ServerPlayer owner){
@@ -313,13 +312,13 @@ public final class LbcBlind {
         var shield=game.items().wands().shieldHit(owner,from,from.add(direction.scale(.99)));
         for(int i=0;i<4;i++){
             var at=from.add(direction.scale(i*.33));var cell=BlockPos.containing(at);
-            if(!owner.level().hasChunkAt(cell)||game.items().magic().suppressedAt(owner.level(),at))return false;
+            if(!sourceLevel(owner).hasChunkAt(cell)||game.items().magic().suppressedAt(sourceLevel(owner),at))return false;
             if(shield!=null&&from.distanceToSqr(shield.getLocation())<=from.distanceToSqr(at))return false;
-            owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
-            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),e->e.position().distanceToSqr(at)<=225&&game.items().wands().target(owner,e))){
+            sourceLevel(owner).sendParticles(ParticleTypes.SQUID_INK,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
+            for(var target:sourceLevel(owner).getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),e->e.position().distanceToSqr(at)<=225&&game.items().wands().target(owner,e))){
                 target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,80,0),owner);target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,80,1),owner);
             }
-            if(!owner.level().getBlockState(cell).isAir())return false;
+            if(!sourceLevel(owner).getBlockState(cell).isAir())return false;
         }
         charge.setPos(from.add(direction.scale(.99)));return true;
     }
@@ -333,9 +332,9 @@ public final class LbcBlind {
     private void blindImpact(Charge charge,ServerPlayer owner,Entity entity,Vec3 point) {
         if(!(entity instanceof LivingEntity living) || !game.items().lifetimes().target(owner,entity)) return;
         boolean previouslyBlind=living.hasEffect(MobEffects.BLINDNESS);
-        var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+        var damage=new DamageSource(sourceLevel(owner).registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(DamageTypes.GENERIC),charge,owner);
-        living.hurtServer(owner.level(),damage,.5f);
+        living.hurtServer(sourceLevel(owner),damage,.5f);
         living.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,200,0),owner);
         living.addEffect(ItemEffectLevels.create(MobEffects.WITHER,80,0),owner);
         if(charge.trial && charge.trialHand!=null && charge.trialOwner==owner)
@@ -405,7 +404,7 @@ public final class LbcBlind {
                 if(paused(owner)) continue;
                 if(++queue.phase<2) continue;
                 queue.phase=0;
-                LbcOverload.sound(owner,owner.getEyePosition(),"minecraft:entity.squid.squirt",1,1,0);
+                sourceSound(owner,owner.getEyePosition(),"minecraft:entity.squid.squirt",1,1,0);
                 Vec3 direction=Vec3.directionFromRotation(owner.getXRot()+(owner.getRandom().nextFloat()*2-1)*8,
                         owner.getYRot()+(owner.getRandom().nextFloat()*2-1)*8);
                 spawn(owner,owner.getEyePosition(),direction.scale(1.8),false,ORDINARY_LIFETIME,null,false);
@@ -416,7 +415,8 @@ public final class LbcBlind {
     }
 
     private boolean validOwner(ServerPlayer owner) {
-        return owner!=null && !owner.isRemoved() && owner.isAlive() && owner.level()==game.maps().level()
+        if(persistentSource())return true;
+        return owner!=null && !owner.isRemoved() && owner.isAlive() && sourceLevel(owner)==game.maps().level()
                 && game.canUseGameplayItems(owner) && !game.isObserver(owner) && game.stage()!=GameController.Stage.ENDING;
     }
     private boolean paused(ServerPlayer owner) {
@@ -435,4 +435,15 @@ public final class LbcBlind {
         for(Charge charge:List.copyOf(charges)) charge.discard();
         charges.clear(); batch.clear(); gatlings.clear(); gatlingBatch.clear(); clouds.clear(); cloudBatch.clear();
     }
+    void sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){sourceEmitter(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
+        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
+        else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);
+    }
+    private net.minecraft.server.level.ServerLevel sourceLevel(ServerPlayer owner){return game.items().spellSources().level(owner);}
+    private boolean persistentSource(){var source=game.items().spellSources().current();return source!=null&&source.persistent()&&game.items().currentEpoch(source.epoch())&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&sourceLevel(null)!=null&&LbcDimensionItems.ordinary(sourceLevel(null));}
+    private boolean boundSource(Entity entity){var source=game.items().spellSources().source(entity);return source!=null&&game.items().currentEpoch(source.epoch())&&LbcDimensionItems.ordinary(entity.level());}
+    private Entity nativeSourceOwner(ServerPlayer owner){var source=game.items().spellSources().current();return source==null?owner:sourceLevel(owner).getEntity(source.emitter());}
+    private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
+
 }

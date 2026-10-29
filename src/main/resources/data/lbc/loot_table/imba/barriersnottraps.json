@@ -1,410 +1,407 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 5,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{lightning:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 5,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{library:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 5,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{applepig:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 5,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{end_city:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 0,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{village:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": -5,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{bonus_chest:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 5,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{bastion:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 5,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{treasure:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": -5,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{bees:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 8,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{lbh:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 9,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{luckyspawner:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 0,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{portall:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 8,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{opanvil:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 9,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{sethome:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "weight": 0,
-                    "quality": 0,
-                    "value": "lbc:yameteluckyblock"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 10,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{magicbean:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 10,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{magicbean:1,drop:1,imba:1}"
-                        }
-                    ],
-                    "conditions": [
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 11
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 10,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{greedcurse:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 10,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{pizanski:1,drop:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 0,
-                    "quality": 10,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{magic_academy:1,drop:1,imba:1}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 5,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{lightning:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 5,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{library:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 5,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{applepig:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 5,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{end_city:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 0,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{village:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": -5,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{bonus_chest:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 5,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{bastion:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 5,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{treasure:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": -5,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{bees:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 8,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{lbh:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 9,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{luckyspawner:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 0,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{portall:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 8,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{opanvil:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 9,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{sethome:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 0,
+          "quality": 0,
+          "value": "lbc:yameteluckyblock"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{magicbean:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{magicbean:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "value": {
+              "type": "minecraft:score",
+              "target": {
+                "type": "minecraft:fixed",
+                "name": "final_luck_modifier"
+              },
+              "score": "lbc.math"
+            },
+            "type": "minecraft:int_value_check",
+            "test": 11
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{greedcurse:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{pizanski:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 0,
+          "quality": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{magic_academy:1,drop:1,imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

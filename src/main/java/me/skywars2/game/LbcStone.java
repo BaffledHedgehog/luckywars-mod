@@ -83,8 +83,8 @@ public final class LbcStone {
     List<Charge> snapshot() { return List.copyOf(charges); }
     void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
-            if(!game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                    || !(charge.getOwner() instanceof ServerPlayer)) charge.discard();
+            if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
+                    || !(charge.getOwner() instanceof ServerPlayer))) charge.discard();
             else charges.add(charge);
         }
     }
@@ -95,8 +95,8 @@ public final class LbcStone {
         }
     }
     public void cast(ServerPlayer owner,int mode) {
-        if(!game.canUseGameplayItems(owner) || owner.level()!=game.maps().level()) return;
-        LbcOverload.sound(owner,owner.getEyePosition(),"minecraft:block.amethyst_cluster.break",1,1,0);
+        if(!game.canUseGameplayItems(owner) || sourceLevel(owner)!=game.maps().level()) return;
+        sourceSound(owner,owner.getEyePosition(),"minecraft:block.amethyst_cluster.break",1,1,0);
         switch(mode) {
             case 0 -> {
                 castAt(owner,owner.getEyePosition(),owner.getLookAngle(),true);
@@ -124,23 +124,23 @@ public final class LbcStone {
         castAt(owner,origin,direction,playerPose,200);
     }
     private Charge castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose,int lifetime){
-                var charge=new Charge(TYPE,owner.level());
-                charge.setOwner(owner); charge.setPos(origin); charge.lifetime=lifetime;
+                var charge=new Charge(TYPE,sourceLevel(owner));
+                charge.setOwner(nativeSourceOwner(owner)); charge.setPos(origin); charge.lifetime=lifetime;
                 charge.setYRot(playerPose?owner.getYRot():(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))); charge.setXRot(playerPose?owner.getXRot():(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
                 charge.setNoGravity(true); charge.setDeltaMovement(lifetime==80?direction.normalize().scale(1.6):direction);
                 charge.entityTags().add("magic"); game.items().markCurrentItemEpoch(charge);
-                if(owner.level().addFreshEntity(charge)) charges.add(charge);
+                if(sourceLevel(owner).addFreshEntity(charge)) charges.add(charge);
                 return charge;
     }
     void shield(ServerPlayer owner) {
         owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,100,4),owner);
-        owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BEDROCK.defaultBlockState()),
+        sourceLevel(owner).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BEDROCK.defaultBlockState()),
                 owner.getX(),owner.getY()+1,owner.getZ(),30,.3,.6,.4,0);
     }
     void ray(ServerPlayer owner,boolean spike) {rayAt(owner,owner.getEyePosition(),owner.getLookAngle(),spike);}
     private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction,boolean spike) {
         Vec3 end=from.add(direction.scale(150));
-        double boundary=game.items().magic().suppressionFraction(owner.level(),from,end);
+        double boundary=game.items().magic().suppressionFraction(sourceLevel(owner),from,end);
         if(Double.isFinite(boundary))end=from.lerp(end,boundary);
         Vec3 limit=end;
         var hit=game.items().wands().firstHit(owner,from,end);
@@ -148,11 +148,11 @@ public final class LbcStone {
         double distance=from.distanceTo(end);
         for(double step=0;step<=distance;step+=.5) {
             Vec3 point=from.add(direction.scale(step));
-            owner.level().sendParticles(spike ? SPIKE_PARTICLES : STONE_PARTICLES,true,false,point.x,point.y,point.z,1,.05,.05,.05,0);
-            LbcOverload.sound(owner,point,"minecraft:block.amethyst_cluster.break",1,.1f,0);
+            sourceLevel(owner).sendParticles(spike ? SPIKE_PARTICLES : STONE_PARTICLES,true,false,point.x,point.y,point.z,1,.05,.05,.05,0);
+            sourceSound(owner,point,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         }
         if(hit!=null && (!Double.isFinite(boundary)||from.distanceToSqr(hit.getLocation())<from.distanceToSqr(limit)-1e-9)
-                && (!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos()))) impact(owner,end,spike);
+                && (!(hit instanceof BlockHitResult wall) || sourceLevel(owner).hasChunkAt(wall.getBlockPos()))) impact(owner,end,spike);
     }
     /** Проверка по всему отрезку за тик; частота частиц не задаёт геометрию попадания. */
     void tick() {
@@ -160,15 +160,13 @@ public final class LbcStone {
         try {
             for(var charge:batch) {
                 try(var sourceScope=game.items().spellSources().scope(charge)){
-                if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
-                        || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                        || owner.level()!=charge.level() || !owner.isAlive() || owner.isRemoved()
-                        || !game.canUseGameplayItems(owner) || game.stage()==GameController.Stage.ENDING) {
+                var owner=game.items().spellSources().author(charge);
+                if(!liveSourceCharge(charge,owner)) {
                     charge.discard(); continue;
                 }
-                if(game.items().wands().timeStopped() || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
+                if(game.items().timeStop().stopped((net.minecraft.server.level.ServerLevel)charge.level()) || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
                 Vec3 from=charge.position(),to=from.add(charge.getDeltaMovement());
-                if(!owner.level().hasChunkAt(BlockPos.containing(from)) || game.items().magic().suppressedAt(owner.level(),from)) {
+                if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(from)) || game.items().magic().suppressedAt(sourceLevel(owner),from)) {
                     charge.discard(); continue;
                 }
                 var hit=game.items().wands().firstHit(owner,from,to);
@@ -178,21 +176,21 @@ public final class LbcStone {
                     double distance=from.distanceTo(to);Vec3 direction=to.subtract(from).normalize();
                     for(double step=0;step<=distance+1e-7;step+=.4) {
                         Vec3 point=from.add(direction.scale(Math.min(step,distance)));
-                        owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK_MARKER,Blocks.STONE.defaultBlockState()),
+                        sourceLevel(owner).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK_MARKER,Blocks.STONE.defaultBlockState()),
                                 true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
                     }
                 } else {
-                    owner.level().sendParticles(STONE_PARTICLES,true,false,to.x,to.y,to.z,1,.2,.2,.2,0);
-                    owner.level().sendParticles(STONE_PARTICLES,to.x,to.y,to.z,10,.2,.2,.2,0);
-                    LbcOverload.sound(owner,to,"minecraft:block.stone.break",.1f,1,0);
+                    sourceLevel(owner).sendParticles(STONE_PARTICLES,true,false,to.x,to.y,to.z,1,.2,.2,.2,0);
+                    sourceLevel(owner).sendParticles(STONE_PARTICLES,to.x,to.y,to.z,10,.2,.2,.2,0);
+                    sourceSound(owner,to,"minecraft:block.stone.break",.1f,1,0);
                 }
                 if(hit!=null) {
                     charge.discard(); // Повторное попадание в собственные созданные блоки исключено.
-                    if(!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos())) {
+                    if(!(hit instanceof BlockHitResult wall) || sourceLevel(owner).hasChunkAt(wall.getBlockPos())) {
                         if(charge.lifetime==80) {
                             game.items().indirectKills().fillTrap(owner,BlockPos.containing(to.add(-1.5,-1.5,-1.5)),
                                     BlockPos.containing(to.add(1.5,1.5,1.5)),Blocks.STONE.defaultBlockState());
-                            LbcOverload.sound(owner,to,"minecraft:block.stone.place",1,1,0);
+                            sourceSound(owner,to,"minecraft:block.stone.place",1,1,0);
                         } else impact(owner,to,false);
                     }
                 } else if(++charge.age>=charge.lifetime) charge.discard();
@@ -207,12 +205,12 @@ public final class LbcStone {
             if(spike) game.maps().placeLoadedTemplate(owner,SPIKES,pos.offset(-4,-1,-4),1f);
             else for(int i=0;i<ROCKS.length;i++) game.maps().placeLoadedTemplate(owner,ROCKS[i],pos.offset(-5+i,-5+i,-5+i),INTEGRITY[i]);
         });
-        for(float pitch:new float[]{0,.5f,1,1.5f,2}) LbcOverload.sound(owner,point,"minecraft:block.stone.place",2,pitch,0);
+        for(float pitch:new float[]{0,.5f,1,1.5f,2}) sourceSound(owner,point,"minecraft:block.stone.place",2,pitch,0);
         if(spike) {
-            var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),owner);
-            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(5),
+            var damage=new DamageSource(sourceLevel(owner).registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),owner);
+            for(var target:sourceLevel(owner).getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(5),
                     target->target.position().distanceToSqr(point)<=25 && game.items().lifetimes().target(owner,target)))
-                target.hurtServer(owner.level(),damage,5);
+                target.hurtServer(sourceLevel(owner),damage,5);
         }
     }
     void bridge(ServerPlayer owner) {bridgeAt(owner,owner.position().add(0,-1,0),owner.getLookAngle());}
@@ -226,4 +224,15 @@ public final class LbcStone {
         }
     }
     public void stop() { var pending=List.copyOf(charges); charges.clear(); pending.forEach(Entity::discard); }
+    Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return flying(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
+        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
+        else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);
+    }
+    private net.minecraft.server.level.ServerLevel sourceLevel(ServerPlayer owner){return game.items().spellSources().level(owner);}
+    private boolean persistentSource(){var source=game.items().spellSources().current();return source!=null&&source.persistent()&&game.items().currentEpoch(source.epoch())&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&sourceLevel(null)!=null&&LbcDimensionItems.ordinary(sourceLevel(null));}
+    private boolean boundSource(Entity entity){var source=game.items().spellSources().source(entity);return source!=null&&game.items().currentEpoch(source.epoch())&&LbcDimensionItems.ordinary(entity.level());}
+    private Entity nativeSourceOwner(ServerPlayer owner){var source=game.items().spellSources().current();return source==null?owner:sourceLevel(owner).getEntity(source.emitter());}
+    private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
+
 }

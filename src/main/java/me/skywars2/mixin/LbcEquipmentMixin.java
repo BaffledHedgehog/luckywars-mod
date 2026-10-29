@@ -39,7 +39,7 @@ public abstract class LbcEquipmentMixin {
             game.items().mana().inventoryChanged(player);
             game.items().refreshMinigunMovement(player);
             game.items().shulkerArmor().inventoryChanged(player);
-            game.items().armorSets().inventoryChanged(player);
+            game.items().armorSets().inventoryChanged(player);game.items().shishEncounter().inventoryChanged(player);
         }
         if (slot == EquipmentSlot.FEET && game != null && (Object) this instanceof ServerPlayer player) {
             game.items().rocketEquipment(player, next);

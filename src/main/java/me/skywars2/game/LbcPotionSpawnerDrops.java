@@ -31,6 +31,7 @@ public final class LbcPotionSpawnerDrops {
     public static final String DATA="skywars2_potion_spawner";
     private static final String ACTOR="skywars2.potion_spawner_drop";
     private static final String OWNER="skywars2.potion_spawner_owner.";
+    private static final String EVENT_CAUSE="skywars2.potion_spawner_event.";
     private record Potion(String effect,int amplifier,int duration,int color) { }
     private static final List<Potion> POTIONS=List.of(
             new Potion("instant_damage",0,20,8388608),new Potion("slowness",4,600,2035284),
@@ -106,10 +107,28 @@ public final class LbcPotionSpawnerDrops {
         return true;
     }
 
+    /** Adopt a source-configured native spawner without replacing its potentials or cadence. */
+    public void admitEventSpawner(ServerLevel level,BlockPos pos,LbcApocalypseEvents.Authority authority){
+        if(!(level.getBlockEntity(pos) instanceof SpawnerBlockEntity spawner)||authority==null)return;
+        var tag=spawner.saveWithFullMetadata(level.registryAccess());
+        // Native block serialization retains all authored SpawnData/SpawnPotentials values.
+
+        var metadata=new CompoundTag();metadata.putString("epoch",authority.epoch());metadata.putBoolean("closed",false);
+        metadata.putString("owner",authority.author().toString());metadata.putBoolean("event",true);
+        metadata.putString("emitter",UUID.randomUUID().toString());metadata.putLong("order",authority.cause().order());
+        metadata.putBoolean("friendlyFire",authority.cause().friendlyFire());metadata.putBoolean("projectile",authority.cause().projectile());
+        tag.put(DATA,metadata);enrich(tag.getCompoundOrEmpty("SpawnData").getCompoundOrEmpty("entity"),metadata);
+        for(var raw:tag.getListOrEmpty("SpawnPotentials"))if(raw instanceof CompoundTag entry)
+            enrich(entry.getCompoundOrEmpty("data").getCompoundOrEmpty("entity"),metadata);
+        spawner.loadWithComponents(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),tag));
+        spawner.setChanged();loadedSpawner(spawner);
+    }
     private static void enrich(CompoundTag entity,CompoundTag metadata) {
         var tags=entity.getListOrEmpty("Tags");tags.add(StringTag.valueOf(ACTOR));
         tags.add(StringTag.valueOf(metadata.getStringOr("epoch","")));
         var author=metadata.getStringOr("owner","");if(!author.isEmpty())tags.add(StringTag.valueOf(OWNER+author));
+        if(metadata.getBooleanOr("event",false))tags.add(StringTag.valueOf(EVENT_CAUSE+metadata.getStringOr("emitter","")+"."
+                +metadata.getLongOr("order",0)+"."+metadata.getBooleanOr("friendlyFire",true)+"."+metadata.getBooleanOr("projectile",false)));
         entity.put("Tags",tags);
     }
     private static CompoundTag metadata(SpawnerBlockEntity spawner) {
@@ -132,7 +151,7 @@ public final class LbcPotionSpawnerDrops {
         return chunk!=null && chunk.getBlockEntities().get(pos)==spawner;
     }
     private boolean producerActive(SpawnerBlockEntity spawner) {
-        return game.playing() && game.stage()!=GameController.Stage.ENDING && spawner.getLevel()==game.maps().level()
+        return game.playing() && game.stage()!=GameController.Stage.ENDING && (spawner.getLevel()==game.maps().level()||metadata(spawner).getBooleanOr("event",false))
                 && game.items().currentEpoch(metadata(spawner).getStringOr("epoch",""));
     }
     public boolean canTick(SpawnerBlockEntity spawner) {
@@ -177,15 +196,23 @@ public final class LbcPotionSpawnerDrops {
         return managed(source) || source instanceof ItemEntity token && LbcPotionSpawnerDropItem.matches(token.getItem());
     }
     private boolean active(Entity actor) {
-        return game.playing() && game.stage()!=GameController.Stage.ENDING && actor.level()==game.maps().level()
+        return game.playing() && game.stage()!=GameController.Stage.ENDING && (actor.level()==game.maps().level()||game.items().spellSources().persistent(actor))
                 && game.items().currentEpoch(actor);
     }
     public boolean canAffect(Entity source,Entity target) {
-        return !managed(source) || target!=null && active(source) && game.items().wands().validTarget(target);
+        return !managed(source) || target!=null && active(source) && (game.items().spellSources().wild(source)
+                ?game.items().spellSources().canAffect(source,target):game.items().wands().validTarget(target));
     }
     public boolean canTarget(Entity source,LivingEntity target) { return target==null || canAffect(source,target); }
     public void loaded(Entity actor) {
         if(!managed(actor))return;
+        for(var tag:actor.entityTags())if(tag.startsWith(EVENT_CAUSE))try{
+            var parts=tag.substring(EVENT_CAUSE.length()).split("\\.");
+            UUID author=null;for(var candidate:actor.entityTags())if(candidate.startsWith(OWNER))author=UUID.fromString(candidate.substring(OWNER.length()));
+            String epoch=null;for(var candidate:actor.entityTags())if(candidate.startsWith("skywars2.items."))epoch=candidate;
+            if(author!=null&&epoch!=null)game.items().spellSources().bind(actor,new LbcSpellSource.Source(UUID.fromString(parts[0]),author,epoch,
+                    new LbcIndirectKills.Owner(author,Long.parseLong(parts[1]),Boolean.parseBoolean(parts[2]),Boolean.parseBoolean(parts[3])),Set.of(),true));
+        }catch(IllegalArgumentException ignored){}
         if(!active(actor)) { actor.discard();return; }
         var potion=(ThrownSplashPotion)actor;
         // Source spawners omit Owner: keep native ownerless collision/flight, credit the separate author.

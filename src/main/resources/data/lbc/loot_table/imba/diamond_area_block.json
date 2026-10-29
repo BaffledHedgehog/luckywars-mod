@@ -1,62 +1,62 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:panda_spawn_egg",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_k",
-                                "minecraft:item_model": "minecraft:diamond_block",
-                                "minecraft:entity_data": {
-                                    "id": "minecraft:marker",
-                                    "Tags": [
-                                        "rc_1sec",
-                                        "diamondificator",
-                                        "magic"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "diamondificator",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "diamondificator.lore",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{imba:1}"
-                        }
-                    ]
+          "type": "minecraft:item",
+          "name": "minecraft:panda_spawn_egg",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_k",
+                "minecraft:item_model": "minecraft:diamond_block",
+                "minecraft:entity_data": {
+                  "id": "minecraft:marker",
+                  "Tags": [
+                    "rc_1sec",
+                    "diamondificator",
+                    "magic"
+                  ]
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "diamondificator",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "diamondificator.lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "imba_version",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

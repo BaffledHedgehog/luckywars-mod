@@ -79,6 +79,7 @@ public final class LbcPsycho {
     }
     private static final class Affliction {
         int scared,lookback,twitching,piss;
+        boolean persistentPiss;
         ServerPlayer owner;
         String epoch;
         Double previousFollowRange;
@@ -395,13 +396,16 @@ public final class LbcPsycho {
     }
     boolean yellow(LivingEntity entity,ServerPlayer owner,int ticks){
         if(entity instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player))return false;
-        afflict(entity,owner,0,0,0,0);effects.get(entity).piss=ticks;sync(entity,effects.get(entity));return true;
+        afflict(entity,owner,0,0,0,0);effects.get(entity).piss=ticks;effects.get(entity).persistentPiss=false;sync(entity,effects.get(entity));return true;
+    }
+    boolean yellowPersistent(LivingEntity entity,ServerPlayer owner,int ticks){
+        if(!yellow(entity,owner,ticks))return false;effects.get(entity).persistentPiss=true;return true;
     }
     private void tickEffects() {
         for(var entry:List.copyOf(effects.entrySet())) {
             var entity=entry.getKey(); var effect=entry.getValue();
             if(!entity.isAlive() || entity.isRemoved() || !game.items().currentEpoch(effect.epoch)
-                    || entity.level()!=game.maps().level() || entity instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)
+                    || entity.level()!=game.maps().level()&&!effect.persistentPiss || entity instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)
                     || entity.isSpectator() || entity.entityTags().contains("spectator")) { removeEffect(entity); continue; }
             if(LbcGreed.active(entity) || game.items().wands().timeStopped() || entity.entityTags().contains("time_stopped") || game.items().frost().isFrozen(entity)) continue;
             if(entity instanceof ServerPlayer player && effect.forcedItem!=null) {
@@ -546,10 +550,15 @@ public final class LbcPsycho {
                 position.x,position.y,position.z,volume,pitch,player.getRandom().nextLong()));
     }
     private void remove(Charge charge) { charges.remove(charge); charge.discard(); }
+    public void clearEffects(LivingEntity entity){if(entity instanceof ServerPlayer player)clearEffects(player);else removeEffect(entity);}
     public void clearEffects(ServerPlayer owner) { removeEffect(owner); rays.remove(owner); game.items().mana().score(owner,"screamray").set(0); }
     public void forget(ServerPlayer owner) {
         clearEffects(owner);
-        for(var entry:List.copyOf(effects.entrySet())) if(entry.getValue().owner==owner) removeEffect(entry.getKey());
+        for(var entry:List.copyOf(effects.entrySet())) if(entry.getValue().owner==owner){
+            var effect=entry.getValue();if(!effect.persistentPiss)removeEffect(entry.getKey());
+            else{if(entry.getKey() instanceof ServerPlayer player)releaseForcedUse(player,effect);effect.owner=null;
+                effect.scared=effect.lookback=effect.twitching=0;sync(entry.getKey(),effect);}
+        }
         for(var charge:List.copyOf(charges)) if(charge.getOwner()==owner) remove(charge);
         for(var vex:List.copyOf(vexes)) if(vex.caster==owner) { vexes.remove(vex); vex.discard(); }
     }

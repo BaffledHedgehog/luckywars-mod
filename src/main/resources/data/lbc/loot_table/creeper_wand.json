@@ -1,10 +1,17 @@
 {
-  "pools": [{
-    "rolls": 1,
-    "entries": [{
-      "type": "minecraft:loot_table",
-      "value": "lbc:ported/air_wand",
-      "condition": {"type": "minecraft:random_chance", "chance": 0.05}
-    }]
-  }]
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/air_wand",
+          "condition": {
+            "type": "minecraft:random_chance",
+            "chance": 0.05
+          }
+        }
+      ]
+    }
+  ]
 }

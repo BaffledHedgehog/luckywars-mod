@@ -26,7 +26,9 @@ public final class MobgunLifecycleMixin {
             if(game==null) { original.call(entity); return; }
             var service=game.items().mobgun();
             if(service.isManaged(entity) && service.owner(entity)==null) { service.dispose(entity); return; }
-            service.withParent(entity,()->{ original.call(entity); return null; });
+            try(var scope=game.items().spellSources().scope(entity)){
+                game.items().shishEncounter().withTick(entity,()->service.withParent(entity,()->{ original.call(entity); return null; }));
+            }
         }
 
         @WrapMethod(method="tickPassenger")
@@ -35,7 +37,9 @@ public final class MobgunLifecycleMixin {
             if(game==null) { original.call(vehicle,passenger); return; }
             var service=game.items().mobgun();
             if(service.isManaged(passenger) && service.owner(passenger)==null) { service.dispose(passenger); return; }
-            service.withParent(passenger,()->{ original.call(vehicle,passenger); return null; });
+            try(var scope=game.items().spellSources().scope(passenger)){
+                game.items().shishEncounter().withTick(passenger,()->service.withParent(passenger,()->{ original.call(vehicle,passenger); return null; }));
+            }
         }
 
     }
@@ -47,7 +51,9 @@ public final class MobgunLifecycleMixin {
         private void skywars2$actorSplit(Entity.RemovalReason reason,Operation<Void> original) {
             var game=SkyWars2.game();
             if(game==null) original.call(reason);
-            else game.items().mobgun().withParent((Entity)(Object)this,()->{ original.call(reason); return null; });
+            else try(var scope=game.items().spellSources().scope((Entity)(Object)this)){
+                game.items().mobgun().withParent((Entity)(Object)this,()->{ original.call(reason); return null; });
+            }
         }
     }
 
@@ -58,8 +64,15 @@ public final class MobgunLifecycleMixin {
         private <T extends Mob> T skywars2$actorConversion(EntityType<T> type,ConversionParams params,
                 EntitySpawnReason reason,ConversionParams.AfterConversion<T> afterConversion,Operation<T> original) {
             var game=SkyWars2.game();
-            return game==null ? original.call(type,params,reason,afterConversion)
-                    : game.items().mobgun().withParent((Entity)(Object)this,()->original.call(type,params,reason,afterConversion));
+            if(game==null)return original.call(type,params,reason,afterConversion);
+            Mob parent=(Mob)(Object)this;
+            ConversionParams.AfterConversion<T> callback=child->{
+                afterConversion.finalizeConversion(child);
+                game.items().spellSources().inherit(parent,child);
+                if(params.type()==net.minecraft.world.entity.ConversionType.SPLIT_ON_DEATH)game.items().apocalypseActors().splitChild(parent,child);
+                else{game.items().apocalypseEvents().inherit(parent,child);game.items().shishEncounter().inheritConversion(parent,child);}
+            };
+            return game.items().mobgun().withParent(parent,()->original.call(type,params,reason,callback));
         }
     }
 

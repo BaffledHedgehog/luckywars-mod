@@ -1,73 +1,69 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:muravei"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_ff",
-                                "minecraft:item_model": "lbc:muravei"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "drop_acid",
-                                    "italic": false,
-                                    "color": "yellow"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "trap_desc",
-                                    "italic": false,
-                                    "color": "white"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{acidboom:1,drop:1}"
-                        }
-                    ]
+                  "translate": "drop_acid",
+                  "italic": false,
+                  "color": "yellow"
                 }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
                 {
-                    "type": "minecraft:loot_table",
-                    "weight": 1,
-                    "value": "lbc:stacid_wand",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        }
-                    ],
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 0.1
-                        }
-                    ]
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
                 }
-            ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{acidboom:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:stacid_wand",
+          "modifier": {
+            "count": 1,
+            "type": "minecraft:set_count"
+          },
+          "condition": {
+            "chance": 0.1,
+            "type": "minecraft:random_chance"
+          }
+        }
+      ]
+    }
+  ]
 }

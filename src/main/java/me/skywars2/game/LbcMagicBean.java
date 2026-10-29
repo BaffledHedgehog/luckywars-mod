@@ -30,7 +30,7 @@ public final class LbcMagicBean {
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(ACTOR);}
     public boolean ready(ItemEntity token){
         if(!recognized(token.getItem())||token.isRemoved()||!game.playing()||game.stage()==GameController.Stage.ENDING
-                ||!(token.level() instanceof ServerLevel level)||level!=game.maps().level()||!LbcDimensionItems.ordinary(level)
+                ||!(token.level() instanceof ServerLevel level)||level!=game.maps().level()&&!game.items().spellSources().persistent(token)||!LbcDimensionItems.ordinary(level)
                 ||game.items().timeStop().stopped(level))return false;
         for(var tag:token.entityTags())if(tag.startsWith("skywars2.items.")&&!game.items().currentEpoch(tag))return false;
         return resident(level,token.blockPosition(),1);
@@ -41,10 +41,9 @@ public final class LbcMagicBean {
         var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(token.position());
         marker.entityTags().addAll(List.of(ACTOR,"magicbeaner","magic"));
         var author=LbcIndirectKills.playerSource(game.items().specialDrops().owner(token));
-        LbcIndirectKills.Owner cause=null;
-        if(author!=null){
-            cause=game.items().indirectKills().wildCause(author);marker.entityTags().add(OWNER+author.getUUID());marker.entityTags().add(ORDER+cause.order());
-        }
+        LbcIndirectKills.Owner cause=game.items().specialDrops().cause(token);
+        if(cause!=null){marker.entityTags().add(OWNER+cause.player());marker.entityTags().add(ORDER+cause.order());}
+        game.items().spellSources().inherit(token,marker);
         game.items().markCurrentItemEpoch(marker);var bean=new Bean(marker,cause,game.server().getTickCount());beans.put(marker,bean);
         game.items().timeStop().prepareFrozen(marker);
         if(!level.addFreshEntity(marker)){beans.remove(marker);marker.discard();return false;}
@@ -69,7 +68,7 @@ public final class LbcMagicBean {
     public long completions(){return completions;}
     List<Marker> snapshot(){return List.copyOf(beans.keySet());}
     private boolean live(Marker marker){return !marker.isRemoved()&&game.playing()&&game.stage()!=GameController.Stage.ENDING
-            &&marker.level()==game.maps().level()&&LbcDimensionItems.ordinary(marker.level())&&game.items().currentEpoch(marker);}
+            &&(marker.level()==game.maps().level()||game.items().spellSources().persistent(marker))&&LbcDimensionItems.ordinary(marker.level())&&game.items().currentEpoch(marker);}
     public void tick(){
         int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
         for(var bean:List.copyOf(beans.values())){

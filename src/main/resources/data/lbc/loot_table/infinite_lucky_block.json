@@ -1,45 +1,45 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:carrot_on_a_stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_x",
-                                "minecraft:enchantments": {
-                                    "minecraft:infinity": 1
-                                },
-                                "minecraft:custom_name": {
-                                    "color": "yellow",
-                                    "italic": false,
-                                    "translate": "infinite_lucky_block"
-                                },
-                                "minecraft:lore": [
-                                    {
-                                        "translate": "infinite_lucky_block.lore",
-                                        "color": "yellow",
-                                        "italic": false
-                                    }
-                                ],
-                                "minecraft:item_model": "lbc:infinite_lucky_block"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{magicwand:1,luckyblockwand:1,craftusable:1}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:enchantments": {
+                  "minecraft:infinity": 1
+                },
+                "minecraft:custom_name": {
+                  "color": "yellow",
+                  "italic": false,
+                  "translate": "infinite_lucky_block"
+                },
+                "minecraft:lore": [
+                  {
+                    "translate": "infinite_lucky_block.lore",
+                    "color": "yellow",
+                    "italic": false
+                  }
+                ],
+                "minecraft:item_model": "lbc:infinite_lucky_block"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{magicwand:1,luckyblockwand:1,craftusable:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

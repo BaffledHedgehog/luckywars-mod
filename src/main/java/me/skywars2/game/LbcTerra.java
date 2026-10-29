@@ -288,9 +288,9 @@ public final class LbcTerra {
     int finishingModels() { return finishingModels.size(); }
 
     void loaded(Entity entity) {
-        if (entity.level() != game.maps().level()) return;
+        if (entity.level() != game.maps().level()&&!boundSource(entity)) return;
         if (entity instanceof TerraProjectile projectile) {
-            if (!game.items().currentEpoch(projectile) || !(projectile.getOwner() instanceof ServerPlayer)) projectile.discard();
+            if (!game.items().currentEpoch(projectile) || !(projectile.getOwner() instanceof ServerPlayer)&&!boundSource(projectile)) projectile.discard();
             else projectiles.add(projectile);
         }
     }
@@ -319,11 +319,11 @@ public final class LbcTerra {
     }
     TerraProjectile sourceEmitter(ServerPlayer owner,Vec3 origin,Vec3 direction){return castAt(owner,origin,direction,Kind.REGULAR,60,true);}
     private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime,boolean emitterStyle) {
-        var level = owner.level();
-        if (level != game.maps().level() || !game.canUseGameplayItems(owner)) return null;
+        var level = sourceLevel(owner);
+        if (!persistentSource()&&(level != game.maps().level() || !game.canUseGameplayItems(owner))) return null;
         var projectile = new TerraProjectile(TYPE, level);
         projectile.kind = kind; projectile.sourceLifetime=lifetime;projectile.emitterStyle=emitterStyle;
-        projectile.setOwner(owner);
+        projectile.setOwner(nativeSourceOwner(owner));
         projectile.setPos(origin);
         projectile.setDeltaMovement(direction.normalize().scale(kind.speed));
         LbcShooters.orient(projectile);
@@ -334,19 +334,19 @@ public final class LbcTerra {
             projectile.setDeltaMovement(Vec3.directionFromRotation(pitch,yaw).scale(kind.speed));
         }
         projectile.entityTags().add("magic");
-        projectile.entityTags().add(game.items().epoch());
+        game.items().markCurrentItemEpoch(projectile);
         if (level.addFreshEntity(projectile)) {
             projectiles.add(projectile);
             if (kind.lifetime == 0 && lifetime==0) game.items().lifetimes().track(projectile);
             if(emitterStyle){game.items().spellSources().capture(projectile);return projectile;}
             projectile.attachModel();projectile.syncModel(visualEnd(projectile, owner));
             if (kind == Kind.TRUE_BEAM)
-                LbcOverload.sound(owner, origin, "minecraft:block.beacon.activate", .5f, 2, 0);
+                sourceSound(owner, origin, "minecraft:block.beacon.activate", .5f, 2, 0);
             else if (kind == Kind.TRUE_CHARGE || kind == Kind.RAZOR)
-                LbcOverload.sound(owner, origin, "minecraft:block.amethyst_block.break", 1, 1, 0);
+                sourceSound(owner, origin, "minecraft:block.amethyst_block.break", 1, 1, 0);
             else if (kind == Kind.SWORD)
-                LbcOverload.sound(owner, origin, "minecraft:block.amethyst_cluster.break", 1, 0, 0);
-            else LbcOverload.sound(owner, origin, "minecraft:block.amethyst_cluster.break", 1, 1, 0);
+                sourceSound(owner, origin, "minecraft:block.amethyst_cluster.break", 1, 0, 0);
+            else sourceSound(owner, origin, "minecraft:block.amethyst_cluster.break", 1, 1, 0);
         }
         return projectile;
     }
@@ -363,13 +363,11 @@ public final class LbcTerra {
             for (var projectile : batch) {
                 try(var sourceScope=game.items().spellSources().scope(projectile)){
                 if (!projectiles.contains(projectile)) continue;
-                if (projectile.isRemoved() || !(projectile.getOwner() instanceof ServerPlayer owner)
-                        || owner.isRemoved() || !owner.isAlive() || owner.level() != projectile.level()
-                        || projectile.level() != game.maps().level() || !game.items().currentEpoch(projectile)
-                        || !game.canUseGameplayItems(owner) || game.stage() == GameController.Stage.ENDING) {
+                var owner=game.items().spellSources().author(projectile);
+                if(!liveSourceCharge(projectile,owner)) {
                     remove(projectile); continue;
                 }
-                if (stopped || (game.items().spellSources().current()!=null?projectile:owner).entityTags().contains("time_stopped")) {
+                if (game.items().timeStop().stopped((ServerLevel)projectile.level()) || (game.items().spellSources().current()!=null?projectile:owner).entityTags().contains("time_stopped")) {
                     if (!projectile.modelPaused) projectile.syncModel(projectile.position());
                     projectile.modelPaused = true;
                     continue;
@@ -390,7 +388,7 @@ public final class LbcTerra {
 
     private boolean step(TerraProjectile projectile, ServerPlayer owner) {
         if(projectile.emitterStyle)return emitterStep(projectile,owner);
-        var level = owner.level();
+        var level = sourceLevel(owner);
         Vec3 from = projectile.position(), motion = projectile.getDeltaMovement(), to = from.add(motion);
         if (!level.hasChunkAt(BlockPos.containing(from)) || motion.lengthSqr() < 1e-12
                 || game.items().magic().suppressedAt(level, from)) return false;
@@ -423,7 +421,7 @@ public final class LbcTerra {
         // только настоящий from..end, а прогноз не наносит урона и не меняет дальность.
         renderTrail(projectile, visualFrom, visualTo);
         if (shieldFirst) {
-            LbcOverload.sound(owner, shield.getEntity().position(), "minecraft:item.shield.block", 1, 1, 0);
+            sourceSound(owner, shield.getEntity().position(), "minecraft:item.shield.block", 1, 1, 0);
             finishModel(projectile);
             return false;
         }
@@ -438,7 +436,7 @@ public final class LbcTerra {
 
     /** Original hostile Terra samples share vegetation and native collision, without the player's blade model. */
     private boolean emitterStep(TerraProjectile projectile,ServerPlayer owner){
-        var level=owner.level();var from=projectile.position();var direction=projectile.getDeltaMovement().normalize();
+        var level=sourceLevel(owner);var from=projectile.position();var direction=projectile.getDeltaMovement().normalize();
         var shield=game.items().wands().shieldHit(owner,from,from.add(direction.scale(1.8)));
         for(int i=0;i<7;i++){
             var at=from.add(direction.scale(i*.3));var cell=BlockPos.containing(at);
@@ -500,7 +498,7 @@ public final class LbcTerra {
     private Vec3 visualEnd(TerraProjectile projectile, ServerPlayer owner) {
         if (game.server().tickRateManager().isFrozen()) return projectile.position();
         Vec3 from = projectile.position(), to = from.add(projectile.getDeltaMovement());
-        var wall = wallHit(owner.level(), from, to);
+        var wall = wallHit(sourceLevel(owner), from, to);
         Vec3 end = wall == null ? to : wall.getLocation();
         var shield = game.items().wands().shieldHit(owner, from, end);
         return shield == null ? end : shield.getLocation();
@@ -520,7 +518,7 @@ public final class LbcTerra {
     }
 
     private boolean target(ServerPlayer owner, Entity entity) {
-        return entity instanceof LivingEntity && entity.level() == owner.level()
+        return entity instanceof LivingEntity && entity.level() == sourceLevel(owner)
                 && entity.getType().builtInRegistryHolder().is(MOBS) && game.items().wands().projectileTarget(owner, entity);
     }
 
@@ -532,7 +530,7 @@ public final class LbcTerra {
         int steps = Math.max(1, Math.min(3, (int)Math.ceil(distance / BEAM_STEP - 1e-7)));
         Vec3 right = beamRight(projectile), forward = projectile.getDeltaMovement().normalize();
         to = from.add(forward.scale(distance));
-        for (Entity candidate : owner.level().getEntities(owner, new AABB(from, to).inflate(1), entity -> target(owner, entity))) {
+        for (Entity candidate : sourceLevel(owner).getEntities(owner, new AABB(from, to).inflate(1), entity -> target(owner, entity))) {
             var bounds = candidate.getBoundingBox().inflate(BEAM_HIT_PADDING);
             var hit = new EntityHitResult(candidate);
             // Legacy: три рабочих шага и три независимые полосы; широкая цель получает повторные удары.
@@ -600,4 +598,15 @@ public final class LbcTerra {
         for (var model : finishingModels) model.holder().destroy();
         finishingModels.clear();
     }
+    TerraProjectile sourceEmitter(ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
+        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
+        else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);
+    }
+    private net.minecraft.server.level.ServerLevel sourceLevel(ServerPlayer owner){return game.items().spellSources().level(owner);}
+    private boolean persistentSource(){var source=game.items().spellSources().current();return source!=null&&source.persistent()&&game.items().currentEpoch(source.epoch())&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&sourceLevel(null)!=null&&LbcDimensionItems.ordinary(sourceLevel(null));}
+    private boolean boundSource(Entity entity){var source=game.items().spellSources().source(entity);return source!=null&&game.items().currentEpoch(source.epoch())&&LbcDimensionItems.ordinary(entity.level());}
+    private Entity nativeSourceOwner(ServerPlayer owner){var source=game.items().spellSources().current();return source==null?owner:sourceLevel(owner).getEntity(source.emitter());}
+    private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
+
 }

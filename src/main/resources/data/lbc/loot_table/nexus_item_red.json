@@ -1,67 +1,67 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 0,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:nexus_orb_gun"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 0,
-                    "name": "minecraft:carrot_on_a_stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_x",
-                                "minecraft:item_model": "lbc:nexus_orb_gun"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "nexus_orb_gun",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "nexus_orb_gun.lore.1",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "nexus_orb_gun.lore.2",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "nexus_orb_gun.lore.3",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "nexus_orb_gun.lore.4",
-                                    "italic": false,
-                                    "color": "white"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{magicwand:1,nexus_orb_gun:1}"
-                        }
-                    ]
+                  "translate": "nexus_orb_gun",
+                  "italic": false
                 }
-            ]
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "nexus_orb_gun.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_orb_gun.lore.2",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_orb_gun.lore.3",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_orb_gun.lore.4",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{magicwand:1,nexus_orb_gun:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

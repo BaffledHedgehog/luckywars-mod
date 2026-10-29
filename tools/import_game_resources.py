@@ -124,7 +124,11 @@ def _migrate_loot_schema(value: object, stats: dict[str, int] | None = None) -> 
         value["type"] = value.pop("function")
         if stats is not None:
             stats["function discriminators"] = stats.get("function discriminators", 0) + 1
-    if "condition" in value:
+    # Current containers already use condition for inline predicates/references.
+    # Rename only a legacy predicate discriminator, retaining current containers.
+    condition = value.get("condition")
+    legacy_condition = isinstance(condition, str) and (":" not in condition or condition.startswith("minecraft:"))
+    if legacy_condition and not any(key in value for key in ("type", "entries", "rolls", "modifier")):
         value["type"] = value.pop("condition")
         if stats is not None:
             stats["condition discriminators"] = stats.get("condition discriminators", 0) + 1

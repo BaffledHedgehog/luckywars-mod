@@ -1,133 +1,131 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:random_sauvojen_wand_tiny"
+          "type": "minecraft:loot_table",
+          "value": "lbc:random_sauvojen_wand_tiny"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bone_meal",
+          "modifier": {
+            "count": 1,
+            "type": "minecraft:set_count"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:skeleton_skull",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:unbreakable": {},
+                "minecraft:enchantments": {
+                  "minecraft:thorns": 15
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "tiny_skull",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "tiny_skeleton_relic",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
         },
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:golden_sword",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:max_damage": 32,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:tiny_bone"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "modifiers": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:bone_meal",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:skeleton_skull",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_b",
-                                "minecraft:unbreakable": {},
-                                "minecraft:enchantments": {
-                                    "minecraft:thorns": 15
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "tiny_skull",
-                                    "color": "gold",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "tiny_skeleton_relic",
-                                    "italic": false,
-                                    "color": "yellow"
-                                }
-                            ]
-                        }
-                    ]
+                  "id": "minecraft:afsgfgrirj8ighjrgirj",
+                  "amount": 10,
+                  "attribute": "minecraft:entity_interaction_range",
+                  "operation": "add_value",
+                  "slot": "mainhand"
                 },
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:golden_sword",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:max_damage": 32,
-                                "minecraft:tooltip_style": "lbc:tier_a",
-                                "minecraft:item_model": "lbc:tiny_bone"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "id": "minecraft:afsgfgrirj8ighjrgirj",
-                                    "amount": 10,
-                                    "attribute": "minecraft:entity_interaction_range",
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                },
-                                {
-                                    "id": "minecraft:afsgf32664ighjrgirj",
-                                    "amount": 10,
-                                    "attribute": "minecraft:block_interaction_range",
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                },
-                                {
-                                    "id": "minecraft:base_attack_damage",
-                                    "amount": 5,
-                                    "attribute": "minecraft:attack_damage",
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "sharp_thing",
-                                    "color": "gold",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "tiny_skeleton_relic",
-                                    "italic": false,
-                                    "color": "yellow"
-                                }
-                            ]
-                        }
-                    ]
+                  "id": "minecraft:afsgf32664ighjrgirj",
+                  "amount": 10,
+                  "attribute": "minecraft:block_interaction_range",
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                },
+                {
+                  "id": "minecraft:base_attack_damage",
+                  "amount": 5,
+                  "attribute": "minecraft:attack_damage",
+                  "operation": "add_value",
+                  "slot": "mainhand"
                 }
-            ]
+              ],
+              "type": "minecraft:set_attributes"
+            },
+            {
+              "name": [
+                {
+                  "translate": "sharp_thing",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "tiny_skeleton_relic",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

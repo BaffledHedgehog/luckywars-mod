@@ -1,41 +1,40 @@
-    {"type":"empty",
-    "pools": [
+{
+  "type": "empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:brown_mushroom_block",
+          "modifier": {
+            "components": {
+              "minecraft:item_model": "lbc:lucky_block_neko",
+              "minecraft:custom_name": {
+                "color": "light_purple",
+                "italic": false,
+                "text": "Lucky Block Neko"
+              },
+              "minecraft:lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:brown_mushroom_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:lucky_block_neko",
-                                "minecraft:custom_name": {
-                                    "color": "light_purple",
-                                    "italic": false,
-                                    "text": "Lucky Block Neko"
-                                },
-                                "minecraft:lore": [
-                                    {
-                                        "text": "By BaffledHedgehog",
-                                        "color": "gray",
-                                        "italic": false
-                                    }
-                                ],
-                                "minecraft:block_state": {
-                                    "up": "false",
-                                    "down": "false",
-                                    "north": "false",
-                                    "south": "false",
-                                    "east": "false",
-                                    "west": "false"
-                                }
-                            }
-                        }
-                    ]
+                  "text": "By BaffledHedgehog",
+                  "color": "gray",
+                  "italic": false
                 }
-            ]
+              ],
+              "minecraft:block_state": {
+                "up": "false",
+                "down": "false",
+                "north": "false",
+                "south": "false",
+                "east": "false",
+                "west": "false"
+              }
+            },
+            "type": "minecraft:set_components"
+          }
         }
-    ]
+      ]
+    }
+  ]
 }

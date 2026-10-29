@@ -1,62 +1,62 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:panda_spawn_egg",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_s",
-                                "minecraft:item_model": "lbc:nuke",
-                                "minecraft:entity_data": {
-                                    "id": "minecraft:marker",
-                                    "Tags": [
-                                        "nuke",
-                                        "rc_1sec",
-                                        "marker_2t",
-                                        "mecha"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "nuke",
-                                    "color": "dark_red",
-                                    "bold": true,
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "nuke.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "nuke.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
+          "type": "minecraft:item",
+          "name": "minecraft:panda_spawn_egg",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:nuke",
+                "minecraft:entity_data": {
+                  "id": "minecraft:marker",
+                  "Tags": [
+                    "nuke",
+                    "rc_1sec",
+                    "marker_2t",
+                    "mecha"
+                  ]
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "nuke",
+                  "color": "dark_red",
+                  "bold": true,
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "nuke.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "nuke.lore.2",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

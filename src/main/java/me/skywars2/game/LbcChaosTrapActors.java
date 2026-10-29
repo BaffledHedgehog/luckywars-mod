@@ -86,6 +86,14 @@ public final class LbcChaosTrapActors {
         if(flag.equals("bob"))spawn(level,EntityTypes.ZOMBIE,BOB,token.position(),author);
         return true;
     }
+    boolean spawnForest(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at){
+        if(authority==null||!game.items().currentEpoch(authority.epoch())||!game.playing()||game.stage()==GameController.Stage.ENDING
+                ||!resident(level,BlockPos.containing(at),0))return false;
+        var marker=EntityTypes.MARKER.create(level,EntitySpawnReason.COMMAND);if(marker==null)return false;
+        marker.entityTags().addAll(List.of("forest","rc_5t","magic",AGE+"0"));
+        game.items().spellSources().bind(marker,new LbcSpellSource.Source(marker.getUUID(),authority.author(),authority.epoch(),authority.cause(),Set.of(),true));
+        admit(level,marker,at,game.server().getPlayerList().getPlayer(authority.author()));return !marker.isRemoved();
+    }
     private void spawn(ServerLevel level,EntityType<?> type,CompoundTag data,Vec3 at,ServerPlayer author){
         if(!net.minecraft.world.level.Level.isInSpawnableBounds(BlockPos.containing(at)))return;
         var actor=type.create(level,EntitySpawnReason.COMMAND);
@@ -114,11 +122,12 @@ public final class LbcChaosTrapActors {
         return null;
     }
     private boolean active(Entity actor){return game.playing()&&game.stage()!=GameController.Stage.ENDING
-            &&actor.level()==game.maps().level()&&game.items().currentEpoch(actor);}
+            &&(actor.level()==game.maps().level()||game.items().spellSources().persistent(actor))&&game.items().currentEpoch(actor);}
     public boolean canAffect(Entity actor,Entity target){
         if(actor instanceof Projectile projectile&&managed(projectile.getOwner()))actor=projectile.getOwner();
         if(!managed(actor))return true;
         if(target==null||!active(actor)||!game.items().wands().validTarget(target))return false;
+        if(game.items().spellSources().wild(actor))return game.items().spellSources().canAffect(actor,target);
         return !(owner(actor) instanceof ServerPlayer author)||target==author||game.items().wands().target(author,target);
     }
     public boolean canTarget(Entity actor,LivingEntity target){return target==null||canAffect(actor,target);}

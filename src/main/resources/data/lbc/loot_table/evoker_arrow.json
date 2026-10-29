@@ -1,45 +1,45 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_b",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 2236962,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:raid_omen",
-                                            "amplifier": 113,
-                                            "duration": 1800
-                                        }
-                                    ]
-                                },
-                                "tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:potion_contents"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "trapping_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
+          "type": "minecraft:item",
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:potion_contents": {
+                  "custom_color": 2236962,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:raid_omen",
+                      "amplifier": 113,
+                      "duration": 1800
+                    }
+                  ]
+                },
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "trapping_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

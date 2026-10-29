@@ -1,55 +1,55 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "divider",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:divider"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:carrot_on_a_stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "translate": "divider",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_s",
-                                "minecraft:item_model": "lbc:divider"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "divider.lore",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "divider.lore.1",
-                                    "italic": false,
-                                    "color": "gold"
-                                },
-                                {
-                                    "translate": "craft_with_metal_pipe",
-                                    "italic": false,
-                                    "color": "yellow"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{craftusable:1,magicwand:1,greed_greed:1,spellwithcooldown:1}"
-                        }
-                    ]
+                  "translate": "divider.lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "divider.lore.1",
+                  "italic": false,
+                  "color": "gold"
+                },
+                {
+                  "translate": "craft_with_metal_pipe",
+                  "italic": false,
+                  "color": "yellow"
                 }
-            ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,magicwand:1,greed_greed:1,spellwithcooldown:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

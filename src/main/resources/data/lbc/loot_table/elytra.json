@@ -1,51 +1,47 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:firework_rocket",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:fireworks": {
-                                    "explosions": [
-                                        {
-                                            "shape": "large_ball",
-                                            "colors": [
-                                                16772608
-                                            ],
-                                            "fade_colors": [
-                                                16748800
-                                            ]
-                                        }
-                                    ],
-                                    "flight_duration": 9
-                                }
-                            }
-                        }
+          "type": "minecraft:item",
+          "name": "minecraft:firework_rocket",
+          "modifier": {
+            "components": {
+              "minecraft:fireworks": {
+                "explosions": [
+                  {
+                    "shape": "large_ball",
+                    "colors": [
+                      16772608
+                    ],
+                    "fade_colors": [
+                      16748800
                     ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:elytra",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:damage": 427
-                            }
-                        }
-                    ]
-                }
-            ]
+                  }
+                ],
+                "flight_duration": 9
+              }
+            },
+            "type": "minecraft:set_components"
+          }
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:elytra",
+          "modifier": {
+            "components": {
+              "minecraft:damage": 427
+            },
+            "type": "minecraft:set_components"
+          }
+        }
+      ]
+    }
+  ]
 }

@@ -298,7 +298,7 @@ public final class LbcMagic {
         dirtyInventories.add(player.getUUID()); pendingCleansing.add(player.getUUID());
         game.items().mana().inventoryChanged(player);
         game.items().shulkerArmor().inventoryChanged(player);
-        game.items().armorSets().inventoryChanged(player);
+        game.items().armorSets().inventoryChanged(player);game.items().shishEncounter().inventoryChanged(player);
     }
     public void clear(ServerPlayer player) {
         game.items().electro().inventory(player,false);

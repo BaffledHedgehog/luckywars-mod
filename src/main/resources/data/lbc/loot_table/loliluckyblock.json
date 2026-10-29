@@ -1,1506 +1,1506 @@
+{
+  "pools": [
     {
-        "pools": [
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:iron_sword",
+          "modifier": [
             {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_d",
-                                    "minecraft:item_model": "lbc:crowbar",
-                                    "minecraft:attribute_modifiers": [
-                                        {
-                                            "type": "minecraft:attack_damage",
-                                            "slot": "mainhand",
-                                            "id": "minecraft:base_attack_damage",
-                                            "amount": 8,
-                                            "operation": "add_value"
-                                        },
-                                        {
-                                            "type": "minecraft:attack_speed",
-                                            "slot": "mainhand",
-                                            "id": "minecraft:base_attack_speed",
-                                            "amount": -2.4,
-                                            "operation": "add_value"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "crowbar",
-                                        "color": "aqua",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,crowbar:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "quality": 0,
-                        "name": "minecraft:carrot_on_a_stick",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_d",
-                                    "minecraft:item_model": "lbc:govnomet"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "shit_cannon",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "shooter",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "shit_cannon.lore",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    {
-                                        "translate": "shitgun.lore",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "Nightmare_23",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " Beta Server Harem event",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{govnoq:1,transformable:1,shooter:1,magicwand:1,craftusable:1,govnomet:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:repeating_command_block",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_ff",
-                                    "minecraft:item_model": "lbc:drop_trap"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "drop_enzan",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "trap_desc",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{levitation:1,drop:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "weight": 10,
-                        "value": "lbc:one_punch_glove",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "quality": 8,
-                        "name": "minecraft:carrot_on_a_stick",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_s",
-                                    "minecraft:item_model": "lbc:time_clock"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "time_clocks",
-                                        "color": "green",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "text": "60 ",
-                                            "italic": false,
-                                            "color": "aqua",
-                                            "type": "text"
-                                        },
-                                        {
-                                            "translate": "recharge_time",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "time_clocks.lore",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    {
-                                        "translate": "craft_with_stand_arrow",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "DraumLord",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " Beta Server Harem event",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{craftusable:1,spellwithcooldown:1,magicwand:1,time_stopper:1}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:repeating_command_block",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_ff",
-                                    "minecraft:item_model": "lbc:drop_boss"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "drop_stalin",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "trap_desc",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{stalin:1,drop:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:repeating_command_block",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_ff",
-                                    "minecraft:item_model": "lbc:drop_not_trap"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "drop_mom",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "trap_desc",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{mom:1,drop:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:railgun",
-                        "weight": 10,
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "quality": 8,
-                        "name": "minecraft:carrot_on_a_stick",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_d",
-                                    "minecraft:item_model": "lbc:shetka"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "shetka",
-                                        "color": "green",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "shetka.lore",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "Nightmare_23",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " Chess Winner",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{raycastspell:1,shetka:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "weight": 10,
-                        "quality": 8,
-                        "value": "lbc:malevich_rnd",
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:repeating_command_block",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_ff",
-                                    "minecraft:item_model": "lbc:drop_trap"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "drop_transformator",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "trap_desc",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformator:1,drop:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:moisei_boots",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:repeating_command_block",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_ff",
-                                    "minecraft:item_model": "lbc:drop_boss"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "drop_otchim",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "trap_desc",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{otchim:1,drop:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "quality": 8,
-                        "name": "minecraft:snowball",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_f",
-                                    "minecraft:item_model": "lbc:kill_button"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "kill_button",
-                                        "color": "green",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "kill_button.lore",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "Daeris_",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " Baffled Lifestory Event",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{gadget:1,kill_rand:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "final_luck_modifier"
-                                        },
-                                        "score": "lbc.math",
-                                        "scale": 1
-                                    },
-                                    "range": 7
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_a",
-                                    "minecraft:item_model": "lbc:antimagic_stick",
-                                    "minecraft:enchantments": {
-                                        "minecraft:knockback": 255
-                                    },
-                                    "minecraft:attribute_modifiers": [
-                                        {
-                                            "type": "minecraft:attack_damage",
-                                            "slot": "mainhand",
-                                            "id": "minecraft:base_attack_damage",
-                                            "amount": 4,
-                                            "operation": "add_value"
-                                        },
-                                        {
-                                            "type": "minecraft:attack_speed",
-                                            "slot": "mainhand",
-                                            "id": "minecraft:base_attack_speed",
-                                            "amount": -2,
-                                            "operation": "add_value"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "antimagic_stick",
-                                        "color": "aqua",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "antimagic_stick.lore",
-                                        "color": "yellow",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "nischtosnektem",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " Happy Birthday 14.10.2023!",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,antimagic:1}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "quality": 8,
-                        "name": "minecraft:snowball",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_a",
-                                    "minecraft:item_model": "lbc:gayradar"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "gayradar",
-                                        "color": "green",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "gayradar.lore.1",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    {
-                                        "translate": "gayradar.lore.2",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "Firtozius",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " No Nut November 2023 Event",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{gadget:1,gayradar:1}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:carrot_on_a_stick",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_x",
-                                    "minecraft:item_model": "lbc:banhammer",
-                                    "minecraft:attribute_modifiers": [
-                                        {
-                                            "type": "minecraft:attack_damage",
-                                            "slot": "mainhand",
-                                            "id": "minecraft:base_attack_damage",
-                                            "amount": 11,
-                                            "operation": "add_value"
-                                        },
-                                        {
-                                            "type": "minecraft:attack_speed",
-                                            "slot": "mainhand",
-                                            "id": "minecraft:base_attack_speed",
-                                            "amount": -2.8,
-                                            "operation": "add_value"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "banhammer",
-                                        "color": "aqua",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "axe",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "banhammer.lore",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "JustSh1sh_",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " No Nut November 2023 Event",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{swordwithability:1,transformable:1,axe:1,banhammer:1,magicwand:1}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:stand_arrow",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:wtf_item",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:repeating_command_block",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_ff",
-                                    "minecraft:item_model": "lbc:drop_boss"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "drop_helicopter",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "trap_desc",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{helicopter_boss:1,drop:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "ranked"
-                                        },
-                                        "score": "lbc.event",
-                                        "scale": 1
-                                    },
-                                    "range": 1
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:repeating_command_block",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_ff",
-                                    "minecraft:item_model": "lbc:drop_boss"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "drop_helicopter",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "trap_desc",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{helicopter_boss:1,drop:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            },
-                            {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "ranked"
-                                    },
-                                    "score": "lbc.event",
-                                    "scale": 1
-                                },
-                                "range": 1
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:slr",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "name": "minecraft:repeating_command_block",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_ff",
-                                    "minecraft:item_model": "lbc:drop_boss"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "drop_muravei",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "trap_desc",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{muravei:1,drop:1}"
-                            }
-                        ],
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "quality": 0,
-                        "name": "minecraft:carrot_on_a_stick",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_s",
-                                    "minecraft:item_model": "lbc:zaika"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "admin_zaika",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "admin_zaika.lore.1",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    {
-                                        "translate": "admin_zaika.lore.2",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    {
-                                        "translate": "admin_zaika.lore.3",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "JustSh1sh_",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " Happy Birthday 11.12.2023!",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{zaika:1,magicwand:1}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:drone",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:madoka_bow",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:boba_eblan",
-                        "weight": 10,
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "ranked"
-                                        },
-                                        "score": "lbc.event",
-                                        "scale": 1
-                                    },
-                                    "range": 1
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:crocodildo",
-                        "weight": 10,
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "ranked"
-                                        },
-                                        "score": "lbc.event",
-                                        "scale": 1
-                                    },
-                                    "range": 1
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:sauvojen_tuntija_wand",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:herman_antigravity",
-                        "weight": 10,
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "#gamemode"
-                                        },
-                                        "score": "swrg.math",
-                                        "scale": 1
-                                    },
-                                    "range": {
-                                        "min": 3,
-                                        "max": 4
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:big_bob",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:siggewinne_syringe",
-                        "weight": 10
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:lust_death",
-                        "weight": 10,
-                        "conditions": [
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:entity_properties",
-                                    "entity": "this",
-                                    "predicate": {
-                                        "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                                    }
-                                }
-                            },
-                            {
-                                "condition": "minecraft:inverted",
-                                "term": {
-                                    "condition": "minecraft:value_check",
-                                    "value": {
-                                        "type": "minecraft:score",
-                                        "target": {
-                                            "type": "minecraft:fixed",
-                                            "name": "#gamemode"
-                                        },
-                                        "score": "swrg.math",
-                                        "scale": 1
-                                    },
-                                    "range": {
-                                        "min": 3,
-                                        "max": 4
-                                    }
-                                }
-                            }
-                        ]
-                    }
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_d",
+                "minecraft:item_model": "lbc:crowbar",
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 8,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -2.4,
+                    "operation": "add_value"
+                  }
                 ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "crowbar",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,crowbar:1}",
+              "type": "minecraft:set_custom_data"
             }
-        ]
+          ],
+          "condition": {
+            "term": {
+              "value": {
+                "type": "minecraft:score",
+                "target": {
+                  "type": "minecraft:fixed",
+                  "name": "final_luck_modifier"
+                },
+                "score": "lbc.math"
+              },
+              "type": "minecraft:int_value_check",
+              "test": 7
+            },
+            "type": "minecraft:inverted"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 0,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_d",
+                "minecraft:item_model": "lbc:govnomet"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "shit_cannon",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "shooter",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "shit_cannon.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "shitgun.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Nightmare_23",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Beta Server Harem event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{govnoq:1,transformable:1,shooter:1,magicwand:1,craftusable:1,govnomet:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "term": {
+              "value": {
+                "type": "minecraft:score",
+                "target": {
+                  "type": "minecraft:fixed",
+                  "name": "final_luck_modifier"
+                },
+                "score": "lbc.math"
+              },
+              "type": "minecraft:int_value_check",
+              "test": 7
+            },
+            "type": "minecraft:inverted"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:drop_trap"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "drop_enzan",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{levitation:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 7
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 10,
+          "value": "lbc:one_punch_glove",
+          "modifier": {
+            "count": 1,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 8,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:time_clock"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "time_clocks",
+                  "color": "green",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "text": "60 ",
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "text"
+                  },
+                  {
+                    "translate": "recharge_time",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "time_clocks.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "craft_with_stand_arrow",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "DraumLord",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Beta Server Harem event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,spellwithcooldown:1,magicwand:1,time_stopper:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:drop_boss"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "drop_stalin",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{stalin:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 7
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:drop_not_trap"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "drop_mom",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{mom:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 7
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:railgun",
+          "weight": 10,
+          "condition": {
+            "term": {
+              "value": {
+                "type": "minecraft:score",
+                "target": {
+                  "type": "minecraft:fixed",
+                  "name": "final_luck_modifier"
+                },
+                "score": "lbc.math"
+              },
+              "type": "minecraft:int_value_check",
+              "test": 7
+            },
+            "type": "minecraft:inverted"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 8,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_d",
+                "minecraft:item_model": "lbc:shetka"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "shetka",
+                  "color": "green",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "shetka.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Nightmare_23",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Chess Winner",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{raycastspell:1,shetka:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "term": {
+              "value": {
+                "type": "minecraft:score",
+                "target": {
+                  "type": "minecraft:fixed",
+                  "name": "final_luck_modifier"
+                },
+                "score": "lbc.math"
+              },
+              "type": "minecraft:int_value_check",
+              "test": 7
+            },
+            "type": "minecraft:inverted"
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 10,
+          "quality": 8,
+          "value": "lbc:malevich_rnd",
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 7
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:drop_trap"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "drop_transformator",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformator:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 7
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:moisei_boots",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:drop_boss"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "drop_otchim",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{otchim:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 7
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 8,
+          "name": "minecraft:snowball",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_f",
+                "minecraft:item_model": "lbc:kill_button"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "kill_button",
+                  "color": "green",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "kill_button.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Daeris_",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Baffled Lifestory Event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{gadget:1,kill_rand:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "term": {
+              "value": {
+                "type": "minecraft:score",
+                "target": {
+                  "type": "minecraft:fixed",
+                  "name": "final_luck_modifier"
+                },
+                "score": "lbc.math"
+              },
+              "type": "minecraft:int_value_check",
+              "test": 7
+            },
+            "type": "minecraft:inverted"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:antimagic_stick",
+                "minecraft:enchantments": {
+                  "minecraft:knockback": 5
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 4,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -2,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "antimagic_stick",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "antimagic_stick.lore",
+                  "color": "yellow",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "nischtosnektem",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Happy Birthday 14.10.2023!",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,antimagic:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 8,
+          "name": "minecraft:snowball",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:gayradar"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "gayradar",
+                  "color": "green",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "gayradar.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "gayradar.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Firtozius",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " No Nut November 2023 Event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{gadget:1,gayradar:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:banhammer",
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 11,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -2.8,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "banhammer",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "axe",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "banhammer.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "JustSh1sh_",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " No Nut November 2023 Event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{swordwithability:1,transformable:1,axe:1,banhammer:1,magicwand:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:stand_arrow",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:wtf_item",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:drop_boss"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "drop_helicopter",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{helicopter_boss:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "ranked"
+                    },
+                    "score": "lbc.event"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 1
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:drop_boss"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "drop_helicopter",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{helicopter_boss:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "value": {
+                  "type": "minecraft:score",
+                  "target": {
+                    "type": "minecraft:fixed",
+                    "name": "ranked"
+                  },
+                  "score": "lbc.event"
+                },
+                "type": "minecraft:int_value_check",
+                "test": 1
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:slr",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:drop_boss"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "drop_muravei",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "trap_desc",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{muravei:1,drop:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ],
+          "condition": {
+            "term": {
+              "entity": "this",
+              "predicate": {
+                "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+              },
+              "type": "minecraft:entity_properties"
+            },
+            "type": "minecraft:inverted"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 0,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:zaika"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "admin_zaika",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "admin_zaika.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "admin_zaika.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "admin_zaika.lore.3",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "JustSh1sh_",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Happy Birthday 11.12.2023!",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{zaika:1,magicwand:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:drone",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:madoka_bow",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:boba_eblan",
+          "weight": 10,
+          "condition": {
+            "term": {
+              "value": {
+                "type": "minecraft:score",
+                "target": {
+                  "type": "minecraft:fixed",
+                  "name": "ranked"
+                },
+                "score": "lbc.event"
+              },
+              "type": "minecraft:int_value_check",
+              "test": 1
+            },
+            "type": "minecraft:inverted"
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:crocodildo",
+          "weight": 10,
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "ranked"
+                    },
+                    "score": "lbc.event"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 1
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:sauvojen_tuntija_wand",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:herman_antigravity",
+          "weight": 10,
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "#gamemode"
+                    },
+                    "score": "swrg.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": {
+                    "min": 3,
+                    "max": 4
+                  }
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:big_bob",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:siggewinne_syringe",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:lust_death",
+          "weight": 10,
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "#gamemode"
+                    },
+                    "score": "swrg.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": {
+                    "min": 3,
+                    "max": 4
+                  }
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        }
+      ]
     }
+  ]
+}

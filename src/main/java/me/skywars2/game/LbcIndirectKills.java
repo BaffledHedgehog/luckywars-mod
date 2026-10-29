@@ -29,7 +29,7 @@ import java.util.function.BooleanSupplier;
 public final class LbcIndirectKills {
     /** Общий fill strict для ловушек с авторством последующего удушения от их блоков. */
     void fillTrap(ServerPlayer owner, BlockPos first, BlockPos last, BlockState state) {
-        var level=owner.level();
+        var level=game.items().spellSources().level(owner);
         int flags=net.minecraft.world.level.block.Block.UPDATE_CLIENTS | net.minecraft.world.level.block.Block.UPDATE_KNOWN_SHAPE
                 | net.minecraft.world.level.block.Block.UPDATE_SUPPRESS_DROPS
                 | net.minecraft.world.level.block.Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS
@@ -116,7 +116,10 @@ public final class LbcIndirectKills {
 
     LbcIndirectKills(GameController game) { this.game=game; }
     private Owner owner(ServerPlayer player) { return owner(player,false); }
-    private Owner owner(ServerPlayer player,boolean friendlyFire) { return new Owner(player.getUUID(),++order,friendlyFire,false); }
+    private Owner owner(ServerPlayer player,boolean friendlyFire) {
+        var source=game.items().spellSources().current();if(source!=null&&(player==null||source.author().equals(player.getUUID())))return source.cause();
+        return player==null?null:new Owner(player.getUUID(),++order,friendlyFire,false);
+    }
 
     /** WILD totem Wither keeps its author and allegiance policy through real effect ticks. */
     void wildEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
@@ -316,7 +319,7 @@ public final class LbcIndirectKills {
 
     /** До удаления собираем только стоящих именно на этой collision shape, не всех соседей. */
     public void supportRemoved(ServerPlayer player, BlockPos pos) {
-        supportRemoved(player.level(),player,pos);
+        supportRemoved(game.items().spellSources().level(player),player,pos);
     }
     public void supportRemoved(ServerLevel level,ServerPlayer player,BlockPos pos) {
         supportRemoved(level,owner(player),pos);
@@ -378,7 +381,7 @@ public final class LbcIndirectKills {
 
     /** События собирают только новые удушающие блоки этой серии, без обхода всего объёма. */
     public void trapChanges(ServerPlayer owner, Runnable writes) {
-        trapChanges(owner.level(),owner,writes);
+        trapChanges(game.items().spellSources().level(owner),owner,writes);
     }
     public void trapChanges(ServerLevel level,ServerPlayer owner,Runnable writes) {
         trapChanges(level,owner,false,writes);
@@ -672,6 +675,8 @@ public final class LbcIndirectKills {
 
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
+        var event=game.items().apocalypseEvents().cause(source.getDirectEntity());if(event!=null)return event;
+        var shish=game.items().shishEncounter().cause(source.getDirectEntity());if(shish!=null)return shish;
         var food=game.items().foodLifecycle().cause(source.getDirectEntity());if(food!=null)return food;
         var nut=game.items().oreshek().cause(source.getDirectEntity());if(nut!=null)return nut;
         var nuclear=game.items().nukeEvent().cause(source.getDirectEntity());if(nuclear!=null)return nuclear;

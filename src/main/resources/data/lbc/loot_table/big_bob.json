@@ -1,68 +1,68 @@
+{
+  "pools": [
     {
-        "pools": [
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
             {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:carrot_on_a_stick",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_f",
-                                    "minecraft:item_model": "lbc:big_bob",
-                                    "max_stack_size": 1,
-                                    "!max_damage": {},
-                                    "!damage": {}
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "big_bob",
-                                        "color": "white",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{magicwand:1,big_bob:1}"
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    {
-                                        "translate": "big_bob.lore",
-                                        "color": "white",
-                                        "italic": false
-                                    },
-                                    [
-                                        {
-                                            "text": "zeroferchan",
-                                            "color": "green",
-                                            "italic": false,
-                                            "type": "text"
-                                        },
-                                        {
-                                            "text": " Halloween 2025 Legendary Drop Request",
-                                            "color": "dark_gray",
-                                            "italic": false,
-                                            "type": "text"
-                                        }
-                                    ]
-                                ]
-                            }
-                        ]
-                    }
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_f",
+                "minecraft:item_model": "lbc:big_bob",
+                "max_stack_size": 1,
+                "!max_damage": {},
+                "!damage": {}
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "big_bob",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{magicwand:1,big_bob:1}",
+              "type": "minecraft:set_custom_data"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "big_bob.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "zeroferchan",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Halloween 2025 Legendary Drop Request",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
                 ]
+              ],
+              "type": "minecraft:set_lore"
             }
-        ]
+          ]
+        }
+      ]
     }
+  ]
+}

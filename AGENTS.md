@@ -1,3 +1,26 @@
+## Apocalypse events and native actors - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Current integration, exact proof and remaining gate](agent_notes/APOCALYPSE_INTEGRATION_2026_10_29.md).
+(user) Aimbob active helmet abilities TECH-only; preserve issued NV, MAG permits.
+(user) Full original25 Chaos pool; release after COMPLETE transitive chain only.
+Main remains d9087f0a. No staged install/queued candidate or forced restart.
+Three full typed phase graphs/77delays, actual snowball THROW callbacks, native
+Stevari/worm/nine shared-engine clouds, Shish crate/cyborg/katana/Yellow source
+consumers are staged. Global function-ID REPLACE deadlines, persistent accepted
+authority separate actual emitter/world/online author, native child inheritance.
+Shared existing wand/damage/terrain/Psycho/Reactive/nuke engines, no helper creepers
+or second movement ledger. Full344-table registry closure preserves pools/weights;
+packaging does not establish reward readiness. Importer now idempotent for current
+inline condition containers. Witch authority/actor notes are SOURCE AUDIT ONLY.
+Buildad0396c5 passed22gameplay+5setupchecks in1actualmode1match/48.33s;600sources/
+1737classes/3411resources+build.gradle exact.198authorpaths/31liveoverrides/main
+unchanged, normalownedchildshutdown/exactsnapshots, samepre-suitePolymerdiagnostic.
+No fullsourceclock/nukeexpiry+cascade/all40crates/physicalclient/network/peakTPS
+qualification. Persistent NPC arrow self-return needs additional direct coverage.
+qualified=false/releaseEligible=false. Questions accumulated in PENDING_QUESTIONS;
+do not ask in chat while user sleeps. Rejected native/build proofs retained.
+Next: remaining Witch/full-chain production and complete natural deadline tests.
+
 ## Named foods and raw47 effects - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Exact source closure, integration and proof](agent_notes/NAMED_FOOD_INTEGRATION_2026_10_29.md).

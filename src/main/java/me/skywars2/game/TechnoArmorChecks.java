@@ -91,7 +91,7 @@ public final class TechnoArmorChecks {
             beta=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));
             require(game.playing()&&game.canUseGameplayItems(owner)&&owner.containerMenu==owner.inventoryMenu&&beta.containerMenu==beta.inventoryMenu,"active closed-inventory participants");
             require(!game.items().timeStop().stopped(owner.level())&&!game.items().actionsBlocked(owner),"no ambient freeze or stun");
-            require(!service.flight().flying(owner)&&!service.flight().flying(beta),"fixture starts without owned active flights");for(var key:List.of("phases","ticks","previousY"))armorMaps.put(key,new IdentityHashMap<>((Map<ServerPlayer,Integer>)read(service,key)));originalLiving=new HashSet<>((Set<LivingEntity>)read(service,"living"));
+            require(!service.flight().flying(owner)&&!service.flight().flying(beta),"fixture starts without owned active flights");for(var key:List.of("phases","ticks"))armorMaps.put(key,new IdentityHashMap<>((Map<ServerPlayer,Integer>)read(service,key)));originalLiving=new HashSet<>((Set<LivingEntity>)read(service,"living"));
             saved=new State(game,owner);otherSaved=new State(game,beta);attribution=new SauvojenMeditationChecks.Attribution(game,List.of(owner,beta));
             for(var p:List.of(owner,beta)){
                 p.removeAllEffects();p.getInventory().clearContent();p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);p.getAbilities().invulnerable=false;

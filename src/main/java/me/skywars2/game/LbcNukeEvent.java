@@ -41,6 +41,7 @@ public final class LbcNukeEvent {
     private static final String TAG="skywars2.nuke_event", CHILD="skywars2.nuke_event.child";
     private static final Identifier AIR=Identifier.parse("lbc:air");
     private static final EntitySelector ARMED=selector("@e[tag=nuke1,tag=nuke_bruh]");
+    private static final EntitySelector POINT_ARMED=selector("@e[tag=nuke1]");
     private static final EntitySelector RANDOM=selector("@e[tag=!spectator,sort=random,limit=16]");
     private static final EntitySelector NEAREST=selector("@p[gamemode=!spectator]");
     private static final Block[] BASE={Blocks.NETHERITE_BLOCK,Blocks.DIAMOND_BLOCK,Blocks.EMERALD_BLOCK,Blocks.GOLD_BLOCK,Blocks.IRON_BLOCK};
@@ -57,8 +58,9 @@ public final class LbcNukeEvent {
         final Cause cause;BlastSource(ServerLevel level,Cause cause){super(EntityTypes.MARKER,level);this.cause=cause;}
     }
     private static final class State {
-        final Cause cause;int lifetime;boolean activated;
-        State(Cause cause){this.cause=cause;}
+        final Cause cause;final boolean point;int lifetime;boolean activated;
+        State(Cause cause){this(cause,false);}
+        State(Cause cause,boolean point){this.cause=cause;this.point=point;activated=point;}
     }
     private record Site(ServerLevel level,Vec3 at,float yaw,Cause cause){}
     private record Visual(Marker marker,Cause cause,int age){}
@@ -75,6 +77,7 @@ public final class LbcNukeEvent {
     private volatile List<MapManager.TemplateSlice> air=List.of();
     private int generation,lastTick=Integer.MIN_VALUE,pending=-1;
     private String pendingEpoch;
+    private int pendingEoe=-1;private Cause pendingEoeCause;
     private Cause executingCause;private Entity executingEmitter;private ServerLevel executingLevel;
     private long warnings,schedules,detonations,centers,blasts,beacons;
     public LbcNukeEvent(GameController game){this.game=game;}
@@ -110,6 +113,28 @@ public final class LbcNukeEvent {
         if(!author.level().addFreshEntity(marker)){actors.remove(marker);sources.remove(marker);return false;}
         game.items().timeStop().prepareFrozen(marker);return true;
     }
+    /** Source nuke_eoe: immediate strict beacon and a separate globally REPLACE'd nuke1 deadline. */
+    public boolean startEoe(ServerPlayer author,ServerLevel level,Vec3 at,LbcIndirectKills.Owner accepted){
+        if(accepted==null||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
+                ||!level.hasChunkAt(BlockPos.containing(at)))return false;
+        if(generation==0)prepare();
+        var cause=new Cause(accepted.player(),accepted,game.items().epoch());var site=new Site(level,at,0,cause);
+        var origin=BlockPos.containing(at);var job=new Job(cause.epoch);
+        job.add(level,origin.offset(-1,0,-1),origin.offset(1,0,1),cause,
+                ()->LbcDropBlocks.fill(level,origin.offset(-1,0,-1),origin.offset(1,0,1),Blocks.NETHERITE_BLOCK,true));
+        for(int ceiling:new int[]{319,255})job.add(level,origin.above(3),new BlockPos(origin.getX(),ceiling,origin.getZ()),cause,
+                ()->LbcDropBlocks.fill(level,origin.above(3),new BlockPos(origin.getX(),ceiling,origin.getZ()),Blocks.AIR,true));
+        job.add(level,origin.above(),origin.above(2),cause,()->{
+            LbcDropBlocks.setBlock(level,origin.above(),Blocks.BEACON.defaultBlockState(),true);
+            LbcDropBlocks.setBlock(level,origin.above(2),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.RED).defaultBlockState(),true);
+        });job.submit();
+        LbcOverload.sound(level,at,"minecraft:lbcsounds.nuke",.05f,1,0,.05f);
+        var marker=EntityTypes.MARKER.create(level,net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+        if(marker!=null){marker.setPos(at);marker.entityTags().addAll(List.of(TAG,"nuke","nuke1","rc_1sec","marker_2t","mecha"));
+            game.items().markCurrentItemEpoch(marker);var state=new State(cause,true);actors.put(marker,state);sources.put(marker,cause);
+            if(!level.addFreshEntity(marker)){actors.remove(marker);sources.remove(marker);}else game.items().timeStop().prepareFrozen(marker);}
+        pendingEoe=400;pendingEoeCause=cause;schedules++;return true;
+    }
     private static boolean resident(ServerLevel level,BlockPos from,BlockPos to){
         for(int x=Math.min(from.getX(),to.getX())>>4;x<=Math.max(from.getX(),to.getX())>>4;x++)
             for(int z=Math.min(from.getZ(),to.getZ())>>4;z<=Math.max(from.getZ(),to.getZ())>>4;z++)if(level.getChunkSource().getChunkNow(x,z)==null)return false;
@@ -142,10 +167,18 @@ public final class LbcNukeEvent {
         boolean globalPause=game.items().wands().timeStopped();
         if(pending>=0&&!globalPause){if(!game.items().currentEpoch(pendingEpoch)){pending=-1;pendingEpoch=null;}
             else if(--pending<=0){pending=-1;pendingEpoch=null;detonate();}}
+        if(pendingEoe>=0&&!globalPause){if(pendingEoeCause==null||!live(pendingEoeCause.epoch)){pendingEoe=-1;pendingEoeCause=null;}
+            else if(--pendingEoe<=0){var accepted=pendingEoeCause;pendingEoe=-1;pendingEoeCause=null;
+                var base=new Site(game.server().overworld(),Vec3.ZERO,0,accepted);
+                var sites=new ArrayList<Site>();for(var entity:select(POINT_ARMED,base)){
+                    var state=entity instanceof Marker marker?actors.get(marker):null;
+                    sites.add(new Site((ServerLevel)entity.level(),entity.position(),entity.getYRot(),state==null?accepted:state.cause));}
+                if(!sites.isEmpty())detonations++;for(var site:sites)pointBurst(site);
+            }}
         for(var marker:List.copyOf(actors.keySet())){
             var state=actors.get(marker);var level=(ServerLevel)marker.level();
             if(marker.isRemoved()||!live(state.cause.epoch)){actors.remove(marker);continue;}
-            if(paused(level)||!LbcDimensionItems.ordinary(level)||!resident(level,marker.blockPosition(),marker.blockPosition()))continue;
+            if(state.point||paused(level)||!LbcDimensionItems.ordinary(level)||!resident(level,marker.blockPosition(),marker.blockPosition()))continue;
             if(now%2==0){state.lifetime+=2;if(!state.activated)warning(marker,state);}
             if(now%20==0){state.lifetime+=20;if(!stooper(marker))beacon(marker,state);}
         }
@@ -210,7 +243,10 @@ public final class LbcNukeEvent {
                 ||!level.hasChunkAt(BlockPos.containing(at)))return false;
         if(generation==0)prepare();
         var site=new Site(level,at,author.getYRot(),new Cause(author.getUUID(),game.items().indirectKills().wildCause(author),game.items().epoch()));
-        var job=new Job(site.cause.epoch);var center=BlockPos.containing(at);
+        pointBurst(site);return true;
+    }
+    private void pointBurst(Site site){
+        var level=site.level;var at=site.at;var job=new Job(site.cause.epoch);var center=BlockPos.containing(at);
         job.add(level,center,center,site.cause,()->visual(site));
         for(int angle:INNER)template(job.operations,site,angle,25,.5f);
         for(int angle:INNER)template(job.operations,site,angle,60,.25f);
@@ -219,7 +255,7 @@ public final class LbcNukeEvent {
         job.add(level,center,center,site.cause,()->{
             for(var player:game.server().getPlayerList().getPlayers())player.connection.send(new ClientboundStopSoundPacket(Identifier.parse("minecraft:lbcsounds.nuke"),SoundSource.MASTER));
         });
-        job.operations.add(killOperation(site));job.submit();return true;
+        job.operations.add(killOperation(site));job.submit();
     }
     private void template(ArrayDeque<Operation> operations,Site site,int rotation,int radius,float integrity){
         var at=site.at.add(Vec3.directionFromRotation(0,site.yaw+rotation).scale(radius));var origin=BlockPos.containing(at.add(-24,-24,-24));
@@ -341,9 +377,10 @@ public final class LbcNukeEvent {
     }
     /** Accepted nuclear consequences persist across the causal author's death/disconnect, like native armed explosives. */
     public void forget(ServerPlayer player){}
-    public void stop(){pending=-1;pendingEpoch=null;for(var job:List.copyOf(jobs))job.cancel();
+    public void stop(){pending=-1;pendingEpoch=null;pendingEoe=-1;pendingEoeCause=null;for(var job:List.copyOf(jobs))job.cancel();
         for(var entity:List.copyOf(actors.keySet()))entity.discard();actors.clear();unloaded.clear();
         for(var visual:List.copyOf(visuals))visual.marker.discard();visuals.clear();for(var entity:List.copyOf(sources.keySet()))entity.discard();sources.clear();unloadedChildren.clear();}
+    public int pointPendingTicks(){return pendingEoe;}
     public int markerCount(){return actors.size();}public int pendingTicks(){return pending;}public int jobCount(){return jobs.size();}
     public long warnings(){return warnings;}public long schedules(){return schedules;}public long detonations(){return detonations;}
     public long centers(){return centers;}public long blasts(){return blasts;}public long beacons(){return beacons;}

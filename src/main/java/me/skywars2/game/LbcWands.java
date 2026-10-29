@@ -312,6 +312,7 @@ public final class LbcWands {
     static final class ElectroTrace {
         ServerPlayer owner;
         final LivingEntity npcSource;
+        Entity explicitEmitter;
         final ServerLevel level;
         final String epoch;
         final int lifetime;
@@ -350,7 +351,14 @@ public final class LbcWands {
             npcSource=emitter;this.owner=owner;level=(ServerLevel)emitter.level();this.position=position;this.epoch=epoch;
             lifetime=10;meditation=false;statusWild=true;this.cause=cause;yaw=0;pitch=-90;
         }
+        ElectroTrace(ServerLevel level,Vec3 position,Vec3 direction,LbcSpellSource.Source source,int lifetime){
+            this.level=level;this.position=position;epoch=source.epoch();this.lifetime=lifetime;meditation=false;
+            npcSource=null;sourcePolicy=source;cause=source.cause();explicitEmitter=level.getEntity(source.emitter());hostileSauvojen=true;
+            yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+            pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        }
         LivingEntity source() { return owner==null?npcSource:owner; }
+        Entity damageEmitter(){return explicitEmitter!=null?explicitEmitter:source();}
     }
     private final GameController game;
     private final LbcMana mana;
@@ -444,6 +452,7 @@ public final class LbcWands {
         if(!LbcDimensionItems.ordinary(player))return false;
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
+        if(LbcShishEncounter.matches(stack))return game.items().shishEncounter().use(player,hand);
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
         if(LbcCommunism.matches(stack))return game.items().communism().use(player,hand);
         if(LbcPopit.matches(stack))return game.items().popit().use(player,hand);
@@ -832,6 +841,15 @@ public final class LbcWands {
         launchFire(player,projectile,player.getEyePosition().add(player.getLookAngle()),velocity);
     }
     /** Общий native spawn для Fire и Blaze: owner, guards, эпоха и cleanup одинаковы. */
+    void launchFire(ServerLevel level,SmallFireball projectile,Vec3 position,Vec3 velocity,LbcSpellSource.Source source){
+        try(var scope=game.items().spellSources().scope(source,level)){
+            projectile.setPos(position);projectile.setDeltaMovement(velocity);LbcShooters.orient(projectile);
+            projectile.setOwner(level.getEntity(source.emitter()));
+            projectile.entityTags().addAll(java.util.List.of(FIRE_PROJECTILE,"stwandfireball","can_deleted"));
+            game.items().markCurrentItemEpoch(projectile);game.items().spellSources().capture(projectile);
+            game.items().trinkets().spawn(projectile);
+        }
+    }
     void launchFire(ServerPlayer player,Projectile projectile,Vec3 position,Vec3 velocity) {
         projectile.setPos(position);
         // Исходный marker в начале мира вычислял именно этот вектор, не мировую цель полёта.
@@ -859,9 +877,13 @@ public final class LbcWands {
     }
     net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to,
             java.util.function.Predicate<Entity> extraFilter,boolean includeAllies) {
-        var wall=LbcTerra.wallHit(owner.level(),from,to);
+        return firstHit(game.items().spellSources().level(owner),owner,from,to,extraFilter,includeAllies);
+    }
+    net.minecraft.world.phys.HitResult firstHit(ServerLevel level,ServerPlayer owner,Vec3 from,Vec3 to,
+            java.util.function.Predicate<Entity> extraFilter,boolean includeAllies) {
+        var wall=LbcTerra.wallHit(level,from,to);
         Vec3 end=wall==null ? to : wall.getLocation();
-        var entity=ProjectileUtil.getEntityHitResult(owner.level(),game.items().spellSources().current()==null?owner:null,from,end,new AABB(from,end).inflate(1),
+        var entity=ProjectileUtil.getEntityHitResult(level,game.items().spellSources().current()==null?owner:null,from,end,new AABB(from,end).inflate(1),
                 target->(includeAllies ? target instanceof LivingEntity && target(owner,target,true)
                         && target.getType().builtInRegistryHolder().is(MOBS)
                         : game.items().lifetimes().target(owner,target)) && extraFilter.test(target),0);
@@ -931,7 +953,7 @@ public final class LbcWands {
     }
     /** Общий destructive fill Ruby: одна клетка, один native loot и автор утраченной опоры. */
     boolean destroyRubyCell(ServerPlayer player,BlockPos pos) {
-        var level=player.level();
+        var level=game.items().spellSources().level(player);
         if(level.isOutsideBuildHeight(pos) || !level.hasChunkAt(pos)) return false;
         var old=level.getBlockState(pos);
         if(old.isAir()) return false;
@@ -1052,6 +1074,17 @@ public final class LbcWands {
         electroTraces.add(new ElectroTrace(source,origin,direction,game.items().epoch()));
     }
     /** Boss emitters reuse the same arc geometry; their causal player is not the emitter. */
+    void hostileSauvojenElectro(ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
+        for(int i=0;i<4;i++){var trace=new ElectroTrace(level,origin,direction,source,20);
+            trace.owner=game.server().getPlayerList().getPlayer(source.author());electroTraces.add(trace);}
+        LbcOverload.sound(level,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0,0);
+    }
+    void cyborgElectro(LivingEntity emitter,LbcSpellSource.Source source){
+        var direction=emitter.getLookAngle();var level=(ServerLevel)emitter.level();var at=emitter.getEyePosition();
+        for(int i=0;i<4;i++){var trace=new ElectroTrace(level,at.subtract(direction.scale(i*.01)),direction,source,30+i*5);
+            trace.owner=game.server().getPlayerList().getPlayer(source.author());electroTraces.add(trace);}
+        LbcOverload.sound(level,at,"minecraft:entity.firework_rocket.twinkle",1,1,0,0);
+    }
     void hostileSauvojenElectro(ServerPlayer author,Vec3 origin,Vec3 direction,LbcSpellSource.Source source) {
         for(int i=0;i<4;i++){
             var trace=new ElectroTrace(author,origin,game.items().epoch(),20);
@@ -1102,7 +1135,7 @@ public final class LbcWands {
     void reflectElectro(ServerPlayer player) {
         for(var trace:electroTraces) if(trace.level==player.level() && trace.position.distanceToSqr(player.position())<=49) {
             trace.owner=player; trace.yaw+=180; trace.pitch=-trace.pitch;
-            trace.sourcePolicy=null;trace.cause=null;
+            trace.sourcePolicy=null;trace.cause=null;trace.explicitEmitter=null;
             trace.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,trace.position.x,trace.position.y,trace.position.z,5,0,0,0,.3);
         }
     }
@@ -1111,7 +1144,7 @@ public final class LbcWands {
         for(var trace:electroTraces) if(trace.level==player.level() && trace.owner!=player
                 && !player.isAlliedTo(trace.source()) && trace.position.distanceToSqr(player.position())<=196) {
             trace.owner=player; trace.yaw+=180; trace.pitch=-trace.pitch;
-            trace.sourcePolicy=null;trace.cause=null;
+            trace.sourcePolicy=null;trace.cause=null;trace.explicitEmitter=null;
             trace.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,trace.position.x,trace.position.y,trace.position.z,10,0,0,0,.3);
         }
     }
@@ -1280,16 +1313,17 @@ public final class LbcWands {
             for(var trace:electroBatch) {
                 if(!electroTraces.contains(trace)) continue;
                 var owner=trace.owner;
-                if(trace.age>=trace.lifetime || !game.items().currentEpoch(trace.epoch) || trace.level!=game.maps().level()
-                        || trace.source()==null || trace.source().level()!=trace.level
-                        || owner!=null && (!owner.isAlive() || owner.isRemoved() || !game.canUseGameplayItems(owner))
+                boolean accepted=trace.sourcePolicy!=null&&trace.sourcePolicy.persistent();
+                if(trace.age>=trace.lifetime || !game.items().currentEpoch(trace.epoch) || !accepted&&trace.level!=game.maps().level()
+                        || !accepted&&(trace.source()==null || trace.source().level()!=trace.level)
+                        || !accepted&&owner!=null && (!owner.isAlive() || owner.isRemoved() || !game.canUseGameplayItems(owner))
                         || game.stage()==GameController.Stage.ENDING) {
                     electroTraces.remove(trace); continue;
                 }
                 if(timeStopped || trace.sourcePolicy==null && owner!=null && owner.entityTags().contains("time_stopped")) continue;
                 if(game.items().magic().mechanismSuppressedAt(trace.level,trace.position)){electroTraces.remove(trace);continue;}
                 // (user) Мана/антимагия проверяются при использовании жезла; выпущенная дуга немагическая.
-                try(var scope=game.items().spellSources().scope(trace.sourcePolicy)){
+                try(var scope=game.items().spellSources().scope(trace.sourcePolicy,trace.level)){
                     if(!trace.level.hasChunkAt(BlockPos.containing(trace.position))
                             || (trace.erecto!=null ? !game.items().erecto().step(trace) : trace.teslaChain&&trace.age%5!=0 ? false : !electroStep(trace)) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
                 }
@@ -1308,10 +1342,10 @@ public final class LbcWands {
         if(greed!=null && from.distanceToSqr(greed.getLocation())<mechanismDistance*mechanismDistance-1e-9
                 && greed.getEntity() instanceof ServerPlayer reflector && reflector!=trace.owner) {
             trace.owner=reflector; trace.yaw+=180; trace.pitch=-trace.pitch;
-            trace.sourcePolicy=null;trace.cause=null;
+            trace.sourcePolicy=null;trace.cause=null;trace.explicitEmitter=null;
             return true;
         }
-        var shield=shieldHit(trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation||trace.statusWild);
+        var shield=shieldHit(trace.level,trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation||trace.statusWild);
         double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
         double stopDistance=Math.min(shieldDistance,mechanismDistance);
         Vec3 end=from,conductor=null;
@@ -1353,16 +1387,21 @@ public final class LbcWands {
         return shieldHit(owner,from,to,false);
     }
     private void electroSound(ElectroTrace trace,Vec3 at,String id,float volume,float pitch) {
-        if(trace.owner!=null) LbcOverload.sound(trace.owner,at,id,volume,pitch,0);
+        if(trace.owner!=null&&trace.owner.level()==trace.level) LbcOverload.sound(trace.owner,at,id,volume,pitch,0);
         else trace.level.playSound(null,at.x,at.y,at.z,net.minecraft.sounds.SoundEvent.createVariableRangeEvent(
                 Identifier.parse(id)),net.minecraft.sounds.SoundSource.MASTER,volume,pitch);
     }
     EntityHitResult shieldHit(LivingEntity owner,Vec3 from,Vec3 to,boolean meditation) {
+        var level=owner instanceof ServerPlayer player?game.items().spellSources().level(player)
+                :owner==null?game.items().spellSources().level(null):(ServerLevel)owner.level();
+        return level==null?null:shieldHit(level,owner,from,to,meditation);
+    }
+    private EntityHitResult shieldHit(ServerLevel level,LivingEntity owner,Vec3 from,Vec3 to,boolean meditation) {
         Vec3 delta=to.subtract(from);
         double lengthSquared=delta.lengthSqr();
         EntityHitResult nearest=null;
         double nearestT=1;
-        for(var player:((ServerLevel)owner.level()).getEntitiesOfClass(ServerPlayer.class,new AABB(from,to).inflate(4),
+        for(var player:level.getEntitiesOfClass(ServerPlayer.class,new AABB(from,to).inflate(4),
                 player->electroTarget(owner,player,meditation) && player.isBlocking())) {
             Vec3 center=player.position().add(player.getLookAngle());
             Vec3 offset=from.subtract(center);
@@ -1385,7 +1424,7 @@ public final class LbcWands {
     }
     private void electroHits(ElectroTrace trace,Vec3 from,Vec3 to,double spacing,float amount,int targetLimit) {
         var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(trace.hostileSauvojen ? LbcDamage.ELECTRIC : trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.statusWild?trace.owner:trace.source());
+                .getOrThrow(trace.hostileSauvojen ? LbcDamage.ELECTRIC : trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.statusWild?trace.owner:trace.damageEmitter());
         LbcDamage.hurtSegment(trace.level,game.items().indirectKills().captureDamage(damage,traceCause(trace)),from,to,Vec3.ZERO,spacing,amount,targetLimit,
                 entity->entity.getType().builtInRegistryHolder().is(MOBS)
                         && (trace.statusWild?validTarget(entity):electroTarget(trace.source(),entity,trace.meditation)),trace.meditation||trace.statusWild||trace.sourcePolicy!=null);
@@ -1396,6 +1435,7 @@ public final class LbcWands {
         return trace.cause;
     }
     private boolean electroTarget(LivingEntity owner,Entity entity,boolean meditation) {
+        var policy=game.items().spellSources().target(owner instanceof ServerPlayer player?player:null,entity);if(policy!=null)return policy;
         if(!meditation && owner instanceof ServerPlayer player) return projectileTarget(player,entity);
         if(!meditation && !validTarget(entity)) return false;
         var tags=entity.entityTags();
@@ -1408,7 +1448,7 @@ public final class LbcWands {
     private void electroConduction(ElectroTrace trace,Vec3 point) {
         int accepted=0;
         var damage=game.items().indirectKills().captureDamage(new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.statusWild?trace.owner:trace.source()),traceCause(trace));
+                .getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.statusWild?trace.owner:trace.damageEmitter()),traceCause(trace));
         for(var entity:trace.level.getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(10),
                 entity->validTarget(entity) && entity.getType().builtInRegistryHolder().is(MOBS)
                         && !entity.isSpectator() && !entity.entityTags().contains("spectator")
@@ -1614,7 +1654,7 @@ public final class LbcWands {
         if(LbcNukeEvent.managed(source.getDirectEntity()))return LbcIndirectKills.isWildCaptured(source)
                 ?validRoleTarget(victim,false):game.items().nukeEvent().canAffect(source.getDirectEntity(),victim);
         if(LbcChaosTrapActors.managed(source.getDirectEntity()))return game.items().chaosTrapActors().canAffect(source.getDirectEntity(),victim);
-        if(game.items().spellSources().wild(source.getDirectEntity()))return game.items().sauvojenBoss().canAffect(source.getDirectEntity(),victim);
+        if(game.items().spellSources().wild(source.getDirectEntity()))return game.items().spellSources().canAffect(source.getDirectEntity(),victim);
         var spellTarget=game.items().spellSources().target(LbcIndirectKills.playerSource(source.getEntity()),victim);
         if(spellTarget!=null)return spellTarget;
         if(game.items().ultraponos().isExplosion(source)) return validTarget(victim);

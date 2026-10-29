@@ -198,28 +198,35 @@ public final class LbcSauvojen {
     }
     /** Stationary hostile emitters keep their source payloads and an independent causal author. */
     void emitHostile(ServerPlayer author,Kind kind,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
-        if(!validOwner(author)||!author.level().hasChunkAt(BlockPos.containing(origin)))return;
-        try(var sourceScope=game.items().spellSources().scope(source)){
+        if(!validOwner(author))return;
+        emitHostile(author.level(),kind,origin,direction,source);
+    }
+    /** Explicit source level survives causal author's death, disconnect or dimension change. */
+    void emitHostile(ServerLevel level,Kind kind,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
+        if(source==null||!game.items().currentEpoch(source.epoch())||!game.playing()||game.stage()==GameController.Stage.ENDING
+                ||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(origin)))return;
+        var author=game.server().getPlayerList().getPlayer(source.author());
+        if(!source.persistent()&&(!validOwner(author)||author.level()!=level))return;
+        try(var sourceScope=game.items().spellSources().scope(source,level)){
             switch(kind){
-                case RUBY->game.items().ruby().sourceEmitter(author,origin,direction);
-                case TERRA->game.items().terra().sourceEmitter(author,origin,direction);
-                case ELECTRO->game.items().wands().hostileSauvojenElectro(author,origin,direction,source);
-                case AIR->game.items().air().sourceEmitter(author,origin,direction);
+                case RUBY->game.items().ruby().sourceEmitter(level,origin,direction,source);
+                case TERRA->game.items().terra().sourceEmitter(level,origin,direction,source);
+                case ELECTRO->game.items().wands().hostileSauvojenElectro(level,origin,direction,source);
+                case AIR->game.items().air().sourceEmitter(level,origin,direction,source);
                 case ACID->{
                     float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
                     float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
-                    var shot=game.items().clouds().sourceAcid(author.level(),origin,yaw,pitch,300,true,author);shot.entityTags().add("magic");game.items().spellSources().capture(shot);
+                    var shot=game.items().clouds().sourceAcid(level,origin,yaw,pitch,300,true,author);shot.entityTags().add("magic");game.items().spellSources().capture(shot);
                 }
-                case TELEPORT->game.items().teleport().sourceEmitter(author,origin,direction);
-                case STONE->game.items().stone().flying(author,origin,direction);
+                case TELEPORT->game.items().teleport().sourceEmitter(level,origin,direction,source);
+                case STONE->game.items().stone().sourceEmitter(level,origin,direction,source);
                 case FIRE->{
-                    var shot=new SmallFireball(EntityTypes.SMALL_FIREBALL,author.level());
-                    game.items().wands().launchFire(author,shot,origin,direction.normalize().scale(.7));
-                    // Causal author stays in the explicit Source; native owner immunity belongs to the emitter.
-                    var emitter=author.level().getEntity(source.emitter());shot.setOwner(emitter);
-                    LbcOverload.sound(author,origin,"minecraft:entity.blaze.shoot",1,1,0);
+                    var shot=new SmallFireball(EntityTypes.SMALL_FIREBALL,level);
+                    game.items().wands().launchFire(level,shot,origin,direction.normalize().scale(.7),source);
+                    shot.setOwner(level.getEntity(source.emitter()));
+                    LbcOverload.sound(level,origin,"minecraft:entity.blaze.shoot",1,1,0,0);
                 }
-                case BLIND->game.items().blind().sourceEmitter(author,origin,direction);
+                case BLIND->game.items().blind().sourceEmitter(level,origin,direction,source);
             }
         }
     }

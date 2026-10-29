@@ -166,10 +166,14 @@ public final class LbcSauvojenBoss {
         level.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,at.x,at.y,at.z,2000,1,1,1,.1);
         for(var cloud:List.copyOf(clouds))if(cloud.visual().carrier.level()==level&&cloud.visual().position.distanceToSqr(at)<=1600){
             var d=cloud.visual();
-            for(var reward:game.lbc().rollTable(level,d.position,author,wandTable(d.kind)))
-                special(level,author,d.position,reward,Component.translatable(wandName(d.kind)).withStyle(ChatFormatting.GOLD).withStyle(s->s.withItalic(false)),999990);
+            dropCloudWand(level,d.position,d.kind,author);
             remove(cloud,false);
         }
+        game.items().apocalypseActors().convertClouds(level,at,40,author);
+    }
+    void dropCloudWand(ServerLevel level,Vec3 at,LbcSauvojen.Kind kind,ServerPlayer author){
+        for(var reward:game.lbc().rollTable(level,at,author,wandTable(kind)))
+            special(level,author,at,reward,Component.translatable(wandName(kind)).withStyle(ChatFormatting.GOLD).withStyle(s->s.withItalic(false)),999990);
     }
     private static String wandTable(LbcSauvojen.Kind kind){return switch(kind){
         case RUBY->"lbc:ported/ruby_wand";case TERRA->"lbc:ported/terra_wand";case ELECTRO->"lbc:ported/electro_wand";

@@ -189,6 +189,18 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){
+                var eye=player.getEyePosition();var end=eye.add(player.getViewVector(1).scale(player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.BLOCK_INTERACTION_RANGE)));
+                var hit=level.clip(new net.minecraft.world.level.ClipContext(eye,end,net.minecraft.world.level.ClipContext.Block.OUTLINE,net.minecraft.world.level.ClipContext.Fluid.SOURCE_ONLY,player));
+                if(hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK&&level.getBlockState(hit.getBlockPos()).getBlock() instanceof net.minecraft.world.level.block.LiquidBlock){
+                    if(!level.mayInteract(player,hit.getBlockPos())||!player.mayUseItemAt(hit.getBlockPos(),hit.getDirection(),player.getItemInHand(hand)))return InteractionResult.FAIL;
+                    if(game.items().shishEncounter().useBeacon(owner,hand,net.minecraft.world.phys.Vec3.atBottomCenterOf(hit.getBlockPos()))){player.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(player.getItemInHand(hand).getItem()));return InteractionResult.SUCCESS;}
+                    return InteractionResult.FAIL;
+                }
+                return InteractionResult.PASS;
+            }
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcShishEncounter.matches(player.getItemInHand(hand)))
+                return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcMetalPipe.divider(player.getItemInHand(hand)))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
@@ -315,6 +327,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){
+                var pos=hit.getBlockPos();if(!level.getBlockState(pos).getCollisionShape(level,pos).isEmpty())pos=pos.relative(hit.getDirection());
+                return game.items().shishEncounter().useBeacon(owner,hand,net.minecraft.world.phys.Vec3.atBottomCenterOf(pos))?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            }
             if (game != null && player instanceof ServerPlayer serverPlayer
                     && LbcItems.isNanobot(player.getItemInHand(hand)) && !game.canUseGameplayItems(serverPlayer))
                 return InteractionResult.FAIL;
@@ -334,6 +350,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) {
                 game.spectators().watch(serverPlayer, entity); return InteractionResult.SUCCESS;
             }
+            if(game!=null&&player instanceof ServerPlayer owner&&game.items().shishEncounter().interact(owner,entity,hand))return InteractionResult.SUCCESS;
             // A summon order takes priority over feeding, sitting, mounting or opening a mob UI.
             if(game!=null && player instanceof ServerPlayer serverPlayer && player.isShiftKeyDown()
                     && me.skywars2.game.LbcSummons.commandItem(player.getItemInHand(hand)))

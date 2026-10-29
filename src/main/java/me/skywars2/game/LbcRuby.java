@@ -83,8 +83,8 @@ public final class LbcRuby {
 
     void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
-            if(!game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                    || !(charge.getOwner() instanceof ServerPlayer)) cleanup(charge);
+            if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
+                    || !(charge.getOwner() instanceof ServerPlayer))) cleanup(charge);
             else {
                 charges.add(charge);
                 if(charge.sourceLifetime==0) game.items().lifetimes().track(charge,true);
@@ -121,15 +121,15 @@ public final class LbcRuby {
         castAt(owner,origin,direction,playerPose,0);
     }
     private Charge castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose,int lifetime){
-        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return null;
-        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,origin,"minecraft:block.amethyst_cluster.break",1,1,0);
-        var charge=new Charge(TYPE,owner.level());
-        charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true); charge.sourceLifetime=lifetime;
+        if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(origin))) return null;
+        if(game.items().spellSources().current()==null)sourceSound(owner,origin,"minecraft:block.amethyst_cluster.break",1,1,0);
+        var charge=new Charge(TYPE,sourceLevel(owner));
+        charge.setOwner(nativeSourceOwner(owner)); charge.setPos(origin); charge.setNoGravity(true); charge.sourceLifetime=lifetime;
         charge.setYRot(playerPose?owner.getYRot():(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))); charge.setXRot(playerPose?owner.getXRot():(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
         charge.setDeltaMovement(direction.normalize().scale(DRILL_SAMPLES_PER_TICK*DRILL_STEP));
         charge.entityTags().add("magic");
         game.items().markCurrentItemEpoch(charge);
-        if(owner.level().addFreshEntity(charge)) {
+        if(sourceLevel(owner).addFreshEntity(charge)) {
             charges.add(charge);
             if(lifetime==0) game.items().lifetimes().track(charge,true);
         }
@@ -144,10 +144,9 @@ public final class LbcRuby {
             for(Charge charge:batch) {
                 try(var sourceScope=game.items().spellSources().scope(charge)){
                 if(!charges.contains(charge)) continue;
-                if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
-                        || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                        || !validOwner(owner) || owner.level()!=charge.level()) { remove(charge); continue; }
-                if(game.items().wands().timeStopped() || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
+                var owner=game.items().spellSources().author(charge);
+                if(!liveSourceCharge(charge,owner)) { remove(charge); continue; }
+                if(game.items().timeStop().stopped((net.minecraft.server.level.ServerLevel)charge.level()) || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
                 if(game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)charge.level(),charge.position())) {
                     remove(charge); continue;
                 }
@@ -158,8 +157,8 @@ public final class LbcRuby {
                 try {
                     for(int sample=0;sample<=Math.ceil(distance/DRILL_STEP);sample++) {
                         Vec3 point=distance<1e-9?from:from.add(movement.scale(Math.min(1,sample*DRILL_STEP/distance)));
-                        if(!owner.level().hasChunkAt(BlockPos.containing(point))) { loaded=false; break; }
-                        owner.level().sendParticles(DRILL_PARTICLE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
+                        if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(point))) { loaded=false; break; }
+                        sourceLevel(owner).sendParticles(DRILL_PARTICLE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
                         digCube(owner,point,DRILL_HALF,visited);
                     }
                 } finally { game.items().indirectKills().finishSupportRemoval(); }
@@ -173,7 +172,7 @@ public final class LbcRuby {
     }
 
     private void digCube(ServerPlayer owner,Vec3 point,double half,LongOpenHashSet visited) {
-        var level=owner.level();
+        var level=sourceLevel(owner);
         BlockPos first=BlockPos.containing(point.x-half,point.y-half,point.z-half);
         BlockPos last=BlockPos.containing(point.x+half,point.y+half,point.z+half);
         for(var mutable:BlockPos.betweenClosed(first,last)) {
@@ -185,12 +184,12 @@ public final class LbcRuby {
     /** Academy mode 2: нативный первый hit, а .5-блоковые samples задают trail/длину. */
     private void holeRay(ServerPlayer owner) {holeRay(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
     private void holeRay(ServerPlayer owner,Vec3 from,Vec3 direction) {
-        var level=owner.level();
+        var level=sourceLevel(owner);
         Vec3 limit=from.add(direction.scale(HOLE_RANGE));
         double boundary=game.items().magic().suppressionFraction(level,from,limit);
         if(Double.isFinite(boundary))limit=from.lerp(limit,boundary);
         HitResult hit=game.items().wands().firstHit(owner,from,limit);
-        LbcOverload.sound(owner,from,"minecraft:block.amethyst_cluster.break",1,.1f,0);
+        sourceSound(owner,from,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         Vec3 end=hit==null?limit:hit.getLocation();
         double distance=from.distanceTo(end);
         for(double step=0;step<=distance+1e-7;step+=HOLE_SAMPLE) {
@@ -205,7 +204,7 @@ public final class LbcRuby {
     }
 
     private void createHole(ServerPlayer owner,Vec3 point) {
-        var level=owner.level();
+        var level=sourceLevel(owner);
         BlockPos center=BlockPos.containing(point);
         game.items().indirectKills().trapChanges(owner,()-> {
             game.maps().placeLoadedTemplate(owner,HOLE,center.offset(-3,-3,-3),1);
@@ -230,8 +229,8 @@ public final class LbcRuby {
     /** Academy mode 3 удаляет все блоки по лучу, включая bedrock, без урона существам. */
     private void cuttingRay(ServerPlayer owner) {cuttingRay(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
     private void cuttingRay(ServerPlayer owner,Vec3 origin,Vec3 direction) {
-        var level=owner.level();
-        LbcOverload.sound(owner,origin,"minecraft:block.amethyst_cluster.break",1,.1f,0);
+        var level=sourceLevel(owner);
+        sourceSound(owner,origin,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         var visited=new LongOpenHashSet(256);
         double boundary=game.items().magic().suppressionFraction(level,origin,origin.add(direction.scale(RAY_RANGE)))*RAY_RANGE;
         try {
@@ -249,7 +248,8 @@ public final class LbcRuby {
                 && game.items().lifetimes().target(owner,target);
     }
     private boolean validOwner(ServerPlayer owner) {
-        return owner!=null && !owner.isRemoved() && owner.isAlive() && owner.level()==game.maps().level()
+        if(persistentSource())return true;
+        return owner!=null && !owner.isRemoved() && owner.isAlive() && sourceLevel(owner)==game.maps().level()
                 && game.canUseGameplayItems(owner) && !game.isObserver(owner) && game.stage()!=GameController.Stage.ENDING;
     }
     private void remove(Charge charge) { charges.remove(charge); cleanup(charge); }
@@ -260,4 +260,16 @@ public final class LbcRuby {
     public void stop() {
         var pending=List.copyOf(charges); charges.clear(); batch.clear(); pending.forEach(this::cleanup);
     }
+    Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    Charge flying(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return flying(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
+        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
+        else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);
+    }
+    private net.minecraft.server.level.ServerLevel sourceLevel(ServerPlayer owner){return game.items().spellSources().level(owner);}
+    private boolean persistentSource(){var source=game.items().spellSources().current();return source!=null&&source.persistent()&&game.items().currentEpoch(source.epoch())&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&sourceLevel(null)!=null&&LbcDimensionItems.ordinary(sourceLevel(null));}
+    private boolean boundSource(Entity entity){var source=game.items().spellSources().source(entity);return source!=null&&game.items().currentEpoch(source.epoch())&&LbcDimensionItems.ordinary(entity.level());}
+    private Entity nativeSourceOwner(ServerPlayer owner){var source=game.items().spellSources().current();return source==null?owner:sourceLevel(owner).getEntity(source.emitter());}
+    private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
+
 }

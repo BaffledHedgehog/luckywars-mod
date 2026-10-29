@@ -66,6 +66,8 @@ public final class LbcSpecialDrops {
 
     /** Only causal trap tokens reach this native merge guard; no world or tick scan. */
     public boolean canMerge(ItemEntity first, ItemEntity second) {
+        var sourceA=game.items().spellSources().source(first);var sourceB=game.items().spellSources().source(second);
+        if(sourceA!=null||sourceB!=null)return sourceA!=null&&sourceB!=null&&sourceA.epoch().equals(sourceB.epoch())&&java.util.Objects.equals(sourceA.cause(),sourceB.cause());
         var a = owner(first);
         var b = owner(second);
         return java.util.Objects.equals(a == null ? null : a.getUUID(), b == null ? null : b.getUUID());
@@ -82,8 +84,12 @@ public final class LbcSpecialDrops {
         return false;
     }
 
+    public LbcIndirectKills.Owner cause(ItemEntity token){
+        var source=game.items().spellSources().source(token);if(source!=null)return source.cause();
+        var author=LbcIndirectKills.playerSource(owner(token));return author==null?null:game.items().indirectKills().wildCause(author);
+    }
     private boolean active(ItemEntity token) {
-        return game.playing() && game.stage() != GameController.Stage.ENDING && token.level() == game.maps().level();
+        return game.playing() && game.stage() != GameController.Stage.ENDING && (token.level() == game.maps().level()||game.items().spellSources().persistent(token));
     }
 
     public void tick() {
@@ -103,6 +109,9 @@ public final class LbcSpecialDrops {
 
     /** Returns whether an active loaded attempt was dispatched, even when native placement fails. */
     boolean spawn(ItemEntity token) {
+        try(var scope=game.items().spellSources().scope(token)){return spawnScoped(token);}
+    }
+    private boolean spawnScoped(ItemEntity token) {
         if (token.isRemoved() || token.getAge() >= 5999 || stale(token) || !active(token)
                 || !(token.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return false;
         if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token).epoch())) return false;

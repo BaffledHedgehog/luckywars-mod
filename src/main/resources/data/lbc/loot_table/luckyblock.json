@@ -1,391 +1,383 @@
 {
-    "type": "minecraft:block",
-    "pools": [
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:lucky_items",
-                    "weight": 1930
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "weight": 10000,
-                    "value": "lbc:lucky_items_high_quality",
-                    "conditions": [
-                        {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {"equipment": {"head": {"predicates": {"custom_data": "{mellstroy_mask:1}"}}}}
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "weight": 200000000,
-                    "value": "lbc:luckyblock_imba",
-                    "conditions": [
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 12
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:barriers",
-                    "weight": 460,
-                    "conditions": [
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "final_luck_modifier"
-                                    },
-                                    "score": "lbc.math",
-                                    "scale": 1
-                                },
-                                "range": {
-                                    "min": 3,
-                                    "max": 4
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:barriers",
-                    "weight": 10000,
-                    "conditions": [
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 3
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:random_glack",
-                    "weight": 100000000,
-                    "conditions": [
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 9
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:barriers",
-                    "weight": 43,
-                    "conditions": [
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 4
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:barriers",
-                    "weight": 1000000,
-                    "conditions": [
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 11
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:lucky_items",
+          "weight": 1930
         },
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:luckyblock_neko_block",
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 0.05
-                        },
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "final_luck_modifier"
-                                    },
-                                    "score": "lbc.math",
-                                    "scale": 1
-                                },
-                                "range": 2
-                            }
-                        },
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "#gamemode"
-                                    },
-                                    "score": "swrg.math",
-                                    "scale": 1
-                                },
-                                "range": {
-                                    "min": 3,
-                                    "max": 4
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:luckyblock_neko_block",
-                    "conditions": [
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 2
-                        },
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "#gamemode"
-                                    },
-                                    "score": "swrg.math",
-                                    "scale": 1
-                                },
-                                "range": {
-                                    "min": 3,
-                                    "max": 4
-                                }
-                            }
-                        }
-                    ]
+          "type": "minecraft:loot_table",
+          "weight": 10000,
+          "value": "lbc:lucky_items_high_quality",
+          "condition": {
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "head": {
+                  "predicates": {
+                    "custom_data": "{mellstroy_mask:1}"
+                  }
                 }
-            ]
+              }
+            },
+            "type": "minecraft:entity_properties"
+          }
         },
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:luckyblock_loli_block",
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 0.05
-                        },
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "final_luck_modifier"
-                                    },
-                                    "score": "lbc.math",
-                                    "scale": 1
-                                },
-                                "range": 2
-                            }
-                        },
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "final_luck_modifier"
-                                    },
-                                    "score": "lbc.math",
-                                    "scale": 1
-                                },
-                                "range": 7
-                            }
-                        },
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "#gamemode"
-                                    },
-                                    "score": "swrg.math",
-                                    "scale": 1
-                                },
-                                "range": {
-                                    "min": 3,
-                                    "max": 4
-                                }
-                            }
-                        }
-                    ]
+          "type": "minecraft:loot_table",
+          "weight": 200000000,
+          "value": "lbc:luckyblock_imba",
+          "condition": {
+            "value": {
+              "type": "minecraft:score",
+              "target": {
+                "type": "minecraft:fixed",
+                "name": "final_luck_modifier"
+              },
+              "score": "lbc.math"
+            },
+            "type": "minecraft:int_value_check",
+            "test": 12
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:barriers",
+          "weight": 460,
+          "condition": {
+            "term": {
+              "value": {
+                "type": "minecraft:score",
+                "target": {
+                  "type": "minecraft:fixed",
+                  "name": "final_luck_modifier"
                 },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:luckyblock_loli_block",
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 1
-                        },
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 2
-                        },
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "#gamemode"
-                                    },
-                                    "score": "swrg.math",
-                                    "scale": 1
-                                },
-                                "range": {
-                                    "min": 3,
-                                    "max": 4
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:luckyblock_loli_block",
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 1
-                        },
-                        {
-                            "condition": "minecraft:value_check",
-                            "value": {
-                                "type": "minecraft:score",
-                                "target": {
-                                    "type": "minecraft:fixed",
-                                    "name": "final_luck_modifier"
-                                },
-                                "score": "lbc.math",
-                                "scale": 1
-                            },
-                            "range": 7
-                        },
-                        {
-                            "condition": "minecraft:inverted",
-                            "term": {
-                                "condition": "minecraft:value_check",
-                                "value": {
-                                    "type": "minecraft:score",
-                                    "target": {
-                                        "type": "minecraft:fixed",
-                                        "name": "#gamemode"
-                                    },
-                                    "score": "swrg.math",
-                                    "scale": 1
-                                },
-                                "range": {
-                                    "min": 3,
-                                    "max": 4
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
+                "score": "lbc.math"
+              },
+              "type": "minecraft:int_value_check",
+              "test": {
+                "min": 3,
+                "max": 4
+              }
+            },
+            "type": "minecraft:inverted"
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:barriers",
+          "weight": 10000,
+          "condition": {
+            "value": {
+              "type": "minecraft:score",
+              "target": {
+                "type": "minecraft:fixed",
+                "name": "final_luck_modifier"
+              },
+              "score": "lbc.math"
+            },
+            "type": "minecraft:int_value_check",
+            "test": 3
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:random_glack",
+          "weight": 100000000,
+          "condition": {
+            "value": {
+              "type": "minecraft:score",
+              "target": {
+                "type": "minecraft:fixed",
+                "name": "final_luck_modifier"
+              },
+              "score": "lbc.math"
+            },
+            "type": "minecraft:int_value_check",
+            "test": 9
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:barriers",
+          "weight": 43,
+          "condition": {
+            "value": {
+              "type": "minecraft:score",
+              "target": {
+                "type": "minecraft:fixed",
+                "name": "final_luck_modifier"
+              },
+              "score": "lbc.math"
+            },
+            "type": "minecraft:int_value_check",
+            "test": 4
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:barriers",
+          "weight": 1000000,
+          "condition": {
+            "value": {
+              "type": "minecraft:score",
+              "target": {
+                "type": "minecraft:fixed",
+                "name": "final_luck_modifier"
+              },
+              "score": "lbc.math"
+            },
+            "type": "minecraft:int_value_check",
+            "test": 11
+          }
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:luckyblock_neko_block",
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "chance": 0.05,
+                "type": "minecraft:random_chance"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 2
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "#gamemode"
+                    },
+                    "score": "swrg.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": {
+                    "min": 3,
+                    "max": 4
+                  }
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:luckyblock_neko_block",
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "value": {
+                  "type": "minecraft:score",
+                  "target": {
+                    "type": "minecraft:fixed",
+                    "name": "final_luck_modifier"
+                  },
+                  "score": "lbc.math"
+                },
+                "type": "minecraft:int_value_check",
+                "test": 2
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "#gamemode"
+                    },
+                    "score": "swrg.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": {
+                    "min": 3,
+                    "max": 4
+                  }
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:luckyblock_loli_block",
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "chance": 0.05,
+                "type": "minecraft:random_chance"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 2
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 7
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "#gamemode"
+                    },
+                    "score": "swrg.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": {
+                    "min": 3,
+                    "max": 4
+                  }
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:luckyblock_loli_block",
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "chance": 1,
+                "type": "minecraft:random_chance"
+              },
+              {
+                "value": {
+                  "type": "minecraft:score",
+                  "target": {
+                    "type": "minecraft:fixed",
+                    "name": "final_luck_modifier"
+                  },
+                  "score": "lbc.math"
+                },
+                "type": "minecraft:int_value_check",
+                "test": 2
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "#gamemode"
+                    },
+                    "score": "swrg.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": {
+                    "min": 3,
+                    "max": 4
+                  }
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:luckyblock_loli_block",
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "chance": 1,
+                "type": "minecraft:random_chance"
+              },
+              {
+                "value": {
+                  "type": "minecraft:score",
+                  "target": {
+                    "type": "minecraft:fixed",
+                    "name": "final_luck_modifier"
+                  },
+                  "score": "lbc.math"
+                },
+                "type": "minecraft:int_value_check",
+                "test": 7
+              },
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "#gamemode"
+                    },
+                    "score": "swrg.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": {
+                    "min": 3,
+                    "max": 4
+                  }
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
 }

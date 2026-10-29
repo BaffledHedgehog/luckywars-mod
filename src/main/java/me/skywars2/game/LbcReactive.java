@@ -32,6 +32,7 @@ public final class LbcReactive {
         this.game=game; this.mana=mana;
         mana.score(WALL_COST,"lbc.math").set(500);
     }
+    void setShishCounter(ServerPlayer player,int value){cooldowns.put(player,Math.max(0,value)*5);mana.score(player,"coldownshish").set(value);}
     private boolean valid(ServerPlayer player) { return mana.visible(player) && game.items().wands().validTarget(player); }
     private boolean admitted(ServerPlayer player) {
         return valid(player) && !game.items().actionsBlocked(player)
@@ -90,7 +91,7 @@ public final class LbcReactive {
                 player.level().sendParticles(ParticleTypes.HAPPY_VILLAGER,player.getX(),player.getY(),player.getZ(),1,.1,.1,.1,0);
                 LbcOverload.sound(player,"minecraft:block.grass.step",1,0,0);
             }
-            remaining--;
+            remaining--;mana.score(player,"coldownshish").set((remaining+4)/5);
             if(remaining==95 && !game.items().magic().suppressed(player)) platform(player);
             if(remaining<=0) cooldowns.remove(player); else cooldowns.put(player,remaining);
         }
@@ -116,7 +117,7 @@ public final class LbcReactive {
     public int activeCount() { return cooldowns.size()+rays.size(); }
     public int pendingRayCount() { return rays.size(); }
     public void clear(ServerPlayer player) {
-        cooldowns.remove(player);
+        cooldowns.remove(player);mana.score(player,"coldownshish").set(0);
         for(var entry:List.copyOf(rays.entrySet())) if(entry.getValue()==player) entry.getKey().cancel(false);
     }
     public void stop() {

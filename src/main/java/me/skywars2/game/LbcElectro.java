@@ -551,13 +551,13 @@ public final class LbcElectro {
         bolt.setCause(owner); bolt.entityTags().add(SHOCK_BOLT); bolt.entityTags().add(EGG_BOLT); liveBolts.add(bolt);
     }
     net.minecraft.world.entity.LightningBolt lightning(ServerPlayer owner,Vec3 position) {
-        ServerLevel level=owner.level();
+        ServerLevel level=game.items().spellSources().level(owner);
         var epoch=game.items().epoch();
         LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
         if (bolt == null) return null;
         bolt.setCause(owner);
         bolt.entityTags().add(SHOCK_BOLT);
-        bolt.setPos(position);
+        bolt.setPos(position);game.items().markCurrentItemEpoch(bolt);
         if (level.addFreshEntity(bolt)) {
             if(!game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) {
                 bolt.discard(); return null;

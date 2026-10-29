@@ -233,7 +233,7 @@ public final class ProjectileLifetimes {
     }
 
     boolean target(ServerPlayer owner, Entity entity) {
-        return entity instanceof LivingEntity && entity.level() == owner.level()
+        return entity instanceof LivingEntity && entity.level() == game.items().spellSources().level(owner)
                 && entity.getType().builtInRegistryHolder().is(MOBS)
                 && game.items().wands().projectileTarget(owner, entity);
     }

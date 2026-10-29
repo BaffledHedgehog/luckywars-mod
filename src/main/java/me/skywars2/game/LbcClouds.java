@@ -522,7 +522,7 @@ public final class LbcClouds {
         return null;
     }
     private boolean sourceAcidActive(Entity entity){return game.playing() && game.stage()!=GameController.Stage.ENDING
-            && entity.level()==game.maps().level() && game.items().currentEpoch(entity);}
+            && (entity.level()==game.maps().level()||game.items().spellSources().persistent(entity)) && game.items().currentEpoch(entity);}
     public boolean sourceAcidCanAffect(Entity source,Entity target){
         var authority=game.items().spellSources().source(source);
         if(authority!=null)try(var scope=game.items().spellSources().scope(authority)){

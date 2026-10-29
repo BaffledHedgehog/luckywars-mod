@@ -193,6 +193,7 @@
     "SyringeMobAccess$GhastPower",
     "SyringeMobAccess$CreeperRadius",
     "PendingSwordAttackMixin",
+    "ShishInteractionMixin",
     "IncomingArtifactCriterionMixin",
     "IncomingArtifactCriterionMixin$HurtAttempt",
     "IncomingArtifactCriterionMixin$SandPhysics",

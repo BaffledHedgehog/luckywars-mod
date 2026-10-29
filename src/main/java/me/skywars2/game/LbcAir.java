@@ -71,8 +71,8 @@ public final class LbcAir {
 
     void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
-            if(!game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                    || !(charge.getOwner() instanceof ServerPlayer)) { cleanup(charge); return; }
+            if(!game.items().currentEpoch(charge) || !boundSource(charge)&&(charge.level()!=game.maps().level()
+                    || !(charge.getOwner() instanceof ServerPlayer))) { cleanup(charge); return; }
             charges.add(charge);
             if(charge.sourceLifetime==0) game.items().lifetimes().track(charge,true);
         }
@@ -84,7 +84,7 @@ public final class LbcAir {
     public void cast(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack) {
         if(!validOwner(owner) || mode<0 || mode>3) return;
         Vec3 origin=owner.getEyePosition();
-        LbcOverload.sound(owner,origin,"minecraft:entity.generic.explode",1,1.3f,0);
+        sourceSound(owner,origin,"minecraft:entity.generic.explode",1,1.3f,0);
         if(mode==1) {
             for(int i=0;i<4;i++) {
                 float yaw=owner.getYRot()+(owner.getRandom().nextFloat()*2-1)*30;
@@ -97,7 +97,7 @@ public final class LbcAir {
     }
 
     void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
-        LbcOverload.sound(owner,origin,"minecraft:entity.generic.explode",1,1.3f,0);
+        sourceSound(owner,origin,"minecraft:entity.generic.explode",1,1.3f,0);
         if(mode==1)for(int i=0;i<4;i++){
             float yaw=owner.getYRot()+(owner.getRandom().nextFloat()*2-1)*30;
             float pitch=owner.getXRot()+(owner.getRandom().nextFloat()*2-1)*20;
@@ -112,9 +112,9 @@ public final class LbcAir {
         spawn(owner,hand,mode,stack,origin,direction,0);
     }
     private Charge spawn(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction,int lifetime) {
-        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return null;
-        Charge charge=new Charge(TYPE,owner.level());
-        charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
+        if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(origin))) return null;
+        Charge charge=new Charge(TYPE,sourceLevel(owner));
+        charge.setOwner(nativeSourceOwner(owner)); charge.setPos(origin); charge.setNoGravity(true);
         charge.setDeltaMovement(direction.normalize().scale(lifetime==120?.8:speed(mode))); charge.setYRot(lifetime>0?(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)):owner.getYRot());
         charge.setXRot(lifetime>0?(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())):owner.getXRot());
         charge.mode=mode; charge.origin=origin; charge.sourceLifetime=lifetime;charge.flyingStyle=lifetime==120;
@@ -123,7 +123,7 @@ public final class LbcAir {
         }
         charge.entityTags().add("magic");
         game.items().markCurrentItemEpoch(charge);
-        if(owner.level().addFreshEntity(charge)) {
+        if(sourceLevel(owner).addFreshEntity(charge)) {
             charges.add(charge);
             if(lifetime==0) game.items().lifetimes().track(charge,true);
         }
@@ -141,12 +141,11 @@ public final class LbcAir {
                 Charge charge=batch.get(index);
                 try(var sourceScope=game.items().spellSources().scope(charge)){
                 if(!charges.contains(charge)) continue;
-                if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
-                        || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
-                        || !validOwner(owner) || owner.level()!=charge.level()) { remove(charge); continue; }
-                if(game.items().wands().timeStopped() || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
+                var owner=game.items().spellSources().author(charge);
+                if(!liveSourceCharge(charge,owner)) { remove(charge); continue; }
+                if(game.items().timeStop().stopped((net.minecraft.server.level.ServerLevel)charge.level()) || (game.items().spellSources().current()!=null?charge:owner).entityTags().contains("time_stopped")) continue;
                 Vec3 from=charge.position();
-                if(!owner.level().hasChunkAt(BlockPos.containing(from))
+                if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(from))
                         || game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)charge.level(),from)) {
                     remove(charge); continue;
                 }
@@ -174,22 +173,22 @@ public final class LbcAir {
             double distance=from.distanceTo(end);Vec3 direction=end.subtract(from).normalize();
             for(double step=0;step<=distance+1e-7;step+=.2) {
                 Vec3 point=from.add(direction.scale(Math.min(step,distance)));
-                owner.level().sendParticles(ParticleTypes.SMOKE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
+                sourceLevel(owner).sendParticles(ParticleTypes.SMOKE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
             }
             return;
         }
         if(charge.mode==0 || charge.mode==1) {
-            owner.level().sendParticles(ParticleTypes.EXPLOSION,true,false,end.x,end.y,end.z,1,0,0,0,0);
+            sourceLevel(owner).sendParticles(ParticleTypes.EXPLOSION,true,false,end.x,end.y,end.z,1,0,0,0,0);
         } else {
             double step=charge.mode==2?.7:.4, distance=from.distanceTo(end);
             for(double d=0;d<=distance+1e-7;d+=step) {
                 Vec3 p=distance<1e-9?from:from.add(end.subtract(from).scale(Math.min(1,d/distance)));
-                owner.level().sendParticles(AIR_PARTICLE,true,false,p.x,p.y,p.z,1,0,0,0,0);
-                LbcOverload.sound(owner,p,"minecraft:block.moss_carpet.step",.2f,1,0);
+                sourceLevel(owner).sendParticles(AIR_PARTICLE,true,false,p.x,p.y,p.z,1,0,0,0,0);
+                sourceSound(owner,p,"minecraft:block.moss_carpet.step",.2f,1,0);
             }
         }
         if(charge.mode==0 || charge.mode==1)
-            LbcOverload.sound(owner,end,"minecraft:block.moss_carpet.step",.05f,1,0);
+            sourceSound(owner,end,"minecraft:block.moss_carpet.step",.05f,1,0);
     }
 
     private void home(Charge charge,ServerPlayer owner) {
@@ -197,7 +196,7 @@ public final class LbcAir {
         LivingEntity nearest=null;
         double best=100;
         // Один локальный native query; куб broad phase уточняется до исходного радиуса 10.
-        for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(10),
+        for(var target:sourceLevel(owner).getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(10),
                 target->!target.entityTags().contains("strict_map_object") && game.items().wands().target(owner,target)
                         && game.items().lifetimes().target(owner,target))) {
             double distance=target.position().distanceToSqr(at);
@@ -207,18 +206,20 @@ public final class LbcAir {
     }
 
     private void detonate(Charge charge,ServerPlayer owner,Vec3 point) {
-        if(!validOwner(owner) || !game.items().currentEpoch(charge) || !owner.level().hasChunkAt(BlockPos.containing(point))) return;
+        if(!validOwner(owner) || !game.items().currentEpoch(charge) || !sourceLevel(owner).hasChunkAt(BlockPos.containing(point))) return;
         if(charge.emitterStyle){
             for(int i=0;i<3;i++){
-                var tnt=new net.minecraft.world.entity.item.PrimedTnt(owner.level(),point.x,point.y,point.z,owner);
-                tnt.setFuse(1);tnt.setDeltaMovement(Vec3.ZERO);game.items().incomingArtifacts().trackWild(owner,tnt);
+                var tnt=new net.minecraft.world.entity.item.PrimedTnt(sourceLevel(owner),point.x,point.y,point.z,owner);
+                tnt.setFuse(1);tnt.setDeltaMovement(Vec3.ZERO);
+                if(game.items().spellSources().current()!=null){game.items().markCurrentItemEpoch(tnt);game.items().spellSources().capture(tnt);game.items().timeStop().prepareFrozen(tnt);sourceLevel(owner).addFreshEntity(tnt);}
+                else game.items().incomingArtifacts().trackWild(owner,tnt);
             }
             return;
         }
         if(charge.flyingStyle) {
             for(int i=0;i<3;i++) {
                 if(!validOwner(owner)||!game.items().currentEpoch(charge))break;
-                game.items().exasperato().protectedBlast(owner,owner.level(),point,4,source->{});
+                game.items().exasperato().protectedBlast(owner,sourceLevel(owner),point,4,source->{});
             }
             return;
         }
@@ -227,15 +228,16 @@ public final class LbcAir {
         for(float y:offsets) {
             if(!game.items().currentEpoch(charge) || game.stage()==GameController.Stage.ENDING || !validOwner(owner)) return;
             Vec3 at=point.add(0,y,0);
-            if(!owner.level().hasChunkAt(BlockPos.containing(at))) continue;
+            if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(at))) continue;
             // Все режимы Sarvatra Mula учитывают защиту TNT; испытание получает тот же источник урона.
-            game.items().exasperato().protectedBlast(owner,owner.level(),at,4,
+            game.items().exasperato().protectedBlast(owner,sourceLevel(owner),at,4,
                     source->game.items().academy().blastSource(source,trial));
         }
     }
 
     private boolean validOwner(ServerPlayer owner) {
-        return owner!=null && !owner.isRemoved() && owner.isAlive() && owner.level()==game.maps().level()
+        if(persistentSource())return true;
+        return owner!=null && !owner.isRemoved() && owner.isAlive() && sourceLevel(owner)==game.maps().level()
                 && game.canUseGameplayItems(owner) && !game.isObserver(owner) && game.stage()!=GameController.Stage.ENDING;
     }
     private void remove(Charge charge) { charges.remove(charge); cleanup(charge); }
@@ -247,4 +249,15 @@ public final class LbcAir {
         for(Charge charge:List.copyOf(charges)) cleanup(charge);
         charges.clear(); batch.clear();
     }
+    Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
+        if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
+        else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);
+    }
+    private net.minecraft.server.level.ServerLevel sourceLevel(ServerPlayer owner){return game.items().spellSources().level(owner);}
+    private boolean persistentSource(){var source=game.items().spellSources().current();return source!=null&&source.persistent()&&game.items().currentEpoch(source.epoch())&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&sourceLevel(null)!=null&&LbcDimensionItems.ordinary(sourceLevel(null));}
+    private boolean boundSource(Entity entity){var source=game.items().spellSources().source(entity);return source!=null&&game.items().currentEpoch(source.epoch())&&LbcDimensionItems.ordinary(entity.level());}
+    private Entity nativeSourceOwner(ServerPlayer owner){var source=game.items().spellSources().current();return source==null?owner:sourceLevel(owner).getEntity(source.emitter());}
+    private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
+
 }

@@ -27,7 +27,7 @@ public final class LbcTechnoArmor {
     private final GameController game;
     private final Predicate<ServerPlayer> eligible,admitted;
     private final LbcTechnoFlight flight;
-    private final Map<ServerPlayer,Integer> phases=new IdentityHashMap<>(),ticks=new IdentityHashMap<>(),previousY=new IdentityHashMap<>();
+    private final Map<ServerPlayer,Integer> phases=new IdentityHashMap<>(),ticks=new IdentityHashMap<>();
     private final Set<LivingEntity> living=Collections.newSetFromMap(new IdentityHashMap<>());
     private record Attempt(ServerPlayer player,boolean admitted){}
     private final Deque<Attempt> attempts=new ArrayDeque<>();
@@ -46,14 +46,10 @@ public final class LbcTechnoArmor {
 
     public void tickPlayer(ServerPlayer p){
         boolean active=eligible.test(p),running=active&&admitted.test(p);
-        if(running){
-            int y=(int)Math.floor(p.getY()*100);var previous=previousY.put(p,y);
-            write(p,"speedy",previous==null?0:y-previous);
-        }
         // Cleanup precedes time admission so a jammer also stops already-owned flight.
         cleanupReactive(p);
         flight.tick(p);
-        if(!active){phases.remove(p);ticks.remove(p);previousY.remove(p);return;}
+        if(!active){phases.remove(p);ticks.remove(p);return;}
         if(!running)return;
         int phase=(phases.getOrDefault(p,0)+1)%20;phases.put(p,phase);
         int elapsed=ticks.getOrDefault(p,0)+1;ticks.put(p,elapsed);
@@ -200,6 +196,6 @@ public final class LbcTechnoArmor {
     public void inventoryChanged(ServerPlayer p){flight.inventoryChanged(p);cleanupReactive(p);}
     public void loaded(Entity e){if(e instanceof LivingEntity l)living.add(l);if(e instanceof ServerPlayer p)flight.loaded(p);}
     public void unloaded(Entity e){living.remove(e);if(e instanceof ServerPlayer p)forget(p);}
-    public void forget(ServerPlayer p){flight.forget(p);phases.remove(p);ticks.remove(p);previousY.remove(p);for(var key:List.of(REACTIVE_LIFT,REACTIVE_LANDING,SHIELD))game.items().ownedEffects().withdraw(p,key);}
-    public void stop(){flight.stop();for(var p:game.server().getPlayerList().getPlayers())forget(p);phases.clear();ticks.clear();previousY.clear();living.removeIf(Entity::isRemoved);}
+    public void forget(ServerPlayer p){flight.forget(p);phases.remove(p);ticks.remove(p);for(var key:List.of(REACTIVE_LIFT,REACTIVE_LANDING,SHIELD))game.items().ownedEffects().withdraw(p,key);}
+    public void stop(){flight.stop();for(var p:game.server().getPlayerList().getPlayers())forget(p);phases.clear();ticks.clear();living.removeIf(Entity::isRemoved);}
 }

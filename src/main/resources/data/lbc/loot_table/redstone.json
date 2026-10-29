@@ -1,424 +1,384 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": {
+        "min": 3,
+        "max": 9,
+        "type": "minecraft:uniform"
+      },
+      "bonus_rolls": {
+        "min": 0,
+        "max": 9,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
         {
-            "rolls": {
-                "min": 3,
-                "max": 9,
-                "type": "minecraft:uniform"
+          "type": "minecraft:item",
+          "weight": 8,
+          "name": "minecraft:redstone",
+          "modifier": {
+            "count": {
+              "min": 16,
+              "max": 32,
+              "type": "minecraft:uniform"
             },
-            "bonus_rolls": {
-                "min": 0,
-                "max": 9,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 8,
-                    "name": "minecraft:redstone",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 16,
-                                "max": 32,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 5,
-                    "name": "minecraft:redstone_torch",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 8,
-                                "max": 24,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 3,
-                    "name": "minecraft:redstone_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 4,
-                                "max": 16,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                }
-            ]
+            "type": "minecraft:set_count"
+          }
         },
         {
-            "rolls": {
-                "min": 2,
-                "max": 4,
-                "type": "minecraft:uniform"
+          "type": "minecraft:item",
+          "weight": 5,
+          "name": "minecraft:redstone_torch",
+          "modifier": {
+            "count": {
+              "min": 8,
+              "max": 24,
+              "type": "minecraft:uniform"
             },
-            "bonus_rolls": {
-                "min": 0,
-                "max": 4,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:repeater",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 8,
-                                "max": 16,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:comparator",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 4,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                }
-            ]
+            "type": "minecraft:set_count"
+          }
         },
         {
-            "rolls": {
-                "min": 2,
-                "max": 4,
-                "type": "minecraft:uniform"
+          "type": "minecraft:item",
+          "weight": 3,
+          "name": "minecraft:redstone_block",
+          "modifier": {
+            "count": {
+              "min": 4,
+              "max": 16,
+              "type": "minecraft:uniform"
             },
-            "bonus_rolls": {
-                "min": 0,
-                "max": 4,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:slime_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 4,
-                                "max": 16,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:honey_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 4,
-                                "max": 16,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": {
-                "min": 2,
-                "max": 4,
-                "type": "minecraft:uniform"
-            },
-            "bonus_rolls": {
-                "min": 0,
-                "max": 4,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:piston",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 4,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:sticky_piston",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 4,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": {
-                "min": 3,
-                "max": 6,
-                "type": "minecraft:uniform"
-            },
-            "bonus_rolls": {
-                "min": 0,
-                "max": 6,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:calibrated_sculk_sensor",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 8,
-                                "max": 16,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tripwire_hook",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 2
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:string",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 16,
-                                "max": 32,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "bonus_rolls": {
-                "min": 0,
-                "max": 1,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:water_bucket",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 2
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": {
-                "min": 3,
-                "max": 5,
-                "type": "minecraft:uniform"
-            },
-            "bonus_rolls": {
-                "min": 0,
-                "max": 5,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:dispenser",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 8,
-                                "max": 16,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:observer",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 4,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "bonus_rolls": {
-                "min": 0,
-                "max": 1,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tnt",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 32,
-                                "max": 64,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": {
-                "min": 4,
-                "max": 8,
-                "type": "minecraft:uniform"
-            },
-            "bonus_rolls": {
-                "min": 0,
-                "max": 8,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:oak_pressure_plate",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 2,
-                                "max": 4,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_pressure_plate",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 2,
-                                "max": 4,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_button",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 2,
-                                "max": 4,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:oak_button",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 2,
-                                "max": 4,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:crafter"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:copper_golem_statue"
-                }
-            ]
+            "type": "minecraft:set_count"
+          }
         }
-    ]
+      ]
+    },
+    {
+      "rolls": {
+        "min": 2,
+        "max": 4,
+        "type": "minecraft:uniform"
+      },
+      "bonus_rolls": {
+        "min": 0,
+        "max": 4,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:repeater",
+          "modifier": {
+            "count": {
+              "min": 8,
+              "max": 16,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:comparator",
+          "modifier": {
+            "count": {
+              "min": 4,
+              "max": 8,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "min": 2,
+        "max": 4,
+        "type": "minecraft:uniform"
+      },
+      "bonus_rolls": {
+        "min": 0,
+        "max": 4,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:slime_block",
+          "modifier": {
+            "count": {
+              "min": 4,
+              "max": 16,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:honey_block",
+          "modifier": {
+            "count": {
+              "min": 4,
+              "max": 16,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "min": 2,
+        "max": 4,
+        "type": "minecraft:uniform"
+      },
+      "bonus_rolls": {
+        "min": 0,
+        "max": 4,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:piston",
+          "modifier": {
+            "count": {
+              "min": 4,
+              "max": 8,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:sticky_piston",
+          "modifier": {
+            "count": {
+              "min": 4,
+              "max": 8,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "min": 3,
+        "max": 6,
+        "type": "minecraft:uniform"
+      },
+      "bonus_rolls": {
+        "min": 0,
+        "max": 6,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:calibrated_sculk_sensor",
+          "modifier": {
+            "count": {
+              "min": 8,
+              "max": 16,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:tripwire_hook",
+          "modifier": {
+            "count": 2,
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:string",
+          "modifier": {
+            "count": {
+              "min": 16,
+              "max": 32,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": {
+        "min": 0,
+        "max": 1,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:water_bucket",
+          "modifier": {
+            "count": 2,
+            "type": "minecraft:set_count"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "min": 3,
+        "max": 5,
+        "type": "minecraft:uniform"
+      },
+      "bonus_rolls": {
+        "min": 0,
+        "max": 5,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:dispenser",
+          "modifier": {
+            "count": {
+              "min": 8,
+              "max": 16,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:observer",
+          "modifier": {
+            "count": {
+              "min": 4,
+              "max": 8,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": {
+        "min": 0,
+        "max": 1,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:tnt",
+          "modifier": {
+            "count": {
+              "min": 32,
+              "max": 64,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "min": 4,
+        "max": 8,
+        "type": "minecraft:uniform"
+      },
+      "bonus_rolls": {
+        "min": 0,
+        "max": 8,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:oak_pressure_plate",
+          "modifier": {
+            "count": {
+              "min": 2,
+              "max": 4,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:stone_pressure_plate",
+          "modifier": {
+            "count": {
+              "min": 2,
+              "max": 4,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:stone_button",
+          "modifier": {
+            "count": {
+              "min": 2,
+              "max": 4,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:oak_button",
+          "modifier": {
+            "count": {
+              "min": 2,
+              "max": 4,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:crafter"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:copper_golem_statue"
+        }
+      ]
+    }
+  ]
 }

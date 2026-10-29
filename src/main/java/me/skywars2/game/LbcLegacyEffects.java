@@ -90,21 +90,21 @@ public final class LbcLegacyEffects {
     void resetWitch(net.minecraft.world.entity.LivingEntity p){game.items().mana().score(p,"dmg_dealt").set(1);
         for(var objective:List.of("food_count","lolidefecation","sleep_time","greed_prestige"))game.items().mana().score(p,objective).set(0);
         p.entityTags().add("have_mom");p.entityTags().remove("greed_cursed");}
-    private void snus(ServerPlayer p){
+    private void snus(ServerPlayer p){snus(p,game.items().indirectKills().wildCause(p));game.items().mana().award(p,"lbc:true_advancements/potions/snus");}
+    void snus(net.minecraft.world.entity.LivingEntity p,LbcIndirectKills.Owner cause){
         var text=Component.empty().append(p.getDisplayName().copy().withStyle(ChatFormatting.GREEN)).append(Component.translatable("snus.used"));
         for(var viewer:game.server().getPlayerList().getPlayers())viewer.sendSystemMessage(text);
         for(var effect:List.of(MobEffects.REGENERATION,MobEffects.POISON,MobEffects.WITHER,MobEffects.SATURATION,
                 MobEffects.ABSORPTION,MobEffects.HEALTH_BOOST,MobEffects.WEAKNESS,MobEffects.BLINDNESS,MobEffects.GLOWING,
                 MobEffects.INVISIBILITY,MobEffects.FIRE_RESISTANCE,MobEffects.LEVITATION,MobEffects.MINING_FATIGUE,
                 MobEffects.SLOW_FALLING,MobEffects.SLOWNESS,MobEffects.RESISTANCE,MobEffects.STRENGTH))p.removeEffect(effect);
-        var cause=game.items().indirectKills().wildCause(p);
         game.items().indirectKills().withCause(p,cause,()->{
             effect(p,MobEffects.SPEED,4000,15);effect(p,MobEffects.JUMP_BOOST,4000,15);effect(p,MobEffects.NAUSEA,5000,0);
             effect(p,MobEffects.MINING_FATIGUE,5000,2);effect(p,MobEffects.HUNGER,8000,0);
             effect(p,MobEffects.HUNGER,320,10);effect(p,MobEffects.NIGHT_VISION,5000,0);
-        });game.items().mana().award(p,"lbc:true_advancements/potions/snus");
+        });
     }
-    private void effect(ServerPlayer p,Holder<MobEffect> effect,int ticks,int amp){p.addEffect(ItemEffectLevels.create(effect,ticks,amp),p);}
+    private void effect(net.minecraft.world.entity.LivingEntity p,Holder<MobEffect> effect,int ticks,int amp){p.addEffect(ItemEffectLevels.create(effect,ticks,amp),p);}
     private void gravity(ServerPlayer p){
         if(read(p,"effect_gravity_curse")==1){var id=Identifier.parse("minecraft:gravity_curse");
             for(var type:List.of(Attributes.FALL_DAMAGE_MULTIPLIER,Attributes.GRAVITY,Attributes.STEP_HEIGHT,
