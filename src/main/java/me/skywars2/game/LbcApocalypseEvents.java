@@ -154,8 +154,8 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
             case 53->{translated("the_vessel_of_the_philosophers");for(var e:select(c,"@e[tag=!spectator,sort=random,limit=24]"))game.items().apocalypseActors().spawnCloud(a,level(e),e.position().add(0,30,0));}
             case 54->{translated("our_blessed_stone");for(var e:select(c,"@e[type=!minecraft:player,sort=random,limit=100]")){
                 game.items().apocalypseActors().spawnStevari(a,level(e),e.position());
-                if(e.getType().builtInRegistryHolder().is(MOBS)&&!(e instanceof ServerPlayer)&&game.items().wands().validRoleTarget(e,false)){
-                    if(e instanceof LivingEntity living)game.items().indirectKills().inheritedKill(living,a.cause());else e.kill(level(e));}}}
+                if((e.getType().builtInRegistryHolder().is(MOBS)||LbcWtf.managed(e))&&!(e instanceof ServerPlayer)&&game.items().wands().validRoleTarget(e,false)){
+                    if(e instanceof LivingEntity living)game.items().indirectKills().inheritedExecution(living,a.cause());else e.kill(level(e));}}}
             case 55->{translated("magnum_opus");for(var e:select(c,"@e[type=minecraft:marker,sort=random,limit=32]"))game.items().apocalypseActors().spawnWorm(a,level(e),e.position());}
             case 56->{translated("philosophers_stone");for(var e:select(c,"@e[tag=!spectator,sort=random,limit=20]"))gold(a,level(e),e.position().add(-24,-24,-24));
                 for(var e:select(c,"@e[tag=!spectator,sort=random,limit=10]"))spawner(a,level(e),BlockPos.containing(e.position().add(0,10,0)));}

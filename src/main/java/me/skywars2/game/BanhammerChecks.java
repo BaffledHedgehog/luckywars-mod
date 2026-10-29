@@ -75,17 +75,21 @@ public final class BanhammerChecks {
         var role=cow(f,impact.add(0,0,1));role.entityTags().add("strict_map_object");var remote=cow(f,impact.add(5,0,5));
         var board=g.server().getScoreboard();var old=f.base.owner.getTeam();require(board.getPlayerTeam("banhammer_mob_check")==null,"exclusive team fixture");
         var team=board.addPlayerTeam("banhammer_mob_check");team.setAllowFriendlyFire(false);
+        require(g.items().wtf().count()==0,"exclusive Chef erasure regression");
+        var activeChef=g.items().wtf().spawn(f.base.owner,remote);var knockedChef=g.items().wtf().spawn(f.base.owner,remote);
+        require(activeChef!=null&&knockedChef!=null,"two native Chef actors");activeChef.setPos(impact.add(.5,0,0));knockedChef.setPos(impact.add(-.5,0,0));knockedChef.receive(20);
         var before=lootEntities(f);var profile=g.players().get(f.base.owner.getUUID());int kills=profile.kills;
         int nativeKills=f.base.owner.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS));
         try{
             board.addPlayerToTeam(f.base.owner.getScoreboardName(),team);board.addPlayerToTeam(ally.getScoreboardName(),team);
             require(f.base.owner.isAlliedTo(ally),"real allied mob fixture");s.impact(h);
             require(victim.isRemoved()&&ally.isRemoved(),"discard invulnerable equipped million-HP mob and WILD ally");
+            require(activeChef.isRemoved()&&knockedChef.isRemoved()&&g.items().wtf().count()==0&&g.items().wtf().pinnedChunks()==0,"Banhammer erases active and knocked native Chefs without damage/death/ticket leaks");
             require(victim.getHealth()==1_000_000&&victim.deathTime==0&&victim.getLastDamageSource()==null,"discard bypasses native damage and death callbacks");
             require(!greed.isRemoved()&&!role.isRemoved()&&!remote.isRemoved(),"Greed, technical role and spherical radius exclusions");
             require(lootEntities(f).equals(before)&&profile.kills==kills&&f.base.owner.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS))==nativeKills,"no item/XP/death loot or kill rewards");
         }finally{
-            h.destroy();for(var c:List.of(victim,ally,greed,role,remote)){board.removePlayerFromTeam(c.getScoreboardName());c.discard();}
+            g.items().wtf().erase(activeChef);g.items().wtf().erase(knockedChef);h.destroy();for(var c:List.of(victim,ally,greed,role,remote)){board.removePlayerFromTeam(c.getScoreboardName());c.discard();}
             board.removePlayerFromTeam(f.base.owner.getScoreboardName());board.removePlayerTeam(team);if(old!=null)board.addPlayerToTeam(f.base.owner.getScoreboardName(),old);
         }
     }

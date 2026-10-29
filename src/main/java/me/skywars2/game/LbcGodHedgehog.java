@@ -128,7 +128,7 @@ public final class LbcGodHedgehog {
             ?game.items().wands().validRoleTarget(victim,false)&&!paused(victim):target(victim,false));}
     public void inheritChild(Entity source,Entity child){var e=find(source);if(e==null)return;blastSources.put(child,e);blastChildren.add(child);child.entityTags().add(BLAST);game.items().markCurrentItemEpoch(child);}
     private boolean target(Entity entity,boolean arrow){
-        if(!entity.getType().builtInRegistryHolder().is(MOBS)||!game.items().wands().validRoleTarget(entity,false)
+        if((!entity.getType().builtInRegistryHolder().is(MOBS)&&!(arrow&&LbcWtf.managed(entity)))||!game.items().wands().validRoleTarget(entity,false)
                 ||entity instanceof Silverfish||paused(entity))return false;
         return !arrow||(!LbcGreed.active(entity)&&game.items().mana().score(entity,"void_resistance").get()<1);
     }
@@ -281,7 +281,7 @@ public final class LbcGodHedgehog {
         // A flat broadphase needs a numerical margin; only the native hitbox determines a hit.
         for(var entity:level.getEntities((Entity)null,new AABB(from,to).inflate(1e-7),v->target(v,true)))
             if(entity instanceof LivingEntity living&&LbcBeamGeometry.intersects(living.getBoundingBox(),from,to))
-                game.items().indirectKills().inheritedKill(living,a.encounter.cause);
+                game.items().indirectKills().inheritedExecution(living,a.encounter.cause);
         for(int n=0;n<=20;n++){
             var p=a.point.add(a.direction.scale(n*.125));if(!resident(level,p))continue;
             level.sendParticles(ParticleTypes.END_ROD,true,false,p.x,p.y,p.z,1,.01,.01,.01,0);

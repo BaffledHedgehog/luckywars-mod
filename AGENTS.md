@@ -1,3 +1,16 @@
+## Explicit Chef erasure - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Policies and exact proof](agent_notes/CHEF_ERASURE_PORT_2026_10_29.md).
+Approved execution paths clear Chef AI/tickets; ordinary enormous damage still knocks.
+Sacrifice counts only damage remaining until knock; nuclear and Stand do not execute.
+7346a8f9 passed9 suites/2 native mode1 matches55.68s+40.31s;10989 exact inputs.
+199 protected paths/31 overrides/main unchanged. Full original25 Chaos gate closed.
+(user) New ordinary polymorph10seconds; academy permanent; returning Chef if sheep survives.
+(user) End Magnesia:10 volleys/10tick spacing,4 spheres each,random directions,
+XZ +/-10,Y+15,TTL100,weak bounded homing,through blocks,WILD non-sheep.
+(player) Sheep movement/look only,effects/statuses suspend and return,death linked.
+Next implement this new contract; do not install incomplete Chaos chain.
+
 ## Gluttony actors ? NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Implementation, decisions and exact proof](agent_notes/WITCH_GLUTTONY_PORT_2026_10_29.md).

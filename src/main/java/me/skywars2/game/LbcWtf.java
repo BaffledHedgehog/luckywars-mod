@@ -413,6 +413,8 @@ public final class LbcWtf {
         else {tickets.remove(key);key.level.getChunkSource().removeTicketWithRadius(CHEF_TICKET,key.pos,3);}
     }
     int pinnedChunks(){return tickets.size();}
+    /** Explicit erasure/transformation bypasses infinite HP, knock and all death/drop callbacks. */
+    boolean erase(Entity entity){if(!(entity instanceof Chef chef)||chef.service!=this)return false;remove(chef);return true;}
     private void remove(Chef chef){unpin(chef.ticket);chef.ticket=null;chefs.remove(chef);chef.brain.reset();chef.survival.clear();if(!chef.isRemoved())chef.discard();}
     public void loaded(Entity entity){
         if(entity instanceof Chef chef){if(!chef.isRemoved()&&chef.service==this&&game.items().currentEpoch(chef))chefs.add(chef);else chef.discard();}

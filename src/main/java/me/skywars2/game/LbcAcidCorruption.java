@@ -139,8 +139,15 @@ final class LbcAcidCorruption {
     }
     void sacrifice(ServerPlayer owner){
         double health=0;var victims=new ArrayList<LivingEntity>();
-        owner.level().getAllEntities().forEach(e->{if(e instanceof LivingEntity l&&!(e instanceof ServerPlayer)&&game.items().wands().validTarget(e)&&owner.isAlliedTo(e))victims.add(l);});
-        for(var victim:victims){health+=Mth.floor(victim.getHealth());game.items().indirectKills().inheritedKill(victim,game.items().indirectKills().wildCause(owner));}
+        owner.level().getAllEntities().forEach(e->{if(e instanceof LivingEntity l&&!(e instanceof ServerPlayer)&&game.items().wands().validTarget(e)&&(owner.isAlliedTo(e)||LbcWtf.managed(e)&&game.items().summons().friendly(owner,e)))victims.add(l);});
+        for(var victim:victims){
+            if(victim instanceof LbcWtf.Chef chef){
+                // (user) Sacrifice only knocks the Chef; count the remaining accepted damage to that knock once.
+                if(game.items().wtf().stasis(chef)>0)continue;
+                float remaining=Math.max(0,20-game.items().wtf().damageCount(chef));
+                if(game.items().indirectKills().inheritedKill(chef,game.items().indirectKills().wildCause(owner))&&game.items().wtf().stasis(chef)>0)health+=remaining;
+            }else{health+=Mth.floor(victim.getHealth());game.items().indirectKills().inheritedKill(victim,game.items().indirectKills().wildCause(owner));}
+        }
         int duration=(int)Math.min(Integer.MAX_VALUE,Math.floor(health/10)*20);
         if(duration>0)owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,duration,4),owner);
     }
@@ -202,7 +209,7 @@ final class LbcAcidCorruption {
             var target=entry.getKey();if(target==null)continue;if(!target.isAlive()||target.isRemoved()||deathRemaining(target)==0){clear(target);continue;}
             if(target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p)){clear(target);continue;}
             if(game.server().getTickCount()%20!=0||game.items().timeStop().stopped((ServerLevel)target.level())||target.entityTags().contains("sin_greed_active"))continue;
-            int remaining=deathRemaining(target);if(remaining==1&&game.items().mana().hudValue(target,"void_resistance")<=0)game.items().indirectKills().inheritedKill(target,entry.getValue());
+            int remaining=deathRemaining(target);if(remaining==1&&game.items().mana().hudValue(target,"void_resistance")<=0)game.items().indirectKills().inheritedExecution(target,entry.getValue());
             game.items().mana().score(target,"delayed_death").set(remaining-1);
             if(remaining==1)deaths.remove(target);
             else if(target instanceof ServerPlayer p&&(remaining-1)%10==0)p.sendSystemMessage(Component.translatable("delayed_death").append(Integer.toString(remaining-1)).append(Component.translatable("delayed_death_2")).withStyle(net.minecraft.ChatFormatting.DARK_RED));

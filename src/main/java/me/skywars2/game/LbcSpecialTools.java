@@ -183,7 +183,7 @@ public final class LbcSpecialTools {
     private boolean useHammer(ServerPlayer p,InteractionHand hand){
         if(!magic(p)||game.items().mana().hudValue(p,"swordcharged7")<=0||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
         var level=p.level();var start=p.getEyePosition();var direction=p.getLookAngle();Vec3 hit=null;
-        var candidates=level.getEntitiesOfClass(LivingEntity.class,new AABB(start,start.add(direction.scale(80.4))).inflate(2),e->e!=p&&e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validTarget(e));
+        var candidates=level.getEntitiesOfClass(LivingEntity.class,new AABB(start,start.add(direction.scale(80.4))).inflate(2),e->e!=p&&(e.getType().builtInRegistryHolder().is(MOBS)||LbcWtf.managed(e))&&game.items().wands().validTarget(e));
         for(int n=0;n<=200;n++){
             var at=start.add(direction.scale(n*.4));var pos=BlockPos.containing(at);
             if(!resident(level,pos)||game.items().magic().suppressedAt(level,at))break;
@@ -244,8 +244,8 @@ public final class LbcSpecialTools {
         for(var p:targets)if(!immuneToHammer(p))kick(p);
         var area=new AABB(hammer.impact,hammer.impact).inflate(5.5);
         for(var mob:hammer.level.getEntitiesOfClass(LivingEntity.class,area,e->!(e instanceof ServerPlayer)
-                &&e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validTarget(e)
-                &&e.position().distanceToSqr(hammer.impact)<=30.25))mob.discard();
+                &&(e.getType().builtInRegistryHolder().is(MOBS)||LbcWtf.managed(e))&&game.items().wands().validTarget(e)
+                &&e.position().distanceToSqr(hammer.impact)<=30.25))game.items().mobgun().dispose(mob);
         hammer.level.sendParticles(ParticleTypes.EXPLOSION,hammer.impact.x,hammer.impact.y,hammer.impact.z,1000,5,.5,5,0);
         hammer.level.sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xffff1919),hammer.impact.x,hammer.impact.y,hammer.impact.z,1000,1,1,1,0);
     }

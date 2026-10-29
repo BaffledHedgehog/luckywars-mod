@@ -137,6 +137,8 @@ public final class LbcIndirectKills {
         final Owner cause;
         InheritedKill(LivingEntity target,Owner cause){super(target.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC_KILL));this.cause=cause;}
     }
+    /** Explicit execution intent is distinct from ordinary, even enormous, damage. */
+    boolean inheritedExecution(LivingEntity target,Owner cause){return game.items().wtf().erase(target)||inheritedKill(target,cause);}
     boolean inheritedKill(LivingEntity target,Owner cause){return target.hurtServer((ServerLevel)target.level(),new InheritedKill(target,cause),Float.MAX_VALUE);}
     void manaLost(LivingEntity target,Owner cause){if(cause!=null)manaDebts.put(target,newer(manaDebts.get(target),cause));}
     Owner coldCause(ServerPlayer player,boolean projectile){return new Owner(player.getUUID(),++order,false,projectile);}

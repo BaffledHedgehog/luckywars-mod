@@ -188,6 +188,16 @@ public final class SheepChecks {
             require(input(InteractionHand.MAIN_HAND)&&sheep.holeViews().size()==1&&other.getInventory().getItem(5).isEmpty()&&owner.getInventory().getItem(5).isEmpty()&&other.isAlive(),"inventory potion creates one hole and clears matching potions from nearby players without transformation");
             clear();move(owner,at);move(other,at.add(8,0,0));
         }
+        void chefPolymorph(){
+            require(game.items().wtf().count()==0,"no unrelated Chef before polymorph regression");move(owner,at);move(other,at.add(8,0,0));
+            for(boolean academy:new boolean[]{false,true})for(boolean knocked:new boolean[]{false,true}){
+                var victim=cow(at.add(8,0,10));var chef=game.items().wtf().spawn(owner,victim);require(chef!=null,"actual owned native Chef");owned.add(chef);
+                if(knocked)chef.receive(20);chef.setPos(at.add(0,knocked?1.4:.5,4));chef.setDeltaMovement(Vec3.ZERO);
+                held(loot(academy?"academy_sheep_wand":"sheep_wand"),InteractionHand.MAIN_HAND);owner.setYRot(0);owner.setXRot(0);mana.set(owner,500);
+                require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&chef.isRemoved()&&sheep.sheepViews().size()==1,"actual ray transforms awake/knocked allied Chef: academy="+academy+" knocked="+knocked);
+                require(game.items().wtf().count()==0&&game.items().wtf().pinnedChunks()==0,"polymorph releases actor AI and tickets immediately");clear();victim.discard();
+            }
+        }
         void promote(){held(trial,InteractionHand.MAIN_HAND);require(academy.interact(owner,InteractionHand.MAIN_HAND,school),"real token school promotion callback on subsequent server tick");require(owner.getMainHandItem().is(LbcSheep.ACADEMY_ITEM)&&Identifier.parse("lbc:tier_x").equals(owner.getMainHandItem().get(DataComponents.TOOLTIP_STYLE))&&school.isRemoved(),"real X-tier Academy promotion consumes token school");}
         void academySex(){
             move(owner,holeAt.add(0,0,-10));move(other,at);
@@ -238,11 +248,11 @@ public final class SheepChecks {
         }
         boolean step(){
             require(game.playing()&&game.items().currentEpoch(epoch),"active match epoch");long now=owner.level().getGameTime();if(now==last)return false;last=now;
-            switch(phase++){case 0->guardsAndRay();case 1->potionTrial();case 2->promote();case 3->academySex();case 4->{physics();return true;}default->throw new IllegalStateException("unexpected phase");}return false;
+            switch(phase++){case 0->{guardsAndRay();chefPolymorph();}case 1->potionTrial();case 2->promote();case 3->academySex();case 4->{physics();return true;}default->throw new IllegalStateException("unexpected phase");}return false;
         }
         @Override public void close(){
             if(closed)return;closed=true;try{owner.stopUsingItem();game.items().timeStop().end(owner.level());clear();academy.stop();
-            for(var e:owned){if(e instanceof net.minecraft.world.entity.LivingEntity living)game.items().indirectKills().clear(living);e.discard();}
+            for(var e:owned){if(e instanceof net.minecraft.world.entity.LivingEntity living)game.items().indirectKills().clear(living);if(!game.items().wtf().erase(e))e.discard();}
             for(var p:List.of(owner,other))game.items().indirectKills().clear(p);
             for(var area:List.of(bounds,holeBounds)){owner.level().getBlockTicks().clearArea(area);owner.level().getFluidTicks().clearArea(area);}
             for(var e:blocks.entrySet()){if(owner.level().getBlockEntity(e.getKey()) instanceof net.minecraft.world.Container c)c.clearContent();game.maps().restoreSnapshot(owner.level(),e.getKey(),e.getValue());}

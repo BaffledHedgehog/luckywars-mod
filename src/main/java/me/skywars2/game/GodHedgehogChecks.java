@@ -68,7 +68,7 @@ public final class GodHedgehogChecks {
         final List<Saved> saved=new ArrayList<>();final List<Entity> fixtures=new ArrayList<>();
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final Map<BlockPos,BlockState> terrain=new LinkedHashMap<>();
         ServerLevel crossLevel,guestLevel;ServerPlayer guest;Vec3 crossPoint,guestPoint;float guestYaw,guestPitch;Set<Entity> crossBefore;
-        final Vec3 at;Silverfish boss;Entity eater,white;List<LivingEntity> victims;int phase,lastTick=-1,startTick,whiteTicks;boolean retain;
+        final Vec3 at;Silverfish boss;Entity eater,white;LbcWtf.Chef rayChef,knockedRayChef;List<LivingEntity> victims;int phase,lastTick=-1,startTick,whiteTicks;boolean retain;
         Fixture(GameController game){
             this.game=game;service=game.items().godHedgehog();owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             require(owner!=null&&game.playing()&&game.canUseGameplayItems(owner)&&service.count()==0&&!game.items().timeStop().stopped(owner.level()),"exclusive unpaused real match and participant");
@@ -138,12 +138,15 @@ public final class GodHedgehogChecks {
                 }
             }catch(ReflectiveOperationException error){throw new IllegalStateException("God Hedgehog native swept-ray regression",error);}
         }
+        LbcWtf.Chef chef(Vec3 point,boolean knocked){var target=cow(at.add(8,0,8),"");var chef=game.items().wtf().spawn(owner,target);require(chef!=null,"real native Chef source actor");fixtures.add(chef);chef.setPos(point);chef.setDeltaMovement(Vec3.ZERO);if(knocked)chef.receive(20);return chef;}
         void killRay(){
             var p=at.add(-12,0,0);victims=new ArrayList<>();victims.add(cow(p,""));victims.add(cow(p,"sin_greed_active"));victims.add(cow(p,""));victims.add(cow(p,"spectator"));victims.add(cow(p,"strict_map_object"));
             game.items().mana().score(victims.get(2),"void_resistance").set(1);
+            rayChef=chef(p,false);knockedRayChef=chef(p,true);require(game.items().wtf().count()==2,"two actual Chefs before native white kill ray");
             white=service.whiteBoundary(boss,p,new Vec3(0,0,1),39);require(white!=null,"native white display at explicit source-age39 boundary");
         }
         void silence(){
+            var activeChef=chef(at.add(3,0,0),false);var knockedChef=chef(at.add(-3,0,0),true);
             for(var player:game.server().getPlayerList().getPlayers())if(player!=owner)player.entityTags().add("spectator");
             owner.removeAllEffects();owner.setAbsorptionAmount(0);owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20_000_000_000d);owner.setHealth(20_000_000_000f);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.getAbilities().invulnerable=false;
             game.items().mana().score(owner,"void_resistance").set(0);game.items().mana().set(owner,2000);
@@ -152,6 +155,8 @@ public final class GodHedgehogChecks {
             float loss=switch(level.getDifficulty()){case PEACEFUL->0;case EASY->5_000_000_000f;case NORMAL->10_000_000_000f;case HARD->15_000_000_000f;};
             require(owner.isAlive()&&owner.getHealth()==20_000_000_000f-loss,"native boss10-billion raw retaliation retains difficulty scaling");
             require(boss.isAlive()&&!game.items().consuming().eraseLoaded(boss)&&!boss.isRemoved(),"real tracked boss survives active Silence event erasure");
+            require(game.items().consuming().eraseLoaded(activeChef)&&game.items().consuming().eraseLoaded(knockedChef)&&activeChef.isRemoved()&&knockedChef.isRemoved(),"actual active Silence erases awake and knocked Chefs without damage");
+            require(game.items().wtf().count()==0&&game.items().wtf().pinnedChunks()==0,"Silence releases Chef actors and simulation tickets immediately");
             if(loss>0)require(owner.getLastDamageSource()!=null&&owner.getLastDamageSource().getEntity()==boss,"retaliation identifies actual boss");
             game.items().consuming().forget(owner);owner.removeAllEffects();owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
         }
@@ -212,7 +217,7 @@ public final class GodHedgehogChecks {
             require(game.playing(),"real match remains active");int tick=game.server().getTickCount();if(tick==lastTick)return false;lastTick=tick;
             switch(phase){
                 case 1->{if(tick-startTick<2)return false;var center=BlockPos.containing(at.add(12,0,0));int removed=0,kept=0;for(int x=-3;x<=3;x++)for(int y=-3;y<=3;y++)for(int z=-3;z<=3;z++){boolean air=level.getBlockState(center.offset(x,y,z)).isAir();if(x*x+y*y+z*z<=12){require(air,"eater authored integer sphere cell");removed++;}else{require(!air,"eater preserves outer cube corners");kept++;}}require(removed==179&&kept==164,"actual source179-air-cell mask, not radius3/cube");require(!eater.isRemoved(),"eater remains through source-age80 detonation");killRay();phase=2;startTick=tick;}
-                case 2->{if(tick-startTick<3)return false;require(white.isRemoved()&&!victims.getFirst().isAlive(),"source-age40 native white conversion and next native marker update kill ordinary victim");for(int i=1;i<victims.size();i++)require(victims.get(i).isAlive(),"native kill ray protects Greed/void resistance/observer/strict role "+i);require(victims.getFirst().getKillCredit()==owner,"lethal ray inherits original WILD summoner credit");require(eater.isRemoved(),"source-age83 retires native eater");for(var item:level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(at,at).inflate(30)))if(!before.contains(item))item.discard();service.stop();boss=service.summon(level,at.add(0,0,12),owner);require(boss!=null,"second real encounter");fixtures.add(boss);boss.setNoAi(true);boss.setNoGravity(true);boss.entityTags().add("time_stopped");service.laserBoundary(boss,at.add(0,60,0),new Vec3(0,1,0));require(service.pendingBlasts()==101,"one source laser enqueues exactly101 native explosions without command/TNT marker entities");require(service.cause(boss).friendlyFire(),"queued laser retains WILD cause");boss.entityTags().remove("time_stopped");service.phaseForCheck(441);phase=3;startTick=tick;}
+                case 2->{if(tick-startTick<3)return false;require(white.isRemoved()&&!victims.getFirst().isAlive(),"source-age40 native white conversion and next native marker update kill ordinary victim");for(int i=1;i<victims.size();i++)require(victims.get(i).isAlive(),"native kill ray protects Greed/void resistance/observer/strict role "+i);require(victims.getFirst().getKillCredit()==owner,"lethal ray inherits original WILD summoner credit");require(rayChef.isRemoved()&&knockedRayChef.isRemoved()&&game.items().wtf().count()==0&&game.items().wtf().pinnedChunks()==0,"native swept /kill ray erases awake and knocked Chefs, including real mannequin eligibility and ticket cleanup");require(eater.isRemoved(),"source-age83 retires native eater");for(var item:level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(at,at).inflate(30)))if(!before.contains(item))item.discard();service.stop();boss=service.summon(level,at.add(0,0,12),owner);require(boss!=null,"second real encounter");fixtures.add(boss);boss.setNoAi(true);boss.setNoGravity(true);boss.entityTags().add("time_stopped");service.laserBoundary(boss,at.add(0,60,0),new Vec3(0,1,0));require(service.pendingBlasts()==101,"one source laser enqueues exactly101 native explosions without command/TNT marker entities");require(service.cause(boss).friendlyFire(),"queued laser retains WILD cause");boss.entityTags().remove("time_stopped");service.phaseForCheck(441);phase=3;startTick=tick;}
                 case 3->{require(service.pendingBlasts()<101,"bounded native explosion worker makes resident progress");boss.entityTags().add("time_stopped");require(level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(at,at).inflate(30)).isEmpty(),"air-only laser boundary creates no item drops");service.stop();boss=service.summon(level,at.add(0,0,12),owner);fixtures.add(boss);boss.setNoAi(true);boss.setNoGravity(true);boss.setDeltaMovement(Vec3.ZERO);service.phaseForCheck(240);whiteTicks=0;phase=4;startTick=tick;}
                 case 4->{whiteTicks++;for(var actor:service.snapshot())if(actor!=boss)actor.entityTags().add("time_stopped");if(whiteTicks<201)return false;require(tick-startTick>=201,"201 source attack updates elapsed across201 actual server ticks");boss.entityTags().add("time_stopped");var warnings=service.warningSnapshot();require(warnings.size()==201,"all201native warning owners have one display line each");
                     for(var w:warnings){require(!w.closed()&&w.age()==1&&w.lifetime()==40,"actor pause freezes its forty-tick warning");require(w.model().toString().equals("lbc:meditation_warning_beam_red")&&Math.abs(w.end().distanceTo(w.origin())-10)<1e-7,"shared red line preserves original10block warning span");}
@@ -222,7 +227,7 @@ public final class GodHedgehogChecks {
             }return false;
         }
         @Override public void close(){
-            if(!retain)service.stop();restoreGuest();game.items().consuming().forget(owner);for(var e:fixtures)if(!retain||e!=boss)e.discard();
+            if(!retain)service.stop();restoreGuest();game.items().consuming().forget(owner);for(var e:fixtures)if(!retain||e!=boss){if(!game.items().wtf().erase(e))e.discard();}
             for(var e:terrain.entrySet())if(level.hasChunkAt(e.getKey()))level.setBlock(e.getKey(),e.getValue(),2);
             for(var e:level.getAllEntities())if(!before.contains(e)&&e instanceof ItemEntity item&&(item.getItem().is(LbcHedgehogItems.GOD)||item.position().distanceToSqr(at)<30*30))item.discard();
             saved.forEach(s->s.restore(game));game.items().magic().flushCleansing();

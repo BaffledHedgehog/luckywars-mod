@@ -212,7 +212,7 @@ public final class LbcSheep {
         finally{spawning.remove(replacement);}
         if(original instanceof LivingEntity living)game.items().indirectKills().clear(living);
         // Discard has no loot, death side effects, remote teleport, or invented restoration timer.
-        original.discard();
+        if(!game.items().wtf().erase(original))original.discard();
         p.level().sendParticles(ParticleTypes.POOF,replacement.getX(),replacement.getY()+.5,replacement.getZ(),20,.1,.1,.1,.5);
         LbcOverload.sound(p,replacement.position(),"minecraft:block.fire.extinguish",1,2,0);
         return replacement;
