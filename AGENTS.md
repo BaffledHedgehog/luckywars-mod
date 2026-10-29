@@ -1,3 +1,24 @@
+## Wrath and melee-only Witch progress - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Implementation and exact proof](agent_notes/WITCH_WRATH_MELEE_PORT_2026_10_29.md).
+(user) Only direct melee damage counts toward Wrath and against Vanity.
+Native attack/sweep/stab impact proof plus actual combat-tracker HP loss owns
+dmg_dealt; no broad DAMAGE_DEALT award or KFC addition. Real spear type counts;
+player_attack spell aliases/NPC/projectiles do not. Old criterion/metadata and
+vanilla statistics stay; shared resets/mining remain. Proof survives Time Stop.
+Wrath uses native global selectors, shared team/AI/counter control, source integer
+base/effective HP branches, holder+target MAG, TECH permits, real stop/death queue.
+Current controller/future source changes; old accepted child causes stay fixed.
+GLOBAL cantleave cleanup is intentional. No second death/lives system.
+01f4d796 passed11 gameplay suites across2 actualmode1 matches (33.17s/43.92s),
+10978 exact source/processed inputs;615Java/1775classes/3411processed resources.
+199 existing dirty paths inclquestionfile/31overrides/main unchanged; normal
+ownedchildshutdown/exactsnapshots. TECH-marker native block fixture corrected;
+production jammer retained. No full player replacement-death/client/peakTPS proof.
+Full original25 Chaos gate remains; main d9087f0a, no staged install.
+Next: remaining Witch acquisition/authorities/actors and FULL Vanity map/all-player/
+core rewind. Never substitute a player-NBT-only checkpoint or filtered trap pool.
+
 ## FPV drone - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Implementation and exact proof](agent_notes/FPV_DRONE_PORT_2026_10_29.md).

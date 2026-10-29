@@ -44,6 +44,13 @@ public final class LbcSpellSource {
                 &&game.items().currentEpoch(current.epoch())){sources.put(entity,current);entity.entityTags().add(current.epoch());}
     }
     public void bind(Entity entity,Source source){if(source!=null)sources.put(entity,source);}
+    /** New attacks belong to the new controller; already inherited child policies remain immutable. */
+    void controllerChanged(Entity emitter,ServerPlayer controller){
+        var previous=source(emitter);if(previous==null||previous.author().equals(controller.getUUID()))return;
+        var next=game.items().indirectKills().wildCause(controller);var old=previous.cause();
+        var cause=old==null?next:new LbcIndirectKills.Owner(next.player(),next.order(),old.friendlyFire(),old.projectile());
+        sources.put(emitter,new Source(emitter.getUUID(),controller.getUUID(),previous.epoch(),cause,previous.excluded(),previous.persistent()));
+    }
     public Source source(Entity entity){
         var source=sources.get(entity);if(source==null||!game.items().currentEpoch(source.epoch()))return null;
         if(entity.entityTags().contains(LbcGreed.REFLECTED)||entity.entityTags().contains("skywars2.electro.reflected")){reflected(entity);return null;}

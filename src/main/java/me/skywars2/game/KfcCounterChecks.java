@@ -48,6 +48,7 @@ public final class KfcCounterChecks {
         var effects=player.getActiveEffects().stream().map(MobEffectInstance::new).toList();
         var scores=new HashMap<String,Integer>();
         var names=new ArrayList<>(LbcKfcFood.sourceScoreAdditions());
+        names.add("dmg_dealt");
         names.addAll(List.of("effect_boost_mana","effect_add_manamax","effect_add_manaregen","effect_add_mana","effect_remove_mana","overload_jump","overload_slam","effect_rtp_1","gigaponos","hitbullet"));
         for(String name:names) scores.put(name,mana.hudValue(player,name));
         try {
@@ -60,7 +61,9 @@ public final class KfcCounterChecks {
             items.frost().add(player,player);
             int cold=items.frost().cold(player),coldCd=items.frost().cooldown(player);
             int shotCount=items.laserMinigun().shots(player),magnumCount=items.magnum().shots(player);
+            mana.score(player,"dmg_dealt").set(37);
             items.kfcFood().applyOutcome(player,7);
+            require(mana.hudValue(player,"dmg_dealt")==37,"food cannot accumulate melee-only Wrath/Vanity progress");
             require(items.reactive().cooldownTicks(player)==5,"reactive counter adds one original five-tick unit");
             require(items.timeStop().cooldownTicks(player)==1 && items.stand().cooldownTicks(player)==1
                     && items.stand().lightningCooldownTicks(player)==1,"cooldowns keep their native stored increment of one");
@@ -75,6 +78,7 @@ public final class KfcCounterChecks {
             require(mana.get(player)==resource && mana.maximum(player)==max && mana.baseRegen(player)==regen,"counter outcome leaves mana resources for outcome nine");
             require(player.level().getGameTime()==time && game.server().getTickCount()==tick && player.getId()==id,"clock and identity stay unchanged");
             items.kfcFood().applyOutcome(player,7);
+            require(mana.hudValue(player,"dmg_dealt")==37,"repeated food outcome still cannot add melee damage");
             require(items.reactive().cooldownTicks(player)==10,"repeated reactive counter grants extend the live timer");
             require(items.timeStop().cooldownTicks(player)==2 && items.stand().cooldownTicks(player)==2
                     && items.homing().curseTicks(player)==40 && items.curseTicks(player)==2 && items.blind().queued(player)==2,"repeated grants extend the same live states");

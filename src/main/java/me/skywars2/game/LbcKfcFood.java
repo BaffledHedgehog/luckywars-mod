@@ -47,7 +47,7 @@ public final class LbcKfcFood {
     private static final String[] MESSAGES={"yum_xp","yum_xp_2","yum_xp_3","yum_remove","yum_healing",
             "yum_strength","yum_scores","yum_attributes","yum_mana","yum_ponos","yum_blevota","yum_tasty",
             "yum_gigaponos","yum_gigaponos","yum_jesus","yum_win_button","yum_overfeed","yum_satan","yum_chick_alive","yum_yumyum"};
-    // Exact source order, including the duplicate reverse_mana and excluding commented nexus_compass_cd.
+    // Source order/duplicate reverse_mana; (user) melee-only dmg_dealt no longer accepts food additions.
     private static final String[] SOURCE_SCORE_ADDITIONS={
             "bow","jump1","Distance","RC_Raycast","coldown1","coldown8","coldown13",
             "coldown18","coldown18b","coldown16","coldown17","coldown25","bow_charge","nitro",
@@ -57,7 +57,7 @@ public final class LbcKfcFood {
             "swordcharging3","swordcharged4","swordcharging4","swordcharged5","swordcharging5","swordcharged6","swordcharging6",
             "swordcharged7","swordcharging7","swordcharged8","luck_amount","falltimer","twitching","Lifetime",
             "coldownshish","coldownhohol","coldownMagnum","cyborgBossFly","divider_cd","lust_cd","lust_cd_small",
-            "food_count","indolence_cd","sleep_time","Distance_const","dmg_dealt","lolidefecation","lucky_block_count",
+            "food_count","indolence_cd","sleep_time","Distance_const","lolidefecation","lucky_block_count",
             "rocket_sound","reactivefuelsub","reverse_mana","technomk2shield","nanobots_coldown","nanobots_tier","gens_type",
             "greed_prestige","x","y","z","nomagic","gatling_fovos","november",
             "ray","acid_rifle","screamray","laser_minigun_spin","laser_minigun_cd","laser_minigun_sound","blaze",

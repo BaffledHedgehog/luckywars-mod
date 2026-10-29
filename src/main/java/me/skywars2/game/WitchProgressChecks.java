@@ -53,7 +53,7 @@ public final class WitchProgressChecks {
         final MapManager.BlockSnapshot terrain;final LbcIndirectKills.TerrainProvenance provenance;
         final ObjectiveState damage,mining;final Stat<?> mined=Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM);
         final int oldMined;final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
-        final List<Entity> owned=new ArrayList<>();Cow target,other;Entity beacon;int phase,at;boolean closed;
+        final List<Entity> owned=new ArrayList<>();Cow target,other,queued;Entity beacon;int phase,at,queuedBefore;boolean closed,stopped,ownedStand;
         Fixture(GameController game){this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
             require(game.playing()&&game.canUseGameplayItems(owner)&&!game.items().timeStop().stopped(owner.level()),"active native participant without borrowed stop");
             require(owner.entityTags().stream().noneMatch(tag->tag.startsWith("sin_")),"no borrowed Witch authority");
@@ -73,6 +73,7 @@ public final class WitchProgressChecks {
             owner.setNoGravity(true);owner.setDeltaMovement(Vec3.ZERO);owner.setKnownMovement(Vec3.ZERO);move(origin);
             game.items().magic().inventoryChanged(owner);game.items().magic().flushCleansing();client=new ShishEncounterChecks.Client(game,owner);
             statisticMatrix();
+            sweepProgress();
             owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20.75);owner.setHealth(10);owner.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(2);
             target=cow(origin.add(0,0,3),30.75);other=cow(origin.add(3,0,2),40.75);other.hurtTime=10;
             owner.entityTags().add("sin_lust");float hp=owner.getHealth();strike(target);
@@ -87,15 +88,51 @@ public final class WitchProgressChecks {
             }
             beacon=marker("stopper_magic");at=game.server().getTickCount();
         }
+        void sweepProgress(){
+            var main=cow(origin.add(0,0,2),100);var side=cow(origin.add(.7,0,2),100);
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.IRON_SWORD));
+            owner.setSprinting(false);owner.setOnGround(true);owner.setKnownMovement(Vec3.ZERO);
+            readyAttack();
+            int before=score("dmg_dealt");owner.attack(main);
+            require(main.getHealth()<100&&side.getHealth()<100,"actual native primary and sweep victims");
+            require(score("dmg_dealt")==before+Math.round((100-main.getHealth())*10)+Math.round((100-side.getHealth())*10),
+                    "each direct melee/sweep victim counted exactly once despite vanilla primary stat award");
+            discard(main);discard(side);
+            var stab=cow(origin.add(0,0,2),100);owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.IRON_SPEAR));readyAttack();
+            require(owner.getMainHandItem().getDamageSource(owner).is(DamageTypes.SPEAR),"native spear uses its own damage type");before=score("dmg_dealt");
+            require(owner.stabAttack(EquipmentSlot.MAINHAND,stab,2,true,false,false)&&stab.getHealth()<100,"actual native spear stab");
+            require(score("dmg_dealt")==before+Math.round((100-stab.getHealth())*10),"genuine spear melee counts despite a non-player_attack type");
+            discard(stab);owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);owner.setOnGround(false);
+        }
         void statisticMatrix(){
             var dealt=Stats.CUSTOM.get(Stats.DAMAGE_DEALT);
             for(boolean nativeCriteria:new boolean[]{false,true}){
                 damage.replace(nativeCriteria?dealt:ObjectiveCriteria.DUMMY);mining.replace(nativeCriteria?mined:ObjectiveCriteria.DUMMY);
                 score("dmg_dealt",110);score("lolidefecation",63);int before=owner.getStats().getValue(dealt);
                 owner.awardStat(dealt,27);owner.awardStat(mined,1);
-                require(score("dmg_dealt")==137&&score("lolidefecation")==64&&owner.getStats().getValue(dealt)==before+27,"one award, no duplicate counting, criteria="+nativeCriteria);
+                require(score("dmg_dealt")==110&&score("lolidefecation")==64&&owner.getStats().getValue(dealt)==before+27,"generic damage award changes vanilla stats, not melee-only progress, criteria="+nativeCriteria);
+                var melee=cow(origin.add(0,0,6),100);int progress=score("dmg_dealt");
+                attack(melee,2);near(melee.getHealth(),98,"actual direct melee hurt accepted");
+                require(score("dmg_dealt")==progress+20,"exact accepted melee HP loss once, native/dummy criterion="+nativeCriteria);
+                progress=score("dmg_dealt");
+                attack(melee,2);require(score("dmg_dealt")==progress,"rejected cooldown hit gives no progress");
+                var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(EntityTypes.ARROW,level);
+                var other=cow(origin.add(2,0,6),100);
+                for(var source:List.of(owner.damageSources().playerAttack(owner),owner.damageSources().source(DamageTypes.SPEAR,owner),owner.damageSources().arrow(arrow,owner),
+                        new DamageSource(owner.damageSources().playerAttack(owner).typeHolder(),other,owner),
+                        owner.damageSources().indirectMagic(other,owner))){
+                    melee.setInvulnerableTime(0);melee.damageCooldownTime=0;
+                    require(melee.hurtServer(level,source,1),"native non-melee attributed damage accepted");
+                    require(score("dmg_dealt")==progress,"player_attack spell alias, arrow, summoned/NPC and magic damage excluded even with player attribution");
+                }
+                melee.setInvulnerableTime(0);melee.damageCooldownTime=0;melee.getAttribute(Attributes.MAX_ABSORPTION).setBaseValue(20);melee.setAbsorptionAmount(10);
+                float absorbed=melee.getAbsorptionAmount();attack(melee,2);
+                require(melee.getAbsorptionAmount()<absorbed&&score("dmg_dealt")==progress,"absorbed hit without HP loss gives no progress");
+                melee.setAbsorptionAmount(0);melee.setHealth(1.25f);melee.setInvulnerableTime(0);melee.damageCooldownTime=0;
+                attack(melee,20);require(!melee.isAlive(),"native lethal melee hit");
+                require(score("dmg_dealt")==progress+13,"lethal hit counts remaining HP rounded to source tenths, not overkill");
                 game.items().legacyEffects().resetWitch(owner);owner.awardStat(dealt,9);owner.awardStat(mined,1);
-                require(score("dmg_dealt")==10&&score("lolidefecation")==1,"custom reset remains authoritative, lifetime totals do not return");
+                require(score("dmg_dealt")==1&&score("lolidefecation")==1,"custom reset remains authoritative, native total cannot repoll/increment progress");
                 owner.resetStat(dealt);owner.resetStat(mined);
                 require(score("dmg_dealt")==0&&score("lolidefecation")==0&&owner.getStats().getValue(dealt)==0&&owner.getStats().getValue(mined)==0,"native reset works for both criteria types");
                 owner.awardStat(Stats.CUSTOM.get(Stats.JUMP),3);require(score("dmg_dealt")==0&&score("lolidefecation")==0,"unrelated statistic does not alter either Witch objective");
@@ -112,6 +149,8 @@ public final class WitchProgressChecks {
             mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(health);mob.setHealth((float)health);require(level.addFreshEntity(mob),"native cow publication");owned.add(mob);return mob;}
         Entity marker(String tag){var e=EntityTypes.MARKER.create(level,EntitySpawnReason.COMMAND);require(e!=null,"native beacon marker");e.setPos(owner.position());e.entityTags().add(tag);require(level.addFreshEntity(e),"native beacon publication");owned.add(e);return e;}
         void strike(Cow cow){cow.setInvulnerableTime(0);cow.damageCooldownTime=0;owner.attack(cow);}
+        void readyAttack(){try{var f=LivingEntity.class.getDeclaredField("attackStrengthTicker");f.setAccessible(true);f.setInt(owner,100);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
+        void attack(Cow cow,double amount){owner.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(amount);owner.setOnGround(false);owner.fallDistance=0;readyAttack();owner.attack(cow);}
         void discard(Entity e){game.items().entityUnloaded(e);e.discard();}
         void move(Vec3 v){require(owner.teleportTo(level,v.x,v.y,v.z,Set.of(),0,0,true),"native position change");if(client!=null)client.ack();}
         boolean step(){int now=game.server().getTickCount();client.ack();if(now==at)return false;require(now-at<12,"actual scheduler deadline phase="+phase);
@@ -128,13 +167,21 @@ public final class WitchProgressChecks {
                     require(!game.items().magic().suppressed(owner)&&game.items().magic().suppressedAt(level,target.position()),"target-only antimagic geometry");
                     before=owner.getAttribute(Attributes.MAX_HEALTH).getBaseValue();double protectedBase=target.getAttribute(Attributes.MAX_HEALTH).getBaseValue();strike(target);
                     near(owner.getAttribute(Attributes.MAX_HEALTH).getBaseValue(),before,"target antimagic blocks owner gain");near(target.getAttribute(Attributes.MAX_HEALTH).getBaseValue(),protectedBase,"target antimagic blocks maxHP theft");discard(beacon);
-                    owner.entityTags().remove("sin_lust");score("x",net.minecraft.util.Mth.floor(owner.getX()*100));score("y",net.minecraft.util.Mth.floor(owner.getY()*100));score("z",net.minecraft.util.Mth.floor(owner.getZ()*100));score("sleep_time",100);phase=2;at=now;return false;}
+                    owner.entityTags().remove("sin_lust");queued=cow(origin.add(0,0,8),100);queuedBefore=score("dmg_dealt");
+                    ownedStand=owner.entityTags().add("have_stand");game.items().timeStop().begin(level,100);stopped=true;attack(queued,2);
+                    require(score("dmg_dealt")==queuedBefore&&queued.getHealth()==100,"native stopped melee queues without advancing damage progress");phase=4;at=now;return false;}
                 case 2->{require(score("sleep_time")==101&&score("speed")==0,"existing movement owner advances sleep exactly once while stationary");move(origin.add(.1,0,0));phase=3;at=now;return false;}
                 case 3->{require(score("sleep_time")==86&&score("speed")>0,"existing movement owner applies source moving drain, no second Witch clock");return true;}
+                case 4->{require(score("dmg_dealt")==queuedBefore&&queued.getHealth()==100,"actual stopped ticks retain native melee impact without damage progress");if(now-at<3)return false;
+                    game.items().timeStop().end(level);stopped=false;if(ownedStand){owner.entityTags().remove("have_stand");ownedStand=false;}phase=5;at=now;return false;}
+                case 5->{near(queued.getHealth(),98,"real thaw replays native melee damage");require(score("dmg_dealt")==queuedBefore+20,"genuine melee proof survives captured/deferred damage exactly once");
+                    score("x",net.minecraft.util.Mth.floor(owner.getX()*100));score("y",net.minecraft.util.Mth.floor(owner.getY()*100));score("z",net.minecraft.util.Mth.floor(owner.getZ()*100));score("sleep_time",100);phase=2;at=now;return false;}
                 default->throw new IllegalStateException("phase "+phase);
             }
         }
         public void close(){if(closed)return;closed=true;try{
+            if(stopped){game.items().timeStop().end(level);stopped=false;}
+            if(ownedStand){owner.entityTags().remove("have_stand");ownedStand=false;}
             owner.entityTags().remove("sin_lust");for(var e:List.copyOf(owned))if(!e.isRemoved())discard(e);
             var fresh=new ArrayList<Entity>();for(var e:level.getAllEntities())if(e!=null&&!before.contains(e)&&!(e instanceof ServerPlayer)&&e.position().distanceToSqr(origin)<144&&!owned.contains(e))fresh.add(e);fresh.forEach(this::discard);
             game.maps().restoreSnapshot(level,block,terrain);game.items().indirectKills().restoreTerrain(provenance);

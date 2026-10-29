@@ -59,3 +59,6 @@ uses real melee targets, including sweep hits, and protects targets in antimagic
 
 The full original25 Chaos transitive release gate remains. No claim that FPV,
 Vanity, all authorities or complete reward closure are already implemented.
+
+(user) Накопление урона для полномочия Гнева и против полномочия Тщеславия
+должно учитывать ТОЛЬКО прямой урон в ближнем бою.

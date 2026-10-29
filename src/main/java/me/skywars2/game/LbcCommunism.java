@@ -59,6 +59,28 @@ public final class LbcCommunism {
     void removed(Entity entity){owners.remove(entity);}
     public void converted(Entity original,Entity converted){var id=owners.remove(original);if(id!=null)owners.put(converted,id);}
     void stop(){owners.clear();}
+    /** One native team/AI owner bridge shared by the ray and authority subjugation. */
+    private void control(ServerPlayer p,Entity target,boolean leave){
+        var board=game.server().getScoreboard();
+        if(leave)board.removePlayerFromTeam(target.getScoreboardName());
+        if(p.getTeam()!=null)board.addPlayerToTeam(target.getScoreboardName(),p.getTeam());
+        // A converted player is still the author of their own attacks, never an owned summon.
+        if(!(target instanceof Player)){
+            owners.put(target,p.getUUID());game.items().summons().ownerChanged(target,p);
+            if(target instanceof Mob mob){mob.setTarget(null);mob.setLastHurtByMob(null);}
+        }
+        if(target.entityTags().contains("sauvojen_tuntija"))p.entityTags().add("friendly_tuntija");
+    }
+    /** lbcr:podchinenie keeps its distinct counter payload; historical projectile causes are not rebound. */
+    void subjugate(ServerPlayer p,Entity target,boolean leave,boolean copyId){
+        control(p,target,leave);copyScore(p,target,"team_number");if(copyId)copyScore(p,target,"lbcID2");
+        if(!(target instanceof Player))game.items().spellSources().controllerChanged(target,p);
+    }
+    private void copyScore(Entity from,Entity to,String name){
+        var board=game.server().getScoreboard();var objective=board.getObjective(name);
+        var value=objective==null?null:board.getPlayerScoreInfo(from,objective);
+        if(value!=null)board.getOrCreatePlayerScore(to,objective,true).set(value.value());
+    }
     boolean use(ServerPlayer p,InteractionHand hand){
         if(!matches(p.getItemInHand(hand))||!game.items().mana().visible(p)||!game.items().wands().validTarget(p)
                 ||game.items().actionsBlocked(p)||game.items().magic().suppressed(p)||game.items().timeStop().stopped(p.level())
@@ -76,12 +98,7 @@ public final class LbcCommunism {
                     &&game.items().wands().validTarget(e)&&!LbcGreed.active(e));
             for(var target:targets){
                 if(!visited.add(target))continue;
-                var board=game.server().getScoreboard();board.removePlayerFromTeam(target.getScoreboardName());
-                if(p.getTeam()!=null)board.addPlayerToTeam(target.getScoreboardName(),p.getTeam());
-                target.entityTags().add("communist");owners.put(target,p.getUUID());
-                game.items().summons().ownerChanged(target,p);
-                if(target instanceof Mob mob){mob.setTarget(null);mob.setLastHurtByMob(null);}
-                if(target.entityTags().contains("sauvojen_tuntija"))p.entityTags().add("friendly_tuntija");
+                control(p,target,true);target.entityTags().add("communist");
             }
             if(!targets.isEmpty())LbcOverload.sound(p,at,"minecraft:entity.villager.trade",1,1,0);
             level.sendParticles(ParticleTypes.HAPPY_VILLAGER,at.x,at.y,at.z,1,.1,.1,.1,.2);

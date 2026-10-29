@@ -8,6 +8,8 @@
     "FpvDroneMixin$Sounds",
     "FpvDroneMixin$Effects",
     "WitchStatisticsMixin",
+    "WitchMeleeProgressMixin",
+    "WitchMeleeProgressMixin$Attack",
     "TeleportMomentumMixin$Connection",
     "TeleportMomentumMixin$Pose",
     "TeleportMomentumMixin$Command",
