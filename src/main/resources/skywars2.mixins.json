@@ -90,6 +90,7 @@
     "PlayerCheckpointAwardMixin",
     "ActorCheckpointAccess$Body",
     "ActorCheckpointAccess$Target",
+    "ActorCheckpointAccess$Fishing",
     "ActorCheckpointAccess$LevelEntities",
     "ActorCheckpointAccess$Sections",
     "CreativeBlockDropsMixin",

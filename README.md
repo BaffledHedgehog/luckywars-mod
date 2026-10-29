@@ -1,3 +1,19 @@
+## Vanity player actor ledgers - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, limitations and exact native proof](agent_notes/VANITY_PLAYER_LINKS_CHECKPOINT_2026_10_30.md).
+Native player pearl sets/fishing pointers, original actor identities and hook target
+UUIDs now replay across actual repeated respawn and offline/login phases. Observed
+intermediate player bodies are cleared too. Genuine logout-file RootVehicle and
+Overworld/Nether pearl aliases are retired by the existing actor owner; hook pairing
+uses the current native owner ID. Reviewed unsaved hook counters/pearl countdowns.
+6dde778e passed13 gameplay suites/one actualmode1 match;runner53.11s;11123 frozen
+inputs/5291 packagedentries/43source receipts.199 authorpaths/31overrides/main
+d9087f0a unchanged;normalchildexit/exactsnapshots/no locks. No RP/template/question
+file edits/maininstall/restart/push. Full original25 gate CLOSED; Vanity stays gated.
+Next: full private AI/ability/attribution and combat/multipart/camera/container state,
+TimeStop owner, input/writer/lifecycle transaction, automatic offline replay and full
+world/map/storage reconciliation. Native ledger replay is NOT the complete rewind.
+
 ## Vanity actor checkpoint - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, limitations and exact native proof](agent_notes/VANITY_ACTOR_CHECKPOINT_2026_10_30.md).

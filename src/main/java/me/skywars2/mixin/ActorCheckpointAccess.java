@@ -20,6 +20,9 @@ public final class ActorCheckpointAccess {
     @Mixin(Mob.class) public interface Target {
         @Accessor("target") void skywars2$target(LivingEntity target);
     }
+    @Mixin(net.minecraft.world.entity.projectile.FishingHook.class) public interface Fishing {
+        @Invoker("setHookedEntity") void skywars2$hooked(Entity entity);
+    }
     @Mixin(net.minecraft.server.level.ServerLevel.class) public interface LevelEntities {
         @Accessor("entityManager") net.minecraft.world.level.entity.PersistentEntitySectionManager<Entity> skywars2$manager();
     }

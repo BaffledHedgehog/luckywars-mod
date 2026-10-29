@@ -29,11 +29,12 @@ public final class MatchActorCheckpoint {
     }
     private record Link(UUID id,net.minecraft.world.entity.Pose pose) { }
     private record Image(Entity actor,int id,UUID uuid,MatchEntityState state,List<Link> passengers,
-                         UUID target,UUID owner,Tag leash,UUID leashHolder,double angularMomentum) { }
+                         UUID target,UUID owner,UUID hooked,Tag leash,UUID leashHolder,double angularMomentum) { }
     private final GameController game;
     private final String epoch;
     private final Map<UUID,Image> images=new LinkedHashMap<>();
     private boolean bodiesRestored;
+    private MatchPlayerLinks playerLinks;
 
     private MatchActorCheckpoint(GameController game) {this.game=game;epoch=game.items().epoch();}
     static MatchActorCheckpoint captureRegistered(GameController game) {
@@ -52,9 +53,12 @@ public final class MatchActorCheckpoint {
                 angular=leashed.getLeashData().angularMomentum;
             }
             var image=new Image(actor,actor.getId(),actor.getUUID(),state,passengers,
-                    target==null?null:target.getUUID(),ownerId,leash,leashHolder,angular);
+                    target==null?null:target.getUUID(),ownerId,
+                    actor instanceof net.minecraft.world.entity.projectile.FishingHook hook&&hook.getHookedIn()!=null?hook.getHookedIn().getUUID():null,
+                    leash,leashHolder,angular);
             if(result.images.put(image.uuid,image)!=null)throw new IllegalStateException("Duplicate native actor UUID at capture");
         }
+        result.playerLinks=new MatchPlayerLinks(game,id->{var image=result.images.get(id);return image==null?null:image.actor;});
         return result;
     }
     int size(){return images.size();}
@@ -87,6 +91,7 @@ public final class MatchActorCheckpoint {
         validate();bodiesRestored=false;
         var current=registered();
         scoped(()->{
+            playerLinks.clear();
             for(var actor:current)detachLinks(actor);
             for(var image:images.values())detachLinks(image.actor);
             for(var actor:current) {
@@ -130,6 +135,7 @@ public final class MatchActorCheckpoint {
         for(var image:images.values())if(!current.contains(image.actor)||image.actor.level()!=image.state.level)throw new IllegalStateException("Actor body left its restored native registry before links");
         var pending=new LinkedHashSet<UUID>();
         scoped(()->{
+            playerLinks.clear();
             for(var image:images.values())detachLinks(image.actor);
             for(var image:images.values()) {
                 var actor=image.actor;
@@ -137,8 +143,26 @@ public final class MatchActorCheckpoint {
                     var target=resolve(image.target);if(image.target!=null&&target==null)pending.add(image.target);
                     ((ActorCheckpointAccess.Target)actor).skywars2$target(target instanceof LivingEntity living?living:null);
                 }
-                if(actor instanceof Projectile shot&&image.owner!=null) {
-                    var owner=resolve(image.owner);if(owner==null)pending.add(image.owner);else shot.setOwner(owner);
+                if(actor instanceof Projectile shot) {
+                    var owner=resolve(image.owner);
+                    if(image.owner!=null&&owner==null)pending.add(image.owner);else shot.setOwner(owner);
+                }
+                if(actor instanceof net.minecraft.world.entity.projectile.FishingHook hook) {
+                    var hooked=resolve(image.hooked);
+                    if(image.hooked!=null&&(hooked==null||hooked.level()!=hook.level())){pending.add(image.hooked);hooked=null;}
+                    ((ActorCheckpointAccess.Fishing)hook).skywars2$hooked(hooked);
+                    // The hook's spawn packet embeds a native player ID, which changes on respawn.
+                    // Re-pair existing viewers after UUID resolution, with full metadata and motion.
+                    var owner=hook.getPlayerOwner();
+                    if(owner!=null) {
+                        var level=image.state.level;var position=hook.position();
+                        level.getChunkSource().sendToTrackingPlayers(hook,new net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket(hook.getId()));
+                        level.getChunkSource().sendToTrackingPlayers(hook,new net.minecraft.network.protocol.game.ClientboundAddEntityPacket(
+                                hook.getId(),hook.getUUID(),position.x,position.y,position.z,hook.getXRot(),hook.getYRot(),hook.getType(),owner.getId(),hook.getDeltaMovement(),hook.getYHeadRot()));
+                        var data=new ArrayList<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>>();
+                        for(var item:((me.skywars2.mixin.PlayerCheckpointAccess.Metadata)hook.getEntityData()).skywars2$items())data.add(item.value());
+                        level.getChunkSource().sendToTrackingPlayers(hook,new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(hook.getId(),data));
+                    }
                 }
                 if(actor instanceof Leashable leashed) {
                     var leash=image.leash==null?null:Leashable.LeashData.CODEC.parse(NbtOps.INSTANCE,image.leash.copy()).getOrThrow();
@@ -162,6 +186,7 @@ public final class MatchActorCheckpoint {
                 }
                 image.state.level.getChunkSource().sendToTrackingPlayers(actor,new ClientboundSetPassengersPacket(actor));
             }
+            playerLinks.restore(this::resolve,pending);
         });
         return Set.copyOf(pending);
     }

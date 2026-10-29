@@ -52,6 +52,9 @@ public final class VanityActorChecks {
         final boolean frozen;
         final ServerGamePacketListenerImpl oldWire;
         final ChunkTrackingView oldView;
+        // Distinct nonpersistent, nonsimulating ticket; no borrowed native ticket is removed.
+        final net.minecraft.server.level.TicketType resident=new net.minecraft.server.level.TicketType(0,
+                net.minecraft.server.level.TicketType.FLAG_LOADING|net.minecraft.server.level.TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
         MatchActorCheckpoint originalActors,actors;
         MatchCoreCheckpoint core;
         MatchPlayerCheckpoint player;
@@ -64,6 +67,12 @@ public final class VanityActorChecks {
         Pig vehicle;
         Skeleton skeleton;
         Snowball shot;
+        Snowball unowned;
+        net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl pearl;
+        net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl distantPearl;
+        net.minecraft.world.entity.projectile.FishingHook hook;
+        ServerPlayer retiredPlayer;
+        Entity loginVehicle,loginPearl;
         PrimedTnt tnt;
         ItemEntity item;
         Entity alias,future,futureSlimeSource;
@@ -82,6 +91,7 @@ public final class VanityActorChecks {
         }
         void init() {
             // Capture borrowed entities AFTER the deliberate native warm load.
+            game.server().getLevel(Level.NETHER).getChunkSource().addTicketWithRadius(resident,new net.minecraft.world.level.ChunkPos(0,0),0);
             game.server().getLevel(Level.NETHER).getChunk(0,0);
             originalActors=MatchActorCheckpoint.captureRegistered(game);
             base.init();gamma=GameChecks.createBot(game,"TestGamma");owned=true;
@@ -89,7 +99,7 @@ public final class VanityActorChecks {
             SkyWars2.LOGGER.info("[check] START vanity-actors");
         }
         <T extends Entity>T add(T entity,Vec3 position){entity.setPos(position);entity.setNoGravity(true);if(entity instanceof net.minecraft.world.entity.Mob mob){mob.setNoAi(true);mob.setPersistenceRequired();}
-            require(base.owner.level().addFreshEntity(entity)&&!entity.isRemoved(),"native fixture actor registered");return entity;}
+            require(((net.minecraft.server.level.ServerLevel)entity.level()).addFreshEntity(entity)&&!entity.isRemoved(),"native fixture actor registered");return entity;}
         void flatten(Packet<?> packet,List<Packet<?>> out){if(packet instanceof ClientboundBundlePacket b)for(var child:b.subPackets())flatten(child,out);else out.add(packet);}
         List<Packet<?>> packets(){var result=new ArrayList<Packet<?>>();for(var packet:wire.packets)flatten(packet,result);return result;}
         void ack(ServerPlayer p) {
@@ -118,6 +128,15 @@ public final class VanityActorChecks {
             passengerOrder=vehicle.getPassengers().stream().map(Entity::getUUID).toList();
             skeleton=add(new Skeleton(EntityTypes.SKELETON,base.owner.level()),at.add(0,0,5));skeleton.setTarget(gamma);
             shot=add(new Snowball(EntityTypes.SNOWBALL,base.owner.level()),at.add(0,1,2));shot.setOwner(gamma);shot.setDeltaMovement(motion);
+            unowned=add(new Snowball(EntityTypes.SNOWBALL,base.owner.level()),at.add(1,2,2));unowned.setDeltaMovement(Vec3.ZERO);
+            gamma.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(Items.FISHING_ROD));
+            pearl=add(new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(EntityTypes.ENDER_PEARL,base.owner.level()),at.add(0,2,2));
+            pearl.setOwner(gamma);pearl.setDeltaMovement(Vec3.ZERO);field(pearl,"ticketTimer",37L);
+            distantPearl=add(new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(EntityTypes.ENDER_PEARL,game.server().getLevel(Level.NETHER)),new Vec3(.5,200,.5));
+            distantPearl.setOwner(gamma);distantPearl.setDeltaMovement(Vec3.ZERO);field(distantPearl,"ticketTimer",41L);
+            hook=add(new net.minecraft.world.entity.projectile.FishingHook(gamma,base.owner.level(),2,3),at.add(0,2,-2));hook.setDeltaMovement(Vec3.ZERO);
+            ((me.skywars2.mixin.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(gamma);
+            field(hook,"life",123);field(hook,"nibble",17);field(hook,"timeUntilLured",67);field(hook,"timeUntilHooked",29);field(hook,"fishAngle",.75F);
             tnt=add(new PrimedTnt(base.owner.level(),at.x+6,at.y,at.z,null),at.add(6,0,0));tnt.setFuse(120);tnt.setDeltaMovement(Vec3.ZERO);
             var stack=new ItemStack(Items.EMERALD,23);stack.set(DataComponents.CUSTOM_NAME,Component.literal("Saved actor item"));
             item=add(new ItemEntity(base.owner.level(),at.x-6,at.y,at.z,stack),at.add(-6,0,0));item.setDeltaMovement(Vec3.ZERO);
@@ -127,6 +146,10 @@ public final class VanityActorChecks {
             actors=MatchActorCheckpoint.captureRegistered(game);player=new MatchPlayerCheckpoint(game,gamma);core=new MatchCoreCheckpoint(game);clock=game.matchTicks();phase=0;
         }
         void mutate() {
+            hook.setOwner(base.other);((me.skywars2.mixin.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(base.other);
+            field(hook,"life",900);field(hook,"nibble",1);field(hook,"timeUntilLured",2);field(hook,"timeUntilHooked",3);field(hook,"fishAngle",2F);
+            pearl.setOwner(base.other);field(pearl,"ticketTimer",1L);
+            distantPearl.setOwner(base.other);field(distantPearl,"ticketTimer",2L);unowned.setOwner(gamma);
             gamma.stopRiding();rider.stopRiding();cow.removeLeash();knot.discard();
             cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
             require(cow.hurtServer(base.owner.level(),cow.damageSources().genericKill(),10000)&&cow.isDeadOrDying(),"actual lethal native cow damage");cow.remove(Entity.RemovalReason.KILLED);
@@ -141,13 +164,23 @@ public final class VanityActorChecks {
             require(gamma.hurtServer(gamma.level(),gamma.damageSources().genericKill(),10000)&&gamma.isDeadOrDying()&&game.lives(id)==0,"actual owner death before UUID relationship rebind");
         }
         void restore() {
-            var old=gamma;core.restoreFrozen();wire.packets.clear();actors.restoreBodiesFrozen();gamma=player.restoreFrozen();ack(gamma);
+            var old=gamma;retiredPlayer=old;core.restoreFrozen();wire.packets.clear();actors.restoreBodiesFrozen();gamma=player.restoreFrozen();ack(gamma);
             require(old!=gamma&&game.server().getPlayerList().getPlayer(id)==gamma,"real native owner respawn replacement between actor body/link phases");
             require(actors.restoreLinksFrozen().isEmpty(),"all native relationship UUIDs resolved");
         }
         void verify() {
             var level=base.owner.level();
-            for(var e:List.of(cow,tethered,knot,rider,vehicle,skeleton,shot,tnt,item))require(!e.isRemoved()&&level.getEntity(e.getUUID())==e&&level.getEntity(e.getId())==e,"same original instance in native UUID and ID registries: "+e.getType());
+            for(var e:List.of(cow,tethered,knot,rider,vehicle,skeleton,shot,unowned,pearl,hook,tnt,item))require(!e.isRemoved()&&level.getEntity(e.getUUID())==e&&level.getEntity(e.getId())==e,"same original instance in native UUID and ID registries: "+e.getType());
+            require(!distantPearl.isRemoved()&&distantPearl.level()==game.server().getLevel(Level.NETHER)&&distantPearl.getOwner()==gamma
+                    &&field(distantPearl,"ticketTimer").equals(41L)&&unowned.getOwner()==null,"cross-dimension native pearl and originally ownerless projectile restored");
+            require(gamma.getEnderPearls().equals(Set.of(pearl,distantPearl))&&pearl.getOwner()==gamma&&gamma.fishing==hook&&hook.getPlayerOwner()==gamma&&hook.getHookedIn()==gamma,
+                    "native player pearl/fishing ledgers and hooked target bind actual respawned player");
+            require(retiredPlayer.getEnderPearls().isEmpty()&&retiredPlayer.fishing==null&&!base.other.getEnderPearls().contains(pearl)&&base.other.fishing!=hook,
+                    "retired player and future owner retain no stale native ledgers");
+            require(field(pearl,"ticketTimer").equals(37L)&&field(hook,"life").equals(123)&&field(hook,"nibble").equals(17)
+                    &&field(hook,"timeUntilLured").equals(67)&&field(hook,"timeUntilHooked").equals(29)&&field(hook,"fishAngle").equals(.75F),"unsaved native fishing counters and pearl ticket countdown restored");
+            require(packets().stream().filter(ClientboundAddEntityPacket.class::isInstance).map(ClientboundAddEntityPacket.class::cast)
+                    .anyMatch(p->p.getId()==hook.getId()&&p.getData()==gamma.getId()),"hook re-pair packet embeds CURRENT native owner ID");
             require(cow.isAlive()&&cow.getHealth()==55&&cow.getAttributeValue(Attributes.MAX_HEALTH)==60&&cow.getItemBySlot(EquipmentSlot.MAINHAND).getCount()==13
                     &&cow.getRemainingFireTicks()==50000&&cow.entityTags().contains("actor.before"),"dead actor returns health/transient attributes/equipment/full fire timer/tags");
             require(cow.getEffect(MobEffects.SPEED).getAmplifier()==1&&((EffectLayers.Access)cow.getEffect(MobEffects.SPEED)).skywars2$layerHidden().getAmplifier()==-2,"native signed hidden layers restored");
@@ -172,12 +205,30 @@ public final class VanityActorChecks {
             if(phase==0){mutate();restore();verify();shot.setDeltaMovement(Vec3.ZERO);cow.clearFire();game.server().tickRateManager().setFrozen(false);phase=1;return false;}
             if(phase==1){if(game.matchTicks()-clock<4)return false;game.server().tickRateManager().setFrozen(true);mutate();restore();verify();
                 gamma.connection.onDisconnect(new DisconnectionDetails(Component.literal("Vanity actor offline link fixture")));
+                require(pearl.isRemoved()&&distantPearl.isRemoved()&&vehicle.isRemoved(),"actual native disconnect unloads both-dimension ledger pearls and sole rider vehicle");
                 // Native PlayerList.remove unloads a sole player's whole vehicle tree.
                 // The coordinator's body phase precedes pending-link reconciliation.
                 actors.restoreBodiesFrozen();
-                require(actors.restoreLinksFrozen().equals(Set.of(id))&&skeleton.getTargetUnchecked()==null,"offline native target/owner/leash/rider remains explicit pending UUID");
-                gamma=GameChecks.createBot(game,"TestGamma");core.restoreFrozen();actors.restoreBodiesFrozen();gamma=player.restoreFrozen();ack(gamma);
-                require(actors.restoreLinksFrozen().isEmpty(),"explicit link replay after actual reconnect resolves new native UUID session");verify();return true;}
+                require(actors.restoreLinksFrozen().equals(Set.of(id))&&skeleton.getTargetUnchecked()==null&&gamma.getEnderPearls().isEmpty()&&gamma.fishing==null,
+                        "offline native target/owner/leash/rider remains explicit pending UUID, old logout-body ledgers cleared");
+                // Configuration's native loaders deserialize the actual logout file. Do this
+                // before actor replay, with disconnected actors absent, so UUID aliases really spawn.
+                gamma=GameChecks.createBot(game,"TestGamma");
+                // The prior offline replay has restored original actors. Retire those two
+                // identities as native player-unloaded bodies before exercising the login loaders.
+                pearl.setRemoved(Entity.RemovalReason.UNLOADED_WITH_PLAYER);vehicle.setRemoved(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+                distantPearl.setRemoved(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+                rider.setRemoved(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+                var saved=game.server().getPlayerList().loadPlayerData(gamma.nameAndId()).orElseThrow();
+                var input=net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,gamma.registryAccess(),saved);
+                gamma.loadAndSpawnEnderPearls(input);gamma.loadAndSpawnParentVehicle(input);
+                loginPearl=base.owner.level().getEntity(pearl.getUUID());loginVehicle=base.owner.level().getEntity(vehicle.getUUID());
+                require(loginPearl!=null&&loginPearl!=pearl&&loginVehicle!=null&&loginVehicle!=vehicle&&gamma.getVehicle()==loginVehicle,
+                        "native configuration loaders create genuine logout-file pearl/RootVehicle aliases");
+                var distantAlias=gamma.getEnderPearls().stream().filter(e->e.getUUID().equals(distantPearl.getUUID())).findFirst().orElseThrow();
+                require(distantAlias!=distantPearl&&distantAlias.level()==distantPearl.level(),"native logout pearl dimension codec creates a genuine Nether alias");
+                core.restoreFrozen();actors.restoreBodiesFrozen();gamma=player.restoreFrozen();ack(gamma);
+                require(actors.restoreLinksFrozen().isEmpty()&&loginPearl.isRemoved()&&distantAlias.isRemoved()&&loginVehicle.isRemoved(),"explicit link replay removes both-dimension login aliases and resolves new native UUID session");verify();return true;}
             return false;
         }
         @Override public void close(){
@@ -186,9 +237,11 @@ public final class VanityActorChecks {
                 if(owned){var p=game.server().getPlayerList().getPlayer(id);if(p!=null)p.connection.onDisconnect(new DisconnectionDetails(Component.literal("Vanity actor cleanup")));}
                 if(originalActors!=null){originalActors.restoreBodiesFrozen();originalActors.restoreLinksFrozen();}
                 base.owner.connection=oldWire;base.owner.setChunkTrackingView(oldView);base.close();originalCore.restoreFrozen();
-            }finally{game.server().tickRateManager().setFrozen(frozen);}
+            }finally{game.server().getLevel(Level.NETHER).getChunkSource().removeTicketWithRadius(resident,new net.minecraft.world.level.ChunkPos(0,0),0);game.server().tickRateManager().setFrozen(frozen);}
         }
     }
+    private static Object field(Entity entity,String name){try{var f=entity.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(entity);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
+    private static void field(Entity entity,String name,Object value){try{var f=entity.getClass().getDeclaredField(name);f.setAccessible(true);f.set(entity,value);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
     public static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.init();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
     public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS vanity-actors (same native body identities after real death/dimension replacement, raw motion/transient attributes/hidden effects/owned leases, current-player owner/target/leash and ordered riders, item/TNT state, future removal without death-effect spawning, native registry/tracker packets, repeated restoration across real ticks; private AI/service/world coordinator remains gated)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL vanity-actors",error);}}
 }

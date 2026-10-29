@@ -37,6 +37,10 @@ final class MatchEntityRuntime {
         }
         }
         if(entity instanceof net.minecraft.world.entity.projectile.Projectile)capture(net.minecraft.world.entity.projectile.Projectile.class,entity,"leftOwnerChecked");
+        if(entity instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl)
+            capture(net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl.class,entity,"ticketTimer");
+        if(entity instanceof net.minecraft.world.entity.projectile.FishingHook)
+            capture(net.minecraft.world.entity.projectile.FishingHook.class,entity,"biting","outOfWaterTime","life","nibble","timeUntilLured","timeUntilHooked","fishAngle","openWater","currentState");
     }
 
     private void capture(Class<?> type,Object source,String...names) {
