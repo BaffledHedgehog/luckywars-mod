@@ -124,6 +124,26 @@ public final class LbcWitchPassives {
         }
     }
     private boolean magicBeacon(ServerPlayer p){return p.level()==game.maps().level()&&game.items().magic().beaconSuppressed(p.position());}
+    /** A source sword callback consumes the actual accepted melee target, including every native sweep hit. */
+    public void damaged(net.minecraft.world.entity.LivingEntity victim,net.minecraft.world.damagesource.DamageSource source){
+        if(!(source.getEntity() instanceof ServerPlayer player)||!LbcDamage.isMeleeAttack(source,player)
+                ||!eligible(player)||paused(player)||!player.entityTags().contains("sin_lust")
+                ||player.entityTags().contains("nomagic_active")||game.items().magic().suppressed(player)
+                ||!game.items().wands().target(player,victim)||victim.entityTags().contains("lust_dragon"))return;
+        double distance=player.position().distanceToSqr(victim.position());
+        if(distance<.0001||distance>36)return;
+        transferHealth(player,victim,2);
+    }
+    /** Shared by Lust melee and its flesh spell. Source integer base arithmetic does not heal the wearer. */
+    void transferHealth(ServerPlayer owner,net.minecraft.world.entity.LivingEntity target,int amount){
+        var own=owner.getAttribute(Attributes.MAX_HEALTH);var other=target.getAttribute(Attributes.MAX_HEALTH);
+        if(own==null||other==null)return;
+        own.setBaseValue(net.minecraft.util.Mth.floor(own.getBaseValue())+amount);
+        other.setBaseValue(net.minecraft.util.Mth.floor(other.getBaseValue())-amount);
+        if(net.minecraft.util.Mth.floor(other.getBaseValue())<=0
+                &&game.items().mana().hudValue(target,"void_resistance")<=0&&!LbcGreed.active(target))
+            game.items().indirectKills().inheritedKill(target,game.items().indirectKills().wildCause(owner));
+    }
     private void drainExisting(ServerPlayer p,String name){var objective=game.server().getScoreboard().getObjective(name);
         if(objective==null)return;var info=game.server().getScoreboard().getPlayerScoreInfo(p,objective);
         if(info!=null&&info.value()>0)game.server().getScoreboard().getOrCreatePlayerScore(p,objective,true).set(info.value()-1);

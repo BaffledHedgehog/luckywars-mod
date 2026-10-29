@@ -89,7 +89,7 @@ public final class LbcMana {
     /** Один bridge для ресурсов и кастомных таймеров; не создаёт отдельный account JSON на каждый тик. */
     ScoreAccess score(net.minecraft.world.scores.ScoreHolder entity,String name) {
         var board=game.server().getScoreboard(); var objective=board.getObjective(name);
-        if(objective==null) objective=board.addObjective(name,ObjectiveCriteria.DUMMY,Component.literal(name),ObjectiveCriteria.RenderType.INTEGER,false,null);
+        if(objective==null) objective=board.addObjective(name,LbcWitchStatistics.criterion(name),Component.literal(name),ObjectiveCriteria.RenderType.INTEGER,false,null);
         return board.getOrCreatePlayerScore(entity,objective);
     }
     private void write(Entity entity,String name,int value) {

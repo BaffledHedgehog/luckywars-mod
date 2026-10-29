@@ -815,6 +815,7 @@ public final class GameChecks {
                                 case "oreshek" -> { OreshekChecks.run(game); return; }
                                 case "witch-passives" -> { WitchPassiveChecks.run(game); return; }
                                 case "witch-envy" -> { WitchEnvyChecks.run(game); return; }
+                                case "witch-progress" -> { WitchProgressChecks.run(game); return; }
                                 case "apocalypse-actors" -> { ApocalypseActorChecks.run(game); return; }
                                 case "apocalypse-events" -> { ApocalypseEventChecks.run(game); return; }
                                 case "shish-encounters" -> { ShishEncounterChecks.run(game); return; }
@@ -1367,7 +1368,7 @@ public final class GameChecks {
             RawRaycastSpellChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
-            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);
+            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);

@@ -20,6 +20,15 @@ public final class WitchPassiveChecks {
     private WitchPassiveChecks(){}
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Witch passives: "+why);}
     private static final Identifier MODIFIER=Identifier.parse("minecraft:e916adfe-014b-4ff5-82f1-af6ec9226d21");
+    private static Vec3 freeFootprint(ServerLevel level,ServerPlayer player){
+        for(int y:new int[]{240,256,272,288,304}){
+            var origin=new Vec3(player.getX(),y,player.getZ());boolean free=true;
+            for(var pos:BlockPos.betweenClosed(BlockPos.containing(origin).offset(-1,-1,-1),BlockPos.containing(origin).offset(1,3,1)))
+                if(level.isOutsideBuildHeight(pos)||!level.hasChunkAt(pos)||!level.getBlockState(pos).isAir()){free=false;break;}
+            if(free)return origin;
+        }
+        throw new IllegalStateException("Witch passives: no resident free native footprint above participant");
+    }
     private static Field field(Object value,String name){for(Class<?> t=value.getClass();t!=null;t=t.getSuperclass())try{
         var f=t.getDeclaredField(name);f.setAccessible(true);return f;
     }catch(NoSuchFieldException ignored){}throw new IllegalStateException(name);}
@@ -54,7 +63,7 @@ public final class WitchPassiveChecks {
             }
             saved=new ShishEncounterChecks.State(game,owner);otherSaved=new ShishEncounterChecks.State(game,beta);
             attribution=new SauvojenMeditationChecks.Attribution(game,List.of(owner,beta));
-            origin=new Vec3(owner.getX(),240,owner.getZ());
+            origin=freeFootprint(level,owner);
             for(var pos:BlockPos.betweenClosed(BlockPos.containing(origin).offset(-1,-1,-1),BlockPos.containing(origin).offset(1,3,1))){
                 require(level.hasChunkAt(pos)&&level.getBlockState(pos).isAir(),"resident exclusive native source footprint "+pos);terrain.put(pos.immutable(),game.maps().snapshot(level,pos));
             }
@@ -112,7 +121,10 @@ public final class WitchPassiveChecks {
                 }
                 case 4->{require(LbcGreed.active(owner)&&modifier()&&owner.getHealth()==beforePause,"actual stop preserves authority state and pauses pulses");
                     if(now-at<5)return false;game.items().timeStop().end(level);ownsStop=false;client.ack();other.ack();phase=5;at=now;return false;}
-                case 5->{require(!LbcGreed.active(owner)&&!modifier(),"thaw reevaluates global anchor and removes only own attribute IDs");
+                case 5->{require(!LbcGreed.active(owner)&&!modifier(),"thaw reevaluates global anchor and removes only own attribute IDs: active="+LbcGreed.active(owner)+" modifier="+modifier()
+                            +" worldStop="+game.items().timeStop().stopped(level)+" globalStop="+game.items().wands().timeStopped()+" inputStop="+game.items().wands().inputTimeStopped(owner)
+                            +" eligible="+game.canUseGameplayItems(owner)+" role="+game.items().wands().validRoleTarget(owner,false)+" heart="+foreign.entityTags().contains("sin_greed_have_heart")
+                            +" taggedHearts="+java.util.stream.StreamSupport.stream(game.server().getAllLevels().spliterator(),false).flatMap(w->java.util.stream.StreamSupport.stream(w.getAllEntities().spliterator(),false)).filter(e->e.entityTags().contains("sin_greed_have_heart")).map(e->e.getType()+":"+e.level().dimension()+":"+e.entityTags()).toList());
                     game.items().psycho().clearEffects(owner);owner.removeAllEffects();foreign.entityTags().add("sin_greed_have_heart");
                     move(owner,level,new Vec3(origin.x,-31,origin.z));owner.setDeltaMovement(new Vec3(.125,-.0625,.1875));phase=6;at=now;return false;}
                 case 6->{require(owner.getY()==322&&owner.getDeltaMovement().lengthSqr()>0,"native void escape reaches source322 without deleting velocity");

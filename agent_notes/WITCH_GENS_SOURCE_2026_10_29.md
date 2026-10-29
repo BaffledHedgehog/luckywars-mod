@@ -1,5 +1,10 @@
 # Witch Generals source closure, 29 October 2026
 
+Subsequent native work: [statistics and Lust melee stage](WITCH_STATISTICS_PORT_2026_10_29.md).
+Actual native stat awards/reset and canonical sleep consumer are connected;
+Lust melee target modernization remains pending author confirmation, full
+acquisition/actor closure is not complete. Questions now go in chat after return.
+
 Subsequent root work: [Greed/Lust passive stage and bounded native proof](WITCH_PASSIVES_PORT_2026_10_29.md).
 This does not implement acquisition or the other authority/actor/checkpoint paths.
 Scope correction: unbounded native `@e` in greed_tick searches loaded dimensions

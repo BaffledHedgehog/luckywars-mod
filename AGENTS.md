@@ -1,3 +1,24 @@
+## Witch progress and Lust melee - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Native statistic owners, source melee and exact proof](agent_notes/WITCH_STATISTICS_PORT_2026_10_29.md).
+Native awardStat/resetStat feeds dmg_dealt and lolidefecation: correct stat criteria
+for new objectives, single-delta fallback for existing dummy. Never poll lifetime
+totals or overwrite item/reset progress. Existing Shish movement owns sleep only.
+Lust actual melee target and source integer maxHP transfer reuse common guards/
+inherited kill; target selection/target-sideMAG question is pending author choice.
+Classic tests updated to approved true-melee semantics; no production rollback.
+Greed fixture uses verified resident air footprint, preserves real stop/thaw checks.
+Candidate e24a23e4:10gameplay suites across2isolatedmode1matches,31.71s+27.55s.
+607sources/1751classes/3411resources+build.gradle5770 exact;198authorpaths/31overrides/
+main unchanged. Normalchildshutdown/exactsnapshots. Progress diagnostics same666;
+separate classic startup has2additional pre-match warnings, documented. Rejected
+proofs retained; prior one-off thaw cause not established. No peakTPS/client claim.
+Full Witch acquisition/other authorities/actors remain; original full25 Chaos gate
+closed, main d9087f0a, no staged install. Keep source/gate honest.
+(user) Returned: subsequent questions in CHAT, not PENDING_QUESTIONS.md.
+(user) Prepared previous answers; waiting for completion of current patch first.
+Do not keep echoing an already settled old helmet answer in progress/finals.
+
 ## Witch Envy - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Source counter owners and exact native proof](agent_notes/WITCH_ENVY_PORT_2026_10_29.md).

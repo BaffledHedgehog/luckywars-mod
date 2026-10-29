@@ -131,6 +131,7 @@ public final class LbcItems {
 
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
+        witchPassives.damaged(victim,source);
         shishEncounter.damaged(victim,source);shishEncounter.incoming(victim);
         armorSets.phantom().damaged(victim,source);
         armorSets.nyauwu().damaged(victim,source);
