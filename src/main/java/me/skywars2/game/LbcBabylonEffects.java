@@ -85,6 +85,7 @@ public final class LbcBabylonEffects {
     }
     public void tick(){for(var target:List.copyOf(pending.keySet()))tickTarget(target);}
     public void tickTarget(LivingEntity target){
+        if(game.items().polymorph().masked(target))return;
         var all=pending.get(target);if(all==null)return;
         if(target.entityTags().contains("sin_greed_active"))return;
         if(!valid(target)||skillImmune(target)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p)){clear(target);return;}

@@ -108,6 +108,7 @@ public final class LbcKiuas {
         if(game.items().mana().hudValue(target,"effect_kiuaskivi")!=0)game.items().mana().score(target,"effect_kiuaskivi").set(0);}
     private void tickCurses(){
         for(var target:java.util.List.copyOf(cursed.keySet())){
+            if(game.items().polymorph().masked(target))continue;
             int remaining=game.items().mana().hudValue(target,"effect_kiuaskivi");
             if(remaining<=0||!game.items().wands().validTarget(target)||target.level()!=game.maps().level()
                     ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p)){clearCurse(target);continue;}

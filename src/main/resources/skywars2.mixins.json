@@ -2,6 +2,12 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "PolymorphMixin$Level",
+    "PolymorphMixin$Damage",
+    "PolymorphMixin$Effects",
+    "PolymorphMixin$Collision",
+    "PolymorphMixin$Pickup",
+    "PolymorphMixin$Lifecycle",
     "FpvDroneMixin$Connection",
     "FpvDroneMixin$Chunks",
     "FpvDroneMixin$Entities",

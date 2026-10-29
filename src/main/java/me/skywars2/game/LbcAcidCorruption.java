@@ -206,7 +206,7 @@ final class LbcAcidCorruption {
     }
     void tick(){
         for(var entry:List.copyOf(deaths.entrySet())){
-            var target=entry.getKey();if(target==null)continue;if(!target.isAlive()||target.isRemoved()||deathRemaining(target)==0){clear(target);continue;}
+            var target=entry.getKey();if(target==null||game.items().polymorph().masked(target))continue;if(!target.isAlive()||target.isRemoved()||deathRemaining(target)==0){clear(target);continue;}
             if(target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p)){clear(target);continue;}
             if(game.server().getTickCount()%20!=0||game.items().timeStop().stopped((ServerLevel)target.level())||target.entityTags().contains("sin_greed_active"))continue;
             int remaining=deathRemaining(target);if(remaining==1&&game.items().mana().hudValue(target,"void_resistance")<=0)game.items().indirectKills().inheritedExecution(target,entry.getValue());

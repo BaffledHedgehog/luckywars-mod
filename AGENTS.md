@@ -1,3 +1,21 @@
+## Polymorph and Magnesia - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Author decisions, implementation and exact proof](agent_notes/POLYMORPH_PORT_2026_10_29.md).
+(user) Ordinary wand10seconds incl Chef return; academy permanent. Preserve source
+wand jeb_/KR20, potion/gender/hole/admission. Noita spheres transform players too.
+(user) End Magnesia10x4,10tick spacing,XZ+/-10,Y+15,random3D directions,weak bounded
+homing,through blocks,WILD non-sheep,TTL100. MAG erases/restores;TECH permits.
+Native identity suspension, sheep8HP/.23speed, free player move/look, blocked
+items/mining/attacks, full hidden effect clocks/owned leases/attributes restored;
+native body damage/impulse and existing death/lives owner, no new death engine.
+Template model lbc:polymorph_sphere; original tip palette/opaque dither/outline bloom.
+f39de548 passed17suites/2 native mode1 matches60.10s+58.17s;GPU8variants and mask.
+11008exactinputs/5210JARentries;199authorpaths/31overrides/main d9087f0a unchanged.
+Normalchildshutdown/exactsnapshots. No physicalclient/ping/fullcascade/peakTPS or
+replacement-player-death roundtrip claim. Full original25 Chaos gate CLOSED.
+No main install/restart/push; PENDING_QUESTIONS untouched. All new questions answered.
+Next remaining Witch acquisition/Indolence/Lust and FULL Vanity world/all-player/core.
+
 ## Explicit Chef erasure - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Policies and exact proof](agent_notes/CHEF_ERASURE_PORT_2026_10_29.md).

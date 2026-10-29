@@ -67,6 +67,10 @@ public final class OwnedEffectLayers {
         if (types.isEmpty()) targets.remove(target);
     }
 
+    Object suspend(LivingEntity target) { return targets.remove(target); }
+    @SuppressWarnings("unchecked") void resume(LivingEntity target,Object saved) {
+        if(saved!=null)targets.put(target,(Map<Holder<MobEffect>,Map<Integer,Layer>>)saved);
+    }
     public void forget(LivingEntity target) { targets.remove(target); }
 
     public void stop() {

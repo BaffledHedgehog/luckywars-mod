@@ -69,6 +69,7 @@ public final class LbcFrost {
     static void register() { }
 
     private boolean eligible(LivingEntity entity) {
+        if(game.items().polymorph().masked(entity))return false;
         return (game.playing() || game.items().debugItemUseWindow())
                 && entity.level() == game.maps().level() && entity.isAlive() && !entity.isRemoved()
                 && !entity.entityTags().contains("spectator")
@@ -206,6 +207,7 @@ public final class LbcFrost {
         batch.addAll(frozen);
         for (State state : batch) {
             var entity = state.entity;
+            if(game.items().polymorph().masked(entity))continue;
             if (!eligible(entity)) { clear(entity); continue; }
             hold(state);
             effect(entity, MobEffects.MINING_FATIGUE, 20, 127);
@@ -222,6 +224,7 @@ public final class LbcFrost {
     void second() {
         batch.addAll(affected.values());
         for (State state : batch) {
+            if(game.items().polymorph().masked(state.entity))continue;
             if (!eligible(state.entity)) { clear(state.entity); continue; }
             if (state.cold > 0) {
                 if (state.frozen == 0) check(state,null);
@@ -381,7 +384,11 @@ public final class LbcFrost {
     public int cold(LivingEntity entity) { var state = affected.get(entity); return state == null ? 0 : state.cold; }
     public int cooldown(LivingEntity entity) { var state = affected.get(entity); return state == null ? 0 : state.cooldown; }
     public int frozenSeconds(LivingEntity entity) { var state = affected.get(entity); return state == null ? 0 : state.frozen; }
-    public boolean isFrozen(LivingEntity entity) { return frozenSeconds(entity) > 0; }
+    void suspendForm(LivingEntity entity){var state=affected.get(entity);if(state!=null&&state.anchor!=null)thaw(state,false);}
+    void resumeForm(LivingEntity entity){var state=affected.get(entity);if(state!=null&&state.frozen>0&&entity.level()==level()){
+        state.anchor=entity.blockPosition();captureIce(state);frozen.add(state);hold(state);save(state);
+    }}
+    public boolean isFrozen(LivingEntity entity) { return !game.items().polymorph().masked(entity)&&frozenSeconds(entity) > 0; }
     public int trackedCount() { return affected.size(); }
     public int iceBlockCount() { return ice.size(); }
     private ServerLevel level() { return game.maps().level(); }

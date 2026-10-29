@@ -232,6 +232,7 @@ public final class LbcMana {
     }
     /** Permanent resource changes run before regen. Only the destructive potion pauses under Greed. */
     void tickPotions(LivingEntity p) {
+        if(game.items().polymorph().masked(p))return;
         if(!statEffects.contains(p) || !effectActor(p) || p.entityTags().contains("time_stopped")) return;
         if(p instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) { clearEffects(p); return; }
         boolean remaining=false;
@@ -288,6 +289,7 @@ public final class LbcMana {
         return result;
     }
     void tickPlayer(ServerPlayer p) {
+        if(game.items().polymorph().masked(p))return;
         game.items().bolts().observeStatus(p);
         // После выхода из подавления старые таймеры не должны успеть изменить ману до пассивной очистки.
         if(game.items().magic().rejectCustomEffect(p)

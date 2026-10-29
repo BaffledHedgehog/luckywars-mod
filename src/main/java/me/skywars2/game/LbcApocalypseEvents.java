@@ -69,7 +69,7 @@ minecraft:brown_mushroom_block[minecraft:custom_name={"color":"light_purple","it
 minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,"text":"❤ Lucky Block Loli ❤"},minecraft:lore=[{"text":"Community of the Lucky Wars ❤","color":"gray","italic":false}],minecraft:block_state={up:"false",down:"false",north:"false",south:"false",east:"false",west:"false"},minecraft:item_model="lbc:lucky_block_loli",tooltip_style="lbc:tier_u"]
 """
     };
-    private static final int[] DELAY_END={0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,40,5,5,5,5,5,5,5,100,15,15,15,40,10,10,10,40,60,15,15,15,40,10,10,10,10,10,10,10,10,10,10,10,60,10,10,10,40,140,100,140,300,440,0};
+    private static final int[] DELAY_END={0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,40,5,5,5,5,5,5,5,100,15,15,15,40,10,10,10,40,60,15,15,15,40,10,10,10,10,10,10,10,10,10,10,10,60,10,10,10,70,140,100,140,300,440,0};
     private static final int[] DELAY_BAFFLED={0,80,120,160,160,200,80,240,0};
     private static final int[] DELAY_SHISH={0,100,100,100,200,100,400,400,400,100,100,0};
     private final GameController game;
@@ -149,8 +149,7 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
             case 37,38,39,40,41,42,43,44,45,46,47,48->{if(n==37)translated("celestial_ruby");int[][] d={{20,0},{0,20},{-20,0},{0,-20}};int index=(n-37)%4;var v=d[index];
                 int count=n<=40?16:n<=44?8:4;for(var e:select(c,"@e[type=#minecraft:mobs,tag=!spectator,sort=random,limit="+count+"]"))
                     game.items().apocalypseActors().ruby(a,level(e),e.position().add(v[0],0,v[1]),net.minecraft.world.phys.Vec3.directionFromRotation(0,(index+1)*90));}
-            case 49,50,51,52->{if(n==49)translated("magnesia");int[][] d={{20,0},{-20,0},{0,20},{0,-20}};var v=d[n-49];
-                for(var e:select(c,"@e[tag=!spectator,sort=random,limit=64]"))fireball(a,level(e),e.position().add(v[0],0,v[1]),new Vec3(-Math.signum(v[0]),0,-Math.signum(v[1])),2);}
+            case 49,50,51,52->{if(n==49){translated("magnesia");game.items().polymorph().magnesia(a);}}
             case 53->{translated("the_vessel_of_the_philosophers");for(var e:select(c,"@e[tag=!spectator,sort=random,limit=24]"))game.items().apocalypseActors().spawnCloud(a,level(e),e.position().add(0,30,0));}
             case 54->{translated("our_blessed_stone");for(var e:select(c,"@e[type=!minecraft:player,sort=random,limit=100]")){
                 game.items().apocalypseActors().spawnStevari(a,level(e),e.position());

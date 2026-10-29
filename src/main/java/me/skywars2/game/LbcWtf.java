@@ -166,6 +166,7 @@ public final class LbcWtf {
         @Override public boolean isPushable(){return !paused()&&super.isPushable();}
         @Override public boolean isPushedByFluid(){return !paused()&&super.isPushedByFluid();}
         @Override public boolean hurtServer(ServerLevel level,DamageSource source,float amount){
+            if(service.game.items().polymorph().active(this))return service.game.items().polymorph().redirectDamage(this,level,source,amount);
             if(paused()||!(amount>0)||!service.game.items().allowDamage(this,source))return false;
             return super.hurtServer(level,source,amount);
         }
@@ -328,6 +329,7 @@ public final class LbcWtf {
         return chef;
     }
     void step(Chef chef){
+        if(game.items().polymorph().suspended(chef))return;
         if(!game.items().currentEpoch(chef)||chef.isRemoved()||!livingOwner(chef.owner)
                 ||!chef.target.isAlive()||chef.target.isRemoved()||chef.target.level()!=chef.level()) {remove(chef);return;}
         if(game.items().timeStop().stopped((ServerLevel)chef.level())||game.items().timeStop().frozen(chef))return;

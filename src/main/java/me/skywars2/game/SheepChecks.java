@@ -164,14 +164,14 @@ public final class SheepChecks {
             try{require(!input(InteractionHand.MAIN_HAND)&&mana.get(owner)==500,"real antimagic field cast admission");}finally{game.items().magic().unloaded(marker);marker.discard();game.items().magic().flushCleansing();}
             var first=cow(at.add(0,.5,4));var second=cow(at.add(0,.5,8));var sentinel=new ItemEntity(owner.level(),at.x,at.y+1.5,at.z+2,new ItemStack(Items.DIAMOND));sentinel.setNoGravity(true);add(sentinel);
             other.getInventory().setItem(2,new ItemStack(Items.EMERALD,7));move(other,at.add(0,0,2));mana.set(owner,500);owner.setYRot(0);owner.setXRot(0);
-            require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&first.isRemoved()&&!second.isRemoved(),"first native impact terminates once");
+            require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&game.items().polymorph().active(first)&&!second.isRemoved(),"first native impact terminates once");
             var replacement=sheepEntity();require(replacement instanceof net.minecraft.world.entity.animal.sheep.Sheep,"actual vanilla sheep replacement");
             var living=(net.minecraft.world.entity.LivingEntity)replacement;
             require(living.getHealth()==8&&living.getMaxHealth()==8&&replacement.getCustomName()!=null&&replacement.getCustomName().getString().equals("jeb_")&&living.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE).getBaseValue()==20,"source jeb_ health8 and resistance20");
             require(sentinel.isAlive()&&other.isAlive()&&other.getInventory().getItem(2).is(Items.EMERALD)&&other.getInventory().getItem(2).getCount()==7,"player exclusion preserves hotbar and ordinary item selector exclusion");
             require(owner.level().getEntities(owner,new net.minecraft.world.phys.AABB(first.position(),first.position()).inflate(2),e->e instanceof ItemEntity&&!owned.contains(e)).isEmpty(),"original replacement discards without original death loot");
-            for(int i=0;i<240;i++)sheep.tick();require(!replacement.isRemoved()&&second.isAlive(),"replacement has no temporary restoration deadline");
-            clear();second.discard();sentinel.discard();move(other,at.add(8,0,0));
+            int remaining=game.items().polymorph().remaining(first);for(int i=0;i<240;i++)sheep.tick();require(!replacement.isRemoved()&&second.isAlive()&&game.items().polymorph().remaining(first)==remaining,"reentrant non-clock calls cannot expire temporary polymorph");
+            clear();first.discard();second.discard();sentinel.discard();move(other,at.add(8,0,0));
         }
         void potionTrial(){
             move(owner,holeAt.add(0,0,-10));move(other,holeAt.add(12,0,0));owner.setYRot(0);owner.setXRot(0);
@@ -194,8 +194,8 @@ public final class SheepChecks {
                 var victim=cow(at.add(8,0,10));var chef=game.items().wtf().spawn(owner,victim);require(chef!=null,"actual owned native Chef");owned.add(chef);
                 if(knocked)chef.receive(20);chef.setPos(at.add(0,knocked?1.4:.5,4));chef.setDeltaMovement(Vec3.ZERO);
                 held(loot(academy?"academy_sheep_wand":"sheep_wand"),InteractionHand.MAIN_HAND);owner.setYRot(0);owner.setXRot(0);mana.set(owner,500);
-                require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&chef.isRemoved()&&sheep.sheepViews().size()==1,"actual ray transforms awake/knocked allied Chef: academy="+academy+" knocked="+knocked);
-                require(game.items().wtf().count()==0&&game.items().wtf().pinnedChunks()==0,"polymorph releases actor AI and tickets immediately");clear();victim.discard();
+                require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&(academy?chef.isRemoved():game.items().polymorph().active(chef))&&sheep.sheepViews().size()==1,"actual ray transforms awake/knocked allied Chef: academy="+academy+" knocked="+knocked);
+                clear();game.items().wtf().erase(chef);require(game.items().wtf().count()==0&&game.items().wtf().pinnedChunks()==0,"restored and permanent Chef fixture cleanup");victim.discard();
             }
         }
         void promote(){held(trial,InteractionHand.MAIN_HAND);require(academy.interact(owner,InteractionHand.MAIN_HAND,school),"real token school promotion callback on subsequent server tick");require(owner.getMainHandItem().is(LbcSheep.ACADEMY_ITEM)&&Identifier.parse("lbc:tier_x").equals(owner.getMainHandItem().get(DataComponents.TOOLTIP_STYLE))&&school.isRemoved(),"real X-tier Academy promotion consumes token school");}

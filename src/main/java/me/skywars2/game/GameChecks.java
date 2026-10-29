@@ -942,6 +942,7 @@ public final class GameChecks {
                                 case "radiant-metasola" -> { RadiantMetasolaChecks.run(game); return; }
                                 case "soulhunter-stop-probe" -> { SoulhunterChecks.stopProbe(game); return; }
                                 case "soulhunter-cleanup" -> { SoulhunterChecks.cleanup(game); return; }
+                                case "polymorph" -> { PolymorphChecks.run(game); return; }
                                 case "chef-execution" -> { ChefExecutionChecks.run(game); return; }
                                 case "chef" -> { ChefChecks.run(game); return; }
                                 case "chef-natural" -> { ChefChecks.startNatural(game); return; }
@@ -1373,7 +1374,7 @@ public final class GameChecks {
             RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
-            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);ChefExecutionChecks.tick(game);
+            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);ChefExecutionChecks.tick(game);PolymorphChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);

@@ -43,6 +43,7 @@ public final class FullInvisibility implements PolymerEntity {
     // Кодировщик Polymer может работать вне server thread: ему доступен только неизменяемый снимок.
     private volatile View view = NORMAL;
     private volatile long invisibilityLevel;
+    private volatile boolean polymorphed;
     private volatile Set<UUID> cameraViewers = Set.of();
 
     private FullInvisibility(ServerPlayer owner) { this.owner = owner; }
@@ -56,7 +57,8 @@ public final class FullInvisibility implements PolymerEntity {
     public static void effectsChanged(LivingEntity entity) {
         if (entity instanceof ServerPlayer player && PolymerEntity.get(player) instanceof FullInvisibility overlay) {
             long previous = overlay.invisibilityLevel;
-            overlay.invisibilityLevel = SignedEffectVisuals.invisibilityLevel(player);
+            overlay.polymorphed = me.skywars2.SkyWars2.game()!=null && me.skywars2.SkyWars2.game().items().polymorph().active(player);
+            overlay.invisibilityLevel = overlay.polymorphed?3:SignedEffectVisuals.invisibilityLevel(player);
             overlay.update(overlay.invisibilityLevel >= 3);
             if (previous != overlay.invisibilityLevel && previous >= 3 && overlay.invisibilityLevel >= 3)
                 for (var viewer : List.copyOf(PlayerLookup.tracking(player)))
@@ -157,7 +159,7 @@ public final class FullInvisibility implements PolymerEntity {
     }
 
     private boolean hiddenFor(ServerPlayer viewer) {
-        return view.hidden && SignedEffectVisuals.effectiveInvisibility(invisibilityLevel, viewer) >= 3
+        return view.hidden && (polymorphed || SignedEffectVisuals.effectiveInvisibility(invisibilityLevel, viewer) >= 3)
                 && viewer != owner && (viewer == null || !cameraViewers.contains(viewer.getUUID()));
     }
 

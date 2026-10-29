@@ -266,6 +266,7 @@ public final class LbcMobgun {
         cooldowns.values().removeIf(value->value<=0);
         for(var entry:List.copyOf(actors.entrySet())) {
             Entity entity=entry.getKey(); Owned state=entry.getValue();
+            if(game.items().polymorph().suspended(entity))continue;
             owner(entity);
             if(entity.isRemoved() || !valid(state)) { actors.remove(entity); if(!entity.isRemoved()) dispose(entity); continue; }
             if(game.items().wands().timeStopped() || entity.entityTags().contains("time_stopped")) continue;

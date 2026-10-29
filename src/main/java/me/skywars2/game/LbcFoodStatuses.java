@@ -46,7 +46,7 @@ public final class LbcFoodStatuses {
     public void tick(){
         int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
         for(var p:List.copyOf(game.server().getPlayerList().getPlayers())){
-            if(!admitted(p))continue;
+            if(game.items().polymorph().masked(p)||!admitted(p))continue;
             if(!game.items().magic().suppressedAt(p.level(),p.position())){
                 if(read(p,"all_seeing_eye")>0)allSeeingEye(p);
                 if(read(p,"living_legend")>0)livingLegend(p);

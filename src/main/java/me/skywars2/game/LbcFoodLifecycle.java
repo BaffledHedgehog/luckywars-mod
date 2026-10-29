@@ -186,6 +186,7 @@ public final class LbcFoodLifecycle {
         var due=new LinkedHashMap<>(scheduled);scheduled.clear();scheduledTick=Integer.MIN_VALUE;
         for(var entry:due.entrySet()){
             var player=game.server().getPlayerList().getPlayer(entry.getKey());if(player==null)continue;
+            if(game.items().polymorph().masked(player)){scheduled.put(entry.getKey(),entry.getValue());scheduledTick=now;continue;}
             if(game.items().currentEpoch(entry.getValue().epoch())
                     &&(game.items().timeStop().stopped(player.level())||game.items().wands().timeStopped()||game.items().wands().inputTimeStopped(player))){
                 scheduled.put(entry.getKey(),entry.getValue());scheduledTick=now;continue;

@@ -308,6 +308,7 @@ public final class LbcSummons {
             else if(!valid(owner) || !game.items().currentEpoch(entity)) { consequences.remove(entity); entity.discard(); }
         }
         for(var mob:List.copyOf(mobs.keySet())) {
+            if(game.items().polymorph().suspended(mob))continue;
             var state=mobs.get(mob); if(state==null) continue;
             var owner=owner(mob);
             if(!mob.isAlive() || mob.isRemoved() || !valid(owner) || mob.level()!=owner.level()

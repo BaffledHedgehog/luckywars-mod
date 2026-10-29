@@ -33,6 +33,7 @@ public abstract class TimeStopNativeMixin {
     private boolean skywars2$skipFrozenDespawn(TickRateManager manager, Entity entity) {
         boolean original = manager.isEntityFrozen(entity);
         var game = SkyWars2.game();
+        if(game!=null&&game.items().polymorph().suspended(entity))return true;
         if (game == null || !game.items().timeStop().frozen(entity)) return original;
         game.items().timeStop().prepareFrozen(entity);
         return true;

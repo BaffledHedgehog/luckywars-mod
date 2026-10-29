@@ -52,6 +52,7 @@ public final class LbcChainLightningStatus {
             ||target.entityTags().contains("time_stopped")||game.items().frost().isFrozen(target)||LbcGreed.active(target);}
     void tick(){
         for(var target:List.copyOf(pending.keySet())){
+            if(game.items().polymorph().masked(target))continue;
             if(LbcGreed.active(target))continue;
             if(!game.playing()||!role(target)||immune(target)){clear(target);continue;}
             if(paused(target))continue;

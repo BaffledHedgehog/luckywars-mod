@@ -14,6 +14,15 @@ public final class EffectLayers {
         void skywars2$layerDetails(MobEffectInstance effect);
     }
 
+    /** Native copy constructor omits hidden successors; a suspension needs every clock. */
+    public static MobEffectInstance copy(MobEffectInstance effect) {
+        var result=new MobEffectInstance(effect);var tail=result;
+        for(var next=((Access)effect).skywars2$layerHidden();next!=null;next=((Access)next).skywars2$layerHidden()){
+            var node=new MobEffectInstance(next);((Access)tail).skywars2$layerHidden(node);tail=node;
+        }
+        return result;
+    }
+
     public static boolean live(MobEffectInstance effect) {
         return effect.isInfiniteDuration() || effect.getDuration() > 0;
     }

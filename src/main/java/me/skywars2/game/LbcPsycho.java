@@ -412,6 +412,7 @@ public final class LbcPsycho {
     private void tickEffects() {
         for(var entry:List.copyOf(effects.entrySet())) {
             var entity=entry.getKey(); var effect=entry.getValue();
+            if(game.items().polymorph().masked(entity))continue;
             if(!entity.isAlive() || entity.isRemoved() || !game.items().currentEpoch(effect.epoch)
                     || entity.level()!=game.maps().level()&&!effect.persistentPiss || entity instanceof ServerPlayer player && game.items().magic().cleansesCustomEffects(player)
                     || entity.isSpectator() || entity.entityTags().contains("spectator")) { removeEffect(entity); continue; }
@@ -507,6 +508,7 @@ public final class LbcPsycho {
     }
     private void tickRays() {
         for(var owner:List.copyOf(rays.keySet())) {
+            if(game.items().polymorph().masked(owner))continue;
             if(!valid(owner) || game.items().magic().rejectCustomEffect(owner)) { rays.remove(owner);game.items().mana().score(owner,"screamray").set(0); continue; }
             if(paused(owner)) continue;
             int remaining=rays.get(owner)-1;

@@ -245,6 +245,7 @@ public final class LbcPendingCombat {
         if(game.items().wands().timeStopped())return;
         phase=(phase+1)%20;
         for(var entry:List.copyOf(curses.entrySet())){var target=entry.getKey();var curse=entry.getValue();
+            if(game.items().polymorph().masked(target))continue;
             if(!target.isAlive()||target.isRemoved()||!valid(curse.owner)||target.level()!=curse.owner.level()||!game.items().currentEpoch(curse.epoch)
                 ||target instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player)){clearEffects(target);continue;}
             if(paused(curse.owner)||LbcGreed.active(target))continue;

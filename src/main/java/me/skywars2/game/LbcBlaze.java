@@ -363,6 +363,7 @@ public final class LbcBlaze {
             else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed,turret.dust,turret.wild));
         }
         if(now%10==0) for(var owner:List.copyOf(heads.values())) {
+            if(game.items().polymorph().masked(owner))continue;
             if(!valid(owner) || headCharges(owner)<=0 || game.items().magic().rejectCustomEffect(owner)) { clearEffects(owner); continue; }
             if(paused(owner)) continue;
             var target=nearest(owner,owner.getEyePosition(),false,false,candidates);

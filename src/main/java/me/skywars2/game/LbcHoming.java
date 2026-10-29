@@ -403,6 +403,7 @@ public final class LbcHoming {
     private void tickCurses() {
         for(var entry:List.copyOf(curses.entrySet())) {
             var victim=entry.getKey(); var curse=entry.getValue();
+            if(game.items().polymorph().masked(victim))continue;
             if(!valid(curse.owner) || !(curse.rawWild?curseTarget(curse,victim):projectileTarget(curse.owner,victim))
                     || victim instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) { clear(victim); continue; }
             if(paused(curse.owner) || victim.entityTags().contains("time_stopped")

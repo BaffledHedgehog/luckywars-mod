@@ -729,7 +729,7 @@ public final class LbcShooters {
         prepareStunnedInput(target);
         return true;
     }
-    public boolean stunned(LivingEntity target) { return stunTicks(target)>0; }
+    public boolean stunned(LivingEntity target) { return !game.items().polymorph().masked(target)&&stunTicks(target)>0; }
     public int stunTicks(LivingEntity target) {
         var stun=stuns.get(target);
         return stun==null?0:stun.ticks;
@@ -752,7 +752,7 @@ public final class LbcShooters {
     }
     /** Remove voluntary input only: deltaMovement belongs to native physics and external forces. */
     public void prepareStunnedInput(LivingEntity target) {
-        var stun=stuns.get(target); if(stun==null) return;
+        var stun=stuns.get(target); if(stun==null||game.items().polymorph().masked(target)) return;
         target.xxa=0; target.yya=0; target.zza=0;
         target.setJumping(false); target.setSprinting(false); target.setShiftKeyDown(false);
         target.setSwimming(false);
@@ -768,6 +768,7 @@ public final class LbcShooters {
     }
     private void tickStuns() {
         for(var target:List.copyOf(stuns.keySet())) {
+            if(game.items().polymorph().masked(target))continue;
             var stun=stuns.get(target);
             if(!target.isAlive() || target.isRemoved() || target.level()!=game.maps().level()
                     || !active(stun.owner) || !game.items().currentEpoch(stun.epoch)

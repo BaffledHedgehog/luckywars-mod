@@ -250,6 +250,7 @@ public final class LbcItems {
     private final LbcRegenerationBelt regenerationBelt;
     private final LbcQuiver quiver;
     private final LbcSheep sheep;
+    private final LbcPolymorph polymorph;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
     private final LbcHedgehogSpikes hedgehogSpikes;
@@ -605,7 +606,7 @@ public final class LbcItems {
             if(viewer.getCamera() instanceof ServerPlayer target && target!=viewer) source=target;
             else { clearHud(viewer); return; }
         }
-        if(!mana.visible(source)) { clearHud(viewer); return; }
+        if(polymorph.masked(source)||!mana.visible(source)) { clearHud(viewer); return; }
         UUID viewerId=viewer.getUUID();
         // Compare the actual row so a newly added status cannot be omitted from cache invalidation.
         var content=hud(source);
@@ -874,6 +875,7 @@ public final class LbcItems {
         this.regenerationBelt = new LbcRegenerationBelt(game);
         this.quiver = new LbcQuiver(game);
         this.sheep = new LbcSheep(game,mana);
+        this.polymorph = new LbcPolymorph(game);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
         this.hedgehogSpikes = new LbcHedgehogSpikes(game);
@@ -1036,7 +1038,7 @@ public final class LbcItems {
     public LbcHomes homes() { return homes; }
     /** Запрет действий общий, но физика льда и электрического оглушения различается. */
     public boolean actionsBlocked(net.minecraft.world.entity.LivingEntity entity) {
-        return frost.isFrozen(entity) || shooters.stunned(entity) || timeStop.frozen(entity)
+        return polymorph.active(entity) || frost.isFrozen(entity) || shooters.stunned(entity) || timeStop.frozen(entity)
                 ||entity instanceof ServerPlayer player&&fpvDrone.controlling(player);
     }
     public LbcElectro electro() { return electro; }
@@ -1115,6 +1117,7 @@ public final class LbcItems {
     public LbcMoiseiBoots moiseiBoots() { return moiseiBoots; }
     public LbcRegenerationBelt regenerationBelt() { return regenerationBelt; }
     public LbcQuiver quiver() { return quiver; }
+    public LbcPolymorph polymorph() { return polymorph; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }
@@ -1188,6 +1191,7 @@ public final class LbcItems {
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);
         magicBean.loaded(entity);fpvDrone.loaded(entity);
+        polymorph.loaded(entity);
         edibleSpells.loaded(entity);
         nukeEvent.loaded(entity);foodLifecycle.loaded(entity);oreshek.loaded(entity);
         luckyPigs.loaded(entity);
@@ -1312,6 +1316,7 @@ public final class LbcItems {
         chaosTrapActors.unloaded(entity);
         sauvojenBoss.unloaded(entity);
         magicBean.unloaded(entity);fpvDrone.unloaded(entity);
+        polymorph.unloaded(entity);
         edibleSpells.unloaded(entity);
         nukeEvent.unloaded(entity);foodLifecycle.unloaded(entity);oreshek.unloaded(entity);
         pisaDrops.unloaded(entity);
@@ -1738,7 +1743,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
-        timeStop.tick();fpvDrone.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
+        timeStop.tick();polymorph.tick();fpvDrone.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();
         skyHazards.tick();
         lightningAcquisition.tick();
@@ -1886,7 +1891,7 @@ public final class LbcItems {
         for (TurnCurse curse : tickBatch) {
             ServerPlayer owner = curse.owner;
             UUID id = owner.getUUID();
-            if (turnCurses.get(id) != curse) continue;
+            if (turnCurses.get(id) != curse || polymorph.masked(owner)) continue;
             if (!active(owner) || !owner.isAlive() || owner.isRemoved()) { clear(owner); continue; }
             if (magic.rejectCustomEffect(owner)) { clearEffects(owner); continue; }
             // Author: this psychic disorder is unaffected by either jammer.
@@ -1938,6 +1943,7 @@ public final class LbcItems {
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
     private void clear(ServerPlayer player,boolean resetNanobots) { legacyEffects.clear(player); if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); clearTurnCurse(player); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
+        polymorph.forget(player);
         oreshek.resetBoundary(player);
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
@@ -2024,6 +2030,7 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {
+        polymorph.stop();
         SignedEnvironmentalEffects.clear();
         timeStop.stop();
         academy.stop();

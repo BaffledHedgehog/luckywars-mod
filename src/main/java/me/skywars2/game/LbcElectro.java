@@ -423,6 +423,7 @@ public final class LbcElectro {
         shockBatch.addAll(shocks.keySet());
         try {
             for (var target : shockBatch) {
+                if(game.items().polymorph().masked(target))continue;
                 Shock shock = shocks.get(target);
                 if (shock == null) continue;
                 ServerPlayer owner = shock.owner;

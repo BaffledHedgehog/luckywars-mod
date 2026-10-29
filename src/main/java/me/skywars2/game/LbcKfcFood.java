@@ -274,6 +274,7 @@ public final class LbcKfcFood {
         for(var entry:List.copyOf(gigaponos.entrySet())) {
             var p=game.server().getPlayerList().getPlayer(entry.getKey());
             if(p==null) { gigaponos.remove(entry.getKey()); continue; }
+            if(game.items().polymorph().masked(p))continue;
             if(!active(p) || game.items().magic().rejectEffect(p,MobEffects.HUNGER)) { clear(p); continue; }
             int remaining=entry.getValue();
             particle(p,new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),.7,5,.1,.1,.1,0);

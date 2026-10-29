@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-/** Permanent polymorph and its authored, unlimited-lived WILD sheep-hole consequence. */
+/** Temporary ordinary polymorph, permanent academy polymorph, and the authored WILD sheep-hole consequence. */
 public final class LbcSheep {
     public static final Item ITEM=item(false), ACADEMY_ITEM=item(true);
     private static final String TAG="skywars2.sheep", BODY="skywars2.sheep_hole";
@@ -198,6 +198,7 @@ public final class LbcSheep {
             if(original.entityTags().contains("male")){if(spawnHole(p,original.position())!=null)clearItems(p.level(),original.position());}
         }
         if(original instanceof LivingEntity living&&living.getHealth()>=1000)game.items().mana().award(p,"lbc:true_advancements/staffs/polymorph");
+        if(!academy&&original instanceof LivingEntity living)return game.items().polymorph().transform(living,game.items().indirectKills().coldCause(p,false),true);
         if(original instanceof Player)return null;
         var replacement=new MagicSheep(p.level());
         try{replacement.load(TagValueInput.create(ProblemReporter.DISCARDING,p.registryAccess(),TagParser.parseCompoundFully(
@@ -310,12 +311,12 @@ public final class LbcSheep {
     private void remove(Hole h){holes.remove(h);if(h.terrain!=null)h.terrain.clear();if(h.visual!=null)game.items().blackHoleVisuals().remove(h.visual);if(!h.entity.isRemoved())h.entity.discard();}
     public void loaded(Entity e){if(managed(e)&&!spawning.contains(e)&&sheep.stream().noneMatch(c->c.entity==e)&&holes.stream().noneMatch(h->h.entity==e))e.discard();}
     public void unloaded(Entity e){for(var c:List.copyOf(sheep))if(c.entity==e)remove(c);for(var h:List.copyOf(holes))if(h.entity==e)remove(h);}
-    public void forget(UUID id){for(var c:List.copyOf(sheep))if(c.owner.equals(id))remove(c);for(var h:List.copyOf(holes))if(h.owner.equals(id))remove(h);}
+    public void forget(UUID id){game.items().polymorph().forgetAuthor(id);for(var c:List.copyOf(sheep))if(c.owner.equals(id))remove(c);for(var h:List.copyOf(holes))if(h.owner.equals(id))remove(h);}
     public void forget(ServerPlayer p){forget(p.getUUID());}
     public void stop(){for(var c:List.copyOf(sheep))remove(c);for(var h:List.copyOf(holes))remove(h);spawning.clear();}
     record SheepView(UUID entity,UUID owner,Vec3 point){}
     record HoleView(UUID entity,UUID owner,Vec3 point,Vec3 velocity,double radius,boolean disc,int queuedBlocks){}
-    List<SheepView> sheepViews(){return sheep.stream().map(c->new SheepView(c.entity.getUUID(),c.owner,c.entity.position())).toList();}
+    List<SheepView> sheepViews(){var result=new ArrayList<SheepView>(game.items().polymorph().sheepViews());result.addAll(sheep.stream().map(c->new SheepView(c.entity.getUUID(),c.owner,c.entity.position())).toList());return List.copyOf(result);}
     List<HoleView> holeViews(){return holes.stream().map(h->new HoleView(h.entity.getUUID(),h.owner,h.point,h.velocity,RADIUS,true,h.terrain==null?0:h.terrain.queuedBlockCount())).toList();}
     List<Hole> holes(){return List.copyOf(holes);}
 }

@@ -57,7 +57,7 @@ public final class LbcLegacyEffects {
     public void tick(){
         int now=game.server().getTickCount();if(now==lastTick)return;lastTick=now;
         for(var p:List.copyOf(game.server().getPlayerList().getPlayers())){
-            if(!admitted(p))continue;
+            if(game.items().polymorph().masked(p)||!admitted(p))continue;
             boolean greed=p.entityTags().contains("sin_greed_active");
             if(!greed){
                 consume(p,"effect_explosion",()->{if(!explosionSuppressed(p))game.items().babylonEffects().primeExplosionAt(p.level(),p.position(),game.items().indirectKills().wildCause(p));});
