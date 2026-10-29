@@ -182,6 +182,10 @@ final class LbcAcidCorruption {
     }
     private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e);}
     void debuff(ServerPlayer owner,LivingEntity target,int index){target.addEffect(ItemEffectLevels.create(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]),owner);}
+    void adoptRawFoodStatuses(ServerPlayer player){
+        if(deathRemaining(player)>0&&!game.items().magic().rejectCustomEffect(player))
+            deaths.computeIfAbsent(player,p->game.items().indirectKills().wildCause(player));
+    }
     int deathRemaining(LivingEntity target){return Math.max(0,game.items().mana().hudValue(target,"delayed_death"));}
     void applyDeath(ServerPlayer owner,LivingEntity target,int seconds){
         if(seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return;

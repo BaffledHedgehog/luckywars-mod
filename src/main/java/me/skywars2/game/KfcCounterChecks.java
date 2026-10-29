@@ -77,7 +77,7 @@ public final class KfcCounterChecks {
             items.kfcFood().applyOutcome(player,7);
             require(items.reactive().cooldownTicks(player)==10,"repeated reactive counter grants extend the live timer");
             require(items.timeStop().cooldownTicks(player)==2 && items.stand().cooldownTicks(player)==2
-                    && items.homing().curseTicks(player)==2 && items.curseTicks(player)==2 && items.blind().queued(player)==2,"repeated grants extend the same live states");
+                    && items.homing().curseTicks(player)==40 && items.curseTicks(player)==2 && items.blind().queued(player)==2,"repeated grants extend the same live states");
         } finally {
             items.forget(player); player.removeAllEffects();
             for(var entry:scores.entrySet()) mana.score(player,entry.getKey()).set(entry.getValue());

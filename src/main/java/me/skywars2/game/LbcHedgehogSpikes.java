@@ -194,8 +194,7 @@ public final class LbcHedgehogSpikes {
         }
     }
     private void resetWitch(LivingEntity target){
-        var mana=game.items().mana();mana.score(target,"dmg_dealt").set(1);for(var name:List.of("food_count","lolidefecation","sleep_time","greed_prestige"))mana.score(target,name).set(0);
-        target.entityTags().add("have_mom");target.entityTags().remove("greed_cursed");
+        game.items().legacyEffects().resetWitch(target);
     }
     private void retire(SpikeArrow a){a.retired=true;arrows.remove(a);a.discard();}
     public ServerPlayer owner(Entity e){return e instanceof LbcHedgehogSpikes.SpikeArrow a&&a.getOwner() instanceof ServerPlayer p?p:null;}

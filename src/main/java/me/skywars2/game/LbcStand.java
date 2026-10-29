@@ -363,6 +363,8 @@ public final class LbcStand {
         if(returnsOneArrow) returnArrow(target,owner);
         return true;
     }
+    /** Raw arrow-hit status enters the same native roll, unlock and return path as an actual arrow. */
+    public boolean arrowHitPre(ServerPlayer player){return resolveArrowHit(player,player,player.level().getRandom().nextInt(100)+1,true);}
     private void returnArrow(LivingEntity target,ServerPlayer owner) {
         for(var stack:game.lbc().rollTable(owner.level(),target.position(),owner,"lbc:ported/stand_arrow"))
             owner.level().addFreshEntity(new ItemEntity(owner.level(),target.getX(),target.getY(),target.getZ(),stack));

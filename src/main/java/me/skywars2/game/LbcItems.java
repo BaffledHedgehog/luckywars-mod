@@ -226,6 +226,10 @@ public final class LbcItems {
     private final LbcEdibleSpells edibleSpells;
     private final LbcFoodStatuses foodStatuses;
     private final LbcNukeEvent nukeEvent;
+    private final LbcNamedFoods namedFoods;
+    private final LbcFoodLifecycle foodLifecycle;
+    private final LbcOreshek oreshek;
+    private final LbcLegacyEffects legacyEffects;
     private final OwnedEffectLayers ownedEffects=new OwnedEffectLayers();
     private final LbcShulkerArmor shulkerArmor;
     private final LbcInventoryHazards inventoryHazards;
@@ -842,6 +846,10 @@ public final class LbcItems {
         this.edibleSpells = new LbcEdibleSpells(game);
         this.foodStatuses = new LbcFoodStatuses(game);
         this.nukeEvent = new LbcNukeEvent(game);
+        this.namedFoods = new LbcNamedFoods(game);
+        this.foodLifecycle = new LbcFoodLifecycle(game);
+        this.oreshek = new LbcOreshek(game);
+        this.legacyEffects = new LbcLegacyEffects(game);
         this.armorSets = new LbcArmorSets(game);
         this.shulkerArmor = new LbcShulkerArmor(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
@@ -1062,6 +1070,20 @@ public final class LbcItems {
     public LbcEdibleSpells edibleSpells() { return edibleSpells; }
     public LbcFoodStatuses foodStatuses() { return foodStatuses; }
     public LbcNukeEvent nukeEvent() { return nukeEvent; }
+    public LbcNamedFoods namedFoods(){return namedFoods;}
+    public LbcFoodLifecycle foodLifecycle(){return foodLifecycle;}
+    public LbcOreshek oreshek(){return oreshek;}
+    public LbcLegacyEffects legacyEffects(){return legacyEffects;}
+    /** Attach raw food score writes to their existing consumers without adding another dose. */
+    public void adoptRawFoodStatuses(ServerPlayer player){
+        blaze.adoptRawFoodStatuses(player);awakenedAcid.adoptRawFoodStatuses(player);erecto.adoptRawFoodStatuses(player);
+        psycho.adoptRawFoodStatuses(player);electro.adoptRawFoodStatuses(player);frost.adoptRawFoodStatuses(player);
+        acidCorruption.adoptRawFoodStatuses(player);kfcFood.adoptRawFoodStatuses(player);blind.adoptRawFoodStatuses(player);
+        babylonEffects.adoptRawFoodStatuses(player);quiver.adoptRawFoodStatuses(player);kiuas.adoptRawFoodStatuses(player);
+        mana.loaded(player);homing.adoptRawFoodStatuses(player);legacyEffects.adoptRawFoodStatuses(player);
+        int skill=mana.hudValue(player,"skill_issue");if(skill>0&&!magic.rejectCustomEffect(player))
+            turnCurses.computeIfAbsent(player.getUUID(),p->new TurnCurse(player)).remaining=skill;
+    }
     public OwnedEffectLayers ownedEffects() { return ownedEffects; }
     public LbcShulkerArmor shulkerArmor() { return shulkerArmor; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
@@ -1119,7 +1141,7 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
-        nukeEvent.inheritChild(entity);
+        nukeEvent.inheritChild(entity);foodLifecycle.inheritChild(entity);oreshek.inheritChild(entity);
         if (entity instanceof net.minecraft.world.entity.monster.Silverfish && entity.level() instanceof ServerLevel level
                 && godHedgehog.blocksSilverfish(level) && !godHedgehog.isBoss(entity)) { entity.discard(); return; }
         if (consuming.eraseLoaded(entity)) return;
@@ -1142,7 +1164,7 @@ public final class LbcItems {
         sauvojenBoss.loaded(entity);
         magicBean.loaded(entity);
         edibleSpells.loaded(entity);
-        nukeEvent.loaded(entity);
+        nukeEvent.loaded(entity);foodLifecycle.loaded(entity);oreshek.loaded(entity);
         luckyPigs.loaded(entity);
         libraryDrop.loaded(entity);
         beeDrops.loaded(entity);
@@ -1266,7 +1288,7 @@ public final class LbcItems {
         sauvojenBoss.unloaded(entity);
         magicBean.unloaded(entity);
         edibleSpells.unloaded(entity);
-        nukeEvent.unloaded(entity);
+        nukeEvent.unloaded(entity);foodLifecycle.unloaded(entity);oreshek.unloaded(entity);
         pisaDrops.unloaded(entity);
         antigravity.unloaded(entity);
         portalDrops.unloaded(entity);
@@ -1560,8 +1582,10 @@ public final class LbcItems {
         var data = used.get(DataComponents.CUSTOM_DATA);
         if (data == null || !data.matchedBy(BROKEN_TOTEM) || !active(player)) return;
         screamer(player,null);
-        if (!magic.rejectCustomEffect(player))
-            turnCurses.computeIfAbsent(player.getUUID(), ignored -> new TurnCurse(player)).remaining += 100;
+        if (!magic.rejectCustomEffect(player)){
+            var curse=turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player));curse.remaining+=100;
+            mana.score(player,"skill_issue").set(curse.remaining);
+        }
     }
 
     /** Один исходный скример для сломанного тотема и психических жезлов; проклятие тотема отдельно. */
@@ -1690,7 +1714,7 @@ public final class LbcItems {
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
         timeStop.tick();
-        nukeEvent.tick();
+        nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();
         skyHazards.tick();
         lightningAcquisition.tick();
         nuclearVisuals.tick();
@@ -1850,6 +1874,7 @@ public final class LbcItems {
             rotations.put(id, current);
             if (game.players().get(id).lbcUnlocks.add("lbc:true_advancements/potions/effect_skill_issue")) game.players().save();
             if (--curse.remaining <= 0) turnCurses.remove(id, curse);
+            mana.score(owner,"skill_issue").set(Math.max(0,curse.remaining));
         }
         tickBatch.clear();
     }
@@ -1861,8 +1886,10 @@ public final class LbcItems {
 
     /** Only gameplay counts/deadlines; published HUD caches and tick clocks are never incremented. */
     void addPlayerCounters(ServerPlayer player) {
-        if(!magic.rejectCustomEffect(player))
-            turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player)).remaining++;
+        if(!magic.rejectCustomEffect(player)){
+            var curse=turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player));curse.remaining++;
+            mana.score(player,"skill_issue").set(curse.remaining);
+        }
         var rocket=rockets.get(player.getUUID());
         if(rocket!=null) {
             rocket.jumps++;
@@ -1884,8 +1911,9 @@ public final class LbcItems {
 
     public void clear(ServerPlayer player) { clear(player,true); }
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
-    private void clear(ServerPlayer player,boolean resetNanobots) { if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    private void clear(ServerPlayer player,boolean resetNanobots) { legacyEffects.clear(player); if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); clearTurnCurse(player); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
+        oreshek.resetBoundary(player);
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
         voidArcanum.forget(player);
@@ -1956,7 +1984,7 @@ public final class LbcItems {
         infinity.forget(player);
         aimbobRewards.forget(player);
         edibleSpells.forget(player);
-        nukeEvent.forget(player);
+        nukeEvent.forget(player);foodLifecycle.forget(player);legacyEffects.forget(player);
         foodStatuses.forget(player);
         ownedEffects.forget(player);
         moiseiBoots.forget(player);
@@ -2073,7 +2101,7 @@ public final class LbcItems {
         aimbobRewards.stop();
         magicBean.stop();
         edibleSpells.stop();
-        nukeEvent.stop();
+        nukeEvent.stop();foodLifecycle.stop();oreshek.stop();legacyEffects.stop();
         foodStatuses.stop();
         spellSources.stop();
         pisaDrops.stop();

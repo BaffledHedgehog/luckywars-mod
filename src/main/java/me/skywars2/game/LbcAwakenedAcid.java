@@ -73,6 +73,12 @@ final class LbcAwakenedAcid {
         game.items().mana().score(owner,"acid_rifle").add(1);
         rifles.putIfAbsent(owner,new Rifle(ItemStack.EMPTY,InteractionHand.MAIN_HAND,game.items().epoch()));
     }
+    /** Raw consumable grants enter the same rifle owner/cadence as ordinary casts. */
+    void adoptRawFoodStatuses(ServerPlayer owner){
+        if(pending(owner)>0&&!game.items().magic().rejectCustomEffect(owner))
+            rifles.putIfAbsent(owner,new Rifle(ItemStack.EMPTY,InteractionHand.MAIN_HAND,game.items().epoch()));
+    }
+
     void tick(){
         boolean release=++cadence%5==0;
         for(var entry:List.copyOf(rifles.entrySet())){

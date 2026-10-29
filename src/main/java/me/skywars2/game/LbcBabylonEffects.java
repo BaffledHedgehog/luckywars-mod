@@ -110,6 +110,15 @@ public final class LbcBabylonEffects {
         var tnt=new net.minecraft.world.entity.item.PrimedTnt(level,at.x,at.y,at.z,owner);tnt.setFuse(2);
         inheritChild(cause,tnt);level.addFreshEntity(tnt);
     }
+    /** Source bigexplode has seven native MOB explosions, sharing accepted WILD damage and terrain ownership. */
+    void bigExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
+        var owner=game.server().getPlayerList().getPlayer(cause.player());
+        for(var offset:List.of(Vec3.ZERO,new Vec3(0,0,4),new Vec3(0,0,-4),new Vec3(-4,0,0),new Vec3(4,0,0),new Vec3(0,-4,0),new Vec3(0,4,0))){
+            var point=at.add(offset);if(!level.hasChunkAt(BlockPos.containing(point)))continue;
+            var damage=new OwnerDamageSource(level,null,owner,cause,game.items().epoch());
+            game.items().indirectKills().trapChanges(level,cause,()->level.explode(null,damage,null,point,10,false,Level.ExplosionInteraction.MOB));
+        }
+    }
     private void actAt(ServerLevel level,Vec3 at,int kind,LbcIndirectKills.Owner cause){
         var owner=game.server().getPlayerList().getPlayer(cause.player());
         if(owner==null&&!cause.friendlyFire())return;
@@ -189,5 +198,12 @@ public final class LbcBabylonEffects {
     }
     public void forget(ServerPlayer player){clear(player);}
     public void stop(){for(var target:List.copyOf(pending.keySet()))clear(target);for(var entity:List.copyOf(secondary.keySet()))if(!entity.isRemoved())entity.discard();secondary.clear();}
+    void adoptRawFoodStatuses(ServerPlayer player){
+        if(!valid(player)||skillImmune(player)||game.items().magic().rejectCustomEffect(player))return;
+        int[] desired=new int[3];for(int i=0;i<3;i++)desired[i]=mana.hudValue(player,COUNTERS[i]);
+        for(int i=0;i<3;i++){long delta=(long)desired[i]-queued(player,AMPS[i]);if(delta>0)
+            pending.computeIfAbsent(player,k->queues()).get(i).addLast(new Contribution((int)Math.min(Integer.MAX_VALUE,delta),game.items().indirectKills().wildCause(player)));}
+        if(pending.containsKey(player))sync(player);
+    }
     public void addPlayerCounter(ServerPlayer player,String name){for(int i=0;i<3;i++)if(COUNTERS[i].equals(name)){mana.score(player,name).set(queued(player,AMPS[i]));return;}}
 }

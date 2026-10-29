@@ -160,6 +160,8 @@ public final class LbcIndirectKills {
         if(game!=null && game.items().magicBean().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().edibleSpells().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().nukeEvent().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().oreshek().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().foodLifecycle().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().incomingArtifacts().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().moiseiBoots().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().quiver().owner(source) instanceof ServerPlayer player) return player;
@@ -670,6 +672,8 @@ public final class LbcIndirectKills {
 
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
+        var food=game.items().foodLifecycle().cause(source.getDirectEntity());if(food!=null)return food;
+        var nut=game.items().oreshek().cause(source.getDirectEntity());if(nut!=null)return nut;
         var nuclear=game.items().nukeEvent().cause(source.getDirectEntity());if(nuclear!=null)return nuclear;
         var edible=game.items().edibleSpells().cause(source.getDirectEntity());if(edible!=null)return edible;
         var spell=game.items().spellSources().source(source.getDirectEntity());

@@ -124,7 +124,11 @@ public final class LbcBlind {
     void addPlayerCounters(ServerPlayer owner) {
         var queue=gatlings.get(owner);
         if(queue==null) { queue=new GatlingQueue(game.items().epoch()); queue.remaining=0; gatlings.put(owner,queue); }
-        queue.remaining++;
+        queue.remaining++;game.items().mana().score(owner,"gatling_fovos").set(queued(owner));
+    }
+    void adoptRawFoodStatuses(ServerPlayer owner){
+        int remaining=game.items().mana().hudValue(owner,"gatling_fovos");if(remaining<=0||!validOwner(owner))return;
+        var queue=gatlings.computeIfAbsent(owner,p->new GatlingQueue(game.items().epoch()));queue.remaining=remaining;
     }
     int cloudCount(ServerPlayer owner) { return (int)clouds.stream().filter(cloud->cloud.owner==owner).count(); }
     void loaded(Entity entity) {
@@ -167,6 +171,7 @@ public final class LbcBlind {
             else queue.remaining+=20;
             return queue;
         });
+        game.items().mana().score(owner,"gatling_fovos").set(queued(owner));
     }
 
     private void spread(ServerPlayer owner,InteractionHand hand,Vec3 origin,int count,
@@ -405,6 +410,7 @@ public final class LbcBlind {
                         owner.getYRot()+(owner.getRandom().nextFloat()*2-1)*8);
                 spawn(owner,owner.getEyePosition(),direction.scale(1.8),false,ORDINARY_LIFETIME,null,false);
                 if(--queue.remaining<=0) gatlings.remove(owner);
+                game.items().mana().score(owner,"gatling_fovos").set(queued(owner));
             }
         } finally { gatlingBatch.clear(); }
     }
@@ -419,7 +425,7 @@ public final class LbcBlind {
 
     /** Disconnect удаляет только очереди владельца; уже выпущенные заряды снимет обычная owner-проверка. */
     void forget(ServerPlayer owner) {
-        gatlings.remove(owner);
+        gatlings.remove(owner);game.items().mana().score(owner,"gatling_fovos").set(0);
         clouds.removeIf(cloud->cloud.owner==owner);
         cloudBatch.removeIf(cloud->cloud.owner==owner);
         gatlingBatch.removeIf(player->player==owner);

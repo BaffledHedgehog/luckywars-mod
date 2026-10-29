@@ -365,13 +365,18 @@ public final class LbcElectro {
         return true;
     }
 
-    public void clearEffects(LivingEntity entity) { shocks.remove(entity); }
+    void adoptRawFoodStatuses(ServerPlayer player){
+        if(game.items().magic().rejectEffect(player,MobEffects.WITHER))return;
+        int pulses=game.items().mana().hudValue(player,"shock");if(pulses<=0)return;
+        var existing=shocks.computeIfAbsent(player,p->new Shock(player,0));existing.pulses=pulses;
+    }
+    public void clearEffects(LivingEntity entity) { shocks.remove(entity); game.items().mana().score(entity,"shock").set(0); }
     /** Общий статус shock используется также медитацией жезла телепорта; выбор цели остаётся у способности. */
     public boolean shock(LivingEntity target,ServerPlayer owner,int pulses) {
         if(pulses<=0 || !target.isAlive() || target.isRemoved()
                 || target instanceof ServerPlayer player && game.items().magic().rejectEffect(player,MobEffects.WITHER)) return false;
         var shock=shocks.computeIfAbsent(target,ignored->new Shock(owner,0));
-        shock.owner=owner; shock.pulses+=pulses; return true;
+        shock.owner=owner; shock.pulses+=pulses; game.items().mana().score(target,"shock").set(shock.pulses); return true;
     }
 
     /** ПКМ расходует накопленный заряд; обычная атака остаётся нативной. */
@@ -423,12 +428,13 @@ public final class LbcElectro {
                 ServerPlayer owner = shock.owner;
                 if (!target.isAlive() || target.isRemoved() || target.level() != game.maps().level()
                         || target instanceof ServerPlayer player && (!game.canUseGameplayItems(player)
-                            || game.items().magic().rejectEffect(player,MobEffects.WITHER))) { shocks.remove(target); continue; }
+                            || game.items().magic().rejectEffect(player,MobEffects.WITHER))) { clearEffects(target); continue; }
                 if (target.entityTags().contains("time_stopped") || owner.entityTags().contains("time_stopped")) continue;
                 if (--shock.untilNext > 0) continue;
                 shock.untilNext = SHOCK_INTERVAL;
                 emitLightning(owner, target);
                 if (--shock.pulses <= 0) shocks.remove(target);
+                game.items().mana().score(target,"shock").set(Math.max(0,shock.pulses));
             }
         } finally { shockBatch.clear(); }
     }

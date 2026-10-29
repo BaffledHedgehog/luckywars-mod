@@ -47,7 +47,16 @@ public final class LbcHedgehogDimensions {
         if(target==null||owner==null||!game.canUseGameplayItems(owner)||!game.items().wands().validTarget(target)
                 ||target instanceof ServerPlayer player&&player!=owner&&owner.isAlliedTo(player)
                 ||!(target.level() instanceof ServerLevel from))return null;
-        var destination=destination(from,roll);
+        return transferTo(target,owner,from,destination(from,roll),random);
+    }
+    /** Oreshek calls the same Nexus transfer directly, without another dimension roll. */
+    boolean nexus(LivingEntity target,ServerPlayer owner,net.minecraft.util.RandomSource random){
+        if(target==null||owner==null||!game.canUseGameplayItems(owner)||!game.items().wands().validTarget(target)
+                ||!(target.level() instanceof ServerLevel from))return false;
+        return transferTo(target,owner,from,world(NEXUS),random)!=null;
+    }
+    private LivingEntity transferTo(LivingEntity target,ServerPlayer owner,ServerLevel from,ServerLevel destination,
+            net.minecraft.util.RandomSource random){
         if(destination==null||destination==from)return null;
         boolean nexus=destination.dimension().equals(NEXUS);
         double scale=DimensionType.getTeleportationScale(from.dimensionType(),destination.dimensionType());

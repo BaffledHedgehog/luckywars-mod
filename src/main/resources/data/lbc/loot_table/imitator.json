@@ -1,87 +1,87 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": {
+        "min": 1,
+        "max": 3,
+        "type": "minecraft:uniform"
+      },
+      "bonus_rolls": {
+        "min": 0,
+        "max": 3,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
         {
-            "rolls": {
-                "min": 1,
-                "max": 3,
-                "type": "minecraft:uniform"
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
             },
-            "bonus_rolls": {
-                "min": 0,
-                "max": 3,
-                "type": "minecraft:uniform"
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:imitator"
+              }
             },
-            "entries": [
+            {
+              "type": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_s",
-                                "minecraft:item_model": "lbc:imitator"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "imitator",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:1oefkj90juvc9",
-                                    "amount": {
-                                        "min": 1,
-                                        "max": 10000,
-                                        "type": "minecraft:uniform"
-                                    },
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:toggle_tooltips",
-                            "toggles": {
-                                "minecraft:attribute_modifiers": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imitator.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "imitator.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{copypaster:1}"
-                        }
-                    ]
+                  "translate": "imitator",
+                  "italic": false
                 }
-            ]
+              ]
+            },
+            {
+              "type": "minecraft:set_attributes",
+              "modifiers": [
+                {
+                  "attribute": "minecraft:spawn_reinforcements",
+                  "id": "minecraft:1oefkj90juvc9",
+                  "amount": {
+                    "min": 1,
+                    "max": 10000,
+                    "type": "minecraft:uniform"
+                  },
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:toggle_tooltips",
+              "toggles": {
+                "minecraft:attribute_modifiers": false
+              }
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imitator.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "imitator.lore.2",
+                  "color": "white",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{copypaster:1}"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

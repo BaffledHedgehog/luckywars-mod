@@ -1609,6 +1609,8 @@ public final class LbcWands {
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
         if(LbcEdibleSpells.wild(source))return validRoleTarget(victim,false);
+        if(LbcFoodLifecycle.managed(source.getDirectEntity()))return game.items().foodLifecycle().canAffect(source.getDirectEntity(),victim);
+        if(LbcOreshek.managed(source.getDirectEntity()))return game.items().oreshek().canAffect(source.getDirectEntity(),victim);
         if(LbcNukeEvent.managed(source.getDirectEntity()))return LbcIndirectKills.isWildCaptured(source)
                 ?validRoleTarget(victim,false):game.items().nukeEvent().canAffect(source.getDirectEntity(),victim);
         if(LbcChaosTrapActors.managed(source.getDirectEntity()))return game.items().chaosTrapActors().canAffect(source.getDirectEntity(),victim);

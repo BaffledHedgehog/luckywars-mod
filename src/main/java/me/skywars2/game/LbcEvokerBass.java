@@ -116,9 +116,10 @@ public final class LbcEvokerBass {
         if(fang.entityTags().contains("skywars2.quiver.fang")){
             if(!(fang.getOwner() instanceof ServerPlayer owner)||!game.items().currentEpoch(fang)
                     ||!game.items().wands().validTarget(victim)||victim.isInvulnerable()
-                    ||victim!=owner&&!game.items().wands().projectileTarget(owner,victim)
+                    ||(game.items().quiver().managedSecondary(fang)?!game.items().quiver().canAffect(fang,victim)
+                        :victim!=owner&&!game.items().wands().projectileTarget(owner,victim))
                     ||game.items().magic().beaconSuppressed(fang.position()))return;
-            var source=owner.damageSources().indirectMagic(fang,owner);
+            var source=game.items().indirectKills().captureDamage(owner.damageSources().indirectMagic(fang,owner),game.items().quiver().cause(fang));
             if(victim.hurtServer(owner.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
             return;
         }

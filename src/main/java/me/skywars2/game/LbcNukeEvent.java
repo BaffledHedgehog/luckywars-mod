@@ -63,7 +63,7 @@ public final class LbcNukeEvent {
     private record Site(ServerLevel level,Vec3 at,float yaw,Cause cause){}
     private record Visual(Marker marker,Cause cause,int age){}
     private record SavedChild(Cause cause,int visualAge){}
-    private record Burst(Site site,long after){}
+    private record Burst(Site site,long after,float power){}
     private final GameController game;
     private final Map<Marker,State> actors=new IdentityHashMap<>();
     private final Map<UUID,State> unloaded=new HashMap<>();
@@ -191,7 +191,7 @@ public final class LbcNukeEvent {
             for(int angle:OUTER)template(additions,site,angle,60,.25f);
             additions.add(new Operation(site.level,BlockPos.containing(site.at),BlockPos.containing(site.at),site.cause,()->wither(site)));
             // Creeper fuse1 was a deferred explosion carrier. Queue exact24 native MOB blasts after the synchronous kill phase.
-            job.bursts.add(new Burst(site,game.server().getTickCount()));
+            job.bursts.add(new Burst(site,game.server().getTickCount(),16));
             additions.add(killOperation(site));
         }
         additions.add(new Operation(marker.level,BlockPos.containing(marker.at),BlockPos.containing(marker.at),marker.cause,()->{
@@ -203,6 +203,23 @@ public final class LbcNukeEvent {
         }));
         additions.add(killOperation(marker));
         while(!additions.isEmpty())job.operations.addFirst(additions.removeLast());
+    }
+    /** Point nuclear status shares terrain/visual lifecycle, retaining its own source angles and power. */
+    public boolean pointBurst(ServerPlayer author,ServerLevel level,Vec3 at){
+        if(author==null||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
+                ||!level.hasChunkAt(BlockPos.containing(at)))return false;
+        if(generation==0)prepare();
+        var site=new Site(level,at,author.getYRot(),new Cause(author.getUUID(),game.items().indirectKills().wildCause(author),game.items().epoch()));
+        var job=new Job(site.cause.epoch);var center=BlockPos.containing(at);
+        job.add(level,center,center,site.cause,()->visual(site));
+        for(int angle:INNER)template(job.operations,site,angle,25,.5f);
+        for(int angle:INNER)template(job.operations,site,angle,60,.25f);
+        job.add(level,center,center,site.cause,()->wither(site));
+        job.bursts.add(new Burst(site,game.server().getTickCount(),25));
+        job.add(level,center,center,site.cause,()->{
+            for(var player:game.server().getPlayerList().getPlayers())player.connection.send(new ClientboundStopSoundPacket(Identifier.parse("minecraft:lbcsounds.nuke"),SoundSource.MASTER));
+        });
+        job.operations.add(killOperation(site));job.submit();return true;
     }
     private void template(ArrayDeque<Operation> operations,Site site,int rotation,int radius,float integrity){
         var at=site.at.add(Vec3.directionFromRotation(0,site.yaw+rotation).scale(radius));var origin=BlockPos.containing(at.add(-24,-24,-24));
@@ -253,14 +270,14 @@ public final class LbcNukeEvent {
         @Override public boolean scalesWithDifficulty(){return true;}
         @Override public Component getLocalizedDeathMessage(LivingEntity victim){return Component.translatable("death.attack.explosion.player",victim.getDisplayName(),Component.translatable("killed_by_nuke"));}
     }
-    private void blast(Site site,Vec3 at){
+    private void blast(Site site,Vec3 at,float power){
         var direct=new BlastSource(site.level,site.cause);
         direct.setPos(at);direct.entityTags().add(CHILD);direct.setCustomName(Component.translatable("killed_by_nuke"));game.items().markCurrentItemEpoch(direct);
         var previousCause=executingCause;var previousLevel=executingLevel;var previousEmitter=executingEmitter;
         executingCause=site.cause;executingLevel=site.level;executingEmitter=direct;
         try{
             var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
-            game.items().indirectKills().trapChanges(site.level,site.cause.accepted,()->site.level.explode(null,damage,null,at.x,at.y,at.z,16,false,Level.ExplosionInteraction.MOB));blasts++;
+            game.items().indirectKills().trapChanges(site.level,site.cause.accepted,()->site.level.explode(null,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB));blasts++;
         }finally{executingCause=previousCause;executingLevel=previousLevel;executingEmitter=previousEmitter;direct.discard();}
     }
     public boolean executing(ServerLevel level){return executingCause!=null&&executingLevel==level;}
@@ -289,7 +306,7 @@ public final class LbcNukeEvent {
                 // Source order: outer12(radius39), then inner12(radius18), cardinal4 per Y layer.
                 var offsets=new ArrayDeque<Operation>();
                 for(int radius:new int[]{39,18})for(int y:new int[]{0,40,-40})for(var offset:List.of(new Vec3(radius,y,0),new Vec3(-radius,y,0),new Vec3(0,y,radius),new Vec3(0,y,-radius))){
-                    var point=site.at.add(offset);var p=BlockPos.containing(point);offsets.add(new Operation(site.level,p.offset(-33,-33,-33),p.offset(33,33,33),site.cause,()->blast(site,point)));
+                    var point=site.at.add(offset);var p=BlockPos.containing(point);int reach=(int)(burst.power*2)+1;offsets.add(new Operation(site.level,p.offset(-reach,-reach,-reach),p.offset(reach,reach,reach),site.cause,()->blast(site,point,burst.power)));
                 }
                 operations.addAll(offsets);return false;
             }

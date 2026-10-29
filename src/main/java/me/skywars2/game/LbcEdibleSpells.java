@@ -120,7 +120,7 @@ public final class LbcEdibleSpells {
     }
     private void cum(ServerPlayer p){for(float pitch:new float[]{0,.2f,.3f,.5f,.8f,1})LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.agggght",.75f,pitch,0);
         p.removeAllEffects();for(var e:List.of(MobEffects.POISON,MobEffects.WITHER,MobEffects.NAUSEA,MobEffects.SLOWNESS))effect(p,e,200,0,true);
-        effect(p,MobEffects.SATURATION,2000,0,true);effect(p,MobEffects.REGENERATION,2000,10,true);effect(p,MobEffects.SPEED,2000,1,true);effect(p,MobEffects.STRENGTH,2000,1,true);
+        effect(p,MobEffects.SATURATION,100,0,true);effect(p,MobEffects.REGENERATION,2000,10,true);effect(p,MobEffects.SPEED,2000,1,true);effect(p,MobEffects.STRENGTH,2000,1,true);
     }
     private void book(ServerPlayer p){LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.agggght",1,1,10);
         for(int n=0;n<10;n++)drop(p,p,"lbc:transformables_spells");drop(p,p,"lbc:transformables_staff_all");

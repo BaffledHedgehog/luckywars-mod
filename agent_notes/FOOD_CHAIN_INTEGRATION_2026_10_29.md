@@ -1,4 +1,4 @@
-# Food dependency integration ? 29 October 2026
+# Food dependency integration - 29 October 2026
 
 This is a staged dependency slice of the full original Chaos pool. It is not a
 complete-food or Chaos release. The author requires the whole transitive chain

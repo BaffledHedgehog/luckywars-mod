@@ -1,28 +1,28 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": {
+        "min": 1,
+        "max": 4,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
         {
-            "rolls": {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:arrow",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
                 "min": 1,
-                "max": 4,
+                "max": 64,
                 "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 64,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                }
-            ]
+              }
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -76,6 +76,11 @@ public final class LbcBlaze {
         if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
         heads.put(owner.getUUID(),owner); game.items().mana().score(owner,"blaze").add(amount);
     }
+    /** Attach already-written source counters without adding another charge or replaying cast feedback. */
+    void adoptRawFoodStatuses(ServerPlayer owner){
+        if(headCharges(owner)>0&&!game.items().magic().rejectCustomEffect(owner))heads.put(owner.getUUID(),owner);
+    }
+
     private boolean valid(ServerPlayer owner) { return game.items().mana().visible(owner); }
     private boolean paused(ServerPlayer owner) {
         return game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")

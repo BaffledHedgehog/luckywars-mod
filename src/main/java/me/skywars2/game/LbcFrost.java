@@ -155,6 +155,18 @@ public final class LbcFrost {
         save(state);
     }
 
+    void adoptRawFoodStatuses(ServerPlayer player){
+        if(!eligible(player))return;var mana=game.items().mana();
+        int cold=mana.hudValue(player,"cold"),cooldown=mana.hudValue(player,"cold_cd"),duration=mana.hudValue(player,"frozen");
+        if(cold<=0&&duration<=0)return; // A bare cold_cd is dormant until source cold exists.
+        var state=affected.computeIfAbsent(player,State::new);
+        state.cold=cold;state.cooldown=cooldown;state.source=game.items().indirectKills().wildCause(player);
+        if(duration>0){
+            if(state.anchor==null){state.anchor=player.blockPosition();captureIce(state);}
+            state.frozen=duration;frozen.add(state);hold(state);
+        }
+        save(state);
+    }
     private void check(State state, ServerPlayer source) {
         var entity = state.entity;
         level().sendParticles(ParticleTypes.SNOWFLAKE, entity.getX(), entity.getY()+.81, entity.getZ(), state.cold/2, .3, .4, .3, 0);
@@ -303,6 +315,8 @@ public final class LbcFrost {
     }
 
     private void save(State state) {
+        var mana=game.items().mana();mana.score(state.entity,"cold").set(state.cold);
+        mana.score(state.entity,"cold_cd").set(state.cooldown);mana.score(state.entity,"frozen").set(state.frozen);
         var tag = new CompoundTag();
         tag.putString("epoch", epoch); tag.putInt("cold", state.cold); tag.putInt("cooldown", state.cooldown); tag.putInt("frozen", state.frozen);
         if(state.source!=null){tag.putString("source",state.source.player().toString());tag.putLong("source_order",state.source.order());tag.putBoolean("source_projectile",state.source.projectile());}
@@ -354,6 +368,7 @@ public final class LbcFrost {
             }
         }
         entity.removeAttached(DATA);
+        var mana=game.items().mana();for(String name:List.of("cold","cold_cd","frozen"))mana.score(entity,name).set(0);
     }
 
     void stop() {

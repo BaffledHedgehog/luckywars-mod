@@ -123,6 +123,26 @@ public final class LbcPsycho {
     void addRayTicks(ServerPlayer owner,int amount) {
         if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
         rays.merge(owner,amount,Integer::sum);
+        game.items().mana().score(owner,"screamray").set(rays.get(owner));
+    }
+    /** Import the existing score authority without granting a second dose or resetting forced use. */
+    void adoptRawFoodStatuses(ServerPlayer player) {
+        if(!valid(player)||game.items().magic().rejectCustomEffect(player))return;
+        var mana=game.items().mana();
+        int scared=mana.hudValue(player,"scared"),lookback=mana.hudValue(player,"lookback"),
+                twitching=mana.hudValue(player,"twitching"),piss=mana.hudValue(player,"piss");
+        if(scared>0||lookback>0||twitching>0||piss>0){
+            var effect=effects.computeIfAbsent(player,e->new Affliction());
+            if(effect.owner==null)effect.owner=player;
+            effect.epoch=game.items().epoch();effect.scared=scared;effect.lookback=lookback;
+            effect.twitching=twitching;effect.piss=piss;
+        }
+        int ray=mana.hudValue(player,"screamray");if(ray>0)rays.put(player,ray);
+    }
+    private void sync(LivingEntity entity,Affliction effect){
+        var mana=game.items().mana();mana.score(entity,"scared").set(effect.scared);
+        mana.score(entity,"lookback").set(effect.lookback);mana.score(entity,"twitching").set(effect.twitching);
+        mana.score(entity,"piss").set(effect.piss);
     }
     void addPlayerCounters(ServerPlayer player) {
         var current=effects.get(player);
@@ -216,7 +236,7 @@ public final class LbcPsycho {
         game.items().wands().wandCasted(owner); return true;
     }
     void psychoblind(ServerPlayer owner,int mode) {
-            if(mode==2) rays.merge(owner,40,Integer::sum);
+            if(mode==2) addRayTicks(owner,40);
             else if(mode==3) spawn(owner,owner.getEyePosition(),owner.getLookAngle(),false,true,100);
             else spread(owner,mode==1?4:3,mode==4);
             if(mode!=2) {
@@ -367,6 +387,7 @@ public final class LbcPsycho {
         if(entity instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) return;
         var effect=effects.computeIfAbsent(entity,e->new Affliction()); effect.owner=owner; effect.epoch=game.items().epoch();
         effect.scared+=scared; effect.lookback+=lookback; effect.twitching+=twitching; effect.piss+=piss;
+        sync(entity,effect);
     }
     /** Yellow Gaycaster sets the existing source counter rather than extending it. */
     boolean yellow(LivingEntity entity,ServerPlayer owner){
@@ -374,7 +395,7 @@ public final class LbcPsycho {
     }
     boolean yellow(LivingEntity entity,ServerPlayer owner,int ticks){
         if(entity instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player))return false;
-        afflict(entity,owner,0,0,0,0);effects.get(entity).piss=ticks;return true;
+        afflict(entity,owner,0,0,0,0);effects.get(entity).piss=ticks;sync(entity,effects.get(entity));return true;
     }
     private void tickEffects() {
         for(var entry:List.copyOf(effects.entrySet())) {
@@ -429,6 +450,7 @@ public final class LbcPsycho {
                 if(player.getRandom().nextFloat()<.4f) LbcOverload.sound(player,"minecraft:entity.slime.jump_small",.5f,1,0);
                 effect.twitching--;
             }
+            sync(entity,effect);
             if(effect.lookback<=0 && effect.scared<=0 && effect.twitching<=0 && effect.piss<=0 && effect.forcedItem==null) removeEffect(entity);
         }
     }
@@ -442,6 +464,7 @@ public final class LbcPsycho {
     private void removeEffect(LivingEntity entity) {
         var effect=effects.remove(entity);
         if(effect!=null) {
+            effect.scared=effect.lookback=effect.twitching=effect.piss=0;sync(entity,effect);
             restoreFollowRange(entity,effect);
             if(entity instanceof ServerPlayer player) releaseForcedUse(player,effect);
         }
@@ -472,12 +495,13 @@ public final class LbcPsycho {
     }
     private void tickRays() {
         for(var owner:List.copyOf(rays.keySet())) {
-            if(!valid(owner) || game.items().magic().rejectCustomEffect(owner)) { rays.remove(owner); continue; }
+            if(!valid(owner) || game.items().magic().rejectCustomEffect(owner)) { rays.remove(owner);game.items().mana().score(owner,"screamray").set(0); continue; }
             if(paused(owner)) continue;
             int remaining=rays.get(owner)-1;
             Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),to=from.add(direction.scale(99));
             rayAt(owner,from,direction,remaining);
             if(remaining<=0) rays.remove(owner); else rays.put(owner,remaining);
+            game.items().mana().score(owner,"screamray").set(Math.max(0,remaining));
         }
     }
     private void phantomSound(ServerPlayer player) {
@@ -522,7 +546,7 @@ public final class LbcPsycho {
                 position.x,position.y,position.z,volume,pitch,player.getRandom().nextLong()));
     }
     private void remove(Charge charge) { charges.remove(charge); charge.discard(); }
-    public void clearEffects(ServerPlayer owner) { removeEffect(owner); rays.remove(owner); }
+    public void clearEffects(ServerPlayer owner) { removeEffect(owner); rays.remove(owner); game.items().mana().score(owner,"screamray").set(0); }
     public void forget(ServerPlayer owner) {
         clearEffects(owner);
         for(var entry:List.copyOf(effects.entrySet())) if(entry.getValue().owner==owner) removeEffect(entry.getKey());

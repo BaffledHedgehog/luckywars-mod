@@ -209,6 +209,7 @@ public final class LbcKfcFood {
         // Extend finite native effects in their own tick units, preserving visible flags and amplifier.
         for(var current:List.copyOf(p.getActiveEffects())) game.items().indirectKills().extendEffectDuration(p,current);
         p.entityTags().add("have_lucky_effects");
+        game.items().adoptRawFoodStatuses(p);
     }
     private void effect(ServerPlayer p,Holder<MobEffect> type,int seconds,int amplifier,boolean hidden) {
         // Matches EffectCommands: instantaneous durations use ticks, all other durations use seconds.
@@ -260,6 +261,10 @@ public final class LbcKfcFood {
         p.level().sendParticles(type,p.getX(),p.getY()+height,p.getZ(),count,x,y,z,speed);
     }
     private static void sound(ServerPlayer p,String id,float volume,float pitch) { LbcOverload.sound(p,id,volume,pitch,0); }
+    void adoptRawFoodStatuses(ServerPlayer p){
+        int remaining=game.items().mana().hudValue(p,"gigaponos");
+        if(remaining>0&&!game.items().magic().rejectEffect(p,MobEffects.HUNGER))gigaponos.put(p.getUUID(),remaining);
+    }
     int gigaponosRemaining(ServerPlayer p) { return gigaponos.getOrDefault(p.getUUID(),0); }
     private void setGigaponos(ServerPlayer p,int ticks) {
         if(ticks>0) gigaponos.put(p.getUUID(),ticks); else gigaponos.remove(p.getUUID());

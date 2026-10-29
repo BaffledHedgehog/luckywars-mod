@@ -20,7 +20,7 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Original food/potion status consumers; the source scoreboard owns every remaining lifetime. */
 public final class LbcFoodStatuses {
-    private static final List<String> COUNTERS=List.of("all_seeing_eye","living_legend","dimensional_shifting");
+    private static final List<String> COUNTERS=List.of("all_seeing_eye","living_legend","dimensional_shifting","end_damage");
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final ColorParticleOption MOB_DOT=ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,ARGB.colorFromFloat(1,0,.007f,0));
@@ -52,7 +52,14 @@ public final class LbcFoodStatuses {
                 if(read(p,"living_legend")>0)livingLegend(p);
             }
             if(now%20==0&&read(p,"dimensional_shifting")>0)shifting(p);
+            if(now%200==0&&p.level().dimension().equals(Level.END)&&!LbcGreed.active(p))endDamage(p);
         }
+    }
+    /** Original players_10s End consequence; the same ledger is also changed by stew/KFC. */
+    private void endDamage(ServerPlayer p){
+        int value=(read(p,"end_damage")+1)*6/5;
+        game.items().mana().score(p,"end_damage").set(value);
+        if(read(p,"void_resistance")<=0&&value>0)p.hurtServer(p.level(),new net.minecraft.world.damagesource.DamageSource(p.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.OUTSIDE_BORDER)),value);
     }
     private void allSeeingEye(ServerPlayer p){
         var level=p.level();

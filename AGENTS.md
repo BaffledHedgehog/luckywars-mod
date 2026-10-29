@@ -1,3 +1,25 @@
+## Named foods and raw47 effects - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Exact source closure, integration and proof](agent_notes/NAMED_FOOD_INTEGRATION_2026_10_29.md).
+(user) Aimbob helmet abilities TECH-only, MAG permits; issued NV expires normally.
+(user) Full25 Chaos pool; release only after the complete chain. Main stays d9087f0a.
+All40 named profiles, native food lifecycle/infinite/Halloween/Oreshek and shared47
+producer now compose existing native consumers. No helper creepers/private spell
+engines; native consumption owns debit. Source42-table nested registry closure is
+staged without pool filtering; native integer->float score arithmetic preserved.
+Raw counters adopt existing owners, not another dose. Target seconds use long
+native ticks; barecold_cd remains dormant. Source WILD and accepted actual-emitter
+lineage survive native falling/conversion/explosion/TimeStop hooks.
+Candidate1b08cb98 passed22gameplay+5setup+2scoped results in1actual mode1match,
+67.70s;593sources/1702classes/3314resources+build.gradle exact.198author paths,
+31live overrides/main unchanged; normalownedchild shutdown/exactsnapshots. Same
+pre-suite Polymer chunk-context diagnostic, no native check failures on candidate.
+Rejected registry/fixture proofs retained. No full nuke deadline/cascade, dangerous
+47clock/End200tick/Halloween100/landing/client/network/peakTPS qualification.
+Witch Gens real stat/event consumers and other original reward dependencies still
+pending. qualified=false/releaseEligible=false. Never install staged/debug JARs,
+force main stop/restart, restore protected author files or edit live loot overrides.
+
 ## Food dependency slice - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Source, native proof and remaining gate](agent_notes/FOOD_CHAIN_INTEGRATION_2026_10_29.md).

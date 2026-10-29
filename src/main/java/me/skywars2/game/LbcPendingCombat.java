@@ -99,6 +99,7 @@ public final class LbcPendingCombat {
             game.items().indirectKills().displaced(target,cause);
         }
     }
+    public boolean gravityCurseActive(LivingEntity target){return curses.containsKey(target);}
     public void clearEffects(LivingEntity target){
         curses.remove(target);for(var type:ATTRIBUTES){var attribute=target.getAttribute(type);if(attribute!=null)attribute.removeModifier(CURSE);}
         if(target instanceof ServerPlayer player)game.items().mana().score(player,"effect_gravity_curse").set(0);
@@ -248,7 +249,10 @@ public final class LbcPendingCombat {
                 ||target instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player)){clearEffects(target);continue;}
             if(paused(curse.owner)||LbcGreed.active(target))continue;
             game.items().indirectKills().displaced(target,curse.cause);
-            if(phase==0){if(--curse.seconds==0)clearEffects(target);else if(target instanceof ServerPlayer player)game.items().mana().score(player,"effect_gravity_curse").set(curse.seconds);}
+            if(phase==0){
+                if(target instanceof ServerPlayer player)curse.seconds=Math.max(0,game.items().mana().hudValue(player,"effect_gravity_curse"));
+                if(curse.seconds<=1)clearEffects(target);else{curse.seconds--;if(target instanceof ServerPlayer player)game.items().mana().score(player,"effect_gravity_curse").set(curse.seconds);}
+            }
         }
         var candidates=new IdentityHashMap<ServerPlayer,List<LivingEntity>>();
         for(var copy:List.copyOf(copies)){

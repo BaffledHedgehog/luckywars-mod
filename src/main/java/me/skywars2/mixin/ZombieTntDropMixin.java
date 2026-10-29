@@ -78,6 +78,8 @@ public abstract class ZombieTntDropMixin {
             game.items().chaosTrapActors().inheritConversion((Entity)(Object)this,converted);
             game.items().spellSources().inherit((Entity)(Object)this,converted);
             game.items().nukeEvent().inherit((Entity)(Object)this,converted);
+            game.items().oreshek().inherit((Entity)(Object)this,converted);
+            game.items().foodLifecycle().inheritConversion((Entity)(Object)this,converted);
         }
         return original.call(level,converted);
     }

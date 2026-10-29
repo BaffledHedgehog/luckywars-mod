@@ -776,6 +776,7 @@ public final class LbcExasperato {
 
     /** Общая политика для всего native взрыва, до урона, knockback и расчёта exposure. */
     public boolean explosionTarget(Entity source,Entity target) {
+        if(LbcOreshek.managed(source))return game.items().oreshek().canAffect(source,target);
         if(!(source instanceof PrimedTnt tnt) || !source.entityTags().contains(EXPLOSIVE)) return true;
         return tnt.getOwner() instanceof ServerPlayer owner && game.items().currentEpoch(tnt)
                 && game.items().wands().projectileTarget(owner,target);

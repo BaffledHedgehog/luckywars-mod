@@ -100,6 +100,10 @@ public final class LbcKiuas {
         if(game.items().mana().hudValue(target,"effect_kiuaskivi")>0)cursed.put(target,cause);else clearCurse(target);
     }
     void unloaded(Entity entity){if(entity instanceof LivingEntity target)cursed.remove(target);}
+    void adoptRawFoodStatuses(ServerPlayer player){
+        if(game.items().mana().hudValue(player,"effect_kiuaskivi")<=0||game.items().magic().rejectCustomEffect(player))return;
+        var cause=cursed.computeIfAbsent(player,p->game.items().indirectKills().wildCause(player));saveCurse(player,cause);
+    }
     public void clearCurse(LivingEntity target){cursed.remove(target);target.removeAttached(CURSE);
         if(game.items().mana().hudValue(target,"effect_kiuaskivi")!=0)game.items().mana().score(target,"effect_kiuaskivi").set(0);}
     private void tickCurses(){

@@ -215,6 +215,11 @@ final class LbcErecto {
     }
     int rayPending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"ray"));}
     void addPlayerCounter(ServerPlayer owner){game.items().mana().score(owner,"ray").add(1);rays.put(owner,game.items().epoch());}
+    /** A source food can set ray directly; it must not create a second ray clock or another debit. */
+    void adoptRawFoodStatuses(ServerPlayer owner){
+        if(rayPending(owner)>0&&!game.items().magic().rejectCustomEffect(owner))rays.put(owner,game.items().epoch());
+    }
+
     int sphereCount(){return spheres.size();}
     List<Sphere> sphereSnapshot(){return List.copyOf(spheres);}
     void tick(){

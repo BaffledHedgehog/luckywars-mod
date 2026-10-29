@@ -65,8 +65,8 @@ public final class LbcHoming {
     }
     private static final class Curse {
         final ServerPlayer owner;
-        int remaining;
-        Curse(ServerPlayer owner,int remaining) { this.owner=owner; this.remaining=remaining; }
+        long remaining;boolean rawWild;
+        Curse(ServerPlayer owner,long remaining) { this.owner=owner; this.remaining=remaining; }
     }
 
     LbcHoming(GameController game) {
@@ -97,13 +97,23 @@ public final class LbcHoming {
     public int curseCount() { return curses.size(); }
     public int pendingRayCount() { return pendingRays.size(); }
     public int curseValue(LivingEntity entity) {
-        var curse=curses.get(entity); return curse==null?0:(curse.remaining+19)/20;
+        var curse=curses.get(entity); return curse==null?0:(int)Math.min(Integer.MAX_VALUE,(curse.remaining+19)/20);
     }
-    int curseTicks(LivingEntity entity) { var curse=curses.get(entity); return curse==null?0:curse.remaining; }
+    int curseTicks(LivingEntity entity) { var curse=curses.get(entity); return curse==null?0:(int)Math.min(Integer.MAX_VALUE,curse.remaining); }
     public int curseSeconds(LivingEntity entity) { return curseValue(entity); }
+    void adoptRawFoodStatuses(ServerPlayer player){
+        int seconds=game.items().mana().hudValue(player,"target");
+        if(seconds<=0||!valid(player)||game.items().magic().rejectCustomEffect(player))return;
+        var curse=curses.computeIfAbsent(player,p->new Curse(player,0));curse.remaining=(long)seconds*20;curse.rawWild=true;
+    }
+    private boolean curseTarget(Curse curse,LivingEntity target){return curse.rawWild
+            ?game.items().wands().validRoleTarget(target,false)&&!LbcGreed.active(target)
+            :target(curse.owner,target);}
+    private void syncCurse(LivingEntity target){game.items().mana().score(target,"target").set(curseValue(target));}
     void addPlayerCounters(ServerPlayer player) {
         if(!game.items().magic().rejectCustomEffect(player))
-            curses.computeIfAbsent(player,ignored->new Curse(player,0)).remaining++;
+            curses.computeIfAbsent(player,ignored->new Curse(player,0)).remaining+=20;
+        syncCurse(player);
         // These are sustained casts owned by the player, rather than projectile/entity ages.
         for(var effect:rains) if(effect.owner==player) effect.remaining++;
         for(var effect:destinies) if(effect.owner==player) effect.remaining++;
@@ -367,6 +377,7 @@ public final class LbcHoming {
                     || !projectileTarget(owner,living)) return;
             if(living instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) return;
             curses.compute(living,(entity,old)->new Curse(owner,(old==null?0:old.remaining)+1200));
+            syncCurse(living);
             owner.level().sendParticles(new DustParticleOptions(net.minecraft.util.ARGB.colorFromFloat(1,.314f,.294f,.129f)&0xffffff,3),
                     living.getX(),living.getY(),living.getZ(),50,1,1,1,.3);
             LbcOverload.sound(owner,living.position(),"minecraft:block.sculk_catalyst.bloom",1,1,0);
@@ -392,11 +403,11 @@ public final class LbcHoming {
     private void tickCurses() {
         for(var entry:List.copyOf(curses.entrySet())) {
             var victim=entry.getKey(); var curse=entry.getValue();
-            if(!valid(curse.owner) || !projectileTarget(curse.owner,victim)
+            if(!valid(curse.owner) || !(curse.rawWild?curseTarget(curse,victim):projectileTarget(curse.owner,victim))
                     || victim instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) { clear(victim); continue; }
             if(paused(curse.owner) || victim.entityTags().contains("time_stopped")
                     || game.items().frost().isFrozen(victim)) continue;
-            if(--curse.remaining<=0) clear(victim);
+            if(--curse.remaining<=0) clear(victim);else syncCurse(victim);
         }
         if(ticks%20!=0 || curses.isEmpty() || game.items().wands().timeStopped()) return;
         // Глобальность исходного режима сохраняется; каждый снаряд выбирает только допустимую ему цель.
@@ -405,7 +416,7 @@ public final class LbcHoming {
             LivingEntity nearest=null; Curse chosen=null; double distance=Double.POSITIVE_INFINITY;
             for(var entry:curses.entrySet()) {
                 var victim=entry.getKey(); var curse=entry.getValue();
-                if(victim.level()!=projectile.level() || !target(curse.owner,victim) || paused(curse.owner)) continue;
+                if(victim.level()!=projectile.level() || !curseTarget(curse,victim) || paused(curse.owner)) continue;
                 double d=projectile.position().distanceToSqr(victim.position());
                 if(d<distance) { distance=d; nearest=victim; chosen=curse; }
             }
@@ -422,13 +433,13 @@ public final class LbcHoming {
         game.items().wands().redirectCursedElectro();
         game.items().danmaku().redirectCursedCards();
     }
-    public void clear(LivingEntity entity) { curses.remove(entity); }
+    public void clear(LivingEntity entity) { curses.remove(entity);game.items().mana().score(entity,"target").set(0); }
     /** Manual Danmaku cards use the same global Curse target and ownership rule as native projectiles. */
     void redirect(LbcDanmaku.Card card) {
         LivingEntity nearest=null;Curse chosen=null;double distance=Double.POSITIVE_INFINITY;
         for(var entry:curses.entrySet()) {
             var victim=entry.getKey();var curse=entry.getValue();
-            if(victim.level()!=card.display.level() || !target(curse.owner,victim) || paused(curse.owner)) continue;
+            if(victim.level()!=card.display.level() || !curseTarget(curse,victim) || paused(curse.owner)) continue;
             double d=card.display.position().distanceToSqr(victim.position());
             if(d<distance){distance=d;nearest=victim;chosen=curse;}
         }
@@ -444,7 +455,7 @@ public final class LbcHoming {
         LivingEntity nearest=null; Curse chosen=null; double distance=Double.POSITIVE_INFINITY;
         for(var entry:curses.entrySet()) {
             var victim=entry.getKey(); var curse=entry.getValue();
-            if(victim.level()!=trace.level || !target(curse.owner,victim) || paused(curse.owner)) continue;
+            if(victim.level()!=trace.level || !curseTarget(curse,victim) || paused(curse.owner)) continue;
             double d=trace.position.distanceToSqr(victim.position());
             if(d<distance) { distance=d; nearest=victim; chosen=curse; }
         }

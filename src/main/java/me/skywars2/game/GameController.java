@@ -569,6 +569,7 @@ public final class GameController {
     }
 
     public void died(ServerPlayer player, DamageSource damage) {
+        items.oreshek().died(player);
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
@@ -669,10 +670,12 @@ public final class GameController {
 
     public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
     public void consumed(ServerPlayer player, ItemStack stack) {
+        items.foodLifecycle().consumed(player,stack);
         items.kfcFood().consumed(player,stack);
         items.aimbobRewards().consumed(player,stack);
         items.attributeFood().consumed(player,stack);
         items.edibleSpells().consumed(player,stack);
+        items.namedFoods().consumed(player,stack);items.oreshek().consumed(player,stack);
         events.onConsumed(player, stack);
     }
     public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
@@ -825,6 +828,7 @@ public final class GameController {
     }
 
     private void resetPlayer(ServerPlayer player, int health, boolean resetAllAttributes) {
+        items.oreshek().resetBoundary(player);
         // Общая подготовка к лобби, старту и возрождению: снимаем бонусы, очищаем инвентарь, восстанавливаем здоровье и еду.
         items.resetAttributes(player);
         items.resetRocket(player);

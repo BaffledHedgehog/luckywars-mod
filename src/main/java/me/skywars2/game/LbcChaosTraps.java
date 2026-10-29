@@ -21,11 +21,13 @@ public final class LbcChaosTraps {
     public LbcChaosTraps(GameController game){this.game=game;}
 
     /** /loot spawn has a chest context and default luck zero, independent of the wearer's Luck. */
-    public List<ItemEntity> spawn(ServerPlayer owner,Vec3 pos){
+    public List<ItemEntity> spawn(ServerPlayer owner,Vec3 pos){return spawn(owner,pos,true);}
+    public List<ItemEntity> spawnUnjammed(ServerPlayer owner,Vec3 pos){return spawn(owner,pos,false);}
+    private List<ItemEntity> spawn(ServerPlayer owner,Vec3 pos,boolean magical){
         if(owner==null||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||owner.level()!=game.maps().level()||game.isObserver(owner)
                 ||game.items().timeStop().stopped(owner.level())
-                ||game.items().magic().beaconSuppressed(owner.position()))return List.of();
+                ||magical&&game.items().magic().beaconSuppressed(owner.position()))return List.of();
         var level=owner.level();
         if(level.getChunkSource().getChunkNow(((int)Math.floor(pos.x))>>4,((int)Math.floor(pos.z))>>4)==null)return List.of();
         var params=new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN,pos)

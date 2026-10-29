@@ -52,6 +52,8 @@ public final class HazardPropagationMixins {
                 if(authority==null) authority=game.items().godHedgehog().owner(source);
                 if(authority==null) authority=game.items().hedgehog().owner(source);
                 if(authority==null) authority=game.items().nukeEvent().owner(source);
+                if(authority==null) authority=game.items().oreshek().owner(source);
+                if(authority==null) authority=game.items().foodLifecycle().owner(source);
                 if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
                 if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
@@ -63,6 +65,10 @@ public final class HazardPropagationMixins {
                 if(hedgehogCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,hedgehogCause);
                 var nuclearCause=game.items().nukeEvent().cause(source);
                 if(nuclearCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,nuclearCause);
+                var foodCause=game.items().foodLifecycle().cause(source);
+                if(foodCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,foodCause);
+                var nutCause=game.items().oreshek().cause(source);
+                if(nutCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,nutCause);
                 damageSource=game.items().spellSources().damage(damageSource);
             }
         }
@@ -226,6 +232,10 @@ public final class HazardPropagationMixins {
                 game.items().spellSources().inherit(source,spawned);
                 game.items().nukeEvent().inherit(source,spawned);
                 game.items().nukeEvent().inheritChild(spawned);
+                game.items().oreshek().inherit(source,spawned);
+                game.items().oreshek().inheritChild(spawned);
+                game.items().foodLifecycle().inheritConversion(source,spawned);
+                game.items().foodLifecycle().inheritChild(spawned);
                 game.items().chaosTrapActors().inheritProjectile(source,spawned);
                 game.items().moiseiBoots().inheritChild(source,spawned);
                 game.items().quiver().inheritChild(source,spawned);
