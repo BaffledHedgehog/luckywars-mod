@@ -75,6 +75,7 @@ public final class LbcWitchWrath {
     }
     /** Native dx=dy=dz=0 is a positive unit box, plus the source 15-block distance gate. */
     void convertAt(ServerPlayer owner,ServerLevel level,Vec3 at,boolean players){
+        if(!players){game.items().communism().subjugateAt(owner,level,at,e->target(e,true));return;}
         boolean lock=players&&game.config().gameMode>=3&&game.config().gameMode<=4;
         if(lock)for(var player:game.server().getPlayerList().getPlayers())player.entityTags().add("cantleave");
         try{

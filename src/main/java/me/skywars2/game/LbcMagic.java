@@ -524,6 +524,8 @@ public final class LbcMagic {
     }
     /** Shared magical/summoned classification used by suppression and armor pulses. */
     public boolean magical(Entity entity) {
+        // (user) Indolence fingers are physical bodies; neither they nor rebirth are suppressed.
+        if(entity.entityTags().contains("indolence_finger"))return false;
         return !entity.entityTags().contains("spectator") && (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
                 && (entity.getType().builtInRegistryHolder().is(MAGIC_ENTITIES) || entity.entityTags().contains("magic")
                 || entity.entityTags().contains("summactivated") && entity.getType().builtInRegistryHolder().is(MOBS)

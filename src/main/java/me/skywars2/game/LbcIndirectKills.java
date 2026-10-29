@@ -104,6 +104,12 @@ public final class LbcIndirectKills {
                 &&(effect.is(MobEffects.POISON)||effect.is(MobEffects.WITHER)||effect.is(MobEffects.BLINDNESS)))
             statuses.computeIfAbsent(target,k->new HashMap<>()).put(effect.getEffect(),new Status(cause,active));
     }
+    /** Preserve accepted native effect causes across a legitimate replacement-player respawn. */
+    java.util.Map<Holder<MobEffect>,Owner> effectCauses(LivingEntity target){
+        var result=new java.util.HashMap<Holder<MobEffect>,Owner>();var active=statuses.get(target);
+        if(active!=null)active.forEach((type,status)->{if(target.getEffect(type)==status.effect)result.put(type,status.owner);});
+        return java.util.Map.copyOf(result);
+    }
     private LivingEntity effectTarget, manaTarget;
     private LivingEntity altitudeTarget;
     private Owner altitudeCause;

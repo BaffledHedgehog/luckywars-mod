@@ -576,7 +576,8 @@ public final class GameController {
         events.removePlayerSkill(player);
         items.stand().died(player);
         items.mobgun().forget(player);
-        p.lives--; p.awaitingRespawn = true;
+        if(!items.indolenceFingers().prepareDeath(player))p.lives--;
+        p.awaitingRespawn = true;
         attributeHud.clear(player);
         items.resetRocket(player);
         items.electro().reset(player);
@@ -604,12 +605,14 @@ public final class GameController {
         if (playing() && p != null && !p.disconnected && p.lives > 0) {
             // Полная нормализация относится к границам матча; новую жизнь готовим по прежним правилам.
             p.awaitingRespawn = false; resetPlayer(player, config.health, false);
-            maps.restoreRespawnIsland(p.spawn);
-            player.setGameMode(GameType.SURVIVAL); teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
+            boolean fingerSpawn=items.indolenceFingers().fingerSpawn(player);
+            if(!fingerSpawn)maps.restoreRespawnIsland(p.spawn);
+            player.setGameMode(GameType.SURVIVAL); if(!fingerSpawn)teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
             if (config.vanillaKits) events.giveKit(player);
             if (config.vanillaSkills) events.giveSkill(player);
             lbc.apply(player, false);
             items.stand().respawned(player);
+            items.indolenceFingers().respawned(player);
         } else if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
         else if (stage == Stage.LOADING) loadingPlayer(player);
         else { if (p != null) p.awaitingRespawn = false; spectators.enter(player); teleport(player, maps.look(), 0, 0); }

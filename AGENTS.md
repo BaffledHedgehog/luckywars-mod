@@ -1,3 +1,20 @@
+## Indolence fingers/rebirth - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Source, author rulings and exact proof](agent_notes/INDOLENCE_FINGERS_PORT_2026_10_29.md).
+(user) Delete the EXACT selected finger after5ticks. Fingers/rebirth NONMAGICAL;
+only invisible hands use MAGIC suppression. Correct actual reward armor slots.
+Native global random20 producer/body payload, shared podchinenie team/AI/counters,
+physical classification, native remaining-life death/replacement respawn, source
+gear/claw/effect chains/owned leases and captured five-running-tick cost are staged.
+Reuses existing death/lives/movement/source/TimeStop; no second engine or RP assets.
+777d147a passed11 unique gameplay suites/12executions in2 actualmode1 matches
+31.00s/99.11s;11028 frozeninputs/5224 packagedentries,27 source references.
+199 authorpaths/31overrides/main d9087f0a unchanged; normalchildshutdown/exact
+snapshots/no retainedlocks. Full original25 Chaos gate CLOSED; no maininstall.
+Producer API is ready; shared Witch claim/admission/debit remains incomplete.
+Next: shared acquisition, Lust active families, FULL Vanity world/all-player/core.
+No push/restart/question-file edits; questions in CHAT. See proof limits in note.
+
 ## Indolence hands - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Contract, source and native proof](agent_notes/WITCH_INDOLENCE_HANDS_PORT_2026_10_29.md).

@@ -1599,9 +1599,11 @@ public final class LbcWands {
         return !game.items().polymorph().concealed(entity) && !LbcGreed.active(entity) && validRoleTarget(entity,allowDying);
     }
     boolean validRoleTarget(Entity entity,boolean allowDying) {
-
+        return validRoleTarget(entity,allowDying,false);
+    }
+    boolean validRoleTarget(Entity entity,boolean allowDying,boolean allowSauvojen) {
         return (allowDying || entity.isAlive()) && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
-                && !entity.entityTags().contains("rcdenyalways") && !entity.entityTags().contains("sauvojen_tuntija")
+                && !entity.entityTags().contains("rcdenyalways") && (allowSauvojen||!entity.entityTags().contains("sauvojen_tuntija"))
                 && !entity.entityTags().contains("strict_map_object")
                 && !entity.entityTags().contains("magic_academy")
                 && (!entity.entityTags().contains("transformator") || LbcTransformator.managed(entity))

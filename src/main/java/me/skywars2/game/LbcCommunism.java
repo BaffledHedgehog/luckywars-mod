@@ -27,6 +27,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 /** Source one-block samples, through mobs until terrain, with native AI and explicit ownership. */
@@ -75,6 +76,14 @@ public final class LbcCommunism {
     void subjugate(ServerPlayer p,Entity target,boolean leave,boolean copyId){
         control(p,target,leave);copyScore(p,target,"team_number");if(copyId)copyScore(p,target,"lbcID2");
         if(!(target instanceof Player))game.items().spellSources().controllerChanged(target,p);
+    }
+    /** Exact nonplayer lbcr:podchinenie cell, reused by authority actor producers. */
+    void subjugateAt(ServerPlayer p,net.minecraft.server.level.ServerLevel level,Vec3 at,java.util.function.Predicate<Entity> allowed){
+        var cell=new AABB(at,at.add(1,1,1));
+        for(var e:level.getEntities((Entity)null,cell,e->!(e instanceof Player)&&e.getType().builtInRegistryHolder().is(MOBS)
+                &&e.position().distanceToSqr(at)<=225&&game.items().wands().validRoleTarget(e,false,true)&&!LbcGreed.active(e)
+                &&!game.items().polymorph().concealed(e)&&allowed.test(e)))subjugate(p,e,true,true);
+        LbcOverload.sound(level,at,"minecraft:entity.villager.trade",1,1,0,0);
     }
     private void copyScore(Entity from,Entity to,String name){
         var board=game.server().getScoreboard();var objective=board.getObjective(name);
