@@ -24,7 +24,7 @@ public final class LbcWitchClaims {
         String tag(){return "sin_"+key;}
         static Mode of(Integer value){return value!=null&&value>=1&&value<=values().length?values()[value-1]:null;}
         // Their producer/checkpoint dependencies remain explicit, not aliases for a tag grant.
-        boolean implemented(){return this!=LUST&&this!=VANITY;}
+        boolean implemented(){return this!=VANITY;}
     }
     enum Verdict { ALREADY,UNQUALIFIED,QUALIFIED }
     private final GameController game;
@@ -66,7 +66,7 @@ public final class LbcWitchClaims {
             if(mode!=null)p.sendSystemMessage(Component.translatable(mode.key));return true;
         }
         var mode=Mode.of(counters.read(p,"gens_type"));if(mode==null)return false;
-        // Keep raw Lust/Vanity acquisition disconnected until their real dependencies exist.
+        // Keep raw Vanity acquisition disconnected until the full world checkpoint exists.
         // In particular, do not consume the item, transfer a tag or punish a qualified holder.
         if(!mode.implemented())return false;
         var verdict=verdict(p,mode);if(verdict==Verdict.ALREADY)return false;
@@ -103,6 +103,7 @@ public final class LbcWitchClaims {
         switch(mode){
             case GLUTTONY->{drop(p,"lbc:glutton_summons");unget(p,mode);yes(p);get(p,mode);assign(p,mode);award(p,mode);}
             case WRATH->{unget(p,mode);yes(p);assign(p,mode);get(p,mode);award(p,mode);}
+            case LUST->{get(p,mode);unget(p,mode);yes(p);assign(p,mode);drop(p,"lbc:lust_get");award(p,mode);}
             case GREED->{unget(p,mode);yes(p);assign(p,mode);get(p,mode);award(p,mode);p.entityTags().remove("greed_cursed");}
             case INDOLENCE->{get(p,mode);unget(p,mode);yes(p);assign(p,mode);game.items().indolenceFingers().acquired(p);}
             case ENVY->{get(p,mode);assign(p,mode);award(p,mode);yes(p);}

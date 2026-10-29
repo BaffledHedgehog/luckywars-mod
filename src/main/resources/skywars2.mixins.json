@@ -13,6 +13,7 @@
     "FpvDroneMixin$Entities",
     "FpvDroneMixin$Sounds",
     "FpvDroneMixin$Effects",
+    "LustDragonMixin",
     "WitchStatisticsMixin",
     "WitchMeleeProgressMixin",
     "WitchMeleeProgressMixin$Attack",

@@ -57,7 +57,7 @@ public final class FullInvisibility implements PolymerEntity {
     public static void effectsChanged(LivingEntity entity) {
         if (entity instanceof ServerPlayer player && PolymerEntity.get(player) instanceof FullInvisibility overlay) {
             long previous = overlay.invisibilityLevel;
-            overlay.polymorphed = me.skywars2.SkyWars2.game()!=null && me.skywars2.SkyWars2.game().items().polymorph().active(player);
+            overlay.polymorphed = me.skywars2.SkyWars2.game()!=null && (me.skywars2.SkyWars2.game().items().polymorph().active(player)||me.skywars2.SkyWars2.game().items().witchLust().riding(player));
             overlay.invisibilityLevel = overlay.polymorphed?3:SignedEffectVisuals.invisibilityLevel(player);
             overlay.update(overlay.invisibilityLevel >= 3);
             if (previous != overlay.invisibilityLevel && previous >= 3 && overlay.invisibilityLevel >= 3)

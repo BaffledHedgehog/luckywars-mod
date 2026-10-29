@@ -224,6 +224,7 @@ public final class LbcItems {
     private final LbcShishEncounter shishEncounter;
     private final LbcWitchPassives witchPassives;
     private final LbcWitchClaims witchClaims;
+    private final LbcWitchLust witchLust;
     private final LbcWitchWrath witchWrath;
     private final LbcWitchGluttony witchGluttony;
     private final LbcWitchIndolence witchIndolence;
@@ -853,7 +854,7 @@ public final class LbcItems {
         this.apocalypseEvents = new LbcApocalypseEvents(game);
         this.apocalypseActors = new LbcApocalypseActors(game);
         this.shishEncounter = new LbcShishEncounter(game);
-        this.witchClaims=new LbcWitchClaims(game);this.witchPassives = new LbcWitchPassives(game);this.witchWrath=new LbcWitchWrath(game);this.witchGluttony=new LbcWitchGluttony(game);this.witchIndolence=new LbcWitchIndolence(game);this.indolenceFingers=new LbcIndolenceFingers(game);this.fpvDrone=new LbcFpvDrone(game);
+        this.witchClaims=new LbcWitchClaims(game);this.witchLust=new LbcWitchLust(game);this.witchPassives = new LbcWitchPassives(game);this.witchWrath=new LbcWitchWrath(game);this.witchGluttony=new LbcWitchGluttony(game);this.witchIndolence=new LbcWitchIndolence(game);this.indolenceFingers=new LbcIndolenceFingers(game);this.fpvDrone=new LbcFpvDrone(game);
         this.chaosTrapActors = new LbcChaosTrapActors(game);
         this.sauvojenBoss = new LbcSauvojenBoss(game);
         this.infinity = new LbcInfinity(game);
@@ -1084,6 +1085,7 @@ public final class LbcItems {
     public LbcApocalypseActors apocalypseActors(){return apocalypseActors;}
     public LbcShishEncounter shishEncounter(){return shishEncounter;}
     public LbcWitchClaims witchClaims(){return witchClaims;}
+    public LbcWitchLust witchLust(){return witchLust;}
     public LbcWitchPassives witchPassives(){return witchPassives;}
     public LbcWitchWrath witchWrath(){return witchWrath;}
     public LbcWitchGluttony witchGluttony(){return witchGluttony;}
@@ -1193,7 +1195,7 @@ public final class LbcItems {
         stalin.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
         specialDrops.loaded(entity);
-        spellSources.loaded(entity);apocalypseEvents.loaded(entity);apocalypseActors.loaded(entity);witchGluttony.loaded(entity);witchIndolence.loaded(entity);indolenceFingers.loaded(entity);shishEncounter.loaded(entity);
+        spellSources.loaded(entity);apocalypseEvents.loaded(entity);apocalypseActors.loaded(entity);witchGluttony.loaded(entity);witchIndolence.loaded(entity);indolenceFingers.loaded(entity);witchLust.loaded(entity);shishEncounter.loaded(entity);
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);
         magicBean.loaded(entity);fpvDrone.loaded(entity);
@@ -1318,7 +1320,7 @@ public final class LbcItems {
         if(entity instanceof ServerPlayer player)armorSets.phantom().forget(player);
         if(entity instanceof LivingEntity living)ownedEffects.forget(living);
         specialDrops.unloaded(entity);
-        spellSources.unloaded(entity);apocalypseEvents.unloaded(entity);apocalypseActors.unloaded(entity);witchGluttony.unloaded(entity);witchIndolence.unloaded(entity);indolenceFingers.unloaded(entity);shishEncounter.unloaded(entity);
+        spellSources.unloaded(entity);apocalypseEvents.unloaded(entity);apocalypseActors.unloaded(entity);witchGluttony.unloaded(entity);witchIndolence.unloaded(entity);indolenceFingers.unloaded(entity);witchLust.unloaded(entity);shishEncounter.unloaded(entity);
         chaosTrapActors.unloaded(entity);
         sauvojenBoss.unloaded(entity);
         magicBean.unloaded(entity);fpvDrone.unloaded(entity);
@@ -1749,7 +1751,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
-        timeStop.tick();polymorph.tick();fpvDrone.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
+        timeStop.tick();polymorph.tick();fpvDrone.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();
         skyHazards.tick();
         lightningAcquisition.tick();
@@ -1949,7 +1951,7 @@ public final class LbcItems {
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
     private void clear(ServerPlayer player,boolean resetNanobots) { legacyEffects.clear(player); if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); clearTurnCurse(player); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
-        indolenceFingers.forget(player);
+        indolenceFingers.forget(player);witchLust.forget(player);
         polymorph.forget(player);
         oreshek.resetBoundary(player);
         corruptedGlyphs.forget(player);
@@ -2142,7 +2144,7 @@ public final class LbcItems {
         edibleSpells.stop();
         nukeEvent.stop();foodLifecycle.stop();oreshek.stop();legacyEffects.stop();
         foodStatuses.stop();
-        witchClaims.stop();witchPassives.stop();witchWrath.stop();witchGluttony.stop();witchIndolence.stop();indolenceFingers.stop();fpvDrone.stop();apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();
+        witchClaims.stop();witchPassives.stop();witchWrath.stop();witchGluttony.stop();witchIndolence.stop();indolenceFingers.stop();witchLust.stop();fpvDrone.stop();apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();
         pisaDrops.stop();
         antigravity.stop();
         ultraponos.stop();

@@ -79,7 +79,7 @@ public final class WitchClaimChecks {
                     &&base.owner.getEffect(MobEffects.WITHER).getAmplifier()==ItemEffectLevels.amplifier(MobEffects.WITHER,9),"failed source qualification preserves item and applies item-capped Wither10s");
             require(failureSounds(client)==heard+1&&failureSounds(otherClient)==other,"exactly one owner-only source wither sound");base.owner.removeAllEffects();
             base.owner.entityTags().add("sin_wrath");require(!input()&&base.owner.getMainHandItem().getCount()==3&&!base.owner.hasEffect(MobEffects.WITHER),"already-held mode is a quiet no-op");base.owner.entityTags().remove("sin_wrath");
-            for(int n:new int[]{3,5}){mode(n);set(base.owner,"lolidefecation",64);require(!input()&&base.owner.getMainHandItem().getCount()==3&&!base.owner.hasEffect(MobEffects.WITHER),"unfinished actual producer/checkpoint cannot be substituted with a tag grant "+n);}
+            for(int n:new int[]{5}){mode(n);set(base.owner,"lolidefecation",64);require(!input()&&base.owner.getMainHandItem().getCount()==3&&!base.owner.hasEffect(MobEffects.WITHER),"unfinished actual producer/checkpoint cannot be substituted with a tag grant "+n);}
         }
         void claims(){reset();mode(2);set(base.owner,"dmg_dealt",5001);set(base.other,"dmg_dealt",5000);base.other.entityTags().addAll(Set.of("sin_wrath","sin_envy"));
             base.owner.getInventory().setItem(0,token.copy());base.owner.entityTags().add("sin_gluttony");
@@ -94,6 +94,8 @@ public final class WitchClaimChecks {
             for(var e:base.owner.level().getAllEntities())if(e instanceof net.minecraft.world.entity.item.ItemEntity itemEntity&&!before.contains(e)){
                 var s=itemEntity.getItem();for(var key:List.of("whale","rabbit","snake"))if(LbcFartus.data(s).getIntOr(key,0)==1)rewards.put(key,s.copy());}
             require(rewards.size()==3&&rewards.values().stream().allMatch(LbcWitchGluttony::matches),"all THREE original reward pools produce real native actor inputs");
+            reset();mode(3);set(base.owner,"lolidefecation",64);require(input()&&base.owner.entityTags().contains("sin_lust")&&base.owner.getMainHandItem().getCount()==2,"Lust claims only after its complete real producer is connected");
+            require(java.util.stream.StreamSupport.stream(base.owner.level().getAllEntities().spliterator(),false).anyMatch(e->e instanceof net.minecraft.world.entity.item.ItemEntity drop&&!before.contains(e)&&LbcWitchLust.matches(drop.getItem())),"Lust claim drops real source flesh input");
             reset();mode(6);set(base.owner,"sleep_time",3600);base.other.entityTags().add("indolence_active");require(input()&&base.owner.entityTags().contains("sin_indolence")&&!base.other.entityTags().contains("indolence_active")&&base.owner.getMainHandItem().getCount()==2,"Indolence claim delegates actual native finger producer and clears old active flags");
             require(game.items().indolenceFingers().snapshot().size()==20,"actual successful source claim creates twenty native fingers");for(var actor:game.items().indolenceFingers().snapshot())if(actor instanceof Mob mob){mob.setNoAi(true);mob.setNoGravity(true);}
             clearSins();
@@ -131,5 +133,5 @@ public final class WitchClaimChecks {
     }
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive scenario");running=new Fixture(game);try{running.init();}catch(Throwable e){running.close();running=null;throw e;}SkyWars2.LOGGER.info("[check] START witch-acquisition");}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS witch-acquisition (raw root/both hands, source thresholds/global incumbent transfer, native inventory debit, original rewards/fingers, item-capped private failure, actual MAGIC/TECH/artifact/TimeStop boundaries; Lust/Vanity dependencies remain gated)");}catch(Throwable e){try{running.close();}catch(Throwable c){e.addSuppressed(c);}running=null;SkyWars2.LOGGER.error("[check] FAIL witch-acquisition",e);}}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS witch-acquisition (raw root/both hands, source thresholds/global incumbent transfer, native inventory debit, original rewards/fingers, item-capped private failure, actual MAGIC/TECH/artifact/TimeStop boundaries; Vanity full checkpoint remains gated)");}catch(Throwable e){try{running.close();}catch(Throwable c){e.addSuppressed(c);}running=null;SkyWars2.LOGGER.error("[check] FAIL witch-acquisition",e);}}
 }

@@ -1,5 +1,13 @@
 # LuckyWars: игровой цикл на Fabric 26.3
 
+## Active Lust: native stage, not released
+
+Four source Flesh modes, complete original90 mob pool, actual dragon steering/
+rider concealment and antimagic retirement are connected to real mode3 acquisition.
+Twelve gameplay suites passed in one actual match; full original25 Chaos release
+gate remains closed. [Behavior, exact proof and limits](agent_notes/WITCH_LUST_PORT_2026_10_29.md).
+
+
 Сервер находится в `E:\servers_mew\skywars2_last`, исходники — в этой папке.
 Структура классов и решения переноса описаны в [ARCHITECTURE.md](ARCHITECTURE.md).
 Исходное поведение описано в `agent_notes`; пометки `(user)` имеют приоритет.

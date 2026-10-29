@@ -1,3 +1,21 @@
+## Active Lust - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Source decisions and exact native proof](agent_notes/WITCH_LUST_PORT_2026_10_29.md).
+(user) Ordinary grounded Flesh ONLY swaps; airborne ONLY creates dragon.
+(user) Antimagic ENDS an active dragon transformation; TECH does not.
+Actual raw mode3 acquisition/Flesh leaf, GLOBAL native swap with both velocities,
+shared two-pass HP theft, original90 native factories/20 draws, native20HP dragon
+look/parts/rider hiding/self-contact/current-holder control and accepted child
+cause are staged. Existing cooldown/TimeStop/death/visibility/control owners reused.
+68f6f7f1 passed12 gameplay suites/one actualmode1 match97.64s;11047 frozen inputs/
+5237 packaged entries. One earlier order-dependent Indolence test failure remains
+archived; isolated, Envy-adjacent and final combined controls passed unchanged.
+199 author paths/31 overrides/main d9087f0a unchanged; normalchildshutdown/exact
+snapshots/no locks. Existing author RP model/keys reused, no new template assets.
+Full original25 Chaos gate CLOSED; no maininstall/restart/push/questionfileedit.
+Next: FULL Vanity world/all-player/core rewind and authority offline reconciliation.
+Optional swap-target antimagic question sent in CHAT; source policy kept meanwhile.
+
 ## Witch acquisition - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Source rules and exact native proof](agent_notes/WITCH_ACQUISITION_PORT_2026_10_29.md).
