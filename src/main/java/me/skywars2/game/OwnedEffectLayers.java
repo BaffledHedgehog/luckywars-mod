@@ -73,6 +73,25 @@ public final class OwnedEffectLayers {
     }
     public void forget(LivingEntity target) { targets.remove(target); }
 
+    /** Non-destructive value image; leases must survive replacement player objects. */
+    Object checkpoint(LivingEntity target) { return copyLayers(targets.get(target)); }
+    @SuppressWarnings("unchecked") void restoreCheckpoint(LivingEntity target,Object image) {
+        targets.remove(target);
+        if(image!=null)targets.put(target,copyLayers((Map<Holder<MobEffect>,Map<Integer,Layer>>)image));
+    }
+    private static Map<Holder<MobEffect>,Map<Integer,Layer>> copyLayers(Map<Holder<MobEffect>,Map<Integer,Layer>> source) {
+        if(source==null)return null;
+        var result=new HashMap<Holder<MobEffect>,Map<Integer,Layer>>();
+        source.forEach((type,levels)->{
+            var saved=new HashMap<Integer,Layer>();
+            levels.forEach((amplifier,layer)->{
+                var copy=new Layer();copy.baseline=layer.baseline==null?null:EffectLayers.copy(layer.baseline);
+                layer.owners.forEach((owner,effect)->copy.owners.put(owner,EffectLayers.copy(effect)));
+                saved.put(amplifier,copy);
+            });result.put(type,saved);
+        });return result;
+    }
+
     public void stop() {
         for (var target : new IdentityHashMap<>(targets).keySet()) {
             var types = targets.get(target);

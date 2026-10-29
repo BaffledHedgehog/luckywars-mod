@@ -673,6 +673,7 @@ public final class GameController {
     }
 
     public void respawned(ServerPlayer player) {
+        if(MatchPlayerCheckpoint.restoring(player))return;
         items.witchClaims().reconcile(player);
         attributeHud.clear(player);
         Participant p = participants.get(player.getUUID());

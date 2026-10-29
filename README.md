@@ -1,3 +1,21 @@
+## Vanity player checkpoint - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, limitations and exact native proof](agent_notes/VANITY_PLAYER_CHECKPOINT_2026_10_30.md).
+Native player NBT plus transient attributes/runtime, raw motion/head/known input,
+all metadata, inventory/ender/craft/cursor/components, signed hidden effects and
+independent owned leases/shadow HP, native recipes/cooldowns/stats/advancements.
+Real checkpoint-driven native respawn; repeated real-tick and reconnect replay;
+progress restores without replaying rewards. Personal menus only; full owner
+must snapshot/close other containers before this phase. No automatic offline hook.
+55cec70b passed9 gameplay suites/one actualmode1 match;runner56.80s;11103 frozen
+inputs/5276 packagedentries/34source receipts.199 authorpaths/31overrides/main
+d9087f0a unchanged;normalchildexit/exactsnapshots/no locks. No RP/template/question
+file edits/maininstall/restart/push. Full original25 gate CLOSED; Vanity stays gated.
+Next: full input/writer and lifecycle coordinator, actor identities/references/
+cameras/containers, private ability queues/counters, world/map metadata/jobs/clocks,
+later-loaded chunks, pending offline-body replay and final persistence. This is
+not a complete body/world rollback; retain the existing terrain/core/body owners.
+
 ## Vanity core checkpoint - NATIVE COMPONENT, NOT RELEASED (29 October 2026)
 
 [Contract, boundaries and exact native proof](agent_notes/VANITY_CORE_CHECKPOINT_2026_10_29.md).
