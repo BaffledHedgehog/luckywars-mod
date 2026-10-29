@@ -1,3 +1,23 @@
+## FPV drone - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Implementation and exact proof](agent_notes/FPV_DRONE_PORT_2026_10_29.md).
+(user) FPV launches WITHOUT requiring a target. Body stays; Shift releases into
+straight flight;20HP shootdown explodes. Source fixed-point launch reference stays.
+Native actor/model,1block/tick, total3degree turn, shared native8 blast/cause,
+TECH/TimeStop/sealed-world gates, native remote tracking/body tickets are staged.
+Controller-only client seat preserves look input; common movement handler avoids
+competing stun cancellation. Visible/audible viewpoint changes only on attachment;
+native sounds/particles/explosion audiences and black-hole/nuclear nearest slots
+follow the camera. Body physics remains real; no spectator/fake server player.
+ce14cb5e passed6suites/1actualmode1match/31.05s;5792exactinputs (612Java/1768classes/
+3411resources/build.gradle),198authorpaths/31overrides/questionfile/main unchanged.
+Normalchildshutdown/exactsnapshots. No physicalclient/ping/replacement-login/
+chunk-unload roundtrip/peakTPS claim. Previous9suite stage is f94e5c58, not the same
+artifact. Full original25 Chaos release gate closed; main d9087f0a, no install.
+All supplied decisions are in AUTHOR_DECISIONS_2026_10_29.md; no new question is
+currently pending. Next: Witch acquisition/remaining authorities/actors and FULL
+Vanity world+all-player+core snapshot/rewind. Do not substitute NBT-only restore.
+
 ## Confirmed author corrections - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Decisions](agent_notes/AUTHOR_DECISIONS_2026_10_29.md) and

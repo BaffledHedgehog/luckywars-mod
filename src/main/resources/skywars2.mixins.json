@@ -2,6 +2,11 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "FpvDroneMixin$Connection",
+    "FpvDroneMixin$Chunks",
+    "FpvDroneMixin$Entities",
+    "FpvDroneMixin$Sounds",
+    "FpvDroneMixin$Effects",
     "WitchStatisticsMixin",
     "TeleportMomentumMixin$Connection",
     "TeleportMomentumMixin$Pose",

@@ -20,6 +20,8 @@ controller body stays put, no item use during control, explosion restores camera
 Drone has20 HP, explodes when shot down, spawns further/higher. Singular lightning
 item produces exactly one bolt.
 
+(user) FPV launches WITHOUT requiring a target.
+
 ## Food
 
 (user) Time Stop pauses all food/status clocks. Shifting and confusion spike

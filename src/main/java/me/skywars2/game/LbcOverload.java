@@ -246,21 +246,28 @@ public final class LbcOverload {
     static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,float volume,float pitch,double radius,float minVolume) {
         sound(level,position,id,volume,pitch,radius,minVolume,level.getRandom().nextLong());
     }
+    static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,SoundSource category,float volume,float pitch,double radius,float minVolume) {
+        sound(level,position,id,volume,pitch,radius,minVolume,level.getRandom().nextLong(),category);
+    }
     private static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,float volume,float pitch,double radius,float minVolume,long seed) {
+        sound(level,position,id,volume,pitch,radius,minVolume,seed,SoundSource.MASTER);
+    }
+    private static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,float volume,float pitch,double radius,float minVolume,long seed,SoundSource category) {
         var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id)));
         double range=sound.value().getRange(volume);
         double rangeSquared=range*range;
         for(var viewer:level.getServer().getPlayerList().getPlayers()) {
             if(viewer.level()!=level) continue;
-            double distanceSquared=viewer.position().distanceToSqr(position);
+            var viewpoint=LbcFpvDrone.viewpoint(viewer);
+            double distanceSquared=viewpoint.distanceToSqr(position);
             if(radius>0 && distanceSquared>radius*radius) continue;
             Vec3 heardAt=position; float heardVolume=volume;
             if(distanceSquared>rangeSquared) {
                 if(minVolume<=0) continue;
-                heardAt=viewer.position().add(position.subtract(viewer.position()).normalize().scale(2));
+                heardAt=viewpoint.add(position.subtract(viewpoint).normalize().scale(2));
                 heardVolume=minVolume;
             }
-                viewer.connection.send(new ClientboundSoundPacket(sound,SoundSource.MASTER,
+                viewer.connection.send(new ClientboundSoundPacket(sound,category,
                         heardAt.x,heardAt.y,heardAt.z,heardVolume,pitch,seed));
         }
     }

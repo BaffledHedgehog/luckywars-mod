@@ -806,6 +806,7 @@ public final class GameChecks {
                                 case "sauvojen-boss" -> { SauvojenBossChecks.run(game); return; }
                                 case "hostile-electro" -> { HostileElectroChecks.run(game); return; }
                                 case "raw-raycast-spells" -> { RawRaycastSpellChecks.run(game); return; }
+                                case "fpv-drone" -> { FpvDroneChecks.start(game); return; }
                                 case "reward-tools" -> { RewardToolChecks.start(game); return; }
                                 case "magic-bean" -> { MagicBeanChecks.run(game); return; }
                                 case "attribute-food" -> { AttributeFoodChecks.start(game); return; }
@@ -1366,7 +1367,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
-            RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);
+            RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
             NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);

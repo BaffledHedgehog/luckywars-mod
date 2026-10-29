@@ -113,10 +113,11 @@ public final class BlackHoleVisuals {
     }
     private List<Handle> nearest(ServerPlayer viewer) {
         var result=new ArrayList<Handle>(SLOTS);
+        var viewpoint=LbcFpvDrone.viewpoint(viewer);
         for(var hole:holes) {
             if(hole.level!=viewer.level()) continue;
-            double distance=viewer.position().distanceToSqr(hole.point); int at=0;
-            while(at<result.size() && viewer.position().distanceToSqr(result.get(at).point)<=distance) at++;
+            double distance=viewpoint.distanceToSqr(hole.point); int at=0;
+            while(at<result.size() && viewpoint.distanceToSqr(result.get(at).point)<=distance) at++;
             if(at<SLOTS) { result.add(at,hole); if(result.size()>SLOTS) result.removeLast(); }
         }
         return result;

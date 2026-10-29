@@ -158,7 +158,7 @@ public final class NuclearVisuals {
 
     private List<Effect> nearest(ServerPlayer player) {
         var best=new ArrayList<Effect>(SLOT_COUNT);
-        var position=player.position();
+        var position=LbcFpvDrone.viewpoint(player);
         for(var effect:effects) {
             if(player.level()!=effect.level) continue;
             double distance=position.distanceToSqr(effect.origin);
