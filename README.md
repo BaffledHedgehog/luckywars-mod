@@ -1,3 +1,22 @@
+## Vanity actor checkpoint - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, limitations and exact native proof](agent_notes/VANITY_ACTOR_CHECKPOINT_2026_10_30.md).
+All registered native sections, including HIDDEN actors; original object/UUID/ID
+bodies return after real death/native dimension replacement. Player/mob native
+NBT/attributes/metadata/runtime now share MatchEntityState/MatchEntityRuntime.
+Separate owner/target/leash/fence-knot/ordered-rider UUID phase binds actual current
+player bodies; explicit pending offline links and repeated genuine reconnect proof.
+Native managers/trackers retained; no replayed mod factories or death-effect drops.
+ebed6639 passed13 gameplay suites/one actualmode1 match;runner61.18s;11119 frozen
+inputs/5288 packagedentries/37source receipts.199 authorpaths/31overrides/main
+d9087f0a unchanged;normalchildexit/exactsnapshots/no locks. No RP/template/question
+file edits/maininstall/restart/push. Full original25 gate CLOSED; Vanity stays gated.
+Next: private AI/ability/attribution state, native player/combat/multipart/camera/
+container references and TimeStop owner; input/writer/lifecycle transaction, pending
+loads/entity region IO, world/map clocks/jobs and automatic offline replay/persistence.
+Same object identity does NOT restore arbitrary mutable subclass fields. Preserve
+existing terrain/core/player/actor owners; this is NOT the complete rewind.
+
 ## Vanity player checkpoint - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, limitations and exact native proof](agent_notes/VANITY_PLAYER_CHECKPOINT_2026_10_30.md).
