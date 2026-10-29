@@ -173,6 +173,14 @@ public final class LbcPsycho {
         return switch(name) { case "scared"->effect.scared; case "lookback"->effect.lookback;
             case "twitching"->effect.twitching; case "piss"->effect.piss; default->0; };
     }
+    /** Reduction of a source counter preserves attribution, other afflictions and forced-use phase. */
+    void reduceSourceStatus(ServerPlayer player,String name,int value) {
+        if(value<=0){clearStatus(player,name);game.items().mana().score(player,name).set(value);return;}
+        var effect=effects.get(player);
+        if(effect!=null)switch(name){case "scared"->effect.scared=value;case "lookback"->effect.lookback=value;
+            case "twitching"->effect.twitching=value;default->throw new IllegalArgumentException(name);}
+        game.items().mana().score(player,name).set(value);
+    }
     /** A random cleanse removes one owned status without releasing unrelated effects or manual item use. */
     void clearStatus(LivingEntity entity,String name) {
         if(!name.equals("lookback")&&!name.equals("piss")&&!name.equals("scared")&&!name.equals("twitching"))return;

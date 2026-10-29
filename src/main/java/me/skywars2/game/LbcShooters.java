@@ -137,7 +137,7 @@ public final class LbcShooters {
     private static final class Burst {
         final ServerPlayer owner;
         final boolean best;
-        int volleys = 6, delay = 2;
+        int counter = 20, delay = 2;
         Burst(ServerPlayer owner, boolean best) { this.owner = owner; this.best = best; }
     }
     private static final class PhantomBurst {
@@ -471,6 +471,23 @@ public final class LbcShooters {
         return stack.is(KFC_GUN) || data!=null && data.matchedBy(KFC_FLAG);
     }
     int kfcCooldownRemaining(ServerPlayer owner) { return kfcCooldowns.getOrDefault(owner.getUUID(),0); }
+    /** Existing burst clocks are source-owned; reducing them must not restart a paid queue. */
+    int sourceCounter(ServerPlayer owner,String name) {return switch(name){
+        case "coldown13"->phantomCooldownRemaining(owner);case "coldown17"->kfcCooldownRemaining(owner);
+        case "coldown25"->helicopterCooldownRemaining(owner);case "coldownMagnum"->cooldownRemaining(owner);
+        case "coldown18","coldown18b"->{var burst=bursts.get(owner.getUUID());
+            yield burst!=null&&burst.best==name.equals("coldown18b")?burst.counter:-4;}
+        default->throw new IllegalArgumentException(name);
+    };}
+    void reduceSourceCounter(ServerPlayer owner,String name,int value) {switch(name){
+        case "coldown13"->{var burst=phantomBursts.get(owner.getUUID());if(burst!=null)burst.cooldown=value;}
+        case "coldown17"->{if(value<=0)kfcCooldowns.remove(owner.getUUID());else kfcCooldowns.put(owner.getUUID(),value);}
+        case "coldown25"->{var burst=helicopterBursts.get(owner.getUUID());if(burst!=null)burst.remaining=value;}
+        case "coldownMagnum"->setCooldown(owner,value);
+        case "coldown18","coldown18b"->{var burst=bursts.get(owner.getUUID());if(burst!=null&&burst.best==name.equals("coldown18b")){
+            if(value < -2)bursts.remove(owner.getUUID());else burst.counter=value;}}
+        default->throw new IllegalArgumentException(name);
+    }}
     int chickenCount() { return chickens.size(); }
     /** KFC's player-counter outcome extends actual Java timers as well as its legacy ledger. */
     void addPlayerCounters(ServerPlayer player) {
@@ -485,7 +502,7 @@ public final class LbcShooters {
         kfcCooldowns.merge(player.getUUID(),1,Integer::sum);
         slrCooldowns.merge(player.getUUID(),1,Integer::sum);
         var burst=bursts.get(player.getUUID());
-        if(burst!=null) { burst.delay++; burst.volleys++; }
+        if(burst!=null) { burst.delay++; burst.counter++; }
         var phantom=phantomBursts.get(player.getUUID());
         if(phantom==null) {
             phantom=new PhantomBurst(player); phantom.cooldown=-19;
@@ -842,7 +859,7 @@ public final class LbcShooters {
                 // (user) Два хвоемёта удваивают очередь без второго расхода боеприпаса.
                 for (int hand = 0, held = hands(owner); hand < held; hand++) volley(owner, burst.best);
             }
-            if (--burst.volleys == 0) bursts.remove(owner.getUUID());
+            burst.counter-=4; if (burst.counter < -2) bursts.remove(owner.getUUID());
         }
     }
     void tickPhantomBursts() {

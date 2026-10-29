@@ -33,6 +33,12 @@ public final class LbcReactive {
         mana.score(WALL_COST,"lbc.math").set(500);
     }
     void setShishCounter(ServerPlayer player,int value){cooldowns.put(player,Math.max(0,value)*5);mana.score(player,"coldownshish").set(value);}
+    void reduceSourceCooldown(ServerPlayer player,int value) {
+        int ticks=cooldownTicks(player),current=(int)(((long)ticks+4)/5);
+        int remaining=(int)Math.max(0,(long)ticks-((long)current-value)*5);
+        if(remaining==0)cooldowns.remove(player);else cooldowns.put(player,remaining);
+        mana.score(player,"coldownshish").set(value);
+    }
     private boolean valid(ServerPlayer player) { return mana.visible(player) && game.items().wands().validTarget(player); }
     private boolean admitted(ServerPlayer player) {
         return valid(player) && !game.items().actionsBlocked(player)

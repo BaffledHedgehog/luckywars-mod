@@ -1,3 +1,24 @@
+## Witch Envy - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Source counter owners and exact native proof](agent_notes/WITCH_ENVY_PORT_2026_10_29.md).
+Envy copies original19MAX/16MIN through live native owners (no second ledger),
+only empty source inventory/equipment slots, original29 source-second effect rules.
+Unbounded native @p is GLOBAL across player dimensions; earlier local shorthand
+was wrong. Actual native cross-dimension fixture confirms literal source selector.
+Pine retains source20/-4 counter in existing paid queue; KFC adds1, Envy reduces
+without replay/refund. Old physical-arrow ally assertions and Pine subfixture
+isolation corrected; observer guards retained. No gameplay friendship rollback.
+Candidate69b0bca4 passed10gameplay+5setup/1actualmode1match/30.99s;604sources/
+1745classes/3411resources+build.gradle5761 exact.198authorpaths/31overrides/main
+unchanged; normalownedchildshutdown/exactsnapshots;666 normalized diagnostics
+identical to c9e0794d. Rejected proofs retained. No client/network/peakTPS claim.
+(user) Aimbob active helmet abilities TECH-only, already in LbcAimbobRewards.
+(user) Full original25 Chaos pool; release only after COMPLETE transitive chain.
+No acquisition/remaining authorities/actors/full Witch qualification; main d9087f0a.
+No staged install. Unanswered suppression/source-second pause questions remain
+in PENDING_QUESTIONS; no chat questions while user sleeps. Keep goal active.
+Next: remaining Witch acquisition/authorities/actors and full original reward chain.
+
 ## Witch authority passives - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Source behavior, shared-state repair and exact native proof](agent_notes/WITCH_PASSIVES_PORT_2026_10_29.md).

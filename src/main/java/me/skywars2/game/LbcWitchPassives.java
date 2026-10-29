@@ -15,6 +15,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
@@ -28,11 +29,36 @@ public final class LbcWitchPassives {
             MobEffects.MINING_FATIGUE,MobEffects.NAUSEA,MobEffects.POISON,MobEffects.SLOW_FALLING,
             MobEffects.SLOWNESS,MobEffects.UNLUCK,MobEffects.WATER_BREATHING,MobEffects.WEAKNESS,MobEffects.WITHER);
     private final GameController game;
+    private final LbcSourceCounters counters;
+    private static final List<String> ENVY_MAX=List.of("mana","manamax","manaregen","nitro","reactivefuel",
+            "swordcharged1","swordcharged2","swordcharged3","swordcharged4","swordcharged5","swordcharged6",
+            "swordcharging1","swordcharging2","swordcharging3","swordcharging4","swordcharging5","swordcharging6","swordcharging7");
+    private static final List<String> ENVY_MIN=List.of("twitching","scared","shock","coldown1","coldown13",
+            "coldown16","coldown17","coldown18","coldown18b","coldown25","coldown8","coldownhohol",
+            "coldownshish","divider_cd","lookback","coldownMagnum");
+    private record EnvyEffect(Holder<MobEffect> effect,int duration,int amplifier,boolean visible){}
+    // A negative duration denotes the source's clear-unless-donor-has branch, not a negative effect.
+    private static final List<EnvyEffect> ENVY_EFFECTS=List.of(
+            new EnvyEffect(MobEffects.SPEED,40,2,true),new EnvyEffect(MobEffects.SLOWNESS,-1,0,true),
+            new EnvyEffect(MobEffects.HASTE,40,127,true),new EnvyEffect(MobEffects.MINING_FATIGUE,-1,0,true),
+            new EnvyEffect(MobEffects.STRENGTH,40,9,true),new EnvyEffect(MobEffects.INSTANT_HEALTH,2,99,true),
+            new EnvyEffect(MobEffects.INSTANT_DAMAGE,-1,0,true),new EnvyEffect(MobEffects.JUMP_BOOST,40,2,true),
+            new EnvyEffect(MobEffects.NAUSEA,-1,0,true),new EnvyEffect(MobEffects.REGENERATION,40,20,true),
+            new EnvyEffect(MobEffects.RESISTANCE,40,4,true),new EnvyEffect(MobEffects.FIRE_RESISTANCE,40,0,true),
+            new EnvyEffect(MobEffects.WATER_BREATHING,-1,0,true),new EnvyEffect(MobEffects.INVISIBILITY,40,1,false),
+            new EnvyEffect(MobEffects.BLINDNESS,-1,0,true),new EnvyEffect(MobEffects.NIGHT_VISION,500,0,true),
+            new EnvyEffect(MobEffects.HUNGER,-1,0,true),new EnvyEffect(MobEffects.WEAKNESS,-1,0,true),
+            new EnvyEffect(MobEffects.POISON,-1,0,true),new EnvyEffect(MobEffects.WITHER,-1,0,true),
+            new EnvyEffect(MobEffects.HEALTH_BOOST,40,9,true),new EnvyEffect(MobEffects.ABSORPTION,40,9,true),
+            new EnvyEffect(MobEffects.SATURATION,2,100,true),new EnvyEffect(MobEffects.GLOWING,-1,0,true),
+            new EnvyEffect(MobEffects.LUCK,40,9,true),new EnvyEffect(MobEffects.UNLUCK,-1,0,true),
+            new EnvyEffect(MobEffects.SLOW_FALLING,40,0,true),new EnvyEffect(MobEffects.CONDUIT_POWER,40,2,true),
+            new EnvyEffect(MobEffects.DARKNESS,-1,0,true));
     private final Map<String,EntitySelector> selectors=new HashMap<>();
     private final Set<ServerPlayer> managed=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<Entity,String> hearted=new WeakHashMap<>();
     private int lastTick=Integer.MIN_VALUE;
-    public LbcWitchPassives(GameController game){this.game=game;}
+    public LbcWitchPassives(GameController game){this.game=game;this.counters=new LbcSourceCounters(game);}
     private boolean eligible(ServerPlayer p){return game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&p.isAlive()&&!p.isRemoved()&&!game.isObserver(p)&&game.canUseGameplayItems(p)
             &&LbcDimensionItems.ordinary(p)&&game.items().wands().validRoleTarget(p,false);}
@@ -66,7 +92,35 @@ public final class LbcWitchPassives {
                 if(!p.onGround()&&game.items().mana().hudValue(p,"falltimer")>=10&&!magicBeacon(p))
                     p.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,20,0,false,false),p);
             }
+            if(p.entityTags().contains("sin_envy"))envy(p,now%20==0);
             if(now%20==0){drainExisting(p,"lust_cd");drainExisting(p,"lust_cd_small");}
+        }
+    }
+    private void envy(ServerPlayer player,boolean second){
+        // Unbounded native @p searches loaded player dimensions; preserve the exact source selector.
+        var donors=select(player,"@p[gamemode=!spectator,tag=!sin_envy]");
+        if(donors.isEmpty())return;var donor=(ServerPlayer)donors.getFirst();
+        for(var name:ENVY_MAX)counters.copyBetter(player,donor,name,true);
+        for(var name:ENVY_MIN)counters.copyBetter(player,donor,name,false);
+        boolean changed=false;
+        // Source inventory.0..26 precedes hotbar.0..8. Equipment is copied only into empty slots too.
+        for(int step=0;step<36;step++){
+            int slot=(step+9)%36;var item=donor.getInventory().getItem(slot);
+            if(player.getInventory().getItem(slot).isEmpty()&&!item.isEmpty()){
+                player.getInventory().setItem(slot,item.copy());changed=true;
+            }
+        }
+        for(var slot:List.of(EquipmentSlot.OFFHAND,EquipmentSlot.FEET,EquipmentSlot.LEGS,EquipmentSlot.CHEST,EquipmentSlot.HEAD)){
+            var item=donor.getItemBySlot(slot);
+            if(player.getItemBySlot(slot).isEmpty()&&!item.isEmpty()){
+                player.setItemSlot(slot,item.copy());changed=true;
+            }
+        }
+        if(changed){player.getInventory().setChanged();game.items().magic().inventoryChanged(player);player.inventoryMenu.broadcastChanges();}
+        if(second)for(var rule:ENVY_EFFECTS){
+            boolean present=donor.hasEffect(rule.effect);
+            if(rule.duration<0){if(!present)player.removeEffect(rule.effect);}
+            else if(present)player.addEffect(ItemEffectLevels.create(rule.effect,rule.duration,rule.amplifier,false,rule.visible),player);
         }
     }
     private boolean magicBeacon(ServerPlayer p){return p.level()==game.maps().level()&&game.items().magic().beaconSuppressed(p.position());}

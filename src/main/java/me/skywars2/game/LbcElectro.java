@@ -568,6 +568,16 @@ public final class LbcElectro {
         return null;
     }
 
+    /** Source score consumers alter the existing charge object, never its sibling counter. */
+    void sourceCharge(ServerPlayer player,boolean yellow,boolean progress,int value) {
+        var state=(yellow?yellowCharges:charges).computeIfAbsent(player.getUUID(),ignored->new Charge());
+        if(progress)state.hits=value;else state.charges=value;
+    }
+    void sourceShock(ServerPlayer player,int value) {
+        game.items().mana().score(player,"shock").set(value);
+        var state=shocks.get(player);
+        if(value<=0)shocks.remove(player);else if(state!=null)state.pulses=value;
+    }
     public int charges(ServerPlayer player) {
         Charge state = charges.get(player.getUUID()); return state == null ? 0 : state.charges;
     }

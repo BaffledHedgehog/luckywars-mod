@@ -814,6 +814,7 @@ public final class GameChecks {
                                 case "food-lifecycle" -> { FoodLifecycleChecks.run(game); return; }
                                 case "oreshek" -> { OreshekChecks.run(game); return; }
                                 case "witch-passives" -> { WitchPassiveChecks.run(game); return; }
+                                case "witch-envy" -> { WitchEnvyChecks.run(game); return; }
                                 case "apocalypse-actors" -> { ApocalypseActorChecks.run(game); return; }
                                 case "apocalypse-events" -> { ApocalypseEventChecks.run(game); return; }
                                 case "shish-encounters" -> { ShishEncounterChecks.run(game); return; }
@@ -1366,7 +1367,7 @@ public final class GameChecks {
             RawRaycastSpellChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
-            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);
+            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);
@@ -17490,8 +17491,8 @@ public final class GameChecks {
                         board.addPlayerToTeam(owner.getScoreboardName(),team); board.addPlayerToTeam(ally.getScoreboardName(),team);
                         ally.teleportTo(level,12.5,282,53.5,java.util.Set.of(),0,0,true); ally.setNoGravity(true);
                         float health=ally.getHealth(); guarded.setPos(12.5,ally.getY()+.6,50.5); guarded.setDeltaMovement(0,0,5); guarded.setNoGravity(true);
-                        require(!shooters.canHit(guarded,ally),"Knife shared target guard excludes teammate"); guarded.tick();
-                        require(ally.getHealth()==health,"Actual native knife collision preserves teammate health");
+                        require(shooters.canHit(guarded,ally),"Physical knife admits teammate under shared WILD policy"); guarded.tick();
+                        require(ally.getHealth()<health,"Actual native WILD knife collision damages teammate");
                         board.removePlayerFromTeam(ally.getScoreboardName()); game.spectators().enter(ally);
                         var observerArrow=arrows.getLast();
                         require(!shooters.canHit(observerArrow,ally),"Knife target guard excludes Adventure observer");
@@ -17776,8 +17777,8 @@ public final class GameChecks {
                         if (oldAllyTeam != null) board.removePlayerFromTeam(ally.getScoreboardName());
                         board.addPlayerToTeam(player.getScoreboardName(), pineTeam);
                         board.addPlayerToTeam(ally.getScoreboardName(), pineTeam);
-                        require(!shooters.canHit(collisionArrow, ally),
-                                        "Pinegun arrow cannot hit a teammate under the shared wand target filter");
+                        require(shooters.canHit(collisionArrow, ally),
+                                        "Physical Pinegun arrow admits teammate under shared WILD policy");
                         board.removePlayerFromTeam(ally.getScoreboardName());
                         if (oldAllyTeam != null) board.addPlayerToTeam(ally.getScoreboardName(), oldAllyTeam);
                         game.spectators().enter(ally); enteredAllyObserver = true;
@@ -17896,7 +17897,7 @@ public final class GameChecks {
                         game.items().frost().clear(player);
                         var fresh = new java.util.ArrayList<net.minecraft.world.entity.Entity>();
                         for (var entity : level.getAllEntities()) if (!initial.contains(entity)) fresh.add(entity);
-                        fresh.forEach(net.minecraft.world.entity.Entity::discard);
+                        fresh.forEach(entity -> { game.items().entityUnloaded(entity); entity.discard(); });
                         targets.forEach(net.minecraft.world.entity.Entity::discard);
                         if (pineWallPos != null) level.setBlockAndUpdate(pineWallPos, pineWallState);
                         playerState.restore(game); allyState.restore(game);
@@ -17916,6 +17917,7 @@ public final class GameChecks {
                         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, gun.copy());
                         player.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, gun.copy());
                         player.getInventory().setItem(9, new ItemStack(Items.WHEAT_SEEDS, 2));
+                        int pairedArrowBase=shooters.arrowCount();
                         player.connection.handlePunch(net.minecraft.network.protocol.game.ServerboundPunchPacket.INSTANCE);
                         require(shooters.burstCount() == 0 && player.getInventory().getItem(9).getCount() == 2,
                                         "Left click cannot fire Pineguns held in both hands");
@@ -17923,12 +17925,12 @@ public final class GameChecks {
                         require(shooters.burstCount() == 1 && player.getInventory().getItem(9).getCount() == 1,
                                         "A native right click starts a paired normal burst for one ammo");
                         for (int i = 0; i < 12; i++) shooters.tick();
-                        require(shooters.burstCount() == 0 && shooters.arrowCount() == 36,
-                                        "Two held Pineguns also double the complete normal burst to thirty-six arrows");
+                        require(shooters.burstCount() == 0 && shooters.arrowCount() == pairedArrowBase+36,
+                                        "Two held Pineguns also double the complete normal burst to thirty-six arrows: bursts="+shooters.burstCount()+", arrows="+shooters.arrowCount());
                         pineUsePacket(player, net.minecraft.world.InteractionHand.MAIN_HAND);
                         shooters.tick(); shooters.tick();
-                        require(shooters.burstCount() == 1 && shooters.arrowCount() == 42,
-                                        "Stop fixture retains a real unfinished burst and forty-two native arrows");
+                        require(shooters.burstCount() == 1 && shooters.arrowCount() == pairedArrowBase+42,
+                                        "Stop fixture retains a real unfinished burst and forty-two additional native arrows");
                 } finally {
                         cleanupState.restore(game);
                         game.config().offhandWands = oldOffhand;

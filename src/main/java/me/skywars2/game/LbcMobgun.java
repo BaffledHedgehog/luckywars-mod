@@ -282,6 +282,9 @@ public final class LbcMobgun {
         }
     }
     public int cooldown(ServerPlayer owner) { return cooldowns.getOrDefault(owner.getUUID(),0); }
+    void sourceCooldown(ServerPlayer owner,int value) {
+        if(value<=0)cooldowns.remove(owner.getUUID());else cooldowns.put(owner.getUUID(),value);
+    }
     public void clearCooldown(ServerPlayer owner) { cooldowns.remove(owner.getUUID()); }
     public void addCounters(ServerPlayer owner) { cooldowns.merge(owner.getUUID(),1,Integer::sum); }
     public List<Entity> snapshot(ServerPlayer owner) {
