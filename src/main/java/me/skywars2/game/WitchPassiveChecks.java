@@ -106,7 +106,7 @@ public final class WitchPassiveChecks {
                     owner.setHealth(100);phase=1;at=now;return false;
                 }
                 case 1->{
-                    require(LbcGreed.active(owner)&&modifier()&&owner.getHealth()>100,"remote other-dimension heart activates native guard, modifiers and own healing: active="+LbcGreed.active(owner)+" modifier="+modifier()+" HP="+owner.getHealth()+" foreignRemoved="+foreign.isRemoved()+" foreignVisible="+(nether.getEntity(foreign.getUUID())==foreign)+" tags="+owner.entityTags());unchangedModifiers();
+                    require(LbcGreed.active(owner)&&modifier()&&owner.getHealth()==100&&!owner.hasEffect(MobEffects.INSTANT_HEALTH),"remote other-dimension heart activates guard/modifiers without healing: active="+LbcGreed.active(owner)+" modifier="+modifier()+" HP="+owner.getHealth()+" foreignRemoved="+foreign.isRemoved()+" foreignVisible="+(nether.getEntity(foreign.getUUID())==foreign)+" tags="+owner.entityTags());unchangedModifiers();
                     require(level.getBlockState(BlockPos.containing(origin)).isAir()&&level.getBlockState(BlockPos.containing(origin).above()).isAir(),"exact source .99..1.01 native destroy cells");
                     require(!owner.hasEffect(MobEffects.BLINDNESS)&&owner.hasEffect(MobEffects.SPEED)&&owner.hasEffect(MobEffects.LEVITATION),"source cleanse retains unlisted speed and shish21 levitation");
                     for(var key:List.of("lookback","scared","twitching","shock"))require(score(key)==0,"actual shared status owner cleared "+key);
@@ -145,7 +145,14 @@ public final class WitchPassiveChecks {
                     calls=random.calls;random.next(.3999f,.00015624f);phase=12;at=now;return false;}
                 case 12->{if(random.calls==calls){require(now-at<21,"second natural heartbeat deadline");return false;}
                     require(random.calls==calls+2&&nearby.entityTags().contains("sin_greed_have_heart")&&nearby.isPersistenceRequired()&&beta.entityTags().contains("sin_greed_have_heart"),"actual native independent mob40percent/player.015625percent heartbeat outputs and mob persistence");
-                    game.items().witchPassives().stop();require(!modifier()&&!LbcGreed.active(owner)&&!nearby.entityTags().contains("sin_greed_have_heart")&&!beta.entityTags().contains("sin_greed_have_heart")&&foreign.entityTags().contains("sin_greed_have_heart"),"owned cleanup preserves preexisting foreign anchor");return true;}
+                    game.items().witchPassives().stop();require(!modifier()&&!LbcGreed.active(owner)&&!nearby.entityTags().contains("sin_greed_have_heart")&&!beta.entityTags().contains("sin_greed_have_heart")&&foreign.entityTags().contains("sin_greed_have_heart"),"owned cleanup preserves preexisting foreign anchor");
+                    nearby.entityTags().add("sin_greed_have_heart");magic=beacon("stopper_magic");game.items().magic().loaded(magic);calls=random.calls;phase=13;at=now;return false;}
+                case 13->{require(LbcGreed.active(owner)&&modifier(),"suppressed holder keeps guard from remote unjammed heart");
+                    require(random.calls==calls,"antimagic prevents new implantation draws");if(now-at<21)return false;
+                    foreign.entityTags().remove("sin_greed_have_heart");phase=14;at=now;return false;}
+                case 14->{require(!LbcGreed.active(owner)&&!modifier()&&nearby.entityTags().contains("sin_greed_have_heart"),"jammed existing heart is retained but cannot activate guard");
+                    discard(magic);magic=null;phase=15;at=now;return false;}
+                case 15->{require(LbcGreed.active(owner)&&modifier(),"same retained heart reactivates after antimagic leaves");return true;}
                 default->throw new IllegalStateException("unknown native phase "+phase);
             }
         }
@@ -161,6 +168,6 @@ public final class WitchPassiveChecks {
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive native fixture");running=new Fixture(game);try{running.initialize();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}throw error;}SkyWars2.LOGGER.info("[check] START witch-passives (real server ticks, no acquisition/full-authority qualification)");}
     public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;
-        SkyWars2.LOGGER.info("[check] PASS witch-passives (native global foreign-world heart gate, own Greed heal/attributes/precise destroy/cleanse/shared status owners, actual TimeStop, native void rescue and velocity packet, Lust canonical fall/regen/jammers, real two-draw heartbeat boundaries/outputs/owned cleanup; no complete Witch acquisition/other authorities/client/network qualification)");
+        SkyWars2.LOGGER.info("[check] PASS witch-passives (native global foreign-world heart gate, Greed no-heal/attributes/precise destroy/cleanse/shared status owners, actual TimeStop, native void rescue and velocity packet, Lust canonical fall/regen/jammers, real two-draw heartbeat boundaries/outputs/owned cleanup; no complete Witch acquisition/other authorities/client/network qualification)");
     }catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL witch-passives",error);}}
 }

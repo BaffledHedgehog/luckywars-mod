@@ -37,9 +37,9 @@ public final class LbcOreshek {
             &&p.isAlive()&&!p.isRemoved()&&p.level()==game.maps().level()&&LbcDimensionItems.ordinary(p)
             &&game.canUseGameplayItems(p)&&!game.isObserver(p)&&game.items().wands().validRoleTarget(p,false)
             &&!game.items().wands().timeStopped()&&!game.items().wands().inputTimeStopped(p)&&!game.items().timeStop().stopped(p.level());}
-    /** Native consume owns the only item debit. A completed early-return root blocks later nut scripts until reset. */
+    /** Native consume owns the only debit. Notification state never blocks subsequent nuts. */
     public void consumed(ServerPlayer p,ItemStack stack){
-        if(!matches(stack)||!admitted(p)||pendingDeathMessage(p))return;
+        if(!matches(stack)||!admitted(p))return;
         // Source consume_item completes its hidden advancement BEFORE its reward runs, including a potentially lethal debuff.
         p.entityTags().add(LATCH);consumed++;last=Outcome.NONE;
         var level=p.level();var origin=p.position();var accepted=game.items().indirectKills().wildCause(p);

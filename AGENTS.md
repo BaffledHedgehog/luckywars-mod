@@ -1,3 +1,23 @@
+## Confirmed author corrections - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Decisions](agent_notes/AUTHOR_DECISIONS_2026_10_29.md) and
+[implementation/proof](agent_notes/AUTHOR_DECISIONS_PORT_2026_10_29.md).
+(user) New questions in CHAT; preserve in-flight PENDING_QUESTIONS edits.
+(user) Greed no heal; antimagic prevents new hearts and temporarily disables
+existing hearts inside, not the holder's active immunity itself. Envy MAG;
+Lust real melee targets incl sweeps, target MAG protection. Source-second pause.
+(user) FPV20HP drone, bounded steering/Shift release/body stays; full Vanity
+world+all-player+core rewind incl resurrect/offline pending/newcomer spectators.
+(user) Current authority holder owns actors/control; GLOBAL cantleave cleanup.
+Bean one moved completion, exact theft incl allied/mob hands+inventory and failed
+glove retention, brush and singular lightning, food/TimeStop/hand/Nexus/Oreshek,
+CyberShish counter and passive suppression changes are staged and native-tested.
+f94e5c58 passed9gameplay suites/1actualmode1match/42.77s;5776exact inputs,
+198authorpaths/31overrides/questionfile/main unchanged. Normalchildshutdown/
+exactsnapshots; retained rejected runs. No physicalclient/FPV/Vanity/fullWitch claim.
+Full original25 Chaos transitive release gate remains closed, main d9087f0a.
+Next: FPV, acquisition/remaining authorities/actors and full Vanity state owners.
+
 ## Witch progress and Lust melee - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Native statistic owners, source melee and exact proof](agent_notes/WITCH_STATISTICS_PORT_2026_10_29.md).

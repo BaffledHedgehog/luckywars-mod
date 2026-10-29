@@ -155,7 +155,11 @@ public final class AttributeFoodChecks {
             require(reversed,"independent native reversed range fails parsing");command("execute store result storage "+STORAGE+" tmp double .001 run scoreboard players get #attribute_food_control lbc.math");
             double failedRange=game.server().getCommandStorage().get(STORAGE).getDoubleOr("tmp",Double.NaN);
             try(var rng=new RandomScope(level,LbcAttributeFood.class.getName(),RandomSource.create(1),null,null)){
-                eat(raw("random_damage",1));near(attr("attack_damage").getBaseValue(),failedRange,"native failed macro range retains actual shared result");require(rng.ints==0,"invalid range has no substitute random draw");
+                eat(raw("random_damage",1));near(attr("attack_damage").getBaseValue(),-.25,"negative base never reuses the shared random result");require(rng.ints==0,"invalid range has no substitute random draw");
+            }
+            attr("attack_damage").setBaseValue(.0004);
+            try(var rng=new RandomScope(level,LbcAttributeFood.class.getName(),RandomSource.create(1),null,null)){
+                eat(raw("random_damage",1));near(attr("attack_damage").getBaseValue(),.001,"singleton random range yields one");require(rng.ints==0,"singleton needs no random draw");
             }
             attr("attack_damage").replaceFrom(attributes.getInstance(key("attack_damage")));p.removeAllEffects();
             var both=raw("armorattribute",1);var data=LbcFartus.data(both);data.putInt("luckattribute",1);both.set(DataComponents.CUSTOM_DATA,CustomData.of(data));attr("armor").setBaseValue(2);attr("luck").setBaseValue(3);eat(both);near(attr("armor").getBaseValue(),4,"independent armor flag");near(attr("luck").getBaseValue(),4,"independent simultaneous luck flag");
@@ -191,10 +195,11 @@ public final class AttributeFoodChecks {
             if(score("dimensional_shifting")>0)return false;
             require(random.floats==1&&random.ints==(phase==4?0:1),"actual source one-second chance draw and conditional one dispatch roll");
             if(phase==4){require(p.level()==level,"native false chance retains source world");begin(5);return false;}
-            require(p.level()==level&&p.position().distanceToSqr(origin)<.0000001,"real roll4 executes Overworld to Imprinted then original Overworld");
+            require(p.level().dimension().equals(LbcHedgehogDimensions.IMPRINTED),"roll4 makes exactly one Overworld to Imprinted transition");
             var packets=new ArrayList<net.minecraft.network.protocol.Packet<?>>();base.recording.packets.forEach(packet->flatten(packet,packets));long respawns=packets.stream().filter(ClientboundRespawnPacket.class::isInstance).count();
             var destinations=packets.stream().filter(ClientboundRespawnPacket.class::isInstance).map(ClientboundRespawnPacket.class::cast).map(packet->packet.commonPlayerSpawnInfo().dimension()).toList();int imprinted=destinations.indexOf(LbcHedgehogDimensions.IMPRINTED);
-            require(imprinted>=0&&destinations.subList(imprinted+1,destinations.size()).contains(Level.OVERWORLD),"actual ordered Imprinted then Overworld native transitions prove sequential dispatcher count="+respawns+" destinations="+destinations+" raw="+base.recording.packets.stream().map(packet->packet.getClass().getSimpleName()).toList()+" flattened="+packets.stream().map(packet->packet.getClass().getSimpleName()).toList());
+            require(imprinted>=0&&destinations.size()==1,"one native dimension transition, no recursive redispatch: "+destinations);
+            p.teleportTo(level,origin.x,origin.y,origin.z,Set.of(),0,0,true);ack();
             counters(3,4,5);game.items().foodStatuses().forget(p);for(var key:COUNTERS)require(score(key)==0,"source death/leave clear "+key);return true;
         }
         @SuppressWarnings("unchecked") @Override public void close(){
@@ -224,6 +229,6 @@ public final class AttributeFoodChecks {
     private static Fixture running;
     public static void start(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);}
     public static void run(GameController game){start(game);}
-    public static boolean tick(GameController game){if(running==null)return true;try{if(!running.step())return false;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS attribute-food (native consume single debit; eight original command quantization controls, three native RNG controls and negative shared result; actual status clocks/MAG TECH TimeStop/terrain/private particles; two native sequential dimension transitions; scoped restore)");return true;}catch(Throwable failure){try{running.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL attribute-food",failure);return true;}}
+    public static boolean tick(GameController game){if(running==null)return true;try{if(!running.step())return false;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS attribute-food (native consume single debit; eight original command quantization controls, three native RNG controls, unchanged negative bases and singleton range; actual status clocks/MAG TECH TimeStop/terrain/private particles; one native dimension transition; scoped restore)");return true;}catch(Throwable failure){try{running.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL attribute-food",failure);return true;}}
     public static void cancel(GameController game){if(running!=null){try{running.close();}finally{running=null;}}}
 }

@@ -106,10 +106,8 @@ public final class LbcFoodStatuses {
         if(random.nextFloat()<.05f){
             int roll=random.nextInt(4)+1;
             game.items().mana().score(ScoreHolder.forNameOnly("rand2"),"lbc.math").set(roll);
-            // The source's top dispatcher rechecks the executor after each preceding transition.
-            // Each actual transfer remains owned by the existing shared destination engine.
-            for(var origin:List.of(Level.OVERWORLD,Level.NETHER,Level.END,LbcHedgehogDimensions.IMPRINTED))
-                if(p.level().dimension().equals(origin))game.items().hedgehogDimensions().teleport(p,p,roll,random);
+            // Choose once against the original dimension; a transfer must never redispatch itself.
+            game.items().hedgehogDimensions().teleport(p,p,roll,random);
         }
         drain(p,"dimensional_shifting");
         game.items().mana().award(p,"lbc:true_advancements/potions/effect_shifting");

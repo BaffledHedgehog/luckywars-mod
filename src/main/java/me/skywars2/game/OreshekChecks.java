@@ -112,7 +112,7 @@ public final class OreshekChecks {
             require(service.consumedCount()==used+1&&service.lastOutcome()==LbcOreshek.Outcome.NONE&&!service.pendingDeathMessage(p)&&p.hasEffect(MobEffects.GLOWING),"actual fallthrough runs native debuff then revokes return latch");
             reset();try(var choices=new Choices(level,0)){eat();}
             require(service.lastOutcome()==LbcOreshek.Outcome.EXPLOSION&&service.pendingDeathMessage(p)&&service.explosionCount()>0&&p.getHealth()<1000&&p.isAlive(),"actual native15 explosion hurts author and preserves early-return latch");
-            long blocked=service.consumedCount();eat();require(service.consumedCount()==blocked&&service.pendingDeathMessage(p),"second actual consumed nut cannot rerun latched script");
+            long beforeAgain=service.consumedCount();try(var choices=new Choices(level,0)){eat();}require(service.consumedCount()==beforeAgain+1&&service.pendingDeathMessage(p),"a second actual consumed nut still runs after a special outcome");
             int messages=base.recording.packets.size();require(service.resetBoundary(p)&&!service.pendingDeathMessage(p)&&!service.resetBoundary(p),"native death/reset bridge is idempotent and clears latch");
             require(base.recording.packets.subList(messages,base.recording.packets.size()).stream().anyMatch(packet->packet instanceof ClientboundSystemChatPacket c&&c.content().getString().equals("\uE202")),"actual global U+E202 death/reset packet");
             reset();try(var choices=new Choices(level,.5f,0)){eat();}

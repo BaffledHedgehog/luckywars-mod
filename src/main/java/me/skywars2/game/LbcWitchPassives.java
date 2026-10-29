@@ -82,7 +82,8 @@ public final class LbcWitchPassives {
             if(p.entityTags().contains("sin_greed")){
                 managed.add(p);
                 // No distance/AABB in the source selector: this is one global loaded-entity gate.
-                if(heartExists==null)heartExists=!select(p,"@e[tag=sin_greed_have_heart,tag=!sin_greed,tag=!spectator]").isEmpty();
+                if(heartExists==null)heartExists=select(p,"@e[tag=sin_greed_have_heart,tag=!sin_greed,tag=!spectator]").stream()
+                        .anyMatch(e->!game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)e.level(),e.position()));
                 greed(p,heartExists);
                 if(now%20==0){hearts(p);heartExists=null;}
             }else if(managed.contains(p))removeAuthority(p);
@@ -97,6 +98,7 @@ public final class LbcWitchPassives {
         }
     }
     private void envy(ServerPlayer player,boolean second){
+        if(player.entityTags().contains("nomagic_active")||game.items().magic().suppressed(player))return;
         // Unbounded native @p searches loaded player dimensions; preserve the exact source selector.
         var donors=select(player,"@p[gamemode=!spectator,tag=!sin_envy]");
         if(donors.isEmpty())return;var donor=(ServerPlayer)donors.getFirst();
@@ -129,9 +131,8 @@ public final class LbcWitchPassives {
         if(!(source.getEntity() instanceof ServerPlayer player)||!LbcDamage.isMeleeAttack(source,player)
                 ||!eligible(player)||paused(player)||!player.entityTags().contains("sin_lust")
                 ||player.entityTags().contains("nomagic_active")||game.items().magic().suppressed(player)
-                ||!game.items().wands().target(player,victim)||victim.entityTags().contains("lust_dragon"))return;
-        double distance=player.position().distanceToSqr(victim.position());
-        if(distance<.0001||distance>36)return;
+                ||!game.items().wands().target(player,victim)||victim.entityTags().contains("lust_dragon")
+                ||game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)victim.level(),victim.position()))return;
         transferHealth(player,victim,2);
     }
     /** Shared by Lust melee and its flesh spell. Source integer base arithmetic does not heal the wearer. */
@@ -156,10 +157,6 @@ public final class LbcWitchPassives {
         if(!active){p.entityTags().remove("sin_greed_active");removeModifiers(p);return;}
         p.entityTags().add("sin_greed_active");
         p.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,40,4,false,false),p);
-        p.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,2,4,false,false),p);
-        // The shared absolute guard rejects anonymous periodic instant ticks. This is the authority's
-        // own one-tick pulse, using the native instantaneous entry and its existing self-source rule.
-        MobEffects.INSTANT_HEALTH.value().applyInstantaneousEffect(p.level(),p,p,p,4,1);
         modifier(p,Attributes.ATTACK_DAMAGE,10);modifier(p,Attributes.KNOCKBACK_RESISTANCE,10000);
         var first=BlockPos.containing(p.position().add(0,.99,0));var last=BlockPos.containing(p.position().add(0,1.01,0));
         game.items().indirectKills().worldChanges(p.level(),p,true,()->{
@@ -181,6 +178,7 @@ public final class LbcWitchPassives {
     }
     /** Source first-target selection and two independent draws, not a random choice of nearby targets. */
     private void hearts(ServerPlayer p){
+        if(p.entityTags().contains("nomagic_active")||game.items().magic().suppressed(p))return;
         if(select(p,"@e[type=#minecraft:mobs,distance=..5,tag=!spectator]").isEmpty())return;
         var mobs=select(p,"@e[type=#minecraft:mobs,type=!minecraft:player,distance=..5,tag=!sin_greed_have_heart,limit=1]");
         if(!mobs.isEmpty()&&p.level().getRandom().nextFloat()<.4f)heart(mobs.getFirst());
@@ -193,6 +191,7 @@ public final class LbcWitchPassives {
     }
     private void heart(Entity entity){
         var level=(net.minecraft.server.level.ServerLevel)entity.level();
+        if(game.items().magic().suppressedAt(level,entity.position()))return;
         level.sendParticles(ParticleTypes.HEART,entity.getX(),entity.getY()+1,entity.getZ(),10,.3,.6,.3,0);
         LbcOverload.sound(level,entity.position(),"minecraft:block.enchantment_table.use",1,1,0,0);
         level.sendParticles(ParticleTypes.SOUL,entity.getX(),entity.getY()+1,entity.getZ(),20,.3,.6,.3,0);

@@ -59,7 +59,7 @@ public final class LbcExasperato {
         final boolean technology;
         final java.util.function.Predicate<Entity> target;
         java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blockRule;
-        boolean shieldBlockable=true;
+        boolean shieldBlockable=true,finishAtRange;
         final java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> result=new java.util.concurrent.CompletableFuture<>();
         final java.util.function.BiConsumer<Vec3,Vec3> trail;
         Search(ServerPlayer owner,String epoch,Vec3 from,Vec3 direction,double remaining,boolean walls,
@@ -301,6 +301,13 @@ public final class LbcExasperato {
             Vec3 from,Vec3 direction,double range,boolean blocksOnly,
             java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,
             java.util.function.Predicate<Entity> targets,java.util.function.BiConsumer<Vec3,Vec3> trail){
+        return searchTool(owner,from,direction,range,blocksOnly,blocks,targets,trail,false);
+    }
+    /** Optional finite-range terminal; suppression/chunk/lifecycle cancellation remains a null result. */
+    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchTool(ServerPlayer owner,
+            Vec3 from,Vec3 direction,double range,boolean blocksOnly,
+            java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,
+            java.util.function.Predicate<Entity> targets,java.util.function.BiConsumer<Vec3,Vec3> trail,boolean finishAtRange){
         direction=direction.normalize();
         double reach=range;
         if(!Double.isFinite(reach)){
@@ -308,7 +315,7 @@ public final class LbcExasperato {
             if(!blocksOnly&&targets!=null)reach=Math.max(reach,game.items().lifetimes().livingRayExtent(owner,from,direction,targets));
         }
         var search=new Search(owner,game.items().epoch(),from,direction,reach,true,trail,blocksOnly,false,targets);
-        search.blockRule=blocks;search.shieldBlockable=false;
+        search.blockRule=blocks;search.shieldBlockable=false;search.finishAtRange=finishAtRange;
         if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else search.result.complete(null);
         return search.result;
     }
@@ -331,8 +338,12 @@ public final class LbcExasperato {
             if(!valid(owner,search.epoch) || owner.level()!=level || searchOwnerSuppressed(search)) { search.result.complete(null); continue; }
             if(owner.entityTags().contains("time_stopped")) { searches.addLast(search); continue; }
             Vec3 from=search.position;
-            if(search.remaining<=1e-7 || !level.hasChunkAt(BlockPos.containing(from))
+            if(!level.hasChunkAt(BlockPos.containing(from))
                     || searchPointSuppressed(search,from)) { search.result.complete(null); continue; }
+            if(search.remaining<=1e-7){
+                search.result.complete(search.finishAtRange?net.minecraft.world.phys.BlockHitResult.miss(from,
+                        net.minecraft.core.Direction.getApproximateNearest(search.direction),BlockPos.containing(from)):null);continue;
+            }
             double length=Math.min(SEARCH_SEGMENT,search.remaining);
             Vec3 end=from.add(search.direction.scale(length));
             if(Math.abs(end.x)>30_000_000 || Math.abs(end.z)>30_000_000) { search.result.complete(null); continue; }

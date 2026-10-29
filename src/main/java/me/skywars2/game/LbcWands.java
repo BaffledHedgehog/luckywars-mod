@@ -454,6 +454,7 @@ public final class LbcWands {
         var stack=player.getItemInHand(hand);
         if(LbcShishEncounter.matches(stack))return game.items().shishEncounter().use(player,hand);
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
+        if(LbcRewardTools.matches(stack))return LbcRewardTools.use(game,player,hand);
         if(LbcCommunism.matches(stack))return game.items().communism().use(player,hand);
         if(LbcPopit.matches(stack))return game.items().popit().use(player,hand);
         if(LbcPendingCombat.isPiston(stack))return game.items().pendingCombat().use(player,hand);

@@ -124,6 +124,10 @@ public final class WitchProgressChecks {
                     require(!fragile.isAlive()&&fragile.getKillCredit()==owner,"depleted max-health kill preserves melee author");
                     var protectedCow=cow(origin.add(0,0,4),1.75);game.items().mana().score(protectedCow,"void_resistance").set(1);strike(protectedCow);
                     require(protectedCow.isAlive()&&protectedCow.getAttribute(Attributes.MAX_HEALTH).getBaseValue()<=0,"source void resistance prevents depleted-base kill");
+                    beacon=marker("stopper_magic");beacon.setPos(target.position().add(0,0,19));game.items().magic().loaded(beacon);
+                    require(!game.items().magic().suppressed(owner)&&game.items().magic().suppressedAt(level,target.position()),"target-only antimagic geometry");
+                    before=owner.getAttribute(Attributes.MAX_HEALTH).getBaseValue();double protectedBase=target.getAttribute(Attributes.MAX_HEALTH).getBaseValue();strike(target);
+                    near(owner.getAttribute(Attributes.MAX_HEALTH).getBaseValue(),before,"target antimagic blocks owner gain");near(target.getAttribute(Attributes.MAX_HEALTH).getBaseValue(),protectedBase,"target antimagic blocks maxHP theft");discard(beacon);
                     owner.entityTags().remove("sin_lust");score("x",net.minecraft.util.Mth.floor(owner.getX()*100));score("y",net.minecraft.util.Mth.floor(owner.getY()*100));score("z",net.minecraft.util.Mth.floor(owner.getZ()*100));score("sleep_time",100);phase=2;at=now;return false;}
                 case 2->{require(score("sleep_time")==101&&score("speed")==0,"existing movement owner advances sleep exactly once while stationary");move(origin.add(.1,0,0));phase=3;at=now;return false;}
                 case 3->{require(score("sleep_time")==86&&score("speed")>0,"existing movement owner applies source moving drain, no second Witch clock");return true;}
@@ -132,7 +136,7 @@ public final class WitchProgressChecks {
         }
         public void close(){if(closed)return;closed=true;try{
             owner.entityTags().remove("sin_lust");for(var e:List.copyOf(owned))if(!e.isRemoved())discard(e);
-            for(var e:level.getAllEntities())if(!before.contains(e)&&!(e instanceof ServerPlayer)&&e.position().distanceToSqr(origin)<144&&!owned.contains(e))discard(e);
+            var fresh=new ArrayList<Entity>();for(var e:level.getAllEntities())if(e!=null&&!before.contains(e)&&!(e instanceof ServerPlayer)&&e.position().distanceToSqr(origin)<144&&!owned.contains(e))fresh.add(e);fresh.forEach(this::discard);
             game.maps().restoreSnapshot(level,block,terrain);game.items().indirectKills().restoreTerrain(provenance);
         }finally{try{saved.restore(game);owner.getStats().setValue(owner,mined,oldMined);damage.restore();mining.restore();if(client!=null)client.ack();attribution.close();}
             finally{if(client!=null)client.close();}}}

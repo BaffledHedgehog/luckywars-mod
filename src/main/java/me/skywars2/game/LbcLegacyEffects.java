@@ -64,10 +64,10 @@ public final class LbcLegacyEffects {
                 consume(p,"effect_big_explosion",()->{if(!explosionSuppressed(p))game.items().babylonEffects().bigExplosionAt(p.level(),p.position(),game.items().indirectKills().wildCause(p));});
                 consume(p,"effect_traps",()->game.items().chaosTraps().spawnUnjammed(p,p.position()));
                 consume(p,"effect_witch_gens_reset",()->{if(!magicBeacon(p))resetWitch(p);});
-                consume(p,"effect_hedgehog_boom",()->{if(!magicBeacon(p))game.items().hedgehog().spawnWall(p.level(),p.position(),p);});
+                consume(p,"effect_hedgehog_boom",()->{if(!game.items().magic().suppressed(p))game.items().hedgehog().spawnWall(p.level(),p.position(),p);});
             }
             // This branch deliberately lacks the source Greed exclusion.
-            consume(p,"effect_stand_arrow_hit",()->{if(!magicBeacon(p))game.items().stand().arrowHitPre(p);});
+            consume(p,"effect_stand_arrow_hit",()->{if(!game.items().magic().suppressed(p))game.items().stand().arrowHitPre(p);});
             if(!greed){
                 consume(p,"effect_nuking",()->{if(!game.items().magic().mechanismSuppressedAt(p.level(),p.position()))game.items().nukeEvent().pointBurst(p,p.level(),p.position());});
                 consume(p,"effect_snus",()->snus(p));

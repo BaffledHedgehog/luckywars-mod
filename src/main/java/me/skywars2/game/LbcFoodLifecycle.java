@@ -59,7 +59,8 @@ public final class LbcFoodLifecycle {
     private final Map<Entity,Accepted> causes=new WeakHashMap<>();
     private final Map<UUID,Accepted> unloaded=new HashMap<>();
     private final Set<Entity> publishing=Collections.newSetFromMap(new IdentityHashMap<>());
-    private final Map<UUID,String> scheduled=new LinkedHashMap<>();
+    private record Eating(String epoch,InteractionHand hand){}
+    private final Map<UUID,Eating> scheduled=new LinkedHashMap<>();
     private final Map<UUID,Integer> halloweenTicks=new HashMap<>();
     private int lastTick=Integer.MIN_VALUE,scheduledTick=Integer.MIN_VALUE;
     private Accepted executing;private ServerLevel executingLevel;
@@ -82,8 +83,9 @@ public final class LbcFoodLifecycle {
         if(stack.isEmpty()||!admitted(p)||!matches(stack))return;
         var data=LbcFartus.data(stack);
         if(countsAsFood(stack))game.items().mana().score(p,"food_count").add(1);
-        if(data.getIntOr("inf",0)==1)p.setItemInHand(InteractionHand.MAIN_HAND,infiniteSteak());
-        if(data.getIntOr("inf_old",0)==1){p.entityTags().add("scheduled_eating");scheduled.put(p.getUUID(),game.items().epoch());scheduledTick=game.server().getTickCount();}
+        var hand=p.getUsedItemHand();
+        if(data.getIntOr("inf",0)==1)p.setItemInHand(hand,infiniteSteak());
+        if(data.getIntOr("inf_old",0)==1){p.entityTags().add("scheduled_eating");scheduled.put(p.getUUID(),new Eating(game.items().epoch(),hand));scheduledTick=game.server().getTickCount();}
         if(data.getIntOr("halloween_food",0)==1)halloween(p);
         if(data.getIntOr("halloween_chorus",0)==1)chorus(p);
         if(data.getIntOr("bad_apple",0)==1)badApple(p);
@@ -184,8 +186,12 @@ public final class LbcFoodLifecycle {
         var due=new LinkedHashMap<>(scheduled);scheduled.clear();scheduledTick=Integer.MIN_VALUE;
         for(var entry:due.entrySet()){
             var player=game.server().getPlayerList().getPlayer(entry.getKey());if(player==null)continue;
-            if(player.entityTags().contains("scheduled_eating")&&game.items().currentEpoch(entry.getValue())&&admitted(player))
-                player.setItemInHand(InteractionHand.MAIN_HAND,oldInfiniteStew());
+            if(game.items().currentEpoch(entry.getValue().epoch())
+                    &&(game.items().timeStop().stopped(player.level())||game.items().wands().timeStopped()||game.items().wands().inputTimeStopped(player))){
+                scheduled.put(entry.getKey(),entry.getValue());scheduledTick=now;continue;
+            }
+            if(player.entityTags().contains("scheduled_eating")&&game.items().currentEpoch(entry.getValue().epoch())&&admitted(player))
+                player.setItemInHand(entry.getValue().hand(),oldInfiniteStew());
             player.entityTags().remove("scheduled_eating");
         }
     }

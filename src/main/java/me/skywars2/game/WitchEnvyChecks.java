@@ -9,6 +9,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Marker;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -108,6 +111,7 @@ public final class WitchEnvyChecks {
             require(!c.copyBetter(owner,donor,"swordcharging7",true)&&obj.get()==8,"missing donor scoreboard operand is not fabricated");
             e.forget(owner);e.forget(donor);game.items().terra().sourceCharges(owner,0);game.items().terra().sourceCharges(donor,0);
         }
+        Entity jammer;
         boolean step(){int now=game.server().getTickCount();if(client!=null){client.ack();other.ack();}
             require(now-at<60,"bounded actual scheduler deadline phase="+phase);
             switch(phase){
@@ -131,11 +135,17 @@ public final class WitchEnvyChecks {
                     phase=2;at=now;return false;}
                 case 2->{if(now-at<2)return false;
                     require(ItemStack.isSameItemSameComponents(owner.getInventory().getItem(9),copied)&&game.items().mana().hudValue(owner,"nitro")==17,"literal native nearest-player selector includes donor across dimensions");
-                    return true;}
+                    require(owner.teleportTo(level,origin.x,origin.y,origin.z,Set.of(),0,0,true),"return from global selector control");client.ack();
+                    owner.getInventory().setItem(9,ItemStack.EMPTY);game.items().mana().score(owner,"nitro").set(2);
+                    jammer=new Marker(EntityTypes.MARKER,level);jammer.setPos(owner.position());jammer.entityTags().add("stopper_magic");require(level.addFreshEntity(jammer),"actual Envy jammer");game.items().magic().loaded(jammer);phase=3;at=now;return false;}
+                case 3->{if(now-at<2)return false;require(owner.getInventory().getItem(9).isEmpty()&&game.items().mana().hudValue(owner,"nitro")==2,"antimagic pauses Envy inventory and counter copying");
+                    game.items().entityUnloaded(jammer);jammer.discard();jammer=null;phase=4;at=now;return false;}
+                case 4->{if(now-at<2)return false;require(ItemStack.isSameItemSameComponents(owner.getInventory().getItem(9),copied)&&game.items().mana().hudValue(owner,"nitro")==17,"Envy resumes through the same native owners after jammer leaves");return true;}
                 default->throw new IllegalStateException("phase "+phase);
             }
         }
         public void close(){if(closed)return;closed=true;try{
+            if(jammer!=null){game.items().entityUnloaded(jammer);jammer.discard();jammer=null;}
             owner.entityTags().remove("sin_envy");game.items().psycho().clearEffects(owner);game.items().psycho().clearEffects(donor);
             game.items().electro().forget(owner);game.items().electro().forget(donor);game.items().shooters().forget(owner);game.items().shooters().forget(donor);
             game.items().terra().sourceCharges(owner,0);game.items().terra().sourceCharges(donor,0);

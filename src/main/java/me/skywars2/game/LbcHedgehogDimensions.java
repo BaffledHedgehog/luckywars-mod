@@ -28,7 +28,7 @@ public final class LbcHedgehogDimensions {
         if(origin.equals(Level.NETHER))return world(switch(roll){case 1->Level.OVERWORLD;case 2->Level.END;case 3->NEXUS;default->IMPRINTED;});
         if(origin.equals(Level.END))return world(switch(roll){case 1->Level.OVERWORLD;case 2->Level.NETHER;case 3->NEXUS;default->IMPRINTED;});
         if(origin.equals(IMPRINTED))return world(switch(roll){case 1->Level.NETHER;case 2->Level.END;case 3->NEXUS;default->Level.OVERWORLD;});
-        // The authored dispatcher has no Nexus handler; unsupported dimensions also remain unchanged.
+        if(origin.equals(NEXUS))return world(switch(roll){case 1->Level.OVERWORLD;case 2->Level.NETHER;case 3->Level.END;default->IMPRINTED;});
         return null;
     }
     private ServerLevel world(ResourceKey<Level> key){return game.server().getLevel(key);}

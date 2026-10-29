@@ -118,13 +118,9 @@ public final class LbcMagicBean {
         if(random.nextFloat()<.5f)x++;if(random.nextFloat()<.5f)x--;
         if(random.nextFloat()<.5f)z++;if(random.nextFloat()<.5f)z--;if(random.nextFloat()<.5f)y++;
         var moved=new Vec3(x,y,z);marker.setPos(moved);steps++;
-        // Original predicate chance0_8 is .008, despite the old Paper helper using .8.
+        // One completion at the new position, even when both terminal conditions coincide.
         boolean randomEnd=random.nextFloat()<.008f,heightEnd=y>=300;
-        if(randomEnd)finish(level,BlockPos.containing(moved));
-        // This source command lacks `at @s`: it keeps the pre-movement function position.
-        // Both commands can execute in the same function, including after the first /kill.
-        if(heightEnd)finish(level,cell);
-        if(randomEnd||heightEnd)remove(bean,true);
+        if(randomEnd||heightEnd){finish(level,BlockPos.containing(moved));remove(bean,true);}
     }
     private void finish(ServerLevel level,BlockPos at){
         int[][] extents={{8,8},{6,10},{4,12},{10,6},{12,4}};

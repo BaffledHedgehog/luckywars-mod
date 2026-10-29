@@ -101,16 +101,16 @@ public final class MagicBeanChecks {
         }
         boolean glass(int x,int z){x=Math.abs(x);z=Math.abs(z);return x<=8&&z<=8||x<=6&&z<=10||x<=4&&z<=12||x<=10&&z<=6||x<=12&&z<=4;}
         void endpoints(){
-            var high=new Vec3(-.25,299.75,-.75);var pre=BlockPos.containing(high);
+            var high=new Vec3(-.25,299.75,-.75);var pre=new BlockPos(0,300,0);
             var marker=spawn(high);var work=enqueue(marker);long count=service.completions();
             try(var script=new Draws(level,.25f,.75f,.25f,.75f,.25f,.5f)){execute(work);require(script.used==6,"native height endpoint consumes original six draws");}
             require(marker.isRemoved()&&service.count()==0&&service.completions()==count+1,"height threshold finishes exactly once when random false");
             for(int x=-13;x<=13;x++)for(int z=-13;z<=13;z++)require(glass(x,z)?level.getBlockState(pre.offset(x,0,z)).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.WHITE)):level.getBlockState(pre.offset(x,0,z)).isAir(),"five exact source rectangles and untouched corners");
-            lazyChest(pre.above());require(level.getBlockState(new BlockPos(0,301,0)).isAir(),"height helper retains premove execution origin");clear();restoreBlocks();
+            lazyChest(pre.above());require(level.getBlockState(new BlockPos(-1,300,-1)).is(Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.WHITE)),"height platform uses moved position");clear();restoreBlocks();
             marker=spawn(high);work=enqueue(marker);count=service.completions();
             try(var script=new Draws(level,.25f,.75f,.25f,.75f,.25f,.0079f)){execute(work);require(script.used==6,"literal.008 random predicate boundary");}
-            require(marker.isRemoved()&&service.completions()==count+2,"simultaneous original endpoint commands both execute");lazyChest(new BlockPos(0,301,0));lazyChest(pre.above());clear();restoreBlocks();
-            // A random value.5 must not produce Paper's accidentally enlarged80percent endpoint.
+            require(marker.isRemoved()&&service.completions()==count+1,"coincident conditions create only one platform and reward");lazyChest(new BlockPos(0,301,0));clear();restoreBlocks();
+            // The strict boundary remains .008 per growth step.
             marker=spawn(origin);work=enqueue(marker);try(var script=new Draws(level,.75f,.75f,.75f,.75f,.75f,.008f)){execute(work);require(!marker.isRemoved()&&script.used==6,"chance exactly.008 does not match strict random condition");}clear();restoreBlocks();
         }
         void causality(){
@@ -143,7 +143,7 @@ public final class MagicBeanChecks {
     }
     public static void run(GameController game){
         try(var fixture=new Fixture(game)){fixture.delayAndMoves();fixture.endpoints();fixture.causality();fixture.guards();}
-        SkyWars2.LOGGER.info("[check] PASS magic-bean (actual source leaf/shared single-debit dispatch; five independent RNG draws/all32 moves; strict wood/glass shapes, literal.008/premove/double endpoints, lazy full loot; native suffocation author, MAG/TECH/Time Stop, stale/unload/stop cancellation)");
+        SkyWars2.LOGGER.info("[check] PASS magic-bean (actual source leaf/shared single-debit dispatch; five independent RNG draws/all32 moves; strict wood/glass shapes, literal.008/single moved endpoint, lazy full loot; native suffocation author, MAG/TECH/Time Stop, stale/unload/stop cancellation)");
         SkyWars2.LOGGER.info("[check] magic-bean fixture uses scoped clock/RNG controls only; natural scheduling latency and unmodified stochastic duration are not measured");
     }
 }

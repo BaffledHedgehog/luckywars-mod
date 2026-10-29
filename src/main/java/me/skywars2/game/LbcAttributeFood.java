@@ -65,15 +65,12 @@ public final class LbcAttributeFood {
 
     private void randomize(ServerPlayer p,Holder<Attribute> key,int scale){
         var attribute=p.getAttribute(key);
-        if(attribute!=null){
-            int maximum=(int)(attribute.getBaseValue()*scale);
-            // This is the source's shared scoreboard result, not a private random/attribute layer.
-            var result=game.items().mana().score(ScoreHolder.forNameOnly("#random_out"),"lbc.math");
-            if(maximum>1)result.set(p.level().getRandom().nextInt(maximum)+1);
-            else if(maximum==1)result.set(0);
-            // 1..1 fails at native command execution and stores zero. A reversed range fails
-            // macro instantiation, leaving the preceding source #random_out score untouched.
-            attribute.setBaseValue(result.get()*.001);
+        if(attribute!=null&&attribute.getBaseValue()>0){
+            int maximum=Math.max(1,(int)(attribute.getBaseValue()*scale));
+            // The singleton range is valid; invalid input never reuses another food's result.
+            int value=maximum==1?1:p.level().getRandom().nextInt(maximum)+1;
+            game.items().mana().score(ScoreHolder.forNameOnly("#random_out"),"lbc.math").set(value);
+            attribute.setBaseValue(value*.001);
         }
         p.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,60,0,false,false),p);
         p.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,40,0,false,false),p);
