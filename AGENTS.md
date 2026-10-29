@@ -1,3 +1,21 @@
+## Indolence hands - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Contract, source and native proof](agent_notes/WITCH_INDOLENCE_HANDS_PORT_2026_10_29.md).
+(user) BOTH hands require sin_indolence; repair the legacy offhand omission.
+Raw native callback/common two-hand dispatch, staged exact claw leaf with26.3
+schema, all five ordinary/two controlled patterns, global loaded finger counts,
+current-holder steering/future cause, private purple particles, native arrow3
+WILD contacts, exact small destroy cube and scoreboard cooldown are implemented.
+Shared MAG/TECH policy, TimeStop, roles/Greed, epoch/terrain provenance reused.
+No new RP/key/template; existing invisible_hand asset/metadata reused.
+989099d1 passed8 unique gameplay suites/9 executions in2 actual mode1 matches
+40.68s/99.40s,11020 frozen inputs/5218 packaged entries and21 source references.
+199 protected author paths/31 overrides/main d9087f0a unchanged; normal child
+exit/exact snapshots/no retained locks. Full original25 Chaos gate CLOSED.
+Next: finger production/respawn and Witch acquisition, Lust active families and
+FULL Vanity world/all-player/core rewind. Hands are not full authority closure.
+No main install/restart/push or question-file edit. Questions stay in CHAT.
+
 ## Polymorph HP and all-sheep match follow-up - NATIVE STAGE (29 October 2026)
 
 (user) Player HP must equal sheep HP during polymorph; transforming all/almost

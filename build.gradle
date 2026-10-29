@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/indolence_claw.json'
     include 'data/lbc/loot_table/neko_set_techno_pre.json'
     include 'data/lbc/loot_table/neko_set_techno_full.json'
     include 'data/lbc/loot_table/neko_set_steampunk.json'

@@ -453,6 +453,7 @@ public final class LbcWands {
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
         if(LbcWitchGluttony.matches(stack))return game.items().witchGluttony().use(player,hand);
+        if(LbcWitchIndolence.matches(stack))return game.items().witchIndolence().use(player,hand);
         if(LbcShishEncounter.matches(stack))return game.items().shishEncounter().use(player,hand);
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
         if(LbcFpvDrone.matches(stack))return game.items().fpvDrone().use(player,hand);
