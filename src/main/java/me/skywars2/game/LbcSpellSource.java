@@ -66,7 +66,15 @@ public final class LbcSpellSource {
                 &&game.items().wands().validRoleTarget(target,false)
                 &&source.excluded().stream().noneMatch(target.entityTags()::contains);
     }
-    public boolean canAffect(Entity emitter,Entity target){return target(source(emitter),target);}
+    public boolean canAffect(Entity emitter,Entity target){
+        var source=source(emitter);
+        // Native arrows/bullets retain muzzle immunity in Projectile.canHitEntity, then may return.
+        // Spell rays still exclude their emitter; captured kill credit must not change physics.
+        if(source!=null&&LbcWands.physicalProjectile(emitter)&&!ProjectileLifetimes.protectedWandProjectile(emitter))return game.items().currentEpoch(source.epoch())
+                &&target!=null&&!LbcGreed.active(target)&&game.items().wands().validRoleTarget(target,false)
+                &&source.excluded().stream().noneMatch(target.entityTags()::contains);
+        return target(source,target);
+    }
     public boolean persistent(Entity emitter){var source=source(emitter);return source!=null&&source.persistent();}
     public DamageSource damage(DamageSource damage){
         var authority=source(damage.getDirectEntity());

@@ -1,3 +1,22 @@
+## Captured physical projectiles - NATIVE FOLLOW-UP, NOT RELEASED (29 October 2026)
+
+[Exact shared repair and bounded native proof](agent_notes/SOURCE_PROJECTILE_FOLLOWUP_2026_10_29.md).
+User's physical self/ally projectile and ordinary-source knockback rules apply.
+Native source-bound NPC arrows keep muzzle grace then can return into emitter;
+causal UUID/order/epoch separate actual native owner. Protected wand/ray policies
+unchanged, roles retained, actual Greed reflection transfers source authority.
+Acid admission now applies ONLY to actual acid, not all captured damage; native
+checks found this second filter after collision already passed. Fresh Stevari
+payload uses existing one-time SourceKnockbackBalance: raw100 ->base4+KnockbackI,
+combined5; unrestricted runtime and imba rules retain existing shared policy.
+Build797a3cd1 passed14gameplay+5setupchecks/1actualmode1match/43.28s; actual Shish
+NPC native bow producer+hurt against owner/ally/mob/self, WILD UUID/order, native
+reflection and absent actual author resolver. Normalchildshutdown/exactsnapshots;
+5749frozeninputs/198authorpaths/31overrides/main exact. Samepre-suitePolymerwarning.
+No real socket/rejoin/client/network/peakTPS claim. Prior physical-source gap is
+closed for this path. Full original25 Chaos chain/release gate remains; main
+d9087f0a unchanged. Continue remaining Witch/full chain; no staged installation.
+
 ## Apocalypse events and native actors - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Current integration, exact proof and remaining gate](agent_notes/APOCALYPSE_INTEGRATION_2026_10_29.md).
@@ -16,7 +35,7 @@ Buildad0396c5 passed22gameplay+5setupchecks in1actualmode1match/48.33s;600source
 1737classes/3411resources+build.gradle exact.198authorpaths/31liveoverrides/main
 unchanged, normalownedchildshutdown/exactsnapshots, samepre-suitePolymerdiagnostic.
 No fullsourceclock/nukeexpiry+cascade/all40crates/physicalclient/network/peakTPS
-qualification. Persistent NPC arrow self-return needs additional direct coverage.
+qualification. Persistent NPC arrow self-return was pending here; follow-up above covers it.
 qualified=false/releaseEligible=false. Questions accumulated in PENDING_QUESTIONS;
 do not ask in chat while user sleeps. Rejected native/build proofs retained.
 Next: remaining Witch/full-chain production and complete natural deadline tests.

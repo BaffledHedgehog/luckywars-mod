@@ -119,8 +119,11 @@ Not qualified: full1863/1040/2000tick apocalypse sequences; natural all40 supply
 completion/fanout; full400/700tick nuclear expiry, subsequent explosion/reward
 cascade; original long cloud cadence and all random variants; broad descendants,
 actual physical-client rendering/network/latency, natural peak TPS.
-New persistent native arrow self/ally return behavior also needs direct coverage
-beyond the existing physical-projectile suite. Witch authority, summons,
+At this stage persistent native arrow self/ally return behavior needed direct
+coverage. The [subsequent repair and native fixture](SOURCE_PROJECTILE_FOLLOWUP_2026_10_29.md)
+now cover actual Shish NPC source arrows, reflection and captured causal order;
+that follow-up also applies the approved ordinary-source Stevari knockback cap.
+Witch authority, summons,
 conversion/checkpoint lifecycle and other original reward branches remain.
 
 `qualified=false`, `releaseEligible=false`. Keep full-chain release gate; do not

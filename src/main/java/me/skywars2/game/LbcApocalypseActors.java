@@ -39,7 +39,7 @@ public final class LbcApocalypseActors {
     private int phase;
     public LbcApocalypseActors(GameController game){this.game=game;}
     private static CompoundTag parse(String value){try{return TagParser.parseCompoundFully(value);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}}
-    private static void load(Entity entity,CompoundTag tag){entity.load(TagValueInput.create(ProblemReporter.DISCARDING,entity.registryAccess(),tag.copy()));}
+    private static void load(Entity entity,CompoundTag tag){entity.load(TagValueInput.create(ProblemReporter.DISCARDING,entity.registryAccess(),SourceKnockbackBalance.entity(tag.copy())));}
     private boolean live(LbcApocalypseEvents.Authority authority,ServerLevel level){return authority!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(authority.epoch())&&LbcDimensionItems.ordinary(level);}
     private boolean spawnable(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at){return live(authority,level)&&Level.isInSpawnableBounds(BlockPos.containing(at))&&level.hasChunkAt(BlockPos.containing(at));}
     private boolean admit(Entity entity,LbcApocalypseEvents.Authority authority,Type type,LbcSauvojen.Kind kind,Vec3 at){

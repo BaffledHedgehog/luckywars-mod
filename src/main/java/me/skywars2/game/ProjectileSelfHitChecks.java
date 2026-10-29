@@ -47,7 +47,64 @@ public final class ProjectileSelfHitChecks {
     private static void health(LivingEntity target){target.removeAllEffects();target.setHealth(target.getMaxHealth());target.setAbsorptionAmount(0);target.setInvulnerableTime(0);target.damageCooldownTime=0;}
     private static void accepted(Projectile shot,LivingEntity target,String label){
         health(target);require(canHit(shot,target),label+" collision accepts intended target");float before=target.getHealth();hit(shot,target);
-        require(target.getHealth()<before,label+" actual native damage accepted, before="+before+" after="+target.getHealth());
+        require(target.getHealth()<before,label+" actual native damage accepted, before="+before+" after="+target.getHealth()
+                +" armor="+target.getArmorValue()+" effects="+target.getActiveEffects()+" last="+target.getLastDamageSource()
+                +" motion="+shot.getDeltaMovement()
+                +" permission="+(shot instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow&&SkyWars2.game().items().allowDamage(target,arrow.damageSources().arrow(arrow,arrow.getOwner()))));
+    }
+    private static Arrow nativeArrow(GameController game,net.minecraft.world.entity.monster.skeleton.Skeleton emitter,
+                                     LivingEntity target,List<Entity> actors){
+        var before=java.util.Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
+        var level=(net.minecraft.server.level.ServerLevel)emitter.level();level.getAllEntities().forEach(before::add);
+        emitter.performRangedAttack(target,1);
+        var added=new ArrayList<Arrow>();
+        level.getAllEntities().forEach(e->{if(!before.contains(e)){actors.add(e);if(e instanceof Arrow a)added.add(a);}});
+        require(added.size()==1,"actual native skeleton ranged attack publishes one arrow");
+        var arrow=added.getFirst();var policy=game.items().spellSources().source(arrow);
+        require(arrow.getOwner()==emitter&&policy!=null&&policy==game.items().spellSources().source(emitter),
+                "native arrow keeps actual NPC owner and independently inherited accepted source");
+        require(!canHit(arrow,emitter),"newborn NPC arrow retains native muzzle immunity");
+        arrow.setPos(emitter.position().add(8,1,0));arrow.setDeltaMovement(Vec3.ZERO);arrow.tick();
+        arrow.setDeltaMovement(new Vec3(0,0,2));return arrow;
+    }
+    private static void sourceArrows(GameController game,net.minecraft.server.level.ServerPlayer owner,
+                                     net.minecraft.server.level.ServerPlayer ally,Cow cow,List<Entity> actors,Vec3 at){
+        require(game.items().shishEncounter().actorCount()==0&&game.items().wands().electroCount()==0,
+                "exclusive source NPC and electrical fixture");
+        var authority=new LbcApocalypseEvents.Authority(owner.getUUID(),game.items().indirectKills().wildCause(owner),game.items().epoch());
+        var emitter=game.items().shishEncounter().spawnCyborg(authority,owner.level(),at.add(12,0,0));
+        require(emitter!=null,"actual persistent Shish cyborg producer");actors.add(emitter);emitter.setNoAi(true);emitter.setNoGravity(true);
+        emitter.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,new ItemStack(Items.BOW));
+        var team=owner.getTeam();require(team!=null,"actual closed friendly-fire team");
+        game.server().getScoreboard().addPlayerToTeam(emitter.getScoreboardName(),team);
+        try{
+            for(var target:List.<LivingEntity>of(owner,ally,cow,emitter)){
+                var arrow=nativeArrow(game,emitter,ally,actors);
+                accepted(arrow,target,"captured native NPC bow "+target.getType());
+                var damage=target.getLastDamageSource();
+                require(damage!=null&&damage.getDirectEntity()==arrow&&damage.getEntity()==emitter
+                        &&LbcIndirectKills.isWildCaptured(damage),"native emitter preserved separately from WILD causal source");
+                var resolved=game.items().indirectKills().babylonCause(damage);
+                require(authority.cause().equals(resolved),"actual accepted hurt retains original author UUID/order after projectile removal");
+                // CyberShish retaliation remains the real shared on-hit engine; clear only this exclusive fixture's traces.
+                game.items().wands().stop();
+            }
+            var reflected=nativeArrow(game,emitter,ally,actors);health(ally);ally.entityTags().add("sin_greed_active");
+            try{require(canHit(reflected,ally),"source arrow reaches absolute Greed physical reflection");var before=ally.getHealth();hit(reflected,ally);
+                require(ally.getHealth()==before&&reflected.getDeltaMovement().z<0&&game.items().spellSources().source(reflected)==null,
+                        "native reflection clears previous source authority without damage");}
+            finally{ally.entityTags().remove("sin_greed_active");}
+            var ward=nativeArrow(game,emitter,ally,actors);cow.entityTags().add("strict_map_object");
+            try{require(!canHit(ward,cow),"source physical missiles retain service-role protection");}
+            finally{cow.entityTags().remove("strict_map_object");}
+            var lookup=game.server().getPlayerList().getPlayersByUUID();require(lookup.remove(owner.getUUID(),owner),"temporarily hide only actual source author's resolver entry");
+            try{var arrow=nativeArrow(game,emitter,ally,actors);accepted(arrow,cow,"captured native arrow with departed author resolver");
+                require(authority.cause().equals(game.items().indirectKills().babylonCause(cow.getLastDamageSource())),"offline author keeps original UUID/order");}
+            finally{require(lookup.put(owner.getUUID(),owner)==null,"restore exact source author resolver");}
+        }finally{
+            game.items().wands().stop();game.items().entityUnloaded(emitter);emitter.discard();
+            for(var actor:actors)if(actor instanceof Projectile&&game.items().spellSources().source(actor)!=null){game.items().entityUnloaded(actor);actor.discard();}
+        }
     }
     public static void run(GameController game){
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
@@ -77,6 +134,7 @@ public final class ProjectileSelfHitChecks {
             var cow=new Cow(EntityTypes.COW,owner.level());cow.setPos(at.add(4,0,0));cow.setNoAi(true);cow.setNoGravity(true);
             cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);require(owner.level().addFreshEntity(cow),"friendly native mob publication");actors.add(cow);
             board.addPlayerToTeam(cow.getScoreboardName(),team);
+            sourceArrows(game,owner,ally,cow,actors,at);
             for(var target:List.<LivingEntity>of(owner,ally,cow)){
                 var arrow=new Arrow(owner.level(),owner,new ItemStack(Items.ARROW),null);actors.add(arrow);
                 require(!canHit(arrow,owner),"native newborn arrow keeps initial muzzle owner immunity");
@@ -132,6 +190,6 @@ public final class ProjectileSelfHitChecks {
             saved.restore(game);otherSaved.restore(game);game.items().magic().inventoryChanged(owner);game.items().magic().inventoryChanged(ally);game.items().magic().flushCleansing();
             attribution.forEach((map,entries)->{map.remove(owner);map.remove(ally);map.putAll(entries);});
         }
-        SkyWars2.LOGGER.info("[check] PASS projectile-self-hits (native bow/Baffled/Shulker self+allies+mob hurt, native owner departure, accepted spike payload, Greed/roles, real dart/grenade callback and WILD owned smoke enter/leave)");
+        SkyWars2.LOGGER.info("[check] PASS projectile-self-hits (native bow/Baffled/Shulker and source-bound NPC arrow self+allies+mob hurt, captured UUID/order, native reflection and absent author resolver, native owner departure, accepted spike payload, Greed/roles, real dart/grenade callback and WILD owned smoke enter/leave)");
     }
 }

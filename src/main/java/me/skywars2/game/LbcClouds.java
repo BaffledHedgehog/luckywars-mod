@@ -524,11 +524,12 @@ public final class LbcClouds {
     private boolean sourceAcidActive(Entity entity){return game.playing() && game.stage()!=GameController.Stage.ENDING
             && (entity.level()==game.maps().level()||game.items().spellSources().persistent(entity)) && game.items().currentEpoch(entity);}
     public boolean sourceAcidCanAffect(Entity source,Entity target){
+        if(!sourceAcidManaged(source))return true; // Acid policy must not re-filter unrelated captured arrows or melee.
         var authority=game.items().spellSources().source(source);
         if(authority!=null)try(var scope=game.items().spellSources().scope(authority)){
             return sourceAcidActive(source)&&Boolean.TRUE.equals(game.items().spellSources().target(game.items().spellSources().owner(source),target));
         }
-        return !sourceAcidManaged(source) || sourceAcidActive(source) && target!=null && game.items().wands().validTarget(target)
+        return sourceAcidActive(source) && target!=null && game.items().wands().validTarget(target)
                 && (!source.entityTags().contains("skywars2.ant_acid") || game.items().antDrops().acidCanAffect(source,target));
     }
     public boolean sourceAcidWild(Entity source){return sourceAcidManaged(source)

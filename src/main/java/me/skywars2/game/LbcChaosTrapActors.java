@@ -124,6 +124,9 @@ public final class LbcChaosTrapActors {
     private boolean active(Entity actor){return game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&(actor.level()==game.maps().level()||game.items().spellSources().persistent(actor))&&game.items().currentEpoch(actor);}
     public boolean canAffect(Entity actor,Entity target){
+        if(LbcWands.physicalProjectile(actor)&&!ProjectileLifetimes.protectedWandProjectile(actor)&&game.items().spellSources().wild(actor))
+            return LbcGreed.active(target)&&game.items().wands().validRoleTarget(target,false)
+                    ||game.items().spellSources().canAffect(actor,target);
         if(actor instanceof Projectile projectile&&managed(projectile.getOwner()))actor=projectile.getOwner();
         if(!managed(actor))return true;
         if(target==null||!active(actor)||!game.items().wands().validTarget(target))return false;

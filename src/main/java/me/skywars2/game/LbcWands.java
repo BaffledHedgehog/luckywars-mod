@@ -1613,9 +1613,8 @@ public final class LbcWands {
     public boolean canHit(Projectile projectile,Entity target) {
         if(!game.items().chaosTrapActors().canAffect(projectile,target))return false;
         var source=game.items().spellSources().source(projectile);
-        if(source!=null)try(var scope=game.items().spellSources().scope(source)){
-            return Boolean.TRUE.equals(game.items().spellSources().target(game.items().spellSources().owner(projectile),target));
-        }
+        if(source!=null)return LbcGreed.active(target)&&validRoleTarget(target,false)
+                ||game.items().spellSources().canAffect(projectile,target);
         if(LbcVexSword.wild(projectile))return validTarget(target)||LbcGreed.active(target)&&validRoleTarget(target,false);
         if(LbcGreed.active(target) && validRoleTarget(target,false)) return true;
         if(LbcHalloweenWind.managed(projectile))return game.items().halloweenWind().canAffect(projectile,target);

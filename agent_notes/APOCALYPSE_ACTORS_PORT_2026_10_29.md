@@ -1,5 +1,10 @@
 # Apocalypse actors source port, 29 October 2026
 
+Subsequent root correction: source attack_knockback100 below is the original
+input, not the current native default. The user's ordinary-source migration rule
+is applied through SourceKnockbackBalance: Stevari base4 +bone KnockbackI =5.
+[Exact native follow-up proof](SOURCE_PROJECTILE_FOLLOWUP_2026_10_29.md).
+
 Staged source implementation only. Original full25 Chaos pool/full descendant release gate remains. This agent owns only NEW LbcApocalypseActors.java and this note; no existing Java, source datapack, build configuration, resources or RP edited; no builds/server/commits.
 
 Source root `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/`. Everything/Baffled schedule authority and presentations belong to LbcApocalypseEvents, not this actor service. Branch source paths: function/other/everythingend/53.mcfunction -> other/sauvojen_tuntija/select_eoe; /54 -> stevari; /55 -> Size20 worms. Baffled callers reuse these actual functions, never alias a different actor variant. Shared public Authority carries UUID author, captured WILD Owner cause and match epoch independently of author online state. Root owns integration and persistent Source changes.
