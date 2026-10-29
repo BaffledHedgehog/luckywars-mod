@@ -27,6 +27,9 @@ final class LbcTeamColors {
     private final Set<PlayerTeam> temporaryTeams=new LinkedHashSet<>();
 
     LbcTeamColors(Scoreboard board){this.board=board;}
+    record Checkpoint(Map<String,Assignment> assignments,Map<String,Departure> departed,Set<PlayerTeam> temporaryTeams){}
+    Checkpoint checkpoint(){return new Checkpoint(new LinkedHashMap<>(assignments),new LinkedHashMap<>(departed),new LinkedHashSet<>(temporaryTeams));}
+    void restore(Checkpoint image){assignments.clear();assignments.putAll(image.assignments);departed.clear();departed.putAll(image.departed);temporaryTeams.clear();temporaryTeams.addAll(image.temporaryTeams);}
     static TeamColor color(int number){return PALETTE.get(Math.floorMod(number-1,PALETTE.size()));}
     void ensurePalette(){
         for(int number=1;number<=32;number++){

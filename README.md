@@ -1,3 +1,19 @@
+## Vanity core checkpoint - NATIVE COMPONENT, NOT RELEASED (29 October 2026)
+
+[Contract, boundaries and exact native proof](agent_notes/VANITY_CORE_CHECKPOINT_2026_10_29.md).
+Explicit controller participants/lives/roles/clock/bar/map-selection values,
+all settings/profiles with original array/set identities, native scoreboard with
+original Objective/Team/PlayerScores/Score/ScoreAccess handles and native packets,
+team assignments, event timeline, Lucky commitment, authority UUIDs and zone.
+f93d8136 passed7 gameplay suites/one actualmode1 match;runner54.13s;11083 frozen
+inputs/5262 packagedentries/26source receipts. Actual deaths/replacements, later
+operator-enrolled newcomer, offline/reconnect CORE replay, repeated real-tick rewind.
+199 authorpaths/31overrides/main d9087f0a unchanged;normalchildexit/exactsnapshots/
+no locks. No RP edits/maininstall/restart/push/questionfileedit. Full25 gate CLOSED.
+This is NOT native player-body/private-queue restoration; Vanity acquisition gated.
+Next: native body/player lifecycle snapshot, input/timeline/private-state coordinator,
+full map/world metadata/jobs and pending offline restore; preserve terrain/core owners.
+
 ## Vanity terrain checkpoint - NATIVE COMPONENT, NOT RELEASED (29 October 2026)
 
 [Contract, implementation and exact native proof](agent_notes/VANITY_TERRAIN_CHECKPOINT_2026_10_29.md).

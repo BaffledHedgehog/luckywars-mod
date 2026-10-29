@@ -28,6 +28,19 @@ public final class ZoneBarrier {
 
     ZoneBarrier(GameController game) { this.game = game; }
 
+    record Checkpoint(Vec3 center,double from,double to,int startedAt,int duration,int nextPulse,int lastVisualTick) { }
+    Checkpoint checkpoint() { return new Checkpoint(center,startRadius,endRadius,startedAt,durationTicks,nextPulse,lastVisualTick); }
+    void restore(Checkpoint image) {
+        if (image.center == null) {
+            stop();startRadius=image.from;endRadius=image.to;startedAt=image.startedAt;
+            durationTicks=image.duration;nextPulse=image.nextPulse;lastVisualTick=image.lastVisualTick;return;
+        }
+        start(image.center.x,image.center.z,image.from,image.to,image.duration);
+        startedAt=image.startedAt;nextPulse=image.nextPulse;lastVisualTick=image.lastVisualTick;
+        display.setScale(new Vector3f((float) radius(),1100,(float) radius()));
+        display.startInterpolation();holder.tick();
+    }
+
     /** Размер scale X/Z у модели lbc:zone_border совпадает с радиусом в блоках. */
     public void start(double x, double z, double fromRadius, double toRadius, int ticks) {
         if (!Double.isFinite(x) || !Double.isFinite(z) || !Double.isFinite(fromRadius)

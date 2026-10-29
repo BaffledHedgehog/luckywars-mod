@@ -46,6 +46,76 @@ public final class GameController {
         Participant(MapManager.Spawn spawn, int lives) { this.spawn = spawn; this.lives = lives; }
     }
 
+    /** Core values only; native bodies, entities and ability queues have their own restore phase. */
+    static final class Checkpoint {
+        private final GameController owner;
+        private final String epoch;
+        private final Map<UUID, Participant> members = new LinkedHashMap<>();
+        private final Set<UUID> pending;
+        private final List<Entity> unloads;
+        private final Stage stage;
+        private final UUID host,pendingStarter,victoryWinner;
+        private final int countdownTicks,gameTicks,finishTicks,lastAliveTicks,lifetimeTicks,lastCountdownTitleSeconds;
+        private final boolean lobbyReady,stopped,fallEnabled,readyBroken,preparingSelection,startAfterSelection;
+        private final Component mapFailure;
+        private final String readyMap;
+        private final long selectionVersion;
+        private final net.minecraft.nbt.Tag barName;
+        private final BossEvent.BossBarColor color;
+        private final BossEvent.BossBarOverlay overlay;
+        private final float progress;
+        private final boolean visible,darken,music,fog;
+        private final List<UUID> barMembers;
+
+        private Checkpoint(GameController g) {
+            owner=g;epoch=g.items.epoch();
+            g.participants.forEach((id,p)->members.put(id,copy(p)));
+            pending=Set.copyOf(g.pendingLobby);unloads=List.copyOf(g.nativeEntityUnloads);
+            stage=g.stage;host=g.host;pendingStarter=g.pendingStarter;victoryWinner=g.victoryWinner;
+            countdownTicks=g.countdownTicks;gameTicks=g.gameTicks;finishTicks=g.finishTicks;lastAliveTicks=g.lastAliveTicks;
+            lifetimeTicks=g.lifetimeTicks;lastCountdownTitleSeconds=g.lastCountdownTitleSeconds;
+            lobbyReady=g.lobbyReady;stopped=g.stopped;fallEnabled=g.fallEnabled;readyBroken=g.readyBroken;
+            preparingSelection=g.preparingSelection;startAfterSelection=g.startAfterSelection;
+            mapFailure=g.mapFailure.copy();readyMap=g.readyMap;selectionVersion=g.selectionVersion;
+            var ops=g.server.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+            barName=net.minecraft.network.chat.ComponentSerialization.CODEC.encodeStart(ops,g.bar.getName()).getOrThrow().copy();
+            color=g.bar.getColor();overlay=g.bar.getOverlay();progress=g.bar.getProgress();visible=g.bar.isVisible();
+            darken=g.bar.shouldDarkenScreen();music=g.bar.shouldPlayBossMusic();fog=g.bar.shouldCreateWorldFog();
+            barMembers=g.bar.getPlayers().stream().map(ServerPlayer::getUUID).toList();
+        }
+        private static Participant copy(Participant source) {
+            var result=new Participant(source.spawn,source.lives);
+            result.awaitingRespawn=source.awaitingRespawn;result.disconnected=source.disconnected;return result;
+        }
+    }
+
+    Checkpoint checkpointCore() {
+        if(!server.isSameThread()||!playing()||stopped||maps.busy())throw new IllegalStateException("Capture a stable active match on its server thread");
+        return new Checkpoint(this);
+    }
+
+    void validateCheckpoint(Checkpoint image) {
+        if(!server.isSameThread()||!server.tickRateManager().isFrozen()||image.owner!=this||!items.currentEpoch(image.epoch)
+                ||stopped||maps.busy())throw new IllegalStateException("Restore the original active match on a frozen server thread");
+    }
+
+    void restoreCore(Checkpoint image) {
+        validateCheckpoint(image);
+        participants.clear();image.members.forEach((id,p)->participants.put(id,Checkpoint.copy(p)));
+        pendingLobby.clear();pendingLobby.addAll(image.pending);nativeEntityUnloads.clear();nativeEntityUnloads.addAll(image.unloads);
+        stage=image.stage;host=image.host;pendingStarter=image.pendingStarter;victoryWinner=image.victoryWinner;
+        countdownTicks=image.countdownTicks;gameTicks=image.gameTicks;finishTicks=image.finishTicks;lastAliveTicks=image.lastAliveTicks;
+        lifetimeTicks=image.lifetimeTicks;lastCountdownTitleSeconds=image.lastCountdownTitleSeconds;
+        lobbyReady=image.lobbyReady;stopped=image.stopped;fallEnabled=image.fallEnabled;readyBroken=image.readyBroken;
+        preparingSelection=image.preparingSelection;startAfterSelection=image.startAfterSelection;
+        mapFailure=image.mapFailure.copy();readyMap=image.readyMap;selectionVersion=image.selectionVersion;
+        var ops=server.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+        bar.removeAllPlayers();bar.setName(net.minecraft.network.chat.ComponentSerialization.CODEC.parse(ops,image.barName.copy()).getOrThrow());
+        bar.setColor(image.color);bar.setOverlay(image.overlay);bar.setProgress(image.progress);bar.setVisible(image.visible);
+        bar.setDarkenScreen(image.darken);bar.setPlayBossMusic(image.music);bar.setCreateWorldFog(image.fog);
+        for(var id:image.barMembers){var player=server.getPlayerList().getPlayer(id);if(player!=null)bar.addPlayer(player);}
+    }
+
     private final MinecraftServer server;
     private final GameConfig config;
     private final PlayerStore players;

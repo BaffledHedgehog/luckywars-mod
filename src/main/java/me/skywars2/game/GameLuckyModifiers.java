@@ -27,6 +27,9 @@ public final class GameLuckyModifiers {
     }
 
     public int current() { return current; }
+    record Checkpoint(int current, boolean committed) { }
+    Checkpoint checkpoint() { return new Checkpoint(current, committed); }
+    void restore(Checkpoint image) { current = image.current; committed = image.committed; }
 
     /** Only LuckyWars resolves this selector. Other modes retain it without consuming randomness. */
     public int startMatch() {

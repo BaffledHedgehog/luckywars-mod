@@ -67,6 +67,17 @@ public final class PlayerStore {
         return profiles.computeIfAbsent(uuid, ignored -> new Profile());
     }
 
+    Map<UUID, MatchValueSnapshot> checkpointProfiles() {
+        var result = new LinkedHashMap<UUID, MatchValueSnapshot>();
+        profiles.forEach((id, profile) -> result.put(id, new MatchValueSnapshot(profile)));
+        return java.util.Collections.unmodifiableMap(result);
+    }
+
+    void restoreProfiles(Map<UUID, MatchValueSnapshot> image) {
+        profiles.clear();
+        image.forEach((id, saved) -> profiles.put(id, (Profile) saved.restore()));
+    }
+
     public Profile get(UUID uuid, String username) {
         Profile profile = get(uuid);
         if (username != null && !username.isBlank() && !username.equals(profile.username)) {

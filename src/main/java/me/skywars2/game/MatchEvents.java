@@ -121,6 +121,10 @@ public final class MatchEvents {
         this.players = players;
     }
 
+    record Timeline(boolean running, int nextWitherTick, int nextTntTick) { }
+    Timeline checkpointTimeline() { return new Timeline(running, nextWitherTick, nextTntTick); }
+    void restoreTimeline(Timeline image) { running=image.running; nextWitherTick=image.nextWitherTick; nextTntTick=image.nextTntTick; }
+
     /** Activates the repeat-event runner for a new match. Stage timing belongs to the controller. */
     public void start() {
         stop();

@@ -45,6 +45,13 @@ public final class Spectators {
     private final Map<UUID, View> viewers = new LinkedHashMap<>();
 
     public Spectators(GameController game) { this.game = game; }
+    Set<UUID> checkpointMembers() { return Set.copyOf(viewers.keySet()); }
+    /** Membership phase precedes native body/effect restoration and camera reattachment. */
+    void restoreMembers(Set<UUID> saved, Set<UUID> capturedOnline) {
+        clear();
+        for (var player : game.server().getPlayerList().getPlayers())
+            if (saved.contains(player.getUUID()) || !capturedOnline.contains(player.getUUID())) enter(player);
+    }
     public boolean contains(ServerPlayer player) { return viewers.containsKey(player.getUUID()); }
     public boolean attached(ServerPlayer player) {
         View view = viewers.get(player.getUUID());

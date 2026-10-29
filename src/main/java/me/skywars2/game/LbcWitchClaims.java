@@ -127,6 +127,7 @@ public final class LbcWitchClaims {
         if(!p.entityTags().contains("sin_indolence")){p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");}
     }
     Map<Mode,UUID> ownership(){return Map.copyOf(owners);}
+    void restoreOwnership(Map<Mode,UUID> image){owners.clear();owners.putAll(image);}
     /** Match-end remove_tags boundary; normal deaths/respawns deliberately retain authority. */
     void stop(){for(var p:game.server().getPlayerList().getPlayers()){
         for(var mode:Mode.values())p.entityTags().remove(mode.tag());

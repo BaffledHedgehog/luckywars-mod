@@ -158,7 +158,8 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_p
         profiles_path = allowed / "config/luckywars/players.json"
         installed = allowed / "mods/skywars2.jar"
         fixture_player_paths = []
-        for fixture_name in dict.fromkeys(("TestAlpha", "TestBeta", "TestGamma", *EXTRA_FIXTURE_PLAYERS)):
+        extra_players = ("TestDelta",) if "vanity-core" in planned else ()
+        for fixture_name in dict.fromkeys(("TestAlpha", "TestBeta", "TestGamma", *EXTRA_FIXTURE_PLAYERS, *extra_players)):
             fixture_bytes = bytearray(hashlib.md5(("OfflinePlayer:" + fixture_name).encode()).digest())
             fixture_bytes[6] = (fixture_bytes[6] & 0x0f) | 0x30
             fixture_bytes[8] = (fixture_bytes[8] & 0x3f) | 0x80
