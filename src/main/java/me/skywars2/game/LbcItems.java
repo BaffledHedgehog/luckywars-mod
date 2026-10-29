@@ -223,6 +223,7 @@ public final class LbcItems {
     private final LbcApocalypseActors apocalypseActors;
     private final LbcShishEncounter shishEncounter;
     private final LbcWitchPassives witchPassives;
+    private final LbcWitchClaims witchClaims;
     private final LbcWitchWrath witchWrath;
     private final LbcWitchGluttony witchGluttony;
     private final LbcWitchIndolence witchIndolence;
@@ -852,7 +853,7 @@ public final class LbcItems {
         this.apocalypseEvents = new LbcApocalypseEvents(game);
         this.apocalypseActors = new LbcApocalypseActors(game);
         this.shishEncounter = new LbcShishEncounter(game);
-        this.witchPassives = new LbcWitchPassives(game);this.witchWrath=new LbcWitchWrath(game);this.witchGluttony=new LbcWitchGluttony(game);this.witchIndolence=new LbcWitchIndolence(game);this.indolenceFingers=new LbcIndolenceFingers(game);this.fpvDrone=new LbcFpvDrone(game);
+        this.witchClaims=new LbcWitchClaims(game);this.witchPassives = new LbcWitchPassives(game);this.witchWrath=new LbcWitchWrath(game);this.witchGluttony=new LbcWitchGluttony(game);this.witchIndolence=new LbcWitchIndolence(game);this.indolenceFingers=new LbcIndolenceFingers(game);this.fpvDrone=new LbcFpvDrone(game);
         this.chaosTrapActors = new LbcChaosTrapActors(game);
         this.sauvojenBoss = new LbcSauvojenBoss(game);
         this.infinity = new LbcInfinity(game);
@@ -1082,6 +1083,7 @@ public final class LbcItems {
     public LbcApocalypseEvents apocalypseEvents(){return apocalypseEvents;}
     public LbcApocalypseActors apocalypseActors(){return apocalypseActors;}
     public LbcShishEncounter shishEncounter(){return shishEncounter;}
+    public LbcWitchClaims witchClaims(){return witchClaims;}
     public LbcWitchPassives witchPassives(){return witchPassives;}
     public LbcWitchWrath witchWrath(){return witchWrath;}
     public LbcWitchGluttony witchGluttony(){return witchGluttony;}
@@ -2140,7 +2142,7 @@ public final class LbcItems {
         edibleSpells.stop();
         nukeEvent.stop();foodLifecycle.stop();oreshek.stop();legacyEffects.stop();
         foodStatuses.stop();
-        witchPassives.stop();witchWrath.stop();witchGluttony.stop();witchIndolence.stop();indolenceFingers.stop();fpvDrone.stop();apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();
+        witchClaims.stop();witchPassives.stop();witchWrath.stop();witchGluttony.stop();witchIndolence.stop();indolenceFingers.stop();fpvDrone.stop();apocalypseEvents.stop();apocalypseActors.stop();shishEncounter.stop();spellSources.stop();
         pisaDrops.stop();
         antigravity.stop();
         ultraponos.stop();

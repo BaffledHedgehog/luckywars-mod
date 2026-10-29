@@ -452,6 +452,7 @@ public final class LbcWands {
         if(!LbcDimensionItems.ordinary(player))return false;
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
+        if(LbcWitchClaims.matches(stack))return game.items().witchClaims().use(player,hand);
         if(LbcWitchGluttony.matches(stack))return game.items().witchGluttony().use(player,hand);
         if(LbcWitchIndolence.matches(stack))return game.items().witchIndolence().use(player,hand);
         if(LbcShishEncounter.matches(stack))return game.items().shishEncounter().use(player,hand);
@@ -808,8 +809,9 @@ public final class LbcWands {
         return true;
     }
     /** Общие бонусы только исполнившегося заклинания; бесплатный отзыв комнаты их не выдаёт. */
-    void wandCasted(ServerPlayer player) {
-        if(mana.mageFullSet(player)) mana.maximum(player,mana.maximum(player)+mana.score(MAGE_BONUS,"lbc.math").get());
+    void wandCasted(ServerPlayer player) { wandCasted(player,true); }
+    void wandCasted(ServerPlayer player,boolean mageBonus) {
+        if(mageBonus&&mana.mageFullSet(player)) mana.maximum(player,mana.maximum(player)+mana.score(MAGE_BONUS,"lbc.math").get());
         game.items().armorSets().nyauwu().wandCasted(player);
         game.items().trinkets().castWand(player);
     }

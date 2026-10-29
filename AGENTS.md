@@ -1,3 +1,21 @@
+## Witch acquisition - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Source rules and exact native proof](agent_notes/WITCH_ACQUISITION_PORT_2026_10_29.md).
+Real raw root/two-hand mode switch; live source counters/native GLOBAL incumbent
+selectors; five complete claims GLUTTONY/WRATH/GREED/INDOLENCE/ENVY, native clear1,
+all three original Gluttony rewards and delegated native fingers/claw are staged.
+LUST/VANITY acquisition stays disconnected until actual producers/full checkpoint;
+no tag-only alias, narrowed pool, debit or punishment substitutes for dependencies.
+Artifact-only source admission, actual TimeStop/role/dimension guards, item-capped
+failure/private sound, shared success-only Nyauwu/trinkets without paid Mage growth.
+Existing native stop clears ONLINE authority flags, not canonical progress/death.
+c62d337e passed11 gameplay suites/one actualmode1 match96.39s;11036 frozeninputs/
+5230 packagedentries/27 sourcereferences.199 authorpaths/31overrides/main d9087f0a
+unchanged; normalchildshutdown/exactsnapshots/no locks. No new RP/template assets.
+Full original25 Chaos gate CLOSED; no maininstall/restart/push/questionfileedit.
+Next: Lust flesh/dragon/original90mob producer; FULL Vanity world/all-player/core
+rewind and full authority lifecycle/offline reconciliation. Questions in CHAT.
+
 ## Indolence fingers/rebirth - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Source, author rulings and exact proof](agent_notes/INDOLENCE_FINGERS_PORT_2026_10_29.md).
