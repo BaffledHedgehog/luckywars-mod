@@ -211,6 +211,7 @@ public final class LbcWitchPassives {
         var instance=p.getAttribute(attribute);if(instance!=null)instance.removeModifier(GREED);
     }}
     private void removeAuthority(ServerPlayer p){if(managed.remove(p)){removeModifiers(p);p.entityTags().remove("sin_greed_active");}}
+    void reconciled(ServerPlayer p){managed.remove(p);removeModifiers(p);p.entityTags().remove("sin_greed_active");}
     public void forget(ServerPlayer p){removeAuthority(p);if(hearted.remove(p)!=null)p.entityTags().remove("sin_greed_have_heart");}
     int count(){return managed.size()+hearted.size();}
     public void stop(){for(var p:List.copyOf(managed))removeAuthority(p);for(var e:List.copyOf(hearted.keySet()))e.entityTags().remove("sin_greed_have_heart");hearted.clear();lastTick=Integer.MIN_VALUE;}

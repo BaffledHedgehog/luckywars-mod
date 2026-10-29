@@ -1751,7 +1751,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
-        timeStop.tick();polymorph.tick();fpvDrone.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
+        timeStop.tick();polymorph.tick();fpvDrone.tick();witchClaims.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();
         skyHazards.tick();
         lightningAcquisition.tick();

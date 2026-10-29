@@ -1,5 +1,14 @@
 # LuckyWars: игровой цикл на Fabric 26.3
 
+## Witch authority lifecycle: native stage, not released
+
+Current ownership now survives normal reconnect/death while rejecting authority
+already transferred away, stale Greed bonuses and old match tags. Native operator/
+spectator/lives rules remain in charge. Thirteen gameplay suites passed in one
+match; full Vanity world/core rewind is still pending.
+[Contract and exact proof](agent_notes/WITCH_AUTHORITY_LIFECYCLE_2026_10_29.md).
+
+
 ## Active Lust: native stage, not released
 
 Four source Flesh modes, complete original90 mob pool, actual dragon steering/

@@ -1,3 +1,20 @@
+## Witch authority lifecycle - NATIVE STAGE, NOT RELEASED (29 October 2026)
+
+[Contract, source and native proof](agent_notes/WITCH_AUTHORITY_LIFECYCLE_2026_10_29.md).
+Current claimed UUID per mode lives in shared LbcWitchClaims. Native join/leave/
+death/respawn reconciles stale offline tags without changing source qualification,
+role/lives/gamemode or progress/cooldown owners. Existing live native tags can be
+adopted at eligible leave/death, never from login NBT; live tag removal revokes.
+Shared Greed owner clears its saved modifier identity/active flag and ordinary
+heartbeat recomputes valid current bonuses. Match stop invalidates offline claims.
+b123f108 passed13 gameplay suites/one actualmode1 match102.70s;11050 frozen inputs/
+5239 packaged entries/11 source receipts.199 author paths/31 overrides/main
+d9087f0a unchanged; normalchildexit/exactsnapshots/no locks. No RP/template edits.
+Full original25 Chaos release gate remains CLOSED; no maininstall/restart/push.
+Next: FULL Vanity world/all-player/core checkpoint and restoration, including
+canonical claims and offline/dead/newcomer cases. This stage is not that rewind.
+Questions stay in CHAT; PENDING_QUESTIONS remains author-owned and untouched.
+
 ## Lust swap target antimagic - NATIVE FOLLOW-UP (29 October 2026)
 
 (user) Protect the swap TARGET inside antimagic even when caster is outside.

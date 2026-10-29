@@ -162,6 +162,7 @@ public final class GameController {
     }
 
     public void join(ServerPlayer player) {
+        items.witchClaims().reconcile(player);
         items.rifleZoom().joined(player);
         players.get(player.getUUID()).username = player.getScoreboardName();
         if (host == null || server.getPlayerList().getPlayer(host) == null) host = player.getUUID();
@@ -182,6 +183,7 @@ public final class GameController {
     }
 
     public void leave(ServerPlayer player) {
+        items.witchClaims().leavingOrDying(player);
         // При отключении снимаем временные бонусы, отмечаем участника выбывшим и сохраняем профиль.
         attributeHud.clear(player);
         teamColors.leave(player);
@@ -573,6 +575,7 @@ public final class GameController {
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
+        items.witchClaims().leavingOrDying(player);
         events.removePlayerSkill(player);
         items.stand().died(player);
         items.mobgun().forget(player);
@@ -600,6 +603,7 @@ public final class GameController {
     }
 
     public void respawned(ServerPlayer player) {
+        items.witchClaims().reconcile(player);
         attributeHud.clear(player);
         Participant p = participants.get(player.getUUID());
         if (playing() && p != null && !p.disconnected && p.lives > 0) {

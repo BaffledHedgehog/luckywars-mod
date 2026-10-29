@@ -13,7 +13,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 
-/** Source acquisition rules over existing live counter owners; no private authority/progress ledger. */
+/** Live source progress plus match-scoped claim ownership for native login/respawn reconciliation. */
 public final class LbcWitchClaims {
     enum Mode {
         GLUTTONY("gluttony","food_count",64),WRATH("wrath","dmg_dealt",5000),
@@ -30,6 +30,7 @@ public final class LbcWitchClaims {
     private final GameController game;
     private final LbcSourceCounters counters;
     private final Map<String,EntitySelector> selectors=new HashMap<>();
+    private final Map<Mode,UUID> owners=new EnumMap<>(Mode.class);
     LbcWitchClaims(GameController game){this.game=game;counters=new LbcSourceCounters(game);}
     public static boolean matches(ItemStack item){return !item.isEmpty()&&LbcFartus.data(item).getIntOr("witch_gens",0)==1;}
     private List<ServerPlayer> players(ServerPlayer p,String literal){try{
@@ -94,7 +95,7 @@ public final class LbcWitchClaims {
     private void assign(ServerPlayer p,Mode mode){for(var holder:players(p,"@a")){holder.entityTags().remove(mode.tag());
         if(mode==Mode.GREED)holder.entityTags().remove("sin_greed_active");
         if(mode==Mode.INDOLENCE)holder.entityTags().remove("indolence_active");}
-        p.entityTags().add(mode.tag());}
+        p.entityTags().add(mode.tag());owners.put(mode,p.getUUID());}
     private void get(ServerPlayer p,Mode mode){p.sendSystemMessage(Component.translatable("witch_"+mode.key+"_get"));}
     private void award(ServerPlayer p,Mode mode){game.items().mana().award(p,"lbc:true_advancements/legends/sins/"+mode.key);}
     private void drop(ServerPlayer p,String table){for(var item:game.lbc().rollTable(p.level(),p.position(),p,table)){
@@ -111,9 +112,24 @@ public final class LbcWitchClaims {
         }
         p.getInventory().setChanged();p.inventoryMenu.sendAllDataToRemote();game.items().mana().inventoryChanged(p);game.items().magic().inventoryChanged(p);
     }
+    /** Native raw tags stay live; a command removing a current online holder also revokes its saved claim. */
+    private void prune(UUID joining){owners.entrySet().removeIf(entry->{var p=game.server().getPlayerList().getPlayer(entry.getValue());
+        return p!=null&&!p.getUUID().equals(joining)&&!p.entityTags().contains(entry.getKey().tag());});}
+    void tick(){prune(null);}
+    /** Adopt an existing native tag only at an actual live leave/death boundary, never from login NBT. */
+    void leavingOrDying(ServerPlayer p){if(!game.playing()||!game.allowDamage(p))return;prune(null);
+        for(var mode:Mode.values())if(p.entityTags().contains(mode.tag()))owners.putIfAbsent(mode,p.getUUID());}
+    /** Old offline NBT cannot revive an authority already transferred, ended or from another match. */
+    void reconcile(ServerPlayer p){prune(p.getUUID());
+        game.items().witchPassives().reconciled(p);
+        for(var mode:Mode.values())if(game.playing()&&p.getUUID().equals(owners.get(mode)))p.entityTags().add(mode.tag());else p.entityTags().remove(mode.tag());
+        if(!p.entityTags().contains("sin_greed"))p.entityTags().remove("sin_greed_active");
+        if(!p.entityTags().contains("sin_indolence")){p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");}
+    }
+    Map<Mode,UUID> ownership(){return Map.copyOf(owners);}
     /** Match-end remove_tags boundary; normal deaths/respawns deliberately retain authority. */
     void stop(){for(var p:game.server().getPlayerList().getPlayers()){
         for(var mode:Mode.values())p.entityTags().remove(mode.tag());
         p.entityTags().remove("sin_greed_active");p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");
-    }selectors.clear();}
+    }selectors.clear();owners.clear();}
 }
