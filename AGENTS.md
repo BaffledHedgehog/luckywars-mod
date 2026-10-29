@@ -1,3 +1,18 @@
+## Vanity terrain checkpoint - NATIVE COMPONENT, NOT RELEASED (29 October 2026)
+
+[Contract, implementation and exact native proof](agent_notes/VANITY_TERRAIN_CHECKPOINT_2026_10_29.md).
+Independent native chunk palettes/biomes, full block-entity NBT, pending/long
+block/fluid scheduler entries; bounded comparisons, existing MapManager/MapLighting
+owners, unsupported fluids/fire and same-state sign/container publication.
+3571b419 passed6 gameplay suites/one actualmode1 match;runner49.93s;11060 frozen
+inputs/5246 packagedentries/24source receipts. Three repeats include actual world
+ticks and exact delay/priority/sub-order preservation.199 authorpaths/31overrides/
+main d9087f0a unchanged;normalchildexit/exactsnapshots/no locks. No RP edits.
+This is a TERRAIN COMPONENT, not the full Vanity rewind. Acquisition stays gated;
+full original25 Chaos gate CLOSED; no maininstall/restart/push/questionfileedit.
+Next: complete core/all-player/private queue checkpoint and native lifecycle/input/
+timeline coordinator; later-loaded chunks/world events/metadata remain required.
+
 ## Witch authority lifecycle - NATIVE STAGE, NOT RELEASED (29 October 2026)
 
 [Contract, source and native proof](agent_notes/WITCH_AUTHORITY_LIFECYCLE_2026_10_29.md).
