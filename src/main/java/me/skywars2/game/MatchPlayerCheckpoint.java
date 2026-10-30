@@ -89,7 +89,7 @@ public final class MatchPlayerCheckpoint {
             // Native teleport resets the head rotation and previous pose/rotation values.
             body.finishRuntime(player);
             player.setDeltaMovement(motion);
-            progress.restore(player);sync(player);game.cancelQueuedEntityUnload(player);
+            progress.restore(player);sync(player);game.cancelQueuedEntityUnload(player);body.finishRandom(player);
             return player;
         } finally {if(previous==null)RESTORING.remove();else RESTORING.set(previous);}
     }

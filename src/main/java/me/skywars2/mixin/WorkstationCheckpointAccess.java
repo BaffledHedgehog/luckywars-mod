@@ -64,6 +64,7 @@ public final class WorkstationCheckpointAccess {
     }
     @Mixin(EnchantmentMenu.class) public interface Enchantment {
         @Accessor("access") ContainerLevelAccess skywars2$access();
+        @Accessor("random") net.minecraft.util.RandomSource skywars2$random();
     }
     @Mixin(ResultSlot.class) public interface CraftResult {
         @Accessor("removeCount") int skywars2$removed();

@@ -26,11 +26,12 @@ final class MatchEntityState {
     private final AttributeMap attributes;
     private final List<SynchedEntityData.DataValue<?>> metadata;
     private final MatchEntityRuntime runtime;
+    private final MatchRandomState random;
     private final Object owned;
     private final GameController game;
 
     MatchEntityState(GameController game,Entity entity) {
-        this.game=game;original=entity;level=(ServerLevel)entity.level();
+        this.game=game;original=entity;level=(ServerLevel)entity.level();random=MatchRandomState.capture(entity.getRandom());
         var out=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,entity.registryAccess());entity.saveWithoutId(out);nbt=out.buildResult().copy();
         // Passengers have independent images; NBT must never manufacture duplicate children.
         nbt.remove("Passengers");position=entity.position();motion=entity.getDeltaMovement();yaw=entity.getYRot();pitch=entity.getXRot();
@@ -62,5 +63,6 @@ final class MatchEntityState {
         if(target instanceof LivingEntity living)game.items().ownedEffects().restoreCheckpoint(living,owned);
         finishRuntime(target);
     }
-    void finishRuntime(Entity target) {runtime.restore(target);target.setDeltaMovement(motion);target.needsSync=true;}
+    void finishRandom(Entity target){random.restore(target.getRandom());}
+    void finishRuntime(Entity target) {runtime.restore(target);finishRandom(target);target.setDeltaMovement(motion);target.needsSync=true;}
 }

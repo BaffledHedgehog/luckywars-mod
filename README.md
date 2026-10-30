@@ -1,3 +1,22 @@
+## Vanity native random state - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, shared ownership and exact native proof](agent_notes/VANITY_RANDOM_CHECKPOINT_2026_10_30.md).
+Typed native algorithm/delegate images retain raw seeds/cached or absent Gaussians;
+common entity/player body and enchanting scratch sources restore through one helper.
+The prior NEXT enchantment-seed exclusion is REMOVED; strict native equality passes.
+Separate GLOBAL world RNG owner restores level main/sound/block-position streams and
+server shared named-map/source identities/defaults, including existing borrowed refs
+and future named creation. Partial terrain restores do NOT implicitly rewind globals.
+98b4ecfe passed24 suites/one actualmode1 match;runner67.9s;11246 frozeninputs/
+5393 packagedentries/189source receipts. Actual arrow spread/weighted loot/player
+next seed, real death/respawn/world ticks/offline replay verified.199 authorpaths/
+31overrides/main d9087f0a unchanged;normalchildexit/exactsnapshots/no locks. No RP/
+template/questionfile edits/maininstall/restart/push. Full original25 gate CLOSED;
+Vanity acquisition stays gated. Private/JDK/threadlocal/future-factory entropy, worker
+jobs and durable unsaved-cache persistence remain separate; NOT all RNG is complete.
+Next: world/private state and complete input/writer/lifecycle/offline transaction.
+This is NOT full Vanity; retain all canonical owners and entire prior documentation.
+
 ## Vanity native block/actor windows - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, canonical backing links and exact native proof](agent_notes/VANITY_BOUND_VIEWS_CHECKPOINT_2026_10_30.md).

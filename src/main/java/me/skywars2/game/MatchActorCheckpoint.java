@@ -113,6 +113,7 @@ public final class MatchActorCheckpoint {
                 access.skywars2$level(image.state.level);access.skywars2$revive();
                 image.state.load(actor);
                 if(!image.state.level.addFreshEntity(actor)||actor.isRemoved())throw new IllegalStateException("Native actor registration rejected checkpoint body "+image.uuid);
+                image.state.finishRandom(actor);
                 game.cancelQueuedEntityUnload(actor);
             }
             bodiesRestored=true;

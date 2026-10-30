@@ -30,10 +30,9 @@ public final class VanityWorkstationChecks {
     private record State(Class<?> kind,List<ItemStack> slots,List<Integer> data,ItemStack cursor,int xp) {
         static State of(ServerPlayer p){return new State(p.containerMenu.getClass(),p.containerMenu.slots.stream().map(s->s.getItem().copy()).toList(),
                 ((WorkstationCheckpointAccess.Data)p.containerMenu).skywars2$data().stream().map(DataSlot::get).toList(),p.containerMenu.getCarried().copy(),p.experienceLevel);}
-        void verify(ServerPlayer p,String why){verify(p,why,false);}
-        void verify(ServerPlayer p,String why,boolean nextEnchantSeed){
+        void verify(ServerPlayer p,String why){
             var now=of(p);require(now.kind==kind&&now.data.size()==data.size()&&now.xp==xp&&ItemStack.matches(cursor,now.cursor)&&slots.size()==now.slots.size(),why+" shape/XP/cursor");
-            for(int i=0;i<data.size();i++)if(!(nextEnchantSeed&&kind==EnchantmentMenu.class&&i==3))require(now.data.get(i).equals(data.get(i)),why+" native data "+i);
+            for(int i=0;i<data.size();i++)require(now.data.get(i).equals(data.get(i)),why+" native data "+i);
             for(int i=0;i<slots.size();i++)require(ItemStack.matches(slots.get(i),now.slots.get(i)),why+" native slot "+i);
         }
     }
@@ -159,7 +158,7 @@ public final class VanityWorkstationChecks {
                     gamma=GameChecks.createBot(game,"TestGamma");connect();actors.prepareViewsFrozen();restore=terrain.restore(game);phase=4;return false;}
                 restoreBodies(false);verify();
                 if(previous==1){require(gamma!=retired,"genuine native replacement player");pickup();afterPickup=State.of(gamma);actors.prepareViewsFrozen();restore=terrain.restore(game);phase=2;return false;}
-                if(previous==2){pickup();afterPickup.verify(gamma,"repeat native pickup has identical inventory/resources/XP "+round,true);
+                if(previous==2){pickup();afterPickup.verify(gamma,"repeat native pickup has identical inventory/resources/XP "+round);
                     if(round==1){gamma.connection.onDisconnect(new DisconnectionDetails(Component.literal("Vanity workspace offline fixture")));actors.prepareViewsFrozen();restore=terrain.restore(game);phase=3;return false;}}
                 if(++round==8)return true;prepare();return false;
             }

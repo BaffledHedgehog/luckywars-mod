@@ -50,6 +50,10 @@ final class MatchWorkstations {
             buffers.add(new Buffer(i,c.getClass(),items,c instanceof ResultContainer r?r.getRecipeUsed():null));
         }
         data=((WorkstationCheckpointAccess.Data)menu).skywars2$data().stream().mapToInt(DataSlot::get).toArray();
+        if(menu instanceof EnchantmentMenu){
+            var image=MatchRandomState.capture(((WorkstationCheckpointAccess.Enchantment)menu).skywars2$random());
+            runtime.add(m->image.restore(((WorkstationCheckpointAccess.Enchantment)m).skywars2$random()));
+        }
         if(menu instanceof AnvilMenu){
             var a=(WorkstationCheckpointAccess.Anvil)menu;int repair=a.skywars2$repair();String name=a.skywars2$name();boolean rename=a.skywars2$renaming();
             runtime.add(m->{var t=(WorkstationCheckpointAccess.Anvil)m;t.skywars2$repair(repair);t.skywars2$name(name);t.skywars2$renaming(rename);});
