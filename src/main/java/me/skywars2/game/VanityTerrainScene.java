@@ -142,7 +142,8 @@ final class VanityTerrainScene {
     @SuppressWarnings("unchecked") CompoundTag attachment(){return chainTarget.getAttached(VanityTerrainScene.<net.fabricmc.fabric.api.attachment.v1.AttachmentType<CompoundTag>>get(chainStatus,"DATA"));}
 
     List<Object> extraJobs(){return jobs;}
-    void arm(){
+    void arm(){arm(List.of());}
+    void arm(List<Object> laterJobs){
         base.other.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.BLOCK_INTERACTION_RANGE).setBaseValue(64);
         // Native range keeps this real distant chest valid during current-body pairing.
         // The normal native menu/session and physical BE roots remain in use.
@@ -151,7 +152,7 @@ final class VanityTerrainScene {
         var menu=(ChestMenu)base.other.containerMenu;require(menu.getContainer().getContainerSize()==54,"native joined54-slot backing");
         sourceMenuSlot=-1;for(int slot=0;slot<54;slot++)if(menu.getContainer().getItem(slot)==((Container)base.other.level().getBlockEntity(chest)).getItem(0)){require(sourceMenuSlot==-1,"one physical source slot in the joined menu");sourceMenuSlot=slot;}
         require(sourceMenuSlot==0||sourceMenuSlot==27,"native menu/physical chest source slot already aliases");
-        order=List.copyOf(queue());require(order.subList(order.size()-jobs.size(),order.size()).equals(jobs),"new native job membership/order appended exactly");
+        order=List.copyOf(queue());int end=order.size()-laterJobs.size();require(order.subList(end-jobs.size(),end).equals(jobs)&&order.subList(end,order.size()).equals(laterJobs),"native terrain prefix and later job membership/order appended exactly");
         originalCells=new HashMap<>();expectedCells=new HashMap<>();VanityTerrainScene.<Map<Long,Object>>get(magmify,"observed").forEach((key,cell)->{originalCells.put(key,get(cell,"original"));expectedCells.put(key,get(cell,"expected"));});
         discovered=Set.copyOf(VanityTerrainScene.<Set<Long>>get(magmify,"discovered"));surface=Set.copyOf(VanityTerrainScene.<Set<Long>>get(magmify,"surfaceBlocks"));frontier=(long[])invoke(get(magmify,"frontier"),"image",new Class<?>[]{});reservoir=VanityTerrainScene.<long[]>get(magmify,"centerSample").clone();
         seen=get(magmify,"seen");magPhase=get(magmify,"phase");var random=VanityTerrainScene.<RandomSource>get(magmify,"random");var entropy=MatchRandomState.capture(random);randomNext=random.nextLong();entropy.restore(random);

@@ -13,6 +13,8 @@ final class MatchSpellCheckpoint {
         private final Map<MatchDamageSources.Ref,Body> saved=new LinkedHashMap<>();
         private Map<MatchDamageSources.Ref,Entity> current;
         private MatchItemStackLinks stacks;
+        private final Set<MatchDamageSources.Image> accepted=new LinkedHashSet<>();
+        MatchDamageSources.Image damage(net.minecraft.world.damagesource.DamageSource value){var image=sources.capture(value);for(var next=image;next!=null;next=next.wrapped())accepted.add(next);return image;}
         MatchItemStackLinks.Ref stack(GameController game,net.minecraft.world.item.ItemStack stack){if(stacks==null)stacks=new MatchItemStackLinks(game,this);return stacks.capture(stack);}
         Links(MatchDamageSources sources){this.sources=sources;}
         MatchDamageSources.Ref key(Entity entity){
@@ -24,6 +26,12 @@ final class MatchSpellCheckpoint {
             saved.forEach((ref,body)->{var entity=MatchDamageSources.resolve(ref,lookup,pending);
                 if(entity!=null){if(entity.getClass()!=body.kind||ref.historical()==null&&(entity.isRemoved()||entity.level()!=body.level))
                     throw new IllegalStateException("Restore captured spell bodies/dimensions before private links");next.put(ref,entity);}});
+            for(var image:accepted){MatchDamageSources.resolve(image.direct(),lookup,pending);MatchDamageSources.resolve(image.cause(),lookup,pending);}
+            if(pending.isEmpty())for(var image:accepted){
+                if(image.original().getDirectEntity()!=MatchDamageSources.resolve(image.direct(),lookup,pending)
+                        ||image.original().getEntity()!=MatchDamageSources.resolve(image.cause(),lookup,pending))
+                    throw new IllegalStateException("Restore the shared canonical native damage graph before private accepted sources");
+            }
             current=pending.isEmpty()?next:null;if(current!=null&&stacks!=null)stacks.resolve();return Set.copyOf(pending);
         }
         Entity get(MatchDamageSources.Ref ref){return ref==null?null:Objects.requireNonNull(current.get(ref));}

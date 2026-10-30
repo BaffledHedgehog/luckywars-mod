@@ -38,46 +38,77 @@ final class LbcTesla {
     }
     /** A short source sample group is one cooperative work unit; no marker per sample or new queue. */
     static final class Instant implements LbcStonekivi.Work {
-        final GameController game;final ServerPlayer owner;final net.minecraft.server.level.ServerLevel level;
+        final GameController game;ServerPlayer owner;final net.minecraft.server.level.ServerLevel level;
         final Vec3 origin;final float yaw,pitch;final String epoch;
         final LbcWands.ElectroTrace trace;
         final DamageSource damage;
         Vec3 point;float currentYaw,currentPitch;int beam,sample;
         Instant(GameController game,ServerPlayer owner){
-            this.game=game;this.owner=owner;level=owner.level();origin=owner.getEyePosition();yaw=owner.getYRot();pitch=owner.getXRot();epoch=game.items().epoch();
-            trace=new LbcWands.ElectroTrace(owner,origin,epoch);
-            damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);reset();
+            game.items().stonekivi().beginNativeWork();try {
+                this.game=game;this.owner=owner;level=owner.level();origin=owner.getEyePosition();yaw=owner.getYRot();pitch=owner.getXRot();epoch=game.items().epoch();
+                trace=new LbcWands.ElectroTrace(owner,origin,epoch);
+                damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);reset();
+            }finally{game.items().stonekivi().endNativeWork();}
+        }
+        /** The accepted trace belongs to this job; unknown path/NPC extensions require their own adapter. */
+        private void checkpointTrace(){
+            if(trace.npcSource!=null||trace.erecto!=null||trace.level!=level||!trace.epoch.equals(epoch)
+                    ||trace.lifetime!=40||trace.meditation)
+                throw new IllegalStateException("Unsupported Tesla instant trace extension");
+        }
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            game.items().stonekivi().checkpointBoundary();checkpointTrace();
+            var author=graph.links.key(owner);var source=graph.links.damage(damage);
+            var traceAuthor=graph.links.key(trace.owner);var emitter=graph.links.key(trace.explicitEmitter);
+            var trialAuthor=graph.links.key(trace.trialOwner);
+            var trialItem=trace.trialStack==null?null:graph.links.stack(game,trace.trialStack);
+            var trialHand=trace.trialHand;var cause=trace.cause;var policy=trace.sourcePolicy;
+            var position=point;float facingYaw=currentYaw,facingPitch=currentPitch;int nextBeam=beam,nextSample=sample;
+            var tracePosition=trace.position;float traceYaw=trace.yaw,tracePitch=trace.pitch;int age=trace.age;
+            boolean mechanism=trace.mechanism,chain=trace.teslaChain,wild=trace.statusWild,hostile=trace.hostileSauvojen;
+            return links->{game.items().stonekivi().checkpointBoundary();checkpointTrace();MatchAuthorityCheckpoint.world(game,level);
+                var current=(ServerPlayer)links.get(author);var currentTraceAuthor=(ServerPlayer)links.get(traceAuthor);
+                var currentEmitter=links.get(emitter);var currentTrialAuthor=(ServerPlayer)links.get(trialAuthor);
+                var currentItem=trialItem==null?null:trialItem.get(links);
+                if(MatchDamageSources.value(source)!=damage)throw new IllegalStateException("Restore the same accepted Tesla damage source");
+                return ()->{owner=current;point=position;currentYaw=facingYaw;currentPitch=facingPitch;beam=nextBeam;sample=nextSample;
+                    trace.owner=currentTraceAuthor;trace.explicitEmitter=currentEmitter;trace.trialOwner=currentTrialAuthor;
+                    trace.trialStack=currentItem;trace.trialHand=trialHand;trace.cause=cause;trace.sourcePolicy=policy;
+                    trace.position=tracePosition;trace.yaw=traceYaw;trace.pitch=tracePitch;trace.age=age;
+                    trace.mechanism=mechanism;trace.teslaChain=chain;trace.statusWild=wild;trace.hostileSauvojen=hostile;};};
         }
         private void reset(){point=origin;currentYaw=yaw;currentPitch=pitch;sample=0;}
         @Override public boolean step(){
-            if(!game.items().currentEpoch(epoch)||!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner))return true;
-            Vec3 from=point,last=point,conductor=null;boolean terminal=false,emitted=false;
-            for(int i=0;i<8;i++){
-                if(game.items().magic().mechanismSuppressedAt(level,point)){terminal=true;break;}
-                var pos=BlockPos.containing(point);if(!level.hasChunkAt(pos)){terminal=true;break;}
-                emitted=true;last=point;level.sendParticles(WHITE,true,false,point.x,point.y,point.z,1,0,0,0,2);
-                level.sendParticles(PURPLE,true,false,point.x,point.y,point.z,1,0,0,0,1);
-                var state=level.getBlockState(pos);
-                if(state.is(CONDUCTIVE)){
-                    if(conductor==null)conductor=point;
-                }else if(!state.is(AIRS)){
-                    terminal=true;break;
+            game.items().stonekivi().beginNativeWork();try {
+                if(!game.items().currentEpoch(epoch)||!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner))return true;
+                Vec3 from=point,last=point,conductor=null;boolean terminal=false,emitted=false;
+                for(int i=0;i<8;i++){
+                    if(game.items().magic().mechanismSuppressedAt(level,point)){terminal=true;break;}
+                    var pos=BlockPos.containing(point);if(!level.hasChunkAt(pos)){terminal=true;break;}
+                    emitted=true;last=point;level.sendParticles(WHITE,true,false,point.x,point.y,point.z,1,0,0,0,2);
+                    level.sendParticles(PURPLE,true,false,point.x,point.y,point.z,1,0,0,0,1);
+                    var state=level.getBlockState(pos);
+                    if(state.is(CONDUCTIVE)){
+                        if(conductor==null)conductor=point;
+                    }else if(!state.is(AIRS)){
+                        terminal=true;break;
+                    }
+                    if(++sample>400){terminal=true;break;}
+                    boolean bend=owner.getRandom().nextFloat()<.05f;
+                    if(bend){currentYaw+=owner.getRandom().nextInt(7)-3;currentPitch+=owner.getRandom().nextInt(7)-3;LbcOverload.sound(owner,point,"minecraft:entity.firework_rocket.twinkle",.1f,2,0);}
+                    Vec3 next=point.add(Vec3.directionFromRotation(currentPitch,currentYaw).scale(.25));
+                    if(Double.isFinite(game.items().magic().mechanismSuppressionFraction(level,point,next))){terminal=true;break;}
+                    point=next;
+                    if(bend)break;
                 }
-                if(++sample>400){terminal=true;break;}
-                boolean bend=owner.getRandom().nextFloat()<.05f;
-                if(bend){currentYaw+=owner.getRandom().nextInt(7)-3;currentPitch+=owner.getRandom().nextInt(7)-3;LbcOverload.sound(owner,point,"minecraft:entity.firework_rocket.twinkle",.1f,2,0);}
-                Vec3 next=point.add(Vec3.directionFromRotation(currentPitch,currentYaw).scale(.25));
-                if(Double.isFinite(game.items().magic().mechanismSuppressionFraction(level,point,next))){terminal=true;break;}
-                point=next;
-                if(bend)break;
-            }
-            // Groups have disjoint sample endpoints, so splitting work cannot duplicate bypass-cooldown hits.
-            if(emitted)LbcDamage.hurtSegment(level,damage,from,last,Vec3.ZERO,.25,.5f,1,
-                    entity->entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,entity),false);
-            // Like moving Electro, one shared WILD conductor pulse per sampled segment.
-            if(conductor!=null)game.items().wands().teslaConduction(trace,conductor);
-            if(terminal){if(++beam>=5)return true;reset();}
-            return false;
+                // Groups have disjoint sample endpoints, so splitting work cannot duplicate bypass-cooldown hits.
+                if(emitted)LbcDamage.hurtSegment(level,damage,from,last,Vec3.ZERO,.25,.5f,1,
+                        entity->entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,entity),false);
+                // Like moving Electro, one shared WILD conductor pulse per sampled segment.
+                if(conductor!=null)game.items().wands().teslaConduction(trace,conductor);
+                if(terminal){if(++beam>=5)return true;reset();}
+                return false;
+            }finally{game.items().stonekivi().endNativeWork();}
         }
     }
 }

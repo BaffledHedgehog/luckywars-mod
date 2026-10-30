@@ -1,3 +1,20 @@
+## Vanity five resident spell/ability owners - NATIVE COMPONENT, NOT RELEASED (31 October 2026)
+
+[State ownership and exact native evidence](agent_notes/VANITY_RESIDENT_SPELLS_CHECKPOINT_2026_10_31.md).
+Consuming scans/portals/templates/disposal/teleports and private actors; Corrosion
+acknowledged writes/shape cursors/RNG; SAME Tesla source/trace; native Bean pending
+growth/frame clocks; Totem lava/refund/debt/skeleton aliases share one queued image.
+Current bodies/physical stacks and accepted native source graphs remain canonical.
+1648fba7 passed83 match suites plus2 actual lobby checks/35 mode1 matches/ONE child,
+first40 together; Reactive Artifacts plus four Bolts suites used2 fresh matches in
+one separate child:90 suites/37 matches/2 children,468.71s. 11432 frozen
+inputs/5545 entries/337 receipts.199 authorpaths/31 overrides/main
+d9087f0a exact;normal exits/exact snapshots/no locks. No functions/RP/template/
+questionfile/maininstall/restart/push. Original25 gate CLOSED; Vanity gated.
+Latest user steering permits simplifying rare transient operations; stop extending
+private micro-adapters. Next: production end-tick coordinator, offline/lifecycle safety
+and measured capture latency. NOT full Vanity; retain all prior implemented owners.
+
 ## Vanity Stone/Magmify and electric terrain jobs - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [State ownership and exact native evidence](agent_notes/VANITY_TERRAIN_JOBS_CHECKPOINT_2026_10_30.md).

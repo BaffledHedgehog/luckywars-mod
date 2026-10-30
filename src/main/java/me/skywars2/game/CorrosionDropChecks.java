@@ -170,7 +170,9 @@ public final class CorrosionDropChecks {
                 require(!game.items().corrosionDrops().ready(t,LbcCorrosionDropItem.Kind.NORMAL) && !game.items().corrosionDrops().spawn(t,LbcCorrosionDropItem.Kind.NORMAL),"unresident footprint rejected");
                 require(level.getChunkSource().getChunkNow(x,z)==null && t.getItem().getCount()==2,"readiness cannot force-load/debit");
                 // origin+48, unlike actual last cell+47, reaches one more X chunk.
-                int base=x*16;for(int cx=x;cx<x+3;cx++)for(int cz=z;cz<=z+3;cz++){long key=net.minecraft.world.level.ChunkPos.pack(cx,cz);if(!level.getForceLoadedChunks().contains(key)){forced.add(key);level.setChunkForced(cx,cz,true);}level.getChunk(cx,cz);}
+                // Forced tickets make adjacent FULL chunks resident too; use exact native requests
+                // so the deliberately absent +48 column stays outside this fixture footprint.
+                int base=x*16;for(int cx=x;cx<x+3;cx++)for(int cz=z;cz<=z+3;cz++)level.getChunk(cx,cz);
                 t.setPos(base+24.37,origin.y,z*16+24.81);
                 require(level.getChunkSource().getChunkNow(x+3,z+1)==null && !game.items().corrosionDrops().ready(t,LbcCorrosionDropItem.Kind.NORMAL),"native+48 extra X chunk preflight");
             }finally{t.setPos(previous);t.discard();}

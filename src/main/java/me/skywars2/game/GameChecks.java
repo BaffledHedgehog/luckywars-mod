@@ -836,6 +836,7 @@ public final class GameChecks {
                                 case "vanity-time-stop" -> { VanityTimeStopChecks.run(game); return; }
                                 case "vanity-attribution" -> { VanityTimeStopChecks.runAttribution(game); return; }
                                 case "vanity-spells" -> { VanityTimeStopChecks.runSpells(game); return; }
+                                case "vanity-resident-spells" -> { VanityTimeStopChecks.runResidentSpells(game); return; }
                                 case "vanity-terrain-jobs" -> { VanityTimeStopChecks.runTerrainJobs(game); return; }
                                 case "vanity-terminals" -> { VanityTimeStopChecks.runTerminals(game); return; }
                                 case "vanity-rays" -> { VanityTimeStopChecks.runRays(game); return; }

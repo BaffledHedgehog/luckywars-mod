@@ -18,7 +18,6 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
-import java.util.Set;
 
 /** Sparse all-air placement; admission/debit remain in the shared special-drop dispatcher. */
 public final class LbcCorrosionDrops {
@@ -28,7 +27,8 @@ public final class LbcCorrosionDrops {
     private static final DustParticleOptions DUST = new DustParticleOptions(
             ARGB.colorFromFloat(1, .255f, .204f, .302f) & 0xffffff, 2);
     private final GameController game;
-    private final Set<Job> jobs = new HashSet<>();
+    private HashSet<Job> jobs = new HashSet<>();
+    private int inProgress;
 
     public LbcCorrosionDrops(GameController game) { this.game = game; }
 
@@ -49,19 +49,23 @@ public final class LbcCorrosionDrops {
     }
 
     boolean spawnForCheck(ItemEntity token, LbcCorrosionDropItem.Kind kind, long seed) {
-        if (!ready(token, kind)) return false;
-        var cause = game.items().specialDrops().owner(token);
-        var job = new Job((ServerLevel) token.level(), token.position(), kind,
-                cause instanceof ServerPlayer player ? player : null, seed);
-        jobs.add(job);
-        game.items().stonekivi().queuedWork(job);
-        return true;
+        ++inProgress;game.items().stonekivi().beginNativeWork();try {
+            if (!ready(token, kind)) return false;
+            var cause = game.items().specialDrops().owner(token);
+            var job = new Job((ServerLevel) token.level(), token.position(), kind,
+                    cause instanceof ServerPlayer player ? player : null, seed);
+            jobs.add(job);
+            game.items().stonekivi().queuedWork(job);
+            return true;
+        }finally{game.items().stonekivi().endNativeWork();--inProgress;}
     }
 
     public int count() { return jobs.size(); }
 
     public void stop() {
-        for (var job : new ArrayList<>(jobs)) job.cancel();
+        ++inProgress;game.items().stonekivi().beginNativeWork();try {
+            for (var job : new ArrayList<>(jobs)) job.cancel();
+        }finally{game.items().stonekivi().endNativeWork();--inProgress;}
     }
 
     /** Main-thread native fixtures can finish a ready job without introducing another tick budget. */
@@ -84,7 +88,7 @@ public final class LbcCorrosionDrops {
         final Vec3 point;
         final BlockPos center, origin;
         final LbcCorrosionDropItem.Kind kind;
-        final ServerPlayer cause;
+        ServerPlayer cause;
         final String epoch = game.items().epoch();
         final RandomSource random;
         // Only successful writes are retained: no template cells or per-cell BlockPos objects.
@@ -120,26 +124,40 @@ public final class LbcCorrosionDrops {
         }
 
         @Override public boolean step() {
-            if (!live()) { cancel(); return true; }
-            if (!ready()) return false;
-            long deadline = System.nanoTime() + 500_000;
-            int startPhase = phase, writesBefore = placed.size();
-            int allowance = phase == 0 ? 4096 : 128;
-            game.items().indirectKills().worldChanges(level, cause, true, () -> {
-                // Air reads are cheap; budget successful writes separately so sparse terrain progresses.
-                for (int operations = 0; operations < allowance && phase == startPhase
-                        && placed.size() - writesBefore < 128 && System.nanoTime() < deadline; operations++) {
-                    switch (phase) {
-                        case 0 -> erase();
-                        case 1 -> edge();
-                        case 2 -> update();
-                        case 3 -> finish();
-                        default -> throw new IllegalStateException("corrosion phase");
+            ++inProgress;game.items().stonekivi().beginNativeWork();try {
+                if (!live()) { cancel(); return true; }
+                if (!ready()) return false;
+                long deadline = System.nanoTime() + 500_000;
+                int startPhase = phase, writesBefore = placed.size();
+                int allowance = phase == 0 ? 4096 : 128;
+                game.items().indirectKills().worldChanges(level, cause, true, () -> {
+                    // Air reads are cheap; budget successful writes separately so sparse terrain progresses.
+                    for (int operations = 0; operations < allowance && phase == startPhase
+                            && placed.size() - writesBefore < 128 && System.nanoTime() < deadline; operations++) {
+                        switch (phase) {
+                            case 0 -> erase();
+                            case 1 -> edge();
+                            case 2 -> update();
+                            case 3 -> finish();
+                            default -> throw new IllegalStateException("corrosion phase");
+                        }
                     }
-                }
-            });
-            if (phase == 4) { cancel(); return true; }
-            return false;
+                });
+                if (phase == 4) { cancel(); return true; }
+                return false;
+            }finally{game.items().stonekivi().endNativeWork();--inProgress;}
+        }
+
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var author=graph.links.key(cause);var entropy=MatchRandomState.capture(random);
+            var writes=placed.toIntArray();var bits=(BitSet)occupied.clone();
+            var scratch=pos.immutable();var adjacent=neighbor.immutable();
+            int savedChunkX=chunkX,savedChunkZ=chunkZ,savedSectionY=sectionY,savedCell=cell;
+            int savedPhase=phase,savedFollow=follow,savedFace=face;boolean dead=cancelled;
+            return links->{checkpointBoundary();MatchAuthorityCheckpoint.world(game,level);var current=(ServerPlayer)links.get(author);
+                return ()->{cause=current;placed.clear();for(int value:writes)placed.add(value);occupied.clear();occupied.or(bits);
+                    pos.set(scratch);neighbor.set(adjacent);chunkX=savedChunkX;chunkZ=savedChunkZ;sectionY=savedSectionY;cell=savedCell;
+                    phase=savedPhase;follow=savedFollow;face=savedFace;cancelled=dead;entropy.restore(random);};};
         }
 
         /** Each resident section is visited once; canonical-air sections require no cell scan. */
@@ -217,7 +235,21 @@ public final class LbcCorrosionDrops {
         }
 
         @Override public void cancel() {
-            cancelled = true; placed.clear(); occupied.clear(); jobs.remove(this);
+            ++inProgress;game.items().stonekivi().beginNativeWork();try {
+                cancelled = true; placed.clear(); occupied.clear(); jobs.remove(this);
+            }finally{game.items().stonekivi().endNativeWork();--inProgress;}
+        }
+    }
+
+    void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish corrosion native callbacks before checkpointing");}
+    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
+    final class Checkpoint {
+        private final HashSet<Job> saved;
+        @SuppressWarnings("unchecked") Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            saved=(HashSet<Job>)jobs.clone();saved.forEach(graph::capture);
+        }
+        @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var restored=(HashSet<Job>)saved.clone();return ()->jobs=restored;
         }
     }
 
