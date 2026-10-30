@@ -43,7 +43,8 @@ public final class LbcExoperso {
     private final GameController game;
     private final Set<Charge> charges = new LinkedHashSet<>();
     private final ArrayList<Charge> batch = new ArrayList<>();
-    private final Map<Entity, Series> blastSources = new IdentityHashMap<>();
+    private IdentityHashMap<Entity, Series> blastSources = new IdentityHashMap<>();
+    private boolean advancing,rewinding;
 
     private static EntityType<Charge> registerType() {
         var key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("skywars2:exoperso_charge"));
@@ -68,7 +69,7 @@ public final class LbcExoperso {
         @Override public boolean isPushedByFluid() { return false; }
     }
 
-    private static final class Series {
+    private final class Series implements MatchBlastCheckpoint.Binding {
         final UUID owner;
         final String epoch;
         final Set<UUID> requiredPlayers = new HashSet<>();
@@ -77,6 +78,8 @@ public final class LbcExoperso {
             this.owner = owner.getUUID();
             this.epoch = epoch;
         }
+        public void accept(PrimedTnt tnt){if(tnt==null)return;tnt.entityTags().add(EXPLOSIVE);game.items().markCurrentItemEpoch(tnt);blastSources.put(tnt,this);}
+        public void checkpoint(MatchBlastCheckpoint.Graph graph){graph.remember(this,()->{var required=Set.copyOf(requiredPlayers);var saved=Set.copyOf(kills);return links->()->{requiredPlayers.clear();requiredPlayers.addAll(required);kills.clear();kills.addAll(saved);};});}
     }
 
     LbcExoperso(GameController game) { this.game = game; }
@@ -127,7 +130,7 @@ public final class LbcExoperso {
 
     private int windup(Charge charge) { return charge.upgraded ? 160 : 319; }
 
-    void tick() {
+    void tick() {if(rewinding)return;if(advancing)throw new IllegalStateException("Reentrant Exoperso advance");advancing=true;try{
         // TNT удаляется перед native explode: освобождаем цепные источники только после его тика.
         blastSources.keySet().removeIf(Entity::isRemoved);
         if (charges.isEmpty()) return;
@@ -195,6 +198,7 @@ public final class LbcExoperso {
         } finally {
             batch.clear();
         }
+        }finally{advancing=false;}
     }
 
     private void emitCharge(ServerPlayer owner, Vec3 at) {
@@ -225,13 +229,7 @@ public final class LbcExoperso {
         // Снимок в момент попадания: другие касты и отложенное выполнение очереди его не меняют.
         for (ServerPlayer player : game.alivePlayers())
             if (!player.getUUID().equals(series.owner)) series.requiredPlayers.add(player.getUUID());
-        Consumer<PrimedTnt> attach = tnt -> {
-            if (tnt == null) return;
-            tnt.entityTags().add(EXPLOSIVE);
-            game.items().markCurrentItemEpoch(tnt);
-            blastSources.put(tnt, series);
-        };
-        game.items().exasperato().exopersoBurst(owner, point, attach);
+        game.items().exasperato().exopersoBurst(owner, point, series);
     }
 
     /** Used by the queue's blast callback so source attribution survives the synchronous explosion. */
@@ -282,6 +280,17 @@ public final class LbcExoperso {
         for (Charge charge : List.copyOf(charges)) cleanup(charge);
         charges.clear();
         batch.clear();
-        blastSources.clear();
+        blastSources.clear();rewinding=false;
+    }
+
+    void checkpointBoundary(){if(advancing||!batch.isEmpty())throw new IllegalStateException("Finish Exoperso callbacks before checkpointing");}
+    void prepareCheckpoint(){rewinding=true;}
+    void cancelCheckpoint(){rewinding=false;}
+    Checkpoint checkpoint(MatchBlastCheckpoint.Graph graph){return new Checkpoint(graph);}
+    final class Checkpoint {
+        private record Actor(MatchDamageSources.Ref key,int age,int flight,boolean upgraded,Vec3 aim){}
+        private final List<Actor> actors;private final MatchSpellCheckpoint.IdentityImage<Entity,Series> series;
+        Checkpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.flightAge,c.upgraded,c.aim)).toList();blastSources.values().forEach(v->v.checkpoint(graph));series=new MatchSpellCheckpoint.IdentityImage<>(blastSources,graph.links);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exoperso charges first");bodies.add(c);}var ledger=series.restore(links);return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.flightAge=a.flight;c.upgraded=a.upgraded;c.aim=a.aim;}blastSources=ledger;rewinding=false;};}
     }
 }

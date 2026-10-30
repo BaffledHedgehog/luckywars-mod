@@ -836,6 +836,7 @@ public final class GameChecks {
                                 case "vanity-time-stop" -> { VanityTimeStopChecks.run(game); return; }
                                 case "vanity-attribution" -> { VanityTimeStopChecks.runAttribution(game); return; }
                                 case "vanity-spells" -> { VanityTimeStopChecks.runSpells(game); return; }
+                                case "vanity-blasts" -> { VanityTimeStopChecks.runBlasts(game); return; }
                                 case "vanity-batch" -> { VanityTimeStopChecks.runBatch(game); return; }
                                 case "vanity-authorities" -> { VanityTimeStopChecks.runAuthorities(game); return; }
                                 case "indolence-fingers" -> { IndolenceFingerChecks.producer(game); return; }

@@ -1,3 +1,21 @@
+## Vanity explosive series and replayable rainbow/nuclear aim ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Ownership, boundaries and exact native proof](agent_notes/VANITY_BLAST_CHECKPOINT_2026_10_30.md).
+One graph retains private Exasperato/Exoperso ages/aim/registries, actual FIFO batch
+geometry/cursors/current authors and shared original kill-cohort/academy-trial values.
+Typed initializers preserve live/chain/queue aliases; opaque closures reject. Narrow
+academy accessor preserves the author's source. Ordinary/academic rainbow sampling
+and original500-block nuclear aiming resume after completed terminals/current-body
+replacement. Direct/queued/cosmos reentry rejects; failed initializers clean both
+ledgers and reset nesting guards. Native player-load/teleport test acknowledgements
+retain original geometry/damage expectations. 47501ca4 passed54 suites/19 actualmode1
+matches/ONE child (317.24s), first36 together; 11351 inputs/5481 entries/
+266 receipts.199authorpaths/31overrides/main d9087f0a exact;normalexit/exact snapshots/
+no locks. No functions/RP/template/questionfile/maininstall/restart/push. Full original25
+gate CLOSED; Vanity stays gated. Nuclear per-client shader/slot state, other private
+abilities/opaque jobs/AI/BE/multipart/async/regions and the full writer/input/IO/lifecycle/
+offline/map coordinator remain. NOT full Vanity; retain all earlier canonical owners.
+
 ## Vanity Gluttony/shared jobs and private FPV ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Ownership, phase ordering and exact native proof](agent_notes/VANITY_BATCH_CHECKPOINT_2026_10_30.md).

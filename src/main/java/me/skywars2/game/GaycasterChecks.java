@@ -34,7 +34,7 @@ public final class GaycasterChecks {
         final Set<String> completed=new HashSet<>(),unlocks;
         final Map<net.minecraft.stats.Stat<Identifier>,Integer> stats=new LinkedHashMap<>();
         final boolean offhand;final int skill,trinket,challengeProgress;
-        final net.minecraft.world.scores.PlayerTeam team;
+        final net.minecraft.world.scores.PlayerTeam team;ShishEncounterChecks.Client otherClient;
         Cow victim;int phase,color=-1,waits,warmTicks;boolean rayReady,emptyDone,academy,warmed;double emptyDistance;long last=Long.MIN_VALUE;
         ItemStack meditation;LbcClouds.AcidProjectile seed;int trialTicks;final Set<Integer> trialPhases=new HashSet<>();
         final Set<LbcGaycasterAcademy.Hazard> trialSeen=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -52,7 +52,7 @@ public final class GaycasterChecks {
             var a=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/gaycaster"));require(a!=null,"source advancement packaged");owner.getAdvancements().getOrStartProgress(a).getCompletedCriteria().forEach(completed::add);
             owner.level().getAllEntities().forEach(before::add);team=game.server().getScoreboard().addPlayerTeam("gaycaster_fixture");
         }
-        void init(){
+        void init(){otherClient=new ShishEncounterChecks.Client(game,other);
             for(int x=-16;x<=-14;x++)for(int z=-16;z<=-6;z++){long k=net.minecraft.world.level.ChunkPos.pack(x,z);if(!owner.level().getForceLoadedChunks().contains(k)){forced.add(k);owner.level().setChunkForced(x,z,true);}owner.level().getChunk(x,z);}
             owner.closeContainer();owner.getInventory().clearContent();owner.removeAllEffects();owner.setGameMode(GameType.SURVIVAL);owner.setNoGravity(true);owner.setShiftKeyDown(false);
             owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,true);other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);other.setNoGravity(true);
@@ -186,6 +186,8 @@ public final class GaycasterChecks {
             try{
                 profile.lbcSkill=0;profile.lbcTrinket=0;other.setGameMode(GameType.SURVIVAL);other.getInventory().clearContent();other.removeAllEffects();
                 other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);other.setNoGravity(true);
+                otherClient.ack();
+                require(other.connection.hasClientLoaded()&&!other.isChangingDimension(),"native geometry recipient completed its real player-load handshake");
                 var trials=LbcGaycasterAcademy.class.getDeclaredField("trials");trials.setAccessible(true);
                 Object trial=((Map<?,?>)trials.get(academy)).get(owner);require(trial!=null,"active trial for actual prism damage probes");
                 var step=LbcGaycasterAcademy.class.getDeclaredMethod("tickHazard",trial.getClass(),LbcGaycasterAcademy.Hazard.class,List.class);step.setAccessible(true);
@@ -212,12 +214,12 @@ public final class GaycasterChecks {
             finally{profile.lbcSkill=oldSkill;profile.lbcTrinket=oldTrinket;restore.restore(game);}
         }
         void prismBeamProbe(java.lang.reflect.Method step,Object trial,Vec3 from,Vec3 direction,Vec3 position,boolean hit,String why)throws ReflectiveOperationException{
-            other.teleportTo(other.level(),position.x,position.y,position.z,Set.of(),0,0,true);other.setHealth(1000);other.setAbsorptionAmount(0);
+            other.teleportTo(other.level(),position.x,position.y,position.z,Set.of(),0,0,true);otherClient.ack();other.setHealth(1000);other.setAbsorptionAmount(0);
             other.setInvulnerableTime(0);other.damageCooldownTime=0;
             var h=new LbcGaycasterAcademy.Hazard(1,from,direction);h.age=30;
             try{
                 require(Boolean.TRUE.equals(step.invoke(game.items().gaycasterAcademy(),trial,h,List.of(other))),"prism completes once: "+why);
-                require(other.getHealth()==(hit?993:1000),"exact player hitbox "+why+" hp="+other.getHealth()+" box="+other.getBoundingBox());
+                require(other.getHealth()==(hit?993:1000),"exact player hitbox "+why+" hp="+other.getHealth()+" box="+other.getBoundingBox()+" loaded="+other.connection.hasClientLoaded()+" changing="+other.isChangingDimension()+" ability="+other.getAbilities().invulnerable+" pvp="+other.canHarmPlayer(owner)+" admitted="+game.allowDamage(other)+" tags="+other.entityTags());
                 require(game.items().gaycasterAcademy().remaining(owner)>0,"probe never affects source trial");
                 if(hit)require(other.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.ARROW)&&other.getKillCredit()==owner,"native arrow7 and caster credit");
             }finally{h.close();}
@@ -228,6 +230,8 @@ public final class GaycasterChecks {
             try{
                 profile.lbcSkill=0;profile.lbcTrinket=0;other.setGameMode(GameType.SURVIVAL);other.getInventory().clearContent();other.removeAllEffects();
                 other.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);other.setNoGravity(true);
+                otherClient.ack();
+                require(other.connection.hasClientLoaded()&&!other.isChangingDimension(),"native geometry recipient completed its real player-load handshake");
                 var trials=LbcGaycasterAcademy.class.getDeclaredField("trials");trials.setAccessible(true);
                 Object trial=((Map<?,?>)trials.get(academy)).get(owner);require(trial!=null,"active trial for actual electric player probes");
                 var step=LbcGaycasterAcademy.class.getDeclaredMethod("tickHazard",trial.getClass(),LbcGaycasterAcademy.Hazard.class,List.class);step.setAccessible(true);
@@ -257,7 +261,7 @@ public final class GaycasterChecks {
             finally{profile.lbcSkill=oldSkill;profile.lbcTrinket=oldTrinket;restore.restore(game);}
         }
         void electricWallProbe(java.lang.reflect.Method step,Object trial,Vec3 point,Vec3 direction,Vec3 position,boolean hit,String why)throws ReflectiveOperationException{
-            other.teleportTo(other.level(),position.x,position.y,position.z,Set.of(),0,0,true);other.setHealth(1000);other.setAbsorptionAmount(0);
+            other.teleportTo(other.level(),position.x,position.y,position.z,Set.of(),0,0,true);otherClient.ack();other.setHealth(1000);other.setAbsorptionAmount(0);
             other.setInvulnerableTime(0);other.damageCooldownTime=0;
             var academy=game.items().gaycasterAcademy();int remaining=academy.remaining(owner);float ownerHealth=owner.getHealth();
             var h=new LbcGaycasterAcademy.Hazard(4,point,direction);
@@ -442,7 +446,7 @@ public final class GaycasterChecks {
             clearActors();victim=cow(owner.getEyePosition().add(0,-.6,3));game.items().mana().set(owner,100000);require(use(InteractionHand.MAIN_HAND),"queued ray");
             game.items().timeStop().begin(owner.level(),200);waits=0;
         }
-        boolean step(){
+        boolean step(){otherClient.ack();
             long now=owner.level().getGameTime();if(last==now)return false;last=now;
             if(phase==0){presentation();color=0;launch();phase=1;return false;}
             if(phase==1){
@@ -517,7 +521,7 @@ public final class GaycasterChecks {
             }
             throw new IllegalStateException("phase");
         }
-        public void close(){
+        public void close(){try{
             game.items().gaycasterAcademy().forget(owner);
             game.items().timeStop().end(owner.level());clearActors();game.items().kiuas().clearCurse(owner);game.items().kiuas().clearCurse(other);
             var fresh=new ArrayList<Entity>();owner.level().getAllEntities().forEach(e->{if(!before.contains(e)&&e.position().distanceToSqr(at)<40000)fresh.add(e);});fresh.forEach(Entity::discard);
@@ -527,6 +531,7 @@ public final class GaycasterChecks {
             var a=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/gaycaster"));for(String c:a.value().criteria().keySet())if(!completed.contains(c))owner.getAdvancements().revoke(a,c);
             game.items().indirectKills().clear(owner);game.items().indirectKills().clear(other);
             for(long k:forced)owner.level().setChunkForced(net.minecraft.world.level.ChunkPos.getX(k),net.minecraft.world.level.ChunkPos.getZ(k),false);
+            }finally{if(otherClient!=null){try{otherClient.ack();}finally{otherClient.close();}}}
         }
     }
     public static void run(GameController game){require(running==null,"exclusive");var f=new Fixture(game);running=f;try{f.init();}catch(RuntimeException|Error e){running=null;f.close();throw e;}}

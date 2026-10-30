@@ -64,14 +64,10 @@ final class LbcGaycasterAcademy {
     }
     private int cost(){return game.items().mana().score(ScoreHolder.forNameOnly("gaycaster_mana_use"),"lbc.math").get();}
     void cast(ServerPlayer owner,int color){
-        Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle();double[] next={0};
+        Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle();
         LbcOverload.sound(owner,from,"minecraft:lbcsounds.laser_mg_shot",1,0,0);
         LbcOverload.sound(owner,from,"minecraft:item.trident.return",1,0,0);
-        game.items().exasperato().searchSpell(owner,from,direction,125,false,(p,s)->!s.is(AIRS),e->LbcGaycaster.target(game,owner,e),
-                (a,b)->{double end=from.distanceTo(b);while(next[0]<=end&&next[0]<125){
-                    particles(owner,new DustParticleOptions(COLORS[color-1],1.5f),from.add(direction.scale(next[0])),1,0,0,0,0);next[0]+=.5;}
-                }).thenAccept(hit->{if(hit!=null)impact(owner,hit.getLocation(),direction,color,
-                        hit instanceof EntityHitResult e&&e.getEntity() instanceof LivingEntity l?l:null);});
+        game.items().exasperato().replayableSpell(owner,from,direction,125,new LbcRainbowRay(game,owner,from,direction,color,COLORS[color-1]));
     }
     void impact(ServerPlayer owner,Vec3 point,Vec3 direction,int color,LivingEntity direct){
         if(game.items().magic().suppressedAt(owner.level(),point))return;

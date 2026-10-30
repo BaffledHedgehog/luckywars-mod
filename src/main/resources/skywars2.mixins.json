@@ -2,6 +2,7 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "AcademyBlastCheckpointAccess",
     "PolymorphMixin$Level",
     "PolymorphMixin$Damage",
     "PolymorphMixin$Effects",

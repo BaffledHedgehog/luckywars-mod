@@ -84,6 +84,7 @@ public final class LbcExasperato {
         boolean target(Entity entity);
         void trail(Vec3 from,Vec3 to);
         void complete(net.minecraft.world.phys.HitResult hit);
+        default MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){return ignored->()->{};}
     }
     private static boolean done(Search s){return s.replay==null?s.result.isDone():s.finished;}
     private static void complete(Search s,net.minecraft.world.phys.HitResult hit){if(done(s))return;if(s.replay==null)s.result.complete(hit);else{s.finished=true;s.replay.complete(hit);}}
@@ -92,7 +93,7 @@ public final class LbcExasperato {
         if(range>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
     }
     private static final class BlastBatch {
-        final ServerPlayer owner;
+        ServerPlayer owner;
         final ServerLevel level;
         final Vec3 origin;
         final String epoch;
@@ -111,6 +112,7 @@ public final class LbcExasperato {
     }
     // (user) Сохраняем все серии без отказов в касте; одна запись хранит всю серию, а не 32 задачи.
     private final ArrayDeque<BlastBatch> blasts=new ArrayDeque<>();
+    private boolean blastAdvancing,blastRewind;private int nativeBlasts;
 
     private static EntityType<Charge> registerType() {
         var key=ResourceKey.create(Registries.ENTITY_TYPE,Identifier.parse("skywars2:exasperato_charge"));
@@ -254,8 +256,17 @@ public final class LbcExasperato {
     /** The Academy queue casts the nuclear spell; the falling-rocket tick is its consumer. */
     private void castNukeAt(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         String epoch=game.items().epoch();
-        searchLoadedRay(owner,origin,direction,true,null)
-                .thenAccept(hit->{ if(hit!=null) spawnNuke(owner,hit.getLocation(),epoch); });
+        var aim=direction.normalize();var reach=loadedRayExtent(owner,origin,aim,true,false);
+        var terminal=new NukeAim(owner.getUUID(),epoch);var search=new Search(owner,epoch,origin,aim,reach,true,null,false);search.replay=terminal;
+        if(reach>0)searches.addLast(search);else complete(search,null);
+    }
+
+    private final class NukeAim implements ReplayableRay {
+        final java.util.UUID author;final String epoch;NukeAim(java.util.UUID author,String epoch){this.author=author;this.epoch=epoch;}
+        public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){throw new IllegalStateException("Nuclear aim uses native collision geometry");}
+        public boolean target(Entity entity){throw new IllegalStateException("Nuclear aim uses the canonical target policy");}
+        public void trail(Vec3 from,Vec3 to){}
+        public void complete(net.minecraft.world.phys.HitResult hit){var owner=game.server().getPlayerList().getPlayer(author);if(hit!=null&&owner!=null)spawnNuke(owner,hit.getLocation(),epoch);}
     }
 
     /** Общая порционная очередь прицеливания: дальность ограничена геометрией и загруженными чанками. */
@@ -432,6 +443,7 @@ public final class LbcExasperato {
 
     /** Один нативный взрыв неделим; бюджет проверяется между взрывами, до следующего. */
     void blastTick() {
+        if(blastRewind)return;if(blastAdvancing)throw new IllegalStateException("Reentrant blast queue advance");blastAdvancing=true;try{
         if(blasts.isEmpty()) return;
         long started=System.nanoTime();
         for(int work=0;work<BLASTS_PER_TICK && !blasts.isEmpty();work++) {
@@ -455,6 +467,7 @@ public final class LbcExasperato {
             // Round-robin даёт прогресс каждой серии, даже при непрерывных новых попаданиях.
             if(System.nanoTime()-started>=BLAST_BUDGET_NANOS) break;
         }
+        }finally{blastAdvancing=false;}
     }
 
     /** The source's instant radius100 creeper, using the existing round-robin CPU budget. */
@@ -467,7 +480,7 @@ public final class LbcExasperato {
         int count=0; for(var batch:blasts) if(batch.cosmos) count+=batch.offsets.length-batch.next;
         return count;
     }
-    private void cosmosBlast(BlastBatch batch) {
+    private void cosmosBlast(BlastBatch batch) {nativeBlasts++;try{
         var source=EntityTypes.CREEPER.create(batch.level,net.minecraft.world.entity.EntitySpawnReason.COMMAND);
         if(source==null) return;
         source.setPos(batch.origin);
@@ -477,6 +490,7 @@ public final class LbcExasperato {
         // The source is a mob explosion: retain mobGriefing and do not apply the TNT protection setting.
         batch.level.explode(source,damage,null,batch.origin.x,batch.origin.y,batch.origin.z,
                 batch.radius,false,Level.ExplosionInteraction.MOB);
+        }finally{nativeBlasts--;}
     }
 
     private void nukeStep(Charge charge,ServerPlayer owner) {
@@ -720,7 +734,7 @@ public final class LbcExasperato {
         nativeBlast(owner,level,at,radius,epoch,protectedDamage,sourceInit,false);
     }
     private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
-            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension) {
+            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension) {nativeBlasts++;try{
         if(!encounterDimension && level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
                 || !level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
                 || !game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
@@ -732,12 +746,12 @@ public final class LbcExasperato {
         if(owner instanceof ServerPlayer) source.entityTags().add(EXPLOSIVE);
         if(!protectedDamage) source.entityTags().add(LbcDamage.UNPROTECTED_TNT);
         game.items().markCurrentItemEpoch(source);
-        if(sourceInit!=null) sourceInit.accept(source);
-        try { level.explode(source,at.x,at.y,at.z,radius,Level.ExplosionInteraction.TNT); }
+        try { if(sourceInit!=null) sourceInit.accept(source); level.explode(source,at.x,at.y,at.z,radius,Level.ExplosionInteraction.TNT); }
         finally {
             game.items().academy().blastFinished(source);
             game.items().exoperso().blastFinished(source);
         }
+        }finally{nativeBlasts--;}
     }
 
     private void step(Charge charge,ServerPlayer owner) {
@@ -787,7 +801,7 @@ public final class LbcExasperato {
         if(!offsets.isEmpty()) {
             var burst=new BlastBatch(owner,origin,epoch);
             burst.offsets=offsets.toArray(Vec3[]::new); burst.radius=4; burst.protectedDamage=true;
-            burst.sourceInit=source->game.items().academy().blastSource(source,trial);
+            burst.sourceInit=MatchBlastCheckpoint.academyBinding(game,trial);
             blasts.addLast(burst);
         }
         for(int i=0;i<Math.min(50,offsets.size());i++) {
@@ -811,7 +825,7 @@ public final class LbcExasperato {
     }
     void stop() {
         for(var search:searches) {if(search.replay==null)search.result.cancel(false);else complete(search,null);}
-        searches.clear();searchRewind=false; game.items().nuclearVisuals().stop(); blasts.clear();
+        searches.clear();searchRewind=false; game.items().nuclearVisuals().stop(); blasts.clear();blastRewind=false;
         var detached=List.copyOf(charges); charges.clear();
         for(var charge:detached) charge.discard();
     }
@@ -820,11 +834,24 @@ public final class LbcExasperato {
     void cancelSearchCheckpoint(){searchRewind=false;}
     SearchCheckpoint checkpointSearches(MatchSpellCheckpoint.Links links){return new SearchCheckpoint(links);}
     final class SearchCheckpoint {
-        private record Image(Search original,MatchDamageSources.Ref owner,Vec3 position,double remaining,boolean finished) { }
+        private record Image(Search original,MatchDamageSources.Ref owner,Vec3 position,double remaining,boolean finished,MatchQueuedWorkCheckpoint.Image terminal) { }
         private final List<Image> images;
-        SearchCheckpoint(MatchSpellCheckpoint.Links links){var list=new ArrayList<Image>();for(var s:searches){if(s.replay==null)throw new IllegalStateException("Missing typed continuation for opaque ray completion");list.add(new Image(s,links.key(s.owner),s.position,s.remaining,s.finished));}images=List.copyOf(list);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var owners=new java.util.IdentityHashMap<Search,ServerPlayer>();for(var image:images){MatchAuthorityCheckpoint.world(game,image.original.level);if(!(links.get(image.owner) instanceof ServerPlayer p))throw new IllegalStateException("Restore current ray author bodies first");owners.put(image.original,p);}
-            return ()->{searches.clear();for(var image:images){var s=image.original;s.owner=owners.get(s);s.position=image.position;s.remaining=image.remaining;s.finished=image.finished;searches.addLast(s);}searchRewind=false;};}
+        SearchCheckpoint(MatchSpellCheckpoint.Links links){var list=new ArrayList<Image>();for(var s:searches){if(s.replay==null)throw new IllegalStateException("Missing typed continuation for opaque ray completion");list.add(new Image(s,links.key(s.owner),s.position,s.remaining,s.finished,s.replay.checkpoint(links)));}images=List.copyOf(list);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var terminalPlans=images.stream().map(image->image.terminal.prepare(links)).toList();var owners=new java.util.IdentityHashMap<Search,ServerPlayer>();for(var image:images){MatchAuthorityCheckpoint.world(game,image.original.level);if(!(links.get(image.owner) instanceof ServerPlayer p))throw new IllegalStateException("Restore current ray author bodies first");owners.put(image.original,p);}
+            return ()->{terminalPlans.forEach(Runnable::run);searches.clear();for(var image:images){var s=image.original;s.owner=owners.get(s);s.position=image.position;s.remaining=image.remaining;s.finished=image.finished;searches.addLast(s);}searchRewind=false;};}
     }
 
+
+    void blastBoundary(){if(nativeBlasts!=0||blastAdvancing||!batch.isEmpty())throw new IllegalStateException("Finish explosive callbacks before checkpointing");}
+    void prepareBlastCheckpoint(){blastRewind=true;blasts.clear();}
+    void cancelBlastCheckpoint(){blastRewind=false;}
+    BlastCheckpoint checkpointBlasts(MatchBlastCheckpoint.Graph graph){return new BlastCheckpoint(graph);}
+    final class BlastCheckpoint {
+        private record Actor(MatchDamageSources.Ref key,int age,int mode,int life,boolean trial){}
+        private record Burst(BlastBatch original,MatchDamageSources.Ref owner,Vec3[] offsets,float radius,boolean protectedDamage,boolean cosmos,int next,java.util.function.Consumer<PrimedTnt> init){}
+        private final List<Actor> actors;private final List<Burst> queue;
+        BlastCheckpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.mode,c.lifetime,c.academyTrial)).toList();queue=blasts.stream().map(b->{graph.binding(b.sourceInit);return new Burst(b,graph.links.key(b.owner),b.offsets.clone(),b.radius,b.protectedDamage,b.cosmos,b.next,b.sourceInit);}).toList();}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exasperato charges first");bodies.add(c);}var owners=new java.util.IdentityHashMap<BlastBatch,ServerPlayer>();for(var b:queue){MatchAuthorityCheckpoint.world(game,b.original.level);var owner=links.get(b.owner);if(owner!=null&&!(owner instanceof ServerPlayer))throw new IllegalStateException("Restore current burst authors first");owners.put(b.original,(ServerPlayer)owner);}
+            return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.mode=a.mode;c.lifetime=a.life;c.academyTrial=a.trial;}blasts.clear();for(var b:queue){var live=b.original;live.owner=owners.get(live);live.offsets=b.offsets.clone();live.radius=b.radius;live.protectedDamage=b.protectedDamage;live.cosmos=b.cosmos;live.next=b.next;live.sourceInit=b.init;blasts.addLast(live);}blastRewind=false;};}
+    }
 }

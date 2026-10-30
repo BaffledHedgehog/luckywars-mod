@@ -57,24 +57,10 @@ final class LbcGaycaster {
         LbcOverload.sound(owner,origin,"minecraft:lbcsounds.laser_mg_shot",1,0,0);
         LbcOverload.sound(owner,origin,"minecraft:item.trident.return",1,0,0);
         // Sample cursor belongs to this cast, including simultaneous hands and different casters.
-        double[] next={0};
-        game.items().exasperato().searchSpell(owner,origin,direction,125,false,(p,s)->!s.is(AIRS),
-                e->target(game,owner,e),(from,to)->{
-                    double end=origin.distanceTo(to);
-                    while(next[0]<=end&&next[0]<125){
-                        Vec3 point=origin.add(direction.scale(next[0]));
-                        owner.level().sendParticles(dust(hue(next[0]),1.5f),true,false,point.x,point.y,point.z,1,0,0,0,0);next[0]+=.5;
-                    }
-                }).thenAccept(hit->{
-                    if(hit==null)return;
-                    Vec3 point=hit.getLocation();int hue=hue(origin.distanceTo(point));
-                    if(hit instanceof EntityHitResult e&&e.getEntity() instanceof LivingEntity living)
-                        impact(game,owner,point,direction,hue,living);
-                    else impact(game,owner,point,direction,hue,null);
-                });
+        game.items().exasperato().replayableSpell(owner,origin,direction,125,new LbcRainbowRay(game,owner,origin,direction,0,0));
     }
     static int hue(double distance){return (-20+5*Mth.floor((distance+1e-6)*2))%360;}
-    private static DustParticleOptions dust(int hue,float size){return new DustParticleOptions(Mth.hsvToRgb(Math.floorMod(hue,360)/360f,.75f,1),size);}
+    static DustParticleOptions dust(int hue,float size){return new DustParticleOptions(Mth.hsvToRgb(Math.floorMod(hue,360)/360f,.75f,1),size);}
     /** Source boundary overlaps are retained: block red320..329 and blue/purple278. */
     static boolean band(int hue,int color,boolean block){
         return switch(color){case 0->hue>=0&&hue<=20||hue>=(block?320:330)&&hue<=359;
