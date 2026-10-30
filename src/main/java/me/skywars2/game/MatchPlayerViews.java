@@ -104,7 +104,8 @@ public final class MatchPlayerViews {
             throw new IllegalStateException("Unsupported native storage menu");
         }
     }
-    private record View(UUID camera,Storage storage,Drag drag) { }
+    private record Workshop(MatchWorkstations image,Component title,ItemStack cursor) { }
+    private record View(UUID camera,Storage storage,Workshop workshop,Drag drag) { }
     private final GameController game;
     private final Map<UUID,View> images=new LinkedHashMap<>();
 
@@ -112,7 +113,10 @@ public final class MatchPlayerViews {
         this.game=game;
         for(var player:game.server().getPlayerList().getPlayers()) {
             validateMenu(player);
-            images.put(player.getUUID(),new View(player.getCamera().getUUID(),storage(player),Drag.capture(player.containerMenu)));
+            var menu=player.containerMenu;
+            var workshop=MatchWorkstations.supports(menu)?new Workshop(MatchWorkstations.capture(player),
+                    ((Title)player).skywars2$menuTitle(menu.containerId),menu.getCarried().copy()):null;
+            images.put(player.getUUID(),new View(player.getCamera().getUUID(),storage(player),workshop,Drag.capture(menu)));
         }
     }
     private static Binding binding(ServerPlayer player,Container container) {return binding(player,container,true);}
@@ -160,6 +164,9 @@ public final class MatchPlayerViews {
     }
     static void validateMenu(ServerPlayer player) {
         if(player.containerMenu==player.inventoryMenu)return;
+        if(MatchWorkstations.supports(player.containerMenu)){
+            MatchWorkstations.validate(player);((Title)player).skywars2$menuTitle(player.containerMenu.containerId);return;
+        }
         var menu=player.containerMenu;var container=backing(menu);binding(player,container);
         if(menu.getClass()==ShulkerBoxMenu.class&&container.getClass()!=ShulkerBoxBlockEntity.class)
             throw new IllegalStateException("Shulker menu must use a native shulker box");
@@ -177,15 +184,16 @@ public final class MatchPlayerViews {
         ((Title)player).skywars2$menuTitle(player.containerMenu.containerId);
     }
     private static Storage storage(ServerPlayer player) {
-        var menu=player.containerMenu;if(menu==player.inventoryMenu)return null;
+        var menu=player.containerMenu;if(menu==player.inventoryMenu||MatchWorkstations.supports(menu))return null;
         return new Storage(menu.getClass(),menu.getType(),menu instanceof ChestMenu chest?chest.getRowCount():0,
                 binding(player,backing(menu)),((Title)player).skywars2$menuTitle(menu.containerId),menu.getCarried().copy());
     }
     static void closeFutureStorage(ServerPlayer player) {
         validateFutureMenu(player);
-        if(player.containerMenu!=player.inventoryMenu){player.containerMenu.setCarried(ItemStack.EMPTY);player.closeContainer();}
+        if(player.containerMenu!=player.inventoryMenu){MatchWorkstations.discard(player.containerMenu);player.containerMenu.setCarried(ItemStack.EMPTY);player.closeContainer();}
     }
     private static void validateFutureMenu(ServerPlayer player) {
+        if(MatchWorkstations.supports(player.containerMenu)){MatchWorkstations.validateFuture(player);return;}
         if(player.containerMenu!=player.inventoryMenu)binding(player,backing(player.containerMenu),false);
     }
     static ContainerData blockData(Container container) {
@@ -211,6 +219,7 @@ public final class MatchPlayerViews {
         for(var entry:images.entrySet())if(resolve.apply(entry.getKey()) instanceof ServerPlayer player) {
             validateFutureMenu(player);var saved=entry.getValue();
             if(saved.storage!=null)backings.put(entry.getKey(),saved.storage.binding.resolve(player));
+            if(saved.workshop!=null)saved.workshop.image.preflight();
         }
         for(var entry:images.entrySet()) {
             if(!(resolve.apply(entry.getKey()) instanceof ServerPlayer player)){pending.add(entry.getKey());continue;}
@@ -223,6 +232,14 @@ public final class MatchPlayerViews {
                     if(opened.isEmpty())throw new IllegalStateException("Native storage reopening failed");
                 }
                 player.containerMenu.setCarried(storage.cursor.copy());
+            }else if(saved.workshop!=null){
+                var workshop=saved.workshop;
+                if(!workshop.image.matches(player)||!((Title)player).skywars2$menuTitle(player.containerMenu.containerId).equals(workshop.title)){
+                    closeFutureStorage(player);
+                    var opened=player.openMenu(new SimpleMenuProvider((id,inventory,p)->workshop.image.create(id,inventory),copyTitle(player,workshop.title)));
+                    if(opened.isEmpty())throw new IllegalStateException("Native workstation reopening failed");
+                }
+                workshop.image.restore(player.containerMenu);player.containerMenu.setCarried(workshop.cursor.copy());
             }else closeFutureStorage(player);
             saved.drag.restore(player.containerMenu);player.containerMenu.sendAllDataToRemote();
         }

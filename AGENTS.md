@@ -1,3 +1,20 @@
+## Vanity native workstations - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, buffer ownership and exact native evidence](agent_notes/VANITY_WORKSTATIONS_CHECKPOINT_2026_10_30.md).
+Adds crafting/anvil/smithing/grindstone/stonecutter/cartography/loom/enchanting sessions.
+Independent local inputs/results/recipe/data/name/cursor; CURRENT inventory/site links;
+no recipe/pickup callback replay; silent discard of abandoned future workspace inputs.
+Two native users share one site independently; actual death/respawn/offline reconnect,
+native result pickup and repeated material/XP consumption verified. Saved enchanting
+seed restores exactly; NEXT random seed/player-world RNG remains a separate owner.
+c4b037a2 passed22 suites/one actualmode1 match;runner62.14s;11198 frozeninputs/
+5352 packagedentries/136source receipts.199 authorpaths/31overrides/main d9087f0a
+unchanged;normalchildexit/exactsnapshots/no locks. No RP/template/questionfile edits/
+maininstall/restart/push. Full original25 gate CLOSED; Vanity acquisition stays gated.
+Next: remaining beacon/merchant/entity menus, private BE/AI/RNG/ability/TimeStop and
+multipart owners, input/writer/lifecycle/offline transaction and full world/map/storage
+reconciliation. This is NOT the complete rewind; retain the entire prior documentation.
+
 ## Vanity processing/storage and native block events - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, native ownership and exact proof](agent_notes/VANITY_STORAGE_CHECKPOINT_2026_10_30.md).
