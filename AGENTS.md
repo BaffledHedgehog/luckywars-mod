@@ -1,3 +1,20 @@
+## Vanity shared spell/summon state ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Ownership, restore phases and exact native proof](agent_notes/VANITY_SPELL_CHECKPOINT_2026_10_30.md).
+Shared policies/dormant values/controllers/summons/consequences/orders and BOTH cadence
+counters compose with canonical native bodies/teams/effects and the same source graph.
+Independent waiting/active ray images preserve due times/cursors/aliases; identity
+map clones preserve traversal after future growth. Whole-install pending UUID retry;
+null scopes and live bootstrap/advance reject. Actual source summon/aim/controller
+transfer, native ray resume and two death/respawn/offline replays;8efc771c passed33
+suites/one mode1,81.62s;11302inputs/5440entries/230receipts. Old preset assertion
+corrected to source base11/native axe +8, final19; no damage nerf.199authorpaths/31
+live overrides/main d9087f0a exact;normalexit/exactsnapshots/no locks. No function
+feature/RP/template/questionfile/main install/restart/push. Full original25 gate CLOSED;
+Vanity gated. Remaining: other private abilities/native AI/BE/multipart/async/region
+owners and complete input/writer/IO/lifecycle/offline/map transaction. NOT full Vanity;
+retain all canonical owners and prior notes.
+
 ## Vanity global causal ledgers ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Ownership, restore boundary and exact native proof](agent_notes/VANITY_ATTRIBUTION_CHECKPOINT_2026_10_30.md).

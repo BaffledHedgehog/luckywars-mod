@@ -835,6 +835,7 @@ public final class GameChecks {
                                 case "vanity-world" -> { VanityWorldChecks.run(game); return; }
                                 case "vanity-time-stop" -> { VanityTimeStopChecks.run(game); return; }
                                 case "vanity-attribution" -> { VanityTimeStopChecks.runAttribution(game); return; }
+                                case "vanity-spells" -> { VanityTimeStopChecks.runSpells(game); return; }
                                 case "indolence-fingers" -> { IndolenceFingerChecks.producer(game); return; }
                                 case "indolence-rebirth" -> { IndolenceFingerChecks.rebirth(game); return; }
                                 case "witch-wrath" -> { WitchWrathChecks.run(game); return; }
@@ -8457,8 +8458,14 @@ public final class GameChecks {
                                 }
                                 if(i==0) require(mob instanceof net.minecraft.world.entity.monster.skeleton.WitherSkeleton,"Strangeness keeps Wither Skeleton native type");
                                 if(i==2) require(mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE).getBaseValue()==10,"Luck keeps source knockback attribute");
-                                if(i==4) require(mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)==11
-                                                && mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED)==.25,"Obsession retains source attack and movement attributes");
+                                if(i==4) {
+                                        require(mob.getAttributeBaseValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)==11
+                                                && mob.getAttributeBaseValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED)==.25,"Obsession retains source BASE attack and movement attributes");
+                                        mob.setNoAi(true);mob.setNoGravity(true);level.tickNonPassenger(mob);
+                                        require(mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)==19
+                                                && mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED)==.25,
+                                                "Obsession uses native diamond axe +8 after actual equipment tick: attack="+mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)+" speed="+mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED));
+                                }
                                 if(i==5) require(mob instanceof net.minecraft.world.entity.monster.zombie.Zombie && mob.getOffhandItem().is(Items.IRON_SWORD),"Hypocrisy keeps Zombie type and both swords");
                         }
                         other.teleportTo(level,x+8,260,z,java.util.Set.of(),0,0,true);

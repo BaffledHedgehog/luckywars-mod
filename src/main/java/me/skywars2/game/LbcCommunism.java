@@ -115,4 +115,12 @@ public final class LbcCommunism {
         }
         return true;
     }
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private final Map<MatchDamageSources.Ref,UUID> image=new LinkedHashMap<>();
+        Checkpoint(MatchSpellCheckpoint.Links links){owners.forEach((actor,id)->image.put(links.key(actor),id));}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=new WeakHashMap<Entity,UUID>();image.forEach((ref,id)->restored.put(links.get(ref),id));
+            return ()->{owners.clear();owners.putAll(restored);};}
+    }
+
 }

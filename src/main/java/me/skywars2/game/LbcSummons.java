@@ -57,14 +57,15 @@ import java.util.UUID;
 /** Shared native summons: ordinary formations, Soul Vex and six Psychovex cultists. */
 public final class LbcSummons {
     public static final String PROJECTILE="skywars2.summons.projectile";
-    private final Map<Entity,UUID> consequences=new IdentityHashMap<>();
+    private IdentityHashMap<Entity,UUID> consequences=new IdentityHashMap<>();
     private static final String[] CULTISTS={"strangeness","chaos","luck","omnipresence","obsession","hypocrisy"};
     private final GameController game;
-    private final Map<Mob,Summon> mobs=new IdentityHashMap<>();
+    private IdentityHashMap<Mob,Summon> mobs=new IdentityHashMap<>();
     private Map<String,CompoundTag> presets=Map.of();
     private java.util.concurrent.CompletableFuture<Map<String,CompoundTag>> preparation;
     private final List<StrangeRay> rays=new ArrayList<>();
     private int ticks;
+    private boolean advancing;
     private final LbcSummonOrders orders;
     LbcSummonOrders orders(){return orders;}
     boolean command(ServerPlayer owner){return orders.command(owner);}
@@ -300,6 +301,7 @@ public final class LbcSummons {
         return enemies(owner,position,radius).stream().min(Comparator.comparingDouble(e->e.distanceToSqr(position))).orElse(null);
     }
     public void tick() {
+        if(advancing)throw new IllegalStateException("Reentrant summon advance");advancing=true;try {
         ++ticks;
         orders.tick();
         for(var entity:List.copyOf(consequences.keySet())) {
@@ -353,6 +355,7 @@ public final class LbcSummons {
             pausedRays=0;
             if(strangeStep(owner,ray)) activeRays.addLast(ray);
         }
+        }finally{advancing=false;}
     }
     /** AFTER_DAMAGE даёт ровно одну реакцию на настоящее попадание, без NBT/HurtTime polling. */
     public void damaged(LivingEntity victim,DamageSource source) {
@@ -564,4 +567,25 @@ public final class LbcSummons {
         @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
         @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }
     }
+    void checkpointBoundary(){if(advancing||preparation!=null&&!preparation.isDone())throw new IllegalStateException("Finish summon advance/bootstrap before checkpointing");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Ray(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,MatchDamageSources.Ref actor,Vec3 direction,int step) { }
+        private final MatchSpellCheckpoint.IdentityImage<Mob,Summon> actors;
+        private final MatchSpellCheckpoint.IdentityImage<Entity,UUID> children;
+        private final LbcSummonOrders.Checkpoint commands;
+        private final List<Ray> waiting,active;private final int cadence=ticks;
+        Checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();actors=new MatchSpellCheckpoint.IdentityImage<>(mobs,links);children=new MatchSpellCheckpoint.IdentityImage<>(consequences,links);
+            commands=orders.checkpoint(links);var aliases=new IdentityHashMap<StrangeRay,Ray>();
+            waiting=rays.stream().map(ray->image(ray,links,aliases)).toList();active=activeRays.stream().map(ray->image(ray,links,aliases)).toList();}
+        private Ray image(StrangeRay ray,MatchSpellCheckpoint.Links links,IdentityHashMap<StrangeRay,Ray> aliases){return aliases.computeIfAbsent(ray,r->new Ray(r.owner,r.epoch,r.level,r.origin,r.due,links.key(r.actor),r.direction,r.step));}
+        private StrangeRay ray(Ray image,MatchSpellCheckpoint.Links links,IdentityHashMap<Ray,StrangeRay> aliases){return aliases.computeIfAbsent(image,r->{
+            if(game.server().getLevel(r.level.dimension())!=r.level||!(links.get(r.actor) instanceof Mob actor))throw new IllegalStateException("Reconcile native ray world/actor before spell replay");
+            var result=new StrangeRay(r.owner,r.epoch,r.level,r.origin,r.due,actor);result.direction=r.direction;result.step=r.step;return result;});}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var restoredActors=actors.restore(links);var restoredChildren=children.restore(links);var command=commands.prepare(links);
+            var aliases=new IdentityHashMap<Ray,StrangeRay>();var queued=new ArrayList<StrangeRay>();var running=new ArrayDeque<StrangeRay>();
+            for(var image:waiting)queued.add(ray(image,links,aliases));for(var image:active)running.addLast(ray(image,links,aliases));
+            return ()->{mobs=restoredActors;consequences=restoredChildren;rays.clear();rays.addAll(queued);activeRays.clear();activeRays.addAll(running);ticks=cadence;command.run();};}
+    }
+
 }

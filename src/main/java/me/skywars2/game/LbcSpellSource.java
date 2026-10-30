@@ -15,8 +15,9 @@ public final class LbcSpellSource {
         public Source(UUID emitter,UUID author,String epoch,LbcIndirectKills.Owner cause,Set<String> excluded){this(emitter,author,epoch,cause,excluded,false);}
     }
     private final GameController game;
-    private final Map<Entity,Source> sources=new IdentityHashMap<>();
+    private IdentityHashMap<Entity,Source> sources=new IdentityHashMap<>();
     private final Map<UUID,Source> unloaded=new HashMap<>();
+    private int scopes;
     private Source current;
     private ServerLevel currentLevel;
     public LbcSpellSource(GameController game){this.game=game;}
@@ -26,9 +27,9 @@ public final class LbcSpellSource {
     /** Nesting is restored even when a native payload synchronously launches another spell. */
     public final class Scope implements AutoCloseable {
         private final Source previous;private final ServerLevel previousLevel;private boolean closed;
-        private Scope(Source source,ServerLevel level){previous=current;previousLevel=currentLevel;
+        private Scope(Source source,ServerLevel level){previous=current;previousLevel=currentLevel;scopes++;
             current=source!=null&&game.items().currentEpoch(source.epoch())?source:null;currentLevel=current==null?null:level;}
-        @Override public void close(){if(!closed){current=previous;currentLevel=previousLevel;closed=true;}}
+        @Override public void close(){if(!closed){current=previous;currentLevel=previousLevel;closed=true;scopes--;}}
     }
     public Scope scope(Source source){return new Scope(source,currentLevel);}
     public Scope scope(Source source,ServerLevel level){return new Scope(source,level);}
@@ -116,4 +117,14 @@ public final class LbcSpellSource {
         unloaded.values().removeIf(s->!s.persistent()&&s.author().equals(author.getUUID()));
     }
     public void stop(){var actors=List.copyOf(sources.keySet());sources.clear();unloaded.clear();current=null;currentLevel=null;for(var actor:actors)if(actor instanceof Projectile)actor.discard();}
+    void checkpointBoundary(){if(scopes!=0||current!=null||currentLevel!=null)throw new IllegalStateException("Finish spell scopes before checkpointing");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private final MatchSpellCheckpoint.IdentityImage<Entity,Source> active;
+        private final Map<UUID,Source> asleep=new HashMap<>(unloaded);
+        Checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();active=new MatchSpellCheckpoint.IdentityImage<>(sources,links);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=active.restore(links);var dormant=new HashMap<>(asleep);
+            return ()->{sources=restored;unloaded.clear();unloaded.putAll(dormant);};}
+    }
+
 }

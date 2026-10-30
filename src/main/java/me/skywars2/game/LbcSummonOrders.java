@@ -17,7 +17,7 @@ public final class LbcSummonOrders {
     private final GameController game;
     private final LbcSummons summons;
     private record Assignment(UUID owner,LivingEntity target){}
-    private final Map<Mob,Assignment> assignments=new IdentityHashMap<>();
+    private IdentityHashMap<Mob,Assignment> assignments=new IdentityHashMap<>();
     private int ticks;
     LbcSummonOrders(GameController game,LbcSummons summons){this.game=game;this.summons=summons;}
     private boolean enemy(ServerPlayer owner,LivingEntity target){
@@ -99,4 +99,14 @@ public final class LbcSummonOrders {
         @Override public void tick(){var target=assigned(mob);if(target!=null&&mob.getTarget()!=target)mob.setTarget(target);}
         @Override public void stop(){mob.setTarget(null);}
     }
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Order(MatchDamageSources.Ref actor,UUID owner,MatchDamageSources.Ref target) { }
+        private final List<Order> image=new ArrayList<>();private final int cadence=ticks;
+        Checkpoint(MatchSpellCheckpoint.Links links){assignments.forEach((actor,order)->image.add(new Order(links.key(actor),order.owner,links.key(order.target))));}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=new IdentityHashMap<Mob,Assignment>();
+            for(var order:image){if(!(links.get(order.actor) instanceof Mob mob)||!(links.get(order.target) instanceof LivingEntity target))throw new IllegalStateException("Restore native summon/order targets first");restored.put(mob,new Assignment(order.owner,target));}
+            return ()->{assignments=restored;ticks=cadence;};}
+    }
+
 }
