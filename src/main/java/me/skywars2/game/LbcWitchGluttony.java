@@ -49,6 +49,7 @@ public final class LbcWitchGluttony {
     private final Set<Kind> pending=EnumSet.noneOf(Kind.class);
     private final Set<Terrain> terrain=new LinkedHashSet<>();
     private int lastTick=Integer.MIN_VALUE,phase;
+    private boolean advancing;
     LbcWitchGluttony(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){var data=LbcFartus.data(stack);return !stack.isEmpty()&&(data.getIntOr("rabbit",0)==1||data.getIntOr("snake",0)==1||data.getIntOr("whale",0)==1);}
     private boolean live(String epoch,ServerLevel level){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch)&&LbcDimensionItems.ordinary(level);}
@@ -71,14 +72,18 @@ public final class LbcWitchGluttony {
         if(kind==Kind.WHALE){var whale=spawn(kind,level,owner.getEyePosition().add(owner.getLookAngle().scale(10)),owner.getYRot(),owner.getXRot(),owner.getUUID(),epoch,cause);
             if(whale==null)return false;velocity(whale,owner.getLookAngle(),7);sounds(level,false);return true;}
         pending.add(kind);
-        game.items().exasperato().searchSpell(owner,from,direction,150,false,(pos,state)->!state.is(AIRS),
-                e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validRoleTarget(e,false),
-                (a,b)->{for(double d=0;d<a.distanceTo(b);d+=.5){var point=a.add(b.subtract(a).normalize().scale(d));if(kind==Kind.RABBIT)level.sendParticles(ParticleTypes.CLOUD,point.x,point.y,point.z,1,.1,.1,.1,.2);else level.sendParticles(new DustParticleOptions(0x000000,4),point.x,point.y,point.z,1,.1,.1,.1,.2);}})
-                .whenComplete((hit,error)->{pending.remove(kind);if(error!=null||hit==null||!live(epoch,level))return;
-                    // One native terminal result owns the summon, even when a block and mob overlap.
-                    var at=hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK?hit.getLocation().subtract(direction):hit.getLocation();
-                    spawn(kind,level,at,kind==Kind.SNAKE?0:yaw,kind==Kind.SNAKE?0:pitch,owner.getUUID(),epoch,cause);});
+        game.items().exasperato().replayableSpell(owner,from,direction,150,new Cast(kind,level,direction,yaw,pitch,owner.getUUID(),epoch,cause));
         return true;
+    }
+    /** Immutable accepted cast data; completion is repeatable after restoring its scheduler and owner. */
+    private final class Cast implements LbcExasperato.ReplayableRay {
+        final Kind kind;final ServerLevel level;final Vec3 direction;final float yaw,pitch;final UUID author;final String epoch;final LbcIndirectKills.Owner cause;
+        Cast(Kind kind,ServerLevel level,Vec3 direction,float yaw,float pitch,UUID author,String epoch,LbcIndirectKills.Owner cause){this.kind=kind;this.level=level;this.direction=direction;this.yaw=yaw;this.pitch=pitch;this.author=author;this.epoch=epoch;this.cause=cause;}
+        public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return !state.is(AIRS);}
+        public boolean target(Entity entity){return entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validRoleTarget(entity,false);}
+        public void trail(Vec3 from,Vec3 to){for(double d=0;d<from.distanceTo(to);d+=.5){var p=from.add(to.subtract(from).normalize().scale(d));if(kind==Kind.RABBIT)level.sendParticles(ParticleTypes.CLOUD,p.x,p.y,p.z,1,.1,.1,.1,.2);else level.sendParticles(new DustParticleOptions(0x000000,4),p.x,p.y,p.z,1,.1,.1,.1,.2);}}
+        public void complete(net.minecraft.world.phys.HitResult hit){pending.remove(kind);if(hit==null||!live(epoch,level))return;
+            var at=hit.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK?hit.getLocation().subtract(direction):hit.getLocation();spawn(kind,level,at,kind==Kind.SNAKE?0:yaw,kind==Kind.SNAKE?0:pitch,author,epoch,cause);}
     }
     private static CompoundTag parse(String value){try{return TagParser.parseCompoundFully(value);}catch(CommandSyntaxException error){throw new IllegalStateException(error);}}
     Entity spawn(Kind kind,ServerLevel level,Vec3 at,float yaw,float pitch,UUID author,String epoch,LbcIndirectKills.Owner cause){
@@ -103,7 +108,7 @@ public final class LbcWitchGluttony {
     private void face(Entity actor,Entity target){var dir=target.getEyePosition().subtract(actor.position());actor.setYRot((float)Math.toDegrees(Math.atan2(-dir.x,dir.z)));actor.setXRot((float)-Math.toDegrees(Math.atan2(dir.y,dir.horizontalDistance())));}
     private Entity randomTarget(Entity actor,boolean wrath){var targets=select((ServerLevel)actor.level(),actor.position(),"@e[type=#minecraft:mobs,tag=!spectator,tag=!strict_map_object,tag=!sin_gluttony,tag=!white_whale,tag=!white_whale_clone"+(wrath?",tag=!sin_wrath":"")+"]").stream().filter(e->game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e)).toList();return targets.isEmpty()?null:targets.get(((ServerLevel)actor.level()).getRandom().nextInt(targets.size()));}
     Entity randomSnakeTarget(Entity actor){var targets=select((ServerLevel)actor.level(),actor.position(),"@e[type=#minecraft:mobs,tag=!spectator,tag=!strict_map_object,tag=!sin_gluttony]").stream().filter(e->game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e)).toList();return targets.isEmpty()?null:targets.get(((ServerLevel)actor.level()).getRandom().nextInt(targets.size()));}
-    public void tick(){int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
+    public void tick(){if(advancing)throw new IllegalStateException("Reentrant Gluttony advance");advancing=true;try{int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
         if(!game.playing()||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
         boolean second=++phase%20==0;
         for(var entry:List.copyOf(actors.entrySet())){
@@ -121,6 +126,7 @@ public final class LbcWitchGluttony {
             }
         }
         if(second)sculkContact();
+        }finally{advancing=false;}
     }
     private void snake(Entity actor,Actor state){var level=(ServerLevel)actor.level();var random=level.getRandom();
         fill(actor,state,actor.position(),3,true,false);fill(actor,state,actor.position(),1,false,false);
@@ -193,9 +199,24 @@ public final class LbcWitchGluttony {
         public boolean ready(){return cancelled||!live(source.epoch(),level)||!paused(level);}
         public boolean step(){if(cancelled||!live(source.epoch(),level)){cancel();return true;}area.step(game,null,source.cause(),4096,System.nanoTime()+500_000);if(!area.hasWork()){cancel();return true;}return false;}
         public void cancel(){cancelled=true;area.clear();terrain.remove(this);}
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){var cells=area.checkpoint();boolean dead=cancelled;return links->{MatchAuthorityCheckpoint.world(game,level);return ()->{cells.restore();cancelled=dead;};};}
     }
     public void loaded(Entity entity){if(!entity.entityTags().contains(MANAGED))return;var state=actors.get(entity);if(state==null)state=unloaded.remove(entity.getUUID());if(state==null||!live(state.source.epoch(),(ServerLevel)entity.level())){entity.discard();return;}actors.put(entity,state);game.items().spellSources().bind(entity,state.source);game.items().timeStop().prepareFrozen(entity);}
     public void unloaded(Entity entity){var state=actors.remove(entity);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);}
     List<Entity> snapshot(){return List.copyOf(actors.keySet());}
     public void stop(){pending.clear();for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();unloaded.clear();for(var work:List.copyOf(terrain))work.cancel();phase=0;lastTick=Integer.MIN_VALUE;}
+    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Gluttony callbacks before checkpointing");}
+    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
+    final class Checkpoint {
+        private record Image(Kind kind,LbcSpellSource.Source source,int ticks) { }
+        private final Map<MatchDamageSources.Ref,Image> alive=new LinkedHashMap<>();private final Map<UUID,Image> asleep=new HashMap<>();
+        private final Set<Kind> waiting=Set.copyOf(pending);private final List<Terrain> jobs=List.copyOf(terrain);private final int cadence=phase;
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
+        Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){var aliases=new IdentityHashMap<Actor,Image>();actors.forEach((actor,state)->alive.put(graph.links.key(actor),image(state,aliases)));unloaded.forEach((id,state)->asleep.put(id,image(state,aliases)));jobs.forEach(graph::capture);}
+        private Image image(Actor actor,IdentityHashMap<Actor,Image> aliases){return aliases.computeIfAbsent(actor,a->new Image(a.kind,a.source,a.ticks));}
+        private Actor actor(Image image,IdentityHashMap<Image,Actor> aliases){return aliases.computeIfAbsent(image,i->{var actor=new Actor(i.kind,i.source);actor.ticks=i.ticks;return actor;});}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Image,Actor>();var active=new LinkedHashMap<Entity,Actor>();var dormant=new HashMap<UUID,Actor>();
+            alive.forEach((ref,image)->active.put(links.get(ref),actor(image,aliases)));asleep.forEach((id,image)->dormant.put(id,actor(image,aliases)));jobs.forEach(j->MatchAuthorityCheckpoint.world(game,j.level));
+            return ()->{actors.clear();actors.putAll(active);unloaded.clear();unloaded.putAll(dormant);pending.clear();pending.addAll(waiting);terrain.clear();terrain.addAll(jobs);phase=cadence;lastTick=clock.last(game);};}
+    }
 }

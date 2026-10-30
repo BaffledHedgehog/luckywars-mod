@@ -35,6 +35,7 @@ public final class LbcStonekivi {
     private static final BlockParticleOption BEDROCK=new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BEDROCK.defaultBlockState());
     private final GameController game;
     private final ArrayDeque<Work> work=new ArrayDeque<>();
+    private boolean advancing,rewinding;
     private volatile Map<Identifier,List<MapManager.TemplateSlice>> templates=Map.of();
     private volatile int preparation;
 
@@ -43,6 +44,7 @@ public final class LbcStonekivi {
         boolean step();
         default boolean ready() { return true; }
         default void cancel() { }
+        default MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){throw new IllegalStateException("Missing shared-work checkpoint adapter: "+getClass().getName());}
     }
     LbcStonekivi(GameController game) { this.game=game; }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("lbc",path); }
@@ -166,9 +168,11 @@ public final class LbcStonekivi {
             return children.isEmpty();
         }
         @Override public void cancel() { children.forEach(Work::cancel); children.clear(); }
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){var saved=List.copyOf(children);saved.forEach(graph::capture);return links->()->{children.clear();children.addAll(saved);};}
     }
     /** Накопленные касты не теряются: ограничивается работа за тик, а не размер очереди. */
     public void tick() {
+        if(rewinding)return;if(advancing)throw new IllegalStateException("Reentrant shared terrain advance");advancing=true;try {
         if(game.stage()==GameController.Stage.LOADING || game.stage()==GameController.Stage.ENDING) { stop(); return; }
         if(game.items().wands().timeStopped()) return;
         long deadline=System.nanoTime()+3_000_000;
@@ -182,6 +186,17 @@ public final class LbcStonekivi {
                 if(!job.step()) work.add(job);
             }
         }
+        }finally{advancing=false;}
     }
-    public void stop() { work.forEach(Work::cancel); work.clear(); }
+    public void stop() { work.forEach(Work::cancel); work.clear();rewinding=false; }
+    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish shared terrain callbacks before capture/replay");}
+    void prepareCheckpoint(){rewinding=true;work.clear();}
+    void cancelCheckpoint(){rewinding=false;}
+    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
+    final class Checkpoint {
+        private final List<Work> saved=List.copyOf(work);
+        Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){saved.forEach(graph::capture);}
+        Runnable prepare(){return ()->{work.clear();work.addAll(saved);rewinding=false;};}
+    }
+
 }

@@ -223,4 +223,13 @@ final class BlockAreaWork {
                 }
         }
     }
+    /** Independent pending section order/bitmaps; immutable predicates/configuration stay with this worker. */
+    Checkpoint checkpoint(){return new Checkpoint();}
+    final class Checkpoint {
+        private record Scan(long key,int x,int y,int z,BitSet cells) { }
+        private final Bounds region=bounds;
+        private final java.util.List<Scan> image=scans.entrySet().stream().map(e->new Scan(e.getKey(),e.getValue().x,e.getValue().y,e.getValue().z,(BitSet)e.getValue().positions.clone())).toList();
+        void restore(){scans.clear();for(var saved:image){var scan=new SectionScan(saved.x,saved.y,saved.z);scan.positions.or(saved.cells);scans.put(saved.key,scan);}bounds=region;}
+    }
+
 }

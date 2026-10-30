@@ -48,7 +48,7 @@ public final class LbcExasperato {
     private static final net.minecraft.core.particles.DustColorTransitionOptions NUKE_PARTICLE=
             new net.minecraft.core.particles.DustColorTransitionOptions(0xFFDC40,0,4);
     private static final class Search {
-        final ServerPlayer owner;
+        ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
         final Vec3 direction;
@@ -60,6 +60,7 @@ public final class LbcExasperato {
         final java.util.function.Predicate<Entity> target;
         java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blockRule;
         boolean shieldBlockable=true,finishAtRange;
+        ReplayableRay replay;boolean finished;
         final java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> result=new java.util.concurrent.CompletableFuture<>();
         final java.util.function.BiConsumer<Vec3,Vec3> trail;
         Search(ServerPlayer owner,String epoch,Vec3 from,Vec3 direction,double remaining,boolean walls,
@@ -76,6 +77,20 @@ public final class LbcExasperato {
         }
     }
     private final ArrayDeque<Search> searches=new ArrayDeque<>();
+    private boolean searching,searchRewind;
+    /** Implementations contain reviewed immutable accepted-cast data; no captured mutable player/future. */
+    interface ReplayableRay {
+        boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state);
+        boolean target(Entity entity);
+        void trail(Vec3 from,Vec3 to);
+        void complete(net.minecraft.world.phys.HitResult hit);
+    }
+    private static boolean done(Search s){return s.replay==null?s.result.isDone():s.finished;}
+    private static void complete(Search s,net.minecraft.world.phys.HitResult hit){if(done(s))return;if(s.replay==null)s.result.complete(hit);else{s.finished=true;s.replay.complete(hit);}}
+    void replayableSpell(ServerPlayer owner,Vec3 from,Vec3 direction,double range,ReplayableRay replay){
+        var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,replay::trail,false,false,replay::target);search.blockRule=replay::block;search.shieldBlockable=false;search.replay=replay;
+        if(range>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
+    }
     private static final class BlastBatch {
         final ServerPlayer owner;
         final ServerLevel level;
@@ -258,7 +273,7 @@ public final class LbcExasperato {
         direction=direction.normalize();
         double reach=loadedRayExtent(owner,from,direction,walls,blocksOnly);
         var search=new Search(owner,game.items().epoch(),from,direction,reach,walls,trail,blocksOnly);
-        if(reach>0) searches.addLast(search); else search.result.complete(null);
+        if(reach>0) searches.addLast(search); else complete(search,null);
         return search.result;
     }
     private double loadedRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction,boolean walls,boolean blocksOnly) {
@@ -280,7 +295,7 @@ public final class LbcExasperato {
         direction=direction.normalize();
         double reach=Math.min(maxRange,loadedRayExtent(owner,from,direction,true,false));
         var search=new Search(owner,game.items().epoch(),from,direction,reach,true,trail,false,true,target);
-        if(reach>0 && direction.lengthSqr()>1e-12) searches.addLast(search); else search.result.complete(null);
+        if(reach>0 && direction.lengthSqr()>1e-12) searches.addLast(search); else complete(search,null);
         return search.result;
     }
 
@@ -316,7 +331,7 @@ public final class LbcExasperato {
         }
         var search=new Search(owner,game.items().epoch(),from,direction,reach,true,trail,blocksOnly,false,targets);
         search.blockRule=blocks;search.shieldBlockable=false;search.finishAtRange=finishAtRange;
-        if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else search.result.complete(null);
+        if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
         return search.result;
     }
     private boolean searchPointSuppressed(Search search,Vec3 point) {
@@ -330,23 +345,24 @@ public final class LbcExasperato {
 
     /** Ограничиваем работу, а не дальность: каждый незавершённый луч продолжится в следующих тиках. */
     private void searchTick() {
+        if(searchRewind)return;if(searching)throw new IllegalStateException("Reentrant ray advance");searching=true;try {
         if(game.items().wands().timeStopped()) return;
         long deadline=System.nanoTime()+3_000_000;
         for(int work=0;work<SEARCH_BUDGET && !searches.isEmpty() && System.nanoTime()<deadline;work++) {
             var search=searches.removeFirst(); var owner=search.owner; var level=search.level;
-            if(search.result.isDone()) continue;
-            if(!valid(owner,search.epoch) || owner.level()!=level || searchOwnerSuppressed(search)) { search.result.complete(null); continue; }
+            if(done(search)) continue;
+            if(!valid(owner,search.epoch) || owner.level()!=level || searchOwnerSuppressed(search)) { complete(search,null); continue; }
             if(owner.entityTags().contains("time_stopped")) { searches.addLast(search); continue; }
             Vec3 from=search.position;
             if(!level.hasChunkAt(BlockPos.containing(from))
-                    || searchPointSuppressed(search,from)) { search.result.complete(null); continue; }
+                    || searchPointSuppressed(search,from)) { complete(search,null); continue; }
             if(search.remaining<=1e-7){
-                search.result.complete(search.finishAtRange?net.minecraft.world.phys.BlockHitResult.miss(from,
+                complete(search,search.finishAtRange?net.minecraft.world.phys.BlockHitResult.miss(from,
                         net.minecraft.core.Direction.getApproximateNearest(search.direction),BlockPos.containing(from)):null);continue;
             }
             double length=Math.min(SEARCH_SEGMENT,search.remaining);
             Vec3 end=from.add(search.direction.scale(length));
-            if(Math.abs(end.x)>30_000_000 || Math.abs(end.z)>30_000_000) { search.result.complete(null); continue; }
+            if(Math.abs(end.x)>30_000_000 || Math.abs(end.z)>30_000_000) { complete(search,null); continue; }
             var wall=search.blockRule!=null?LbcTerra.wallHit(level,from,end,search.blockRule)
                     :search.walls?LbcTerra.wallHit(level,from,end):LbcTerra.wallHit(level,from,end,state->false);
             if(wall!=null) end=wall.getLocation();
@@ -357,13 +373,14 @@ public final class LbcExasperato {
             var hit=search.blocksOnly?null:ProjectileUtil.getEntityHitResult(level,owner,from,end,new AABB(from,end).inflate(1),
                     entity->search.target==null?game.items().lifetimes().target(owner,entity):search.target.test(entity),0);
             if(search.trail!=null) search.trail.accept(from,hit==null?end:hit.getLocation());
-            if(hit!=null) search.result.complete(hit);
-            else if(shield!=null || Double.isFinite(suppression)) search.result.complete(null);
-            else if(wall!=null) search.result.complete(level.hasChunkAt(wall.getBlockPos())?wall:null);
+            if(hit!=null) complete(search,hit);
+            else if(shield!=null || Double.isFinite(suppression)) complete(search,null);
+            else if(wall!=null) complete(search,level.hasChunkAt(wall.getBlockPos())?wall:null);
             else {
                 search.position=end; search.remaining-=length; searches.addLast(search);
             }
         }
+        }finally{searching=false;}
     }
 
     private void spawnNuke(ServerPlayer owner,Vec3 impact,String epoch) {
@@ -793,9 +810,21 @@ public final class LbcExasperato {
                 && game.items().wands().projectileTarget(owner,target);
     }
     void stop() {
-        for(var search:searches) search.result.cancel(false);
-        searches.clear(); game.items().nuclearVisuals().stop(); blasts.clear();
+        for(var search:searches) {if(search.replay==null)search.result.cancel(false);else complete(search,null);}
+        searches.clear();searchRewind=false; game.items().nuclearVisuals().stop(); blasts.clear();
         var detached=List.copyOf(charges); charges.clear();
         for(var charge:detached) charge.discard();
     }
+    void searchBoundary(){if(searching)throw new IllegalStateException("Finish ray callbacks before capture/replay");}
+    void prepareSearchCheckpoint(){searchRewind=true;searches.clear();}
+    void cancelSearchCheckpoint(){searchRewind=false;}
+    SearchCheckpoint checkpointSearches(MatchSpellCheckpoint.Links links){return new SearchCheckpoint(links);}
+    final class SearchCheckpoint {
+        private record Image(Search original,MatchDamageSources.Ref owner,Vec3 position,double remaining,boolean finished) { }
+        private final List<Image> images;
+        SearchCheckpoint(MatchSpellCheckpoint.Links links){var list=new ArrayList<Image>();for(var s:searches){if(s.replay==null)throw new IllegalStateException("Missing typed continuation for opaque ray completion");list.add(new Image(s,links.key(s.owner),s.position,s.remaining,s.finished));}images=List.copyOf(list);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var owners=new java.util.IdentityHashMap<Search,ServerPlayer>();for(var image:images){MatchAuthorityCheckpoint.world(game,image.original.level);if(!(links.get(image.owner) instanceof ServerPlayer p))throw new IllegalStateException("Restore current ray author bodies first");owners.put(image.original,p);}
+            return ()->{searches.clear();for(var image:images){var s=image.original;s.owner=owners.get(s);s.position=image.position;s.remaining=image.remaining;s.finished=image.finished;searches.addLast(s);}searchRewind=false;};}
+    }
+
 }

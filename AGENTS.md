@@ -1,3 +1,20 @@
+## Vanity Gluttony/shared jobs and private FPV ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Ownership, phase ordering and exact native proof](agent_notes/VANITY_BATCH_CHECKPOINT_2026_10_30.md).
+Combined actor/dormant/age/policy/pending/cadence state, shared dispatcher aliases,
+ordered section bitmaps and reviewed typed ray completion. No completed-future reset;
+opaque callbacks/futures reject explicitly. Current-body FPV control/aim/retirement,
+body-ticket refcounts and native paired camera/seat publication; frozen waits do not
+consume saved clocks. Fixed real stationary/frozen-drone pairing before attachment.
+Two death/respawn/offline replays, exact22-cell resume, one terminal, future extension
+rejection, source identities, opaque preflight and cancellation. 9e273cc2 passed46
+suites in12 actual mode1 matches/ONE child (219.0s), first35 together;
+11332 inputs/5466 entries/253 receipts.199authorpaths/31overrides/main d9087f0a
+exact; normalexit/exact snapshots/no locks. No functions/RP/template/questionfile/main
+install/restart/push. Full original25 gate CLOSED; Vanity remains gated. Other private
+abilities/opaque jobs/native AI/BE/multipart/async/regions and full input/writer/IO/
+lifecycle/offline/map coordinator remain. NOT full Vanity; retain all prior owners.
+
 ## Vanity private authority state ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Ownership, restore phases and exact native proof](agent_notes/VANITY_AUTHORITY_CHECKPOINT_2026_10_30.md).
