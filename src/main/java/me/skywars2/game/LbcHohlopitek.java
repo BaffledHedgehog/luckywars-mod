@@ -25,7 +25,8 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.UUID;
+import net.minecraft.server.level.ServerLevel;
 
 /** Zero-mana technological airstrike. The original scoreboard is the sole cooldown authority. */
 public final class LbcHohlopitek {
@@ -38,7 +39,7 @@ public final class LbcHohlopitek {
     private final LbcMana mana;
     // This stores only the sub-unit active-tick phase, never a second cooldown value.
     private final Map<ServerPlayer,Integer> phases=new IdentityHashMap<>();
-    private final Map<CompletableFuture<HitResult>,ServerPlayer> rays=new LinkedHashMap<>();
+    private final Map<LbcExasperato.RayTicket,ServerPlayer> rays=new LinkedHashMap<>();
 
     public LbcHohlopitek(GameController game,LbcMana mana) { this.game=game; this.mana=mana; }
     public static void register() { }
@@ -73,38 +74,60 @@ public final class LbcHohlopitek {
         Vec3 origin=owner.getEyePosition();
         if(hand==InteractionHand.OFF_HAND) origin=origin.add(owner.getLookAngle().scale(.5));
         if(game.items().magic().mechanismSuppressedAt(owner.level(),origin)) return false;
-        String epoch=game.items().epoch(); var level=owner.level(); float castYaw=owner.getYRot();
         // Both hands, KFC, HUD, Envy and Vanity see exactly the same original raw score.
         mana.score(owner,COOLDOWN).set(200); phases.remove(owner);
         for(String sound:List.of("minecraft:entity.pig.ambient","minecraft:entity.pig.death","minecraft:entity.pig.hurt"))
             LbcOverload.sound(owner,origin,sound,3,1,0);
-        double[] walked={0},nextSample={0};
-        var pending=game.items().exasperato().useTechnologyRay(owner,origin,owner.getLookAngle(),RAY_RANGE,
-                entity->game.items().lifetimes().target(owner,entity),
-                (from,to)->trail(owner,from,to,walked,nextSample));
-        rays.put(pending,owner);
-        pending.whenComplete((hit,error)-> {
-            rays.remove(pending);
-            if(error!=null || hit==null || !game.items().currentEpoch(epoch) || owner.level()!=level || !admitted(owner)) return;
-            // The queue resolves one nearest terminal. The bomber is bound directly to this cast's impact.
-            game.items().droneDrops().spawnBomber(owner,hit.getLocation(),castYaw);
-            LbcOverload.sound(owner,hit.getLocation().add(0,20,0),"minecraft:lbcsounds.bambam",3,1,0);
-        });
+        game.items().exasperato().replayableLoaded(owner,origin,owner.getLookAngle(),
+                LbcExasperato.RayMode.TECHNOLOGY,RAY_RANGE,new BomberAim(owner));
         return true;
     }
-    private void trail(ServerPlayer owner,Vec3 from,Vec3 to,double[] walked,double[] nextSample) {
-        Vec3 delta=to.subtract(from); double length=delta.length(),end=walked[0]+length;
-        while(nextSample[0]<=end+1e-7) {
-            Vec3 at=length<1e-9?from:from.add(delta.scale(Math.max(0,nextSample[0]-walked[0])/length));
-            owner.level().sendParticles(new ItemParticleOption(ParticleTypes.ITEM,Items.PORKCHOP),
-                    at.x,at.y,at.z,2,.5,.5,.5,0);
-            nextSample[0]++;
+    private final class BomberAim implements LbcExasperato.ReplayableRay {
+        final UUID author;final String epoch;final ServerLevel level;final float yaw;
+        LbcExasperato.RayTicket ticket;double walked,nextSample;
+        BomberAim(ServerPlayer owner){author=owner.getUUID();epoch=game.items().epoch();level=owner.level();yaw=owner.getYRot();}
+        ServerPlayer owner(){return game.server().getPlayerList().getPlayer(author);}
+        public void submitted(LbcExasperato.RayTicket value){ticket=value;rays.put(value,owner());}
+        public boolean block(net.minecraft.core.BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return true;}
+        public boolean target(net.minecraft.world.entity.Entity entity){var owner=owner();return owner!=null&&game.items().lifetimes().target(owner,entity);}
+        public void trail(Vec3 from,Vec3 to){
+            Vec3 delta=to.subtract(from);double length=delta.length(),end=walked+length;
+            while(nextSample<=end+1e-7){
+                Vec3 at=length<1e-9?from:from.add(delta.scale(Math.max(0,nextSample-walked)/length));
+                level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,Items.PORKCHOP),at.x,at.y,at.z,2,.5,.5,.5,0);nextSample++;
+            }walked=end;
         }
-        walked[0]=end;
+        public void complete(HitResult hit){
+            rays.remove(ticket);var owner=owner();
+            if(hit==null||!game.items().currentEpoch(epoch)||owner==null||owner.level()!=level||!admitted(owner))return;
+            completing++;try{game.items().droneDrops().spawnBomber(owner,hit.getLocation(),yaw);
+                LbcOverload.sound(owner,hit.getLocation().add(0,20,0),"minecraft:lbcsounds.bambam",3,1,0);
+            }finally{completing--;}
+        }
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
+            double distance=walked,sample=nextSample;return ignored->()->{walked=distance;nextSample=sample;};
+        }
+    }
+    private int completing;private boolean advancing;
+    void checkpointBoundary(){if(completing!=0||advancing)throw new IllegalStateException("Finish bomber callbacks before checkpoint");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Integer> phaseImage;
+        final Map<LbcExasperato.RayTicket,MatchDamageSources.Ref> requests=new LinkedHashMap<>();
+        @SuppressWarnings("unchecked") Checkpoint(MatchSpellCheckpoint.Links links){
+            phaseImage=new MatchSpellCheckpoint.IdentityImage<>((IdentityHashMap<ServerPlayer,Integer>)phases,links);
+            rays.forEach((ticket,owner)->requests.put(ticket,links.key(owner)));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var restored=phaseImage.restore(links);var pending=new LinkedHashMap<LbcExasperato.RayTicket,ServerPlayer>();
+            requests.forEach((ticket,ref)->pending.put(ticket,(ServerPlayer)links.get(ref)));
+            return ()->{phases.clear();phases.putAll(restored);rays.clear();rays.putAll(pending);};
+        }
     }
     public int cooldown(ServerPlayer owner) { return Math.max(0,mana.score(owner,COOLDOWN).get()); }
     public int hudValue(ServerPlayer owner) { return cooldown(owner); }
     public void tick() {
+        if(advancing)throw new IllegalStateException("Reentrant bomber tick");advancing=true;try {
         for(var owner:game.server().getPlayerList().getPlayers()) {
             if(!valid(owner)) { clear(owner); continue; }
             if(cooldown(owner)==0) { phases.remove(owner); continue; }
@@ -113,7 +136,8 @@ public final class LbcHohlopitek {
             if(phase==5) { mana.score(owner,COOLDOWN).add(-1); phases.remove(owner); }
             else phases.put(owner,phase);
         }
-        for(var entry:List.copyOf(rays.entrySet())) if(!valid(entry.getValue())) entry.getKey().cancel(false);
+        for(var entry:List.copyOf(rays.entrySet())) if(!valid(entry.getValue())) entry.getKey().cancel();
+        }finally{advancing=false;}
     }
     public int pendingRayCount() { return rays.size(); }
     public int activeCount() {
@@ -123,13 +147,13 @@ public final class LbcHohlopitek {
     }
     public void clear(ServerPlayer owner) {
         mana.score(owner,COOLDOWN).set(0); phases.remove(owner);
-        for(var entry:List.copyOf(rays.entrySet())) if(entry.getValue()==owner) entry.getKey().cancel(false);
+        for(var entry:List.copyOf(rays.entrySet())) if(entry.getValue()==owner) entry.getKey().cancel();
     }
     public void forget(ServerPlayer owner) { clear(owner); }
     public void stop() {
         for(var player:game.server().getPlayerList().getPlayers()) mana.score(player,COOLDOWN).set(0);
         phases.clear();
-        for(var ray:List.copyOf(rays.keySet())) ray.cancel(false);
+        for(var ray:List.copyOf(rays.keySet())) ray.cancel();
         rays.clear();
     }
 }

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /** True Falling Stars и Exahoming: ведение штатных fireball, без второго движка взрывов. */
@@ -45,15 +44,16 @@ public final class LbcHoming {
             net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
                     net.minecraft.resources.Identifier.parse("minecraft:projectiles"));
     private final Set<Entity> projectiles=new LinkedHashSet<>();
-    private final Set<java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult>> pendingRays=new LinkedHashSet<>();
-    private final Map<LargeFireball,Integer> ages=new IdentityHashMap<>();
-    private final Map<LargeFireball,LivingEntity> steeringTargets=new IdentityHashMap<>();
+    private final Set<LbcExasperato.RayTicket> pendingRays=new LinkedHashSet<>();
+    private IdentityHashMap<LargeFireball,Integer> ages=new IdentityHashMap<>();
+    private IdentityHashMap<LargeFireball,LivingEntity> steeringTargets=new IdentityHashMap<>();
     private final List<Effect> rains=new ArrayList<>(),destinies=new ArrayList<>();
-    private final Map<LivingEntity,Curse> curses=new IdentityHashMap<>();
+    private IdentityHashMap<LivingEntity,Curse> curses=new IdentityHashMap<>();
     private int ticks;
+    private int inProgress;
 
     private static final class Effect {
-        final ServerPlayer owner;
+        ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
         Vec3 position;
@@ -64,7 +64,7 @@ public final class LbcHoming {
         }
     }
     private static final class Curse {
-        final ServerPlayer owner;
+        ServerPlayer owner;
         long remaining;boolean rawWild;
         Curse(ServerPlayer owner,long remaining) { this.owner=owner; this.remaining=remaining; }
     }
@@ -75,8 +75,11 @@ public final class LbcHoming {
             if(entity instanceof Projectile || entity.getType().builtInRegistryHolder().is(PROJECTILES)) projectiles.add(entity);
     }
     void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
-        transformOrigins(rains,level,transform);
-        transformOrigins(destinies,level,transform);
+        ++inProgress;try {
+            transformOrigins(rains,level,transform);
+            transformOrigins(destinies,level,transform);
+
+        }finally{--inProgress;}
     }
     private static void transformOrigins(List<Effect> effects,ServerLevel level,
             java.util.function.UnaryOperator<Vec3> transform) {
@@ -179,16 +182,52 @@ public final class LbcHoming {
         launchAt(owner,false,mode,mode!=1,false,origin,direction);
     }
     private void launchAt(ServerPlayer owner,boolean donor,int mode,boolean upgraded,boolean achievement,Vec3 origin,Vec3 direction){
-        if(!donor && mode==3) destinies.add(new Effect(owner,origin,600,game.items().epoch()));
-        else if(!donor && mode==4) curseRay(owner,origin,direction);
-        else {
-            requestRay(owner,origin,direction,true,(from,to)->trail(owner,from,to,donor&&!upgraded?.5:1,!donor),hit->{
-                if(hit==null) return;
-                Vec3 point=hit.getLocation();
-                if(donor) stars(owner,point,mode); else homing(owner,point,mode==2);
-                if(achievement && donor && origin.distanceToSqr(point)>=150*150 && nearest(owner,point,7)!=null)
-                    game.items().mana().award(owner,"lbc:true_advancements/staffs/falling_stars");
-            });
+        ++inProgress;try {
+            if(!donor && mode==3) destinies.add(new Effect(owner,origin,600,game.items().epoch()));
+            else if(!donor && mode==4) curseRay(owner,origin,direction);
+            else game.items().exasperato().replayableLoaded(owner,origin,direction,LbcExasperato.RayMode.SPELL,
+                    Double.POSITIVE_INFINITY,new LaunchRay(owner,origin,donor,mode,upgraded,achievement));
+
+        }finally{--inProgress;}
+    }
+
+    /** Immutable accepted cast data; the queue owns the replayable terminal state. */
+    private abstract class HomingRay implements LbcExasperato.ReplayableRay {
+        final java.util.UUID author;
+        final String epoch;
+        final ServerLevel level;
+        final Vec3 origin;
+        private LbcExasperato.RayTicket ticket;
+        HomingRay(ServerPlayer owner,Vec3 origin){author=owner.getUUID();epoch=game.items().epoch();level=owner.level();this.origin=origin;}
+        final ServerPlayer owner(){
+            var owner=game.server().getPlayerList().getPlayer(author);
+            return owner!=null&&owner.level()==level&&game.items().currentEpoch(epoch)&&valid(owner)?owner:null;
+        }
+        public final void submitted(LbcExasperato.RayTicket ticket){
+            if(this.ticket!=null&&this.ticket!=ticket)throw new IllegalStateException("Homing ray ticket changed");
+            this.ticket=ticket;pendingRays.add(ticket);
+        }
+        public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return true;}
+        public boolean target(Entity entity){return true;}
+        public void trail(Vec3 from,Vec3 to){}
+        public final void complete(net.minecraft.world.phys.HitResult hit){
+            if(!pendingRays.remove(ticket))return;
+            ++inProgress;try{var owner=owner();if(owner!=null)finish(owner,hit);}finally{--inProgress;}
+        }
+        abstract void finish(ServerPlayer owner,net.minecraft.world.phys.HitResult hit);
+    }
+    private final class LaunchRay extends HomingRay {
+        final boolean donor,upgraded,achievement;
+        final int mode;
+        LaunchRay(ServerPlayer owner,Vec3 origin,boolean donor,int mode,boolean upgraded,boolean achievement){
+            super(owner,origin);this.donor=donor;this.mode=mode;this.upgraded=upgraded;this.achievement=achievement;
+        }
+        public void trail(Vec3 from,Vec3 to){var owner=owner();if(owner!=null)LbcHoming.this.trail(owner,from,to,donor&&!upgraded?.5:1,!donor);}
+        void finish(ServerPlayer owner,net.minecraft.world.phys.HitResult hit){
+            if(hit==null)return;Vec3 point=hit.getLocation();
+            if(donor)stars(owner,point,mode);else homing(owner,point,mode==2);
+            if(achievement&&donor&&origin.distanceToSqr(point)>=150*150&&nearest(owner,point,7)!=null)
+                game.items().mana().award(owner,"lbc:true_advancements/staffs/falling_stars");
         }
     }
 
@@ -243,77 +282,92 @@ public final class LbcHoming {
         }
     }
     private LargeFireball fire(ServerPlayer owner,Vec3 point,int power,Vec3 velocity,boolean guided,boolean slow,boolean trial) {
-        if(!owner.level().hasChunkAt(BlockPos.containing(point)) || game.items().magic().suppressedAt(owner.level(),point)) return null;
-        var fireball=new LargeFireball(owner.level(),owner,velocity,power);
-        fireball.entityTags().add(guided?TAG:DONOR_TAG);
-        if(slow) fireball.entityTags().add(SLOW_TAG);
-        if(trial) fireball.entityTags().add(LbcBlaze.TRIAL_PROJECTILE);
-        game.items().wands().launchFire(owner,fireball,point,velocity);
-        return fireball;
+        ++inProgress;try {
+            if(!owner.level().hasChunkAt(BlockPos.containing(point)) || game.items().magic().suppressedAt(owner.level(),point)) return null;
+            var fireball=new LargeFireball(owner.level(),owner,velocity,power);
+            fireball.entityTags().add(guided?TAG:DONOR_TAG);
+            if(slow) fireball.entityTags().add(SLOW_TAG);
+            if(trial) fireball.entityTags().add(LbcBlaze.TRIAL_PROJECTILE);
+            game.items().wands().launchFire(owner,fireball,point,velocity);
+            return fireball;
+
+        }finally{--inProgress;}
     }
     private void trial(ServerPlayer owner,boolean donor) {
-        if(donor) for(int i=0;i<STAR_OFFSETS.length;i++) {
-            int height=i<2?150+25*i:1050+25*i;
-            fire(owner,owner.position().add(STAR_OFFSETS[i][0],height,STAR_OFFSETS[i][1]),
-                    i==0?1:i==1?2:i==13?4:5,new Vec3(0,-.2,0),false,false,true);
-        } else {
-            int[][] offsets={{0,500,0},{50,450,0},{0,450,50},{-50,400,0},{0,400,-50}};
-            for(var p:offsets) fire(owner,owner.position().add(p[0],p[1],p[2]),20,Vec3.ZERO,true,false,true);
-        }
+        ++inProgress;try {
+            if(donor) for(int i=0;i<STAR_OFFSETS.length;i++) {
+                int height=i<2?150+25*i:1050+25*i;
+                fire(owner,owner.position().add(STAR_OFFSETS[i][0],height,STAR_OFFSETS[i][1]),
+                        i==0?1:i==1?2:i==13?4:5,new Vec3(0,-.2,0),false,false,true);
+            } else {
+                int[][] offsets={{0,500,0},{50,450,0},{0,450,50},{-50,400,0},{0,400,-50}};
+                for(var p:offsets) fire(owner,owner.position().add(p[0],p[1],p[2]),20,Vec3.ZERO,true,false,true);
+            }
+
+        }finally{--inProgress;}
     }
 
     public void loaded(Entity entity) {
-        if(entity.level()!=game.maps().level()) return;
-        if(entity instanceof Projectile || entity.getType().builtInRegistryHolder().is(PROJECTILES)) projectiles.add(entity);
-        if(entity instanceof LargeFireball fireball && family(fireball)) {
-            if(!game.items().currentEpoch(entity)) entity.discard();
-            else { fireballs.add(fireball); ages.put(fireball,0); }
-        }
+        ++inProgress;try {
+            if(entity.level()!=game.maps().level()) return;
+            if(entity instanceof Projectile || entity.getType().builtInRegistryHolder().is(PROJECTILES)) projectiles.add(entity);
+            if(entity instanceof LargeFireball fireball && family(fireball)) {
+                if(!game.items().currentEpoch(entity)) entity.discard();
+                else { fireballs.add(fireball); ages.put(fireball,0); }
+            }
+
+        }finally{--inProgress;}
     }
     public void unloaded(Entity entity) {
-        projectiles.remove(entity);
-        if(entity instanceof LargeFireball fireball) { fireballs.remove(fireball); ages.remove(fireball); steeringTargets.remove(fireball); }
-        if(entity instanceof LivingEntity living) clear(living);
+        ++inProgress;try {
+            projectiles.remove(entity);
+            if(entity instanceof LargeFireball fireball) { fireballs.remove(fireball); ages.remove(fireball); steeringTargets.remove(fireball); }
+            if(entity instanceof LivingEntity living) clear(living);
+
+        }finally{--inProgress;}
     }
     private boolean family(Entity entity) { return entity.entityTags().contains(TAG) || entity.entityTags().contains(DONOR_TAG); }
 
     /** До native inertia/collision: остановка не должна позволить шару попасть во время паузы. */
     public boolean beforeFireTick(AbstractHurtingProjectile projectile) {
-        if(!(projectile instanceof LargeFireball fireball) || !family(projectile)) return true;
-        if(!game.items().currentEpoch(projectile) || !(projectile.getOwner() instanceof ServerPlayer owner)
-                || !valid(owner) || owner.level()!=projectile.level()) { projectile.discard(); return false; }
-        if(game.items().magic().suppressedAt(owner.level(),projectile.position())) { projectile.discard(); return false; }
-        if(game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) return false;
-        int age=ages.merge(fireball,1,Integer::sum);
-        // Нативный owner меняется при отражении; сохранённый автор каста здесь не используется.
-        boolean guided=projectile.entityTags().contains(TAG),trial=projectile.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE);
-        if(guided && (age==1 || age%5==0)) {
-            var next=nearest(owner,projectile.position(),Double.POSITIVE_INFINITY);
-            if(trial && owner.isAlive() && (next==null || owner.distanceToSqr(projectile)<next.distanceToSqr(projectile))) next=owner;
-            if(next==null) steeringTargets.remove(fireball); else steeringTargets.put(fireball,next);
-        }
-        var nearest=steeringTargets.get(fireball);
-        if(nearest!=null) {
-            game.items().lifetimes().forget(projectile);
-            if(age%5==0 && (trial && owner.distanceToSqr(projectile)>=64 || hasDistantTarget(owner,projectile.position()))) {
-                projectile.setDeltaMovement(nearest.getEyePosition().subtract(projectile.position()).normalize()
-                        .scale(projectile.entityTags().contains(SLOW_TAG)?.5:2));
-                LbcShooters.orient(projectile);
+        ++inProgress;try {
+            if(!(projectile instanceof LargeFireball fireball) || !family(projectile)) return true;
+            if(!game.items().currentEpoch(projectile) || !(projectile.getOwner() instanceof ServerPlayer owner)
+                    || !valid(owner) || owner.level()!=projectile.level()) { projectile.discard(); return false; }
+            if(game.items().magic().suppressedAt(owner.level(),projectile.position())) { projectile.discard(); return false; }
+            if(game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) return false;
+            int age=ages.merge(fireball,1,Integer::sum);
+            // Нативный owner меняется при отражении; сохранённый автор каста здесь не используется.
+            boolean guided=projectile.entityTags().contains(TAG),trial=projectile.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE);
+            if(guided && (age==1 || age%5==0)) {
+                var next=nearest(owner,projectile.position(),Double.POSITIVE_INFINITY);
+                if(trial && owner.isAlive() && (next==null || owner.distanceToSqr(projectile)<next.distanceToSqr(projectile))) next=owner;
+                if(next==null) steeringTargets.remove(fireball); else steeringTargets.put(fireball,next);
             }
-        } else {
-            game.items().lifetimes().track(projectile,true);
-            game.items().lifetimes().advance(projectile,age);
-        }
-        // Native applyInertia увеличивает шаг ДО столкновений; проверяем ту же длину заранее.
-        Vec3 motion=projectile.getDeltaMovement();
-        Vec3 nativeMotion=motion.add(motion.normalize().scale(projectile.accelerationPower))
-                .scale(projectile.isInWater()?.8:.95);
-        Vec3 to=projectile.position().add(nativeMotion);
-        double barrier=game.items().magic().suppressionFraction(owner.level(),projectile.position(),to);
-        if(Double.isFinite(barrier) || !projectile.level().hasChunkAt(BlockPos.containing(to))) {
-            projectile.discard(); return false;
-        }
-        return true;
+            var nearest=steeringTargets.get(fireball);
+            if(nearest!=null) {
+                game.items().lifetimes().forget(projectile);
+                if(age%5==0 && (trial && owner.distanceToSqr(projectile)>=64 || hasDistantTarget(owner,projectile.position()))) {
+                    projectile.setDeltaMovement(nearest.getEyePosition().subtract(projectile.position()).normalize()
+                            .scale(projectile.entityTags().contains(SLOW_TAG)?.5:2));
+                    LbcShooters.orient(projectile);
+                }
+            } else {
+                game.items().lifetimes().track(projectile,true);
+                game.items().lifetimes().advance(projectile,age);
+            }
+            // Native applyInertia увеличивает шаг ДО столкновений; проверяем ту же длину заранее.
+            Vec3 motion=projectile.getDeltaMovement();
+            Vec3 nativeMotion=motion.add(motion.normalize().scale(projectile.accelerationPower))
+                    .scale(projectile.isInWater()?.8:.95);
+            Vec3 to=projectile.position().add(nativeMotion);
+            double barrier=game.items().magic().suppressionFraction(owner.level(),projectile.position(),to);
+            if(Double.isFinite(barrier) || !projectile.level().hasChunkAt(BlockPos.containing(to))) {
+                projectile.discard(); return false;
+            }
+            return true;
+
+        }finally{--inProgress;}
     }
     private boolean hasDistantTarget(ServerPlayer owner,Vec3 point) {
         for(var living:game.items().lifetimes().loadedTargets())
@@ -330,9 +384,12 @@ public final class LbcHoming {
     }
 
     public void tick() {
-        ++ticks;
-        tickEffects(rains,true); tickEffects(destinies,false);
-        tickCurses();
+        ++inProgress;try {
+            ++ticks;
+            tickEffects(rains,true); tickEffects(destinies,false);
+            tickCurses();
+
+        }finally{--inProgress;}
     }
     private void tickEffects(List<Effect> effects,boolean rain) {
         // spawn/unload callbacks могут менять другие коллекции, поэтому задания удаляются до вызова эффекта.
@@ -372,7 +429,12 @@ public final class LbcHoming {
 
     /** Curse проходит блоки, но не границы незагруженных чанков и подавления магии. */
     private void curseRay(ServerPlayer owner,Vec3 origin,Vec3 direction) {
-        requestRay(owner,origin,direction,false,null,hit->{
+        game.items().exasperato().replayableLoaded(owner,origin,direction,LbcExasperato.RayMode.PHASED,
+                Double.POSITIVE_INFINITY,new CurseRay(owner,origin));
+    }
+    private final class CurseRay extends HomingRay {
+        CurseRay(ServerPlayer owner,Vec3 origin){super(owner,origin);}
+        void finish(ServerPlayer owner,net.minecraft.world.phys.HitResult hit){
             if(!(hit instanceof EntityHitResult entityHit) || !(entityHit.getEntity() instanceof LivingEntity living)
                     || !projectileTarget(owner,living)) return;
             if(living instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) return;
@@ -381,18 +443,9 @@ public final class LbcHoming {
             owner.level().sendParticles(new DustParticleOptions(net.minecraft.util.ARGB.colorFromFloat(1,.314f,.294f,.129f)&0xffffff,3),
                     living.getX(),living.getY(),living.getZ(),50,1,1,1,.3);
             LbcOverload.sound(owner,living.position(),"minecraft:block.sculk_catalyst.bloom",1,1,0);
-        });
+        }
     }
 
-    private void requestRay(ServerPlayer owner,Vec3 from,Vec3 direction,boolean walls,
-            java.util.function.BiConsumer<Vec3,Vec3> trail,java.util.function.Consumer<net.minecraft.world.phys.HitResult> hit) {
-        var pending=game.items().exasperato().searchLoadedRay(owner,from,direction,walls,trail);
-        pendingRays.add(pending);
-        pending.whenComplete((result,error)->{
-            pendingRays.remove(pending);
-            if(!pending.isCancelled() && error==null && valid(owner)) hit.accept(result);
-        });
-    }
     private void trail(ServerPlayer owner,Vec3 from,Vec3 to,double step,boolean force) {
         Vec3 delta=to.subtract(from); double length=delta.length();
         for(double d=0;d<length;d+=step) {
@@ -468,16 +521,70 @@ public final class LbcHoming {
         trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,Math.sqrt(direction.x*direction.x+direction.z*direction.z)));
     }
     public void forget(ServerPlayer owner) {
-        rains.removeIf(e->e.owner==owner); destinies.removeIf(e->e.owner==owner);
-        curses.entrySet().removeIf(e->e.getKey()==owner || e.getValue().owner==owner);
-        for(var fireball:List.copyOf(fireballs)) if(fireball.getOwner()==owner) fireball.discard();
+        ++inProgress;try {
+            rains.removeIf(e->e.owner==owner); destinies.removeIf(e->e.owner==owner);
+            curses.entrySet().removeIf(e->e.getKey()==owner || e.getValue().owner==owner);
+            for(var fireball:List.copyOf(fireballs)) if(fireball.getOwner()==owner) fireball.discard();
+
+        }finally{--inProgress;}
     }
     public void stop() {
-        for(var pending:List.copyOf(pendingRays)) pending.cancel(false);
-        pendingRays.clear();
-        var pending=List.copyOf(fireballs); fireballs.clear(); ages.clear(); steeringTargets.clear();
-        rains.clear(); destinies.clear(); curses.clear(); ticks=0;
-        for(var fireball:pending) fireball.discard();
-        // Индекс прочих нативных снарядов сохраняется: stop не является выгрузкой мира.
+        ++inProgress;try {
+            for(var pending:List.copyOf(pendingRays)) pending.cancel();
+            pendingRays.clear();
+            var pending=List.copyOf(fireballs); fireballs.clear(); ages.clear(); steeringTargets.clear();
+            rains.clear(); destinies.clear(); curses.clear(); ticks=0;
+            for(var fireball:pending) fireball.discard();
+            // Индекс прочих нативных снарядов сохраняется: stop не является выгрузкой мира.
+
+        }finally{--inProgress;}
     }
+    void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish Homing native callbacks before checkpointing");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record EffectImage(Effect original,MatchDamageSources.Ref owner,Vec3 position,int remaining) { }
+        private record CurseImage(Curse original,MatchDamageSources.Ref owner,long remaining,boolean rawWild) { }
+        private final List<EffectImage> rainImage,destinyImage;
+        private final List<CurseImage> curseValues=new ArrayList<>();
+        private final List<MatchDamageSources.Ref> balls=new ArrayList<>(),shots=new ArrayList<>();
+        private final List<LbcExasperato.RayTicket> waiting=List.copyOf(pendingRays);
+        private final MatchSpellCheckpoint.IdentityImage<LargeFireball,Integer> ageImage;
+        private final MatchSpellCheckpoint.IdentityImage<LargeFireball,MatchDamageSources.Ref> steeringImage;
+        private final MatchSpellCheckpoint.IdentityImage<LivingEntity,Curse> curseImage;
+        private final int cadence=ticks;
+        @SuppressWarnings("unchecked") Checkpoint(MatchSpellCheckpoint.Links links){
+            rainImage=rains.stream().map(e->effect(e,links)).toList();destinyImage=destinies.stream().map(e->effect(e,links)).toList();
+            fireballs.forEach(e->balls.add(links.key(e)));projectiles.forEach(e->shots.add(links.key(e)));
+            ageImage=new MatchSpellCheckpoint.IdentityImage<>(ages,links);
+            var steering=(IdentityHashMap<LargeFireball,MatchDamageSources.Ref>)(IdentityHashMap<?,?>)steeringTargets.clone();
+            for(var ball:steeringTargets.keySet())steering.put(ball,links.key(steeringTargets.get(ball)));
+            steeringImage=new MatchSpellCheckpoint.IdentityImage<>(steering,links);
+            curseImage=new MatchSpellCheckpoint.IdentityImage<>(curses,links);
+            var seen=new IdentityHashMap<Curse,Boolean>();for(var curse:curses.values())if(seen.put(curse,true)==null)
+                curseValues.add(new CurseImage(curse,links.key(curse.owner),curse.remaining,curse.rawWild));
+        }
+        private EffectImage effect(Effect e,MatchSpellCheckpoint.Links links){return new EffectImage(e,links.key(e.owner),e.position,e.remaining);}
+        @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();
+            var nextBalls=balls.stream().map(ref->(LargeFireball)links.get(ref)).toList();
+            var nextShots=shots.stream().map(links::get).toList();
+            var nextAges=ageImage.restore(links);var nextCurses=curseImage.restore(links);
+            var refs=steeringImage.restore(links);
+            var nextSteering=(IdentityHashMap<LargeFireball,LivingEntity>)(IdentityHashMap<?,?>)refs.clone();
+            for(var ball:refs.keySet())nextSteering.put(ball,(LivingEntity)links.get(refs.get(ball)));
+            var effects=new ArrayList<Runnable>();
+            for(var image:rainImage)effects.add(effectPlan(image,links));for(var image:destinyImage)effects.add(effectPlan(image,links));
+            for(var image:curseValues){var owner=(ServerPlayer)links.get(image.owner);
+                effects.add(()->{image.original.owner=owner;image.original.remaining=image.remaining;image.original.rawWild=image.rawWild;});}
+            return ()->{effects.forEach(Runnable::run);fireballs.clear();fireballs.addAll(nextBalls);projectiles.clear();projectiles.addAll(nextShots);
+                ages=nextAges;steeringTargets=nextSteering;curses=nextCurses;
+                rains.clear();rainImage.forEach(i->rains.add(i.original));destinies.clear();destinyImage.forEach(i->destinies.add(i.original));
+                pendingRays.clear();pendingRays.addAll(waiting);ticks=cadence;};
+        }
+        private Runnable effectPlan(EffectImage image,MatchSpellCheckpoint.Links links){
+            var owner=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.original.level);
+            return ()->{image.original.owner=owner;image.original.position=image.position;image.original.remaining=image.remaining;};
+        }
+    }
+
 }

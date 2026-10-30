@@ -1,3 +1,20 @@
+## Vanity native ray families and drone producers - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[State ownership and native evidence](agent_notes/VANITY_NATIVE_RAYS_CHECKPOINT_2026_10_30.md).
+One queued-work image now includes Hohlopitek samples/cooldown remainder, Reactive
+wall requests/clocks, Homing native bodies/ages/steering/rain/destiny/curses and
+DroneDrops actor/source/host/producer state. Typed tickets preserve accepted native
+geometry/policies and current bodies without reopening JDK futures. Exact spawner
+runtime/data aliases and O(1) native load/unload; callback/cache guards, whole-image
+offline retry. 21019f80 passed60 suites/24 mode1 matches/ONE child plus Reactive
+Artifacts in its required separate match/child (61 suites/25 matches/2 children,
+376.5s). 11372 inputs/5499 entries/279 receipts.199 authorpaths/31overrides/
+main d9087f0a exact; normal exits/exact snapshots/no locks. No functions/RP/template/
+questionfile/maininstall/restart/push. Full original25 gate CLOSED; Vanity gated.
+Other opaque rays/jobs/private abilities/client shader/native AI/BE/multipart/async/
+regions and complete input/writer/IO/lifecycle/offline/persistence/map coordinator
+remain. NOT full Vanity; retain every earlier canonical owner and documentation.
+
 ## Vanity explosive series and replayable rainbow/nuclear aim ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Ownership, boundaries and exact native proof](agent_notes/VANITY_BLAST_CHECKPOINT_2026_10_30.md).

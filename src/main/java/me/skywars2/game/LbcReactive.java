@@ -19,7 +19,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.UUID;
+import net.minecraft.server.level.ServerLevel;
 
 /** Player-owned reactive cooldown and the terrain-only consumer of the shared long-ray queue. */
 public final class LbcReactive {
@@ -27,7 +28,7 @@ public final class LbcReactive {
     private final GameController game;
     private final LbcMana mana;
     private final Map<ServerPlayer,Integer> cooldowns=new LinkedHashMap<>();
-    private final Map<CompletableFuture<HitResult>,ServerPlayer> rays=new LinkedHashMap<>();
+    private final Map<LbcExasperato.RayTicket,ServerPlayer> rays=new LinkedHashMap<>();
     public LbcReactive(GameController game,LbcMana mana) {
         this.game=game; this.mana=mana;
         mana.score(WALL_COST,"lbc.math").set(500);
@@ -61,21 +62,44 @@ public final class LbcReactive {
     boolean castWall(ServerPlayer player,boolean paid){
         var origin=player.getEyePosition(); var direction=player.getLookAngle().normalize();
         int mode=player.isShiftKeyDown()?3:!player.onGround()?2:player.isSprinting()?4:1;
-        float yaw=player.getYRot(); String epoch=game.items().epoch(); var level=player.level();
-        var pending=game.items().exasperato().searchLoadedBlocks(player,origin.add(direction.scale(.5)),direction,
-                (from,to)->trail(player,from,to));
-        rays.put(pending,player);
-        pending.whenComplete((result,error)-> {
-            rays.remove(pending);
-            if(error!=null || !(result instanceof BlockHitResult hit) || !game.items().currentEpoch(epoch)
-                    || !admitted(player) || player.level()!=level || !level.hasChunkAt(hit.getBlockPos())) return;
-            int cost=Math.max(0,mana.score(WALL_COST,"lbc.math").get());
-            // A miss is free. Recheck admission on deferred completion before charging exactly one hit.
-            if(paid&&!mana.trySpendWand(player,500,cost)) return;
-            LbcWall.shishTerminal(game,player,hit,direction,mode,yaw);
-            if(paid)game.items().wands().wandCasted(player);
-        });
+        game.items().exasperato().replayableLoaded(player,origin.add(direction.scale(.5)),direction,
+                LbcExasperato.RayMode.TERRAIN,Double.POSITIVE_INFINITY,new WallAim(player,direction,mode,paid));
         return true;
+    }
+    private final class WallAim implements LbcExasperato.ReplayableRay {
+        final UUID author;final ServerLevel level;final String epoch;final Vec3 direction;final int mode;final float yaw;final boolean paid;
+        LbcExasperato.RayTicket ticket;
+        WallAim(ServerPlayer player,Vec3 direction,int mode,boolean paid){author=player.getUUID();level=player.level();epoch=game.items().epoch();this.direction=direction;this.mode=mode;this.paid=paid;yaw=player.getYRot();}
+        ServerPlayer owner(){return game.server().getPlayerList().getPlayer(author);}
+        public void submitted(LbcExasperato.RayTicket value){ticket=value;rays.put(value,owner());}
+        public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return true;}
+        public boolean target(net.minecraft.world.entity.Entity entity){return false;}
+        public void trail(Vec3 from,Vec3 to){var owner=owner();if(owner!=null)LbcReactive.this.trail(owner,from,to);}
+        public void complete(HitResult result){
+            rays.remove(ticket);var player=owner();
+            if(!(result instanceof BlockHitResult hit)||!game.items().currentEpoch(epoch)||player==null
+                    ||!admitted(player)||player.level()!=level||!level.hasChunkAt(hit.getBlockPos()))return;
+            completing++;try{
+                int cost=Math.max(0,mana.score(WALL_COST,"lbc.math").get());
+                // A miss is free. Deferred completion rechecks payment exactly once against the CURRENT player.
+                if(paid&&!mana.trySpendWand(player,500,cost))return;
+                LbcWall.shishTerminal(game,player,hit,direction,mode,yaw);
+                if(paid)game.items().wands().wandCasted(player);
+            }finally{completing--;}
+        }
+    }
+    private int completing;private boolean advancing;
+    void checkpointBoundary(){if(completing!=0||advancing)throw new IllegalStateException("Finish reactive callbacks before checkpoint");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        final Map<MatchDamageSources.Ref,Integer> clocks=new LinkedHashMap<>();
+        final Map<LbcExasperato.RayTicket,MatchDamageSources.Ref> requests=new LinkedHashMap<>();
+        Checkpoint(MatchSpellCheckpoint.Links links){cooldowns.forEach((p,n)->clocks.put(links.key(p),n));rays.forEach((r,p)->requests.put(r,links.key(p)));}
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var values=new LinkedHashMap<ServerPlayer,Integer>();clocks.forEach((ref,n)->values.put((ServerPlayer)links.get(ref),n));
+            var pending=new LinkedHashMap<LbcExasperato.RayTicket,ServerPlayer>();requests.forEach((r,ref)->pending.put(r,(ServerPlayer)links.get(ref)));
+            return ()->{cooldowns.clear();cooldowns.putAll(values);rays.clear();rays.putAll(pending);};
+        }
     }
     private void trail(ServerPlayer owner,Vec3 from,Vec3 to) {
         var delta=to.subtract(from); double length=delta.length();
@@ -87,6 +111,7 @@ public final class LbcReactive {
         }
     }
     public void tick() {
+        if(advancing)throw new IllegalStateException("Reentrant reactive tick");advancing=true;try {
         for(var entry:List.copyOf(cooldowns.entrySet())) {
             var player=entry.getKey(); int remaining=entry.getValue();
             if(!valid(player)) { clear(player); continue; }
@@ -101,7 +126,8 @@ public final class LbcReactive {
             if(remaining==95 && !game.items().magic().suppressed(player)) platform(player);
             if(remaining<=0) cooldowns.remove(player); else cooldowns.put(player,remaining);
         }
-        for(var entry:List.copyOf(rays.entrySet())) if(!valid(entry.getValue())) entry.getKey().cancel(false);
+        for(var entry:List.copyOf(rays.entrySet())) if(!valid(entry.getValue())) entry.getKey().cancel();
+        }finally{advancing=false;}
     }
     private void platform(ServerPlayer player) {
         var level=player.level(); var at=player.blockPosition(); int y=at.getY()>=322?319:at.getY()-2;
@@ -124,11 +150,11 @@ public final class LbcReactive {
     public int pendingRayCount() { return rays.size(); }
     public void clear(ServerPlayer player) {
         cooldowns.remove(player);mana.score(player,"coldownshish").set(0);
-        for(var entry:List.copyOf(rays.entrySet())) if(entry.getValue()==player) entry.getKey().cancel(false);
+        for(var entry:List.copyOf(rays.entrySet())) if(entry.getValue()==player) entry.getKey().cancel();
     }
     public void stop() {
         cooldowns.clear();
-        for(var pending:List.copyOf(rays.keySet())) pending.cancel(false);
+        for(var pending:List.copyOf(rays.keySet())) pending.cancel();
         rays.clear();
     }
 }

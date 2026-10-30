@@ -84,7 +84,26 @@ public final class LbcExasperato {
         boolean target(Entity entity);
         void trail(Vec3 from,Vec3 to);
         void complete(net.minecraft.world.phys.HitResult hit);
+        default void submitted(RayTicket ticket) { }
         default MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){return ignored->()->{};}
+    }
+    /** The original request identity survives replay; its completion bit belongs to Search, not a JDK future. */
+    static final class RayTicket {
+        private final Search search;
+        private RayTicket(Search search){this.search=search;}
+        boolean done(){return LbcExasperato.done(search);}
+        void cancel(){LbcExasperato.complete(search,null);}
+    }
+    enum RayMode { SPELL, TERRAIN, PHASED, TECHNOLOGY }
+    /** Native collision/shield/target policies are identical to the corresponding original loaded-ray APIs. */
+    void replayableLoaded(ServerPlayer owner,Vec3 from,Vec3 direction,RayMode mode,double maxRange,ReplayableRay replay){
+        direction=direction.normalize();boolean walls=mode!=RayMode.PHASED,blocks=mode==RayMode.TERRAIN,tech=mode==RayMode.TECHNOLOGY;
+        double reach=Math.min(maxRange,loadedRayExtent(owner,from,direction,walls,blocks));
+        var search=new Search(owner,game.items().epoch(),from,direction,reach,walls,replay::trail,blocks,tech,tech?replay::target:null);
+        search.replay=replay;
+        // Registration must precede even an immediate empty-range completion, otherwise owners retain dead requests.
+        replay.submitted(new RayTicket(search));
+        if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
     }
     private static boolean done(Search s){return s.replay==null?s.result.isDone():s.finished;}
     private static void complete(Search s,net.minecraft.world.phys.HitResult hit){if(done(s))return;if(s.replay==null)s.result.complete(hit);else{s.finished=true;s.replay.complete(hit);}}

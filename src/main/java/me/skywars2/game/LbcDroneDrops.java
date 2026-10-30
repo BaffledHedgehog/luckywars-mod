@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import me.skywars2.mixin.DroneSpawnerCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -41,8 +42,14 @@ public final class LbcDroneDrops {
             {id:"minecraft:tnt",CustomNameVisible:0b,fuse:100,Tags:["groundbam"],Passengers:[{id:"minecraft:pig",CustomNameVisible:1b,DeathLootTable:"empty",Health:35.0f,CustomName:{"italic":false,"text":"Українська бiмба"},attributes:[{id:"minecraft:max_health",base:35}]}],CustomName:{"italic":false,"text":"Українська бiмба"}}
             """);
     private final GameController game;
-    private final Set<Entity> tracked=Collections.newSetFromMap(new IdentityHashMap<>());
-    private final Map<BaseSpawner,MinecartSpawner> producers=new IdentityHashMap<>();
+    // Stable identity-table slots preserve native traversal when a captured body is replaced.
+    // Values always point at the current body; keys are private registry identity anchors only.
+    private IdentityHashMap<Entity,Entity> tracked=new IdentityHashMap<>();
+    // Reverse identity index keeps native load/unload O(1), including rebound bodies.
+    private IdentityHashMap<Entity,Entity> slots=new IdentityHashMap<>();
+    private int checkpointDepth;
+    private int cadenceOffset;
+    private Map<BaseSpawner,MinecartSpawner> producers=new IdentityHashMap<>();
     private final Map<UUID,ServerPlayer> authors=new HashMap<>();
     private final Set<String> deadHosts=new HashSet<>();
     public LbcDroneDrops(GameController game){this.game=game;}
@@ -60,6 +67,7 @@ public final class LbcDroneDrops {
 
     /** Source attack hoglin: its own target sets yaw, and native Instant Damage owns its lifespan. */
     public Hoglin spawnBomber(ServerPlayer owner,Vec3 target,float castYaw){
+        checkpointDepth++;try{
         var level=owner.level();
         if(!game.playing() || game.stage()==GameController.Stage.ENDING || level!=game.maps().level())return null;
         double angle=Math.toRadians(castYaw+90);
@@ -74,6 +82,8 @@ public final class LbcDroneDrops {
             hoglin.getSelfAndPassengers().toList().forEach(e->{unloaded(e);e.discard();});return null;
         }
         return hoglin;
+
+        }finally{checkpointDepth--;}
     }
 
     private void bomberTick(Hoglin actor){
@@ -108,6 +118,7 @@ public final class LbcDroneDrops {
         return resident(level,new AABB(BlockPos.containing(token.position().add(0,20,0))));
     }
     public boolean spawn(ItemEntity token){
+        checkpointDepth++;try{
         if(!ready(token))return false;
         var level=(ServerLevel)token.level();
         level.sendParticles(ParticleTypes.EXPLOSION,token.getX(),token.getY()+10,token.getZ(),300,.3,8,.3,0);
@@ -128,6 +139,8 @@ public final class LbcDroneDrops {
                 actor.getSelfAndPassengers().toList().forEach(e->{unloaded(e);e.discard();});
         }
         return true;
+
+        }finally{checkpointDepth--;}
     }
     private void enrich(CompoundTag entity,ServerPlayer author){
         var tags=entity.getListOrEmpty("Tags");tags.add(StringTag.valueOf(ACTOR));
@@ -168,12 +181,18 @@ public final class LbcDroneDrops {
             || active(source) && target!=null && game.items().wands().validTarget(target);}
     public boolean canTarget(Entity source,LivingEntity target){return target==null || canAffect(source,target);}
     public void inheritChild(Entity source,Entity child){
+        checkpointDepth++;try{
         if(!managed(source) || !active(source) || !(child instanceof PrimedTnt))return;
         inherit(source,child);
+
+        }finally{checkpointDepth--;}
     }
     public void inheritConversion(Entity source,Entity child){
+        checkpointDepth++;try{
         if(!managed(source) || !active(source) || !(child instanceof LivingEntity))return;
         inherit(source,child);
+
+        }finally{checkpointDepth--;}
     }
     private void inherit(Entity source,Entity child){
         child.entityTags().add(ACTOR);
@@ -183,23 +202,32 @@ public final class LbcDroneDrops {
         loaded(child);
     }
     public void loaded(Entity actor){
+        checkpointDepth++;try{
         if(!managed(actor))return;
         if(!active(actor)){actor.discard();return;}
-        tracked.add(actor);game.items().timeStop().prepareFrozen(actor);
+        if(!slots.containsKey(actor)){tracked.put(actor,actor);slots.put(actor,actor);}game.items().timeStop().prepareFrozen(actor);
         if(actor instanceof MinecartSpawner cart){
             if(deadHosts.contains(hostKey(cart)))cart.entityTags().add(CLOSED);
             producers.put(cart.getSpawner(),cart);
         }
+
+        }finally{checkpointDepth--;}
     }
     public void unloaded(Entity actor){
-        tracked.remove(actor);if(actor instanceof MinecartSpawner cart)producers.remove(cart.getSpawner());
+        checkpointDepth++;try{
+        var slot=slots.remove(actor);if(slot!=null)tracked.remove(slot);if(actor instanceof MinecartSpawner cart)producers.remove(cart.getSpawner());
+
+        }finally{checkpointDepth--;}
     }
     public boolean canTick(MinecartSpawner cart){
+        checkpointDepth++;try{
         if(!managed(cart))return true;
         if(!active(cart)){unloaded(cart);cart.discard();return false;}
         producers.put(cart.getSpawner(),cart);
         if(deadHosts.contains(hostKey(cart)))cart.entityTags().add(CLOSED);
         return !isClosed(cart) && !game.items().timeStop().stopped((ServerLevel)cart.level());
+
+        }finally{checkpointDepth--;}
     }
     public boolean canSpawnAt(BaseSpawner spawner,ServerLevel level,AABB bounds){
         return !producers.containsKey(spawner) || resident(level,bounds.inflate(1));
@@ -218,26 +246,117 @@ public final class LbcDroneDrops {
     /** User override: unrelated mobs, distance and chunk sleep cannot substitute for this host. */
     public boolean keepAlive(MinecartSpawner cart){return !isClosed(cart) && !deadHosts.contains(hostKey(cart));}
     public void hostDied(LivingEntity actor){
+        checkpointDepth++;try{
         if(!managed(actor) || !active(actor))return;
         var key=hostKey(actor);if(key.isEmpty())return;
         deadHosts.add(key);
         for(var cart:List.copyOf(producers.values()))if(key.equals(hostKey(cart)))cart.entityTags().add(CLOSED);
+
+        }finally{checkpointDepth--;}
     }
     public void groundbam(PrimedTnt tnt){
+        checkpointDepth++;try{
         if(managed(tnt) && active(tnt) && !game.items().timeStop().stopped((ServerLevel)tnt.level())
                 && tnt.onGround() && tnt.entityTags().remove("groundbam"))tnt.setFuse(2);
+
+        }finally{checkpointDepth--;}
     }
     public void tick(){
-        for(var actor:List.copyOf(tracked)){
+        checkpointDepth++;try{
+        for(var actor:snapshot()){
             if(actor.isRemoved()){unloaded(actor);continue;}
             if(!active(actor)){unloaded(actor);actor.discard();continue;}
-            if(actor instanceof Hoglin hoglin && game.server().getTickCount()%5==0)bomberTick(hoglin);
-            if(actor instanceof MinecartSpawner cart && game.server().getTickCount()%20==0
+            if(actor instanceof Hoglin hoglin && Math.floorMod(game.server().getTickCount()-cadenceOffset,5)==0)bomberTick(hoglin);
+            if(actor instanceof MinecartSpawner cart && Math.floorMod(game.server().getTickCount()-cadenceOffset,20)==0
                     && !game.items().timeStop().stopped((ServerLevel)cart.level()) && !keepAlive(cart))cart.kill((ServerLevel)cart.level());
         }
+
+        }finally{checkpointDepth--;}
     }
-    public void stop(){var actors=List.copyOf(tracked);tracked.clear();producers.clear();
-        for(var actor:actors)if(!actor.isRemoved())actor.discard();authors.clear();deadHosts.clear();}
-    public List<Entity> snapshot(){return List.copyOf(tracked);}
+    public void stop(){
+        checkpointDepth++;try{var actors=snapshot();tracked.clear();slots.clear();producers.clear();
+        for(var actor:actors)if(!actor.isRemoved())actor.discard();authors.clear();deadHosts.clear();cadenceOffset=0;
+        }finally{checkpointDepth--;}
+    }
+    public List<Entity> snapshot(){return List.copyOf(tracked.values());}
+
+    /** Native bodies/AI, relationships and direct/reflected owners have separate canonical owners. */
+    void checkpointBoundary(){
+        if(checkpointDepth!=0)throw new IllegalStateException("Finish drone tick/spawn/host callback before checkpointing");
+    }
+    /** Called by the narrow native BaseSpawner wrapper, including callbacks during entity creation. */
+    public void checkpointNativeEnter(BaseSpawner producer){checkpointDepth++;}
+    public void checkpointNativeExit(BaseSpawner producer){checkpointDepth--;}
+    public boolean checkpointNativeTracked(BaseSpawner producer){return producers.containsKey(producer);}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private final IdentityHashMap<Entity,Entity> actorTable;
+        private final IdentityHashMap<Entity,MatchDamageSources.Ref> actors=new IdentityHashMap<>();
+        private final List<ProducerImage> producerImages;
+        private final Map<UUID,MatchDamageSources.Ref> authorImages=new HashMap<>();
+        private final Set<String> dead;
+        private final int phase;
+        private record ProducerImage(MatchDamageSources.Ref cart,SpawnerImage runtime) { }
+        @SuppressWarnings("unchecked") Checkpoint(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();actorTable=(IdentityHashMap<Entity,Entity>)tracked.clone();
+            tracked.forEach((slot,actor)->actors.put(slot,links.key(actor)));
+            producerImages=new ArrayList<>();
+            var aliases=new IdentityHashMap<net.minecraft.world.level.SpawnData,net.minecraft.world.level.SpawnData>();
+            producers.forEach((spawner,cart)->{
+                if(cart.getSpawner()!=spawner)throw new IllegalStateException("Drone producer must belong to its native cart");
+                producerImages.add(new ProducerImage(links.key(cart),new SpawnerImage(spawner,aliases)));
+            });
+            authors.forEach((id,author)->authorImages.put(id,links.key(author)));
+            dead=Set.copyOf(deadHosts);phase=Math.floorMod(game.server().getTickCount()-cadenceOffset,20);
+        }
+        @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();
+            var nextTracked=(IdentityHashMap<Entity,Entity>)actorTable.clone();
+            var nextSlots=new IdentityHashMap<Entity,Entity>();
+            actors.forEach((slot,ref)->{var actor=links.get(ref);nextTracked.put(slot,actor);nextSlots.put(actor,slot);});
+            var nextProducers=new IdentityHashMap<BaseSpawner,MinecartSpawner>();var nativeInstalls=new ArrayList<Runnable>();
+            var aliases=new IdentityHashMap<net.minecraft.world.level.SpawnData,net.minecraft.world.level.SpawnData>();
+            for(var image:producerImages){var cart=(MinecartSpawner)links.get(image.cart);
+                nextProducers.put(cart.getSpawner(),cart);nativeInstalls.add(image.runtime.prepare(cart.getSpawner(),aliases));}
+            var nextAuthors=new HashMap<UUID,ServerPlayer>();
+            authorImages.forEach((id,ref)->nextAuthors.put(id,(ServerPlayer)links.get(ref)));
+            return ()->{
+                checkpointBoundary();nativeInstalls.forEach(Runnable::run);
+                tracked=nextTracked;slots=nextSlots;producers=nextProducers;
+                authors.clear();authors.putAll(nextAuthors);deadHosts.clear();deadHosts.addAll(dead);
+                cadenceOffset=game.server().getTickCount()-phase;
+            };
+        }
+    }
+    /** Runtime which native NBT omits or normalizes; preserve null data, exact ints and data aliases. */
+    private static final class SpawnerImage {
+        private final int delay,min,max,count,near,range,spawnRange;
+        private final double spin,oldSpin;
+        private final net.minecraft.world.level.SpawnData next;
+        private final net.minecraft.util.random.WeightedList<net.minecraft.world.level.SpawnData> potentials;
+        private static net.minecraft.world.level.SpawnData copy(net.minecraft.world.level.SpawnData value,
+                IdentityHashMap<net.minecraft.world.level.SpawnData,net.minecraft.world.level.SpawnData> aliases){
+            return value==null?null:aliases.computeIfAbsent(value,v->new net.minecraft.world.level.SpawnData(
+                    v.getEntityToSpawn().copy(),v.getCustomSpawnRules(),v.getEquipment()));
+        }
+        SpawnerImage(BaseSpawner source,
+                IdentityHashMap<net.minecraft.world.level.SpawnData,net.minecraft.world.level.SpawnData> aliases){
+            var a=(DroneSpawnerCheckpointAccess)source;delay=a.skywars2$delay();min=a.skywars2$min();max=a.skywars2$max();
+            count=a.skywars2$count();near=a.skywars2$near();range=a.skywars2$range();spawnRange=a.skywars2$spawnRange();
+            spin=a.skywars2$spin();oldSpin=a.skywars2$oldSpin();
+            if(a.skywars2$display()!=null)throw new IllegalStateException("Drone display cache requires a native display-state owner before checkpointing");
+            next=copy(a.skywars2$next(),aliases);potentials=a.skywars2$potentials().map(v->copy(v,aliases));
+        }
+        Runnable prepare(BaseSpawner source,
+                IdentityHashMap<net.minecraft.world.level.SpawnData,net.minecraft.world.level.SpawnData> aliases){
+            var a=(DroneSpawnerCheckpointAccess)source;
+            var nextData=copy(next,aliases);var entries=potentials.map(v->copy(v,aliases));
+            return ()->{a.skywars2$delay(delay);a.skywars2$min(min);a.skywars2$max(max);a.skywars2$count(count);
+                a.skywars2$near(near);a.skywars2$range(range);a.skywars2$spawnRange(spawnRange);
+                a.skywars2$spin(spin);a.skywars2$oldSpin(oldSpin);a.skywars2$display(null);
+                a.skywars2$next(nextData);a.skywars2$potentials(entries);};
+        }
+    }
+
     public int trackedCount(){return tracked.size();}
 }

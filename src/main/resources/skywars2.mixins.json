@@ -3,6 +3,8 @@
   "package": "me.skywars2.mixin",
   "mixins": [
     "AcademyBlastCheckpointAccess",
+    "DroneSpawnerCheckpointAccess",
+    "DroneSpawnerCheckpointAccess$Guard",
     "PolymorphMixin$Level",
     "PolymorphMixin$Damage",
     "PolymorphMixin$Effects",
