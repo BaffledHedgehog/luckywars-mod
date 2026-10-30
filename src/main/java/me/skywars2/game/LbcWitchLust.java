@@ -24,11 +24,12 @@ public final class LbcWitchLust {
     private static final String MANAGED="skywars2.witch.lust_actor",DRAGON="skywars2.witch.lust_dragon";
     private static final String PAYLOAD="{Tags:[\"lust_dragon\",\"lucky_mob\"],PersistenceRequired:1b,Health:20.0f,CustomName:{\"italic\":false,\"translate\":\"lust_dragon\"},attributes:[{id:\"minecraft:max_health\",base:20},{id:\"minecraft:follow_range\",base:200}],DragonPhase:1}";
     private final GameController game;
-    private final Map<Entity,LbcSpellSource.Source> actors=new IdentityHashMap<>();
+    private IdentityHashMap<Entity,LbcSpellSource.Source> actors=new IdentityHashMap<>();
     private final Map<UUID,LbcSpellSource.Source> unloaded=new HashMap<>();
     private final Set<ServerPlayer> hidden=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<String,EntitySelector> selectors=new HashMap<>();
-    private LbcSpellSource.Source producing;private int lastTick=Integer.MIN_VALUE;
+    private LbcSpellSource.Source producing;private int phaseOffset;private boolean advancing;
+    private int lastTick=Integer.MIN_VALUE;
     LbcWitchLust(GameController game){this.game=game;}
     public static boolean matches(ItemStack item){return !item.isEmpty()&&LbcFartus.data(item).getIntOr("lust_cooldown",0)==1;}
     private boolean live(){return game.playing()&&game.stage()!=GameController.Stage.ENDING;}
@@ -94,7 +95,7 @@ public final class LbcWitchLust {
         if(!((ServerLevel)dragon.level()).getWorldBorder().isWithinBounds(next)||((ServerLevel)dragon.level()).getChunkSource().getChunkNow(next.getX()>>4,next.getZ()>>4)==null)return Vec3.ZERO;
         dragon.setYRot(p.getYRot()+180);dragon.setXRot(p.getXRot());return step;}
     public boolean harmless(Entity dragon,Entity target){return controlled(dragon)&&(target==holder(dragon)||dragon.getPassengers().contains(target));}
-    public void tick(){int now=game.server().getTickCount();if(lastTick==now||!game.server().tickRateManager().runsNormally())return;lastTick=now;
+    public void tick(){if(advancing)throw new IllegalStateException("Reentrant authority advance");advancing=true;try{int now=game.server().getTickCount();if(lastTick==now||!game.server().tickRateManager().runsNormally())return;lastTick=now;
         for(var e:List.copyOf(actors.keySet())){
             var source=actors.get(e);if(e.isRemoved()){actors.remove(e);continue;}if(!live()||!game.items().currentEpoch(source.epoch())){retire(e);continue;}
             if(paused((ServerLevel)e.level())||game.items().timeStop().frozen(e)||game.items().polymorph().suspended(e))continue;
@@ -104,11 +105,11 @@ public final class LbcWitchLust {
             if(game.items().magic().suppressedAt((ServerLevel)e.level(),e.position())||p!=null&&(game.items().magic().suppressed(p)||p.entityTags().contains("nomagic_active"))){retire(e);continue;}
             for(var passenger:List.copyOf(e.getPassengers()))if(passenger instanceof ServerPlayer old&&old!=p){old.stopRiding();refresh(old);}
             if(p!=null&&p.level()==e.level()&&p.distanceToSqr(e)<=400&&!riding(p)){p.startRiding(e,true,true);refresh(p);}
-            if(now%5==0){if(p==null||p.level()!=e.level()||p.distanceToSqr(e)>400||select((ServerLevel)e.level(),e.position(),"@a[gamemode=!spectator,tag=sin_lust]").stream().anyMatch(e2->e2 instanceof ServerPlayer s&&s.isShiftKeyDown())){retire(e);continue;}
+            if((now+phaseOffset)%5==0){if(p==null||p.level()!=e.level()||p.distanceToSqr(e)>400||select((ServerLevel)e.level(),e.position(),"@a[gamemode=!spectator,tag=sin_lust]").stream().anyMatch(e2->e2 instanceof ServerPlayer s&&s.isShiftKeyDown())){retire(e);continue;}
                 p.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false),p);}
         }
         for(var p:List.copyOf(hidden))if(!riding(p))refresh(p);
-    }
+    }finally{advancing=false;}}
     private void retire(Entity e){var passengers=List.copyOf(e.getPassengers());e.ejectPassengers();actors.remove(e);e.discard();for(var passenger:passengers)if(passenger instanceof ServerPlayer p)refresh(p);}
     public void loaded(Entity e){
         var birth=producing!=null?producing:game.items().spellSources().source(e);
@@ -122,6 +123,19 @@ public final class LbcWitchLust {
     }
     public void unloaded(Entity e){var s=actors.remove(e);if(s!=null&&e.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(e.getUUID(),s);}
     public void forget(ServerPlayer p){hidden.remove(p);if(riding(p))p.stopRiding();FullInvisibility.effectsChanged(p);}
-    public void stop(){for(var e:List.copyOf(actors.keySet()))retire(e);for(var p:List.copyOf(hidden)){hidden.remove(p);FullInvisibility.effectsChanged(p);}actors.clear();unloaded.clear();producing=null;lastTick=Integer.MIN_VALUE;}
+    public void stop(){for(var e:List.copyOf(actors.keySet()))retire(e);for(var p:List.copyOf(hidden)){hidden.remove(p);FullInvisibility.effectsChanged(p);}actors.clear();unloaded.clear();producing=null;lastTick=Integer.MIN_VALUE;phaseOffset=0;}
     List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    void checkpointBoundary(){if(advancing||producing!=null)throw new IllegalStateException("Finish Lust producer/advance callbacks first");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private final MatchSpellCheckpoint.IdentityImage<Entity,LbcSpellSource.Source> image;
+        private final Map<UUID,LbcSpellSource.Source> asleep=new HashMap<>(unloaded);
+        private final List<MatchDamageSources.Ref> players;
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,phaseOffset);
+        Checkpoint(MatchSpellCheckpoint.Links links){image=new MatchSpellCheckpoint.IdentityImage<>(actors,links);players=hidden.stream().map(links::key).toList();}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var restored=image.restore(links);var current=Collections.newSetFromMap(new IdentityHashMap<ServerPlayer,Boolean>());
+            for(var ref:players){if(!(links.get(ref) instanceof ServerPlayer p))throw new IllegalStateException("Restore hidden Lust players first");current.add(p);}
+            return ()->{actors=restored;unloaded.clear();unloaded.putAll(asleep);hidden.clear();hidden.addAll(current);lastTick=clock.last(game);phaseOffset=clock.offset(game);};}
+    }
+
 }

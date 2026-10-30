@@ -46,6 +46,7 @@ public final class LbcWitchIndolence {
     private final Map<Entity,Flight> flights=new LinkedHashMap<>();
     private final Map<UUID,Flight> unloaded=new HashMap<>();
     private final Map<String,EntitySelector> selectors=new HashMap<>();
+    private boolean advancing;
     private int lastTick=Integer.MIN_VALUE;
     LbcWitchIndolence(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("indolence",0)==1;}
@@ -88,7 +89,7 @@ public final class LbcWitchIndolence {
     private static float spread(float angle,int bound,ServerLevel level){return Mth.floor(angle)+level.getRandom().nextInt(2*bound+1)-bound;}
     private static boolean resident(ServerLevel level,Vec3 at){var cell=BlockPos.containing(at);return level.getWorldBorder().isWithinBounds(cell)
             &&level.getChunkSource().getChunkNow(cell.getX()>>4,cell.getZ()>>4)!=null;}
-    public void tick(){
+    public void tick(){if(advancing)throw new IllegalStateException("Reentrant authority advance");advancing=true;try{
         int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;
         for(var p:game.server().getPlayerList().getPlayers())if(game.playing()&&eligible(p)&&!paused(p.level())&&!game.items().wands().inputTimeStopped(p)){
             var objective=game.server().getScoreboard().getObjective("indolence_cd");var score=objective==null?null:game.server().getScoreboard().getPlayerScoreInfo(p,objective);
@@ -117,7 +118,7 @@ public final class LbcWitchIndolence {
             if(!marker.isRemoved()&&++state.age>=state.lifetime)retire(marker);
         }
         unloaded.values().removeIf(f->!live(f.source.epoch()));
-    }
+    }finally{advancing=false;}}
     private boolean sample(Entity marker,Flight state,ServerPlayer owner,Vec3 at){
         var level=(ServerLevel)marker.level();
         if(!resident(level,at)||game.items().magic().suppressedAt(level,at)){retire(marker);return false;}
@@ -146,4 +147,18 @@ public final class LbcWitchIndolence {
     public void stop(){for(var e:List.copyOf(flights.keySet()))e.discard();flights.clear();unloaded.clear();lastTick=Integer.MIN_VALUE;}
     List<Entity> snapshot(){return List.copyOf(flights.keySet());}
     int age(Entity entity){var state=flights.get(entity);return state==null?-1:state.age;}
+    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish invisible-hand callbacks first");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Image(LbcSpellSource.Source source,boolean controlled,boolean jitter,int lifetime,int age) { }
+        private final Map<MatchDamageSources.Ref,Image> active=new LinkedHashMap<>();private final Map<UUID,Image> dormant=new HashMap<>();
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
+        Checkpoint(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Flight,Image>();flights.forEach((actor,state)->active.put(links.key(actor),image(state,aliases)));unloaded.forEach((id,state)->dormant.put(id,image(state,aliases)));}
+        private Image image(Flight f,IdentityHashMap<Flight,Image> aliases){return aliases.computeIfAbsent(f,x->new Image(x.source,x.controlled,x.jitter,x.lifetime,x.age));}
+        private Flight flight(Image image,IdentityHashMap<Image,Flight> aliases){return aliases.computeIfAbsent(image,x->{var f=new Flight(x.source,new Pattern(0,0,x.lifetime,0,x.controlled),x.jitter);f.age=x.age;return f;});}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Image,Flight>();var actors=new LinkedHashMap<Entity,Flight>();var asleep=new HashMap<UUID,Flight>();
+            active.forEach((ref,image)->actors.put(links.get(ref),flight(image,aliases)));dormant.forEach((id,image)->asleep.put(id,flight(image,aliases)));
+            return ()->{flights.clear();flights.putAll(actors);unloaded.clear();unloaded.putAll(asleep);lastTick=clock.last(game);};}
+    }
+
 }

@@ -27,8 +27,9 @@ final class MatchDamageSources {
     Ref bodyRef(Entity entity){return entity==null?null:new Ref(entity.getUUID(),registered.get(entity.getUUID())==entity?null:entity);}
     Image capture(DamageSource value){
         if(value==null)return null;var image=images.get(value);if(image!=null)return image;
-        image=new Image(value,ref(value.getDirectEntity()),ref(value.getEntity()),capture(LbcIndirectKills.checkpointWrappedSource(value)));images.put(value,image);return image;
+        image=new Image(value,ref(value.getDirectEntity()),ref(value.getEntity()),capture(parent(value)));images.put(value,image);return image;
     }
+    private static DamageSource parent(DamageSource source){var accepted=LbcIndirectKills.checkpointWrappedSource(source);return accepted!=null?accepted:LbcWitchStatistics.checkpointWrappedSource(source);}
     static Entity resolve(Ref ref,Function<UUID,Entity> lookup,Set<UUID> pending){
         if(ref==null)return null;if(ref.historical!=null)return ref.historical;var current=lookup.apply(ref.id);if(current==null)pending.add(ref.id);return current;
     }

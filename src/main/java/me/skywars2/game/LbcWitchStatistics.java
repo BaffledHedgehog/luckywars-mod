@@ -27,6 +27,8 @@ public final class LbcWitchStatistics {
             net.minecraft.world.entity.Entity victim,net.minecraft.world.damagesource.DamageSource source){
         return attacker instanceof ServerPlayer player&&source.getEntity()==player&&source.getDirectEntity()==player?new Melee(source,victim):source;
     }
+    /** The native weapon/death-message delegate shares the accepted source checkpoint graph. */
+    static net.minecraft.world.damagesource.DamageSource checkpointWrappedSource(net.minecraft.world.damagesource.DamageSource source){return source instanceof Melee melee?melee.original:null;}
     public static ObjectiveCriteria criterion(String name){return switch(name){
         case "dmg_dealt"->ObjectiveCriteria.DUMMY;
         case "lolidefecation"->Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM);

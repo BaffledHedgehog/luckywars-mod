@@ -79,6 +79,7 @@ public final class OwnedEffectLayers {
         targets.remove(target);
         if(image!=null)targets.put(target,copyLayers((Map<Holder<MobEffect>,Map<Integer,Layer>>)image));
     }
+    @SuppressWarnings("unchecked") static Object copyCheckpoint(Object image) {return copyLayers((Map<Holder<MobEffect>,Map<Integer,Layer>>)image);}
     private static Map<Holder<MobEffect>,Map<Integer,Layer>> copyLayers(Map<Holder<MobEffect>,Map<Integer,Layer>> source) {
         if(source==null)return null;
         var result=new HashMap<Holder<MobEffect>,Map<Integer,Layer>>();

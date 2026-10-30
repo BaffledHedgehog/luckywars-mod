@@ -23,6 +23,7 @@ public final class LbcWitchWrath {
     private final Map<String,EntitySelector> selectors=new HashMap<>();
     private record Death(ServerLevel level,String epoch,LbcIndirectKills.Owner cause){}
     private final List<Death> deaths=new ArrayList<>();
+    private boolean advancing;
     private int lastTick=Integer.MIN_VALUE;
     LbcWitchWrath(GameController game){this.game=game;}
     private List<? extends Entity> select(ServerPlayer owner,ServerLevel level,Vec3 at,String literal){try{
@@ -43,13 +44,13 @@ public final class LbcWitchWrath {
             &&(boss||!e.entityTags().contains("sauvojen_tuntija"))
             &&(!(e instanceof ServerPlayer p)||game.canUseGameplayItems(p))&&!protectedAt(e)
             &&!game.items().timeStop().stopped((ServerLevel)e.level())&&!game.items().timeStop().frozen(e);}
-    public void tick(){
+    public void tick(){if(advancing)throw new IllegalStateException("Reentrant authority advance");advancing=true;try{
         int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
         if(!game.playing()||game.stage()==GameController.Stage.ENDING)return;
         drainDeaths();
         for(var p:List.copyOf(game.server().getPlayerList().getPlayers()))if(holder(p)&&!paused(p)
                 &&!p.entityTags().contains("nomagic_active")&&!game.items().magic().suppressed(p))wrath(p);
-    }
+    }finally{advancing=false;}}
     private void wrath(ServerPlayer owner){
         // No distance/AABB on the original mob/affected-player selectors: native scope is global.
         var mobs=select(owner,owner.level(),owner.position(),"@e[type=#minecraft:mobs,type=!minecraft:player]");
@@ -127,4 +128,12 @@ public final class LbcWitchWrath {
         }
     }
     public void stop(){deaths.clear();lastTick=Integer.MIN_VALUE;}
+    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Wrath callbacks first");}
+    Checkpoint checkpoint(){return new Checkpoint();}
+    final class Checkpoint {
+        private final List<Death> image=List.copyOf(deaths);
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
+        Runnable prepare(){image.forEach(d->MatchAuthorityCheckpoint.world(game,d.level));return ()->{deaths.clear();deaths.addAll(image);lastTick=clock.last(game);};}
+    }
+
 }

@@ -57,6 +57,7 @@ public final class LbcWitchPassives {
     private final Map<String,EntitySelector> selectors=new HashMap<>();
     private final Set<ServerPlayer> managed=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<Entity,String> hearted=new WeakHashMap<>();
+    private int phaseOffset;private boolean advancing;
     private int lastTick=Integer.MIN_VALUE;
     public LbcWitchPassives(GameController game){this.game=game;this.counters=new LbcSourceCounters(game);}
     private boolean eligible(ServerPlayer p){return game.playing()&&game.stage()!=GameController.Stage.ENDING
@@ -70,8 +71,8 @@ public final class LbcWitchPassives {
         return List.copyOf(selector.findEntities(p.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput()));
     }catch(CommandSyntaxException error){throw new IllegalStateException("Witch source selector "+literal,error);}}
     /** Once per real tick; a stopped authority retains its prior state without advancing source pulses. */
-    public void tick(){
-        int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
+    public void tick(){if(advancing)throw new IllegalStateException("Reentrant authority advance");advancing=true;try{
+        int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;int pulse=now+phaseOffset;
         for(var entry:List.copyOf(hearted.entrySet()))if(entry.getKey().isRemoved()||!game.items().currentEpoch(entry.getValue())){
             entry.getKey().entityTags().remove("sin_greed_have_heart");hearted.remove(entry.getKey());
         }
@@ -85,18 +86,18 @@ public final class LbcWitchPassives {
                 if(heartExists==null)heartExists=select(p,"@e[tag=sin_greed_have_heart,tag=!sin_greed,tag=!spectator]").stream()
                         .anyMatch(e->!game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel)e.level(),e.position()));
                 greed(p,heartExists);
-                if(now%20==0){hearts(p);heartExists=null;}
+                if(pulse%20==0){hearts(p);heartExists=null;}
             }else if(managed.contains(p))removeAuthority(p);
             if(p.entityTags().contains("sin_lust")){
-                if(now%20==0)p.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,20,4,false,false),p);
+                if(pulse%20==0)p.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,20,4,false,false),p);
                 // EnderWiki already owns falltimer; never introduce a second falling clock.
                 if(!p.onGround()&&game.items().mana().hudValue(p,"falltimer")>=10&&!magicBeacon(p))
                     p.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,20,0,false,false),p);
             }
-            if(p.entityTags().contains("sin_envy"))envy(p,now%20==0);
-            if(now%20==0){drainExisting(p,"lust_cd");drainExisting(p,"lust_cd_small");}
+            if(p.entityTags().contains("sin_envy"))envy(p,pulse%20==0);
+            if(pulse%20==0){drainExisting(p,"lust_cd");drainExisting(p,"lust_cd_small");}
         }
-    }
+    }finally{advancing=false;}}
     private void envy(ServerPlayer player,boolean second){
         if(player.entityTags().contains("nomagic_active")||game.items().magic().suppressed(player))return;
         // Unbounded native @p searches loaded player dimensions; preserve the exact source selector.
@@ -214,5 +215,18 @@ public final class LbcWitchPassives {
     void reconciled(ServerPlayer p){managed.remove(p);removeModifiers(p);p.entityTags().remove("sin_greed_active");}
     public void forget(ServerPlayer p){removeAuthority(p);if(hearted.remove(p)!=null)p.entityTags().remove("sin_greed_have_heart");}
     int count(){return managed.size()+hearted.size();}
-    public void stop(){for(var p:List.copyOf(managed))removeAuthority(p);for(var e:List.copyOf(hearted.keySet()))e.entityTags().remove("sin_greed_have_heart");hearted.clear();lastTick=Integer.MIN_VALUE;}
+    public void stop(){for(var p:List.copyOf(managed))removeAuthority(p);for(var e:List.copyOf(hearted.keySet()))e.entityTags().remove("sin_greed_have_heart");hearted.clear();lastTick=Integer.MIN_VALUE;phaseOffset=0;}
+    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish passive authority callbacks first");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private final List<MatchDamageSources.Ref> players;
+        private final Map<MatchDamageSources.Ref,String> hearts=new LinkedHashMap<>();
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,phaseOffset);
+        Checkpoint(MatchSpellCheckpoint.Links links){players=managed.stream().map(links::key).toList();hearted.forEach((entity,epoch)->hearts.put(links.key(entity),epoch));}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var next=Collections.newSetFromMap(new IdentityHashMap<ServerPlayer,Boolean>());
+            for(var ref:players){if(!(links.get(ref) instanceof ServerPlayer p))throw new IllegalStateException("Restore passive authority players first");next.add(p);}
+            var targets=new WeakHashMap<Entity,String>();hearts.forEach((ref,epoch)->targets.put(links.get(ref),epoch));
+            return ()->{managed.clear();managed.addAll(next);hearted.clear();hearted.putAll(targets);lastTick=clock.last(game);phaseOffset=clock.offset(game);};}
+    }
+
 }

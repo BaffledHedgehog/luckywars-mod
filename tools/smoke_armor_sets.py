@@ -58,7 +58,7 @@ def next_server_tick(server):
     raise AssertionError("Native game clock did not advance between independent fixtures")
 
 
-def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_port=25576):
+def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_port=25576, match_groups=None):
     allowed = (cycle.PROJECT / "build/verification/key-reuse-server").resolve()
     if server_dir.resolve() != allowed:
         raise ValueError("Only build/verification/key-reuse-server is authorized")
@@ -78,6 +78,13 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_p
     if fixture_port not in (25576, 25577):
         raise ValueError("Only isolated fixture ports25576/25577 are authorized")
     planned = tuple(focus) if focus else SUITES
+    if match_groups is not None:
+        match_groups = tuple(tuple(group) for group in match_groups)
+        if not focus or not match_groups or any(not group for group in match_groups) or tuple(s for group in match_groups for s in group) != planned:
+            raise ValueError("Explicit focus match groups must preserve every planned suite, in order")
+        match_plans = tuple(enumerate(match_groups, 1))
+    else:
+        match_plans = tuple((match, planned) for match in ((1,) if focus else (1, 2)))
     needs_classic = bool(set(planned) & {"classic-melee", "devil-sword", "jump-artifacts", "traveller", "popit", "ordinary-accessories", "inventory-hazards", "passive-consumables", "pending-combat", "pending-swords", "incoming-artifacts", "reactive-artifacts", "fragment-knowledge", "moisei-boots", "regeneration-belt", "quiver", "dimension-items"})
     # Reject typo/unregistered commands before modifying or launching the fixture.
     dispatcher = (cycle.PROJECT / "src/main/java/me/skywars2/game/GameChecks.java").read_text(encoding="utf-8")
@@ -220,8 +227,8 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_p
             classic_setup = True
             if not check(0, "classic-melee-menu"):
                 raise AssertionError("Required scoped native third participant setup failed")
-        for match in ((1,) if focus else (1, 2)):
-            if match == 2:
+        for match, match_suites in match_plans:
+            if match > 1:
                 active.prepare_map(1)
             for suite in LOBBY_SUITES:
                 check(match, suite)
@@ -230,7 +237,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_p
             cursor = active.send("sw start")
             active.expect("-> PLAYING", cursor)
             match_active = True
-            for suite in planned:
+            for suite in match_suites:
                 # These are disposable native fixture items, never production players.
                 for entity_type in ("minecraft:item", "minecraft:experience_orb"):
                     active.send(f"execute in minecraft:overworld run kill @e[type={entity_type}]")
@@ -310,6 +317,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_p
                          and normal_stop and restored and not cleanup_errors,
             "scope": "native-mode1-armor-sets",
             "completedMatches": completed_matches, "completed": completed,
+            "matchGroups": [{"match": match, "suites": list(suites)} for match, suites in match_plans],
             "preparations": preparations, "setups": setups,
             "thirdParticipantContract": "Created only in ready lobby via native vanilla player factory; owned Gamma disconnects normally after final match. Preexisting Gamma is retained. Exact UUID playerdata/stats/advancement bytes join the normal post-exit restoration snapshots.",
             "preparationContract": "Armor checks use registered native participants, scoped entities and the actual shared item scheduler; neighboring suites own their usual scoped preparation.",
@@ -320,7 +328,7 @@ def run(server_dir: Path, focus=None, keep_going=False, artifact=None, fixture_p
             "recoveryArchive": str(recovery_archive) if recovery_archive is not None and recovery_archive.exists() else None,
             "liveChildPid": active.process.pid if live_child else None,
             "retainedLocks": [str(path) for path, _ in descriptors] if live_child else [],
-            "measurementLimit": "Two actual mode1 matches: armor source acquisition, equipped passives, native enchantment mutation and 5/20 tick scheduler; ordinary accessories, native gear, passive consumables and shared effect/TimeStop regressions. No physical client rendering, arbitrary-map, network latency or peakTPS claim.",
+            "measurementLimit": f"{len(completed_matches)} actual mode1 matches completed; exact planned scope is recorded in matchGroups and observed results in completed/checkFailures. No physical client rendering, arbitrary-map, network latency or peakTPS claim.",
             "elapsedSeconds": round(time.monotonic() - started, 2),
         }
         (cycle.OUT / "armor-sets-gameplay-results.json").write_text(

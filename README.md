@@ -1,3 +1,21 @@
+## Vanity private authority state ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Ownership, restore phases and exact native proof](agent_notes/VANITY_AUTHORITY_CHECKPOINT_2026_10_30.md).
+Five owners: Greed/Lust/Envy passive bookkeeping, deferred Wrath, hands, fingers/
+prepared rebirth/payment and managed Lust actors. Canonical bodies/effects/teams/
+shared spell state stay separate. Independent hidden chains/shadow NBT/owned leases;
+selected finger/remaining payment; logical 20/5 phases and dedup/birth-frame rebasing.
+Whole-install pending current-body retry; current presentation through FullInvisibility.
+Native melee's weapon delegate now joins the SAME accepted source graph. Two real
+Gamma death/respawn/offline replays, actual rebirth/payment/kill/pulse/lease withdrawal.
+1220fa31 passed43 suites in10 actual mode1 matches/ONE child (240.4s), first34
+shared suites together; independent older scenarios use fresh real match lifecycle.
+11314 inputs/5450 entries/243 receipts.199authorpaths/31overrides/main d9087f0a exact;
+normalexit/exact snapshots/no locks. No functions/RP/template/questionfile/main install/
+restart/push. Full original25 gate CLOSED; Vanity gated. Remaining Gluttony/shared
+jobs, other abilities/FPV/native AI/BE/multipart/async/regions and full input/writer/
+IO/lifecycle/offline/map coordinator. NOT full Vanity; retain all prior owners/notes.
+
 ## Vanity shared spell/summon state ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Ownership, restore phases and exact native proof](agent_notes/VANITY_SPELL_CHECKPOINT_2026_10_30.md).
