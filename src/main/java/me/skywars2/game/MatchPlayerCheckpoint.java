@@ -41,13 +41,12 @@ public final class MatchPlayerCheckpoint {
     MatchPlayerCheckpoint(GameController game,ServerPlayer player) {
         if(!game.server().isSameThread()||game.server().getPlayerList().getPlayer(player.getUUID())!=player||!game.playing())
             throw new IllegalStateException("Capture a current match player on the native server thread");
-        if(player.containerMenu!=player.inventoryMenu)
-            throw new IllegalStateException("Full owner must checkpoint/close non-personal menus before the body phase");
+        MatchPlayerViews.validateMenu(player);
         this.game=game;id=player.getUUID();epoch=game.items().epoch();level=player.level();
         body=new MatchEntityState(game,player);nbt=body.nbt;
         position=body.position;motion=body.motion;yaw=body.yaw;pitch=body.pitch;input=player.getLastClientInput();
         for(int n=0;n<player.inventoryMenu.getCraftSlots().getContainerSize();n++)crafting.add(player.inventoryMenu.getCraftSlots().getItem(n).copy());
-        cursor=player.containerMenu.getCarried().copy();
+        cursor=player.inventoryMenu.getCarried().copy();
         progress=new MatchPlayerProgress(player);
         var cd=(PlayerCheckpointAccess.Cooldowns)player.getCooldowns();cooldownTick=cd.skywars2$tick();cooldowns=new LinkedHashMap<>(cd.skywars2$cooldowns());
     }
@@ -58,13 +57,12 @@ public final class MatchPlayerCheckpoint {
             throw new IllegalStateException("Restore the original match on a frozen native server thread");
         var player=game.server().getPlayerList().getPlayer(id);
         if(player==null)throw new IllegalStateException("Player is offline; retain its image for the full owner's login phase");
-        if(player.containerMenu!=player.inventoryMenu)
-            throw new IllegalStateException("Full owner must close future non-personal menus before the body phase");
         if(!level.hasChunkAt(BlockPos.containing(position)))throw new IllegalStateException("Saved player destination is not resident");
         var previous=RESTORING.get();RESTORING.set(new Restore(game,id));
         try {
+            MatchPlayerViews.closeFutureStorage(player);
             // Personal future buffers are discarded, not dropped by native menu close.
-            // Other container menus belong to the full coordinator's earlier close phase.
+            // Supported storage cursors belong to the earlier view image/close phase.
             player.containerMenu.setCarried(ItemStack.EMPTY);player.inventoryMenu.getCraftSlots().clearContent();
             if(player.isDeadOrDying()&&nbt.getFloatOr("Health",0)>0) {
                 player.connection.handleClientCommand(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));

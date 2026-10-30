@@ -1,3 +1,19 @@
+## Vanity native cameras and storage sessions - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, supported shapes and exact native proof](agent_notes/VANITY_VIEWS_CHECKPOINT_2026_10_30.md).
+Native camera UUIDs and chest/hopper/dispenser menu sessions now compose with existing
+terrain/core/body/actor/combat owners. Restored BE/current-player inventory bindings,
+independent cursors/components/titles/drag, balanced viewers, native chunk/entity-ready
+camera completion and shared full-invisibility camera exceptions. Body movement is
+preserved. Private FPV controls and remaining container adapters are separate owners.
+cd03192e passed16 suites/one actualmode1 match;runner67.64s;11155 frozen inputs/5318
+packagedentries/88source receipts.199 authorpaths/31overrides/main d9087f0a unchanged;
+normalchildexit/exactsnapshots/no locks. No RP/template/questionfile/maininstall/
+restart/push. Full original25 gate CLOSED; Vanity acquisition stays gated. Next: private
+ability/attribution/AI and multipart/container owners, TimeStop, input/writer/lifecycle
+transaction, automatic offline replay and full world/map/storage reconciliation.
+This is NOT the full rewind. Retain existing native owners and the entire prior notes.
+
 ## Vanity native combat state - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, limitations and exact native proof](agent_notes/VANITY_COMBAT_CHECKPOINT_2026_10_30.md).

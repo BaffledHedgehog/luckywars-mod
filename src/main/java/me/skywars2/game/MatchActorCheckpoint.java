@@ -36,6 +36,7 @@ public final class MatchActorCheckpoint {
     private boolean bodiesRestored;
     private MatchPlayerLinks playerLinks;
     private MatchCombatCheckpoint combat;
+    private MatchPlayerViews views;
 
     private MatchActorCheckpoint(GameController game) {this.game=game;epoch=game.items().epoch();}
     static MatchActorCheckpoint captureRegistered(GameController game) {
@@ -61,6 +62,7 @@ public final class MatchActorCheckpoint {
         }
         result.playerLinks=new MatchPlayerLinks(game,id->{var image=result.images.get(id);return image==null?null:image.actor;});
         result.combat=new MatchCombatCheckpoint(game,result.images.values().stream().map(Image::actor).toList());
+        result.views=new MatchPlayerViews(game);
         return result;
     }
     int size(){return images.size();}
@@ -89,8 +91,9 @@ public final class MatchActorCheckpoint {
         try{action.run();}finally{if(previous==null)RESTORING.remove();else RESTORING.set(previous);}
     }
     /** No death/drop/status triggers. Native managers remove/register the same original instances. */
+    void prepareViewsFrozen() {validate();views.prepareFrozen();}
     void restoreBodiesFrozen() {
-        validate();bodiesRestored=false;
+        validate();views.prepareFrozen();bodiesRestored=false;
         var current=registered();
         scoped(()->{
             playerLinks.clear();
@@ -129,6 +132,11 @@ public final class MatchActorCheckpoint {
         if(id==null)return null;
         var player=game.server().getPlayerList().getPlayer(id);if(player!=null)return player;
         var image=images.get(id);return image!=null&&!image.actor.isRemoved()?image.actor:null;
+    }
+    /** Finish camera links only after the native post-respawn chunk/entity pairing. */
+    Set<UUID> finishViewsFrozen() {
+        validate();if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before views");
+        var pending=new LinkedHashSet<UUID>();views.restoreCameras(this::resolve,pending);return Set.copyOf(pending);
     }
     /** Player bodies may be restored between phases; missing/offline UUIDs remain explicit pending links. */
     Set<UUID> restoreLinksFrozen() {
@@ -190,6 +198,7 @@ public final class MatchActorCheckpoint {
             }
             playerLinks.restore(this::resolve,pending);
             combat.restore(this::resolve,pending);
+            views.restore(this::resolve,pending);
         });
         return Set.copyOf(pending);
     }
