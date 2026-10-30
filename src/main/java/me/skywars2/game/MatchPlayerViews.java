@@ -44,7 +44,18 @@ public final class MatchPlayerViews {
     }
     private interface Binding {
         Container resolve(ServerPlayer player);
+        default Container resolve(ServerPlayer player,Function<UUID,Entity> actors){return resolve(player);}
         default void activate(ServerPlayer player) { }
+    }
+    private record EntityBinding(ServerLevel level,UUID id,Class<?> kind,int size) implements Binding {
+        @Override public Container resolve(ServerPlayer player){return resolve(player,level::getEntity);}
+        @Override public Container resolve(ServerPlayer player,Function<UUID,Entity> actors){
+            var entity=actors.apply(id);
+            if(entity==null||entity.isRemoved()||entity.level()!=level||entity.getClass()!=kind
+                    ||!(entity instanceof net.minecraft.world.entity.vehicle.ContainerEntity container)||container.getContainerSize()!=size
+                    ||container.getContainerLootTable()!=null)throw new IllegalStateException("Restore native storage actor before view: "+id);
+            return container;
+        }
     }
     private record BlockBinding(ServerLevel level,BlockPos pos,BlockEntityType<?> type,Class<?> kind,int size) implements Binding {
         @Override public Container resolve(ServerPlayer player) {
@@ -86,7 +97,7 @@ public final class MatchPlayerViews {
             if(player.containerMenu==player.inventoryMenu)return false;
             try {
                 validateMenu(player);var current=storage(player);
-                return current.kind==kind&&current.type==type&&current.rows==rows&&current.binding.equals(binding)&&current.title.equals(title)
+                return current!=null&&current.kind==kind&&current.type==type&&current.rows==rows&&current.binding.equals(binding)&&current.title.equals(title)
                         &&player.containerMenu.slots.stream().filter(s->s.container==player.getInventory()).count()==36
                         &&player.containerMenu.slots.stream().noneMatch(s->s.container instanceof net.minecraft.world.entity.player.Inventory&&s.container!=player.getInventory());
             }catch(IllegalStateException unsupported){return false;}
@@ -105,7 +116,7 @@ public final class MatchPlayerViews {
         }
     }
     private record Workshop(MatchWorkstations image,Component title,ItemStack cursor) { }
-    private record View(UUID camera,Storage storage,Workshop workshop,Drag drag) { }
+    private record View(UUID camera,Storage storage,Workshop workshop,MatchBoundViews bound,Drag drag) { }
     private final GameController game;
     private final Map<UUID,View> images=new LinkedHashMap<>();
 
@@ -116,11 +127,17 @@ public final class MatchPlayerViews {
             var menu=player.containerMenu;
             var workshop=MatchWorkstations.supports(menu)?new Workshop(MatchWorkstations.capture(player),
                     ((Title)player).skywars2$menuTitle(menu.containerId),menu.getCarried().copy()):null;
-            images.put(player.getUUID(),new View(player.getCamera().getUUID(),storage(player),workshop,Drag.capture(menu)));
+            var bound=MatchBoundViews.supports(menu)?new MatchBoundViews(player):null;
+            images.put(player.getUUID(),new View(player.getCamera().getUUID(),storage(player),workshop,bound,Drag.capture(menu)));
         }
     }
     private static Binding binding(ServerPlayer player,Container container) {return binding(player,container,true);}
     private static Binding binding(ServerPlayer player,Container container,boolean current) {
+        if(container instanceof net.minecraft.world.entity.vehicle.ContainerEntity vehicle&&container instanceof Entity entity){
+            if(!(entity.level() instanceof ServerLevel level)||(current&&(entity.isRemoved()||level.getEntity(entity.getUUID())!=entity||vehicle.getContainerLootTable()!=null)))
+                throw new IllegalStateException("Storage vehicle is not current native unpacked inventory");
+            return new EntityBinding(level,entity.getUUID(),entity.getClass(),vehicle.getContainerSize());
+        }
         if(container.getClass()==PlayerEnderChestContainer.class) {
             if(container!=player.getEnderChestInventory())throw new IllegalStateException("Ender storage belongs to a different player body");
             var chest=((PlayerViewCheckpointAccess.Ender)container).skywars2$active();
@@ -138,6 +155,7 @@ public final class MatchPlayerViews {
                 throw new IllegalStateException("Nested storage requires its own checkpoint adapter");
             if(pair.skywars2$first() instanceof PlayerEnderChestContainer||pair.skywars2$second() instanceof PlayerEnderChestContainer)
                 throw new IllegalStateException("Ender storage cannot be a compound container");
+            if(pair.skywars2$first() instanceof Entity||pair.skywars2$second() instanceof Entity)throw new IllegalStateException("Compound actor storage needs its own adapter");
             return new Pair(binding(player,pair.skywars2$first(),current),binding(player,pair.skywars2$second(),current));
         }
         var kind=container.getClass();
@@ -164,6 +182,7 @@ public final class MatchPlayerViews {
     }
     static void validateMenu(ServerPlayer player) {
         if(player.containerMenu==player.inventoryMenu)return;
+        if(MatchBoundViews.supports(player.containerMenu)){MatchBoundViews.validate(player,true);return;}
         if(MatchWorkstations.supports(player.containerMenu)){
             MatchWorkstations.validate(player);((Title)player).skywars2$menuTitle(player.containerMenu.containerId);return;
         }
@@ -184,15 +203,16 @@ public final class MatchPlayerViews {
         ((Title)player).skywars2$menuTitle(player.containerMenu.containerId);
     }
     private static Storage storage(ServerPlayer player) {
-        var menu=player.containerMenu;if(menu==player.inventoryMenu||MatchWorkstations.supports(menu))return null;
+        var menu=player.containerMenu;if(menu==player.inventoryMenu||MatchWorkstations.supports(menu)||MatchBoundViews.supports(menu))return null;
         return new Storage(menu.getClass(),menu.getType(),menu instanceof ChestMenu chest?chest.getRowCount():0,
                 binding(player,backing(menu)),((Title)player).skywars2$menuTitle(menu.containerId),menu.getCarried().copy());
     }
     static void closeFutureStorage(ServerPlayer player) {
         validateFutureMenu(player);
-        if(player.containerMenu!=player.inventoryMenu){MatchWorkstations.discard(player.containerMenu);player.containerMenu.setCarried(ItemStack.EMPTY);player.closeContainer();}
+        if(player.containerMenu!=player.inventoryMenu){MatchWorkstations.discard(player.containerMenu);MatchBoundViews.discard(player.containerMenu);player.containerMenu.setCarried(ItemStack.EMPTY);player.closeContainer();}
     }
     private static void validateFutureMenu(ServerPlayer player) {
+        if(MatchBoundViews.supports(player.containerMenu)){MatchBoundViews.validate(player,false);return;}
         if(MatchWorkstations.supports(player.containerMenu)){MatchWorkstations.validateFuture(player);return;}
         if(player.containerMenu!=player.inventoryMenu)binding(player,backing(player.containerMenu),false);
     }
@@ -218,8 +238,9 @@ public final class MatchPlayerViews {
         var backings=new LinkedHashMap<UUID,Container>();
         for(var entry:images.entrySet())if(resolve.apply(entry.getKey()) instanceof ServerPlayer player) {
             validateFutureMenu(player);var saved=entry.getValue();
-            if(saved.storage!=null)backings.put(entry.getKey(),saved.storage.binding.resolve(player));
+            if(saved.storage!=null)backings.put(entry.getKey(),saved.storage.binding.resolve(player,resolve));
             if(saved.workshop!=null)saved.workshop.image.preflight();
+            if(saved.bound!=null)saved.bound.preflight(resolve);
         }
         for(var entry:images.entrySet()) {
             if(!(resolve.apply(entry.getKey()) instanceof ServerPlayer player)){pending.add(entry.getKey());continue;}
@@ -240,7 +261,8 @@ public final class MatchPlayerViews {
                     if(opened.isEmpty())throw new IllegalStateException("Native workstation reopening failed");
                 }
                 workshop.image.restore(player.containerMenu);player.containerMenu.setCarried(workshop.cursor.copy());
-            }else closeFutureStorage(player);
+            }else if(saved.bound!=null){if(!saved.bound.restore(player,resolve,pending))continue;}
+            else closeFutureStorage(player);
             saved.drag.restore(player.containerMenu);player.containerMenu.sendAllDataToRemote();
         }
         restoreCameras(resolve,pending);
@@ -253,13 +275,24 @@ public final class MatchPlayerViews {
             var saved=entry.getValue();
             var camera=resolve.apply(saved.camera);
             if(camera==null||camera.isRemoved()||camera.level()!=player.level()
-                    ||(camera!=player&&(!player.level().getChunkSource().chunkMap.isChunkTracked(player,camera.chunkPosition().x(),camera.chunkPosition().z())
-                    ||!net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(camera).contains(player)))) {
+                    ||(camera!=player&&!tracked(player,camera))) {
                 pending.add(saved.camera);camera=player;
             }
             // ServerPlayer.setCamera teleports the BODY to the camera. Body and view are
             // separate images here: publish the link without replaying that teleport.
             publishCamera(player,camera);
+        }
+    }
+    static boolean tracked(ServerPlayer player,Entity entity){
+        return entity!=null&&!entity.isRemoved()&&entity.level()==player.level()
+                &&player.level().getChunkSource().chunkMap.isChunkTracked(player,entity.chunkPosition().x(),entity.chunkPosition().z())
+                &&net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(entity).contains(player);
+    }
+    void finishBoundViews(Function<UUID,Entity> resolve,Set<UUID> pending){
+        for(var entry:images.entrySet()){
+            var saved=entry.getValue();if(saved.bound==null||!saved.bound.isMount())continue;
+            if(!(resolve.apply(entry.getKey()) instanceof ServerPlayer player)){pending.add(entry.getKey());continue;}
+            if(saved.bound.restore(player,resolve,pending)){saved.drag.restore(player.containerMenu);player.containerMenu.sendAllDataToRemote();}
         }
     }
     private static void publishCamera(ServerPlayer player,Entity camera) {

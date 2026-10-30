@@ -1,3 +1,21 @@
+## Vanity native block/actor windows - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, canonical backing links and exact native proof](agent_notes/VANITY_BOUND_VIEWS_CHECKPOINT_2026_10_30.md).
+Adds Beacon/Lectern/trade/horse/nautilus windows and ContainerEntity storage vehicles.
+Current BE data/book/actor inventories and current player slots; merchant current
+customer/active-offer identity plus published UI metadata; mount packets wait for
+native actor pairing. Saved Beacon Levels restore in TERRAIN; future local payments
+are discarded silently. Generic storage handles future workspace families safely.
+Eleven native shapes, actual death/respawn/client-world change and offline trade/
+mount reconnect, native payment/book/trade/equipment/storage operations verified.
+4e7196d4 passed23 suites/one actualmode1 match;runner66.0s;11223 frozeninputs/
+5374 packagedentries/168source receipts.199 authorpaths/31overrides/main d9087f0a
+unchanged;normalchildexit/exactsnapshots/no locks. No RP/template/questionfile edits/
+maininstall/restart/push. Full original25 gate CLOSED; Vanity acquisition stays gated.
+Next: custom/private GUI, private BE/AI/RNG/ability/TimeStop/multipart owners, full
+input/writer/lifecycle/offline transaction and world/map/storage reconciliation.
+This is NOT the complete rewind; retain all canonical owners and prior documentation.
+
 ## Vanity native workstations - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, buffer ownership and exact native evidence](agent_notes/VANITY_WORKSTATIONS_CHECKPOINT_2026_10_30.md).

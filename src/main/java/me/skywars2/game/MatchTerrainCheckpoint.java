@@ -208,6 +208,10 @@ final class MatchTerrainCheckpoint {
                 } else {
                     game.maps().restoreSnapshot(level, pos, new MapManager.BlockSnapshot(state, nbt));
                 }
+                // Native BeaconBlockEntity writes Levels but does not read it. Rewind that
+                // captured value here, in the terrain owner, before any current-data menu opens.
+                if(chunk.getBlockEntity(pos) instanceof net.minecraft.world.level.block.entity.BeaconBlockEntity beacon)
+                    ((me.skywars2.mixin.BoundViewCheckpointAccess.BeaconBlock)beacon).skywars2$data().set(0,nbt.getIntOr("Levels",0));
                 // Same-state NBT loads otherwise never enter ChunkHolder's update set
                 // (sign text, banners, etc. can remain stale on an existing client).
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);

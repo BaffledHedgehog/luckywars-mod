@@ -136,7 +136,7 @@ public final class MatchActorCheckpoint {
     /** Finish camera links only after the native post-respawn chunk/entity pairing. */
     Set<UUID> finishViewsFrozen() {
         validate();if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before views");
-        var pending=new LinkedHashSet<UUID>();views.restoreCameras(this::resolve,pending);return Set.copyOf(pending);
+        var pending=new LinkedHashSet<UUID>();views.finishBoundViews(this::resolve,pending);views.restoreCameras(this::resolve,pending);return Set.copyOf(pending);
     }
     /** Player bodies may be restored between phases; missing/offline UUIDs remain explicit pending links. */
     Set<UUID> restoreLinksFrozen() {
