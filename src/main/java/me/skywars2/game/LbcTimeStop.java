@@ -54,6 +54,7 @@ public final class LbcTimeStop {
         }
     }
     private DamageSource replaying;
+    private Checkpoint rewinding;
     private final Map<ServerLevel,Map<BlockPos,Contact>> contacts=new IdentityHashMap<>();
     private final Set<Contact> contactLeases=java.util.Collections.newSetFromMap(new IdentityHashMap<>());
     private static final int CONTACT_FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
@@ -84,6 +85,9 @@ public final class LbcTimeStop {
             yaw=entity.getYRot(); pitch=entity.getXRot();
             noGravity=entity.isNoGravity();
         }
+        Frozen(ServerLevel level,Vec3 position,Vec3 velocity,float yaw,float pitch,boolean noGravity){
+            this.level=level;this.position=position;this.velocity=velocity;this.yaw=yaw;this.pitch=pitch;this.noGravity=noGravity;
+        }
     }
     private record Hit(LivingEntity target,ServerLevel level,DamageSource source,float amount,String epoch) { }
 
@@ -109,6 +113,7 @@ public final class LbcTimeStop {
     }
 
     public boolean useClocks(ServerPlayer player,InteractionHand hand) {
+        if(rewinding!=null)return false;
         exemptions.remove(player);
         if(!LbcStand.isClocks(player.getItemInHand(hand))
                 || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
@@ -124,6 +129,7 @@ public final class LbcTimeStop {
 
     /** Продление не переснимает нулевой Motion и не нормализует повторно очередь scheduled ticks. */
     void begin(ServerLevel level,int ticks) {
+        if(rewinding!=null)throw new IllegalStateException("Finish the Time Stop checkpoint transaction before starting a stop");
         if(ticks<=0) throw new IllegalArgumentException("Time stop duration must be positive");
         boolean first=!stopped(level);
         stops.put(level,ticks); exemptions.clear();
@@ -135,6 +141,7 @@ public final class LbcTimeStop {
     }
 
     public boolean frozen(Entity entity) {
+        if(rewinding!=null)return false;
         if(!(entity.level() instanceof ServerLevel level) || !stopped(level) || entity.isRemoved()) return false;
         if(entity.entityTags().contains("have_stand")) return false;
         if(game.items().stand().movesDuringTimeStop(entity)) return false;
@@ -323,7 +330,7 @@ public final class LbcTimeStop {
     public boolean replaying(DamageSource source) { return replaying==source; }
 
     public void tick() {
-        if(!game.server().tickRateManager().runsNormally()) return;
+        if(rewinding!=null || !game.server().tickRateManager().runsNormally()) return;
         exemptions.clear();
         for(var level:stops.keySet()){
             String dimension=level.dimension().identifier().toString();
@@ -369,10 +376,98 @@ public final class LbcTimeStop {
         exemptions.remove(player); cooldowns.remove(player.getUUID());
     }
     void stop() {
+        rewinding=null; // Match/service cancellation must not leave the next stop permanently gated.
         // Match/epoch cancellation restores physics but must not replay an old stop's presentation.
         trails.clear();
         for(var level:List.copyOf(stops.keySet())) end(level);
         cooldowns.clear(); exemptions.clear(); hits.clear(); replaying=null;
         LbcTimeStopSchedules.clear();
+    }
+
+    /** Independent private-state image. Body values and native tick payloads stay with canonical owners. */
+    Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
+    final class Checkpoint {
+        private record Lease(ServerLevel level,BlockPos pos,BlockState previous,int holders) { }
+        private record Cell(ServerLevel level,BlockPos pos,int lease) { }
+        private record Body(MatchDamageSources.Ref ref,Class<?> type,ServerLevel level,Vec3 position,Vec3 velocity,float yaw,float pitch,boolean noGravity,int corrected,int presented,int lease) { }
+        private record Cool(ServerLevel level,int ticks) { }
+        private record Exempt(MatchDamageSources.Ref ref,int tick,boolean immune) { }
+        private record Damage(MatchDamageSources.Ref ref,ServerLevel level,MatchDamageSources.Image source,float amount,String epoch) { }
+        private record Path(String epoch,List<Vec3> points) { }
+        private final String epoch=game.items().epoch();
+        private final int tick=game.server().getTickCount();
+        private final MatchDamageSources sources;
+        private final LbcTimeStopSchedules.Checkpoint clocks;
+        private final Map<ServerLevel,Integer> stopped=new IdentityHashMap<>();
+        private final Map<UUID,Cool> cool=new HashMap<>();
+        private final List<Lease> leases;
+        private final List<Cell> cells;
+        private final List<Body> bodies;
+        private final List<Exempt> immune;
+        private final Map<ServerLevel,List<Damage>> damage=new IdentityHashMap<>();
+        private final Map<ServerLevel,Path> paths=new IdentityHashMap<>();
+        Checkpoint(MatchDamageSources sources){
+            this.sources=sources;stable(false);if(rewinding!=null||replaying!=null)throw new IllegalStateException("Capture Time Stop outside replay/rewind callbacks");validateContacts();clocks=new LbcTimeStopSchedules.Checkpoint(game.server());
+            stopped.putAll(stops);cooldowns.forEach((id,value)->cool.put(id,new Cool(value.level,value.ticks)));
+            var leaseIds=new IdentityHashMap<Contact,Integer>();var leaseLevels=new IdentityHashMap<Contact,ServerLevel>();for(var state:frozen.values())if(state.contact!=null)leaseLevels.put(state.contact,state.level);
+            var allLeases=new java.util.ArrayList<Lease>();for(var contact:contactLeases){var level=leaseLevels.get(contact);if(level==null||level.getChunkSource().getChunkNow(contact.pos.getX()>>4,contact.pos.getZ()>>4)!=contact.chunk)throw new IllegalStateException("Reconcile loaded Time Stop contact chunks before capture");leaseIds.put(contact,allLeases.size());allLeases.add(new Lease(level,contact.pos.immutable(),contact.previous,contact.holders));}leases=List.copyOf(allLeases);
+            var allCells=new java.util.ArrayList<Cell>();contacts.forEach((level,map)->map.forEach((pos,contact)->allCells.add(new Cell(level,pos.immutable(),leaseIds.get(contact)))));cells=List.copyOf(allCells);
+            var allBodies=new java.util.ArrayList<Body>();frozen.forEach((entity,state)->allBodies.add(new Body(sources.ref(entity),entity.getClass(),state.level,state.position,state.velocity,state.yaw,state.pitch,state.noGravity,state.correctedAt,state.presentedAt,state.contact==null?-1:leaseIds.get(state.contact))));bodies=List.copyOf(allBodies);
+            var allImmune=new java.util.ArrayList<Exempt>();exemptions.forEach((player,value)->allImmune.add(new Exempt(sources.ref(player),value.tick,value.immune)));immune=List.copyOf(allImmune);
+            hits.forEach((level,queue)->damage.put(level,queue.stream().map(hit->new Damage(sources.ref(hit.target),hit.level,sources.capture(hit.source),hit.amount,hit.epoch)).toList()));
+            trails.forEach((level,path)->paths.put(level,new Path(path.epoch,List.copyOf(path.points))));
+        }
+        private void stable(boolean requireFrozen){
+            if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)||requireFrozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Time Stop checkpoints require the same stable match/native thread and a frozen restore");
+        }
+        /** FIRST phase: before canonical terrain ticks and actor/player bodies. Never end()/thaw/replay. */
+        void prepareFrozen(){
+            stable(true);if(rewinding!=null||replaying!=null)throw new IllegalStateException("Time Stop checkpoint transaction already active");clocks.validate();validateContacts();
+            for(var lease:leases)chunk(lease); // Entire loaded-contact preflight precedes writes.
+            rewinding=this;
+            for(var state:List.copyOf(frozen.values()))releaseContact(state);
+            stops.clear();frozen.clear();cooldowns.clear();exemptions.clear();hits.clear();trails.clear();contacts.clear();contactLeases.clear();
+            clocks.restoreFrozen();
+        }
+        private net.minecraft.world.level.chunk.LevelChunk chunk(Lease lease){
+            if(game.server().getLevel(lease.level.dimension())!=lease.level)throw new IllegalStateException("Time Stop contact dimension changed");
+            var chunk=lease.level.getChunkSource().getChunkNow(lease.pos.getX()>>4,lease.pos.getZ()>>4);if(chunk==null)throw new IllegalStateException("Restore native contact chunks before Time Stop leases");return chunk;
+        }
+        private int stamp(int saved){return saved==Integer.MIN_VALUE?saved:saved+(game.server().getTickCount()-tick);}
+        /** LAST link phase. Missing player/actor UUIDs defer the WHOLE install without losing hits. */
+        Set<UUID> finishFrozen(java.util.function.Function<UUID,Entity> lookup){
+            stable(true);if(rewinding!=this)throw new IllegalStateException("Prepare this Time Stop image before restoring its links");clocks.validate();
+            var pending=new java.util.LinkedHashSet<UUID>();sources.missing(lookup,pending);
+            var resolved=new HashMap<MatchDamageSources.Ref,Entity>();
+            for(var body:bodies){var entity=MatchDamageSources.resolve(body.ref,lookup,pending);if(entity!=null){if(entity.getClass()!=body.type||entity.level()!=body.level)throw new IllegalStateException("Restore original frozen bodies before Time Stop links");resolved.put(body.ref,entity);}}
+            for(var cache:immune){var entity=MatchDamageSources.resolve(cache.ref,lookup,pending);if(entity!=null){if(!(entity instanceof ServerPlayer))throw new IllegalStateException("Time Stop immunity cache requires its current player body");resolved.put(cache.ref,entity);}}
+            for(var queue:damage.values())for(var hit:queue){var entity=MatchDamageSources.resolve(hit.ref,lookup,pending);if(entity!=null){if(!(entity instanceof LivingEntity)||entity.level()!=hit.level)throw new IllegalStateException("Restore original deferred-hit targets before Time Stop links");resolved.put(hit.ref,entity);}}
+            if(!pending.isEmpty())return Set.copyOf(pending);
+            var nativeChunks=new java.util.ArrayList<net.minecraft.world.level.chunk.LevelChunk>();for(var lease:leases){var chunk=chunk(lease);var state=chunk.getBlockState(lease.pos);if(state!=lease.previous&&!state.is(Blocks.BARRIER))throw new IllegalStateException("Restore canonical terrain before Time Stop contact cells");nativeChunks.add(chunk);}
+            clocks.relinkFrozen();sources.restore(lookup,pending);if(!pending.isEmpty())throw new IllegalStateException("Native source graph changed within one frozen link phase");
+            var restored=new java.util.ArrayList<Contact>();for(int i=0;i<leases.size();i++){var lease=leases.get(i);var contact=new Contact(lease.previous,nativeChunks.get(i),lease.pos);contact.holders=lease.holders;
+                restored.add(contact);contactLeases.add(contact);}
+            for(var cell:cells)contacts.computeIfAbsent(cell.level,key->new HashMap<>()).put(cell.pos,restored.get(cell.lease));
+            for(var body:bodies){var state=new Frozen(body.level,body.position,body.velocity,body.yaw,body.pitch,body.noGravity);state.correctedAt=stamp(body.corrected);state.presentedAt=stamp(body.presented);if(body.lease>=0)state.contact=restored.get(body.lease);frozen.put(resolved.get(body.ref),state);}
+            stopped.forEach(stops::put);cool.forEach((id,value)->{var current=new Cooldown(value.level);current.ticks=value.ticks;cooldowns.put(id,current);});
+            for(var cache:immune)exemptions.put((ServerPlayer)resolved.get(cache.ref),new Exemption(stamp(cache.tick),cache.immune));
+            damage.forEach((level,queue)->{var current=new ArrayDeque<Hit>();for(var hit:queue)current.add(new Hit((LivingEntity)resolved.get(hit.ref),hit.level,MatchDamageSources.value(hit.source),hit.amount,hit.epoch));hits.put(level,current);});
+            paths.forEach((level,image)->{var path=new Trail(image.epoch);for(var point:image.points){path.points.add(point);path.cells.computeIfAbsent(BlockPos.containing(point),key->new java.util.ArrayList<>()).add(point);}trails.put(level,path);});
+            // Keep every lease/body/index coherent BEFORE fallible native block writes. A failed
+            // install remains quarantined and can still release its leases for a baseline restore.
+            validateContacts();
+            for(int i=0;i<leases.size();i++){var lease=leases.get(i);if(!nativeChunks.get(i).getBlockState(lease.pos).is(Blocks.BARRIER)&&!lease.level.setBlock(lease.pos,Blocks.BARRIER.defaultBlockState(),CONTACT_FLAGS))throw new IllegalStateException("Native Time Stop contact installation failed");}
+            rewinding=null;validateContacts();
+            for(var entity:frozen.keySet()){sendMotion(entity);if(entity instanceof PrimedTnt tnt)sendTntFuse(tnt,presentationFuse());}
+            return Set.of();
+        }
+        /** A cancelled partial transaction still needs its caller's trusted baseline restore before resume. */
+        void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel a checkpoint on its frozen native server thread");if(rewinding==this)rewinding=null;}
+    }
+    private void validateContacts(){
+        var holders=new IdentityHashMap<Contact,Integer>();for(var state:frozen.values())if(state.contact!=null)holders.merge(state.contact,1,Integer::sum);
+        if(holders.size()!=contactLeases.size()||!contactLeases.containsAll(holders.keySet()))throw new IllegalStateException("Unowned Time Stop contact lease");
+        holders.forEach((contact,count)->{if(contact.holders!=count)throw new IllegalStateException("Time Stop contact holder count mismatch");});
+        contacts.forEach((level,map)->map.forEach((pos,contact)->{if(!contactLeases.contains(contact)||!pos.equals(contact.pos))throw new IllegalStateException("Invalid active Time Stop contact index");}));
     }
 }

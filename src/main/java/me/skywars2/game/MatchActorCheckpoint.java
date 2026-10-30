@@ -36,6 +36,7 @@ public final class MatchActorCheckpoint {
     private boolean bodiesRestored;
     private MatchPlayerLinks playerLinks;
     private MatchCombatCheckpoint combat;
+    private MatchDamageSources damageSources;
     private MatchPlayerViews views;
 
     private MatchActorCheckpoint(GameController game) {this.game=game;epoch=game.items().epoch();}
@@ -61,7 +62,9 @@ public final class MatchActorCheckpoint {
             if(result.images.put(image.uuid,image)!=null)throw new IllegalStateException("Duplicate native actor UUID at capture");
         }
         result.playerLinks=new MatchPlayerLinks(game,id->{var image=result.images.get(id);return image==null?null:image.actor;});
-        result.combat=new MatchCombatCheckpoint(game,result.images.values().stream().map(Image::actor).toList());
+        var actors=result.images.values().stream().map(Image::actor).toList();
+        result.damageSources=new MatchDamageSources(game,actors);
+        result.combat=new MatchCombatCheckpoint(game,actors,result.damageSources);
         result.views=new MatchPlayerViews(game);
         return result;
     }
@@ -129,7 +132,10 @@ public final class MatchActorCheckpoint {
         for(var passenger:actor.getPassengers())((ActorCheckpointAccess.Body)passenger).skywars2$vehicle(null);
         ((ActorCheckpointAccess.Body)actor).skywars2$passengers(ImmutableList.of());
     }
-    private Entity resolve(UUID id) {
+    MatchDamageSources damageSources(){return damageSources;}
+    /** Canonical current body lookup for other checkpoint owners; no gameplay visibility selector. */
+    Entity resolve(UUID id) {
+        if(!bodiesRestored)throw new IllegalStateException("Restore native bodies before resolving checkpoint references");
         if(id==null)return null;
         var player=game.server().getPlayerList().getPlayer(id);if(player!=null)return player;
         var image=images.get(id);return image!=null&&!image.actor.isRemoved()?image.actor:null;

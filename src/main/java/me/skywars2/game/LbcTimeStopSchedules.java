@@ -151,4 +151,40 @@ public final class LbcTimeStopSchedules {
     private static <T> Access<T> access(LevelTicks<T> ticks) {
         return (Access<T>) ticks;
     }
+
+    /** Anchor/registration owner ONLY. Native scheduled payloads stay with MatchTerrainCheckpoint. */
+    static final class Checkpoint {
+        private record Clock(long start,long time) { }
+        private final net.minecraft.server.MinecraftServer server;
+        private final java.util.List<ServerLevel> levels;
+        private final Map<ServerLevel,Clock> clocks=new IdentityHashMap<>();
+        Checkpoint(net.minecraft.server.MinecraftServer server){
+            this.server=server;var all=new java.util.ArrayList<ServerLevel>();for(var level:server.getAllLevels())all.add(level);levels=java.util.List.copyOf(all);validate();
+            STARTS.forEach((level,start)->clocks.put(level,new Clock(start,level.getGameTime())));
+        }
+        void validate(){
+            if(!server.isSameThread()||!REBASING.isEmpty()||COPY_OFFSET.get()!=0)throw new IllegalStateException("Checkpoint Time Stop schedulers outside native copy/rebase operations");
+            int count=0;for(var level:server.getAllLevels())count++;if(count!=levels.size())throw new IllegalStateException("Reconcile dimensions before Time Stop clock replay");
+            for(var level:levels){if(server.getLevel(level.dimension())!=level)throw new IllegalStateException("Native Time Stop dimension changed");
+                if(!access(level.getBlockTicks()).skywars2$drainingContainers().isEmpty()||!access(level.getFluidTicks()).skywars2$drainingContainers().isEmpty())throw new IllegalStateException("Finish native scheduled batches before taking/replaying Time Stop state");}
+            for(var level:STARTS.keySet())if(level.getServer()!=server)throw new IllegalStateException("Foreign native Time Stop clock owner");
+            clocks.forEach((level,clock)->Math.addExact(clock.start,Math.subtractExact(level.getGameTime(),clock.time)));
+        }
+        void restoreFrozen(){
+            validate();if(!server.tickRateManager().isFrozen())throw new IllegalStateException("Restore Time Stop anchors on the frozen native thread");
+            // Precompute every anchor (including overflow checks) before changing a map.
+            var starts=new IdentityHashMap<ServerLevel,Long>();clocks.forEach((level,clock)->starts.put(level,Math.addExact(clock.start,Math.subtractExact(level.getGameTime(),clock.time))));
+            STARTS.clear();STARTS.putAll(starts);relinkFrozen();
+        }
+        void relinkFrozen(){
+            validate();if(!server.tickRateManager().isFrozen())throw new IllegalStateException("Relink Time Stop clocks while frozen");
+            LEVELS.clear();CONTAINERS.clear();
+            for(var level:levels){link(level.getBlockTicks(),level);link(level.getFluidTicks(),level);}
+        }
+        private <T> void link(LevelTicks<T> ticks,ServerLevel level){
+            LEVELS.put(ticks,level);for(var container:access(ticks).skywars2$containers().values())CONTAINERS.put(container,level);
+            // No added()/end()/shift(): a canonical terrain owner restores the actual payloads.
+            refresh(ticks);
+        }
+    }
 }

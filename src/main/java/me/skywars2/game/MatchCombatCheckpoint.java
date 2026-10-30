@@ -28,19 +28,18 @@ import net.minecraft.world.item.ItemStack;
 final class MatchCombatCheckpoint {
     // Historical explosion/projectile anchors can already be removed or never registered.
     // Keep those original anchors; live actors/players ALWAYS resolve through the body owner.
-    private record Ref(UUID id,Entity historical) { }
-    private record Source(DamageSource original,Ref direct,Ref cause,Source wrapped) { }
-    private record History(Source source,float damage,net.minecraft.world.damagesource.FallLocation location,float distance) { }
-    private record Kinetic(Ref target,long stamp) { }
-    private record Image(Class<?> type,UUID player,UUID mob,Ref attacked,int memory,int mobTime,int attackTime,
-                         Source damage,long damageStamp,long worldTime,List<History> entries,int last,int start,int end,
+    private record History(MatchDamageSources.Image source,float damage,net.minecraft.world.damagesource.FallLocation location,float distance) { }
+    private record Kinetic(MatchDamageSources.Ref target,long stamp) { }
+    private record Image(Class<?> type,UUID player,UUID mob,MatchDamageSources.Ref attacked,int memory,int mobTime,int attackTime,
+                         MatchDamageSources.Image damage,long damageStamp,long worldTime,List<History> entries,int last,int start,int end,
                          boolean combat,boolean taking,ItemStack spin,EquipmentSlot spinSlot,boolean kineticPresent,
                          long kineticDefault,List<Kinetic> kinetic,Optional<BlockPos> climb,BlockPos position) { }
     private final Map<UUID,Image> images=new LinkedHashMap<>();
-    private final Map<DamageSource,Source> sources=new IdentityHashMap<>();
+    private final MatchDamageSources sources;
     private final Map<UUID,Entity> registered=new LinkedHashMap<>();
 
-    MatchCombatCheckpoint(GameController game,List<Entity> actors) {
+    MatchCombatCheckpoint(GameController game,List<Entity> actors,MatchDamageSources sources) {
+        this.sources=sources;
         for(var actor:actors)registered.put(actor.getUUID(),actor);
         for(var player:game.server().getPlayerList().getPlayers())registered.put(player.getUUID(),player);
         for(var entity:registered.values())if(entity instanceof LivingEntity living) {
@@ -59,27 +58,20 @@ final class MatchCombatCheckpoint {
         }
     }
     private static UUID id(EntityReference<?> reference){return reference==null?null:reference.getUUID();}
-    private Ref ref(Entity entity){return entity==null?null:new Ref(entity.getUUID(),entity instanceof ServerPlayer||registered.get(entity.getUUID())==entity?null:entity);}
-    private Source source(DamageSource value) {
-        if(value==null)return null;var image=sources.get(value);if(image!=null)return image;
-        image=new Source(value,ref(value.getDirectEntity()),ref(value.getEntity()),source(LbcIndirectKills.checkpointWrappedSource(value)));
-        sources.put(value,image);return image;
-    }
+    private MatchDamageSources.Ref ref(Entity entity){return sources.ref(entity);}
+    private MatchDamageSources.Image source(DamageSource value){return sources.capture(value);}
     private static Entity resolve(UUID id,Function<UUID,Entity> lookup,Set<UUID> pending) {
         if(id==null)return null;var entity=lookup.apply(id);if(entity==null)pending.add(id);return entity;
     }
-    private static Entity resolve(Ref ref,Function<UUID,Entity> lookup,Set<UUID> pending) {
-        return ref==null?null:ref.historical!=null?ref.historical:resolve(ref.id,lookup,pending);
+    private static Entity resolve(MatchDamageSources.Ref ref,Function<UUID,Entity> lookup,Set<UUID> pending) {
+        return MatchDamageSources.resolve(ref,lookup,pending);
     }
-    private static DamageSource value(Source source){return source==null?null:source.original;}
+    private static DamageSource value(MatchDamageSources.Image source){return MatchDamageSources.value(source);}
     /** Body and player phases must already have restored native clocks and identities. */
     void restore(Function<UUID,Entity> lookup,Set<UUID> pending) {
         // Retain exact source classes, original accepted immutable causes and nested wrappers.
         // Replacing them with a plain DamageSource would erase WILD/shard/NO_KNOCKBACK policy.
-        for(var source:sources.values()) {
-            var access=(CombatCheckpointAccess.Source)source.original;
-            access.skywars2$direct(resolve(source.direct,lookup,pending));access.skywars2$cause(resolve(source.cause,lookup,pending));
-        }
+        sources.restore(lookup,pending);
         for(var entry:images.entrySet()) {
             var target=resolve(entry.getKey(),lookup,pending);if(target==null)continue;
             var image=entry.getValue();

@@ -1,3 +1,20 @@
+## Vanity Time Stop state — NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, shared ownership and exact native proof](agent_notes/VANITY_TIME_STOP_CHECKPOINT_2026_10_30.md).
+Private stopped clocks/cooldowns/raw queues/trails/frozen physics/contact leases now
+compose with canonical terrain/body owners. ONE shared DamageSource graph retains
+native classes, accepted WILD causes and CURRENT respawn/login body links. Scheduler
+ANCHORS restored without duplicating native tick payloads. Whole-install pending UUID
+retry; coherent leases/cancellation, including a new clocks cast after abort. Real
+control hits, two repeated terrain/body rewinds, native death/respawn/offline login;
+4 future trail points revert to3. 69660e96 passed27 suites/one mode1,
+runner 91.13s;11283 frozeninputs/5424
+packagedentries/217 receipts.199 authorpaths/31 overrides/main d9087f0a unchanged;
+normalchildexit/exact tracked snapshots/no locks. No RP/template/questionfile/main
+install/restart/push/function feature. Full original25 gate CLOSED; Vanity gated.
+Remaining: private ability/AI/BE/attribution/multipart state and complete writer/input/
+IO/lifecycle/offline/map transaction. This is NOT full Vanity; retain all prior owners.
+
 ## Vanity native world metadata — NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, native ownership and exact proof](agent_notes/VANITY_WORLD_CHECKPOINT_2026_10_30.md).
