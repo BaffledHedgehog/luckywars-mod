@@ -1,3 +1,19 @@
+## Vanity native world metadata — NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, native ownership and exact proof](agent_notes/VANITY_WORLD_CHECKPOINT_2026_10_30.md).
+GLOBAL clocks/weather/settings/rules/spawn and PER-DIMENSION borders retain native
+service/container identities. Fractional/paused clocks and original border extent
+anchors/previous size resume exactly; current connections receive their own worlds.
+Unused function support excluded. Two replays/eight real ticks;25 suites/one mode1;
+fde7cd7d, runner 67.25s;11267 frozeninputs/
+5411 packagedentries/208 receipts. Initial test cleanup exposed
+and fixed a borrowed player remaining in Nether; final full regression passes.
+199 authorpaths/31 overrides/main d9087f0a unchanged;normalchildexit/exact tracked
+snapshots/no locks. No RP/template/questionfile/maininstall/restart/push. Full
+original25 gate CLOSED; Vanity acquisition gated. Remaining: world/private and
+ability/TimeStop state, complete writer/input/lifecycle/offline/map transaction.
+This is NOT full Vanity. Preserve every canonical owner and prior documentation.
+
 ## Vanity native random state - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, shared ownership and exact native proof](agent_notes/VANITY_RANDOM_CHECKPOINT_2026_10_30.md).
