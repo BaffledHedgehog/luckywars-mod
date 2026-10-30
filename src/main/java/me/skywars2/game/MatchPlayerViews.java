@@ -21,6 +21,15 @@ import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.DispenserMenu;
 import net.minecraft.world.inventory.HopperMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.ShulkerBoxMenu;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
+import net.minecraft.world.inventory.AbstractFurnaceMenu;
+import net.minecraft.world.inventory.FurnaceMenu;
+import net.minecraft.world.inventory.BlastFurnaceMenu;
+import net.minecraft.world.inventory.SmokerMenu;
+import net.minecraft.world.inventory.BrewingStandMenu;
+import net.minecraft.world.inventory.CrafterMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.*;
 
@@ -33,9 +42,12 @@ public final class MatchPlayerViews {
         var codec=net.minecraft.network.chat.ComponentSerialization.CODEC;
         return codec.parse(ops,codec.encodeStart(ops,title).getOrThrow()).getOrThrow();
     }
-    private interface Binding { Container resolve(); }
+    private interface Binding {
+        Container resolve(ServerPlayer player);
+        default void activate(ServerPlayer player) { }
+    }
     private record BlockBinding(ServerLevel level,BlockPos pos,BlockEntityType<?> type,Class<?> kind,int size) implements Binding {
-        @Override public Container resolve() {
+        @Override public Container resolve(ServerPlayer player) {
             if(!level.hasChunkAt(pos))throw new IllegalStateException("Storage destination is not resident");
             var entity=level.getBlockEntity(pos);
             if(entity==null||entity.isRemoved()||entity.getType()!=type||entity.getClass()!=kind
@@ -45,7 +57,17 @@ public final class MatchPlayerViews {
         }
     }
     private record Pair(Binding first,Binding second) implements Binding {
-        @Override public Container resolve(){return new CompoundContainer(first.resolve(),second.resolve());}
+        @Override public Container resolve(ServerPlayer player){return new CompoundContainer(first.resolve(player),second.resolve(player));}
+    }
+    private record EnderBinding(UUID owner,ServerLevel level,BlockPos pos) implements Binding {
+        private EnderChestBlockEntity chest(ServerPlayer player) {
+            if(!player.getUUID().equals(owner)||!level.hasChunkAt(pos)
+                    ||!(level.getBlockEntity(pos) instanceof EnderChestBlockEntity chest)||chest.isRemoved())
+                throw new IllegalStateException("Restore the owning player and native ender chest before views: "+pos);
+            return chest;
+        }
+        @Override public Container resolve(ServerPlayer player){chest(player);return player.getEnderChestInventory();}
+        @Override public void activate(ServerPlayer player){player.getEnderChestInventory().setActiveChest(chest(player));}
     }
     private record Drag(int type,int status,List<Integer> slots) {
         static Drag capture(AbstractContainerMenu menu) {
@@ -60,10 +82,25 @@ public final class MatchPlayerViews {
         }
     }
     private record Storage(Class<?> kind,MenuType<?> type,int rows,Binding binding,Component title,ItemStack cursor) {
+        boolean matches(ServerPlayer player) {
+            if(player.containerMenu==player.inventoryMenu)return false;
+            try {
+                validateMenu(player);var current=storage(player);
+                return current.kind==kind&&current.type==type&&current.rows==rows&&current.binding.equals(binding)&&current.title.equals(title)
+                        &&player.containerMenu.slots.stream().filter(s->s.container==player.getInventory()).count()==36
+                        &&player.containerMenu.slots.stream().noneMatch(s->s.container instanceof net.minecraft.world.entity.player.Inventory&&s.container!=player.getInventory());
+            }catch(IllegalStateException unsupported){return false;}
+        }
         AbstractContainerMenu create(int id,net.minecraft.world.entity.player.Inventory inventory,Container backing) {
             if(kind==ChestMenu.class)return new ChestMenu(type,id,inventory,backing,rows);
             if(kind==HopperMenu.class)return new HopperMenu(id,inventory,backing);
             if(kind==DispenserMenu.class)return new DispenserMenu(id,inventory,backing);
+            if(kind==ShulkerBoxMenu.class)return new ShulkerBoxMenu(id,inventory,backing);
+            if(kind==FurnaceMenu.class)return new FurnaceMenu(id,inventory,backing,blockData(backing));
+            if(kind==BlastFurnaceMenu.class)return new BlastFurnaceMenu(id,inventory,backing,blockData(backing));
+            if(kind==SmokerMenu.class)return new SmokerMenu(id,inventory,backing,blockData(backing));
+            if(kind==BrewingStandMenu.class)return new BrewingStandMenu(id,inventory,backing,blockData(backing));
+            if(kind==CrafterMenu.class)return new CrafterMenu(id,inventory,(CrafterBlockEntity)backing,blockData(backing));
             throw new IllegalStateException("Unsupported native storage menu");
         }
     }
@@ -78,18 +115,32 @@ public final class MatchPlayerViews {
             images.put(player.getUUID(),new View(player.getCamera().getUUID(),storage(player),Drag.capture(player.containerMenu)));
         }
     }
-    private static Binding binding(Container container) {return binding(container,true);}
-    private static Binding binding(Container container,boolean current) {
+    private static Binding binding(ServerPlayer player,Container container) {return binding(player,container,true);}
+    private static Binding binding(ServerPlayer player,Container container,boolean current) {
+        if(container.getClass()==PlayerEnderChestContainer.class) {
+            if(container!=player.getEnderChestInventory())throw new IllegalStateException("Ender storage belongs to a different player body");
+            var chest=((PlayerViewCheckpointAccess.Ender)container).skywars2$active();
+            // A future native ender session may have lost its block, but closing it is safe.
+            if(!current)return null;
+            if(chest==null||chest.getClass()!=EnderChestBlockEntity.class||chest.isRemoved()
+                    ||!(chest.getLevel() instanceof ServerLevel level)||level.getBlockEntity(chest.getBlockPos())!=chest)
+                throw new IllegalStateException("Ender screen needs a current native active chest");
+            return new EnderBinding(player.getUUID(),level,chest.getBlockPos().immutable());
+        }
         if(container.getClass()==CompoundContainer.class) {
             var pair=(PlayerViewCheckpointAccess.Compound)container;
             // Only the native two-block compound, never arbitrary nested/plugin graphs.
             if(pair.skywars2$first() instanceof CompoundContainer||pair.skywars2$second() instanceof CompoundContainer)
                 throw new IllegalStateException("Nested storage requires its own checkpoint adapter");
-            return new Pair(binding(pair.skywars2$first(),current),binding(pair.skywars2$second(),current));
+            if(pair.skywars2$first() instanceof PlayerEnderChestContainer||pair.skywars2$second() instanceof PlayerEnderChestContainer)
+                throw new IllegalStateException("Ender storage cannot be a compound container");
+            return new Pair(binding(player,pair.skywars2$first(),current),binding(player,pair.skywars2$second(),current));
         }
         var kind=container.getClass();
         if(kind!=ChestBlockEntity.class&&kind!=TrappedChestBlockEntity.class&&kind!=BarrelBlockEntity.class
-                &&kind!=HopperBlockEntity.class&&kind!=DispenserBlockEntity.class&&kind!=DropperBlockEntity.class)
+                &&kind!=HopperBlockEntity.class&&kind!=DispenserBlockEntity.class&&kind!=DropperBlockEntity.class
+                &&kind!=ShulkerBoxBlockEntity.class&&kind!=FurnaceBlockEntity.class&&kind!=BlastFurnaceBlockEntity.class
+                &&kind!=SmokerBlockEntity.class&&kind!=BrewingStandBlockEntity.class&&kind!=CrafterBlockEntity.class)
             throw new IllegalStateException("Storage backing requires its own checkpoint adapter: "+kind.getName());
         var entity=(BlockEntity)container;
         if(!(entity.getLevel() instanceof ServerLevel level)||(current&&(entity.isRemoved()||level.getBlockEntity(entity.getBlockPos())!=entity)))
@@ -100,24 +151,48 @@ public final class MatchPlayerViews {
         if(menu.getClass()==ChestMenu.class)return ((ChestMenu)menu).getContainer();
         if(menu.getClass()==HopperMenu.class)return ((PlayerViewCheckpointAccess.Hopper)menu).skywars2$container();
         if(menu.getClass()==DispenserMenu.class)return ((PlayerViewCheckpointAccess.Dispenser)menu).skywars2$container();
+        if(menu.getClass()==ShulkerBoxMenu.class)return ((PlayerViewCheckpointAccess.Shulker)menu).skywars2$container();
+        if(menu.getClass()==FurnaceMenu.class||menu.getClass()==BlastFurnaceMenu.class||menu.getClass()==SmokerMenu.class)
+            return ((PlayerViewCheckpointAccess.Furnace)menu).skywars2$container();
+        if(menu.getClass()==BrewingStandMenu.class)return ((PlayerViewCheckpointAccess.Brewing)menu).skywars2$container();
+        if(menu.getClass()==CrafterMenu.class)return ((PlayerViewCheckpointAccess.Crafter)menu).skywars2$container();
         throw new IllegalStateException("Menu requires its own checkpoint adapter: "+menu.getClass().getName());
     }
     static void validateMenu(ServerPlayer player) {
         if(player.containerMenu==player.inventoryMenu)return;
-        binding(backing(player.containerMenu));
+        var menu=player.containerMenu;var container=backing(menu);binding(player,container);
+        if(menu.getClass()==ShulkerBoxMenu.class&&container.getClass()!=ShulkerBoxBlockEntity.class)
+            throw new IllegalStateException("Shulker menu must use a native shulker box");
+        if(menu instanceof AbstractFurnaceMenu furnace) {
+            var expected=menu.getClass()==FurnaceMenu.class?FurnaceBlockEntity.class:menu.getClass()==BlastFurnaceMenu.class?BlastFurnaceBlockEntity.class:SmokerBlockEntity.class;
+            if(container.getClass()!=expected||((PlayerViewCheckpointAccess.Furnace)furnace).skywars2$data()!=blockData(container))
+                throw new IllegalStateException("Furnace menu must use its native block data");
+        }
+        if(menu.getClass()==BrewingStandMenu.class&&(container.getClass()!=BrewingStandBlockEntity.class
+                ||((PlayerViewCheckpointAccess.Brewing)menu).skywars2$data()!=blockData(container)))
+            throw new IllegalStateException("Brewing menu must use its native block data");
+        if(menu.getClass()==CrafterMenu.class&&(container.getClass()!=CrafterBlockEntity.class
+                ||((PlayerViewCheckpointAccess.Crafter)menu).skywars2$data()!=blockData(container)))
+            throw new IllegalStateException("Crafter menu must use its native block data");
         ((Title)player).skywars2$menuTitle(player.containerMenu.containerId);
     }
     private static Storage storage(ServerPlayer player) {
         var menu=player.containerMenu;if(menu==player.inventoryMenu)return null;
         return new Storage(menu.getClass(),menu.getType(),menu instanceof ChestMenu chest?chest.getRowCount():0,
-                binding(backing(menu)),((Title)player).skywars2$menuTitle(menu.containerId),menu.getCarried().copy());
+                binding(player,backing(menu)),((Title)player).skywars2$menuTitle(menu.containerId),menu.getCarried().copy());
     }
     static void closeFutureStorage(ServerPlayer player) {
         validateFutureMenu(player);
         if(player.containerMenu!=player.inventoryMenu){player.containerMenu.setCarried(ItemStack.EMPTY);player.closeContainer();}
     }
     private static void validateFutureMenu(ServerPlayer player) {
-        if(player.containerMenu!=player.inventoryMenu)binding(backing(player.containerMenu),false);
+        if(player.containerMenu!=player.inventoryMenu)binding(player,backing(player.containerMenu),false);
+    }
+    static ContainerData blockData(Container container) {
+        if(container instanceof AbstractFurnaceBlockEntity)return ((PlayerViewCheckpointAccess.FurnaceBlock)container).skywars2$data();
+        if(container instanceof BrewingStandBlockEntity)return ((PlayerViewCheckpointAccess.BrewingBlock)container).skywars2$data();
+        if(container instanceof CrafterBlockEntity)return ((PlayerViewCheckpointAccess.CrafterBlock)container).skywars2$data();
+        throw new IllegalStateException("No native processing data for "+container.getClass().getName());
     }
     /** Call before the terrain/body phases: closing a native viewer may schedule block events. */
     void prepareFrozen() {
@@ -135,17 +210,20 @@ public final class MatchPlayerViews {
         var backings=new LinkedHashMap<UUID,Container>();
         for(var entry:images.entrySet())if(resolve.apply(entry.getKey()) instanceof ServerPlayer player) {
             validateFutureMenu(player);var saved=entry.getValue();
-            if(saved.storage!=null)backings.put(entry.getKey(),saved.storage.binding.resolve());
+            if(saved.storage!=null)backings.put(entry.getKey(),saved.storage.binding.resolve(player));
         }
         for(var entry:images.entrySet()) {
             if(!(resolve.apply(entry.getKey()) instanceof ServerPlayer player)){pending.add(entry.getKey());continue;}
-            var saved=entry.getValue();closeFutureStorage(player);
+            var saved=entry.getValue();
             if(saved.storage!=null) {
                 var storage=saved.storage;var backing=backings.get(entry.getKey());
-                var opened=player.openMenu(new SimpleMenuProvider((id,inventory,p)->storage.create(id,inventory,backing),copyTitle(player,storage.title)));
-                if(opened.isEmpty())throw new IllegalStateException("Native storage reopening failed");
+                if(!storage.matches(player)) {
+                    closeFutureStorage(player);storage.binding.activate(player);
+                    var opened=player.openMenu(new SimpleMenuProvider((id,inventory,p)->storage.create(id,inventory,backing),copyTitle(player,storage.title)));
+                    if(opened.isEmpty())throw new IllegalStateException("Native storage reopening failed");
+                }
                 player.containerMenu.setCarried(storage.cursor.copy());
-            }
+            }else closeFutureStorage(player);
             saved.drag.restore(player.containerMenu);player.containerMenu.sendAllDataToRemote();
         }
         restoreCameras(resolve,pending);

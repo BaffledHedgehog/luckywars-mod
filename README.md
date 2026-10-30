@@ -1,3 +1,20 @@
+## Vanity processing/storage and native block events - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, native ownership and exact proof](agent_notes/VANITY_STORAGE_CHECKPOINT_2026_10_30.md).
+Adds shulker/ender/furnace/blast/smoker/brewing/crafter windows with CURRENT native
+player/BE/data bindings. Ender contents stay with the player owner; processing data
+stays with terrain NBT. Correct repeated sessions no longer close/reopen or emit extra
+events. Terrain now restores owned native ordered queued/deferred block events; partial
+chunk scope preserves unowned events but does not promise outside timeline interleaving.
+8ac3de54 passed17 suites/one actualmode1 match;runner67.94s;11172 frozen inputs/5332
+packagedentries/110source receipts.199 authorpaths/31overrides/main d9087f0a unchanged;
+normalchildexit/exactsnapshots/no locks. No RP/template/questionfile/maininstall/
+restart/push. Full original25 gate CLOSED; Vanity acquisition stays gated. Next: remaining
+workstation/entity menus, private BE/AI/ability/attribution/multipart/TimeStop owners,
+input/writer/lifecycle transaction, automatic offline replay and full world/map/storage
+reconciliation. Native lid/runtime fields and other world events still need owners.
+This is NOT the complete rewind; preserve existing native owners and all prior notes.
+
 ## Vanity native cameras and storage sessions - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, supported shapes and exact native proof](agent_notes/VANITY_VIEWS_CHECKPOINT_2026_10_30.md).

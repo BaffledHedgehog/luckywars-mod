@@ -38,6 +38,7 @@ final class MatchTerrainCheckpoint {
 
     private final MinecraftServer server;
     private final Map<Key, ChunkImage> images = new LinkedHashMap<>();
+    private final MatchBlockEvents events = new MatchBlockEvents();
     private Restore active;
 
     MatchTerrainCheckpoint(MinecraftServer server) { this.server = server; }
@@ -60,6 +61,7 @@ final class MatchTerrainCheckpoint {
             throw new IllegalArgumentException("Chunk belongs to another server");
         var key = new Key(level, chunk.getPos());
         if (images.containsKey(key)) return;
+        events.include(level,chunk.getPos());
         var sections = new LevelChunkSection[chunk.getSectionsCount()];
         for (int i = 0; i < sections.length; i++) sections[i] = chunk.getSection(i).copy();
         var entities = new LinkedHashMap<BlockPos, CompoundTag>();
@@ -178,6 +180,7 @@ final class MatchTerrainCheckpoint {
                 // Remove both old future ticks and ticks emitted by restoration callbacks.
                 // Publish all saved queues only after ALL block writes have finished.
                 for (var image : work) restoreTicks(image, resident(image.key));
+                events.restore();
                 for (var entry : biomeChanges.entrySet()) entry.getKey().getChunkSource().chunkMap.resendBiomesForChunks(entry.getValue());
                 lighting.values().forEach(MapLighting.Update::finishWrites);
                 writesDone = true;

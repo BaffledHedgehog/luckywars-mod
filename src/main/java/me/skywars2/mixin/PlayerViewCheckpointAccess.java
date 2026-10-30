@@ -14,6 +14,17 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DispenserMenu;
 import net.minecraft.world.inventory.HopperMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.ShulkerBoxMenu;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
+import net.minecraft.world.inventory.AbstractFurnaceMenu;
+import net.minecraft.world.inventory.BrewingStandMenu;
+import net.minecraft.world.inventory.CrafterMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
+import net.minecraft.world.level.block.entity.CrafterBlockEntity;
+import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -55,5 +66,32 @@ public final class PlayerViewCheckpointAccess {
     @Mixin(CompoundContainer.class) public interface Compound {
         @Accessor("container1") Container skywars2$first();
         @Accessor("container2") Container skywars2$second();
+    }
+    @Mixin(ShulkerBoxMenu.class) public interface Shulker {
+        @Accessor("container") Container skywars2$container();
+    }
+    @Mixin(PlayerEnderChestContainer.class) public interface Ender {
+        @Accessor("activeChest") EnderChestBlockEntity skywars2$active();
+    }
+    @Mixin(AbstractFurnaceMenu.class) public interface Furnace {
+        @Accessor("container") Container skywars2$container();
+        @Accessor("data") ContainerData skywars2$data();
+    }
+    @Mixin(AbstractFurnaceBlockEntity.class) public interface FurnaceBlock {
+        @Accessor("dataAccess") ContainerData skywars2$data();
+    }
+    @Mixin(BrewingStandMenu.class) public interface Brewing {
+        @Accessor("brewingStand") Container skywars2$container();
+        @Accessor("brewingStandData") ContainerData skywars2$data();
+    }
+    @Mixin(BrewingStandBlockEntity.class) public interface BrewingBlock {
+        @Accessor("dataAccess") ContainerData skywars2$data();
+    }
+    @Mixin(CrafterMenu.class) public interface Crafter {
+        @Accessor("container") CraftingContainer skywars2$container();
+        @Accessor("containerData") ContainerData skywars2$data();
+    }
+    @Mixin(CrafterBlockEntity.class) public interface CrafterBlock {
+        @Accessor("containerData") ContainerData skywars2$data();
     }
 }
