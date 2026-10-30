@@ -1,3 +1,19 @@
+## Vanity Stone/Magmify and electric terrain jobs - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[State ownership and exact native evidence](agent_notes/VANITY_TERRAIN_JOBS_CHECKPOINT_2026_10_30.md).
+Same original Stone templates/trial and Magmify flood/RNG compose with Bolts actors,
+area/template/reforge jobs and chain-status FIFO. Native display/input/hand/BE roots
+remain canonical; compound chest views now index physical leaves once. Whole-image
+current-body/offline retry, staged meteor/status callbacks and opaque/detached guards.
+59736658 passed72 match suites plus2 native lobby checks/30 actual mode1 matches/ONE child (first39 together), plus
+separately scoped Reactive Artifacts and four Bolts suites:79 suites/32 matches/2 children,422.66s.
+11409 inputs/5532 entries/316 source receipts.199 authorpaths/31 overrides/main
+ d9087f0a exact;normal exits/exact snapshots/no locks. No functions/RP/template/
+questionfile/maininstall/restart/push. Original25 gate CLOSED; Vanity gated.
+Other jobs/private abilities/native AI/BE/multipart/client shaders/async/regions,
+genuine shared multi-root stack aliases and complete input/writer/IO/lifecycle/offline/
+persistence/map coordination remain. NOT full Vanity; retain every earlier owner/note.
+
 ## Vanity remaining shared-ray terminals and source visuals - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [State ownership and exact native evidence](agent_notes/VANITY_TERMINALS_CHECKPOINT_2026_10_30.md).

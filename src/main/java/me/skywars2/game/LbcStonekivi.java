@@ -8,6 +8,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -36,6 +37,7 @@ public final class LbcStonekivi {
     private final GameController game;
     private final ArrayDeque<Work> work=new ArrayDeque<>();
     private boolean advancing,rewinding;
+    private final java.util.concurrent.atomic.AtomicInteger callbacks=new java.util.concurrent.atomic.AtomicInteger();
     private volatile Map<Identifier,List<MapManager.TemplateSlice>> templates=Map.of();
     private volatile int preparation;
 
@@ -49,15 +51,19 @@ public final class LbcStonekivi {
     LbcStonekivi(GameController game) { this.game=game; }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("lbc",path); }
     public void prepare() {
-        LbcMagmify.prepare();
-        int generation=++preparation;
-        templates=Map.of();
-        var ids=new ArrayList<>(List.of(LAYERS)); ids.add(EARTH);
-        game.maps().prepareSpellTemplates(ids).whenComplete((value,error)-> {
-            if(generation!=preparation) return;
-            if(error!=null) SkyWars2.LOGGER.error("Stonekivi template preparation failed",error);
-            else templates=value;
-        });
+        callbacks.incrementAndGet();try {
+            LbcMagmify.prepare();
+            int generation=++preparation;
+            templates=Map.of();
+            var ids=new ArrayList<>(List.of(LAYERS)); ids.add(EARTH);
+            game.maps().prepareSpellTemplates(ids).whenComplete((value,error)-> {
+                callbacks.incrementAndGet();try {
+                    if(generation!=preparation) return;
+                    if(error!=null) SkyWars2.LOGGER.error("Stonekivi template preparation failed",error);
+                    else templates=value;
+                }finally{callbacks.decrementAndGet();}
+            });
+        }finally{callbacks.decrementAndGet();}
     }
     public boolean ready() { return templates.size()==6; }
     public int count() { return work.size(); }
@@ -76,99 +82,156 @@ public final class LbcStonekivi {
         castAt(owner,hand,stack,mode,origin,direction,false);
     }
     private void castAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 from,Vec3 direction,boolean trial){
-        Vec3 far=from.add(direction.scale(mode==1?150:250));
-        double fraction=game.items().magic().suppressionFraction(owner.level(),from,far);
-        Vec3 limit=Double.isFinite(fraction)?from.lerp(far,fraction):far;
-        var hit=game.items().wands().firstHit(owner,from,limit);
-        Vec3 point=hit==null?limit:hit.getLocation();
-        double distance=from.distanceTo(point);
-        var primary=mode==2?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.GRASS_BLOCK.defaultBlockState())
-                :mode==3?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.LAVA.defaultBlockState()):mode==4?BEDROCK:STONE;
-        var secondary=mode==2?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState())
-                :mode==3?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.MAGMA_BLOCK.defaultBlockState()):BEDROCK;
-        for(double d=0;d<=distance;d+=.5) {
-            Vec3 p=from.add(direction.scale(d));
-            owner.level().sendParticles(primary,true,false,p.x,p.y,p.z,2,.1,.1,.1,0);
-            owner.level().sendParticles(secondary,true,false,p.x,p.y,p.z,1,.1,.1,.1,0);
-        }
-        LbcOverload.sound(owner,from,"minecraft:block.deepslate.place",1,1,0);
-        if(hit==null || hit instanceof BlockHitResult block && !owner.level().hasChunkAt(block.getBlockPos())
-                || Double.isFinite(fraction) && point.distanceToSqr(from)>=limit.distanceToSqr(from)-1e-6) return;
-        BlockPos center=hit instanceof BlockHitResult block?block.getBlockPos():BlockPos.containing(point);
-        if(mode==3 && hit instanceof EntityHitResult)
-            center=new BlockPos(center.getX(),owner.level().getHeight(Heightmap.Types.MOTION_BLOCKING,center.getX(),center.getZ())-1,center.getZ());
-        switch(mode) {
-            case 1 -> {
-                var sequence=new ArrayDeque<Work>();
-                for(int i=0;i<LAYERS.length;i++) {
-                    int radius=10-i*2;
-                    sequence.add(template(owner,LAYERS[i],center.offset(-radius,-radius,-radius),.678f));
-                }
-                BlockPos impact=center;
-                if(trial)sequence.add(()-> { game.items().academy().stonekiviTrial(owner,hand,stack,impact); return true; });
-                work.add(new Sequence(sequence));
+        callbacks.incrementAndGet();try {
+            Vec3 far=from.add(direction.scale(mode==1?150:250));
+            double fraction=game.items().magic().suppressionFraction(owner.level(),from,far);
+            Vec3 limit=Double.isFinite(fraction)?from.lerp(far,fraction):far;
+            var hit=game.items().wands().firstHit(owner,from,limit);
+            Vec3 point=hit==null?limit:hit.getLocation();
+            double distance=from.distanceTo(point);
+            var primary=mode==2?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.GRASS_BLOCK.defaultBlockState())
+                    :mode==3?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.LAVA.defaultBlockState()):mode==4?BEDROCK:STONE;
+            var secondary=mode==2?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState())
+                    :mode==3?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.MAGMA_BLOCK.defaultBlockState()):BEDROCK;
+            for(double d=0;d<=distance;d+=.5) {
+                Vec3 p=from.add(direction.scale(d));
+                owner.level().sendParticles(primary,true,false,p.x,p.y,p.z,2,.1,.1,.1,0);
+                owner.level().sendParticles(secondary,true,false,p.x,p.y,p.z,1,.1,.1,.1,0);
             }
-            case 2 -> work.add(template(owner,EARTH,center.offset(-22,-22,-22),1));
-            case 3 -> work.add(LbcMagmify.create(game,owner,center));
-            case 4 -> comets(owner,center);
-        }
-        for(float pitch:new float[]{1,0}) LbcOverload.sound(owner,point,"minecraft:block.deepslate_bricks.break",mode==1?4:7,pitch,0);
+            LbcOverload.sound(owner,from,"minecraft:block.deepslate.place",1,1,0);
+            if(hit==null || hit instanceof BlockHitResult block && !owner.level().hasChunkAt(block.getBlockPos())
+                    || Double.isFinite(fraction) && point.distanceToSqr(from)>=limit.distanceToSqr(from)-1e-6) return;
+            BlockPos center=hit instanceof BlockHitResult block?block.getBlockPos():BlockPos.containing(point);
+            if(mode==3 && hit instanceof EntityHitResult)
+                center=new BlockPos(center.getX(),owner.level().getHeight(Heightmap.Types.MOTION_BLOCKING,center.getX(),center.getZ())-1,center.getZ());
+            switch(mode) {
+                case 1 -> {
+                    var sequence=new ArrayDeque<Work>();
+                    for(int i=0;i<LAYERS.length;i++) {
+                        int radius=10-i*2;
+                        sequence.add(template(owner,LAYERS[i],center.offset(-radius,-radius,-radius),.678f));
+                    }
+                    BlockPos impact=center;
+                    if(trial)sequence.add(new TrialWork(owner,hand,stack,impact));
+                    work.add(new Sequence(sequence));
+                }
+                case 2 -> work.add(template(owner,EARTH,center.offset(-22,-22,-22),1));
+                case 3 -> work.add(LbcMagmify.create(game,owner,center));
+                case 4 -> comets(owner,center);
+            }
+            for(float pitch:new float[]{1,0}) LbcOverload.sound(owner,point,"minecraft:block.deepslate_bricks.break",mode==1?4:7,pitch,0);
+        }finally{callbacks.decrementAndGet();}
     }
 
     private void comets(ServerPlayer owner,BlockPos center) {
-        var sequence=new ArrayDeque<Work>();
-        var point=Vec3.atCenterOf(center);
-        // (user) Сохраняются также предметы, снаряды и союзники; служебные роли и наблюдатели не являются целями.
-        var centers=new java.util.LinkedHashSet<BlockPos>();
-        centers.add(center);
-        for(var entity:owner.level().getEntities(owner,new AABB(point,point).inflate(15),entity->
-                game.items().wands().target(owner,entity,true) && entity.position().distanceToSqr(point)<=225
-                        && !entity.entityTags().contains("swrg.center") && !entity.entityTags().contains("swrg.default")
-                        && !entity.entityTags().contains("swrg.look") && !entity.entityTags().contains("swrg.midle")
-                        && !entity.entityTags().contains("swrg.spawn")))
-            centers.add(entity.blockPosition().immutable());
-        for(var pos:centers) sequence.add(template(owner,LAYERS[4],pos.offset(-2,-2,-2),1));
-        work.add(new Sequence(sequence));
+        callbacks.incrementAndGet();try {
+            var sequence=new ArrayDeque<Work>();
+            var point=Vec3.atCenterOf(center);
+            // (user) Сохраняются также предметы, снаряды и союзники; служебные роли и наблюдатели не являются целями.
+            var centers=new java.util.LinkedHashSet<BlockPos>();
+            centers.add(center);
+            for(var entity:owner.level().getEntities(owner,new AABB(point,point).inflate(15),entity->
+                    game.items().wands().target(owner,entity,true) && entity.position().distanceToSqr(point)<=225
+                            && !entity.entityTags().contains("swrg.center") && !entity.entityTags().contains("swrg.default")
+                            && !entity.entityTags().contains("swrg.look") && !entity.entityTags().contains("swrg.midle")
+                            && !entity.entityTags().contains("swrg.spawn")))
+                centers.add(entity.blockPosition().immutable());
+            for(var pos:centers) sequence.add(template(owner,LAYERS[4],pos.offset(-2,-2,-2),1));
+            work.add(new Sequence(sequence));
+        }finally{callbacks.decrementAndGet();}
     }
 
     /** Уже разбитые шаблоны используют прежнюю native-вставку, включая BlockEntity и подавление дропа. */
     private Work template(ServerPlayer owner,Identifier id,BlockPos origin,float integrity) {
-        var parts=templates.getOrDefault(id,List.of());
-        var placements=new ArrayDeque<Work>();
-        long seed=owner.getRandom().nextLong();
-        for(var part:parts) {
-            var b=part.bounds();
-            int minX=origin.getX()+b.minX(),maxX=origin.getX()+b.maxX();
-            int minZ=origin.getZ()+b.minZ(),maxZ=origin.getZ()+b.maxZ();
-            int minY=Math.max(owner.level().getMinY(),origin.getY()+b.minY());
-            int maxY=Math.min(owner.level().getMaxY(),origin.getY()+b.maxY());
-            if(minY>maxY) continue;
-            for(int cx=minX>>4;cx<=maxX>>4;cx++) for(int cz=minZ>>4;cz<=maxZ>>4;cz++) {
-                var bounds=new BoundingBox(Math.max(minX,cx*16),minY,Math.max(minZ,cz*16),
-                        Math.min(maxX,cx*16+15),maxY,Math.min(maxZ,cz*16+15));
-                placements.add(()-> {
-                    if(owner.level()!=game.maps().level() || !owner.level().hasChunkAt(new BlockPos(bounds.minX(),minY,bounds.minZ()))) return true;
-                    var settings=new StructurePlaceSettings().setIgnoreEntities(true).setKnownShape(true).setBoundingBox(bounds);
-                    if(integrity<1) settings.addProcessor(new BlockRotProcessor(integrity));
-                    game.items().indirectKills().trapChanges(owner,
-                            ()->game.maps().placeMapSlice(owner.level(),part.template(),origin,settings,seed));
-                    return true;
-                });
+        callbacks.incrementAndGet();try {
+            var parts=templates.getOrDefault(id,List.of());
+            var placements=new ArrayDeque<Work>();
+            long seed=owner.getRandom().nextLong();
+            for(var part:parts) {
+                var b=part.bounds();
+                int minX=origin.getX()+b.minX(),maxX=origin.getX()+b.maxX();
+                int minZ=origin.getZ()+b.minZ(),maxZ=origin.getZ()+b.maxZ();
+                int minY=Math.max(owner.level().getMinY(),origin.getY()+b.minY());
+                int maxY=Math.min(owner.level().getMaxY(),origin.getY()+b.maxY());
+                if(minY>maxY) continue;
+                for(int cx=minX>>4;cx<=maxX>>4;cx++) for(int cz=minZ>>4;cz<=maxZ>>4;cz++) {
+                    var bounds=new BoundingBox(Math.max(minX,cx*16),minY,Math.max(minZ,cz*16),
+                            Math.min(maxX,cx*16+15),maxY,Math.min(maxZ,cz*16+15));
+                    placements.add(new TemplatePlacement(owner,part.template(),origin,bounds,integrity,seed));
+                }
             }
-        }
-        return new Sequence(placements);
+            return new Sequence(placements);
+        }finally{callbacks.decrementAndGet();}
     }
-    private static final class Sequence implements Work {
+    /** Accepted native slice/configuration is retained; only the author body is rebound. */
+    private final class TemplatePlacement implements Work {
+        ServerPlayer owner;
+        final ServerLevel level;final String epoch;
+        final net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate template;
+        final BlockPos origin;final BoundingBox bounds;final float integrity;final long seed;
+        TemplatePlacement(ServerPlayer owner,net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate template,
+                BlockPos origin,BoundingBox bounds,float integrity,long seed){
+            this.owner=owner;level=owner.level();epoch=game.items().epoch();this.template=template;this.origin=origin.immutable();
+            this.bounds=new BoundingBox(bounds.minX(),bounds.minY(),bounds.minZ(),bounds.maxX(),bounds.maxY(),bounds.maxZ());
+            this.integrity=integrity;this.seed=seed;
+        }
+        public boolean step(){
+            callbacks.incrementAndGet();try{
+                if(owner.level()!=game.maps().level()||!level.hasChunkAt(new BlockPos(bounds.minX(),bounds.minY(),bounds.minZ())))return true;
+                var settings=new StructurePlaceSettings().setIgnoreEntities(true).setKnownShape(true).setBoundingBox(bounds);
+                if(integrity<1)settings.addProcessor(new BlockRotProcessor(integrity));
+                game.items().indirectKills().trapChanges(owner,()->game.maps().placeMapSlice(level,template,origin,settings,seed));
+                return true;
+            }finally{callbacks.decrementAndGet();}
+        }
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var author=graph.links.key(owner);
+            return links->{checkpointBoundary();var current=(ServerPlayer)links.get(author);MatchAuthorityCheckpoint.world(game,level);
+                return ()->owner=current;};
+        }
+    }
+    private final class TrialWork implements Work {
+        ServerPlayer owner;ItemStack stack;
+        final ServerLevel level;final String epoch;final InteractionHand hand;final BlockPos impact;
+        TrialWork(ServerPlayer owner,InteractionHand hand,ItemStack stack,BlockPos impact){
+            this.owner=owner;this.hand=hand;this.stack=stack;this.impact=impact.immutable();level=owner.level();epoch=game.items().epoch();
+        }
+        public boolean step(){
+            callbacks.incrementAndGet();try{
+                game.items().academy().stonekiviTrial(owner,hand,stack,impact);
+                return true;
+            }finally{callbacks.decrementAndGet();}
+        }
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var author=graph.links.key(owner);var item=graph.links.stack(game,stack);
+            return links->{checkpointBoundary();var current=(ServerPlayer)links.get(author);var currentStack=item.get(links);
+                MatchAuthorityCheckpoint.world(game,level);return ()->{owner=current;stack=currentStack;};};
+        }
+    }
+    private final class Sequence implements Work {
         final ArrayDeque<Work> children;
         Sequence(ArrayDeque<Work> children) { this.children=children; }
-        @Override public boolean ready() { return children.isEmpty() || children.peek().ready(); }
-        @Override public boolean step() {
-            if(children.isEmpty()) return true;
-            if(children.peek().step()) children.remove();
-            return children.isEmpty();
+        @Override public boolean ready() {
+            callbacks.incrementAndGet();try {
+                return children.isEmpty() || children.peek().ready();
+            }finally{callbacks.decrementAndGet();}
         }
-        @Override public void cancel() { children.forEach(Work::cancel); children.clear(); }
-        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){var saved=List.copyOf(children);saved.forEach(graph::capture);return links->()->{children.clear();children.addAll(saved);};}
+        @Override public boolean step() {
+            callbacks.incrementAndGet();try {
+                if(children.isEmpty()) return true;
+                if(children.peek().step()) children.remove();
+                return children.isEmpty();
+            }finally{callbacks.decrementAndGet();}
+        }
+        @Override public void cancel() {
+            callbacks.incrementAndGet();try {
+                children.forEach(Work::cancel);children.clear();
+            }finally{callbacks.decrementAndGet();}
+        }
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var saved=List.copyOf(children);saved.forEach(graph::capture);
+            return links->{checkpointBoundary();return ()->{children.clear();children.addAll(saved);};};
+        }
     }
     /** Накопленные касты не теряются: ограничивается работа за тик, а не размер очереди. */
     public void tick() {
@@ -188,11 +251,16 @@ public final class LbcStonekivi {
         }
         }finally{advancing=false;}
     }
-    public void stop() { work.forEach(Work::cancel); work.clear();rewinding=false; }
-    void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish shared terrain callbacks before capture/replay");}
+    public void stop() {
+        callbacks.incrementAndGet();try {work.forEach(Work::cancel);work.clear();rewinding=false;
+        }finally{callbacks.decrementAndGet();}
+    }
+    void beginNativeWork(){callbacks.incrementAndGet();}
+    void endNativeWork(){callbacks.decrementAndGet();}
+    void checkpointBoundary(){if(advancing||callbacks.get()!=0)throw new IllegalStateException("Finish shared terrain callbacks before capture/replay");}
     void prepareCheckpoint(){rewinding=true;work.clear();}
     void cancelCheckpoint(){rewinding=false;}
-    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
+    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}
     final class Checkpoint {
         private final List<Work> saved=List.copyOf(work);
         Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){saved.forEach(graph::capture);}

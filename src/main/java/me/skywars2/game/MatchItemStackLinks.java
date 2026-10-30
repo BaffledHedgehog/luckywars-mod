@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Function;
 import me.skywars2.mixin.ActorCheckpointAccess;
 import me.skywars2.mixin.ArenaChunkAccess;
+import me.skywars2.mixin.PlayerViewCheckpointAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -82,7 +83,15 @@ final class MatchItemStackLinks {
     }
     private void add(ItemStack stack,Location location){if(!stack.isEmpty())roots.computeIfAbsent(stack,k->new ArrayList<>()).add(location);}
     private void container(Container source,Function<MatchSpellCheckpoint.Links,Container> lookup){
-        if(!containers.add(source))return;int size=source.getContainerSize();
+        if(!containers.add(source))return;
+        if(source instanceof net.minecraft.world.CompoundContainer){
+            // A double-chest view exposes the SAME physical leaf slots; index each leaf once.
+            var pair=(PlayerViewCheckpointAccess.Compound)source;
+            container(pair.skywars2$first(),l->((PlayerViewCheckpointAccess.Compound)lookup.apply(l)).skywars2$first());
+            container(pair.skywars2$second(),l->((PlayerViewCheckpointAccess.Compound)lookup.apply(l)).skywars2$second());
+            return;
+        }
+        int size=source.getContainerSize();
         for(int index=0;index<size;index++){int slot=index;add(source.getItem(index),l->{var c=lookup.apply(l);if(c.getContainerSize()!=size)throw new IllegalStateException("Restore native container shape before stack alias");return c.getItem(slot);});}
     }
     Ref capture(ItemStack stack){return refs.computeIfAbsent(stack,k->new Ref(k,roots.getOrDefault(k,List.of())));}

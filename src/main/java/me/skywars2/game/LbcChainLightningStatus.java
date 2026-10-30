@@ -26,6 +26,8 @@ public final class LbcChainLightningStatus {
         Contribution(int remaining,LbcIndirectKills.Owner cause){this.remaining=remaining;this.cause=cause;}
     }
     private final GameController game;
+    private int callbackDepth;
+    private boolean rewinding;
     private final Map<LivingEntity,ArrayDeque<Contribution>> pending=new LinkedHashMap<>();
     LbcChainLightningStatus(GameController game){this.game=game;}
     public static boolean isMarker(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==124;}
@@ -33,24 +35,32 @@ public final class LbcChainLightningStatus {
     private boolean immune(LivingEntity target){return target instanceof ServerPlayer player&&(game.items().magic().rejectCustomEffect(player)
             ||game.config().lbcSkills&&game.players().get(player.getUUID()).lbcSkill==19);}
     boolean accept(LivingEntity target,MobEffectInstance effect,Entity source){
+        callbackDepth++;try{
         if(!isMarker(effect)||!game.playing()||!role(target)||LbcGreed.active(target)||!target.canBeAffected(effect)||immune(target))return false;
         int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
         var owner=LbcIndirectKills.playerSource(source);var cause=owner==null?null:game.items().indirectKills().wildCause(owner);
         pending.computeIfAbsent(target,k->new ArrayDeque<>()).addLast(new Contribution(duration,cause));sync(target);return true;
+
+        }finally{callbackDepth--;}
     }
     int queued(LivingEntity target){var queue=pending.get(target);return queue==null?0:(int)Math.min(Integer.MAX_VALUE,queue.stream().mapToLong(c->c.remaining).sum());}
     void observe(LivingEntity target){
+        callbackDepth++;try{
         int external=game.items().mana().hudValue(target,COUNTER),stored=queued(target);
         if(external<=0){if(stored>0)clear(target);return;}
         if(external>stored&&!LbcGreed.active(target)&&!immune(target)&&role(target)){
             var cause=target instanceof ServerPlayer player?game.items().indirectKills().wildCause(player):null;
             pending.computeIfAbsent(target,k->new ArrayDeque<>()).addLast(new Contribution(external-stored,cause));sync(target);
         }
+
+        }finally{callbackDepth--;}
     }
     private boolean paused(LivingEntity target){return !game.server().tickRateManager().runsNormally()
             ||game.items().timeStop().stopped((ServerLevel)target.level())||game.items().timeStop().frozen(target)
             ||target.entityTags().contains("time_stopped")||game.items().frost().isFrozen(target)||LbcGreed.active(target);}
     void tick(){
+        callbackDepth++;try{
+        if(rewinding)return;
         for(var target:List.copyOf(pending.keySet())){
             if(game.items().polymorph().masked(target))continue;
             if(LbcGreed.active(target))continue;
@@ -63,8 +73,11 @@ public final class LbcChainLightningStatus {
             if(pending.get(target)!=queue)continue;
             if(--contribution.remaining<=0)queue.removeFirst();if(queue.isEmpty())clear(target);else sync(target);
         }
+
+        }finally{callbackDepth--;}
     }
     private void pulse(LivingEntity emitter,LbcIndirectKills.Owner cause){
+        callbackDepth++;try{
         var level=(ServerLevel)emitter.level();var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
         var candidates=game.items().lifetimes().loadedTargets().stream().filter(this::role).filter(target->target.getType().builtInRegistryHolder().is(MOBS))
                 .filter(target->!LbcGreed.active(target)&&!target.entityTags().contains("nomagic_active")
@@ -85,6 +98,8 @@ public final class LbcChainLightningStatus {
                 game.items().wands().chainStatusElectro(emitter,owner,target.position(),cause);
             }
         }
+
+        }finally{callbackDepth--;}
     }
     private static void sparks(ServerLevel level,Vec3 from,Vec3 to){
         double length=from.distanceTo(to);if(length<1e-6)return;var direction=to.subtract(from).scale(1/length);
@@ -93,7 +108,10 @@ public final class LbcChainLightningStatus {
             level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y+1.2,point.z,1,0,0,0,0);
         }
     }
-    void clear(LivingEntity target){pending.remove(target);target.removeAttached(DATA);if(game.items().mana().hudValue(target,COUNTER)!=0)game.items().mana().score(target,COUNTER).set(0);}
+    void clear(LivingEntity target){
+        callbackDepth++;try{pending.remove(target);target.removeAttached(DATA);if(game.items().mana().hudValue(target,COUNTER)!=0)game.items().mana().score(target,COUNTER).set(0);
+        }finally{callbackDepth--;}
+    }
     private void sync(LivingEntity target){
         game.items().mana().score(target,COUNTER).set(queued(target));var tag=new CompoundTag();tag.putString("epoch",game.items().epoch());var list=new ListTag();
         for(var contribution:pending.get(target)){var row=new CompoundTag();row.putInt("remaining",contribution.remaining);var cause=contribution.cause;
@@ -101,6 +119,8 @@ public final class LbcChainLightningStatus {
         tag.put("contributions",list);target.setAttached(DATA,tag);
     }
     void loaded(LivingEntity target){
+        callbackDepth++;try{
+        if(rewinding)return;
         var tag=target.getAttached(DATA);if(tag==null){observe(target);return;}
         if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clear(target);return;}
         var queue=new ArrayDeque<Contribution>();for(var value:tag.getListOrEmpty("contributions"))if(value instanceof CompoundTag row){
@@ -108,8 +128,43 @@ public final class LbcChainLightningStatus {
             int remaining=row.getIntOr("remaining",0);if(remaining>0)queue.addLast(new Contribution(remaining,cause));
         }
         if(queue.isEmpty())clear(target);else{pending.put(target,queue);sync(target);}
+
+        }finally{callbackDepth--;}
     }
-    void unloaded(LivingEntity target){if(!target.isAlive())clear(target);else pending.remove(target);}
-    void forget(ServerPlayer owner){for(var target:List.copyOf(pending.keySet()))if(target==owner||pending.get(target).stream().anyMatch(c->c.cause!=null&&c.cause.player().equals(owner.getUUID())))clear(target);}
-    void stop(){for(var target:List.copyOf(pending.keySet()))clear(target);}
+    void unloaded(LivingEntity target){
+        callbackDepth++;try{
+        if(rewinding)return;if(!target.isAlive())clear(target);else pending.remove(target);
+        }finally{callbackDepth--;}
+    }
+    void forget(ServerPlayer owner){
+        callbackDepth++;try{for(var target:List.copyOf(pending.keySet()))if(target==owner||pending.get(target).stream().anyMatch(c->c.cause!=null&&c.cause.player().equals(owner.getUUID())))clear(target);
+        }finally{callbackDepth--;}
+    }
+    void stop(){
+        callbackDepth++;try{rewinding=false;for(var target:List.copyOf(pending.keySet()))clear(target);
+        }finally{callbackDepth--;}
+    }
+    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish native chain-status admission/hit/load callbacks before checkpointing");}
+    void prepareFrozen(){checkpointBoundary();rewinding=true;}
+    void publishFrozen(){checkpointBoundary();rewinding=false;}
+    void cancelFrozen(){checkpointBoundary();rewinding=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Amount(int remaining,LbcIndirectKills.Owner cause) { }
+        private record Queue(MatchDamageSources.Ref target,List<Amount> amounts) { }
+        private final List<Queue> targets=new ArrayList<>();
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish native chain-status bodies before capture");
+            pending.forEach((target,queue)->targets.add(new Queue(links.key(target),queue.stream().map(c->new Amount(c.remaining,c.cause)).toList())));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var restored=new LinkedHashMap<LivingEntity,ArrayDeque<Contribution>>();
+            for(var image:targets){var target=(LivingEntity)links.get(image.target);var queue=new ArrayDeque<Contribution>();
+                for(var amount:image.amounts)queue.addLast(new Contribution(amount.remaining,amount.cause));restored.put(target,queue);}
+            // Native effects, HUD scores and persistent DATA attachments have their canonical native owner.
+            // Never call accept/loaded/observe/sync: these paths grant new causal order or rewrite native state.
+            return ()->{pending.clear();pending.putAll(restored);};
+        }
+    }
+
 }

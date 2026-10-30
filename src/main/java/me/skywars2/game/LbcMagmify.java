@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import net.minecraft.util.RandomSource;
 
 /**
  * Incremental native port of the legacy /magmify world transformation.
@@ -55,26 +55,32 @@ public final class LbcMagmify {
     static void prepare() { } // Registry-каталоги прогреваются при загрузке ресурсов, до первого солнца.
 
     public static LbcStonekivi.Work create(GameController game, ServerPlayer owner, BlockPos origin) {
-        return new Work(game, owner, origin);
+        game.items().stonekivi().beginNativeWork();try {
+            return new Work(game, owner, origin);
+        }finally{game.items().stonekivi().endNativeWork();}
     }
 
     /** One cast owns its observed originals; no full-region capture/planner barrier delays its first writes. */
     private static final class Work implements LbcStonekivi.Work {
         private final GameController game;
-        private final ServerPlayer owner;
+        private ServerPlayer owner;
         private final ServerLevel level;
-        private final it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<Cell> observed =
+        private final String epoch;
+        private final BlockPos origin;
+        private final long seed;
+        private it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<Cell> observed =
                 new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<>();
-        private final it.unimi.dsi.fastutil.longs.LongOpenHashSet discovered = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
-        private final it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue frontier = new it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue();
-        private final it.unimi.dsi.fastutil.longs.LongOpenHashSet surfaceBlocks = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
-        private final it.unimi.dsi.fastutil.longs.LongOpenHashSet lava = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
+        private it.unimi.dsi.fastutil.longs.LongOpenHashSet discovered = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
+        private Frontier frontier = new Frontier();
+        private it.unimi.dsi.fastutil.longs.LongOpenHashSet surfaceBlocks = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
+        private it.unimi.dsi.fastutil.longs.LongOpenHashSet lava = new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
         private final ArrayDeque<Spike> spikes = new ArrayDeque<>();
         private final BlockPos.MutableBlockPos probe = new BlockPos.MutableBlockPos();
         private final long[] centerSample = new long[CENTER_SAMPLE_SIZE];
-        private final ThreadLocalRandom random = ThreadLocalRandom.current();
+        private final RandomSource random;
         private Phase phase = Phase.TRANSFORM;
-        private it.unimi.dsi.fastutil.longs.LongIterator lavaIterator;
+        private long[] lavaSchedule;
+        private int lavaCursor;
         private List<LivingEntity> entities;
         private int entityCursor, seen;
         private int minX=Integer.MAX_VALUE,minY=Integer.MAX_VALUE,minZ=Integer.MAX_VALUE;
@@ -83,23 +89,69 @@ public final class LbcMagmify {
 
         private Work(GameController game, ServerPlayer owner, BlockPos origin) {
             this.game=game; this.owner=owner; this.level=owner.level();
+            epoch=game.items().epoch();this.origin=origin.immutable();
+            // A cast owns its stream; admission draws once from the canonical actor RNG.
+            seed=owner.getRandom().nextLong();random=RandomSource.create(seed);
             if (!discover(origin.getX(),origin.getY(),origin.getZ())) phase=Phase.FINISHED;
         }
 
         @Override public boolean step() {
-            if (phase==Phase.FINISHED) return true;
-            if (phase==Phase.TRANSFORM || phase==Phase.SPIKES) {
-                // One shared attribution frame per batch, rather than allocating it for every block.
-                game.items().indirectKills().trapChanges(level,owner,this::transformBatch);
-            } else if (phase==Phase.LAVA_TICKS) scheduleLavaBatch();
-            else if (phase==Phase.IMPACT) impactOneEntity();
-            return phase==Phase.FINISHED;
+            game.items().stonekivi().beginNativeWork();try {
+                if (phase==Phase.FINISHED) return true;
+                if (phase==Phase.TRANSFORM || phase==Phase.SPIKES) {
+                    // One shared attribution frame per batch, rather than allocating it for every block.
+                    game.items().indirectKills().trapChanges(level,owner,this::transformBatch);
+                } else if (phase==Phase.LAVA_TICKS) scheduleLavaBatch();
+                else if (phase==Phase.IMPACT) impactOneEntity();
+                return phase==Phase.FINISHED;
+            }finally{game.items().stonekivi().endNativeWork();}
         }
 
         @Override public void cancel() {
-            phase=Phase.FINISHED;
-            observed.clear(); discovered.clear(); frontier.clear(); surfaceBlocks.clear(); lava.clear(); spikes.clear();
-            if (entities!=null) entities.clear();
+            game.items().stonekivi().beginNativeWork();try {
+                phase=Phase.FINISHED;
+                observed.clear(); discovered.clear(); frontier.clear(); surfaceBlocks.clear(); lava.clear(); spikes.clear();
+                if (entities!=null) entities.clear();
+            }finally{game.items().stonekivi().endNativeWork();}
+        }
+
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            game.items().stonekivi().checkpointBoundary();return new Image(graph.links);
+        }
+        private final class Image implements MatchQueuedWorkCheckpoint.Image {
+            final MatchDamageSources.Ref author;
+            final it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<Cell> originals=copyCells(observed);
+            final it.unimi.dsi.fastutil.longs.LongOpenHashSet nodes=discovered.clone(),surface=surfaceBlocks.clone(),fluids=lava.clone();
+            final long[] queue=frontier.image(),reservoir=centerSample.clone(),scheduled=lavaSchedule==null?null:lavaSchedule.clone();
+            final List<Spike> pendingSpikes=List.copyOf(spikes);
+            final List<MatchDamageSources.Ref> victims;
+            final MatchRandomState entropy=MatchRandomState.capture(random);
+            final Phase savedPhase=phase;
+            final int victimCursor=entityCursor,samples=seen,fluidCursor=lavaCursor;
+            final int lowX=minX,lowY=minY,lowZ=minZ,highX=maxX,highY=maxY,highZ=maxZ;
+            final Vec3 centroid=center;final BlockPos scratch=probe.immutable();
+            Image(MatchSpellCheckpoint.Links links){
+                author=links.key(owner);victims=entities==null?null:entities.stream().map(links::key).toList();
+            }
+            public Runnable prepare(MatchSpellCheckpoint.Links links){
+                game.items().stonekivi().checkpointBoundary();MatchAuthorityCheckpoint.world(game,level);
+                var current=(ServerPlayer)links.get(author);
+                var nextEntities=victims==null?null:new ArrayList<>(victims.stream().map(ref->(LivingEntity)links.get(ref)).toList());
+                var nextObserved=copyCells(originals);var nextNodes=nodes.clone();var nextSurface=surface.clone();var nextFluids=fluids.clone();
+                var nextQueue=new Frontier();for(long key:queue)nextQueue.enqueue(key);
+                var nextSchedule=scheduled==null?null:scheduled.clone();
+                return ()->{owner=current;observed=nextObserved;discovered=nextNodes;surfaceBlocks=nextSurface;lava=nextFluids;frontier=nextQueue;
+                    spikes.clear();spikes.addAll(pendingSpikes);System.arraycopy(reservoir,0,centerSample,0,centerSample.length);
+                    lavaSchedule=nextSchedule;lavaCursor=fluidCursor;entities=nextEntities;entityCursor=victimCursor;seen=samples;
+                    minX=lowX;minY=lowY;minZ=lowZ;maxX=highX;maxY=highY;maxZ=highZ;center=centroid;probe.set(scratch);
+                    entropy.restore(random);phase=savedPhase;};
+            }
+        }
+        private static it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<Cell> copyCells(
+                it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<Cell> source){
+            var result=source.clone();for(var entry:result.long2ObjectEntrySet()){
+                var old=entry.getValue();var cell=new Cell(old.original);cell.expected=old.expected;entry.setValue(cell);
+            }return result;
         }
 
         private Cell sample(int x,int y,int z) {
@@ -130,7 +182,7 @@ public final class LbcMagmify {
                 } else if (phase==Phase.SPIKES) {
                     Spike spike=spikes.pollFirst();
                     if (spike==null) {
-                        lavaIterator=lava.iterator(); phase=Phase.LAVA_TICKS; return;
+                        lavaSchedule=lava.toLongArray();lavaCursor=0; phase=Phase.LAVA_TICKS; return;
                     }
                     for (int i=0;i<spike.length;i++) {
                         int x=spike.x+spike.direction.getX()*i, y=spike.y+spike.direction.getY()*i,
@@ -176,7 +228,7 @@ public final class LbcMagmify {
             if (count>=3 && count<6 && random.nextInt(100)<SPIKE_CHANCE_PERCENT) {
                 BlockPos direction=spikeDirection(occupied,random);
                 if (direction!=null && !direction.equals(BlockPos.ZERO))
-                    spikes.addLast(new Spike(x,y,z,direction,random.nextInt(SPIKE_MIN_LENGTH,SPIKE_MAX_LENGTH+1)));
+                    spikes.addLast(new Spike(x,y,z,direction,SPIKE_MIN_LENGTH+random.nextInt(SPIKE_MAX_LENGTH-SPIKE_MIN_LENGTH+1)));
             }
         }
 
@@ -197,13 +249,13 @@ public final class LbcMagmify {
         }
 
         private void scheduleLavaBatch() {
-            for (int i=0;i<NODES_PER_TURN && lavaIterator.hasNext();i++) {
-                long key=lavaIterator.nextLong();
+            for (int i=0;i<NODES_PER_TURN && lavaCursor<lavaSchedule.length;i++) {
+                long key=lavaSchedule[lavaCursor++];
                 probe.set(BlockPos.getX(key),BlockPos.getY(key),BlockPos.getZ(key));
                 if (level.hasChunkAt(probe) && level.getBlockState(probe).is(Blocks.LAVA))
                     level.scheduleTick(probe,Fluids.LAVA,1);
             }
-            if (lavaIterator.hasNext()) return;
+            if (lavaCursor<lavaSchedule.length) return;
             if (surfaceBlocks.isEmpty()) { phase=Phase.FINISHED; return; }
             double sumX=0,sumY=0,sumZ=0;
             int count=Math.min(seen,CENTER_SAMPLE_SIZE);
@@ -268,6 +320,15 @@ public final class LbcMagmify {
 
     }
 
+    /** A read-only logical FIFO image, without consuming or reflecting into a live queue. */
+    private static final class Frontier extends it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue {
+        long[] image(){
+            var values=new long[size()];int cursor=start;
+            for(int i=0;i<values.length;i++){values[i]=array[cursor];if(++cursor==length)cursor=0;}
+            return values;
+        }
+    }
+
     private enum Phase { TRANSFORM, SPIKES, LAVA_TICKS, IMPACT, FINISHED }
 
     private static final class Cell {
@@ -277,7 +338,7 @@ public final class LbcMagmify {
     }
     private record Spike(int x,int y,int z,BlockPos direction,int length) { }
 
-    private static BlockPos spikeDirection(int occupiedMask,ThreadLocalRandom random) {
+    private static BlockPos spikeDirection(int occupiedMask,RandomSource random) {
         var occupied=new ArrayList<BlockPos>(6); var free=new ArrayList<BlockPos>(3);
         for (int i=0;i<FACE_NEIGHBORS.size();i++)
             ((occupiedMask&(1<<i))!=0 ? occupied : free).add(FACE_NEIGHBORS.get(i));
@@ -304,7 +365,7 @@ public final class LbcMagmify {
     private static net.minecraft.world.level.block.state.BlockState randomState(
             List<net.minecraft.world.level.block.Block> blocks,
             net.minecraft.world.level.block.Block fallback,
-            ThreadLocalRandom random) {
+            RandomSource random) {
         return blocks.isEmpty() ? fallback.defaultBlockState() : blocks.get(random.nextInt(blocks.size())).defaultBlockState();
     }
     private static List<net.minecraft.world.level.block.Block> collectOreBlocks() {

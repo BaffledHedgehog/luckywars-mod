@@ -119,7 +119,7 @@ public final class LbcBolts {
             new ReforgeRule("metasola","halloween/metasola")};
     private static final net.minecraft.core.particles.DustColorTransitionOptions INFBOLT_DUST=
             new net.minecraft.core.particles.DustColorTransitionOptions(0xff0061,0xffffff,1);
-    private final Map<LbcStonekivi.Work,ServerPlayer> reforgeJobs=new IdentityHashMap<>();
+    private IdentityHashMap<LbcStonekivi.Work,ServerPlayer> reforgeJobs=new IdentityHashMap<>();
 
     private final GameController game;
     private final Set<Bolt> bolts=new LinkedHashSet<>();
@@ -130,13 +130,16 @@ public final class LbcBolts {
     private volatile int preparation;
     private int ticks;
     private int workGeneration;
-    private final Map<ServerPlayer,Integer> ownerWorkGeneration=new IdentityHashMap<>();
+    private IdentityHashMap<ServerPlayer,Integer> ownerWorkGeneration=new IdentityHashMap<>();
+    private int callbackDepth;
+    private volatile boolean preparing;
+    private boolean rewinding;
     private static final net.minecraft.nbt.CompoundTag METEOR_PRESET=meteorPreset();
     // User: ten seconds, free Reforge without an entry threshold, repeating chains.
     private static final int EVERLASTING_TICKS=200;
 
     static class Owned {
-        final ServerPlayer owner;
+        ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
         Vec3 position;
@@ -159,23 +162,32 @@ public final class LbcBolts {
         Water(ServerPlayer owner,Vec3 position,String epoch) { super(owner,position,epoch); }
     }
     static final class Meteor extends Owned {
-        final Display.ItemDisplay display;
+        Display.ItemDisplay display;
         int impactVisualTicks;
         Meteor(ServerPlayer owner,Vec3 position,String epoch,Display.ItemDisplay display) {
             super(owner,position,epoch); this.display=display;
         }
     }
     static final class Chain extends Owned {
-        Set<LivingEntity> current=Collections.newSetFromMap(new IdentityHashMap<>());
+        Set<LivingEntity> current=new ActorSet<>();
         int untilNext=40;
         Chain(ServerPlayer owner,Vec3 position,String epoch) { super(owner,position,epoch); }
     }
     private final LbcChainLightningStatus chainStatus;
     LbcBolts(GameController game) { this.game=game;chainStatus=new LbcChainLightningStatus(game); }
-    public boolean acceptStatus(LivingEntity target,MobEffectInstance effect,Entity source){return chainStatus.accept(target,effect,source);}
-    void observeStatus(LivingEntity target){chainStatus.observe(target);}
+    public boolean acceptStatus(LivingEntity target,MobEffectInstance effect,Entity source){
+        callbackDepth++;try{return chainStatus.accept(target,effect,source);
+        }finally{callbackDepth--;}
+    }
+    void observeStatus(LivingEntity target){
+        callbackDepth++;try{chainStatus.observe(target);
+        }finally{callbackDepth--;}
+    }
     int statusCount(LivingEntity target){return chainStatus.queued(target);}
-    public void clearChainStatus(LivingEntity target){chainStatus.clear(target);}
+    public void clearChainStatus(LivingEntity target){
+        callbackDepth++;try{chainStatus.clear(target);
+        }finally{callbackDepth--;}
+    }
     static void register() { }
     private static Identifier id(String path) { return id("lbc",path); }
     private static Identifier id(String namespace,String path) { return Identifier.fromNamespaceAndPath(namespace,path); }
@@ -185,15 +197,17 @@ public final class LbcBolts {
         } catch(com.mojang.brigadier.exceptions.CommandSyntaxException error) { throw new ExceptionInInitializerError(error); }
     }
     public void prepare() {
-        int generation=++preparation; templates=Map.of();
+        int generation=++preparation; preparing=true;templates=Map.of();
         game.maps().prepareSpellTemplates(List.of(AIR,SNOW)).whenComplete((value,error)-> {
             if(generation!=preparation) return;
             if(error!=null) SkyWars2.LOGGER.error("Boltbolt template preparation failed",error);
             else templates=value;
+            preparing=false;
         });
     }
     public boolean ready() { return templates.size()==2; }
     void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+        callbackDepth++;try{
         // Chain is attached to living targets; it has no independent spell origin.
         transformOrigins(bolts,level,transform);
         transformOrigins(waters,level,transform);
@@ -208,6 +222,8 @@ public final class LbcBolts {
                 if(!meteor.display.isRemoved()) meteor.display.setPos(next);
             }
         }
+
+        }finally{callbackDepth--;}
     }
     private static <T extends Owned> void transformOrigins(Set<T> states,ServerLevel level,
             java.util.function.UnaryOperator<Vec3> transform) {
@@ -277,6 +293,7 @@ public final class LbcBolts {
         return result;
     }
     public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean donor,boolean upgraded) {
+        callbackDepth++;try{
         if(!valid(owner) || castBlocked(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var mana=game.items().mana();
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,donor?3:4):1;
@@ -301,19 +318,27 @@ public final class LbcBolts {
         if(!(donor && mode==2)) game.items().wands().wandCasted(owner);
         else game.items().trinkets().castWand(owner);
         return true;
+
+        }finally{callbackDepth--;}
     }
     boolean grimoire(ServerPlayer owner,int mode) {
+        callbackDepth++;try{
         if(mode==3&&!ready())return false;
         // Library carriers are anchored at the eyes regardless of the consumed hand.
         boltbolt(owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY,mode);
         if(mode==1)LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
         return true;
+
+        }finally{callbackDepth--;}
     }
     /** Academy dispatch calls loop/snow_meteor/watering directly; no rideable-arrow input branch. */
     void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        callbackDepth++;try{
         if(mode==4){wateringAt(owner,origin);return;}
         Vec3 at=rayAt(owner,origin,direction.normalize(),150,mode==3?ParticleTypes.SNOWFLAKE:ParticleTypes.CLOUD,false,false);
         if(at!=null){if(mode==3)meteor(owner,at.add(0,50,0));else terminal(owner,hand,stack,at,false);}
+
+        }finally{callbackDepth--;}
     }
 
     private void boltbolt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
@@ -363,14 +388,21 @@ public final class LbcBolts {
         return point;
     }
     void libraryChainArea(ServerPlayer owner,Vec3 at,double radius){
+        callbackDepth++;try{
         var chain=new Chain(owner,at,game.items().epoch());chain.current.addAll(chainTargets(owner,at,radius));
         if(!chain.current.isEmpty())chains.add(chain);
+
+        }finally{callbackDepth--;}
     }
     void libraryDonor(ServerPlayer owner,int mode){
+        callbackDepth++;try{
         donor(owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY,mode,mode!=1);
         LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
+
+        }finally{callbackDepth--;}
     }
     private void donor(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean upgraded) {
+        callbackDepth++;try{
         Vec3 at=ray(owner,hand,mode==2?7:100,mode==2?REFORGE_DUST:ParticleTypes.END_ROD,mode==2,mode==3);
         if(at==null) return;
         if(mode==2) { reforge(owner,at); return; }
@@ -392,12 +424,15 @@ public final class LbcBolts {
                 if(count>=4) game.items().academy().ready(owner,hand,stack);
             }
         }
+
+        }finally{callbackDepth--;}
     }
     private static boolean transformable(ItemStack stack) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("transformable",0)==1;
     }
     /** Ordinary Infinite Bolt is a free, short ray; living entities never terminate it. */
     public boolean useInfbolt(ServerPlayer owner,InteractionHand hand,ItemStack stack) {
+        callbackDepth++;try{
         if(!valid(owner) || castBlocked(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle().normalize();
         Vec3 far=from.add(direction.scale(7));
@@ -425,6 +460,8 @@ public final class LbcBolts {
         }
         LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
         return true;
+
+        }finally{callbackDepth--;}
     }
     private void reforge(ServerPlayer owner,Vec3 at) {
         reforge(owner,at,false);
@@ -479,11 +516,14 @@ public final class LbcBolts {
         return rollReforge(context,context.position(),tables);
     }
     List<ItemStack> rollReforge(Entity context,Vec3 origin,List<String> tables) {
+        callbackDepth++;try{
         var output=new ArrayList<ItemStack>();
         for(String table:tables)
             output.addAll(game.lbc().rollTable((ServerLevel)context.level(),origin,context,"lbc:"+table));
         output.removeIf(ItemStack::isEmpty);
         return output;
+
+        }finally{callbackDepth--;}
     }
     /** Exact donor, explicit unit budget and delivery context; never captures nearby inputs. */
     private ReforgeInput reforgeInput(ItemEntity item,ReforgeFamily family,int units,ServerPlayer recipient,
@@ -495,12 +535,13 @@ public final class LbcBolts {
         return reforgeInput(item,ReforgeFamily.LIGHTNING,item.getItem().getCount(),null,null);
     }
     final class ReforgeInput implements LbcStonekivi.Work {
-        final ItemEntity item;
-        final ItemStack input,snapshot;
+        ItemEntity item;
+        ItemStack input;
+        final ItemStack snapshot;
         final ServerLevel level;
         final String epoch;
         final ReforgeFamily family;
-        final ServerPlayer recipient;
+        ServerPlayer recipient;
         final java.util.function.Consumer<ItemStack> delivery;
         int remaining,units,converted;
         boolean convertedArrowStack;
@@ -512,6 +553,7 @@ public final class LbcBolts {
         }
         public boolean step() { return step(recipient,delivery); }
         boolean step(ServerPlayer awardRecipient,java.util.function.Consumer<ItemStack> sink) {
+            callbackDepth++;try{
             if(item.isRemoved() || item.level()!=level || item.getItem()!=input || !epoch.equals(game.items().epoch())
                     || input.getCount()!=remaining || !ItemStack.isSameItemSameComponents(input,snapshot)
                     || !level.hasChunkAt(item.blockPosition())) return true;
@@ -530,10 +572,23 @@ public final class LbcBolts {
             if(awardRecipient!=null) game.items().mana().award(awardRecipient,"lbc:true_advancements/"
                     +(family==ReforgeFamily.ULTRA?"lightning_smith_ultra":"lightning_smith"));
             return remaining==0 || units==0;
+
+            }finally{callbackDepth--;}
         }
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();if(delivery!=null)throw new IllegalStateException("Opaque retained reforge delivery requires a reviewed adapter");
+            var itemRef=graph.links.key(item);if(itemRef.historical()!=null)throw new IllegalStateException("Detached reforge input requires a canonical native item-body owner");var recipientRef=graph.links.key(recipient);boolean bound=item.getItem()==input;
+            var value=input.copy();int savedRemaining=remaining,savedUnits=units,savedConverted=converted;boolean arrow=convertedArrowStack;
+            return links->{var current=(ItemEntity)links.get(itemRef);var owner=(ServerPlayer)links.get(recipientRef);
+                var restoredInput=bound?current.getItem():value.copy();
+                if(bound&&!ItemStack.matches(restoredInput,value))throw new IllegalStateException("Restore canonical native reforge input stack before private work");
+                return ()->{item=current;input=restoredInput;recipient=owner;remaining=savedRemaining;units=savedUnits;converted=savedConverted;convertedArrowStack=arrow;};};
+        }
+
     }
     /** Capture inputs once so this cast never reforges the outputs it creates. */
     private void reforge(ServerPlayer owner,Vec3 at,boolean ultra) {
+        callbackDepth++;try{
         var jobs=new ArrayDeque<LbcStonekivi.Work>();
         var state=new Owned(owner,at,game.items().epoch());
         for(var item:owner.level().getEntitiesOfClass(ItemEntity.class,new AABB(at,at).inflate(1),
@@ -544,21 +599,11 @@ public final class LbcBolts {
             if(input!=null) jobs.add(input);
         }
         if(jobs.isEmpty()) return;
-        int generation=workGeneration,ownerGeneration=ownerWorkGeneration.getOrDefault(owner,0);
-        var job=new LbcStonekivi.Work() {
-            public boolean step() {
-                if(!valid(state) || generation!=workGeneration || ownerGeneration!=ownerWorkGeneration.getOrDefault(owner,0)) { cancel(); return true; }
-                if(paused(owner)) return false;
-                long deadline=System.nanoTime()+1_000_000;
-                for(int units=0;units<8 && !jobs.isEmpty() && System.nanoTime()<deadline;units++)
-                    if(jobs.peek().step()) jobs.remove();
-                if(jobs.isEmpty()) { reforgeJobs.remove(this); return true; }
-                return false;
-            }
-            public void cancel() { jobs.clear(); reforgeJobs.remove(this); }
-        };
+        var job=new ReforgeJob(state,jobs);
         reforgeJobs.put(job,owner);
         game.items().stonekivi().queuedWork(job);
+
+        }finally{callbackDepth--;}
     }
     int pendingReforgeCount() { return reforgeJobs.size(); }
     void flushReforgeJobs() { game.items().stonekivi().tick(); }
@@ -566,6 +611,7 @@ public final class LbcBolts {
         terminal(owner,hand,stack,at,true);
     }
     private void terminal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 at,boolean trial) {
+        callbackDepth++;try{
         game.items().electro().lightning(owner,at);
         for(var offset:OFFSETS) bolts.add(new Bolt(owner,at.add(offset),game.items().epoch()));
         for(var target:projectileTargets(owner,at,5)) {
@@ -573,15 +619,20 @@ public final class LbcBolts {
             if(trial && LbcAcademy.trial(stack) && game.items().electro().shocks(target)>=60) game.items().academy().ready(owner,hand,stack);
         }
         game.server().setWeatherParameters(0,1200,true,true);
+
+        }finally{callbackDepth--;}
     }
     /** Field of Lightning shares Boltbolt's steering, strikes and lifecycle. */
     void homingField(ServerPlayer owner,int lifetime) {
+        callbackDepth++;try{
         Vec3 origin=owner.position();
         String epoch=game.items().epoch();
         for(int i=0;i<20;i++) {
             Vec3 at=origin.add(owner.getRandom().nextInt(201)-100,0,owner.getRandom().nextInt(201)-100);
             bolts.add(new Bolt(owner,at,epoch,lifetime,20));
         }
+
+        }finally{callbackDepth--;}
     }
     private void watering(ServerPlayer owner) {
         owner.addEffect(ItemEffectLevels.create(MobEffects.WATER_BREATHING,4800,0));
@@ -593,6 +644,7 @@ public final class LbcBolts {
         for(int i=0;i<4;i++) waters.add(new Water(owner,origin.add(OFFSETS[i].scale(.5)),game.items().epoch()));
     }
     private void meteor(ServerPlayer owner,Vec3 at) {
+        callbackDepth++;try{
         if(!owner.level().hasChunkAt(BlockPos.containing(at))) return;
         var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());
         display.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,owner.registryAccess(),METEOR_PRESET.copy()));
@@ -600,25 +652,39 @@ public final class LbcBolts {
         var meteor=new Meteor(owner,at,game.items().epoch(),display); meteors.add(meteor);
         if(!owner.level().addFreshEntity(display)) { meteors.remove(meteor); display.discard(); }
         LbcOverload.sound(owner,at,"minecraft:entity.lightning_bolt.thunder",19,0,0);
+
+        }finally{callbackDepth--;}
     }
     void loaded(Entity entity) {
+        callbackDepth++;try{
+        if(rewinding)return;
         if(entity instanceof LivingEntity living)chainStatus.loaded(living);
         if(entity.entityTags().contains("skywars2.boltbolt.meteor")
                 && meteors.stream().noneMatch(meteor->meteor.display==entity)) entity.discard();
+
+        }finally{callbackDepth--;}
     }
     void unloaded(Entity entity) {
+        callbackDepth++;try{
+        if(rewinding)return;
         for(var meteor:List.copyOf(meteors)) if(meteor.display==entity) {
             meteors.remove(meteor);
             if(!entity.isRemoved()) entity.discard();
         }
         if(entity instanceof LivingEntity living){chainStatus.unloaded(living);for(var chain:chains)chain.current.remove(living);chains.removeIf(chain->chain.current.isEmpty());}
+
+        }finally{callbackDepth--;}
     }
     public void clearEffects(LivingEntity target) {
+        callbackDepth++;try{
         chainStatus.clear(target);
         for(var chain:chains) chain.current.remove(target);
         chains.removeIf(chain->chain.current.isEmpty());
+
+        }finally{callbackDepth--;}
     }
     public void forget(ServerPlayer owner) {
+        callbackDepth++;try{
         chainStatus.forget(owner);
         ownerWorkGeneration.merge(owner,1,Integer::sum);
         for(var entry:List.copyOf(reforgeJobs.entrySet())) if(entry.getValue()==owner) entry.getKey().cancel();
@@ -628,9 +694,12 @@ public final class LbcBolts {
             meteors.remove(state);
             if(!state.display.isRemoved()) state.display.discard();
         }
+
+        }finally{callbackDepth--;}
     }
     public void stop() {
-        chainStatus.stop();
+        callbackDepth++;try{
+        rewinding=false;chainStatus.stop();
         workGeneration++; ownerWorkGeneration.clear();
         for(var job:List.copyOf(reforgeJobs.keySet())) job.cancel();
         bolts.clear(); waters.clear(); chains.clear();
@@ -638,8 +707,12 @@ public final class LbcBolts {
             meteors.remove(meteor);
             if(!meteor.display.isRemoved()) meteor.display.discard();
         }
+
+        }finally{callbackDepth--;}
     }
     public void tick() {
+        callbackDepth++;try{
+        if(rewinding)return;
         if(game.stage()==GameController.Stage.LOADING || game.stage()==GameController.Stage.ENDING) { stop(); return; }
         if(game.items().wands().timeStopped()) return;
         ticks++;chainStatus.tick();
@@ -666,6 +739,8 @@ public final class LbcBolts {
             bolt.level.sendParticles(ParticleTypes.SCULK_SOUL,bolt.position.x,bolt.position.y,bolt.position.z,1,0,0,0,0);
         }
         tickChains(); tickWater(); tickMeteors();
+
+        }finally{callbackDepth--;}
     }
     private void tickChains() {
         for(var chain:List.copyOf(chains)) {
@@ -675,7 +750,7 @@ public final class LbcBolts {
             if(paused(chain.owner)) continue;
             if(ticks%5==0) for(var target:chain.current) chain.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,target.getX(),target.getY()+1,target.getZ(),3,.3,.5,.3,0);
             if(--chain.untilNext>0) continue; chain.untilNext=40;
-            Set<LivingEntity> next=Collections.newSetFromMap(new IdentityHashMap<>());
+            Set<LivingEntity> next=new ActorSet<>();
             for(var target:List.copyOf(chain.current)) {
                 game.items().electro().lightning(chain.owner,target.position());
                 for(var nearby:chainTargets(chain.owner,target.position(),16))
@@ -734,6 +809,7 @@ public final class LbcBolts {
         }
     }
     private void explode(Meteor meteor) {
+        callbackDepth++;try{
         var owner=meteor.owner; Vec3 at=meteor.position; BlockPos center=BlockPos.containing(at);
         meteor.level.sendParticles(ParticleTypes.SNOWFLAKE,at.x,at.y,at.z,1000,3,3,3,1.5);
         for(var target:projectileTargets(owner,at,10)) {
@@ -752,30 +828,12 @@ public final class LbcBolts {
         game.items().stonekivi().queuedWork(sequence(meteor,jobs));
         for(float pitch:new float[]{0,1,2}) LbcOverload.sound(owner,at,"minecraft:block.snow.fall",2,pitch,0);
         LbcOverload.sound(owner,at,"minecraft:entity.dragon_fireball.explode",2,0,0);
+
+        }finally{callbackDepth--;}
     }
     private void queue(Owned state,BlockAreaWork work) { game.items().stonekivi().queuedWork(blockWork(state,work)); }
-    private LbcStonekivi.Work blockWork(Owned state,BlockAreaWork work) {
-        int generation=workGeneration,ownerGeneration=ownerWorkGeneration.getOrDefault(state.owner,0);
-        return new LbcStonekivi.Work() {
-            public boolean step() {
-                if(!valid(state) || generation!=workGeneration || ownerGeneration!=ownerWorkGeneration.getOrDefault(state.owner,0)) { work.clear(); return true; }
-                if(paused(state.owner)) return false;
-                work.step(game,state.owner,512,System.nanoTime()+1_000_000); return !work.hasWork();
-            }
-            public void cancel() { work.clear(); }
-        };
-    }
-    private LbcStonekivi.Work sequence(Owned state,ArrayDeque<LbcStonekivi.Work> jobs) {
-        int generation=workGeneration,ownerGeneration=ownerWorkGeneration.getOrDefault(state.owner,0);
-        return new LbcStonekivi.Work() {
-            public boolean step() {
-                if(!valid(state) || generation!=workGeneration || ownerGeneration!=ownerWorkGeneration.getOrDefault(state.owner,0)) { cancel(); return true; }
-                if(paused(state.owner)) return false;
-                if(!jobs.isEmpty() && jobs.peek().step()) jobs.remove(); return jobs.isEmpty();
-            }
-            public void cancel() { jobs.forEach(LbcStonekivi.Work::cancel); jobs.clear(); }
-        };
-    }
+    private LbcStonekivi.Work blockWork(Owned state,BlockAreaWork work) {return new OwnedBlockWork(state,work);}
+    private LbcStonekivi.Work sequence(Owned state,ArrayDeque<LbcStonekivi.Work> jobs) {return new OwnedSequence(state,jobs);}
     private LbcStonekivi.Work template(Owned state,Identifier id,BlockPos origin) {
         var jobs=new ArrayDeque<LbcStonekivi.Work>(); long seed=state.owner.getRandom().nextLong();
         for(var part:templates.getOrDefault(id,List.of())) {
@@ -784,13 +842,145 @@ public final class LbcBolts {
             if(minY>maxY) continue;
             for(int cx=minX>>4;cx<=maxX>>4;cx++) for(int cz=minZ>>4;cz<=maxZ>>4;cz++) {
                 var bounds=new BoundingBox(Math.max(minX,cx*16),minY,Math.max(minZ,cz*16),Math.min(maxX,cx*16+15),maxY,Math.min(maxZ,cz*16+15));
-                jobs.add(()-> {
-                    if(!valid(state) || !state.level.hasChunkAt(new BlockPos(bounds.minX(),minY,bounds.minZ()))) return true;
-                    game.items().indirectKills().trapChanges(state.owner,()->game.maps().placeMapSlice(state.level,part.template(),origin,
-                            new StructurePlaceSettings().setIgnoreEntities(true).setKnownShape(true).setBoundingBox(bounds),seed)); return true;
-                });
+                jobs.add(new TemplateWork(state,part,origin,bounds,minY,seed));
             }
         }
         return sequence(state,jobs);
     }
+    /** Identity-table slots survive canonical body replacement without changing traversal. */
+    private static final class ActorSet<T extends Entity> extends java.util.AbstractSet<T> {
+        private IdentityHashMap<T,T> slots=new IdentityHashMap<>();
+        @Override public java.util.Iterator<T> iterator(){return slots.values().iterator();}
+        @Override public int size(){return slots.size();}
+        @Override public boolean contains(Object value){return slots.containsValue(value);}
+        @Override public boolean add(T value){if(slots.containsValue(value))return false;slots.put(value,value);return true;}
+        @Override public boolean remove(Object value){return slots.entrySet().removeIf(e->e.getValue()==value);}
+        @Override public void clear(){slots.clear();}
+    }
+    private static final class ActorSetImage {
+        private final IdentityHashMap<LivingEntity,LivingEntity> table;
+        private final IdentityHashMap<LivingEntity,MatchDamageSources.Ref> refs=new IdentityHashMap<>();
+        @SuppressWarnings("unchecked") ActorSetImage(Set<LivingEntity> actors,MatchSpellCheckpoint.Links links){
+            if(!(actors instanceof ActorSet<?>))throw new IllegalStateException("Unreviewed lightning target registry");
+            table=(IdentityHashMap<LivingEntity,LivingEntity>)((ActorSet<LivingEntity>)actors).slots.clone();
+            table.forEach((slot,actor)->refs.put(slot,links.key(actor)));
+        }
+        @SuppressWarnings("unchecked") Set<LivingEntity> prepare(MatchSpellCheckpoint.Links links){
+            var result=new ActorSet<LivingEntity>();result.slots=(IdentityHashMap<LivingEntity,LivingEntity>)table.clone();
+            refs.forEach((slot,ref)->result.slots.put(slot,(LivingEntity)links.get(ref)));return result;
+        }
+    }
+    /** Same accepted state object is shared by registries and every queued producer. */
+    private final class OwnedImage {
+        private final Owned state;
+        private final MatchDamageSources.Ref owner,display;
+        private final Vec3 position;
+        private final int age,impact,until;
+        private final ActorSetImage targets;
+        OwnedImage(Owned state,MatchSpellCheckpoint.Links links){
+            this.state=state;owner=links.key(state.owner);position=state.position;age=state.age;
+            if(state.getClass()!=Owned.class&&!(state instanceof Bolt||state instanceof Water||state instanceof Meteor||state instanceof Chain))throw new IllegalStateException("Unreviewed bolt state");
+            display=state instanceof Meteor meteor?links.key(meteor.display):null;
+            impact=state instanceof Meteor meteor?meteor.impactVisualTicks:0;
+            until=state instanceof Chain chain?chain.untilNext:0;
+            targets=state instanceof Chain chain?new ActorSetImage(chain.current,links):null;
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            MatchAuthorityCheckpoint.world(game,state.level);var current=(ServerPlayer)links.get(owner);
+            var body=display==null?null:(Display.ItemDisplay)links.get(display);var currentTargets=targets==null?null:targets.prepare(links);
+            return ()->{state.owner=current;state.position=position;state.age=age;
+                if(state instanceof Meteor meteor){meteor.display=body;meteor.impactVisualTicks=impact;}
+                if(state instanceof Chain chain){chain.current=currentTargets;chain.untilNext=until;}};
+        }
+    }
+    private abstract class OwnedWork implements LbcStonekivi.Work {
+        final Owned state;final int generation,ownerGeneration;
+        OwnedWork(Owned state){this.state=state;generation=workGeneration;ownerGeneration=ownerWorkGeneration.getOrDefault(state.owner,0);}
+        boolean invalid(){return !valid(state)||generation!=workGeneration||ownerGeneration!=ownerWorkGeneration.getOrDefault(state.owner,0);}
+    }
+    private final class OwnedBlockWork extends OwnedWork {
+        final BlockAreaWork work;
+        OwnedBlockWork(Owned state,BlockAreaWork work){super(state);this.work=work;}
+        @Override public boolean step(){callbackDepth++;try{
+            if(invalid()){work.clear();return true;}if(paused(state.owner))return false;
+            work.step(game,state.owner,512,System.nanoTime()+1_000_000);return !work.hasWork();
+        }finally{callbackDepth--;}}
+        @Override public void cancel(){work.clear();}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var actor=new OwnedImage(state,graph.links);var blocks=work.checkpoint();
+            return links->{var owner=actor.prepare(links);return ()->{owner.run();blocks.restore();};};
+        }
+    }
+    private class OwnedSequence extends OwnedWork {
+        final ArrayDeque<LbcStonekivi.Work> jobs;
+        OwnedSequence(Owned state,ArrayDeque<LbcStonekivi.Work> jobs){super(state);this.jobs=jobs;}
+        @Override public boolean step(){callbackDepth++;try{
+            if(invalid()){cancel();return true;}if(paused(state.owner))return false;
+            if(!jobs.isEmpty()&&jobs.peek().step())jobs.remove();return jobs.isEmpty();
+        }finally{callbackDepth--;}}
+        @Override public void cancel(){callbackDepth++;try{jobs.forEach(LbcStonekivi.Work::cancel);jobs.clear();}finally{callbackDepth--;}}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var actor=new OwnedImage(state,graph.links);var saved=List.copyOf(jobs);saved.forEach(graph::capture);
+            return links->{var owner=actor.prepare(links);return ()->{owner.run();jobs.clear();jobs.addAll(saved);};};
+        }
+    }
+    private final class ReforgeJob extends OwnedSequence {
+        ReforgeJob(Owned state,ArrayDeque<LbcStonekivi.Work> jobs){super(state,jobs);}
+        @Override public boolean step(){callbackDepth++;try{
+            if(invalid()){cancel();return true;}if(paused(state.owner))return false;
+            long deadline=System.nanoTime()+1_000_000;
+            for(int units=0;units<8&&!jobs.isEmpty()&&System.nanoTime()<deadline;units++)if(jobs.peek().step())jobs.remove();
+            if(jobs.isEmpty()){reforgeJobs.remove(this);return true;}return false;
+        }finally{callbackDepth--;}}
+        @Override public void cancel(){callbackDepth++;try{jobs.clear();reforgeJobs.remove(this);}finally{callbackDepth--;}}
+    }
+    private final class TemplateWork implements LbcStonekivi.Work {
+        final Owned state;final MapManager.TemplateSlice part;final BlockPos origin;final BoundingBox bounds;final int minY;final long seed;
+        TemplateWork(Owned state,MapManager.TemplateSlice part,BlockPos origin,BoundingBox bounds,int minY,long seed){
+            this.state=state;this.part=part;this.origin=origin.immutable();this.bounds=bounds;this.minY=minY;this.seed=seed;
+        }
+        @Override public boolean step(){callbackDepth++;try{
+            if(!valid(state)||!state.level.hasChunkAt(new BlockPos(bounds.minX(),minY,bounds.minZ())))return true;
+            game.items().indirectKills().trapChanges(state.owner,()->game.maps().placeMapSlice(state.level,part.template(),origin,
+                    new StructurePlaceSettings().setIgnoreEntities(true).setKnownShape(true).setBoundingBox(bounds),seed));return true;
+        }finally{callbackDepth--;}}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();var actor=new OwnedImage(state,graph.links);return actor::prepare;
+        }
+    }
+    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish bolt tick/placement/reforge/status callbacks before checkpointing");chainStatus.checkpointBoundary();}
+    private void preparationBoundary(){if(preparing)throw new IllegalStateException("Finish read-only bolt template preparation before checkpointing");}
+    void prepareFrozen(){checkpointBoundary();chainStatus.prepareFrozen();rewinding=true;}
+    void publishFrozen(){checkpointBoundary();chainStatus.publishFrozen();rewinding=false;}
+    void cancelFrozen(){checkpointBoundary();chainStatus.cancelFrozen();rewinding=false;}
+    Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){return new Checkpoint(graph);}
+    final class Checkpoint {
+        private final List<Bolt> savedBolts=List.copyOf(bolts);
+        private final List<Water> savedWaters=List.copyOf(waters);
+        private final List<Meteor> savedMeteors=List.copyOf(meteors);
+        private final List<Chain> savedChains=List.copyOf(chains);
+        private final List<OwnedImage> states=new ArrayList<>();
+        private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Integer> owners;
+        private final LbcChainLightningStatus.Checkpoint status;
+        private final IdentityHashMap<LbcStonekivi.Work,ServerPlayer> jobs;
+        private final IdentityHashMap<LbcStonekivi.Work,MatchDamageSources.Ref> authors=new IdentityHashMap<>();
+        private final Map<Identifier,List<MapManager.TemplateSlice>> savedTemplates;
+        private final int savedTicks=ticks,savedGeneration=workGeneration,savedPreparation=preparation;
+        @SuppressWarnings("unchecked") Checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();preparationBoundary();savedTemplates=templates;if(rewinding)throw new IllegalStateException("Publish bolt native bodies before capture");
+            owners=new MatchSpellCheckpoint.IdentityImage<>(ownerWorkGeneration,graph.links);status=chainStatus.checkpoint(graph.links);
+            for(var state:savedBolts)states.add(new OwnedImage(state,graph.links));for(var state:savedWaters)states.add(new OwnedImage(state,graph.links));
+            for(var state:savedMeteors)states.add(new OwnedImage(state,graph.links));for(var state:savedChains)states.add(new OwnedImage(state,graph.links));
+            jobs=(IdentityHashMap<LbcStonekivi.Work,ServerPlayer>)reforgeJobs.clone();
+            jobs.forEach((work,owner)->{authors.put(work,graph.links.key(owner));graph.capture(work);});
+        }
+        @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();preparationBoundary();var statusPlan=status.prepare(links);var ownerMap=owners.restore(links);var actors=states.stream().map(state->state.prepare(links)).toList();
+            var restoredJobs=(IdentityHashMap<LbcStonekivi.Work,ServerPlayer>)jobs.clone();authors.forEach((work,ref)->restoredJobs.put(work,(ServerPlayer)links.get(ref)));
+            return ()->{statusPlan.run();actors.forEach(Runnable::run);bolts.clear();bolts.addAll(savedBolts);waters.clear();waters.addAll(savedWaters);
+                meteors.clear();meteors.addAll(savedMeteors);chains.clear();chains.addAll(savedChains);reforgeJobs=restoredJobs;ownerWorkGeneration=ownerMap;
+                templates=savedTemplates;ticks=savedTicks;workGeneration=savedGeneration;preparation=savedPreparation;};
+        }
+    }
+
 }
