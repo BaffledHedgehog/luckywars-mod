@@ -12,6 +12,8 @@ final class MatchSpellCheckpoint {
         private final MatchDamageSources sources;
         private final Map<MatchDamageSources.Ref,Body> saved=new LinkedHashMap<>();
         private Map<MatchDamageSources.Ref,Entity> current;
+        private MatchItemStackLinks stacks;
+        MatchItemStackLinks.Ref stack(GameController game,net.minecraft.world.item.ItemStack stack){if(stacks==null)stacks=new MatchItemStackLinks(game,this);return stacks.capture(stack);}
         Links(MatchDamageSources sources){this.sources=sources;}
         MatchDamageSources.Ref key(Entity entity){
             if(entity==null)return null;var ref=sources.bodyRef(entity);
@@ -22,7 +24,7 @@ final class MatchSpellCheckpoint {
             saved.forEach((ref,body)->{var entity=MatchDamageSources.resolve(ref,lookup,pending);
                 if(entity!=null){if(entity.getClass()!=body.kind||ref.historical()==null&&(entity.isRemoved()||entity.level()!=body.level))
                     throw new IllegalStateException("Restore captured spell bodies/dimensions before private links");next.put(ref,entity);}});
-            current=pending.isEmpty()?next:null;return Set.copyOf(pending);
+            current=pending.isEmpty()?next:null;if(current!=null&&stacks!=null)stacks.resolve();return Set.copyOf(pending);
         }
         Entity get(MatchDamageSources.Ref ref){return ref==null?null:Objects.requireNonNull(current.get(ref));}
     }

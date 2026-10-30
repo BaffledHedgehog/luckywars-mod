@@ -65,11 +65,12 @@ final class VanityBatchScene {
         require(rejected&&!future.isDone()&&searches.getLast()==untyped&&area.queuedBlockCount()==22,"opaque external future rejects without dropping/completing it or mutating earlier jobs");require(searches.removeLast()==untyped,"remove only fixture-owned untyped search");future.cancel(false);
     }
     void verify(ServerPlayer gamma){verify(gamma,0);}
-    void verify(ServerPlayer gamma,int extra){
+    void verify(ServerPlayer gamma,int extra){verify(gamma,extra,List.of());}
+    void verify(ServerPlayer gamma,int extra,List<Object> extraWork){
         var actors=VanityBatchScene.<Map<Entity,Object>>get(gluttony,"actors");require(actors.size()==1&&actors.containsKey(rabbit)&&VanityBatchScene.<Integer>get(actors.get(rabbit),"ticks")==age&&VanityBatchScene.<Object>get(actors.get(rabbit),"source")==policy,"Gluttony actor source identity and age restored");
         require(VanityBatchScene.<Integer>get(gluttony,"phase")==cadence&&VanityBatchScene.<Set<?>>get(gluttony,"pending").equals(Set.of(LbcWitchGluttony.Kind.SNAKE)),"logical cadence and pending cast restored");
         require(VanityBatchScene.<Set<?>>get(gluttony,"terrain").equals(Set.of(work))&&area.queuedBlockCount()==22&&!VanityBatchScene.<Boolean>get(work,"cancelled"),"same owned terrain job and independent22-cell bitmap return");
-        var queue=VanityBatchScene.<ArrayDeque<?>>get(game.items().stonekivi(),"work");require(queue.size()==1&&queue.getFirst()==work,"dispatcher membership aliases the same owner job");
+        var queue=VanityBatchScene.<ArrayDeque<?>>get(game.items().stonekivi(),"work");var expectedWork=new ArrayList<Object>();expectedWork.add(work);expectedWork.addAll(extraWork);require(List.copyOf(queue).equals(expectedWork),"dispatcher membership aliases exactly the original owner jobs in captured order");
         var searches=VanityBatchScene.<ArrayDeque<?>>get(game.items().exasperato(),"searches");require(searches.size()==1+extra&&searches.getFirst()==ray&&VanityBatchScene.<Vec3>get(ray,"position").equals(cursor)&&VanityBatchScene.<Double>get(ray,"remaining")==left&&!VanityBatchScene.<Boolean>get(ray,"finished")&&VanityBatchScene.<Object>get(ray,"owner")==gamma,"typed ray terminal, current caster and exact partial position replay without completed future reset");
         require(fpv.snapshot().equals(List.of(drone))&&!drone.retired&&fpv.controlling(gamma)&&fpv.ticketCount()==1&&fpv.explosions()==blasts,"FPV actor/private retirement/current-body controller and unique body ticket restore");
         var s=VanityBatchScene.<Map<UUID,Object>>get(fpv,"controllers").get(gamma.getUUID());require(VanityBatchScene.<Object>get(s,"player")==gamma&&VanityBatchScene.<Object>get(s,"drone")==drone&&VanityBatchScene.<Float>get(s,"yaw")==87&&VanityBatchScene.<Float>get(s,"pitch")==-17,"saved control aim is separate from restored physical body pose");

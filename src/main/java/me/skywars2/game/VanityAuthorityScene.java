@@ -34,6 +34,8 @@ final class VanityAuthorityScene {
         base.owner.entityTags().add("sin_indolence");base.other.entityTags().add("sin_indolence");
         var original=base.owner.getMainHandItem().copy();var flags=new CompoundTag();flags.putInt("indolence",1);var claw=new ItemStack(Items.PAPER);claw.set(DataComponents.CUSTOM_DATA,CustomData.of(flags));base.owner.setItemInHand(InteractionHand.MAIN_HAND,claw);game.items().mana().score(base.owner,"indolence_cd").set(0);
         require(hands.use(base.owner,InteractionHand.MAIN_HAND),"real source claw creates hand formation");set(hands,"lastTick",Integer.MIN_VALUE);hands.tick();base.owner.setItemInHand(InteractionHand.MAIN_HAND,original);
+        // State replay witnesses stay in open air; gameplay checks cover the random source formation.
+        for(var flight:hands.snapshot()){flight.setPos(base.at.add(0,8,-8));flight.setYRot(0);flight.setXRot(0);}
         hand=hands.snapshot().getFirst();age=hands.age(hand);handPolicy=game.items().spellSources().source(hand);require(age==1&&handPolicy!=null,"one actual flight step before freeze");
         finger=(Skeleton)invoke(fingers,"spawn",new Class<?>[]{ServerPlayer.class,net.minecraft.server.level.ServerLevel.class,Vec3.class},base.other,base.other.level(),base.at.add(-12,1,-12));require(finger!=null,"real finger payload");finger.setNoAi(true);finger.setNoGravity(true);
         original=base.other.getMainHandItem().copy();require(fingers.prepareDeath(base.other),"native Beta rebirth payload");fingers.respawned(base.other);base.other.setItemInHand(InteractionHand.MAIN_HAND,original);

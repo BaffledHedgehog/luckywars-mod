@@ -47,13 +47,21 @@ public final class LbcRewardTools {
         double range=kind.equals("krazha")?65:kind.equals("shetka")?9:16;
         ParticleOptions dust=kind.equals("krazha")?new DustColorTransitionOptions(0x260049,0,1)
                 :kind.equals("shetka")?new DustParticleOptions(0xffffff,.5f):ParticleTypes.END_ROD;
-        game.items().exasperato().searchTool(player,from,direction,range,kind.equals("shetka"),
-                (pos,state)->kind.equals("shetka")?!state.isAir():!state.is(net.minecraft.tags.TagKey.create(
-                        net.minecraft.core.registries.Registries.BLOCK,Identifier.withDefaultNamespace("airs"))),
-                e->e!=player&&e instanceof LivingEntity&&game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e),
-                (a,b)->{double distance=a.distanceTo(b);double step=kind.equals("shetka")?.15:kind.equals("krazha")?.5:.4;
-                    for(double d=0;d<=distance;d+=step){var p=a.add(direction.scale(d));level.sendParticles(dust,true,false,p.x,p.y,p.z,1,0,0,0,.01);}},
-                kind.equals("lightning_bolt")).thenAccept(hit->{
+        game.items().exasperato().replayableTool(player,from,direction,range,kind.equals("shetka"),
+                new ToolAim(game,player,hand,stack,kind,direction,dust),kind.equals("lightning_bolt"));
+        return true;
+    }
+    private static final class ToolAim implements LbcExasperato.ReplayableRay {
+        final GameController game;final java.util.UUID author;final net.minecraft.server.level.ServerLevel level;final String epoch,kind;
+        final InteractionHand hand;final net.minecraft.world.phys.Vec3 direction;final ParticleOptions dust;ItemStack stack;
+        ToolAim(GameController game,ServerPlayer player,InteractionHand hand,ItemStack stack,String kind,net.minecraft.world.phys.Vec3 direction,ParticleOptions dust){
+            this.game=game;author=player.getUUID();level=player.level();epoch=game.items().epoch();this.hand=hand;this.stack=stack;this.kind=kind;this.direction=direction;this.dust=dust;
+        }
+        public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return kind.equals("shetka")?!state.isAir():!state.is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK,Identifier.withDefaultNamespace("airs")));}
+        public boolean target(net.minecraft.world.entity.Entity e){return !e.getUUID().equals(author)&&e instanceof LivingEntity&&game.items().wands().validRoleTarget(e,false)&&!LbcGreed.active(e);}
+        public void trail(net.minecraft.world.phys.Vec3 a,net.minecraft.world.phys.Vec3 b){double distance=a.distanceTo(b),step=kind.equals("shetka")?.15:kind.equals("krazha")?.5:.4;
+            for(double d=0;d<=distance;d+=step){var p=a.add(direction.scale(d));level.sendParticles(dust,true,false,p.x,p.y,p.z,1,0,0,0,.01);}}
+        public void complete(HitResult hit){var player=game.server().getPlayerList().getPlayer(author);if(player==null)return;
             if(hit==null||!game.items().currentEpoch(epoch)||!player.isAlive()||player.level()!=level
                     ||!game.canUseGameplayItems(player)||game.items().magic().suppressed(player))return;
             if(kind.equals("krazha")){
@@ -64,8 +72,12 @@ public final class LbcRewardTools {
                         ()->level.setBlock(block.getBlockPos(),Blocks.AIR.defaultBlockState(),3));
                 var p=hit.getLocation();level.sendParticles(new DustParticleOptions(0xffffff,.5f),p.x,p.y,p.z,5,0,0,0,.2);
             }else if(kind.equals("lightning_bolt"))game.items().electro().lightning(player,hit.getLocation());
-        });
-        return true;
+
+        }
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
+            if(!kind.equals("krazha"))return ignored->()->{};var item=links.stack(game,stack);
+            return current->{var rebound=item.get(current);return ()->stack=rebound;};
+        }
     }
     /** Full stacks/components transfer exactly once. Failure never consumes the glove. */
     static boolean steal(GameController game,ServerPlayer player,InteractionHand hand,LivingEntity target){

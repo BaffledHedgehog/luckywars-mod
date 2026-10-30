@@ -157,15 +157,28 @@ public final class LateSwordChecks {
                 game.spectators().remove(owner);saved.restore(game);game.lbc().syncRanked();game.players().save();
             }
         }
+        boolean melee(Cow target){
+            target.setInvulnerableTime(0);target.damageCooldownTime=0;float before=target.getHealth();
+            var tickers=new LinkedHashMap<java.lang.reflect.Field,Integer>();
+            try{for(var name:List.of("attackStrengthTicker","itemSwapTicker")){
+                Class<?> type=base.owner.getClass();java.lang.reflect.Field field=null;
+                while(type!=null&&field==null){try{field=type.getDeclaredField(name);}catch(NoSuchFieldException ignored){type=type.getSuperclass();}}
+                if(field==null)throw new NoSuchFieldException(name);field.setAccessible(true);tickers.put(field,field.getInt(base.owner));field.setInt(base.owner,200);
+            }base.owner.attack(target);}catch(ReflectiveOperationException error){throw new IllegalStateException("native charged-sword melee fixture",error);}
+            finally{try{for(var entry:tickers.entrySet())entry.getKey().setInt(base.owner,entry.getValue());}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
+            return target.getHealth()<before;
+        }
         void chargeHooks(){
-            var target=cow(origin.add(0,0,8),200);held("triple_golden_sword",InteractionHand.MAIN_HAND);score("swordcharged8",0);
-            for(int i=0;i<8;i++)require(damage(target,DamageTypes.MAGIC,1),"accepted nonarrow Triple control");
-            require(swords.tripleCharges(base.owner)==6,"source accepted nonarrow Triple charge cap6");
+            var target=cow(origin.add(0,0,2),200);held("triple_golden_sword",InteractionHand.MAIN_HAND);score("swordcharged8",0);
+            require(damage(target,DamageTypes.MAGIC,1)&&score("swordcharged8")==0,"player-attributed magic does not count as a native Triple melee hit");
+            for(int i=0;i<8;i++)require(melee(target),"accepted actual native Triple melee control");
+            require(swords.tripleCharges(base.owner)==6,"source accepted native melee Triple charge cap6");
             score("swordcharged8",0);require(damage(target,DamageTypes.ARROW,1)&&score("swordcharged8")==0,"arrow-only cannot charge Triple");
-            target.setPermanentlyInvulnerable(true);damage(target,DamageTypes.MAGIC,1);require(score("swordcharged8")==0,"rejected native hurt grants no charge");target.setPermanentlyInvulnerable(false);
-            target.setHealth(1);require(damage(target,DamageTypes.MAGIC,2)&&target.isDeadOrDying()&&score("swordcharged8")==1,"actual fatal nonarrow charge hook once");clearActors();
-            target=cow(origin.add(0,0,8),200);held("blazefire_sword",InteractionHand.MAIN_HAND);score("swordcharged9",5);
-            require(damage(target,DamageTypes.MAGIC,1)&&swords.blazeCharges(base.owner)==6,"uncapped source Blaze nonarrow charge");
+            target.setPermanentlyInvulnerable(true);require(!melee(target),"native invulnerable melee rejection");require(score("swordcharged8")==0,"rejected native hurt grants no charge");target.setPermanentlyInvulnerable(false);
+            target.setHealth(1);require(melee(target)&&target.isDeadOrDying()&&score("swordcharged8")==1,"actual fatal native melee charge hook once");clearActors();
+            target=cow(origin.add(0,0,2),200);held("blazefire_sword",InteractionHand.MAIN_HAND);score("swordcharged9",5);
+            require(damage(target,DamageTypes.MAGIC,1)&&swords.blazeCharges(base.owner)==5,"player-attributed spell does not recharge Blaze");
+            require(melee(target)&&swords.blazeCharges(base.owner)==6,"uncapped source Blaze native melee charge");
             damage(target,DamageTypes.ARROW,1);require(score("swordcharged9")==6,"Blaze arrow followup never recharges");clearActors();
         }
         void triple(){
@@ -220,8 +233,8 @@ public final class LateSwordChecks {
             held("blazefire_sword",InteractionHand.MAIN_HAND);score("swordcharged9",4);base.mana.set(base.owner,-900);
             require(!input(InteractionHand.MAIN_HAND),"Blaze requires source five charges");score("swordcharged9",6);require(input(InteractionHand.MAIN_HAND)&&swords.activeBlaze(base.owner),"native firing starts");
             var target=cow(origin.add(0,0,5),100);pulse();near(target.getHealth(),98.9,"one in_fire1 plus arrow.1 per target per pulse");
-            require(score("swordcharged9")==4&&swords.activeBlaze(base.owner)&&base.mana.get(base.owner)==-900,"own attributed in_fire recharges1 before source debit3; mana-free");
-            base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);pulse();require(score("swordcharged9")==1,"source stream persists without holding sword");pulse();require(score("swordcharged9")==0&&!swords.activeBlaze(base.owner)&&!base.owner.entityTags().contains("firefarting"),"source <=0 clamp/removes native fire state");clearActors();
+            require(score("swordcharged9")==3&&swords.activeBlaze(base.owner)&&base.mana.get(base.owner)==-900,"own attributed fire never recharges melee-only charges; one mana-free debit3");
+            base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);pulse();require(score("swordcharged9")==0&&!swords.activeBlaze(base.owner),"already active stream persists without held sword until the second debit exhausts charges");pulse();require(score("swordcharged9")==0&&!swords.activeBlaze(base.owner)&&!base.owner.entityTags().contains("firefarting"),"source <=0 clamp/removes native fire state");clearActors();
             held("blazefire_sword",InteractionHand.OFF_HAND);score("swordcharged9",6);require(input(InteractionHand.OFF_HAND),"native offhand Blaze start");
             swords.clear(base.owner);require(score("swordcharged9")==0&&swords.activeBlaze(base.owner),"source purify counter0 retains already active stream");pulse();require(!swords.activeBlaze(base.owner),"source zero-charge tail executes then stops");clearActors();
             held("blazefire_sword",InteractionHand.MAIN_HAND);score("swordcharged9",6);var distant=cow(origin.add(0,0,110),100);input(InteractionHand.MAIN_HAND);pulse();
@@ -232,13 +245,7 @@ public final class LateSwordChecks {
         }
         void kara(){
             held("kara_slab",InteractionHand.MAIN_HAND);var victim=cow(origin.add(0,0,2),200);
-            var tickers=new LinkedHashMap<java.lang.reflect.Field,Integer>();
-            try{for(var name:List.of("attackStrengthTicker","itemSwapTicker")){
-                Class<?> type=base.owner.getClass();java.lang.reflect.Field field=null;
-                while(type!=null&&field==null){try{field=type.getDeclaredField(name);}catch(NoSuchFieldException ignored){type=type.getSuperclass();}}
-                if(field==null)throw new NoSuchFieldException(name);field.setAccessible(true);tickers.put(field,field.getInt(base.owner));field.setInt(base.owner,200);
-            }base.owner.attack(victim);}catch(ReflectiveOperationException error){throw new IllegalStateException("native Kara melee fixture",error);}
-            finally{try{for(var entry:tickers.entrySet())entry.getKey().setInt(base.owner,entry.getValue());}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
+            require(melee(victim),"accepted actual native Kara melee");
             require(victim.getHealth()<200&&kara.count()==1,"actual accepted native Player.attack with slab produces one source center");
             var root=kara.snapshot().getFirst();near(root.position().distanceToSqr(base.owner.getEyePosition().add(0,0,1.5)),0,"source eye/yaw-only forward1.5 root");
             var column=BlockPos.containing(root.position());set(new BlockPos(column.getX(),-1,column.getZ()),Blocks.STONE.defaultBlockState());
@@ -284,7 +291,7 @@ public final class LateSwordChecks {
                 other.teleportTo(other.level(),origin.x,origin.y,origin.z+8,Set.of(),0,0,true);
                 held("triple_golden_sword",InteractionHand.MAIN_HAND);score("swordcharged8",0);other.setInvulnerableTime(0);other.damageCooldownTime=0;
                 var wild=game.items().indirectKills().captureDamage(new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.MAGIC),owner),game.items().indirectKills().wildCause(owner));
-                require(other.hurtServer(other.level(),wild,1)&&swords.tripleCharges(owner)==1,"accepted allied native WILD nonarrow damage charges once despite default projectile ally protection");
+                require(other.hurtServer(other.level(),wild,1)&&swords.tripleCharges(owner)==0,"accepted allied WILD spell damage keeps friendly bypass but never counts as melee charge");
                 other.setHealth(100);other.setInvulnerableTime(0);other.damageCooldownTime=0;
                 var technical=cow(origin.add(0,0,4),100);technical.entityTags().add("rcdenyalways");var greed=cow(origin.add(0,0,12),100);greed.entityTags().add("sin_greed_active");
                 held("blazefire_sword",InteractionHand.MAIN_HAND);score("swordcharged9",6);require(input(InteractionHand.MAIN_HAND),"protected target pulse activation");pulse();

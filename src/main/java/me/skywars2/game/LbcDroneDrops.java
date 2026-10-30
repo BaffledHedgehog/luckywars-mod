@@ -309,6 +309,7 @@ public final class LbcDroneDrops {
             authors.forEach((id,author)->authorImages.put(id,links.key(author)));
             dead=Set.copyOf(deadHosts);phase=Math.floorMod(game.server().getTickCount()-cadenceOffset,20);
         }
+        void rebaseFrozen(){cadenceOffset=game.server().getTickCount()-phase;}
         @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();
             var nextTracked=(IdentityHashMap<Entity,Entity>)actorTable.clone();

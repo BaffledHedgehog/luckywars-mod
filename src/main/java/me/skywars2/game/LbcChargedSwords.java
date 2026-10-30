@@ -50,7 +50,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
+import eu.pb4.polymer.virtualentity.api.data.SynchedEntityDataLike;
+import net.minecraft.network.syncher.EntityDataAccessor;
 
 /** Shared source player counters, straight Triple copies and independent Blazefire continuation. */
 public final class LbcChargedSwords {
@@ -63,9 +65,12 @@ public final class LbcChargedSwords {
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private final GameController game;
     private final Set<ThrownSword> swords=new LinkedHashSet<>();
-    private final Map<ServerPlayer,String> firing=new IdentityHashMap<>();
+    private IdentityHashMap<ServerPlayer,String> firing=new IdentityHashMap<>();
     private final Set<Pulse> pulses=new LinkedHashSet<>();
     private int clock,visualClock;
+    private int callbackDepth;
+    private boolean rewinding,presentationReady;
+    private final IdentityHashMap<ElementHolder,List<ServerPlayer>> presentationWatchers=new IdentityHashMap<>();
     private record FinishingModel(ElementHolder holder,ItemDisplayElement display,ServerPlayer owner,String epoch,ServerLevel level,Vec3 position,int removeAt){}
     private final List<FinishingModel> finishing=new ArrayList<>();
     record FinishingView(ElementHolder holder,ItemDisplayElement display,ServerPlayer owner,String epoch,Vec3 position,int remainingTicks){}
@@ -113,6 +118,7 @@ public final class LbcChargedSwords {
             &&owner.level().hasChunkAt(BlockPos.containing(owner.getEyePosition()));}
     /** Called only for accepted, unblocked positive damage, including the native fatal-damage hook. */
     public void damaged(LivingEntity victim,DamageSource source){
+        callbackDepth++;try{
         if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)
                 ||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
@@ -120,8 +126,11 @@ public final class LbcChargedSwords {
         var held=owner.getMainHandItem();
         if(isTriple(held)&&tripleCharges(owner)<=5)game.items().mana().score(owner,TRIPLE_CHARGE).add(1);
         if(isBlaze(held))game.items().mana().score(owner,BLAZE_CHARGE).set((int)Math.min(Integer.MAX_VALUE,(long)blazeCharges(owner)+1));
+
+        }finally{callbackDepth--;}
     }
     public boolean use(ServerPlayer owner,InteractionHand hand){
+        callbackDepth++;try{
         if(!admitted(owner)||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
         var held=owner.getItemInHand(hand);
         if(isTriple(held)){
@@ -133,6 +142,8 @@ public final class LbcChargedSwords {
         }
         if(isBlaze(held)&&blazeCharges(owner)>=5){firing.put(owner,game.items().epoch());owner.entityTags().add(FIRING);return true;}
         return false;
+
+        }finally{callbackDepth--;}
     }
     public static final class ThrownSword extends Projectile implements PolymerEntity {
         int age;boolean grounded;ElementHolder holder;ItemDisplayElement display;BlockPos embeddedBlock;
@@ -144,7 +155,7 @@ public final class LbcChargedSwords {
         ItemDisplayElement display(){return display;}
         private void attach(){
             var item=new ItemStack(Items.CARROT_ON_A_STICK);item.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:triple_golden_sword"));
-            display=new ItemDisplayElement(item);display.setItemDisplayContext(ItemDisplayContext.FIXED);
+            display=new SwordDisplay(item);display.setItemDisplayContext(ItemDisplayContext.FIXED);
             display.setTransformation(new Matrix4f().setRow(0,new Vector4f(0,0,2.5f,0))
                     .setRow(1,new Vector4f(1.7678f,-1.7678f,0,0)).setRow(2,new Vector4f(1.7678f,1.7678f,0,0)).setRow(3,new Vector4f(0,0,0,3)));
             display.setInterpolationDuration(1);display.setTeleportDuration(1);display.setShadowRadius(0);display.setShadowStrength(0);
@@ -165,14 +176,21 @@ public final class LbcChargedSwords {
         sword.entityTags().addAll(List.of("thromn_sword","slowraycast","player","magic"));game.items().markCurrentItemEpoch(sword);
         if(owner.level().addFreshEntity(sword)){swords.add(sword);if(sword.holder==null)sword.attach();}else sword.discard();
     }
-    public void loaded(Entity entity){if(entity instanceof ThrownSword sword){
+    public void loaded(Entity entity){
+        callbackDepth++;try{if(rewinding)return;if(entity instanceof ThrownSword sword){
         if(!game.items().currentEpoch(sword)||sword.level()!=game.maps().level()||!(sword.getOwner() instanceof ServerPlayer owner)||!valid(owner)){remove(sword);return;}
         swords.add(sword);if(sword.holder==null)sword.attach();
-    }}
-    public void unloaded(Entity entity){if(entity instanceof ThrownSword sword)remove(sword);}
+    }
+        }finally{callbackDepth--;}
+    }
+    public void unloaded(Entity entity){
+        callbackDepth++;try{if(rewinding)return;if(entity instanceof ThrownSword sword)remove(sword);
+        }finally{callbackDepth--;}
+    }
     private void remove(ThrownSword sword){swords.remove(sword);sword.destroy();if(!sword.isRemoved())sword.discard();}
     /** Gameplay ends immediately; only the fixed final display survives interpolation and one contact frame. */
     private void finishModel(ThrownSword sword,ServerPlayer owner){
+        callbackDepth++;try{
         if(sword.holder==null)return;
         sword.sync(sword.position());
         var holder=sword.holder;var previous=holder.getAttachment();var impact=sword.position();
@@ -180,6 +198,8 @@ public final class LbcChargedSwords {
         if(previous!=null)previous.destroy();
         sword.holder=null;
         finishing.add(new FinishingModel(holder,sword.display,owner,game.items().epoch(),(ServerLevel)sword.level(),impact,visualClock+2));
+
+        }finally{callbackDepth--;}
     }
     private void clearFinishing(ServerPlayer owner){
         for(var model:List.copyOf(finishing))if(owner==null||model.owner==owner){model.holder.destroy();finishing.remove(model);}
@@ -240,15 +260,32 @@ public final class LbcChargedSwords {
         }
         if(sword.age>=100)breakSword(sword,owner);
     }
-    private static final class Pulse {
-        final ServerPlayer owner;final String epoch;final ServerLevel level;final Vec3 origin,direction;
+    private final class Pulse implements LbcExasperato.ReplayableRay {
+        ServerPlayer owner;final String epoch;final ServerLevel level;final Vec3 origin,direction;
         final Set<UUID> hit=new HashSet<>();final LbcIndirectKills.Owner cause;int nextSample;boolean cancelled;
-        CompletableFuture<HitResult> future;
+        LbcExasperato.RayTicket ticket;
         Pulse(ServerPlayer owner,String epoch,LbcIndirectKills.Owner cause){this.owner=owner;this.epoch=epoch;level=owner.level();origin=owner.getEyePosition();direction=owner.getLookAngle().normalize();this.cause=cause;}
+        @Override public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return !state.is(AIRS);}
+        @Override public boolean target(Entity entity){return false;}
+        @Override public void submitted(LbcExasperato.RayTicket ticket){this.ticket=ticket;}
+        @Override public void trail(Vec3 start,Vec3 end){
+            callbackDepth++;try{
+                if(!live(this))return;
+                double distance=end.subtract(origin).dot(direction);
+                while(nextSample<=distance+1e-7){
+                    var point=origin.add(direction.scale(nextSample++));
+                    if(!level.hasChunkAt(BlockPos.containing(point))||!level.getBlockState(BlockPos.containing(point)).is(AIRS))break;
+                    sample(this,point);if(!live(this))return;
+                }
+            }finally{callbackDepth--;}
+        }
+        @Override public void complete(HitResult hit){finishPulse(this);}
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){return new PulseImage(this,links);}
     }
     private boolean live(Pulse pulse){return !pulse.cancelled&&pulses.contains(pulse)&&valid(pulse.owner)&&pulse.owner.level()==pulse.level
             &&game.items().currentEpoch(pulse.epoch)&&!suppressed(pulse.owner);}
     private void sample(Pulse pulse,Vec3 at){
+        callbackDepth++;try{
         if(!live(pulse)||!pulse.level.hasChunkAt(BlockPos.containing(at)))return;
         pulse.level.sendParticles(ParticleTypes.FLAME,at.x,at.y,at.z,10,.8,.8,.8,.01);
         var center=at.add(0,-1,0);
@@ -261,8 +298,11 @@ public final class LbcChargedSwords {
             if(!live(pulse))return;
             target.hurtServer(pulse.level,game.items().indirectKills().captureDamage(new DamageSource(types.getOrThrow(DamageTypes.ARROW),pulse.owner,pulse.owner),pulse.cause),.1f);
         }
+
+        }finally{callbackDepth--;}
     }
     private void pulse(ServerPlayer owner){
+        callbackDepth++;try{
         var pulse=new Pulse(owner,game.items().epoch(),game.items().indirectKills().coldCause(owner,true));pulses.add(pulse);
         LbcOverload.sound(owner,owner.position(),"minecraft:item.firecharge.use",1,1,16,.2f);
         sample(pulse,pulse.origin);pulse.nextSample=1;
@@ -271,23 +311,21 @@ public final class LbcChargedSwords {
         var next=pulse.origin.add(pulse.direction);
         var nextBlock=BlockPos.containing(next);
         if(!pulse.level.hasChunkAt(nextBlock)||!pulse.level.getBlockState(nextBlock).is(AIRS)){finishPulse(pulse);return;}
-        pulse.future=game.items().exasperato().searchSpell(owner,next,pulse.direction,true,(pos,state)->!state.is(AIRS),e->false,(start,end)->{
-            if(!live(pulse))return;
-            double distance=end.subtract(pulse.origin).dot(pulse.direction);
-            while(pulse.nextSample<=distance+1e-7){
-                var point=pulse.origin.add(pulse.direction.scale(pulse.nextSample++));
-                if(!pulse.level.hasChunkAt(BlockPos.containing(point))||!pulse.level.getBlockState(BlockPos.containing(point)).is(AIRS))break;
-                sample(pulse,point);if(!live(pulse))return;
-            }
-        });
-        pulse.future.whenComplete((hit,error)->finishPulse(pulse));
+        game.items().exasperato().replayableTool(owner,next,pulse.direction,Double.POSITIVE_INFINITY,true,pulse,false);
+
+        }finally{callbackDepth--;}
     }
     private void finishPulse(Pulse pulse){
+        callbackDepth++;try{
         boolean settle=live(pulse);pulses.remove(pulse);
         if(settle){var owner=pulse.owner;var score=game.items().mana().score(owner,BLAZE_CHARGE);score.set(Math.max(0,score.get()-3));
             if(score.get()==0){firing.remove(owner);owner.entityTags().remove(FIRING);}}
+
+        }finally{callbackDepth--;}
     }
     public void tick(){
+        callbackDepth++;try{
+        if(rewinding)return;
         ++visualClock;
         for(var model:List.copyOf(finishing))if(visualClock>=model.removeAt||!valid(model.owner)
                 ||model.owner.level()!=model.level||!game.items().currentEpoch(model.epoch)
@@ -306,15 +344,155 @@ public final class LbcChargedSwords {
         if(game.items().wands().timeStopped())return;
         if(++clock%2!=0)return;
         for(var owner:List.copyOf(firing.keySet()))if(admitted(owner)&&blazePulses(owner)==0)pulse(owner);
+
+        }finally{callbackDepth--;}
     }
-    private void cancelPulse(Pulse pulse){pulse.cancelled=true;pulses.remove(pulse);if(pulse.future!=null)pulse.future.cancel(false);}
+    private void cancelPulse(Pulse pulse){pulse.cancelled=true;pulses.remove(pulse);if(pulse.ticket!=null)pulse.ticket.cancel();}
     private void cancel(ServerPlayer owner){firing.remove(owner);owner.entityTags().remove(FIRING);for(var pulse:List.copyOf(pulses))if(pulse.owner==owner)cancelPulse(pulse);}
     /** Source purify resets the counters but lets the already active fire settle on its next pulse. */
-    public void clear(ServerPlayer owner){game.items().mana().score(owner,TRIPLE_CHARGE).set(0);game.items().mana().score(owner,BLAZE_CHARGE).set(0);}
-    public void forget(ServerPlayer owner){clear(owner);cancel(owner);clearFinishing(owner);for(var sword:List.copyOf(swords))if(sword.getOwner()==owner)remove(sword);}
+    public void clear(ServerPlayer owner){
+        callbackDepth++;try{game.items().mana().score(owner,TRIPLE_CHARGE).set(0);game.items().mana().score(owner,BLAZE_CHARGE).set(0);
+        }finally{callbackDepth--;}
+    }
+    public void forget(ServerPlayer owner){
+        callbackDepth++;try{clear(owner);cancel(owner);clearFinishing(owner);for(var sword:List.copyOf(swords))if(sword.getOwner()==owner)remove(sword);
+        }finally{callbackDepth--;}
+    }
     public void stop(){
+        callbackDepth++;try{
         for(var owner:List.copyOf(firing.keySet()))cancel(owner);for(var pulse:List.copyOf(pulses))cancelPulse(pulse);
         for(var sword:List.copyOf(swords))remove(sword);clearFinishing(null);
-        for(var owner:game.server().getPlayerList().getPlayers()){clear(owner);owner.entityTags().remove(FIRING);}clock=0;visualClock=0;
+        for(var owner:game.server().getPlayerList().getPlayers()){clear(owner);owner.entityTags().remove(FIRING);}clock=0;visualClock=0;presentationWatchers.clear();rewinding=false;presentationReady=false;
+
+        }finally{callbackDepth--;}
     }
+    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish charged-sword tick/hit/ray callbacks before checkpointing");}
+    private void frozenBoundary(){checkpointBoundary();if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore charged-sword presentation on its frozen native thread");}
+    /** Retire only the abandoned LIVE holders; saved images contain values, never reusable destroyed holders. */
+    void prepareFrozen(){
+        frozenBoundary();rewinding=true;presentationReady=false;presentationWatchers.clear();
+        for(var sword:swords)sword.destroy();for(var model:finishing)model.holder.destroy();
+    }
+    /** Call after all native bodies and clients have been paired; no clocks or gameplay callbacks run. */
+    Set<UUID> publishFrozen(){
+        frozenBoundary();if(!rewinding||!presentationReady)throw new IllegalStateException("Install charged-sword state before presentation");
+        var pending=new LinkedHashSet<UUID>();
+        for(var entry:presentationWatchers.entrySet())for(var player:entry.getValue()){
+            if(game.server().getPlayerList().getPlayer(player.getUUID())!=player)throw new IllegalStateException("Charged-sword viewer body changed before publication");
+            if(player.isChangingDimension()||!player.connection.hasClientLoaded())pending.add(player.getUUID());
+        }
+        for(var sword:swords)if(sword.holder!=null)for(var player:presentationWatchers.get(sword.holder))
+            if(!net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(sword).contains(player))pending.add(player.getUUID());
+        if(!pending.isEmpty())return Set.copyOf(pending);
+        for(var sword:swords)if(sword.holder!=null&&sword.holder.getAttachment()==null)new EntityAttachment(sword.holder,sword,false);
+        for(var model:finishing)if(model.holder.getAttachment()==null)game.visualTracking().attach(model.holder,model.level,()->model.position);
+        presentationWatchers.forEach((holder,players)->players.forEach(holder::startWatching));
+        presentationWatchers.clear();rewinding=false;presentationReady=false;return Set.of();
+    }
+    void cancelFrozen(){frozenBoundary();for(var sword:swords)sword.destroy();for(var model:finishing)model.holder.destroy();finishing.clear();presentationWatchers.clear();rewinding=false;presentationReady=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
+    private final class PulseImage implements MatchQueuedWorkCheckpoint.Image {
+        private final Pulse pulse;
+        private final MatchDamageSources.Ref owner;
+        private final Set<UUID> hit;
+        private final int next;
+        private final boolean cancelled;
+        private final LbcExasperato.RayTicket ticket;
+        PulseImage(Pulse pulse,MatchSpellCheckpoint.Links links){
+            checkpointBoundary();this.pulse=pulse;owner=links.key(pulse.owner);hit=Set.copyOf(pulse.hit);next=pulse.nextSample;
+            cancelled=pulse.cancelled;ticket=pulse.ticket;
+            // coldCause is the immutable UUID/order/friendlyFire/projectile record; no native player is hidden in it.
+            if(pulse.cause==null||!pulse.cause.player().equals(pulse.owner.getUUID()))throw new IllegalStateException("Charged-sword pulse has an unreviewed cause");
+        }
+        @Override public Runnable prepare(MatchSpellCheckpoint.Links links){
+            var current=(ServerPlayer)links.get(owner);
+            return ()->{pulse.owner=current;pulse.hit.clear();pulse.hit.addAll(hit);pulse.nextSample=next;pulse.cancelled=cancelled;pulse.ticket=ticket;};
+        }
+    }
+    final class Checkpoint {
+        private record SwordImage(MatchDamageSources.Ref actor,int age,boolean grounded,BlockPos embedded,ModelImage model) { }
+        private record FinishImage(MatchDamageSources.Ref owner,String epoch,ServerLevel level,Vec3 position,int removeAt,ModelImage model) { }
+        private final List<SwordImage> actors=new ArrayList<>();
+        private final List<FinishImage> models=new ArrayList<>();
+        private final List<PulseImage> rays=new ArrayList<>();
+        private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,String> firingImage;
+        private final int savedClock=clock,savedVisualClock=visualClock;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish charged-sword presentation before capture");
+            firingImage=new MatchSpellCheckpoint.IdentityImage<>(firing,links);
+            for(var sword:swords)actors.add(new SwordImage(links.key(sword),sword.age,sword.grounded,sword.embeddedBlock,
+                    sword.holder==null?null:new ModelImage(sword.display,links)));
+            for(var model:finishing)models.add(new FinishImage(links.key(model.owner),model.epoch,model.level,model.position,model.removeAt,new ModelImage(model.display,links)));
+            for(var pulse:pulses)rays.add(new PulseImage(pulse,links));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var restoredFiring=firingImage.restore(links);
+            var currentActors=new ArrayList<ThrownSword>();for(var image:actors)currentActors.add((ThrownSword)links.get(image.actor));
+            var currentOwners=new ArrayList<ServerPlayer>();for(var image:models)currentOwners.add((ServerPlayer)links.get(image.owner));
+            var actorModels=new ArrayList<PreparedModel>();for(var image:actors)actorModels.add(image.model==null?null:image.model.prepare(links));
+            var finishModels=models.stream().map(image->image.model.prepare(links)).toList();
+            var pulsePlans=rays.stream().map(image->image.prepare(links)).toList();
+            return ()->{
+                frozenBoundary();if(!rewinding)throw new IllegalStateException("Detach future charged-sword presentation before private restore");
+                for(var sword:swords)sword.destroy();for(var model:finishing)model.holder.destroy();
+                swords.clear();finishing.clear();presentationWatchers.clear();firing=restoredFiring;pulses.clear();
+                clock=savedClock;visualClock=savedVisualClock;
+                for(int i=0;i<actors.size();i++){
+                    var image=actors.get(i);var sword=currentActors.get(i);sword.age=image.age;sword.grounded=image.grounded;sword.embeddedBlock=image.embedded;
+                    sword.destroy();sword.display=null;
+                    if(image.model!=null){var model=actorModels.get(i);sword.display=model.image.create();sword.holder=new ElementHolder();sword.holder.addElement(sword.display);presentationWatchers.put(sword.holder,model.watchers);}
+                    swords.add(sword);
+                }
+                for(int i=0;i<models.size();i++){
+                    var image=models.get(i);var model=finishModels.get(i);var display=model.image.create();var holder=new ElementHolder();holder.addElement(display);presentationWatchers.put(holder,model.watchers);
+                    finishing.add(new FinishingModel(holder,display,currentOwners.get(i),image.epoch,image.level,image.position,image.removeAt));
+                }
+                pulsePlans.forEach(Runnable::run);for(var image:rays)pulses.add(image.pulse);presentationReady=true;
+            };
+        }
+    }
+    /** Pinned Polymer tracker schema supplies canonical accessor identities; detach mutable tracker values. */
+    private record TrackerImage<T>(EntityDataAccessor<T> accessor,T value,boolean dirty) {
+        @SuppressWarnings("unchecked") private static <T> T copy(EntityDataAccessor<T> key,T value){
+            // Native value-type serializers intentionally retain JOML interfaces; their backing objects are mutable.
+            if(value instanceof org.joml.Vector3fc vector)return (T)new org.joml.Vector3f(vector);
+            if(value instanceof org.joml.Quaternionfc rotation)return (T)new org.joml.Quaternionf(rotation);
+            if(value instanceof net.minecraft.network.chat.Component text)return (T)text.copy();
+            if(value instanceof Optional<?> optional&&optional.orElse(null) instanceof net.minecraft.network.chat.Component text)
+                return (T)Optional.of(text.copy());
+            return key.serializer().copy(value);
+        }
+        static <T> TrackerImage<T> capture(EntityDataAccessor<T> key,SynchedEntityDataLike data){return new TrackerImage<>(key,copy(key,data.get(key)),data.isDirty(key));}
+        void install(SynchedEntityDataLike data){data.set(accessor,copy(accessor,value),true);}
+        void dirty(SynchedEntityDataLike data){data.setDirty(accessor,dirty);}
+    }
+    private static final class SwordDisplay extends ItemDisplayElement {
+        SwordDisplay(ItemStack item){super(item);}
+        void savedPosition(Vec3 position){lastSyncedPos=position;}
+    }
+    private record PreparedModel(ModelImage image,List<ServerPlayer> watchers) { }
+    private static final class ModelImage {
+        private final List<TrackerImage<?>> data=new ArrayList<>();
+        private final List<MatchDamageSources.Ref> watchers;
+        private final float yaw,pitch;
+        private final Vec3 offset,override,lastPosition;
+        private final boolean absolute,sendPosition,rotationDirty;
+        ModelImage(ItemDisplayElement display,MatchSpellCheckpoint.Links links){
+            if(display==null||display.getHolder()==null)throw new IllegalStateException("Charged-sword holder lacks its display");
+            watchers=display.getHolder().getWatchingPlayers().stream().map(connection->links.key(connection.player)).toList();
+            for(var item:InternalEntityHelpers.getExampleTrackedDataOfEntityType(EntityTypes.ITEM_DISPLAY))data.add(TrackerImage.capture(item.getAccessor(),display.getSyncedData()));
+            yaw=display.getYaw();pitch=display.getPitch();offset=display.getOffset();override=display.getOverridePos();lastPosition=display.getLastSyncedPos();
+            absolute=display.isAlwaysSyncingAbsolutePosition();sendPosition=display.isSendingPositionUpdates();rotationDirty=display.isRotationDirty();
+        }
+        PreparedModel prepare(MatchSpellCheckpoint.Links links){return new PreparedModel(this,watchers.stream().map(ref->(ServerPlayer)links.get(ref)).toList());}
+        ItemDisplayElement create(){
+            var display=new SwordDisplay(ItemStack.EMPTY);display.setYaw(yaw==0?1:0);display.setYaw(yaw);display.setPitch(pitch);
+            // Clear construction-only rotation state while detached; then install the saved tracker/dirty image.
+            if(!rotationDirty)display.tick();data.forEach(image->image.install(display.getSyncedData()));display.getSyncedData().getDirtyEntries();
+            data.forEach(image->image.dirty(display.getSyncedData()));
+            display.setOffset(offset);display.setOverridePos(override);display.savedPosition(lastPosition);
+            display.setAlwaysSyncAbsolutePosition(absolute);display.setSendPositionUpdates(sendPosition);return display;
+        }
+    }
+
 }

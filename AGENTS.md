@@ -1,3 +1,20 @@
+## Vanity remaining shared-ray terminals and source visuals - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[State ownership and exact native evidence](agent_notes/VANITY_TERMINALS_CHECKPOINT_2026_10_30.md).
+Ender/Snow, reward tools, random-library rays and Blazefire now use reviewed typed
+continuations; canonical native item-stack links include real BE storage, current
+players and windows. Stateful clip/sample/cause/hit aliases and one terminal debit;
+Snow clouds, original Lava bitmap job/emitters, charged carriers/firing/clocks and
+recreated full-schema finishing visuals with CURRENT observer publication. Whole-image
+offline retry and staged phase rebasing. 0fc739ac passed65 suites/28 actualmode1
+matches/ONE child plus separately scoped Reactive Artifacts (66 suites/29 matches/
+2 children,407.23s).11393 inputs/5518 entries/303 receipts.199 authorpaths/
+31overrides/main d9087f0a exact;normalexits/exact tracked snapshots/no locks.
+No functions/RP/template/questionfile/maininstall/restart/push. Original25 gate CLOSED;
+Vanity gated. Other jobs/private abilities/native AI/BE/multipart/client shaders/async/
+regions, aggregate/view stack aliases and full input/writer/IO/lifecycle/offline/persistence/
+map coordination remain. NOT full Vanity; retain all prior owners/documentation.
+
 ## Vanity native ray families and drone producers - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [State ownership and native evidence](agent_notes/VANITY_NATIVE_RAYS_CHECKPOINT_2026_10_30.md).

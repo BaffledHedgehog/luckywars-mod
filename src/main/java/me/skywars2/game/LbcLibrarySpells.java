@@ -99,7 +99,7 @@ public final class LbcLibrarySpells {
         return null;
     }
     public static boolean matchesRawRaycast(ItemStack stack){return rawRaycast(stack)!=null;}
-    private static boolean hasRaw(ServerPlayer p,String flag){
+    static boolean hasRaw(ServerPlayer p,String flag){
         for(int slot=0;slot<36;slot++)if(LbcFartus.data(p.getInventory().getItem(slot)).getIntOr(flag,0)==1)return true;
         for(var slot:List.of(net.minecraft.world.entity.EquipmentSlot.HEAD,net.minecraft.world.entity.EquipmentSlot.CHEST,
                 net.minecraft.world.entity.EquipmentSlot.LEGS,net.minecraft.world.entity.EquipmentSlot.FEET,
@@ -116,14 +116,15 @@ public final class LbcLibrarySpells {
                 ||!game.items().wands().validRoleTarget(p,false)||!LbcDimensionItems.ordinary(p)
                 ||game.items().timeStop().stopped(p.level())||game.items().wands().timeStopped())return false;
         var used=stack.getItem();
-        game.items().libraryRandom().ray(p,raw.effect(),()->hasRaw(p,raw.flag()),()->{
-            // The source terminal's /clear searches the whole inventory, not only the launch hand.
-            p.getInventory().clearOrCountMatchingItems(s->!s.isEmpty()
-                    &&LbcFartus.data(s).getIntOr(raw.flag(),0)==1,false,1,p.inventoryMenu.getCraftSlots());
-            p.getInventory().setChanged();p.inventoryMenu.slotsChanged(p.getInventory());p.containerMenu.broadcastChanges();
-            p.awardStat(Stats.ITEM_USED.get(used));
-        });
+        game.items().libraryRandom().ray(p,raw.effect(),raw.flag(),used);
         return true;
+    }
+    /** Source /clear searches the whole inventory, including equipment and crafting slots. */
+    static void debitRawRaycast(ServerPlayer p,String flag,Item used){
+        p.getInventory().clearOrCountMatchingItems(s->!s.isEmpty()
+                &&LbcFartus.data(s).getIntOr(flag,0)==1,false,1,p.inventoryMenu.getCraftSlots());
+        p.getInventory().setChanged();p.inventoryMenu.slotsChanged(p.getInventory());p.containerMenu.broadcastChanges();
+        p.awardStat(Stats.ITEM_USED.get(used));
     }
     static boolean cast(GameController g,ServerPlayer p,InteractionHand hand,int id){
         if(id>=LbcExtraGrimoires.FIRST&&id<=LbcExtraGrimoires.LAST)return LbcExtraGrimoires.cast(g,p,hand,id);

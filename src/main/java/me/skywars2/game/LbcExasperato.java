@@ -95,6 +95,18 @@ public final class LbcExasperato {
         void cancel(){LbcExasperato.complete(search,null);}
     }
     enum RayMode { SPELL, TERRAIN, PHASED, TECHNOLOGY }
+    /** Typed form of searchTool; custom source predicates and finite-miss policy are accepted once. */
+    void replayableTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,boolean blocksOnly,ReplayableRay replay,boolean finishAtRange){
+        direction=direction.normalize();double reach=range;
+        if(!Double.isFinite(reach)){
+            reach=loadedRayExtent(owner,from,direction,true,blocksOnly);
+            if(!blocksOnly)reach=Math.max(reach,game.items().lifetimes().livingRayExtent(owner,from,direction,replay::target));
+        }
+        var search=new Search(owner,game.items().epoch(),from,direction,reach,true,replay::trail,blocksOnly,false,replay::target);
+        search.blockRule=replay::block;search.shieldBlockable=false;search.finishAtRange=finishAtRange;search.replay=replay;
+        replay.submitted(new RayTicket(search));
+        if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
+    }
     /** Native collision/shield/target policies are identical to the corresponding original loaded-ray APIs. */
     void replayableLoaded(ServerPlayer owner,Vec3 from,Vec3 direction,RayMode mode,double maxRange,ReplayableRay replay){
         direction=direction.normalize();boolean walls=mode!=RayMode.PHASED,blocks=mode==RayMode.TERRAIN,tech=mode==RayMode.TECHNOLOGY;

@@ -85,6 +85,8 @@ final class VanityRayScene {
 
     int extraRays(){return rays.size();}
     void arm(){
+        // The explicit partial cadence belongs at capture, after variable FPV handshake waits.
+        set(homing,"ticks",7);
         order=List.copyOf(queue());require(order.containsAll(rays),"all four accepted pending producers survive native freeze");
         cursors=rays.stream().map(r->VanityRayScene.<Vec3>get(r,"position")).toList();left=rays.stream().map(r->VanityRayScene.<Double>get(r,"remaining")).toList();
         phase=VanityRayScene.<Map<ServerPlayer,Integer>>get(hohl,"phases").get(base.other);cooldown=reactive.cooldownTicks(base.other);

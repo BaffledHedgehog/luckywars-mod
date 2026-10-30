@@ -64,19 +64,32 @@ public final class LbcAdvancedSnow {
     }
     private void aim(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean snow,boolean academy,int mode,int cost){
         Vec3 from=p.getEyePosition().add(p.getLookAngle().scale(hand==InteractionHand.OFF_HAND?.5:0)),direction=p.getLookAngle();
-        String epoch=game.items().epoch();boolean clip=!snow&&academy&&mode==3;boolean[] entered={false};
-        game.items().exasperato().searchSpell(p,from,direction,snow||clip,(pos,state)->{
-            boolean air=state.is(AIRS);
-            if(!clip)return !air;
-            if(!air){entered[0]=true;return false;}
-            return entered[0]&&p.level().getBlockState(pos.above()).is(AIRS);
-        },e->e!=p&&e instanceof LivingEntity&&game.items().wands().validTarget(e),(start,end)->{
+        game.items().exasperato().replayableTool(p,from,direction,Double.POSITIVE_INFINITY,snow||!snow&&academy&&mode==3,
+                new Aim(p,from,direction,hand,stack,snow,academy,mode,cost),false);
+    }
+    private final class Aim implements LbcExasperato.ReplayableRay {
+        final java.util.UUID author;final net.minecraft.server.level.ServerLevel level;final String epoch;
+        final Vec3 from,direction;final InteractionHand hand;final boolean snow,academy,clip;final int mode,cost;
+        ItemStack stack;boolean entered;
+        Aim(ServerPlayer p,Vec3 from,Vec3 direction,InteractionHand hand,ItemStack stack,boolean snow,boolean academy,int mode,int cost){
+            author=p.getUUID();level=p.level();epoch=game.items().epoch();this.from=from;this.direction=direction;this.hand=hand;this.stack=stack;
+            this.snow=snow;this.academy=academy;this.mode=mode;this.cost=cost;clip=!snow&&academy&&mode==3;
+        }
+        public boolean block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){
+            boolean air=state.is(AIRS);if(!clip)return !air;if(!air){entered=true;return false;}
+            return entered&&level.getBlockState(pos.above()).is(AIRS);
+        }
+        public boolean target(Entity e){return !e.getUUID().equals(author)&&e instanceof LivingEntity&&game.items().wands().validTarget(e);}
+        public void trail(Vec3 start,Vec3 end){
             double length=start.distanceTo(end),step=snow?.5:clip?1:academy?.7:.5;
             for(double t=0;t<length;t+=step){var at=start.lerp(end,t/length);
-                if(snow)p.level().sendParticles(ParticleTypes.SNOWFLAKE,at.x,at.y,at.z,1,0,0,0,.1);
-                else p.level().sendParticles(ParticleTypes.PORTAL,at.x,at.y,at.z,5,.1,.1,.1,1);
+                if(snow)level.sendParticles(ParticleTypes.SNOWFLAKE,at.x,at.y,at.z,1,0,0,0,.1);
+                else level.sendParticles(ParticleTypes.PORTAL,at.x,at.y,at.z,5,.1,.1,.1,1);
             }
-        }).thenAccept(hit->{
+        }
+        public void complete(HitResult hit){
+            var p=game.server().getPlayerList().getPlayer(author);if(p==null||p.level()!=level)return;
+            inProgress++;try {
             if(hit==null||!game.items().currentEpoch(epoch)||!p.isAlive()||p.isRemoved())return;
             Vec3 point=hit.getLocation();
             if(snow){spawn(p,point.add(0,1,0),hand,stack);return;}
@@ -100,9 +113,29 @@ public final class LbcAdvancedSnow {
                 double distance=from.distanceTo(hit.getLocation());if(distance>=89.5&&distance<100)game.items().mana().award(p,"lbc:true_advancements/staffs/teleport");
             }
             LbcOverload.sound(p,p.position(),"minecraft:entity.enderman.teleport",1,1,0);
-        });
+
+            }finally{inProgress--;}
+        }
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
+            var item=links.stack(game,stack);boolean crossed=entered;
+            return current->{var rebound=item.get(current);return ()->{stack=rebound;entered=crossed;};};
+        }
+    }
+    private int inProgress,cadenceOffset;
+    void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish snow/ender native callbacks before checkpointing");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Image(MatchDamageSources.Ref cloud,InteractionHand hand,MatchItemStackLinks.Ref stack){}
+        private final List<Image> values;private final int phase=Math.floorMod(game.server().getTickCount()-cadenceOffset,5);
+        Checkpoint(MatchSpellCheckpoint.Links links){values=clouds.values().stream().map(c->new Image(links.key(c.entity()),c.hand(),c.stack()==null?null:links.stack(game,c.stack()))).toList();}
+        void rebaseFrozen(){cadenceOffset=game.server().getTickCount()-phase;}
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var next=new LinkedHashMap<AreaEffectCloud,Cloud>();for(var value:values){var cloud=(AreaEffectCloud)links.get(value.cloud);next.put(cloud,new Cloud(cloud,value.hand,value.stack==null?null:value.stack.get(links)));}
+            return ()->{clouds.clear();clouds.putAll(next);cadenceOffset=game.server().getTickCount()-phase;};
+        }
     }
     private void spawn(ServerPlayer owner,Vec3 at,InteractionHand hand,ItemStack stack){
+        inProgress++;try {
         var pos=at.add(0,2,0);if(!owner.level().hasChunkAt(BlockPos.containing(pos)))return;
         var cloud=new AreaEffectCloud(EntityTypes.AREA_EFFECT_CLOUD,owner.level());
         cloud.setPos(pos);cloud.setOwner(owner);cloud.setRadius(4);cloud.setDuration(250);
@@ -112,8 +145,11 @@ public final class LbcAdvancedSnow {
         LbcOverload.sound(owner,at,"minecraft:lbcsounds.snow_wand",2,.8f,0);
         owner.level().sendParticles(ParticleTypes.SNOWFLAKE,at.x,at.y+1,at.z,300,2,2,2,.2);
         if(owner.level().players().stream().anyMatch(p->p!=owner&&!p.isSpectator()&&!owner.isAlliedTo(p)&&p.position().distanceToSqr(at)<=25))game.items().mana().award(owner,"lbc:true_advancements/staffs/snow_wand");
+
+        }finally{inProgress--;}
     }
     void pulse(Cloud state){
+        inProgress++;try {
         var cloud=state.entity();if(!(cloud.getOwner() instanceof ServerPlayer owner))return;
         int frozen=0;
         for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(cloud.position(),cloud.position()).inflate(5),
@@ -121,18 +157,23 @@ public final class LbcAdvancedSnow {
             game.items().frost().snow(target,owner);if(game.items().frost().isFrozen(target))frozen++;
         }
         if(frozen>=3&&state.hand()!=null&&owner.getItemInHand(state.hand())==state.stack()&&LbcAcademy.trial(state.stack()))game.items().academy().ready(owner,state.hand(),state.stack());
+
+        }finally{inProgress--;}
     }
-    void tick(){for(var state:List.copyOf(clouds.values())){
+    void tick(){
+        inProgress++;try {for(var state:List.copyOf(clouds.values())){
         var cloud=state.entity();
         if(cloud.isRemoved()||!game.playing()||!game.items().currentEpoch(cloud)||!cloud.level().hasChunkAt(cloud.blockPosition())
                 ||!(cloud.getOwner() instanceof ServerPlayer owner)||!game.items().mana().visible(owner)
                 ||game.items().magic().suppressedAt(owner.level(),cloud.position())){unloaded(cloud);continue;}
-        if(!cloud.entityTags().contains("time_stopped")&&game.server().getTickCount()%5==0)pulse(state);
-    }}
-    void loaded(Entity e){if(e instanceof AreaEffectCloud cloud&&e.entityTags().contains(CLOUD)){
+        if(!cloud.entityTags().contains("time_stopped")&&Math.floorMod(game.server().getTickCount()-cadenceOffset,5)==0)pulse(state);
+    }
+        }finally{inProgress--;}
+    }
+    void loaded(Entity e){if(MatchActorCheckpoint.restoring(e))return;if(e instanceof AreaEffectCloud cloud&&e.entityTags().contains(CLOUD)){
         if(game.playing()&&game.items().currentEpoch(e)&&cloud.getOwner() instanceof ServerPlayer)clouds.putIfAbsent(cloud,new Cloud(cloud,null,null));else e.discard();
     }}
-    void unloaded(Entity e){if(e instanceof AreaEffectCloud cloud&&clouds.remove(cloud)!=null&&!cloud.isRemoved())cloud.discard();}
+    void unloaded(Entity e){if(MatchActorCheckpoint.restoring(e))return;if(e instanceof AreaEffectCloud cloud&&clouds.remove(cloud)!=null&&!cloud.isRemoved())cloud.discard();}
     void forget(ServerPlayer p){for(var cloud:List.copyOf(clouds.keySet()))if(cloud.getOwner()==p)unloaded(cloud);}
-    void stop(){for(var cloud:List.copyOf(clouds.keySet()))unloaded(cloud);}
+    void stop(){for(var cloud:List.copyOf(clouds.keySet()))unloaded(cloud);cadenceOffset=0;}
 }
