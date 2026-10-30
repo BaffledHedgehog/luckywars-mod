@@ -857,5 +857,68 @@ public final class LbcIndirectKills {
         pendingMana.clear(); manaDrains.clear(); manaDebts.clear();
         hazards.clear(); burning.clear(); arrivals.clear(); hungerDebts.clear();
     }
+    /** GLOBAL causal ledger image; native effects/bodies/terrain stay with their canonical owners. */
+    Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
+    final class Checkpoint {
+        private record Falling(Owner owner,boolean levitation,int grace) { }
+        private record Effect(Holder<MobEffect> type,boolean active,MobEffectInstance detached) { }
+        private record Applied(Owner owner,Effect effect) { }
+        private final MatchDamageSources sources;
+        private final String epoch=game.items().epoch();
+        private final long sequence=order;
+        private final Map<MatchDamageSources.Ref,Class<?>> kinds=new java.util.LinkedHashMap<>();
+        private final Map<MatchDamageSources.Ref,java.util.IdentityHashMap<MobEffectInstance,Effect>> effectImages=new HashMap<>();
+        private final Map<MatchDamageSources.Ref,Falling> fallImage;
+        private final Map<MatchDamageSources.Ref,Map<Holder<MobEffect>,Applied>> statusImage;
+        private final Map<MatchDamageSources.Ref,Applied> pendingImage;
+        private final Map<MatchDamageSources.Ref,Owner> drainsImage,debtsImage,hungerImage,laterImage,burnImage;
+        private final Map<MatchDamageSources.Ref,Support> supportImage;
+        private final Map<MatchDamageSources.Ref,Arrival> arrivalImage;
+        private final Map<ServerLevel,Map<BlockPos,Owner>> stoneImage=new HashMap<>();
+        private final Map<ServerLevel,Map<BlockPos,Hazard>> hazardImage=new HashMap<>();
+        Checkpoint(MatchDamageSources sources){
+            this.sources=sources;stable(false);
+            fallImage=copy(falls,(target,v)->v==null?null:new Falling(v.owner,v.levitation,v.grace));
+            statusImage=copy(statuses,(target,v)->{var map=new HashMap<Holder<MobEffect>,Applied>();v.forEach((key,status)->map.put(key,applied(target,status)));return map;});
+            pendingImage=copy(pendingMana,this::applied);drainsImage=copy(manaDrains,(target,v)->v);debtsImage=copy(manaDebts,(target,v)->v);hungerImage=copy(hungerDebts,(target,v)->v);
+            supportImage=copy(removedSupports,(target,v)->v);laterImage=copy(laterAttacks,(target,v)->v);burnImage=copy(burning,(target,v)->v);
+            arrivalImage=copy(arrivals,(target,v)->new Arrival(v.owner,v.level,cells(v.cells)));
+            stone.forEach((world,v)->stoneImage.put(world,cells(v)));hazards.forEach((world,v)->hazardImage.put(world,cells(v)));
+        }
+        private void stable(boolean frozen){
+            if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore causal ledgers on the same stable frozen native match thread");
+            if(causeTarget!=null||activeCause!=null||effectTarget!=null||manaTarget!=null||altitudeTarget!=null||altitudeCause!=null||tickingEffect!=null||hazardWriter!=null||hazardLevel!=null||trapFrame!=null||supportCandidates!=null)throw new IllegalStateException("Finish causal callbacks before checkpointing ledgers");
+        }
+        private MatchDamageSources.Ref key(LivingEntity target){var ref=sources.bodyRef(target);var old=kinds.putIfAbsent(ref,target.getClass());if(old!=null&&old!=target.getClass())throw new IllegalStateException("Conflicting captured victim identities");return ref;}
+        private <V,I> Map<MatchDamageSources.Ref,I> copy(Map<? extends LivingEntity,V> map,java.util.function.BiFunction<LivingEntity,V,I> image){var result=new java.util.LinkedHashMap<MatchDamageSources.Ref,I>();map.forEach((target,value)->result.put(key(target),image.apply(target,value)));return result;}
+        private <V> Map<BlockPos,V> cells(Map<BlockPos,V> map){var result=new HashMap<BlockPos,V>();map.forEach((pos,value)->result.put(pos.immutable(),value));return result;}
+        private Applied applied(LivingEntity target,Status status){
+            if(status==null)return null;var ref=key(target);var cache=effectImages.computeIfAbsent(ref,k->new java.util.IdentityHashMap<>());var original=status.effect;
+            var image=cache.computeIfAbsent(original,e->new Effect(e.getEffect(),target.getEffect(e.getEffect())==e,new MobEffectInstance(e)));return new Applied(status.owner,image);
+        }
+        private Status applied(Applied image,LivingEntity target,java.util.IdentityHashMap<Effect,MobEffectInstance> effects){
+            if(image==null)return null;var effect=effects.get(image.effect);if(effect==null){effect=image.effect.active?target.getEffect(image.effect.type):new MobEffectInstance(image.effect.detached);if(effect==null)throw new IllegalStateException("Restore active native effects before causal links");effects.put(image.effect,effect);}return new Status(image.owner,effect);
+        }
+        private void level(ServerLevel world){if(game.server().getLevel(world.dimension())!=world)throw new IllegalStateException("Reconcile causal terrain dimensions before ledger replay");}
+        /** After canonical bodies/effects/terrain. Missing saved victims defer the whole install. */
+        java.util.Set<UUID> restoreFrozen(java.util.function.Function<UUID,Entity> lookup){
+            stable(true);var pending=new java.util.LinkedHashSet<UUID>();var victims=new HashMap<MatchDamageSources.Ref,LivingEntity>();
+            kinds.forEach((ref,type)->{var current=MatchDamageSources.resolve(ref,lookup,pending);if(current!=null){if(!(current instanceof LivingEntity victim)||current.getClass()!=type)throw new IllegalStateException("Restore captured victim bodies before causal ledgers");victims.put(ref,victim);}});
+            stoneImage.keySet().forEach(this::level);hazardImage.keySet().forEach(this::level);supportImage.values().forEach(v->level(v.level));arrivalImage.values().forEach(v->level(v.level));
+            if(!pending.isEmpty())return java.util.Set.copyOf(pending);
+            var effects=new java.util.IdentityHashMap<Effect,MobEffectInstance>();var liveStatuses=new HashMap<LivingEntity,Map<Holder<MobEffect>,Status>>();var livePending=new HashMap<LivingEntity,Status>();
+            statusImage.forEach((ref,map)->{var target=victims.get(ref);var current=new HashMap<Holder<MobEffect>,Status>();map.forEach((key,v)->current.put(key,applied(v,target,effects)));liveStatuses.put(target,current);});
+            pendingImage.forEach((ref,v)->livePending.put(victims.get(ref),applied(v,victims.get(ref),effects)));
+            for(var ref:hungerImage.keySet())if(!(victims.get(ref) instanceof ServerPlayer))throw new IllegalStateException("Captured hunger debt requires its player body");
+            falls.clear();fallImage.forEach((ref,v)->{if(v==null)falls.put(victims.get(ref),null);else{var fall=new Fall(v.owner,v.levitation);fall.grace=v.grace;falls.put(victims.get(ref),fall);}});
+            statuses.clear();statuses.putAll(liveStatuses);pendingMana.clear();pendingMana.putAll(livePending);
+            restore(manaDrains,drainsImage,victims);restore(manaDebts,debtsImage,victims);restore(laterAttacks,laterImage,victims);restore(burning,burnImage,victims);restore(removedSupports,supportImage,victims);
+            hungerDebts.clear();hungerImage.forEach((ref,v)->hungerDebts.put((ServerPlayer)victims.get(ref),v));
+            arrivals.clear();arrivalImage.forEach((ref,v)->arrivals.put(victims.get(ref),new Arrival(v.owner,v.level,cells(v.cells))));
+            stone.clear();stoneImage.forEach((world,map)->stone.put(world,cells(map)));hazards.clear();hazardImage.forEach((world,map)->hazards.put(world,cells(map)));
+            order=sequence;return java.util.Set.of();
+        }
+        private <V> void restore(Map<LivingEntity,V> current,Map<MatchDamageSources.Ref,V> image,Map<MatchDamageSources.Ref,LivingEntity> victims){current.clear();image.forEach((ref,v)->current.put(victims.get(ref),v));}
+    }
 }
 

@@ -1,3 +1,18 @@
+## Vanity global causal ledgers ? NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Ownership, restore boundary and exact native proof](agent_notes/VANITY_ATTRIBUTION_CHECKPOINT_2026_10_30.md).
+All12 indirect-damage ledgers and global causal order replay after canonical terrain/
+body/effect owners. Current active effect identities rebind; stale same-type pointers
+remain inactive. Victim-body keys distinguish historical SAME-UUID bodies from current
+players; author refs retain current-online policy. Whole-install pending UUID retry;
+reentrant callbacks reject. Two genuine death/respawn/offline replays;2725d466 passed28
+suites/one mode1,82.75s;11289 inputs/5429 entries/219 receipts.199 authorpaths/31 live
+overrides/main d9087f0a unchanged;normalchildexit/exact snapshots/no locks. No function
+feature/RP/template/questionfile/main install/restart/push. Full original25 gate CLOSED;
+Vanity stays gated. Remaining: private ability/AI/BE/multipart owners and complete
+writer/input/IO/lifecycle/offline/map transaction. This is NOT full Vanity; retain all
+canonical owners and prior notes. Partial terrain never rewinds GLOBAL causal order.
+
 ## Vanity Time Stop state — NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, shared ownership and exact native proof](agent_notes/VANITY_TIME_STOP_CHECKPOINT_2026_10_30.md).

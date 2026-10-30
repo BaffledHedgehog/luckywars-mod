@@ -23,6 +23,8 @@ final class MatchDamageSources {
         for(var player:game.server().getPlayerList().getPlayers())registered.put(player.getUUID(),player);
     }
     Ref ref(Entity entity){return entity==null?null:new Ref(entity.getUUID(),(entity instanceof ServerPlayer?registered.get(entity.getUUID()) instanceof ServerPlayer:registered.get(entity.getUUID())==entity)?null:entity);}
+    /** Ledger/victim keys follow a captured body; an older body with the same UUID stays historical. */
+    Ref bodyRef(Entity entity){return entity==null?null:new Ref(entity.getUUID(),registered.get(entity.getUUID())==entity?null:entity);}
     Image capture(DamageSource value){
         if(value==null)return null;var image=images.get(value);if(image!=null)return image;
         image=new Image(value,ref(value.getDirectEntity()),ref(value.getEntity()),capture(LbcIndirectKills.checkpointWrappedSource(value)));images.put(value,image);return image;
