@@ -1,3 +1,19 @@
+## Vanity native combat state - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
+
+[Contract, limitations and exact native proof](agent_notes/VANITY_COMBAT_CHECKPOINT_2026_10_30.md).
+Native combat histories/flags/clocks, last attacker/victim/killer references, kinetic
+recency and spin-stack aliases now compose after body and actor/player link phases.
+Original source objects/classes and nested immutable accepted causes survive replay;
+only direct/causing native entity links rebind. Historical anchors are not respawned.
+04bafa02 passed15 gameplay suites/one actualmode1 match;runner68.23s;11135 frozen
+inputs/5301 packagedentries/59source receipts.199 authorpaths/31overrides/main
+d9087f0a unchanged;normalchildexit/exactsnapshots/no locks. Core fixture isolates its
+borrowed players from random Wrath conversion; source gameplay remains unchanged.
+No RP/template/questionfile edits/maininstall/restart/push. Full original25 gate
+CLOSED; Vanity stays gated. Next: private ability/attribution/AI and multipart/camera/
+container owners, TimeStop, input/writer/lifecycle transaction, automatic offline
+replay and complete world/map/storage reconciliation. This is NOT the full rewind.
+
 ## Vanity player actor ledgers - NATIVE COMPONENT, NOT RELEASED (30 October 2026)
 
 [Contract, limitations and exact native proof](agent_notes/VANITY_PLAYER_LINKS_CHECKPOINT_2026_10_30.md).

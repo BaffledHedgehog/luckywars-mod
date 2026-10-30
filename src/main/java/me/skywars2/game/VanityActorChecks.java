@@ -73,6 +73,9 @@ public final class VanityActorChecks {
         net.minecraft.world.entity.projectile.FishingHook hook;
         ServerPlayer retiredPlayer;
         Entity loginVehicle,loginPearl;
+        net.minecraft.world.damagesource.DamageSource combatSource,positionSource,historicSource;
+        Entity historicAnchor;
+        long combatTime;
         PrimedTnt tnt;
         ItemEntity item;
         Entity alias,future,futureSlimeSource;
@@ -143,9 +146,31 @@ public final class VanityActorChecks {
             var board=game.server().getScoreboard();board.addPlayerToTeam(shot.getScoreboardName(),base.team);
             objective=board.addObjective("vanity_actor",net.minecraft.world.scores.criteria.ObjectiveCriteria.DUMMY,Component.literal("Actors"),net.minecraft.world.scores.criteria.ObjectiveCriteria.RenderType.INTEGER,true,null);
             cached=board.getOrCreatePlayerScore(shot,objective);cached.set(101);
+            var types=gamma.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE);
+            var physical=new LbcGlassArmor.ShardDamage(gamma);
+            combatSource=game.items().indirectKills().captureDamage(game.items().indirectKills().captureDamage(physical,
+                    game.items().indirectKills().wildCause(gamma)),game.items().indirectKills().wildCause(gamma));
+            cow.clearFire();cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
+            require(cow.hurtServer(base.owner.level(),combatSource,1),"genuine native hit records nested accepted shard damage");cow.setHealth(55);cow.setRemainingFireTicks(50000);
+            cow.setLastHurtByPlayer(gamma,73);cow.setLastHurtByMob(gamma);cow.setLastHurtMob(gamma);
+            positionSource=new net.minecraft.world.damagesource.DamageSource(types.getOrThrow(net.minecraft.world.damagesource.DamageTypes.IN_FIRE),new Vec3(1.25,2.5,3.75));
+            cow.fallDistance=7.5;cow.getCombatTracker().recordDamage(positionSource,2.25F);cow.fallDistance=0;
+            historicAnchor=new Snowball(EntityTypes.SNOWBALL,base.owner.level());historicAnchor.setPos(at.add(3,4,5));historicAnchor.setRemoved(Entity.RemovalReason.DISCARDED);
+            historicSource=new LbcIceWand.ImpactSource(types.getOrThrow(net.minecraft.world.damagesource.DamageTypes.FREEZE),historicAnchor,gamma);
+            gamma.setInvulnerableTime(0);gamma.damageCooldownTime=0;
+            require(gamma.hurtServer(gamma.level(),gamma.damageSources().mobAttack(skeleton),1),"genuine native player combat before respawn");
+            gamma.setLastHurtMob(cow);gamma.getCombatTracker().recordDamage(historicSource,.75F);
+            var access=(me.skywars2.mixin.CombatCheckpointAccess.Living)cow;
+            access.skywars2$spin(cow.getMainHandItem());access.skywars2$climb(java.util.Optional.of(base.center.above(2)));access.skywars2$position(base.center.above());
+            combatTime=cow.level().getGameTime();var recent=new it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap<Entity>();recent.defaultReturnValue(-123);
+            recent.put(gamma,combatTime-4);recent.put(skeleton,combatTime-9);access.skywars2$kinetic(recent);
             actors=MatchActorCheckpoint.captureRegistered(game);player=new MatchPlayerCheckpoint(game,gamma);core=new MatchCoreCheckpoint(game);clock=game.matchTicks();phase=0;
         }
         void mutate() {
+            cow.setLastHurtByPlayer(base.other,1);cow.setLastHurtByMob(base.other);cow.setLastHurtMob(base.other);gamma.setLastHurtMob(base.other);
+            var combat=(me.skywars2.mixin.CombatCheckpointAccess.Living)cow;combat.skywars2$spin(new ItemStack(Items.DIRT,64));combat.skywars2$climb(java.util.Optional.empty());
+            if(combat.skywars2$kinetic()!=null)combat.skywars2$kinetic().clear();
+            cow.getCombatTracker().recordDamage(cow.damageSources().generic(),99);gamma.getCombatTracker().recordDamage(gamma.damageSources().generic(),99);
             hook.setOwner(base.other);((me.skywars2.mixin.ActorCheckpointAccess.Fishing)hook).skywars2$hooked(base.other);
             field(hook,"life",900);field(hook,"nibble",1);field(hook,"timeUntilLured",2);field(hook,"timeUntilHooked",3);field(hook,"fishAngle",2F);
             pearl.setOwner(base.other);field(pearl,"ticketTimer",1L);
@@ -170,6 +195,25 @@ public final class VanityActorChecks {
         }
         void verify() {
             var level=base.owner.level();
+            var combat=(me.skywars2.mixin.CombatCheckpointAccess.Living)cow;
+            require(cow.getLastHurtByPlayer()==gamma&&cow.getLastHurtByMob()==gamma&&cow.getLastHurtMob()==gamma&&cow.getKillCredit()==gamma
+                    &&combat.skywars2$memory()==73&&gamma.getLastHurtByMob()==skeleton&&gamma.getLastHurtMob()==cow,"native hurt-by/attack/kill-credit references use current actual bodies");
+            require(cow.getLastDamageSource(Integer.MAX_VALUE)==combatSource&&combatSource.getEntity()==gamma&&combatSource.getDirectEntity()==gamma
+                    &&LbcIndirectKills.isWildCaptured(combatSource)&&LbcIndirectKills.originalDamage(combatSource) instanceof LbcGlassArmor.ShardDamage
+                    &&LbcIndirectKills.originalDamage(combatSource).getEntity()==gamma,"exact nested WILD shard classes/accepted causes and all source references preserved");
+            var history=(me.skywars2.mixin.CombatCheckpointAccess.Tracker)cow.getCombatTracker();
+            require(history.skywars2$entries().size()==2&&history.skywars2$entries().get(0).source()==combatSource&&history.skywars2$entries().get(1).source()==positionSource
+                    &&history.skywars2$entries().get(1).damage()==2.25F&&history.skywars2$entries().get(1).fallDistance()==7.5F
+                    &&positionSource.sourcePositionRaw().equals(new Vec3(1.25,2.5,3.75))&&history.skywars2$combat()&&history.skywars2$taking(),"native combat entries/position/fall values and flags restored without extra hits");
+            var playerHistory=(me.skywars2.mixin.CombatCheckpointAccess.Tracker)gamma.getCombatTracker();
+            require(playerHistory.skywars2$entries().size()==2&&playerHistory.skywars2$entries().get(1).source()==historicSource
+                    &&historicSource.getEntity()==gamma&&historicSource.getDirectEntity()==historicAnchor&&historicAnchor.isRemoved()
+                    &&historicSource.is(net.minecraft.tags.DamageTypeTags.NO_KNOCKBACK),"new native player tracker preserves source subclass tag override and removed historical direct anchor");
+            var recent=combat.skywars2$kinetic();
+            require(recent!=null&&recent.size()==2&&recent.containsKey(gamma)&&recent.containsKey(skeleton)&&recent.defaultReturnValue()==-123
+                    &&cow.level().getGameTime()-recent.getLong(gamma)==4&&cow.level().getGameTime()-recent.getLong(skeleton)==9
+                    &&combat.skywars2$spin()==cow.getMainHandItem()&&combat.skywars2$climb().equals(java.util.Optional.of(base.center.above(2))),
+                    "kinetic target identities/relative ages/default and native weapon stack alias restored");
             for(var e:List.of(cow,tethered,knot,rider,vehicle,skeleton,shot,unowned,pearl,hook,tnt,item))require(!e.isRemoved()&&level.getEntity(e.getUUID())==e&&level.getEntity(e.getId())==e,"same original instance in native UUID and ID registries: "+e.getType());
             require(!distantPearl.isRemoved()&&distantPearl.level()==game.server().getLevel(Level.NETHER)&&distantPearl.getOwner()==gamma
                     &&field(distantPearl,"ticketTimer").equals(41L)&&unowned.getOwner()==null,"cross-dimension native pearl and originally ownerless projectile restored");
@@ -209,7 +253,8 @@ public final class VanityActorChecks {
                 // Native PlayerList.remove unloads a sole player's whole vehicle tree.
                 // The coordinator's body phase precedes pending-link reconciliation.
                 actors.restoreBodiesFrozen();
-                require(actors.restoreLinksFrozen().equals(Set.of(id))&&skeleton.getTargetUnchecked()==null&&gamma.getEnderPearls().isEmpty()&&gamma.fishing==null,
+                require(actors.restoreLinksFrozen().equals(Set.of(id))&&skeleton.getTargetUnchecked()==null&&gamma.getEnderPearls().isEmpty()&&gamma.fishing==null
+                        &&cow.getLastHurtByPlayer()==null&&cow.getLastHurtMob()==null&&combatSource.getEntity()==null,
                         "offline native target/owner/leash/rider remains explicit pending UUID, old logout-body ledgers cleared");
                 // Configuration's native loaders deserialize the actual logout file. Do this
                 // before actor replay, with disconnected actors absent, so UUID aliases really spawn.

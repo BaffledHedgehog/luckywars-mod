@@ -94,6 +94,8 @@ public final class LbcIndirectKills {
         while(source instanceof CapturedDamage captured)source=captured.original;
         return source;
     }
+    /** Read-only parent for the native combat checkpoint; accepted causes are never regenerated. */
+    static DamageSource checkpointWrappedSource(DamageSource source){return source instanceof CapturedDamage captured?captured.original:null;}
     /** Native ServerPlayer friendship admission runs before LivingEntity's damage callbacks. */
     public static boolean isWildCaptured(DamageSource source){return source instanceof CapturedDamage captured&&captured.cause.friendlyFire();}
     public void inheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){

@@ -88,6 +88,9 @@ public final class VanityCoreChecks {
         void ready() {
             require(game.allowDamage(gamma)&&game.lives(gammaId)==1&&game.alivePlayers().size()==3,"native operator enrollment creates an actual third participant");
             base.move(gamma,base.at);gamma.setNoGravity(true);gamma.removeAllEffects();gamma.getInventory().clearContent();gamma.setShiftKeyDown(false);
+            // This is a core checkpoint fixture, not random Wrath conversion/death proof.
+            // Keep borrowed players outside its 30-block conversion radius during real ticks.
+            base.move(base.owner,base.at.add(-40,0,-40));base.move(base.other,base.at.add(40,0,-40));
             root=game.lbc().rollTable(gamma.level(),gamma.position(),gamma,"lbc:witch_gens").stream().filter(LbcWitchClaims::matches).findFirst().orElseThrow();
             claim(gamma,5000);
             profile=game.players().get(gammaId);profile.coins=113;profile.keys[2]=4;profile.levelups[0]=12;profile.trinkets[0]=8;
@@ -121,6 +124,7 @@ public final class VanityCoreChecks {
         void killAndReplace() {
             var previous=gamma;gamma.setInvulnerableTime(0);gamma.damageCooldownTime=0;
             require(gamma.hurtServer(gamma.level(),gamma.damageSources().playerAttack(base.owner),10000)&&gamma.isDeadOrDying(),"real native attributed death");
+            require(base.owner.isAlive()&&base.other.isAlive(),"owned Wrath death cannot consume borrowed fixture players");
             require(game.lives(gammaId)==0&&game.awaitingRespawn(gammaId)&&profile.deaths==deaths+1
                     &&alphaProfile.kills==kills+1&&alphaProfile.coins==coins+50,"actual core elimination and kill rewards changed after checkpoint");
             gamma.connection.handleClientCommand(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));

@@ -35,6 +35,7 @@ public final class MatchActorCheckpoint {
     private final Map<UUID,Image> images=new LinkedHashMap<>();
     private boolean bodiesRestored;
     private MatchPlayerLinks playerLinks;
+    private MatchCombatCheckpoint combat;
 
     private MatchActorCheckpoint(GameController game) {this.game=game;epoch=game.items().epoch();}
     static MatchActorCheckpoint captureRegistered(GameController game) {
@@ -59,6 +60,7 @@ public final class MatchActorCheckpoint {
             if(result.images.put(image.uuid,image)!=null)throw new IllegalStateException("Duplicate native actor UUID at capture");
         }
         result.playerLinks=new MatchPlayerLinks(game,id->{var image=result.images.get(id);return image==null?null:image.actor;});
+        result.combat=new MatchCombatCheckpoint(game,result.images.values().stream().map(Image::actor).toList());
         return result;
     }
     int size(){return images.size();}
@@ -187,6 +189,7 @@ public final class MatchActorCheckpoint {
                 image.state.level.getChunkSource().sendToTrackingPlayers(actor,new ClientboundSetPassengersPacket(actor));
             }
             playerLinks.restore(this::resolve,pending);
+            combat.restore(this::resolve,pending);
         });
         return Set.copyOf(pending);
     }
