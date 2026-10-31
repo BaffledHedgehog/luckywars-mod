@@ -2,7 +2,8 @@
   "targets": {
     "swap": {},
     "zone_scene": {},
-    "signed_glow_scene": {}
+    "signed_glow_scene": {},
+    "spread_scene": {}
   },
   "passes": [
     {
@@ -66,6 +67,46 @@
         {
           "sampler_name": "In",
           "target": "signed_glow_scene"
+        }
+      ],
+      "output": "minecraft:main",
+      "uniforms": {
+        "BlitConfig": [
+          {
+            "name": "ColorModulate",
+            "type": "vec4",
+            "value": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "vertex_shader": "lbc:post/weapon_spread",
+      "fragment_shader": "lbc:post/weapon_spread",
+      "inputs": [
+        {
+          "sampler_name": "SpreadData",
+          "target": "minecraft:entity_outline"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "minecraft:main"
+        }
+      ],
+      "output": "spread_scene"
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "minecraft:post/blit",
+      "inputs": [
+        {
+          "sampler_name": "In",
+          "target": "spread_scene"
         }
       ],
       "output": "minecraft:main",

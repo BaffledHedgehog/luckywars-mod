@@ -162,7 +162,7 @@ public final class LbcLaserMinigun {
         var owner=spool.owner;
         if(!current(spool) || !isMinigun(owner.getItemInHand(hand))
                 || !game.items().mana().trySpendWand(owner,100)) return;
-        if(spool.spread>=1100) spool.spread-=100;
+        spool.spread=LbcGunAccuracy.minigunNextShotSpread(spool.spread);
         spool.shots++;
         game.items().armorSets().phantom().activity(owner);
         if(spool.spread<=1000) game.items().mana().award(owner,"lbc:true_advancements/shooter/laser_minigun");
@@ -197,8 +197,8 @@ public final class LbcLaserMinigun {
         int spread=spool.spread;
         Vec3 origin=muzzle(owner,hand);
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
-        float yaw=owner.getYRot()+(owner.getRandom().nextInt(spread*2+1)-spread)*.001f;
-        float pitch=owner.getXRot()+(owner.getRandom().nextInt(spread*2+1)-spread)*.001f;
+        float yaw=owner.getYRot()+LbcGunAccuracy.minigunDegrees(owner.getRandom().nextInt(spread*2+1)-spread);
+        float pitch=owner.getXRot()+LbcGunAccuracy.minigunDegrees(owner.getRandom().nextInt(spread*2+1)-spread);
         Vec3 forward=Vec3.directionFromRotation(pitch,yaw),end=origin.add(forward.scale(100));
         double suppression=game.items().magic().suppressionFraction(owner.level(),origin,end);
         if(suppression<=1) end=origin.lerp(end,suppression);

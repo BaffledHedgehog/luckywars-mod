@@ -660,6 +660,7 @@ public final class GameChecks {
                                 case "woodificator" -> checkWoodificator(game);
                                 case "shooter-pair-menu" -> checkShooterPairMenu(game);
                                 case "gun-accuracy" -> { GunAccuracyChecks.run(game); return; }
+                                case "weapon-spread" -> { WeaponSpreadChecks.run(game); return; }
                                 case "rifle-presentation" -> { RiflePresentationChecks.run(game); return; }
                                 case "magnum" -> { MagnumChecks.run(game); return; }
                                 case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }

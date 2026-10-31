@@ -20,12 +20,30 @@ final class LbcGunAccuracy {
         double speed=Math.sqrt(motion.horizontalDistanceSqr()+vertical*vertical);
         return speed>.01?speed:0;
     }
-    static Vec3 rifle(GameController game,ServerPlayer player) {
+    /** Half-angle of the next rifle shot; reading presentation state must never sample the RNG. */
+    static double rifleDegrees(GameController game,ServerPlayer player) {
         double degrees=game.items().rifleZoom().scoped(player)?0:HIP_DEGREES;
-        return sample(player.getLookAngle(),Math.min(MAX_DEGREES,degrees+movementDegrees(player)),player.getRandom());
+        return Math.min(MAX_DEGREES,degrees+movementDegrees(player));
+    }
+    static double ak47Degrees(ServerPlayer player) {
+        return movementDegrees(player);
+    }
+    /** Source narrowing occurs once per accepted shot, before either angular offset is sampled. */
+    static int minigunNextShotSpread(int currentSpread) {
+        return currentSpread>=1100?currentSpread-100:currentSpread;
+    }
+    /** Minigun offsets form a yaw/pitch square, not the rifle's solid-angle cone. */
+    static float minigunDegrees(int spread) {
+        return spread*.001f;
+    }
+    static double minigunNextShotDegrees(GameController game,ServerPlayer player) {
+        return minigunDegrees(minigunNextShotSpread(game.items().laserMinigun().spread(player)));
+    }
+    static Vec3 rifle(GameController game,ServerPlayer player) {
+        return sample(player.getLookAngle(),rifleDegrees(game,player),player.getRandom());
     }
     static Vec3 ak47(ServerPlayer player) {
-        return sample(player.getLookAngle(),movementDegrees(player),player.getRandom());
+        return sample(player.getLookAngle(),ak47Degrees(player),player.getRandom());
     }
     static Vec3 sample(Vec3 forward,double degrees,RandomSource random) {
         if(degrees==0)return forward;

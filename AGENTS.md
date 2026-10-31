@@ -1,3 +1,17 @@
+## Dynamic weapon spread crosshair - NATIVE BATCH, NOT RELEASED (31 October 2026)
+
+[Implementation/evidence](agent_notes/WEAPON_SPREAD_CROSSHAIR_2026_10_31.md).
+Both AKs, Laser Minigun, Magnum/SLG use shared actual next-shot bounds; four
+inverted bars project with actual client FOV/aspect/camera, including Euler-square
+minigun extrema. One private #D57600/row58 carrier; immediate scope hide/return,
+current-body/world retirement and derived-only rewind projection. No new gameplay
+state/RNG/mana/stack mutation or changed ballistics. 20763a3a passes6 native fresh
+mode1 groups plus365 GPU checks/126 independent geometry cases; old57 marker
+records and disk preserve exact pixels.196 authorpaths unchanged;3 deliberate
+new RP patches from read-only current pack, live31/main d9087f0a unchanged.
+Normal child exit/exact snapshots/no locks. See template WEAPON_SPREAD_README.md
+for six RP files. Chaos release gate CLOSED; no main install/restart/push/questions.
+
 ## Player feedback and canonical loot - NATIVE BATCH, NOT RELEASED (31 October 2026)
 
 [Implementation and evidence](agent_notes/PLAYER_FEEDBACK_AND_LOOT_2026_10_31.md).

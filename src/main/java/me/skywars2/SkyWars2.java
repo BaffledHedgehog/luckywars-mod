@@ -105,6 +105,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) { game.tick(); GameChecks.tick(game); }
             me.skywars2.game.SignedEnvironmentalEffects.tick();
             me.skywars2.game.SignedEffectVisuals.tick(server);
+            me.skywars2.game.WeaponSpreadVisuals.tick(server);
             if(game!=null)game.vanity().tick();
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
@@ -136,14 +137,18 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             me.skywars2.game.SignedEnvironmentalEffects.clear();
             me.skywars2.game.SignedEffectVisuals.stop(server);
             if (game != null) { game.shutdown(); game = null; }
+            me.skywars2.game.WeaponSpreadVisuals.stop();
         });
         ServerPlayerEvents.JOIN.register(player -> { if (game != null) game.join(player); me.skywars2.game.SignedEffectVisuals.joined(player); });
         ServerPlayerEvents.LEAVE.register(player -> {
+            me.skywars2.game.WeaponSpreadVisuals.forget(player);
             FullInvisibility.cameraChanging(player, null);
             me.skywars2.game.SignedEffectVisuals.clear(player);
             if (game != null) game.leave(player);
         });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, player, alive) -> {
+            me.skywars2.game.WeaponSpreadVisuals.forget(oldPlayer);
+            me.skywars2.game.WeaponSpreadVisuals.forget(player);
             // 26.3 assigns the listener after PlayerList.respawn returns; callbacks teleport now.
             player.connection.player = player;
             // При респауне объект игрока заменяется, а UUID остаётся: старый доступ камеры не переносится.

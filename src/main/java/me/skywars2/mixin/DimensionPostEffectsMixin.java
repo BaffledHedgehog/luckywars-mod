@@ -13,6 +13,9 @@ public abstract class DimensionPostEffectsMixin {
     @Inject(method="setServerLevel",at=@At("TAIL"))
     private void skywars2$worldProjection(CallbackInfo ci){
         var player=(ServerPlayer)(Object)this;
-        if(player.connection!=null)SignedEffectVisuals.synchronize(player);
+        if(player.connection!=null){
+            me.skywars2.game.WeaponSpreadVisuals.forget(player);
+            SignedEffectVisuals.synchronize(player);
+        }
     }
 }

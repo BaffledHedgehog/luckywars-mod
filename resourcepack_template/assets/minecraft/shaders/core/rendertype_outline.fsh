@@ -7,6 +7,7 @@
 #include <lbc:black_hole_data.glsl>
 #include <lbc:nuclear_data.glsl>
 #include <lbc:signed_glow_data.glsl>
+#include <lbc:weapon_spread_data.glsl>
 
 uniform sampler2D Sampler0;
 layout(location = 0) in vec4 vertexColor;
@@ -23,6 +24,7 @@ void main() {
             if (blackHoleKind == 2) header = vec3(78, 85, 75);
             if (blackHoleKind == 3) header = vec3(78, 85, 76);
             if (blackHoleKind == 4) header = vec3(71,76,87);
+            if (blackHoleKind == 5) header = vec3(83,80,82);
             fragColor = vec4(header / 255.0, 0.0);
         } else {
             uint bits = floatBitsToUint(zoneDataValue);
@@ -35,7 +37,8 @@ void main() {
         return;
     }
     // Protect invisible data against other glowing entities in this tiny strip.
-    if (lbc_signed_glow_reserved(gl_FragCoord.xy,ScreenSize) ||
+    if (lbc_weapon_spread_reserved(gl_FragCoord.xy,ScreenSize) ||
+        lbc_signed_glow_reserved(gl_FragCoord.xy,ScreenSize) ||
         lbc_bh_reserved_pixel(gl_FragCoord.xy, ScreenSize) ||
         lbc_nuclear_reserved_pixel(gl_FragCoord.xy, ScreenSize)) {
         discard;

@@ -148,13 +148,16 @@ public final class LbcRifleZoom {
             syncAbilities(player);
             refreshModels(player);
         }
-
+        // Match the scope packet immediately; the HUD must not survive until the next item tick.
+        WeaponSpreadVisuals.synchronize(game,player);
         }finally{checkpointDepth--;}
     }
     boolean scoped(ServerPlayer player) {
         var state=states.get(player.getUUID());
         return state!=null && state.player==player && state.active && current(state);
     }
+    /** Presentation can remain active while input is quarantined during a rewind. */
+    boolean scopeVisible(ServerPlayer player) { return modelViews.containsKey(player.getUUID()); }
     private static boolean rifle(ItemStack stack) {
         return LbcShooters.isSlr(stack) || LbcMagnum.isMagnum(stack);
     }
@@ -187,6 +190,7 @@ public final class LbcRifleZoom {
         } else {
             state.exitUntil=0;
         }
+        WeaponSpreadVisuals.synchronize(game,state.player);
     }
 
     /** Reproduce the unmodified client's synchronized movement value, including packet modifiers. */
