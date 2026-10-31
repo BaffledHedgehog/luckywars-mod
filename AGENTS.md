@@ -1,3 +1,23 @@
+## Three mechanical tools ? NATIVE VERIFIED (1 November 2026)
+
+[Final contract and retained failures](agent_notes/STEAMPUNK_TOOLS_2026_11_01.md).
+Native Polymer Breaker/glove/hook and actual kit acquisition are implemented.
+User final correction: breaker chance25% from SUCCESSFUL BLOCK BREAK or MELEE
+CONTACT, independent of durability. Repairs/armor/standalone wear never proc.
+Shared17-cube destroy work/native drops/causality; TECH cancels queued writes.
+Glove reuses Moisei's shared sprint clock ONCE, original200 ramp/5 stopped seconds;
+TECH cancels native bonuses/tag. Hook pulls the actual player through velocity,
+no pig/pose corrections; initial120/free reuse until death, fixed anchor, SHIFT,
+TECH active/pending cancellation, MAG immunity. Saved native player attachment
+composes with existing NBT/body/core owners; no private checkpoint engine added.
+036b29de passes ALL7 groups in7 fresh mode1 matches: new3 +Moisei/raw-ray tools/
+technical armor/full production Vanity. Normal child exit/exact snapshots/no locks.
+9556 inputs/2340 classes/7156 resources;224 authorpaths/31 live overrides exact.
+No new RP changes or questions; PENDING and author source remain untouched.
+Full three-tool release gate is cleared. Shared normal-stop installer only;
+never stop/restart main. Qualification/install receipt is under
+build/verification/steampunk-tools-2026-11-01/. Main baseline before install6763758b.
+
 ## Grimoire dungeon reward chain - NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Current implementation, failures and native proof](agent_notes/GRIMOIRE_DUNGEON_CHAIN_2026_11_01.md).

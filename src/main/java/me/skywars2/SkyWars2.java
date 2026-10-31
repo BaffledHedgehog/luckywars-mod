@@ -180,7 +180,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && entity instanceof ServerPlayer player) game.items().witchWrath().died(player);
             if (game != null && entity instanceof ServerPlayer player) game.items().magic().clear(player);
             if (game != null) game.items().frost().clear(entity);
-            if (game != null && entity instanceof ServerPlayer player) game.died(player, damage);
+            if (game != null && entity instanceof ServerPlayer player) { game.items().steampunkHook().reset(player);game.items().steampunkGlove().reset(player);game.died(player, damage); }
         });
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damage, blocked) -> {
             if (game != null && !blocked && damage > 0) game.items().academy().damaged(entity, source);
@@ -201,6 +201,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcSteampunkHook.matches(player.getItemInHand(hand)))
+                return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){
                 var eye=player.getEyePosition();var end=eye.add(player.getViewVector(1).scale(player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.BLOCK_INTERACTION_RANGE)));
                 var hit=level.clip(new net.minecraft.world.level.ClipContext(eye,end,net.minecraft.world.level.ClipContext.Block.OUTLINE,net.minecraft.world.level.ClipContext.Fluid.SOURCE_ONLY,player));

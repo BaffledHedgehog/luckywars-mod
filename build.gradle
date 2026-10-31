@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/steampunk_pickaxe.json', 'data/lbc/loot_table/ported/steampunk_sword.json', 'data/lbc/loot_table/ported/grapping_hook.json'
     include 'data/lbc/loot_table/item_defs/**/*.json'
     include 'data/lbc/structure/item_gallery.nbt'
     include 'data/lbc/worldgen/structure/grimoire_dungeon.json', 'data/lbc/worldgen/template_pool/grimoire_dungeon/**', 'data/lbc/structure/grimoire_dungeon/**'

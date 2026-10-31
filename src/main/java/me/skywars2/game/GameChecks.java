@@ -665,6 +665,9 @@ public final class GameChecks {
                                 case "rasengan" -> { RasenganChecks.run(game); return; }
                                 case "imba-runes" -> { ImbaRuneChecks.run(game); return; }
                                 case "uniwand" -> { UniwandChecks.run(game); return; }
+                                case "steampunk-breaker" -> { SteampunkBreakerChecks.start(game); return; }
+                                case "steampunk-glove" -> { SteampunkGloveChecks.run(game); return; }
+                                case "steampunk-hook" -> { SteampunkHookChecks.run(game); return; }
                                 case "grimoire-boss" -> { GrimoireBossChecks.run(game); return; }
                                 case "grimoire-rooms" -> { GrimoireRoomChecks.run(game); return; }
                                 case "grimoire-dungeon" -> { GrimoireDungeonChecks.run(game); return; }
@@ -1418,6 +1421,8 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            SteampunkBreakerChecks.tick(game);SteampunkGloveChecks.tick(game);
+        SteampunkHookChecks.tick(game);
             GrimoireBossChecks.tick(game);            UniwandChecks.tick(game);GrimoireDungeonChecks.tick(game);            MapRotationChecks.tick(game);            ImbaRuneChecks.tickGlobals(game);ImbaRuneChecks.tickRestart(game);
             RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);
             AttributeFoodChecks.tick(game);

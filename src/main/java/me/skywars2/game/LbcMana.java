@@ -180,6 +180,7 @@ public final class LbcMana {
         set(p,value-cost); return true;
     }
     public void resetResources(ServerPlayer p) {
+        game.items().steampunkHook().reset(p);game.items().steampunkGlove().reset(p);
         maximum(p,5000); set(p,5000); baseRegen(p,10); write(p,"manaregen_visual",10);
         clearEffects(p); overload.reset(p); game.items().armorSets().techno().reset(p); write(p,"falltimer",0); write(p,"food_count",0); inventoryChanged(p);
     }

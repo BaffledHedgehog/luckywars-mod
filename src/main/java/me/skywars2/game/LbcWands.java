@@ -452,6 +452,7 @@ public final class LbcWands {
         if(!LbcDimensionItems.ordinary(player))return false;
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
+        if(LbcSteampunkHook.matches(stack))return game.items().steampunkHook().use(player,hand);
         if(LbcWitchLust.matches(stack))return game.items().witchLust().use(player,hand);
         if(LbcWitchClaims.matches(stack))return game.items().witchClaims().use(player,hand);
         if(LbcWitchGluttony.matches(stack))return game.items().witchGluttony().use(player,hand);
