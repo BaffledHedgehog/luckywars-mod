@@ -1,4 +1,4 @@
-## Mechanical kit acquisition + next utility definitions - NATIVE VERIFIED (1 November 2026)
+## Mechanical kit acquisition + next utility definitions - NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Current scope and failures](agent_notes/KIT_UTILITIES_2026_11_01.md).
 036b29de qualified mechanical ABILITIES/leaves but omitted actual kit12/13 rows
@@ -16,7 +16,8 @@ repeat them into PENDING. Reuse existing banana food and loose/effect owners.
 No RP/PENDING edits, function engine, main stop/restart or remote push.
 Qualified release scope is the completed mechanical acquisition correction only,
 plus inert future definitions. Installer receipt under
-build/verification/kit-utilities-2026-11-01/. Main baseline before install036b29de.
+build/verification/kit-utilities-2026-11-01/. Main is nowa3f4644c; shared normal-stop
+installer retained036b29de rollback. No main restart. Commit62c3cfba.
 
 ## Three mechanical tools ? NATIVE VERIFIED, INSTALLED (1 November 2026)
 

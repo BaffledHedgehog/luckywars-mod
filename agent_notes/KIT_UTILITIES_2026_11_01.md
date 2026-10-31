@@ -61,3 +61,11 @@ with inert next-item definitions prepared. Full tablet/palm ability release stil
 requires their chat decisions and actual gameplay implementation/tests. Main
 baseline036b29de; use only the shared normal-stop installer for the qualified
 mechanical acquisition correction. Never stop/restart main to install it.
+
+## Installation receipt
+
+Implementation commit62c3cfba contains only the18 owned paths. Shared installer
+installeda3f4644c; exact main SHA and036b29de rollback verified. No main stop or
+restart.224 author paths and31 overrides still hash exactly. New tablet/palm
+abilities remain unimplemented and their catalogue entries remain disabled;
+installation does not constitute qualification of those abilities.
