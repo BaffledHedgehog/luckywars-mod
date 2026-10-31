@@ -4,50 +4,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 8,
-                "max": 16,
-                "type": "minecraft:uniform"
-              }
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:smallfireball"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "small_throwable_fireball",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "small_throwable_fireball.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{special:1,smallfireball:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/smallfireball__5403050a24bc",
+          "weight": 1
         }
       ]
     },
@@ -55,50 +14,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 0,
-                "max": 4,
-                "type": "minecraft:uniform"
-              }
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:bigfireball"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "big_throwable_fireball",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "big_throwable_fireball.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{special:1,fireball:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/bigfireball__58955493346d",
+          "weight": 1
         }
       ]
     },
@@ -110,50 +28,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 0,
-                "max": 3,
-                "type": "minecraft:uniform"
-              }
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:dragfireball"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "dragon_throwable_fireball",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "dragon_throwable_fireball.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{special:1,dragfireball:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/dragfireball__9640597422c4",
+          "weight": 1
         }
       ]
     }

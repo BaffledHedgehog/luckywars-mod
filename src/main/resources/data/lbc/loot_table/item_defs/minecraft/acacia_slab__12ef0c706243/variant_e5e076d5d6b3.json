@@ -1,0 +1,34 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:acacia_slab",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_f"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "name": [
+                {
+                  "translate": "just_a_red_slab",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,22 +1,22 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:candle"
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:cyan_dye"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/candle__e63287dbf010"
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cyan_dye__c7964d2320f3"
+        }
+      ]
+    }
+  ]
 }

@@ -1,0 +1,81 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_k",
+                "minecraft:item_model": "lbc:badapple1"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "text": "B",
+                  "color": "white",
+                  "italic": false,
+                  "type": "text"
+                },
+                {
+                  "text": "a",
+                  "color": "black",
+                  "italic": false,
+                  "type": "text"
+                },
+                {
+                  "text": "d ",
+                  "color": "white",
+                  "italic": false,
+                  "type": "text"
+                },
+                {
+                  "text": "A",
+                  "color": "black",
+                  "italic": false,
+                  "type": "text"
+                },
+                {
+                  "text": "ppl",
+                  "color": "white",
+                  "italic": false,
+                  "type": "text"
+                },
+                {
+                  "text": "e",
+                  "color": "black",
+                  "italic": false,
+                  "type": "text"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{bad_apple_imba:1}",
+              "type": "minecraft:set_custom_data"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

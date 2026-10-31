@@ -1,0 +1,36 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bow",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:unbreakable": {},
+                "minecraft:enchantments": {
+                  "minecraft:power": 5,
+                  "minecraft:punch": 2,
+                  "minecraft:flame": 1,
+                  "minecraft:infinity": 1
+                },
+                "minecraft:custom_name": {
+                  "italic": false,
+                  "translate": "bob_bow"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

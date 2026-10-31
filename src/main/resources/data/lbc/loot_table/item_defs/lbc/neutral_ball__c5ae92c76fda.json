@@ -1,0 +1,111 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:neutral_ball",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:neutral_ball",
+                "minecraft:unbreakable": {}
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "neutral_ball",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "arcanum",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "score": {
+                      "name": "neutral_ball_mana_activate",
+                      "objective": "lbc.math"
+                    },
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "score"
+                  },
+                  {
+                    "translate": "mana_on_activate",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "neutral_ball.lore.1",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "neutral_ball.lore.2",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "neutral_ball.lore.3",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "neutral_ball.lore.4",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "neutral_ball.lore.5",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "neutral_ball.lore.6",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "neutral_ball.lore.7",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,arcanum:1,arcanumt:1,neutral_ball:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:acacia_slab",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "just_a_red_slab_imba",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "just_a_red_slab_imba.lore",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_k"
+              }
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{blood_slab:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

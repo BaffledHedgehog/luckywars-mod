@@ -1,0 +1,49 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_helmet",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "head",
+                    "id": "multihelmestt",
+                    "amount": 0.5,
+                    "operation": "add_multiplied_base"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "head",
+                    "id": "multuiofjdufhduhudghvdhgudhgud",
+                    "amount": 0.5,
+                    "operation": "add_multiplied_base"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "multiplying_helmet",
+                  "italic": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

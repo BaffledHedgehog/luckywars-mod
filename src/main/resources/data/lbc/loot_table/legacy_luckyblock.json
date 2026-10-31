@@ -4,1175 +4,224 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_axe",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_axe",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_axe__399a9b892e86"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_pickaxe",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_pickaxe",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_pickaxe__05407cb74eaa"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_sword",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_sword__3bb7bd7b09f9"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_shovel",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_shovel",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_shovel__9280bc85642b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_hoe",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_hoe",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_hoe__6d7b875d9202"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_helmet",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_helmet",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_helmet__808b9668a390"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_chestplate",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_chestplate",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_chestplate__5e9143346926"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_leggings",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_leggings",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_leggings__aa67071717f7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_boots",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_boots",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_boots__8e4963f45064"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bow",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "randchanted_bow",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": {
-                "min": 1,
-                "max": 30,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/randchanted_bow__a3fb500c1a63"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:netherite_hoe",
-          "modifier": [
-            {
-              "type": "minecraft:set_name",
-              "entity": "this",
-              "name": {
-                "translate": "imbalance_hoe",
-                "italic": false
-              }
-            },
-            {
-              "type": "minecraft:enchant_with_levels",
-              "levels": 30
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/imbalance_hoe__31e9f48e4ebf"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:alotofarrows_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:chorus_fruit",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 16
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chorus_fruit__46f0432e5c73/variant_bfa45c8f1d0d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 4
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_block__c56b9d7aac2a/variant_29df3de3fe64"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:beacon",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/beacon__113c4ee59833/variant_c67e75927f3d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bedrock",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 6
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bedrock__8f32b86e01c0/variant_d5bd5fbc0f5b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:cooked_beef",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 16
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cooked_beef__4678d86a8d10/variant_bfa45c8f1d0d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{drop:1,explode:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__c6c29c61c5c6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{drop:1,korrosion_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__2d54bc3ea709"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{drop:1,creepers_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__2191e2a7e97d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bow",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:feather_falling": 1
-                },
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "firework.lbc",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "firework_legacy.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "firework_legacy.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{explosive:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bow__01754f924582"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{lightning_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__571cc464a08a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:netherite_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "legendary_sword",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_sword__41eb30edcef2"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_block__10cb37c5c80f/variant_c67e75927f3d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:coarse_dirt",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 64
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/coarse_dirt__872748bc84e7/variant_448734fd39df"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:tnt",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 32
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tnt__594fd20a82a7/variant_26790b75dbec"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_pickaxe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:silk_touch": 10
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "silkespixaxe",
-                    "amount": 2,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "silk_pickaxe_old",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_pickaxe__2e528103f347"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_shovel",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 255
-                },
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "enchantment.minecraft.efficiency",
-                    "italic": false,
-                    "color": "gray"
-                  },
-                  {
-                    "translate": " enchantment.level.666"
-                  }
-                ]
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_shovel__15046ff56fc5/variant_06fc441b48d7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:ancient_debris",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 2
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ancient_debris__0f4ae238b0fe/variant_3500121d56e8"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_helmet",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:armor",
-                    "slot": "head",
-                    "id": "multihelmestt",
-                    "amount": 0.5,
-                    "operation": "add_multiplied_base"
-                  },
-                  {
-                    "type": "minecraft:armor_toughness",
-                    "slot": "head",
-                    "id": "multuiofjdufhduhudghvdhgudhgud",
-                    "amount": 0.5,
-                    "operation": "add_multiplied_base"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiplying_helmet",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_helmet__c5672c196691"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_chestplate",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:armor",
-                    "slot": "chest",
-                    "id": "digh8yug8rrfgfgf",
-                    "amount": 1,
-                    "operation": "add_multiplied_base"
-                  },
-                  {
-                    "type": "minecraft:armor_toughness",
-                    "slot": "chest",
-                    "id": "qwertyuiopdfghjklj",
-                    "amount": 1,
-                    "operation": "add_multiplied_base"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiplying_chestplate",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_chestplate__ade4d35b9106"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_leggings",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:armor",
-                    "slot": "legs",
-                    "id": "daerischandevocjkawaifu",
-                    "amount": 0.8,
-                    "operation": "add_multiplied_base"
-                  },
-                  {
-                    "type": "minecraft:armor_toughness",
-                    "slot": "legs",
-                    "id": "eriserisedkidaeris",
-                    "amount": 0.8,
-                    "operation": "add_multiplied_base"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiplying_leggings",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_leggings__392bdefa8c27"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_boots",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:armor",
-                    "slot": "feet",
-                    "id": "jastshishkaisf",
-                    "amount": 0.4,
-                    "operation": "add_multiplied_base"
-                  },
-                  {
-                    "type": "minecraft:armor_toughness",
-                    "slot": "feet",
-                    "id": "nyauwumewdaerisshiiish",
-                    "amount": 0.4,
-                    "operation": "add_multiplied_base"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiplying_boots",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_boots__3df1804e8484"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_sword__4775be0dedd1/variant_c67e75927f3d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_pickaxe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_pickaxe__96f82dee6fe4/variant_c67e75927f3d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:ghast_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:entity_data": {
-                  "id": "minecraft:ghast",
-                  "ExplosionPower": 10,
-                  "Motion": [
-                    0,
-                    2,
-                    0
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "super_ghast",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ghast_spawn_egg__65149a7d0886/variant_bce056ed0001"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 8
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:fusedtnt",
-                "minecraft:entity_data": {
-                  "id": "minecraft:tnt",
-                  "fuse": 40,
-                  "Motion": [
-                    0,
-                    0.3,
-                    0
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "fused_tnt",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/fusedtnt__619b2b8fcc6a/variant_e8a1a7aa793a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 8
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:lightningegg_old",
-                "minecraft:entity_data": {
-                  "id": "minecraft:lightning_bolt"
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "lightning_bolt.lbc",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/lightningegg_old__dc20b4e7d743"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:lingering_potion",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:potion_contents": {
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:instant_damage",
-                      "amplifier": 1
-                    },
-                    {
-                      "id": "minecraft:nausea",
-                      "amplifier": 5,
-                      "duration": 220
-                    },
-                    {
-                      "id": "minecraft:regeneration",
-                      "amplifier": 5,
-                      "duration": 60
-                    },
-                    {
-                      "id": "minecraft:invisibility",
-                      "amplifier": 5,
-                      "duration": 220
-                    },
-                    {
-                      "id": "minecraft:night_vision",
-                      "amplifier": 5,
-                      "duration": 220
-                    },
-                    {
-                      "id": "minecraft:hunger",
-                      "amplifier": 5,
-                      "duration": 220
-                    },
-                    {
-                      "id": "minecraft:poison",
-                      "amplifier": 5,
-                      "duration": 220
-                    },
-                    {
-                      "id": "minecraft:health_boost",
-                      "amplifier": 5,
-                      "duration": 60
-                    },
-                    {
-                      "id": "minecraft:glowing",
-                      "amplifier": 5,
-                      "duration": 220
-                    },
-                    {
-                      "id": "minecraft:levitation",
-                      "amplifier": 6,
-                      "duration": 60
-                    },
-                    {
-                      "id": "minecraft:luck",
-                      "amplifier": 5,
-                      "duration": 220
-                    },
-                    {
-                      "id": "minecraft:unluck",
-                      "amplifier": 6,
-                      "duration": 220
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "gvozd_potion",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/lingering_potion__4bf3f9c94366"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:potion",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:oppotion",
-                "minecraft:potion_contents": {
-                  "custom_color": 16777215,
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:speed",
-                      "amplifier": 4,
-                      "duration": 1000
-                    },
-                    {
-                      "id": "minecraft:haste",
-                      "amplifier": 4,
-                      "duration": 1000
-                    },
-                    {
-                      "id": "minecraft:strength",
-                      "amplifier": 0,
-                      "duration": 200
-                    },
-                    {
-                      "id": "minecraft:regeneration",
-                      "amplifier": 1,
-                      "duration": 300
-                    },
-                    {
-                      "id": "minecraft:absorption",
-                      "amplifier": 1,
-                      "duration": 500
-                    },
-                    {
-                      "id": "minecraft:slow_falling",
-                      "amplifier": 4,
-                      "duration": 1000
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "op_potion",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/oppotion__ba557b67cd24"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:slime_ball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                }
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/slime_ball__0722272f9764/variant_3366f0369d7e"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_helmet"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_helmet__f52d38312b6b/variant_4f53cda18c2b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_chestplate"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_chestplate__dc0dda3725c3/variant_4f53cda18c2b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_leggings"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_leggings__e4ff027dd966/variant_4f53cda18c2b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_boots"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_boots__042be3df9ba3/variant_4f53cda18c2b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:acacia_log",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 32,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/acacia_log__116c3380f4e2/variant_12ea3262c48a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:oak_log",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 32,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_log__0e9deb15ada2/variant_12ea3262c48a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:birch_log",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 32,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/birch_log__6d0a3facb470/variant_12ea3262c48a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:dark_oak_log",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 32,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dark_oak_log__8b5efb1ce94c/variant_12ea3262c48a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:jungle_log",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 32,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/jungle_log__e729e5aed71e/variant_12ea3262c48a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:spruce_log",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 32,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/spruce_log__aa71784c728a/variant_12ea3262c48a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{yama_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__7ebbed5d915b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{lookupanvil:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__9e0cf8a0b58d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{lookuplava:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__009b1ed8c951"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{bob_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__0ff8b3082723"
         },
         {
           "type": "minecraft:loot_table",
@@ -1183,412 +232,80 @@
           "value": "lbc:buckets_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{library:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__1e6931aec237"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{skeleton_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__72b0a7b68659"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:wool"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{applepig:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__a30341462c8b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:flint_and_steel",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:fire_aspect": 20
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "daeriswaifu800yearschan",
-                    "amount": -0.99,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "op_flint",
-                  "color": "gold",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/flint_and_steel__176bd1edca1a/variant_3e0dea5995c8"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:food_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:leather_leggings",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:dyed_color": 655104,
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:dyed_color"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "frog_leggings",
-                  "color": "green",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "frog_leggings_old.lore",
-                  "color": "#FFBFBF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{jumpboost_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/leather_leggings__43f541b8d125"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:wooden_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:devilsword",
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "edkoedkoedkodaerisaiwisjfijf",
-                    "amount": 0,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "devil_sword",
-                  "color": "dark_red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "devil_sword_old.lore.1",
-                  "italic": false,
-                  "color": "red"
-                },
-                {
-                  "translate": "devil_sword_old.lore.2",
-                  "italic": false,
-                  "color": "red"
-                },
-                {
-                  "translate": "devil_sword_old.lore.3",
-                  "italic": false,
-                  "color": "red"
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{heal:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_devil_sword"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{end_city:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__905d65a3dab7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{village:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__0d1300ddc594"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{bonus_chest:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__187f5d4f5602"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{bastion:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__ef0fcc1146d7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{treasure:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__853e42104245"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:foodblocks"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{bees:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__017942a9c7b0"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:elytra_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{vex_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__5908f0de15e0"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:gaara"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "sand_amulet",
-                  "color": "gold",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "sand_amulet.lore.1",
-                  "italic": false,
-                  "color": "yellow"
-                },
-                {
-                  "translate": "sand_amulet_old.lore.2",
-                  "italic": false,
-                  "color": "yellow"
-                },
-                {
-                  "translate": "sand_amulet.lore.3",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{gaara_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_sand_amulet"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{obsidiantrap:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__18decdd2f132"
         },
         {
           "type": "minecraft:loot_table",
@@ -1607,109 +324,16 @@
           "value": "lbc:goldentools"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_boots",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:reactive"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "reactive_boots",
-                  "color": "gold",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "reactive_boots_old.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "reactive_boots_old.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{reactive_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/reactive__a2337e384e16"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:irontools"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:vampiresword",
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "vu89qjduxlsodkiogaisrepog",
-                    "amount": 1,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "vampire_fang",
-                  "color": "dark_red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "vampire_fang.lore.1",
-                  "color": "red",
-                  "italic": false
-                },
-                {
-                  "translate": "vampire_fang.lore.2",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{vampire:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_vampire_fang"
         },
         {
           "type": "minecraft:loot_table",
@@ -1720,169 +344,24 @@
           "value": "lbc:spawnegg_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:omegatnt",
-                "minecraft:entity_data": {
-                  "id": "minecraft:marker",
-                  "Tags": [
-                    "compressedtnt",
-                    "marker_2t"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "omega_tnt_old",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/omegatnt__b29a8435d113"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:weapons"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:nuke",
-                "minecraft:entity_data": {
-                  "id": "minecraft:marker",
-                  "Tags": [
-                    "nuke_old",
-                    "slowraycast",
-                    "marker_2t",
-                    "instant"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "nuke",
-                  "color": "dark_red",
-                  "bold": true,
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/nuke__03c95bf6e9e0"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:bridgebuilder"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "bridge_builder",
-                  "color": "green",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "bridge_builder.lore.1",
-                  "color": "green",
-                  "italic": false
-                },
-                {
-                  "translate": "bridge_builder.lore.2",
-                  "color": "green",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{most:1,projegadget:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/bridgebuilder__3d4a19af6969/variant_7212e75be48f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 8
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:teleporter"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "teleporter",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "teleporter.lore.1",
-                  "color": "light_purple",
-                  "italic": false
-                },
-                {
-                  "translate": "teleporter.lore.2",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{teleport1:1,gadget:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/teleporter__4e10da09a998/variant_eff47abd2bbf"
         },
         {
           "type": "minecraft:loot_table",
@@ -1901,1871 +380,192 @@
           "value": "lbc:knifes_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bow",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:doublebow"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "double_bow",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "double_bow.lore",
-                  "color": "gray",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{double_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/doublebow__2a65394e4d19"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:leather_chestplate",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:blast_protection": 255
-                },
-                "minecraft:dyed_color": 16730112,
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:armor",
-                    "slot": "chest",
-                    "id": "gcnghmcghmghm",
-                    "amount": 3,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:knockback_resistance",
-                    "slot": "chest",
-                    "id": "hgmcghmhmbcv",
-                    "amount": 0,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:armor_toughness",
-                    "slot": "chest",
-                    "id": "gfcmghfhmgfhmcfhmcghf",
-                    "amount": 1,
-                    "operation": "add_value"
-                  }
-                ],
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments",
-                    "minecraft:dyed_color",
-                    "minecraft:attribute_modifiers"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "tnt_jacket",
-                  "color": "dark_red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "tnt_jacket.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{dynamite:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/leather_chestplate__c702455e0e43"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:epicsword",
-                "minecraft:unbreakable": {}
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "epic_sword",
-                  "color": "dark_purple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "epic_sword.lore",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{cool_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_epic_sword"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:crossbow",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:quick_charge": 5
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "minigun.lore.1",
-                  "color": "yellow",
-                  "italic": false
-                },
-                {
-                  "translate": "minigun.lore.2",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "minigun",
-                  "color": "gray",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{fast_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crossbow__1e188044c7a2"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:stews_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:rasengan",
-                "minecraft:enchantments": {
-                  "minecraft:sweeping_edge": 1
-                },
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments"
-                  ]
-                },
-                "minecraft:custom_name": {
-                  "bold": true,
-                  "color": "aqua",
-                  "italic": false,
-                  "translate": "rasengan"
-                },
-                "minecraft:lore": [
-                  {
-                    "translate": "rasengan_old.lore",
-                    "color": "white",
-                    "italic": false
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{gadget:1,rasengan:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/rasengan__fe93a45fbb6b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{lbh:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__ed121d973e12"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{luckyspawner_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__1a3bf7f67b6c"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{badspawner_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__a6076cb8cc07"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{droppertnt_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__c1c5a491b224"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:wooden_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:steaksword"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "steak_sword",
-                  "color": "#780000",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "steak_sword.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{feeding:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_feeding_sword"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:smokegrenade"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "smoke_grenade",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{special:1,smoke_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/smokegrenade__958129b2ae2f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:swapper"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "swapper",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "swapper.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "swapper.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{randtp:1,gadget:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/swapper__91d330d0996d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:islandtp"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "island_teleporter",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "island_teleporter.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{islandtp:1,gadget:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/islandtp__10d7ec252489"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{bullets:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__2f1571df8205"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{skrimmer_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__48e9ed2737f8"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:splash_potion",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:potion_contents": {
-                  "custom_color": 16753151,
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:raid_omen",
-                      "amplifier": 40,
-                      "duration": 80,
-                      "show_particles": false
-                    }
-                  ]
-                },
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:potion_contents"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "confuse_potion",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "chaotic_potion.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "chaotic_potion.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/splash_potion__e285bcd4e466"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:pig_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 4
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:entity_data": {
-                  "id": "minecraft:pig",
-                  "CustomNameVisible": true,
-                  "Health": 50,
-                  "Tags": [
-                    "fakepig",
-                    "lucky_mob"
-                  ],
-                  "CustomName": {
-                    "text": "Lucky Pig",
-                    "color": "gold",
-                    "italic": false
-                  },
-                  "attributes": [
-                    {
-                      "id": "minecraft:max_health",
-                      "base": 50
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "Fake lucky pig",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "fake_lucky_pig.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "fake_lucky_pig.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pig_spawn_egg__091d3d7e2b95"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:saveplatform",
-                "minecraft:enchantments": {
-                  "minecraft:protection": 1
-                },
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "save_platform",
-                  "color": "green",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "save_platform.lore",
-                  "color": "green",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{save:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_save_platform"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:leather_boots",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:feather_falling": 1
-                },
-                "minecraft:dyed_color": 2555678,
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:movement_speed",
-                    "slot": "feet",
-                    "id": "hermeshermes",
-                    "amount": 0.5,
-                    "operation": "add_multiplied_base"
-                  }
-                ],
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments",
-                    "minecraft:dyed_color"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "hermes_boots",
-                  "color": "dark_green",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/leather_boots__c01ecd71ad5e"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:totem_of_undying",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "not_infinite_totem",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/totem_of_undying__3fe02285b40d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:trident",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:riptide": 10
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "genericsea.attack_damage",
-                    "amount": 5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "sea_legend_old",
-                  "color": "blue",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/trident__ba5dbf880d6f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:shield",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:enchantments": {
-                  "minecraft:unbreaking": 10
-                },
-                "minecraft:base_color": "blue",
-                "minecraft:banner_patterns": [
-                  {
-                    "color": "light_gray",
-                    "pattern": "curly_border"
-                  },
-                  {
-                    "color": "red",
-                    "pattern": "flower"
-                  },
-                  {
-                    "color": "blue",
-                    "pattern": "half_horizontal"
-                  },
-                  {
-                    "color": "yellow",
-                    "pattern": "triangle_top"
-                  },
-                  {
-                    "color": "blue",
-                    "pattern": "stripe_top"
-                  },
-                  {
-                    "color": "light_gray",
-                    "pattern": "border"
-                  }
-                ],
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:base_color",
-                    "minecraft:banner_patterns"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "hylian_shield",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/shield__c9d42e4fe92b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{slab_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__33a242e0f447"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{clone_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__d14373859e26"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:potion",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:snus",
-                "minecraft:potion_contents": {
-                  "custom_color": 5731155,
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:speed",
-                      "amplifier": 15,
-                      "duration": 4000
-                    },
-                    {
-                      "id": "minecraft:jump_boost",
-                      "amplifier": 15,
-                      "duration": 4000
-                    },
-                    {
-                      "id": "minecraft:nausea",
-                      "amplifier": 15,
-                      "duration": 5000
-                    },
-                    {
-                      "id": "minecraft:mining_fatigue",
-                      "amplifier": 2,
-                      "duration": 5000
-                    },
-                    {
-                      "id": "minecraft:hunger",
-                      "amplifier": 0,
-                      "duration": 8000
-                    },
-                    {
-                      "id": "minecraft:night_vision",
-                      "amplifier": 10,
-                      "duration": 5000
-                    },
-                    {
-                      "id": "minecraft:hunger",
-                      "amplifier": 10,
-                      "duration": 320
-                    },
-                    {
-                      "id": "minecraft:raid_omen",
-                      "amplifier": 74,
-                      "duration": 1
-                    }
-                  ]
-                },
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:potion_contents"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "lbc.adv.potion.snus",
-                  "color": "gold",
-                  "bold": true,
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "snus.lore",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/snus__d6ee988d06f8"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:evokerwand",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:movement_speed",
-                    "id": "suvhd7sdjgvbbf",
-                    "amount": -10,
-                    "operation": "add_multiplied_base"
-                  }
-                ],
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:attribute_modifiers"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "evoker_wand",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "evoker_wand.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{magicwand:1,evocator_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/evokerwand__ad4508c26379"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:potion",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:potion_contents": {
-                  "custom_color": 16777215,
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:regeneration",
-                      "amplifier": 1,
-                      "duration": 12000
-                    },
-                    {
-                      "id": "minecraft:saturation",
-                      "amplifier": 10,
-                      "duration": 20
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "succubus_potion",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/potion__b0c425272cdc"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{portall:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__d3768326deb9"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:netherite_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:endersword"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "ender_sword",
-                  "color": "dark_purple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "ender_sword.lore.1",
-                  "color": "light_purple",
-                  "italic": false
-                },
-                {
-                  "translate": "ender_sword.lore.2",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{ender:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_ender_sword"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:basswand",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "bass_wand",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "bass_wand.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "bass_wand.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "bass_wand.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "bass_wand.lore.4",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{magicwand:1,bassboost_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/basswand__fba71048cfce"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:corruptwand",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "corruption_wand",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "corruption_wand.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "corruption_wand.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "corruption_wand.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "corruption_wand.lore.4",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{magicwand:1,corrupter_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/corruptwand__c0eee1c1260c"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:enderwand",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "ender_wand",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "ender_wand.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{magicwand:1,enderwand_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/enderwand__9609d9697317"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:artifact_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:regenerationbelt",
-                "minecraft:enchantments": {
-                  "minecraft:protection": 1
-                },
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "regeneration_belt",
-                  "color": "#FF3BB7",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "regeneration_belt.lore.1",
-                  "color": "#FFBFBF",
-                  "italic": false
-                },
-                {
-                  "translate": "regeneration_belt.lore.2",
-                  "color": "#FFBFBF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{heall_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/regenerationbelt__44ae94f9db7b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:leather_helmet",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:fire_protection": 5,
-                  "minecraft:blast_protection": 5,
-                  "minecraft:projectile_protection": 5
-                },
-                "minecraft:dyed_color": 16735721,
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments",
-                    "minecraft:unbreakable",
-                    "minecraft:dyed_color"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mage_hat",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mage_hat_old.lore.1",
-                  "italic": false,
-                  "color": "aqua"
-                },
-                {
-                  "translate": "mage_hat_old.lore.2",
-                  "italic": false,
-                  "color": "aqua"
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{magichat_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/leather_helmet__4cbbe51cf2c5"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:manaregenerationbelt",
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 1
-                },
-                "tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:enchantments"
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mana_belt",
-                  "color": "blue",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mage_belt_old.lore.1",
-                  "color": "aqua",
-                  "italic": false
-                },
-                {
-                  "translate": "mage_belt_old.lore.2",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{manabelt_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/manaregenerationbelt__d638c6be0801"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:black_shulker_box",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:container_loot": {
-                  "loot_table": "lbc:infinity_old"
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "infinite_shulker",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/black_shulker_box__9ee8fe5cc649"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:rabbit_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "horn",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "horn.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{inf_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/rabbit_stew__4e20fbb7637a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bow",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:shulkerbow"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "shulker_bow",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "shulker_bow.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{shulker:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/shulkerbow__ae63b4e4317f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:turtle_helmet",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "shulker_helmet",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "shulker_helmet.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "shulker_helmet.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{shulkshell:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/turtle_helmet__09d8ef37f8ba"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {}
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{opanvil_old:1,drop:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__1b29ad1a951b"
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:imitator"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:vampirewand",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "vampire_wand",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "vampire_wand.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "vampire_wand.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "vampire_wand.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "vampire_wand.lore.4",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{lifestealer_old:1,magicwand:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/vampirewand__29f7307d4cdd"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:foxuswand",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "confuse_wand",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "confuse_wand.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "confuse_wand.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "confuse_wand.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "confuse_wand.lore.4",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{foxusing_old:1,magicwand:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/foxuswand__5b42d21aff61"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:killingwand",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "blood_wand",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "blood_wand.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "blood_wand.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "blood_wand.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "blood_wand.lore.4",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{bloodmagic_old:1,magicwand:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/killingwand__912da49fd111"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:badwiki",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "bad_wiki",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "bad_wiki.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "bad_wiki.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "bad_wiki.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "bad_wiki.lore.4",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{badwiki_old:1,magicwand:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/badwiki__b018be2e3746"
         },
         {
           "type": "minecraft:loot_table",
@@ -3776,54 +576,8 @@
           "value": "lbc:redstone_old"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:magnet"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "magnet_item",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "magnet_item.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "magnet_item.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "magnet_item.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{magnet:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_magnet"
         }
       ]
     }

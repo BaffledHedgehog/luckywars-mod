@@ -1,0 +1,63 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:regenerationbelt",
+                "minecraft:enchantments": {
+                  "minecraft:protection": 1
+                },
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:enchantments"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "regeneration_belt",
+                  "color": "#FF3BB7",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "regeneration_belt.lore.1",
+                  "color": "#FFBFBF",
+                  "italic": false
+                },
+                {
+                  "translate": "regeneration_belt.lore.2",
+                  "color": "#FFBFBF",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{heall_old:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

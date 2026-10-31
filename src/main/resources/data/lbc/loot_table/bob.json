@@ -13,593 +13,104 @@
       "rolls": 3,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_axe",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 5,
-                  "minecraft:smite": 5,
-                  "minecraft:bane_of_arthropods": 5,
-                  "minecraft:efficiency": 5,
-                  "minecraft:fortune": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_axe"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_axe__50abed984a7f",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_hoe",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 5,
-                  "minecraft:fortune": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_hoe"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_hoe__bc3477e9384f",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_boots",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:protection": 4,
-                  "minecraft:fire_protection": 4,
-                  "minecraft:feather_falling": 4,
-                  "minecraft:blast_protection": 4,
-                  "minecraft:projectile_protection": 4,
-                  "minecraft:thorns": 3,
-                  "minecraft:depth_strider": 3,
-                  "minecraft:frost_walker": 2,
-                  "minecraft:soul_speed": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_boots"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_boots__b5b7f2b9ebde",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_sword",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 5,
-                  "minecraft:smite": 5,
-                  "minecraft:bane_of_arthropods": 5,
-                  "minecraft:knockback": 2,
-                  "minecraft:fire_aspect": 2,
-                  "minecraft:looting": 3,
-                  "minecraft:sweeping_edge": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_sword"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_sword__de43bd1a82a7",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_helmet",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:protection": 4,
-                  "minecraft:fire_protection": 4,
-                  "minecraft:blast_protection": 4,
-                  "minecraft:projectile_protection": 4,
-                  "minecraft:respiration": 3,
-                  "minecraft:aqua_affinity": 1,
-                  "minecraft:thorns": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_helmet"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_helmet__9f8593a9f389",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_shovel",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 5,
-                  "minecraft:fortune": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_shovel"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_shovel__c30db70fe7c2",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_pickaxe",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 5,
-                  "minecraft:fortune": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_pickaxe"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_pickaxe__4cb408abe712",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_leggings",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:protection": 4,
-                  "minecraft:fire_protection": 4,
-                  "minecraft:blast_protection": 4,
-                  "minecraft:projectile_protection": 4,
-                  "minecraft:thorns": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_leggings"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_leggings__cd7934211f30",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_chestplate",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:unbreakable": {},
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:enchantments": {
-                  "minecraft:protection": 4,
-                  "minecraft:fire_protection": 4,
-                  "minecraft:blast_protection": 4,
-                  "minecraft:projectile_protection": 4,
-                  "minecraft:thorns": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_chestplate"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_chestplate__ec5112f6d3bf",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:bow",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:power": 5,
-                  "minecraft:punch": 2,
-                  "minecraft:flame": 1,
-                  "minecraft:infinity": 1
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_bow"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bow__09ee2c3159bb",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:crossbow",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:multishot": 1,
-                  "minecraft:piercing": 4,
-                  "minecraft:quick_charge": 3
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_crossbow"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crossbow__86be7f758b15",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:trident",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 5,
-                  "minecraft:smite": 5,
-                  "minecraft:bane_of_arthropods": 5,
-                  "minecraft:knockback": 2,
-                  "minecraft:fire_aspect": 2,
-                  "minecraft:looting": 3,
-                  "minecraft:sweeping_edge": 3,
-                  "minecraft:loyalty": 3,
-                  "minecraft:impaling": 5
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_trident"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/trident__4ff4d5686fc4",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:shield",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:unbreakable": {},
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_shield"
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:knockback_resistance",
-                    "slot": "offhand",
-                    "id": "bob_shieldl",
-                    "amount": 1,
-                    "operation": "add_multiplied_base"
-                  },
-                  {
-                    "type": "minecraft:knockback_resistance",
-                    "slot": "mainhand",
-                    "id": "bob_shield",
-                    "amount": 1,
-                    "operation": "add_multiplied_base"
-                  }
-                ]
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/shield__c3104982178a",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:flint_and_steel",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:fire_aspect": 255
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_flint"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/flint_and_steel__e62765e19e5a",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:fishing_rod",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:luck_of_the_sea": 5,
-                  "minecraft:lure": 5
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_rod"
-                }
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/fishing_rod__541a9142b838",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:shears",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:unbreakable": {},
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 5
-                },
-                "minecraft:custom_name": {
-                  "italic": false,
-                  "translate": "bob_shears"
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 4,
-                    "operation": "add_value"
-                  }
-                ]
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/shears__6a5935a201da",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:enchanted_golden_apple",
-          "modifier": [
-            {
-              "count": 6,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "bob_apple",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/enchanted_golden_apple__b15d6daa5e38",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_spear",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:unbreakable": {},
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 5,
-                  "minecraft:smite": 5,
-                  "minecraft:bane_of_arthropods": 5,
-                  "minecraft:looting": 3,
-                  "minecraft:knockback": 2,
-                  "minecraft:fire_aspect": 2,
-                  "minecraft:lunge": 3
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "bob_spear",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_spear__c15698150b2d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:elytra",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:unbreakable": {},
-                "minecraft:tooltip_style": "lbc:tier_a"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "bob_elytra",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/elytra__c7a00ac2902f",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:mace",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:unbreakable": {},
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:enchantments": {
-                  "minecraft:density": 5,
-                  "minecraft:breach": 4,
-                  "minecraft:wind_burst": 2,
-                  "minecraft:smite": 5,
-                  "minecraft:bane_of_arthropods": 5,
-                  "minecraft:fire_aspect": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "bob_mace",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mace__5f301f8cbb65",
+          "weight": 1
         }
       ]
     }

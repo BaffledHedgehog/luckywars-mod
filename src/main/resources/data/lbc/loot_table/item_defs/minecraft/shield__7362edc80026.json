@@ -1,0 +1,82 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:shield",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:unbreakable": {},
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:enchantments": {
+                  "minecraft:knockback": 5
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:knockback_resistance",
+                    "slot": "offhand",
+                    "id": "aimbob_shield",
+                    "amount": 1,
+                    "operation": "add_multiplied_base"
+                  },
+                  {
+                    "type": "minecraft:knockback_resistance",
+                    "slot": "mainhand",
+                    "id": "aimbob_shield1",
+                    "amount": 1,
+                    "operation": "add_multiplied_base"
+                  },
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "mainhand",
+                    "id": "aimbob_shield5",
+                    "amount": 10,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "offhand",
+                    "id": "aimbob_shield2",
+                    "amount": 10,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "mainhand",
+                    "id": "aimbob_shield3",
+                    "amount": 10,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "offhand",
+                    "id": "aimbob_shield4",
+                    "amount": 10,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "aimbob_shield",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

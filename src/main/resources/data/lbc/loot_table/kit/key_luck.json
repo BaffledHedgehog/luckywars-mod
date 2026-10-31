@@ -1,52 +1,51 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__213ddfc47337",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:key_luck",
+                "minecraft:max_damage": 2,
+                "minecraft:damage": 0,
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:luck",
+                    "slot": "mainhand",
+                    "id": "95839458394634644tghgh",
+                    "operation": "add_value",
+                    "amount": 32
+                  }
+                ],
+                "tool": {
+                  "damage_per_block": 1,
+                  "default_mining_speed": 2,
+                  "rules": []
+                },
+                "max_stack_size": 1
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:key_luck",
-                                "minecraft:max_damage": 2,
-                                "minecraft:damage": 0,
-                                "minecraft:attribute_modifiers": [
-                                        {
-                                            "type": "minecraft:luck",
-                                            "slot": "mainhand",
-                                            "id": "95839458394634644tghgh",
-                                            "operation": "add_value",
-                                            "amount": 32
-                                        }
-                                ]
-                                ,
-                                "tool": {
-                                    "damage_per_block": 1,
-                                    "default_mining_speed": 2,
-                                    "rules": []
-                                },
-                                "max_stack_size": 1
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "key_luck",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{luck_key:1}"
-                        }
-                    ]
+                  "translate": "key_luck",
+                  "italic": false
                 }
-            ]
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{luck_key:1}"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

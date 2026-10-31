@@ -1,0 +1,43 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:panda_spawn_egg",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 8
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:fusedtnt",
+                "minecraft:entity_data": {
+                  "id": "minecraft:tnt",
+                  "fuse": 40,
+                  "Motion": [
+                    0,
+                    0.3,
+                    0
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "fused_tnt",
+                  "italic": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

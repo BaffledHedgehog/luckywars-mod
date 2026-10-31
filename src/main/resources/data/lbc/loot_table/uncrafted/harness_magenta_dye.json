@@ -1,22 +1,22 @@
+{
+  "pools": [
     {
-        "pools": [
-            {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:white_harness"
-                    }
-                ]
-            },
-            {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:magenta_dye"
-                    }
-                ]
-            }
-        ]
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/white_harness__5cf5a091fc7a"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/magenta_dye__2d2da2d71839"
+        }
+      ]
     }
+  ]
+}

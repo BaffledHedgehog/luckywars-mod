@@ -1,0 +1,37 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:netherite_chestplate",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:unbreakable": {},
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:enchantments": {
+                  "minecraft:protection": 4,
+                  "minecraft:fire_protection": 4,
+                  "minecraft:blast_protection": 4,
+                  "minecraft:projectile_protection": 4,
+                  "minecraft:thorns": 3
+                },
+                "minecraft:custom_name": {
+                  "italic": false,
+                  "translate": "bob_chestplate"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

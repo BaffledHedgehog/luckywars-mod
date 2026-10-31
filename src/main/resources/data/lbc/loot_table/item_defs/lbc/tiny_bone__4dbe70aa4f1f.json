@@ -1,0 +1,71 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_sword",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:max_damage": 32,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:tiny_bone"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "modifiers": [
+                {
+                  "id": "minecraft:afsgfgrirj8ighjrgirj",
+                  "amount": 10,
+                  "attribute": "minecraft:entity_interaction_range",
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                },
+                {
+                  "id": "minecraft:afsgf32664ighjrgirj",
+                  "amount": 10,
+                  "attribute": "minecraft:block_interaction_range",
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                },
+                {
+                  "id": "minecraft:base_attack_damage",
+                  "amount": 5,
+                  "attribute": "minecraft:attack_damage",
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            },
+            {
+              "name": [
+                {
+                  "translate": "sharp_thing",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "tiny_skeleton_relic",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

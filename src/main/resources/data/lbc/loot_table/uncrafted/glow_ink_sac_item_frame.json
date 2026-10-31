@@ -1,22 +1,22 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:glow_ink_sac"
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:item_frame"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/glow_ink_sac__8ca7bb0f4b56"
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/item_frame__7dbb493cc825"
+        }
+      ]
+    }
+  ]
 }

@@ -1,0 +1,70 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:pig_spawn_egg",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 4
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:entity_data": {
+                  "id": "minecraft:pig",
+                  "CustomNameVisible": true,
+                  "Health": 50,
+                  "Tags": [
+                    "fakepig",
+                    "lucky_mob"
+                  ],
+                  "CustomName": {
+                    "text": "Lucky Pig",
+                    "color": "gold",
+                    "italic": false
+                  },
+                  "attributes": [
+                    {
+                      "id": "minecraft:max_health",
+                      "base": 50
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "Fake lucky pig",
+                  "color": "yellow",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "fake_lucky_pig.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fake_lucky_pig.lore.2",
+                  "color": "white",
+                  "italic": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,22 +1,22 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:shulker_box"
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:purple_dye"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/shulker_box__d5f24d5c3419"
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purple_dye__b1750628d125"
+        }
+      ]
+    }
+  ]
 }

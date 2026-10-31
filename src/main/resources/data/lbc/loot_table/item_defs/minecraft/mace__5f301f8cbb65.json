@@ -1,0 +1,43 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:mace",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:unbreakable": {},
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:enchantments": {
+                  "minecraft:density": 5,
+                  "minecraft:breach": 4,
+                  "minecraft:wind_burst": 2,
+                  "minecraft:smite": 5,
+                  "minecraft:bane_of_arthropods": 5,
+                  "minecraft:fire_aspect": 2
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "bob_mace",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

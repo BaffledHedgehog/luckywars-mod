@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_sword"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_sword__64a0e6aa4cbf/variant_4f53cda18c2b"
         }
       ],
       "modifier": {

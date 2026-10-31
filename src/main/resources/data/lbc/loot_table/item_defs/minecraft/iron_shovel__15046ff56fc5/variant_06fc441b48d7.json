@@ -1,0 +1,48 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_shovel",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:enchantments": {
+                  "minecraft:efficiency": 255
+                },
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:enchantments"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "enchantment.minecraft.efficiency",
+                    "italic": false,
+                    "color": "gray"
+                  },
+                  {
+                    "translate": " enchantment.level.666"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

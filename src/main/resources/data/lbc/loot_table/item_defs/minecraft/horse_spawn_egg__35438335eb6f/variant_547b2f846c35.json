@@ -1,0 +1,47 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:horse_spawn_egg",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:entity_data": {
+                  "id": "minecraft:birch_boat",
+                  "NoGravity": true,
+                  "Glowing": true,
+                  "CustomNameVisible": false,
+                  "Motion": [
+                    0,
+                    0.01,
+                    0
+                  ],
+                  "CustomName": {
+                    "translate": "flying_boat"
+                  }
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "flying_boat_spawn_egg",
+                  "italic": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

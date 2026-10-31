@@ -5,46 +5,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "skywars2:reroll_machine",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:item_model": "lbc:reroll_machine"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "entity": "this",
-              "name": {
-                "translate": "lbckit.24",
-                "italic": false,
-                "color": "white"
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "entity": "this",
-              "lore": [
-                {
-                  "translate": "lbckit.24.lore.1",
-                  "italic": false,
-                  "color": "gray"
-                },
-                {
-                  "translate": "lbckit.24.lore.2",
-                  "italic": false,
-                  "color": "gray"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{reroll_machine:1,craftusable:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/reroll_machine"
         }
       ]
     }

@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:cooked_porkchop"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cooked_porkchop__73c379afb75e/variant_4f53cda18c2b"
         }
       ],
       "modifier": {

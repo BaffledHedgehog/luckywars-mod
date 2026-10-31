@@ -4,110 +4,16 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/nexus_roadgun__ab4a2c888f86",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "lbc:nexus_roadgun"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "nexus_roadgun",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "nexus_roadgun.lore.1",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "nexus_roadgun.lore.2",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "nexus_roadgun.lore.3",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{magicwand:1,spellwithcooldown_n:1,spellwithcooldown:1,nexus_roadgun:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/pulsar__5edbe02c1527",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:item_model": "lbc:pulsar"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "nexus_pulsar",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "nexus_pulsar.lore.1",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "nexus_pulsar.lore.2",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "nexus_pulsar.lore.3",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{magicwand:1,spellwithcooldown_n:1,spellwithcooldown:1,nexus_pulsar:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 0
         }
       ]
     }

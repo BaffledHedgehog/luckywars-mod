@@ -25,10 +25,9 @@ import java.util.Map;
 /** Per-client shader slots; each retiring main has an independent fade carrier. */
 public final class NuclearVisuals {
     private static final int SLOT_COUNT=16, GLOW_COLOR=15180800, FADE_COLOR=15181056;
-    // Fade Z encodes duration; keep its live carrier for the complete tail plus delivery slack.
-    static final float FADE_SECONDS=20;
-    static final int SLOT_TAIL=420;
-    private static final int LIFETIME=120, UPDATE_TICKS=2;
+    // Legacy small/large markers lived 200/400 ticks, including the new shader fade.
+    static final int SMALL_TOTAL_TICKS=200, LARGE_TOTAL_TICKS=400;
+    private static final int DELIVERY_TICKS=20, UPDATE_TICKS=2;
     private final GameController game;
     private final List<Effect> effects=new ArrayList<>();
     private final Map<ServerGamePacketListenerImpl,Slot[]> viewers=new IdentityHashMap<>();
@@ -40,11 +39,15 @@ public final class NuclearVisuals {
         final float radius;
         final String epoch;
         final boolean cancelInAntimagic;
+        final int lifetime, fadeTicks;
         int age;
-        Effect(ServerLevel level,Vec3 origin,float radius,String epoch,boolean magical) {
+        Effect(ServerLevel level,Vec3 origin,float radius,String epoch,boolean magical,int totalTicks) {
             this.level=level; this.origin=origin; this.displayOrigin=origin.add(0,-3,0);
             this.radius=radius; this.epoch=epoch;
             cancelInAntimagic=magical;
+            // Preserve the small six-second main; large gets the guide's twelve-second dissolve.
+            fadeTicks=totalTicks==SMALL_TOTAL_TICKS?80:240;
+            lifetime=totalTicks-fadeTicks;
         }
     }
     private static final class Slot {
@@ -64,10 +67,16 @@ public final class NuclearVisuals {
 
     /** Общий вход для будущих legacy nuclear-маркеров; разрушения и урон остаются у вызывающего. */
     public void show(ServerLevel level,Vec3 origin,float radius,boolean cancelInAntimagic) {
+        show(level,origin,radius,cancelInAntimagic,LARGE_TOTAL_TICKS);
+    }
+
+    public void show(ServerLevel level,Vec3 origin,float radius,boolean cancelInAntimagic,int totalTicks) {
+        if(totalTicks!=SMALL_TOTAL_TICKS && totalTicks!=LARGE_TOTAL_TICKS)
+            throw new IllegalArgumentException("Nuclear lifetime must match a legacy small or large marker");
         if(level==null || !(radius>0) || !Float.isFinite(radius)
                 || !Double.isFinite(origin.x) || !Double.isFinite(origin.y) || !Double.isFinite(origin.z))
             throw new IllegalArgumentException("Nuclear origin and radius must be finite");
-        effects.add(new Effect(level,origin,radius,game.items().epoch(),cancelInAntimagic));
+        effects.add(new Effect(level,origin,radius,game.items().epoch(),cancelInAntimagic,totalTicks));
         refreshViewers();
     }
 
@@ -76,16 +85,16 @@ public final class NuclearVisuals {
         clock++;
         if(effects.isEmpty() && viewers.isEmpty()) return;
         for(var effect:effects) if(!game.items().timeStop().stopped(effect.level)) effect.age++;
-        // Stage the natural handoff one active tick before the six-second deadline.
+        // Stage the natural handoff one active tick before this source family's deadline.
         for(var entry:viewers.entrySet()) for(int index=0;index<SLOT_COUNT;index++) {
             var slot=entry.getValue()[index];
             if(slot.effect!=null && entry.getKey().player.level()==slot.effect.level
-                    && !slot.retiring && slot.fade==null && slot.effect.age>=LIFETIME-1)
-                stageFade(entry.getKey().player,slot,index,LIFETIME,true);
+                    && !slot.retiring && slot.fade==null && slot.effect.age>=slot.effect.lifetime-1)
+                stageFade(entry.getKey().player,slot,index,slot.effect.lifetime,true);
         }
         boolean removed=effects.removeIf(effect->!game.items().currentEpoch(effect.epoch)
                 || effect.cancelInAntimagic && game.items().magic().suppressedAt(effect.level,effect.origin)
-                || effect.age>=LIFETIME);
+                || effect.age>=effect.lifetime);
         maintainSlots();
         // Перевыбор ближайших — раз в полсекунды, без сортировки всего списка взрывов.
         if(removed || clock%10==0 || effects.isEmpty()) refreshViewers();
@@ -112,7 +121,7 @@ public final class NuclearVisuals {
     }
 
     private static Vector3f fadeScale(Effect effect,int age) {
-        return new Vector3f(effect.radius,1+age/20f,effect.radius*(2+FADE_SECONDS));
+        return new Vector3f(effect.radius,1+age/20f,effect.radius*(2+effect.fadeTicks/20f));
     }
 
     private void refreshViewers() {
@@ -175,7 +184,7 @@ public final class NuclearVisuals {
         slot.effect=effect; slot.display=display; slot.holder=holder;
         slot.retiring=false; slot.natural=false; slot.mainRemovedAt=-1;
         slot.stagedAt=0; slot.fixedAge=0; slot.availableAt=0;
-        if(effect.age>=LIFETIME-1) stageFade(player,slot,index,LIFETIME,true);
+        if(effect.age>=effect.lifetime-1) stageFade(player,slot,index,effect.lifetime,true);
     }
 
     private ItemDisplayElement createDisplay(Effect effect,int index,boolean fading,int age) {
@@ -209,8 +218,8 @@ public final class NuclearVisuals {
 
     private void retire(ServerPlayer player,Slot slot,int index) {
         if(slot.retiring) return;
-        boolean natural=slot.effect.age>=LIFETIME;
-        stageFade(player,slot,index,natural?LIFETIME:slot.effect.age,natural);
+        boolean natural=slot.effect.age>=slot.effect.lifetime;
+        stageFade(player,slot,index,natural?slot.effect.lifetime:slot.effect.age,natural);
         // A stop during the staged natural handoff freezes at the actual early age.
         if(!natural && slot.natural) {
             slot.natural=false; slot.fixedAge=slot.effect.age;
@@ -232,12 +241,12 @@ public final class NuclearVisuals {
                 if(slot.effect==null) continue;
                 if(entry.getKey().player.level()!=slot.effect.level) { destroyImmediately(slot); continue; }
                 if(slot.retiring && slot.holder!=null && clock>slot.stagedAt
-                        && (!slot.natural || slot.effect.age>=LIFETIME)) {
+                        && (!slot.natural || slot.effect.age>=slot.effect.lifetime)) {
                     // Send the terminal age before removal; fade remains independently tracked.
                     slot.display.setScale(scale(slot.effect,slot.fixedAge));
                     slot.display.setStartInterpolation(0); slot.holder.tick();
                     slot.holder.destroy(); slot.holder=null; slot.display=null;
-                    slot.mainRemovedAt=clock; slot.availableAt=clock+SLOT_TAIL;
+                    slot.mainRemovedAt=clock; slot.availableAt=clock+slot.effect.fadeTicks+DELIVERY_TICKS;
                 }
                 if(slot.mainRemovedAt>=0 && clock>=slot.availableAt) {
                     slot.fadeHolder.destroy(); slot.fadeHolder=null; slot.fade=null; slot.effect=null;
@@ -250,7 +259,7 @@ public final class NuclearVisuals {
     private void destroyImmediately(Slot slot) {
         if(slot.holder!=null) slot.holder.destroy();
         if(slot.fadeHolder!=null) slot.fadeHolder.destroy();
-        if(slot.effect!=null) slot.availableAt=Math.max(slot.availableAt,clock+SLOT_TAIL);
+        if(slot.effect!=null) slot.availableAt=Math.max(slot.availableAt,clock+slot.effect.fadeTicks+DELIVERY_TICKS);
         slot.holder=null; slot.display=null; slot.fadeHolder=null; slot.fade=null; slot.effect=null;
         slot.retiring=false;
     }

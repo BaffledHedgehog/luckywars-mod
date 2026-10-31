@@ -1,0 +1,62 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:corrupted_dust",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:corrupted_dust_lamashtu",
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:custom_data": "{corrupted_dust:true,glyphkind:\"lamashtu\"}"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "corrupted_dust_lamashtu",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "corrupted_dust",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust.lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_lamashtu.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_lamashtu.lore.2",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

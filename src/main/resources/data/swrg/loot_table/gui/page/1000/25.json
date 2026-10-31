@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:writable_book"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/writable_book__5f6139fe3e70"
         }
       ],
       "modifier": {

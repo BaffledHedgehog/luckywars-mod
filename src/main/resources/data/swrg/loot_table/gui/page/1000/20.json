@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_block"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_block__c56b9d7aac2a/variant_4f53cda18c2b"
         }
       ],
       "modifier": {

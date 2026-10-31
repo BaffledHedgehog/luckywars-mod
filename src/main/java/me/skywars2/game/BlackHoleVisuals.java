@@ -24,7 +24,7 @@ import java.util.Map;
 
 /** Shared black-hole renderer; gameplay and lifetime belong to the originating spell. */
 public final class BlackHoleVisuals {
-    private static final int SLOTS=16, COLOR=11618816, TAIL=4;
+    private static final int SLOTS=16, COLOR=11618816, TAIL=6;
     private final GameController game;
     private final List<Handle> holes=new ArrayList<>();
     private final Map<ServerGamePacketListenerImpl,Slot[]> viewers=new IdentityHashMap<>();
@@ -100,7 +100,7 @@ public final class BlackHoleVisuals {
     /** Rollback replaces only the originating spell's handle; other producers keep their slots. */
     void detachForCheckpoint(Handle hole){
         holes.remove(hole);
-        for(var slots:viewers.values())for(var slot:slots)if(slot.hole==hole){release(slot);slot.availableAt=clock;}
+        for(var slots:viewers.values())for(var slot:slots)if(slot.hole==hole){release(slot);}
         dirty=true;
     }
     /** Fresh holders target current connections after native player/world readiness. */
@@ -147,10 +147,16 @@ public final class BlackHoleVisuals {
                 slots=new Slot[SLOTS]; java.util.Arrays.setAll(slots,index->new Slot()); viewers.put(player.connection,slots);
             }
             for(var slot:slots) if(slot.hole!=null && !wanted.contains(slot.hole)) release(slot);
+            // A removed row remains visible in the shader for0.2s. A new handle (or the
+            // same handle after a world switch) must not reopen in another row during that tail.
+            boolean collapsing=false;
+            for(var slot:slots)if(slot.hole==null&&clock<slot.availableAt){collapsing=true;break;}
+            if(collapsing&&!wanted.isEmpty())dirty=true;
             for(var hole:wanted) {
                 boolean present=false;
                 for(var slot:slots) if(slot.hole==hole) { present=true; break; }
                 if(present) continue;
+                if(collapsing)continue;
                 for(int index=0;index<SLOTS;index++) if(slots[index].hole==null && clock>=slots[index].availableAt) {
                     attach(player,slots[index],hole,index); break;
                 }
@@ -178,7 +184,7 @@ public final class BlackHoleVisuals {
     private void release(Slot slot) {
         if(slot.holder==null) return;
         slot.holder.destroy(); slot.holder=null; slot.display=null; slot.hole=null;
-        // The resource-pack shader retains a 0.2-second collapse in this slot.
+        // Shader collapse lasts0.2s; keep two extra delivery ticks before any new row assignment.
         slot.availableAt=clock+TAIL;
     }
     public void forget(ServerPlayer owner) { if(holes.removeIf(hole->hole.owner.getUUID().equals(owner.getUUID()))) refresh(); }

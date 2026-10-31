@@ -4,70 +4,10 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/regenerationbelt__4491f5355c33",
           "weight": 10,
-          "quality": 9,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:regenerationbelt"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "regeneration_belt",
-                  "color": "#FF3BB7",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "regeneration_belt.lore.1",
-                  "color": "#FFBFBF",
-                  "italic": false
-                },
-                {
-                  "translate": "regeneration_belt.lore.2",
-                  "color": "#FFBFBF",
-                  "italic": false
-                },
-                {
-                  "translate": "effect_can_stack",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,heall:1,PublicBukkitValues:{\"lws:regen\":{\"lws:value\":0.04d,\"lws:operation\":\"add\",\"lws:slot\":\"inventory\",\"lws:stackable\":true,\"lws:id\":\"regenbelt1242\"}}}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 9
         }
       ]
     }

@@ -1,19 +1,19 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:gold_ingot",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 4
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/gold_ingot__dd4f4f2cfa79/variant_4f53cda18c2b",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 4
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

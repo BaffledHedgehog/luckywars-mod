@@ -4,12 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:obsidian",
-          "modifier": {
-            "count": 16,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/obsidian__7e8c33d0f0a4/variant_bfa45c8f1d0d"
         }
       ]
     },
@@ -17,8 +13,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:flint_and_steel"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/flint_and_steel__5affd394bcf6"
         }
       ]
     },
@@ -26,33 +22,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:potion",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:potion_contents": {
-                  "custom_color": 16750848,
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:fire_resistance",
-                      "duration": 1200
-                    }
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "item.minecraft.potion.effect.fire_resistance",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/potion__8a5c855f73b8/variant_9ca93c7e387d"
         }
       ]
     }

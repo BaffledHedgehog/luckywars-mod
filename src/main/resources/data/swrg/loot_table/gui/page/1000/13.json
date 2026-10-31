@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:ender_chest"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ender_chest__b7a2fe028d8c"
         }
       ],
       "modifier": [

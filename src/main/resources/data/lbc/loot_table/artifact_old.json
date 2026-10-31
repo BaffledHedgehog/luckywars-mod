@@ -4,907 +4,130 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__f37df0bb40c9",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:1,type:1}"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__ea76c358d2c7",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:1,type:2}"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__8fb3e106882d",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:1,type:3}"
-            }
-          ]
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__c0c57b189b69",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:1,type:4}"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__d8f5c4f554d0",
           "weight": 4,
-          "quality": 7,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:1,type:5}"
-            }
-          ]
+          "quality": 7
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__7123fdec2ee1",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:1,type:6}"
-            }
-          ]
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__94b0066c053e",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:2,type:1}"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__a3933e8cc831",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:2,type:2}"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__40b96deb7947",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:2,type:3}"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_reactive_artifact_4",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:2,type:4}"
-            }
-          ]
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__52a8e5f4852b",
           "weight": 10,
-          "quality": -5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:2,type:5}"
-            }
-          ]
+          "quality": -5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__5a57e65bed4b",
           "weight": 10,
-          "quality": -5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:2,type:6}"
-            }
-          ]
+          "quality": -5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__ab75eb8f68aa",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:3,type:1}"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/legacy_artifact_jump_levitation",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:3,type:2}"
-            }
-          ]
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__3d635d6c0844",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:3,type:3}"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__6fb1226ff35c",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:4,type:1}"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__1308b68974f4",
           "weight": 10,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:4,type:2}"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__8dce1e6771af",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:4,type:3}"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__a8117434bf30",
           "weight": 10,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:4,type:4}"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__0d78de28632e",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:4,type:5}"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__b0863f13dc4d",
           "weight": 10,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{mystical_old:4,type:6}"
-            }
-          ]
+          "quality": -10
         }
       ]
     }

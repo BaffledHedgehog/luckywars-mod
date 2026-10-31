@@ -1,384 +1,64 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 12,
+      "entries": [
         {
-            "rolls": 12,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "weight": 4,
-                    "value": "lbc:imba/bucket_rofl"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_d",
-                                "minecraft:item_model": "minecraft:cod_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_cod",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 4,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_ff",
-                                "minecraft:item_model": "minecraft:lava_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_lava",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,imba:1,lava_bucket:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 4,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_f",
-                                "minecraft:item_model": "minecraft:milk_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_milk",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,eat_cum:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 4,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_ff",
-                                "minecraft:item_model": "minecraft:powder_snow_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_snow",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,imba:1,snow_bucket:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_d",
-                                "minecraft:item_model": "minecraft:axolotl_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_axolotl",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_f",
-                                "minecraft:item_model": "minecraft:pufferfish_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_pufferfish",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,eat_poison:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_d",
-                                "minecraft:item_model": "minecraft:salmon_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_salmon",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_d",
-                                "minecraft:item_model": "minecraft:tropical_fish_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_tropical_fish",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 4,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_d",
-                                "minecraft:item_model": "minecraft:water_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_water",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,imba:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:salmon",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_d",
-                                "minecraft:item_model": "minecraft:tadpole_bucket"
-                            }
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "rofl_tadpole",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{gain_bucket:1,imba:1}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "weight": 4,
+          "value": "lbc:imba/bucket_rofl"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cod_bucket__776275471db1",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/lava_bucket__1770c2946cb2",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/milk_bucket__68bd44afb3ed",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/powder_snow_bucket__6a2aa6be0ca7",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/axolotl_bucket__868e9792a070",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pufferfish_bucket__3f00005ef5ff",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/salmon_bucket__2f231d1a6d6a",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tropical_fish_bucket__5ece3402f2a4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/water_bucket__5dd991dbab47",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tadpole_bucket__f681aa6a92ec",
+          "weight": 1
         }
-    ]
+      ]
+    }
+  ]
 }

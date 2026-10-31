@@ -1,157 +1,159 @@
 {
-    "random_sequence": "minecraft:pools",
-    "pools": [
+  "random_sequence": "minecraft:pools",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/leather_helmet__d64e3d36b2a2",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:armors/clownmask",
+                "minecraft:equippable": {
+                  "slot": "head",
+                  "asset_id": "lbc:clown_mask"
+                },
+                "minecraft:max_damage": 25,
+                "minecraft:attribute_modifiers": [
+                  {
+                    "id": "fisjgidsjg4givibhjeswh",
+                    "amount": 3,
+                    "operation": "add_value",
+                    "type": "minecraft:armor",
+                    "slot": "head"
+                  }
+                ]
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "entity": "this",
+              "name": {
+                "translate": "clown_mask",
+                "italic": false,
+                "color": "white"
+              }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:leather_helmet",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:armors/clownmask",
-                                "minecraft:equippable":{"slot":"head","asset_id":"lbc:clown_mask"},
-                                "minecraft:max_damage": 25,
-                                "minecraft:attribute_modifiers": [
-                                        {
-                                            "id": "fisjgidsjg4givibhjeswh",
-                                            "amount": 3,
-                                            "operation": "add_value",
-                                            "type": "minecraft:armor",
-                                            "slot": "head"
-                                        }
-                                    ]
-                                
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "translate": "clown_mask",
-                                "italic": false,
-                                "color": "white"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "clown_mask.lore.1",
-                                    "italic": false,
-                                    "color": "gray"
-                                },
-                                {
-                                    "translate": "clown_mask.lore.2",
-                                    "italic": false,
-                                    "color": "gray"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{clown_mask:1}"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
+                  "translate": "clown_mask.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                },
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:snowball",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:smoke_bomb"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "translate": "smoke_bomb",
-                                "italic": false,
-                                "color": "white"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "smoke_bomb.lore",
-                                    "italic": false,
-                                    "color": "gray"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 4
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{smoke_bomb:1,special:1}"
-                        }
-                    ]
+                  "translate": "clown_mask.lore.2",
+                  "italic": false,
+                  "color": "gray"
                 }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:snowball",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:false_tumba"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "translate": "false_tumba",
-                                "italic": false,
-                                "color": "white"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "false_tumba.lore.1",
-                                    "italic": false,
-                                    "color": "gray"
-                                },
-                                {
-                                    "translate": "false_tumba.lore.2",
-                                    "italic": false,
-                                    "color": "gray"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{false_tumba:1,gadget:1}"
-                        }
-                    ]
-                }
-            ]
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{clown_mask:1}"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/snowball__0a07907b8b8e",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:smoke_bomb"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "entity": "this",
+              "name": {
+                "translate": "smoke_bomb",
+                "italic": false,
+                "color": "white"
+              }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "smoke_bomb.lore",
+                  "italic": false,
+                  "color": "gray"
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_count",
+              "count": 4
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{smoke_bomb:1,special:1}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/snowball__0a07907b8b8e",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:false_tumba"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "entity": "this",
+              "name": {
+                "translate": "false_tumba",
+                "italic": false,
+                "color": "white"
+              }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "false_tumba.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "false_tumba.lore.2",
+                  "italic": false,
+                  "color": "gray"
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{false_tumba:1,gadget:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

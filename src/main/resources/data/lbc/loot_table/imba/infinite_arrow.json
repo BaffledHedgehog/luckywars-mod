@@ -1,54 +1,53 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                
-                                "minecraft:tooltip_style": "lbc:tier_c",
-                                "minecraft:enchantments": {
-                                    "minecraft:infinity": 1
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "infinite_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "imba_version",
-                                    "color": "dark_purple",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{infinite_arrow:1,imba:1}"
-                        }
-                    ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/arrow__8cd9f1e9f1ea/variant_4f53cda18c2b",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:enchantments": {
+                  "minecraft:infinity": 1
                 }
-            ]
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "infinite_arrow",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{infinite_arrow:1,imba:1}"
+            }
+          ],
+          "weight": 1
         }
-    ]
+      ]
+    }
+  ]
 }

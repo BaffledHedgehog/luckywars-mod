@@ -1,0 +1,63 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:manaregenerationbelt",
+                "minecraft:enchantments": {
+                  "minecraft:efficiency": 1
+                },
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:enchantments"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "mana_belt",
+                  "color": "blue",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "mage_belt_old.lore.1",
+                  "color": "aqua",
+                  "italic": false
+                },
+                {
+                  "translate": "mage_belt_old.lore.2",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{manabelt_old:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

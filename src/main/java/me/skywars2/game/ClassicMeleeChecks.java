@@ -141,7 +141,7 @@ public final class ClassicMeleeChecks {
                     original.remove("weight");original.remove("quality");leaf.remove("weight");leaf.remove("quality");require(original.equals(leaf),"compiled acquisition entry preserves exact source components/flags matching native leaf "+row.getKey());}
             }catch(java.io.IOException error){throw new IllegalStateException(error);}
         }
-        com.google.gson.JsonObject json(String leaf)throws java.io.IOException{try(var stream=ClassicMeleeChecks.class.getClassLoader().getResourceAsStream("data/lbc/loot_table/"+leaf+".json")){require(stream!=null,"compiled loot resource "+leaf);return com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();}}
+        com.google.gson.JsonObject json(String leaf)throws java.io.IOException{try(var stream=ClassicMeleeChecks.class.getClassLoader().getResourceAsStream("data/lbc/loot_table/"+leaf+".json")){require(stream!=null,"compiled loot resource "+leaf);return LootDefinitionChecks.expanded(com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject());}}
         void feeding(){
             // Independent native command confirms instantaneous source duration conversion rather than copying service constants.
             try{game.server().getCommands().getDispatcher().execute("effect give "+base.owner.getUUID()+" minecraft:saturation 1 127 true",game.server().createCommandSourceStack().withLevel(base.owner.level()).withSuppressedOutput());}

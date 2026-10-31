@@ -1,13 +1,13 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:waxed_copper_block"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/waxed_copper"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -809,6 +809,8 @@ public final class GameChecks {
                                 case "fpv-drone" -> { FpvDroneChecks.start(game); return; }
                                 case "reward-tools" -> { RewardToolChecks.start(game); return; }
                                 case "loose-rewards" -> { LooseRewardChecks.start(game); return; }
+                                case "canonical-loot" -> { LootDefinitionChecks.run(game); return; }
+                                case "feedback-regressions" -> { FeedbackRegressionChecks.run(game); return; }
                                 case "special-fireballs" -> { SpecialFireballChecks.run(game); return; }
                                 case "magic-bean" -> { MagicBeanChecks.run(game); return; }
                                 case "attribute-food" -> { AttributeFoodChecks.start(game); return; }
@@ -11461,10 +11463,18 @@ public final class GameChecks {
                                 require(enemy.position().equals(before) && Math.abs(speed-(count==1?.18:.35))<.00001,
                                                 "Within radius1.3 one hole adds .18 while two and three aligned holes remain capped at .35 without teleporting");
                                 if(count==1) {
-                                        service.transformOrigins(level,ignored->point); enemy.setPos(point.add(1.31,0,0)); enemy.setDeltaMovement(Vec3.ZERO);
+                                        service.transformOrigins(level,ignored->point); enemy.setPos(point.add(3.9,0,0)); enemy.setDeltaMovement(Vec3.ZERO);
+                                        enemy.setInvulnerableTime(0); enemy.damageCooldownTime=0; float innerHealth=enemy.getHealth(); service.tick();
+                                        require(enemy.getHealth()<innerHealth && Math.abs(enemy.getDeltaMovement().length()-.18)<.00001,
+                                                        "Source radius4 damage and radius7 strong pull reach beyond the former1.3core");
+                                        service.transformOrigins(level,ignored->point); enemy.setPos(point.add(4.1,0,0)); enemy.setDeltaMovement(Vec3.ZERO);
+                                        enemy.setInvulnerableTime(0); enemy.damageCooldownTime=0; float outerHealth=enemy.getHealth(); service.tick();
+                                        require(enemy.getHealth()==outerHealth && Math.abs(enemy.getDeltaMovement().length()-.18)<.00001,
+                                                        "Outside radius4 retains strong radius7 pull without core damage");
+                                        service.transformOrigins(level,ignored->point); enemy.setPos(point.add(7.01,0,0)); enemy.setDeltaMovement(Vec3.ZERO);
                                         float health=enemy.getHealth(); service.tick();
                                         require(enemy.getDeltaMovement().length()>0 && enemy.getDeltaMovement().length()<.01201 && enemy.getHealth()==health,
-                                                        "Just outside the radius1.3 shadow only weak attraction applies, without core damage");
+                                                        "Outside radius7 destruction only weak attraction applies, without radius4 damage");
                                 }
                         }
                         var point=service.markerSnapshot().getFirst().point(); service.transformOrigins(level,ignored->point);
@@ -13741,7 +13751,7 @@ public final class GameChecks {
                         for(var entity:world.getAllEntities()) nativeEntities.add(entity.getUUID());
                 try {
                         visuals.stop();
-                        for(int i=0;i<421;i++) visuals.tick();
+                        for(int i=0;i<261;i++) visuals.tick();
                         while(visuals.clock()%10!=0) visuals.tick();
                         double x=Math.floor(alpha.getX()/16)*16+8;
                         double z=Math.floor(alpha.getZ()/16)*16+8;
@@ -13777,8 +13787,8 @@ public final class GameChecks {
                         visuals.tick();
                         evicted=visuals.frames(alpha).stream().filter(frame->frame.retiring()).findFirst().orElseThrow();
                         require(!evicted.mainPresent() && evicted.mainRemovedAt()==visuals.clock()
-                                        && evicted.availableAt()==visuals.clock()+420,
-                                        "Twenty-second fade retention starts at main removal with a twenty-tick delivery margin");
+                                        && evicted.availableAt()==visuals.clock()+260,
+                                        "Twelve-second fade retention starts at main removal with a twenty-tick delivery margin");
                         var evictedFade=visuals.fadeDisplays(alpha).getFirst();
                         var evictedScale=new org.joml.Vector3f(evictedFade.getScale());
                         checkNuclearDisplays(visuals.fadeDisplays(alpha),visuals.fadingOrigins(alpha),alpha,24,20,20,1,true);
@@ -13786,25 +13796,25 @@ public final class GameChecks {
                         for(int i=0;i<90;i++) visuals.tick();
                         require(visuals.fadeDisplays(alpha).contains(evictedFade)
                                         && evictedFade.getScale().equals(evictedScale),
-                                        "Old 90-tick cleanup cannot release a live twenty-second fade");
+                                        "Old 90-tick cleanup cannot release a live twelve-second fade");
                         // Keep the other effects at age 111 while normal GameTime advances the tail.
                         timeStop.begin(level,600);
-                        for(int age:new int[]{240,400,419}) {
+                        for(int age:new int[]{80,240,259}) {
                                 while(visuals.clock()<evicted.mainRemovedAt()+age) visuals.tick();
                                 require(visuals.fadeDisplays(alpha).contains(evictedFade)
                                                 && evictedFade.getScale().equals(evictedScale)
                                                 && visuals.displays(alpha).size()==15,
-                                                "Eviction keeps fixed scale and reserved slot through default twelve-second and twenty-second boundaries");
+                                                "Eviction keeps fixed scale and reserved slot through four-second and twelve-second boundaries");
                         }
                         require(visuals.clock()==evictionDeadline-1,"Eviction reaches the exact final quarantine tick");
                         require(visuals.displays(alpha).size()==15 && visuals.fadeDisplays(alpha).contains(evictedFade)
                                         && evictedFade.getScale().equals(evictedScale),
-                                        "Tick 419 retains the live fade at fixed age and cannot reuse its slot");
+                                        "Tick 259 retains the live fade at fixed age and cannot reuse its slot");
                         var evictedHolder=evictedFade.getHolder();
                         visuals.tick();
                         require(!visuals.fadeDisplays(alpha).contains(evictedFade)
                                         && evictedHolder.getAttachment()==null && evictedHolder.getWatchingPlayers().isEmpty(),
-                                        "Tick 420 destroys the fade holder and releases its slot");
+                                        "Tick 260 destroys the fade holder and releases its slot");
                         timeStop.end(level);
                         // Trigger refresh while the original effects remain at active age 111.
                         visuals.show(level,new Vec3(x+10000,260,z),24,false);
@@ -13842,8 +13852,8 @@ public final class GameChecks {
                                 checkNuclearHandoff(main,fade,24,111);
                         }
                         var stopFrames=visuals.frames(alpha);
-                        require(stopFrames.stream().allMatch(frame->frame.availableAt()==frame.mainRemovedAt()+420),
-                                        "Every stopped shader slot reserves exactly 420 normal ticks after its own main removal");
+                        require(stopFrames.stream().allMatch(frame->frame.availableAt()==frame.mainRemovedAt()+260),
+                                        "Every stopped shader slot reserves exactly 260 normal ticks after its own main removal");
                         visuals.stop(); visuals.stop();
                         require(visuals.frames(alpha).equals(stopFrames),"Repeated stop cannot reset or extend fade deadlines");
                         int stoppedAt=visuals.clock();
@@ -13853,72 +13863,93 @@ public final class GameChecks {
                                         "Native global tick freeze pauses fade retention and handoff clocks");
                         tickManager.setFrozen(false); tickManager.tick();
                         timeStop.begin(level,600);
-                        for(int i=0;i<419;i++) visuals.tick();
+                        for(int i=0;i<259;i++) visuals.tick();
                         require(visuals.fadeDisplays(alpha).equals(stoppedFades),
                                         "Stand dimension pause does not stop the normal shader GameTime tail clock");
                         checkNuclearDisplays(stoppedFades,visuals.fadingOrigins(alpha),alpha,24,111,111,16,true);
                         visuals.stop(); visuals.tick();
                         require(visuals.fadeDisplays(alpha).isEmpty() && visuals.fadeDisplays(beta).isEmpty(),
-                                        "All stopped fades expire exactly 420 normal ticks after main removal despite repeated stop");
+                                        "All stopped fades expire exactly 260 normal ticks after main removal despite repeated stop");
                         timeStop.end(level);
 
                         visuals.show(level,origins.getFirst(),12,false);
                         var naturalMain=visuals.displays(alpha).getFirst();
                         var naturalHolder=naturalMain.getHolder();
-                        for(int i=0;i<118;i++) visuals.tick();
+                        for(int i=0;i<158;i++) visuals.tick();
                         require(visuals.count()==1 && visuals.fadeDisplays(alpha).isEmpty(),
-                                        "The six-second active lifetime does not stage a fade before tick 119");
+                                        "The eight-second active lifetime does not stage a fade before tick 159");
                         visuals.tick();
                         var naturalFrame=visuals.frames(alpha).getFirst();
                         require(visuals.count()==1 && naturalFrame.natural() && naturalFrame.mainPresent()
-                                        && naturalFrame.fadePresent() && naturalFrame.fixedAge()==120,
-                                        "Active tick 119 stages terminal-age fade with main still present");
+                                        && naturalFrame.fadePresent() && naturalFrame.fixedAge()==160,
+                                        "Active tick 159 stages terminal-age fade with main still present");
                         visuals.tick();
                         require(visuals.count()==0 && naturalHolder.getAttachment()==null
                                         && visuals.displays(alpha).isEmpty() && visuals.fadeDisplays(alpha).size()==1,
-                                        "Active tick 120 removes main and leaves the twenty-second shader fade");
-                        checkNuclearDisplays(visuals.fadeDisplays(alpha),visuals.fadingOrigins(alpha),alpha,12,120,120,1,true);
-                        checkNuclearHandoff(naturalMain,visuals.fadeDisplays(alpha).getFirst(),12,120);
+                                        "Active tick 160 removes main and leaves the twelve-second shader fade");
+                        checkNuclearDisplays(visuals.fadeDisplays(alpha),visuals.fadingOrigins(alpha),alpha,12,160,160,1,true);
+                        checkNuclearHandoff(naturalMain,visuals.fadeDisplays(alpha).getFirst(),12,160);
                         var naturalFade=visuals.fadeDisplays(alpha).getFirst();
                         var naturalScale=new org.joml.Vector3f(naturalFade.getScale());
                         var naturalRemoved=visuals.frames(alpha).getFirst();
-                        require(naturalRemoved.availableAt()==naturalRemoved.mainRemovedAt()+420,
-                                        "Natural removal starts a literal 420-tick quarantine");
-                        for(int age:new int[]{90,240,400,419}) {
+                        require(naturalRemoved.availableAt()==naturalRemoved.mainRemovedAt()+260,
+                                        "Natural removal starts a literal 260-tick quarantine");
+                        for(int age:new int[]{80,240,259}) {
                                 while(visuals.clock()<naturalRemoved.mainRemovedAt()+age) visuals.tick();
                                 require(visuals.fadeDisplays(alpha).equals(java.util.List.of(naturalFade))
                                                 && naturalFade.getScale().equals(naturalScale),
                                                 "Natural fade retains unchanged encoded duration and age throughout its full tail");
                         }
                         visuals.tick();
-                        require(visuals.fadeDisplays(alpha).isEmpty(),"Natural fade is destroyed at retention tick 420");
+                        require(visuals.fadeDisplays(alpha).isEmpty(),"Natural fade is destroyed at retention tick 260");
 
-                        // Cancel during the one-tick staged natural handoff: freeze at actual age 119.
+                        // The two original marker families have different total visible lifetimes.
+                        require(160+20*(naturalScale.z()/naturalScale.x()-2)==400,
+                                        "Large source preserves 400 visible ticks: 160 main plus encoded 240 fade");
+                        visuals.show(level,origins.getFirst(),12,false,200);
+                        for(int i=0;i<119;i++) visuals.tick();
+                        var smallStage=visuals.frames(alpha).getFirst();
+                        var smallFade=visuals.fadeDisplays(alpha).getFirst();
+                        require(smallStage.mainPresent() && smallStage.natural() && smallStage.fixedAge()==120
+                                        && smallFade.getScale().equals(new org.joml.Vector3f(12,7,72)),
+                                        "Small source stages age six with explicit four-second fade Z=6R");
+                        visuals.tick();
+                        var smallRemoved=visuals.frames(alpha).getFirst();
+                        require(!smallRemoved.mainPresent() && smallRemoved.availableAt()==smallRemoved.mainRemovedAt()+100
+                                        && 120+20*(smallFade.getScale().z()/smallFade.getScale().x()-2)==200,
+                                        "Small source preserves 200 visible ticks plus only twenty invisible delivery ticks");
+                        for(int i=0;i<99;i++) visuals.tick();
+                        require(visuals.fadeDisplays(alpha).equals(java.util.List.of(smallFade)),
+                                        "Small source retains its independent fade through delivery tick 99");
+                        visuals.tick();
+                        require(visuals.fadeDisplays(alpha).isEmpty(),"Small source releases its slot at retention tick 100");
+
+                        // Cancel during the one-tick staged natural handoff: freeze at actual age 159.
                         visuals.show(level,origins.getFirst(),12,false);
                         var stagedMain=visuals.displays(alpha).getFirst();
-                        for(int i=0;i<119;i++) visuals.tick();
+                        for(int i=0;i<159;i++) visuals.tick();
                         var stagedFade=visuals.fadeDisplays(alpha).getFirst();
-                        require(stagedFade.getScale().y()==7 && stagedFade.getScale().z()==264,
-                                        "Natural staging preloads terminal age 120 and custom twenty-second encoding");
+                        require(stagedFade.getScale().y()==9 && stagedFade.getScale().z()==168,
+                                        "Natural staging preloads terminal age 160 and custom twelve-second encoding");
                         visuals.stop();
                         var cancelled=visuals.frames(alpha).getFirst();
-                        require(!cancelled.natural() && cancelled.fixedAge()==119
+                        require(!cancelled.natural() && cancelled.fixedAge()==159
                                         && cancelled.mainPresent() && cancelled.fadePresent()
                                         && visuals.fadeDisplays(alpha).getFirst()==stagedFade
-                                        && stagedFade.getScale().y()==1+119/20f && stagedFade.getScale().z()==264,
-                                        "Stop during staged natural handoff reuses the same fade and corrects only its age to 119");
+                                        && stagedFade.getScale().y()==1+159/20f && stagedFade.getScale().z()==168,
+                                        "Stop during staged natural handoff reuses the same fade and corrects only its age to 159");
                         visuals.tick();
-                        checkNuclearHandoff(stagedMain,stagedFade,12,119);
+                        checkNuclearHandoff(stagedMain,stagedFade,12,159);
                         var cancelledScale=new org.joml.Vector3f(stagedFade.getScale());
                         var cancelledRemoved=visuals.frames(alpha).getFirst();
-                        require(cancelledRemoved.availableAt()==cancelledRemoved.mainRemovedAt()+420,
-                                        "Staged early cancellation still receives the full literal 420-tick quarantine");
-                        for(int i=0;i<419;i++) visuals.tick();
+                        require(cancelledRemoved.availableAt()==cancelledRemoved.mainRemovedAt()+260,
+                                        "Staged early cancellation still receives the full literal 260-tick quarantine");
+                        for(int i=0;i<259;i++) visuals.tick();
                         require(visuals.fadeDisplays(alpha).equals(java.util.List.of(stagedFade))
                                         && stagedFade.getScale().equals(cancelledScale),
-                                        "The early corrected age and custom duration stay fixed through tick 419");
+                                        "The early corrected age and custom duration stay fixed through tick 259");
                         visuals.tick();
-                        require(visuals.fadeDisplays(alpha).isEmpty(),"Staged early cancellation expires exactly at tick 420");
+                        require(visuals.fadeDisplays(alpha).isEmpty(),"Staged early cancellation expires exactly at tick 260");
 
                         // Fresh batch exercises late watcher and dimension cleanup, including an existing fade.
                         alpha.teleportTo(elsewhere,x,260,z,java.util.Set.of(),0,0,true);
@@ -13948,7 +13979,7 @@ public final class GameChecks {
                                         && java.util.stream.Stream.concat(dimensionMains.stream(),dimensionFades.stream())
                                                 .allMatch(holder->holder.getAttachment()==null && holder.getWatchingPlayers().isEmpty()),
                                         "Dimension change destroys both old-world holders without showing a cross-dimension fade");
-                        for(int i=0;i<420;i++) visuals.tick();
+                        for(int i=0;i<260;i++) visuals.tick();
                         var beacon=net.minecraft.core.BlockPos.containing(origins.getFirst().add(0,-2,0));
                         var oldBeacon=game.maps().snapshot(level,beacon);
                         try {
@@ -13971,16 +14002,16 @@ public final class GameChecks {
                                 var magicFade=visuals.fadeDisplays(alpha).getFirst();
                                 var magicScale=new org.joml.Vector3f(magicFade.getScale());
                                 var magicRemoved=visuals.frames(alpha).getFirst();
-                                require(magicRemoved.availableAt()==magicRemoved.mainRemovedAt()+420,
-                                                "Early antimagic removal starts the same literal 420-tick quarantine");
-                                for(int age:new int[]{90,240,400,419}) {
+                                require(magicRemoved.availableAt()==magicRemoved.mainRemovedAt()+260,
+                                                "Early antimagic removal starts the same literal 260-tick quarantine");
+                                for(int age:new int[]{80,240,259}) {
                                         while(visuals.clock()<magicRemoved.mainRemovedAt()+age) visuals.tick();
                                         require(visuals.fadeDisplays(alpha).equals(java.util.List.of(magicFade))
                                                         && magicFade.getScale().equals(magicScale),
                                                         "Antimagic fade retains frozen age and duration through the full delivery margin");
                                 }
                                 visuals.tick();
-                                require(visuals.fadeDisplays(alpha).isEmpty(),"Antimagic fade expires at the same 420-tick deadline");
+                                require(visuals.fadeDisplays(alpha).isEmpty(),"Antimagic fade expires at the same 260-tick deadline");
                         } finally {
                                 game.maps().restoreSnapshot(level,beacon,oldBeacon);
                                 game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
@@ -13993,7 +14024,7 @@ public final class GameChecks {
                 } finally {
                         tickManager.setFrozenTicksToRun(0); tickManager.setFrozen(false); tickManager.tick();
                         timeStop.end(level); visuals.stop();
-                        for(int i=0;i<421;i++) visuals.tick();
+                        for(int i=0;i<261;i++) visuals.tick();
                         alpha.teleportTo(alphaLevel,alphaState.position.x,alphaState.position.y,alphaState.position.z,
                                         java.util.Set.of(),alphaState.yaw,alphaState.pitch,true);
                         beta.teleportTo(betaLevel,betaState.position.x,betaState.position.y,betaState.position.z,
@@ -14024,7 +14055,7 @@ public final class GameChecks {
                                         && display.getTranslation().equals(new org.joml.Vector3f())
                                         && display.getLeftRotation().equals(new org.joml.Quaternionf())
                                         && display.getRightRotation().equals(new org.joml.Quaternionf())
-                                        && scale!=null && scale.x()==radius && scale.z()==radius*(fading?22:1)
+                                        && scale!=null && scale.x()==radius && scale.z()==radius*(fading?14:1)
                                         && scale.y()>=1+minAge/20f-0.0001f && scale.y()<=1+maxAge/20f+0.0001f,
                                         "Carrier metadata encodes the exact model, color channel, fixed transform, radius and age");
                         require(display.getHolder()!=null && display.getHolder().getAttachment()!=null
@@ -14046,9 +14077,9 @@ public final class GameChecks {
                         eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement fade,float radius,int age) {
                 var mainScale=main.getScale(); var fadeScale=fade.getScale();
                 require(mainScale.x()==radius && mainScale.z()==radius
-                                && fadeScale.x()==radius && fadeScale.z()==radius*22
+                                && fadeScale.x()==radius && fadeScale.z()==radius*14
                                 && mainScale.y()==1+age/20f && fadeScale.y()==mainScale.y(),
-                                "Main keeps Z=R while fade alone encodes T=20 with Z=22R and the identical frozen age");
+                                "Main keeps Z=R while fade alone encodes T=12 with Z=14R and the identical frozen age");
         }
 
         private static void checkExoperso(GameController game) {

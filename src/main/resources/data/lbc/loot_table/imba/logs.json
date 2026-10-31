@@ -4,251 +4,119 @@
       "rolls": 64,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:oak_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_leaves__37e25475cf5e/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:dark_oak_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dark_oak_leaves__18baeeefb10c/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:acacia_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/acacia_leaves__af0d069f8d12/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:jungle_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/jungle_leaves__0cd7bf13a8fc/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:spruce_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/spruce_leaves__f4b328963a73/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:birch_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/birch_leaves__d4d70211a658/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:warped_stem",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/warped_stem__f969522778c9/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:crimson_stem",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crimson_stem__9b464095964d/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:mangrove_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mangrove_leaves__cb3403ee68cf/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cherry_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cherry_leaves__ced1585867ff/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:azalea_leaves",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/azalea_leaves__1d7b095625a4/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:oak_log",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_log__0e9deb15ada2/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:dark_oak_log",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dark_oak_log__8b5efb1ce94c/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:acacia_log",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/acacia_log__116c3380f4e2/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:jungle_log",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/jungle_log__e729e5aed71e/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:spruce_log",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/spruce_log__aa71784c728a/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:birch_log",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/birch_log__6d0a3facb470/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:warped_stem",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/warped_stem__f969522778c9/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:crimson_stem",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crimson_stem__9b464095964d/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:mangrove_log",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mangrove_log__5919f08e2f93/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cherry_log",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cherry_log__29db215cb172/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:bamboo_block",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bamboo_block__7ec292d80e7e/variant_448734fd39df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_u",
-                "minecraft:item_model": "lbc:mystical_tree",
-                "minecraft:entity_data": {
-                  "id": "minecraft:marker",
-                  "Tags": [
-                    "slowraycast",
-                    "mystical_tree",
-                    "instant"
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "mystical_tree",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mystical_tree__78942364b3c2",
+          "weight": 10
         }
       ]
     }

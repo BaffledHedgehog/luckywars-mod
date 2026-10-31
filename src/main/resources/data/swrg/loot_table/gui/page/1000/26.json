@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:damaged_anvil"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/damaged_anvil__25e026a64e8b"
         }
       ],
       "modifier": {

@@ -13,832 +13,220 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_a3291f21c740",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:speed",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_96695f69e94b",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:slowness",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_821ddd65f520",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:haste",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_f595e50aa124",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:mining_fatigue",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_0277f1fc2e78",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:strength",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_89aca58d8e6a",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:instant_health",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_05ea910fa061",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:instant_damage",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_a57a191c01af",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:jump_boost",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_d7d52cf125d4",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:nausea",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_b561ffd8357c",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:regeneration",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_8525a8285249",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:resistance",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_8b942626a5ff",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:fire_resistance",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_fd1475f1c32e",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:water_breathing",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_bda27ca0e732",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:invisibility",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_0664e3d8a433",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:blindness",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_b98383589e84",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:night_vision",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_cea487b936e1",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:hunger",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_0dd17b3b35c6",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:weakness",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_1d0c515612c6",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:poison",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_d12facd76cac",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:wither",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_51f47ee5019e",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:health_boost",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_f65c64776db0",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:absorption",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_8ab404a11538",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:saturation",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_a84c8351b6ef",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:glowing",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_b90cfe055676",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:levitation",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_c3855c62d5c3",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:slow_falling",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_5cd3d4e1135d",
           "weight": 1,
-          "quality": 1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:luck",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_d20c67c7a8ae",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:unluck",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_fea0aed6deda",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:darkness",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_e39fa65ef16f",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:infested",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_2b6a7e8cd625",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:oozing",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_4792a4f7cbae",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:bad_omen",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_1767cf274f76",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:trial_omen",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_7ae565fe0677",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:weaving",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_545d63de711e",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:wind_charged",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/suspicious_stew__8e5d603b2fda/variant_f7fee8fb6e98",
           "weight": 1,
-          "quality": -1,
-          "name": "minecraft:suspicious_stew",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:suspicious_stew_effects": [
-                  {
-                    "id": "minecraft:breath_of_the_nautilus",
-                    "duration": 600
-                  }
-                ]
-              }
-            }
-          ]
+          "quality": -1
         }
       ]
     }

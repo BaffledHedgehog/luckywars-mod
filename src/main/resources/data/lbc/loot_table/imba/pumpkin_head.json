@@ -1,63 +1,63 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:carved_pumpkin",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_ff",
-                                "minecraft:enchantments": {
-                                    "minecraft:binding_curse": 1
-                                },
-                                "equippable": {
-                                    "slot": "head",
-                                    "camera_overlay": "minecraft:misc/loli_hentai"
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "tikva",
-                                "color": "white",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                [
-                                    {
-                                        "translate": "type",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    },
-                                    {
-                                        "translate": "helmet",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                {
-                                    "translate": "imba_version",
-                                    "color": "dark_purple",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{transformable:1,helmet:1,imba:1}"
-                        }
-                    ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/carved_pumpkin__6b4e107e0698/variant_4f53cda18c2b",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:enchantments": {
+                  "minecraft:binding_curse": 1
+                },
+                "equippable": {
+                  "slot": "head",
+                  "camera_overlay": "minecraft:misc/loli_hentai"
                 }
-            ]
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": {
+                "translate": "tikva",
+                "color": "white",
+                "italic": false
+              }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "helmet",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "imba_version",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{transformable:1,helmet:1,imba:1}"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -1,0 +1,35 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:crossbow",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:unbreakable": {},
+                "minecraft:enchantments": {
+                  "minecraft:multishot": 1,
+                  "minecraft:piercing": 4,
+                  "minecraft:quick_charge": 3
+                },
+                "minecraft:custom_name": {
+                  "italic": false,
+                  "translate": "bob_crossbow"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

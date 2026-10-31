@@ -4,48 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:firework_rocket",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:fireworks": {
-                  "explosions": [
-                    {
-                      "shape": "star",
-                      "colors": [
-                        16772608
-                      ],
-                      "fade_colors": [
-                        16748800
-                      ]
-                    }
-                  ],
-                  "flight_duration": 127
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "count": 64,
-              "type": "minecraft:set_count"
-            },
-            {
-              "tag": "{imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/firework_rocket__e2f07060e0e4"
         }
       ]
     },
@@ -53,31 +13,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:elytra",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:unbreakable": {}
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/elytra__38fe0e2c373a"
         }
       ]
     }

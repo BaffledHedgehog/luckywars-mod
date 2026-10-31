@@ -13,36 +13,20 @@
       "rolls": 8,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_apple",
-          "modifier": {
-            "count": 4,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_apple__de85880d6083/variant_29df3de3fe64"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:gold_ingot",
-          "modifier": {
-            "count": 32,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/gold_ingot__dd4f4f2cfa79/variant_26790b75dbec"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:gold_block",
-          "modifier": {
-            "count": 16,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/gold_block__b611bfb2ecd4/variant_bfa45c8f1d0d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:enchanted_golden_apple",
-          "modifier": {
-            "count": 1,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/enchanted_golden_apple__7aed17992ede/variant_c67e75927f3d"
         }
       ]
     }

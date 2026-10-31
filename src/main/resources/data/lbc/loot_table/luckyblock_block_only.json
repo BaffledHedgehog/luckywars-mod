@@ -1,58 +1,59 @@
-    {"type":"empty",
-    "pools": [
+{
+  "type": "empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:red_mushroom_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:lucky_block",
-                                "minecraft:block_state": {
-                                    "up": "false",
-                                    "down": "false",
-                                    "north": "false",
-                                    "south": "false",
-                                    "east": "false",
-                                    "west": "false"
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "text": "Lucky Block",
-                                    "color": "yellow",
-                                    "italic": false,
-                                    "type": "text"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "text": "Made by: FaffledHedgehog, Scuferis,",
-                                    "color": "gray",
-                                    "italic": false,
-                                    "type": "text"
-                                },
-                                {
-                                    "text": "Swagrumm9690_, JastSh2sh",
-                                    "color": "gray",
-                                    "italic": false,
-                                    "type": "text"
-                                }
-                            ]
-                        }
-                    ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_mushroom_block__f6c0ac32d062",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:lucky_block",
+                "minecraft:block_state": {
+                  "up": "false",
+                  "down": "false",
+                  "north": "false",
+                  "south": "false",
+                  "east": "false",
+                  "west": "false"
                 }
-            ]
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
+                {
+                  "text": "Lucky Block",
+                  "color": "yellow",
+                  "italic": false,
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "text": "Made by: FaffledHedgehog, Scuferis,",
+                  "color": "gray",
+                  "italic": false,
+                  "type": "text"
+                },
+                {
+                  "text": "Swagrumm9690_, JastSh2sh",
+                  "color": "gray",
+                  "italic": false,
+                  "type": "text"
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

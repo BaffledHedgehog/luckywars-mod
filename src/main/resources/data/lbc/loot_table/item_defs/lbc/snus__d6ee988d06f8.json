@@ -1,0 +1,97 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:snus",
+                "minecraft:potion_contents": {
+                  "custom_color": 5731155,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:speed",
+                      "amplifier": 15,
+                      "duration": 4000
+                    },
+                    {
+                      "id": "minecraft:jump_boost",
+                      "amplifier": 15,
+                      "duration": 4000
+                    },
+                    {
+                      "id": "minecraft:nausea",
+                      "amplifier": 15,
+                      "duration": 5000
+                    },
+                    {
+                      "id": "minecraft:mining_fatigue",
+                      "amplifier": 2,
+                      "duration": 5000
+                    },
+                    {
+                      "id": "minecraft:hunger",
+                      "amplifier": 0,
+                      "duration": 8000
+                    },
+                    {
+                      "id": "minecraft:night_vision",
+                      "amplifier": 10,
+                      "duration": 5000
+                    },
+                    {
+                      "id": "minecraft:hunger",
+                      "amplifier": 10,
+                      "duration": 320
+                    },
+                    {
+                      "id": "minecraft:raid_omen",
+                      "amplifier": 74,
+                      "duration": 1
+                    }
+                  ]
+                },
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "lbc.adv.potion.snus",
+                  "color": "gold",
+                  "bold": true,
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "snus.lore",
+                  "color": "yellow",
+                  "italic": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

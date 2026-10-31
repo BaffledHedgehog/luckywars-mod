@@ -1,17 +1,17 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:pink_petals"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:pink_tulip"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/pink_petals"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pink_tulip__979bcd8f5048"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -58,6 +58,7 @@ public final class LbcLegacyEffects {
         int now=game.server().getTickCount();if(now==lastTick)return;lastTick=now;
         for(var p:List.copyOf(game.server().getPlayerList().getPlayers())){
             if(game.items().polymorph().masked(p)||!admitted(p))continue;
+            if((now&1)==0)ambientReactions(p);
             boolean greed=p.entityTags().contains("sin_greed_active");
             if(!greed){
                 consume(p,"effect_explosion",()->{if(!explosionSuppressed(p))game.items().babylonEffects().primeExplosionAt(p.level(),p.position(),game.items().indirectKills().wildCause(p));});
@@ -73,6 +74,23 @@ public final class LbcLegacyEffects {
                 consume(p,"effect_snus",()->snus(p));
                 if(now%20==0&&read(p,"effect_gravity_curse")>0&&!game.items().pendingCombat().gravityCurseActive(p))gravity(p);
             }
+        }
+    }
+    /** Source players_2t: independent5% rolls for amplifier>=1, not a new private duration. */
+    void ambientReactions(ServerPlayer p){
+        if(!admitted(p)||game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("legacy"),"lbc.math").get()==1)return;
+        if(SignedEffectVisuals.level(p,MobEffects.HUNGER)>1&&p.level().getRandom().nextFloat()<.05f)reaction(p,false);
+        if(SignedEffectVisuals.level(p,MobEffects.NAUSEA)>1&&p.level().getRandom().nextFloat()<.05f)reaction(p,true);
+    }
+    void reaction(ServerPlayer p,boolean vomiting){
+        var at=vomiting?p.getEyePosition().add(p.getLookAngle().scale(.3)):p.position().add(0,.4,0).add(p.getLookAngle().scale(-.5));
+        if(vomiting){
+            p.level().sendParticles(new net.minecraft.core.particles.ItemParticleOption(net.minecraft.core.particles.ParticleTypes.ITEM,net.minecraft.world.item.Items.CHICKEN),at.x,at.y,at.z,100,.1,.1,.1,.1);
+            p.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,20,0,false,false));p.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,20,0,false,false));
+            for(float pitch:new float[]{0,1,2})LbcOverload.sound(p,at,"minecraft:entity.player.burp",1,pitch,0);
+        }else{
+            p.level().sendParticles(net.minecraft.core.particles.ParticleTypes.FALLING_HONEY,at.x,at.y,at.z,100,.1,.1,.1,.5);
+            LbcOverload.sound(p,at,"minecraft:block.honey_block.break",1,0,0);
         }
     }
     private void consume(ServerPlayer p,String objective,Runnable action){if(read(p,objective)<=0)return;

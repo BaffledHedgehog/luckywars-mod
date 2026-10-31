@@ -4,160 +4,64 @@
       "rolls": 4,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:oak_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_log__0e9deb15ada2/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:dark_oak_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dark_oak_log__8b5efb1ce94c/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:acacia_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/acacia_log__116c3380f4e2/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:jungle_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/jungle_log__e729e5aed71e/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:spruce_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/spruce_log__aa71784c728a/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:birch_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/birch_log__6d0a3facb470/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:warped_stem",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/warped_stem__f969522778c9/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:crimson_stem",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crimson_stem__9b464095964d/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:mangrove_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mangrove_log__5919f08e2f93/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cherry_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cherry_log__29db215cb172/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:bamboo_block",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bamboo_block__7ec292d80e7e/variant_a9fbed53b0d3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:pale_oak_log",
-          "modifier": {
-            "count": {
-              "min": 1,
-              "max": 16,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pale_oak_log__1382a0261f16/variant_a9fbed53b0d3",
+          "weight": 1
         }
       ]
     }

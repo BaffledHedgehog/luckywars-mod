@@ -4,119 +4,15 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/trident__145e126e880c",
           "weight": 10,
-          "quality": 7,
-          "name": "minecraft:trident",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:enchantments": {
-                  "minecraft:riptide": 10
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 5,
-                    "operation": "add_value"
-                  }
-                ]
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "sea_legend",
-                  "color": "blue",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "trident.lbc",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ]
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,trident:1,sea_legend:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 7
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:trident",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:loyalty": 1,
-                  "minecraft:impaling": 10
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "harpoon",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "trident.lbc",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ]
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,trident:1,harpoon:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/harpoon",
+          "weight": 10
         }
       ]
     }

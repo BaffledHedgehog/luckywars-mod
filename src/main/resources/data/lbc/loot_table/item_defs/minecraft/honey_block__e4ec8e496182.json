@@ -1,0 +1,51 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:snowball",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ss",
+                "minecraft:item_model": "minecraft:honey_block"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "honew",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "honew.lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{honew:1,projegadget:1,imba:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

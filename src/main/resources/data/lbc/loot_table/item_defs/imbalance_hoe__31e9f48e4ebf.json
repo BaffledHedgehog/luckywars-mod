@@ -1,0 +1,27 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:netherite_hoe",
+          "modifier": [
+            {
+              "type": "minecraft:set_name",
+              "entity": "this",
+              "name": {
+                "translate": "imbalance_hoe",
+                "italic": false
+              }
+            },
+            {
+              "type": "minecraft:enchant_with_levels",
+              "levels": 30
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

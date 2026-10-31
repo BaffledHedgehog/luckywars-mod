@@ -1,0 +1,69 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stick",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 16
+            },
+            {
+              "type": "set_components",
+              "components": {
+                "custom_data": "{halloween_chorus:1,halloween_food:1}",
+                "item_model": "lbc:chorus_pumpkin",
+                "food": {
+                  "nutrition": 4,
+                  "saturation": 1,
+                  "can_always_eat": true
+                },
+                "consumable": {
+                  "animation": "eat",
+                  "consume_seconds": 0.2,
+                  "has_consume_particles": true,
+                  "sound": "block.chorus_flower.death"
+                },
+                "minecraft:tooltip_style": "lbc:tier_d"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "chorus_pumpkin",
+                  "color": "#ff9ef2",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "chorus_pumpkin.lore.1",
+                  "color": "#fff5e7",
+                  "italic": false
+                },
+                {
+                  "translate": "halloween.lore",
+                  "color": "#ff670f",
+                  "italic": false
+                },
+                {
+                  "translate": "halloween.food",
+                  "color": "#a2ff6c",
+                  "italic": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

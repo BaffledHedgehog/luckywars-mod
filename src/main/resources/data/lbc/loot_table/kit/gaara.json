@@ -1,68 +1,68 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:sand_pot"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:sand_pot"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "sand_tikva",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{gaara_tikva:1}"
-                        }
-                    ]
+                  "translate": "sand_tikva",
+                  "italic": false
                 }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:sand",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:red_sand",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                }
-            ]
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{gaara_tikva:1}"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sand__a938cf8712d6",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 64
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_sand__a62e8db3412f",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 64
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

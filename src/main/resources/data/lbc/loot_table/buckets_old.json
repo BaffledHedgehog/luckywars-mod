@@ -4,114 +4,54 @@
       "rolls": 12,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 4,
-          "name": "minecraft:bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bucket__690fd05e61e6/variant_c67e75927f3d",
+          "weight": 4
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cod_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cod_bucket__4d48882422b8/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 4,
-          "name": "minecraft:lava_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/lava_bucket__0f697f0dc693/variant_c67e75927f3d",
+          "weight": 4
         },
         {
-          "type": "minecraft:item",
-          "weight": 4,
-          "name": "minecraft:milk_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/milk_bucket__315c5d48d30d/variant_c67e75927f3d",
+          "weight": 4
         },
         {
-          "type": "minecraft:item",
-          "weight": 3,
-          "name": "minecraft:powder_snow_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/powder_snow_bucket__410eee8b392b/variant_c67e75927f3d",
+          "weight": 3
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:axolotl_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/axolotl_bucket__bbdf128eed2b/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:pufferfish_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pufferfish_bucket__8877eb27bc5f/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:salmon_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/salmon_bucket__9d0a8514d734/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:tropical_fish_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tropical_fish_bucket__15dc91580ab9/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 4,
-          "name": "minecraft:water_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/water_bucket__7d6a2b06f50d/variant_c67e75927f3d",
+          "weight": 4
         }
       ]
     }

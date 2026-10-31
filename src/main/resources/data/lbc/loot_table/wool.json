@@ -8,180 +8,84 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:black_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/black_wool__f4c5447a5d98/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:blue_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/blue_wool__f05f89466e8a/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:brown_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/brown_wool__695307a1d587/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cyan_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cyan_wool__b57936778fdb/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:gray_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/gray_wool__ec80bbf50da2/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:green_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/green_wool__3d7c9237afe1/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:light_blue_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/light_blue_wool__d4643eee6fc1/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:light_gray_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/light_gray_wool__d438ea6f65e3/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:lime_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/lime_wool__69d72686c1ee/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:magenta_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/magenta_wool__314b0671a66a/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:orange_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/orange_wool__e9abc36c4c87/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:pink_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pink_wool__ac3bd68cf785/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:purple_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purple_wool__880f2a54ed2a/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:red_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_wool__0d813435206b/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:white_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/white_wool__1a9194fa982f/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:yellow_wool",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/yellow_wool__e4fbb1763bb7/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     }

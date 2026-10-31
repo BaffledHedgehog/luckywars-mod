@@ -8,1768 +8,204 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:food/diamond_apple"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_apple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_apple:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_apple__3e870873ffab",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_ff",
-                "minecraft:item_model": "lbc:food/golden_stew"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_stew",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_stew:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_stew__d2d4043b4d1b",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:food/golden_bread"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_bread",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_bread:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_bread__19921cde8a2f",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_porkchop"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_porkchop",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_porkchop:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_porkchop__7d268bb71eee",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:food/diamond_porkchop"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_porkchop",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_porkchop:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_porkchop__afc5dbcac072",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "lbc:food/netherite_apple"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "netherite_apple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{netherite_apple:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/netherite_apple__a5220a3cd86c",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:item_model": "lbc:food/bedrock_apple"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "bedrock_apple",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{bedrock_apple:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/bedrock_apple__00b0f2aa5bd9",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_fish",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 4,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_fish",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_fish:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_fish__92da2a3f4991",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:food/diamond_fish",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 5,
-                  "minecraft:bane_of_arthropods": 5,
-                  "minecraft:lure": 5
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 8,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_fish",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_fish:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_fish__6a220e4ec2f7",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_ss",
-                "minecraft:item_model": "lbc:food/netherite_fish",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 255,
-                  "minecraft:bane_of_arthropods": 255,
-                  "minecraft:smite": 255
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 14,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "netherite_fish",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{netherite_fish:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/netherite_fish__9e3f812c2210",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_ss",
-                "minecraft:item_model": "lbc:food/netherstar_fish",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 255,
-                  "minecraft:bane_of_arthropods": 255,
-                  "minecraft:smite": 255
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 15,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "netherstar_fish",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{netherstar_fish:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/netherstar_fish__e900f3148e00",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:item_model": "lbc:food/transdimensional_fish",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 255,
-                  "minecraft:bane_of_arthropods": 255,
-                  "minecraft:smite": 255
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 16,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "transdimensional_fish",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{transdimensional_fish:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/transdimensional_fish__abd9fd5d38ec",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:item_model": "lbc:food/multiverse_fish",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 255,
-                  "minecraft:bane_of_arthropods": 255,
-                  "minecraft:smite": 255
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 40,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiverse_fish",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{multiverse_fish:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/multiverse_fish__b31a2267c830",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_cake"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_cake",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_cake:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_cake__6184b7fa2972",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_cookie"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_cookie",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_cookie:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_cookie__9f4ab9bcddd8",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_melon"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_melon",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_melon:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_melon__6dc8e49a651e",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_kelp"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_kelp",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_kelp:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_kelp__ccd5cffe9f74",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_beef"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_beef",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_beef:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_beef__31d93d573a52",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:food/diamond_beef"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_beef",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_beef:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_beef__524815190dae",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_chicken"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_chicken",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_chicken:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_chicken__c7c52a322539",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:food/diamond_chicken"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_chicken",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_chicken:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_chicken__c6b6d0c35b57",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "lbc:food/human_flesh"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "human_flesh",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{human_flesh:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/human_flesh__f189a099a4ae",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:food/human_eye"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "human_eye",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{human_eye:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/human_eye__bf39fcdc6052",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:food/golden_chorus"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_chorus",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_chorus:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_chorus__10b96ac0a817",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_berries"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_berries",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_berries:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_berries__aa560673a412",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/diamond_carrot"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_carrot",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_carrot:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_carrot__4b93de92ab9e",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:food/netherite_carrot"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "netherite_carrot",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{netherite_carrot:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/netherite_carrot__527cad75ffe9",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_potato"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_potato",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_potato:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_potato__929220edfb52",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:food/diamond_potato"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_potato",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_potato:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_potato__aa3df42fc102",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "lbc:food/netherite_potato"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "netherite_potato",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{netherite_potato:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/netherite_potato__e06f2c4185b7",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_pie"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_pie",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_pie:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_pie__b159fd4776f1",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_rabbit"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_rabbit",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_rabbit:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_rabbit__3e867886af09",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:food/diamond_rabbit"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_rabbit",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_rabbit:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_rabbit__04730ab68358",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:item_model": "lbc:food/diamond_stew"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_stew",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_stew:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_stew__6284ad92066a",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_mutton"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_mutton",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_mutton:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_mutton__df4dd944484a",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:food/diamond_mutton"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_mutton",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_mutton:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_mutton__b82fa724a70b",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:food/golden_beetroot"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "golden_beetroot",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{golden_beetroot:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/golden_beetroot__cdf56b8a975b",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_ss",
-                "minecraft:item_model": "lbc:food/netherite_stew"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "netherite_stew",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{netherite_stew:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/netherite_stew__8051d37532b5",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:food/diamond_berries"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "diamond_berries",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{diamond_berries:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/diamond_berries__88f686f0a0f9",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:golden_apple",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_ff",
-                "minecraft:item_model": "lbc:food/yellow_lightnings_bottle"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "yellow_lightings_bottle",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{yellow_lightings_bottle:1,imba:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/yellow_lightnings_bottle__d07e597e4e38",
+          "weight": 10
         }
       ]
     }

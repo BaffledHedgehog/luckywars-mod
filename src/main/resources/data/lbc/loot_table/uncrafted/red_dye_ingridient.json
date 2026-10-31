@@ -1,21 +1,21 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:beetroot"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:red_tulip"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:poppy"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/beetroot__1d2386534f05/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_tulip__5875c26204bb"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/poppy"
         }
-    ]
+      ]
+    }
+  ]
 }

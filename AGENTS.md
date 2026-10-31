@@ -1,3 +1,19 @@
+## Player feedback and canonical loot - NATIVE BATCH, NOT RELEASED (31 October 2026)
+
+[Implementation and evidence](agent_notes/PLAYER_FEEDBACK_AND_LOOT_2026_10_31.md).
+Nine feedback fixes include canonical S-tier antimagic sword, source7/4 duplicating
+hole radii, total200/400 nuclear fades, signed/Nexus projection, Chef retained
+navigation/native water/stairs/roof escape and linear pitch, shader row retirement,
+and source Hunger/NauseaII reactions. 8016 item entries in947 existing tables now
+use3614 new definitions/existing owners, preserving all selection metadata and
+modifier order. Active condition stays active; ignored functions stays ignored.
+5832 expansion checks/idempotence/zero skipped entries;5183 packaged tables and
+7074 local refs resolve. e60cd86b passes7 final actual mode1 matches;18 distinct
+gameplay groups have staged passing native evidence, with exact production/loot
+continuity reports. Negative-blindness GPU compile/alpha/grain/contrast pass.
+Protected199/live31/main d9087f0a exact; normal child exit/exact snapshots/no locks.
+Original25 Chaos release gate CLOSED; no main install/restart/push/questions edits.
+
 ## Eight reward consumers - NATIVE BATCH, NOT RELEASED (31 October 2026)
 
 [Source behavior and native proof](agent_notes/REWARD_UTILITIES_2026_10_31.md).

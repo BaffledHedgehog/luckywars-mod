@@ -1,13 +1,13 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 2,
+      "entries": [
         {
-            "rolls": 2,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:resin_brick_slab"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/resin_brick_slab__e30128147e06/variant_4f53cda18c2b"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -123,7 +123,14 @@ public final class LbcPendingSwords {
     private void fang(ServerPlayer owner,int stage){var forward=owner.getLookAngle();var up=Vec3.directionFromRotation(owner.getXRot()-90,owner.getYRot());var fang=game.items().evokerBass().spawnOwned(owner,owner.position().add(up.scale(.5)).add(forward.scale(stage*1.5)));if(fang!=null)fang.entityTags().add(FANG);}
     int queuedCasts(){return casts.size();}
     List<Arrow> arrowSnapshot(){return List.copyOf(arrows);}
+    /** Old source A/S variants are one item; preserve all components except the canonical tooltip tier. */
+    public static void canonicalizeAntimagic(net.minecraft.world.item.ItemStack stack){
+        var key=net.minecraft.core.component.DataComponents.TOOLTIP_STYLE;
+        var tier=Identifier.parse("lbc:tier_s");
+        if(!stack.isEmpty()&&LbcFartus.data(stack).getIntOr("antimagic",0)==1&&!tier.equals(stack.get(key)))stack.set(key,tier);
+    }
     private void antimagicTask(ServerPlayer owner){
+        for(int slot=0;slot<owner.getInventory().getContainerSize();slot++)canonicalizeAntimagic(owner.getInventory().getItem(slot));
         if(!valid(owner)||paused(owner)||LbcFartus.data(owner.getMainHandItem()).getIntOr("antimagic",0)!=1)return;
         var stand=owner.level().getEntitiesOfClass(net.minecraft.world.entity.decoration.ArmorStand.class,owner.getBoundingBox().inflate(4),e->e.entityTags().contains("mom")&&e.distanceToSqr(owner)<=16).stream().findFirst().orElse(null);
         if(stand==null)return;

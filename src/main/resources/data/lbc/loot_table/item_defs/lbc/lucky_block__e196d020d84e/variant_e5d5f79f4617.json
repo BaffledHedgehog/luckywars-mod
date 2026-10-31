@@ -1,0 +1,71 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_mushroom_block",
+          "modifier": [
+            {
+              "modifiers": [
+                {
+                  "id": "minecraft:gggg",
+                  "attribute": "minecraft:spawn_reinforcements",
+                  "amount": {
+                    "min": 6,
+                    "max": 8,
+                    "type": "minecraft:uniform"
+                  },
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            },
+            {
+              "components": {
+                "minecraft:item_model": "lbc:lucky_block",
+                "minecraft:block_state": {
+                  "down": "false",
+                  "up": "false",
+                  "south": "false",
+                  "north": "false",
+                  "east": "false",
+                  "west": "false"
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "color": "yellow",
+                  "italic": false,
+                  "translate": "skywars2.item.lucky_block.name"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "lore": [
+                {
+                  "color": "gray",
+                  "italic": false,
+                  "translate": "skywars2.item.lucky_block.credits.1"
+                },
+                {
+                  "color": "gray",
+                  "italic": false,
+                  "translate": "skywars2.item.lucky_block.credits.2"
+                }
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

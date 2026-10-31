@@ -243,7 +243,10 @@ public final class LbcWtf {
             float pitch=(float)(-Math.atan2(delta.y,delta.horizontalDistance())*180/Math.PI);
             float head=net.minecraft.util.Mth.approachDegrees(getYHeadRot(),yaw,yawStep);
             head=getYRot()+net.minecraft.util.Mth.clamp(net.minecraft.util.Mth.wrapDegrees(head-getYRot()),-75,75);
-            setYHeadRot(head);setXRot(net.minecraft.util.Mth.approachDegrees(getXRot(),pitch,pitchStep));
+            setYHeadRot(head);
+            // Pitch is bounded to [-90,90], unlike yaw. Wrapped interpolation at
+            // the overhead-to-floor 180-degree transition sticks at native -90.
+            setXRot(net.minecraft.util.Mth.approach(getXRot(),pitch,pitchStep));
         }
         void face(Vec3 at){
             Vec3 delta=at.subtract(getEyePosition());
@@ -363,7 +366,10 @@ public final class LbcWtf {
                 boolean chase=movingTarget||chef.position().subtract(chef.target.position()).horizontalDistanceSqr()>1.44;
                 if(chase){chef.setSprinting(true);chef.steer(chef.target.position(),false);}
                 else chef.halt();
-                boolean ready=chef.aimAction(chef.target.getEyePosition())&&chef.equipCombat();
+                // Turn and prepare the sword concurrently; neither hand dwell nor
+                // a large camera turn should postpone starting the other action.
+                boolean aimed=chef.aimAction(chef.target.getEyePosition()),equipped=chef.equipCombat();
+                boolean ready=aimed&&equipped;
                 boolean crit=!chef.onGround()&&chef.getDeltaMovement().y<-.05&&!chef.isInWater()&&!chef.onClimbable()&&!chef.isPassenger();
                 if(chef.attackDelay==0&&ready){
                     boolean safeJump=chef.onGround()&&!chef.isInWater()&&chef.level().noCollision(chef,chef.getBoundingBox().move(0,1.25,0));

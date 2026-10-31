@@ -4,136 +4,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "skywars2:mana_splash_potion",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_ss",
-                "minecraft:potion_contents": {
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:raid_omen",
-                      "amplifier": 17,
-                      "duration": 3600
-                    }
-                  ],
-                  "custom_color": 5065466
-                },
-                "minecraft:tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:potion_contents"
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "item.minecraft.splash_potion.effect.add_manamax",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "add_manamax",
-                    "italic": false,
-                    "color": "blue"
-                  },
-                  {
-                    "text": " (03:00)",
-                    "type": "text"
-                  }
-                ],
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/skywars2/mana_splash_potion__3e2c1d05a61c/variant_dbc27cf34cef",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "skywars2:mana_splash_potion",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_ss",
-                "minecraft:potion_contents": {
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:raid_omen",
-                      "amplifier": 17,
-                      "duration": 9600
-                    }
-                  ],
-                  "custom_color": 5065466
-                },
-                "minecraft:tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:potion_contents"
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "item.minecraft.splash_potion.effect.add_manamax",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "add_manamax",
-                    "italic": false,
-                    "color": "blue"
-                  },
-                  {
-                    "text": " (08:00)",
-                    "type": "text"
-                  }
-                ],
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/skywars2/mana_splash_potion__3e2c1d05a61c/variant_7adfe555d5ae",
+          "weight": 1
         }
       ]
     }

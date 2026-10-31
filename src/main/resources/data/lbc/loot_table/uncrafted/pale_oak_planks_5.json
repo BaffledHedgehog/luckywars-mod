@@ -1,13 +1,13 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 5,
+      "entries": [
         {
-            "rolls": 5,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:pale_oak_planks"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/pale_oak_planks"
         }
-    ]
+      ]
+    }
+  ]
 }

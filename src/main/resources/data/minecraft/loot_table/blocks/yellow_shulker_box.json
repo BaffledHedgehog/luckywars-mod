@@ -1,45 +1,45 @@
 {
-    "type": "minecraft:block",
-    "pools": [
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:dynamic",
+              "name": "minecraft:contents",
+              "conditions": [
                 {
-                    "type": "minecraft:alternatives",
-                    "children": [
-                        {
-                            "type": "minecraft:dynamic",
-                            "name": "minecraft:contents",
-                            "conditions": [
-                                {
-                                    "condition": "minecraft:match_tool",
-                                    "predicate": {
-                                        "components": {
-                                            "minecraft:custom_data": "{a:1}"
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:item",
-                            "name": "minecraft:yellow_shulker_box",
-                            "functions": [
-                                {
-                                    "function": "minecraft:copy_components",
-                                    "source": "block_entity",
-                                    "include": [
-                                        "minecraft:custom_name",
-                                        "minecraft:container",
-                                        "minecraft:lock",
-                                        "minecraft:container_loot"
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
+                  "condition": "minecraft:match_tool",
+                  "predicate": {
+                    "components": {
+                      "minecraft:custom_data": "{a:1}"
+                    }
+                  }
                 }
-            ]
+              ]
+            },
+            {
+              "type": "minecraft:loot_table",
+              "value": "lbc:item_defs/minecraft/yellow_shulker_box__acbe6ac26675",
+              "functions": [
+                {
+                  "function": "minecraft:copy_components",
+                  "source": "block_entity",
+                  "include": [
+                    "minecraft:custom_name",
+                    "minecraft:container",
+                    "minecraft:lock",
+                    "minecraft:container_loot"
+                  ]
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

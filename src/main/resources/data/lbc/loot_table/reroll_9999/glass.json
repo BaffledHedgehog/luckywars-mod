@@ -1,104 +1,104 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:glass_pane"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:black_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:blue_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:brown_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cyan_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:gray_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:green_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:light_blue_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:light_gray_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:lime_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:magenta_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:orange_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:pink_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:purple_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:red_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:white_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:yellow_stained_glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:glass"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tinted_glass"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/glass_pane__ccc3f4a0cf11",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/black_stained_glass__3a59c3b4ff0f",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/blue_stained_glass__80142f3b87ce",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/brown_stained_glass__0941a82e1a0c",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cyan_stained_glass__f56945868b3f",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/gray_stained_glass__a60aade1cd60",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/green_stained_glass__46096e52c830",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/light_blue_stained_glass__f33e0b29c37b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/light_gray_stained_glass__142c05fe27a6",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/lime_stained_glass__3b7df3405132",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/magenta_stained_glass__fe73850be5e3",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/orange_stained_glass__9878fb45938b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pink_stained_glass__2b5867737c9d",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purple_stained_glass__fb7bbd0d90dd",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_stained_glass__8e0cf4ca9bcb",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/white_stained_glass__3c231b9af6f3",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/yellow_stained_glass__e742a2964a15",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/glass",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tinted_glass__d2749afac1ba",
+          "weight": 1
         }
-    ]
+      ]
+    }
+  ]
 }

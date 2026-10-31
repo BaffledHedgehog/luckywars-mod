@@ -4,27 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:firework_rocket",
-          "modifier": {
-            "components": {
-              "minecraft:fireworks": {
-                "explosions": [
-                  {
-                    "shape": "large_ball",
-                    "colors": [
-                      16772608
-                    ],
-                    "fade_colors": [
-                      16748800
-                    ]
-                  }
-                ],
-                "flight_duration": 9
-              }
-            },
-            "type": "minecraft:set_components"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/firework_rocket__86b560496e1c/variant_34d9d4a49ea9"
         }
       ]
     },
@@ -32,14 +13,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:elytra",
-          "modifier": {
-            "components": {
-              "minecraft:damage": 427
-            },
-            "type": "minecraft:set_components"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/elytra__86660c7c92a7/variant_7dfc81dee242"
         }
       ]
     }

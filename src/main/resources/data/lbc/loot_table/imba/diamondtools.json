@@ -8,48 +8,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_axe",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_k",
-                "minecraft:item_model": "minecraft:golden_axe",
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 255
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "imba_axe",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{imba:1,imbaxe:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_axe__9834f449f80c",
+          "weight": 1
         }
       ]
     },
@@ -61,48 +22,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_hoe",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:item_model": "minecraft:golden_hoe",
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 255
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "imba_hoe",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{chaos_pic:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_hoe__0454f6dc573b",
+          "weight": 1
         }
       ]
     },
@@ -114,45 +36,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:golden_sword",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:unbreakable": {}
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "imba_sword",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{chaos_swo:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/chaos_sword",
+          "weight": 1
         }
       ]
     },
@@ -164,48 +50,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_shovel",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "minecraft:golden_shovel",
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 255
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "imba_shovel",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{chaos_sho:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_shovel__48f876d02a40",
+          "weight": 1
         }
       ]
     },
@@ -217,49 +64,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:netherite_pickaxe",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "minecraft:golden_pickaxe",
-                "minecraft:enchantments": {
-                  "minecraft:efficiency": 255,
-                  "minecraft:silk_touch": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "imba_pickaxe",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{chaos_hoe:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_pickaxe__881515017b49",
+          "weight": 1
         }
       ]
     },
@@ -267,58 +74,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "count": 5,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_k",
-                "minecraft:item_model": "minecraft:gold_block",
-                "minecraft:entity_data": {
-                  "id": "minecraft:marker",
-                  "Tags": [
-                    "slowraycast",
-                    "midas_block",
-                    "magic",
-                    "imba_rc"
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "midas_block",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "midas_block.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/gold_block__43a5c83ff880"
         }
       ]
     }

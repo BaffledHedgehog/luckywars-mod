@@ -1,0 +1,192 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:written_book",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:written_book_content": {
+                  "pages": [
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.1"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.2"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.3"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.4"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.5"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.6"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.7"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.8"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.9"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.10"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.11"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.12"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.13"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.14"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.15"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.16"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.17"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.18"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.19"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.20"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.21"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.22"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.23"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.24"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.25"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.26"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.27"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.28"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.29"
+                      }
+                    },
+                    {
+                      "raw": {
+                        "translate": "artifact_encyclopedia.page.30"
+                      }
+                    }
+                  ],
+                  "title": "Artifact Encyclopedia",
+                  "author": "AnAncientHedgehog",
+                  "generation": 0
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "artifact_encyclopedia",
+                  "italic": false,
+                  "color": "aqua"
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

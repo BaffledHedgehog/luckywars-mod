@@ -4,60 +4,10 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/mysticalartifact__8c525fe42f99",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_u",
-                "minecraft:item_model": "lbc:mysticalartifact"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "mystical_artifact",
-                  "color": "#C28CFF",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                {
-                  "translate": "mystical_artifact.lore",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{transformable:1,accessory:1,unresolved_artifact:1,mystical:4,type:3}"
-            }
-          ]
+          "quality": 5
         }
       ]
     }

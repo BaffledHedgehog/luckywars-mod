@@ -13,40 +13,24 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:honey_block",
-          "modifier": {
-            "count": 1,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/honey_block__67e692380f1c/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:honey_bottle",
-          "modifier": {
-            "count": 1,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/honey_bottle__23a4e3a7e09c/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:honeycomb",
-          "modifier": {
-            "count": 1,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/honeycomb__9a4c56ddad95/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:honeycomb_block",
-          "modifier": {
-            "count": 1,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/honeycomb_block__e788774abc4d/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     }

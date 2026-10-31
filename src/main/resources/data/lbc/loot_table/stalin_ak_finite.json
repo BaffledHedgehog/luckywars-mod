@@ -1,63 +1,63 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:ak47"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:carrot_on_a_stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:ak47"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "text": "AK-47",
-                                    "italic": false,
-                                    "type": "text"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                [
-                                    {
-                                        "translate": "type",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    },
-                                    {
-                                        "translate": "shooter",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                    {
-                                        "translate": "ak47lore",
-                                        "italic": false,
-                                        "color": "white"
-                                    },
-                                    {
-                                        "translate": "ak47lore.1",
-                                        "italic": false,
-                                        "color": "white"
-                                    }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{transformable:1,shooter:1,magicwand:1,ak47:1,finite:1}"
-                        }
-                    ]
+                  "text": "AK-47",
+                  "italic": false,
+                  "type": "text"
                 }
-            ]
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "shooter",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "ak47lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "ak47lore.1",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{transformable:1,shooter:1,magicwand:1,ak47:1,finite:1}"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

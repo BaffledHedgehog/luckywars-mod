@@ -1,0 +1,41 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:splash_potion",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "custom_color": 10205859,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:nausea",
+                      "amplifier": 1,
+                      "duration": 400
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "item.kit12_1.Name",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

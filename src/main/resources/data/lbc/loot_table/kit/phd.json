@@ -1,91 +1,91 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:phd"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:phd"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "phd",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "phd.lore.1",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "phd.lore.2",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "phd.lore.3",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "phd.lore.4",
-                                    "italic": true,
-                                    "color": "white"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{phd:1}"
-                        }
-                    ]
+                  "translate": "phd",
+                  "italic": false
                 }
-            ]
-        },
-        {
-            "rolls": 3,
-            "entries": [
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:bone_meal",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "compost",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "compost.lore",
-                                    "italic": false,
-                                    "color": "white"
-                                }
-                            ]
-                        }
-                    ]
+                  "translate": "phd.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "phd.lore.2",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "phd.lore.3",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "phd.lore.4",
+                  "italic": true,
+                  "color": "white"
                 }
-            ]
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{phd:1}"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 3,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/bone_meal",
+          "functions": [
+            {
+              "function": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "compost",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "compost.lore",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

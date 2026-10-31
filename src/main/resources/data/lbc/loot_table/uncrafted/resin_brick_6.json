@@ -1,13 +1,13 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 6,
+      "entries": [
         {
-            "rolls": 6,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:resin_brick"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/resin_bricks"
         }
-    ]
+      ]
+    }
+  ]
 }

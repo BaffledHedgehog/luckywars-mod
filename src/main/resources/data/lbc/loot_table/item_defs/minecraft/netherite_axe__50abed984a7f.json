@@ -1,0 +1,37 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:netherite_axe",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:unbreakable": {},
+                "minecraft:enchantments": {
+                  "minecraft:sharpness": 5,
+                  "minecraft:smite": 5,
+                  "minecraft:bane_of_arthropods": 5,
+                  "minecraft:efficiency": 5,
+                  "minecraft:fortune": 3
+                },
+                "minecraft:custom_name": {
+                  "italic": false,
+                  "translate": "bob_axe"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

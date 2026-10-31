@@ -145,6 +145,9 @@ public final class ChefNavigationChecks {
     private static void lipStart(ChefChecks.Fixture f,boolean corner){
         for(int x=-4;x<=4;x++)for(int z=-7;z<=10;z++)f.block(f.center.offset(x,-1,z),Blocks.AIR);
         for(int z=-5;z<=8;z++)f.block(f.center.offset(0,-1,z),Blocks.STONE);
+        // A visible lower floor must not displace the adjacent upper launch cell
+        // which is actually supporting the corner of the mannequin.
+        if(corner)for(int x=-4;x<=4;x++)for(int z=-7;z<=10;z++)f.block(f.center.offset(x,-3,z),Blocks.STONE);
         var unchanged=f.terrain();var victim=f.cow(f.at.add(0,0,8));var chef=f.spawn(f.owner,victim);
         // The centre column is air; the native .6-wide body still overlaps the
         // supporting lane by .02 blocks. A centre-only start probe cannot find it.
@@ -160,10 +163,44 @@ public final class ChefNavigationChecks {
         require(progressed&&f.terrain().equals(unchanged),"absolute lip contact promptly resumes existing supported route without edits"+state(chef));
         hit(f,chef,victim,"absolute lip/corner start corner="+corner+" steps="+steps);
     }
+    private static void nativeStairs(ChefChecks.Fixture f){
+        for(int z=0;z<6;z++)for(int x=-1;x<=1;x++){
+            for(int y=0;y<z;y++)f.block(f.center.offset(x,y,z),Blocks.STONE);
+            BlockPos at=f.center.offset(x,z,z);f.block(at,Blocks.STONE_STAIRS);
+            f.owner.level().setBlock(at,Blocks.STONE_STAIRS.defaultBlockState()
+                    .setValue(BlockStateProperties.HORIZONTAL_FACING,Direction.SOUTH),2);
+        }
+        for(int z=6;z<=11;z++)for(int x=-2;x<=2;x++)f.block(f.center.offset(x,5,z),Blocks.STONE);
+        var terrain=f.terrain();var victim=f.cow(f.at.add(0,6,10));var chef=f.spawn(f.owner,victim);start(chef,f.at.add(0,0,-2));
+        int jumps=0,steps;
+        for(steps=0;steps<180&&victim.getHealth()==20;steps++){
+            f.advance(chef,1);
+            // Once on the upper platform, pursuit may start its ordinary
+            // critical attack jump. Only the actual stair ascent forbids jumps.
+            if(chef.getY()<f.at.y+5.9&&chef.getZ()<f.at.z+5.5){
+                if(chef.isJumping())jumps++;
+                require(chef.getDeltaMovement().y<.2,"stair travel never receives native jump launch velocity"+state(chef));
+            }
+        }
+        require(jumps==0,"native stair half-steps climb without requested jumps; jumps="+jumps+state(chef));
+        require(f.terrain().equals(terrain),"native stairs need no construction/mining");
+        hit(f,chef,victim,"native stepped staircase steps="+steps);
+    }
+    private static void movingGoal(ChefChecks.Fixture f){
+        var victim=f.cow(f.at.add(0,0,12));var chef=f.spawn(f.owner,victim);start(chef,f.at.add(0,0,-12));
+        f.advance(chef,8);int resets=chef.brain.resetCount();Vec3 before=chef.position();
+        victim.setPos(f.at.add(6,0,12));
+        for(int i=0;i<12;i++)f.advance(chef,1);
+        require(chef.brain.resetCount()==resets&&chef.position().distanceToSqr(before)>1,
+                "large target movement retains usable prefix and continues native progress during replanning"+state(chef));
+        for(int i=0;i<180&&victim.getHealth()==20;i++)f.advance(chef,1);
+        hit(f,chef,victim,"retained prefix joins newly computed target route");
+    }
     private record Case(String name,java.util.function.Consumer<ChefChecks.Fixture> action){}
     public static void run(GameController game){
         var failures=new ArrayList<String>();
         for(var test:List.of(new Case("downward mining",ChefNavigationChecks::downward),
+                new Case("native stair stepping",ChefNavigationChecks::nativeStairs),new Case("moving goal continuation",ChefNavigationChecks::movingGoal),
                 new Case("stationary route",f->stableRoute(f,false)),new Case("jittered route",f->stableRoute(f,true)),
                 new Case("extreme noisy terrain",ChefNavigationChecks::noisy),new Case("stopped lip",ChefNavigationChecks::stoppedLip),
                 new Case("flight support gap5",f->flightPlacement(f,5)),new Case("flight support gap7",f->flightPlacement(f,7)),

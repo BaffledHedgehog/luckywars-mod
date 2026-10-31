@@ -4,20 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:sunflower",
-          "modifier": [
-            {
-              "tag": "{HideFlags:127,rewardcoin:2}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:coin_b"
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sunflower__7731c7c97b79"
         }
       ],
       "modifier": [

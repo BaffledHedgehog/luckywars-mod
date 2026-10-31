@@ -4,15 +4,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:stone_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_sword__278204ad564b/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -20,15 +14,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:stone_axe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_axe__f9200b97ad0b/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -36,15 +24,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:stone_pickaxe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_pickaxe__8ea666157bca/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -52,15 +34,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:stone_hoe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_hoe__96a5afc6b3c9/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -68,15 +44,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:stone_shovel",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_shovel__5d191ad60911/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     }

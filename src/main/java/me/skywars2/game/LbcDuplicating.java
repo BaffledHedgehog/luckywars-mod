@@ -41,7 +41,7 @@ public final class LbcDuplicating {
     private IdentityHashMap<ServerPlayer,Integer> dividerTimers=new IdentityHashMap<>();
     private boolean checkpointDraining;
     private int checkpointCallbacks;
-    private static final double HOLE_INFLUENCE=16,HOLE_STRONG=1.3,HOLE_DESTRUCTION=7;
+    private static final double HOLE_INFLUENCE=16,HOLE_STRONG=7,HOLE_DAMAGE=4,HOLE_DESTRUCTION=7;
     private static final float HOLE_SHADER_RADIUS=.5f;
     private static class Owned {
         ServerPlayer owner; final ServerLevel level; final String epoch;
@@ -568,7 +568,7 @@ public final class LbcDuplicating {
             if(distance<=HOLE_STRONG*HOLE_STRONG || !(target instanceof ServerPlayer player)
                     || player.getLastClientInput().equals(net.minecraft.world.entity.player.Input.EMPTY))
                 pulls.computeIfAbsent(target,ignored->new PullSample()).consider(marker);
-            if(target instanceof LivingEntity living && damaged<5 && distance<=HOLE_STRONG*HOLE_STRONG
+            if(target instanceof LivingEntity living && damaged<5 && distance<=HOLE_DAMAGE*HOLE_DAMAGE
                     && game.items().mana().score(target,"void_resistance").get()<=0) {
                 living.hurtServer(marker.level,source,.01f); damaged++;
             }

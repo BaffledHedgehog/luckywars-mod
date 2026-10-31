@@ -41,10 +41,14 @@ public final class SignedEffectVisualChecks {
                             "raw codec keeps native duration without recipient context " + type + "/" + amplifier);
                     require(raw.readableBytes() == 0, "complete packet consumed");
                 } finally { raw.release(); }
-                var ids = SignedEffectVisuals.desired(pig);
+                var ids = SignedEffectVisuals.desired(pig,"minecraft:overworld");
                 require(ids.size() <= 4, "bounded chain count");
-                if (type.is(MobEffects.NAUSEA) && amplifier < 0) require(ids.isEmpty(), "nonpositive nausea has no shader");
-                if (type.is(MobEffects.BLINDNESS) && amplifier < 0) require(ids.isEmpty(), "negative blindness only reveals");
+                if (type.is(MobEffects.NAUSEA) && amplifier <= 0) require(ids.isEmpty(), "nausea through level I has no custom shader");
+                if (type.is(MobEffects.NAUSEA) && amplifier > 0)
+                    require(ids.equals(List.of(Identifier.parse("lbc:signed_effects/nausea_"+SignedEffectVisuals.visualTier((long)amplifier+1)))),"nausea II+ exact bounded shader tier");
+                if (type.is(MobEffects.BLINDNESS) && amplifier < -1)
+                    require(ids.equals(List.of(Identifier.parse("lbc:signed_effects/fried_"+SignedEffectVisuals.visualTier((long)amplifier+1)))), "negative blindness exact bounded fried tier");
+                if (type.is(MobEffects.BLINDNESS) && amplifier == -1) require(ids.isEmpty(),"zero blindness has no custom shader");
                 if (type.is(MobEffects.BLINDNESS) && amplifier >= 2)
                     require(ids.contains(Identifier.parse("lbc:signed_effects/black_3")), "positive blindness reaches black");
                 if (type.is(MobEffects.DARKNESS) && amplifier < -1)
@@ -78,6 +82,11 @@ public final class SignedEffectVisualChecks {
             require(!pig.isInvisible(),"negative-glow removal restores native visibility without lingering synthetic effect");
             require(SignedEffectVisuals.visualTier(2147483648L) == 16
                     && SignedEffectVisuals.visualTier(-2147483647L) == 16, "extreme shader parameters finite");
+            pig.removeAllEffects();
+            var nexus=Identifier.parse("lbc:nexus");
+            require(SignedEffectVisuals.desired(pig,"minecraft:nexus").equals(List.of(nexus)),"exact Nexus dimension owns original Nexus chain");
+            for(var dimension:List.of("minecraft:overworld","minecraft:the_nether","minecraft:the_end","minecraft:imprinted","lbc:nexus"))
+                require(!SignedEffectVisuals.desired(pig,dimension).contains(nexus),"dimension mismatch removes Nexus chain: "+dimension);
         } finally { pig.removeAllEffects(); SignedEffectVisuals.removed(pig); }
         lifecycle(viewer);
         var other=viewer.level().getServer().getPlayerList().getPlayers().stream()
@@ -213,14 +222,24 @@ public final class SignedEffectVisualChecks {
             viewer.removeAllEffects();
             viewer.addPostEffect(unrelated);
             viewer.addPostEffect(Identifier.parse("lbc:signed_effects/nausea_16"));
+            viewer.addPostEffect(Identifier.parse("lbc:nexus"));
             SignedEffectVisuals.joined(viewer);
             require(viewer.getPostEffects().contains(unrelated)
-                    && viewer.getPostEffects().stream().noneMatch(SignedEffectVisuals::owned),
+                    && viewer.getPostEffects().stream().filter(SignedEffectVisuals::owned).toList().equals(SignedEffectVisuals.desired(viewer)),
                     "relog repairs stale saved chain and preserves unrelated chain");
+            viewer.addEffect(new MobEffectInstance(MobEffects.NAUSEA,200,0));
+            viewer.addPostEffect(Identifier.parse("lbc:signed_effects/nausea_1"));
+            SignedEffectVisuals.synchronize(viewer);
+            require(viewer.getPostEffects().stream().noneMatch(id->id.getPath().startsWith("signed_effects/nausea_")),"nausea I removes stale saved custom chain");
+            viewer.removeEffect(MobEffects.NAUSEA);
+            viewer.addPostEffect(Identifier.parse("lbc:nexus"));
+            SignedEffectVisuals.synchronize(viewer);
+            require(viewer.getPostEffects().contains(Identifier.parse("lbc:nexus"))==viewer.level().dimension().identifier().toString().equals("minecraft:nexus"),"same body reconciliation repairs stale dimension chain");
             for (int magnitude : new int[]{1,2,3,5}) {
                 viewer.removeEffect(MobEffects.BLINDNESS);
                 viewer.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, -magnitude-1));
                 SignedEffectVisuals.effectsChanged(viewer);
+                require(viewer.getPostEffects().contains(Identifier.parse("lbc:signed_effects/fried_"+magnitude)),"negative blindness shader grows alongside reveal tier");
                 require(!viewer.isMobilityRestricted(),"negative blindness preserves native critical/sprint admission");
                 require(SignedEffectVisuals.effectiveInvisibility(magnitude, viewer) == 0,
                         "negative blindness reveals matching invisibility magnitude");

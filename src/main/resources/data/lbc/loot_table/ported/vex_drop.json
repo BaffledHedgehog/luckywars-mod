@@ -1,1 +1,15 @@
-{"pools":[{"rolls":1,"entries":[{"type":"minecraft:item","name":"skywars2:vex_drop","weight":10,"quality":-10}]}]}
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/skywars2/vex_drop__94926d8ee3ad",
+          "weight": 10,
+          "quality": -10
+        }
+      ]
+    }
+  ]
+}

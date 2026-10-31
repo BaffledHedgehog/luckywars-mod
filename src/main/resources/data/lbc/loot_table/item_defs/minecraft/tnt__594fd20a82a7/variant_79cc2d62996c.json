@@ -1,0 +1,31 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:tnt",
+          "modifier": [
+            {
+              "modifiers": [
+                {
+                  "id": "minecraft:dsgasg",
+                  "attribute": "minecraft:spawn_reinforcements",
+                  "amount": {
+                    "min": 3,
+                    "max": 7,
+                    "type": "minecraft:uniform"
+                  },
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,144 +1,145 @@
+{
+  "pools": [
     {
-        "pools": [
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
+          "functions": [
             {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:carrot_on_a_stick",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:item_model": "lbc:mellstroy_mask",
-                                    "minecraft:tooltip_style": "lbc:tier_ss",
-                                    "minecraft:max_damage": 5000,
-                                    "minecraft:equippable": {
-                                        "slot": "head",
-                                        "asset_id": "lbc:mellstroy",
-                                        "swappable": false
-                                    },
-                                    "minecraft:attribute_modifiers": [
-                                        {
-                                            "type": "minecraft:armor",
-                                            "slot": "head",
-                                            "id": "83fh89fhe89rgkjd89rjgdrfg",
-                                            "amount": 20,
-                                            "operation": "add_value"
-                                        },
-                                        {
-                                            "type": "minecraft:armor_toughness",
-                                            "slot": "head",
-                                            "id": "83f9834j9gfy8er78gd8gd",
-                                            "amount": 8,
-                                            "operation": "add_value"
-                                        },
-                                        {
-                                            "type": "minecraft:knockback_resistance",
-                                            "slot": "head",
-                                            "id": "veisdrgjvximfjbh8fh9fhhf",
-                                            "amount": 100,
-                                            "operation": "add_value"
-                                        },
-                                        {
-                                            "type": "minecraft:explosion_knockback_resistance",
-                                            "slot": "head",
-                                            "id": "bdfohid9zsrgi9eigfhdsugfgf",
-                                            "amount": 100,
-                                            "operation": "add_value"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": {
-                                    "translate": "mellstroy_mask",
-                                    "color": "red",
-                                    "italic": false
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "helmet",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "mellstroy_mask.lore.1",
-                                        "italic": false,
-                                        "color": "dark_red"
-                                    },
-                                    {
-                                        "translate": "mellstroy_mask.lore.2",
-                                        "italic": false,
-                                        "color": "green"
-                                    },
-                                    {
-                                        "translate": "mellstroy_mask.lore.3",
-                                        "italic": false,
-                                        "color": "green"
-                                    },
-                                    {
-                                        "translate": "mellstroy_mask.lore.4",
-                                        "italic": false,
-                                        "color": "green"
-                                    },
-                                    {
-                                        "translate": "mellstroy_mask.lore.5",
-                                        "italic": false,
-                                        "color": "green"
-                                    },
-                                    {
-                                        "translate": "mellstroy_mask.lore.6",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    },
-                                    {
-                                        "translate": "mellstroy_mask.lore.7",
-                                        "italic": false,
-                                        "color": "green"
-                                    },
-                                    {
-                                        "translate": "mellstroy_mask.lore.8",
-                                        "italic": false,
-                                        "color": "red"
-                                    },
-                                    {
-                                        "translate": "mellstroy_mask.lore.9",
-                                        "italic": false,
-                                        "color": "gold"
-                                    },
-                                    [
-                                        {
-                                            "text": "ggsunlight",
-                                            "italic": false,
-                                            "color": "green"
-                                        },{
-                                            "text": " | GeoGuesser Event | 06.11.2024",
-                                            "italic": false,
-                                            "color": "gray"
-                                        }
-                                    ]
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,helmet:1,mellstroy_mask:1,magicwand:1}"
-                            }
-                        ]
-                    }
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:mellstroy_mask",
+                "minecraft:tooltip_style": "lbc:tier_ss",
+                "minecraft:max_damage": 5000,
+                "minecraft:equippable": {
+                  "slot": "head",
+                  "asset_id": "lbc:mellstroy",
+                  "swappable": false
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "head",
+                    "id": "83fh89fhe89rgkjd89rjgdrfg",
+                    "amount": 20,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "head",
+                    "id": "83f9834j9gfy8er78gd8gd",
+                    "amount": 8,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:knockback_resistance",
+                    "slot": "head",
+                    "id": "veisdrgjvximfjbh8fh9fhhf",
+                    "amount": 100,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:explosion_knockback_resistance",
+                    "slot": "head",
+                    "id": "bdfohid9zsrgi9eigfhdsugfgf",
+                    "amount": 100,
+                    "operation": "add_value"
+                  }
                 ]
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": {
+                "translate": "mellstroy_mask",
+                "color": "red",
+                "italic": false
+              }
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "helmet",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "mellstroy_mask.lore.1",
+                  "italic": false,
+                  "color": "dark_red"
+                },
+                {
+                  "translate": "mellstroy_mask.lore.2",
+                  "italic": false,
+                  "color": "green"
+                },
+                {
+                  "translate": "mellstroy_mask.lore.3",
+                  "italic": false,
+                  "color": "green"
+                },
+                {
+                  "translate": "mellstroy_mask.lore.4",
+                  "italic": false,
+                  "color": "green"
+                },
+                {
+                  "translate": "mellstroy_mask.lore.5",
+                  "italic": false,
+                  "color": "green"
+                },
+                {
+                  "translate": "mellstroy_mask.lore.6",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "mellstroy_mask.lore.7",
+                  "italic": false,
+                  "color": "green"
+                },
+                {
+                  "translate": "mellstroy_mask.lore.8",
+                  "italic": false,
+                  "color": "red"
+                },
+                {
+                  "translate": "mellstroy_mask.lore.9",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "text": "ggsunlight",
+                    "italic": false,
+                    "color": "green"
+                  },
+                  {
+                    "text": " | GeoGuesser Event | 06.11.2024",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{transformable:1,helmet:1,mellstroy_mask:1,magicwand:1}"
             }
-        ]
+          ]
+        }
+      ]
     }
+  ]
+}

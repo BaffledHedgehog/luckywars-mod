@@ -1,374 +1,62 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 8,
+      "bonus_rolls": {
+        "min": 0,
+        "max": 8,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
         {
-            "rolls": 8,
-            "bonus_rolls": {
-                "min": 0,
-                "max": 8,
-                "type": "minecraft:uniform"
-            },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 5,
-                    "name": "minecraft:apple",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {"minecraft:tooltip_style":"lbc:tier_d"}
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "heart_apple",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "heart_apple.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "heart_apple.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{max_healthattribute:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 10,
-                    "name": "minecraft:cooked_beef",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {"minecraft:tooltip_style":"lbc:tier_d"}
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "good_steak",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "good_steak.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "good_steak.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{attack_damageattribute:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 5,
-                    "name": "minecraft:glow_berries",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {"minecraft:tooltip_style":"lbc:tier_c"}
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "lucky_glow_berries",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "lucky_glow_berries.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "lucky_glow_berries.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{luckattribute:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 10,
-                    "name": "minecraft:sweet_berries",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {"minecraft:tooltip_style":"lbc:tier_d"}
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "fresh_berries",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "fresh_berries.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fresh_berries.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{attack_speedattribute:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 3,
-                    "name": "minecraft:dried_kelp",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {"minecraft:tooltip_style":"lbc:tier_d"}
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "stone_kelp",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "stone_kelp.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "stone_kelp.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{armorattribute:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 2,
-                    "name": "minecraft:cookie",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {"minecraft:tooltip_style":"lbc:tier_c"}
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "stone_cookie",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "stone_cookie.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "stone_cookie.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{armor_toughnessattribute:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 5,
-                    "name": "minecraft:golden_carrot",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {"minecraft:tooltip_style":"lbc:tier_d"}
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "heavy_carrot",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "heavy_carrot.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "heavy_carrot.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{knockback_resistanceattribute:1}"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "quality": 10,
-                    "name": "minecraft:melon_slice",
-                    "modifier": [
-                        {
-                            "type": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "type": "minecraft:set_components",
-                            "components": {"minecraft:tooltip_style":"lbc:tier_d"}
-                        },
-                        {
-                            "type": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "fresh_melon",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "fresh_melon.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fresh_melon.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "type": "minecraft:set_custom_data",
-                            "tag": "{movement_speedattribute:1}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/apple__d0c6a59e9ca8",
+          "weight": 10,
+          "quality": 5
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cooked_beef__658f07d7a89f",
+          "weight": 10,
+          "quality": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/glow_berries__ee42931b299f",
+          "weight": 10,
+          "quality": 5
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sweet_berries__d04c02609352",
+          "weight": 10,
+          "quality": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dried_kelp__be0d46eee5d8",
+          "weight": 10,
+          "quality": 3
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cookie__99167830aab5",
+          "weight": 10,
+          "quality": 2
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_carrot__ee4c785d7bea",
+          "weight": 10,
+          "quality": 5
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/melon_slice__8152d10579ba",
+          "weight": 10,
+          "quality": 10
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_apple"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_apple__de85880d6083/variant_4f53cda18c2b"
         }
       ],
       "modifier": {

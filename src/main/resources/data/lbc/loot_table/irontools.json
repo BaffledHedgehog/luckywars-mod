@@ -8,15 +8,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:iron_axe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_axe__f32429dba1d6/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -28,15 +22,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:iron_hoe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_hoe__07d77f922eb3/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -48,15 +36,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:iron_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_sword__4775be0dedd1/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -68,15 +50,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:iron_shovel",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_shovel__15046ff56fc5/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -88,15 +64,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:iron_pickaxe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_pickaxe__96f82dee6fe4/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -104,19 +74,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:iron_ingot",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 4,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_ingot__7e53c3e7876d/variant_d35353184eb1",
+          "weight": 1
         }
       ]
     }

@@ -1,0 +1,67 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_helmet",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:unbreakable": {},
+                "minecraft:enchantments": {
+                  "minecraft:fire_protection": 5,
+                  "minecraft:blast_protection": 5,
+                  "minecraft:projectile_protection": 5
+                },
+                "minecraft:dyed_color": 16735721,
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:enchantments",
+                    "minecraft:unbreakable",
+                    "minecraft:dyed_color"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "mage_hat",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "mage_hat_old.lore.1",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "mage_hat_old.lore.2",
+                  "italic": false,
+                  "color": "aqua"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{magichat_old:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

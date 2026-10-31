@@ -1,0 +1,73 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:ghast_spawn_egg",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:entity_data": {
+                  "id": "minecraft:ghast",
+                  "ExplosionPower": 127,
+                  "Motion": [
+                    0,
+                    2,
+                    0
+                  ],
+                  "Invulnerable": true,
+                  "PersistenceRequired": true,
+                  "Health": 2147483647,
+                  "attributes": [
+                    {
+                      "id": "minecraft:max_health",
+                      "base": 2147483647
+                    }
+                  ],
+                  "active_effects": [
+                    {
+                      "id": "minecraft:resistance",
+                      "amplifier": 4,
+                      "duration": -1
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "super_ghast_funny",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

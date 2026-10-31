@@ -1,0 +1,98 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:zombie_spawn_egg",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:entity_data": {
+                  "id": "minecraft:zombie",
+                  "CustomNameVisible": true,
+                  "DeathLootTable": "lbc:reactive_shish",
+                  "PersistenceRequired": true,
+                  "Health": 30,
+                  "IsBaby": true,
+                  "CustomName": {
+                    "translate": "reactive_shish",
+                    "color": "green",
+                    "italic": false
+                  },
+                  "active_effects": [
+                    {
+                      "id": "minecraft:jump_boost",
+                      "amplifier": 6,
+                      "duration": 2000000,
+                      "show_particles": false
+                    },
+                    {
+                      "id": "minecraft:fire_resistance",
+                      "amplifier": 0,
+                      "duration": 2000000,
+                      "show_particles": false
+                    }
+                  ],
+                  "attributes": [
+                    {
+                      "id": "minecraft:max_health",
+                      "base": 30
+                    },
+                    {
+                      "id": "minecraft:attack_knockback",
+                      "base": 1
+                    }
+                  ],
+                  "equipment": {
+                    "head": {
+                      "id": "minecraft:spruce_sapling",
+                      "count": 1,
+                      "components": {
+                        "minecraft:enchantments": {
+                          "vanishing_curse": 1
+                        },
+                        "minecraft:enchantment_glint_override": false
+                      }
+                    }
+                  },
+                  "drop_chances": {
+                    "head": 0.0
+                  }
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "shish_spawn_egg",
+                  "color": "red",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

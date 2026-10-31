@@ -1,17 +1,17 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:lapis_lazuli"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:cornflower"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/lapis_lazuli"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cornflower__a0089ab4dc64"
         }
-    ]
+      ]
+    }
+  ]
 }

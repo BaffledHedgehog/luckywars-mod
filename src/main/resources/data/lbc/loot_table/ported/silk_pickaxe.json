@@ -4,65 +4,10 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_pickaxe__b730b9a4a36b",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:diamond_pickaxe",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:silk_touch": 10
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": -2,
-                    "operation": "add_value"
-                  }
-                ]
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "silk_pickaxe",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "pickaxe",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ]
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,pickaxe:1,silk:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         }
       ]
     }

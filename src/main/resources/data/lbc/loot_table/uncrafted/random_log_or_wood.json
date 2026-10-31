@@ -1,45 +1,45 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:oak_log"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:birch_log"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:acacia_log"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:cherry_log"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:jungle_log"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:spruce_log"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:dark_oak_log"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:mangrove_log"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:pale_oak_log"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_log__0e9deb15ada2/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/birch_log__6d0a3facb470/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/acacia_log__116c3380f4e2/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cherry_log__29db215cb172/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/jungle_log__e729e5aed71e/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/spruce_log__aa71784c728a/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dark_oak_log__8b5efb1ce94c/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mangrove_log__5919f08e2f93/variant_4f53cda18c2b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pale_oak_log__1382a0261f16/variant_4f53cda18c2b"
         }
-    ]
+      ]
+    }
+  ]
 }

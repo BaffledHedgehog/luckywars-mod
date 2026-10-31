@@ -4,82 +4,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 20,
-          "modifier": [
-            {
-              "entity": "this",
-              "name": {
-                "translate": "end_of_everything",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_k",
-                "minecraft:item_model": "lbc:end_of_everything"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "end_of_everything.lore",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ]
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{gadget:1,end_of_everything:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/end_of_everything__10fdc9adb313",
+          "weight": 20
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "entity": "this",
-              "name": {
-                "translate": "baffled_of_everything",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_k",
-                "minecraft:item_model": "lbc:baffled_of_everything"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "baffled_of_everything.lore",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ]
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{gadget:1,baffled_of_everything:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/baffled_of_everything__2efe8171bf9a",
+          "weight": 10
         }
       ],
       "condition": {

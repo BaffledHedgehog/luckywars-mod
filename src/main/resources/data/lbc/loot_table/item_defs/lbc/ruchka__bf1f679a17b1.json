@@ -1,0 +1,66 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:snowball",
+          "modifier": [
+            {
+              "count": 4,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:item_model": "lbc:ruchka"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "ruchka",
+                  "color": "#FF5C5C",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "ruchka.lore.1",
+                  "color": "light_purple",
+                  "italic": false
+                },
+                {
+                  "translate": "ruchka.lore.2",
+                  "color": "light_purple",
+                  "italic": false
+                },
+                {
+                  "translate": "ruchka.lore.3",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "ruchka.lore.4",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{ruchka:1,projegadget:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

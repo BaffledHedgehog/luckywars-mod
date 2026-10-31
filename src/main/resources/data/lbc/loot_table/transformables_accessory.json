@@ -4,458 +4,46 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/gaara__e201b9517340",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:gaara"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "sand_amulet",
-                  "color": "gold",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "sand_amulet.lore.1",
-                  "italic": false,
-                  "color": "yellow"
-                },
-                {
-                  "translate": "sand_amulet.lore.2",
-                  "italic": false,
-                  "color": "yellow"
-                },
-                {
-                  "translate": "sand_amulet.lore.3",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,gaara:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/saveplatform__b47589a7d4ec",
           "weight": 10,
-          "quality": 9,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:saveplatform"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "save_platform",
-                  "color": "green",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "save_platform.lore",
-                  "color": "green",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,save:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 9
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/regenerationbelt__4491f5355c33",
           "weight": 10,
-          "quality": 9,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:regenerationbelt"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "regeneration_belt",
-                  "color": "#FF3BB7",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "regeneration_belt.lore.1",
-                  "color": "#FFBFBF",
-                  "italic": false
-                },
-                {
-                  "translate": "regeneration_belt.lore.2",
-                  "color": "#FFBFBF",
-                  "italic": false
-                },
-                {
-                  "translate": "effect_can_stack",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,heall:1,PublicBukkitValues:{\"lws:regen\":{\"lws:value\":0.04d,\"lws:operation\":\"add\",\"lws:slot\":\"inventory\",\"lws:stackable\":true,\"lws:id\":\"regenbelt1242\"}}}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 9
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/manaregenerationbelt__a4ad4f3da589",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:manaregenerationbelt"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "mana_belt",
-                  "color": "blue",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "mana_belt.lore.1",
-                  "color": "aqua",
-                  "italic": false
-                },
-                {
-                  "translate": "mana_belt.lore.2",
-                  "color": "aqua",
-                  "italic": false
-                },
-                {
-                  "translate": "effect_can_stack",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,manabelt:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/magnet",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:magnet"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "magnet_item",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "magnet_item.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "magnet_item.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "magnet_item.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,magnet:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/kishki__b485b77f3ab1",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:kishki"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "devil_stomach",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "devil_stomach.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "devil_stomach.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "devil_stomach.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "devil_stomach.lore.4",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "devil_stomach.lore.5",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,demonkishki:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/quiver__f6b7b6ebfc8e",
           "weight": 10,
-          "quality": 8,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:quiver"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "infinite_quiver",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "infinite_quiver.lore",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "effect_can_stack",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,arrowgenerator:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 8
         },
         {
           "type": "minecraft:loot_table",
@@ -482,136 +70,16 @@
           "value": "lbc:artifact"
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/popit__1655a8bd833f",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:popit"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "text": "Pop-It",
-                  "italic": false,
-                  "type": "text"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "white"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "white"
-                  }
-                ],
-                {
-                  "translate": "popit.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "popit.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "popit.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,magicwand:1,popit:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/runic_ice_shard__bbf2a3e7431c",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_q",
-                "minecraft:item_model": "lbc:runic_ice_shard"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "runic_ice_shard",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                {
-                  "translate": "runic_ice_shard.lore.1",
-                  "italic": true,
-                  "color": "dark_gray"
-                },
-                {
-                  "translate": "runic_ice_shard.lore.2",
-                  "italic": true,
-                  "color": "dark_gray"
-                },
-                {
-                  "translate": "craft_with_neutralmage",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,runic_ice_shard:1,craftusable:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         }
       ]
     }

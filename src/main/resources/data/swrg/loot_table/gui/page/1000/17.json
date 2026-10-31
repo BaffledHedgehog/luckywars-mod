@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:dragon_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dragon_egg__1f456cc1e76f"
         }
       ],
       "modifier": [

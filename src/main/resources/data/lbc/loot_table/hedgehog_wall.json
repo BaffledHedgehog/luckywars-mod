@@ -4,269 +4,32 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "skywars2:ender_spike",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:item_model": "lbc:spike_ender"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "ender_spike",
-                  "color": "dark_purple",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "ender_spike.lore",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{special:1,spike_confuse:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/ender_spike"
         },
         {
-          "type": "minecraft:item",
-          "name": "skywars2:blind_spike",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:spike_blind"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "blind_spike",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "blind_spike.lore",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{special:1,spike_blind:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/blind_spike"
         },
         {
-          "type": "minecraft:item",
-          "name": "skywars2:explosive_spike",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:item_model": "lbc:spike_explosive"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "explosive_spike",
-                  "color": "gold",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "explosive_spike.lore",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{special:1,spike_boom:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/explosive_spike"
         },
         {
-          "type": "minecraft:item",
-          "name": "skywars2:spike",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:spike"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "spike",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "spike.lore",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{special:1,spike_standart:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/spike"
         },
         {
-          "type": "minecraft:item",
-          "name": "skywars2:wither_spike",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:spike_wither"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "wither_spike",
-                  "color": "gray",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wither_spike.lore",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{special:1,spike_wither:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/wither_spike"
         },
         {
-          "type": "minecraft:item",
-          "name": "skywars2:poison_spike",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:spike_poison"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "poison_spike",
-                  "color": "dark_green",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "poison_spike.lore",
-                  "color": "yellow",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{special:1,spike_poison:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/poison_spike"
         },
         {
-          "type": "minecraft:item",
-          "name": "skywars2:impulse_spike",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "lbc:spike_impulse"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "impulse_spike",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "impulse_spike.lore",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{special:1,spike_impulse:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:ported/impulse_spike"
         }
       ]
     }

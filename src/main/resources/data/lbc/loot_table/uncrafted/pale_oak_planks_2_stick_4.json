@@ -1,22 +1,22 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 2,
+      "entries": [
         {
-            "rolls": 2,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:pale_oak_planks"
-                }
-            ]
-        },
-        {
-            "rolls": 4,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:stick"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/pale_oak_planks"
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 4,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__213ddfc47337"
+        }
+      ]
+    }
+  ]
 }

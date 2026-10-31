@@ -1,27 +1,29 @@
+{
+  "pools": [
     {
-    "pools": [
-      {
-        "rolls": 1,
-        "entries": [
-          {
-            "type": "minecraft:item",
-            "name": "minecraft:carrot_on_a_stick",
-            "functions": [
-              {
-                "function": "minecraft:set_components",
-                "components": {
-                  "!minecraft:max_damage": {},
-                  "minecraft:max_stack_size": 64,
-                  "minecraft:item_name": {"translate":"wisp_shadow","color":"#8e78ee"},
-                  "minecraft:tooltip_style":"lbc:tier_b",
-                  "minecraft:custom_data": "{wisp_shadow:1,magicwand:1}",
-                  "minecraft:item_model": "lbc:spirit_shadow"
-                }
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "!minecraft:max_damage": {},
+                "minecraft:max_stack_size": 64,
+                "minecraft:item_name": {
+                  "translate": "wisp_shadow",
+                  "color": "#8e78ee"
+                },
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:custom_data": "{wisp_shadow:1,magicwand:1}",
+                "minecraft:item_model": "lbc:spirit_shadow"
               }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-  
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

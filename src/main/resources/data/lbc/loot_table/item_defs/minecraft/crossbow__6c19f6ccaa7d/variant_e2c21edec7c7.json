@@ -1,0 +1,49 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:crossbow",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:enchantments": {
+                  "minecraft:multishot": 1
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_damage",
+              "damage": {
+                "min": 0.01,
+                "max": 0.1,
+                "type": "minecraft:uniform"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "shotgun",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,bow:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

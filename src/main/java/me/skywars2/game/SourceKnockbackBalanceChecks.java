@@ -32,13 +32,18 @@ public final class SourceKnockbackBalanceChecks {
     public static void run(GameController game) {
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         require(player!=null,"native player prerequisite");
-        for(String leaf:new String[]{"antimagic_sword","antimagic_sword_loli"}) {
+        for(String leaf:new String[]{"antimagic_sword"}) {
             var loot=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/"+leaf);
             require(loot.size()==1&&loot.getFirst().is(Items.IRON_SWORD)&&knockback(player,loot.getFirst())==5,
                     "actual ordinary authored loot Knockback255 to5 "+leaf);
             require(loot.getFirst().has(DataComponents.CUSTOM_NAME)&&loot.getFirst().has(DataComponents.ATTRIBUTE_MODIFIERS),
                     "source presentation and other attributes retained");
         }
+        var alias=game.server().reloadableRegistries().getLootTable(net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,net.minecraft.resources.Identifier.parse("lbc:ported/antimagic_sword_loli")));
+        require(alias==net.minecraft.world.level.storage.loot.LootTable.EMPTY,"duplicate antimagic leaf removed");
+        var legacy=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/antimagic_sword").getFirst();
+        var saved=legacy.copy();legacy.set(DataComponents.TOOLTIP_STYLE,net.minecraft.resources.Identifier.parse("lbc:tier_a"));LbcPendingSwords.canonicalizeAntimagic(legacy);
+        require(ItemStack.matches(legacy,saved),"existing duplicate normalizes only tier to canonical S");
         var raw=parse("{attributes:[{id:\"minecraft:attack_knockback\",base:100}],equipment:{mainhand:{id:\"minecraft:bone\",count:1,components:{\"minecraft:enchantments\":{\"minecraft:knockback\":1}}}}}");
         var original=raw.copy();SourceKnockbackBalance.entity(raw);
         require(original.getListOrEmpty("attributes").getCompoundOrEmpty(0).getDoubleOr("base",0)==100,"raw source remains independently available");

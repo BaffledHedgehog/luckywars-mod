@@ -4,106 +4,10 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/enderwand__35f4aaaa4dc6",
           "weight": 10,
-          "quality": 10,
-          "name": "skywars2:academy_ender_wand",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:enderwand"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "ender_wand",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "entity": "this",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "staff",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                [
-                  {
-                    "score": {
-                      "name": "ender_wand_mana_use",
-                      "objective": "lbc.math"
-                    },
-                    "italic": false,
-                    "color": "aqua",
-                    "type": "score"
-                  },
-                  {
-                    "translate": "mana_on_activate",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                [
-                  {
-                    "text": "60 ",
-                    "italic": false,
-                    "color": "aqua",
-                    "type": "text"
-                  },
-                  {
-                    "translate": "cast_distance",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                {
-                  "translate": "ender_wand.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{enderset:1,transformable:1,staff:1,magicwand:1,enderwand:1,upgradable:0,upgrade_available:1,upgraded:1,mode:1,tier:1}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "mode": "append",
-              "lore": [
-                {
-                  "translate": "upgraded_item",
-                  "italic": false,
-                  "color": "green"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a"
-              },
-              "type": "minecraft:set_components"
-            }
-          ]
+          "quality": 10
         }
       ]
     }

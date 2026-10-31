@@ -1,0 +1,119 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lingering_potion",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:potion_contents": {
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:instant_damage",
+                      "amplifier": 1
+                    },
+                    {
+                      "id": "minecraft:nausea",
+                      "amplifier": 5,
+                      "duration": 880
+                    },
+                    {
+                      "id": "minecraft:regeneration",
+                      "amplifier": 5,
+                      "duration": 240
+                    },
+                    {
+                      "id": "minecraft:invisibility",
+                      "amplifier": 5,
+                      "duration": 880
+                    },
+                    {
+                      "id": "minecraft:night_vision",
+                      "amplifier": 5,
+                      "duration": 880
+                    },
+                    {
+                      "id": "minecraft:hunger",
+                      "amplifier": 5,
+                      "duration": 880
+                    },
+                    {
+                      "id": "minecraft:poison",
+                      "amplifier": 5,
+                      "duration": 880
+                    },
+                    {
+                      "id": "minecraft:health_boost",
+                      "amplifier": 5,
+                      "duration": 240
+                    },
+                    {
+                      "id": "minecraft:glowing",
+                      "amplifier": 5,
+                      "duration": 880
+                    },
+                    {
+                      "id": "minecraft:levitation",
+                      "amplifier": 6,
+                      "duration": 240
+                    },
+                    {
+                      "id": "minecraft:luck",
+                      "amplifier": 5,
+                      "duration": 880
+                    },
+                    {
+                      "id": "minecraft:unluck",
+                      "amplifier": 6,
+                      "duration": 880
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "gvozd_potion",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "potion.lbc",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,potion:1,gvozd:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

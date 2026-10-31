@@ -1,0 +1,31 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cooked_porkchop",
+          "modifier": [
+            {
+              "modifiers": [
+                {
+                  "id": "minecraft:ttttttt",
+                  "attribute": "minecraft:spawn_reinforcements",
+                  "amount": {
+                    "min": 4,
+                    "max": 17,
+                    "type": "minecraft:uniform"
+                  },
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

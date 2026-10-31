@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:clock"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/clock__30ba17be4475"
         }
       ],
       "modifier": {

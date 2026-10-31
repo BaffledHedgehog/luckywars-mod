@@ -1,0 +1,67 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:basswand",
+                "minecraft:enchantments": {
+                  "minecraft:infinity": 1
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "bass_wand",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "bass_wand.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "bass_wand.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "bass_wand.lore.3",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "bass_wand.lore.4",
+                  "color": "white",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{magicwand:1,bassboost_old:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

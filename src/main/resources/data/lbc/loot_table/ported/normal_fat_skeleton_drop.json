@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "skywars2:normal_fat_skeleton_drop",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/skywars2/normal_fat_skeleton_drop__c15b21981dd0",
           "weight": 20,
           "quality": -10
         }

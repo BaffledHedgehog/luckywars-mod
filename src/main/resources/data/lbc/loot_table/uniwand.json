@@ -1,87 +1,87 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_q",
+                "minecraft:item_model": "lbc:uniwand"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:carrot_on_a_stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_q",
-                                "minecraft:item_model": "lbc:uniwand"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "uniwand",
-                                    "italic": false,
-                                    "color": "gold"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                [
-                                    {
-                                        "translate": "type",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    },
-                                    {
-                                        "translate": "staff",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                {
-                                    "translate": "uniwand.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "uniwand.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "uniwand.lore.3",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                [
-                                    {
-                                        "translate": "mana_usage",
-                                        "color": "aqua",
-                                        "italic": false
-                                    },
-                                    {
-                                        "text": "0",
-                                        "color": "aqua",
-                                        "italic": false,
-                                        "type": "text"
-                                    }
-                                ]
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{transformable:1,staff:1,magicwand:1,uniwand:1,mana:0,spellcount:0,spellwithcooldown:1,value:0}"
-                        }
-                    ]
+                  "translate": "uniwand",
+                  "italic": false,
+                  "color": "gold"
                 }
-            ]
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "staff",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "uniwand.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "uniwand.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "uniwand.lore.3",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "translate": "mana_usage",
+                    "color": "aqua",
+                    "italic": false
+                  },
+                  {
+                    "text": "0",
+                    "color": "aqua",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{transformable:1,staff:1,magicwand:1,uniwand:1,mana:0,spellcount:0,spellwithcooldown:1,value:0}"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

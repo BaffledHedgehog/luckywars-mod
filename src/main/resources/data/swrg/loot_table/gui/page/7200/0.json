@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:glass"
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/glass"
         }
       ],
       "modifier": {

@@ -4,12 +4,8 @@
       "rolls": 16,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:dirt",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dirt__79cd42c4cead/variant_448734fd39df"
         }
       ]
     }

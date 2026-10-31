@@ -8,49 +8,19 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 8,
-          "name": "minecraft:redstone",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 16,
-                "max": 32,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/redstone__2f536b1d79af/variant_139427608c97",
+          "weight": 8
         },
         {
-          "type": "minecraft:item",
-          "weight": 5,
-          "name": "minecraft:redstone_torch",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 8,
-                "max": 24,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/redstone_torch__3c5c279e6568/variant_d2c3f016c4bd",
+          "weight": 5
         },
         {
-          "type": "minecraft:item",
-          "weight": 3,
-          "name": "minecraft:redstone_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 4,
-                "max": 16,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/redstone_block__113946bba2c1/variant_a19586bfb012",
+          "weight": 3
         }
       ]
     },
@@ -62,34 +32,14 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:repeater",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 8,
-                "max": 16,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeater__f1f2c1c2a8c8/variant_61dbf301c316",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:comparator",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 4,
-                "max": 8,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/comparator__add4c32f34aa/variant_d37dc6ad160d",
+          "weight": 1
         }
       ]
     },
@@ -101,34 +51,14 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:slime_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 4,
-                "max": 16,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/slime_block__9397c3af90b5/variant_a19586bfb012",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:honey_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 4,
-                "max": 16,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/honey_block__67e692380f1c/variant_a19586bfb012",
+          "weight": 1
         }
       ]
     },
@@ -140,34 +70,14 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:piston",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 4,
-                "max": 8,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/piston__d7c344aa1e2b/variant_d37dc6ad160d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:sticky_piston",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 4,
-                "max": 8,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sticky_piston__fce007ebc154/variant_d37dc6ad160d",
+          "weight": 1
         }
       ]
     },
@@ -179,45 +89,19 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:sculk_sensor",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 8,
-                "max": 16,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sculk_sensor__481a17e6b6c8/variant_61dbf301c316",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:tripwire_hook",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 2
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tripwire_hook__c44db5a6f339/variant_3500121d56e8",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:string",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 16,
-                "max": 32,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/string__38a846d53293/variant_139427608c97",
+          "weight": 1
         }
       ]
     },
@@ -225,15 +109,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:water_bucket",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 2
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/water_bucket__7d6a2b06f50d/variant_3500121d56e8",
+          "weight": 1
         }
       ]
     },
@@ -245,34 +123,14 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:dispenser",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 8,
-                "max": 16,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dispenser__17ca4b05d885/variant_61dbf301c316",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:observer",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 4,
-                "max": 8,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/observer__db7b62f1f73b/variant_d37dc6ad160d",
+          "weight": 1
         }
       ]
     },
@@ -280,19 +138,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:tnt",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 32,
-                "max": 64,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tnt__594fd20a82a7/variant_10a6166adea7",
+          "weight": 1
         }
       ]
     },
@@ -304,64 +152,24 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:oak_pressure_plate",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 2,
-                "max": 4,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_pressure_plate__bc1d9cf0e011/variant_3cbad4483147",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:stone_pressure_plate",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 2,
-                "max": 4,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_pressure_plate__6ea2ba0ce851/variant_3cbad4483147",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:stone_button",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 2,
-                "max": 4,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_button__2b129390e6b2/variant_3cbad4483147",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:oak_button",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 2,
-                "max": 4,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_button__cb68ac5dfc1e/variant_3cbad4483147",
+          "weight": 1
         }
       ]
     }

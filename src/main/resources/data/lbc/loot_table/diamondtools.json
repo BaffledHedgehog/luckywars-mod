@@ -8,15 +8,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:diamond_axe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_axe__544737afd66b/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -28,15 +22,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:diamond_hoe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_hoe__29a0d22ea018/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -48,15 +36,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:diamond_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_sword__64a0e6aa4cbf/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -68,15 +50,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:diamond_shovel",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_shovel__dcaba647c8a4/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -88,15 +64,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:diamond_pickaxe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_pickaxe__b1bf351cb742/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -104,15 +74,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:diamond_block",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 5
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_block__10cb37c5c80f/variant_5c7aeecdd3a4",
+          "weight": 1
         }
       ]
     }

@@ -5,8 +5,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bow"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bow__4ba1382129ee/variant_4f53cda18c2b"
         }
       ],
       "condition": {
@@ -18,30 +18,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:flint_and_steel"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/flint_and_steel__5affd394bcf6",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tnt__594fd20a82a7/variant_6a434a69a3f0",
           "weight": 2,
-          "name": "minecraft:tnt",
-          "modifier": {
-            "modifiers": [
-              {
-                "attribute": "minecraft:spawn_reinforcements",
-                "id": "minecraft:count",
-                "amount": {
-                  "min": 3,
-                  "max": 7,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          },
           "condition": {
             "chance": 0.85,
             "type": "minecraft:random_chance"
@@ -53,14 +37,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 3,
-          "name": "minecraft:water_bucket"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/water_bucket__7d6a2b06f50d/variant_4f53cda18c2b",
+          "weight": 3
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:lava_bucket"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/lava_bucket__0f697f0dc693/variant_4f53cda18c2b",
+          "weight": 1
         }
       ],
       "condition": {
@@ -72,24 +56,24 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 4,
-          "name": "minecraft:stone_axe"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_axe__f9200b97ad0b/variant_4f53cda18c2b",
+          "weight": 4
         },
         {
-          "type": "minecraft:item",
-          "weight": 5,
-          "name": "minecraft:wooden_axe"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/wooden_axe__b0dc5b4f46b3/variant_4f53cda18c2b",
+          "weight": 5
         },
         {
-          "type": "minecraft:item",
-          "weight": 4,
-          "name": "minecraft:iron_pickaxe"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_pickaxe__96f82dee6fe4/variant_4f53cda18c2b",
+          "weight": 4
         },
         {
-          "type": "minecraft:item",
-          "weight": 5,
-          "name": "minecraft:stone_pickaxe"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_pickaxe__8ea666157bca/variant_4f53cda18c2b",
+          "weight": 5
         }
       ],
       "condition": {
@@ -101,24 +85,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:arrow",
-          "modifier": {
-            "modifiers": [
-              {
-                "attribute": "minecraft:spawn_reinforcements",
-                "id": "minecraft:count",
-                "amount": {
-                  "min": 4,
-                  "max": 11,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          },
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/arrow__8cd9f1e9f1ea/variant_b3666a2a2d28",
           "condition": {
             "chance": 0.5,
             "type": "minecraft:random_chance"
@@ -130,51 +98,19 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:bread",
-          "modifier": {
-            "modifiers": [
-              {
-                "attribute": "minecraft:spawn_reinforcements",
-                "id": "minecraft:count",
-                "amount": {
-                  "min": 2,
-                  "max": 7,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bread__f63c091f0c8e/variant_17c773e511f2",
+          "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:golden_apple"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_apple__de85880d6083/variant_4f53cda18c2b",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 7,
-          "name": "minecraft:cooked_porkchop",
-          "modifier": {
-            "modifiers": [
-              {
-                "attribute": "minecraft:spawn_reinforcements",
-                "id": "minecraft:count",
-                "amount": {
-                  "min": 5,
-                  "max": 13,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cooked_porkchop__73c379afb75e/variant_46241d4c6103",
+          "weight": 7
         }
       ],
       "condition": {
@@ -186,46 +122,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 4,
-          "name": "minecraft:oak_planks",
-          "modifier": {
-            "modifiers": [
-              {
-                "attribute": "minecraft:spawn_reinforcements",
-                "id": "minecraft:count",
-                "amount": {
-                  "min": 20,
-                  "max": 33,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_planks__1fe26292fdb7/variant_f113f013e6bf",
+          "weight": 4
         },
         {
-          "type": "minecraft:item",
-          "weight": 3,
-          "name": "minecraft:stone",
-          "modifier": {
-            "modifiers": [
-              {
-                "attribute": "minecraft:spawn_reinforcements",
-                "id": "minecraft:count",
-                "amount": {
-                  "min": 16,
-                  "max": 31,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone__a66f20c9d4b7/variant_74f1087ddf2f",
+          "weight": 3
         }
       ],
       "condition": {
@@ -237,8 +141,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_boots"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_boots__042be3df9ba3/variant_4f53cda18c2b"
         }
       ],
       "condition": {
@@ -250,8 +154,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_leggings"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_leggings__e4ff027dd966/variant_4f53cda18c2b"
         }
       ],
       "condition": {
@@ -263,8 +167,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_chestplate"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_chestplate__dc0dda3725c3/variant_4f53cda18c2b"
         }
       ],
       "condition": {
@@ -276,8 +180,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:iron_helmet"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_helmet__f52d38312b6b/variant_4f53cda18c2b"
         }
       ],
       "condition": {
@@ -293,14 +197,14 @@
           "weight": 10
         },
         {
-          "type": "minecraft:item",
-          "weight": 31,
-          "name": "minecraft:iron_sword"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_sword__4775be0dedd1/variant_4f53cda18c2b",
+          "weight": 31
         },
         {
-          "type": "minecraft:item",
-          "weight": 47,
-          "name": "minecraft:stone_sword"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_sword__278204ad564b/variant_4f53cda18c2b",
+          "weight": 47
         }
       ],
       "modifier": [

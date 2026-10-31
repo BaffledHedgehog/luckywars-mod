@@ -1,13 +1,13 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 3,
+      "entries": [
         {
-            "rolls": 3,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:copper_nugget"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/copper_nugget__75827bd47cbc"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -1,0 +1,38 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potion",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "custom_color": 16750848,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:fire_resistance",
+                      "duration": 1200
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "item.minecraft.potion.effect.fire_resistance",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

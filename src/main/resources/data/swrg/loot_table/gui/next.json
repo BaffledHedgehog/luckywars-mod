@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:spectral_arrow"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/spectral_arrow__212eb08c76f8/variant_4f53cda18c2b"
         }
       ],
       "modifier": {

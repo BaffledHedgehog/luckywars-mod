@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:red_dye"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_dye__967c3d011df1"
         }
       ],
       "modifier": {

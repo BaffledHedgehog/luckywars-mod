@@ -1,149 +1,148 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/netherite_pickaxe__416daed241dd",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:steampunk_pickaxe"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:netherite_pickaxe",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:steampunk_pickaxe"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "steampunk_pickaxe",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "steampunk_pickaxe.lore",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{steampunk_pickaxe:1}"
-                        }
-                    ]
+                  "translate": "steampunk_pickaxe",
+                  "italic": false
                 }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:iron_sword",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:steampunk_sword",
-                                "minecraft:attribute_modifiers": [
-                                        {
-                                            "type": "minecraft:attack_speed",
-                                            "slot": "mainhand",
-                                            "id": "hdtnkbuycthfngkhgspeed",
-                                            "amount": -2,
-                                            "operation": "add_value"
-                                        },
-                                        {
-                                            "type": "minecraft:attack_damage",
-                                            "slot": "mainhand",
-                                            "id": "genebyngkucfyvdbffhe",
-                                            "amount": 3,
-                                            "operation": "add_value"
-                                        }
-                                    ]
-                                
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "steampunk_sword",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "steampunk_sword.lore.1",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "steampunk_sword.lore.2",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{steampunk_sword:1}"
-                        }
-                    ]
+                  "translate": "steampunk_pickaxe.lore",
+                  "italic": false
                 }
-            ]
-        },
-        {
-            "rolls": 0,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:snowball",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:steampunk_rocket"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "steampunk_rocket",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "steampunk_rocket.lore",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 3
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{steampunk_rocket:1,gadget:1}"
-                        }
-                    ]
-                }
-            ]
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{steampunk_pickaxe:1}"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_sword__4775be0dedd1/variant_4f53cda18c2b",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:steampunk_sword",
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "hdtnkbuycthfngkhgspeed",
+                    "amount": -2,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "genebyngkucfyvdbffhe",
+                    "amount": 3,
+                    "operation": "add_value"
+                  }
+                ]
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "steampunk_sword",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "steampunk_sword.lore.1",
+                  "italic": false
+                },
+                {
+                  "translate": "steampunk_sword.lore.2",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{steampunk_sword:1}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/snowball__0a07907b8b8e",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:steampunk_rocket"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "steampunk_rocket",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "steampunk_rocket.lore",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "function": "minecraft:set_count",
+              "count": 3
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{steampunk_rocket:1,gadget:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

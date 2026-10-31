@@ -4,136 +4,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "skywars2:mana_lingering_potion",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:potion_contents": {
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:raid_omen",
-                      "amplifier": 19,
-                      "duration": 3600
-                    }
-                  ],
-                  "custom_color": 7519231
-                },
-                "minecraft:tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:potion_contents"
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "item.minecraft.lingering_potion.effect.add_mana",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "add_mana",
-                    "italic": false,
-                    "color": "blue"
-                  },
-                  {
-                    "text": " (03:00)",
-                    "type": "text"
-                  }
-                ],
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/skywars2/mana_lingering_potion__1cba2c22d384/variant_ee9fc232da82",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "skywars2:mana_lingering_potion",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:potion_contents": {
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:raid_omen",
-                      "amplifier": 19,
-                      "duration": 9600
-                    }
-                  ],
-                  "custom_color": 7519231
-                },
-                "minecraft:tooltip_display": {
-                  "hidden_components": [
-                    "minecraft:potion_contents"
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "item.minecraft.lingering_potion.effect.add_mana",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "add_mana",
-                    "italic": false,
-                    "color": "blue"
-                  },
-                  {
-                    "text": " (08:00)",
-                    "type": "text"
-                  }
-                ],
-                {
-                  "translate": "imba_version",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/skywars2/mana_lingering_potion__1cba2c22d384/variant_0e947c5ea930",
+          "weight": 1
         }
       ]
     }

@@ -9,82 +9,14 @@
           "weight": 11
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:crossbow",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:enchantments": {
-                  "minecraft:quick_charge": 5
-                },
-                "minecraft:custom_name": {
-                  "bold": true,
-                  "color": "yellow",
-                  "italic": false,
-                  "translate": "blaze_crossbow"
-                },
-                "minecraft:lore": [
-                  {
-                    "translate": "blaze_crossbow.lore",
-                    "color": "gold",
-                    "italic": false
-                  }
-                ],
-                "minecraft:charged_projectiles": [
-                  {
-                    "id": "minecraft:arrow",
-                    "count": 1
-                  }
-                ]
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{transformable:1,bow:1,fastfired:1,craftusable:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crossbow__9eb0e01f7539",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:crossbow",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:enchantments": {
-                  "minecraft:quick_charge": 5
-                },
-                "minecraft:custom_name": {
-                  "bold": true,
-                  "color": "red",
-                  "italic": false,
-                  "translate": "ghast_crossbow"
-                },
-                "minecraft:lore": [
-                  {
-                    "translate": "ghast_crossbow.lore",
-                    "color": "gold",
-                    "italic": false
-                  }
-                ],
-                "minecraft:charged_projectiles": [
-                  {
-                    "id": "minecraft:firework_rocket",
-                    "count": 1
-                  }
-                ]
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{transformable:1,bow:1,fastexplode:1,craftusable:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crossbow__55f5ba9c167d",
+          "weight": 1
         },
         {
           "type": "minecraft:loot_table",

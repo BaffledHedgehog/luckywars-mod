@@ -8,543 +8,384 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:axolotl_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/axolotl_spawn_egg__ddfa4bbe27ae/variant_4f53cda18c2b",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:goat_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/goat_spawn_egg__efd827c984dc/variant_4f53cda18c2b",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:glow_squid_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/glow_squid_spawn_egg__eb2e7128b8b9/variant_4f53cda18c2b",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:bat_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bat_spawn_egg__c62c802d25da",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:bee_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bee_spawn_egg__fa77b40e500b",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cat_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:entity_data": {
-                  "id": "minecraft:cat"
-                }
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cat_spawn_egg__fb3beb930b72/variant_a9582a6d8b62",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cod_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cod_spawn_egg__051867483746",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cow_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cow_spawn_egg__bef3e4a08b88",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:fox_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/fox_spawn_egg__8b9e908c5b71",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:pig_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pig_spawn_egg__a23fdbb262b9",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:vex_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/vex_spawn_egg__fb3f98b79c8b",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:husk_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/husk_spawn_egg__6bc33a20f486",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:mule_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mule_spawn_egg__185ab0c4d8ab",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:wolf_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/wolf_spawn_egg__6ea2ef9d4315",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:blaze_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/blaze_spawn_egg__5ffae8b957d1",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:ghast_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ghast_spawn_egg__503b5f05b6c2",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:horse_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/horse_spawn_egg__aa8c7f5b6669",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:llama_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/llama_spawn_egg__9dc9b918aa99",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:panda_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/panda_spawn_egg__fe7847564c52",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:sheep_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sheep_spawn_egg__a7f8995aec3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:slime_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/slime_spawn_egg__c42c8311e243",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:squid_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/squid_spawn_egg__bb9458af0f9a",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:stray_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stray_spawn_egg__18962c7dc0e4",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:witch_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/witch_spawn_egg__a3573c9ff149",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:donkey_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/donkey_spawn_egg__cd2359f65724",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:evoker_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/evoker_spawn_egg__fa0a65ca62be",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:hoglin_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/hoglin_spawn_egg__2beeaf3a2793",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:ocelot_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ocelot_spawn_egg__11b517e7104c",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:parrot_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/parrot_spawn_egg__2377d6186ebd",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:piglin_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/piglin_spawn_egg__23722f7d0dcc",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:rabbit_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/rabbit_spawn_egg__1b769be0d79a",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:salmon_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/salmon_spawn_egg__b4e0fb5d7669",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:spider_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/spider_spawn_egg__99c3e504d594",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:turtle_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/turtle_spawn_egg__070c1ed52184",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:zoglin_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/zoglin_spawn_egg__b94bd493cd0a",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:zombie_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/zombie_spawn_egg__9a55ef3fb591",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:chicken_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chicken_spawn_egg__87e25803bed0",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:creeper_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/creeper_spawn_egg__8e6c4bc45144",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:dolphin_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dolphin_spawn_egg__42e5469498c0",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:phantom_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/phantom_spawn_egg__389b9306720a",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:ravager_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ravager_spawn_egg__5a49866f2997",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:shulker_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/shulker_spawn_egg__38d805c8ddde",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:strider_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/strider_spawn_egg__6d8331fdc1e3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:enderman_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/enderman_spawn_egg__940cf5ba9d64",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:guardian_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/guardian_spawn_egg__eb843fa506be",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:pillager_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pillager_spawn_egg__fdba3f49f85c",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:skeleton_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/skeleton_spawn_egg__329bf8ced9af",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:villager_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/villager_spawn_egg__924a03d929ef",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:endermite_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/endermite_spawn_egg__89127ecf54ec",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:mooshroom_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mooshroom_spawn_egg__e969a7084ccb",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:magma_cube_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/magma_cube_spawn_egg__c884fa2683af",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:polar_bear_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polar_bear_spawn_egg__5a2bebcb080d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:pufferfish_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pufferfish_spawn_egg__cc8f6b4ee9a7",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:silverfish_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/silverfish_spawn_egg__e35ec1b675e2",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:vindicator_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/vindicator_spawn_egg__79c9f39022f1",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cave_spider_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cave_spider_spawn_egg__3fef13cb1236",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:piglin_brute_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/piglin_brute_spawn_egg__b5b60214f78c",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:trader_llama_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/trader_llama_spawn_egg__5ed93a4adf12",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:zombie_horse_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/zombie_horse_spawn_egg__aa8f8fe82649",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:tropical_fish_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tropical_fish_spawn_egg__55cc333658c1",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:drowned_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/drowned_spawn_egg__c26e3dc98e3a",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:elder_guardian_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/elder_guardian_spawn_egg__26d9c603e102",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:skeleton_horse_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/skeleton_horse_spawn_egg__8d45f6dba53f",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:wither_skeleton_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/wither_skeleton_spawn_egg__7a789e105e00",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:zombie_villager_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/zombie_villager_spawn_egg__7879713ca996",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:wandering_trader_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/wandering_trader_spawn_egg__f594cf9e271c",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:zombified_piglin_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/zombified_piglin_spawn_egg__af94250f41cb",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:bat_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:entity_data": {
-                  "id": "minecraft:illusioner"
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "illusor_spawn_egg",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bat_spawn_egg__5224815bd6c2",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:iron_golem_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_golem_spawn_egg__541698c77464",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:snow_golem_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/snow_golem_spawn_egg__d804af880abf",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:ender_dragon_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ender_dragon_spawn_egg__d47c8d19a1b3",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:wither_spawn_egg"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/wither_spawn_egg__b5d2da586de5",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:zombie_villager_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:entity_data": {
-                  "id": "minecraft:giant",
-                  "NoGravity": false,
-                  "Silent": false,
-                  "Invulnerable": false,
-                  "CustomNameVisible": false,
-                  "NoAI": false,
-                  "attributes": [
-                    {
-                      "id": "minecraft:attack_damage",
-                      "base": 10
-                    },
-                    {
-                      "id": "minecraft:attack_knockback",
-                      "base": 5
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "giant_spawn_egg",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/zombie_villager_spawn_egg__5e1e0a8ccadc/variant_8bc3782a601c",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:cat_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:entity_data": {
-                  "id": "minecraft:armor_stand",
-                  "CustomNameVisible": false
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "armor_stand_spawn_egg",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cat_spawn_egg__b48bae238ff0/variant_b949a66823fc",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:evoker_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:entity_data": {
-                  "id": "minecraft:tnt",
-                  "CustomNameVisible": false,
-                  "fuse": 100,
-                  "CustomName": "Динамит"
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "tnt_spawn_egg",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/evoker_spawn_egg__d513a68a6f2e/variant_5cec35ce06a8",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:horse_spawn_egg",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:entity_data": {
-                  "id": "minecraft:birch_boat",
-                  "NoGravity": true,
-                  "Glowing": true,
-                  "CustomNameVisible": false,
-                  "Motion": [
-                    0,
-                    0.01,
-                    0
-                  ],
-                  "CustomName": {
-                    "translate": "flying_boat"
-                  }
-                }
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "flying_boat_spawn_egg",
-                  "italic": false
-                }
-              ]
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/horse_spawn_egg__35438335eb6f/variant_547b2f846c35",
+          "weight": 1
         }
       ]
     }

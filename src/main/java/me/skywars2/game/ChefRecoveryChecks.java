@@ -149,12 +149,54 @@ public final class ChefRecoveryChecks {
         require(second.isRemoved()&&f.service.count()==0&&f.service.pinnedChunks()==0&&nativeTickets(f,original)==0,
                 "actual stop releases every owned native simulation ticket");
     }
+    private static void foreignWater(ChefChecks.Fixture f,boolean blocked){
+        var victim=f.cow(f.at.add(0,0,8));var chef=f.spawn(f.owner,victim);start(chef,f.at);
+        try{
+            var supply=LbcChefSurvival.class.getDeclaredField("bucket");supply.setAccessible(true);
+            supply.set(chef.survival,new net.minecraft.world.item.ItemStack(Items.BUCKET));
+        }catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
+        BlockPos source=f.center.offset(2,0,0);f.block(source,Blocks.WATER);
+        if(blocked)for(int z=-1;z<=1;z++)for(int y=0;y<=2;y++)f.block(f.center.offset(1,y,z),Blocks.BEDROCK);
+        // Keep the body still: only the native survival pickup may change this source.
+        for(int i=0;i<45;i++){chef.tickCount++;chef.survival.tick();}
+        boolean filled=chef.survival.supplies().stream().anyMatch(stack->stack.is(Items.WATER_BUCKET));
+        require(filled!=blocked,"empty bucket collects visible foreign water and rejects occluded water; blocked="+blocked+state(chef));
+        require(f.owner.level().getFluidState(source).isSource()==blocked,"only reachable source changes through native pickup");
+    }
+    private static void verticalAimReversal(ChefChecks.Fixture f){
+        var victim=f.cow(f.at.add(0,0,8));var chef=f.spawn(f.owner,victim);start(chef,f.at);
+        Vec3 overhead=chef.getEyePosition().add(0,2,0),floor=chef.getEyePosition().add(0,-2,0);
+        for(int i=0;i<10;i++)chef.aimAction(overhead);
+        require(chef.getXRot()<-88,"roof mining preparation looks straight overhead");
+        boolean ready=false;
+        for(int i=0;i<10&&!ready;i++)ready=chef.aimAction(floor);
+        require(ready&&chef.getXRot()>88,"camera and head reverse from mined roof to pillar support within bounded turns"+state(chef));
+    }
+    private static void roofEscape(ChefChecks.Fixture f){
+        for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)for(int y=0;y<=4;y++)
+            if(x!=0||z!=0)f.block(f.center.offset(x,y,z),Blocks.BEDROCK);
+        f.block(f.center.above(2),Blocks.STONE);f.block(f.center.above(3),Blocks.STONE);
+        // The required exit is four blocks above the start. Keep the victim
+        // outside native melee reach until then, so successful combat cannot
+        // legitimately preempt pillar placement during the proof of escape.
+        var victim=f.cow(f.at.add(0,7,0));var chef=f.spawn(f.owner,victim);start(chef,f.at);
+        int steps;
+        for(steps=0;steps<220&&chef.getY()<f.at.y+4;steps++){
+            require(victim.getHealth()==20,"shaft fixture stays outside combat before the required escape height"+state(chef));
+            advance(f,chef);
+        }
+        require(f.owner.level().getBlockState(f.center.above(2)).is(Blocks.COBBLESTONE)
+                &&chef.getY()>=f.at.y+4,"sealed chamber mines roof then towers through its own shaft; steps="+steps+state(chef));
+        for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)if(x!=0||z!=0)
+            require(f.owner.level().getBlockState(f.center.offset(x,2,z)).is(Blocks.BEDROCK),"escape preserves sealed walls");
+    }
     private record Case(String name,java.util.function.Consumer<ChefChecks.Fixture> action){}
     public static void run(GameController game){
         var failures=new ArrayList<String>();
         for(var test:List.of(new Case("two body blocks",f->embedded(f,false)),new Case("one-block cell",f->embedded(f,true)),
                 new Case("uphill collision",ChefRecoveryChecks::uphill),new Case("retreating melee edge",ChefRecoveryChecks::retreat),
-                new Case("lower platform water descent",ChefRecoveryChecks::lowerPlatform),new Case("deep floor water descent",ChefRecoveryChecks::deepFloor),new Case("live unload/shared tickets",ChefRecoveryChecks::lifecycle))){
+                new Case("lower platform water descent",ChefRecoveryChecks::lowerPlatform),new Case("deep floor water descent",ChefRecoveryChecks::deepFloor),new Case("visible foreign water",f->foreignWater(f,false)),new Case("occluded foreign water",f->foreignWater(f,true)),
+                new Case("vertical aim reversal",ChefRecoveryChecks::verticalAimReversal),new Case("sealed roof escape",ChefRecoveryChecks::roofEscape),new Case("live unload/shared tickets",ChefRecoveryChecks::lifecycle))){
             try(var fixture=new ChefChecks.Fixture(game)){fixture.init();test.action.accept(fixture);}
             catch(RuntimeException failure){failures.add(test.name+": "+failure.getMessage());}
         }

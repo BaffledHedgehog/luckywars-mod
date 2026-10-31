@@ -82,7 +82,7 @@ public final class LuckyPigDropChecks {
         }
         void rewardTable(){
             try(var input=LuckyPigDropChecks.class.getResourceAsStream("/data/lbc/loot_table/applepig.json")){
-                require(input!=null,"applepig resource exists");var json=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+                require(input!=null,"applepig resource exists");var json=LootDefinitionChecks.expanded(com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject());
                 var pools=json.getAsJsonArray("pools");require(pools.size()==1,"one apple pool");var pool=pools.get(0).getAsJsonObject();require(pool.get("rolls").getAsInt()==1,"one apple roll");var entries=pool.getAsJsonArray("entries");require(entries.size()==2,"two source apples");
                 for(int i=0;i<2;i++){var e=entries.get(i).getAsJsonObject();require(e.get("name").getAsString().equals(i==0?"minecraft:enchanted_golden_apple":"minecraft:golden_apple") && e.get("weight").getAsInt()==(i==0?1:10) && e.get("quality").getAsInt()==(i==0?3:0),"exact source apple weight/quality "+i);}
             }catch(java.io.IOException error){throw new IllegalStateException(error);}

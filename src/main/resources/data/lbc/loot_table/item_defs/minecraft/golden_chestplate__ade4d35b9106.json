@@ -1,0 +1,49 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_chestplate",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "chest",
+                    "id": "digh8yug8rrfgfgf",
+                    "amount": 1,
+                    "operation": "add_multiplied_base"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "chest",
+                    "id": "qwertyuiopdfghjklj",
+                    "amount": 1,
+                    "operation": "add_multiplied_base"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "multiplying_chestplate",
+                  "italic": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

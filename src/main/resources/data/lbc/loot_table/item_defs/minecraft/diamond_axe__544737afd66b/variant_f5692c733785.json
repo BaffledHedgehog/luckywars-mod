@@ -1,0 +1,30 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond_axe",
+          "modifier": [
+            {
+              "enchantments": {
+                "minecraft:efficiency": {
+                  "min": 3,
+                  "max": 5,
+                  "type": "minecraft:uniform"
+                }
+              },
+              "add": true,
+              "type": "minecraft:set_enchantments",
+              "condition": {
+                "chance": 0.9,
+                "type": "minecraft:random_chance"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

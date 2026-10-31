@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:chest"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chest__e4388bf0b3bd"
         }
       ],
       "modifier": {

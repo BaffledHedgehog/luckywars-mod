@@ -1,0 +1,106 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:zombie_spawn_egg",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:entity_data": {
+                  "id": "minecraft:zombie",
+                  "NoGravity": false,
+                  "Silent": true,
+                  "Invulnerable": false,
+                  "CustomNameVisible": true,
+                  "PersistenceRequired": true,
+                  "NoAI": true,
+                  "Health": 500,
+                  "IsBaby": true,
+                  "Tags": [
+                    "transformator",
+                    "lucky_mob"
+                  ],
+                  "CustomName": [
+                    {
+                      "translate": "transformator",
+                      "color": "gold",
+                      "italic": false
+                    },
+                    {
+                      "text": " Nightmare23 Birthday (05.06.2024)",
+                      "color": "gray"
+                    }
+                  ],
+                  "equipment": {
+                    "head": {
+                      "id": "minecraft:repeating_command_block",
+                      "count": 1,
+                      "components": {
+                        "minecraft:item_model": "lbc:transformator",
+                        "minecraft:enchantments": {
+                          "vanishing_curse": 1
+                        },
+                        "minecraft:enchantment_glint_override": false
+                      }
+                    }
+                  },
+                  "drop_chances": {
+                    "head": 0.0
+                  },
+                  "active_effects": [
+                    {
+                      "id": "minecraft:invisibility",
+                      "amplifier": 1,
+                      "duration": 2000000,
+                      "show_particles": false
+                    }
+                  ],
+                  "attributes": [
+                    {
+                      "id": "minecraft:max_health",
+                      "base": 500
+                    },
+                    {
+                      "id": "minecraft:knockback_resistance",
+                      "base": 100
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "transformator_spawn_egg",
+                  "color": "red",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

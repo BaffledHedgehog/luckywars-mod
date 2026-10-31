@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:barrier"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/barrier__322fd28fb852"
         }
       ],
       "modifier": {

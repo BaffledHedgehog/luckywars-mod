@@ -4,71 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:red_mushroom_block",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:block_state": {
-                  "down": "false",
-                  "up": "false",
-                  "south": "false",
-                  "north": "false",
-                  "east": "false",
-                  "west": "false"
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "modifiers": [
-                {
-                  "id": "minecraft:dsyhujiafghbahjcbjklfdhasbhjdfvkaj",
-                  "attribute": "minecraft:spawn_reinforcements",
-                  "amount": {
-                    "min": 5,
-                    "max": 11,
-                    "type": "minecraft:uniform"
-                  },
-                  "operation": "add_value",
-                  "slot": "mainhand"
-                }
-              ],
-              "type": "minecraft:set_attributes"
-            },
-            {
-              "components": {
-                "minecraft:item_model": "lbc:lucky_block"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "color": "yellow",
-                  "italic": false,
-                  "translate": "skywars2.item.lucky_block.name"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "lore": [
-                {
-                  "color": "gray",
-                  "italic": false,
-                  "translate": "skywars2.item.lucky_block.credits.1"
-                },
-                {
-                  "color": "gray",
-                  "italic": false,
-                  "translate": "skywars2.item.lucky_block.credits.2"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/lucky_block__e196d020d84e/variant_cebd527e2a9c"
         }
       ]
     },
@@ -76,24 +13,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:arrow",
-          "modifier": {
-            "modifiers": [
-              {
-                "id": "minecraft:dsfasdasdvcasdv",
-                "attribute": "minecraft:spawn_reinforcements",
-                "amount": {
-                  "min": 16,
-                  "max": 29,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/arrow__8cd9f1e9f1ea/variant_9905341d2b9b"
         }
       ],
       "condition": {
@@ -105,24 +26,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:ender_pearl",
-          "modifier": {
-            "modifiers": [
-              {
-                "id": "minecraft:asdfadf",
-                "attribute": "minecraft:spawn_reinforcements",
-                "amount": {
-                  "min": 1,
-                  "max": 3,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ender_pearl__6fb35b6f1b7d/variant_37d20d8dd052"
         }
       ],
       "condition": {
@@ -134,29 +39,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_pickaxe",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_pickaxe__b1bf351cb742/variant_4f53cda18c2b",
           "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_axe",
-          "weight": 1,
-          "modifier": {
-            "enchantments": {
-              "minecraft:efficiency": {
-                "min": 3,
-                "max": 5,
-                "type": "minecraft:uniform"
-              }
-            },
-            "add": true,
-            "type": "minecraft:set_enchantments",
-            "condition": {
-              "chance": 0.9,
-              "type": "minecraft:random_chance"
-            }
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_axe__544737afd66b/variant_f5692c733785",
+          "weight": 1
         }
       ],
       "condition": {
@@ -168,19 +58,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:compass",
-          "modifier": {
-            "entity": "this",
-            "name": {
-              "nbt": "item.compass",
-              "storage": "swrg:lang",
-              "interpret": true,
-              "source": "storage",
-              "type": "nbt"
-            },
-            "type": "minecraft:set_name"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/compass__77ff6dac04ff"
         }
       ],
       "condition": {
@@ -192,30 +71,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:flint_and_steel",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/flint_and_steel__5affd394bcf6",
           "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:tnt",
-          "weight": 2,
-          "modifier": {
-            "modifiers": [
-              {
-                "id": "minecraft:adsfasfsdf",
-                "attribute": "minecraft:spawn_reinforcements",
-                "amount": {
-                  "min": 12,
-                  "max": 21,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tnt__594fd20a82a7/variant_55adfd61272a",
+          "weight": 2
         }
       ],
       "condition": {
@@ -227,13 +90,13 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:water_bucket",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/water_bucket__7d6a2b06f50d/variant_4f53cda18c2b",
           "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:lava_bucket",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/lava_bucket__0f697f0dc693/variant_4f53cda18c2b",
           "weight": 1
         }
       ]
@@ -242,24 +105,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_carrot",
-          "modifier": {
-            "modifiers": [
-              {
-                "id": "minecraft:dsafadsfdac",
-                "attribute": "minecraft:spawn_reinforcements",
-                "amount": {
-                  "min": 4,
-                  "max": 13,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_carrot__33074f854158/variant_46a300ddcdef"
         }
       ],
       "condition": {
@@ -271,24 +118,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:golden_apple",
-          "modifier": {
-            "modifiers": [
-              {
-                "id": "minecraft:asdfgsdfaccad",
-                "attribute": "minecraft:spawn_reinforcements",
-                "amount": {
-                  "min": 1,
-                  "max": 3,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_apple__de85880d6083/variant_87e8648cc3ee"
         }
       ],
       "condition": {
@@ -300,46 +131,14 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:oak_planks",
-          "weight": 1,
-          "modifier": {
-            "modifiers": [
-              {
-                "id": "minecraft:fshaghdsvsddvfd",
-                "attribute": "minecraft:spawn_reinforcements",
-                "amount": {
-                  "min": 40,
-                  "max": 65,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_planks__1fe26292fdb7/variant_79b86ce25ce2",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stone",
-          "weight": 1,
-          "modifier": {
-            "modifiers": [
-              {
-                "id": "minecraft:dsaggddshasf",
-                "attribute": "minecraft:spawn_reinforcements",
-                "amount": {
-                  "min": 20,
-                  "max": 65,
-                  "type": "minecraft:uniform"
-                },
-                "operation": "add_value",
-                "slot": "mainhand"
-              }
-            ],
-            "type": "minecraft:set_attributes"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone__a66f20c9d4b7/variant_f7d0b2b6bc49",
+          "weight": 1
         }
       ],
       "condition": {
@@ -351,32 +150,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bow",
-          "modifier": [
-            {
-              "enchantments": {
-                "minecraft:flame": 1
-              },
-              "add": true,
-              "type": "minecraft:set_enchantments",
-              "condition": {
-                "chance": 0.2,
-                "type": "minecraft:random_chance"
-              }
-            },
-            {
-              "enchantments": {
-                "minecraft:power": 1
-              },
-              "add": true,
-              "type": "minecraft:set_enchantments",
-              "condition": {
-                "chance": 0.55,
-                "type": "minecraft:random_chance"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bow__4ba1382129ee/variant_ca9601162a56"
         }
       ],
       "condition": {
@@ -388,8 +163,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_boots",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_boots__37448d81e2d7",
           "weight": 3
         }
       ],
@@ -402,8 +177,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_leggings",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_leggings__d8753410dce8",
           "weight": 3
         }
       ],
@@ -416,8 +191,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_chestplate",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_chestplate__dcf273559e8b",
           "weight": 3
         }
       ],
@@ -430,8 +205,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_helmet",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_helmet__fe6077f7cdfa",
           "weight": 3
         }
       ],
@@ -444,32 +219,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond_sword",
-          "modifier": [
-            {
-              "enchantments": {
-                "minecraft:fire_aspect": 1
-              },
-              "add": true,
-              "type": "minecraft:set_enchantments",
-              "condition": {
-                "chance": 0.2,
-                "type": "minecraft:random_chance"
-              }
-            },
-            {
-              "enchantments": {
-                "minecraft:sharpness": 1
-              },
-              "add": true,
-              "type": "minecraft:set_enchantments",
-              "condition": {
-                "chance": 0.15,
-                "type": "minecraft:random_chance"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_sword__64a0e6aa4cbf/variant_89a5c2fc7b89"
         }
       ],
       "condition": {

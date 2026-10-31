@@ -1,0 +1,39 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:netherite_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:unbreakable": {},
+                "minecraft:enchantments": {
+                  "minecraft:sharpness": 5,
+                  "minecraft:smite": 5,
+                  "minecraft:bane_of_arthropods": 5,
+                  "minecraft:knockback": 2,
+                  "minecraft:fire_aspect": 2,
+                  "minecraft:looting": 3,
+                  "minecraft:sweeping_edge": 3
+                },
+                "minecraft:custom_name": {
+                  "italic": false,
+                  "translate": "bob_sword"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

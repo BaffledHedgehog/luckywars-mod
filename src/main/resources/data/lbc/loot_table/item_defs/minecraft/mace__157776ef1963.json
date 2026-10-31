@@ -1,0 +1,52 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:mace",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:unbreakable": {},
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:enchantments": {
+                  "minecraft:density": 1,
+                  "minecraft:breach": 1,
+                  "minecraft:wind_burst": 15,
+                  "minecraft:smite": 5,
+                  "minecraft:bane_of_arthropods": 5,
+                  "minecraft:fire_aspect": 2
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:safe_fall_distance",
+                    "slot": "hand",
+                    "id": "dfjkj6k6kygkykk",
+                    "amount": 100,
+                    "operation": "add_multiplied_total"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "aimbob_mace",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

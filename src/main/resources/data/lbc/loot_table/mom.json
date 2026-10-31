@@ -1,48 +1,48 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_f",
+                "minecraft:item_model": "lbc:mum"
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "entity": "this",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:carrot_on_a_stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_f",
-                                "minecraft:item_model": "lbc:mum"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": [
-                                {
-                                    "text": "Daeris_: ",
-                                    "italic": false,
-                                    "color": "dark_gray",
-                                    "type": "text"
-                                },
-                                {
-                                    "translate": "mom",
-                                    "italic": false,
-                                    "color": "#FF8F8F"
-                                },
-                                {
-                                    "selector": "@p[gamemode=!spectator]",
-                                    "italic": false,
-                                    "type": "selector"
-                                }
-                            ]
-                        }
-                    ]
+                  "text": "Daeris_: ",
+                  "italic": false,
+                  "color": "dark_gray",
+                  "type": "text"
+                },
+                {
+                  "translate": "mom",
+                  "italic": false,
+                  "color": "#FF8F8F"
+                },
+                {
+                  "selector": "@p[gamemode=!spectator]",
+                  "italic": false,
+                  "type": "selector"
                 }
-            ]
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:blaze_rod"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/blaze_rod__28a93f4215a3"
         }
       ],
       "modifier": {

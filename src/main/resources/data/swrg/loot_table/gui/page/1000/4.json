@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diamond"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond__bbbe08c0550e"
         }
       ],
       "modifier": {

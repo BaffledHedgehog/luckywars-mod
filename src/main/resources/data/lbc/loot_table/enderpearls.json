@@ -14,59 +14,29 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 4,
-          "name": "minecraft:ender_pearl",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ender_pearl__6fb35b6f1b7d/variant_c67e75927f3d",
+          "weight": 4
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:chorus_fruit",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chorus_fruit__46f0432e5c73/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:end_portal_frame",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/end_portal_frame__c31dbd2bc1a2/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:end_crystal",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/end_crystal__7fa6774e9421/variant_c67e75927f3d",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 3,
-          "name": "minecraft:obsidian",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/obsidian__7e8c33d0f0a4/variant_c67e75927f3d",
+          "weight": 3
         }
       ]
     }

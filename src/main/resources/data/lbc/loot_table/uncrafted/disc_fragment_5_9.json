@@ -1,13 +1,13 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 9,
+      "entries": [
         {
-            "rolls": 9,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:disc_fragment_5"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/disc_fragment_5__eff6bfb10b9e"
         }
-    ]
+      ]
+    }
+  ]
 }

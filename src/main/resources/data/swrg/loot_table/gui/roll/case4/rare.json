@@ -4,232 +4,28 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "text": "",
-                "color": "#4E5C24",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:suffix,reward:17}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:runes_rare"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.b",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__0402194519a8"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "text": "",
-                "color": "#4E5C24",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:suffix,reward:18}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:runes_rare"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.b",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__1100bd9b7d53"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "text": "",
-                "color": "#4E5C24",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:suffix,reward:19}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:runes_rare"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.b",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__e367d2961355"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "text": "",
-                "color": "#4E5C24",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:suffix,reward:20}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:runes_rare"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.b",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__84564fda2c22"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "text": "",
-                "color": "#4E5C24",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:suffix,reward:21}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:runes_rare"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.b",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__8b3943733339"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "text": "",
-                "color": "#4E5C24",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:suffix,reward:22}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:runes_rare"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.b",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__28c8acedd7cc"
         }
       ]
     }

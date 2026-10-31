@@ -36,7 +36,8 @@ final class LbcChefSurvival {
     private boolean eating;
     private int eatingCount,eatingNutrition;
     private float eatingSaturation;
-    private BlockPos ownedWater;
+    private BlockPos ownedWater,pickupWater;
+    private int nextWaterSearch;
     private BlockState ownedWaterState;
     private boolean touchedWater;
     private Vec3 descentLanding,descentLip;
@@ -68,7 +69,7 @@ final class LbcChefSurvival {
             }
             if(recoverWater())return true;
             if(descendToTarget())return true;
-            if(ownedWater!=null&&touchedWater&&!chef.isOnFire()&&chef.position().distanceToSqr(Vec3.atCenterOf(ownedWater))<6){
+            if(ownedWater!=null&&touchedWater&&waterAge<40&&!chef.isOnFire()&&chef.position().distanceToSqr(Vec3.atCenterOf(ownedWater))<6){
                 // Let the landing settle before swimming away from the source we need
                 // to pick up. Native gravity and water buoyancy remain in control.
                 chef.halt();return true;
@@ -144,7 +145,7 @@ final class LbcChefSurvival {
     void cancel(){cancelEating();descentLanding=null;descentLip=null;descentAirborne=false;lastPosition=chef.position();}
 
     /** Removal/epoch cleanup: forget ownership without deleting world terrain. */
-    void clear(){cancel();ownedWater=null;ownedWaterState=null;touchedWater=false;waterAge=0;settledWaterTicks=0;}
+    void clear(){cancel();pickupWater=null;nextWaterSearch=0;ownedWater=null;ownedWaterState=null;touchedWater=false;waterAge=0;settledWaterTicks=0;}
 
     List<ItemStack> supplies(){return List.of(bucket.copy(),food.copy());}
     int foodLevel(){return foodLevel;}
@@ -355,27 +356,52 @@ final class LbcChefSurvival {
     }
 
     private boolean recoverWater(){
-        if(ownedWater==null||!bucket.is(Items.BUCKET)||!loaded(ownedWater)
-                ||waterAge<10||!touchedWater||settledWaterTicks<4||chef.isOnFire())return false;
-        Vec3 aim=Vec3.atCenterOf(ownedWater);
-        if(chef.getEyePosition().distanceToSqr(aim)>20.25)return false;
-        BlockHitResult hit=clip(chef.getEyePosition(),aim,ClipContext.Fluid.SOURCE_ONLY);
-        if(hit==null||!hit.getBlockPos().equals(ownedWater))return false;
-        BlockState state=level.getBlockState(ownedWater);
-        if(!state.equals(ownedWaterState)||!(state.getBlock() instanceof BucketPickup pickup))return false;
+        if(!bucket.is(Items.BUCKET)||chef.isOnFire()||fallDanger())return false;
+        boolean ownReady=ownedWater!=null&&waterAge>=10&&touchedWater&&settledWaterTicks>=4;
+        if(ownedWater!=null&&!ownReady&&waterAge<40
+                &&chef.position().distanceToSqr(Vec3.atCenterOf(ownedWater))<9)return false;
+        if(ownReady&&reachableSource(ownedWater))pickupWater=ownedWater;
+        if(pickupWater!=null&&!reachableSource(pickupWater))pickupWater=null;
+        // A bucket can collect any visible native source, including waterlogging.
+        // Do not remove the rescue source before the actual landing has settled.
+        if(pickupWater==null&&chef.tickCount>=nextWaterSearch&&(chef.onGround()||floorClose())){
+            nextWaterSearch=chef.tickCount+10;double nearest=Double.POSITIVE_INFINITY;
+            BlockPos center=chef.blockPosition();
+            for(BlockPos p:BlockPos.betweenClosed(center.offset(-4,-2,-4),center.offset(4,3,4))){
+                if(p.equals(ownedWater)&&!ownReady||!reachableSource(p))continue;
+                double distance=Vec3.atCenterOf(p).distanceToSqr(chef.getEyePosition());
+                if(distance<nearest){nearest=distance;pickupWater=p.immutable();}
+            }
+        }
+        if(pickupWater==null)return false;
+        BlockPos source=pickupWater;Vec3 aim=Vec3.atCenterOf(source);
+        BlockState state=level.getBlockState(source);
+        if(!(state.getBlock() instanceof BucketPickup pickup)){pickupWater=null;return false;}
         chef.halt();chef.setSprinting(false);
-        if(!chef.equip(bucket)||!chef.aimAction(aim))return true;
+        // Evaluate both independently so the camera can turn during hand dwell.
+        boolean equipped=chef.equip(bucket),aimed=chef.aimAction(aim);
+        if(!equipped||!aimed)return true;
         chef.acted(aim);
         ItemStack[] recovered={ItemStack.EMPTY};
         chef.service.gameItems().indirectKills().trapChanges(level,
                 chef.service.gameItems().indirectKills().coldCause(chef.owner,false),
-                ()->recovered[0]=pickup.pickupBlock(chef,level,ownedWater,state));
+                ()->recovered[0]=pickup.pickupBlock(chef,level,source,state));
+        pickupWater=null;
         if(!recovered[0].is(Items.WATER_BUCKET))return false;
         bucket=recovered[0];chef.setItemSlot(EquipmentSlot.MAINHAND,bucket);
         pickup.getPickupSound().ifPresent(sound->level.playSound(null,chef.blockPosition(),sound,SoundSource.BLOCKS,1,1));
-        level.gameEvent(chef,GameEvent.FLUID_PICKUP,ownedWater);
+        level.gameEvent(chef,GameEvent.FLUID_PICKUP,source);
         chef.swing(InteractionHand.MAIN_HAND,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
-        ownedWater=null;ownedWaterState=null;touchedWater=false;return true;
+        if(source.equals(ownedWater)){ownedWater=null;ownedWaterState=null;touchedWater=false;}
+        return true;
+    }
+    private boolean reachableSource(BlockPos source){
+        if(!loaded(source)||!level.getFluidState(source).is(FluidTags.WATER)||!level.getFluidState(source).isSource()
+                ||!(level.getBlockState(source).getBlock() instanceof BucketPickup))return false;
+        Vec3 aim=Vec3.atCenterOf(source);
+        if(chef.getEyePosition().distanceToSqr(aim)>20.25)return false;
+        BlockHitResult hit=clip(chef.getEyePosition(),aim,ClipContext.Fluid.SOURCE_ONLY);
+        return hit!=null&&hit.getBlockPos().equals(source);
     }
 
     private boolean floorClose(){
@@ -454,7 +480,7 @@ final class LbcChefSurvival {
         Runnable prepare(){
             var currentBucket=savedBucket.resolve(chef);var currentFood=savedFood.resolve(chef);
             return ()->{bucket=currentBucket;food=currentFood;lastPosition=position;foodLevel=nutrition;saturation=foodSaturation;exhaustion=spent;
-                waterAge=waterTicks;settledWaterTicks=settled;waterCooldown=cooldown;ownedWater=water;ownedWaterState=waterState;touchedWater=touched;
+                pickupWater=null;nextWaterSearch=0;waterAge=waterTicks;settledWaterTicks=settled;waterCooldown=cooldown;ownedWater=water;ownedWaterState=waterState;touchedWater=touched;
                 eating=consuming;eatingCount=count;eatingNutrition=meal;eatingSaturation=mealSaturation;
                 descentLanding=null;descentLip=null;descentAirborne=false;descentStarted=0;nextDescentSearch=chef.tickCount;};
         }

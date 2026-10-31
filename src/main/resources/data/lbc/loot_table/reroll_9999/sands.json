@@ -1,134 +1,134 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:packed_mud"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mud_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mud_brick_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mud_brick_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mud_brick_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:sandstone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:sandstone_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:sandstone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:sandstone_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:chiseled_sandstone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:smooth_sandstone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:smooth_sandstone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:smooth_sandstone_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cut_sandstone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cut_sandstone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:red_sandstone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:red_sandstone_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:red_sandstone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:red_sandstone_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:chiseled_red_sandstone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:smooth_red_sandstone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:smooth_red_sandstone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:smooth_red_sandstone_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cut_red_sandstone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cut_red_sandstone_slab"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/packed_mud",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/mud_bricks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mud_brick_stairs__f7d690dd5803",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mud_brick_slab__22cbcd6ada0b/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mud_brick_wall__aac576fe08b4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/sandstone",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sandstone_stairs__96783a669a58",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sandstone_slab__040719ffa252/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sandstone_wall__52b6782be251",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chiseled_sandstone__94c2a4532ae8",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_sandstone__b6d40658f38c",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_sandstone_slab__6e134fbf7fd3/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_sandstone_stairs__083711e7e515",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cut_sandstone__dda7d9462e6c",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cut_sandstone_slab__b9189d36c862/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/red_sandstone",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_sandstone_stairs__958ec772fbfa",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_sandstone_slab__21c1a5d008d3/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_sandstone_wall__9df905b457bd",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chiseled_red_sandstone__d345b447eda5",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_red_sandstone__81888e577230",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_red_sandstone_slab__d9a2ced4a0f4/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_red_sandstone_stairs__05a81e0cdcf4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cut_red_sandstone__f57d19620648",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cut_red_sandstone_slab__3ff0ddb7ce1b/variant_4f53cda18c2b",
+          "weight": 1
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -1,0 +1,31 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:tnt",
+          "modifier": [
+            {
+              "modifiers": [
+                {
+                  "id": "minecraft:adsfasfsdf",
+                  "attribute": "minecraft:spawn_reinforcements",
+                  "amount": {
+                    "min": 12,
+                    "max": 21,
+                    "type": "minecraft:uniform"
+                  },
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

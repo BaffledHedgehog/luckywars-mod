@@ -1,0 +1,60 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:anvilcast_old"
+              }
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "anvil_rain.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "anvil_rain.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "anvil_rain.lore.3",
+                  "color": "white",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "anvil_rain",
+                  "color": "dark_gray",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{spell:1,raycastspell:1,anvils_old:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

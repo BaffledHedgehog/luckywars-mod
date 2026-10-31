@@ -1,42 +1,41 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__213ddfc47337",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:key",
+                "minecraft:max_damage": 1,
+                "damage": 0,
+                "minecraft:enchantments": {
+                  "minecraft:fortune": 64
+                },
+                "tool": {
+                  "damage_per_block": 100,
+                  "default_mining_speed": 2,
+                  "rules": []
+                },
+                "max_stack_size": 1
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:key",
-                                "minecraft:max_damage": 1,
-                                "damage":0,
-                                "minecraft:enchantments": {
-                                        "minecraft:fortune": 64
-                                    
-                                },
-                                "tool": {
-                                    "damage_per_block": 100,
-                                    "default_mining_speed": 2,
-                                    "rules": []
-                                },
-                                "max_stack_size": 1
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "key",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
+                  "translate": "key",
+                  "italic": false
                 }
-            ]
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

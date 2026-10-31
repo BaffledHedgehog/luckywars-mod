@@ -13,1779 +13,248 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:deepslate_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 3
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "unreal_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_brick_slab__01a65382d8e2/variant_4e9adb98d471"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:deepslate_tile_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 10,
-                  "minecraft:knockback": 3
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "unreal_heavy_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_tile_slab__1b32d184e8c7/variant_c804e107961b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:polished_deepslate_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_deepslate_slab__33c46195a108/variant_1b216cef94d6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:cobbled_deepslate_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 5,
-                  "minecraft:knockback": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cobbled_deepslate_slab__a2a5d5532639/variant_de2798aec0de"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:waxed_oxidized_cut_copper_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:enchantments": {
-                  "minecraft:smite": 255
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "god_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/waxed_oxidized_cut_copper_slab__fe950d66bd31/variant_12dd5140d2ce"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:waxed_weathered_cut_copper_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:enchantments": {
-                  "minecraft:smite": 40
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "not_decaying_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/waxed_weathered_cut_copper_slab__f3b304c252dd/variant_244559424614"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:waxed_exposed_cut_copper_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:enchantments": {
-                  "minecraft:smite": 30
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "not_decaying_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/waxed_exposed_cut_copper_slab__78c8ae58c959/variant_610860f3b17c"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:waxed_cut_copper_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:enchantments": {
-                  "minecraft:smite": 25
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "not_decaying_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/waxed_cut_copper_slab__5055b13aedb7/variant_9c6812e6917a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:oxidized_cut_copper_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:enchantments": {
-                  "minecraft:smite": 20
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "decaying_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oxidized_cut_copper_slab__00ece1fe1077/variant_5e3b247102bf"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:weathered_cut_copper_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:enchantments": {
-                  "minecraft:smite": 10
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "decaying_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/weathered_cut_copper_slab__7aa34e858f02/variant_7c6b47112a97"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:exposed_cut_copper_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:smite": 5
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "decaying_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/exposed_cut_copper_slab__d88cb6abcc96/variant_c5abd15544cc"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:cut_copper_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:smite": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "decaying_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cut_copper_slab__c828d159f59c/variant_39a8c15a194b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:oak_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "just_a_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/oak_slab__eb2c381cad85/variant_2057ad7561bb"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:birch_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "just_a_white_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/birch_slab__3818332e1e90/variant_f4256dcafec2"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_slab__1f6aeb869621/variant_5c7dc254b4b7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:acacia_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "just_a_red_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/acacia_slab__12ef0c706243/variant_e5e076d5d6b3"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/brick_slab__03aa39b7143e/variant_1b216cef94d6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:jungle_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "just_a_jungle_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/jungle_slab__b8daa6c8a090/variant_638d6fed7687"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:purpur_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "just_a_ender_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purpur_slab__fc387fa16e17/variant_74c02cbdacb1"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:quartz_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 5
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/quartz_slab__4091ef58eb88/variant_72a20187a47c"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:spruce_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "just_a_brown_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/spruce_slab__0ecd1f246549/variant_a16799abefbc"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:warped_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "just_a_blue_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/warped_slab__93af367435e7/variant_fcbb68eb7b2c"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:crimson_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:fire_aspect": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "fire_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crimson_slab__9c0c74e639c2/variant_fb6de32fb9de"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:diorite_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 4,
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diorite_slab__4c4414634582/variant_84dbf4579f9f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:granite_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 4,
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/granite_slab__e2c82af27a6d/variant_84dbf4579f9f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:andesite_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 4,
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/andesite_slab__4d379b0bd5b9/variant_84dbf4579f9f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:dark_oak_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "just_a_black_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dark_oak_slab__1a5e758f4b98/variant_20daf473cb62"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:sandstone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "not_so_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/sandstone_slab__c9b083eb5af2/variant_33682ab917b4"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:blackstone_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_black_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/blackstone_slab__5a49a4eb333f/variant_8a12bb9008cc"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:prismarine_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 10
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/prismarine_slab__f5f319429702/variant_7f82852054e6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:cobblestone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 2,
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cobblestone_slab__b1f8e82ffb27/variant_835298331b6a"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:smooth_stone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_stone_slab__5a9448c978ca/variant_5c7dc254b4b7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stone_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_brick_slab__b36e9c9080f2/variant_1b216cef94d6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:cut_sandstone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cut_sandstone_slab__3ddcecb901c4/variant_1b216cef94d6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:nether_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/nether_brick_slab__ef07e2fee826/variant_1b216cef94d6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:petrified_oak_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 3
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "unreal_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/petrified_oak_slab__9f40977787e6/variant_617fa462c4a5"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:red_sandstone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1,
-                  "minecraft:fire_aspect": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_fire_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_sandstone_slab__4254d153c238/variant_b9f97aea0e5b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:smooth_quartz_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_quartz_slab__de399f478355/variant_5c7dc254b4b7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:dark_prismarine_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 5,
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dark_prismarine_slab__d1f842d727f1/variant_b48b3ba83d9f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:end_stone_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/end_stone_brick_slab__c06fd5e69958/variant_5c7dc254b4b7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:polished_diorite_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_diorite_slab__3a8a122c1e9e/variant_1b216cef94d6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:polished_granite_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_granite_slab__605de4d53137/variant_1b216cef94d6"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:red_nether_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 2,
-                  "minecraft:fire_aspect": 2
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "very_heavy_fire_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_nether_brick_slab__81a4dbec781f/variant_cb98c0c2f859"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:smooth_sandstone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_sandstone_slab__148ba1f70986/variant_5c7dc254b4b7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:cut_red_sandstone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cut_red_sandstone_slab__159e9b029936/variant_5c7dc254b4b7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:mossy_cobblestone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:bane_of_arthropods": 10
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "ancient_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_cobblestone_slab__0260d62f8235/variant_b1afa46e60ec"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:mossy_stone_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:bane_of_arthropods": 10,
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_ancient_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_stone_brick_slab__7832de23cbe9/variant_67f9792251d1"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:polished_andesite_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_andesite_slab__de5f34753f7f/variant_5c7dc254b4b7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:prismarine_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:fire_protection": 10,
-                  "minecraft:feather_falling": 1,
-                  "minecraft:blast_protection": 1,
-                  "minecraft:projectile_protection": 1,
-                  "minecraft:respiration": 1,
-                  "minecraft:aqua_affinity": 1,
-                  "minecraft:thorns": 1,
-                  "minecraft:depth_strider": 1,
-                  "minecraft:frost_walker": 1,
-                  "minecraft:sharpness": 1,
-                  "minecraft:smite": 1,
-                  "minecraft:bane_of_arthropods": 10,
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "absurd_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/prismarine_brick_slab__fda67cffe799/variant_d1d9faba70ca"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:polished_blackstone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_black_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_blackstone_slab__d31a120eb819/variant_dfd721187608"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:smooth_red_sandstone_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:infinity": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "emotional_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_red_sandstone_slab__195a5e2d0506/variant_45fa6b13303d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:polished_blackstone_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:sharpness": 6,
-                  "minecraft:fire_aspect": 3
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "not_a_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_blackstone_brick_slab__35e4063d6ea8/variant_f13a7dc298c9"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:mangrove_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:bane_of_arthropods": 5,
-                  "minecraft:smite": 5
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "boloto_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mangrove_slab__060abd2d1bb7"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bamboo_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_u"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "modifiers": [
-                {
-                  "attribute": "minecraft:attack_damage",
-                  "amount": {
-                    "type": "minecraft:mul",
-                    "inputs": [
-                      {
-                        "type": "minecraft:from_int",
-                        "input": {
-                          "type": "minecraft:score",
-                          "target": {
-                            "type": "minecraft:fixed",
-                            "name": "#random_out"
-                          },
-                          "score": "lbc.math"
-                        }
-                      },
-                      0.1
-                    ]
-                  },
-                  "operation": "add_value",
-                  "id": "minecraft:base_attack_damage",
-                  "slot": "mainhand"
-                }
-              ],
-              "type": "minecraft:set_attributes"
-            },
-            {
-              "name": [
-                {
-                  "translate": "bambo_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bamboo_slab__44c65260ef5d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:bamboo_mosaic_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_u"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "modifiers": [
-                {
-                  "attribute": "minecraft:attack_damage",
-                  "amount": {
-                    "type": "minecraft:from_int",
-                    "input": {
-                      "type": "minecraft:score",
-                      "target": {
-                        "type": "minecraft:fixed",
-                        "name": "#random_out"
-                      },
-                      "score": "lbc.math"
-                    }
-                  },
-                  "operation": "add_value",
-                  "id": "minecraft:base_attack_damage",
-                  "slot": "mainhand"
-                }
-              ],
-              "type": "minecraft:set_attributes"
-            },
-            {
-              "name": [
-                {
-                  "translate": "bambo_megaslab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bamboo_mosaic_slab__6fe26c70f20e"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:cherry_slab",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_u"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "modifiers": [
-                {
-                  "attribute": "minecraft:luck",
-                  "amount": {
-                    "type": "minecraft:mul",
-                    "inputs": [
-                      {
-                        "type": "minecraft:from_int",
-                        "input": {
-                          "type": "minecraft:score",
-                          "target": {
-                            "type": "minecraft:fixed",
-                            "name": "#random_out"
-                          },
-                          "score": "lbc.math"
-                        }
-                      },
-                      0.1
-                    ]
-                  },
-                  "operation": "add_value",
-                  "id": "minecraft:8e5f6fc5-b540-49a3-baf2-e6fbe1bad063",
-                  "slot": "mainhand"
-                }
-              ],
-              "type": "minecraft:set_attributes"
-            },
-            {
-              "name": [
-                {
-                  "translate": "anime_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cherry_slab__2878c1e9434d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:tuff_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tuff_slab__9e97756ec62b"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:tuff_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 3,
-                  "minecraft:sharpness": 15
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "heavy_sharp_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tuff_brick_slab__2802433d8937"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:polished_tuff_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 4
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "unreal_heavy_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_tuff_slab__fd17d5f7e593"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:pale_oak_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 1
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "cum_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pale_oak_slab__d63f07ca7e3f"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:resin_brick_slab",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:enchantments": {
-                  "minecraft:knockback": 5
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "gandon_slab",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/resin_brick_slab__3c6a343c76f4"
         }
       ]
     }

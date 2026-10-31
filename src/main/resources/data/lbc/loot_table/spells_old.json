@@ -8,519 +8,54 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:tnts"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "tnt_fountain_spell.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "tnt_fountain_spell.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "tnt_fountain_spell.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "tnt_fountain_spell",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,tnts_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/tnts__21b99d7319be",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:lightning_old"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "lightning_spell.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "lightning_spell.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "lightning_spell.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "lightning_spell.lore.4",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "lightning_spell",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,lightning_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/lightning_old__2efe9b1a4d64",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:creepers_old"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "creeper_spell.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "creeper_spell.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "creeper_spell.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "creeper_spell",
-                  "color": "green",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,creeperz_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/creepers_old__6c9a3af3f3c2",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:breaker"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "destroyer_spell.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "destroyer_spell.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "destroyer_spell",
-                  "color": "gray",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,trap2_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/breaker__293a09f4fecf",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:skeletons"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "skeleton_army.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "skeleton_army.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "skeleton_army.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "skeleton_army",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,skeletons_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/skeletons__e92b8784dcae",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:wither"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wither_spell.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "wither_spell.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "wither_spell.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "wither_spell",
-                  "color": "dark_gray",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,wither1_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/wither__3eef82ef6d21",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:healarea"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "heal_spell.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "heal_spell.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "heal_spell.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "heal_spell",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,heal1_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/healarea__e7523c921d5f",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:firestorm"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "firestorm_spell.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "firestorm_spell.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "firestorm_spell.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "firestorm_spell",
-                  "color": "gold",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,arrows1_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/firestorm__391ee2213bdf",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:lava"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "lava_balls.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "lava_balls.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "lava_balls",
-                  "color": "red",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,lava1_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/lava__451a222788a6",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:anvilcast_old"
-              }
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "anvil_rain.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "anvil_rain.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "anvil_rain.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "anvil_rain",
-                  "color": "dark_gray",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{spell:1,raycastspell:1,anvils_old:1}"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/anvilcast_old__fbd7975ff2c2",
+          "weight": 1
         }
       ]
     }

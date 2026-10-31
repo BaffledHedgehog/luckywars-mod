@@ -1,0 +1,70 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:shield",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:enchantments": {
+                  "minecraft:unbreaking": 10
+                },
+                "minecraft:base_color": "blue",
+                "minecraft:banner_patterns": [
+                  {
+                    "color": "light_gray",
+                    "pattern": "curly_border"
+                  },
+                  {
+                    "color": "red",
+                    "pattern": "flower"
+                  },
+                  {
+                    "color": "blue",
+                    "pattern": "half_horizontal"
+                  },
+                  {
+                    "color": "yellow",
+                    "pattern": "triangle_top"
+                  },
+                  {
+                    "color": "blue",
+                    "pattern": "stripe_top"
+                  },
+                  {
+                    "color": "light_gray",
+                    "pattern": "border"
+                  }
+                ],
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:base_color",
+                    "minecraft:banner_patterns"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "hylian_shield",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

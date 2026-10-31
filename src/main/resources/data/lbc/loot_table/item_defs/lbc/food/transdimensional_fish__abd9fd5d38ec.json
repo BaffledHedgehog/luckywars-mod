@@ -1,0 +1,70 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_apple",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:food/transdimensional_fish",
+                "minecraft:enchantments": {
+                  "minecraft:knockback": 255,
+                  "minecraft:bane_of_arthropods": 255,
+                  "minecraft:smite": 255
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 16,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -1.5,
+                    "operation": "add_value"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "transdimensional_fish",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transdimensional_fish:1,imba:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

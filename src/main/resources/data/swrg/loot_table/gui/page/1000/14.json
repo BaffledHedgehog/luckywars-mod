@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:dragon_breath"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/dragon_breath__8e8fbd719e02"
         }
       ],
       "modifier": [

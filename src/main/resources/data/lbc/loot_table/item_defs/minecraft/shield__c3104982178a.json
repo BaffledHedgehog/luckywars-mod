@@ -1,0 +1,46 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:shield",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:unbreakable": {},
+                "minecraft:custom_name": {
+                  "italic": false,
+                  "translate": "bob_shield"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:knockback_resistance",
+                    "slot": "offhand",
+                    "id": "bob_shieldl",
+                    "amount": 1,
+                    "operation": "add_multiplied_base"
+                  },
+                  {
+                    "type": "minecraft:knockback_resistance",
+                    "slot": "mainhand",
+                    "id": "bob_shield",
+                    "amount": 1,
+                    "operation": "add_multiplied_base"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

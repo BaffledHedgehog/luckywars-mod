@@ -1,21 +1,21 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:oxeye_daisy"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:azure_bluet"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:white_tulip"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/oxeye_daisy"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/azure_bluet__629625e2a5ea"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/white_tulip__0e5c9dbafd9e"
         }
-    ]
+      ]
+    }
+  ]
 }

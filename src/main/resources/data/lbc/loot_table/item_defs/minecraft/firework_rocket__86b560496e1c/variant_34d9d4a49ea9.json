@@ -1,0 +1,34 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:firework_rocket",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:fireworks": {
+                  "explosions": [
+                    {
+                      "shape": "large_ball",
+                      "colors": [
+                        16772608
+                      ],
+                      "fade_colors": [
+                        16748800
+                      ]
+                    }
+                  ],
+                  "flight_duration": 9
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

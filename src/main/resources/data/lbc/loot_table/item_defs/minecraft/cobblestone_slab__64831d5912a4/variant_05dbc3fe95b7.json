@@ -1,0 +1,40 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cobblestone_slab",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": {
+                "min": 1,
+                "max": 99,
+                "type": "minecraft:uniform"
+              }
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:food": {
+                  "nutrition": 1,
+                  "saturation": 1,
+                  "can_always_eat": true
+                },
+                "minecraft:consumable": {
+                  "consume_seconds": 0.2,
+                  "animation": "eat",
+                  "sound": "block.stone.break",
+                  "has_consume_particles": true
+                },
+                "minecraft:max_stack_size": 99
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

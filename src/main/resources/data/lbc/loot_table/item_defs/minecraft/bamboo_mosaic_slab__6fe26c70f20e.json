@@ -1,0 +1,56 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bamboo_mosaic_slab",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "modifiers": [
+                {
+                  "attribute": "minecraft:attack_damage",
+                  "amount": {
+                    "type": "minecraft:from_int",
+                    "input": {
+                      "type": "minecraft:score",
+                      "target": {
+                        "type": "minecraft:fixed",
+                        "name": "#random_out"
+                      },
+                      "score": "lbc.math"
+                    }
+                  },
+                  "operation": "add_value",
+                  "id": "minecraft:base_attack_damage",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            },
+            {
+              "name": [
+                {
+                  "translate": "bambo_megaslab",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

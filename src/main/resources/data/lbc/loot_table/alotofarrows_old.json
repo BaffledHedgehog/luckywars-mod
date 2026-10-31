@@ -8,19 +8,9 @@
       },
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:arrow",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "min": 1,
-                "max": 64,
-                "type": "minecraft:uniform"
-              }
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/arrow__8cd9f1e9f1ea/variant_09a07d56708a",
+          "weight": 1
         }
       ]
     }

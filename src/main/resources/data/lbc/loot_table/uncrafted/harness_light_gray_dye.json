@@ -1,22 +1,22 @@
+{
+  "pools": [
     {
-        "pools": [
-            {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:white_harness"
-                    }
-                ]
-            },
-            {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:light_gray_dye"
-                    }
-                ]
-            }
-        ]
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/white_harness__5cf5a091fc7a"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/light_gray_dye__7106a2033a0a"
+        }
+      ]
     }
+  ]
+}

@@ -1,434 +1,434 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_pressure_plate"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_button"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cobblestone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cobblestone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cobblestone_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cobblestone_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mossy_cobblestone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mossy_cobblestone_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mossy_cobblestone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mossy_cobblestone_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:smooth_stone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:smooth_stone_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_brick_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_brick_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:stone_brick_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cracked_stone_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:chiseled_stone_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mossy_stone_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mossy_stone_brick_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mossy_stone_brick_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:mossy_stone_brick_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:andesite"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:andesite_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:andesite_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:andesite_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_andesite"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_andesite_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_andesite_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:diorite"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:diorite_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:diorite_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:diorite_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_diorite"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_diorite_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_diorite_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:granite"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:granite_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:granite_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:granite_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_granite"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_granite_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_granite_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_deepslate"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_deepslate_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_deepslate_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_deepslate_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cobbled_deepslate"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cobbled_deepslate_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cobbled_deepslate_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cobbled_deepslate_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:chiseled_deepslate"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate_brick_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate_brick_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate_brick_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cracked_deepslate_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate_tiles"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate_tile_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate_tile_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:deepslate_tile_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:cracked_deepslate_tiles"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:reinforced_deepslate"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tuff"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tuff_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tuff_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tuff_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:chiseled_tuff"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_tuff"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_tuff_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_tuff_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:polished_tuff_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tuff_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tuff_brick_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tuff_brick_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:tuff_brick_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:chiseled_tuff_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:brick_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:brick_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:brick_wall"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/stone",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_slab__e262a9e194b6/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_stairs__c0391a7870db",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_pressure_plate__6ea2ba0ce851/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_button__2b129390e6b2/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/cobblestone",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cobblestone_slab__64831d5912a4/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cobblestone_stairs__8cbc87a4b324",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cobblestone_wall__1fb4482e1df7",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/mossy_cobblestone",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_cobblestone_stairs__a81c284d9de7",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_cobblestone_slab__6976bd62a6bf/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_cobblestone_wall__a6da4eb4211e",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_stone__d4d0bfe5f4ba",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/smooth_stone_slab__bc72ca4e22bb/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/stone_bricks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_brick_slab__0b771d744c76/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_brick_stairs__83fc1ba081a7",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stone_brick_wall__c10ffde8de66",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cracked_stone_bricks__be5b62fe4e25",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chiseled_stone_bricks__9c1ff28c9617",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_stone_bricks__98da416925f8",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_stone_brick_slab__50ae292ba489/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_stone_brick_stairs__9ac2649dc0f2",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/mossy_stone_brick_wall__0b02a0bb3f07",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/andesite",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/andesite_slab__a9e2e3ef6944/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/andesite_stairs__6c2436e9461f",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/andesite_wall__d4d23bf74329",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_andesite__6d988d58d5d1",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_andesite_stairs__0a8ed74d525d",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_andesite_slab__dce011d175ce/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/diorite",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diorite_slab__f201bb63fee2/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diorite_stairs__1824cb9346c3",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diorite_wall__8d68521705f9",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_diorite__8a90d5cc03b3",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_diorite_stairs__84d9ca8faa5f",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_diorite_slab__149860b2b416/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/granite",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/granite_slab__8f7a93d6a96c/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/granite_stairs__1b8baf509f44",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/granite_wall__e2f49be5859f",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_granite__d7e66e779d0e",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_granite_stairs__9d352951fa5f",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_granite_slab__a4893fa57148/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate__81a4efa2eba2",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/polished_deepslate",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_deepslate_stairs__0ea173343699",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_deepslate_slab__3b0a223c1c89/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_deepslate_wall__cf1eb136218f",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/cobbled_deepslate",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cobbled_deepslate_stairs__01f510d9d5d2",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cobbled_deepslate_slab__9bc917ee37e9/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cobbled_deepslate_wall__9afd057863f5",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chiseled_deepslate__9e98afe34cbb",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/deepslate_bricks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_brick_stairs__8249b8ef9912",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_brick_wall__71f059f745cb",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_brick_slab__45a119c09351/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cracked_deepslate_bricks__27d3e4c1be71",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_tiles__129da2634f6f",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_tile_slab__52111458a760/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_tile_stairs__09b14cff009e",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/deepslate_tile_wall__9aeb384db273",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cracked_deepslate_tiles__8fc7c552d32e",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/reinforced_deepslate__60739428847d",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/tuff",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tuff_stairs__0f951c8a856d",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tuff_slab__8075e7d47371/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tuff_wall__1dcb79b0a682",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chiseled_tuff__117ebb7e5dbf",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/polished_tuff",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_tuff_stairs__38f83366a372",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_tuff_slab__a87f80a647da/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/polished_tuff_wall__e70099716b05",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/tuff_bricks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tuff_brick_slab__d42d48a4533b/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tuff_brick_wall__0cac9425e41c",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tuff_brick_stairs__06ca165f7771",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chiseled_tuff_bricks__0f91f58a5d4d",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/bricks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/brick_slab__3217865f0fca",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/brick_stairs__16256c2e1703",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/brick_wall__f028cc9d7b03",
+          "weight": 1
         }
-    ]
+      ]
+    }
+  ]
 }

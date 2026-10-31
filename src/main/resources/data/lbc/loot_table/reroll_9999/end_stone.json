@@ -1,54 +1,54 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:end_stone"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:end_stone_bricks"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:end_stone_brick_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:end_stone_brick_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:end_stone_brick_wall"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:purpur_block"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:purpur_stairs"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:purpur_slab"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:purpur_pillar"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/end_stone",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/end_stone_bricks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/end_stone_brick_slab__5e50b914b75e/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/end_stone_brick_stairs__47aec5d2b163",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/end_stone_brick_wall__26f9239da78b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purpur_block__97f9d16368c6",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purpur_stairs__329d0d340ea3",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purpur_slab__23361ee9b63e/variant_4f53cda18c2b",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purpur_pillar__d53191ba2bbd",
+          "weight": 1
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /** Native-client presentation only. The authoritative signed effect remains untouched. */
 public final class SignedEffectVisuals {
     private static final String PREFIX = "signed_effects/";
+    private static final Identifier NEXUS = Identifier.parse("lbc:nexus");
     private record Presentation(long invisibility, boolean spectator, List<ParticleOptions> particles) { }
     private static final ConcurrentHashMap<Integer, Presentation> PRESENTATIONS = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Long> REVEAL = new ConcurrentHashMap<>();
@@ -104,7 +105,7 @@ public final class SignedEffectVisuals {
         if (entity instanceof ServerPlayer player) REVEAL.remove(player.getUUID());
     }
     public static boolean owned(Identifier id) {
-        return id.getNamespace().equals("lbc") && id.getPath().startsWith(PREFIX);
+        return id.equals(NEXUS) || id.getNamespace().equals("lbc") && id.getPath().startsWith(PREFIX);
     }
     /** Visual response saturates at display limits; signed values never saturate server-side. */
     public static int visualTier(long level) {
@@ -112,24 +113,30 @@ public final class SignedEffectVisuals {
         return (int) Math.min(16, magnitude);
     }
     public static List<Identifier> desired(LivingEntity entity) {
+        return desired(entity, entity.level().dimension().identifier().toString());
+    }
+    static List<Identifier> desired(LivingEntity entity, String dimension) {
         var result = new ArrayList<Identifier>();
+        if (dimension.equals("minecraft:nexus")) result.add(NEXUS);
         long blindness = level(entity, MobEffects.BLINDNESS);
         long darkness = level(entity, MobEffects.DARKNESS);
         long night = level(entity, MobEffects.NIGHT_VISION);
         long nausea = level(entity, MobEffects.NAUSEA);
         if (blindness > 1) add(result, "black", Math.min(3, blindness));
+        if (blindness < 0) add(result, "fried", visualTier(blindness));
         if (darkness > 1) add(result, "black", Math.min(3, darkness));
         if (darkness < 0) add(result, "bright", visualTier(darkness));
         if (night < 0) add(result, "invert", visualTier(night));
         if (night > 1) add(result, "contrast", visualTier(night));
-        if (nausea > 0) add(result, "nausea", visualTier(nausea));
+        if (nausea > 1) add(result, "nausea", visualTier(nausea));
         return List.copyOf(result);
     }
     private static void add(List<Identifier> result, String kind, long tier) {
         var id = Identifier.parse("lbc:" + PREFIX + kind + "_" + tier);
         if (!result.contains(id)) result.add(id);
     }
-    private static void synchronize(ServerPlayer player) {
+    /** Reconcile the current body/world after dimension, respawn or rollback publication. */
+    public static void synchronize(ServerPlayer player) {
         var wanted = desired(player);
         for (var id : List.copyOf(player.getPostEffects()))
             if (owned(id) && !wanted.contains(id)) player.removePostEffect(id);

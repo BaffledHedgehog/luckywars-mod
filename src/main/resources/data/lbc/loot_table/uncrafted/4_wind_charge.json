@@ -1,13 +1,13 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 4,
+      "entries": [
         {
-            "rolls": 4,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:wind_charge"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:wind_charge"
         }
-    ]
+      ]
+    }
+  ]
 }

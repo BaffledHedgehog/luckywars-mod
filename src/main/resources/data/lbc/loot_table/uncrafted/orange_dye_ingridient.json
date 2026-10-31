@@ -1,21 +1,21 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:open_eyeblossom"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:orange_tulip"
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:torchflower"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/open_eyeblossom__d66b5700980e"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/orange_tulip"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/torchflower__bccfdcae1a75"
         }
-    ]
+      ]
+    }
+  ]
 }

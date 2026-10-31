@@ -1,0 +1,55 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:snowball",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 8
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:teleporter"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "teleporter",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "teleporter.lore.1",
+                  "color": "light_purple",
+                  "italic": false
+                },
+                {
+                  "translate": "teleporter.lore.2",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{teleport1:1,gadget:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

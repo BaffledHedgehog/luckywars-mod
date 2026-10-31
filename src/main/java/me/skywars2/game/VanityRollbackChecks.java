@@ -32,6 +32,8 @@ public final class VanityRollbackChecks {
         Vec3 holePoint;
         int constructionSteps,formRemaining,curseRemaining;
         ServerPlayer gamma,carpet;
+        final String gammaName;
+        int expectedGammaLives;
         ElementalGrimoireChecks.Recording gammaWire;
         BlockPos block;
         Vec3 spot;
@@ -39,6 +41,10 @@ public final class VanityRollbackChecks {
         boolean closed;
         Fixture(GameController game){
             this.game=game;require(!game.vanity().hasSnapshot()&&!game.vanity().busy(),"exclusive save point");
+            // A neighboring suite may own TestGamma for the entire batch. Keep its body and
+            // connection untouched while this fixture deliberately logs its own holder out.
+            gammaName=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"))==null?"TestGamma":"TestVanityGamma";
+            require(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(gammaName))==null,"exclusive owned offline holder name");
             originalCore=new MatchCoreCheckpoint(game);
             originalPlayers=game.server().getPlayerList().getPlayers().stream().map(p->new MatchPlayerCheckpoint(game,p)).toList();
             base=new ChefChecks.Fixture(game);alphaConnection=base.owner.connection;betaConnection=base.other.connection;
@@ -67,8 +73,9 @@ public final class VanityRollbackChecks {
                 game.items().armorSets().techno().flight().tick(carpet);
                 require(game.items().armorSets().techno().flight().flying(carpet),"actual source MK2 flight begins before capture");
             }catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
-            gamma=GameChecks.createBot(game,"TestGamma");
-            game.server().getCommands().performPrefixedCommand(game.server().createCommandSourceStack(),"gamemode survival TestGamma");
+            gamma=GameChecks.createBot(game,gammaName);
+            expectedGammaLives=Math.max(1,game.lives(gamma.getUUID()));
+            game.server().getCommands().performPrefixedCommand(game.server().createCommandSourceStack(),"gamemode survival "+gammaName);
             base.move(gamma,base.at.add(8,3,0));gammaWire=wire(gamma);gamma.setNoGravity(true);
 
             base.owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(LbcVoidArcanum.ITEM));
@@ -108,10 +115,10 @@ public final class VanityRollbackChecks {
         boolean step(){
             require(++ticks<500,"bounded coordinator phases: "+game.vanity().status());
             ack(base.owner,alphaWire);ack(base.other,betaWire);
-            var live=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));
+            var live=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(gammaName));
             if(live!=null){gamma=live;ack(gamma,gammaWire);}
             if(phase==-1){
-                require(game.allowDamage(gamma)&&!game.isObserver(gamma)&&game.lives(gamma.getUUID())==1,"native operator enrollment completed before authority admission");
+                require(game.allowDamage(gamma)&&!game.isObserver(gamma)&&game.lives(gamma.getUUID())==expectedGammaLives&&expectedGammaLives>0,"native operator enrollment completed before authority admission");
                 base.move(gamma,base.at.add(8,3,0));gamma.setNoGravity(true);gamma.getInventory().setItem(4,new ItemStack(Items.EMERALD,13));
                 try{var clock=GameController.class.getDeclaredField("gameTicks");clock.setAccessible(true);clock.setInt(game,12000);}catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
                 for(int n=0;n<100;n++)game.items().addPlayerCounters(gamma);
@@ -148,7 +155,7 @@ public final class VanityRollbackChecks {
                 if(!game.vanity().status().startsWith("IDLE"))return false;
                 formRemaining=game.items().polymorph().remaining(morphed);
                 if(offlineRecaptures<2){require(game.vanity().requestCapture(base.owner,false),"second replacement point with a genuinely absent player");offlineRecaptures++;return false;}
-                gamma=GameChecks.createBot(game,"TestGamma");gammaWire=wire(gamma);phase=3;return false;
+                gamma=GameChecks.createBot(game,gammaName);gammaWire=wire(gamma);phase=3;return false;
             }
             require(!game.server().tickRateManager().isFrozen(),"native tick rate restored");
             require(base.owner.level().getBlockState(block).is(Blocks.DIAMOND_BLOCK),"saved terrain returns through actual coordinator");
@@ -167,7 +174,7 @@ public final class VanityRollbackChecks {
                 gamma.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Vanity offline fixture")));
                 mutate();phase=2;return false;
             }
-            require(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"))==null,"offline player is never simulated by a fake body");
+            require(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(gammaName))==null,"offline player is never simulated by a fake body");
             require(game.vanity().requestCapture(base.owner,false),"replacement point retains offline player data and resident owners");offlineRecaptures=1;return false;
         }
         @Override public void close(){
@@ -175,7 +182,7 @@ public final class VanityRollbackChecks {
             game.server().tickRateManager().setFrozen(true);
             try{
                 if(carpet!=null&&!carpet.isRemoved())carpet.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Vanity Carpet fixture cleanup")));
-                var live=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));
+                var live=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(gammaName));
                 if(live!=null)live.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Vanity fixture cleanup")));
                 game.items().polymorph().stop();game.items().voidArcanum().forget(base.owner);
                 base.owner.entityTags().remove("time_stopped");base.owner.entityTags().remove("vanity_fixture");base.owner.connection=alphaConnection;base.other.connection=betaConnection;

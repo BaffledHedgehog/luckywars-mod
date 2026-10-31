@@ -4,620 +4,88 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__a75a308a0862",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_netherite",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{lightning:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__834aed1be4ca",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_library",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{library:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__3bbfedf8385c",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_apple_pigs",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{applepig:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__be7ce2dc8340",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_end_city",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{end_city:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__2709caf34d05",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_village",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{village:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__1407dcfcb45f",
           "weight": 10,
-          "quality": -5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_bonus",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{bonus_chest:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__9d78ca0294a4",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_bastion",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{bastion:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__3329c3b9367e",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_treasure",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{treasure:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__ad99220807b8",
           "weight": 10,
-          "quality": -5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_bee",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{bees:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__028bb2d432e2",
           "weight": 10,
-          "quality": 8,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_lbc_room",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{lbh:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 8
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__756953f850ea",
           "weight": 10,
-          "quality": 9,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_lbc_spawner",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{luckyspawner:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 9
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__f17990d6b5ee",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_portals",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{portall:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__bb8dd401135a",
           "weight": 10,
-          "quality": 8,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_op_anvil",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{opanvil:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 8
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__310ad925e834",
           "weight": 10,
-          "quality": 9,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_sethome",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{sethome:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 9
         },
         {
           "type": "minecraft:loot_table",
@@ -650,180 +118,28 @@
           }
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__4f93a9455e8b",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_q",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_greed_curse",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{greedcurse:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__6497132399c9",
           "weight": 10,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_b",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_pizanski",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{pizanski:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__0895941091b4",
           "weight": 30,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_q",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_academy",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{magic_academy:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__77de94f9f93e",
           "weight": 1,
           "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_q",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_grimoire_dungeon",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{grimoire_dungeon:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ],
           "condition": {
             "value": {
               "type": "minecraft:score",
@@ -838,48 +154,10 @@
           }
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/drop_not_trap__77de94f9f93e",
           "weight": 10,
           "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_q",
-                "minecraft:item_model": "lbc:drop_not_trap"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "drop_grimoire_dungeon",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "trap_desc",
-                  "italic": false,
-                  "color": "white"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{grimoire_dungeon:1,drop:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ],
           "condition": {
             "term": {
               "value": {

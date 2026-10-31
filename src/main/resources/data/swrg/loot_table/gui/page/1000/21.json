@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:redstone_block"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/redstone_block__113946bba2c1/variant_4f53cda18c2b"
         }
       ],
       "modifier": {

@@ -4,156 +4,20 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "text": "",
-                "color": "#4E5C24",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:suffix,reward:26}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:runes_legendary"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.d",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/stick__39e535bd5a2d"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "translate": "drop_request",
-                "color": "red",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:drop,drop:1}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:lucky_block"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.d",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/drop_request__e1714a3ac7ef"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "translate": "drop_request",
-                "color": "red",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:drop,drop:2}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:lucky_block"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.d",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/drop_request__044025033a92"
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:stick",
-          "modifier": [
-            {
-              "name": {
-                "translate": "drop_request",
-                "color": "red",
-                "italic": false
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{rewardtype:drop,drop:3}",
-              "type": "minecraft:set_custom_data"
-            },
-            {
-              "components": {
-                "item_model": "lbc:lucky_block"
-              },
-              "type": "set_components"
-            },
-            {
-              "entity": "this",
-              "lore": [
-                {
-                  "nbt": "rare.d",
-                  "storage": "swrg:lang",
-                  "interpret": true,
-                  "source": "storage",
-                  "type": "nbt"
-                }
-              ],
-              "mode": "replace_all",
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/drop_request__a52eec7d1e23"
         }
       ]
     }

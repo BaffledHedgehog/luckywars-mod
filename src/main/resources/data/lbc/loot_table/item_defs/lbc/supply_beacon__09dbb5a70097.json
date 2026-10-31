@@ -1,0 +1,74 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:panda_spawn_egg",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_q",
+                "minecraft:custom_name": {
+                  "color": "yellow",
+                  "italic": false,
+                  "translate": "supply_beacon"
+                },
+                "minecraft:entity_data": {
+                  "Tags": [
+                    "supply_drop",
+                    "new",
+                    "rc_1sec"
+                  ],
+                  "transformation": {
+                    "translation": [
+                      0,
+                      0.5,
+                      0
+                    ],
+                    "scale": [
+                      1.0,
+                      1.0,
+                      1.0
+                    ],
+                    "left_rotation": [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ],
+                    "right_rotation": [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  },
+                  "Rotation": [
+                    0.0,
+                    0.0
+                  ],
+                  "id": "minecraft:item_display",
+                  "item": {
+                    "id": "minecraft:stick",
+                    "count": 1,
+                    "components": {
+                      "minecraft:item_model": "lbc:supply_beacon"
+                    }
+                  }
+                },
+                "minecraft:item_model": "lbc:supply_beacon"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{supply_beacon:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:chainmail_chestplate",
+          "modifier": [
+            {
+              "enchantments": {
+                "minecraft:protection": {
+                  "min": 1,
+                  "max": 2,
+                  "type": "minecraft:uniform"
+                }
+              },
+              "type": "minecraft:set_enchantments",
+              "condition": {
+                "chance": 0.6,
+                "type": "minecraft:random_chance"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

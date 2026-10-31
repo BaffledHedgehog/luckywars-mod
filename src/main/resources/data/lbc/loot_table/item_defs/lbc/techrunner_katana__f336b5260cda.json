@@ -1,0 +1,80 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:techrunner_katana",
+                "minecraft:custom_name": {
+                  "italic": false,
+                  "translate": "techrunner_katana"
+                },
+                "minecraft:lore": [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua",
+                    "extra": [
+                      {
+                        "translate": "sword"
+                      }
+                    ]
+                  },
+                  {
+                    "translate": "techrunner_katana_lore_1",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "techrunner_katana_lore_2",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "techrunner_katana_lore_3",
+                    "italic": false,
+                    "color": "white"
+                  }
+                ],
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 7,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:movement_speed",
+                    "slot": "mainhand",
+                    "id": "tecghas1hishdoiaj2w",
+                    "amount": 0.05,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -2.4,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{techrunner_katana:1,magicwand:1,sword:1,transformable:1,swordwithability:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

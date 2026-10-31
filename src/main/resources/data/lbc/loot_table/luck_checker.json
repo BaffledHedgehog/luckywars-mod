@@ -1,29 +1,29 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:uncrafted/stone",
+          "functions": [
+            {
+              "function": "minecraft:set_lore",
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:stone",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "score": {
-                                        "name": "blaze_soul_mana_use",
-                                        "objective": "lbc.math"
-                                    },
-                                    "type": "score"
-                                }
-                            ]
-                        }
-                    ]
+                  "score": {
+                    "name": "blaze_soul_mana_use",
+                    "objective": "lbc.math"
+                  },
+                  "type": "score"
                 }
-            ]
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

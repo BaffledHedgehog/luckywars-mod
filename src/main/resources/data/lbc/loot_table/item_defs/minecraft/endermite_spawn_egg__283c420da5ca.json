@@ -1,0 +1,47 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:endermite_spawn_egg",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:entity_data": {
+                  "id": "minecraft:ender_dragon",
+                  "CustomNameVisible": false,
+                  "Health": 15,
+                  "DragonPhase": 1,
+                  "CustomName": "Эндер Дракон",
+                  "attributes": [
+                    {
+                      "id": "minecraft:max_health",
+                      "base": 15
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "text": "Яйцо призыва Эндер Дракона",
+                  "italic": false,
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

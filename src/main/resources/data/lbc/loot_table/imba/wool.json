@@ -4,756 +4,84 @@
       "rolls": 64,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.black_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:black_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,black:1,projegadget:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/black_wool__4898c4b96d84",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.blue_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:blue_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,blue:1,projegadget:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/blue_wool__2f69975e54fb",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.brown_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:brown_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,brown:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/brown_wool__b312558e87df",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.cyan_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:cyan_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,cyan:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cyan_wool__d444874dfbc9",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.gray_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:gray_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,gray:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/gray_wool__525ad041fe91",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.green_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:green_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,green:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/green_wool__6837829ec4e6",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.light_blue_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:light_blue_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,light_blue:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/light_blue_wool__2ed8106a9a81",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.light_gray_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:light_gray_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,light_gray:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/light_gray_wool__a607ec8f7b68",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.lime_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:lime_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,lime:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/lime_wool__2639d7aef821",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.magenta_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:magenta_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,magenta:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/magenta_wool__d1ff0658727e",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.orange_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:orange_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,orange:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/orange_wool__d118bf645c65",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.pink_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:pink_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,pink:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pink_wool__0fff039b00a5",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.purple_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:purple_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,purple:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/purple_wool__ca3dfb15d6dd",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.red_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:red_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,red:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/red_wool__6c9af4cd123f",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.white_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:white_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,white:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/white_wool__1377810d0ecb",
+          "weight": 1
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:snowball",
-          "weight": 1,
-          "modifier": [
-            {
-              "name": [
-                {
-                  "italic": false,
-                  "translate": "block.minecraft.yellow_wool"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "minecraft:yellow_wool"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "wool.lore",
-                  "italic": false,
-                  "color": "white"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{wool:1,projegadget:1,imba:1,yellow:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/yellow_wool__51a5d679e394",
+          "weight": 1
         }
       ]
     }

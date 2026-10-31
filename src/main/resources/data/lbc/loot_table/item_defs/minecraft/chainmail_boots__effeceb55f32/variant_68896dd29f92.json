@@ -1,0 +1,30 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:chainmail_boots",
+          "modifier": [
+            {
+              "enchantments": {
+                "minecraft:protection": {
+                  "min": 1,
+                  "max": 2,
+                  "type": "minecraft:uniform"
+                }
+              },
+              "add": true,
+              "type": "minecraft:set_enchantments",
+              "condition": {
+                "chance": 0.7,
+                "type": "minecraft:random_chance"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

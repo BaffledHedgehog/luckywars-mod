@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:name_tag"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/name_tag__920c419a8d52"
         }
       ],
       "modifier": {

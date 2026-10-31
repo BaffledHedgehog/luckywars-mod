@@ -1,0 +1,189 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:zombie_spawn_egg",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:entity_data": {
+                  "id": "minecraft:zombie",
+                  "Tags": [
+                    "bob"
+                  ],
+                  "DeathLootTable": "lbc:bob",
+                  "CustomNameVisible": true,
+                  "PersistenceRequired": true,
+                  "IsBaby": true,
+                  "CustomName": {
+                    "translate": "bob",
+                    "color": "green",
+                    "italic": false
+                  },
+                  "equipment": {
+                    "mainhand": {
+                      "id": "minecraft:netherite_sword",
+                      "count": 1,
+                      "components": {
+                        "custom_name": {
+                          "translate": "bob_sword",
+                          "italic": false
+                        },
+                        "minecraft:enchantments": {
+                          "minecraft:sharpness": 5,
+                          "minecraft:smite": 5,
+                          "minecraft:bane_of_arthropods": 5,
+                          "minecraft:knockback": 2,
+                          "minecraft:fire_aspect": 2,
+                          "minecraft:looting": 3,
+                          "minecraft:sweeping_edge": 3,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1
+                        }
+                      }
+                    },
+                    "offhand": {
+                      "id": "minecraft:enchanted_golden_apple",
+                      "count": 6,
+                      "components": {
+                        "custom_name": {
+                          "translate": "bob_apple",
+                          "italic": false
+                        }
+                      }
+                    },
+                    "feet": {
+                      "id": "minecraft:netherite_boots",
+                      "components": {
+                        "custom_name": {
+                          "translate": "bob_boots",
+                          "italic": false
+                        },
+                        "minecraft:enchantments": {
+                          "minecraft:protection": 4,
+                          "minecraft:fire_protection": 4,
+                          "minecraft:feather_falling": 4,
+                          "minecraft:blast_protection": 4,
+                          "minecraft:projectile_protection": 4,
+                          "minecraft:thorns": 3,
+                          "minecraft:depth_strider": 3,
+                          "minecraft:frost_walker": 2,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1,
+                          "minecraft:soul_speed": 3
+                        }
+                      }
+                    },
+                    "legs": {
+                      "id": "minecraft:netherite_leggings",
+                      "count": 1,
+                      "components": {
+                        "custom_name": {
+                          "translate": "bob_leggings",
+                          "italic": false
+                        },
+                        "minecraft:enchantments": {
+                          "minecraft:protection": 4,
+                          "minecraft:fire_protection": 4,
+                          "minecraft:blast_protection": 4,
+                          "minecraft:projectile_protection": 4,
+                          "minecraft:thorns": 3,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1
+                        }
+                      }
+                    },
+                    "chest": {
+                      "id": "minecraft:netherite_chestplate",
+                      "count": 1,
+                      "components": {
+                        "custom_name": {
+                          "translate": "bob_chestplate",
+                          "italic": false
+                        },
+                        "minecraft:enchantments": {
+                          "minecraft:protection": 4,
+                          "minecraft:fire_protection": 4,
+                          "minecraft:blast_protection": 4,
+                          "minecraft:projectile_protection": 4,
+                          "minecraft:thorns": 3,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1
+                        }
+                      }
+                    },
+                    "head": {
+                      "id": "minecraft:netherite_helmet",
+                      "count": 1,
+                      "components": {
+                        "custom_name": {
+                          "translate": "bob_helmet",
+                          "italic": false
+                        },
+                        "minecraft:enchantments": {
+                          "minecraft:protection": 4,
+                          "minecraft:fire_protection": 4,
+                          "minecraft:blast_protection": 4,
+                          "minecraft:projectile_protection": 4,
+                          "minecraft:respiration": 3,
+                          "minecraft:aqua_affinity": 1,
+                          "minecraft:thorns": 3,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1
+                        }
+                      }
+                    }
+                  },
+                  "attributes": [
+                    {
+                      "id": "minecraft:follow_range",
+                      "base": 400
+                    }
+                  ],
+                  "drop_chances": {
+                    "mainhand": 0.0,
+                    "offhand": 0.0,
+                    "head": 0.0,
+                    "chest": 0.0,
+                    "legs": 0.0,
+                    "feet": 0.0
+                  }
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "bob_spawn_egg",
+                  "color": "red",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

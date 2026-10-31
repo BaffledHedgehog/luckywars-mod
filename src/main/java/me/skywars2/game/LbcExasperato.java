@@ -563,7 +563,7 @@ public final class LbcExasperato {
     }
     private void nuclearBurst(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit,boolean exoperso) {
         String epoch=game.items().epoch();
-        game.items().nuclearVisuals().show(owner.level(),origin,12,exoperso);
+        game.items().nuclearVisuals().show(owner.level(),origin,12,exoperso,exoperso?200:400);
         String[] sounds={"minecraft:entity.dragon_fireball.explode","minecraft:entity.generic.explode",
                 "minecraft:item.firecharge.use","minecraft:entity.firework_rocket.large_blast","minecraft:entity.firework_rocket.large_blast_far"};
         for(var sound:sounds) LbcOverload.sound(owner,origin,sound,100,0,0);

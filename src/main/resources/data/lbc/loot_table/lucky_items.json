@@ -4,157 +4,64 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chorus_fruit__46f0432e5c73/variant_bfa45c8f1d0d",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:chorus_fruit",
-          "modifier": {
-            "count": 16,
-            "type": "minecraft:set_count"
-          }
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/iron_block__c56b9d7aac2a/variant_26790b75dbec",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:iron_block",
-          "modifier": {
-            "count": 32,
-            "type": "minecraft:set_count"
-          }
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/bedrock__8f32b86e01c0/variant_33f1b149ef57",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:bedrock",
-          "modifier": {
-            "count": 10,
-            "type": "minecraft:set_count"
-          }
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/cooked_beef__4678d86a8d10/variant_26790b75dbec",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:cooked_beef",
-          "modifier": {
-            "count": 32,
-            "type": "minecraft:set_count"
-          }
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/diamond_block__10cb37c5c80f/variant_c67e75927f3d",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:diamond_block",
-          "modifier": {
-            "count": 1,
-            "type": "minecraft:set_count"
-          }
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/coarse_dirt__872748bc84e7/variant_448734fd39df",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:coarse_dirt",
-          "modifier": {
-            "count": 64,
-            "type": "minecraft:set_count"
-          }
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tnt__594fd20a82a7/variant_26790b75dbec",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:tnt",
-          "modifier": {
-            "count": 32,
-            "type": "minecraft:set_count"
-          }
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ancient_debris__0f4ae238b0fe/variant_29df3de3fe64",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:ancient_debris",
-          "modifier": {
-            "count": 4,
-            "type": "minecraft:set_count"
-          }
+          "quality": 0
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ghast_spawn_egg__65149a7d0886/variant_8ce7a82f8eb5",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:ghast_spawn_egg",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:entity_data": {
-                  "id": "minecraft:ghast",
-                  "ExplosionPower": 15,
-                  "Motion": [
-                    0,
-                    2,
-                    0
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "super_ghast",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/fusedtnt__619b2b8fcc6a/variant_d7ea7ef4c11c",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "count": 8,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:entity_data": {
-                  "id": "minecraft:tnt",
-                  "fuse": 40,
-                  "Motion": [
-                    0,
-                    0.3,
-                    0
-                  ]
-                },
-                "minecraft:item_model": "lbc:fusedtnt"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "fused_tnt",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "quality": 5
         },
         {
           "type": "minecraft:loot_table",
@@ -193,44 +100,10 @@
           "value": "lbc:wool"
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/flint_and_steel__176bd1edca1a/variant_8190d5485750",
           "weight": 10,
-          "quality": 0,
-          "name": "minecraft:flint_and_steel",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:enchantments": {
-                  "minecraft:fire_aspect": 20
-                },
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": -0.99,
-                    "operation": "add_value"
-                  }
-                ]
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "op_flint",
-                  "color": "gold",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "quality": 0
         },
         {
           "type": "minecraft:loot_table",
@@ -269,41 +142,10 @@
           "value": "lbc:spawnegg"
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/omegatnt__64cdf6ba87b8",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:omegatnt",
-                "minecraft:entity_data": {
-                  "id": "minecraft:marker",
-                  "Tags": [
-                    "compressedtnt",
-                    "marker_2t",
-                    "mecha"
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "omega_tnt",
-                  "color": "red",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "quality": 5
         },
         {
           "type": "minecraft:loot_table",
@@ -333,107 +175,16 @@
           }
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/bridgebuilder__3d4a19af6969/variant_9404c3e45e55",
           "weight": 10,
-          "quality": 7,
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:bridgebuilder"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "bridge_builder",
-                  "color": "green",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "bridge_builder.lore.1",
-                  "color": "green",
-                  "italic": false
-                },
-                {
-                  "translate": "bridge_builder.lore.2",
-                  "color": "green",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{most:1,projegadget:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 7
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/teleporter__4e10da09a998/variant_4b05860f60db",
           "weight": 10,
-          "quality": 7,
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "count": 8,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:teleporter"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "teleporter",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "teleporter.lore.1",
-                  "color": "light_purple",
-                  "italic": false
-                },
-                {
-                  "translate": "teleporter.lore.2",
-                  "color": "light_purple",
-                  "italic": false
-                },
-                {
-                  "translate": "teleporter.lore.3",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{teleport1:1,gadget:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 7
         },
         {
           "type": "minecraft:loot_table",
@@ -535,36 +286,10 @@
           }
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/smokegrenade__7fd5ea14ef21",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:smokegrenade"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "smoke_grenade",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "tag": "{special:1,smoke:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
           "type": "minecraft:loot_table",
@@ -579,69 +304,10 @@
           "value": "lbc:island_teleporter"
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pig_spawn_egg__b7142a644f9e",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:pig_spawn_egg",
-          "modifier": [
-            {
-              "count": 4,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:entity_data": {
-                  "id": "minecraft:pig",
-                  "CustomNameVisible": true,
-                  "Health": 50,
-                  "Tags": [
-                    "fakepig",
-                    "lucky_mob"
-                  ],
-                  "CustomName": {
-                    "text": "Lucky Pig",
-                    "color": "gold",
-                    "italic": false
-                  },
-                  "attributes": [
-                    {
-                      "id": "minecraft:max_health",
-                      "base": 50
-                    }
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "text": "Fake lucky pig",
-                  "color": "yellow",
-                  "italic": false,
-                  "type": "text"
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "fake_lucky_pig.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "fake_lucky_pig.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "quality": 5
         },
         {
           "type": "minecraft:loot_table",
@@ -692,48 +358,9 @@
           "value": "lbc:lucky_grenades"
         },
         {
-          "type": "minecraft:item",
-          "weight": 10,
-          "name": "minecraft:villager_spawn_egg",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_f",
-                "minecraft:entity_data": {
-                  "id": "minecraft:villager",
-                  "CustomNameVisible": true,
-                  "Tags": [
-                    "fake_player"
-                  ]
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "entity": "this",
-              "name": {
-                "selector": "@p[gamemode=!spectator]",
-                "italic": false,
-                "type": "selector"
-              },
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "fake_player.lore",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/villager_spawn_egg__b73a1e192ddc",
+          "weight": 10
         },
         {
           "type": "minecraft:loot_table",
@@ -1066,97 +693,16 @@
           }
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/recovery_compass__45a381eb1c82",
           "weight": 10,
-          "quality": 7,
-          "name": "minecraft:recovery_compass",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_q"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "death_compass",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "death_compass.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "death_compass.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{death_compass:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 7
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/konserva__38feb5476945",
           "weight": 10,
-          "quality": 7,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 16,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:konserva"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "konserva",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "konserva.lore.1",
-                  "color": "light_purple",
-                  "italic": false
-                },
-                {
-                  "translate": "konserva.lore.2",
-                  "color": "light_purple",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{konserva:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 7
         },
         {
           "type": "minecraft:loot_table",
@@ -1233,63 +779,10 @@
           "weight": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/ruchka__bf1f679a17b1",
           "weight": 10,
-          "quality": 7,
-          "name": "minecraft:snowball",
-          "modifier": [
-            {
-              "count": 4,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_c",
-                "minecraft:item_model": "lbc:ruchka"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "ruchka",
-                  "color": "#FF5C5C",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "ruchka.lore.1",
-                  "color": "light_purple",
-                  "italic": false
-                },
-                {
-                  "translate": "ruchka.lore.2",
-                  "color": "light_purple",
-                  "italic": false
-                },
-                {
-                  "translate": "ruchka.lore.3",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "ruchka.lore.4",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{ruchka:1,projegadget:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 7
         },
         {
           "type": "minecraft:loot_table",
@@ -1303,66 +796,10 @@
           "value": "lbc:rofls"
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/railroad__56741b6d7155",
           "weight": 10,
-          "quality": 5,
-          "name": "minecraft:panda_spawn_egg",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:railroad",
-                "minecraft:entity_data": {
-                  "id": "minecraft:marker",
-                  "Tags": [
-                    "slowraycast",
-                    "railroad",
-                    "other",
-                    "mecha"
-                  ],
-                  "data": {
-                    "railtime": 0
-                  }
-                }
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "railroad",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "entity": "this",
-              "lore": [
-                {
-                  "translate": "railroad.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "railroad.lore.2",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "railroad.lore.3",
-                  "color": "white",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_lore"
-            }
-          ]
+          "quality": 5
         },
         {
           "type": "minecraft:loot_table",

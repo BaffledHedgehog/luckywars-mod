@@ -1,0 +1,83 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_chestplate",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:enchantments": {
+                  "minecraft:blast_protection": 255
+                },
+                "minecraft:dyed_color": 16730112,
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "chest",
+                    "id": "gcnghmcghmghm",
+                    "amount": 3,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:knockback_resistance",
+                    "slot": "chest",
+                    "id": "hgmcghmhmbcv",
+                    "amount": 0,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "chest",
+                    "id": "gfcmghfhmgfhmcfhmcghf",
+                    "amount": 1,
+                    "operation": "add_value"
+                  }
+                ],
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:enchantments",
+                    "minecraft:dyed_color",
+                    "minecraft:attribute_modifiers"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "tnt_jacket",
+                  "color": "dark_red",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "tnt_jacket.lore",
+                  "color": "red",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{dynamite:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

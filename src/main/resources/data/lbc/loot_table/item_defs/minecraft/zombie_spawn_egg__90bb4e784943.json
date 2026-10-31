@@ -1,0 +1,112 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:zombie_spawn_egg",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_f",
+                "minecraft:entity_data": {
+                  "id": "minecraft:zombie",
+                  "Silent": true,
+                  "DeathLootTable": "lbc:muravei",
+                  "PersistenceRequired": true,
+                  "Health": 10,
+                  "IsBaby": true,
+                  "Tags": [
+                    "muravei",
+                    "lucky_mob"
+                  ],
+                  "CustomName": {
+                    "translate": "muravei"
+                  },
+                  "equipment": {
+                    "head": {
+                      "id": "minecraft:repeating_command_block",
+                      "count": 1,
+                      "components": {
+                        "minecraft:item_model": "lbc:muravei",
+                        "minecraft:enchantments": {
+                          "vanishing_curse": 1
+                        },
+                        "minecraft:enchantment_glint_override": false
+                      }
+                    }
+                  },
+                  "active_effects": [
+                    {
+                      "id": "minecraft:invisibility",
+                      "amplifier": 1,
+                      "duration": -1,
+                      "show_particles": false
+                    }
+                  ],
+                  "attributes": [
+                    {
+                      "id": "minecraft:max_health",
+                      "base": 10
+                    },
+                    {
+                      "id": "minecraft:follow_range",
+                      "base": 50
+                    },
+                    {
+                      "id": "minecraft:movement_speed",
+                      "base": 0.25
+                    },
+                    {
+                      "id": "minecraft:attack_damage",
+                      "base": 3
+                    },
+                    {
+                      "id": "minecraft:armor",
+                      "base": 5
+                    },
+                    {
+                      "id": "minecraft:armor_toughness",
+                      "base": 5
+                    },
+                    {
+                      "id": "minecraft:spawn_reinforcements",
+                      "base": 100
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "muravei_spawn_egg",
+                  "color": "red",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

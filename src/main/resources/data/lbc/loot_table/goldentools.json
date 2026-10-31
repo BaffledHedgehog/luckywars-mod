@@ -4,15 +4,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:golden_sword",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_sword__fb85df45ddee/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -20,15 +14,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:golden_axe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_axe__8d1ec070409f/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -36,15 +24,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:golden_pickaxe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_pickaxe__249771e3539f/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -52,15 +34,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:golden_hoe",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_hoe__012dd7ea150e/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     },
@@ -68,15 +44,9 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:golden_shovel",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/golden_shovel__ed50501353a4/variant_c67e75927f3d",
+          "weight": 1
         }
       ]
     }

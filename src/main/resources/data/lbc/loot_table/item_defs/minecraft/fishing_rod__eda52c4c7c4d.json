@@ -1,0 +1,55 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:fishing_rod",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:unbreakable": {},
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:enchantments": {
+                  "minecraft:luck_of_the_sea": 5,
+                  "minecraft:lure": 5
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:luck",
+                    "slot": "mainhand",
+                    "id": "aimbob_rod",
+                    "amount": 3,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:luck",
+                    "slot": "offhand",
+                    "id": "aimbob_rod1",
+                    "amount": 3,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "aimbob_rod",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

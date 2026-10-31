@@ -1,0 +1,31 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stone",
+          "modifier": [
+            {
+              "modifiers": [
+                {
+                  "attribute": "minecraft:spawn_reinforcements",
+                  "id": "minecraft:count",
+                  "amount": {
+                    "min": 16,
+                    "max": 33,
+                    "type": "minecraft:uniform"
+                  },
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

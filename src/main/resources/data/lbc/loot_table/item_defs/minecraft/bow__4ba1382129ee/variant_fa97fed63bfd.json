@@ -1,0 +1,37 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bow",
+          "modifier": [
+            {
+              "enchantments": {
+                "minecraft:flame": 1
+              },
+              "add": true,
+              "type": "minecraft:set_enchantments",
+              "condition": {
+                "chance": 0.05,
+                "type": "minecraft:random_chance"
+              }
+            },
+            {
+              "enchantments": {
+                "minecraft:power": 1
+              },
+              "add": true,
+              "type": "minecraft:set_enchantments",
+              "condition": {
+                "chance": 0.09,
+                "type": "minecraft:random_chance"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

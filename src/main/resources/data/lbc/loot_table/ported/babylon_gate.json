@@ -4,82 +4,10 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/babylongate__22e469f8e936",
           "weight": 10,
-          "quality": 10,
-          "name": "skywars2:babylon_gate",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:babylongate"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "gate_of_babylon",
-                  "color": "gold",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "entity": "this",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "arcanum",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                [
-                  {
-                    "score": {
-                      "name": "babylon_gate_mana_tick_sec",
-                      "objective": "lbc.math"
-                    },
-                    "italic": false,
-                    "color": "aqua",
-                    "type": "score"
-                  },
-                  {
-                    "translate": "mana_on_use",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                {
-                  "translate": "gate_of_babylon.lore.1",
-                  "italic": false,
-                  "color": "aqua"
-                },
-                {
-                  "translate": "gate_of_babylon.lore.2",
-                  "italic": false,
-                  "color": "aqua"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,arcanum:1,arcanum2t:1,gate_of_babylon:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         }
       ]
     }

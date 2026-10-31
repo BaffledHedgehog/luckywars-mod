@@ -1,45 +1,43 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/snowball__0a07907b8b8e",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:bomb_item",
+                "max_stack_size": 99,
+                "!max_damage": {},
+                "!damage": {}
+              }
+            },
+            {
+              "function": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:snowball",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_b",
-                                "minecraft:item_model": "lbc:bomb_item",
-                                "max_stack_size": 99,
-                                "!max_damage": {},
-                                "!damage": {}
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "bomb_item",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{gadget:1,bomb_item:1}"
-                        }
-                    ]
+                  "translate": "bomb_item",
+                  "color": "white",
+                  "italic": false
                 }
-                
-            
-            ]
+              ]
+            },
+            {
+              "function": "minecraft:set_custom_data",
+              "tag": "{gadget:1,bomb_item:1}"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

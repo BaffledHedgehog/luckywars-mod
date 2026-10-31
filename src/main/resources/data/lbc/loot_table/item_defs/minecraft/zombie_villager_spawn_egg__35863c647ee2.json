@@ -1,0 +1,53 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:zombie_villager_spawn_egg",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:entity_data": {
+                  "id": "minecraft:giant",
+                  "NoGravity": false,
+                  "Silent": false,
+                  "Invulnerable": false,
+                  "CustomNameVisible": false,
+                  "NoAI": false,
+                  "CustomName": "Гигант",
+                  "attributes": [
+                    {
+                      "id": "minecraft:attack_damage",
+                      "base": 10
+                    },
+                    {
+                      "id": "minecraft:attack_knockback",
+                      "base": 5
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "text": "Яйцо призыва Гиганта",
+                  "italic": false,
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

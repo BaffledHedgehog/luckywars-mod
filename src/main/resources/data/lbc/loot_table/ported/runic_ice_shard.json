@@ -4,70 +4,10 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/runic_ice_shard__27b9272e4023",
           "weight": 10,
-          "quality": 10,
-          "name": "skywars2:runic_ice_shard",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_q",
-                "minecraft:item_model": "lbc:runic_ice_shard"
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "runic_ice_shard",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            },
-            {
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "accessory",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                {
-                  "translate": "runic_ice_shard.lore.1",
-                  "italic": true,
-                  "color": "dark_gray"
-                },
-                {
-                  "translate": "runic_ice_shard.lore.2",
-                  "italic": true,
-                  "color": "dark_gray"
-                },
-                {
-                  "translate": "craft_with_neutralmage",
-                  "italic": false,
-                  "color": "yellow"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "tag": "{transformable:1,accessory:1,runic_ice_shard:1,craftusable:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         }
       ]
     }

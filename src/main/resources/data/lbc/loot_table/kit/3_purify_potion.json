@@ -19,14 +19,8 @@
       "rolls": 3,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:milk_bucket",
-          "modifier": {
-            "components": {
-              "minecraft:max_stack_size": 3
-            },
-            "type": "minecraft:set_components"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/milk_bucket__315c5d48d30d/variant_17363d4c4140"
         }
       ]
     },
@@ -34,34 +28,8 @@
       "rolls": 4,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:splash_potion",
-          "modifier": [
-            {
-              "components": {
-                "minecraft:potion_contents": {
-                  "custom_color": 16739179,
-                  "custom_effects": [
-                    {
-                      "id": "minecraft:instant_health",
-                      "amplifier": 5
-                    }
-                  ]
-                },
-                "minecraft:max_stack_size": 4
-              },
-              "type": "minecraft:set_components"
-            },
-            {
-              "name": [
-                {
-                  "translate": "item.minecraft.splash_potion.effect.healing",
-                  "italic": false
-                }
-              ],
-              "type": "minecraft:set_name"
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/splash_potion__511f33b87999/variant_52aec2395d87"
         }
       ]
     }

@@ -191,6 +191,7 @@
     "NeutralSkullMixin",
     "EvokerWandMixin",
     "SpecialFireballCloudMixin",
+    "DimensionPostEffectsMixin",
     "SpecialEggMixin",
     "SpecialEggMixin$Offspring",
     "DroneDropMixin$Cart",

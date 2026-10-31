@@ -4,19 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:paper",
-          "modifier": {
-            "entity": "this",
-            "name": {
-              "nbt": "page0.s26.Name",
-              "storage": "swrg:lang",
-              "interpret": true,
-              "source": "storage",
-              "type": "nbt"
-            },
-            "type": "minecraft:set_name"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/paper__60130d839b46"
         }
       ],
       "modifier": {

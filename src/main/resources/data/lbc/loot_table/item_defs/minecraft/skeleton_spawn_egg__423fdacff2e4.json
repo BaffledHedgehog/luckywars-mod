@@ -1,0 +1,195 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:skeleton_spawn_egg",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:entity_data": {
+                  "id": "minecraft:skeleton",
+                  "Tags": [
+                    "aimbob"
+                  ],
+                  "DeathLootTable": "lbc:aimbob",
+                  "PersistenceRequired": true,
+                  "active_effects": [
+                    {
+                      "id": "minecraft:instant_damage",
+                      "amplifier": 100,
+                      "duration": 20
+                    }
+                  ],
+                  "CustomName": {
+                    "translate": "aimbob",
+                    "color": "aqua",
+                    "italic": false
+                  },
+                  "equipment": {
+                    "mainhand": {
+                      "id": "minecraft:bow",
+                      "count": 1,
+                      "components": {
+                        "minecraft:enchantments": {
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1,
+                          "minecraft:power": 5,
+                          "minecraft:punch": 2,
+                          "minecraft:flame": 1,
+                          "minecraft:infinity": 1,
+                          "minecraft:mending": 1
+                        }
+                      }
+                    },
+                    "offhand": {
+                      "id": "minecraft:apple",
+                      "count": 6,
+                      "components": {
+                        "minecraft:item_model": "lbc:aimbobapple"
+                      }
+                    },
+                    "feet": {
+                      "id": "minecraft:iron_boots",
+                      "count": 1,
+                      "components": {
+                        "minecraft:enchantments": {
+                          "minecraft:protection": 4,
+                          "minecraft:fire_protection": 4,
+                          "minecraft:feather_falling": 4,
+                          "minecraft:blast_protection": 4,
+                          "minecraft:projectile_protection": 4,
+                          "minecraft:thorns": 3,
+                          "minecraft:depth_strider": 3,
+                          "minecraft:frost_walker": 2,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1,
+                          "minecraft:mending": 1,
+                          "minecraft:soul_speed": 3
+                        },
+                        "attribute_modifiers": [
+                          {
+                            "type": "minecraft:knockback_resistance",
+                            "id": "minecraft:knockback_resistance",
+                            "amount": 1000,
+                            "operation": "add_value",
+                            "slot": "feet"
+                          }
+                        ]
+                      }
+                    },
+                    "legs": {
+                      "id": "minecraft:iron_leggings",
+                      "count": 1,
+                      "components": {
+                        "minecraft:enchantments": {
+                          "minecraft:protection": 4,
+                          "minecraft:fire_protection": 4,
+                          "minecraft:blast_protection": 4,
+                          "minecraft:projectile_protection": 4,
+                          "minecraft:thorns": 3,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1,
+                          "minecraft:mending": 1
+                        },
+                        "attribute_modifiers": [
+                          {
+                            "type": "minecraft:movement_speed",
+                            "id": "minecraft:movement_speed",
+                            "amount": 0.5,
+                            "operation": "add_multiplied_total",
+                            "slot": "legs"
+                          }
+                        ]
+                      }
+                    },
+                    "chest": {
+                      "id": "minecraft:iron_chestplate",
+                      "count": 1,
+                      "components": {
+                        "minecraft:enchantments": {
+                          "minecraft:protection": 4,
+                          "minecraft:fire_protection": 4,
+                          "minecraft:blast_protection": 4,
+                          "minecraft:projectile_protection": 4,
+                          "minecraft:thorns": 3,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1,
+                          "minecraft:mending": 1
+                        },
+                        "attribute_modifiers": [
+                          {
+                            "type": "minecraft:max_health",
+                            "id": "minecraft:max_health",
+                            "amount": 40,
+                            "operation": "add_value",
+                            "slot": "chest"
+                          }
+                        ]
+                      }
+                    },
+                    "head": {
+                      "id": "minecraft:iron_helmet",
+                      "count": 1,
+                      "components": {
+                        "minecraft:enchantments": {
+                          "minecraft:protection": 4,
+                          "minecraft:fire_protection": 4,
+                          "minecraft:blast_protection": 4,
+                          "minecraft:projectile_protection": 4,
+                          "minecraft:respiration": 1,
+                          "minecraft:aqua_affinity": 3,
+                          "minecraft:thorns": 3,
+                          "minecraft:unbreaking": 3,
+                          "minecraft:vanishing_curse": 1,
+                          "minecraft:mending": 1
+                        }
+                      }
+                    }
+                  },
+                  "drop_chances": {
+                    "mainhand": 0.0,
+                    "offhand": 0.0,
+                    "head": 0.0,
+                    "chest": 0.0,
+                    "legs": 0.0,
+                    "feet": 0.0
+                  }
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "aimbob_spawn_egg",
+                  "color": "red",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

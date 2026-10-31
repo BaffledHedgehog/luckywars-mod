@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:totem_of_undying"
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/totem_of_undying__dd545eaea8f4"
         }
       ],
       "modifier": {

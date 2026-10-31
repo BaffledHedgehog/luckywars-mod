@@ -1,0 +1,60 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:prismarine_brick_slab",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:enchantments": {
+                  "minecraft:fire_protection": 100,
+                  "minecraft:feather_falling": 10,
+                  "minecraft:blast_protection": 10,
+                  "minecraft:projectile_protection": 10,
+                  "minecraft:respiration": 10,
+                  "minecraft:aqua_affinity": 10,
+                  "minecraft:thorns": 10,
+                  "minecraft:depth_strider": 10,
+                  "minecraft:frost_walker": 10,
+                  "minecraft:sharpness": 10,
+                  "minecraft:smite": 10,
+                  "minecraft:bane_of_arthropods": 100,
+                  "minecraft:knockback": 10
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "absurd_slab_imba",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

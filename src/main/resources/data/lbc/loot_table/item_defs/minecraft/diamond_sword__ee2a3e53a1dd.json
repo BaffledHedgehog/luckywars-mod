@@ -1,0 +1,105 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_apple",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "minecraft:diamond_sword",
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -2.8,
+                    "operation": "add_value"
+                  }
+                ],
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:attribute_modifiers"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "item.minecraft.diamond_sword",
+                  "color": "white",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "text": "",
+                  "type": "text"
+                },
+                {
+                  "translate": "item.modifiers.mainhand",
+                  "italic": false,
+                  "color": "gray"
+                },
+                [
+                  {
+                    "text": " ",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "translate": "attribute.name.attack_damage",
+                    "italic": false,
+                    "color": "dark_green"
+                  },
+                  {
+                    "text": ": 7",
+                    "italic": false,
+                    "color": "dark_green",
+                    "type": "text"
+                  }
+                ],
+                [
+                  {
+                    "text": " ",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "translate": "attribute.name.attack_speed",
+                    "italic": false,
+                    "color": "dark_green"
+                  },
+                  {
+                    "text": ": 1.6",
+                    "italic": false,
+                    "color": "dark_green",
+                    "type": "text"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{eat_strength:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

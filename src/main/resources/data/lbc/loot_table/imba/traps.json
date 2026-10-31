@@ -4,484 +4,148 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__2408e376e1dc",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{explode:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__28ff93375d5d",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{korrosion:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__aee0520c198b",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{creepers:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__3df3c1645688",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{yama:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__2af295e86b51",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{lookupanvil:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__90eb58e3930b",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{lookuplava:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__79534705f3ab",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{bob:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__f7a96e71b0df",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{skeleton:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__459089b0fbb3",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{vex:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__88c5acaea8c9",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{obsidiantrap:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__3d30001e3974",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{badspawner:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__4a00190434dd",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{droppertnt:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__546010a687c1",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{bullets:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__71e10bd0802b",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{skrimmer:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__d92379782011",
           "weight": 0,
-          "quality": 5,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{slab:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 5
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__3d6b4ab2a570",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{clone:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__73a5cce8a5c6",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{evilluckyblock:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__c22870c61db1",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{lookupfireball:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__9fc355d011a3",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{lookuppotions:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__71fb2e4fb5f9",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{zombietnt:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__c32a3c230c99",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{aimbob:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__cc27f0e0368d",
           "weight": 0,
-          "quality": -10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{sauvojen_tuntija:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": -10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__b1f857080050",
           "weight": 0,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{forest:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/repeating_command_block__d71ebcd8e7eb",
           "weight": 0,
-          "quality": 10,
-          "name": "minecraft:repeating_command_block",
-          "modifier": [
-            {
-              "count": 1,
-              "type": "minecraft:set_count"
-            },
-            {
-              "components": {},
-              "type": "minecraft:set_components"
-            },
-            {
-              "tag": "{ultraponos:1,drop:1,imba:1}",
-              "type": "minecraft:set_custom_data"
-            }
-          ]
+          "quality": 10
         }
       ]
     }

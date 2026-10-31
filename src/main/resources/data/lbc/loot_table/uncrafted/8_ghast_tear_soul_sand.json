@@ -1,22 +1,22 @@
+{
+  "pools": [
     {
-        "pools": [
-            {
-                "rolls": 8,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:ghast_tear"
-                    }
-                ]
-            },
-            {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:soul_sand"
-                    }
-                ]
-            }
-        ]
+      "rolls": 8,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/ghast_tear__52803cd115fe"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/soul_sand__d998a1f3d8b5"
+        }
+      ]
     }
+  ]
+}

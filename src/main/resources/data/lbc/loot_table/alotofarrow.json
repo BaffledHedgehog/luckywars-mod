@@ -4,17 +4,9 @@
       "rolls": 6,
       "entries": [
         {
-          "type": "minecraft:item",
-          "weight": 1,
-          "name": "minecraft:arrow",
-          "modifier": {
-            "count": {
-              "min": 32,
-              "max": 64,
-              "type": "minecraft:uniform"
-            },
-            "type": "minecraft:set_count"
-          }
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/arrow__8cd9f1e9f1ea/variant_10a6166adea7",
+          "weight": 1
         }
       ]
     }

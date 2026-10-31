@@ -1,0 +1,77 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:ghast_spawn_egg",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:entity_data": {
+                  "id": "minecraft:ghast",
+                  "DeathLootTable": "lbc:sauvojen_tuntija",
+                  "PersistenceRequired": true,
+                  "Health": 100024,
+                  "ExplosionPower": 3,
+                  "Tags": [
+                    "sauvojen_tuntija",
+                    "rcdenyalways"
+                  ],
+                  "CustomName": {
+                    "text": "Sauvojen Tuntija",
+                    "color": "blue",
+                    "bold": true,
+                    "italic": false
+                  },
+                  "attributes": [
+                    {
+                      "id": "minecraft:max_health",
+                      "base": 100024
+                    },
+                    {
+                      "id": "minecraft:follow_range",
+                      "base": 256
+                    },
+                    {
+                      "id": "minecraft:knockback_resistance",
+                      "base": 256
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "tuntija_spawn_egg",
+                  "color": "red",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "imba_version",
+                  "italic": false,
+                  "color": "dark_purple"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{imba:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
