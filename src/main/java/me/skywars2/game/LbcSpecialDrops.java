@@ -30,7 +30,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcMagicBean.recognized(stack) || LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
+        return LbcGrimoireDungeon.matches(stack) || LbcMagicBean.recognized(stack) || LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
     }
 
     public void loaded(Entity entity) {
@@ -145,6 +145,7 @@ public final class LbcSpecialDrops {
         boolean luckyRoom = LbcLuckyRoomDropItem.matches(token.getItem());
         boolean pisa = LbcPisaDropItem.matches(token.getItem());
         boolean antigravity = LbcAntigravityDropItem.matches(token.getItem());
+        boolean grimoireDungeon=LbcGrimoireDungeon.matches(token.getItem());
         boolean ultraponos = LbcUltraponosDropItem.matches(token.getItem());
         boolean transformator = LbcNpcDropItems.isTransformator(token.getItem());
         boolean stalin = LbcStalinDropItem.isTrigger(token.getItem());
@@ -153,7 +154,7 @@ public final class LbcSpecialDrops {
         boolean bees = LbcBeeDropItem.matches(token.getItem());
         boolean pigs = LbcLuckyPigDropItem.matches(token.getItem());
         boolean enzan = LbcLevitationDropItem.matches(token.getItem());
-        if (!magicBean && !infinity && !chaosActors && !sauvojenBoss && !chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !normalVex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants && !portal && !luckyRoom && !pisa && !antigravity && !ultraponos && !transformator && !stalin) return false;
+        if (!grimoireDungeon && !magicBean && !infinity && !chaosActors && !sauvojenBoss && !chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !normalVex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants && !portal && !luckyRoom && !pisa && !antigravity && !ultraponos && !transformator && !stalin) return false;
         if (chaosActors && !game.items().chaosTrapActors().ready(token)) return false;
         if (sauvojenBoss && !game.items().sauvojenBoss().ready(token)) return false;
         if (infinity && !game.items().infinity().ready(token)) return false;
@@ -183,6 +184,7 @@ public final class LbcSpecialDrops {
         if (luckyRoom && !game.items().luckyRoomDrops().ready(token)) return false;
         if (pisa && !game.items().pisaDrops().ready(token)) return false;
         if (antigravity && !game.items().antigravity().ready(token)) return false;
+        if(grimoireDungeon&&!game.items().grimoireDungeon().ready(token))return false;
         if (ultraponos && !game.items().ultraponos().ready(token)) return false;
         if (transformator && !game.items().transformator().ready(token)) return false;
         if (stalin && !game.items().stalin().ready(token)) return false;
@@ -280,6 +282,7 @@ public final class LbcSpecialDrops {
         for (var kind : new LbcAntDropItem.Kind[]{LbcAntDropItem.Kind.ANTS,LbcAntDropItem.Kind.ACID_BURST})
             if (LbcAntDropItem.matches(token.getItem(),kind)) game.items().antDrops().spawn(token,kind);
         if (antigravity) game.items().antigravity().spawn(token);
+        if(grimoireDungeon)game.items().grimoireDungeon().spawn(token);
         if (LbcFeedbackDropItem.matches(token.getItem(), LbcFeedbackDropItem.Kind.DEATH_LUST))
             game.items().feedbackDrops().spawn(token, LbcFeedbackDropItem.Kind.DEATH_LUST);
         if (transformator) game.items().transformator().spawn(token);

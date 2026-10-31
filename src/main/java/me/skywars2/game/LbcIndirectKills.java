@@ -442,7 +442,12 @@ public final class LbcIndirectKills {
         private final java.util.Set<LivingEntity> supportTargets=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
         private final Map<LivingEntity,Support> supportBefore=new java.util.IdentityHashMap<>();
         private final Map<LivingEntity,Fall> fallsBefore=new java.util.IdentityHashMap<>();
-        private TerrainProvenance(ServerLevel level,java.util.Collection<BlockPos> cells){this.level=level;this.cells=java.util.Set.copyOf(cells);}
+        private TerrainProvenance(ServerLevel level,java.util.Collection<BlockPos> cells){
+            this.level=level;
+            // Dense BlockPos grids collide heavily: SetN's linear probing makes copying quadratic.
+            // HashMap tree bins keep the same immutable membership without that capture-time stall.
+            this.cells=java.util.Collections.unmodifiableSet(new java.util.HashSet<>(cells));
+        }
     }
     TerrainProvenance captureTerrain(ServerLevel level,java.util.Collection<BlockPos> cells){
         var saved=new TerrainProvenance(level,cells);

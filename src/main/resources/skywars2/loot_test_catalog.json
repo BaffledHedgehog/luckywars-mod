@@ -7,6 +7,16 @@
     "lbc:ported/"
   ],
   "tables": [
+    "lbc:neko_set_chaos/boots",
+    "lbc:neko_set_chaos/leggings",
+    "lbc:neko_set_chaos/chestplate",
+    "lbc:neko_set_chaos/helmet",
+    "lbc:neko_set_chaos",
+    "lbc:neko_set_chaos_pre",
+    "lbc:neko_set_chaos_full",
+    "lbc:uniwand",
+    "lbc:grimoire_boss",
+    "lbc:random_grimoires",
     "lbc:set_multiplying",
     "lbc:set_randchanted",
     "lbc:neko_set_multiplying/helmet",

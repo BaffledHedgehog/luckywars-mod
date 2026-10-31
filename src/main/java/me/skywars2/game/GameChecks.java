@@ -664,6 +664,10 @@ public final class GameChecks {
                                 case "chaos-reward-items" -> { ChaosRewardItemChecks.run(game); return; }
                                 case "rasengan" -> { RasenganChecks.run(game); return; }
                                 case "imba-runes" -> { ImbaRuneChecks.run(game); return; }
+                                case "uniwand" -> { UniwandChecks.run(game); return; }
+                                case "grimoire-boss" -> { GrimoireBossChecks.run(game); return; }
+                                case "grimoire-rooms" -> { GrimoireRoomChecks.run(game); return; }
+                                case "grimoire-dungeon" -> { GrimoireDungeonChecks.run(game); return; }
                                 case "boba" -> { MapRotationChecks.run(game); return; }
                                 case "imba-runes-globals" -> { ImbaRuneChecks.startGlobals(game); return; }
                                 case "imba-runes-restart" -> { ImbaRuneChecks.startRestart(game); return; }
@@ -1414,7 +1418,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
-            MapRotationChecks.tick(game);            ImbaRuneChecks.tickGlobals(game);ImbaRuneChecks.tickRestart(game);
+            GrimoireBossChecks.tick(game);            UniwandChecks.tick(game);GrimoireDungeonChecks.tick(game);            MapRotationChecks.tick(game);            ImbaRuneChecks.tickGlobals(game);ImbaRuneChecks.tickRestart(game);
             RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
@@ -16125,8 +16129,11 @@ public final class GameChecks {
                 var suggestions=request.join().getList();
                 require(suggestions.stream().anyMatch(value->value.getText().equals("lbc:ported/phantom_knives")),
                         "Ready Phantom Knives appear in actual loot autocomplete");
-                require(suggestions.stream().noneMatch(value->value.getText().equals("lbc:neko_set_chaos")
-                                || value.getText().startsWith("lbc:gui/")),"Legacy aggregate and internal GUI tables stay out of autocomplete");
+                require(suggestions.stream().anyMatch(value->value.getText().equals("lbc:neko_set_chaos"))
+                                &&suggestions.stream().anyMatch(value->value.getText().equals("lbc:uniwand")),
+                        "Completed Chaos chain and native Uni Wand appear in actual loot autocomplete");
+                require(suggestions.stream().noneMatch(value->value.getText().startsWith("lbc:gui/")),
+                        "Internal GUI tables stay out of autocomplete");
                 require(suggestions.stream().anyMatch(value->value.getText().equals("lbc:neko_set_techno")),
                         "Ready Techno family appears in actual loot autocomplete");
                 require(suggestions.stream().allMatch(value->{

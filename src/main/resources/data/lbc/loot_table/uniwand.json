@@ -4,32 +4,30 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
-          "functions": [
+          "type": "minecraft:item",
+          "modifier": [
             {
-              "function": "minecraft:set_count",
-              "count": 1
+              "count": 1,
+              "type": "minecraft:set_count"
             },
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_q",
                 "minecraft:item_model": "lbc:uniwand"
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_name",
               "name": [
                 {
                   "translate": "uniwand",
                   "italic": false,
                   "color": "gold"
                 }
-              ]
+              ],
+              "type": "minecraft:set_name"
             },
             {
-              "function": "minecraft:set_lore",
               "mode": "replace_all",
               "entity": "this",
               "lore": [
@@ -73,13 +71,15 @@
                     "type": "text"
                   }
                 ]
-              ]
+              ],
+              "type": "minecraft:set_lore"
             },
             {
-              "function": "minecraft:set_custom_data",
-              "tag": "{transformable:1,staff:1,magicwand:1,uniwand:1,mana:0,spellcount:0,spellwithcooldown:1,value:0}"
+              "tag": "{transformable:1,staff:1,magicwand:1,uniwand:1,mana:0,spellcount:0,spellwithcooldown:1,value:0}",
+              "type": "minecraft:set_custom_data"
             }
-          ]
+          ],
+          "name": "skywars2:uniwand"
         }
       ]
     }

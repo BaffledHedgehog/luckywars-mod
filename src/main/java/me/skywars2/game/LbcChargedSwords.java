@@ -59,6 +59,7 @@ public final class LbcChargedSwords {
     public static final Item TRIPLE=registerItem("triple_golden_sword",900,"triple_golden_sword");
     public static final Item BLAZE=registerItem("blazefire_sword",600,"lbckit.18");
     public static final EntityType<ThrownSword> TYPE=registerType();
+    private static final String HOSTILE="skywars2.dungeon_sword",BONE="bone";
     private static final String TRIPLE_CHARGE="swordcharged8",BLAZE_CHARGE="swordcharged9",FIRING="firefarting";
     private static final TagKey<DamageType> ARROW_ONLY=TagKey.create(Registries.DAMAGE_TYPE,Identifier.parse("minecraft:arrow_only"));
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
@@ -154,7 +155,7 @@ public final class LbcChargedSwords {
         @Override public boolean isPushedByFluid(){return false;}
         ItemDisplayElement display(){return display;}
         private void attach(){
-            var item=new ItemStack(Items.CARROT_ON_A_STICK);item.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:triple_golden_sword"));
+            var item=new ItemStack(entityTags().contains(BONE)?Items.GOLDEN_SWORD:Items.CARROT_ON_A_STICK);item.set(DataComponents.ITEM_MODEL,Identifier.parse(entityTags().contains(BONE)?"lbc:tiny_bone":"lbc:triple_golden_sword"));
             display=new SwordDisplay(item);display.setItemDisplayContext(ItemDisplayContext.FIXED);
             display.setTransformation(new Matrix4f().setRow(0,new Vector4f(0,0,2.5f,0))
                     .setRow(1,new Vector4f(1.7678f,-1.7678f,0,0)).setRow(2,new Vector4f(1.7678f,1.7678f,0,0)).setRow(3,new Vector4f(0,0,0,3)));
@@ -176,9 +177,20 @@ public final class LbcChargedSwords {
         sword.entityTags().addAll(List.of("thromn_sword","slowraycast","player","magic"));game.items().markCurrentItemEpoch(sword);
         if(owner.level().addFreshEntity(sword)){swords.add(sword);if(sword.holder==null)sword.attach();}else sword.discard();
     }
+    /** Source evil Triple copies and tiny bones use the same native flight/contact/visual owner. */
+    public void spawnHostile(Entity source,Vec3 origin,float yaw,float pitch,boolean bone){
+        if(source==null||!(source.level() instanceof ServerLevel level)||!game.items().currentEpoch(source)
+                ||!level.hasChunkAt(BlockPos.containing(origin)))return;
+        var sword=new ThrownSword(TYPE,level);sword.setOwner(source);sword.setPos(origin);sword.setNoGravity(true);
+        sword.setYRot(yaw);sword.setXRot(pitch);sword.setDeltaMovement(Vec3.directionFromRotation(pitch,yaw).normalize().scale(1.2));
+        sword.entityTags().addAll(List.of(HOSTILE,"thromn_sword","slowraycast","player","evil"));
+        sword.entityTags().add(bone?BONE:"magic");game.items().markCurrentItemEpoch(sword);
+        game.items().spellSources().inherit(source,sword);
+        if(level.addFreshEntity(sword)){swords.add(sword);if(sword.holder==null)sword.attach();}else sword.discard();
+    }
     public void loaded(Entity entity){
         callbackDepth++;try{if(rewinding)return;if(entity instanceof ThrownSword sword){
-        if(!game.items().currentEpoch(sword)||sword.level()!=game.maps().level()||!(sword.getOwner() instanceof ServerPlayer owner)||!valid(owner)){remove(sword);return;}
+        if(!game.items().currentEpoch(sword)||sword.level()!=game.maps().level()||!sword.entityTags().contains(HOSTILE)&&(!(sword.getOwner() instanceof ServerPlayer owner)||!valid(owner))){remove(sword);return;}
         swords.add(sword);if(sword.holder==null)sword.attach();
     }
         }finally{callbackDepth--;}
@@ -205,8 +217,8 @@ public final class LbcChargedSwords {
         for(var model:List.copyOf(finishing))if(owner==null||model.owner==owner){model.holder.destroy();finishing.remove(model);}
     }
     private void breakSword(ThrownSword sword,ServerPlayer owner){
-        var at=sword.position();LbcOverload.sound(owner,at,"minecraft:entity.item.break",.5f,1,0);
-        owner.level().sendParticles(new ItemParticleOption(ParticleTypes.ITEM,Items.GOLDEN_SWORD),at.x,at.y,at.z,10,.2,.2,.2,0);
+        var at=sword.position();LbcOverload.sound((ServerLevel)sword.level(),at,"minecraft:entity.item.break",.5f,1,0,0);
+        ((ServerLevel)sword.level()).sendParticles(new ItemParticleOption(ParticleTypes.ITEM,sword.entityTags().contains(BONE)?Items.BONE:Items.GOLDEN_SWORD),at.x,at.y,at.z,10,.2,.2,.2,0);
         finishModel(sword,owner);remove(sword);
     }
     /** Platform adaptation: resident native block-shape DDA and swept entity boxes replace source point samples/stalls. */
@@ -218,33 +230,36 @@ public final class LbcChargedSwords {
         },world->null);
     }
     private void step(ThrownSword sword,ServerPlayer owner){
-        var level=owner.level();var from=sword.position();var v=sword.getDeltaMovement();var forward=v.normalize();
-        if(!level.hasChunkAt(BlockPos.containing(from))||game.items().magic().suppressedAt(level,from)){remove(sword);return;}
+        var level=(ServerLevel)sword.level();var from=sword.position();var v=sword.getDeltaMovement();var forward=v.normalize();
+        boolean hostile=sword.entityTags().contains(HOSTILE),magic=!sword.entityTags().contains(BONE);
+        if(!level.hasChunkAt(BlockPos.containing(from))||magic&&game.items().magic().suppressedAt(level,from)){remove(sword);return;}
         ++sword.age;
         if(sword.grounded){
             var ahead=BlockPos.containing(from.add(forward.scale(.5)));
             if(!level.hasChunkAt(ahead)){remove(sword);return;}
-            if(level.getBlockState(ahead).is(AIRS)||owner.getRandom().nextInt(100)==0||sword.age>=100)breakSword(sword,owner);
+            if(level.getBlockState(ahead).is(AIRS)||(hostile?level.getRandom():owner.getRandom()).nextInt(100)==0||sword.age>=100)breakSword(sword,owner);
             else sword.sync(from);
             return;
         }
         var to=from.add(v);var block=wall(sword,from,to);var end=block==null?to:block.getLocation();
-        double suppression=game.items().magic().suppressionFraction(level,from,end);
+        double suppression=magic?game.items().magic().suppressionFraction(level,from,end):Double.POSITIVE_INFINITY;
         if(Double.isFinite(suppression))end=from.lerp(end,suppression);
         var hit=ProjectileUtil.getEntityHitResult(level,sword,from,end,new AABB(from,end).inflate(1),
-                e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e),0);
+                e->e.getType().builtInRegistryHolder().is(MOBS)&&(hostile?
+                        !e.entityTags().contains("dungeon_mob")&&game.items().wands().validRoleTarget(e,false):game.items().wands().projectileTarget(owner,e)),0);
         var greed=LbcGreed.firstHit(level,from,end,0);
         if(greed!=null&&(greed.getEntity()!=sword.getOwner()||!greed.getEntity().getBoundingBox().inflate(.2).contains(from))
                 &&(hit==null||from.distanceToSqr(greed.getLocation())<=from.distanceToSqr(hit.getLocation()))){
-            sword.setPos(greed.getLocation());LbcGreed.reflect(sword,greed.getEntity());sword.sync(sword.position());return;
+            sword.setPos(greed.getLocation());LbcGreed.reflect(sword,greed.getEntity());sword.entityTags().remove(HOSTILE);sword.sync(sword.position());return;
         }
         if(hit!=null){
-            sword.setPos(hit.getLocation());var cause=game.items().indirectKills().coldCause(owner,true);
-            var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),sword,owner);
+            sword.setPos(hit.getLocation());var policy=game.items().spellSources().source(sword);
+            var cause=hostile?(policy==null?null:policy.cause()):game.items().indirectKills().coldCause(owner,true);
+            var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),sword,hostile?sword.getOwner():owner);
             hit.getEntity().hurtServer(level,game.items().indirectKills().captureDamage(damage,cause),4);
             if(!swords.contains(sword)||sword.isRemoved())return;
             var at=sword.position();level.sendParticles(ParticleTypes.CRIT,at.x,at.y,at.z,8,.1,.1,.1,.5);
-            LbcOverload.sound(owner,at,"minecraft:entity.player.attack.strong",1,1,0);finishModel(sword,owner);remove(sword);return;
+            LbcOverload.sound(level,at,"minecraft:entity.player.attack.strong",1,1,0,0);finishModel(sword,owner);remove(sword);return;
         }
         if(Double.isFinite(suppression)){remove(sword);return;}
         if(block!=null){
@@ -252,7 +267,7 @@ public final class LbcChargedSwords {
             sword.embeddedBlock=block.getBlockPos().immutable();sword.grounded=true;
             // Source backs out by .1 before moving .5 into the obstruction.
             sword.setPos(end.add(forward.scale(.4)));sword.sync(sword.position());
-            LbcOverload.sound(owner,end,"minecraft:block.copper.break",1.5f,1,0);
+            LbcOverload.sound(level,end,"minecraft:block.copper.break",1.5f,1,0,0);
         }else {
             sword.setPos(to);
             // Source teleport/interpolation targets the completed step; prediction could cross a future entity or suppression contact.
@@ -327,17 +342,19 @@ public final class LbcChargedSwords {
         callbackDepth++;try{
         if(rewinding)return;
         ++visualClock;
-        for(var model:List.copyOf(finishing))if(visualClock>=model.removeAt||!valid(model.owner)
-                ||model.owner.level()!=model.level||!game.items().currentEpoch(model.epoch)
-                ||!model.level.hasChunkAt(BlockPos.containing(model.position))||suppressed(model.owner)
+        for(var model:List.copyOf(finishing))if(visualClock>=model.removeAt||model.owner!=null&&(!valid(model.owner)
+                ||model.owner.level()!=model.level)||!game.items().currentEpoch(model.epoch)
+                ||!model.level.hasChunkAt(BlockPos.containing(model.position))||model.owner!=null&&suppressed(model.owner)
                 ||game.items().magic().suppressedAt(model.level,model.position)){
             model.holder.destroy();finishing.remove(model);
         }
         for(var sword:List.copyOf(swords)){
-            if(sword.isRemoved()||!(sword.getOwner() instanceof ServerPlayer owner)||!valid(owner)
-                    ||owner.level()!=sword.level()||!game.items().currentEpoch(sword)){remove(sword);continue;}
-            if(paused(owner)||game.items().timeStop().frozen(sword)||sword.entityTags().contains("time_stopped")){sword.sync(sword.position());continue;}
-            if(suppressed(owner)){remove(sword);continue;}step(sword,owner);
+            boolean hostile=sword.entityTags().contains(HOSTILE);
+            var owner=sword.getOwner() instanceof ServerPlayer player?player:null;
+            if(sword.isRemoved()||!hostile&&(!valid(owner)||owner.level()!=sword.level())
+                    ||!game.items().currentEpoch(sword)){remove(sword);continue;}
+            if((hostile?game.items().timeStop().stopped((ServerLevel)sword.level()):paused(owner))||game.items().timeStop().frozen(sword)||sword.entityTags().contains("time_stopped")){sword.sync(sword.position());continue;}
+            if(!hostile&&suppressed(owner)){remove(sword);continue;}step(sword,hostile?null:owner);
         }
         for(var owner:List.copyOf(firing.keySet()))if(!valid(owner)||!game.items().currentEpoch(firing.get(owner))||suppressed(owner))cancel(owner);
         for(var pulse:List.copyOf(pulses))if(!live(pulse))cancelPulse(pulse);

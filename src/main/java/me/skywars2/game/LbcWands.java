@@ -459,6 +459,7 @@ public final class LbcWands {
         if(LbcShishEncounter.matches(stack))return game.items().shishEncounter().use(player,hand);
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
         if(LbcFpvDrone.matches(stack))return game.items().fpvDrone().use(player,hand);
+        if(LbcUniwand.matches(stack))return LbcUniwand.use(game,player,hand);
         if(LbcBoba.matches(stack))return game.items().boba().use(player,hand);
         if(LbcBigBob.matches(stack))return LbcBigBob.use(game,player,hand);
         if(LbcImbaRunes.matches(stack))return game.items().imbaRunes().use(player,hand);

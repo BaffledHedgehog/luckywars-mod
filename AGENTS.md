@@ -1,3 +1,24 @@
+## Grimoire dungeon reward chain - NATIVE STAGED, UNI MAG RULING PENDING (1 November 2026)
+
+[Current implementation, failures and native proof](agent_notes/GRIMOIRE_DUNGEON_CHAIN_2026_11_01.md).
+Confirmed missing original25 Chaos dependency is implemented: actual dungeon drop,
+native jigsaw/lighting/completed-construction boundary,12 rooms/rewards, miniature/
+golden skeletons/shared swords/native spawners,1000HP boss and Uni Wand composition.
+User: MAG blocks boss attacks, preserves body/main visual; main beam retains native
+10HP/10ticks. Shared item-display warning, exact rays, real fatal causal credit.
+Uni exact cost equality and source repeated-negative debt are implemented.
+6763758b passes boss; production/resources identical5eca5a6e passes8 other groups,
+including all25 Chaos activations and full Vanity. Earlier failures retained.
+Dense BlockPos Set.copyOf stall fixed with immutable HashSet membership.
+9545 inputs/2324classes/7153resources;224 authorpaths/31 live overrides exact.
+Final children normal/no locks/exact launch restoration; historical watchdog and
+its partial fixture recovery are documented without claiming lost snapshots.
+Main remains d9087f0a. NO install/restart/push or RP/PENDING changes.
+ONE policy gate remains: user was asked IN CHAT whether Uni Wand should be MAG-
+suppressed (source omits its check). Current tested candidate blocks beacon and
+artifact. Do not install until user answers; do not infer approval from silence.
+Do not reopen resolved boss policy, mana equality or complete-chain release scope.
+
 ## Boba rotation and Hagalaz - NATIVE BATCH, NOT RELEASED (31 October 2026)
 
 [Current implementation/evidence](agent_notes/BOBA_ROTATION_AND_HAGALAZ_2026_10_31.md).

@@ -1,0 +1,21 @@
+Integrated native status: [batch result and pending Uni MAG ruling](GRIMOIRE_DUNGEON_CHAIN_2026_11_01.md).
+
+# Native grimoire room and miniboss component ? 31 October 2026
+
+Implementation component only; full chain, build and native runtime verification remain owned by the coordinating task. No main installation, restart, resource-pack changes or commits performed here.
+
+`LbcGrimoireRooms` admits accepted template markers only after native placement completes. The `skywars2.grimoire_pending` tag excludes unfinished structures. Source selector dispatch retains the outer15-block active-player gate,4-block miniboss activation, air-only random1..12 selection, barrier8-block boss activation with minus0.5 Y, and both four-corner room variants. Four calls continue before marker retirement; original entering advancement applies within15 blocks. Observer role checks accompany source gamemode checks.
+
+All twelve branches create their actual native blocks/entities. Loot chests/barrels retain original deferred table IDs. Native silverfish/firework spawners retain all authored potentials, custom light rules and producer values; their causal metadata enters the existing producer owner via `admitSourceSpawner`. Charged creepers are real ordinary hostile native creepers. There are no helper explosion creepers or function-command interpreter.
+
+Golden/tiny skeletons retain source health, base damage, armor, equipment, display translations and death loot. Golden portal age and periodic counter reside on native entities in one replacing age tag. Per coordinating instruction the native golden counter starts at birth, advances200 unfrozen native gameplay ticks and survives normal entity saves/rewinds; it replaces the legacy global scheduled10s boundary. Portal warmup60 and chance30 attacks retain the source chance-gated retirement after120. Portal gameplay survives the golden skeleton dying. Tiny accepted hurt reactions emit exactly11 bones with original random upward distribution.
+
+`LbcChargedSwords.spawnHostile(Entity,Vec3,float,float,boolean)` extends its existing native `ThrownSword` engine, keeping existing player input and checkpoint APIs. Hostile copies use that same finite shape traversal, swept native body contact, four damage, blocking/grounding, lifecycle, reflection and item-display owner. Tiny bones preserve `lbc:tiny_bone` and omission of magic; golden copies retain `lbc:triple_golden_sword` and magic suppression. Shared source policies retain original causal author and dungeon exclusions, while native owner remains the emitter. Source arbitrary-nearby-dungeon attacker selection is replaced by the actual emitter and accepted original causal source under the established attribution contract.
+
+No private checkpoint adapter was added. Native tags/NBT retain room state; loaded/unloaded hooks rebuild the derived actor index. Existing charged-sword checkpoint continues to retain projectile presentation/flight, including the new hostile models.
+
+`GrimoireRoomChecks.run(GameController)` is authored, not executed by this component task. It creates actual native12-branch rewards, checks deferred loot/spawner NBT, exact miniature/golden bodies, eleven bone actors, actual shared projectile four-damage contact and dungeon ally exclusion, original source-cause inheritance, barrier one-shot and golden warmup/survival/finite retirement. It restores blocks/player state/RNG and retires its native actors. Coordinator must compile and run it before making runtime claims.
+
+Read-only resource-pack inspection confirmed existing Russian `golden_skeleton` and `tiny_skeleton` translations plus `assets/lbc/items/tiny_bone.json` and `triple_golden_sword.json`. Existing identifiers/designs are reused; no resource files were written.
+
+Source: original `LBC/data/lbc/function/raycastselector.mcfunction`, `raycastselector_grimoire_dungeon.mcfunction`, `mobs_tick_lbc.mcfunction`, `mobs_10s.mcfunction`, `tick_not_timestopped.mcfunction`, `other/grimoire_dungeon/room_reward*.mcfunction`, `room_rewards/*.mcfunction`, `room_reward/spawn_miniboss*.mcfunction`, `mobs/golden_skeleton/*.mcfunction`, `mobs/tiny_skeleton/hurt.mcfunction`, and the existing Triple/Chaos homing sword terminal functions. Original server is read only.

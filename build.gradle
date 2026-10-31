@@ -28,6 +28,8 @@ dependencies {
 processResources {
     include 'data/lbc/loot_table/item_defs/**/*.json'
     include 'data/lbc/structure/item_gallery.nbt'
+    include 'data/lbc/worldgen/structure/grimoire_dungeon.json', 'data/lbc/worldgen/template_pool/grimoire_dungeon/**', 'data/lbc/structure/grimoire_dungeon/**'
+    include 'data/lbc/loot_table/grimoire_boss.json', 'data/lbc/loot_table/uniwand.json', 'data/lbc/loot_table/random_grimoires.json'
     // Exact existing singleton owners required by canonical item references.
     include 'data/lbc/loot_table/uncrafted/stripped_bamboo_log.json'
     include 'data/lbc/loot_table/uncrafted/acacia_planks.json'
