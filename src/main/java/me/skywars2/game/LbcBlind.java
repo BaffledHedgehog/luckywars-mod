@@ -446,4 +446,10 @@ public final class LbcBlind {
     private Entity nativeSourceOwner(ServerPlayer owner){var source=game.items().spellSources().current();return source==null?owner:sourceLevel(owner).getEntity(source.emitter());}
     private boolean liveSourceCharge(Entity charge,ServerPlayer owner){return !charge.isRemoved()&&game.items().currentEpoch(charge)&&game.stage()!=GameController.Stage.ENDING&&(persistentSource()||owner!=null&&!owner.isRemoved()&&owner.isAlive()&&owner.level()==charge.level()&&charge.level()==game.maps().level()&&game.canUseGameplayItems(owner)&&!game.isObserver(owner));}
 
+
+    boolean transientCaptureReady(){return clouds.isEmpty();}
+    void cancelTransient(){
+        var old=List.copyOf(charges);charges.clear();batch.clear();gatlings.clear();gatlingBatch.clear();
+        for(var charge:old)if(!charge.isRemoved())charge.discard();
+    }
 }

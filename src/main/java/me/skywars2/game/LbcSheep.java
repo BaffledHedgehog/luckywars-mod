@@ -71,9 +71,11 @@ public final class LbcSheep {
     private final List<Hole> holes=new ArrayList<>();
     private final Set<Entity> spawning=Collections.newSetFromMap(new IdentityHashMap<>());
     private int terrainTurn;
+    private int callbackDepth;private boolean rewinding;
+    private final List<Hole> restoreVisuals=new ArrayList<>();
     private record Converted(Sheep entity,UUID owner,LbcIndirectKills.Owner cause,String epoch) {}
     static final class Hole {
-        final Marker entity;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;
+        Marker entity;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;
         final ServerLevel level;Vec3 point,velocity=Vec3.ZERO;final Quaternionf tilt=new Quaternionf();
         BlackHoleErosion terrain;BlackHoleVisuals.Handle visual;
         Hole(Marker entity,ServerPlayer owner,Vec3 point,LbcIndirectKills.Owner cause,String epoch){
@@ -126,12 +128,16 @@ public final class LbcSheep {
     private boolean suppressed(ServerLevel level,Vec3 at){return game.items().magic().suppressedAt(level,at);}
     private boolean frozen(Entity e){return game.items().wands().timeStopped()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
     public boolean use(ServerPlayer p,InteractionHand hand){
+        if(rewinding)return false;
+        callbackDepth++;try{
         var stack=p.getItemInHand(hand);
         if(!isWand(stack)||!validOwner(p)||game.items().actionsBlocked(p)||game.items().wands().inputTimeStopped(p)
                 ||game.items().magic().suppressed(p)||suppressed(p.level(),p.getEyePosition()))return false;
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("sheep_wand_mana_use"),"lbc.math").get();
         if(cost<0||!game.items().mana().trySpendWand(p,cost))return false;
         cast(p,hand,stack);game.items().wands().wandCasted(p);return true;
+
+        }finally{callbackDepth--;}
     }
     private boolean rayTarget(ServerPlayer p,Entity e,boolean academy){
         if(e==p||e instanceof Marker||e instanceof Display||e instanceof Interaction||managed(e)
@@ -191,6 +197,8 @@ public final class LbcSheep {
     }
     /** Academy's source gender branch includes players, but the final polymorph always excludes them. */
     Sheep transform(ServerPlayer p,Entity original,boolean academy){
+        if(rewinding)return null;
+        callbackDepth++;try{
         if(!validOwner(p)||!rayTarget(p,original,academy)||original instanceof ItemEntity
                 ||!resident(p.level(),original.position())||suppressed(p.level(),original.position()))return null;
         if(academy&&original.getType().builtInRegistryHolder().is(MOBS)){
@@ -217,19 +225,27 @@ public final class LbcSheep {
         p.level().sendParticles(ParticleTypes.POOF,replacement.getX(),replacement.getY()+.5,replacement.getZ(),20,.1,.1,.1,.5);
         LbcOverload.sound(p,replacement.position(),"minecraft:block.fire.extinguish",1,2,0);
         return replacement;
+
+        }finally{callbackDepth--;}
     }
     Hole spawnHole(ServerPlayer p,Vec3 at){
+        if(rewinding)return null;
+        callbackDepth++;try{
         if(!validOwner(p)||!resident(p.level(),at)||suppressed(p.level(),at))return null;
         var marker=new Body(p.level());marker.setPos(at);marker.entityTags().addAll(List.of(BODY,"sheep_black_hole","slowraycast","magic","rare"));
         game.items().markCurrentItemEpoch(marker);game.items().timeStop().prepareFrozen(marker);
         var h=new Hole(marker,p,at,game.items().indirectKills().wildCause(p),game.items().epoch());holes.add(h);
         if(!p.level().addFreshEntity(marker)||marker.isRemoved()||!holes.contains(h)){remove(h);return null;}
         updateVisual(h,p);return h;
+
+        }finally{callbackDepth--;}
     }
     private void clearItems(ServerLevel level,Vec3 at){for(var e:level.getEntities((Entity)null,new AABB(at,at).inflate(5),e->e instanceof ItemEntity&&game.items().wands().validTarget(e)&&e.position().distanceToSqr(at)<=25))e.discard();}
     private boolean physical(Hole h,Entity e){return e!=h.entity&&!(e instanceof Marker)&&!(e instanceof Display)&&!(e instanceof Interaction)
             &&game.items().wands().validTarget(e)&&!frozen(e)&&!suppressed(h.level,e.position());}
     void physics(Hole h,ServerPlayer author){
+        if(rewinding)return;
+        callbackDepth++;try{
         // Player friendship admission runs before LivingEntity's inherited-cause
         // hook. Carry WILD ownership on the source before entering hurtServer.
         var source=game.items().indirectKills().captureDamage(new DamageSource(author.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.OUTSIDE_BORDER),h.entity,author),h.cause);
@@ -262,14 +278,21 @@ public final class LbcSheep {
             desired.rotationTo(new Vector3f(0,1,0),new Vector3f((float)(h.velocity.x/horizontal)*lean,up,(float)(h.velocity.z/horizontal)*lean));}
         h.tilt.slerp(desired,.12f).normalize();
         LbcOverload.sound(author,h.point,"minecraft:entity.sheep.ambient",1,1,80,.5f);
+
+        }finally{callbackDepth--;}
     }
     private void updateVisual(Hole h,ServerPlayer p){
+        callbackDepth++;try{
         float radius=(float)(RADIUS/14);
         if(h.visual==null)h.visual=game.items().blackHoleVisuals().create(p,h.point,radius,true);
-        else game.items().blackHoleVisuals().update(h.visual,h.point,radius,true);
+        else {game.items().blackHoleVisuals().rebind(h.visual,p);game.items().blackHoleVisuals().update(h.visual,h.point,radius,true);}
         game.items().blackHoleVisuals().tilt(h.visual,h.tilt);
+
+        }finally{callbackDepth--;}
     }
     int terrain(Hole h,ServerPlayer author,int allowance,long deadline){
+        if(rewinding)return 0;
+        callbackDepth++;try{
         if(h.terrain==null)h.terrain=new BlackHoleErosion(h.level,h.entity.getUUID().getLeastSignificantBits(),true);
         h.terrain.move(h.point,RADIUS,game.server().getTickCount());
         int[] used={0};var kills=game.items().indirectKills();
@@ -281,8 +304,12 @@ public final class LbcSheep {
                 h.level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
             })));
         return used[0];
+
+        }finally{callbackDepth--;}
     }
     public void tick(){
+        if(rewinding)return;
+        callbackDepth++;try{
         if(!game.server().tickRateManager().runsNormally())return;
         for(var c:List.copyOf(sheep)){
             var p=player(c.owner);
@@ -306,17 +333,68 @@ public final class LbcSheep {
             var p=player(h.owner);if(validOwner(p)&&holes.contains(h))budget-=terrain(h,p,budget,deadline);
         }
         terrainTurn=size==0?0:(terrainTurn+1)%size;
+
+        }finally{callbackDepth--;}
     }
     private void remove(Converted c){sheep.remove(c);if(!c.entity.isRemoved())c.entity.discard();}
     private void remove(Hole h){holes.remove(h);if(h.terrain!=null)h.terrain.clear();if(h.visual!=null)game.items().blackHoleVisuals().remove(h.visual);if(!h.entity.isRemoved())h.entity.discard();}
-    public void loaded(Entity e){if(managed(e)&&!spawning.contains(e)&&sheep.stream().noneMatch(c->c.entity==e)&&holes.stream().noneMatch(h->h.entity==e))e.discard();}
-    public void unloaded(Entity e){for(var c:List.copyOf(sheep))if(c.entity==e)remove(c);for(var h:List.copyOf(holes))if(h.entity==e)remove(h);}
-    public void forget(UUID id){game.items().polymorph().forgetAuthor(id);for(var c:List.copyOf(sheep))if(c.owner.equals(id))remove(c);for(var h:List.copyOf(holes))if(h.owner.equals(id))remove(h);}
+    public void loaded(Entity e){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(e))return;if(managed(e)&&!spawning.contains(e)&&sheep.stream().noneMatch(c->c.entity==e)&&holes.stream().noneMatch(h->h.entity==e))e.discard();
+        }finally{callbackDepth--;}
+    }
+    public void unloaded(Entity e){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(e))return;for(var c:List.copyOf(sheep))if(c.entity==e)remove(c);for(var h:List.copyOf(holes))if(h.entity==e)remove(h);
+        }finally{callbackDepth--;}
+    }
+    public void forget(UUID id){
+        if(rewinding)return;
+        callbackDepth++;try{game.items().polymorph().forgetAuthor(id);for(var c:List.copyOf(sheep))if(c.owner.equals(id))remove(c);for(var h:List.copyOf(holes))if(h.owner.equals(id))remove(h);
+        }finally{callbackDepth--;}
+    }
     public void forget(ServerPlayer p){forget(p.getUUID());}
-    public void stop(){for(var c:List.copyOf(sheep))remove(c);for(var h:List.copyOf(holes))remove(h);spawning.clear();}
+    public void stop(){
+        callbackDepth++;try{for(var c:List.copyOf(sheep))remove(c);for(var h:List.copyOf(holes))remove(h);spawning.clear();
+        }finally{callbackDepth--;}
+    }
     record SheepView(UUID entity,UUID owner,Vec3 point){}
     record HoleView(UUID entity,UUID owner,Vec3 point,Vec3 velocity,double radius,boolean disc,int queuedBlocks){}
     List<SheepView> sheepViews(){var result=new ArrayList<SheepView>(game.items().polymorph().sheepViews());result.addAll(sheep.stream().map(c->new SheepView(c.entity.getUUID(),c.owner,c.entity.position())).toList());return List.copyOf(result);}
     List<HoleView> holeViews(){return holes.stream().map(h->new HoleView(h.entity.getUUID(),h.owner,h.point,h.velocity,RADIUS,true,h.terrain==null?0:h.terrain.queuedBlockCount())).toList();}
     List<Hole> holes(){return List.copyOf(holes);}
+
+    /** Permanent academy sheep and authored holes share native identities with the actor checkpoint. */
+    void checkpointBoundary(){if(callbackDepth!=0||!spawning.isEmpty())throw new IllegalStateException("Finish sheep conversion/hole callbacks before checkpointing");}
+    private void detachCheckpointVisual(Hole hole){
+        if(hole.visual!=null){game.items().blackHoleVisuals().detachForCheckpoint(hole.visual);hole.visual=null;}
+        if(hole.terrain!=null){hole.terrain.clear();hole.terrain=null;}
+    }
+    void prepareFrozen(){checkpointBoundary();rewinding=true;restoreVisuals.clear();for(var hole:holes)detachCheckpointVisual(hole);}
+    void publishFrozen(){
+        checkpointBoundary();for(var hole:restoreVisuals){var owner=player(hole.owner);if(owner!=null&&owner.level()==hole.level)updateVisual(hole,owner);}
+        restoreVisuals.clear();rewinding=false;
+    }
+    void cancelFrozen(){checkpointBoundary();restoreVisuals.clear();rewinding=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Image(Hole original,MatchDamageSources.Ref entity,Vec3 point,Vec3 velocity,Quaternionf tilt,boolean visible){}
+        private record SheepImage(Converted original,MatchDamageSources.Ref entity){}
+        private final List<Image> values=new ArrayList<>();private final List<SheepImage> converted=new ArrayList<>();
+        private final int turn=terrainTurn;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            if(rewinding)throw new IllegalStateException("Publish sheep holes before checkpointing");
+            for(var hole:holes){var entity=links.key(hole.entity);if(entity.historical()!=null)throw new IllegalStateException("Sheep hole requires its canonical native marker");
+                values.add(new Image(hole,entity,hole.point,hole.velocity,new Quaternionf(hole.tilt),hole.visual!=null));var owner=player(hole.owner);if(owner!=null)links.key(owner);}
+            for(var body:sheep){var entity=links.key(body.entity);if(entity.historical()!=null)throw new IllegalStateException("Academy sheep requires its canonical native body");
+                converted.add(new SheepImage(body,entity));var owner=player(body.owner);if(owner!=null)links.key(owner);}
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var bodies=values.stream().map(image->(Marker)links.get(image.entity)).toList();var transformed=new ArrayList<Converted>();
+            for(var image:values)MatchAuthorityCheckpoint.world(game,image.original.level);
+            for(var image:converted){var entity=(Sheep)links.get(image.entity);var value=image.original;transformed.add(entity==value.entity?value:new Converted(entity,value.owner,value.cause,value.epoch));}
+            return ()->{for(var future:List.copyOf(holes))detachCheckpointVisual(future);holes.clear();restoreVisuals.clear();
+                for(int i=0;i<values.size();i++){var image=values.get(i);var hole=image.original;hole.entity=bodies.get(i);hole.point=image.point;hole.velocity=image.velocity;hole.tilt.set(image.tilt);
+                    hole.terrain=null;hole.visual=null;holes.add(hole);if(image.visible)restoreVisuals.add(hole);}
+                sheep.clear();sheep.addAll(transformed);terrainTurn=turn;};
+        }
+    }
 }

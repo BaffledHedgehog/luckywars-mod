@@ -53,7 +53,7 @@ final class MatchEntityState {
     }
     void load(Entity target) {
         if(target.getType()!=original.getType()||target.getClass()!=original.getClass())throw new IllegalArgumentException("Different native entity body type");
-        if(original instanceof LivingEntity living)game.items().ownedEffects().forget(living);
+        if(original instanceof LivingEntity living&&!MatchOfflinePlayers.alias(original))game.items().ownedEffects().forget(living);
         if(target instanceof LivingEntity living){game.items().ownedEffects().forget(living);living.removeAllEffects();}
         target.load(TagValueInput.create(ProblemReporter.DISCARDING,target.registryAccess(),nbt.copy()));
         if(target instanceof LivingEntity living){living.getAttributes().assignAllValues(attributes);ShadowAbsorption.reconcile(living,false);}

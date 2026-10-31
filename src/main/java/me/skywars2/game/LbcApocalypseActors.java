@@ -33,16 +33,18 @@ public final class LbcApocalypseActors {
         Actor(LbcApocalypseEvents.Authority authority,LbcSpellSource.Source source,Type type,LbcSauvojen.Kind kind){this.authority=authority;this.source=source;this.type=type;this.kind=kind;}
     }
     private final GameController game;
-    private final Map<Entity,Actor> actors=new IdentityHashMap<>();
+    private IdentityHashMap<Entity,Actor> actors=new IdentityHashMap<>();
     private final Map<UUID,Actor> unloaded=new HashMap<>();
     private final Set<Terrain> terrain=Collections.newSetFromMap(new IdentityHashMap<>());
-    private int phase;
+    private int phase;private int callbackDepth;private boolean rewinding;
     public LbcApocalypseActors(GameController game){this.game=game;}
     private static CompoundTag parse(String value){try{return TagParser.parseCompoundFully(value);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}}
     private static void load(Entity entity,CompoundTag tag){entity.load(TagValueInput.create(ProblemReporter.DISCARDING,entity.registryAccess(),SourceKnockbackBalance.entity(tag.copy())));}
     private boolean live(LbcApocalypseEvents.Authority authority,ServerLevel level){return authority!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(authority.epoch())&&LbcDimensionItems.ordinary(level);}
     private boolean spawnable(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at){return live(authority,level)&&Level.isInSpawnableBounds(BlockPos.containing(at))&&level.hasChunkAt(BlockPos.containing(at));}
     private boolean admit(Entity entity,LbcApocalypseEvents.Authority authority,Type type,LbcSauvojen.Kind kind,Vec3 at){
+        if(rewinding)return false;
+        callbackDepth++;try{
         entity.setPos(at);entity.entityTags().add(MANAGED);game.items().markCurrentItemEpoch(entity);
         var exclusions=new HashSet<>(EXCLUDED);
         if(kind==LbcSauvojen.Kind.TERRA||kind==LbcSauvojen.Kind.ELECTRO)exclusions.add("summoned_cultist");
@@ -51,6 +53,8 @@ public final class LbcApocalypseActors {
         var state=new Actor(authority,source,type,kind);actors.put(entity,state);game.items().spellSources().bind(entity,source);game.items().timeStop().prepareFrozen(entity);
         if(((ServerLevel)entity.level()).addFreshEntity(entity))return true;
         actors.remove(entity);entity.discard();return false;
+
+        }finally{callbackDepth--;}
     }
     /** Source NBT Size20 means native slime size21; native split descendants retain native vanilla sizes/AI. */
     public boolean spawnWorm(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at){
@@ -111,8 +115,10 @@ public final class LbcApocalypseActors {
         return nearest;
     }
     public void tick(){
+        if(rewinding)return;
+        callbackDepth++;try{
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
-        
+
         phase=(phase+1)%240;
         for(var actor:List.copyOf(actors.keySet())){
             var state=actors.get(actor);if(state==null)continue;var level=(ServerLevel)actor.level();
@@ -123,6 +129,8 @@ public final class LbcApocalypseActors {
                 var center=BlockPos.containing(actor.getX(),actor.getY()+3,actor.getZ());var work=new Terrain(state.authority,level,center.offset(-5,-5,-5),center.offset(5,5,5));terrain.add(work);game.items().stonekivi().queuedWork(work);
             }else if(state.type==Type.CLOUD)tickCloud(actor,state,level);
         }
+
+        }finally{callbackDepth--;}
     }
     private void tickCloud(Entity actor,Actor state,ServerLevel level){
         if(game.items().magic().suppressedAt(level,actor.position())){actors.remove(actor);actor.discard();return;}
@@ -142,8 +150,14 @@ public final class LbcApocalypseActors {
         final LbcApocalypseEvents.Authority authority;final ServerLevel level;final BlockPos from,to;boolean cancelled;
         Terrain(LbcApocalypseEvents.Authority authority,ServerLevel level,BlockPos from,BlockPos to){this.authority=authority;this.level=level;this.from=from;this.to=to;}
         @Override public boolean ready(){return cancelled||!live(authority,level)||!game.items().timeStop().stopped(level)&&resident(level,from,to);}
-        @Override public boolean step(){if(!cancelled&&live(authority,level))game.items().indirectKills().trapChanges(level,authority.cause(),()->LbcDropBlocks.fill(level,from,to,Blocks.AIR,true));cancel();return true;}
-        @Override public void cancel(){cancelled=true;terrain.remove(this);}
+        @Override public boolean step(){
+        callbackDepth++;try{if(!cancelled&&live(authority,level))game.items().indirectKills().trapChanges(level,authority.cause(),()->LbcDropBlocks.fill(level,from,to,Blocks.AIR,true));cancel();return true;
+        }finally{callbackDepth--;}
+    }
+        @Override public void cancel(){
+        callbackDepth++;try{cancelled=true;terrain.remove(this);
+        }finally{callbackDepth--;}
+    }
     }
     /** Legacy slime split copies native properties, but not worm behavior or this service's private identity. */
     public void splitChild(Mob parent,Mob child){
@@ -153,13 +167,44 @@ public final class LbcApocalypseActors {
         game.items().spellSources().inherit(parent,child);
     }
     public void loaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;
         if(!managed(entity))return;
         var state=actors.get(entity);if(state==null)state=unloaded.remove(entity.getUUID());
         if(state==null||!(entity.level() instanceof ServerLevel level)||!live(state.authority,level)){entity.discard();return;}
         actors.put(entity,state);game.items().spellSources().bind(entity,state.source);game.items().timeStop().prepareFrozen(entity);
+
+        }finally{callbackDepth--;}
     }
-    public void unloaded(Entity entity){var state=actors.remove(entity);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);}
+    public void unloaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;var state=actors.remove(entity);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);
+        }finally{callbackDepth--;}
+    }
     /** Event authority persists when its causal author disconnects; epoch/stop still terminate it. */
     public void forget(ServerPlayer author){}
-    public void stop(){for(var entity:List.copyOf(actors.keySet()))if(!entity.isRemoved())entity.discard();actors.clear();unloaded.clear();for(var work:List.copyOf(terrain))work.cancel();phase=0;}
+    public void stop(){
+        callbackDepth++;try{rewinding=false;for(var entity:List.copyOf(actors.keySet()))if(!entity.isRemoved())entity.discard();actors.clear();unloaded.clear();for(var work:List.copyOf(terrain))work.cancel();phase=0;
+        }finally{callbackDepth--;}
+    }
+
+    boolean captureReady(){return callbackDepth==0&&terrain.isEmpty()&&!rewinding;}
+    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish apocalypse actor callbacks before checkpointing");}
+    void cancelFutureTerrainForRollback(){checkpointBoundary();for(var work:List.copyOf(terrain))work.cancel();}
+    void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;}
+    void publishFrozen(){checkpointBoundary();rewinding=false;}
+    void cancelFrozen(){checkpointBoundary();rewinding=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete apocalypse actor terrain before capture");return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Age(Actor original,int lifetime){}
+        private final MatchSpellCheckpoint.IdentityImage<Entity,Actor> registry;
+        private final Map<UUID,Actor> dormant=new HashMap<>(unloaded);
+        private final List<Age> ages=new ArrayList<>();private final int savedPhase=phase;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            for(var entity:actors.keySet())if(links.key(entity).historical()!=null)throw new IllegalStateException("Capture live event actor bodies");
+            registry=new MatchSpellCheckpoint.IdentityImage<>(actors,links);var seen=Collections.newSetFromMap(new IdentityHashMap<Actor,Boolean>());
+            for(var actor:actors.values())if(seen.add(actor))ages.add(new Age(actor,actor.lifetime));
+            for(var actor:unloaded.values())if(seen.add(actor))ages.add(new Age(actor,actor.lifetime));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=registry.restore(links);
+            return ()->{for(var age:ages)age.original.lifetime=age.lifetime;actors=restored;unloaded.clear();unloaded.putAll(dormant);phase=savedPhase;};}
+    }
 }

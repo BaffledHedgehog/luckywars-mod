@@ -44,7 +44,9 @@ final class MatchItemStackLinks {
     private final MatchSpellCheckpoint.Links links;
     MatchItemStackLinks(GameController game,MatchSpellCheckpoint.Links links){
         this.links=links;
-        for(var player:game.server().getPlayerList().getPlayers()){
+        var playerRoots=new ArrayList<>(game.server().getPlayerList().getPlayers());
+        playerRoots.addAll(MatchOfflinePlayers.inventoryBodies());
+        for(var player:playerRoots){
             var key=links.key(player);
             container(player.getInventory(),l->((ServerPlayer)l.get(key)).getInventory());
             container(player.inventoryMenu.getCraftSlots(),l->((ServerPlayer)l.get(key)).inventoryMenu.getCraftSlots());
@@ -57,7 +59,7 @@ final class MatchItemStackLinks {
             var storage=((ActorCheckpointAccess.Sections)manager).skywars2$sections();
             for(long chunk:storage.getAllChunksWithExistingSections().toLongArray())
                 storage.getExistingSectionsInChunk(chunk).forEach(section->section.getEntities().forEach(entity->{
-                    if(entity instanceof ServerPlayer||entity.isRemoved())return;var key=links.key(entity);
+                    if(entity instanceof ServerPlayer||entity.isRemoved()||links.omitted(entity))return;var key=links.key(entity);
                     if(entity instanceof LivingEntity living)for(var slot:EquipmentSlot.values())add(living.getItemBySlot(slot),l->((LivingEntity)l.get(key)).getItemBySlot(slot));
                     if(entity instanceof Container c)container(c,l->(Container)l.get(key));
                     if(entity instanceof InventoryCarrier carrier)container(carrier.getInventory(),l->((InventoryCarrier)l.get(key)).getInventory());

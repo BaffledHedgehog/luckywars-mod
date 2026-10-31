@@ -322,4 +322,6 @@ final class LbcGaycasterAcademy {
     private static void particles(ServerPlayer owner,net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double x,double y,double z,double speed){
         LbcGaycaster.particles(owner,particle,point,count,x,y,z,speed);
     }
+
+    boolean transientCaptureReady(){return trials.isEmpty();}
 }

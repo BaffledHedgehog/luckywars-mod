@@ -376,6 +376,8 @@ public final class LbcChargedSwords {
     /** Call after all native bodies and clients have been paired; no clocks or gameplay callbacks run. */
     Set<UUID> publishFrozen(){
         frozenBoundary();if(!rewinding||!presentationReady)throw new IllegalStateException("Install charged-sword state before presentation");
+        // Retained offline references are source data, never client connections to pair or watch.
+        presentationWatchers.replaceAll((holder,players)->players.stream().filter(player->!MatchOfflinePlayers.retained(player)).toList());
         var pending=new LinkedHashSet<UUID>();
         for(var entry:presentationWatchers.entrySet())for(var player:entry.getValue()){
             if(game.server().getPlayerList().getPlayer(player.getUUID())!=player)throw new IllegalStateException("Charged-sword viewer body changed before publication");
@@ -484,7 +486,7 @@ public final class LbcChargedSwords {
             yaw=display.getYaw();pitch=display.getPitch();offset=display.getOffset();override=display.getOverridePos();lastPosition=display.getLastSyncedPos();
             absolute=display.isAlwaysSyncingAbsolutePosition();sendPosition=display.isSendingPositionUpdates();rotationDirty=display.isRotationDirty();
         }
-        PreparedModel prepare(MatchSpellCheckpoint.Links links){return new PreparedModel(this,watchers.stream().map(ref->(ServerPlayer)links.get(ref)).toList());}
+        PreparedModel prepare(MatchSpellCheckpoint.Links links){return new PreparedModel(this,watchers.stream().map(ref->(ServerPlayer)links.get(ref)).filter(player->!MatchOfflinePlayers.retained(player)).toList());}
         ItemDisplayElement create(){
             var display=new SwordDisplay(ItemStack.EMPTY);display.setYaw(yaw==0?1:0);display.setYaw(yaw);display.setPitch(pitch);
             // Clear construction-only rotation state while detached; then install the saved tracker/dirty image.

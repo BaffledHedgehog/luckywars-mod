@@ -26,7 +26,7 @@ final class LbcChefBrain {
         deadline=System.nanoTime()+12_000_000L;}}
     private final LbcWtf.Chef chef;
     private final ServerLevel level;
-    private final List<ItemStack> tools=List.of(new ItemStack(Items.NETHERITE_PICKAXE),new ItemStack(Items.NETHERITE_AXE),
+    private List<ItemStack> tools=List.of(new ItemStack(Items.NETHERITE_PICKAXE),new ItemStack(Items.NETHERITE_AXE),
             new ItemStack(Items.NETHERITE_SHOVEL),new ItemStack(Items.NETHERITE_HOE),new ItemStack(Items.SHEARS),LbcWtf.sword());
     private final Set<BlockPos> placed=new HashSet<>();
     private final ArrayDeque<Step> path=new ArrayDeque<>();
@@ -84,6 +84,17 @@ final class LbcChefBrain {
             "actions expanded="+search.expanded+" open="+search.open.size()+" best="+search.best.spot)
             +" goal="+goal+" stuck="+stuck+" replan="+replan+" takeoff="+runwayPhase+" pillar="+pillarLaunched
             +" mining="+mining+" dig="+progress+" pose="+chef.getPose()+" eye="+chef.getEyePosition()+" yaw="+chef.getYRot()+" pitch="+chef.getXRot()+" head="+chef.getYHeadRot()+" action="+chef.actionSerial+" probes="+probes+" searches="+searches+" ground="+chef.onGround()+" velocity="+chef.getDeltaMovement()+" resets="+resets+" lastReset="+lastReset+" placement="+lastPlacement;}
+    Set<BlockPos> checkpointPlaced(){return Set.copyOf(placed);}
+    /** Search/mining/run-up caches are disposable; no block, packet, pose or equipment action runs here. */
+    void resetForCheckpoint(){
+        path.clear();search=null;progressStep=null;failedSteps.clear();goal=null;mining=null;miningState=null;miningCause=null;progress=0;
+        bestProgress=0;progressAt=0;replan=0;stuck=0;nextVoidAttempt=Integer.MIN_VALUE;nextBuild=0;nextJump=0;
+        previous=chef.position();lastGround=null;escapingBody=false;placementWaiting=false;clearTakeoff();
+        resets=0;searches=0;lastReset="checkpoint";lastPlacement="none";
+    }
+    void restoreCheckpointResources(List<ItemStack> palette,Set<BlockPos> owned){
+        tools=palette.stream().map(ItemStack::copy).toList();placed.clear();placed.addAll(owned);resetForCheckpoint();
+    }
     void reset(){reset("external");}
     private void reset(String why){lastReset=why+" step="+path.peek()+" at="+chef.position();resets++;
         path.clear();search=null;progressStep=null;clearMining();replan=0;stuck=0;clearTakeoff();}

@@ -41,9 +41,10 @@ public final class LbcHelicopterEncounter {
     private final Map<ServerLevel,Long> clocks=new IdentityHashMap<>();
     private final Map<ServerLevel,Integer> lastDispatch=new IdentityHashMap<>();
     private int lastPendingTick=Integer.MIN_VALUE;
+    private int checkpointDepth;private boolean checkpointFrozen;private Runnable stagedPublication;
     private static final class Pair {
-        final Display.ItemDisplay display;
-        final Ravager hitbox;
+        Display.ItemDisplay display;
+        Ravager hitbox;
         final String epoch;
         int phase=1, frame=1;
         long dispatches;
@@ -63,7 +64,7 @@ public final class LbcHelicopterEncounter {
         @Override public boolean shouldBeSaved() {return false;}
     }
     private static final class BossTnt extends PrimedTnt {
-        private final Ravager source;
+        private Ravager source;
         final float power;
         BossTnt(ServerLevel level,Vec3 at,Ravager source,float power) {super(level,at.x,at.y,at.z,source);this.source=source;this.power=power;}
         @Override public LivingEntity getOwner() {var owner=super.getOwner();return owner==null?source:owner;}
@@ -83,6 +84,7 @@ public final class LbcHelicopterEncounter {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).matchedBy(TRIGGER);
     }
     boolean spawn(ItemEntity token) {
+        if(checkpointFrozen)return false;checkpointDepth++;try{
         if(token.isRemoved() || token.getAge()>=5999 || !isTrigger(token.getItem()) || !(token.level() instanceof ServerLevel level)
                 || level!=game.maps().level() || !game.playing() || game.stage()==GameController.Stage.ENDING || stopped(level)) return false;
         Vec3 forward=Vec3.directionFromRotation(token.getXRot(),token.getYRot());
@@ -108,6 +110,8 @@ public final class LbcHelicopterEncounter {
         LbcOverload.sound(level,token.position(),"minecraft:lbcsounds.kazahstan",1,1,20,.4f);
         level.sendParticles(new net.minecraft.core.particles.DustParticleOptions(0xff0000,2),token.getX(),token.getY()+10,token.getZ(),1000,0,100,0,0);
         return true;
+
+        }finally{checkpointDepth--;}
     }
     private boolean stopped(ServerLevel level) {
         // The native stop service owns dimension clocks; the legacy scoreboard remains a global gate.
@@ -132,6 +136,7 @@ public final class LbcHelicopterEncounter {
         return best;
     }
     void tick() {
+        if(checkpointFrozen)return;checkpointDepth++;try{
         // Native /give pickup visuals become fake items (age5999) after ENTITY_LOAD.
         int serverTick=game.server().getTickCount();
         if(lastPendingTick!=serverTick) for(var token:List.copyOf(pending)) {
@@ -162,6 +167,8 @@ public final class LbcHelicopterEncounter {
             if(lastDispatch.getOrDefault(level,Integer.MIN_VALUE)!=now) {lastDispatch.put(level,now);clocks.merge(level,1L,Long::sum);}
             dispatch(pair,clocks.get(level)-1);
         }
+
+        }finally{checkpointDepth--;}
     }
     private void dispatch(Pair pair,long parity) {
         var d=pair.display;var level=(ServerLevel)d.level();var random=level.getRandom();pair.dispatches++;
@@ -239,16 +246,23 @@ public final class LbcHelicopterEncounter {
     }
     /** Called before the beacon's generic kill, so suppression has an explicit terminal cause. */
     boolean mechanismRemoved(Entity entity) {
+        if(checkpointFrozen)return false;checkpointDepth++;try{
         for(var pair:List.copyOf(pairs)) if(pair.display==entity || pair.hitbox==entity) {
             terminal(pair,true);
             return true;
         }
         return false;
+
+        }finally{checkpointDepth--;}
     }
     public void died(LivingEntity entity,DamageSource source) {
+        if(checkpointFrozen)return;checkpointDepth++;try{
         for(var pair:List.copyOf(pairs)) if(pair.hitbox==entity) terminal(pair,true);
+
+        }finally{checkpointDepth--;}
     }
     private void terminal(Pair pair,boolean reward) {
+        checkpointDepth++;try{
         if(pair.terminal) return;pair.terminal=true;pairs.remove(pair);
         var level=(ServerLevel)pair.display.level();var at=pair.display.position();
         // Detach state before callbacks; ordinary discard/unload can never award a second reward.
@@ -266,24 +280,35 @@ public final class LbcHelicopterEncounter {
             }
         }
         if(!pair.hitbox.isRemoved()) pair.hitbox.discard();
+
+        }finally{checkpointDepth--;}
     }
     void entityUnloaded(Entity entity) {
+        checkpointDepth++;try{if(checkpointFrozen||MatchActorCheckpoint.restoring(entity))return;
         pending.remove(entity);
         attacks.remove(entity);
         for(var pair:List.copyOf(pairs)) if(pair.display==entity || pair.hitbox==entity) terminal(pair,false);
+
+        }finally{checkpointDepth--;}
     }
     void loaded(Entity entity) {
+        checkpointDepth++;try{if(checkpointFrozen||MatchActorCheckpoint.restoring(entity))return;
         if(entity instanceof ItemEntity token && isTrigger(token.getItem()) && game.playing() && token.level()==game.maps().level()) pending.add(token);
         if((entity.entityTags().contains(DISPLAY) || entity.entityTags().contains(HITBOX))
                 && pairs.stream().noneMatch(pair->pair.display==entity || pair.hitbox==entity)) entity.discard();
         if(entity.entityTags().contains(ATTACK) && !attacks.contains(entity)) entity.discard();
+
+        }finally{checkpointDepth--;}
     }
     void stop() {
+        checkpointDepth++;try{checkpointFrozen=false;stagedPublication=null;
         pending.clear();
         for(var pair:List.copyOf(pairs)) terminal(pair,false);
         for(String id:List.of("lbcsounds.helicopter","lbcsounds.kazahstan"))
             for(var player:game.server().getPlayerList().getPlayers()) player.connection.send(new ClientboundStopSoundPacket(Identifier.withDefaultNamespace(id),null));
         var detached=List.copyOf(attacks);attacks.clear();for(var entity:detached) entity.discard();authors.clear();clocks.clear();lastDispatch.clear();lastPendingTick=Integer.MIN_VALUE;
+
+        }finally{checkpointDepth--;}
     }
     private boolean damageTarget(Entity target) {return !target.entityTags().contains(HITBOX) && game.items().wands().validTarget(target);}
     public boolean canHit(Projectile projectile,Entity target) {return !projectile.entityTags().contains(ATTACK) || damageTarget(target);}
@@ -313,6 +338,45 @@ public final class LbcHelicopterEncounter {
             Vec3 heardAt=distant?viewer.position().add(at.subtract(viewer.position()).normalize().scale(2)):at;
             viewer.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(sound,SoundSource.MASTER,
                     heardAt.x,heardAt.y,heardAt.z,distant?.5f:1,pitch,seed));
+        }
+    }
+
+    boolean captureReady(){return checkpointDepth==0&&!checkpointFrozen;}
+    void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish Helicopter native callbacks before checkpointing");}
+    void prepareFrozen(){checkpointBoundary();checkpointFrozen=true;stagedPublication=null;pairs.clear();attacks.clear();pending.clear();authors.clear();clocks.clear();lastDispatch.clear();}
+    void publishFrozen(){checkpointBoundary();if(stagedPublication!=null)stagedPublication.run();stagedPublication=null;checkpointFrozen=false;}
+    void cancelFrozen(){checkpointBoundary();stagedPublication=null;checkpointFrozen=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Capture Helicopter outside native construction");return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Value(Pair original,MatchDamageSources.Ref display,MatchDamageSources.Ref hitbox,int phase,int frame,long dispatches,int lastTick,boolean terminal){}
+        private record Author(MatchDamageSources.Ref actor,MatchDamageSources.Ref author){}
+        private record Attack(MatchDamageSources.Ref actor,MatchDamageSources.Ref source){}
+        private final List<Value> values=new ArrayList<>();private final List<Author> attribution=new ArrayList<>();private final List<Attack> shots=new ArrayList<>();
+        private final List<MatchDamageSources.Ref> tokens=new ArrayList<>();
+        private final Map<ServerLevel,Long> worldClocks=new IdentityHashMap<>(clocks);
+        private final Map<ServerLevel,Integer> dispatchFrames=new IdentityHashMap<>(lastDispatch);
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastPendingTick,0);
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            for(var pair:pairs){var display=links.key(pair.display);var hitbox=links.key(pair.hitbox);if(display.historical()!=null||hitbox.historical()!=null)throw new IllegalStateException("Capture current helicopter pair bodies");
+                values.add(new Value(pair,display,hitbox,pair.phase,pair.frame,pair.dispatches,pair.lastTick,pair.terminal));}
+            authors.forEach((actor,author)->attribution.add(new Author(links.key(actor),links.key(author))));
+            for(var attack:attacks){var source=attack instanceof BossTnt tnt?tnt.source:attack instanceof BossArrow arrow?arrow.causal:null;shots.add(new Attack(links.key(attack),links.key(source)));}
+            for(var token:pending)tokens.add(links.key(token));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();for(var world:worldClocks.keySet())MatchAuthorityCheckpoint.world(game,world);for(var world:dispatchFrames.keySet())MatchAuthorityCheckpoint.world(game,world);
+            var nextDisplays=new IdentityHashMap<Pair,Display.ItemDisplay>();var nextHitboxes=new IdentityHashMap<Pair,Ravager>();
+            for(var saved:values){var display=(Display.ItemDisplay)links.get(saved.display);var hitbox=(Ravager)links.get(saved.hitbox);if(display.level()!=hitbox.level())throw new IllegalStateException("Restore helicopter pair in its source world");nextDisplays.put(saved.original,display);nextHitboxes.put(saved.original,hitbox);}
+            var nextAuthors=new ArrayList<Map.Entry<Entity,LivingEntity>>();for(var saved:attribution)nextAuthors.add(Map.entry(links.get(saved.actor),(LivingEntity)links.get(saved.author)));
+            var nextAttacks=new ArrayList<Entity>();var nextSources=new IdentityHashMap<Entity,Entity>();for(var saved:shots){var actor=links.get(saved.actor);var source=links.get(saved.source);if(actor instanceof BossTnt&&!(source instanceof Ravager))throw new IllegalStateException("Restore native helicopter TNT source");nextAttacks.add(actor);nextSources.put(actor,source);}
+            var nextTokens=new ArrayList<ItemEntity>();for(var token:tokens)nextTokens.add((ItemEntity)links.get(token));
+            return ()->{
+                pairs.clear();for(var saved:values){var pair=saved.original;pair.display=nextDisplays.get(pair);pair.hitbox=nextHitboxes.get(pair);pair.phase=saved.phase;pair.frame=saved.frame;pair.dispatches=saved.dispatches;pair.terminal=saved.terminal;pairs.add(pair);}
+                attacks.clear();attacks.addAll(nextAttacks);for(var actor:nextAttacks){var source=nextSources.get(actor);if(actor instanceof BossTnt tnt)tnt.source=(Ravager)source;else if(actor instanceof BossArrow arrow)arrow.causal=source;}
+                pending.clear();pending.addAll(nextTokens);authors.clear();for(var saved:nextAuthors)authors.put(saved.getKey(),saved.getValue());clocks.clear();clocks.putAll(worldClocks);
+                stagedPublication=()->{lastPendingTick=clock.last(game);lastDispatch.clear();dispatchFrames.forEach((world,frame)->lastDispatch.put(world,frame==Integer.MIN_VALUE?frame:clock.time(frame,game)));
+                    for(var saved:values)saved.original.lastTick=saved.lastTick==Integer.MIN_VALUE?saved.lastTick:clock.time(saved.lastTick,game);};
+            };
         }
     }
 }

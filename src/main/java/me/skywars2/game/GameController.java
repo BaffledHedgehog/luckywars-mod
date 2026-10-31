@@ -123,6 +123,22 @@ public final class GameController {
     private final MatchEvents events;
     private final LbcLoadouts lbc;
     private final LbcItems items;
+    private final LbcVanityRollback vanity=new LbcVanityRollback(this);
+    public LbcVanityRollback vanity(){return vanity;}
+    void reconcileRollbackParticipants(Set<UUID> absent,Set<UUID> captured){
+        for(var entry:participants.entrySet())if(captured.contains(entry.getKey()))
+            entry.getValue().disconnected=absent.contains(entry.getKey());
+        for(var player:server.getPlayerList().getPlayers())if(!captured.contains(player.getUUID())){
+            player.getInventory().clearContent();player.removeAllEffects();spectators.enter(player);
+        }
+    }
+    void rejoinRollbackParticipant(ServerPlayer player,boolean observer){
+        var member=participants.get(player.getUUID());
+        if(member!=null)member.disconnected=false;
+        if(observer||member==null||member.lives<=0)spectators.enter(player);
+        else {bar.addPlayer(player);teamColors.rejoin(player);}
+        items.witchClaims().reconcile(player);
+    }
     private final GameLuckyModifiers luckyModifiers;
     private final Spectators spectators;
     private final AttributeHud attributeHud;
@@ -232,6 +248,7 @@ public final class GameController {
     }
 
     public void join(ServerPlayer player) {
+        if(vanity.joined(player))return;
         items.witchClaims().reconcile(player);
         items.rifleZoom().joined(player);
         players.get(player.getUUID()).username = player.getScoreboardName();
@@ -253,6 +270,8 @@ public final class GameController {
     }
 
     public void leave(ServerPlayer player) {
+        vanity.leaving(player);
+        if(vanity.busy())return;
         items.witchClaims().leavingOrDying(player);
         // При отключении снимаем временные бонусы, отмечаем участника выбывшим и сохраняем профиль.
         attributeHud.clear(player);
@@ -525,7 +544,7 @@ public final class GameController {
         // Drain outside those iterators, including while game time is frozen.
         var unloaded=List.copyOf(nativeEntityUnloads);nativeEntityUnloads.clear();
         for(var entity:unloaded) entityUnloaded(entity);
-        if (stopped || !server.tickRateManager().runsNormally()) return;
+        if (stopped || vanity.busy() || !server.tickRateManager().runsNormally()) return;
         lifetimeTicks++;
         if (inventoryLocked()) for (ServerPlayer player : online()) enforceLobbyInventory(player);
         maps.tick();
@@ -641,6 +660,7 @@ public final class GameController {
     }
 
     public void died(ServerPlayer player, DamageSource damage) {
+        if(vanity.death(player))return;
         items.oreshek().died(player);
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());
@@ -673,7 +693,7 @@ public final class GameController {
     }
 
     public void respawned(ServerPlayer player) {
-        if(MatchPlayerCheckpoint.restoring(player))return;
+        if(MatchPlayerCheckpoint.restoring(player)||vanity.busy())return;
         items.witchClaims().reconcile(player);
         attributeHud.clear(player);
         Participant p = participants.get(player.getUUID());
@@ -762,6 +782,7 @@ public final class GameController {
     public void cancelQueuedEntityUnload(Entity entity) { nativeEntityUnloads.remove(entity); }
 
     private void finish() {
+        vanity.stop();
         luckyModifiers.endMatch();
         items.stop();
         events.stop(); maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
@@ -1046,6 +1067,7 @@ public final class GameController {
     }
 
     public void shutdown() {
+        vanity.stop();
         visualTracking.stop();
         teamColors.stop();
         luckyModifiers.endMatch();

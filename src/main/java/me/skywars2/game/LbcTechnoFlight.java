@@ -176,4 +176,18 @@ public final class LbcTechnoFlight {
         for(var player:java.util.List.copyOf(flights.keySet()))end(player,false);
         for(var player:game.server().getPlayerList().getPlayers())end(player,false);
     }
+
+    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    void prepareResidentFrozen(){flights.clear();}
+    final class ResidentCheckpoint {
+        private record Image(MatchDamageSources.Ref owner,ServerLevel level,int delay){}
+        private final java.util.List<Image> saved;
+        ResidentCheckpoint(MatchSpellCheckpoint.Links links){saved=flights.entrySet().stream().map(e->new Image(links.key(e.getKey()),e.getValue().level,e.getValue().delay)).toList();}
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var next=new IdentityHashMap<ServerPlayer,Flight>();for(var image:saved){MatchAuthorityCheckpoint.world(game,image.level);
+                var flight=new Flight(image.level);flight.delay=image.delay;next.put((ServerPlayer)links.get(image.owner),flight);}
+            return ()->{flights.clear();flights.putAll(next);};
+        }
+    }
+
 }

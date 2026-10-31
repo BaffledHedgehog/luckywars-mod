@@ -212,29 +212,41 @@ public final class LbcFpvDrone {
         private final List<Actor> bodies=new ArrayList<>();private final List<Control> sessions=new ArrayList<>();private final Map<BodyChunk,Integer> leases=new HashMap<>(tickets);
         private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);private final long blasts=explosions;
         private boolean prepared,installed;
+        private final Set<UUID> omittedControllers=new HashSet<>();
         Checkpoint(MatchDamageSources sources){stable(false);links=new MatchSpellCheckpoint.Links(sources);actors.forEach((drone,visual)->bodies.add(new Actor(links.key(drone),links.key(visual),drone.retired)));
             var counts=new HashMap<BodyChunk,Integer>();controllers.forEach((key,s)->{if(!key.equals(s.player.getUUID()))throw new IllegalStateException("FPV controller UUID mismatch");sessions.add(new Control(key,links.key(s.player),links.key(s.drone),s.born,s.yaw,s.pitch,s.attached,s.body));if(s.body!=null)counts.merge(s.body,1,Integer::sum);});if(!counts.equals(leases))throw new IllegalStateException("FPV body lease counts are incoherent");}
         private void stable(boolean frozen){if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore FPV on its stable frozen match thread");checkpointBoundary();game.items().spellSources().checkpointBoundary();}
-        void prepareFrozen(){stable(true);prepareCheckpoint();prepared=true;installed=false;}
+        void prepareFrozen(){stable(true);prepareCheckpoint();omittedControllers.clear();prepared=true;installed=false;}
         Set<UUID> finishFrozen(java.util.function.Function<UUID,Entity> lookup){
             stable(true);if(!prepared)throw new IllegalStateException("Detach future FPV state first");var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
             @SuppressWarnings("unchecked") var restored=(IdentityHashMap<Drone,Visual>)traversal.clone();for(var image:bodies){if(!(links.get(image.drone) instanceof Drone drone)||!(links.get(image.visual) instanceof LbcFpvDrone.Visual visual)||visual.drone!=drone)throw new IllegalStateException("Restore canonical FPV actor/display links first");restored.put(drone,visual);}
-            @SuppressWarnings("unchecked") var controls=(HashMap<UUID,Session>)controllerTraversal.clone();for(var image:sessions){if(!(links.get(image.player) instanceof ServerPlayer player)||!(links.get(image.drone) instanceof Drone drone)||!restored.containsKey(drone))throw new IllegalStateException("Restore canonical FPV player/drone bodies first");var session=new Session(player,drone,clock.time(image.born,game));session.yaw=image.yaw;session.pitch=image.pitch;session.body=image.body;controls.put(image.key,session);}
-            leases.keySet().forEach(key->MatchAuthorityCheckpoint.world(game,key.level));
-            actors=restored;controllers=controls;tickets.clear();tickets.putAll(leases);
+            @SuppressWarnings("unchecked") var controls=(HashMap<UUID,Session>)controllerTraversal.clone();
+            var omitted=new HashSet<UUID>();
+            for(var image:sessions){
+                if(!(links.get(image.player) instanceof ServerPlayer player)||!(links.get(image.drone) instanceof Drone drone)||!restored.containsKey(drone))
+                    throw new IllegalStateException("Restore canonical FPV player/drone bodies first");
+                // A retained offline body is private source data, never a live camera/controller or ticket owner.
+                if(MatchOfflinePlayers.retained(player)){controls.remove(image.key);omitted.add(image.key);continue;}
+                var session=new Session(player,drone,clock.time(image.born,game));session.yaw=image.yaw;session.pitch=image.pitch;session.body=image.body;controls.put(image.key,session);
+            }
+            var activeLeases=new HashMap<BodyChunk,Integer>();
+            for(var session:controls.values())if(session.body!=null)activeLeases.merge(session.body,1,Integer::sum);
+            activeLeases.keySet().forEach(key->MatchAuthorityCheckpoint.world(game,key.level));
+            actors=restored;controllers=controls;omittedControllers.clear();omittedControllers.addAll(omitted);tickets.clear();tickets.putAll(activeLeases);
             for(var image:bodies)((Drone)links.get(image.drone)).retired=image.retired;explosions=blasts;lastTick=clock.last(game);
-            for(var key:leases.keySet())key.level.getChunkSource().addTicketWithRadius(BODY_TICKET,key.pos,3);
+            for(var key:activeLeases.keySet())key.level.getChunkSource().addTicketWithRadius(BODY_TICKET,key.pos,3);
             for(var session:controls.values())session.player.level().getChunkSource().move(session.player);installed=true;return Set.of();
         }
+
         Set<UUID> publishFrozen(){
             stable(true);if(!installed)throw new IllegalStateException("Install FPV state before client presentation");var pending=new LinkedHashSet<UUID>();
-            for(var image:sessions){var s=controllers.get(image.key);if(s==null||game.server().getPlayerList().getPlayer(image.key)!=s.player)throw new IllegalStateException("FPV client body changed during publication");
+            for(var image:sessions){if(omittedControllers.contains(image.key))continue;var s=controllers.get(image.key);if(s==null||game.server().getPlayerList().getPlayer(image.key)!=s.player)throw new IllegalStateException("FPV client body changed during publication");
                 if(image.attached&&!s.attached){s.player.level().getChunkSource().move(s.player);if(s.player.isChangingDimension()||!s.player.connection.hasClientLoaded()||!net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(s.drone).contains(s.player)){pending.add(image.key);continue;}
                     s.player.connection.send(passengers(s.drone.getId(),s.player.getId()));s.player.connection.send(new ClientboundSetCameraPacket(s.drone));s.attached=true;}
             }
-            if(pending.isEmpty()){for(var image:sessions)controllers.get(image.key).born=clock.time(image.born,game);lastTick=clock.last(game);rewinding=false;prepared=false;}
+            if(pending.isEmpty()){for(var image:sessions)if(!omittedControllers.contains(image.key))controllers.get(image.key).born=clock.time(image.born,game);lastTick=clock.last(game);rewinding=false;prepared=false;}
             return Set.copyOf(pending);
         }
-        void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel FPV on its frozen native thread");prepareCheckpoint();rewinding=false;prepared=false;installed=false;}
+        void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel FPV on its frozen native thread");prepareCheckpoint();omittedControllers.clear();rewinding=false;prepared=false;installed=false;}
     }
 }

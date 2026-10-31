@@ -17,6 +17,12 @@ import net.minecraft.world.phys.Vec3;
 
 /** Native player-body component. Full Vanity still requires world/core/actor/queue coordination. */
 public final class MatchPlayerCheckpoint {
+    /** Socketless Carpet players have no client to acknowledge their restored world. */
+    public interface SimulatedAcknowledgement {
+        void skywars2$acknowledgeRestore();
+        boolean skywars2$waitingForRespawn();
+        void skywars2$beginRespawn();
+    }
     private record Restore(GameController game,UUID id) { }
     private static final ThreadLocal<Restore> RESTORING=new ThreadLocal<>();
     public static boolean restoring(ServerPlayer player) {
@@ -26,6 +32,8 @@ public final class MatchPlayerCheckpoint {
     private final GameController game;
     private final String epoch;
     private final UUID id;
+    private final ServerPlayer capturedBody;
+    private final boolean observer;
     private final ServerLevel level;
     private final CompoundTag nbt;
     private final Vec3 position,motion;
@@ -33,6 +41,7 @@ public final class MatchPlayerCheckpoint {
     private final net.minecraft.world.entity.player.Input input;
     private final List<ItemStack> crafting=new ArrayList<>();
     private final ItemStack cursor;
+    private final List<Identifier> postEffects;
     private final MatchEntityState body;
     private final MatchPlayerProgress progress;
     private final Map<Identifier,Object> cooldowns;
@@ -42,16 +51,33 @@ public final class MatchPlayerCheckpoint {
         if(!game.server().isSameThread()||game.server().getPlayerList().getPlayer(player.getUUID())!=player||!game.playing())
             throw new IllegalStateException("Capture a current match player on the native server thread");
         MatchPlayerViews.validateMenu(player);
-        this.game=game;id=player.getUUID();epoch=game.items().epoch();level=player.level();
+        this.game=game;capturedBody=player;observer=game.isObserver(player);id=player.getUUID();epoch=game.items().epoch();level=player.level();
         body=new MatchEntityState(game,player);nbt=body.nbt;
         position=body.position;motion=body.motion;yaw=body.yaw;pitch=body.pitch;input=player.getLastClientInput();
         for(int n=0;n<player.inventoryMenu.getCraftSlots().getContainerSize();n++)crafting.add(player.inventoryMenu.getCraftSlots().getItem(n).copy());
         cursor=player.inventoryMenu.getCarried().copy();
+        postEffects=List.copyOf(player.getPostEffects());
         progress=new MatchPlayerProgress(player);
         var cd=(PlayerCheckpointAccess.Cooldowns)player.getCooldowns();cooldownTick=cd.skywars2$tick();cooldowns=new LinkedHashMap<>(cd.skywars2$cooldowns());
     }
 
     UUID id() { return id; }
+    ServerPlayer retainedBody(){return capturedBody;}
+    boolean observer(){return observer;}
+    /** Restore the private data referenced by accepted continuations, without a native player registration. */
+    void restoreRetainedData(){restoreRetainedData(capturedBody);}
+    void restoreRetainedData(ServerPlayer retainedBody){
+        if(game.server().getPlayerList().getPlayer(id)!=null)throw new IllegalStateException("A retained logout body must stay offline");
+        var previous=RESTORING.get();RESTORING.set(new Restore(game,id));
+        try{
+            ((me.skywars2.mixin.ActorCheckpointAccess.Body)retainedBody).skywars2$level(level);
+            if(!retainedBody.isRemoved())throw new IllegalStateException("Logout data body must not be registered or revived");
+            body.load(retainedBody);
+            if(!retainedBody.isRemoved())throw new IllegalStateException("Loading logout data revived a player");
+            for(int n=0;n<crafting.size();n++)retainedBody.inventoryMenu.getCraftSlots().setItem(n,crafting.get(n).copy());
+            retainedBody.inventoryMenu.setCarried(cursor.copy());
+        }finally{if(previous==null)RESTORING.remove();else RESTORING.set(previous);}
+    }
     ServerPlayer restoreFrozen() {
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen()||!game.playing()||!game.items().currentEpoch(epoch)||game.maps().busy())
             throw new IllegalStateException("Restore the original match on a frozen native server thread");
@@ -64,15 +90,19 @@ public final class MatchPlayerCheckpoint {
             // Personal future buffers are discarded, not dropped by native menu close.
             // Supported storage cursors belong to the earlier view image/close phase.
             player.containerMenu.setCarried(ItemStack.EMPTY);player.inventoryMenu.getCraftSlots().clearContent();
-            if(player.isDeadOrDying()&&nbt.getFloatOr("Health",0)>0) {
-                player.connection.handleClientCommand(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN));
-                player=game.server().getPlayerList().getPlayer(id);
+            if((player.isDeadOrDying()||((SimulatedAcknowledgement)player.connection).skywars2$waitingForRespawn())&&nbt.getFloatOr("Health",0)>0) {
+                // The server owns this rewind. A restored health value may already be positive
+                // while the connection still waits for respawn, so a client command can no-op.
+                player=game.server().getPlayerList().respawn(player,false,net.minecraft.world.entity.Entity.RemovalReason.KILLED);
+                player.connection.resetPosition();
+                ((SimulatedAcknowledgement)player.connection).skywars2$beginRespawn();
                 if(player==null||player.isDeadOrDying())throw new IllegalStateException("Native respawn did not provide a living replacement");
             }
             player.closeContainer();player.stopRiding();player.setCamera(player);player.stopUsingItem();
             player.getPostEffects().clear();
             if(!player.teleportTo(level,position.x,position.y,position.z,java.util.Set.of(),yaw,pitch,true))throw new IllegalStateException("Native player dimension transfer failed");
             body.load(player);
+            player.clearPostEffects();postEffects.forEach(player::addPostEffect);
             var recipe=nbt.read("recipeBook",net.minecraft.stats.ServerRecipeBook.Packed.CODEC).orElseThrow();
             ((PlayerCheckpointAccess.Recipes)player.getRecipeBook()).skywars2$apply(recipe);
             for(int n=0;n<crafting.size();n++)player.inventoryMenu.getCraftSlots().setItem(n,crafting.get(n).copy());
@@ -86,6 +116,8 @@ public final class MatchPlayerCheckpoint {
             // Native teleport establishes listener/chunk/position bookkeeping. Explicit
             // motion packets restore exact velocity, including values NBT.load caps at 10.
             player.connection.teleport(position.x,position.y,position.z,yaw,pitch);
+            if(player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake"))
+                ((SimulatedAcknowledgement)player.connection).skywars2$acknowledgeRestore();
             // Native teleport resets the head rotation and previous pose/rotation values.
             body.finishRuntime(player);
             player.setDeltaMovement(motion);

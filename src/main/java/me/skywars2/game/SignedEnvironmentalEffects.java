@@ -145,6 +145,7 @@ public final class SignedEnvironmentalEffects {
             if(remaining>0)spawns.addLast(new SpawnJob(job.level,job.at,job.negative,remaining,job.source,job.author));
         }
     }
+    static void discardQueuedForRollback(){spawns.clear();EffectTerrain.clear();}
     public static void clear() { spawns.clear();EffectTerrain.clear();authors.clear();offspringOwners.clear(); }
     public static long queuedSpawns() { long n=0;for(var job:spawns)n+=job.remaining;return n; }
     public static void removed(ServerLevel level,LivingEntity mob,int amplifier,Entity.RemovalReason reason,MobEffect effect) {

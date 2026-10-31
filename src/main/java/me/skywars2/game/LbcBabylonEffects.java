@@ -29,6 +29,7 @@ public final class LbcBabylonEffects {
     private final LbcMana mana;
     private final Map<LivingEntity,List<ArrayDeque<Contribution>>> pending=new LinkedHashMap<>();
     private final Map<Entity,LbcIndirectKills.Owner> secondary=new WeakHashMap<>();
+    private final Set<LivingEntity> retainedTargets=Collections.newSetFromMap(new IdentityHashMap<>());
     private static final class Contribution {
         int remaining; final LbcIndirectKills.Owner cause;
         Contribution(int ticks,LbcIndirectKills.Owner cause){remaining=ticks;this.cause=cause;}
@@ -85,6 +86,7 @@ public final class LbcBabylonEffects {
     }
     public void tick(){for(var target:List.copyOf(pending.keySet()))tickTarget(target);}
     public void tickTarget(LivingEntity target){
+        if(retainedTargets.contains(target))return;
         if(game.items().polymorph().masked(target))return;
         var all=pending.get(target);if(all==null)return;
         if(target.entityTags().contains("sin_greed_active"))return;
@@ -181,7 +183,7 @@ public final class LbcBabylonEffects {
             var entry=new CompoundTag();entry.putInt("amp",AMPS[i]);entry.putInt("ticks",c.remaining);entry.putString("owner",c.cause.player().toString());entry.putLong("order",c.cause.order());entry.putBoolean("wild",c.cause.friendlyFire());entry.putBoolean("projectile",c.cause.projectile());entries.add(entry);
         }}tag.put("entries",entries);target.setAttached(DATA,tag);
     }
-    public void clear(LivingEntity target){pending.remove(target);target.removeAttached(DATA);for(var name:COUNTERS)mana.score(target,name).set(0);}
+    public void clear(LivingEntity target){retainedTargets.remove(target);pending.remove(target);target.removeAttached(DATA);for(var name:COUNTERS)mana.score(target,name).set(0);}
     public void loaded(Entity entity){
         if(entity.entityTags().contains("skywars2.babylon.effect")&&(!secondary.containsKey(entity)||!game.items().currentEpoch(entity))){entity.discard();return;}
         if(!(entity instanceof LivingEntity target))return;var tag=target.getAttached(DATA);if(tag==null)return;
@@ -198,7 +200,7 @@ public final class LbcBabylonEffects {
         if(!(entity instanceof net.minecraft.world.entity.item.PrimedTnt&&entity.isRemoved()))secondary.remove(entity);
     }
     public void forget(ServerPlayer player){clear(player);}
-    public void stop(){for(var target:List.copyOf(pending.keySet()))clear(target);for(var entity:List.copyOf(secondary.keySet()))if(!entity.isRemoved())entity.discard();secondary.clear();}
+    public void stop(){for(var target:List.copyOf(pending.keySet()))clear(target);for(var entity:List.copyOf(secondary.keySet()))if(!entity.isRemoved())entity.discard();secondary.clear();retainedTargets.clear();}
     void adoptRawFoodStatuses(ServerPlayer player){
         if(!valid(player)||skillImmune(player)||game.items().magic().rejectCustomEffect(player))return;
         int[] desired=new int[3];for(int i=0;i<3;i++)desired[i]=mana.hudValue(player,COUNTERS[i]);
@@ -207,4 +209,27 @@ public final class LbcBabylonEffects {
         if(pending.containsKey(player))sync(player);
     }
     public void addPlayerCounter(ServerPlayer player,String name){for(int i=0;i<3;i++)if(COUNTERS[i].equals(name)){mana.score(player,name).set(queued(player,AMPS[i]));return;}}
+
+    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    void prepareResidentFrozen(){pending.clear();secondary.clear();retainedTargets.clear();}
+    final class ResidentCheckpoint {
+        private record ContributionImage(int remaining,LbcIndirectKills.Owner cause){}
+        private record TargetImage(MatchDamageSources.Ref body,List<List<ContributionImage>> queues){}
+        private final List<TargetImage> targets=new ArrayList<>();
+        private final Map<MatchDamageSources.Ref,LbcIndirectKills.Owner> children=new LinkedHashMap<>();
+        ResidentCheckpoint(MatchSpellCheckpoint.Links links){
+            pending.forEach((body,all)->targets.add(new TargetImage(links.key(body),all.stream()
+                    .map(queue->queue.stream().map(c->new ContributionImage(c.remaining,c.cause)).toList()).toList())));
+            secondary.forEach((body,cause)->{if(!body.isRemoved()&&!links.omitted(body))children.put(links.key(body),cause);});
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var next=new LinkedHashMap<LivingEntity,List<ArrayDeque<Contribution>>>();var offline=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
+            for(var target:targets){var body=(LivingEntity)links.get(target.body);var all=queues();
+                for(int kind=0;kind<3;kind++)for(var row:target.queues.get(kind))all.get(kind).add(new Contribution(row.remaining,row.cause));
+                next.put(body,all);if(MatchOfflinePlayers.retained(body))offline.add(body);}
+            var nextChildren=new WeakHashMap<Entity,LbcIndirectKills.Owner>();children.forEach((ref,cause)->nextChildren.put(links.get(ref),cause));
+            return ()->{pending.clear();pending.putAll(next);secondary.clear();secondary.putAll(nextChildren);retainedTargets.clear();retainedTargets.addAll(offline);};
+        }
+    }
+
 }

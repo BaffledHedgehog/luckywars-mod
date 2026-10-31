@@ -1,3 +1,19 @@
+## Vanity coordinator and sustained abilities - IMPLEMENTED, NOT RELEASED (31 October 2026)
+
+[Contract, native evidence and performance](agent_notes/VANITY_COORDINATOR_2026_10_31.md).
+Qualified acquisition creates an end-tick point; holder death rewinds world/core/actors/
+players and sustained owners. Accepted construction completes before capture; unsupported
+short attacks may cancel. Existing exact owners remain. Real offline players wait for
+actual login; replacement points retain their saved roles and pending abilities.
+Final9980b75a passes production lifecycle, core, Stand Arrow and resident-spell suites
+in4 fresh native matches, including TWO offline point replacements and actual native
+respawn/Carpet listeners. Earlier broad91-suite results and follow-ups are retained.
+On-demand captures54.3584/30.2032/13.9029ms; complete rewinds50.8293-290.3384ms in
+that bounded fixture; no peakTPS claim. Original25 Chaos release gate remains CLOSED.
+Main JAR d9087f0a, author199 paths and live31 overrides remain untouched. No main
+install/restart/push or RP/question-file changes. Do not add adapters to every short
+continuation; this heading supersedes historical "full Vanity gated" roadmap statements.
+
 ## Vanity five resident spell/ability owners - NATIVE COMPONENT, NOT RELEASED (31 October 2026)
 
 [State ownership and exact native evidence](agent_notes/VANITY_RESIDENT_SPELLS_CHECKPOINT_2026_10_31.md).

@@ -97,6 +97,14 @@ public final class BlackHoleVisuals {
         for(var slots:viewers.values()) for(var slot:slots) if(slot.hole==hole) release(slot);
         dirty=true;
     }
+    /** Rollback replaces only the originating spell's handle; other producers keep their slots. */
+    void detachForCheckpoint(Handle hole){
+        holes.remove(hole);
+        for(var slots:viewers.values())for(var slot:slots)if(slot.hole==hole){release(slot);slot.availableAt=clock;}
+        dirty=true;
+    }
+    /** Fresh holders target current connections after native player/world readiness. */
+    void publishFrozen(){refresh();for(var slots:viewers.values())for(var slot:slots)if(slot.hole!=null)slot.holder.tick();}
     private boolean valid(Handle hole) {
         // Producers own gameplay lifetime and remove their handles explicitly. A UUID-based
         // producer can survive player replacement or pause before rebinding during Time Stop.

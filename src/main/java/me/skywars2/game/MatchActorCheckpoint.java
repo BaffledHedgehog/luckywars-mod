@@ -34,15 +34,20 @@ public final class MatchActorCheckpoint {
     private final String epoch;
     private final Map<UUID,Image> images=new LinkedHashMap<>();
     private boolean bodiesRestored;
+    private Set<UUID> omitted=Set.of();
+    private final Set<UUID> capturedPlayers=new LinkedHashSet<>();
+    private record PlayerLedger(Set<UUID> pearls,UUID fishing) { }
+    private final Map<UUID,PlayerLedger> playerLedgers=new LinkedHashMap<>();
     private MatchPlayerLinks playerLinks;
     private MatchCombatCheckpoint combat;
     private MatchDamageSources damageSources;
     private MatchPlayerViews views;
 
     private MatchActorCheckpoint(GameController game) {this.game=game;epoch=game.items().epoch();}
-    static MatchActorCheckpoint captureRegistered(GameController game) {
+    static MatchActorCheckpoint captureRegistered(GameController game) {return captureRegistered(game,Set.of());}
+    static MatchActorCheckpoint captureRegistered(GameController game,Set<UUID> omitted) {
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy())throw new IllegalStateException("Capture a stable native match on its server thread");
-        var result=new MatchActorCheckpoint(game);
+        var result=new MatchActorCheckpoint(game);result.omitted=Set.copyOf(omitted);
         for(var actor:result.registered()) {
             var passengers=actor.getPassengers().stream().map(e->new Link(e.getUUID(),e.getPose())).toList();
             var target=actor instanceof Mob mob?mob.getTargetUnchecked():null;
@@ -62,13 +67,24 @@ public final class MatchActorCheckpoint {
             if(result.images.put(image.uuid,image)!=null)throw new IllegalStateException("Duplicate native actor UUID at capture");
         }
         result.playerLinks=new MatchPlayerLinks(game,id->{var image=result.images.get(id);return image==null?null:image.actor;});
+        for(var player:game.server().getPlayerList().getPlayers()){
+            result.capturedPlayers.add(player.getUUID());var pearls=new LinkedHashSet<UUID>();
+            for(var pearl:player.getEnderPearls())pearls.add(pearl.getUUID());
+            result.playerLedgers.put(player.getUUID(),new PlayerLedger(Set.copyOf(pearls),player.fishing==null?null:player.fishing.getUUID()));
+        }
         var actors=result.images.values().stream().map(Image::actor).toList();
-        result.damageSources=new MatchDamageSources(game,actors);
+        result.damageSources=new MatchDamageSources(game,actors,omitted);
         result.combat=new MatchCombatCheckpoint(game,actors,result.damageSources);
         result.views=new MatchPlayerViews(game);
         return result;
     }
     int size(){return images.size();}
+    static Map<UUID,Entity> currentBodies(GameController game){
+        var result=new LinkedHashMap<UUID,Entity>();
+        for(var actor:new MatchActorCheckpoint(game).registered())result.put(actor.getUUID(),actor);
+        for(var player:game.server().getPlayerList().getPlayers())result.put(player.getUUID(),player);
+        return result;
+    }
     private List<Entity> registered() {
         var actors=new ArrayList<Entity>();for(var level:game.server().getAllLevels()) {
             var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
@@ -80,10 +96,12 @@ public final class MatchActorCheckpoint {
         }
         return actors;
     }
-    private void validate() {
+    private void validate(){validate(omitted);}
+    private void validate(Set<UUID> excluded) {
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen()||!game.playing()
                 ||!game.items().currentEpoch(epoch)||game.maps().busy())throw new IllegalStateException("Restore the original match actors on a frozen server thread");
         for(var image:images.values()) {
+            if(excluded.contains(image.uuid))continue;
             if(image.actor.getId()!=image.id||!image.actor.getUUID().equals(image.uuid))throw new IllegalStateException("Native actor identity changed outside the entity manager");
             if(!image.state.level.hasChunkAt(BlockPos.containing(image.state.position)))throw new IllegalStateException("Saved actor destination is not resident");
             if(image.actor.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)throw new IllegalStateException("Full owner must reconcile actor region storage before an unloaded actor restore");
@@ -95,23 +113,35 @@ public final class MatchActorCheckpoint {
     }
     /** No death/drop/status triggers. Native managers remove/register the same original instances. */
     void prepareViewsFrozen() {validate();views.prepareFrozen();}
-    void restoreBodiesFrozen() {
-        validate();views.prepareFrozen();bodiesRestored=false;
+    void restoreBodiesFrozen(){restoreBodiesFrozen(Set.of());}
+    /** Omitted saved transient bodies stay retired; no native load/AI/spawn callback recreates them. */
+    void restoreBodiesFrozen(Set<UUID> omittedTransientActors) {
+        var next=Set.copyOf(omittedTransientActors);
+        if(!images.keySet().containsAll(next))throw new IllegalArgumentException("Only captured native actors may be omitted");
+        validate(next);views.prepareFrozen();omitted=next;bodiesRestored=false;
         var current=registered();
         scoped(()->{
             playerLinks.clear();
             for(var actor:current)detachLinks(actor);
-            for(var image:images.values())detachLinks(image.actor);
+            for(var image:images.values())if(!omitted.contains(image.uuid))detachLinks(image.actor);
             for(var actor:current) {
                 // Final setRemoved avoids LivingEntity.remove's death-effect spawning/brain clearing.
                 // CHANGED_DIMENSION retains restored scoreboard entries for original instances.
                 // A native dimension replacement shares the saved UUID. Destroying that alias
                 // would also erase the already-restored scoreboard data for the original body.
-                boolean savedIdentity=images.containsKey(actor.getUUID());
+                boolean savedIdentity=images.containsKey(actor.getUUID())&&!omitted.contains(actor.getUUID());
                 actor.setRemoved(savedIdentity?Entity.RemovalReason.CHANGED_DIMENSION:Entity.RemovalReason.DISCARDED);
                 game.cancelQueuedEntityUnload(actor);
             }
             for(var image:images.values()) {
+                if(omitted.contains(image.uuid)){
+                    // Accepted sources may retain this historical object. Restore its data only;
+                    // never revive/register it or let native physics simulate the cancelled spell.
+                    if(!image.actor.isRemoved())image.actor.setRemoved(Entity.RemovalReason.DISCARDED);
+                    image.state.load(image.actor);image.state.finishRandom(image.actor);
+                    if(!image.actor.isRemoved())throw new IllegalStateException("Historical source data revived an omitted actor");
+                    continue;
+                }
                 var actor=image.actor;var access=(ActorCheckpointAccess.Body)actor;
                 access.skywars2$level(image.state.level);access.skywars2$revive();
                 image.state.load(actor);
@@ -136,25 +166,29 @@ public final class MatchActorCheckpoint {
     /** Canonical current body lookup for other checkpoint owners; no gameplay visibility selector. */
     Entity resolve(UUID id) {
         if(!bodiesRestored)throw new IllegalStateException("Restore native bodies before resolving checkpoint references");
-        if(id==null)return null;
+        if(id==null||omitted.contains(id))return null;
         var player=game.server().getPlayerList().getPlayer(id);if(player!=null)return player;
         var image=images.get(id);return image!=null&&!image.actor.isRemoved()?image.actor:null;
     }
     /** Finish camera links only after the native post-respawn chunk/entity pairing. */
-    Set<UUID> finishViewsFrozen() {
-        validate();if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before views");
-        var pending=new LinkedHashSet<UUID>();views.finishBoundViews(this::resolve,pending);views.restoreCameras(this::resolve,pending);return Set.copyOf(pending);
+    Set<UUID> finishViewsFrozen(){return finishViewsFrozen(Set.of());}
+    Set<UUID> finishViewsFrozen(Set<UUID> intentionallyAbsent) {
+        validate();var absent=absentPolicy(intentionallyAbsent);if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before views");
+        var pending=pendingExcept(absent);MatchDamageSources.withAbsent(absent,()->{views.finishBoundViews(this::resolve,pending);views.restoreCameras(this::resolve,pending);});return Set.copyOf(pending);
     }
     /** Player bodies may be restored between phases; missing/offline UUIDs remain explicit pending links. */
-    Set<UUID> restoreLinksFrozen() {
-        validate();if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before links");
+    Set<UUID> restoreLinksFrozen(){return restoreLinksFrozen(Set.of());}
+    /** Only offline captured players and this restore's omitted actors may remain intentionally absent. */
+    Set<UUID> restoreLinksFrozen(Set<UUID> intentionallyAbsent) {
+        validate();var absent=absentPolicy(intentionallyAbsent);if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before links");
         var current=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Entity,Boolean>());current.addAll(registered());
-        for(var image:images.values())if(!current.contains(image.actor)||image.actor.level()!=image.state.level)throw new IllegalStateException("Actor body left its restored native registry before links");
-        var pending=new LinkedHashSet<UUID>();
-        scoped(()->{
+        for(var image:images.values())if(!omitted.contains(image.uuid)&&(!current.contains(image.actor)||image.actor.level()!=image.state.level))throw new IllegalStateException("Actor body left its restored native registry before links");
+        var pending=pendingExcept(absent);
+        MatchDamageSources.withAbsent(absent,()->scoped(()->{
             playerLinks.clear();
-            for(var image:images.values())detachLinks(image.actor);
+            for(var image:images.values())if(!omitted.contains(image.uuid))detachLinks(image.actor);
             for(var image:images.values()) {
+                if(omitted.contains(image.uuid))continue;
                 var actor=image.actor;
                 if(actor instanceof Mob) {
                     var target=resolve(image.target);if(image.target!=null&&target==null)pending.add(image.target);
@@ -189,7 +223,7 @@ public final class MatchActorCheckpoint {
                         if(holderId==null&&leash.delayedLeashInfo!=null)holderId=leash.delayedLeashInfo.left().orElse(null);
                         if(holderId!=null) {
                             var holder=resolve(holderId);
-                            if(holder==null||holder.level()!=actor.level())pending.add(holderId);else leash.setLeashHolder(holder);
+                            if(holder==null||holder.level()!=actor.level()){pending.add(holderId);if(absent.contains(holderId))leash=null;}else leash.setLeashHolder(holder);
                         }
                     }
                     leashed.setLeashData(leash);
@@ -203,10 +237,44 @@ public final class MatchActorCheckpoint {
                 }
                 image.state.level.getChunkSource().sendToTrackingPlayers(actor,new ClientboundSetPassengersPacket(actor));
             }
-            playerLinks.restore(this::resolve,pending);
+            if(omitted.isEmpty())playerLinks.restore(this::resolve,pending);else restorePlayerLedgers(pending);
             combat.restore(this::resolve,pending);
             views.restore(this::resolve,pending);
-        });
+        }));
         return Set.copyOf(pending);
     }
+    private Set<UUID> absentPolicy(Set<UUID> requested){
+        var result=new LinkedHashSet<UUID>(omitted);
+        for(var id:requested){
+            if(omitted.contains(id)){result.add(id);continue;}
+            if(!capturedPlayers.contains(id))throw new IllegalArgumentException("Intentional absence requires a captured offline player or omitted actor: "+id);
+            if(game.server().getPlayerList().getPlayer(id)!=null)throw new IllegalArgumentException("An online captured player cannot be treated as absent: "+id);
+            result.add(id);
+        }
+        return Set.copyOf(result);
+    }
+    private static Set<UUID> pendingExcept(Set<UUID> absent){return new LinkedHashSet<>(){
+        @Override public boolean add(UUID id){return !absent.contains(id)&&super.add(id);}
+    };}
+    /** The normal native ledger path throws for an omitted pearl/hook; rebuild only retained ledger entries. */
+    private void restorePlayerLedgers(Set<UUID> pending){
+        playerLinks.clear();
+        for(var entry:playerLedgers.entrySet()){
+            var player=game.server().getPlayerList().getPlayer(entry.getKey());var saved=entry.getValue();
+            if(player==null){if(!saved.pearls.isEmpty()||saved.fishing!=null)pending.add(entry.getKey());continue;}
+            for(var id:saved.pearls){
+                if(omitted.contains(id))continue;var body=resolve(id);
+                if(!(body instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl pearl)||pearl.getOwner()!=player)
+                    throw new IllegalStateException("Restore retained native pearl bodies and owners before player ledgers");
+                player.registerEnderPearl(pearl);
+            }
+            if(saved.fishing!=null&&!omitted.contains(saved.fishing)){
+                var body=resolve(saved.fishing);
+                if(!(body instanceof net.minecraft.world.entity.projectile.FishingHook hook)||hook.getPlayerOwner()!=player)
+                    throw new IllegalStateException("Restore retained native fishing body and owner before player ledger");
+                player.fishing=hook;
+            }
+        }
+    }
+
 }

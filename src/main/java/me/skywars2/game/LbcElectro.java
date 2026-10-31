@@ -145,10 +145,13 @@ public final class LbcElectro {
         ServerPlayer owner;
         int pulses;
         int untilNext = SHOCK_INTERVAL;
+        boolean retainedTarget,retainedOwner;
         Shock(ServerPlayer owner, int pulses) { this.owner = owner; this.pulses = pulses; }
     }
 
     private final GameController game;
+    private int checkpointDepth;
+    private boolean checkpointFrozen;
     private final Map<UUID, Charge> charges = new HashMap<>();
     private final Map<UUID, Charge> yellowCharges = new HashMap<>();
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
@@ -175,7 +178,7 @@ public final class LbcElectro {
     private final Set<YellowTrace> yellowTraces = new java.util.LinkedHashSet<>();
     private final ArrayList<YellowTrace> yellowBatch = new ArrayList<>();
     // Только затронутые цели; выгрузка/смерть/очистка и конец матча удаляют запись явно.
-    private final Map<LivingEntity, Shock> shocks = new IdentityHashMap<>();
+    private IdentityHashMap<LivingEntity, Shock> shocks = new IdentityHashMap<>();
     private final ArrayList<LivingEntity> shockBatch = new ArrayList<>();
     private final Set<LightningBolt> liveBolts = new HashSet<>();
     private final ArrayList<LightningBolt> boltBatch = new ArrayList<>();
@@ -201,6 +204,7 @@ public final class LbcElectro {
 
     /** Только успешный ближний удар катаной: её молнии/эффекты не запускают новый заряд и ауру. */
     public void damaged(ServerPlayer owner, net.minecraft.world.damagesource.DamageSource source) {
+        if(checkpointFrozen)return;checkpointDepth++;try{
         if(isShitKatana(owner.getMainHandItem())) {
             if(LbcDamage.isMeleeAttack(source,owner) && active(owner)) yellowHit(owner);
             return;
@@ -221,6 +225,8 @@ public final class LbcElectro {
             if (target instanceof ServerPlayer player) debuff(owner, player, MobEffects.BLINDNESS);
         }
         LbcOverload.sound(owner, owner.position(), "minecraft:entity.firework_rocket.twinkle", 1, 2, 0);
+
+        }finally{checkpointDepth--;}
     }
 
     private void debuff(ServerPlayer owner, LivingEntity target, net.minecraft.core.Holder<MobEffect> effect) {
@@ -376,7 +382,7 @@ public final class LbcElectro {
         if(pulses<=0 || !target.isAlive() || target.isRemoved()
                 || target instanceof ServerPlayer player && game.items().magic().rejectEffect(player,MobEffects.WITHER)) return false;
         var shock=shocks.computeIfAbsent(target,ignored->new Shock(owner,0));
-        shock.owner=owner; shock.pulses+=pulses; game.items().mana().score(target,"shock").set(shock.pulses); return true;
+        shock.owner=owner;shock.retainedTarget=MatchOfflinePlayers.retained(target);shock.retainedOwner=MatchOfflinePlayers.retained(owner); shock.pulses+=pulses; game.items().mana().score(target,"shock").set(shock.pulses); return true;
     }
 
     /** ПКМ расходует накопленный заряд; обычная атака остаётся нативной. */
@@ -411,6 +417,7 @@ public final class LbcElectro {
 
     /** Ежематричный тик; общая остановка и локальная time_stopped сохраняют таймер импульса. */
     public void tick() {
+        if(checkpointFrozen)return;checkpointDepth++;try{
         tickYellow();
         boolean globallyStopped = game.items().wands().timeStopped();
         tickShields();
@@ -425,7 +432,7 @@ public final class LbcElectro {
             for (var target : shockBatch) {
                 if(game.items().polymorph().masked(target))continue;
                 Shock shock = shocks.get(target);
-                if (shock == null) continue;
+                if (shock == null||shock.retainedTarget||shock.retainedOwner) continue;
                 ServerPlayer owner = shock.owner;
                 if (!target.isAlive() || target.isRemoved() || target.level() != game.maps().level()
                         || target instanceof ServerPlayer player && (!game.canUseGameplayItems(player)
@@ -438,6 +445,8 @@ public final class LbcElectro {
                 game.items().mana().score(target,"shock").set(Math.max(0,shock.pulses));
             }
         } finally { shockBatch.clear(); }
+
+        }finally{checkpointDepth--;}
     }
 
     private static final net.minecraft.world.entity.projectile.ProjectileDeflection REVERSE = (projectile,entity,random,power) -> {
@@ -506,6 +515,7 @@ public final class LbcElectro {
     }
 
     private void reflect(ServerPlayer player,Entity entity) {
+        if(checkpointFrozen)return;checkpointDepth++;try{
         if(entity instanceof net.minecraft.world.entity.projectile.Projectile projectile) {
             projectile.deflect(REVERSE,player,net.minecraft.world.entity.EntityReference.of((Entity)player),false,1);
             assignOwner(projectile,player);
@@ -515,6 +525,8 @@ public final class LbcElectro {
             assignOwner(entity,player);
         }
         player.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,entity.getX(),entity.getY(),entity.getZ(),5,0,0,0,.3);
+
+        }finally{checkpointDepth--;}
     }
 
     public boolean canHit(net.minecraft.world.entity.projectile.Projectile projectile,Entity target) {
@@ -552,6 +564,7 @@ public final class LbcElectro {
         bolt.setCause(owner); bolt.entityTags().add(SHOCK_BOLT); bolt.entityTags().add(EGG_BOLT); liveBolts.add(bolt);
     }
     net.minecraft.world.entity.LightningBolt lightning(ServerPlayer owner,Vec3 position) {
+        if(checkpointFrozen)return null;checkpointDepth++;try{
         ServerLevel level=game.items().spellSources().level(owner);
         var epoch=game.items().epoch();
         LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
@@ -567,6 +580,8 @@ public final class LbcElectro {
             return bolt;
         }
         return null;
+
+        }finally{checkpointDepth--;}
     }
 
     /** Source score consumers alter the existing charge object, never its sibling counter. */
@@ -611,7 +626,7 @@ public final class LbcElectro {
         shocks.remove(player);
     }
     public void forget(ServerPlayer player) { reset(player); blockerCarriers.remove(player.getUUID()); }
-    public void stop() {
+    public void stop() {checkpointFrozen=false;
         shocks.clear(); charges.clear();
         yellowCharges.clear(); yellowTraces.clear();
         // Сначала отсоединяем состояние: ENTITY_UNLOAD может синхронно вызвать игровые callbacks.
@@ -620,5 +635,53 @@ public final class LbcElectro {
         blockerCarriers.clear(); accelerated.clear();
         for (var bolt : cleanup) if (!bolt.isRemoved()) bolt.discard();
         // shockBatch принадлежит активному tick и очищается его finally, даже при вложенном stop.
+    }
+
+    /** Rollback drops only short accepted traces/bolts; charge and shock ownership remain separate. */
+    java.util.List<LightningBolt> transientSnapshot(){return java.util.List.copyOf(liveBolts);}
+    void cancelTransient(){yellowTraces.clear();var old=java.util.List.copyOf(liveBolts);liveBolts.clear();for(var bolt:old)if(!bolt.isRemoved())bolt.discard();}
+
+    void checkpointBoundary(){if(checkpointDepth!=0||!shockBatch.isEmpty()||!yellowBatch.isEmpty()||!boltBatch.isEmpty())throw new IllegalStateException("Finish native Electro callbacks before checkpointing");}
+    void prepareFrozen(){checkpointBoundary();checkpointFrozen=true;cancelTransient();}
+    void publishFrozen(){checkpointBoundary();checkpointFrozen=false;}
+    void cancelFrozen(){checkpointBoundary();checkpointFrozen=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Counter(Charge original,int hits,int charges){}
+        private record Status(Shock original,MatchDamageSources.Ref owner,int pulses,int untilNext){}
+        private record Reflected(MatchDamageSources.Ref actor,MatchDamageSources.Ref owner){}
+        private final Map<UUID,Charge> cyber=new HashMap<>(charges),yellow=new HashMap<>(yellowCharges);
+        private final java.util.List<Counter> counters=new ArrayList<>();
+        private final MatchSpellCheckpoint.IdentityImage<LivingEntity,Shock> targets;
+        private final java.util.List<Status> statuses=new ArrayList<>();
+        private final java.util.List<Reflected> reflections=new ArrayList<>();
+        private final java.util.List<MatchDamageSources.Ref> sped=new ArrayList<>();
+        private final Set<UUID> blockers=Set.copyOf(blockerCarriers);
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            var omitted=MatchTransientSpells.captureOmitted(game);
+            var seen=java.util.Collections.newSetFromMap(new IdentityHashMap<Charge,Boolean>());
+            for(var value:charges.values())if(seen.add(value))counters.add(new Counter(value,value.hits,value.charges));
+            for(var value:yellowCharges.values())if(seen.add(value))counters.add(new Counter(value,value.hits,value.charges));
+            for(var target:shocks.keySet())if(links.key(target).historical()!=null)throw new IllegalStateException("Capture live shock targets");
+            targets=new MatchSpellCheckpoint.IdentityImage<>(shocks,links);
+            var shocksSeen=java.util.Collections.newSetFromMap(new IdentityHashMap<Shock,Boolean>());
+            for(var value:shocks.values())if(shocksSeen.add(value))statuses.add(new Status(value,links.key(value.owner),value.pulses,value.untilNext));
+            reflectedOwners.forEach((actor,owner)->{if(!actor.isRemoved()&&!omitted.contains(actor.getUUID()))reflections.add(new Reflected(links.key(actor),links.key(owner)));});
+            for(var actor:accelerated)if(!actor.isRemoved()&&!omitted.contains(actor.getUUID()))sped.add(links.key(actor));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var nextTargets=targets.restore(links);var owners=new IdentityHashMap<Shock,ServerPlayer>();var retainedTargets=java.util.Collections.newSetFromMap(new IdentityHashMap<Shock,Boolean>());var retainedOwners=java.util.Collections.newSetFromMap(new IdentityHashMap<Shock,Boolean>());
+            for(var saved:statuses){var owner=(ServerPlayer)links.get(saved.owner);owners.put(saved.original,owner);if(MatchOfflinePlayers.retained(owner))retainedOwners.add(saved.original);}
+            nextTargets.forEach((target,status)->{if(MatchOfflinePlayers.retained(target))retainedTargets.add(status);});
+            var nextReflections=new IdentityHashMap<Entity,ServerPlayer>();for(var saved:reflections)nextReflections.put(links.get(saved.actor),(ServerPlayer)links.get(saved.owner));
+            var nextSped=new ArrayList<Entity>();for(var saved:sped)nextSped.add(links.get(saved));
+            return ()->{
+                for(var saved:counters){saved.original.hits=saved.hits;saved.original.charges=saved.charges;}
+                charges.clear();charges.putAll(cyber);yellowCharges.clear();yellowCharges.putAll(yellow);
+                for(var saved:statuses){saved.original.owner=owners.get(saved.original);saved.original.pulses=saved.pulses;saved.original.untilNext=saved.untilNext;saved.original.retainedTarget=retainedTargets.contains(saved.original);saved.original.retainedOwner=retainedOwners.contains(saved.original);}
+                shocks=nextTargets;reflectedOwners.clear();reflectedOwners.putAll(nextReflections);accelerated.clear();accelerated.addAll(nextSped);
+                blockerCarriers.clear();blockerCarriers.addAll(blockers);
+            };
+        }
     }
 }

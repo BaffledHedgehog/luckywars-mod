@@ -30,12 +30,15 @@ public final class LbcSauvojenBoss {
     private static final Set<String> EXCLUDED=Set.of("sauvojen_tuntija","rcdenyalways","friendly_tuntija","strict_map_object");
     private final GameController game;
     private record Actor(UUID author,String epoch,LbcSpellSource.Source source){}
-    private final Map<Entity,Actor> actors=new IdentityHashMap<>();
+    private IdentityHashMap<Entity,Actor> actors=new IdentityHashMap<>();
     private final Map<UUID,Actor> unloaded=new HashMap<>();
     private record Cloud(LbcSauvojen.Drone visual,LbcSpellSource.Source source){}
     private final List<Cloud> clouds=new ArrayList<>();
     private final Set<Terrain> terrain=Collections.newSetFromMap(new IdentityHashMap<>());
-    private int phase;
+    private int phase,callbackDepth;
+    private boolean rewinding;
+    private List<RestoredCloud> stagedClouds=List.of();
+    private record RestoredCloud(ServerPlayer owner,Marker carrier,LbcSauvojen.Kind kind,String epoch,Vec3 position,Vec3 direction,int lifetime,int nextMode,LbcSpellSource.Source source){}
     private long selections,emissions,rewards;
     public LbcSauvojenBoss(GameController game){this.game=game;}
     public static boolean recognized(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("sauvojen_tuntija",0)==1;}
@@ -47,6 +50,7 @@ public final class LbcSauvojenBoss {
     }
     /** Shared special drops perform the one-token debit only after this admission succeeds. */
     public boolean spawn(ItemEntity token){
+        if(rewinding)return false;callbackDepth++;try{
         if(!ready(token))return false;var author=(ServerPlayer)game.items().specialDrops().owner(token);var level=author.level();var at=token.position();
         var ghast=EntityTypes.GHAST.create(level,EntitySpawnReason.COMMAND);if(ghast==null)return false;
         load(ghast,"{DeathLootTable:\"lbc:sauvojen_tuntija\",PersistenceRequired:true,ExplosionPower:3}");
@@ -59,6 +63,8 @@ public final class LbcSauvojenBoss {
         if(!level.addFreshEntity(ghast)){actors.remove(ghast);ghast.discard();return false;}
         LbcOverload.sound(level,at,"minecraft:entity.wither.spawn",1,1,0,.5f);
         level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,at.x,at.y+10,at.z,1000,1,10,1,0);return true;
+
+        }finally{callbackDepth--;}
     }
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(BOSS);}
     public ServerPlayer owner(Entity entity){
@@ -78,6 +84,7 @@ public final class LbcSauvojenBoss {
     public long rewards(){return rewards;}
     List<Entity> snapshot(){return List.copyOf(actors.keySet());}
     public void tick(){
+        if(rewinding)return;callbackDepth++;try{
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
         var level=game.maps().level();if(level==null||game.items().timeStop().stopped(level))return;
         phase=(phase+1)%240;
@@ -90,6 +97,8 @@ public final class LbcSauvojenBoss {
             if(phase%40==0&&nearest(level,boss.position(),110)!=null)select(living,state,author);
         }
         for(var cloud:List.copyOf(clouds))tickCloud(cloud);
+
+        }finally{callbackDepth--;}
     }
     private LivingEntity nearest(ServerLevel level,Vec3 point,double radius){
         LivingEntity nearest=null;double best=radius*radius;
@@ -152,15 +161,19 @@ public final class LbcSauvojenBoss {
     }
     /** Both the threshold and the native death-table drop use the same original reward sequence. */
     public void infinity(LivingEntity boss,ServerPlayer author){
+        callbackDepth++;try{
         var at=boss.position();infinity(author,at);actors.remove(boss);
         boss.teleportTo(author.level(),0,-10000,0,Set.of(),boss.getYRot(),boss.getXRot(),true);
         // Source teleports before /kill, so its death-table token is emitted at the lower position.
         boss.hurtServer(author.level(),boss.damageSources().genericKill(),Float.MAX_VALUE);
+
+        }finally{callbackDepth--;}
     }
     public void infinity(ServerPlayer author,Vec3 at){
         infinity(author.level(),at,author);
     }
     public void infinity(ServerLevel level,Vec3 at,ServerPlayer author){
+        callbackDepth++;try{
         rewards++;game.items().infinity().produce(level,at,author);
         LbcOverload.sound(level,at,"minecraft:entity.wither.death",1,1,0,.5f);
         level.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,at.x,at.y,at.z,2000,1,1,1,.1);
@@ -170,6 +183,8 @@ public final class LbcSauvojenBoss {
             remove(cloud,false);
         }
         game.items().apocalypseActors().convertClouds(level,at,40,author);
+
+        }finally{callbackDepth--;}
     }
     void dropCloudWand(ServerLevel level,Vec3 at,LbcSauvojen.Kind kind,ServerPlayer author){
         for(var reward:game.lbc().rollTable(level,at,author,wandTable(kind)))
@@ -200,24 +215,86 @@ public final class LbcSauvojenBoss {
         Terrain(ServerPlayer author,BlockPos from,BlockPos to,LbcSpellSource.Source source){level=author.level();this.author=author.getUUID();this.from=from;this.to=to;this.source=source;}
         boolean live(){return !cancelled&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch)&&level==game.maps().level();}
         @Override public boolean ready(){return !live()||!game.items().timeStop().stopped(level)&&resident(level,from,to);}
-        @Override public boolean step(){if(live())try(var scope=game.items().spellSources().scope(source)){game.items().indirectKills().trapChanges(level,source.cause(),()->LbcDropBlocks.fill(level,from,to,Blocks.AIR,true));}cancel();return true;}
-        @Override public void cancel(){cancelled=true;terrain.remove(this);}
+        @Override public boolean step(){
+        callbackDepth++;try{if(live())try(var scope=game.items().spellSources().scope(source)){game.items().indirectKills().trapChanges(level,source.cause(),()->LbcDropBlocks.fill(level,from,to,Blocks.AIR,true));}cancel();return true;
+        }finally{callbackDepth--;}
+    }
+        @Override public void cancel(){
+        callbackDepth++;try{cancelled=true;terrain.remove(this);
+        }finally{callbackDepth--;}
+    }
     }
     public void loaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;
         if(!managed(entity))return;
         if(!game.items().currentEpoch(entity)||!game.playing()||entity.level()!=game.maps().level()){entity.discard();return;}
         if(!actors.containsKey(entity)){var state=unloaded.remove(entity.getUUID());if(state==null){entity.discard();return;}actors.put(entity,state);game.items().spellSources().bind(entity,state.source());}
         game.items().timeStop().prepareFrozen(entity);
+
+        }finally{callbackDepth--;}
     }
     public void unloaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;
         if(managed(entity)&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK){var state=actors.remove(entity);if(state!=null)unloaded.put(entity.getUUID(),state);}
         if(entity.entityTags().contains(CLOUD))for(var cloud:List.copyOf(clouds))if(cloud.visual().carrier==entity)remove(cloud,false);
+
+        }finally{callbackDepth--;}
+    }
+    /** Reconnect replaces only the real owner's reference, preserving the live cloud and its clocks. */
+    void rebindRetained(ServerPlayer player){
+        checkpointBoundary();
+        for(var cloud:clouds){var visual=cloud.visual();if(visual.owner!=player&&visual.owner.getUUID().equals(player.getUUID()))visual.owner=player;}
     }
     public void forget(ServerPlayer player){
+        callbackDepth++;try{
         for(var entity:List.copyOf(actors.keySet()))if(actors.get(entity).author().equals(player.getUUID())){actors.remove(entity);entity.discard();}
         unloaded.values().removeIf(state->state.author().equals(player.getUUID()));
         for(var cloud:List.copyOf(clouds))if(cloud.visual().owner==player)remove(cloud,false);
         for(var task:List.copyOf(terrain))if(task.author.equals(player.getUUID()))task.cancel();
+
+        }finally{callbackDepth--;}
     }
-    public void stop(){for(var entity:List.copyOf(actors.keySet()))entity.discard();actors.clear();unloaded.clear();for(var cloud:List.copyOf(clouds))remove(cloud,false);for(var task:List.copyOf(terrain))task.cancel();phase=0;}
+    public void stop(){
+        callbackDepth++;try{rewinding=false;stagedClouds=List.of();for(var entity:List.copyOf(actors.keySet()))entity.discard();actors.clear();unloaded.clear();for(var cloud:List.copyOf(clouds))remove(cloud,false);for(var task:List.copyOf(terrain))task.cancel();phase=0;
+        }finally{callbackDepth--;}
+    }
+
+    boolean captureReady(){return callbackDepth==0&&terrain.isEmpty()&&!rewinding;}
+    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish Sauvojen boss callbacks before checkpointing");}
+    void cancelFutureTerrainForRollback(){checkpointBoundary();for(var work:List.copyOf(terrain))work.cancel();}
+    void prepareFrozen(){
+        checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;
+        for(var cloud:clouds)cloud.visual().holder.destroy();clouds.clear();stagedClouds=List.of();
+    }
+    void publishFrozen(){
+        checkpointBoundary();
+        for(var saved:stagedClouds){
+            var drone=new LbcSauvojen.Drone(saved.owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY,saved.kind,saved.epoch,saved.carrier);
+            drone.position=saved.position;drone.direction=saved.direction;drone.lifetime=saved.lifetime;drone.nextMode=saved.nextMode;
+            clouds.add(new Cloud(drone,saved.source));
+            game.visualTracking().attach(drone.holder,saved.owner.level(),()->drone.position);game.items().sauvojen().sync(drone);
+        }
+        stagedClouds=List.of();rewinding=false;
+    }
+    void cancelFrozen(){checkpointBoundary();if(!stagedClouds.isEmpty())publishFrozen();else rewinding=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete Sauvojen boss terrain before capture");return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Picture(MatchDamageSources.Ref owner,MatchDamageSources.Ref carrier,LbcSauvojen.Kind kind,String epoch,Vec3 position,Vec3 direction,int lifetime,int nextMode,LbcSpellSource.Source source){}
+        private final MatchSpellCheckpoint.IdentityImage<Entity,Actor> registry;
+        private final Map<UUID,Actor> dormant=new HashMap<>(unloaded);
+        private final List<Picture> pictures=new ArrayList<>();private final int savedPhase=phase;
+        private final long savedSelections=selections,savedEmissions=emissions,savedRewards=rewards;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            for(var entity:actors.keySet())if(links.key(entity).historical()!=null)throw new IllegalStateException("Capture live event actor bodies");
+            registry=new MatchSpellCheckpoint.IdentityImage<>(actors,links);
+            for(var state:actors.values()){var author=game.server().getPlayerList().getPlayer(state.author());if(author!=null)links.key(author);}
+            for(var cloud:clouds){var d=cloud.visual();var carrier=links.key(d.carrier);if(carrier.historical()!=null)throw new IllegalStateException("Capture live boss cloud carriers");
+                pictures.add(new Picture(links.key(d.owner),carrier,d.kind,d.epoch,d.position,d.direction,d.lifetime,d.nextMode,cloud.source()));}
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var restored=registry.restore(links);var next=new ArrayList<RestoredCloud>();
+            for(var p:pictures)next.add(new RestoredCloud((ServerPlayer)links.get(p.owner),(Marker)links.get(p.carrier),p.kind,p.epoch,p.position,p.direction,p.lifetime,p.nextMode,p.source));
+            return ()->{actors=restored;unloaded.clear();unloaded.putAll(dormant);stagedClouds=List.copyOf(next);phase=savedPhase;selections=savedSelections;emissions=savedEmissions;rewards=savedRewards;};
+        }
+    }
 }

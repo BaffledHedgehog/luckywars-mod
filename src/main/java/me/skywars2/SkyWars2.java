@@ -105,6 +105,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) { game.tick(); GameChecks.tick(game); }
             me.skywars2.game.SignedEnvironmentalEffects.tick();
             me.skywars2.game.SignedEffectVisuals.tick(server);
+            if(game!=null)game.vanity().tick();
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;
@@ -121,6 +122,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.queueEntityUnload(entity);
         });
         ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> {
+            if(game!=null)game.vanity().chunkLoaded(chunk);
             if (game != null && level == game.maps().level()) game.items().magic().chunkLoaded(chunk);
             if (game != null && level == game.maps().level()) game.items().bedrock().chunkLoaded(chunk);
             if (game != null && level == game.maps().level()) game.items().academy().chunkLoaded(chunk);
@@ -192,6 +194,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){
                 var eye=player.getEyePosition();var end=eye.add(player.getViewVector(1).scale(player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.BLOCK_INTERACTION_RANGE)));
                 var hit=level.clip(new net.minecraft.world.level.ClipContext(eye,end,net.minecraft.world.level.ClipContext.Block.OUTLINE,net.minecraft.world.level.ClipContext.Fluid.SOURCE_ONLY,player));

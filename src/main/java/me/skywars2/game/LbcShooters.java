@@ -121,11 +121,15 @@ public final class LbcShooters {
         boolean currentOwnerLife() { return chickenGenerations.get(ownerId)==generation; }
         @Override public boolean shouldBeSaved() { return false; }
     }
-    private final Map<LivingEntity,Stun> stuns = new java.util.IdentityHashMap<>();
+    private java.util.IdentityHashMap<LivingEntity,Stun> stuns = new java.util.IdentityHashMap<>();
+    private int statusCallbacks;
+    private boolean statusRestoring;
+    private final java.util.IdentityHashMap<LivingEntity,Map<net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect>,Integer>> restoredStunAges=new java.util.IdentityHashMap<>();
     private static final Identifier STUN_MOVEMENT=Identifier.parse("skywars2:stun_movement");
     private record StunEffect(MobEffectInstance installed,MobEffectInstance previous,int installedAt){}
     private static final class Stun {
-        final ServerPlayer owner;
+        ServerPlayer owner;
+        boolean retainedOwner,retainedTarget;
         final String epoch;
         final float yaw,pitch;
         final Map<net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect>,StunEffect> effects=new java.util.IdentityHashMap<>();
@@ -230,6 +234,7 @@ public final class LbcShooters {
         }
     }
     int woodificatorWorkCount() { return woodificatorWork.size(); }
+    void cancelQueuedTerrainForRollback(){woodificatorWork.clear();}
     int woodificatorQueuedBlockCount() { return woodificatorWork.stream().mapToInt(job->job.terrain.queuedBlockCount()).sum(); }
     boolean useWoodificator(ServerPlayer owner,InteractionHand hand) {
         if(hand==InteractionHand.OFF_HAND && !game.config().offhandWands || !canFire(owner)
@@ -716,18 +721,20 @@ public final class LbcShooters {
     }
     /** Shared full input lock. Spell families own their own additional status payloads. */
     public boolean stun(ServerPlayer owner,LivingEntity target,int ticks){
-        if(ticks<=0||!active(owner)||target.level()!=owner.level()
-                ||!game.items().wands().projectileTarget(owner,target)
-                ||game.items().wands().inputTimeStopped(owner)
-                ||game.items().timeStop().frozen(target)
-                ||target instanceof ServerPlayer player&&game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))return false;
-        clearStun(target);
-        var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);
-        if(movement!=null)movement.addOrUpdateTransientModifier(new AttributeModifier(STUN_MOVEMENT,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-        stuns.put(target,new Stun(owner,target,game.items().epoch(),ticks));
-        game.items().indirectKills().displaced(target,owner);
-        prepareStunnedInput(target);
-        return true;
+        statusCallbacks++;try {if(statusRestoring)return false;
+            if(ticks<=0||!active(owner)||target.level()!=owner.level()
+                    ||!game.items().wands().projectileTarget(owner,target)
+                    ||game.items().wands().inputTimeStopped(owner)
+                    ||game.items().timeStop().frozen(target)
+                    ||target instanceof ServerPlayer player&&game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))return false;
+            clearStun(target);
+            var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);
+            if(movement!=null)movement.addOrUpdateTransientModifier(new AttributeModifier(STUN_MOVEMENT,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            stuns.put(target,new Stun(owner,target,game.items().epoch(),ticks));
+            game.items().indirectKills().displaced(target,owner);
+            prepareStunnedInput(target);
+            return true;
+        }finally{statusCallbacks--;}
     }
     public boolean stunned(LivingEntity target) { return !game.items().polymorph().masked(target)&&stunTicks(target)>0; }
     public int stunTicks(LivingEntity target) {
@@ -735,53 +742,110 @@ public final class LbcShooters {
         return stun==null?0:stun.ticks;
     }
     public void clearStun(LivingEntity target) {
-        var stun=stuns.remove(target);if(stun==null)return;
-        // Clean our high-amplifier SLR effects before removing the zero multiplier.
-        // Generic stuns never claim ownership of pre-existing potion effects.
-        for(var entry:stun.effects.entrySet()){
-            var owned=entry.getValue();var current=target.getEffect(entry.getKey());
-            if(current!=owned.installed()||current.getAmplifier()!=127)continue;
-            target.removeEffect(entry.getKey());
-            var previous=owned.previous();
-            if(previous!=null){
-                int remaining=previous.isInfiniteDuration()?-1:previous.getDuration()-Math.max(0,target.tickCount-owned.installedAt());
-                if(remaining==-1||remaining>0)target.addEffect(new MobEffectInstance(entry.getKey(),remaining,previous.getAmplifier(),previous.isAmbient(),previous.isVisible(),previous.showIcon()));
+        statusCallbacks++;try {
+            if(statusRestoring)return;
+            var stun=stuns.remove(target);if(stun==null)return;
+            // Clean our high-amplifier SLR effects before removing the zero multiplier.
+            // Generic stuns never claim ownership of pre-existing potion effects.
+            for(var entry:stun.effects.entrySet()){
+                var owned=entry.getValue();var current=target.getEffect(entry.getKey());
+                if(current!=owned.installed()||current.getAmplifier()!=127)continue;
+                target.removeEffect(entry.getKey());
+                var previous=owned.previous();
+                if(previous!=null){
+                    int remaining=previous.isInfiniteDuration()?-1:previous.getDuration()-Math.max(0,target.tickCount-owned.installedAt());
+                    if(remaining==-1||remaining>0)target.addEffect(new MobEffectInstance(entry.getKey(),remaining,previous.getAmplifier(),previous.isAmbient(),previous.isVisible(),previous.showIcon()));
+                }
             }
-        }
-        var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);if(movement!=null)movement.removeModifier(STUN_MOVEMENT);
+            var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);if(movement!=null)movement.removeModifier(STUN_MOVEMENT);
+        }finally{statusCallbacks--;}
     }
     /** Remove voluntary input only: deltaMovement belongs to native physics and external forces. */
     public void prepareStunnedInput(LivingEntity target) {
-        var stun=stuns.get(target); if(stun==null||game.items().polymorph().masked(target)) return;
-        target.xxa=0; target.yya=0; target.zza=0;
-        target.setJumping(false); target.setSprinting(false); target.setShiftKeyDown(false);
-        target.setSwimming(false);
-        if(target.isUsingItem()) target.stopUsingItem();
-        target.setYRot(stun.yaw); target.setXRot(stun.pitch); target.setYHeadRot(stun.yaw);
-        if(target instanceof ServerPlayer player) player.setLastClientInput(net.minecraft.world.entity.player.Input.EMPTY);
+        statusCallbacks++;try {
+            var stun=stuns.get(target); if(statusRestoring||stun==null||stun.retainedTarget||game.items().polymorph().masked(target)) return;
+            target.xxa=0; target.yya=0; target.zza=0;
+            target.setJumping(false); target.setSprinting(false); target.setShiftKeyDown(false);
+            target.setSwimming(false);
+            if(target.isUsingItem()) target.stopUsingItem();
+            target.setYRot(stun.yaw); target.setXRot(stun.pitch); target.setYHeadRot(stun.yaw);
+            if(target instanceof ServerPlayer player) player.setLastClientInput(net.minecraft.world.entity.player.Input.EMPTY);
+        }finally{statusCallbacks--;}
     }
     /** Correct only pose; the shared teleport policy keeps server and client momentum independently. */
     public void correctStun(ServerPlayer player) {
-        if(!stunned(player)) return;
-        prepareStunnedInput(player);
-        player.connection.teleport(player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot());
+        statusCallbacks++;try {
+            var state=stuns.get(player);if(statusRestoring||state!=null&&state.retainedTarget||!stunned(player)) return;
+            prepareStunnedInput(player);
+            player.connection.teleport(player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot());
+        }finally{statusCallbacks--;}
     }
     private void tickStuns() {
-        for(var target:List.copyOf(stuns.keySet())) {
-            if(game.items().polymorph().masked(target))continue;
-            var stun=stuns.get(target);
-            if(!target.isAlive() || target.isRemoved() || target.level()!=game.maps().level()
-                    || !active(stun.owner) || !game.items().currentEpoch(stun.epoch)
-                    || target instanceof ServerPlayer player && (!active(player)
-                        || game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))) {
-                clearStun(target); continue;
+        statusCallbacks++;try {
+            if(statusRestoring)return;
+            for(var target:List.copyOf(stuns.keySet())) {
+                if(game.items().polymorph().masked(target))continue;
+                var stun=stuns.get(target);
+                if(stun.retainedTarget)continue;
+                if(!target.isAlive() || target.isRemoved() || target.level()!=game.maps().level()
+                        || !stun.retainedOwner&&!active(stun.owner) || !game.items().currentEpoch(stun.epoch)
+                        || target instanceof ServerPlayer player && (!active(player)
+                            || game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))) {
+                    clearStun(target); continue;
+                }
+                if(game.items().timeStop().stopped((ServerLevel)target.level())||game.items().timeStop().frozen(target))continue;
+                if(--stun.ticks<=0){clearStun(target);continue;}
+                prepareStunnedInput(target);
+                if(target instanceof ServerPlayer player) correctStun(player);
             }
-            if(game.items().timeStop().stopped((ServerLevel)target.level())||game.items().timeStop().frozen(target))continue;
-            if(--stun.ticks<=0){clearStun(target);continue;}
-            prepareStunnedInput(target);
-            if(target instanceof ServerPlayer player) correctStun(player);
+        }finally{statusCallbacks--;}
+    }
+    void checkpointStatusBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish Shooter stun callbacks before checkpointing");}
+    void prepareStatusFrozen(){checkpointStatusBoundary();statusRestoring=true;stuns.clear();restoredStunAges.clear();}
+    void publishStatusFrozen(){
+        checkpointStatusBoundary();restoredStunAges.forEach((target,ages)->{
+            var stun=stuns.get(target);if(stun!=null)stun.effects.replaceAll((type,owned)->new StunEffect(owned.installed,owned.previous,target.tickCount-ages.get(type)));
+        });restoredStunAges.clear();statusRestoring=false;
+    }
+    void cancelStatusFrozen(){checkpointStatusBoundary();restoredStunAges.clear();statusRestoring=false;}
+    StatusCheckpoint checkpointStatuses(MatchSpellCheckpoint.Links links){checkpointStatusBoundary();return new StatusCheckpoint(links);}
+    final class StatusCheckpoint {
+        private record EffectImage(net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> type,MobEffectInstance installed,MobEffectInstance previous,int age,boolean owned) { }
+        private record StunImage(Stun original,MatchDamageSources.Ref owner,int ticks,List<EffectImage> effects,AttributeModifier movement) { }
+        private final Map<MatchDamageSources.Ref,StunImage> images=new java.util.LinkedHashMap<>();
+        StatusCheckpoint(MatchSpellCheckpoint.Links links){
+            stuns.forEach((target,stun)->{
+                var effects=new java.util.ArrayList<EffectImage>();stun.effects.forEach((type,owned)->effects.add(new EffectImage(type,EffectLayers.copy(owned.installed),
+                        owned.previous==null?null:EffectLayers.copy(owned.previous),target.tickCount-owned.installedAt,target.getEffect(type)==owned.installed)));
+                var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);
+                images.put(links.key(target),new StunImage(stun,links.key(stun.owner),stun.ticks,List.copyOf(effects),movement==null?null:movement.getModifier(STUN_MOVEMENT)));
+            });
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointStatusBoundary();var next=new java.util.IdentityHashMap<LivingEntity,Stun>();var plans=new java.util.ArrayList<Runnable>();
+            for(var entry:images.entrySet()){
+                var target=(LivingEntity)links.get(entry.getKey());var image=entry.getValue();var owner=(ServerPlayer)links.get(image.owner);
+                boolean offlineTarget=MatchOfflinePlayers.retained(target),offlineOwner=MatchOfflinePlayers.retained(owner);
+                var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);
+                if(!offlineTarget&&!java.util.Objects.equals(image.movement,movement==null?null:movement.getModifier(STUN_MOVEMENT)))
+                    throw new IllegalStateException("Restore native stun movement lease before private status");
+                var effects=new java.util.IdentityHashMap<net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect>,StunEffect>();var ages=new java.util.IdentityHashMap<net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect>,Integer>();
+                for(var effect:image.effects){
+                    var installed=effect.owned&&!offlineTarget?target.getEffect(effect.type):EffectLayers.copy(effect.installed);
+                    if(effect.owned&&!offlineTarget&&!sameEffect(installed,effect.installed))throw new IllegalStateException("Restore native stun-owned effect before private baseline");
+                    effects.put(effect.type,new StunEffect(installed,effect.previous==null?null:EffectLayers.copy(effect.previous),target.tickCount-effect.age));ages.put(effect.type,effect.age);
+                }
+                plans.add(()->{var stun=image.original;stun.owner=owner;stun.retainedOwner=offlineOwner;stun.retainedTarget=offlineTarget;stun.ticks=image.ticks;
+                    stun.effects.clear();stun.effects.putAll(effects);restoredStunAges.put(target,ages);});next.put(target,image.original);
+            }
+            return ()->{statusRestoring=true;stuns=next;restoredStunAges.clear();plans.forEach(Runnable::run);};
         }
     }
+    private static boolean sameEffect(MobEffectInstance left,MobEffectInstance right){
+        while(left!=null&&right!=null){if(!left.equals(right))return false;left=((EffectLayers.Access)left).skywars2$layerHidden();right=((EffectLayers.Access)right).skywars2$layerHidden();}
+        return left==null&&right==null;
+    }
+
     private void slrExplode(ServerPlayer owner,Vec3 point) {
         for(int i=0;i<2;i++) {
             game.items().exasperato().protectedBlast(owner,owner.level(),point,4,null);

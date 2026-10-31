@@ -74,10 +74,12 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
     private static final int[] DELAY_SHISH={0,100,100,100,200,100,400,400,400,100,100,0};
     private final GameController game;
     private final LinkedHashMap<Key,Pending> pending=new LinkedHashMap<>();
-    private final Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
+    private Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Terrain> terrain=Collections.newSetFromMap(new IdentityHashMap<>());
     private volatile List<MapManager.TemplateSlice> gold=List.of();
     private int preparation,lastTick=Integer.MIN_VALUE;
+    private int callbackDepth,preparationToken;private boolean rewinding;private volatile boolean preparing;
+    private MatchAuthorityCheckpoint.Clock stagedClock;
     private Authority executingAuthority;private ServerLevel executingLevel;private Entity executingEmitter;
     private long starts,phases,outputs;
     public LbcApocalypseEvents(GameController game){this.game=game;}
@@ -88,11 +90,15 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
         if(d.getIntOr("shish_of_everything",0)==1)result.add(Kind.SHISH);return List.copyOf(result);}
     public static Kind kind(ItemStack stack){var all=kinds(stack);return all.isEmpty()?null:all.getFirst();}
     /** Native snowball caller owns its only debit/removal; all original independent raw branches run in order. */
-    public boolean thrown(ServerPlayer player,ItemStack stack){if(!admitted(player))return false;var kinds=kinds(stack);if(kinds.isEmpty())return false;
+    public boolean thrown(ServerPlayer player,ItemStack stack){
+        if(rewinding)return false;
+        callbackDepth++;try{if(!admitted(player))return false;var kinds=kinds(stack);if(kinds.isEmpty())return false;
         var authority=new Authority(player.getUUID(),game.items().indirectKills().wildCause(player),game.items().epoch());boolean activated=false;
-        for(var kind:kinds)activated=beginAccepted(authority,player.level(),new Vec3(0,64,0),kind)||activated;return activated;}
-    public void prepare(){int generation=++preparation;gold=List.of();game.maps().prepareSpellTemplates(List.of(GOLD)).whenComplete((value,error)->{
-        if(generation!=preparation)return;if(error!=null)SkyWars2.LOGGER.error("Apocalypse gold template preparation failed",error);else gold=value.getOrDefault(GOLD,List.of());});}
+        for(var kind:kinds)activated=beginAccepted(authority,player.level(),new Vec3(0,64,0),kind)||activated;return activated;
+        }finally{callbackDepth--;}
+    }
+    public void prepare(){int generation=++preparationToken;preparation++;preparing=true;gold=List.of();game.maps().prepareSpellTemplates(List.of(GOLD)).whenComplete((value,error)->game.server().execute(()->{
+        if(generation!=preparationToken)return;if(error!=null)SkyWars2.LOGGER.error("Apocalypse gold template preparation failed",error);else gold=value.getOrDefault(GOLD,List.of());preparing=false;}));}
     public boolean prepared(){return !gold.isEmpty();}
     private boolean live(Authority a){return a!=null&&a.cause()!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(a.epoch());}
     private boolean paused(ServerLevel level){return game.items().timeStop().stopped(level);}
@@ -104,11 +110,15 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
         var authority=new Authority(p.getUUID(),game.items().indirectKills().wildCause(p),game.items().epoch());
         return beginAccepted(authority,p.level(),new Vec3(0,64,0),kind);}
     /** Initial source position is0,64,0; scheduled phases recover the native SERVER context independently. */
-    public boolean beginAccepted(Authority a,ServerLevel level,Vec3 at,Kind kind){if(kind==null||!live(a)||!LbcDimensionItems.ordinary(level)||paused(level))return false;
+    public boolean beginAccepted(Authority a,ServerLevel level,Vec3 at,Kind kind){
+        if(rewinding)return false;
+        callbackDepth++;try{if(kind==null||!live(a)||!LbcDimensionItems.ordinary(level)||paused(level))return false;
         if(!prepared())throw new IllegalStateException("Apocalypse template not prepared");
         var context=game.server().createCommandSourceStack().withLevel(level).withPosition(at).withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput();
         var author=owner(a);if(author!=null)context=context.withEntity(author).withRotation(new net.minecraft.world.phys.Vec2(author.getXRot(),author.getYRot()));
-        starts++;phase(a,kind,1,context);return true;}
+        starts++;phase(a,kind,1,context);return true;
+        }finally{callbackDepth--;}
+    }
     private List<? extends Entity> select(CommandSourceStack context,String literal){try{
         var selector=SELECTORS.get(literal);if(selector==null){selector=new EntitySelectorParser(new StringReader(literal),true).parse();SELECTORS.put(literal,selector);}
         return List.copyOf(selector.findEntities(context));
@@ -119,11 +129,16 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
         p.connection.send(new ClientboundSetTitleTextPacket(Component.literal(" ")));p.connection.send(new ClientboundSetSubtitleTextPacket(text));}}
     private void translated(String key){title(Component.translatable(key));}
     private void schedule(Authority a,Kind kind,int phase,int delay){var key=new Key(kind,phase);pending.remove(key);pending.put(key,new Pending(a,delay));}
-    private void phase(Authority a,Kind kind,int phase,CommandSourceStack context){if(!live(a))return;phases++;
+    private void phase(Authority a,Kind kind,int phase,CommandSourceStack context){
+        callbackDepth++;try{if(!live(a))return;phases++;
         switch(kind){case END->end(a,phase,context);case BAFFLED->baffled(a,phase,context);case SHISH->shish(a,phase,context);}
         int[] delays=switch(kind){case END->DELAY_END;case BAFFLED->DELAY_BAFFLED;case SHISH->DELAY_SHISH;};
-        if(delays[phase]>0)schedule(a,kind,phase+1,delays[phase]);}
-    public void tick(){int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;
+        if(delays[phase]>0)schedule(a,kind,phase+1,delays[phase]);
+        }finally{callbackDepth--;}
+    }
+    public void tick(){
+        if(rewinding)return;
+        callbackDepth++;try{int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
         for(var e:List.copyOf(actors))if(e.isRemoved())actors.remove(e);else if(!game.items().currentEpoch(e)){actors.remove(e);e.discard();}
         if(game.items().wands().timeStopped())return;
@@ -132,6 +147,8 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
             if(--e.getValue().remaining<=0)due.add(e);}
         for(var e:due)if(pending.remove(e.getKey(),e.getValue()))phase(e.getValue().authority,e.getKey().kind(),e.getKey().phase(),
                 game.server().createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput());
+
+        }finally{callbackDepth--;}
     }
     private void end(Authority a,int n,CommandSourceStack c){
         if(n<=15){if(n==1){var v=c.getPosition();c.getLevel().sendParticles(new DustParticleOptions(0xffffff,4),true,false,v.x,v.y,v.z,1000,2,100,2,0);translated("the_salt");}
@@ -265,12 +282,18 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
         Terrain(Authority authority){this.authority=authority;}
         void submit(){if(!operations.isEmpty()){terrain.add(this);game.items().stonekivi().queuedWork(this);}}
         public boolean ready(){return cancelled||!live(authority)||operations.isEmpty()||!paused(operations.peek().level());}
-        public boolean step(){if(cancelled||!live(authority)){cancel();return true;}var op=operations.poll();if(op==null){cancel();return true;}
+        public boolean step(){
+        callbackDepth++;try{if(cancelled||!live(authority)){cancel();return true;}var op=operations.poll();if(op==null){cancel();return true;}
             // Source loaded-position failure drops this invocation; do not block the event forever on unloaded terrain.
             if(resident(op.level(),op.from(),op.to()))game.items().indirectKills().trapChanges(op.level(),authority.cause(),op.action());
             if(operations.isEmpty()){cancel();return true;}return false;
-        }
-        public void cancel(){cancelled=true;operations.clear();terrain.remove(this);}
+
+        }finally{callbackDepth--;}
+    }
+        public void cancel(){
+        callbackDepth++;try{cancelled=true;operations.clear();terrain.remove(this);
+        }finally{callbackDepth--;}
+    }
     }
     private void gold(Authority a,ServerLevel level,Vec3 at){var origin=BlockPos.containing(at);var job=new Terrain(a);
         var processor=StructureBlockEntity.createRandom(0);var placement=StructureBlockEntity.createRandom(0);int maxX=0,maxY=0,maxZ=0;
@@ -305,14 +328,48 @@ minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,
     public void inheritChild(Entity child){if(executingAuthority!=null&&child.level()==executingLevel)stamp(child,executingAuthority);}
     public boolean executing(ServerLevel level){return executingAuthority!=null&&executingLevel==level;}
     public Entity currentEmitter(){return executingEmitter;}
-    public void loaded(Entity entity){if(!managed(entity))return;var a=authority(entity);
-        if(!live(a)||!game.items().currentEpoch(entity)){entity.discard();return;}actors.add(entity);game.items().spellSources().bind(entity,new LbcSpellSource.Source(entity.getUUID(),a.author(),a.epoch(),a.cause(),Set.of(),true));game.items().timeStop().prepareFrozen(entity);}
-    public void unloaded(Entity entity){actors.remove(entity);}
+    public void loaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;if(!managed(entity))return;var a=authority(entity);
+        if(!live(a)||!game.items().currentEpoch(entity)){entity.discard();return;}actors.add(entity);game.items().spellSources().bind(entity,new LbcSpellSource.Source(entity.getUUID(),a.author(),a.epoch(),a.cause(),Set.of(),true));game.items().timeStop().prepareFrozen(entity);
+        }finally{callbackDepth--;}
+    }
+    public void unloaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;actors.remove(entity);
+        }finally{callbackDepth--;}
+    }
     /** Accepted global scheduled consequences and physical children survive their author's death/disconnect. */
     public void forget(ServerPlayer player){}
-    public void stop(){pending.clear();for(var task:List.copyOf(terrain))task.cancel();for(var e:List.copyOf(actors))e.discard();actors.clear();lastTick=Integer.MIN_VALUE;}
+    public void stop(){
+        callbackDepth++;try{rewinding=false;stagedClock=null;pending.clear();for(var task:List.copyOf(terrain))task.cancel();for(var e:List.copyOf(actors))e.discard();actors.clear();lastTick=Integer.MIN_VALUE;
+        }finally{callbackDepth--;}
+    }
     public record PendingView(Kind kind,int phase,int ticks,Authority authority){}
     public List<PendingView> pendingSnapshot(){return pending.entrySet().stream().map(e->new PendingView(e.getKey().kind(),e.getKey().phase(),e.getValue().remaining,e.getValue().authority)).toList();}
     public List<Entity> snapshot(){return List.copyOf(actors);}public int terrainCount(){return terrain.size();}
     public long startCount(){return starts;}public long phaseCount(){return phases;}public long outputCount(){return outputs;}
+
+    /** Terrain invocations finish before capture; no retained Runnable or template cursor is imaged. */
+    boolean captureReady(){return callbackDepth==0&&executingAuthority==null&&!preparing&&terrain.isEmpty()&&!rewinding;}
+    void checkpointBoundary(){if(callbackDepth!=0||executingAuthority!=null)throw new IllegalStateException("Finish apocalypse event callbacks/preparation before checkpointing");}
+    void cancelFutureTerrainForRollback(){checkpointBoundary();preparationToken++;preparing=false;for(var work:List.copyOf(terrain))work.cancel();}
+    void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;stagedClock=null;}
+    void publishFrozen(){checkpointBoundary();if(stagedClock!=null)lastTick=stagedClock.last(game);stagedClock=null;rewinding=false;}
+    void cancelFrozen(){checkpointBoundary();stagedClock=null;rewinding=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete apocalypse event terrain before capture");return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Timer(Key key,Pending original,int remaining){}
+        private final List<Timer> timers=pending.entrySet().stream().map(e->new Timer(e.getKey(),e.getValue(),e.getValue().remaining)).toList();
+        private final List<MatchDamageSources.Ref> bodies;
+        private final List<MapManager.TemplateSlice> preparedGold=gold;
+        private final int preparedVersion=preparation;
+        private final long savedStarts=starts,savedPhases=phases,savedOutputs=outputs;
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
+        Checkpoint(MatchSpellCheckpoint.Links links){bodies=actors.stream().map(links::key).toList();for(var body:bodies)if(body.historical()!=null)throw new IllegalStateException("Capture live apocalypse child bodies");}
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var restored=new java.util.LinkedHashSet<Entity>();for(var body:bodies)restored.add(links.get(body));
+            return ()->{pending.clear();for(var timer:timers){timer.original.remaining=timer.remaining;pending.put(timer.key,timer.original);}
+                actors=restored;gold=preparedGold;preparation=preparedVersion;preparationToken++;preparing=false;
+                starts=savedStarts;phases=savedPhases;outputs=savedOutputs;stagedClock=clock;};
+        }
+    }
 }

@@ -67,7 +67,7 @@ public final class LbcNukeEvent {
     private record SavedChild(Cause cause,int visualAge){}
     private record Burst(Site site,long after,float power){}
     private final GameController game;
-    private final Map<Marker,State> actors=new IdentityHashMap<>();
+    private IdentityHashMap<Marker,State> actors=new IdentityHashMap<>();
     private final Map<UUID,State> unloaded=new HashMap<>();
     // Native DamageSource/deferred Time Stop records keep their direct source alive as needed.
     private final Map<Entity,Cause> sources=new WeakHashMap<>();
@@ -76,6 +76,8 @@ public final class LbcNukeEvent {
     private final Set<Job> jobs=Collections.newSetFromMap(new IdentityHashMap<>());
     private volatile List<MapManager.TemplateSlice> air=List.of();
     private int generation,lastTick=Integer.MIN_VALUE,pending=-1;
+    private int callbackDepth,cadenceOffset,preparationToken;private boolean rewinding;private volatile boolean preparing;
+    private MatchAuthorityCheckpoint.Clock stagedClock;private int stagedPhase;
     private String pendingEpoch;
     private int pendingEoe=-1;private Cause pendingEoeCause;
     private Cause executingCause;private Entity executingEmitter;private ServerLevel executingLevel;
@@ -87,8 +89,8 @@ public final class LbcNukeEvent {
     private List<? extends Entity> select(EntitySelector selector,Site at){try{return selector.findEntities(game.server().createCommandSourceStack()
             .withLevel(at.level).withPosition(at.at).withRotation(new Vec2(0,at.yaw)).withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput());}
         catch(CommandSyntaxException error){throw new IllegalStateException("Native nuclear selector failed",error);}}
-    public void prepare(){int version=++generation;air=List.of();game.maps().prepareSpellTemplates(List.of(AIR)).whenComplete((result,error)->{
-        if(version!=generation)return;if(error!=null)SkyWars2.LOGGER.error("Nuclear air template preparation failed",error);else air=result.getOrDefault(AIR,List.of());});}
+    public void prepare(){int version=++preparationToken;generation++;preparing=true;air=List.of();game.maps().prepareSpellTemplates(List.of(AIR)).whenComplete((result,error)->game.server().execute(()->{
+        if(version!=preparationToken)return;if(error!=null)SkyWars2.LOGGER.error("Nuclear air template preparation failed",error);else air=result.getOrDefault(AIR,List.of());preparing=false;}));}
     public boolean prepared(){return !air.isEmpty();}
     private boolean live(String epoch){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch);}
     private boolean paused(ServerLevel level){return game.items().timeStop().stopped(level);}
@@ -101,6 +103,8 @@ public final class LbcNukeEvent {
             &&game.items().wands().validRoleTarget(target,false)&&!LbcGreed.active(target);}
     /** Only entry admission uses the living author; accepted consequences outlive their author. */
     public boolean start(ServerPlayer author,Vec3 origin,boolean zelensky){
+        if(rewinding)return false;
+        callbackDepth++;try{
         if(author==null||origin==null||!Double.isFinite(origin.x)||!Double.isFinite(origin.y)||!Double.isFinite(origin.z)
                 ||!game.canUseGameplayItems(author)||game.isObserver(author)||!game.items().wands().validRoleTarget(author,false)
                 ||!author.isAlive()||author.isRemoved()||!LbcDimensionItems.ordinary(author)
@@ -112,9 +116,13 @@ public final class LbcNukeEvent {
         actors.put(marker,state);sources.put(marker,state.cause);
         if(!author.level().addFreshEntity(marker)){actors.remove(marker);sources.remove(marker);return false;}
         game.items().timeStop().prepareFrozen(marker);return true;
+
+        }finally{callbackDepth--;}
     }
     /** Source nuke_eoe: immediate strict beacon and a separate globally REPLACE'd nuke1 deadline. */
     public boolean startEoe(ServerPlayer author,ServerLevel level,Vec3 at,LbcIndirectKills.Owner accepted){
+        if(rewinding)return false;
+        callbackDepth++;try{
         if(accepted==null||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
                 ||!level.hasChunkAt(BlockPos.containing(at)))return false;
         if(generation==0)prepare();
@@ -134,6 +142,8 @@ public final class LbcNukeEvent {
             game.items().markCurrentItemEpoch(marker);var state=new State(cause,true);actors.put(marker,state);sources.put(marker,cause);
             if(!level.addFreshEntity(marker)){actors.remove(marker);sources.remove(marker);}else game.items().timeStop().prepareFrozen(marker);}
         pendingEoe=400;pendingEoeCause=cause;schedules++;return true;
+
+        }finally{callbackDepth--;}
     }
     private static boolean resident(ServerLevel level,BlockPos from,BlockPos to){
         for(int x=Math.min(from.getX(),to.getX())>>4;x<=Math.max(from.getX(),to.getX())>>4;x++)
@@ -161,6 +171,8 @@ public final class LbcNukeEvent {
     }
     private void sound(Site site,String id,float pitch){LbcOverload.sound(site.level,site.at,"minecraft:lbcsounds."+id,.5f,pitch,0,.5f);}
     public void tick(){
+        if(rewinding)return;
+        callbackDepth++;try{
         int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
         // Schedule functions are global; common Time Stop pauses the one global active-tick deadline.
@@ -179,8 +191,8 @@ public final class LbcNukeEvent {
             var state=actors.get(marker);var level=(ServerLevel)marker.level();
             if(marker.isRemoved()||!live(state.cause.epoch)){actors.remove(marker);continue;}
             if(state.point||paused(level)||!LbcDimensionItems.ordinary(level)||!resident(level,marker.blockPosition(),marker.blockPosition()))continue;
-            if(now%2==0){state.lifetime+=2;if(!state.activated)warning(marker,state);}
-            if(now%20==0){state.lifetime+=20;if(!stooper(marker))beacon(marker,state);}
+            if(Math.floorMod(now+cadenceOffset,2)==0){state.lifetime+=2;if(!state.activated)warning(marker,state);}
+            if(Math.floorMod(now+cadenceOffset,20)==0){state.lifetime+=20;if(!stooper(marker))beacon(marker,state);}
         }
         for(var visual:List.copyOf(visuals)){
             var marker=visual.marker;var level=(ServerLevel)marker.level();
@@ -189,6 +201,8 @@ public final class LbcNukeEvent {
             visuals.remove(visual);
             if(visual.age+1>=400)marker.discard();else visuals.add(new Visual(marker,visual.cause,visual.age+1));
         }
+
+        }finally{callbackDepth--;}
     }
     private void beacon(Marker marker,State state){
         var origin=marker.blockPosition();var site=new Site((ServerLevel)marker.level(),marker.position(),marker.getYRot(),state.cause);
@@ -307,6 +321,7 @@ public final class LbcNukeEvent {
         @Override public Component getLocalizedDeathMessage(LivingEntity victim){return Component.translatable("death.attack.explosion.player",victim.getDisplayName(),Component.translatable("killed_by_nuke"));}
     }
     private void blast(Site site,Vec3 at,float power){
+        callbackDepth++;try{
         var direct=new BlastSource(site.level,site.cause);
         direct.setPos(at);direct.entityTags().add(CHILD);direct.setCustomName(Component.translatable("killed_by_nuke"));game.items().markCurrentItemEpoch(direct);
         var previousCause=executingCause;var previousLevel=executingLevel;var previousEmitter=executingEmitter;
@@ -315,6 +330,8 @@ public final class LbcNukeEvent {
             var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
             game.items().indirectKills().trapChanges(site.level,site.cause.accepted,()->site.level.explode(null,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB));blasts++;
         }finally{executingCause=previousCause;executingLevel=previousLevel;executingEmitter=previousEmitter;direct.discard();}
+
+        }finally{callbackDepth--;}
     }
     public boolean executing(ServerLevel level){return executingCause!=null&&executingLevel==level;}
     public Entity currentEmitter(){return executingEmitter;}
@@ -335,6 +352,7 @@ public final class LbcNukeEvent {
         @Override public boolean ready(){if(cancelled||!live(epoch))return true;if(!operations.isEmpty())return prepared()&&operations.peekFirst().ready();
             if(bursts.isEmpty())return true;var burst=bursts.peekFirst();return game.server().getTickCount()>burst.after&&!paused(burst.site.level);}
         @Override public boolean step(){
+        callbackDepth++;try{
             if(cancelled||!live(epoch)){cancel();return true;}
             if(!operations.isEmpty()){operations.removeFirst().run();return false;}
             if(!bursts.isEmpty()){
@@ -347,10 +365,16 @@ public final class LbcNukeEvent {
                 operations.addAll(offsets);return false;
             }
             cancel();return true;
-        }
-        @Override public void cancel(){cancelled=true;operations.clear();bursts.clear();jobs.remove(this);}
+
+        }finally{callbackDepth--;}
+    }
+        @Override public void cancel(){
+        callbackDepth++;try{cancelled=true;operations.clear();bursts.clear();jobs.remove(this);
+        }finally{callbackDepth--;}
+    }
     }
     public void loaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;
         if(entity.entityTags().contains(CHILD)){
             if(sources.containsKey(entity))return;
             var saved=unloadedChildren.remove(entity.getUUID());
@@ -363,8 +387,11 @@ public final class LbcNukeEvent {
         if(!live(game.items().epoch())||!game.items().currentEpoch(entity)){entity.discard();return;}
         if(!actors.containsKey(marker)){var state=unloaded.remove(entity.getUUID());if(state==null){entity.discard();return;}actors.put(marker,state);sources.put(marker,state.cause);}
         game.items().timeStop().prepareFrozen(marker);
+
+        }finally{callbackDepth--;}
     }
     public void unloaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;
         if(entity.entityTags().contains(CHILD)){
             var cause=sources.get(entity);int age=-1;
             for(var visual:List.copyOf(visuals))if(visual.marker==entity){age=visual.age;visuals.remove(visual);}
@@ -374,12 +401,17 @@ public final class LbcNukeEvent {
         if(entity instanceof Marker marker&&entity.entityTags().contains(TAG)){
             var state=actors.remove(marker);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);
         }
+
+        }finally{callbackDepth--;}
     }
     /** Accepted nuclear consequences persist across the causal author's death/disconnect, like native armed explosives. */
     public void forget(ServerPlayer player){}
-    public void stop(){pending=-1;pendingEpoch=null;pendingEoe=-1;pendingEoeCause=null;for(var job:List.copyOf(jobs))job.cancel();
+    public void stop(){
+        callbackDepth++;try{rewinding=false;stagedClock=null;cadenceOffset=0;pending=-1;pendingEpoch=null;pendingEoe=-1;pendingEoeCause=null;for(var job:List.copyOf(jobs))job.cancel();
         for(var entity:List.copyOf(actors.keySet()))entity.discard();actors.clear();unloaded.clear();
-        for(var visual:List.copyOf(visuals))visual.marker.discard();visuals.clear();for(var entity:List.copyOf(sources.keySet()))entity.discard();sources.clear();unloadedChildren.clear();}
+        for(var visual:List.copyOf(visuals))visual.marker.discard();visuals.clear();for(var entity:List.copyOf(sources.keySet()))entity.discard();sources.clear();unloadedChildren.clear();
+        }finally{callbackDepth--;}
+    }
     public int pointPendingTicks(){return pendingEoe;}
     public int markerCount(){return actors.size();}public int pendingTicks(){return pending;}public int jobCount(){return jobs.size();}
     public long warnings(){return warnings;}public long schedules(){return schedules;}public long detonations(){return detonations;}
@@ -388,4 +420,43 @@ public final class LbcNukeEvent {
     public record View(UUID marker,UUID author,String dimension,Vec3 origin,int lifetime,boolean armed,String epoch){}
     public List<View> snapshot(){return actors.entrySet().stream().map(e->new View(e.getKey().getUUID(),e.getValue().cause.author,
             e.getKey().level().dimension().identifier().toString(),e.getKey().position(),e.getValue().lifetime,e.getValue().activated,e.getValue().cause.epoch)).toList();}
+
+    boolean captureReady(){return callbackDepth==0&&executingCause==null&&!preparing&&jobs.isEmpty()&&!rewinding;}
+    void checkpointBoundary(){if(callbackDepth!=0||executingCause!=null)throw new IllegalStateException("Finish nuclear callbacks/preparation before checkpointing");}
+    void cancelFutureTerrainForRollback(){checkpointBoundary();preparationToken++;preparing=false;for(var job:List.copyOf(jobs))job.cancel();}
+    void prepareFrozen(){checkpointBoundary();cancelFutureTerrainForRollback();rewinding=true;stagedClock=null;}
+    void publishFrozen(){checkpointBoundary();if(stagedClock!=null){lastTick=stagedClock.last(game);cadenceOffset=stagedPhase-game.server().getTickCount();}stagedClock=null;rewinding=false;}
+    void cancelFrozen(){checkpointBoundary();stagedClock=null;rewinding=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Complete nuclear terrain/bursts before capture");return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Value(State original,int lifetime,boolean activated){}
+        private record Source(MatchDamageSources.Ref entity,Cause cause){}
+        private record Picture(MatchDamageSources.Ref marker,Cause cause,int age){}
+        private final MatchSpellCheckpoint.IdentityImage<Marker,State> registry;
+        private final Map<UUID,State> dormant=new HashMap<>(unloaded);
+        private final Map<UUID,SavedChild> children=new HashMap<>(unloadedChildren);
+        private final List<Value> values=new ArrayList<>();private final List<Source> lineage=new ArrayList<>();private final List<Picture> pictures=new ArrayList<>();
+        private final List<MapManager.TemplateSlice> preparedAir=air;private final int version=generation,deadline=pending,eoe=pendingEoe;
+        private final String deadlineEpoch=pendingEpoch;private final Cause eoeCause=pendingEoeCause;
+        private final long savedWarnings=warnings,savedSchedules=schedules,savedDetonations=detonations,savedCenters=centers,savedBlasts=blasts,savedBeacons=beacons;
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
+        private final int phase=Math.floorMod(game.server().getTickCount()+cadenceOffset,20);
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            for(var entity:actors.keySet())if(links.key(entity).historical()!=null)throw new IllegalStateException("Capture live event actor bodies");
+            registry=new MatchSpellCheckpoint.IdentityImage<>(actors,links);var seen=Collections.newSetFromMap(new IdentityHashMap<State,Boolean>());
+            for(var value:actors.values())if(seen.add(value))values.add(new Value(value,value.lifetime,value.activated));
+            for(var value:unloaded.values())if(seen.add(value))values.add(new Value(value,value.lifetime,value.activated));
+            sources.forEach((entity,cause)->lineage.add(new Source(links.key(entity),cause)));
+            for(var visual:visuals)pictures.add(new Picture(links.key(visual.marker),visual.cause,visual.age));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var restored=registry.restore(links);var nextSources=new ArrayList<Map.Entry<Entity,Cause>>();for(var source:lineage)nextSources.add(Map.entry(links.get(source.entity),source.cause));
+            var nextPictures=new ArrayList<Visual>();for(var picture:pictures)nextPictures.add(new Visual((Marker)links.get(picture.marker),picture.cause,picture.age));
+            return ()->{for(var value:values){value.original.lifetime=value.lifetime;value.original.activated=value.activated;}
+                actors=restored;unloaded.clear();unloaded.putAll(dormant);unloadedChildren.clear();unloadedChildren.putAll(children);
+                sources.clear();for(var source:nextSources)sources.put(source.getKey(),source.getValue());visuals.clear();visuals.addAll(nextPictures);
+                air=preparedAir;generation=version;preparationToken++;preparing=false;pending=deadline;pendingEpoch=deadlineEpoch;pendingEoe=eoe;pendingEoeCause=eoeCause;
+                warnings=savedWarnings;schedules=savedSchedules;detonations=savedDetonations;centers=savedCenters;blasts=savedBlasts;beacons=savedBeacons;stagedClock=clock;stagedPhase=phase;};
+        }
+    }
 }

@@ -52,19 +52,23 @@ public final class LbcBlaze {
     private final Map<Blaze,UUID> blazes=new HashMap<>();
     private final ArrayDeque<Terrain> terrain=new ArrayDeque<>();
     private int ticks;
+    private int checkpointCallbacks;
+    private boolean checkpointRestoring;
     private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust,boolean wild) { }
     private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas) { }
 
     LbcBlaze(GameController game) { this.game=game; }
     void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
-        for(int i=turrets.size()-1;i>=0;i--) {
-            var turret=turrets.get(i);
-            if(turret.level!=level) continue;
-            Vec3 next=transform.apply(turret.position);
-            if(next==null) turrets.remove(i);
-            else if(!next.equals(turret.position))
-                turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining,turret.speed,turret.dust,turret.wild));
-        }
+        checkpointCallbacks++;try {
+            for(int i=turrets.size()-1;i>=0;i--) {
+                var turret=turrets.get(i);
+                if(turret.level!=level) continue;
+                Vec3 next=transform.apply(turret.position);
+                if(next==null) turrets.remove(i);
+                else if(!next.equals(turret.position))
+                    turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining,turret.speed,turret.dust,turret.wild));
+            }
+        }finally{checkpointCallbacks--;}
     }
 
     public int count() { return turrets.size()+heads.size()+terrain.size()+blazes.size(); }
@@ -73,8 +77,10 @@ public final class LbcBlaze {
     int headCharges(ServerPlayer owner) { return game.items().mana().hudValue(owner,"blaze"); }
     /** Общая точка выдачи ресурса для будущих еды/предметов; прямой scoreboard grant не запускает статус. */
     public void addHeadCharges(ServerPlayer owner,int amount) {
-        if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
-        heads.put(owner.getUUID(),owner); game.items().mana().score(owner,"blaze").add(amount);
+        checkpointCallbacks++;try {
+            if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
+            heads.put(owner.getUUID(),owner); game.items().mana().score(owner,"blaze").add(amount);
+        }finally{checkpointCallbacks--;}
     }
     /** Attach already-written source counters without adding another charge or replaying cast feedback. */
     void adoptRawFoodStatuses(ServerPlayer owner){
@@ -89,62 +95,66 @@ public final class LbcBlaze {
 
     /** Используемую руку обрабатывает прежний LbcWands dispatch, бонус каста выдаётся ровно один раз. */
     boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean blaze,boolean upgraded) {
-        if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
-        var mana=game.items().mana();
-        if(upgraded && owner.isShiftKeyDown()) {
-            var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(tag.getIntOr("mode",1),blaze?2:4)+1;
-            tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
-            owner.sendSystemMessage(Component.translatable(blaze?(mode==1?"mode_default":"mode_blaze_head"):
-                    switch(mode) { case 2->"mode_mega"; case 3->"mode_pillars"; case 4->"mode_kiuas"; default->"mode_world"; }));
+        checkpointCallbacks++;try {
+            if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
+            var mana=game.items().mana();
+            if(upgraded && owner.isShiftKeyDown()) {
+                var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+                int mode=Math.floorMod(tag.getIntOr("mode",1),blaze?2:4)+1;
+                tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+                owner.sendSystemMessage(Component.translatable(blaze?(mode==1?"mode_default":"mode_blaze_head"):
+                        switch(mode) { case 2->"mode_mega"; case 3->"mode_pillars"; case 4->"mode_kiuas"; default->"mode_world"; }));
+                return true;
+            }
+            int cost=mana.score(ScoreHolder.forNameOnly(blaze?"blaze_wand_mana_use":"fireblaze_wand_mana_use"),"lbc.math").get();
+            if(!mana.trySpendWand(owner,cost)) return false;
+            int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag()
+                    .getIntOr("mode",1),1,blaze?2:4):0;
+            if(blaze) {
+                if(mode==2 && !game.items().magic().rejectCustomEffect(owner)) {
+                    addHeadCharges(owner,7);
+                    LbcOverload.sound(owner,"minecraft:entity.blaze.hurt",1,1,0);
+                } else if(mode!=2) turret(owner,cost);
+                if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
+                    // (user) Это настоящая враждебная волна, не приручение и не временные мобы.
+                    for(int i=0;i<20;i++) {
+                        var mob=new Blaze(EntityTypes.BLAZE,owner.level()); mob.setPos(owner.position());
+                        mob.finalizeSpawn(owner.level(),owner.level().getCurrentDifficultyAt(mob.blockPosition()),
+                                net.minecraft.world.entity.EntitySpawnReason.COMMAND,null);
+                        mob.entityTags().add(TRIAL_PROJECTILE); own(mob,owner); owner.level().addFreshEntity(mob);
+                    }
+                    game.items().academy().ready(owner,hand,stack);
+                }
+            } else {
+                fireblaze(owner,mode);
+                if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
+                    // (user) Все 14 шаров и исходные мощности сохраняются, владельца не теряем.
+                    for(int i=1;i<=14;i++) {
+                        int axis=(i-1)%6; double distance=10+i*10;
+                        Vec3 offset=switch(axis) {
+                            case 0->new Vec3(0,distance,0); case 1->new Vec3(0,0,distance);
+                            case 2->new Vec3(distance,0,0); case 3->new Vec3(0,-distance,0);
+                            case 4->new Vec3(0,0,-distance); default->new Vec3(-distance,0,0);
+                        };
+                        Vec3 velocity=offset.normalize().scale(-1);
+                        var shot=new LargeFireball(owner.level(),owner,velocity,i); shot.entityTags().add(TRIAL_PROJECTILE);
+                        game.items().wands().launchFire(owner,shot,owner.position().add(offset),velocity);
+                    }
+                    game.items().academy().ready(owner,hand,stack);
+                }
+            }
+            game.items().wands().wandCasted(owner);
             return true;
-        }
-        int cost=mana.score(ScoreHolder.forNameOnly(blaze?"blaze_wand_mana_use":"fireblaze_wand_mana_use"),"lbc.math").get();
-        if(!mana.trySpendWand(owner,cost)) return false;
-        int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag()
-                .getIntOr("mode",1),1,blaze?2:4):0;
-        if(blaze) {
-            if(mode==2 && !game.items().magic().rejectCustomEffect(owner)) {
-                addHeadCharges(owner,7);
-                LbcOverload.sound(owner,"minecraft:entity.blaze.hurt",1,1,0);
-            } else if(mode!=2) turret(owner,cost);
-            if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
-                // (user) Это настоящая враждебная волна, не приручение и не временные мобы.
-                for(int i=0;i<20;i++) {
-                    var mob=new Blaze(EntityTypes.BLAZE,owner.level()); mob.setPos(owner.position());
-                    mob.finalizeSpawn(owner.level(),owner.level().getCurrentDifficultyAt(mob.blockPosition()),
-                            net.minecraft.world.entity.EntitySpawnReason.COMMAND,null);
-                    mob.entityTags().add(TRIAL_PROJECTILE); own(mob,owner); owner.level().addFreshEntity(mob);
-                }
-                game.items().academy().ready(owner,hand,stack);
-            }
-        } else {
-            fireblaze(owner,mode);
-            if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
-                // (user) Все 14 шаров и исходные мощности сохраняются, владельца не теряем.
-                for(int i=1;i<=14;i++) {
-                    int axis=(i-1)%6; double distance=10+i*10;
-                    Vec3 offset=switch(axis) {
-                        case 0->new Vec3(0,distance,0); case 1->new Vec3(0,0,distance);
-                        case 2->new Vec3(distance,0,0); case 3->new Vec3(0,-distance,0);
-                        case 4->new Vec3(0,0,-distance); default->new Vec3(-distance,0,0);
-                    };
-                    Vec3 velocity=offset.normalize().scale(-1);
-                    var shot=new LargeFireball(owner.level(),owner,velocity,i); shot.entityTags().add(TRIAL_PROJECTILE);
-                    game.items().wands().launchFire(owner,shot,owner.position().add(offset),velocity);
-                }
-                game.items().academy().ready(owner,hand,stack);
-            }
-        }
-        game.items().wands().wandCasted(owner);
-        return true;
+        }finally{checkpointCallbacks--;}
     }
 
     /** Mode zero is the single at_random_fireball helper, rather than the paid nearby volley. */
     void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
-        if(mode==0)randomFire(owner,origin,false);
-        else if(mode==2)volleyAt(owner,origin,100,true);
-        else global(owner,mode,false,origin);
+        checkpointCallbacks++;try {
+            if(mode==0)randomFire(owner,origin,false);
+            else if(mode==2)volleyAt(owner,origin,100,true);
+            else global(owner,mode,false,origin);
+        }finally{checkpointCallbacks--;}
     }
 
     void fireblaze(ServerPlayer owner,int mode) {
@@ -155,44 +165,50 @@ public final class LbcBlaze {
 
     /** Первое пересечение блок/хитбокс заменяет старую рекурсию из 200 отдельных команд. */
     void libraryHead(ServerPlayer owner){
-        if(!game.items().magic().rejectCustomEffect(owner)){addHeadCharges(owner,7);LbcOverload.sound(owner,"minecraft:entity.blaze.hurt",1,1,0);}
+        checkpointCallbacks++;try {
+            if(!game.items().magic().rejectCustomEffect(owner)){addHeadCharges(owner,7);LbcOverload.sound(owner,"minecraft:entity.blaze.hurt",1,1,0);}
+        }finally{checkpointCallbacks--;}
     }
     void turret(ServerPlayer owner,int cost) {
-        Vec3 from=owner.getEyePosition(),to=from.add(owner.getLookAngle().scale(200));
-        double stop=game.items().magic().suppressionFraction(owner.level(),from,to);
-        if(Double.isFinite(stop)) to=from.lerp(to,stop);
-        var hit=game.items().wands().firstHit(owner,from,to);
-        Vec3 end=hit==null?to:hit.getLocation();
-        double length=from.distanceTo(end);
-        for(double d=0;d<=length;d+=1) {
-            Vec3 p=from.add(owner.getLookAngle().scale(d));
-            owner.level().sendParticles(ParticleTypes.FLAME,p.x,p.y,p.z,2,.5,.5,.5,0);
-        }
-        if(hit==null || hit instanceof BlockHitResult wall && !owner.level().hasChunkAt(wall.getBlockPos())
-                || Double.isFinite(stop) && end.distanceToSqr(from)>=to.distanceToSqr(from)-1e-6) return;
-        // Как в исходнике: приручение возвращает цену, но не отменяет создание огненной турели.
-        var blazes=owner.level().getEntitiesOfClass(Blaze.class,new AABB(end,end).inflate(5),
-                e->e.isAlive() && e.position().distanceToSqr(end)<=25);
-        if(!blazes.isEmpty()) {
-            var board=game.server().getScoreboard();
-            for(var blaze:blazes) {
-                board.removePlayerFromTeam(blaze.getScoreboardName());
-                if(owner.getTeam()!=null) board.addPlayerToTeam(blaze.getScoreboardName(),owner.getTeam());
-                blaze.entityTags().remove(TRIAL_PROJECTILE); own(blaze,owner);
-                blaze.setTarget(null);
+        checkpointCallbacks++;try {
+            Vec3 from=owner.getEyePosition(),to=from.add(owner.getLookAngle().scale(200));
+            double stop=game.items().magic().suppressionFraction(owner.level(),from,to);
+            if(Double.isFinite(stop)) to=from.lerp(to,stop);
+            var hit=game.items().wands().firstHit(owner,from,to);
+            Vec3 end=hit==null?to:hit.getLocation();
+            double length=from.distanceTo(end);
+            for(double d=0;d<=length;d+=1) {
+                Vec3 p=from.add(owner.getLookAngle().scale(d));
+                owner.level().sendParticles(ParticleTypes.FLAME,p.x,p.y,p.z,2,.5,.5,.5,0);
             }
-            game.items().mana().add(owner,cost);
-            game.items().mana().award(owner,"lbc:true_advancements/staffs/blaze");
-            LbcOverload.sound(owner,end,"minecraft:entity.villager.trade",1,1,0);
-        }
-        turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5,.7,TURRET_DUST,false));
-        LbcOverload.sound(owner,end,"minecraft:entity.blaze.ambient",1,1.3f,0);
+            if(hit==null || hit instanceof BlockHitResult wall && !owner.level().hasChunkAt(wall.getBlockPos())
+                    || Double.isFinite(stop) && end.distanceToSqr(from)>=to.distanceToSqr(from)-1e-6) return;
+            // Как в исходнике: приручение возвращает цену, но не отменяет создание огненной турели.
+            var blazes=owner.level().getEntitiesOfClass(Blaze.class,new AABB(end,end).inflate(5),
+                    e->e.isAlive() && e.position().distanceToSqr(end)<=25);
+            if(!blazes.isEmpty()) {
+                var board=game.server().getScoreboard();
+                for(var blaze:blazes) {
+                    board.removePlayerFromTeam(blaze.getScoreboardName());
+                    if(owner.getTeam()!=null) board.addPlayerToTeam(blaze.getScoreboardName(),owner.getTeam());
+                    blaze.entityTags().remove(TRIAL_PROJECTILE); own(blaze,owner);
+                    blaze.setTarget(null);
+                }
+                game.items().mana().add(owner,cost);
+                game.items().mana().award(owner,"lbc:true_advancements/staffs/blaze");
+                LbcOverload.sound(owner,end,"minecraft:entity.villager.trade",1,1,0);
+            }
+            turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5,.7,TURRET_DUST,false));
+            LbcOverload.sound(owner,end,"minecraft:entity.blaze.ambient",1,1.3f,0);
+        }finally{checkpointCallbacks--;}
     }
 
     /** KFC uses the same one-second pulse and owner/fire lifecycle, with three native shots at speed 1.6. */
     void chickenTurret(ServerPlayer owner,Vec3 position) {
-        turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6,CHICKEN_DUST,true));
-        owner.level().sendParticles(CHICKEN_BURST,true,false,position.x,position.y-1,position.z,10,.2,.5,.2,0);
+        checkpointCallbacks++;try {
+            turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6,CHICKEN_DUST,true));
+            owner.level().sendParticles(CHICKEN_BURST,true,false,position.x,position.y-1,position.z,10,.2,.5,.2,0);
+        }finally{checkpointCallbacks--;}
     }
 
     private boolean target(ServerPlayer owner,LivingEntity entity) {
@@ -237,38 +253,40 @@ public final class LbcBlaze {
         global(owner,mode,true,owner.position());
     }
     private void global(ServerPlayer owner,int mode,boolean ownerEffects,Vec3 origin) {
-        var areas=new ArrayDeque<BlockAreaWork>();
-        var targets=new ArrayList<LivingEntity>();
-        for(var entity:owner.level().getAllEntities()) if(entity instanceof LivingEntity living && target(owner,living)) targets.add(living);
-        for(var living:targets) {
-            if(mode==1) randomFire(owner,living.position().add(0,1,0),false);
-            else if(mode==3) {
-                var center=BlockPos.containing(living.position().add(0,1,0));
-                center=center.offset(owner.getRandom().nextInt(61)-30,0,owner.getRandom().nextInt(61)-30);
-                enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX(),0,center.getZ(),center.getX(),319,center.getZ()),true);
+        checkpointCallbacks++;try {
+            var areas=new ArrayDeque<BlockAreaWork>();
+            var targets=new ArrayList<LivingEntity>();
+            for(var entity:owner.level().getAllEntities()) if(entity instanceof LivingEntity living && target(owner,living)) targets.add(living);
+            for(var living:targets) {
+                if(mode==1) randomFire(owner,living.position().add(0,1,0),false);
+                else if(mode==3) {
+                    var center=BlockPos.containing(living.position().add(0,1,0));
+                    center=center.offset(owner.getRandom().nextInt(61)-30,0,owner.getRandom().nextInt(61)-30);
+                    enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX(),0,center.getZ(),center.getX(),319,center.getZ()),true);
+                }
             }
-        }
-        if(mode==4) {
-            // Сначала все маленькие области, затем до десяти пар большой огонь -> лава: исходный порядок fill.
-            for(int i=0;i<Math.min(100,targets.size());i++) {
-                var center=targets.get(i).blockPosition();
-                enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-1,center.getY(),center.getZ()-1,
-                        center.getX()+1,center.getY()+1,center.getZ()+1),false);
-                var position=targets.get(i).position();
-                owner.level().sendParticles(ParticleTypes.FLAME,true,false,position.x,position.y,position.z,3,.2,.2,.2,0);
+            if(mode==4) {
+                // Сначала все маленькие области, затем до десяти пар большой огонь -> лава: исходный порядок fill.
+                for(int i=0;i<Math.min(100,targets.size());i++) {
+                    var center=targets.get(i).blockPosition();
+                    enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-1,center.getY(),center.getZ()-1,
+                            center.getX()+1,center.getY()+1,center.getZ()+1),false);
+                    var position=targets.get(i).position();
+                    owner.level().sendParticles(ParticleTypes.FLAME,true,false,position.x,position.y,position.z,3,.2,.2,.2,0);
+                }
+                for(int i=0;i<Math.min(10,targets.size());i++) {
+                    var living=targets.get(i);
+                    var center=living.blockPosition();
+                    enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-15,center.getY()-15,center.getZ()-15,
+                            center.getX()+15,center.getY()+15,center.getZ()+15),false);
+                    enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-1,center.getY()-1,center.getZ()-1,
+                            center.getX()+1,center.getY()+1,center.getZ()+1),true);
+                }
             }
-            for(int i=0;i<Math.min(10,targets.size());i++) {
-                var living=targets.get(i);
-                var center=living.blockPosition();
-                enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-15,center.getY()-15,center.getZ()-15,
-                        center.getX()+15,center.getY()+15,center.getZ()+15),false);
-                enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-1,center.getY()-1,center.getZ()-1,
-                        center.getX()+1,center.getY()+1,center.getZ()+1),true);
-            }
-        }
-        if(!areas.isEmpty()) terrain.add(new Terrain(owner,owner.level(),areas));
-        if(ownerEffects && (mode==3 || mode==4)) owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,-1,0));
-        if(mode!=4) LbcOverload.sound(owner,origin,mode==3?"minecraft:block.lava.ambient":"minecraft:item.firecharge.use",1,1,0);
+            if(!areas.isEmpty()) terrain.add(new Terrain(owner,owner.level(),areas));
+            if(ownerEffects && (mode==3 || mode==4)) owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,-1,0));
+            if(mode!=4) LbcOverload.sound(owner,origin,mode==3?"minecraft:block.lava.ambient":"minecraft:item.firecharge.use",1,1,0);
+        }finally{checkpointCallbacks--;}
     }
 
     /** Magnum's exact 3x3x3 incendiary fill, using the shared queued fire conversion. */
@@ -298,13 +316,15 @@ public final class LbcBlaze {
     }
     /** Nether Plug использует уже существующие AI-фильтры и владельца подчинённого ифрита. */
     void summonFriend(ServerPlayer owner) {
-        var mob=new Blaze(EntityTypes.BLAZE,owner.level());
-        var tag=new net.minecraft.nbt.CompoundTag(); tag.putString("DeathLootTable","minecraft:empty");
-        mob.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,owner.registryAccess(),tag));
-        mob.setPos(owner.position().add(0,2,0));
-        mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE).setBaseValue(200);
-        mob.setHealth(20); mob.entityTags().add("blaze_friend"); own(mob,owner);
-        owner.level().addFreshEntity(mob);
+        checkpointCallbacks++;try {
+            var mob=new Blaze(EntityTypes.BLAZE,owner.level());
+            var tag=new net.minecraft.nbt.CompoundTag(); tag.putString("DeathLootTable","minecraft:empty");
+            mob.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,owner.registryAccess(),tag));
+            mob.setPos(owner.position().add(0,2,0));
+            mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE).setBaseValue(200);
+            mob.setHealth(20); mob.entityTags().add("blaze_friend"); own(mob,owner);
+            owner.level().addFreshEntity(mob);
+        }finally{checkpointCallbacks--;}
     }
     ServerPlayer owner(Entity entity) {
         var id=entity instanceof Blaze blaze?blazes.get(blaze):null;
@@ -323,89 +343,143 @@ public final class LbcBlaze {
     }
     /** Нативные ифриты сохраняют свой AI; их снарядам передаётся реальный автор до регистрации трекера. */
     void loaded(Entity entity) {
-        if(entity instanceof Blaze blaze) for(String tag:entity.entityTags()) if(tag.startsWith(OWNER_TAG)) {
-            if(!game.items().currentEpoch(entity)) { entity.discard(); return; }
-            try { blazes.put(blaze,UUID.fromString(tag.substring(OWNER_TAG.length()))); } catch(IllegalArgumentException ignored) { }
-            break;
-        }
-        if(entity instanceof Projectile shot && shot.getOwner() instanceof Blaze mob) {
-            var owner=owner(mob);
-            if(owner!=null) {
-                if(mob.entityTags().contains(TRIAL_PROJECTILE)) shot.entityTags().add(TRIAL_PROJECTILE);
-                game.items().wands().adoptFire(owner,shot);
+        checkpointCallbacks++;try {
+            if(entity instanceof Blaze blaze) for(String tag:entity.entityTags()) if(tag.startsWith(OWNER_TAG)) {
+                if(!game.items().currentEpoch(entity)) { entity.discard(); return; }
+                try { blazes.put(blaze,UUID.fromString(tag.substring(OWNER_TAG.length()))); } catch(IllegalArgumentException ignored) { }
+                break;
             }
-        }
+            if(entity instanceof Projectile shot && shot.getOwner() instanceof Blaze mob) {
+                var owner=owner(mob);
+                if(owner!=null) {
+                    if(mob.entityTags().contains(TRIAL_PROJECTILE)) shot.entityTags().add(TRIAL_PROJECTILE);
+                    game.items().wands().adoptFire(owner,shot);
+                }
+            }
+        }finally{checkpointCallbacks--;}
     }
-    void unloaded(Entity entity) { if(entity instanceof Blaze blaze) blazes.remove(blaze); }
+    void unloaded(Entity entity) {
+        checkpointCallbacks++;try {     if(entity instanceof Blaze blaze) blazes.remove(blaze);
+        }finally{checkpointCallbacks--;}
+    }
 
     /** Время способности останавливается вместе с общей магией; выгруженные чанки не загружаются. */
     public void tick() {
-        int now=++ticks;
-        // Один снимок живых кандидатов на общий импульс, независимо от числа турелей и снарядов.
-        List<LivingEntity> candidates=now%10==0 && (!turrets.isEmpty() || !heads.isEmpty())
-                ? game.items().lifetimes().loadedTargets() : List.of();
-        if(now%20==0) for(int i=turrets.size()-1;i>=0;i--) {
-            var turret=turrets.get(i); var owner=turret.owner;
-            if(!game.items().currentEpoch(turret.epoch) || !valid(owner) || owner.level()!=turret.level
-                    || !turret.level.hasChunkAt(BlockPos.containing(turret.position))
-                    || game.items().magic().suppressedAt(turret.level,turret.position)) { turrets.remove(i); continue; }
-            if(paused(owner)) continue;
-            var target=nearest(owner,turret.position,true,turret.wild,candidates);
-            if(target!=null) {
-                var projectile=new SmallFireball(EntityTypes.SMALL_FIREBALL,turret.level);
-                if(turret.wild) projectile.entityTags().add(KFC_SPIRIT_PROJECTILE);
-                Vec3 velocity=target.getEyePosition().subtract(turret.position).normalize().scale(turret.speed);
-                game.items().wands().launchFire(owner,projectile,turret.position,velocity);
-                LbcOverload.sound(owner,turret.position,"minecraft:entity.blaze.shoot",1,1,0);
+        checkpointCallbacks++;try {
+            if(checkpointRestoring)return;
+            int now=++ticks;
+            // Один снимок живых кандидатов на общий импульс, независимо от числа турелей и снарядов.
+            List<LivingEntity> candidates=now%10==0 && (!turrets.isEmpty() || !heads.isEmpty())
+                    ? game.items().lifetimes().loadedTargets() : List.of();
+            if(now%20==0) for(int i=turrets.size()-1;i>=0;i--) {
+                var turret=turrets.get(i); var owner=turret.owner;
+                if(!game.items().currentEpoch(turret.epoch) || !valid(owner) || owner.level()!=turret.level
+                        || !turret.level.hasChunkAt(BlockPos.containing(turret.position))
+                        || game.items().magic().suppressedAt(turret.level,turret.position)) { turrets.remove(i); continue; }
+                if(paused(owner)) continue;
+                var target=nearest(owner,turret.position,true,turret.wild,candidates);
+                if(target!=null) {
+                    var projectile=new SmallFireball(EntityTypes.SMALL_FIREBALL,turret.level);
+                    if(turret.wild) projectile.entityTags().add(KFC_SPIRIT_PROJECTILE);
+                    Vec3 velocity=target.getEyePosition().subtract(turret.position).normalize().scale(turret.speed);
+                    game.items().wands().launchFire(owner,projectile,turret.position,velocity);
+                    LbcOverload.sound(owner,turret.position,"minecraft:entity.blaze.shoot",1,1,0);
+                }
+                turret.level.sendParticles(turret.dust,true,false,turret.position.x,turret.position.y,turret.position.z,10,.2,.5,.2,0);
+                if(turret.remaining<=1) turrets.remove(i);
+                else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed,turret.dust,turret.wild));
             }
-            turret.level.sendParticles(turret.dust,true,false,turret.position.x,turret.position.y,turret.position.z,10,.2,.5,.2,0);
-            if(turret.remaining<=1) turrets.remove(i);
-            else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed,turret.dust,turret.wild));
-        }
-        if(now%10==0) for(var owner:List.copyOf(heads.values())) {
-            if(game.items().polymorph().masked(owner))continue;
-            if(!valid(owner) || headCharges(owner)<=0 || game.items().magic().rejectCustomEffect(owner)) { clearEffects(owner); continue; }
-            if(paused(owner)) continue;
-            var target=nearest(owner,owner.getEyePosition(),false,false,candidates);
-            Vec3 velocity=target==null?owner.getLookAngle().scale(.7):target.getEyePosition().subtract(owner.getEyePosition()).normalize().scale(.7);
-            game.items().wands().launchFire(owner,new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level()),owner.getEyePosition(),velocity);
-            owner.level().sendParticles(ParticleTypes.FLAME,owner.getX(),owner.getEyeY(),owner.getZ(),5,.4,.4,.4,0);
-            owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,40,0,false,false));
-            game.items().mana().score(owner,"blaze").add(-1);
-            LbcOverload.sound(owner,"minecraft:entity.blaze.shoot",1,1,0);
-            if(headCharges(owner)<=0) heads.remove(owner.getUUID());
-        }
-        long deadline=System.nanoTime()+3_000_000L; int left=65536,stalledJobs=0;
-        // Оплаченные области не теряются. Порядок fill сохраняется: завершающая лава идёт после огня,
-        // иначе незаконченный большой куб мог бы позже превратить её обратно в fire.
-        while(left>0 && !terrain.isEmpty() && System.nanoTime()<deadline) {
-            var job=terrain.removeFirst();
-            if(!valid(job.owner) || job.owner.level()!=job.level) continue;
-            if(paused(job.owner)) {
-                terrain.addLast(job); if(++stalledJobs>=terrain.size()) break; continue;
+            if(now%10==0) for(var owner:List.copyOf(heads.values())) {
+                if(game.items().polymorph().masked(owner))continue;
+                if(!valid(owner) || headCharges(owner)<=0 || game.items().magic().rejectCustomEffect(owner)) { clearEffects(owner); continue; }
+                if(paused(owner)) continue;
+                var target=nearest(owner,owner.getEyePosition(),false,false,candidates);
+                Vec3 velocity=target==null?owner.getLookAngle().scale(.7):target.getEyePosition().subtract(owner.getEyePosition()).normalize().scale(.7);
+                game.items().wands().launchFire(owner,new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level()),owner.getEyePosition(),velocity);
+                owner.level().sendParticles(ParticleTypes.FLAME,owner.getX(),owner.getEyeY(),owner.getZ(),5,.4,.4,.4,0);
+                owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,40,0,false,false));
+                game.items().mana().score(owner,"blaze").add(-1);
+                LbcOverload.sound(owner,"minecraft:entity.blaze.shoot",1,1,0);
+                if(headCharges(owner)<=0) heads.remove(owner.getUUID());
             }
-            var area=job.areas.getFirst();
-            int[] processed={0};
-            int allowance=Math.min(256,left);
-            game.items().indirectKills().trapChanges(job.owner,()->processed[0]=area.step(game,job.owner,allowance,deadline));
-            int used=processed[0]; left-=Math.max(1,used);
-            if(!area.hasWork()) job.areas.removeFirst();
-            if(!job.areas.isEmpty()) terrain.addLast(job);
-            if(used==0) { if(++stalledJobs>=Math.max(1,terrain.size())) break; }
-            else stalledJobs=0;
-        }
+            long deadline=System.nanoTime()+3_000_000L; int left=65536,stalledJobs=0;
+            // Оплаченные области не теряются. Порядок fill сохраняется: завершающая лава идёт после огня,
+            // иначе незаконченный большой куб мог бы позже превратить её обратно в fire.
+            while(left>0 && !terrain.isEmpty() && System.nanoTime()<deadline) {
+                var job=terrain.removeFirst();
+                if(!valid(job.owner) || job.owner.level()!=job.level) continue;
+                if(paused(job.owner)) {
+                    terrain.addLast(job); if(++stalledJobs>=terrain.size()) break; continue;
+                }
+                var area=job.areas.getFirst();
+                int[] processed={0};
+                int allowance=Math.min(256,left);
+                game.items().indirectKills().trapChanges(job.owner,()->processed[0]=area.step(game,job.owner,allowance,deadline));
+                int used=processed[0]; left-=Math.max(1,used);
+                if(!area.hasWork()) job.areas.removeFirst();
+                if(!job.areas.isEmpty()) terrain.addLast(job);
+                if(used==0) { if(++stalledJobs>=Math.max(1,terrain.size())) break; }
+                else stalledJobs=0;
+            }
+        }finally{checkpointCallbacks--;}
     }
     public void clearEffects(ServerPlayer owner) { heads.remove(owner.getUUID()); game.items().mana().score(owner,"blaze").set(0); }
     /** Cancel pending shared turrets before a respawn can make the owner valid at the next pulse. */
     public void forget(ServerPlayer owner) {
-        turrets.removeIf(turret->turret.owner.getUUID().equals(owner.getUUID()));
-        terrain.removeIf(job->job.owner.getUUID().equals(owner.getUUID()));
-        clearEffects(owner);
+        checkpointCallbacks++;try {
+            turrets.removeIf(turret->turret.owner.getUUID().equals(owner.getUUID()));
+            terrain.removeIf(job->job.owner.getUUID().equals(owner.getUUID()));
+            clearEffects(owner);
+        }finally{checkpointCallbacks--;}
     }
     public void stop() {
-        for(var owner:List.copyOf(heads.values())) clearEffects(owner);
-        turrets.clear(); terrain.clear();
-        var pending=List.copyOf(blazes.keySet()); blazes.clear(); for(var mob:pending) mob.discard();
-        ticks=0;
+        checkpointCallbacks++;try {
+            for(var owner:List.copyOf(heads.values())) clearEffects(owner);
+            turrets.clear(); terrain.clear();
+            var pending=List.copyOf(blazes.keySet()); blazes.clear(); for(var mob:pending) mob.discard();
+            ticks=0;checkpointRestoring=false;
+        }finally{checkpointCallbacks--;}
     }
+    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Blaze aura callbacks before checkpointing");}
+    void prepareAuraFrozen(){checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();}
+    void clearFutureTerrain(){for(var job:terrain)for(var area:job.areas)area.clear();terrain.clear();}
+    void publishAuraFrozen(){checkpointBoundary();checkpointRestoring=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
+        checkpointBoundary();if(!terrain.isEmpty())throw new IllegalStateException("Finish Blaze terrain before taking aura essentials");return new Checkpoint(links);
+    }
+    final class Checkpoint {
+        private record TurretImage(Turret source,UUID owner,ServerLevel ownerLevel) { }
+        private record HeadImage(UUID key,UUID owner,ServerLevel level) { }
+        private final List<TurretImage> saved;
+        private final List<HeadImage> headOwners;
+        private final Map<MatchDamageSources.Ref,UUID> nativeOwners=new HashMap<>();
+        private final java.util.Set<UUID> installed=new java.util.HashSet<>();private boolean baseInstalled;
+        private final int cadence=ticks;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            saved=turrets.stream().map(t->new TurretImage(t,t.owner.getUUID(),t.owner.level())).toList();
+            headOwners=heads.entrySet().stream().map(e->new HeadImage(e.getKey(),e.getValue().getUUID(),e.getValue().level())).toList();
+            blazes.forEach((body,owner)->nativeOwners.put(links.key(body),owner));
+            saved.forEach(image->installed.add(image.owner));headOwners.forEach(image->installed.add(image.owner));baseInstalled=true;
+        }
+        private Checkpoint(Checkpoint current,Checkpoint previous){
+            var turrets=new ArrayList<>(current.saved);for(var image:previous.saved)if(!previous.installed.contains(image.owner))turrets.add(image);saved=List.copyOf(turrets);
+            var heads=new ArrayList<>(current.headOwners);for(var image:previous.headOwners)if(!previous.installed.contains(image.owner))heads.add(image);headOwners=List.copyOf(heads);
+            nativeOwners.putAll(current.nativeOwners);installed.addAll(current.installed);baseInstalled=true;
+        }
+        Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
+        void resetReplay(){installed.clear();baseInstalled=false;}
+        java.util.Set<UUID> pendingPlayers(){var pending=new java.util.HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);
+            for(var image:headOwners)if(!installed.contains(image.owner))pending.add(image.owner);return java.util.Set.copyOf(pending);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var nextTurrets=new ArrayList<Turret>();var nextHeads=new HashMap<UUID,ServerPlayer>();var nextBlazes=new HashMap<Blaze,UUID>();
+            var admitted=new java.util.HashSet<UUID>();
+            for(var image:saved){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.ownerLevel);if(current==null)continue;
+                var t=image.source;MatchAuthorityCheckpoint.world(game,t.level);nextTurrets.add(new Turret(current,t.level,t.position,t.epoch,t.remaining,t.speed,t.dust,t.wild));admitted.add(image.owner);}
+            for(var image:headOwners){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.level);if(current!=null){nextHeads.put(image.key,current);admitted.add(image.owner);}}
+            if(!baseInstalled)nativeOwners.forEach((ref,id)->nextBlazes.put((Blaze)links.get(ref),id));
+            return ()->{checkpointRestoring=true;if(!baseInstalled){clearFutureTerrain();turrets.clear();heads.clear();blazes.clear();blazes.putAll(nextBlazes);ticks=cadence;baseInstalled=true;}
+                turrets.addAll(nextTurrets);heads.putAll(nextHeads);installed.addAll(admitted);};
+        }
+    }
+
 }

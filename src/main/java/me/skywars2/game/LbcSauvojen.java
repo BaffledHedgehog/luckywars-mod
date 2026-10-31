@@ -53,7 +53,7 @@ public final class LbcSauvojen {
     }
     /** Native-check inspection is deliberately detached from input admission and random choice. */
     static final class Drone {
-        final ServerPlayer owner;
+        ServerPlayer owner;
         final InteractionHand hand;
         final ItemStack usedStack;
         final Kind kind;

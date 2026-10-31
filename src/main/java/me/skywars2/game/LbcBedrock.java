@@ -513,4 +513,6 @@ public final class LbcBedrock {
     }
     private record Restoration(MapManager.BlockSnapshot snapshot, Room room) { }
     private record Cube(ServerLevel level, BlockPos center) { }
+
+    boolean transientCaptureReady(){return normalRooms.isEmpty()&&regenRooms.isEmpty()&&cubes.isEmpty()&&layers.isEmpty()&&pendingRestore.isEmpty()&&dirty.isEmpty();}
 }

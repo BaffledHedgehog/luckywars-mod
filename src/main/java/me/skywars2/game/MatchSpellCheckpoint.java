@@ -17,6 +17,7 @@ final class MatchSpellCheckpoint {
         MatchDamageSources.Image damage(net.minecraft.world.damagesource.DamageSource value){var image=sources.capture(value);for(var next=image;next!=null;next=next.wrapped())accepted.add(next);return image;}
         MatchItemStackLinks.Ref stack(GameController game,net.minecraft.world.item.ItemStack stack){if(stacks==null)stacks=new MatchItemStackLinks(game,this);return stacks.capture(stack);}
         Links(MatchDamageSources sources){this.sources=sources;}
+        boolean omitted(Entity entity){return sources.omitted(entity);}
         MatchDamageSources.Ref key(Entity entity){
             if(entity==null)return null;var ref=sources.bodyRef(entity);
             saved.putIfAbsent(ref,new Body(entity.getClass(),(ServerLevel)entity.level()));return ref;
@@ -24,7 +25,7 @@ final class MatchSpellCheckpoint {
         Set<UUID> resolve(Function<UUID,Entity> lookup){
             var pending=new LinkedHashSet<UUID>();var next=new HashMap<MatchDamageSources.Ref,Entity>();
             saved.forEach((ref,body)->{var entity=MatchDamageSources.resolve(ref,lookup,pending);
-                if(entity!=null){if(entity.getClass()!=body.kind||ref.historical()==null&&(entity.isRemoved()||entity.level()!=body.level))
+                if(entity!=null){if(entity.getClass()!=body.kind||ref.historical()==null&&(!MatchOfflinePlayers.retained(entity)&&(entity.isRemoved()||entity.level()!=body.level)))
                     throw new IllegalStateException("Restore captured spell bodies/dimensions before private links");next.put(ref,entity);}});
             for(var image:accepted){MatchDamageSources.resolve(image.direct(),lookup,pending);MatchDamageSources.resolve(image.cause(),lookup,pending);}
             if(pending.isEmpty())for(var image:accepted){

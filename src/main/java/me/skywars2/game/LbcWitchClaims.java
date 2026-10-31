@@ -24,7 +24,7 @@ public final class LbcWitchClaims {
         String tag(){return "sin_"+key;}
         static Mode of(Integer value){return value!=null&&value>=1&&value<=values().length?values()[value-1]:null;}
         // Their producer/checkpoint dependencies remain explicit, not aliases for a tag grant.
-        boolean implemented(){return this!=VANITY;}
+        boolean implemented(){return true;}
     }
     enum Verdict { ALREADY,UNQUALIFIED,QUALIFIED }
     private final GameController game;
@@ -67,13 +67,26 @@ public final class LbcWitchClaims {
             if(mode!=null)p.sendSystemMessage(Component.translatable(mode.key));return true;
         }
         var mode=Mode.of(counters.read(p,"gens_type"));if(mode==null)return false;
-        // Keep raw Vanity acquisition disconnected until the full world checkpoint exists.
-        // In particular, do not consume the item, transfer a tag or punish a qualified holder.
         if(!mode.implemented())return false;
         var verdict=verdict(p,mode);if(verdict==Verdict.ALREADY)return false;
         if(verdict==Verdict.UNQUALIFIED){failure(p,mode);return true;}
+        if(mode==Mode.VANITY)return game.vanity().requestCapture(p,true);
         claim(p,mode);
         // Free authority acquisition has the shared successful magicwand bonuses, but no paid mage-set growth.
+        game.items().wands().wandCasted(p,false);return true;
+    }
+    /** Executed at the coordinator's stable end-tick boundary after pending structure writes drain. */
+    boolean finishVanityClaim(ServerPlayer p){
+        if(!p.isAlive()||p.isRemoved()||game.isObserver(p)||!LbcDimensionItems.ordinary(p)
+                ||p.entityTags().contains("nomagic_active")||game.items().magic().artifactSuppressedAt(p.level(),p.position())
+                ||game.items().wands().inputTimeStopped(p)||game.items().wands().timeStopped()
+                ||game.items().timeStop().stopped(p.level())||!game.items().wands().validRoleTarget(p,false)
+                ||Mode.of(counters.read(p,"gens_type"))!=Mode.VANITY
+                ||!game.canUseGameplayItems(p)||!matches(p.getMainHandItem())&&!matches(p.getOffhandItem())
+                ||verdict(p,Mode.VANITY)!=Verdict.QUALIFIED)return false;
+        get(p,Mode.VANITY);unget(p,Mode.VANITY);yes(p);assign(p,Mode.VANITY);award(p,Mode.VANITY);
+        p.getInventory().setChanged();p.inventoryMenu.sendAllDataToRemote();
+        game.items().mana().inventoryChanged(p);game.items().magic().inventoryChanged(p);
         game.items().wands().wandCasted(p,false);return true;
     }
     private void failure(ServerPlayer p,Mode mode){

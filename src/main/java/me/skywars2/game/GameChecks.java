@@ -823,6 +823,9 @@ public final class GameChecks {
                                 case "witch-acquisition" -> { WitchClaimChecks.run(game); return; }
                                 case "witch-lust" -> { WitchLustChecks.run(game); return; }
                                 case "witch-lifecycle" -> { WitchLifecycleChecks.run(game); return; }
+                                case "vanity-rollback" -> { VanityRollbackChecks.run(game); return; }
+                                case "vanity-snapshot-perf" -> { VanitySnapshotPerfChecks.run(game); return; }
+                                case "vanity-snapshot-perf-services" -> { VanitySnapshotPerfChecks.runServices(game); return; }
                                 case "vanity-terrain" -> { VanityTerrainChecks.run(game); return; }
                                 case "vanity-core" -> { VanityCoreChecks.run(game); return; }
                                 case "vanity-player" -> { VanityPlayerChecks.run(game); return; }
@@ -1401,7 +1404,7 @@ public final class GameChecks {
             RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
-            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);WitchIndolenceChecks.tick(game);IndolenceFingerChecks.tick(game);WitchClaimChecks.tick(game);WitchLustChecks.tick(game);WitchLifecycleChecks.tick(game);VanityTerrainChecks.tick(game);VanityCoreChecks.tick(game);VanityPlayerChecks.tick(game);VanityActorChecks.tick(game);VanityViewChecks.tick(game);VanityStorageChecks.tick(game);VanityWorkstationChecks.tick(game);VanityBoundViewChecks.tick(game);VanityRandomChecks.tick(game);VanityWorldChecks.tick(game);VanityTimeStopChecks.tick(game);ChefExecutionChecks.tick(game);PolymorphChecks.tick(game);
+            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);WitchIndolenceChecks.tick(game);IndolenceFingerChecks.tick(game);WitchClaimChecks.tick(game);WitchLustChecks.tick(game);WitchLifecycleChecks.tick(game);VanityRollbackChecks.tick(game);VanitySnapshotPerfChecks.tick(game);VanityTerrainChecks.tick(game);VanityCoreChecks.tick(game);VanityPlayerChecks.tick(game);VanityActorChecks.tick(game);VanityViewChecks.tick(game);VanityStorageChecks.tick(game);VanityWorkstationChecks.tick(game);VanityBoundViewChecks.tick(game);VanityRandomChecks.tick(game);VanityWorldChecks.tick(game);VanityTimeStopChecks.tick(game);ChefExecutionChecks.tick(game);PolymorphChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);
@@ -16462,7 +16465,7 @@ public final class GameChecks {
                         var gained=regularTerraCow(level,mobs,8.5,282,53.5);
                         require(stand.resolveArrowHit(gained,owner,11,true) && gained.isAlive() && gained.entityTags().contains("have_stand"),"Roll11 grants Stand"); gained.discard();
                         var greed=regularTerraCow(level,mobs,8.5,282,53.5); greed.entityTags().add("sin_greed_active");
-                        require(stand.resolveArrowHit(greed,owner,1,true) && greed.isAlive() && !greed.entityTags().contains("have_stand"),"Greed protects failed roll without granting Stand"); greed.discard();
+                        require(!stand.resolveArrowHit(greed,owner,1,true) && greed.isAlive() && !greed.entityTags().contains("have_stand"),"Greed rejects the protected target before a Stand roll without granting Stand"); greed.discard();
                         require(stand.resolveArrowHit(owner,owner,100,true),"Self acquisition is allowed");
                         int ora=0; for(int slot=0;slot<owner.getInventory().getContainerSize();slot++) if(LbcStand.isOraora(owner.getInventory().getItem(slot))) ora+=owner.getInventory().getItem(slot).getCount();
                         require(ora==1 && owner.entityTags().contains("have_stand"),"Player gains exactly one ORAORA");
@@ -16478,7 +16481,7 @@ public final class GameChecks {
                         for(var entity:level.getAllEntities())
                                 require(initial.contains(entity) || !(entity instanceof net.minecraft.world.entity.item.ItemEntity drop)
                                         || !LbcStand.isArrow(drop.getItem()),"Previous Stand-return fixtures leave no counted drops");
-                        var nativeTarget=regularTerraCow(level,mobs,8.5,282,53.5); nativeTarget.entityTags().add("sin_greed_active");
+                        var nativeTarget=regularTerraCow(level,mobs,8.5,282,53.5);
                         nativeTarget.setHealth(20); nativeTarget.setInvulnerableTime(0); nativeTarget.damageCooldownTime=0;
                         var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(level,owner,item.copy(),null);
                         require(LbcStand.isArrow(arrow.getPickupItemStackOrigin()),"Native projectile retains Stand origin stack");

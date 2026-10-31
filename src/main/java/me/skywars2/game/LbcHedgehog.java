@@ -54,6 +54,8 @@ public final class LbcHedgehog {
     private LbcIndirectKills.Owner blastCause;
     private ServerLevel blastLevel;
     private long completedBlasts;
+    private int checkpointCallbacks;
+    private boolean checkpointRestoring;
     private record Child(ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){}
     private final java.util.Map<Entity,Child> children=new java.util.IdentityHashMap<>();
     private ServerPlayer blastAuthor;
@@ -77,7 +79,7 @@ public final class LbcHedgehog {
     private boolean ownerValid(ServerPlayer p){return p!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&p.isAlive()&&!p.isRemoved()
             &&p.level()==game.maps().level()&&game.canUseGameplayItems(p)&&!game.isObserver(p);}
     private boolean resident(ServerLevel l,Vec3 p){var b=BlockPos.containing(p);return l.getChunkSource().getChunkNow(b.getX()>>4,b.getZ()>>4)!=null;}
-    private boolean frozen(Entity e){return !game.server().tickRateManager().runsNormally()||game.items().wands().timeStopped()
+    private boolean frozen(Entity e){return checkpointRestoring||e instanceof Fish f&&f.retainedOwner&&player(f.author)==null||!game.server().tickRateManager().runsNormally()||game.items().wands().timeStopped()
             ||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped")||e instanceof LivingEntity living&&game.items().frost().isFrozen(living);}
     private boolean suppressed(ServerLevel l,Vec3 p){return game.items().magic().suppressedAt(l,p);}
     private boolean valid(Fish f){var p=player(f.author);return !f.retired&&!f.isRemoved()&&(f.kind==Kind.WALL?game.playing()&&game.stage()!=GameController.Stage.ENDING:ownerValid(p)&&p.level()==f.level())
@@ -127,23 +129,29 @@ public final class LbcHedgehog {
     }
     private static AABB cell(Vec3 at){return new AABB(at.x,at.y,at.z,at.x+1,at.y+1,at.z+1);}
     private final class Fish extends Silverfish {
-        final UUID author;final Kind kind;final LbcIndirectKills.Owner cause;int timer=8;boolean retired;
+        final UUID author;final Kind kind;final LbcIndirectKills.Owner cause;int timer=8;boolean retired,retainedOwner;
         Fish(ServerLevel level,ServerPlayer p,Kind kind){super(EntityTypes.SILVERFISH,level);this.author=p.getUUID();this.kind=kind;
             cause=kind==Kind.WALL?game.items().indirectKills().wildCause(p):game.items().indirectKills().coldCause(p,false);}
         @Override public boolean shouldBeSaved(){return false;}
-        @Override public void setTarget(LivingEntity target){if(target!=null&&author!=null&&!enemy(this,target))target=null;super.setTarget(target);}
-        @Override public void tick(){if(!valid(this)){retire(this);return;}if(!frozen(this))super.tick();}
+        @Override public void setTarget(LivingEntity target){if(target!=null&&author!=null&&!MatchActorCheckpoint.restoring(this)&&!enemy(this,target))target=null;super.setTarget(target);}
+        @Override public void tick(){
+            enterCheckpointCallback();try {
+                if(checkpointRestoring||retainedOwner&&player(author)==null)return;if(!valid(this)){retire(this);return;}if(!frozen(this))super.tick();
+            }finally{leaveCheckpointCallback();}
+        }
         @Override public boolean doHurtTarget(ServerLevel l,Entity target){
-            if(!(target instanceof LivingEntity living)||!impact(this,living))return false;
-            // Same native Mob melee operations, with captured cause before ServerPlayer's admission.
-            var weapon=getWeaponItem();var damage=game.items().indirectKills().captureDamage(weapon.getDamageSource(this),cause);
-            float amount=(float)getAttributeValue(Attributes.ATTACK_DAMAGE);
-            amount=net.minecraft.world.item.enchantment.EnchantmentHelper.modifyDamage(l,weapon,target,damage,amount);
-            amount+=weapon.getItem().getAttackDamageBonus(target,amount,damage);var oldMovement=target.getDeltaMovement();
-            boolean hit=target.hurtServer(l,damage,amount);
-            if(hit){causeExtraKnockback(target,getKnockback(target,damage),oldMovement,damage,amount,true);
-                weapon.hurtEnemy(living,this);net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(l,target,damage);setLastHurtMob(target);playAttackSound();}
-            postPiercingAttack();return hit;
+            enterCheckpointCallback();try {
+                if(!(target instanceof LivingEntity living)||!impact(this,living))return false;
+                // Same native Mob melee operations, with captured cause before ServerPlayer's admission.
+                var weapon=getWeaponItem();var damage=game.items().indirectKills().captureDamage(weapon.getDamageSource(this),cause);
+                float amount=(float)getAttributeValue(Attributes.ATTACK_DAMAGE);
+                amount=net.minecraft.world.item.enchantment.EnchantmentHelper.modifyDamage(l,weapon,target,damage,amount);
+                amount+=weapon.getItem().getAttackDamageBonus(target,amount,damage);var oldMovement=target.getDeltaMovement();
+                boolean hit=target.hurtServer(l,damage,amount);
+                if(hit){causeExtraKnockback(target,getKnockback(target,damage),oldMovement,damage,amount,true);
+                    weapon.hurtEnemy(living,this);net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(l,target,damage);setLastHurtMob(target);playAttackSound();}
+                postPiercingAttack();return hit;
+            }finally{leaveCheckpointCallback();}
         }
         @Override protected void dropCustomDeathLoot(ServerLevel level,DamageSource source,boolean killedByPlayer){
             if(retired)return;
@@ -153,39 +161,43 @@ public final class LbcHedgehog {
     }
     public Silverfish spawnHelper(ServerPlayer p,ServerLevel level,Vec3 at,Kind kind){return spawn(p,level,at,kind);}
     private Fish spawn(ServerPlayer p,ServerLevel level,Vec3 at,Kind kind){
-        if(!(kind==Kind.WALL?wallAuthorValid(p):ownerValid(p))||game.items().godHedgehog().blocksSilverfish(level)||!resident(level,at)||suppressed(level,at))return null;
-        var f=new Fish(level,p,kind);f.setPos(at);f.entityTags().add(TAG);
-        String legacy=switch(kind){case ORDINARY->"hedgehog";case WALL->"baffled_wall";default->"hedgehog_"+kind.name().toLowerCase(java.util.Locale.ROOT);};
-        f.entityTags().add(legacy);if(kind!=Kind.ORDINARY&&kind!=Kind.WALL)f.entityTags().add("hedgehog_upgraded");
-        if(kind!=Kind.TANK)f.entityTags().add("lucky_mob");
-        f.setNoAi(kind!=Kind.TANK&&kind!=Kind.WALL);f.setPersistenceRequired();
-        f.setCustomName(kind==Kind.WALL?Component.translatable("grand_baffled_wall").withStyle(ChatFormatting.DARK_RED).withStyle(s->s.withItalic(false)):
-                Component.literal(switch(kind){case HEALER->"HealingHedgehog";case TANK->"HeavyHedgehog";case SNIPER->"SniperHedgehog";case LASER->"LaseringHedgehog";default->"BaffledHedgehog";}));
-        if(kind==Kind.TANK){attribute(f,Attributes.MAX_HEALTH,100);attribute(f,Attributes.ATTACK_DAMAGE,15);attribute(f,Attributes.KNOCKBACK_RESISTANCE,1000);attribute(f,Attributes.ATTACK_KNOCKBACK,1);f.setHealth(100);}
-        if(kind==Kind.WALL){attribute(f,Attributes.MAX_HEALTH,30);attribute(f,Attributes.FOLLOW_RANGE,200);attribute(f,Attributes.KNOCKBACK_RESISTANCE,100);
-            attribute(f,Attributes.ATTACK_DAMAGE,10);attribute(f,Attributes.ARMOR,10);attribute(f,Attributes.ARMOR_TOUGHNESS,10);f.setHealth(30);}
-        fish.add(f);game.items().markCurrentItemEpoch(f);game.items().timeStop().prepareFrozen(f);
-        if(!level.addFreshEntity(f)||f.isRemoved()){retire(f);return null;}
-        if(kind!=Kind.WALL)LbcOverload.sound(p,at,"minecraft:entity.silverfish.ambient",1,1.3f,0);return f;
+        enterCheckpointCallback();try {
+            if(!(kind==Kind.WALL?wallAuthorValid(p):ownerValid(p))||game.items().godHedgehog().blocksSilverfish(level)||!resident(level,at)||suppressed(level,at))return null;
+            var f=new Fish(level,p,kind);f.setPos(at);f.entityTags().add(TAG);
+            String legacy=switch(kind){case ORDINARY->"hedgehog";case WALL->"baffled_wall";default->"hedgehog_"+kind.name().toLowerCase(java.util.Locale.ROOT);};
+            f.entityTags().add(legacy);if(kind!=Kind.ORDINARY&&kind!=Kind.WALL)f.entityTags().add("hedgehog_upgraded");
+            if(kind!=Kind.TANK)f.entityTags().add("lucky_mob");
+            f.setNoAi(kind!=Kind.TANK&&kind!=Kind.WALL);f.setPersistenceRequired();
+            f.setCustomName(kind==Kind.WALL?Component.translatable("grand_baffled_wall").withStyle(ChatFormatting.DARK_RED).withStyle(s->s.withItalic(false)):
+                    Component.literal(switch(kind){case HEALER->"HealingHedgehog";case TANK->"HeavyHedgehog";case SNIPER->"SniperHedgehog";case LASER->"LaseringHedgehog";default->"BaffledHedgehog";}));
+            if(kind==Kind.TANK){attribute(f,Attributes.MAX_HEALTH,100);attribute(f,Attributes.ATTACK_DAMAGE,15);attribute(f,Attributes.KNOCKBACK_RESISTANCE,1000);attribute(f,Attributes.ATTACK_KNOCKBACK,1);f.setHealth(100);}
+            if(kind==Kind.WALL){attribute(f,Attributes.MAX_HEALTH,30);attribute(f,Attributes.FOLLOW_RANGE,200);attribute(f,Attributes.KNOCKBACK_RESISTANCE,100);
+                attribute(f,Attributes.ATTACK_DAMAGE,10);attribute(f,Attributes.ARMOR,10);attribute(f,Attributes.ARMOR_TOUGHNESS,10);f.setHealth(30);}
+            fish.add(f);game.items().markCurrentItemEpoch(f);game.items().timeStop().prepareFrozen(f);
+            if(!level.addFreshEntity(f)||f.isRemoved()){retire(f);return null;}
+            if(kind!=Kind.WALL)LbcOverload.sound(p,at,"minecraft:entity.silverfish.ambient",1,1.3f,0);return f;
+        }finally{leaveCheckpointCallback();}
     }
     private static void attribute(LivingEntity e,net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> key,double amount){var a=e.getAttribute(key);if(a!=null)a.setBaseValue(amount);}
     /** Source wall towers retain native passenger relationships and gravity. */
     public int spawnWall(ServerLevel level,Vec3 at,ServerPlayer author){return spawnWall(level,at,author,author.getLookAngle());}
     private boolean wallAuthorValid(ServerPlayer author){return author!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.canUseGameplayItems(author)&&!game.isObserver(author);}
     public int spawnWall(ServerLevel level,Vec3 at,ServerPlayer author,Vec3 direction){
-        if(!wallAuthorValid(author)||!resident(level,at)||suppressed(level,at))return 0;
-        var forward=direction.normalize();var left=new Vec3(forward.z,0,-forward.x).normalize();int count=0;
-        for(int side:new int[]{1,2,-1,-2,0}){
-            var point=at.add(left.scale(side)).add(forward);Fish previous=null;
-            for(int i=0;i<13;i++){
-                var next=spawn(author,level,point,Kind.WALL);if(next==null)break;count++;
-                if(previous==null)next.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,-1,1,false,false),author);
-                else next.startRiding(previous,true,true);previous=next;
+        enterCheckpointCallback();try {
+            if(!wallAuthorValid(author)||!resident(level,at)||suppressed(level,at))return 0;
+            var forward=direction.normalize();var left=new Vec3(forward.z,0,-forward.x).normalize();int count=0;
+            for(int side:new int[]{1,2,-1,-2,0}){
+                var point=at.add(left.scale(side)).add(forward);Fish previous=null;
+                for(int i=0;i<13;i++){
+                    var next=spawn(author,level,point,Kind.WALL);if(next==null)break;count++;
+                    if(previous==null)next.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,-1,1,false,false),author);
+                    else next.startRiding(previous,true,true);previous=next;
+                }
             }
-        }
-        for(var p:game.server().getPlayerList().getPlayers())p.sendSystemMessage(Component.translatable("baffled_awakened").withStyle(ChatFormatting.DARK_RED));
-        if(wallCount(level)>=150)game.items().godHedgehog().summon(level,at,author);
-        return count;
+            for(var p:game.server().getPlayerList().getPlayers())p.sendSystemMessage(Component.translatable("baffled_awakened").withStyle(ChatFormatting.DARK_RED));
+            if(wallCount(level)>=150)game.items().godHedgehog().summon(level,at,author);
+            return count;
+        }finally{leaveCheckpointCallback();}
     }
     public int wallCount(ServerLevel level){int n=0;for(var e:level.getAllEntities())if(e instanceof Silverfish&&e.isAlive()&&e.entityTags().contains("baffled_wall"))n++;return n;}
     private List<LivingEntity> nearby(Fish f,double r){return ((ServerLevel)f.level()).getEntitiesOfClass(LivingEntity.class,f.getBoundingBox().inflate(r),e->e!=f&&e.position().distanceToSqr(f.position())<=r*r&&eligible(e));}
@@ -233,7 +245,11 @@ public final class LbcHedgehog {
         }
     }
     /** The same attack boundary used after the source random wall/Sniper admission. */
-    public void fireBeam(Silverfish helper,LivingEntity target){if(helper instanceof LbcHedgehog.Fish f&&valid(f)&&!frozen(f))beam(f,target,f.kind);}
+    public void fireBeam(Silverfish helper,LivingEntity target){
+        enterCheckpointCallback();try {
+        if(helper instanceof LbcHedgehog.Fish f&&valid(f)&&!frozen(f))beam(f,target,f.kind);
+        }finally{leaveCheckpointCallback();}
+    }
     private final class HelperArrow extends Arrow {
         final UUID author,helper;final LbcIndirectKills.Owner cause;
         HelperArrow(ServerLevel level,ServerPlayer p,Fish helper){super(level,helper,new ItemStack(Items.ARROW),null);author=p.getUUID();this.helper=helper.getUUID();cause=helper.cause;}
@@ -241,8 +257,13 @@ public final class LbcHedgehog {
         @Override protected boolean canHitEntity(Entity e){var p=getOwner() instanceof ServerPlayer current?current:player(author);if(e.getUUID().equals(helper)||p==null)return false;
             return super.canHitEntity(e)&&(LbcGreed.active(e)||game.items().wands().physicalProjectileTarget(this,e));}
         @Override protected void onHitBlock(BlockHitResult hit){super.onHitBlock(hit);discard();}
-        @Override public void tick(){if(!game.playing()||!ownerValid(player(author))||!game.items().currentEpoch(this)||!resident((ServerLevel)level(),position())
-                ||suppressed((ServerLevel)level(),position())){discard();return;}if(!frozen(this))super.tick();}
+        @Override public void tick(){
+            enterCheckpointCallback();try {
+                if(checkpointRestoring)return;
+                if(!game.playing()||!ownerValid(player(author))||!game.items().currentEpoch(this)||!resident((ServerLevel)level(),position())
+                    ||suppressed((ServerLevel)level(),position())){discard();return;}if(!frozen(this))super.tick();
+            }finally{leaveCheckpointCallback();}
+        }
     }
     private void shoot(Fish f,LivingEntity target){var p=player(f.author);if(p==null)return;
         var arrow=new HelperArrow((ServerLevel)f.level(),p,f);var arrowTag=new CompoundTag();arrowTag.putByte("PierceLevel",(byte)100);
@@ -255,52 +276,77 @@ public final class LbcHedgehog {
         LbcOverload.sound(p,at,"minecraft:entity.arrow.shoot",1,1,0);
     }
     public void tick(){
-        if(!game.server().tickRateManager().runsNormally())return;
-        for(var s:List.copyOf(silverfish)){
-            if(s.isRemoved()||!s.isAlive()){silverfish.remove(s);continue;}
-            if(game.playing()&&!frozen(s)&&resident((ServerLevel)s.level(),s.position())&&s.getRandom().nextDouble()<1e-13)sneeze(s);
-        }
-        for(var f:List.copyOf(fish)){if(!valid(f)){retire(f);continue;}if(!f.isAlive())continue;if(!frozen(f))active(f);}
-        arrows.removeIf(Entity::isRemoved);
-        for(var e:List.copyOf(children.keySet())){
-            var child=children.get(e);if(e.isRemoved()){children.remove(e);continue;}
-            if(!game.playing()||!game.items().currentEpoch(child.epoch)||!resident((ServerLevel)e.level(),e.position())){children.remove(e);e.discard();}
-        }
-        tickBlasts();
+        enterCheckpointCallback();try {
+            if(checkpointRestoring)return;
+            if(!game.server().tickRateManager().runsNormally())return;
+            for(var s:List.copyOf(silverfish)){
+                if(s.isRemoved()||!s.isAlive()){silverfish.remove(s);continue;}
+                if(game.playing()&&!frozen(s)&&resident((ServerLevel)s.level(),s.position())&&s.getRandom().nextDouble()<1e-13)sneeze(s);
+            }
+            for(var f:List.copyOf(fish)){if(f.retainedOwner&&player(f.author)==null)continue;if(!valid(f)){retire(f);continue;}if(!f.isAlive())continue;if(!frozen(f))active(f);}
+            arrows.removeIf(Entity::isRemoved);
+            for(var e:List.copyOf(children.keySet())){
+                var child=children.get(e);if(e.isRemoved()){children.remove(e);continue;}
+                if(!game.playing()||!game.items().currentEpoch(child.epoch)||!resident((ServerLevel)e.level(),e.position())){children.remove(e);e.discard();}
+            }
+            tickBlasts();
+        }finally{leaveCheckpointCallback();}
     }
     private void retire(Fish f){f.retired=true;fish.remove(f);f.discard();}
     public void retireSilverfish(ServerLevel level,boolean all){
-        var snapshot=new ArrayList<Silverfish>();for(var e:level.getAllEntities())if(e instanceof Silverfish s)snapshot.add(s);
-        for(var e:snapshot)if(all||managed(e)){if(e instanceof LbcHedgehog.Fish f)retire(f);else e.discard();}
+        enterCheckpointCallback();try {
+            var snapshot=new ArrayList<Silverfish>();for(var e:level.getAllEntities())if(e instanceof Silverfish s)snapshot.add(s);
+            for(var e:snapshot)if(all||managed(e)){if(e instanceof LbcHedgehog.Fish f)retire(f);else e.discard();}
+        }finally{leaveCheckpointCallback();}
     }
     /** (user) Boss supremacy removes every other silverfish in its dimension. */
     public void eraseForBoss(ServerLevel level,Entity boss){
-        var snapshot=new ArrayList<Silverfish>();for(var e:level.getAllEntities())if(e instanceof Silverfish s&&e!=boss)snapshot.add(s);
-        for(var e:snapshot){if(e instanceof LbcHedgehog.Fish f)retire(f);else e.discard();}
+        enterCheckpointCallback();try {
+            var snapshot=new ArrayList<Silverfish>();for(var e:level.getAllEntities())if(e instanceof Silverfish s&&e!=boss)snapshot.add(s);
+            for(var e:snapshot){if(e instanceof LbcHedgehog.Fish f)retire(f);else e.discard();}
+        }finally{leaveCheckpointCallback();}
     }
     public ServerPlayer owner(Entity e){if(e==blastSource)return blastAuthor;var child=children.get(e);if(child!=null)return child.author;if(e instanceof LbcHedgehog.Fish f)return player(f.author);if(e instanceof LbcHedgehog.HelperArrow a)return player(a.author);return null;}
-    public void loaded(Entity e){if(managed(e)&&!fish.contains(e)&&!arrows.contains(e)&&!children.containsKey(e)){e.discard();return;}if(e instanceof Silverfish s)silverfish.add(s);}
-    public void unloaded(Entity e){silverfish.remove(e);
-        // Native TNT discards itself immediately before its synchronous explosion; keep that cause
-        // until the next service tick so blast and chained-block callbacks still see its lineage.
-        if(children.containsKey(e)&&e.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK){children.remove(e);e.discard();}
-        if(e instanceof LbcHedgehog.Fish f)retire(f);if(e instanceof LbcHedgehog.HelperArrow a){arrows.remove(a);a.discard();}}
+    public void loaded(Entity e){
+        enterCheckpointCallback();try {
+        if(checkpointRestoring)return;if(managed(e)&&!fish.contains(e)&&!arrows.contains(e)&&!children.containsKey(e)){e.discard();return;}if(e instanceof Silverfish s)silverfish.add(s);
+        }finally{leaveCheckpointCallback();}
+    }
+    public void unloaded(Entity e){
+        enterCheckpointCallback();try {
+    if(checkpointRestoring)return;silverfish.remove(e);
+            // Native TNT discards itself immediately before its synchronous explosion; keep that cause
+            // until the next service tick so blast and chained-block callbacks still see its lineage.
+            if(children.containsKey(e)&&e.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK){children.remove(e);e.discard();}
+            if(e instanceof LbcHedgehog.Fish f)retire(f);if(e instanceof LbcHedgehog.HelperArrow a){arrows.remove(a);a.discard();}
+        }finally{leaveCheckpointCallback();}
+    }
     public void forget(ServerPlayer p){forget(p.getUUID());}
     public void forget(UUID id){retireOwned(id,false);}
-    public void retireOwned(UUID id,boolean includeWalls){for(var f:List.copyOf(fish))if(f.author.equals(id)&&(includeWalls||f.kind!=Kind.WALL))retire(f);for(var a:List.copyOf(arrows))if(a.author.equals(id)){a.discard();arrows.remove(a);}}
-    public void stop(){for(var f:List.copyOf(fish))retire(f);for(var a:arrows)a.discard();arrows.clear();blasts.clear();for(var child:children.keySet())child.discard();children.clear();}
+    public void retireOwned(UUID id,boolean includeWalls){
+        enterCheckpointCallback();try {
+        for(var f:List.copyOf(fish))if(f.author.equals(id)&&(includeWalls||f.kind!=Kind.WALL))retire(f);for(var a:List.copyOf(arrows))if(a.author.equals(id)){a.discard();arrows.remove(a);}
+        }finally{leaveCheckpointCallback();}
+    }
+    public void stop(){
+        enterCheckpointCallback();try {
+        for(var f:List.copyOf(fish))retire(f);for(var a:arrows)a.discard();arrows.clear();blasts.clear();for(var child:children.keySet())child.discard();children.clear();checkpointRestoring=false;
+        }finally{leaveCheckpointCallback();}
+    }
     /** Public deterministic boundary lets checks trigger the real astronomically rare consequence. */
     public void sneeze(Silverfish source){
-        if(!game.playing()||source.isRemoved()||!(source.level() instanceof ServerLevel level)||frozen(source))return;
-        var at=source.position();var causal=owner(source);if(causal==null)causal=game.items().godHedgehog().owner(source);
-        var acceptedCause=causal==null?game.items().godHedgehog().cause(source):game.items().indirectKills().wildCause(causal);
-        for(var p:game.server().getPlayerList().getPlayers())p.sendSystemMessage(Component.translatableWithFallback("skywars2.hedgehog.sneeze","Ёжик чихнул.").withStyle(ChatFormatting.DARK_RED));
-        for(var sound:List.of("minecraft:entity.dragon_fireball.explode","minecraft:entity.generic.explode","minecraft:item.firecharge.use","minecraft:entity.firework_rocket.large_blast","minecraft:entity.firework_rocket.large_blast_far"))
-            LbcOverload.sound(level,at,sound,100,0,0,0);
-        level.sendParticles(ParticleTypes.EXPLOSION_EMITTER,at.x,at.y+10,at.z,500,15,10,15,0);
-        game.items().nuclearVisuals().show(level,at,12,false);
-        blasts.addLast(new BlastBatch(level,at,source,causal,acceptedCause,game.items().epoch()));
-        tickBlasts();
+        enterCheckpointCallback();try {
+            if(!game.playing()||source.isRemoved()||!(source.level() instanceof ServerLevel level)||frozen(source))return;
+            var at=source.position();var causal=owner(source);if(causal==null)causal=game.items().godHedgehog().owner(source);
+            var acceptedCause=causal==null?game.items().godHedgehog().cause(source):game.items().indirectKills().wildCause(causal);
+            for(var p:game.server().getPlayerList().getPlayers())p.sendSystemMessage(Component.translatableWithFallback("skywars2.hedgehog.sneeze","Ёжик чихнул.").withStyle(ChatFormatting.DARK_RED));
+            for(var sound:List.of("minecraft:entity.dragon_fireball.explode","minecraft:entity.generic.explode","minecraft:item.firecharge.use","minecraft:entity.firework_rocket.large_blast","minecraft:entity.firework_rocket.large_blast_far"))
+                LbcOverload.sound(level,at,sound,100,0,0,0);
+            level.sendParticles(ParticleTypes.EXPLOSION_EMITTER,at.x,at.y+10,at.z,500,15,10,15,0);
+            game.items().nuclearVisuals().show(level,at,12,false);
+            blasts.addLast(new BlastBatch(level,at,source,causal,acceptedCause,game.items().epoch()));
+            tickBlasts();
+        }finally{leaveCheckpointCallback();}
     }
     /** Native explosion callbacks retain the original accepted event even after its fish has died. */
     public LbcIndirectKills.Owner cause(Entity source){var child=children.get(source);return source==blastSource?blastCause:child==null?null:child.cause;}
@@ -308,12 +354,16 @@ public final class LbcHedgehog {
     public boolean explosionTarget(ServerLevel level,Entity victim){return !executingSneeze(level)||game.items().wands().validTarget(victim);}
     public boolean explosionTarget(Entity source,Entity victim){return source==null||source!=blastSource&&!children.containsKey(source)||game.items().wands().validTarget(victim);}
     public void inheritSneezeChild(ServerLevel level,Entity child){
-        if(!executingSneeze(level))return;child.entityTags().add(CHILD);game.items().markCurrentItemEpoch(child);
-        children.put(child,new Child(blastAuthor,blastCause,game.items().epoch()));game.items().timeStop().prepareFrozen(child);
+        enterCheckpointCallback();try {
+            if(!executingSneeze(level))return;child.entityTags().add(CHILD);game.items().markCurrentItemEpoch(child);
+            children.put(child,new Child(blastAuthor,blastCause,game.items().epoch()));game.items().timeStop().prepareFrozen(child);
+        }finally{leaveCheckpointCallback();}
     }
     public void inheritSneezeChild(Entity parent,Entity child){
-        var lineage=children.get(parent);if(lineage==null)return;child.entityTags().add(CHILD);game.items().markCurrentItemEpoch(child);
-        children.put(child,lineage);game.items().timeStop().prepareFrozen(child);
+        enterCheckpointCallback();try {
+            var lineage=children.get(parent);if(lineage==null)return;child.entityTags().add(CHILD);game.items().markCurrentItemEpoch(child);
+            children.put(child,lineage);game.items().timeStop().prepareFrozen(child);
+        }finally{leaveCheckpointCallback();}
     }
     public List<Entity> children(){return List.copyOf(children.keySet());}
     public int pendingBlasts(){int total=0;for(var b:blasts)total+=SNEEZE_OFFSETS.length-b.next;return total;}
@@ -321,31 +371,76 @@ public final class LbcHedgehog {
     public record BlastView(Vec3 origin,UUID owner,int remaining,String epoch){}
     public List<BlastView> blastViews(){return blasts.stream().map(b->new BlastView(b.origin,b.cause==null?null:b.cause.player(),SNEEZE_OFFSETS.length-b.next,b.epoch)).toList();}
     public void tickBlasts(){
-        if(!game.server().tickRateManager().runsNormally()||blasts.isEmpty())return;
-        long deadline=System.nanoTime()+4_000_000;int processed=0,examined=0,available=blasts.size();
-        while(!blasts.isEmpty()&&processed<4&&(processed==0||System.nanoTime()<deadline)&&examined<Math.max(available,4)){
-            var batch=blasts.removeFirst();examined++;
-            if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(batch.epoch))continue;
-            if(game.items().timeStop().stopped(batch.level)){blasts.addLast(batch);continue;}
-            var shift=SNEEZE_OFFSETS[batch.next];var point=batch.origin.add(shift[0],shift[1],shift[2]);
-            if(!resident(batch.level,point)){blasts.addLast(batch);continue;}
-            if(resident(batch.level,point)){
-                var oldSource=blastSource;var oldCause=blastCause;var oldLevel=blastLevel;var oldAuthor=blastAuthor;
-                blastSource=batch.source;blastCause=batch.cause;blastLevel=batch.level;blastAuthor=batch.author;
-                try{
-                    var nativeDamage=batch.level.damageSources().explosion(batch.source,batch.author);
-                    var damage=game.items().indirectKills().captureDamage(nativeDamage,batch.cause);
-                    // Null explosion actor prevents vanilla from excluding the fish itself from exposure.
-                    game.items().indirectKills().trapChanges(batch.level,batch.cause,()->batch.level.explode(null,damage,null,point.x,point.y,point.z,20,false,Level.ExplosionInteraction.MOB));
-                    completedBlasts++;batch.next++;
-                }finally{blastSource=oldSource;blastCause=oldCause;blastLevel=oldLevel;blastAuthor=oldAuthor;}
+        enterCheckpointCallback();try {
+            if(checkpointRestoring)return;
+            if(!game.server().tickRateManager().runsNormally()||blasts.isEmpty())return;
+            long deadline=System.nanoTime()+4_000_000;int processed=0,examined=0,available=blasts.size();
+            while(!blasts.isEmpty()&&processed<4&&(processed==0||System.nanoTime()<deadline)&&examined<Math.max(available,4)){
+                var batch=blasts.removeFirst();examined++;
+                if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(batch.epoch))continue;
+                if(game.items().timeStop().stopped(batch.level)){blasts.addLast(batch);continue;}
+                var shift=SNEEZE_OFFSETS[batch.next];var point=batch.origin.add(shift[0],shift[1],shift[2]);
+                if(!resident(batch.level,point)){blasts.addLast(batch);continue;}
+                if(resident(batch.level,point)){
+                    var oldSource=blastSource;var oldCause=blastCause;var oldLevel=blastLevel;var oldAuthor=blastAuthor;
+                    blastSource=batch.source;blastCause=batch.cause;blastLevel=batch.level;blastAuthor=batch.author;
+                    try{
+                        var nativeDamage=batch.level.damageSources().explosion(batch.source,batch.author);
+                        var damage=game.items().indirectKills().captureDamage(nativeDamage,batch.cause);
+                        // Null explosion actor prevents vanilla from excluding the fish itself from exposure.
+                        game.items().indirectKills().trapChanges(batch.level,batch.cause,()->batch.level.explode(null,damage,null,point.x,point.y,point.z,20,false,Level.ExplosionInteraction.MOB));
+                        completedBlasts++;batch.next++;
+                    }finally{blastSource=oldSource;blastCause=oldCause;blastLevel=oldLevel;blastAuthor=oldAuthor;}
+                }
+                processed++;if(batch.next<SNEEZE_OFFSETS.length)blasts.addLast(batch);
             }
-            processed++;if(batch.next<SNEEZE_OFFSETS.length)blasts.addLast(batch);
-        }
+        }finally{leaveCheckpointCallback();}
     }
     public int trackedCount(){return fish.size()+arrows.size()+children.size();}
     public record View(UUID entity,UUID owner,Kind kind,Vec3 point,int timer,boolean passenger){}
     public List<View> views(){return fish.stream().map(f->new View(f.getUUID(),f.author,f.kind,f.position(),f.timer,f.isPassenger())).toList();}
     public List<Silverfish> helpers(){return List.copyOf(fish);}
     public List<Arrow> projectiles(){return List.copyOf(arrows);}
+
+    void checkpointBoundary(){if(checkpointCallbacks!=0||blastLevel!=null||blastSource!=null)throw new IllegalStateException("Finish Hedgehog native callbacks before checkpointing");}
+    private void enterCheckpointCallback(){checkpointCallbacks++;}
+    private void leaveCheckpointCallback(){checkpointCallbacks--;}
+    void prepareFrozen(){
+        checkpointBoundary();checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();blasts.clear();children.clear();
+        blastSource=null;blastCause=null;blastLevel=null;blastAuthor=null;
+    }
+    void publishFrozen(){checkpointBoundary();checkpointRestoring=false;}
+    void cancelFrozen(){checkpointBoundary();checkpointRestoring=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record FishImage(Fish original,MatchDamageSources.Ref body,int timer,boolean retired){}
+        private record ArrowImage(HelperArrow original,MatchDamageSources.Ref body){}
+        private record ChildImage(MatchDamageSources.Ref body,MatchDamageSources.Ref author,LbcIndirectKills.Owner cause,String epoch){}
+        private record BlastImage(BlastBatch original,MatchDamageSources.Ref source,MatchDamageSources.Ref author,int next){}
+        private final List<FishImage> savedFish;
+        private final List<ArrowImage> savedArrows;
+        private final List<MatchDamageSources.Ref> savedSilverfish;
+        private final List<ChildImage> savedChildren;
+        private final List<BlastImage> savedBlasts;
+        private final long completed=completedBlasts;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            savedFish=fish.stream().map(f->new FishImage(f,links.key(f),f.timer,f.retired)).toList();
+            savedArrows=arrows.stream().map(a->new ArrowImage(a,links.key(a))).toList();
+            savedSilverfish=silverfish.stream().map(links::key).toList();
+            var childImages=new ArrayList<ChildImage>();children.forEach((body,c)->childImages.add(new ChildImage(links.key(body),links.key(c.author),c.cause,c.epoch)));savedChildren=List.copyOf(childImages);
+            savedBlasts=blasts.stream().map(b->new BlastImage(b,links.key(b.source),links.key(b.author),b.next)).toList();
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var plans=new ArrayList<Runnable>();
+            for(var image:savedFish){var f=(Fish)links.get(image.body);if(f!=image.original)throw new IllegalStateException("Restore the same native Hedgehog helper");
+                plans.add(()->{f.timer=image.timer;f.retired=image.retired;f.retainedOwner=f.kind!=Kind.WALL&&player(f.author)==null;fish.add(f);});}
+            for(var image:savedArrows){var arrow=(HelperArrow)links.get(image.body);if(arrow!=image.original)throw new IllegalStateException("Restore the same native Hedgehog projectile");plans.add(()->arrows.add(arrow));}
+            for(var ref:savedSilverfish){var body=(Silverfish)links.get(ref);plans.add(()->silverfish.add(body));}
+            for(var image:savedChildren){var body=links.get(image.body);var author=(ServerPlayer)links.get(image.author);var child=new Child(author,image.cause,image.epoch);plans.add(()->children.put(body,child));}
+            for(var image:savedBlasts){var b=image.original;var source=(Silverfish)links.get(image.source);var author=(ServerPlayer)links.get(image.author);
+                if(source!=b.source)throw new IllegalStateException("Restore the same accepted Hedgehog blast source");MatchAuthorityCheckpoint.world(game,b.level);
+                var batch=new BlastBatch(b.level,b.origin,source,author,b.cause,b.epoch);batch.next=image.next;plans.add(()->blasts.addLast(batch));}
+            return ()->{checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();children.clear();blasts.clear();plans.forEach(Runnable::run);completedBlasts=completed;};
+        }
+    }
 }

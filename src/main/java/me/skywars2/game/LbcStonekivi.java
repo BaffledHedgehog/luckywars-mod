@@ -45,6 +45,8 @@ public final class LbcStonekivi {
     interface Work {
         boolean step();
         default boolean ready() { return true; }
+        /** A held producer may remain registered only when it has no accepted writes. */
+        default boolean snapshotIdle() { return false; }
         default void cancel() { }
         default MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){throw new IllegalStateException("Missing shared-work checkpoint adapter: "+getClass().getName());}
     }
@@ -258,6 +260,9 @@ public final class LbcStonekivi {
     void beginNativeWork(){callbacks.incrementAndGet();}
     void endNativeWork(){callbacks.decrementAndGet();}
     void checkpointBoundary(){if(advancing||callbacks.get()!=0)throw new IllegalStateException("Finish shared terrain callbacks before capture/replay");}
+    /** Discard post-save accepted work through its own cancellation hooks, outside native callbacks. */
+    void cancelQueuedForRollback(){checkpointBoundary();for(var task:List.copyOf(work))task.cancel();work.clear();}
+    boolean captureSettled(){checkpointBoundary();return work.stream().allMatch(Work::snapshotIdle);}
     void prepareCheckpoint(){rewinding=true;work.clear();}
     void cancelCheckpoint(){rewinding=false;}
     Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();return new Checkpoint(graph);}

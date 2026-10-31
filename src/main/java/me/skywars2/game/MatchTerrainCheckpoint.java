@@ -89,6 +89,20 @@ final class MatchTerrainCheckpoint {
     }
 
     int chunks() { return images.size(); }
+    /** Reuse the match loader's existing resident tickets; map teardown owns their release. */
+    void retain(GameController game){
+        thread();for(var key:images.keySet())game.maps().prepareChunk(key.level,key.pos);
+    }
+
+    boolean ensureResident(GameController game){
+        thread();boolean ready=true;
+        for(var key:images.keySet()){
+            game.maps().prepareChunk(key.level,key.pos);
+            if(key.level.getChunkSource().getChunkNow(key.pos.x(),key.pos.z())!=null)continue;
+            game.maps().prepareChunk(key.level,key.pos);ready=false;
+        }
+        return ready;
+    }
 
     /**
      * Caller freezes native simulation, quarantines player/other writers, and keeps

@@ -51,12 +51,15 @@ public final class LbcShishEncounter {
         @Override public boolean shouldBeSaved(){return false;}
     }
     private final GameController game;
-    private final Map<Entity,State> actors=new IdentityHashMap<>(),causes=new WeakHashMap<>();
+    private IdentityHashMap<Entity,State> actors=new IdentityHashMap<>();
+    private final Map<Entity,State> causes=new WeakHashMap<>();
     private final Map<UUID,State> unloaded=new HashMap<>();
     private int supplyDue=-1,rainDue=-1,supplyIssued=Integer.MIN_VALUE,rainIssued=Integer.MIN_VALUE;
     private final Set<ServerPlayer> katanaOwners=Collections.newSetFromMap(new IdentityHashMap<>());
     private State executing;private ServerLevel executingLevel;
     private int lastTick=Integer.MIN_VALUE;
+    private int checkpointDepth,cadenceOffset;private boolean checkpointFrozen;
+    private Runnable stagedPublication;
     public LbcShishEncounter(GameController game){this.game=game;}
     private static CompoundTag tag(String value){try{return TagParser.parseCompoundFully(value);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new ExceptionInInitializerError(e);}}
     private static void load(Entity actor,CompoundTag tag){actor.load(TagValueInput.create(ProblemReporter.DISCARDING,actor.registryAccess(),tag.copy()));}
@@ -72,20 +75,26 @@ public final class LbcShishEncounter {
     public ServerPlayer owner(Entity entity){var state=state(entity);return state==null?null:author(state.authority);}
     public boolean canAffect(Entity entity,Entity target){var state=state(entity);return state!=null&&live(state.authority)&&game.items().wands().validRoleTarget(target,false)&&!LbcGreed.active(target);}
     private <T extends Entity> T admit(T entity,Vec3 at,LbcApocalypseEvents.Authority authority,Kind kind){
+        if(checkpointFrozen)return null;checkpointDepth++;try{
         if(entity==null||!live(authority))return null;var level=(ServerLevel)entity.level();entity.snapTo(at.x,at.y,at.z,entity.getYRot(),entity.getXRot());entity.entityTags().add(ACTOR);entity.entityTags().add(authority.epoch());var state=new State(authority,kind);actors.put(entity,state);causes.put(entity,state);
         var source=new LbcSpellSource.Source(entity.getUUID(),authority.author(),authority.epoch(),authority.cause(),Set.of(),true);game.items().spellSources().bind(entity,source);
         if(!level.addFreshEntity(entity)){actors.remove(entity);entity.discard();return null;}game.items().timeStop().prepareFrozen(entity);return entity;
+
+        }finally{checkpointDepth--;}
     }
     private Entity raw(ServerLevel level,EntityType<?> type,CompoundTag payload,Vec3 at,LbcApocalypseEvents.Authority authority,Kind kind){var entity=type.create(level,EntitySpawnReason.COMMAND);if(entity==null)return null;load(entity,payload);return admit(entity,at,authority,kind);}
     private void sound(ServerLevel level,Vec3 at,String id,float volume,float pitch){LbcOverload.sound(level,at,id,volume,pitch,0,0);}
     private void particles(ServerLevel level,ParticleOptions particle,Vec3 at,int count,double x,double y,double z,double speed,boolean force){level.sendParticles(particle,force,false,at.x,at.y,at.z,count,x,y,z,speed);}
     /** Actual40 point source batch, min0/max192 native spreadplayers, shared REPLACE-style selector schedule. */
     public void riskOfRain(LbcApocalypseEvents.Authority authority,ServerLevel level){
+        if(checkpointFrozen)return;checkpointDepth++;try{
         if(!live(authority)||paused(level))return;
         for(int n=0;n<40;n++){var point=EntityTypes.MARKER.create(level,EntitySpawnReason.COMMAND);if(point!=null){point.entityTags().addAll(List.of("supply_point",POINT));admit(point,new Vec3(0,128,0),authority,Kind.POINT);}}
         var source=game.server().createCommandSourceStack().withSource(CommandSource.NULL).withLevel(level).withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput();
         try{game.server().getCommands().getDispatcher().execute("spreadplayers 0 0 0 192 false @e[type=minecraft:marker,tag="+POINT+"]",source);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException nativeFailure){/* Source failures keep the actual point actors. */}
         nextRain();
+
+        }finally{checkpointDepth--;}
     }
     private void nextRain(){
         var point=actors.entrySet().stream().filter(e->e.getValue().kind==Kind.POINT&&!e.getKey().isRemoved()).map(Map.Entry::getKey).findFirst().orElse(null);
@@ -96,9 +105,12 @@ public final class LbcShishEncounter {
     }
     public Display.ItemDisplay spawnSupply(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at){return supply(authority,level,at,99,true);}
     private Display.ItemDisplay supply(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at,int initial,boolean immediate){
+        if(checkpointFrozen)return null;checkpointDepth++;try{
         var display=EntityTypes.ITEM_DISPLAY.create(level,EntitySpawnReason.COMMAND);if(display==null)return null;
         load(display,tag("{Tags:['supply_drop','new','rc_1sec'],Rotation:[0.0f,0.0f],transformation:{translation:[0.0f,0.5f,0.0f]},item:{id:'minecraft:stick',count:1,components:{'minecraft:item_model':'lbc:supply_beacon'}}}"));
         var center=immediate?Vec3.atCenterOf(BlockPos.containing(at)):at;display=admit(display,center,authority,Kind.SUPPLY);if(display!=null){actors.get(display).fall=initial;write(display,"supplyFall",initial);if(immediate)runSupply(display,actors.get(display));}return display;
+
+        }finally{checkpointDepth--;}
     }
     private void runSupply(Display.ItemDisplay display,State state){
         int count=++state.fall;write(display,"supplyFall",count);var level=(ServerLevel)display.level();var at=display.position();
@@ -127,17 +139,23 @@ public final class LbcShishEncounter {
     public void spawnCyborgs(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 playerPosition){for(var entity:List.copyOf(actors.keySet()))if(entity.level()==level&&entity instanceof Display.ItemDisplay&&entity.entityTags().contains("supply_drop")&&!entity.isRemoved()&&entity.position().distanceToSqr(playerPosition)<=400)spawnCyborg(authority,level,entity.position().add(0,1,0));}
     public void cyborgPhase(LbcApocalypseEvents.Authority authority,net.minecraft.commands.CommandSourceStack source){if(!live(authority))return;for(var player:List.copyOf(game.server().getPlayerList().getPlayers()))if(player(player))spawnCyborgs(authority,player.level(),player.position());}
     public Skeleton spawnCyborg(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at){
+        if(checkpointFrozen)return null;checkpointDepth++;try{
         if(!live(authority))return null;var mob=new NativeCyborg(level,authority);load(mob,CYBORG);for(var entry:Map.of(EquipmentSlot.HEAD,"helmet",EquipmentSlot.CHEST,"chestplate",EquipmentSlot.LEGS,"leggings",EquipmentSlot.FEET,"boots").entrySet()){var outputs=game.lbc().rollTable(level,at,mob,"lbc:neko_set_technomk2/"+entry.getValue());if(!outputs.isEmpty())mob.setItemSlot(entry.getKey(),outputs.getFirst());}mob.entityTags().remove("new");write(mob,"cyborgBossFly",50);return admit(mob,at,authority,Kind.CYBORG);
+
+        }finally{checkpointDepth--;}
     }
     /** Actual source HurtTime10 observer; callers can invoke after the native accepted hurt boundary too. */
-    public void incoming(LivingEntity entity){var state=actors.get(entity);if(state==null||state.kind!=Kind.CYBORG||entity.hurtTime!=10||!live(state.authority)||paused((ServerLevel)entity.level()))return;int now=game.server().getTickCount();if(state.lastHurt==now)return;state.lastHurt=now;var source=new LbcSpellSource.Source(entity.getUUID(),state.authority.author(),state.authority.epoch(),state.authority.cause(),Set.of("rcdenyalways","sauvojen_tuntija","transformator","cyborg_boss","summoned_cultist"),true);game.items().wands().cyborgElectro(entity,source);sound((ServerLevel)entity.level(),entity.position(),"minecraft:entity.iron_golem.hurt",2,1.5f);}
+    public void incoming(LivingEntity entity){
+        if(checkpointFrozen)return;checkpointDepth++;try{var state=actors.get(entity);if(state==null||state.kind!=Kind.CYBORG||entity.hurtTime!=10||!live(state.authority)||paused((ServerLevel)entity.level()))return;int now=game.server().getTickCount();if(state.lastHurt==now)return;state.lastHurt=now;var source=new LbcSpellSource.Source(entity.getUUID(),state.authority.author(),state.authority.epoch(),state.authority.cause(),Set.of("rcdenyalways","sauvojen_tuntija","transformator","cyborg_boss","summoned_cultist"),true);game.items().wands().cyborgElectro(entity,source);sound((ServerLevel)entity.level(),entity.position(),"minecraft:entity.iron_golem.hurt",2,1.5f);
+        }finally{checkpointDepth--;}
+    }
     private void cyborg(Skeleton entity,State state,int now){
         var level=(ServerLevel)entity.level();if(game.items().magic().mechanismSuppressedAt(level,entity.position())){entity.discard();return;}incoming(entity);
         var fly=game.server().getScoreboard().getObjective("cyborgBossFly");var info=fly==null?null:game.server().getScoreboard().getPlayerScoreInfo(entity,fly);
         if(info!=null&&info.value()==0&&level.players().stream().anyMatch(p->player(p)&&p.position().distanceToSqr(entity.position())<=9))wyvern(entity,state);
         if(info!=null&&info.value()>0)write(entity,"cyborgBossFly",info.value()-1);
         if(entity.entityTags().contains("mk2")){particles(level,new DustParticleOptions(0xffa32d,1),entity.position().add(0,.9,0),1,.3,.4,.3,0,false);entity.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false),entity);}
-        if(now%5==0&&level.getRandom().nextFloat()<.05f){entity.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,40,4,false,false),entity);particles(level,ParticleTypes.ELECTRIC_SPARK,entity.position().add(0,1,0),50,.5,1,.5,.1,false);sound(level,entity.position(),"minecraft:block.beacon.activate",1,1);}
+        if(Math.floorMod(now+cadenceOffset,5)==0&&level.getRandom().nextFloat()<.05f){entity.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,40,4,false,false),entity);particles(level,ParticleTypes.ELECTRIC_SPARK,entity.position().add(0,1,0),50,.5,1,.5,.1,false);sound(level,entity.position(),"minecraft:block.beacon.activate",1,1);}
     }
     private void wyvern(Skeleton entity,State state){
         var level=(ServerLevel)entity.level();entity.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,30,false,false),entity);entity.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,120,4,false,false),entity);
@@ -149,10 +167,14 @@ public final class LbcShishEncounter {
     private boolean sameId(Entity a,Entity b){var objective=game.server().getScoreboard().getObjective("lbcID2");if(objective==null)return false;var x=game.server().getScoreboard().getPlayerScoreInfo(a,objective);var y=game.server().getScoreboard().getPlayerScoreInfo(b,objective);return x!=null&&y!=null&&x.value()==y.value();}
     public boolean useBeacon(ServerPlayer player,InteractionHand hand,Vec3 at){var stack=player.getItemInHand(hand);if(LbcFartus.data(stack).getIntOr("supply_beacon",0)!=1||!player(player))return false;var accepted=new LbcApocalypseEvents.Authority(player.getUUID(),game.items().indirectKills().wildCause(player),game.items().epoch());if(supply(accepted,player.level(),at,0,false)==null)return false;stack.consume(1,player);return true;}
     /** Native Interaction front door; source clears inventory arrows in pairs, capped32 iterations. */
-    public boolean interact(ServerPlayer player,Entity entity,InteractionHand hand){if(!player(player)||actors.get(entity)==null||actors.get(entity).kind!=Kind.INTERACTION||!player.getItemInHand(hand).is(Items.ARROW)||player.getItemInHand(hand).getCount()<2)return false;boolean infinite=false;for(int n=0;n<player.getInventory().getContainerSize();n++)if(LbcFartus.data(player.getInventory().getItem(n)).getIntOr("infinite_arrow",0)==1)infinite=true;
-        for(int n=0;n<32;n++){if(!infinite)player.getInventory().clearOrCountMatchingItems(s->s.is(Items.ARROW),false,2,player.inventoryMenu.getCraftSlots());ServerPlayer closest=null;double distance=Double.POSITIVE_INFINITY;for(var p:player.level().players())if(!p.isSpectator()){double next=p.distanceToSqr(player);if(next<distance){distance=next;closest=p;}}if(closest!=null)for(var stack:game.lbc().rollTable(player.level(),closest.position(),player,"lbc:magnum_ammo"))drop(player.level(),closest.position(),stack,state(entity).authority);sound(player.level(),player.position(),"minecraft:block.piston.extend",1,1.5f);int arrows=0;for(int slot=0;slot<36;slot++){var stack=player.getInventory().getItem(slot);if(stack.is(Items.ARROW)&&stack.getCount()>=2){arrows=2;break;}}if(arrows<2)break;}return true;}
+    public boolean interact(ServerPlayer player,Entity entity,InteractionHand hand){
+        if(checkpointFrozen)return false;checkpointDepth++;try{if(!player(player)||actors.get(entity)==null||actors.get(entity).kind!=Kind.INTERACTION||!player.getItemInHand(hand).is(Items.ARROW)||player.getItemInHand(hand).getCount()<2)return false;boolean infinite=false;for(int n=0;n<player.getInventory().getContainerSize();n++)if(LbcFartus.data(player.getInventory().getItem(n)).getIntOr("infinite_arrow",0)==1)infinite=true;
+        for(int n=0;n<32;n++){if(!infinite)player.getInventory().clearOrCountMatchingItems(s->s.is(Items.ARROW),false,2,player.inventoryMenu.getCraftSlots());ServerPlayer closest=null;double distance=Double.POSITIVE_INFINITY;for(var p:player.level().players())if(!p.isSpectator()){double next=p.distanceToSqr(player);if(next<distance){distance=next;closest=p;}}if(closest!=null)for(var stack:game.lbc().rollTable(player.level(),closest.position(),player,"lbc:magnum_ammo"))drop(player.level(),closest.position(),stack,state(entity).authority);sound(player.level(),player.position(),"minecraft:block.piston.extend",1,1.5f);int arrows=0;for(int slot=0;slot<36;slot++){var stack=player.getInventory().getItem(slot);if(stack.is(Items.ARROW)&&stack.getCount()>=2){arrows=2;break;}}if(arrows<2)break;}return true;
+        }finally{checkpointDepth--;}
+    }
     /** Original armor-stand criterion is independent of supply ownership and scans all full ordinary Techno stands. */
     public boolean technoInteraction(ServerPlayer player,Entity clicked,ItemStack used){
+        if(checkpointFrozen)return false;checkpointDepth++;try{
         if(!player(player)||clicked.getType()!=EntityTypes.ARMOR_STAND||LbcFartus.data(used).getIntOr("techno",0)!=1)return false;
         var authority=new LbcApocalypseEvents.Authority(player.getUUID(),game.items().indirectKills().wildCause(player),game.items().epoch());
         var stands=new ArrayList<net.minecraft.world.entity.decoration.ArmorStand>();player.level().getAllEntities().forEach(entity->{if(entity instanceof net.minecraft.world.entity.decoration.ArmorStand stand)stands.add(stand);});for(var entity:stands){
@@ -160,14 +182,22 @@ public final class LbcShishEncounter {
             var boss=new NativeCyborg(player.level(),authority);load(boss,REGULAR_CYBORG);for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET,EquipmentSlot.MAINHAND,EquipmentSlot.OFFHAND))boss.setItemSlot(slot,entity.getItemBySlot(slot).copy());boss.setYRot(entity.getYRot());boss.setXRot(entity.getXRot());
             var counter=game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("*id.cloud"),"lbcID2");counter.add(1);write(boss,"lbcID2",counter.get());write(boss,"cyborgBossFly",50);boss.entityTags().remove("new");if(admit(boss,entity.position(),authority,Kind.CYBORG)!=null){game.items().entityUnloaded(entity);entity.discard();}
         }return true;
+
+        }finally{checkpointDepth--;}
     }
     private void drop(ServerLevel level,Vec3 at,ItemStack stack,LbcApocalypseEvents.Authority authority){var drop=new ItemEntity(level,at.x,at.y,at.z,stack.copy());var owner=author(authority);if(owner!=null)drop.setThrower(owner);admit(drop,at,authority,Kind.CHILD);}
     public static boolean matches(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("techrunner_katana",0)==1;}
     private static void movementAmount(ItemStack stack,double amount){if(stack.isEmpty())return;var old=stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY);var changed=new ArrayList<ItemAttributeModifiers.Entry>();for(var entry:old.modifiers()){var mod=entry.modifier();changed.add(entry.attribute().equals(Attributes.MOVEMENT_SPEED)?new ItemAttributeModifiers.Entry(entry.attribute(),new AttributeModifier(mod.id(),amount,mod.operation()),entry.slot(),entry.display()):entry);}if(!changed.equals(old.modifiers()))stack.set(DataComponents.ATTRIBUTE_MODIFIERS,new ItemAttributeModifiers(changed));}
-    public void damaged(LivingEntity victim,DamageSource source){if(!(source.getEntity() instanceof ServerPlayer player)||!LbcDamage.isMeleeAttack(source,player)||!player(player)||!matches(player.getMainHandItem())||game.items().magic().mechanismSuppressed(player))return;write(player,"swordcharging6",read(player,"swordcharging6")+1);movementAmount(player.getMainHandItem(),.05);if(read(player,"swordcharging6")==3){write(player,"swordcharging6",0);write(player,"swordcharged6",read(player,"swordcharged6")+5);}}
-    public boolean use(ServerPlayer player,InteractionHand hand){if(!player(player)||!matches(player.getItemInHand(hand))||read(player,"swordcharged6")<1||game.items().magic().mechanismSuppressed(player)||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;var level=player.level();var at=player.position();particles(level,ParticleTypes.TRIAL_SPAWNER_DETECTED_PLAYER_OMINOUS,at.add(0,.8,0),30,.4,.5,.4,0,false);var target=at.add(player.getLookAngle().scale(5));teleport(player,target);game.items().indirectKills().teleported(player,player,true);particles(level,ParticleTypes.TRIAL_SPAWNER_DETECTED_PLAYER_OMINOUS,player.position().add(0,.8,0),30,.4,.5,.4,0,false);sound(level,player.position(),"minecraft:item.trident.riptide_1",2,0);
+    public void damaged(LivingEntity victim,DamageSource source){
+        if(checkpointFrozen)return;checkpointDepth++;try{if(!(source.getEntity() instanceof ServerPlayer player)||!LbcDamage.isMeleeAttack(source,player)||!player(player)||!matches(player.getMainHandItem())||game.items().magic().mechanismSuppressed(player))return;write(player,"swordcharging6",read(player,"swordcharging6")+1);movementAmount(player.getMainHandItem(),.05);if(read(player,"swordcharging6")==3){write(player,"swordcharging6",0);write(player,"swordcharged6",read(player,"swordcharged6")+5);}
+        }finally{checkpointDepth--;}
+    }
+    public boolean use(ServerPlayer player,InteractionHand hand){
+        if(checkpointFrozen)return false;checkpointDepth++;try{if(!player(player)||!matches(player.getItemInHand(hand))||read(player,"swordcharged6")<1||game.items().magic().mechanismSuppressed(player)||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;var level=player.level();var at=player.position();particles(level,ParticleTypes.TRIAL_SPAWNER_DETECTED_PLAYER_OMINOUS,at.add(0,.8,0),30,.4,.5,.4,0,false);var target=at.add(player.getLookAngle().scale(5));teleport(player,target);game.items().indirectKills().teleported(player,player,true);particles(level,ParticleTypes.TRIAL_SPAWNER_DETECTED_PLAYER_OMINOUS,player.position().add(0,.8,0),30,.4,.5,.4,0,false);sound(level,player.position(),"minecraft:item.trident.riptide_1",2,0);
         for(int n=0;n<3;n++)if(!level.getBlockState(player.blockPosition()).isAir()){teleport(player,player.position().add(0,1,0));game.items().indirectKills().teleported(player,player,true);}
         var main=player.getMainHandItem();var attrs=main.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY);int amount=0;for(var entry:attrs.modifiers())if(entry.attribute().equals(Attributes.MOVEMENT_SPEED)){amount=Mth.floor(entry.modifier().amount()*100);break;}movementAmount(main,(amount+2)*.01);write(player,"swordcharged6",read(player,"swordcharged6")-1);return true;
+
+        }finally{checkpointDepth--;}
     }
     private static void teleport(ServerPlayer player,Vec3 target){var motion=player.getDeltaMovement();try{player.teleportTo(player.level(),target.x,target.y,target.z,TeleportMomentum.positionFlags(Set.of()),player.getYRot(),player.getXRot(),true);}finally{player.setDeltaMovement(motion);}}
     /** Canonical original movement scoreboard, shared with Witch statistics; no second private position ledger. */
@@ -181,26 +211,83 @@ public final class LbcShishEncounter {
     private static boolean yellow(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("yellow_lightning",0)==1;}
     public void inventoryChanged(ServerPlayer player){boolean hotbar=false,inventory=false;for(int slot=0;slot<36;slot++){boolean found=yellow(player.getInventory().getItem(slot));inventory|=found;if(slot<9)hotbar|=found;}boolean held=yellow(player.getMainHandItem())||yellow(player.getOffhandItem());if(hotbar||held)player.entityTags().addAll(List.of("yellow_lightning","yellow_lightning_active"));if(!hotbar&&!held)player.entityTags().remove("yellow_lightning");if(!inventory&&!held)player.entityTags().remove("yellow_lightning_active");}
     private void yellow(ServerPlayer player,int now){if(player.entityTags().contains("yellow_lightning")&&(yellow(player.getMainHandItem())||yellow(player.getOffhandItem()))){var source=game.server().createCommandSourceStack().withSource(CommandSource.NULL).withLevel(player.level()).withEntity(player).withPosition(player.position()).withRotation(player.getRotationVector()).withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput();for(var command:List.of("particle minecraft:item{item:{id:'minecraft:yellow_stained_glass'}} ~ ~.9 ~ ^100 ^ ^70000 0.00001 0 force","particle minecraft:item{item:{id:'minecraft:yellow_stained_glass'}} ~ ~.85 ~ ^-100 ^ ^60000 0.00001 0 force"))try{game.server().getCommands().getDispatcher().execute(command,source);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException nativeParticleFailure){/* Native source failure does not suppress the independent snowball branch. */}}
-        if(now%5==0&&player.entityTags().contains("yellow_lightning_active")){var authority=new LbcApocalypseEvents.Authority(player.getUUID(),game.items().indirectKills().wildCause(player),game.items().epoch());var ball=new YellowBall(player.level(),authority);ball.setItem(model(Items.STICK,"lbc:empty"));ball.entityTags().add("piss");ball.setDeltaMovement(player.getLookAngle().scale(.5));write(ball,"lbcID2",read(player,"lbcID2"));write(ball,"team_number",read(player,"team_number"));admit(ball,player.position().add(0,1.75,0),authority,Kind.YELLOW);}
+        if(Math.floorMod(now+cadenceOffset,5)==0&&player.entityTags().contains("yellow_lightning_active")){var authority=new LbcApocalypseEvents.Authority(player.getUUID(),game.items().indirectKills().wildCause(player),game.items().epoch());var ball=new YellowBall(player.level(),authority);ball.setItem(model(Items.STICK,"lbc:empty"));ball.entityTags().add("piss");ball.setDeltaMovement(player.getLookAngle().scale(.5));write(ball,"lbcID2",read(player,"lbcID2"));write(ball,"team_number",read(player,"team_number"));admit(ball,player.position().add(0,1.75,0),authority,Kind.YELLOW);}
     }
     private void yellowBall(Entity entity,State state){var level=(ServerLevel)entity.level();var center=entity.position().add(0,-1,0);for(var target:level.getEntities(entity,new AABB(center,center).inflate(1.5),e->e instanceof LivingEntity&&e.getType().builtInRegistryHolder().is(MOBS)&&e.position().distanceToSqr(center)<=2.25&&canAffect(entity,e)&&!sameId(entity,e)&&!sameTeam(entity,e)))game.items().psycho().yellowPersistent((LivingEntity)target,author(state.authority),60);}
     /** Must wrap the actual native actor tick so native arrows/rewards receive accepted immutable provenance. */
-    public void withTick(Entity actor,Runnable nativeTick){var state=state(actor);if(state==null){nativeTick.run();return;}if(!live(state.authority)){actor.discard();return;}if(paused((ServerLevel)actor.level())||actor.entityTags().contains("time_stopped"))return;var previous=executing;var previousLevel=executingLevel;executing=state;executingLevel=(ServerLevel)actor.level();try(var scope=game.items().spellSources().scope(actor)){game.items().indirectKills().trapChanges(executingLevel,state.authority.cause(),nativeTick);}finally{executing=previous;executingLevel=previousLevel;}}
-    public void inheritChild(Entity child){if(executing==null||child.level()!=executingLevel||!live(executing.authority)||!(child instanceof Projectile||child instanceof ItemEntity))return;var state=new State(executing.authority,Kind.CHILD);child.entityTags().add(ACTOR);child.entityTags().add(state.authority.epoch());actors.put(child,state);causes.put(child,state);var source=game.items().spellSources().current();if(source==null)source=new LbcSpellSource.Source(child.getUUID(),state.authority.author(),state.authority.epoch(),state.authority.cause(),Set.of(),true);game.items().spellSources().bind(child,source);if(child instanceof ItemEntity item){var author=author(state.authority);if(author!=null)item.setThrower(author);}game.items().timeStop().prepareFrozen(child);}
-    public void inheritConversion(Entity parent,Entity child){var state=state(parent);if(state==null||!live(state.authority)||child==null)return;child.entityTags().add(ACTOR);child.entityTags().add(state.authority.epoch());var inherited=new State(state.authority,Kind.CHILD);actors.put(child,inherited);causes.put(child,inherited);var source=game.items().spellSources().source(parent);if(source==null)source=new LbcSpellSource.Source(parent.getUUID(),state.authority.author(),state.authority.epoch(),state.authority.cause(),Set.of(),true);game.items().spellSources().bind(child,source);game.items().timeStop().prepareFrozen(child);}
-    public void loaded(Entity entity){if(!managed(entity)||actors.containsKey(entity))return;var state=unloaded.remove(entity.getUUID());if(state==null||!live(state.authority)||!game.items().currentEpoch(entity)){entity.discard();return;}actors.put(entity,state);causes.put(entity,state);if(game.items().spellSources().source(entity)==null)game.items().spellSources().bind(entity,new LbcSpellSource.Source(entity.getUUID(),state.authority.author(),state.authority.epoch(),state.authority.cause(),Set.of(),true));game.items().timeStop().prepareFrozen(entity);}
-    public void unloaded(Entity entity){var state=actors.remove(entity);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);}
-    public void tick(){int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
+    public void withTick(Entity actor,Runnable nativeTick){
+        if(checkpointFrozen)return;checkpointDepth++;try{var state=state(actor);if(state==null){nativeTick.run();return;}if(!live(state.authority)){actor.discard();return;}if(paused((ServerLevel)actor.level())||actor.entityTags().contains("time_stopped"))return;var previous=executing;var previousLevel=executingLevel;executing=state;executingLevel=(ServerLevel)actor.level();try(var scope=game.items().spellSources().scope(actor)){game.items().indirectKills().trapChanges(executingLevel,state.authority.cause(),nativeTick);}finally{executing=previous;executingLevel=previousLevel;}
+        }finally{checkpointDepth--;}
+    }
+    public void inheritChild(Entity child){if(checkpointFrozen)return;if(executing==null||child.level()!=executingLevel||!live(executing.authority)||!(child instanceof Projectile||child instanceof ItemEntity))return;var state=new State(executing.authority,Kind.CHILD);child.entityTags().add(ACTOR);child.entityTags().add(state.authority.epoch());actors.put(child,state);causes.put(child,state);var source=game.items().spellSources().current();if(source==null)source=new LbcSpellSource.Source(child.getUUID(),state.authority.author(),state.authority.epoch(),state.authority.cause(),Set.of(),true);game.items().spellSources().bind(child,source);if(child instanceof ItemEntity item){var author=author(state.authority);if(author!=null)item.setThrower(author);}game.items().timeStop().prepareFrozen(child);}
+    public void inheritConversion(Entity parent,Entity child){if(checkpointFrozen)return;var state=state(parent);if(state==null||!live(state.authority)||child==null)return;child.entityTags().add(ACTOR);child.entityTags().add(state.authority.epoch());var inherited=new State(state.authority,Kind.CHILD);actors.put(child,inherited);causes.put(child,inherited);var source=game.items().spellSources().source(parent);if(source==null)source=new LbcSpellSource.Source(parent.getUUID(),state.authority.author(),state.authority.epoch(),state.authority.cause(),Set.of(),true);game.items().spellSources().bind(child,source);game.items().timeStop().prepareFrozen(child);}
+    public void loaded(Entity entity){
+        checkpointDepth++;try{if(checkpointFrozen||MatchActorCheckpoint.restoring(entity))return;if(!managed(entity)||actors.containsKey(entity))return;var state=unloaded.remove(entity.getUUID());if(state==null||!live(state.authority)||!game.items().currentEpoch(entity)){entity.discard();return;}actors.put(entity,state);causes.put(entity,state);if(game.items().spellSources().source(entity)==null)game.items().spellSources().bind(entity,new LbcSpellSource.Source(entity.getUUID(),state.authority.author(),state.authority.epoch(),state.authority.cause(),Set.of(),true));game.items().timeStop().prepareFrozen(entity);
+        }finally{checkpointDepth--;}
+    }
+    public void unloaded(Entity entity){
+        checkpointDepth++;try{if(checkpointFrozen||MatchActorCheckpoint.restoring(entity))return;var state=actors.remove(entity);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);
+        }finally{checkpointDepth--;}
+    }
+    public void tick(){
+        if(checkpointFrozen)return;checkpointDepth++;try{int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
         for(var entry:List.copyOf(actors.entrySet())){var actor=entry.getKey();var state=entry.getValue();if(actor.isRemoved()||!live(state.authority)){actors.remove(actor);if(!actor.isRemoved())actor.discard();continue;}if(paused((ServerLevel)actor.level())||actor.entityTags().contains("time_stopped"))continue;if(actor instanceof Skeleton skeleton&&state.kind==Kind.CYBORG)cyborg(skeleton,state,now);if(state.kind==Kind.YELLOW)yellowBall(actor,state);}
         if(!game.items().wands().timeStopped()){
             if(rainDue>=0&&rainIssued!=now&&--rainDue<=0){rainDue=-1;nextRain();}
             if(supplyDue>=0&&supplyIssued!=now&&--supplyDue<=0){supplyDue=-1;dispatchSupply();}
-            if(now%20==0)for(var entry:List.copyOf(actors.entrySet()))if(entry.getValue().kind==Kind.SUPPLY&&entry.getKey().entityTags().contains("new")&&!entry.getKey().isRemoved()&&!paused((ServerLevel)entry.getKey().level()))dispatchSupply();
+            if(Math.floorMod(now+cadenceOffset,20)==0)for(var entry:List.copyOf(actors.entrySet()))if(entry.getValue().kind==Kind.SUPPLY&&entry.getKey().entityTags().contains("new")&&!entry.getKey().isRemoved()&&!paused((ServerLevel)entry.getKey().level()))dispatchSupply();
         }
         for(var player:List.copyOf(game.server().getPlayerList().getPlayers()))if(player(player)){sampleMovement(player);katana(player);yellow(player,now);}else if(!paused(player.level())&&!game.items().wands().inputTimeStopped(player)&&katanaOwners.remove(player))player.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(KATANA_SPEED);
+
+        }finally{checkpointDepth--;}
     }
     /** Already accepted encounters and children continue after author death/disconnect. */
     public void forget(ServerPlayer player){player.getAttribute(Attributes.ATTACK_DAMAGE).removeModifier(KATANA_SPEED);katanaOwners.remove(player);}
-    public void stop(){for(var player:List.copyOf(katanaOwners))forget(player);for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();causes.clear();unloaded.clear();supplyDue=rainDue=-1;supplyIssued=rainIssued=Integer.MIN_VALUE;executing=null;executingLevel=null;}
+    public void stop(){
+        checkpointDepth++;try{checkpointFrozen=false;stagedPublication=null;cadenceOffset=0;for(var player:List.copyOf(katanaOwners))forget(player);for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();causes.clear();unloaded.clear();supplyDue=rainDue=-1;supplyIssued=rainIssued=Integer.MIN_VALUE;executing=null;executingLevel=null;
+        }finally{checkpointDepth--;}
+    }
     public int actorCount(){return actors.size();}public int supplyCount(){return(int)actors.values().stream().filter(s->s.kind==Kind.SUPPLY).count();}public int cyborgCount(){return(int)actors.values().stream().filter(s->s.kind==Kind.CYBORG).count();}public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+
+    boolean captureReady(){return checkpointDepth==0&&executing==null&&!checkpointFrozen;}
+    void checkpointBoundary(){if(checkpointDepth!=0||executing!=null)throw new IllegalStateException("Finish Shish native callbacks before checkpointing");}
+    void prepareFrozen(){
+        checkpointBoundary();checkpointFrozen=true;stagedPublication=null;
+        actors.clear();causes.clear();unloaded.clear();katanaOwners.clear();supplyDue=rainDue=-1;
+    }
+    void publishFrozen(){checkpointBoundary();if(stagedPublication!=null)stagedPublication.run();stagedPublication=null;checkpointFrozen=false;}
+    void cancelFrozen(){checkpointBoundary();stagedPublication=null;checkpointFrozen=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();if(!captureReady())throw new IllegalStateException("Capture Shish outside native construction");return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Value(State original,int fall,boolean opening,int lastHurt){}
+        private record Cause(MatchDamageSources.Ref actor,State state){}
+        private final MatchSpellCheckpoint.IdentityImage<Entity,State> registry;
+        private final Map<UUID,State> dormant=new HashMap<>(unloaded);
+        private final List<Value> values=new ArrayList<>();private final List<Cause> provenance=new ArrayList<>();
+        private final List<MatchDamageSources.Ref> wielders=new ArrayList<>();
+        private final int supply=supplyDue,rain=rainDue,supplyFrame=supplyIssued,rainFrame=rainIssued;
+        private final MatchAuthorityCheckpoint.Clock clock=new MatchAuthorityCheckpoint.Clock(game,lastTick,0);
+        private final int phase=Math.floorMod(game.server().getTickCount()+cadenceOffset,20);
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            for(var actor:actors.keySet())if(links.key(actor).historical()!=null)throw new IllegalStateException("Capture current Shish actors");
+            registry=new MatchSpellCheckpoint.IdentityImage<>(actors,links);
+            var seen=Collections.newSetFromMap(new IdentityHashMap<State,Boolean>());
+            for(var value:actors.values())if(seen.add(value))values.add(new Value(value,value.fall,value.opening,value.lastHurt));
+            for(var value:unloaded.values())if(seen.add(value))values.add(new Value(value,value.fall,value.opening,value.lastHurt));
+            causes.forEach((actor,value)->{provenance.add(new Cause(links.key(actor),value));if(seen.add(value))values.add(new Value(value,value.fall,value.opening,value.lastHurt));});
+            for(var owner:katanaOwners)wielders.add(links.key(owner));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var nextActors=registry.restore(links);var nextCauses=new ArrayList<Map.Entry<Entity,State>>();
+            for(var saved:provenance)nextCauses.add(Map.entry(links.get(saved.actor),saved.state));
+            var nextWielders=new ArrayList<ServerPlayer>();for(var owner:wielders)nextWielders.add((ServerPlayer)links.get(owner));
+            return ()->{
+                for(var saved:values){saved.original.fall=saved.fall;saved.original.opening=saved.opening;}
+                actors=nextActors;unloaded.clear();unloaded.putAll(dormant);causes.clear();for(var saved:nextCauses)causes.put(saved.getKey(),saved.getValue());
+                katanaOwners.clear();katanaOwners.addAll(nextWielders);supplyDue=supply;rainDue=rain;
+                stagedPublication=()->{lastTick=clock.last(game);supplyIssued=supplyFrame==Integer.MIN_VALUE?supplyFrame:clock.time(supplyFrame,game);rainIssued=rainFrame==Integer.MIN_VALUE?rainFrame:clock.time(rainFrame,game);
+                    for(var saved:values)saved.original.lastHurt=saved.lastHurt==Integer.MIN_VALUE?saved.lastHurt:clock.time(saved.lastHurt,game);cadenceOffset=phase-game.server().getTickCount();};
+            };
+        }
+    }
 }

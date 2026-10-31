@@ -182,6 +182,7 @@ public final class LbcItems {
     private static final class TurnCurse {
         final ServerPlayer owner;
         int remaining;
+        boolean retainedOffline;
         TurnCurse(ServerPlayer owner) { this.owner = owner; }
     }
     private final GameController game;
@@ -366,6 +367,8 @@ public final class LbcItems {
         final ServerPlayer owner;
         int jumps = 3;
         int nextCharge;
+        int restoredChargeDelay=-1;
+        boolean retainedOffline;
         RocketState(ServerPlayer owner) { this.owner = owner; }
     }
     private final Map<UUID, RocketState> rockets = new HashMap<>();
@@ -655,6 +658,7 @@ public final class LbcItems {
         int now = game.server().getTickCount();
         rocketBatch.addAll(rechargingRockets);
         for (RocketState state : rocketBatch) {
+            if(state.retainedOffline)continue;
             ItemStack boots = state.owner.getItemBySlot(EquipmentSlot.FEET);
             if (!active(state.owner) || !state.owner.isAlive() || !isRocketBoots(boots)) { resetRocket(state.owner); continue; }
             if (now < state.nextCharge) continue;
@@ -668,6 +672,7 @@ public final class LbcItems {
         if (now % 20 == 0) {
             rocketBatch.addAll(rockets.values());
             for (RocketState state : rocketBatch) {
+                if(state.retainedOffline)continue;
                 if (active(state.owner) && isRocketBoots(state.owner.getItemBySlot(EquipmentSlot.FEET))) rocketHud(state);
                 else resetRocket(state.owner);
             }
@@ -1042,7 +1047,7 @@ public final class LbcItems {
     public LbcHomes homes() { return homes; }
     /** Запрет действий общий, но физика льда и электрического оглушения различается. */
     public boolean actionsBlocked(net.minecraft.world.entity.LivingEntity entity) {
-        return polymorph.active(entity) || frost.isFrozen(entity) || shooters.stunned(entity) || timeStop.frozen(entity)
+        return entity instanceof ServerPlayer player && game.vanity().blocked(player) || polymorph.active(entity) || frost.isFrozen(entity) || shooters.stunned(entity) || timeStop.frozen(entity)
                 ||entity instanceof ServerPlayer player&&fpvDrone.controlling(player);
     }
     public LbcElectro electro() { return electro; }
@@ -1897,6 +1902,7 @@ public final class LbcItems {
         // Reuse a bounded snapshot: damage can synchronously remove an owner through AFTER_DEATH.
         tickBatch.addAll(turnCurses.values());
         for (TurnCurse curse : tickBatch) {
+            if(curse.retainedOffline)continue;
             ServerPlayer owner = curse.owner;
             UUID id = owner.getUUID();
             if (turnCurses.get(id) != curse || polymorph.masked(owner)) continue;
@@ -2191,4 +2197,50 @@ public final class LbcItems {
         }
         entityEpochTag = newEntityEpochTag();
     }
+
+    /** Private resident state only; native attributes, inventory and scores remain canonical. */
+    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    void prepareResidentFrozen(){
+        turnCurses.clear();rotations.clear();rockets.clear();rechargingRockets.clear();nanoTraps.clear();originalNanoAttributes.clear();rocketCraftDrops.clear();
+        tickBatch.clear();rocketBatch.clear();markerBatch.clear();nearbyTraps.clear();hudStates.clear();
+    }
+    void publishResidentFrozen(){
+        int now=game.server().getTickCount();
+        for(var state:rockets.values())if(!state.retainedOffline&&state.restoredChargeDelay>=0){
+            state.nextCharge=now+state.restoredChargeDelay;state.restoredChargeDelay=-1;
+        }
+        for(var player:game.server().getPlayerList().getPlayers())invalidateHud(player);
+    }
+    final class ResidentCheckpoint {
+        private record CurseImage(MatchDamageSources.Ref owner,int remaining){}
+        private record RocketImage(MatchDamageSources.Ref owner,int jumps,boolean charging,int delay){}
+        private final List<CurseImage> curses;
+        private final List<RocketImage> boosts;
+        private final List<MatchDamageSources.Ref> traps,crafts;
+        private final Map<UUID,Rotation> angles=new HashMap<>(rotations);
+        private final Map<UUID,NanoAttributes> attributes=new HashMap<>(originalNanoAttributes);
+        ResidentCheckpoint(MatchSpellCheckpoint.Links links){
+            curses=turnCurses.values().stream().map(c->new CurseImage(links.key(c.owner),c.remaining)).toList();
+            int now=game.server().getTickCount();
+            boosts=rockets.values().stream().map(r->new RocketImage(links.key(r.owner),r.jumps,rechargingRockets.contains(r),
+                    r.restoredChargeDelay>=0?r.restoredChargeDelay:Math.max(0,r.nextCharge-now))).toList();
+            traps=nanoTraps.stream().filter(e->!e.isRemoved()).map(links::key).toList();
+            crafts=rocketCraftDrops.stream().filter(e->!e.isRemoved()).map(links::key).toList();
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var nextCurses=new HashMap<UUID,TurnCurse>();var nextRockets=new HashMap<UUID,RocketState>();var charging=new LinkedHashSet<RocketState>();
+            for(var saved:curses){var player=(ServerPlayer)links.get(saved.owner);var value=new TurnCurse(player);value.remaining=saved.remaining;
+                value.retainedOffline=MatchOfflinePlayers.retained(player);nextCurses.put(player.getUUID(),value);}
+            for(var saved:boosts){var player=(ServerPlayer)links.get(saved.owner);var value=new RocketState(player);value.jumps=saved.jumps;
+                value.retainedOffline=MatchOfflinePlayers.retained(player);value.restoredChargeDelay=saved.charging?saved.delay:-1;
+                nextRockets.put(player.getUUID(),value);if(saved.charging)charging.add(value);}
+            var nextTraps=new LinkedHashSet<Marker>();for(var ref:traps)nextTraps.add((Marker)links.get(ref));
+            var nextCrafts=new LinkedHashSet<ItemEntity>();for(var ref:crafts)nextCrafts.add((ItemEntity)links.get(ref));
+            return ()->{turnCurses.clear();turnCurses.putAll(nextCurses);rotations.clear();rotations.putAll(angles);
+                rockets.clear();rockets.putAll(nextRockets);rechargingRockets.clear();rechargingRockets.addAll(charging);
+                nanoTraps.clear();nanoTraps.addAll(nextTraps);rocketCraftDrops.clear();rocketCraftDrops.addAll(nextCrafts);
+                originalNanoAttributes.clear();originalNanoAttributes.putAll(attributes);};
+        }
+    }
+
 }

@@ -86,6 +86,7 @@ public final class LbcStand {
         final ServerPlayer owner;
         final String epoch;
         int cooldown=800, remaining, delay=2;
+        boolean retainedOffline;
         Burst(ServerPlayer owner,String epoch,int count) { this.owner=owner; this.epoch=epoch; remaining=count; }
     }
     private static final class Fist {
@@ -424,6 +425,7 @@ public final class LbcStand {
         ticks++; tickRetained();
         tickTargets.clear();
         for(var burst:List.copyOf(bursts.values())) {
+            if(burst.retainedOffline)continue;
             if(!active(burst.owner) || !game.items().currentEpoch(burst.epoch)) { cancelBurst(burst.owner); continue; }
             if(paused(burst.owner)) continue;
             if(--burst.cooldown<=0) { bursts.remove(burst.owner.getUUID()); continue; }
@@ -538,4 +540,33 @@ public final class LbcStand {
         for(var fist:List.copyOf(fists)) remove(fist);
         for(var player:game.server().getPlayerList().getPlayers()) player.entityTags().remove("have_stand");
     }
+
+    Set<UUID> transientCheckpointActors(){var ids=new java.util.LinkedHashSet<UUID>();for(var fist:fists)ids.add(fist.display.getUUID());return Set.copyOf(ids);}
+    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    void prepareResidentFrozen(){
+        retained.clear();bursts.clear();tickTargets.clear();
+        var old=List.copyOf(fists);fists.clear();for(var fist:old)if(!fist.display.isRemoved())fist.display.discard();
+    }
+    final class ResidentCheckpoint {
+        private record StandImage(MatchDamageSources.Ref owner,String epoch,boolean started,boolean empowered,boolean resistance,
+                int grantDelay,int lightningCooldown,int falling){}
+        private record BurstImage(MatchDamageSources.Ref owner,String epoch,int cooldown,int remaining,int delay){}
+        private final List<StandImage> owners;
+        private final List<BurstImage> series;
+        private final int cadence=ticks;
+        ResidentCheckpoint(MatchSpellCheckpoint.Links links){
+            owners=retained.values().stream().map(s->new StandImage(links.key(s.owner),s.epoch,s.started,s.empowered,s.resistanceOwned,s.grantDelay,s.lightningCooldown,s.falling)).toList();
+            series=bursts.values().stream().map(b->new BurstImage(links.key(b.owner),b.epoch,b.cooldown,b.remaining,b.delay)).toList();
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var nextOwners=new HashMap<UUID,RetainedStand>();var nextBursts=new HashMap<UUID,Burst>();
+            for(var image:owners){var player=(ServerPlayer)links.get(image.owner);var state=new RetainedStand(player,image.epoch);
+                state.started=image.started;state.empowered=image.empowered;state.resistanceOwned=image.resistance;state.grantDelay=image.grantDelay;
+                state.lightningCooldown=image.lightningCooldown;state.falling=image.falling;nextOwners.put(player.getUUID(),state);}
+            for(var image:series){var player=(ServerPlayer)links.get(image.owner);var burst=new Burst(player,image.epoch,image.remaining);
+                burst.cooldown=image.cooldown;burst.delay=image.delay;burst.retainedOffline=MatchOfflinePlayers.retained(player);nextBursts.put(player.getUUID(),burst);}
+            return ()->{retained.clear();retained.putAll(nextOwners);bursts.clear();bursts.putAll(nextBursts);ticks=cadence;tickTargets.clear();};
+        }
+    }
+
 }

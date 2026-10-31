@@ -38,11 +38,13 @@ public final class LbcDuplicating {
     private final List<MarkerState> markers=new ArrayList<>();
     private final java.util.Set<Job> jobs=new java.util.LinkedHashSet<>();
     private final java.util.Map<net.minecraft.world.level.block.state.BlockState,MapManager.BlockSnapshot> plainSnapshots=new IdentityHashMap<>();
-    private final java.util.Map<ServerPlayer,Integer> dividerTimers=new IdentityHashMap<>();
+    private IdentityHashMap<ServerPlayer,Integer> dividerTimers=new IdentityHashMap<>();
+    private boolean checkpointDraining;
+    private int checkpointCallbacks;
     private static final double HOLE_INFLUENCE=16,HOLE_STRONG=1.3,HOLE_DESTRUCTION=7;
     private static final float HOLE_SHADER_RADIUS=.5f;
     private static class Owned {
-        final ServerPlayer owner; final ServerLevel level; final String epoch;
+        ServerPlayer owner; final ServerLevel level; final String epoch;
         boolean cancelled;
         Owned(ServerPlayer owner,String epoch) { this.owner=owner; level=owner.level(); this.epoch=epoch; }
     }
@@ -51,6 +53,8 @@ public final class LbcDuplicating {
         BlackHoleVisuals.Handle visual;
         HoleTerrain terrain;
         LiveShuffle shuffle;
+        Long erosionSeed;
+        boolean retainedOwner;
         MarkerState(ServerPlayer owner,String epoch,Vec3 point,Vec3 direction,int mode,int lifetime) {
             super(owner,epoch); this.point=point; this.direction=direction; this.mode=mode; this.lifetime=lifetime;
         }
@@ -98,41 +102,49 @@ public final class LbcDuplicating {
     }
 
     void castMode(ServerPlayer owner,int mode) {
-        if(mode==3) queue(new Divide(owner));
-        else {
-            Vec3 direction=owner.getLookAngle().normalize();
-            var marker=new MarkerState(owner,game.items().epoch(),owner.getEyePosition().add(direction.scale(mode==2?14:mode==4?8:7)),
-                    direction,mode,mode==2?100:mode==4?300:200);
-            if(mode==4) marker.visual=game.items().blackHoleVisuals().create(owner,marker.point,HOLE_SHADER_RADIUS);
-            markers.add(marker);
-        }
+        enterCheckpointCallback();try {
+            if(mode==3) queue(new Divide(owner));
+            else {
+                Vec3 direction=owner.getLookAngle().normalize();
+                var marker=new MarkerState(owner,game.items().epoch(),owner.getEyePosition().add(direction.scale(mode==2?14:mode==4?8:7)),
+                        direction,mode,mode==2?100:mode==4?300:200);
+                if(mode==4) marker.visual=game.items().blackHoleVisuals().create(owner,marker.point,HOLE_SHADER_RADIUS);
+                markers.add(marker);
+            }
+        }finally{leaveCheckpointCallback();}
     }
     void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
-        direction=direction.normalize();
-        if(mode==3)queue(new Divide(owner,origin,direction));
-        else{
-            var marker=new MarkerState(owner,game.items().epoch(),origin.add(direction.scale(mode==2?14:mode==4?8:7)),
-                    direction,mode,mode==2?100:mode==4?300:200);
-            if(mode==4)marker.visual=game.items().blackHoleVisuals().create(owner,marker.point,HOLE_SHADER_RADIUS);
-            markers.add(marker);
-        }
+        enterCheckpointCallback();try {
+            direction=direction.normalize();
+            if(mode==3)queue(new Divide(owner,origin,direction));
+            else{
+                var marker=new MarkerState(owner,game.items().epoch(),origin.add(direction.scale(mode==2?14:mode==4?8:7)),
+                        direction,mode,mode==2?100:mode==4?300:200);
+                if(mode==4)marker.visual=game.items().blackHoleVisuals().create(owner,marker.point,HOLE_SHADER_RADIUS);
+                markers.add(marker);
+            }
+        }finally{leaveCheckpointCallback();}
     }
     public boolean useDivider(ServerPlayer owner,ItemStack stack) {
-        if(!castable(owner) || game.items().mana().score(owner,"divider_cd").get()>0) return false;
-        var job=new Job(owner); grid(job,owner.position(),12,true); queue(job);
-        game.items().mana().score(owner,"divider_cd").set(30);
-        dividerTimers.put(owner,0);
-        for(float pitch:new float[]{0,.2f,.5f,.13f}) LbcOverload.sound(owner,"minecraft:block.anvil.use",4,pitch,0);
-        return true;
+        enterCheckpointCallback();try {
+            if(!castable(owner) || game.items().mana().score(owner,"divider_cd").get()>0) return false;
+            var job=new Job(owner); grid(job,owner.position(),12,true); queue(job);
+            game.items().mana().score(owner,"divider_cd").set(30);
+            dividerTimers.put(owner,0);
+            for(float pitch:new float[]{0,.2f,.5f,.13f}) LbcOverload.sound(owner,"minecraft:block.anvil.use",4,pitch,0);
+            return true;
+        }finally{leaveCheckpointCallback();}
     }
     public boolean useDivider(ServerPlayer owner,InteractionHand hand,ItemStack stack) { return useDivider(owner,stack); }
     private void trial(ServerPlayer owner) {
-        markers.add(new MarkerState(owner,game.items().epoch(),owner.position(),new Vec3(0,-1,0),1,200));
-        for(int index=0;index<90;index++) {
-            Vec3 point=new Vec3(Math.floor(owner.getX())+owner.getRandom().nextInt(61)-30,owner.getY(),
-                    Math.floor(owner.getZ())+owner.getRandom().nextInt(61)-30);
-            markers.add(new MarkerState(owner,game.items().epoch(),point,randomDirection(owner),1,30));
-        }
+        enterCheckpointCallback();try {
+            markers.add(new MarkerState(owner,game.items().epoch(),owner.position(),new Vec3(0,-1,0),1,200));
+            for(int index=0;index<90;index++) {
+                Vec3 point=new Vec3(Math.floor(owner.getX())+owner.getRandom().nextInt(61)-30,owner.getY(),
+                        Math.floor(owner.getZ())+owner.getRandom().nextInt(61)-30);
+                markers.add(new MarkerState(owner,game.items().epoch(),point,randomDirection(owner),1,30));
+            }
+        }finally{leaveCheckpointCallback();}
     }
     private static float randomYaw(ServerPlayer owner) { return (owner.getRandom().nextInt(360001)-180000)*.001f; }
     private static float randomPitch(ServerPlayer owner) { return (owner.getRandom().nextInt(180001)-90000)*.001f; }
@@ -160,17 +172,33 @@ public final class LbcDuplicating {
         boolean held;
         Job(ServerPlayer owner) { super(owner,game.items().epoch()); }
         public boolean step() {
-            if(!valid(this)) { cancel(); return true; }
-            if(paused(owner)) return false;
-            long deadline=System.nanoTime()+500_000; int[] budget={4096};
-            while(!operations.isEmpty() && budget[0]>0 && System.nanoTime()<deadline) {
-                if(!operations.peek().step(this,deadline,budget)) return false;
-                operations.remove();
-            }
-            if(operations.isEmpty() && !held) { jobs.remove(this); return true; } return false;
+            enterCheckpointCallback();try {
+                if(!valid(this)) { cancel(); return true; }
+                if(paused(owner)) return false;
+                long deadline=System.nanoTime()+500_000; int[] budget={4096};
+                while(!operations.isEmpty() && budget[0]>0 && System.nanoTime()<deadline) {
+                    if(!operations.peek().step(this,deadline,budget)) return false;
+                    operations.remove();
+                }
+                if(operations.isEmpty() && !held) { jobs.remove(this); return true; } return false;
+            }finally{leaveCheckpointCallback();}
         }
+        @Override public boolean snapshotIdle(){return checkpointDraining&&checkpointWrites(this)==0;}
         public boolean ready() { return !held || !operations.isEmpty() || !valid(this); }
-        public void cancel() { cancelled=true; operations.clear(); loading.clear(); jobs.remove(this); }
+        public void cancel() {
+            enterCheckpointCallback();try {cancelled=true;operations.clear();loading.clear();jobs.remove(this);
+            }finally{leaveCheckpointCallback();}
+        }
+        @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            checkpointBoundary();
+            if(!checkpointDraining||checkpointWrites(this)!=0)
+                throw new IllegalStateException("Finish original Duplicating writes before capture");
+            return links->()->{
+                cancelled=true;held=false;operations.clear();loading.clear();jobs.remove(this);
+                if(this instanceof LiveShuffle shuffle){shuffle.latest=null;if(shuffle.marker.shuffle==shuffle)shuffle.marker.shuffle=null;}
+                if(this instanceof HoleTerrain terrain){terrain.erosion.clear();if(terrain.marker.terrain==terrain)terrain.marker.terrain=null;}
+            };
+        }
         int sourceReady(ServerLevel source,BlockPos pos) {
             if(resident(source,pos)) return 1;
             var pending=loading.computeIfAbsent(source,ignored->new java.util.HashMap<>())
@@ -258,7 +286,9 @@ public final class LbcDuplicating {
         }
     }
     void applyPatch(ServerPlayer owner,Vec3 source,Vec3 target,int sx,int sy,int sz,Shape shape,Action action,Rotation rotation,Mirror mirror) {
-        var job=new Job(owner); job.operations.add(new Patch(owner.level(),source,target,sx,sy,sz,shape,action,rotation,mirror)); queue(job);
+        enterCheckpointCallback();try {
+            var job=new Job(owner); job.operations.add(new Patch(owner.level(),source,target,sx,sy,sz,shape,action,rotation,mirror)); queue(job);
+        }finally{leaveCheckpointCallback();}
     }
     private MapManager.BlockSnapshot capture(ServerLevel level,BlockPos pos) {
         var state=level.getBlockState(pos);
@@ -277,16 +307,21 @@ public final class LbcDuplicating {
             return !valid(this) || !valid(marker) || !operations.isEmpty() || latest!=null || marker.age>=marker.lifetime;
         }
         @Override public boolean step() {
-            if(!valid(marker)) { cancel(); return true; }
-            if(paused(owner)) return false;
-            if(operations.isEmpty() && latest!=null) {
-                var seed=latest; latest=null;
-                if(!game.items().magic().suppressedAt(level,seed.point)) populate(this,seed);
-            }
-            held=marker.age<marker.lifetime || latest!=null;
-            return super.step();
+            enterCheckpointCallback();try {
+                if(cancelled||!valid(marker)) { cancel(); return true; }
+                if(paused(owner)) return false;
+                if(operations.isEmpty() && latest!=null) {
+                    var seed=latest; latest=null;
+                    if(!game.items().magic().suppressedAt(level,seed.point)) populate(this,seed);
+                }
+                held=marker.age<marker.lifetime || latest!=null;
+                return super.step();
+            }finally{leaveCheckpointCallback();}
         }
-        @Override public void cancel() { latest=null; super.cancel(); }
+        @Override public void cancel() {
+            enterCheckpointCallback();try {latest=null;super.cancel();
+            }finally{leaveCheckpointCallback();}
+        }
     }
     private final class Clone implements Operation {
         final ServerLevel source,destination; final BlockPos min,target; final int sx,sy,sz,volume;
@@ -353,8 +388,10 @@ public final class LbcDuplicating {
                 local(seed.point,seed.pitch,seed.yaw,tx,ty,tz));
     }
     void applyShuffle(ServerPlayer owner,Vec3 point,float pitch,float yaw,Vec3 center,boolean expand) {
-        var parent=new MarkerState(owner,game.items().epoch(),center,Vec3.ZERO,expand?2:1,1);
-        seed(new Seed(parent,point,pitch,yaw));
+        enterCheckpointCallback();try {
+            var parent=new MarkerState(owner,game.items().epoch(),center,Vec3.ZERO,expand?2:1,1);
+            seed(new Seed(parent,point,pitch,yaw));
+        }finally{leaveCheckpointCallback();}
     }
     /** Sequential legacy shuffle using the shared snapshot queue. */
     private void seed(Seed seed) {
@@ -405,7 +442,9 @@ public final class LbcDuplicating {
         crossClone(job,nexus,point,pitch,yaw,-8,8,-8,-5,5,-5,5,5,-5);
     }
     void applyExpandSources(ServerPlayer owner,Vec3 point,float pitch,float yaw) {
-        var job=new Job(owner); expandSources(job,point,pitch,yaw); queue(job);
+        enterCheckpointCallback();try {
+            var job=new Job(owner); expandSources(job,point,pitch,yaw); queue(job);
+        }finally{leaveCheckpointCallback();}
     }
     private void fill(Job job,Vec3 point,int half) {
         BlockPos min=BlockPos.containing(point.add(-half,-half,-half)),max=BlockPos.containing(point.add(half,half,half));
@@ -484,24 +523,31 @@ public final class LbcDuplicating {
         final MarkerState marker;final BlackHoleErosion erosion;int clock=Integer.MIN_VALUE;
         HoleTerrain(MarkerState marker){
             super(marker.owner);this.marker=marker;
-            erosion=new BlackHoleErosion(level,owner.getRandom().nextLong(),true);
+            if(marker.erosionSeed==null)marker.erosionSeed=owner.getRandom().nextLong();
+            erosion=new BlackHoleErosion(level,marker.erosionSeed,true);
         }
-        @Override public boolean ready(){return !valid(this)||!valid(marker)||erosion.hasWork()||clock!=marker.age;}
+        @Override public boolean ready(){return !valid(this)||!valid(marker)||erosion.hasWork()||!checkpointDraining&&clock!=marker.age;}
         @Override public boolean step(){
-            if(!valid(this)||!valid(marker)||game.items().magic().suppressedAt(level,marker.point)){cancel();return true;}
-            if(paused(owner))return false;
-            clock=marker.age;erosion.move(marker.point,HOLE_DESTRUCTION,clock);
-            var kills=game.items().indirectKills();
-            kills.withSupportCandidates(level,new AABB(marker.point,marker.point).inflate(HOLE_DESTRUCTION+1),()->
-                kills.trapChanges(level,owner,()->erosion.step(1024,System.nanoTime()+750_000,(pos,state)->{
-                    if(game.items().magic().suppressedAt(level,Vec3.atCenterOf(pos)))return;
-                    kills.supportRemoved(level,owner,pos);
-                    if(level.getBlockEntity(pos) instanceof net.minecraft.world.Container container)container.clearContent();
-                    level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
-                })));
-            return false;
+            enterCheckpointCallback();try {
+                if(!valid(this)||!valid(marker)||game.items().magic().suppressedAt(level,marker.point)){cancel();return true;}
+                if(paused(owner))return false;
+                if(!checkpointDraining){clock=marker.age;erosion.move(marker.point,HOLE_DESTRUCTION,clock);}
+                else if(!erosion.hasWork())return false;
+                var kills=game.items().indirectKills();
+                kills.withSupportCandidates(level,new AABB(marker.point,marker.point).inflate(HOLE_DESTRUCTION+1),()->
+                    kills.trapChanges(level,owner,()->erosion.step(1024,System.nanoTime()+750_000,(pos,state)->{
+                        if(game.items().magic().suppressedAt(level,Vec3.atCenterOf(pos)))return;
+                        kills.supportRemoved(level,owner,pos);
+                        if(level.getBlockEntity(pos) instanceof net.minecraft.world.Container container)container.clearContent();
+                        level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
+                    })));
+                return false;
+            }finally{leaveCheckpointCallback();}
         }
-        @Override public void cancel(){erosion.clear();super.cancel();}
+        @Override public void cancel(){
+            enterCheckpointCallback();try {erosion.clear();super.cancel();
+            }finally{leaveCheckpointCallback();}
+        }
     }
     private void removeVisual(MarkerState marker) {
         if(marker.visual!=null) { game.items().blackHoleVisuals().remove(marker.visual); marker.visual=null; }
@@ -558,64 +604,135 @@ public final class LbcDuplicating {
     }
 
     public void tick() {
-        for(var entry:List.copyOf(dividerTimers.entrySet())) {
-            var owner=entry.getKey();
-            if(!valid(owner)) { game.items().mana().score(owner,"divider_cd").set(0); dividerTimers.remove(owner); continue; }
-            if(paused(owner)) continue;
-            int phase=entry.getValue()+1;
-            if(phase==20) {
-                var cd=game.items().mana().score(owner,"divider_cd"); cd.set(Math.max(0,cd.get()-1)); phase=0;
-                if(cd.get()==0) { dividerTimers.remove(owner); continue; }
+        enterCheckpointCallback();try {
+            for(var entry:List.copyOf(dividerTimers.entrySet())) {
+                var owner=entry.getKey();
+                if(!valid(owner)) { game.items().mana().score(owner,"divider_cd").set(0); dividerTimers.remove(owner); continue; }
+                if(paused(owner)) continue;
+                int phase=entry.getValue()+1;
+                if(phase==20) {
+                    var cd=game.items().mana().score(owner,"divider_cd"); cd.set(Math.max(0,cd.get()-1)); phase=0;
+                    if(cd.get()==0) { dividerTimers.remove(owner); continue; }
+                }
+                dividerTimers.put(owner,phase);
             }
-            dividerTimers.put(owner,phase);
-        }
-        var pulls=new IdentityHashMap<Entity,PullSample>();
-        for(var marker:List.copyOf(markers)) {
-            if(!valid(marker) || game.items().magic().suppressedAt(marker.level,marker.point)) {
-                marker.cancelled=true; removeVisual(marker);
-                markers.remove(marker); continue;
+            // Snapshot acquisition postpones new producer work while already accepted writes drain.
+            if(checkpointDraining)return;
+            var pulls=new IdentityHashMap<Entity,PullSample>();
+            for(var marker:List.copyOf(markers)) {
+                if(marker.retainedOwner)continue;
+                if(!valid(marker) || game.items().magic().suppressedAt(marker.level,marker.point)) {
+                    marker.cancelled=true; removeVisual(marker);
+                    markers.remove(marker); continue;
+                }
+                if(paused(marker.owner) || !resident(marker.level,BlockPos.containing(marker.point))) continue;
+                Vec3 before=marker.point;
+                if(marker.mode==4) hole(marker,pulls);
+                else {
+                    Vec3 point=new Vec3(Math.floor(before.x)+marker.owner.getRandom().nextInt(9)-4,
+                            Math.floor(before.y)+marker.owner.getRandom().nextInt(9)-4,Math.floor(before.z)+marker.owner.getRandom().nextInt(9)-4);
+                    if(marker.shuffle==null) { marker.shuffle=new LiveShuffle(marker); queue(marker.shuffle); }
+                    marker.shuffle.offer(new Seed(marker,point,randomPitch(marker.owner),randomYaw(marker.owner)));
+                }
+                if(marker.mode!=4) {
+                    marker.level.sendParticles(ParticleTypes.REVERSE_PORTAL,before.x,before.y,before.z,10,0,0,0,1);
+                    LbcOverload.sound(marker.owner,before,"minecraft:entity.bee.loop_aggressive",.1f,0,30);
+                }
+                marker.point=before.add(marker.direction.scale(marker.mode==2?2:marker.mode==4?.3:1));
+                if(marker.visual!=null) game.items().blackHoleVisuals().move(marker.visual,marker.point);
+                if(++marker.age>=marker.lifetime) {
+                    removeVisual(marker);
+                    markers.remove(marker);
+                }
             }
-            if(paused(marker.owner) || !resident(marker.level,BlockPos.containing(marker.point))) continue;
-            Vec3 before=marker.point;
-            if(marker.mode==4) hole(marker,pulls);
-            else {
-                Vec3 point=new Vec3(Math.floor(before.x)+marker.owner.getRandom().nextInt(9)-4,
-                        Math.floor(before.y)+marker.owner.getRandom().nextInt(9)-4,Math.floor(before.z)+marker.owner.getRandom().nextInt(9)-4);
-                if(marker.shuffle==null) { marker.shuffle=new LiveShuffle(marker); queue(marker.shuffle); }
-                marker.shuffle.offer(new Seed(marker,point,randomPitch(marker.owner),randomYaw(marker.owner)));
-            }
-            if(marker.mode!=4) {
-                marker.level.sendParticles(ParticleTypes.REVERSE_PORTAL,before.x,before.y,before.z,10,0,0,0,1);
-                LbcOverload.sound(marker.owner,before,"minecraft:entity.bee.loop_aggressive",.1f,0,30);
-            }
-            marker.point=before.add(marker.direction.scale(marker.mode==2?2:marker.mode==4?.3:1));
-            if(marker.visual!=null) game.items().blackHoleVisuals().move(marker.visual,marker.point);
-            if(++marker.age>=marker.lifetime) {
-                removeVisual(marker);
-                markers.remove(marker);
-            }
-        }
-        applyPulls(pulls);
+            applyPulls(pulls);
+        }finally{leaveCheckpointCallback();}
     }
     public int count() { return markers.size()+jobs.size(); }
     public void forget(ServerPlayer owner) {
-        if(dividerTimers.remove(owner)!=null) game.items().mana().score(owner,"divider_cd").set(0);
-        markers.removeIf(state->{ if(state.owner!=owner) return false; removeVisual(state); return true; });
-        for(var job:List.copyOf(jobs)) if(job.owner==owner) job.cancel();
+        enterCheckpointCallback();try {
+            if(dividerTimers.remove(owner)!=null) game.items().mana().score(owner,"divider_cd").set(0);
+            markers.removeIf(state->{ if(state.owner!=owner) return false; removeVisual(state); return true; });
+            for(var job:List.copyOf(jobs)) if(job.owner==owner) job.cancel();
+        }finally{leaveCheckpointCallback();}
     }
     public void stop() {
-        for(var marker:markers) removeVisual(marker);
-        markers.clear(); for(var job:List.copyOf(jobs)) job.cancel();
-        for(var owner:dividerTimers.keySet()) game.items().mana().score(owner,"divider_cd").set(0);
-        dividerTimers.clear();
+        enterCheckpointCallback();try {
+            for(var marker:markers) removeVisual(marker);
+            markers.clear(); for(var job:List.copyOf(jobs)) job.cancel();
+            for(var owner:dividerTimers.keySet()) game.items().mana().score(owner,"divider_cd").set(0);
+            dividerTimers.clear();checkpointDraining=false;
+        }finally{leaveCheckpointCallback();}
     }
     public void transformOrigins(ServerLevel level,UnaryOperator<Vec3> transform) {
-        for(var marker:markers) if(marker.level==level) {
-            Vec3 point=transform.apply(marker.point);
-            if(point==null) { marker.cancelled=true; removeVisual(marker); }
-            else { marker.point=point; if(marker.visual!=null) game.items().blackHoleVisuals().move(marker.visual,point); }
+        enterCheckpointCallback();try {
+            for(var marker:markers) if(marker.level==level) {
+                Vec3 point=transform.apply(marker.point);
+                if(point==null) { marker.cancelled=true; removeVisual(marker); }
+                else { marker.point=point; if(marker.visual!=null) game.items().blackHoleVisuals().move(marker.visual,point); }
+            }
+            markers.removeIf(state->state.cancelled);
+        }finally{leaveCheckpointCallback();}
+    }
+    /** Pause producers only. Existing shared jobs retain their original native step and chunk waits. */
+    void beginCheckpointDrain(){checkpointBoundary();checkpointDraining=true;}
+    void endCheckpointDrain(){checkpointBoundary();checkpointDraining=false;}
+    private int checkpointWrites(Job job){
+        if(job.cancelled)return 0;
+        int pending=job.operations.size();
+        if(job instanceof LiveShuffle shuffle&&shuffle.latest!=null)pending++;
+        if(job instanceof HoleTerrain terrain&&terrain.erosion.hasWork())pending++;
+        for(var dimension:job.loading.values())for(var future:dimension.values())if(!future.isDone())pending++;
+        return pending;
+    }
+    int pendingCheckpointWrites(){
+        checkpointBoundary();int pending=0;for(var job:jobs)pending+=checkpointWrites(job);return pending;
+    }
+    void rebindRetained(ServerPlayer player){
+        checkpointBoundary();
+        for(var marker:markers)if(marker.retainedOwner&&marker.owner.getUUID().equals(player.getUUID())){marker.owner=player;marker.retainedOwner=false;}
+        for(var old:List.copyOf(dividerTimers.keySet()))if(old!=player&&old.getUUID().equals(player.getUUID())){var phase=dividerTimers.remove(old);dividerTimers.put(player,phase);}
+    }
+    boolean captureReady(){return checkpointDraining&&pendingCheckpointWrites()==0;}
+    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Duplicating native callbacks before checkpointing");}
+    private void enterCheckpointCallback(){checkpointCallbacks++;game.items().stonekivi().beginNativeWork();}
+    private void leaveCheckpointCallback(){game.items().stonekivi().endNativeWork();checkpointCallbacks--;}
+    private void discardFutureCheckpointWork(){
+        for(var marker:List.copyOf(markers)){
+            if(marker.visual!=null){game.items().blackHoleVisuals().detachForCheckpoint(marker.visual);marker.visual=null;}
+            marker.terrain=null;marker.shuffle=null;
         }
-        markers.removeIf(state->state.cancelled);
+        for(var job:List.copyOf(jobs))job.cancel();
+        markers.clear();dividerTimers.clear();
+    }
+    /** Rollback-only discard: capture acquisition must NEVER call this to make pending writes disappear. */
+    void prepareCheckpointRestore(){
+        checkpointBoundary();
+        if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())
+            throw new IllegalStateException("Discard future Duplicating work on the frozen native thread");
+        enterCheckpointCallback();try{checkpointDraining=true;discardFutureCheckpointWork();}finally{leaveCheckpointCallback();}
+    }
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
+        checkpointBoundary();if(!captureReady())throw new IllegalStateException("Drain original Duplicating writes before taking its essentials");
+        return new Checkpoint(links);
+    }
+    final class Checkpoint {
+        private record MarkerImage(MarkerState original,MatchDamageSources.Ref owner,Vec3 point,int age,boolean cancelled,Long erosionSeed) { }
+        private final List<MarkerImage> saved;
+        private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Integer> timers;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            saved=markers.stream().map(marker->new MarkerImage(marker,links.key(marker.owner),marker.point,marker.age,marker.cancelled,marker.erosionSeed)).toList();
+            timers=new MatchSpellCheckpoint.IdentityImage<>(dividerTimers,links);
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var timerValues=timers.restore(links);var plans=new ArrayList<Runnable>();
+            for(var image:saved){var current=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.original.level);
+                plans.add(()->{var marker=image.original;marker.owner=current;marker.retainedOwner=MatchOfflinePlayers.retained(current);marker.point=image.point;marker.age=image.age;marker.cancelled=image.cancelled;marker.erosionSeed=image.erosionSeed;
+                    marker.visual=null;marker.terrain=null;marker.shuffle=null;markers.add(marker);});}
+            return ()->{enterCheckpointCallback();try{
+                checkpointDraining=true;discardFutureCheckpointWork();plans.forEach(Runnable::run);dividerTimers=timerValues;
+            }finally{leaveCheckpointCallback();}};
+        }
     }
     record MarkerView(ServerPlayer owner,String epoch,ServerLevel level,Vec3 point,int age,int lifetime,int mode) { }
     record SeedView(ServerPlayer owner,Vec3 point,boolean expand) { }

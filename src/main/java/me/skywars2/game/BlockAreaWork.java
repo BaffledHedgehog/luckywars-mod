@@ -61,6 +61,9 @@ final class BlockAreaWork {
         this.filterOnEnqueue = filterOnEnqueue;
     }
 
+    /** Completed coverage only: no writes, rescan or pending-work replay. */
+    void resetBounds(Bounds completed){scans.clear();bounds=completed;}
+
     void move(Bounds next, boolean rescan) {
         Bounds previous = bounds;
         bounds = next;

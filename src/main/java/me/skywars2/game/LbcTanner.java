@@ -102,6 +102,8 @@ public final class LbcTanner {
     private final Set<Aura> scheduled = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
     private final ArrayList<Aura> auraBatch = new ArrayList<>();
     private boolean stopped;
+    private int checkpointCallbacks;
+    private boolean checkpointRestoring;
 
     LbcTanner(GameController game) { this.game = game; }
 
@@ -114,68 +116,70 @@ public final class LbcTanner {
 
     /** Автоматически обновляет обе руки; удержание предмета не требует клика. */
     public void tick() {
-        if (stopped) return;
-        var present = new HashSet<UUID>();
-        for (var player : game.server().getPlayerList().getPlayers()) {
-            UUID id = player.getUUID();
-            present.add(id);
-            boolean main = isTanner(player.getMainHandItem());
-            boolean off = isTanner(player.getOffhandItem());
-            Aura aura = auras.get(id);
+        checkpointCallbacks++;try {
+            if (stopped||checkpointRestoring) return;
+            var present = new HashSet<UUID>();
+            for (var player : game.server().getPlayerList().getPlayers()) {
+                UUID id = player.getUUID();
+                present.add(id);
+                boolean main = isTanner(player.getMainHandItem());
+                boolean off = isTanner(player.getOffhandItem());
+                Aura aura = auras.get(id);
 
-            if (aura != null && aura.level != player.level()) {
-                remove(aura);
-                aura = null;
+                if (aura != null && aura.level != player.level()) {
+                    remove(aura);
+                    aura = null;
+                }
+
+                if (!player.isAlive() || !game.items().mana().visible(player)) {
+                    if (aura != null) remove(aura);
+                    continue;
+                }
+                if (!main && !off && aura == null) continue;
+                if (aura == null) {
+                    aura = new Aura(player, (ServerLevel) player.level());
+                    auras.put(id, aura);
+                }
+                aura.owner = player;
+                aura.level = (ServerLevel) player.level();
+                if (!main) aura.mainActive = false;
+                if (!off) aura.offActive = false;
+                aura.paused = game.items().magic().suppressed(player) || game.items().wands().timeStopped()
+                        || player.entityTags().contains("time_stopped") || game.items().frost().isFrozen(player);
+                if (!main && !off) {
+                    detach(aura);
+                    if (!hasWork(aura)) remove(aura);
+                    else schedule(aura);
+                    continue;
+                }
+
+                // Магическое подавление, остановка времени и заморозка ставят ауру на паузу,
+                // сохраняя флаги активных рук до возобновления или смены предмета.
+                if (aura.paused) continue;
+
+                int mainResult = main ? updateHand(player, aura.mainActive) : 0;
+                int offResult = off ? updateHand(player, aura.offActive) : 0;
+                aura.mainActive = (mainResult & 2) != 0;
+                aura.offActive = (offResult & 2) != 0;
+                int emittingHands = ((mainResult & 1) != 0 ? 1 : 0) | ((offResult & 1) != 0 ? 2 : 0);
+                if (emittingHands != 0) {
+                    boolean dual = emittingHands == 3;
+                    updateBounds(aura, dual);
+                    player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, dual ? 40 : 20, 0), player);
+                    player.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),
+                            player.getX(),player.getY()+1,player.getZ(),dual?20:10,.5,1,.5,0);
+                    transmuteProjectiles(aura, dual ? 20 : 6);
+                }
+                if (!aura.anyActive()) detach(aura);
+                if (!aura.anyActive() && !hasWork(aura)) remove(aura);
+                schedule(aura);
             }
 
-            if (!player.isAlive() || !game.items().mana().visible(player)) {
-                if (aura != null) remove(aura);
-                continue;
-            }
-            if (!main && !off && aura == null) continue;
-            if (aura == null) {
-                aura = new Aura(player, (ServerLevel) player.level());
-                auras.put(id, aura);
-            }
-            aura.owner = player;
-            aura.level = (ServerLevel) player.level();
-            if (!main) aura.mainActive = false;
-            if (!off) aura.offActive = false;
-            aura.paused = game.items().magic().suppressed(player) || game.items().wands().timeStopped()
-                    || player.entityTags().contains("time_stopped") || game.items().frost().isFrozen(player);
-            if (!main && !off) {
-                detach(aura);
-                if (!hasWork(aura)) remove(aura);
-                else schedule(aura);
-                continue;
-            }
-
-            // Магическое подавление, остановка времени и заморозка ставят ауру на паузу,
-            // сохраняя флаги активных рук до возобновления или смены предмета.
-            if (aura.paused) continue;
-
-            int mainResult = main ? updateHand(player, aura.mainActive) : 0;
-            int offResult = off ? updateHand(player, aura.offActive) : 0;
-            aura.mainActive = (mainResult & 2) != 0;
-            aura.offActive = (offResult & 2) != 0;
-            int emittingHands = ((mainResult & 1) != 0 ? 1 : 0) | ((offResult & 1) != 0 ? 2 : 0);
-            if (emittingHands != 0) {
-                boolean dual = emittingHands == 3;
-                updateBounds(aura, dual);
-                player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, dual ? 40 : 20, 0), player);
-                player.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),
-                        player.getX(),player.getY()+1,player.getZ(),dual?20:10,.5,1,.5,0);
-                transmuteProjectiles(aura, dual ? 20 : 6);
-            }
-            if (!aura.anyActive()) detach(aura);
-            if (!aura.anyActive() && !hasWork(aura)) remove(aura);
-            schedule(aura);
-        }
-
-        auraBatch.addAll(auras.values());
-        for (Aura aura : auraBatch) if (!present.contains(aura.owner.getUUID())) remove(aura);
-        auraBatch.clear();
-        drainWork();
+            auraBatch.addAll(auras.values());
+            for (Aura aura : auraBatch) if (!present.contains(aura.owner.getUUID())) remove(aura);
+            auraBatch.clear();
+            drainWork();
+        }finally{checkpointCallbacks--;}
     }
 
     private int updateHand(ServerPlayer player, boolean active) {
@@ -275,34 +279,38 @@ public final class LbcTanner {
 
     /** ArenaBlockMixin сообщает готовое новое состояние; здесь только ставим подходящую клетку в очередь. */
     public void blockChanged(BlockPos pos, BlockState state) {
-        if (stopped || !convertible(state)) return;
-        Set<Aura> candidates = aurasByChunk.get(ChunkPos.pack(pos.getX() >> 4, pos.getZ() >> 4));
-        if (candidates == null) return;
-        for (Aura aura : List.copyOf(candidates)) {
-            if (aura.anyActive() && aura.level == game.maps().level() && aura.terrainBounds() != null && aura.terrainBounds().contains(pos)) {
-                aura.terrain.add(pos);
-                schedule(aura);
+        checkpointCallbacks++;try {
+            if (stopped||checkpointRestoring || !convertible(state)) return;
+            Set<Aura> candidates = aurasByChunk.get(ChunkPos.pack(pos.getX() >> 4, pos.getZ() >> 4));
+            if (candidates == null) return;
+            for (Aura aura : List.copyOf(candidates)) {
+                if (aura.anyActive() && aura.level == game.maps().level() && aura.terrainBounds() != null && aura.terrainBounds().contains(pos)) {
+                    aura.terrain.add(pos);
+                    schedule(aura);
+                }
             }
-        }
+        }finally{checkpointCallbacks--;}
     }
 
     /** Повторно ставим в очередь только часть загруженного чанка, попавшую в текущую область. */
     public void chunkLoaded(LevelChunk chunk) {
-        if (stopped) return;
-        long key = ChunkPos.pack(chunk.getPos().x(), chunk.getPos().z());
-        Set<Aura> candidates = aurasByChunk.get(key);
-        if (candidates == null) return;
-        int minX = chunk.getPos().getMinBlockX(), minZ = chunk.getPos().getMinBlockZ();
-        int maxX = minX + 15, maxZ = minZ + 15;
-        for (Aura aura : List.copyOf(candidates)) {
-            if (!aura.anyActive() || aura.bounds == null || aura.level != game.maps().level()) continue;
-            BlockAreaWork.Bounds bounds = aura.terrainBounds().intersection(minX, aura.level.getMinY(), minZ,
-                    maxX, aura.level.getMaxY(), maxZ);
-            if (bounds != null) {
-                aura.terrain.add(bounds);
-                schedule(aura);
+        checkpointCallbacks++;try {
+            if (stopped||checkpointRestoring) return;
+            long key = ChunkPos.pack(chunk.getPos().x(), chunk.getPos().z());
+            Set<Aura> candidates = aurasByChunk.get(key);
+            if (candidates == null) return;
+            int minX = chunk.getPos().getMinBlockX(), minZ = chunk.getPos().getMinBlockZ();
+            int maxX = minX + 15, maxZ = minZ + 15;
+            for (Aura aura : List.copyOf(candidates)) {
+                if (!aura.anyActive() || aura.bounds == null || aura.level != game.maps().level()) continue;
+                BlockAreaWork.Bounds bounds = aura.terrainBounds().intersection(minX, aura.level.getMinY(), minZ,
+                        maxX, aura.level.getMaxY(), maxZ);
+                if (bounds != null) {
+                    aura.terrain.add(bounds);
+                    schedule(aura);
+                }
             }
-        }
+        }finally{checkpointCallbacks--;}
     }
 
     private static boolean convertible(BlockState state) {
@@ -361,13 +369,50 @@ public final class LbcTanner {
     }
 
     public void stop() {
-        stopped = true;
-        auras.clear();
-        aurasByChunk.clear();
-        work.clear();
-        scheduled.clear();
-        auraBatch.clear();
-        stopped = false;
+        checkpointCallbacks++;try {
+            stopped = true;
+            auras.clear();
+            aurasByChunk.clear();
+            work.clear();
+            scheduled.clear();
+            auraBatch.clear();
+            stopped = false;checkpointRestoring=false;
+        }finally{checkpointCallbacks--;}
+    }
+
+    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Tanner aura callbacks before checkpointing");}
+    void prepareAuraFrozen(){checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();}
+    void clearFutureTerrain(){
+        for(var aura:auras.values()){aura.terrain.clear();aura.chunkKeys.clear();}
+        aurasByChunk.clear();work.clear();scheduled.clear();auraBatch.clear();
+    }
+    void publishAuraFrozen(){
+        checkpointBoundary();aurasByChunk.clear();
+        for(var aura:auras.values()){aura.chunkKeys.clear();if(aura.anyActive()&&aura.bounds!=null)reindex(aura,aura.bounds);}
+        checkpointRestoring=false;
+    }
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
+        checkpointBoundary();if(queuedBlockCount()!=0)throw new IllegalStateException("Finish Tanner terrain before taking aura essentials");return new Checkpoint(links);
+    }
+    final class Checkpoint {
+        private record AuraImage(Aura original,UUID owner,ServerLevel ownerLevel,ServerLevel level,boolean main,boolean off,boolean dual,boolean paused,BlockAreaWork.Bounds bounds) { }
+        private final List<AuraImage> saved;
+        private final Set<UUID> installed=new HashSet<>();private boolean baseInstalled;
+        Checkpoint(MatchSpellCheckpoint.Links links){saved=auras.values().stream().map(a->new AuraImage(a,a.owner.getUUID(),a.owner.level(),a.level,a.mainActive,a.offActive,a.dual,a.paused,a.bounds)).toList();saved.forEach(image->installed.add(image.owner));baseInstalled=true;}
+        private Checkpoint(Checkpoint current,Checkpoint previous){
+            var all=new ArrayList<>(current.saved);for(var image:previous.saved)if(!previous.installed.contains(image.owner))all.add(image);saved=List.copyOf(all);installed.addAll(current.installed);baseInstalled=true;
+        }
+        Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
+        void resetReplay(){installed.clear();baseInstalled=false;}
+        Set<UUID> pendingPlayers(){var pending=new HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);return Set.copyOf(pending);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var plans=new ArrayList<Runnable>();
+            for(var image:saved){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.ownerLevel);if(current==null)continue;
+                MatchAuthorityCheckpoint.world(game,image.level);
+                plans.add(()->{var a=image.original;a.owner=current;a.level=image.level;a.mainActive=image.main;a.offActive=image.off;a.dual=image.dual;a.paused=image.paused;
+                    a.bounds=image.bounds;a.chunkKeys.clear();a.terrain.resetBounds(image.bounds);auras.put(current.getUUID(),a);installed.add(image.owner);});}
+            return ()->{checkpointRestoring=true;if(!baseInstalled){clearFutureTerrain();auras.clear();baseInstalled=true;}plans.forEach(Runnable::run);};
+        }
     }
 
     private static final class Aura {

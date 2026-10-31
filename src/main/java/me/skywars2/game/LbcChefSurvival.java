@@ -47,59 +47,61 @@ final class LbcChefSurvival {
 
     /** One call per active native tick, after lifecycle/knock guards and before combat. */
     boolean tick(){
-        movementExhaustion();
-        settleConsumption();
-        if(waterCooldown>0)waterCooldown--;
-        observeWater();
-        if(chef.isOnFire()||fallDanger()){
-            cancelEating();
-            if(bucket.is(Items.WATER_BUCKET)&&waterCooldown==0){
-                Landing landing=predictLanding();
-                if(landing!=null){
-                    // Start taking out the bucket and looking down while still in flight.
-                    // Its use still waits for native reach and the last safe landing ticks.
-                    if(descentLanding!=null)chef.steer(descentLanding,false);
-                    boolean equipped=chef.equip(bucket),aimed=chef.aimAction(landing.hit.getLocation());
-                    if(equipped&&aimed&&(chef.isOnFire()||landing.ticks<=3)&&placeWater(landing))return true;
-                    return true;
+        chef.service.enterCheckpointCallback();try {
+            movementExhaustion();
+            settleConsumption();
+            if(waterCooldown>0)waterCooldown--;
+            observeWater();
+            if(chef.isOnFire()||fallDanger()){
+                cancelEating();
+                if(bucket.is(Items.WATER_BUCKET)&&waterCooldown==0){
+                    Landing landing=predictLanding();
+                    if(landing!=null){
+                        // Start taking out the bucket and looking down while still in flight.
+                        // Its use still waits for native reach and the last safe landing ticks.
+                        if(descentLanding!=null)chef.steer(descentLanding,false);
+                        boolean equipped=chef.equip(bucket),aimed=chef.aimAction(landing.hit.getLocation());
+                        if(equipped&&aimed&&(chef.isOnFire()||landing.ticks<=3)&&placeWater(landing))return true;
+                        return true;
+                    }
                 }
             }
-        }
-        if(recoverWater())return true;
-        if(descendToTarget())return true;
-        if(ownedWater!=null&&touchedWater&&!chef.isOnFire()&&chef.position().distanceToSqr(Vec3.atCenterOf(ownedWater))<6){
-            // Let the landing settle before swimming away from the source we need
-            // to pick up. Native gravity and water buoyancy remain in control.
-            chef.halt();return true;
-        }
-        if(chef.isInWater()){
-            cancelEating();
-            swim();
-            return true;
-        }
-        boolean safe=chef.onGround()&&!chef.isOnFire()&&!chef.isInLava()
-                &&chef.distanceToSqr(chef.target)>25;
-        if(eating){
-            if(!safe){cancelEating();return false;}
-            chef.halt();chef.setSprinting(false);chef.lookAt(chef.target.getEyePosition());
-            return true;
-        }
-        if(foodLevel<20&&safe){
-            if(food.isEmpty())food=new ItemStack(Items.COOKED_BEEF,64);
-            chef.halt();chef.setSprinting(false);
-            if(!chef.equip(food))return true;
-            food=chef.getMainHandItem();
-            var consumable=food.get(DataComponents.CONSUMABLE);
-            var properties=food.get(DataComponents.FOOD);
-            if(consumable!=null&&properties!=null){
-                eatingCount=food.getCount();
-                eatingNutrition=properties.nutrition();eatingSaturation=properties.saturation();
-                consumable.startConsuming(chef,food,InteractionHand.MAIN_HAND);
-                eating=chef.isUsingItem();
-                return eating;
+            if(recoverWater())return true;
+            if(descendToTarget())return true;
+            if(ownedWater!=null&&touchedWater&&!chef.isOnFire()&&chef.position().distanceToSqr(Vec3.atCenterOf(ownedWater))<6){
+                // Let the landing settle before swimming away from the source we need
+                // to pick up. Native gravity and water buoyancy remain in control.
+                chef.halt();return true;
             }
-        }
-        return false;
+            if(chef.isInWater()){
+                cancelEating();
+                swim();
+                return true;
+            }
+            boolean safe=chef.onGround()&&!chef.isOnFire()&&!chef.isInLava()
+                    &&chef.distanceToSqr(chef.target)>25;
+            if(eating){
+                if(!safe){cancelEating();return false;}
+                chef.halt();chef.setSprinting(false);chef.lookAt(chef.target.getEyePosition());
+                return true;
+            }
+            if(foodLevel<20&&safe){
+                if(food.isEmpty())food=new ItemStack(Items.COOKED_BEEF,64);
+                chef.halt();chef.setSprinting(false);
+                if(!chef.equip(food))return true;
+                food=chef.getMainHandItem();
+                var consumable=food.get(DataComponents.CONSUMABLE);
+                var properties=food.get(DataComponents.FOOD);
+                if(consumable!=null&&properties!=null){
+                    eatingCount=food.getCount();
+                    eatingNutrition=properties.nutrition();eatingSaturation=properties.saturation();
+                    consumable.startConsuming(chef,food,InteractionHand.MAIN_HAND);
+                    eating=chef.isUsingItem();
+                    return eating;
+                }
+            }
+            return false;
+        }finally{chef.service.leaveCheckpointCallback();}
     }
 
     boolean canSprint(){return foodLevel>6&&!eating;}
@@ -425,4 +427,37 @@ final class LbcChefSurvival {
         BlockHitResult hit=level.clip(new ClipContext(from,to,ClipContext.Block.COLLIDER,fluid,chef));
         return hit.getType()==HitResult.Type.BLOCK?hit:null;
     }
+    /** Native equipment/use-item NBT is canonical; only retained supplies and survival authority are private. */
+    Checkpoint checkpoint(){return new Checkpoint();}
+    private record Supply(ItemStack value,EquipmentSlot slot){
+        static Supply capture(LbcWtf.Chef chef,ItemStack stack){
+            EquipmentSlot alias=null;for(var slot:EquipmentSlot.values())if(!stack.isEmpty()&&chef.getItemBySlot(slot)==stack){
+                if(alias!=null)throw new IllegalStateException("Chef supply aliases distinct native equipment slots");alias=slot;}
+            return new Supply(stack.copy(),alias);
+        }
+        ItemStack resolve(LbcWtf.Chef current){
+            if(slot==null)return value.copy();var nativeStack=current.getItemBySlot(slot);
+            if(!ItemStack.matches(value,nativeStack))throw new IllegalStateException("Restore the canonical Chef supply equipment before survival metadata");
+            return nativeStack;
+        }
+    }
+    final class Checkpoint {
+        private final Supply savedBucket=Supply.capture(chef,bucket),savedFood=Supply.capture(chef,food);
+        private final Vec3 position=lastPosition;
+        private final int nutrition=foodLevel,waterTicks=waterAge,settled=settledWaterTicks,cooldown=waterCooldown;
+        private final float foodSaturation=saturation,spent=exhaustion;
+        private final boolean consuming=eating,touched=touchedWater;
+        private final int count=eatingCount,meal=eatingNutrition;
+        private final float mealSaturation=eatingSaturation;
+        private final BlockPos water=ownedWater==null?null:ownedWater.immutable();
+        private final BlockState waterState=ownedWaterState;
+        Runnable prepare(){
+            var currentBucket=savedBucket.resolve(chef);var currentFood=savedFood.resolve(chef);
+            return ()->{bucket=currentBucket;food=currentFood;lastPosition=position;foodLevel=nutrition;saturation=foodSaturation;exhaustion=spent;
+                waterAge=waterTicks;settledWaterTicks=settled;waterCooldown=cooldown;ownedWater=water;ownedWaterState=waterState;touchedWater=touched;
+                eating=consuming;eatingCount=count;eatingNutrition=meal;eatingSaturation=mealSaturation;
+                descentLanding=null;descentLip=null;descentAirborne=false;descentStarted=0;nextDescentSearch=chef.tickCount;};
+        }
+    }
+
 }

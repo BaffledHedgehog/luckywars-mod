@@ -331,4 +331,6 @@ public final class LbcFartus {
     public void forget(ServerPlayer owner){for(var shot:List.copyOf(shots))if(shot.getOwner()==owner)remove(shot);game.items().mana().score(owner,"fartus_sword").set(0);}
     public void purify(ServerPlayer owner){forget(owner);}
     public void stop(){for(var shot:List.copyOf(shots))remove(shot);for(var owner:game.server().getPlayerList().getPlayers())game.items().mana().score(owner,"fartus_sword").set(0);}
+
+    void cancelTransient(){for(var shot:List.copyOf(shots))remove(shot);}
 }

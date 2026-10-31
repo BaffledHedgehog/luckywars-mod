@@ -59,33 +59,39 @@ public final class LbcKiuas {
     private volatile PreparedSunPattern sunPattern;
     private volatile int preparation;
     private int ticks;
+    private int checkpointCallbacks;
+    private boolean checkpointRestoring;
     private final Map<LivingEntity,LbcIndirectKills.Owner> cursed=new java.util.LinkedHashMap<>();
 
     public static boolean isCurse(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==111;}
     /** Ordinary Kiuas arrows reuse the ordered source tag conversion without a held-arcanum mana charge. */
     void arrowTerrain(ServerPlayer owner,net.minecraft.world.phys.Vec3 point,boolean ground) {
-        var level=owner.level();var center=BlockPos.containing(point);int radius=ground?15:1;
-        var cause=game.items().indirectKills().coldCause(owner,true);
-        var area=new BlockAreaWork(level,LbcKiuas::kiuEligible,(pos,state)->kiuResult(level,pos,state),FLAGS,false,true);
-        area.include(new BlockAreaWork.Bounds(center.getX()-radius,center.getY()-(ground?radius:0),center.getZ()-radius,
-                center.getX()+radius,center.getY()+(ground?radius:1),center.getZ()+radius));
-        while(area.hasWork())area.step(game,owner,cause,4096,Long.MAX_VALUE);
-        if(ground)game.items().indirectKills().trapChanges(level,cause,()->{
-            for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
-                if(level.hasChunkAt(pos)&&!level.isOutsideBuildHeight(pos))level.setBlock(pos,Blocks.LAVA.defaultBlockState(),3);
-        });
-        else for(var viewer:level.players())level.sendParticles(viewer,ParticleTypes.FLAME,true,false,
-                point.x,point.y,point.z,3,.2,.2,.2,0);
+        checkpointCallbacks++;try {
+            var level=owner.level();var center=BlockPos.containing(point);int radius=ground?15:1;
+            var cause=game.items().indirectKills().coldCause(owner,true);
+            var area=new BlockAreaWork(level,LbcKiuas::kiuEligible,(pos,state)->kiuResult(level,pos,state),FLAGS,false,true);
+            area.include(new BlockAreaWork.Bounds(center.getX()-radius,center.getY()-(ground?radius:0),center.getZ()-radius,
+                    center.getX()+radius,center.getY()+(ground?radius:1),center.getZ()+radius));
+            while(area.hasWork())area.step(game,owner,cause,4096,Long.MAX_VALUE);
+            if(ground)game.items().indirectKills().trapChanges(level,cause,()->{
+                for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
+                    if(level.hasChunkAt(pos)&&!level.isOutsideBuildHeight(pos))level.setBlock(pos,Blocks.LAVA.defaultBlockState(),3);
+            });
+            else for(var viewer:level.players())level.sendParticles(viewer,ParticleTypes.FLAME,true,false,
+                    point.x,point.y,point.z,3,.2,.2,.2,0);
+        }finally{checkpointCallbacks--;}
     }
     /** Source transport marker becomes its existing tick counter, without a vanilla raid. */
     public boolean acceptCurse(LivingEntity target,MobEffectInstance effect,Entity source){
-        if(!isCurse(effect)||!game.playing()||target.level()!=game.maps().level()||!game.items().wands().validTarget(target)
-                ||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return false;
-        var owner=LbcIndirectKills.playerSource(source);
-        var cause=owner==null?null:game.items().indirectKills().coldCause(owner,true);
-        cursed.put(target,cause);
-        game.items().mana().score(target,"effect_kiuaskivi").add(Math.max(0,effect.getDuration()));saveCurse(target,cause);
-        return true;
+        checkpointCallbacks++;try {
+            if(!isCurse(effect)||!game.playing()||target.level()!=game.maps().level()||!game.items().wands().validTarget(target)
+                    ||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return false;
+            var owner=LbcIndirectKills.playerSource(source);
+            var cause=owner==null?null:game.items().indirectKills().coldCause(owner,true);
+            cursed.put(target,cause);
+            game.items().mana().score(target,"effect_kiuaskivi").add(Math.max(0,effect.getDuration()));saveCurse(target,cause);
+            return true;
+        }finally{checkpointCallbacks--;}
     }
     private void saveCurse(LivingEntity target,LbcIndirectKills.Owner cause){
         var tag=new CompoundTag();tag.putString("epoch",game.items().epoch());
@@ -93,19 +99,27 @@ public final class LbcKiuas {
         target.setAttached(CURSE,tag);
     }
     void loaded(Entity entity){
-        if(!(entity instanceof LivingEntity target))return;var tag=target.getAttached(CURSE);if(tag==null)return;
-        if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clearCurse(target);return;}
-        LbcIndirectKills.Owner cause=null;
-        try{cause=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("owner","")),tag.getLongOr("order",0),tag.getBooleanOr("projectile",false));}catch(IllegalArgumentException ignored){}
-        if(game.items().mana().hudValue(target,"effect_kiuaskivi")>0)cursed.put(target,cause);else clearCurse(target);
+        checkpointCallbacks++;try {
+            if(!(entity instanceof LivingEntity target))return;var tag=target.getAttached(CURSE);if(tag==null)return;
+            if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clearCurse(target);return;}
+            LbcIndirectKills.Owner cause=null;
+            try{cause=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("owner","")),tag.getLongOr("order",0),tag.getBooleanOr("projectile",false));}catch(IllegalArgumentException ignored){}
+            if(game.items().mana().hudValue(target,"effect_kiuaskivi")>0)cursed.put(target,cause);else clearCurse(target);
+        }finally{checkpointCallbacks--;}
     }
-    void unloaded(Entity entity){if(entity instanceof LivingEntity target)cursed.remove(target);}
+    void unloaded(Entity entity){
+        checkpointCallbacks++;try {    if(entity instanceof LivingEntity target)cursed.remove(target);
+        }finally{checkpointCallbacks--;}
+    }
     void adoptRawFoodStatuses(ServerPlayer player){
         if(game.items().mana().hudValue(player,"effect_kiuaskivi")<=0||game.items().magic().rejectCustomEffect(player))return;
         var cause=cursed.computeIfAbsent(player,p->game.items().indirectKills().wildCause(player));saveCurse(player,cause);
     }
-    public void clearCurse(LivingEntity target){cursed.remove(target);target.removeAttached(CURSE);
-        if(game.items().mana().hudValue(target,"effect_kiuaskivi")!=0)game.items().mana().score(target,"effect_kiuaskivi").set(0);}
+    public void clearCurse(LivingEntity target){
+        checkpointCallbacks++;try {    cursed.remove(target);target.removeAttached(CURSE);
+            if(game.items().mana().hudValue(target,"effect_kiuaskivi")!=0)game.items().mana().score(target,"effect_kiuaskivi").set(0);
+        }finally{checkpointCallbacks--;}
+    }
     private void tickCurses(){
         for(var target:java.util.List.copyOf(cursed.keySet())){
             if(game.items().polymorph().masked(target))continue;
@@ -184,52 +198,55 @@ public final class LbcKiuas {
         return new PreparedSunPattern(pattern,Map.copyOf(shifts));
     }
     public int count() { return auras.size(); }
-    int queuedBlockCount() { return auras.values().stream().mapToInt(a->a.small.queuedBlockCount()+a.large.queuedBlockCount()+a.sun.queuedBlockCount()).sum(); }
+    int queuedBlockCount() { return auras.values().stream().mapToInt(a->a.small.queuedBlockCount()+a.large.queuedBlockCount()+a.sun.queuedBlockCount()+a.sunChanged.size()).sum(); }
 
     public void tick() {
-        tickCurses();
-        boolean sunPass=++ticks%5==0;
-        var present=new HashSet<UUID>();
-        for(var player:game.server().getPlayerList().getPlayers()) {
-            if(!game.items().mana().visible(player)) continue;
-            present.add(player.getUUID());
-            int main=kind(player.getMainHandItem()),off=kind(player.getOffhandItem());
-            var aura=auras.get(player.getUUID());
-            if(aura!=null && aura.level!=player.level()) { remove(aura); aura=null; }
-            if(aura==null && main==0 && off==0) continue;
-            if(aura==null) { aura=new Aura(player); auras.put(player.getUUID(),aura); }
-            aura.owner=player;
-            if(aura.mainKind!=main) { aura.mainKind=main; aura.mainActive=false; aura.mainSunThroughTick=-1; }
-            if(aura.offKind!=off) { aura.offKind=off; aura.offActive=false; aura.offSunThroughTick=-1; }
-            if(main!=2 && off!=2) aura.sunChanged.clear();
-            aura.paused=game.items().wands().timeStopped() || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player) || game.items().frost().isFrozen(player);
-            if(aura.paused) { aura.sunMaintaining=false; reindex(aura); continue; }
-            boolean mainPulse=advance(aura,true,main,sunPass),offPulse=advance(aura,false,off,sunPass);
-            // Mana branches stay independent, but identical terrain writes are coalesced.
-            int kiuPulses=(mainPulse && main==1?1:0)+(offPulse && off==1?1:0);
-            int sunPulses=(mainPulse && main==2?1:0)+(offPulse && off==2?1:0);
-            if(kiuPulses>0) kiuPulse(aura,kiuPulses,main==1 && off==1);
-            if(sunPulses>0) sunPulse(aura,sunPulses,main==2 && off==2);
-            serviceSun(aura,(main==2 && ticks<=aura.mainSunThroughTick) || (off==2 && ticks<=aura.offSunThroughTick));
-            reindex(aura);
-            if(main==0 && off==0 && !aura.hasWork()) remove(aura);
-            else schedule(aura);
-        }
-        for(var aura:java.util.List.copyOf(auras.values())) if(!present.contains(aura.owner.getUUID())) remove(aura);
-        // All holders share this budget. No background world reads or writes and no busy wait on futures.
-        long deadline=System.nanoTime()+3_000_000L; int budget=65536;
-        while(!work.isEmpty() && budget>0 && System.nanoTime()<deadline) {
-            var aura=work.removeFirst(); scheduled.remove(aura);
-            if(auras.get(aura.owner.getUUID())!=aura || aura.paused) continue;
-            for(int i=0;i<3;i++) {
-                var area=aura.areas[Math.floorMod(aura.cursor++,3)];
-                if(!area.hasWork()) continue;
-                budget-=Math.max(1,area.step(game,aura.owner,Math.min(256,budget),deadline));
-                break;
+        checkpointCallbacks++;try {
+            if(checkpointRestoring)return;
+            tickCurses();
+            boolean sunPass=++ticks%5==0;
+            var present=new HashSet<UUID>();
+            for(var player:game.server().getPlayerList().getPlayers()) {
+                if(!game.items().mana().visible(player)) continue;
+                present.add(player.getUUID());
+                int main=kind(player.getMainHandItem()),off=kind(player.getOffhandItem());
+                var aura=auras.get(player.getUUID());
+                if(aura!=null && aura.level!=player.level()) { remove(aura); aura=null; }
+                if(aura==null && main==0 && off==0) continue;
+                if(aura==null) { aura=new Aura(player); auras.put(player.getUUID(),aura); }
+                aura.owner=player;
+                if(aura.mainKind!=main) { aura.mainKind=main; aura.mainActive=false; aura.mainSunThroughTick=-1; }
+                if(aura.offKind!=off) { aura.offKind=off; aura.offActive=false; aura.offSunThroughTick=-1; }
+                if(main!=2 && off!=2) aura.sunChanged.clear();
+                aura.paused=game.items().wands().timeStopped() || player.entityTags().contains("time_stopped")
+                        || game.items().magic().suppressed(player) || game.items().frost().isFrozen(player);
+                if(aura.paused) { aura.sunMaintaining=false; reindex(aura); continue; }
+                boolean mainPulse=advance(aura,true,main,sunPass),offPulse=advance(aura,false,off,sunPass);
+                // Mana branches stay independent, but identical terrain writes are coalesced.
+                int kiuPulses=(mainPulse && main==1?1:0)+(offPulse && off==1?1:0);
+                int sunPulses=(mainPulse && main==2?1:0)+(offPulse && off==2?1:0);
+                if(kiuPulses>0) kiuPulse(aura,kiuPulses,main==1 && off==1);
+                if(sunPulses>0) sunPulse(aura,sunPulses,main==2 && off==2);
+                serviceSun(aura,(main==2 && ticks<=aura.mainSunThroughTick) || (off==2 && ticks<=aura.offSunThroughTick));
+                reindex(aura);
+                if(main==0 && off==0 && !aura.hasWork()) remove(aura);
+                else schedule(aura);
             }
-            schedule(aura);
-        }
+            for(var aura:java.util.List.copyOf(auras.values())) if(!present.contains(aura.owner.getUUID())) remove(aura);
+            // All holders share this budget. No background world reads or writes and no busy wait on futures.
+            long deadline=System.nanoTime()+3_000_000L; int budget=65536;
+            while(!work.isEmpty() && budget>0 && System.nanoTime()<deadline) {
+                var aura=work.removeFirst(); scheduled.remove(aura);
+                if(auras.get(aura.owner.getUUID())!=aura || aura.paused) continue;
+                for(int i=0;i<3;i++) {
+                    var area=aura.areas[Math.floorMod(aura.cursor++,3)];
+                    if(!area.hasWork()) continue;
+                    budget-=Math.max(1,area.step(game,aura.owner,Math.min(256,budget),deadline));
+                    break;
+                }
+                schedule(aura);
+            }
+        }finally{checkpointCallbacks--;}
     }
     private void schedule(Aura aura) {
         if(!aura.paused && aura.hasWork() && scheduled.add(aura)) work.addLast(aura);
@@ -379,14 +396,16 @@ public final class LbcKiuas {
         aura.chunks.clear();
     }
     public void blockChanged(BlockPos pos,BlockState state) {
-        if(index.isEmpty())return;
-        // Support changes can make an already-scanned adjacent air cell ignite.
-        enqueueChanged(pos,state);
-        var level=game.maps().level();
-        for(var direction:Direction.values()){
-            var neighbour=pos.relative(direction);
-            if(resident(level,neighbour))enqueueChanged(neighbour,level.getBlockState(neighbour));
-        }
+        checkpointCallbacks++;try {
+            if(checkpointRestoring||index.isEmpty())return;
+            // Support changes can make an already-scanned adjacent air cell ignite.
+            enqueueChanged(pos,state);
+            var level=game.maps().level();
+            for(var direction:Direction.values()){
+                var neighbour=pos.relative(direction);
+                if(resident(level,neighbour))enqueueChanged(neighbour,level.getBlockState(neighbour));
+            }
+        }finally{checkpointCallbacks--;}
     }
     private void enqueueChanged(BlockPos pos,BlockState state) {
         var holders=index.get(ChunkPos.pack(pos.getX()>>4,pos.getZ()>>4));
@@ -401,16 +420,94 @@ public final class LbcKiuas {
         }
     }
     public void chunkLoaded(LevelChunk chunk) {
-        var holders=index.get(ChunkPos.pack(chunk.getPos().x(),chunk.getPos().z()));
-        if(holders==null) return;
-        int x=chunk.getPos().getMinBlockX(),z=chunk.getPos().getMinBlockZ();
-        for(var aura:holders) {
-            if(aura.smallBounds!=null) aura.small.add(aura.smallBounds.intersection(x,aura.level.getMinY(),z,x+15,aura.level.getMaxY(),z+15));
-            if(aura.sunBounds!=null) aura.sun.add(aura.sunBounds.intersection(x,aura.level.getMinY(),z,x+15,aura.level.getMaxY(),z+15));
-        }
+        checkpointCallbacks++;try {
+            if(checkpointRestoring)return;
+            var holders=index.get(ChunkPos.pack(chunk.getPos().x(),chunk.getPos().z()));
+            if(holders==null) return;
+            int x=chunk.getPos().getMinBlockX(),z=chunk.getPos().getMinBlockZ();
+            for(var aura:holders) {
+                if(aura.smallBounds!=null) aura.small.add(aura.smallBounds.intersection(x,aura.level.getMinY(),z,x+15,aura.level.getMaxY(),z+15));
+                if(aura.sunBounds!=null) aura.sun.add(aura.sunBounds.intersection(x,aura.level.getMinY(),z,x+15,aura.level.getMaxY(),z+15));
+            }
+        }finally{checkpointCallbacks--;}
     }
     private void remove(Aura aura) { detach(aura); aura.small.clear(); aura.large.clear(); aura.sun.clear(); scheduled.remove(aura); auras.remove(aura.owner.getUUID()); }
-    public void stop() { for(var target:java.util.List.copyOf(cursed.keySet()))clearCurse(target);auras.clear(); index.clear(); work.clear(); scheduled.clear(); ticks=0; }
+    public void stop() {
+        checkpointCallbacks++;try {     for(var target:java.util.List.copyOf(cursed.keySet()))clearCurse(target);auras.clear(); index.clear(); work.clear(); scheduled.clear(); ticks=0;checkpointRestoring=false;
+        }finally{checkpointCallbacks--;}
+    }
+
+    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Kiuas aura callbacks before checkpointing");}
+    /** Rollback only: keep curse/native authorities intact while discarding future fill metadata. */
+    void prepareAuraFrozen(){
+        checkpointBoundary();checkpointRestoring=true;clearFutureTerrain();
+    }
+    void clearFutureTerrain(){
+        for(var aura:auras.values()){
+            aura.small.clear();aura.large.clear();aura.sun.clear();aura.sunChanged.clear();aura.chunks.clear();
+            aura.kiuasIndexed=false;aura.sunIndexed=false;aura.indexedSmallBounds=null;aura.indexedSunBounds=null;
+        }
+        index.clear();work.clear();scheduled.clear();
+    }
+    void publishAuraFrozen(){
+        checkpointBoundary();index.clear();
+        for(var aura:auras.values()){
+            aura.chunks.clear();aura.kiuasIndexed=false;aura.sunIndexed=false;aura.indexedSmallBounds=null;aura.indexedSunBounds=null;reindex(aura);
+        }
+        checkpointRestoring=false;
+    }
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){
+        checkpointBoundary();if(queuedBlockCount()!=0)throw new IllegalStateException("Finish Kiuas/Sun terrain before taking aura essentials");
+        return new Checkpoint(links);
+    }
+    final class Checkpoint {
+        private record AuraImage(Aura original,UUID owner,ServerLevel ownerLevel,int mainKind,int offKind,boolean mainActive,boolean offActive,
+                boolean paused,boolean maintaining,int mainRemaining,int offRemaining,BlockAreaWork.Bounds small,BlockAreaWork.Bounds large,
+                BlockAreaWork.Bounds sun,BlockPos origin) { }
+        private record CurseImage(UUID player,MatchDamageSources.Ref body,ServerLevel level,LbcIndirectKills.Owner cause) { }
+        private final java.util.List<AuraImage> saved;
+        private final java.util.List<CurseImage> curses=new java.util.ArrayList<>();
+        private final Set<UUID> installed=new HashSet<>(),cursePlayers=new HashSet<>();private boolean baseInstalled;
+        private final int cadence=ticks;private final PreparedSunPattern pattern=sunPattern;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            saved=auras.values().stream().map(a->new AuraImage(a,a.owner.getUUID(),a.owner.level(),a.mainKind,a.offKind,a.mainActive,a.offActive,a.paused,
+                    a.sunMaintaining,a.mainSunThroughTick<0?Integer.MIN_VALUE:a.mainSunThroughTick-ticks,
+                    a.offSunThroughTick<0?Integer.MIN_VALUE:a.offSunThroughTick-ticks,a.smallBounds,a.largeBounds,a.sunBounds,
+                    a.sunOrigin==null?null:a.sunOrigin.immutable())).toList();
+            cursed.forEach((target,cause)->curses.add(new CurseImage(target instanceof ServerPlayer player?player.getUUID():null,
+                    target instanceof ServerPlayer?null:links.key(target),(ServerLevel)target.level(),cause)));
+            saved.forEach(image->installed.add(image.owner));for(var image:curses)if(image.player!=null)cursePlayers.add(image.player);baseInstalled=true;
+        }
+        private Checkpoint(Checkpoint current,Checkpoint previous){
+            var all=new java.util.ArrayList<>(current.saved);for(var image:previous.saved)if(!previous.installed.contains(image.owner))all.add(image);saved=java.util.List.copyOf(all);
+            curses.addAll(current.curses);for(var image:previous.curses)if(image.player!=null&&!previous.cursePlayers.contains(image.player))curses.add(image);
+            installed.addAll(current.installed);cursePlayers.addAll(current.cursePlayers);baseInstalled=true;
+        }
+        Checkpoint withPending(Checkpoint previous){return new Checkpoint(this,previous);}
+        void resetReplay(){installed.clear();cursePlayers.clear();baseInstalled=false;}
+        Set<UUID> pendingPlayers(){var pending=new HashSet<UUID>();for(var image:saved)if(!installed.contains(image.owner))pending.add(image.owner);
+            for(var image:curses)if(image.player!=null&&!cursePlayers.contains(image.player))pending.add(image.player);return Set.copyOf(pending);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();if(sunPattern!=pattern&&saved.stream().anyMatch(image->image.origin!=null))throw new IllegalStateException("Reconcile the prepared Sun corpus before aura replay");
+            var plans=new java.util.ArrayList<Runnable>();
+            for(var image:curses){
+                if(image.player!=null){if(cursePlayers.contains(image.player))continue;var target=MatchAuraCheckpoint.current(game,image.player,image.level);if(target==null)continue;
+                    plans.add(()->{cursed.put(target,image.cause);cursePlayers.add(image.player);});}
+                else if(!baseInstalled){var target=(LivingEntity)links.get(image.body);plans.add(()->cursed.put(target,image.cause));}
+            }
+            for(var image:saved){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.ownerLevel);if(current==null)continue;
+                MatchAuthorityCheckpoint.world(game,image.original.level);
+                plans.add(()->{var a=image.original;a.owner=current;a.mainKind=image.mainKind;a.offKind=image.offKind;
+                    a.mainActive=image.mainActive;a.offActive=image.offActive;a.paused=image.paused;a.sunMaintaining=image.maintaining;
+                    a.mainSunThroughTick=image.mainRemaining==Integer.MIN_VALUE?-1:ticks+image.mainRemaining;
+                    a.offSunThroughTick=image.offRemaining==Integer.MIN_VALUE?-1:ticks+image.offRemaining;
+                    a.smallBounds=image.small;a.largeBounds=image.large;a.sunBounds=image.sun;a.sunOrigin=image.origin;a.cursor=0;
+                    a.small.resetBounds(image.small);a.large.resetBounds(image.large);a.sun.resetBounds(image.sun);
+                    a.chunks.clear();a.sunChanged.clear();a.kiuasIndexed=false;a.sunIndexed=false;a.indexedSmallBounds=null;a.indexedSunBounds=null;
+                    auras.put(current.getUUID(),a);installed.add(image.owner);});}
+            return ()->{checkpointRestoring=true;if(!baseInstalled){clearFutureTerrain();auras.clear();cursed.clear();ticks=cadence;baseInstalled=true;}plans.forEach(Runnable::run);};
+        }
+    }
 
     private final class Aura {
         ServerPlayer owner; final ServerLevel level;

@@ -175,4 +175,6 @@ public final class LbcEvokerBass {
     void unloaded(Entity e){if(e instanceof EvokerFangs f&&fangs.remove(f)&&!f.isRemoved())f.discard();}
     void forget(ServerPlayer p){for(String n:List.of("bass_combo","bass_combo_ticker","bass_combo_len"))score(p,n,0);for(var f:List.copyOf(fangs))if(f.getOwner()==p)unloaded(f);}
     public void stop(){for(var f:List.copyOf(fangs))unloaded(f);for(var p:game.server().getPlayerList().getPlayers())for(String n:List.of("bass_combo","bass_combo_ticker","bass_combo_len"))score(p,n,0);clock=0;}
+
+    void cancelTransient(){for(var fang:List.copyOf(fangs))unloaded(fang);}
 }

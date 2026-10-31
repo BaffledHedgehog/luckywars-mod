@@ -39,16 +39,20 @@ public final class LbcAntigravity {
     public static final int DURATION_TICKS=1200;
     public interface PlayerTransport { boolean skywars2$hasPendingTeleport(); }
     private final GameController game;
+    private int checkpointDepth;
+    private boolean rewinding;
     private final List<Storm> storms=new ArrayList<>();
     private final Map<Display.BlockDisplay,Lifted> displays=new LinkedHashMap<>();
     private final List<Platform> platforms=new ArrayList<>();
     private final Map<LivingEntity,Passenger> riders=new java.util.IdentityHashMap<>();
-    private record Storm(ServerLevel level,Vec3 origin,ServerPlayer author,String epoch,int[] age,
-                         List<BlockPos> columns) { }
+    private static final class Storm {
+        final ServerLevel level;final Vec3 origin;ServerPlayer author;final String epoch;final int[] age;final List<BlockPos> columns;
+        Storm(ServerLevel level,Vec3 origin,ServerPlayer author,String epoch,int[] age,List<BlockPos> columns){this.level=level;this.origin=origin;this.author=author;this.epoch=epoch;this.age=age;this.columns=columns;}
+    }
     private static final class Lifted {
         final Platform platform;
         final Vec3 origin;
-        final List<AABB> surfaces;
+        List<AABB> surfaces;
         int stale;
         Lifted(Platform platform,Vec3 origin,List<AABB> surfaces) {this.platform=platform;this.origin=origin;this.surfaces=surfaces;}
     }
@@ -60,7 +64,7 @@ public final class LbcAntigravity {
         Platform(Storm storm){this.storm=storm;}
     }
     private static final class Passenger {
-        final LivingEntity entity;
+        LivingEntity entity;
         final Platform platform;
         boolean controlled,detached,impulseApplied;
         double appliedSpeed,localTop,landingDebt;
@@ -87,6 +91,7 @@ public final class LbcAntigravity {
         return true;
     }
     public boolean spawn(ItemEntity token) {
+        checkpointDepth++;try{
         if(!ready(token)) return false;
         var level=(ServerLevel)token.level();
         game.items().markCurrentItemEpoch(token);
@@ -102,6 +107,8 @@ public final class LbcAntigravity {
             player.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("antigravity_started_sub")));
         }
         return true;
+
+        }finally{checkpointDepth--;}
     }
     private boolean eligible(LivingEntity entity) { return game.items().wands().validTarget(entity); }
     /** No chunk tickets: search resident nonempty sections for the closest actual column surface. */
@@ -162,6 +169,7 @@ public final class LbcAntigravity {
         }
     }
     private void launch(Storm storm,BlockPos center) {
+        checkpointDepth++;try{
         if(!resident(storm.level,center)) return;
         // Snapshot actual support before any block is cleared. One broad query per cube, not per display/tick.
         var candidates=storm.level.getEntitiesOfClass(LivingEntity.class,
@@ -203,8 +211,12 @@ public final class LbcAntigravity {
                     platform.passengers.add(new Passenger(living,platform,top));
             }
         }
+
+        }finally{checkpointDepth--;}
     }
     public void tick() {
+        checkpointDepth++;try{
+        if(rewinding)return;
         // All blocks of one captured cube share motion and one union of supporting surfaces.
         var carried=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<LivingEntity,Boolean>());
         for(var platform:List.copyOf(platforms)) {
@@ -266,6 +278,8 @@ public final class LbcAntigravity {
             if(age%10==0 && !pulse(storm)){storms.remove(storm);continue;}
             if(age>=DURATION_TICKS)storms.remove(storm);
         }
+
+        }finally{checkpointDepth--;}
     }
     private static boolean jumping(LivingEntity living) {
         return living.isJumping()||living instanceof ServerPlayer player&&player.getLastClientInput().jump();
@@ -410,6 +424,7 @@ public final class LbcAntigravity {
     }
     /** Observe falling contact without rewriting any coordinate or rotation in the packet. */
     public ServerboundMovePlayerPacket supportInput(ServerPlayer player,ServerboundMovePlayerPacket packet) {
+        checkpointDepth++;try{
         if(!packet.hasPosition()||!admissible(player))return packet;
         double x=packet.getX(player.getX()),y=packet.getY(player.getY()),z=packet.getZ(player.getZ());
         if(!Double.isFinite(x)||!Double.isFinite(y)||!Double.isFinite(z))return packet;
@@ -429,6 +444,8 @@ public final class LbcAntigravity {
             if(riders.containsKey(player))break;
         }
         return packet;
+
+        }finally{checkpointDepth--;}
     }
     private void lift(LivingEntity living,double speed,ServerPlayer author) {
         if(game.items().frost().isFrozen(living)) return;
@@ -446,14 +463,107 @@ public final class LbcAntigravity {
             player.connection.send(new ClientboundSoundPacket(holder,SoundSource.BLOCKS,at.x,at.y,at.z,1.5f,1,seed));
     }
     public void loaded(Entity entity) {
+        checkpointDepth++;try{
+        if(rewinding)return;
         if(entity instanceof Display.BlockDisplay display && entity.entityTags().contains(ACTOR) && !displays.containsKey(display))
             display.discard(); // A reloaded visual without its live motion state cannot linger indefinitely.
+
+        }finally{checkpointDepth--;}
     }
-    public void unloaded(Entity entity) { displays.remove(entity); }
+    public void unloaded(Entity entity) {
+        checkpointDepth++;try{if(rewinding)return;displays.remove(entity);
+        }finally{checkpointDepth--;}
+    }
     public void stop() {
-        storms.clear();platforms.clear();riders.clear();var old=List.copyOf(displays.keySet());displays.clear();old.forEach(Entity::discard);
+        checkpointDepth++;try{
+        rewinding=false;storms.clear();platforms.clear();riders.clear();var old=List.copyOf(displays.keySet());displays.clear();old.forEach(Entity::discard);
+
+        }finally{checkpointDepth--;}
     }
     public int stormCount() { return storms.size(); }
     public int displayCount() { return displays.size(); }
     public List<Display.BlockDisplay> snapshot() { return List.copyOf(displays.keySet()); }
+    void checkpointBoundary(){if(checkpointDepth!=0)throw new IllegalStateException("Finish Antigravity launch/platform/input callbacks before checkpointing");}
+    boolean captureReady(){return checkpointDepth==0;}
+    void prepareFrozen(){checkpointBoundary();rewinding=true;storms.clear();platforms.clear();displays.clear();riders.clear();}
+    void publishFrozen(){checkpointBoundary();rewinding=false;}
+    void cancelFrozen(){checkpointBoundary();storms.clear();platforms.clear();displays.clear();riders.clear();rewinding=false;}
+    Checkpoint checkpoint(MatchDamageSources sources){checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish Antigravity before capture");return new Checkpoint(sources);}
+    final class Checkpoint {
+        private record StormImage(Storm storm,ServerPlayer originalAuthor,java.util.UUID author,int age,List<BlockPos> columns) { }
+        private record CellImage(Display.BlockDisplay original,MatchDamageSources.Ref body,Lifted lifted,int stale,List<AABB> surfaces) { }
+        private record PlatformImage(Platform platform,double speed,double offset,List<MatchDamageSources.Ref> cells,List<PassengerImage> passengers) { }
+        private final class PassengerImage {
+            final Passenger passenger;final MatchSpellCheckpoint.Links bodyLinks;final MatchDamageSources.Ref body;final boolean player,controlled,detached,impulse;
+            final double applied,top,debt;final Vec3 last;final boolean rider;
+            PassengerImage(Passenger passenger,MatchDamageSources sources){
+                this.passenger=passenger;bodyLinks=new MatchSpellCheckpoint.Links(sources);body=bodyLinks.key(passenger.entity);
+                if(body.historical()!=null)throw new IllegalStateException("Antigravity rider requires a canonical current native body");
+                player=passenger.entity instanceof ServerPlayer;controlled=passenger.controlled;detached=passenger.detached;impulse=passenger.impulseApplied;
+                applied=passenger.appliedSpeed;top=passenger.localTop;debt=passenger.landingDebt;last=passenger.lastImpulse;rider=riders.get(passenger.entity)==passenger;
+            }
+        }
+        private final MatchSpellCheckpoint.Links links;
+        private final List<Storm> activeStorms=List.copyOf(storms);
+        private final List<StormImage> stormImages=new ArrayList<>();
+        private final List<CellImage> cells=new ArrayList<>();
+        private final List<PlatformImage> platformImages=new ArrayList<>();
+        private final java.util.Set<java.util.UUID> actors=new java.util.LinkedHashSet<>();
+        private boolean installed;
+        Checkpoint(MatchDamageSources sources){
+            links=new MatchSpellCheckpoint.Links(sources);var allStorms=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Storm,Boolean>());allStorms.addAll(storms);
+            for(var platform:platforms)allStorms.add(platform.storm);
+            for(var storm:allStorms)stormImages.add(new StormImage(storm,storm.author,storm.author==null?null:storm.author.getUUID(),storm.age[0],List.copyOf(storm.columns)));
+            var refs=new java.util.IdentityHashMap<Display.BlockDisplay,MatchDamageSources.Ref>();
+            displays.forEach((display,lifted)->{if(display.isRemoved())return;var ref=links.key(display);
+                if(ref.historical()!=null)throw new IllegalStateException("Antigravity lifted block requires its canonical native display");
+                refs.put(display,ref);actors.add(ref.id());cells.add(new CellImage(display,ref,lifted,lifted.stale,List.copyOf(lifted.surfaces)));});
+            for(var platform:platforms){
+                var members=new ArrayList<MatchDamageSources.Ref>();for(var display:platform.cells)if(refs.containsKey(display))members.add(refs.get(display));
+                var passengers=new ArrayList<PassengerImage>();for(var passenger:platform.passengers)if(!passenger.detached&&!passenger.entity.isRemoved()){
+                    var image=new PassengerImage(passenger,sources);passengers.add(image);actors.add(image.body.id());}
+                platformImages.add(new PlatformImage(platform,platform.speed,platform.offset,List.copyOf(members),List.copyOf(passengers)));
+            }
+            installed=true;
+        }
+        java.util.Set<java.util.UUID> actorIds(){return java.util.Set.copyOf(actors);}
+        void reset(){installed=false;}
+        boolean hasPending(){return !installed;}
+        MatchFieldCheckpoint.Plan prepareAvailable(java.util.function.Function<java.util.UUID,Entity> lookup){
+            checkpointBoundary();if(installed)return new MatchFieldCheckpoint.Plan(java.util.Set.of(),()->{});
+            var pending=new java.util.LinkedHashSet<>(links.resolve(lookup));
+            var owners=new java.util.IdentityHashMap<Storm,ServerPlayer>();
+            for(var image:stormImages){
+                var current=image.author==null?null:lookup.apply(image.author);
+                if(current!=null&&!(current instanceof ServerPlayer))throw new IllegalStateException("Antigravity author must resolve to a real current player");
+                // Source storms survive logout and only read the retained author's attribution. Never fabricate a player.
+                owners.put(image.storm,current instanceof ServerPlayer player?player:image.originalAuthor);
+                MatchAuthorityCheckpoint.world(game,image.storm.level);
+            }
+            var passengerBodies=new java.util.IdentityHashMap<PassengerImage,LivingEntity>();
+            for(var image:platformImages)for(var passenger:image.passengers){
+                var absent=passenger.bodyLinks.resolve(lookup);
+                if(absent.isEmpty())passengerBodies.put(passenger,(LivingEntity)passenger.bodyLinks.get(passenger.body));
+                else if(!passenger.player||absent.size()!=1||!absent.contains(passenger.body.id()))pending.addAll(absent);
+                // A disconnected rider has no live body to carry; detach its lease as the ordinary next tick does.
+            }
+            if(!pending.isEmpty())return new MatchFieldCheckpoint.Plan(java.util.Set.copyOf(pending),()->{});
+            var currentCells=new java.util.IdentityHashMap<MatchDamageSources.Ref,Display.BlockDisplay>();for(var image:cells)currentCells.put(image.body,(Display.BlockDisplay)links.get(image.body));
+            return new MatchFieldCheckpoint.Plan(java.util.Set.of(),()->{
+            storms.clear();storms.addAll(activeStorms);platforms.clear();displays.clear();riders.clear();
+            for(var image:stormImages){image.storm.author=owners.get(image.storm);image.storm.age[0]=image.age;image.storm.columns.clear();image.storm.columns.addAll(image.columns);}
+            for(var image:cells){image.lifted.stale=image.stale;image.lifted.surfaces=List.copyOf(image.surfaces);displays.put(currentCells.get(image.body),image.lifted);}
+            for(var image:platformImages){
+                var platform=image.platform;platform.speed=image.speed;platform.offset=image.offset;platform.cells.clear();for(var body:image.cells)platform.cells.add(currentCells.get(body));platform.passengers.clear();
+                for(var passenger:image.passengers){var living=passengerBodies.get(passenger);if(living==null)continue;var current=passenger.passenger;
+                    current.entity=living;current.controlled=passenger.controlled;current.detached=passenger.detached;current.impulseApplied=passenger.impulse;
+                    current.appliedSpeed=passenger.applied;current.localTop=passenger.top;current.landingDebt=passenger.debt;current.lastImpulse=passenger.last;
+                    platform.passengers.add(current);if(passenger.rider)riders.put(living,current);
+                }
+                platforms.add(platform);
+            }
+            installed=true;});
+        }
+    }
+
 }

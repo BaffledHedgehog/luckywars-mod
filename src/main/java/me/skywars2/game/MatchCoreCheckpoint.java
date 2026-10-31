@@ -35,12 +35,19 @@ final class MatchCoreCheckpoint {
      * actor/ability state and camera attachment afterwards. Disk persistence is a final
      * commit step of that owner, not a side effect of each partial component.
      */
-    void restoreFrozen() {
+    void restoreFrozen() { restoreFrozen(online.keySet(),spectators); }
+    /** Replacement points also retain player images whose real body was offline at capture. */
+    void restoreFrozen(Map<UUID,MatchPlayerCheckpoint> players) {
+        var observers=new java.util.LinkedHashSet<UUID>();
+        players.forEach((id,image)->{if(image.observer())observers.add(id);});
+        restoreFrozen(players.keySet(),observers);
+    }
+    private void restoreFrozen(Set<UUID> roster,Set<UUID> observers) {
         game.validateCheckpoint(core);
         config.restore();game.players().restoreProfiles(profiles);scoreboard.restore(game.server());
         game.restoreCore(core);game.teamColors().restore(teams);game.events().restoreTimeline(events);
         game.luckyModifiers().restore(lucky);game.items().witchClaims().restoreOwnership(authorities);
-        game.spectators().restoreMembers(spectators,online.keySet());
+        game.spectators().restoreMembers(observers,roster);
         for(var player:game.server().getPlayerList().getPlayers()) {
             var mode=online.get(player.getUUID());if(mode!=null)player.setGameMode(mode);
         }

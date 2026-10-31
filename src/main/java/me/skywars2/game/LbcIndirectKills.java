@@ -918,6 +918,44 @@ public final class LbcIndirectKills {
             stone.clear();stoneImage.forEach((world,map)->stone.put(world,cells(map)));hazards.clear();hazardImage.forEach((world,map)->hazards.put(world,cells(map)));
             order=sequence;return java.util.Set.of();
         }
+        /** Reconnect installs this victim's saved causal rows after its real native body/effects, never the old global ledger. */
+        void restorePlayerFrozen(ServerPlayer realCurrent){
+            stable(true);
+            if(game.server().getPlayerList().getPlayer(realCurrent.getUUID())!=realCurrent||realCurrent.isRemoved())
+                throw new IllegalStateException("Restore causal player rows only on the real current online body");
+            MatchDamageSources.Ref selected=null;
+            for(var entry:kinds.entrySet())if(entry.getKey().historical()==null&&entry.getKey().id().equals(realCurrent.getUUID())){
+                if(realCurrent.getClass()!=entry.getValue())throw new IllegalStateException("Restore the captured current player body type before causal rows");
+                selected=entry.getKey();break;
+            }
+            // Historical-only same-UUID victims are separate bodies, never login-state templates.
+            if(selected==null)return;
+            var ref=selected;var support=supportImage.get(ref);var arrival=arrivalImage.get(ref);
+            if(support!=null)level(support.level);if(arrival!=null)level(arrival.level);
+            var effects=new java.util.IdentityHashMap<Effect,MobEffectInstance>();
+            Map<Holder<MobEffect>,Status> currentStatuses=null;
+            if(statusImage.containsKey(ref)){
+                currentStatuses=new HashMap<>();
+                for(var entry:statusImage.get(ref).entrySet())currentStatuses.put(entry.getKey(),applied(entry.getValue(),realCurrent,effects));
+            }
+            var pendingStatus=pendingImage.containsKey(ref)?applied(pendingImage.get(ref),realCurrent,effects):null;
+            Fall currentFall=null;var savedFall=fallImage.get(ref);
+            if(savedFall!=null){currentFall=new Fall(savedFall.owner,savedFall.levitation);currentFall.grace=savedFall.grace;}
+            var currentArrival=arrival==null?null:new Arrival(arrival.owner,arrival.level,cells(arrival.cells));
+            // Every effect/dimension/value plan is ready before replacing even the first victim row.
+            falls.remove(realCurrent);if(fallImage.containsKey(ref))falls.put(realCurrent,currentFall);
+            statuses.remove(realCurrent);if(currentStatuses!=null)statuses.put(realCurrent,currentStatuses);
+            pendingMana.remove(realCurrent);if(pendingImage.containsKey(ref))pendingMana.put(realCurrent,pendingStatus);
+            restoreVictim(manaDrains,drainsImage,ref,realCurrent);restoreVictim(manaDebts,debtsImage,ref,realCurrent);
+            restoreVictim(laterAttacks,laterImage,ref,realCurrent);restoreVictim(burning,burnImage,ref,realCurrent);
+            restoreVictim(removedSupports,supportImage,ref,realCurrent);restoreVictim(hungerDebts,hungerImage,ref,realCurrent);
+            arrivals.remove(realCurrent);if(arrivalImage.containsKey(ref))arrivals.put(realCurrent,currentArrival);
+            // Other live victims and global terrain hazards have advanced since this save point.
+            order=Math.max(order,sequence);
+        }
+        private <T extends LivingEntity,V> void restoreVictim(Map<T,V> current,Map<MatchDamageSources.Ref,V> image,MatchDamageSources.Ref ref,T target){
+            current.remove(target);if(image.containsKey(ref))current.put(target,image.get(ref));
+        }
         private <V> void restore(Map<LivingEntity,V> current,Map<MatchDamageSources.Ref,V> image,Map<MatchDamageSources.Ref,LivingEntity> victims){current.clear();image.forEach((ref,v)->current.put(victims.get(ref),v));}
     }
 }

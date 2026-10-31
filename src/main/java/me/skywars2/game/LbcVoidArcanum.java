@@ -70,10 +70,13 @@ public final class LbcVoidArcanum {
     private final List<Hole> holes=new ArrayList<>();
     private final Map<UUID,Hands> hands=new HashMap<>();
     private int terrainTurn,costClock;
+    private int callbackDepth;private boolean rewinding;
+    private final List<Hole> restoreVisuals=new ArrayList<>();
+    private final Map<Hole,UUID> restoreVisualOwners=new HashMap<>();
     private static final class Hands {boolean main,off;}
     record Contribution(UUID owner,LbcIndirectKills.Owner cause){}
     static final class Hole {
-        final ServerLevel world;final Marker marker;final String epoch;
+        final ServerLevel world;Marker marker;final String epoch;
         final List<Contribution> members=new ArrayList<>();
         Vec3 point;int level=1;boolean wild;
         Vec3 velocity=Vec3.ZERO;
@@ -106,6 +109,8 @@ public final class LbcVoidArcanum {
     private boolean suppressed(ServerPlayer owner){return game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.position());}
     private static boolean resident(ServerLevel world,Vec3 point){var p=BlockPos.containing(point);return world.getChunkSource().getChunkNow(p.getX()>>4,p.getZ()>>4)!=null;}
     Hole spawn(ServerPlayer owner,Vec3 point){
+        if(rewinding)return null;
+        callbackDepth++;try{
         if(!valid(owner)||!resident(owner.level(),point)||game.items().magic().suppressedAt(owner.level(),point))return null;
         var body=new Body(owner.level());body.snapTo(point.x,point.y,point.z,0,0);
         body.entityTags().addAll(List.of(BODY_TAG,"void_curse","magic","player"));
@@ -115,6 +120,8 @@ public final class LbcVoidArcanum {
         holes.add(hole); // Publication invokes load callbacks synchronously.
         if(!hole.world.addFreshEntity(body)||body.isRemoved()||!holes.contains(hole)){remove(hole);return null;}
         return hole;
+
+        }finally{callbackDepth--;}
     }
     private boolean activate(ServerPlayer owner){
         Vec3 at=owner.position().add(owner.getLookAngle().normalize().scale(4));
@@ -127,8 +134,14 @@ public final class LbcVoidArcanum {
         LbcOverload.sound(owner,"minecraft:entity.evoker.cast_spell",1,1,0);
         return true;
     }
-    public void handSwapped(ServerPlayer owner){var state=hands.get(owner.getUUID());if(state!=null){state.main=false;state.off=false;}}
+    public void handSwapped(ServerPlayer owner){
+        if(rewinding)return;
+        callbackDepth++;try{var state=hands.get(owner.getUUID());if(state!=null){state.main=false;state.off=false;}
+        }finally{callbackDepth--;}
+    }
     public void tick(){
+        if(rewinding)return;
+        callbackDepth++;try{
         if(!game.server().tickRateManager().runsNormally())return;
         Set<UUID> present=new HashSet<>();
         for(var owner:game.alivePlayers()){
@@ -184,6 +197,8 @@ public final class LbcVoidArcanum {
             budget-=terrain(hole,author,budget,deadline);
         }
         terrainTurn=size==0?0:(terrainTurn+1)%size;
+
+        }finally{callbackDepth--;}
     }
     int upkeep(UUID owner){
         int amount=0;for(var hole:holes)amount+=costShares(hole).getOrDefault(owner,0);return amount;
@@ -204,6 +219,7 @@ public final class LbcVoidArcanum {
         return shares;
     }
     Contribution source(Hole hole){
+        callbackDepth++;try{
         if(hole.members.isEmpty())return null;
         var counts=new LinkedHashMap<UUID,Integer>();
         for(var member:hole.members)counts.merge(member.owner,1,Integer::sum);
@@ -212,6 +228,8 @@ public final class LbcVoidArcanum {
         UUID selected=tied.get(hole.world.getRandom().nextInt(tied.size()));
         // Retain the selected owner's actual contribution order; no newly minted influence.
         return hole.members.stream().filter(member->member.owner.equals(selected)).findFirst().orElseThrow();
+
+        }finally{callbackDepth--;}
     }
     private LbcIndirectKills.Owner cause(Hole hole,Contribution member){
         var cause=member.cause;
@@ -255,6 +273,8 @@ public final class LbcVoidArcanum {
         return target.getEyePosition().add(0,.5*(hole.level-1),0);
     }
     void physics(Hole hole,ServerPlayer author,LbcIndirectKills.Owner cause){
+        if(rewinding)return;
+        callbackDepth++;try{
         double influence=PULL[hole.level],hurt=HURT[hole.level];
         var source=hole.wild?new WildDamage(author):new DamageSource(author.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),author);
         for(var target:hole.world.getEntities((Entity)null,new AABB(hole.point,hole.point).inflate(influence),entity->physicalTarget(hole,author,entity))){
@@ -307,14 +327,21 @@ public final class LbcVoidArcanum {
             }else hole.velocity=Vec3.ZERO;
         }else hole.velocity=Vec3.ZERO;
         hole.tilt.slerp(hole.level==5?desiredTilt:new Quaternionf(),.12f).normalize();
+
+        }finally{callbackDepth--;}
     }
     void updateVisual(Hole hole,ServerPlayer owner){
+        callbackDepth++;try{
         float radius=(float)(RADII[hole.level]/14);
         if(hole.visual==null)hole.visual=game.items().blackHoleVisuals().create(owner,hole.point,radius,hole.level==5);
         else{game.items().blackHoleVisuals().rebind(hole.visual,owner);game.items().blackHoleVisuals().update(hole.visual,hole.point,radius,hole.level==5);}
         game.items().blackHoleVisuals().tilt(hole.visual,hole.tilt);
+
+        }finally{callbackDepth--;}
     }
     int terrain(Hole hole,ServerPlayer owner,int allowance,long deadline){
+        if(rewinding)return 0;
+        callbackDepth++;try{
         int radius=(int)RADII[hole.level];
         if(hole.terrainLevel!=hole.level){
             if(hole.terrain!=null)hole.terrain.clear();hole.terrain=null;hole.terrainLevel=hole.level;
@@ -342,9 +369,17 @@ public final class LbcVoidArcanum {
                     hole.world.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
                 })));
         return used[0];
+
+        }finally{callbackDepth--;}
     }
-    public void loaded(Entity entity){if(entity.entityTags().contains(BODY_TAG)&&holes.stream().noneMatch(hole->hole.marker==entity))entity.discard();}
-    public void unloaded(Entity entity){for(var hole:List.copyOf(holes))if(hole.marker==entity)remove(hole);}
+    public void loaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;if(entity.entityTags().contains(BODY_TAG)&&holes.stream().noneMatch(hole->hole.marker==entity))entity.discard();
+        }finally{callbackDepth--;}
+    }
+    public void unloaded(Entity entity){
+        callbackDepth++;try{if(rewinding||MatchActorCheckpoint.restoring(entity))return;for(var hole:List.copyOf(holes))if(hole.marker==entity)remove(hole);
+        }finally{callbackDepth--;}
+    }
     private void remove(Hole hole){
         holes.remove(hole);if(hole.terrain!=null)hole.terrain.clear();
         hole.velocity=Vec3.ZERO;hole.tilt.identity();
@@ -360,8 +395,56 @@ public final class LbcVoidArcanum {
             }
         }
     }
-    public void forget(ServerPlayer owner){hands.remove(owner.getUUID());removeOwner(owner.getUUID());}
-    public void stop(){for(var hole:List.copyOf(holes))remove(hole);hands.clear();}
+    public void forget(ServerPlayer owner){
+        if(rewinding)return;
+        callbackDepth++;try{hands.remove(owner.getUUID());removeOwner(owner.getUUID());
+        }finally{callbackDepth--;}
+    }
+    public void stop(){
+        callbackDepth++;try{for(var hole:List.copyOf(holes))remove(hole);hands.clear();
+        }finally{callbackDepth--;}
+    }
     public int count(){return holes.size();}
     List<Hole> snapshot(){return List.copyOf(holes);}
+
+    /** Rollback preserves gameplay centers; destructive erosion may restart around those centers. */
+    void checkpointBoundary(){if(callbackDepth!=0)throw new IllegalStateException("Finish void-hole native callbacks before checkpointing");}
+    private void detachCheckpointVisual(Hole hole){
+        if(hole.visual!=null){game.items().blackHoleVisuals().detachForCheckpoint(hole.visual);hole.visual=null;}
+        if(hole.terrain!=null){hole.terrain.clear();hole.terrain=null;}
+    }
+    void prepareFrozen(){checkpointBoundary();rewinding=true;restoreVisuals.clear();restoreVisualOwners.clear();for(var hole:holes)detachCheckpointVisual(hole);}
+    void publishFrozen(){
+        checkpointBoundary();for(var hole:restoreVisuals){
+            ServerPlayer author=game.server().getPlayerList().getPlayer(restoreVisualOwners.get(hole));if(author!=null&&author.level()!=hole.world)author=null;for(var member:hole.members){var current=owner(member);if(author==null&&current!=null&&current.level()==hole.world){author=current;break;}}
+            if(author!=null)updateVisual(hole,author);
+        }
+        restoreVisuals.clear();restoreVisualOwners.clear();rewinding=false;
+    }
+    void cancelFrozen(){checkpointBoundary();restoreVisuals.clear();restoreVisualOwners.clear();rewinding=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Image(Hole original,MatchDamageSources.Ref marker,List<Contribution> members,Vec3 point,Vec3 velocity,int level,boolean wild,Quaternionf tilt,LbcIndirectKills.Owner terrainCause,UUID visualOwner,boolean visible){}
+        private record Hand(boolean main,boolean off){}
+        private final List<Image> values=new ArrayList<>();private final Map<UUID,Hand> held=new HashMap<>();
+        private final int turn=terrainTurn,cost=costClock;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            if(rewinding)throw new IllegalStateException("Publish void holes before checkpointing");
+            for(var hole:holes){var marker=links.key(hole.marker);if(marker.historical()!=null)throw new IllegalStateException("Void hole requires its canonical native marker");
+                values.add(new Image(hole,marker,List.copyOf(hole.members),hole.point,hole.velocity,hole.level,hole.wild,new Quaternionf(hole.tilt),hole.terrainCause,hole.visual==null?null:hole.visual.owner.getUUID(),hole.visual!=null));
+                for(var member:hole.members){var player=owner(member);if(player!=null)links.key(player);}
+            }
+            hands.forEach((id,value)->held.put(id,new Hand(value.main,value.off)));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var bodies=values.stream().map(image->(Marker)links.get(image.marker)).toList();
+            for(var image:values)MatchAuthorityCheckpoint.world(game,image.original.world);
+            var nextHands=new HashMap<UUID,Hands>();held.forEach((id,value)->{var hand=new Hands();hand.main=value.main;hand.off=value.off;nextHands.put(id,hand);});
+            return ()->{for(var future:List.copyOf(holes))detachCheckpointVisual(future);holes.clear();restoreVisuals.clear();restoreVisualOwners.clear();
+                for(int i=0;i<values.size();i++){var image=values.get(i);var hole=image.original;hole.marker=bodies.get(i);hole.members.clear();hole.members.addAll(image.members);
+                    hole.point=image.point;hole.velocity=image.velocity;hole.level=image.level;hole.wild=image.wild;hole.tilt.set(image.tilt);hole.terrainCause=image.terrainCause;
+                    hole.terrain=null;hole.terrainLevel=0;hole.frontier=1;hole.visual=null;holes.add(hole);if(image.visible){restoreVisuals.add(hole);restoreVisualOwners.put(hole,image.visualOwner);}}
+                hands.clear();hands.putAll(nextHands);terrainTurn=turn;costClock=cost;};
+        }
+    }
 }

@@ -59,7 +59,8 @@ public final class LbcGodHedgehog {
     private final Map<Entity,Encounter> blastSources=new WeakHashMap<>();
     private final Set<Entity> spawning=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Entity> blastChildren=Collections.newSetFromMap(new IdentityHashMap<>());
-    private int activeTicker;
+    private int activeTicker,checkpointCallbacks;
+    private boolean checkpointRestoring;
     static final class Encounter {
         final ServerLevel level;final UUID author;final LbcIndirectKills.Owner cause;final String epoch;final Silverfish boss;
         boolean retired;
@@ -81,16 +82,21 @@ public final class LbcGodHedgehog {
         Encounter encounter;
         Boss(ServerLevel level){super(EntityTypes.SILVERFISH,level);}
         @Override public boolean shouldBeSaved(){return false;}
-        @Override public void setTarget(LivingEntity victim){super.setTarget(victim!=null&&!target(victim,false)?null:victim);}
+        @Override public void setTarget(LivingEntity victim){super.setTarget(victim!=null&&!MatchActorCheckpoint.restoring(this)&&!target(victim,false)?null:victim);}
         @Override public boolean doHurtTarget(ServerLevel level,Entity victim){
-            if(encounter==null||!valid(encounter)||!target(victim,false))return false;
-            boolean[] result={false};game.items().indirectKills().withCause((LivingEntity)victim,encounter.cause,()->result[0]=super.doHurtTarget(level,victim));return result[0];
+            enterCheckpointCallback();try {
+                if(encounter==null||!valid(encounter)||!target(victim,false))return false;
+                boolean[] result={false};game.items().indirectKills().withCause((LivingEntity)victim,encounter.cause,()->result[0]=super.doHurtTarget(level,victim));return result[0];
+            }finally{leaveCheckpointCallback();}
         }
         @Override public void tick(){
-            if(encounter==null||!valid(encounter)){discard();return;}
-            if(paused(this))return;
-            if(getTarget()!=null&&!target(getTarget(),false))setTarget(null);
-            super.tick();
+            enterCheckpointCallback();try {
+                if(checkpointRestoring)return;
+                if(encounter==null||!valid(encounter)){discard();return;}
+                if(paused(this))return;
+                if(getTarget()!=null&&!target(getTarget(),false))setTarget(null);
+                super.tick();
+            }finally{leaveCheckpointCallback();}
         }
         @Override protected void dropFromLootTable(ServerLevel level,DamageSource source,boolean byPlayer){}
         @Override protected void dropCustomDeathLoot(ServerLevel level,DamageSource source,boolean byPlayer){
@@ -110,7 +116,7 @@ public final class LbcGodHedgehog {
     public static boolean managed(Entity entity){return entity!=null&&(entity.entityTags().contains(MANAGED)||entity.entityTags().contains(BLAST));}
     private boolean valid(Encounter e){return !e.retired&&game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&game.items().currentEpoch(e.epoch);}
-    private boolean paused(Entity e){return game.items().wands().timeStopped()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
+    private boolean paused(Entity e){return checkpointRestoring||game.items().wands().timeStopped()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
     private static boolean resident(ServerLevel level,Vec3 point){var p=BlockPos.containing(point);return level.getChunkSource().getChunkNow(p.getX()>>4,p.getZ()>>4)!=null;}
     private Encounter find(Entity entity){
         if(!managed(entity))return null;
@@ -126,51 +132,60 @@ public final class LbcGodHedgehog {
     public boolean blocksSilverfish(ServerLevel level){return encounters.stream().anyMatch(e->e.level==level&&valid(e)&&e.boss.isAlive()&&!e.boss.isRemoved());}
     public boolean canAffect(Entity source,Entity victim){return find(source)==null||(source.entityTags().contains(BLAST)
             ?game.items().wands().validRoleTarget(victim,false)&&!paused(victim):target(victim,false));}
-    public void inheritChild(Entity source,Entity child){var e=find(source);if(e==null)return;blastSources.put(child,e);blastChildren.add(child);child.entityTags().add(BLAST);game.items().markCurrentItemEpoch(child);}
+    public void inheritChild(Entity source,Entity child){
+        enterCheckpointCallback();try {
+        var e=find(source);if(e==null)return;blastSources.put(child,e);blastChildren.add(child);child.entityTags().add(BLAST);game.items().markCurrentItemEpoch(child);
+        }finally{leaveCheckpointCallback();}
+    }
     private boolean target(Entity entity,boolean arrow){
         if((!entity.getType().builtInRegistryHolder().is(MOBS)&&!(arrow&&LbcWtf.managed(entity)))||!game.items().wands().validRoleTarget(entity,false)
                 ||entity instanceof Silverfish||paused(entity))return false;
         return !arrow||(!LbcGreed.active(entity)&&game.items().mana().score(entity,"void_resistance").get()<1);
     }
     public Silverfish summon(ServerLevel level,Vec3 at,ServerPlayer author){
-        if(author==null||!game.playing()||!resident(level,at))return null;
-        for(var old:encounters)if(old.level==level&&valid(old)&&old.boss.isAlive()&&!old.boss.isRemoved())return old.boss;
-        game.items().hedgehog().eraseForBoss(level,null);
-        var spawnAt=at.add(0,20,0);
-        var boss=new Boss(level);boss.setPos(spawnAt);boss.setPersistenceRequired();boss.setCustomNameVisible(true);
-        var name=Component.empty();String[] glyphs={"𝕬","𝕽","𝕮","𝕳","𝕺","𝕹","𝕱","𝕷","𝕰","𝕯","𝕲","𝕺","𝕯","𝕲","𝕰","𝕳","𝕺","𝕲"};
-        int[] colors={0xff0000,0xff1800,0xff2f00,0xff4700,0xff5e00,0xff7600,0xff8e00,0xffa500,0xffb200,0xffbb00,0xffc400,0xffce00,0xffd700,0xffe100,0xffea00,0xeaef08,0xc6f215,0xa3f422};
-        for(int i=0;i<glyphs.length;i++){final int color=colors[i];name.append(Component.literal(glyphs[i]).withStyle(s->s.withColor(TextColor.fromRgb(color))));}
-        boss.setCustomName(name);boss.getAttribute(Attributes.MAX_HEALTH).setBaseValue(2147483647d);
-        boss.getAttribute(Attributes.ARMOR).setBaseValue(20);boss.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(20);
-        boss.getAttribute(Attributes.SCALE).setBaseValue(16);boss.setHealth(boss.getMaxHealth());
-        boss.entityTags().addAll(List.of(TAG,MANAGED,"lucky_mob"));game.items().markCurrentItemEpoch(boss);
-        var e=new Encounter(level,author,game.items().indirectKills().wildCause(author),game.items().epoch(),boss);boss.encounter=e;encounters.add(e);
-        game.items().timeStop().prepareFrozen(boss);
-        if(!level.addFreshEntity(boss)||boss.isRemoved()){retire(e);return null;}
-        for(float pitch:new float[]{1,1.05f,1.1f,.95f})sound(level,spawnAt,"minecraft:lbcsounds.flowey_laugh",1,pitch,1);
-        for(var player:level.players()){
-            player.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("godfled_spawn").withStyle(net.minecraft.ChatFormatting.DARK_RED)));
-            player.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("Ж".repeat(40)).withStyle(net.minecraft.ChatFormatting.DARK_RED,net.minecraft.ChatFormatting.OBFUSCATED)));
-        }
-        return boss;
+        enterCheckpointCallback();try {
+            if(author==null||!game.playing()||!resident(level,at))return null;
+            for(var old:encounters)if(old.level==level&&valid(old)&&old.boss.isAlive()&&!old.boss.isRemoved())return old.boss;
+            game.items().hedgehog().eraseForBoss(level,null);
+            var spawnAt=at.add(0,20,0);
+            var boss=new Boss(level);boss.setPos(spawnAt);boss.setPersistenceRequired();boss.setCustomNameVisible(true);
+            var name=Component.empty();String[] glyphs={"𝕬","𝕽","𝕮","𝕳","𝕺","𝕹","𝕱","𝕷","𝕰","𝕯","𝕲","𝕺","𝕯","𝕲","𝕰","𝕳","𝕺","𝕲"};
+            int[] colors={0xff0000,0xff1800,0xff2f00,0xff4700,0xff5e00,0xff7600,0xff8e00,0xffa500,0xffb200,0xffbb00,0xffc400,0xffce00,0xffd700,0xffe100,0xffea00,0xeaef08,0xc6f215,0xa3f422};
+            for(int i=0;i<glyphs.length;i++){final int color=colors[i];name.append(Component.literal(glyphs[i]).withStyle(s->s.withColor(TextColor.fromRgb(color))));}
+            boss.setCustomName(name);boss.getAttribute(Attributes.MAX_HEALTH).setBaseValue(2147483647d);
+            boss.getAttribute(Attributes.ARMOR).setBaseValue(20);boss.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(20);
+            boss.getAttribute(Attributes.SCALE).setBaseValue(16);boss.setHealth(boss.getMaxHealth());
+            boss.entityTags().addAll(List.of(TAG,MANAGED,"lucky_mob"));game.items().markCurrentItemEpoch(boss);
+            var e=new Encounter(level,author,game.items().indirectKills().wildCause(author),game.items().epoch(),boss);boss.encounter=e;encounters.add(e);
+            game.items().timeStop().prepareFrozen(boss);
+            if(!level.addFreshEntity(boss)||boss.isRemoved()){retire(e);return null;}
+            for(float pitch:new float[]{1,1.05f,1.1f,.95f})sound(level,spawnAt,"minecraft:lbcsounds.flowey_laugh",1,pitch,1);
+            for(var player:level.players()){
+                player.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("godfled_spawn").withStyle(net.minecraft.ChatFormatting.DARK_RED)));
+                player.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("Ж".repeat(40)).withStyle(net.minecraft.ChatFormatting.DARK_RED,net.minecraft.ChatFormatting.OBFUSCATED)));
+            }
+            return boss;
+        }finally{leaveCheckpointCallback();}
     }
     public void tick(){
-        if(game.items().wands().timeStopped())return;
-        blastChildren.removeIf(Entity::isRemoved);
-        int phase=Math.floorMod(activeTicker++,500);
-        for(var e:List.copyOf(encounters)){
-            if(!valid(e)||e.boss.isRemoved()&&!resident(e.level,e.boss.position())){retire(e);continue;}
-            if(e.boss.isAlive()&&!e.boss.isRemoved()&&!paused(e.boss))bossTick(e,phase);
-        }
-        // Copy once: descendants start on the following active tick, as in source entity selectors.
-        for(var actor:List.copyOf(actors)){
-            if(!valid(actor.encounter)||actor.body()==null||actor.body().isRemoved()||!resident(actor.encounter.level,actor.point)){remove(actor);continue;}
-            if(paused(actor.body()))continue;
-            if(actor.kind==0)eaterTick(actor);else if(actor.kind==1)whiteTick(actor);else rayTick(actor);
-        }
-        blastTick();
-        encounters.removeIf(e->!e.boss.isAlive()&&actors.stream().noneMatch(a->a.encounter==e)&&lasers.stream().noneMatch(l->l.encounter==e));
+        enterCheckpointCallback();try {
+            if(checkpointRestoring)return;
+            if(game.items().wands().timeStopped())return;
+            blastChildren.removeIf(Entity::isRemoved);
+            int phase=Math.floorMod(activeTicker++,500);
+            for(var e:List.copyOf(encounters)){
+                if(!valid(e)||e.boss.isRemoved()&&!resident(e.level,e.boss.position())){retire(e);continue;}
+                if(e.boss.isAlive()&&!e.boss.isRemoved()&&!paused(e.boss))bossTick(e,phase);
+            }
+            // Copy once: descendants start on the following active tick, as in source entity selectors.
+            for(var actor:List.copyOf(actors)){
+                if(!valid(actor.encounter)||actor.body()==null||actor.body().isRemoved()||!resident(actor.encounter.level,actor.point)){remove(actor);continue;}
+                if(paused(actor.body()))continue;
+                if(actor.kind==0)eaterTick(actor);else if(actor.kind==1)whiteTick(actor);else rayTick(actor);
+            }
+            blastTick();
+            encounters.removeIf(e->!e.boss.isAlive()&&actors.stream().noneMatch(a->a.encounter==e)&&lasers.stream().noneMatch(l->l.encounter==e));
+        }finally{leaveCheckpointCallback();}
     }
     private void bossTick(Encounter e,int phase){
         var boss=e.boss;
@@ -308,10 +323,26 @@ public final class LbcGodHedgehog {
     private static void sound(ServerLevel level,Vec3 at,String id,float volume,float pitch,float minimum){LbcOverload.sound(level,at,id,volume,pitch,0,minimum);}
     private void remove(Actor actor){actors.remove(actor);if(actor.warning!=null)actor.warning.close();if(actor.body()!=null&&!actor.body().isRemoved())actor.body().discard();}
     private void retire(Encounter e){e.retired=true;for(var a:List.copyOf(actors))if(a.encounter==e)remove(a);lasers.removeIf(l->l.encounter==e);for(var child:List.copyOf(blastChildren))if(find(child)==e){blastChildren.remove(child);child.discard();}if(!e.boss.isRemoved())e.boss.discard();encounters.remove(e);}
-    public void loaded(Entity entity){if(managed(entity)&&!spawning.contains(entity)){var e=find(entity);if(e==null||!valid(e))entity.discard();}}
-    public void unloaded(Entity entity){var e=find(entity);if(e!=null&&entity==e.boss)retire(e);else for(var a:List.copyOf(actors))if(a.body()==entity)remove(a);}
-    public void removeOwned(ServerPlayer player){for(var e:List.copyOf(encounters))if(e.author.equals(player.getUUID()))retire(e);}
-    public void stop(){for(var e:List.copyOf(encounters))retire(e);for(var child:List.copyOf(blastChildren))child.discard();blastChildren.clear();actors.clear();lasers.clear();blastSources.clear();activeTicker=0;}
+    public void loaded(Entity entity){
+        enterCheckpointCallback();try {
+        if(checkpointRestoring)return;if(managed(entity)&&!spawning.contains(entity)){var e=find(entity);if(e==null||!valid(e))entity.discard();}
+        }finally{leaveCheckpointCallback();}
+    }
+    public void unloaded(Entity entity){
+        enterCheckpointCallback();try {
+        if(checkpointRestoring)return;var e=find(entity);if(e!=null&&entity==e.boss)retire(e);else for(var a:List.copyOf(actors))if(a.body()==entity)remove(a);
+        }finally{leaveCheckpointCallback();}
+    }
+    public void removeOwned(ServerPlayer player){
+        enterCheckpointCallback();try {
+        for(var e:List.copyOf(encounters))if(e.author.equals(player.getUUID()))retire(e);
+        }finally{leaveCheckpointCallback();}
+    }
+    public void stop(){
+        enterCheckpointCallback();try {
+        for(var e:List.copyOf(encounters))retire(e);for(var child:List.copyOf(blastChildren))child.discard();blastChildren.clear();actors.clear();lasers.clear();blastSources.clear();activeTicker=0;checkpointRestoring=false;
+        }finally{leaveCheckpointCallback();}
+    }
     public int count(){return encounters.size()+actors.size()+lasers.size()+blastChildren.size();}
     public List<Entity> snapshot(){var list=new ArrayList<Entity>();for(var e:encounters)if(!e.boss.isRemoved())list.add(e.boss);for(var a:actors)if(a.body()!=null)list.add(a.body());return List.copyOf(list);}
     int pendingBlasts(){return lasers.stream().mapToInt(l->101-l.cursor).sum();}
@@ -320,10 +351,73 @@ public final class LbcGodHedgehog {
     void phaseForCheck(int phase){activeTicker=phase;}
     /** Explicit source-age boundaries for native fixtures; these do not advance elapsed server time. */
     Entity eaterBoundary(Entity boss,Vec3 at,Vec3 direction,int age){
-        var e=find(boss);if(e==null)return null;int previous=actors.size();seed(e,at,direction);if(actors.size()==previous)return null;var a=actors.getLast();a.age=age;return a.body();
+        enterCheckpointCallback();try {
+            var e=find(boss);if(e==null)return null;int previous=actors.size();seed(e,at,direction);if(actors.size()==previous)return null;var a=actors.getLast();a.age=age;return a.body();
+        }finally{leaveCheckpointCallback();}
     }
     Entity whiteBoundary(Entity boss,Vec3 at,Vec3 direction,int age){
-        var e=find(boss);if(e==null)return null;var a=white(e,at,direction,age);return a==null?null:a.body();
+        enterCheckpointCallback();try {
+            var e=find(boss);if(e==null)return null;var a=white(e,at,direction,age);return a==null?null:a.body();
+        }finally{leaveCheckpointCallback();}
     }
-    void laserBoundary(Entity boss,Vec3 at,Vec3 direction){var e=find(boss);if(e!=null)lasers.add(new Laser(e,at,direction));}
+    void laserBoundary(Entity boss,Vec3 at,Vec3 direction){
+        enterCheckpointCallback();try {
+        var e=find(boss);if(e!=null)lasers.add(new Laser(e,at,direction));
+        }finally{leaveCheckpointCallback();}
+    }
+
+    void checkpointBoundary(){if(checkpointCallbacks!=0||!spawning.isEmpty())throw new IllegalStateException("Finish God Hedgehog native callbacks before checkpointing");}
+    private void enterCheckpointCallback(){checkpointCallbacks++;}
+    private void leaveCheckpointCallback(){checkpointCallbacks--;}
+    void prepareFrozen(){
+        checkpointBoundary();checkpointRestoring=true;
+        for(var actor:actors){if(actor.warning!=null)actor.warning.close();actor.warning=null;}
+        encounters.clear();actors.clear();lasers.clear();blastSources.clear();blastChildren.clear();spawning.clear();
+    }
+    void publishFrozen(){
+        checkpointBoundary();
+        for(var actor:actors)if(actor.kind==1&&actor.age<40&&actor.warning==null){
+            var from=actor.point.add(0,.2,0);
+            actor.warning=TrialWarningVisual.worldBeam(game,actor.encounter.level,actor.encounter.epoch,from,from.add(actor.direction.scale(10)),false,Math.max(1,40-actor.age));
+        }
+        checkpointRestoring=false;
+    }
+    void cancelFrozen(){checkpointBoundary();checkpointRestoring=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record EncounterImage(Encounter original,MatchDamageSources.Ref boss,boolean retired,boolean active){}
+        private record ActorImage(Actor original,MatchDamageSources.Ref body,Vec3 point,Vec3 direction,int age){}
+        private record LaserImage(Laser original,int cursor){}
+        private record SourceImage(MatchDamageSources.Ref body,Encounter encounter,boolean child){}
+        private final List<EncounterImage> savedEncounters;
+        private final List<ActorImage> savedActors;
+        private final List<LaserImage> savedLasers;
+        private final List<SourceImage> savedSources;
+        private final int ticker=activeTicker;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            var accepted=new java.util.LinkedHashSet<Encounter>(encounters);
+            for(var actor:actors)accepted.add(actor.encounter);for(var laser:lasers)accepted.add(laser.encounter);accepted.addAll(blastSources.values());
+            savedEncounters=accepted.stream().map(e->new EncounterImage(e,links.key(e.boss),e.retired,encounters.contains(e))).toList();
+            savedActors=actors.stream().map(a->new ActorImage(a,links.key(a.body()),a.point,a.direction,a.age)).toList();
+            savedLasers=lasers.stream().map(l->new LaserImage(l,l.cursor)).toList();
+            var sources=new ArrayList<SourceImage>();blastSources.forEach((body,e)->sources.add(new SourceImage(links.key(body),e,blastChildren.contains(body))));
+            for(var child:blastChildren)if(!blastSources.containsKey(child))throw new IllegalStateException("God Hedgehog child has no accepted encounter source");
+            savedSources=List.copyOf(sources);
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var plans=new ArrayList<Runnable>();
+            for(var image:savedEncounters){var e=image.original;var body=links.get(image.boss);
+                if(body!=e.boss)throw new IllegalStateException("Restore the same native God Hedgehog boss");
+                MatchAuthorityCheckpoint.world(game,e.level);
+                plans.add(()->{e.retired=image.retired;if(e.boss instanceof Boss boss)boss.encounter=e;if(image.active)encounters.add(e);});
+            }
+            for(var image:savedActors){var a=image.original;var body=links.get(image.body);
+                if(body!=a.body())throw new IllegalStateException("Restore the same native God Hedgehog attack actor");
+                plans.add(()->{a.point=image.point;a.direction=image.direction;a.age=image.age;a.warning=null;actors.add(a);});
+            }
+            for(var image:savedLasers)plans.add(()->{image.original.cursor=image.cursor;lasers.addLast(image.original);});
+            for(var image:savedSources){var body=links.get(image.body);plans.add(()->{blastSources.put(body,image.encounter);if(image.child)blastChildren.add(body);});}
+            return ()->{checkpointRestoring=true;encounters.clear();actors.clear();lasers.clear();blastSources.clear();blastChildren.clear();plans.forEach(Runnable::run);activeTicker=ticker;};
+        }
+    }
 }

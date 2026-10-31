@@ -226,4 +226,6 @@ public final class LbcTrinkets {
                 SoundEvents.SNOW_BREAK, SoundSource.PLAYERS, 1, 1);
         owner.level().sendParticles(ParticleTypes.SNOWFLAKE, owner.getX(), owner.getY()+.5, owner.getZ(), 30, .5, .5, .5, 1);
     }
+
+    List<Projectile> transientSnapshot(){return List.copyOf(projectiles);}
 }

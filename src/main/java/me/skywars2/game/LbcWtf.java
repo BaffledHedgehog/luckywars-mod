@@ -65,7 +65,9 @@ public final class LbcWtf {
     private final GameController game;
     private final Set<Chef> chefs=new LinkedHashSet<>();
     private final List<Fountain> fountains=new ArrayList<>();
-    private int firstChef;
+    private int firstChef,checkpointCallbacks;
+    private boolean checkpointRestoring;
+    private final java.util.IdentityHashMap<Chef,Integer> publicationHands=new java.util.IdentityHashMap<>();
     private static final class Fountain {
         final ServerLevel level;final Vec3 position;final String epoch;int age;
         Fountain(ServerLevel level,Vec3 position,String epoch){this.level=level;this.position=position;this.epoch=epoch;}
@@ -79,8 +81,9 @@ public final class LbcWtf {
     public static boolean managed(Entity entity){return entity instanceof Chef;}
     public static ServerPlayer owner(Entity entity){return entity instanceof Chef chef?chef.owner:null;}
     public static final class Chef extends Mannequin {
-        final LivingEntity target;
-        final ServerPlayer owner;
+        LivingEntity target;
+        ServerPlayer owner;
+        boolean retainedOwner,retainedTarget;
         final LbcWtf service;
         final LbcIndirectKills.Owner cause;
         final LbcChefBrain brain;
@@ -115,8 +118,8 @@ public final class LbcWtf {
         }
         public ServerPlayer getOwner(){return owner;}
         @Override public boolean shouldBeSaved(){return false;}
-        boolean timeFrozen(){return service!=null&&(service.game.items().timeStop().stopped((ServerLevel)level())
-                ||service.game.items().timeStop().frozen(this));}
+        boolean timeFrozen(){return service!=null&&!MatchActorCheckpoint.restoring(this)&&(service.checkpointRestoring||retainedOwner||retainedTarget
+                ||service.game.items().timeStop().stopped((ServerLevel)level())||service.game.items().timeStop().frozen(this));}
         boolean paused(){return stasis>0||timeFrozen();}
         private void addCombatAttribute(net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> type,double base){
             var map=getAttributes();
@@ -149,12 +152,14 @@ public final class LbcWtf {
         }
         @Override protected float getFlyingSpeed(){return isSprinting()?.025999999f:.02f;}
         @Override public void tick(){
-            service.pin(this,position());
-            if(timeFrozen())return;
-            if(tickCount>aimUntil){sentAimYaw=256;sentAimPitch=256;sentAimHead=256;}
-            setNoGravity(false);
-            if(stasis>0){halt();super.setDeltaMovement(0,getDeltaMovement().y,0);setPose(net.minecraft.world.entity.Pose.SWIMMING);}
-            super.tick();
+            service.enterCheckpointCallback();try {
+                service.pin(this,position());
+                if(timeFrozen())return;
+                if(tickCount>aimUntil){sentAimYaw=256;sentAimPitch=256;sentAimHead=256;}
+                setNoGravity(false);
+                if(stasis>0){halt();super.setDeltaMovement(0,getDeltaMovement().y,0);setPose(net.minecraft.world.entity.Pose.SWIMMING);}
+                super.tick();
+            }finally{service.leaveCheckpointCallback();}
         }
         @Override public void setDeltaMovement(Vec3 value){if(service==null||!timeFrozen())super.setDeltaMovement(value);}
         @Override public void move(net.minecraft.world.entity.MoverType type,Vec3 value){
@@ -171,18 +176,23 @@ public final class LbcWtf {
             return super.hurtServer(level,source,amount);
         }
         @Override protected void actuallyHurt(ServerLevel level,DamageSource source,float amount){
-            float accepted=getDamageAfterMagicAbsorb(source,getDamageAfterArmorAbsorb(source,amount));
-            if(!(accepted>0))return;
-            receive(accepted);
-            // Infinite HP does not decrease, so the generic Fabric damage delta is
-            // not a reliable accepted-hit callback for this native actor.
-            service.attachLabel(this,source);
-            // Keep vanilla hurt cooldown, animation, sound and responsible attacker, but never enter death.
+            service.enterCheckpointCallback();try {
+                float accepted=getDamageAfterMagicAbsorb(source,getDamageAfterArmorAbsorb(source,amount));
+                if(!(accepted>0))return;
+                receive(accepted);
+                // Infinite HP does not decrease, so the generic Fabric damage delta is
+                // not a reliable accepted-hit callback for this native actor.
+                service.attachLabel(this,source);
+                // Keep vanilla hurt cooldown, animation, sound and responsible attacker, but never enter death.
+            }finally{service.leaveCheckpointCallback();}
         }
-        void receive(float accepted){damage+=accepted;if(damage>=20){
-            damage=0;stasis=200;halt();survival.cancel();brain.reset();setNoGravity(false);
-            setPose(net.minecraft.world.entity.Pose.SWIMMING);
-        }}
+        void receive(float accepted){
+            service.enterCheckpointCallback();try {    damage+=accepted;if(damage>=20){
+                damage=0;stasis=200;halt();survival.cancel();brain.reset();setNoGravity(false);
+                setPose(net.minecraft.world.entity.Pose.SWIMMING);
+            }
+            }finally{service.leaveCheckpointCallback();}
+        }
         @Override public void setHealth(float health){
             if(service==null){super.setHealth(health);return;}
             if(!paused()&&health<getHealth())receive(getHealth()-health);
@@ -194,7 +204,7 @@ public final class LbcWtf {
             super.setPos(x,y,z);
         }
         @Override public void snapTo(double x,double y,double z,float yaw,float pitch){if(service==null||!timeFrozen())super.snapTo(x,y,z,yaw,pitch);}
-        @Override protected void onBelowWorld(){brain.returnFromVoid();}
+        @Override protected void onBelowWorld(){if(!service.checkpointRestoring&&!retainedOwner&&!retainedTarget)brain.returnFromVoid();}
         @Override public InteractionResult interact(Player player,InteractionHand hand,Vec3 point){return InteractionResult.FAIL;}
         @Override public SlotAccess getSlot(int index){return new SlotAccess(){public ItemStack get(){return ItemStack.EMPTY;}public boolean set(ItemStack stack){return false;}};}
         @Override public boolean isEquippableInSlot(ItemStack stack,EquipmentSlot slot){return false;}
@@ -317,90 +327,100 @@ public final class LbcWtf {
             &&owner.level()==game.maps().level();}
     private boolean eligible(ServerPlayer owner){return livingOwner(owner)&&!game.items().actionsBlocked(owner);}
     Chef spawn(ServerPlayer owner,LivingEntity target){
-        if(!eligible(owner)||target==null||!target.isAlive()||target.level()!=owner.level()
-                ||!labelTarget(owner,target))return null;
-        Vec3 at=target.position().subtract(target.getLookAngle().multiply(1,0,1).normalize().scale(10));
-        if(!owner.level().hasChunkAt(BlockPos.containing(at)))return null;
-        Chef chef=new Chef(this,owner,target);chef.setPos(at);
-        game.items().markCurrentItemEpoch(chef);chefs.add(chef);pin(chef,chef.position());
-        game.items().timeStop().prepareFrozen(chef);
-        if(!owner.level().addFreshEntity(chef)||chef.isRemoved()){remove(chef);return null;}
-        chef.brain.findSpawnSurface();
-        return chef;
+        enterCheckpointCallback();try {
+            if(!eligible(owner)||target==null||!target.isAlive()||target.level()!=owner.level()
+                    ||!labelTarget(owner,target))return null;
+            Vec3 at=target.position().subtract(target.getLookAngle().multiply(1,0,1).normalize().scale(10));
+            if(!owner.level().hasChunkAt(BlockPos.containing(at)))return null;
+            Chef chef=new Chef(this,owner,target);chef.setPos(at);
+            game.items().markCurrentItemEpoch(chef);chefs.add(chef);pin(chef,chef.position());
+            game.items().timeStop().prepareFrozen(chef);
+            if(!owner.level().addFreshEntity(chef)||chef.isRemoved()){remove(chef);return null;}
+            chef.brain.findSpawnSurface();
+            return chef;
+        }finally{leaveCheckpointCallback();}
     }
     void step(Chef chef){
-        if(game.items().polymorph().suspended(chef))return;
-        if(!game.items().currentEpoch(chef)||chef.isRemoved()||!livingOwner(chef.owner)
-                ||!chef.target.isAlive()||chef.target.isRemoved()||chef.target.level()!=chef.level()) {remove(chef);return;}
-        if(game.items().timeStop().stopped((ServerLevel)chef.level())||game.items().timeStop().frozen(chef))return;
-        if(chef.getY()<chef.level().getMinY()-8){chef.brain.returnFromVoid();}
-        if(chef.stasis>0){chef.halt();chef.survival.cancel();chef.stasis--;chef.restorePose();return;}
-        chef.restorePose();
-        if(game.items().actionsBlocked(chef)){chef.halt();chef.survival.cancel();return;}
-        if(!labelTarget(chef.owner,chef.target)){chef.halt();chef.survival.cancel();return;}
-        if(!chef.level().hasChunkAt(chef.blockPosition())){chef.halt();return;}
-        if(chef.owner.getRandom().nextFloat()<.005f)LbcOverload.sound(chef.owner,chef.position(),SOUNDS[chef.owner.getRandom().nextInt(SOUNDS.length)],2,1,0);
-        if(chef.attackDelay>0)chef.attackDelay--;
-        if(chef.brain.freeBody())return;
-        if(chef.survival.tick())return;
-        boolean movingTarget=chef.previousTarget!=null&&chef.target.position().distanceToSqr(chef.previousTarget)>.0004;
-        chef.previousTarget=chef.target.position();
-        if(chef.distanceToSqr(chef.target)<=6.25&&chef.hasLineOfSight(chef.target)){
-            boolean chase=movingTarget||chef.position().subtract(chef.target.position()).horizontalDistanceSqr()>1.44;
-            if(chase){chef.setSprinting(true);chef.steer(chef.target.position(),false);}
-            else chef.halt();
-            boolean ready=chef.aimAction(chef.target.getEyePosition())&&chef.equipCombat();
-            boolean crit=!chef.onGround()&&chef.getDeltaMovement().y<-.05&&!chef.isInWater()&&!chef.onClimbable()&&!chef.isPassenger();
-            if(chef.attackDelay==0&&ready){
-                boolean safeJump=chef.onGround()&&!chef.isInWater()&&chef.level().noCollision(chef,chef.getBoundingBox().move(0,1.25,0));
-                if(safeJump&&!movingTarget&&chef.combatJumpWait==0){
-                    if(chase)chef.steer(chef.target.position(),true);else chef.pillarJump();
-                    chef.combatJumpWait=12;return;
+        enterCheckpointCallback();try {
+            if(checkpointRestoring||chef.retainedOwner||chef.retainedTarget)return;
+            if(game.items().polymorph().suspended(chef))return;
+            if(!game.items().currentEpoch(chef)||chef.isRemoved()||!livingOwner(chef.owner)
+                    ||!chef.target.isAlive()||chef.target.isRemoved()||chef.target.level()!=chef.level()) {remove(chef);return;}
+            if(game.items().timeStop().stopped((ServerLevel)chef.level())||game.items().timeStop().frozen(chef))return;
+            if(chef.getY()<chef.level().getMinY()-8){chef.brain.returnFromVoid();}
+            if(chef.stasis>0){chef.halt();chef.survival.cancel();chef.stasis--;chef.restorePose();return;}
+            chef.restorePose();
+            if(game.items().actionsBlocked(chef)){chef.halt();chef.survival.cancel();return;}
+            if(!labelTarget(chef.owner,chef.target)){chef.halt();chef.survival.cancel();return;}
+            if(!chef.level().hasChunkAt(chef.blockPosition())){chef.halt();return;}
+            if(chef.owner.getRandom().nextFloat()<.005f)LbcOverload.sound(chef.owner,chef.position(),SOUNDS[chef.owner.getRandom().nextInt(SOUNDS.length)],2,1,0);
+            if(chef.attackDelay>0)chef.attackDelay--;
+            if(chef.brain.freeBody())return;
+            if(chef.survival.tick())return;
+            boolean movingTarget=chef.previousTarget!=null&&chef.target.position().distanceToSqr(chef.previousTarget)>.0004;
+            chef.previousTarget=chef.target.position();
+            if(chef.distanceToSqr(chef.target)<=6.25&&chef.hasLineOfSight(chef.target)){
+                boolean chase=movingTarget||chef.position().subtract(chef.target.position()).horizontalDistanceSqr()>1.44;
+                if(chase){chef.setSprinting(true);chef.steer(chef.target.position(),false);}
+                else chef.halt();
+                boolean ready=chef.aimAction(chef.target.getEyePosition())&&chef.equipCombat();
+                boolean crit=!chef.onGround()&&chef.getDeltaMovement().y<-.05&&!chef.isInWater()&&!chef.onClimbable()&&!chef.isPassenger();
+                if(chef.attackDelay==0&&ready){
+                    boolean safeJump=chef.onGround()&&!chef.isInWater()&&chef.level().noCollision(chef,chef.getBoundingBox().move(0,1.25,0));
+                    if(safeJump&&!movingTarget&&chef.combatJumpWait==0){
+                        if(chase)chef.steer(chef.target.position(),true);else chef.pillarJump();
+                        chef.combatJumpWait=12;return;
+                    }
+                    if(chef.combatJumpWait>0&&!crit&&!movingTarget){chef.combatJumpWait--;if(chef.combatJumpWait>0)return;}
+                    chef.combatJumpWait=0;
+                    // Combat equip has synchronized the held sword modifiers for this action.
+                    double speed=chef.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED);
+                    chef.attackDelay=(int)Math.ceil(20/Math.max(.1,speed));
+                    chef.swing(InteractionHand.MAIN_HAND,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
+                    chef.acted(chef.target.getEyePosition());
+                    var level=(ServerLevel)chef.level();
+                    var source=new DamageSource(level.damageSources().mobAttack(chef).typeHolder(),chef,chef.owner);
+                    float hit=(float)chef.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)*(crit?1.5f:1);
+                    var cause=game.items().indirectKills().coldCause(chef.owner,false);
+                    boolean[] accepted={false};game.items().indirectKills().withCause(chef.target,cause,()->accepted[0]=chef.target.hurtServer(level,source,hit));
+                    level.playSound(null,chef.getX(),chef.getY(),chef.getZ(),accepted[0]
+                            ?(crit?net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_CRIT:net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_STRONG)
+                            :net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_NODAMAGE,net.minecraft.sounds.SoundSource.PLAYERS,1,1);
+                    level.sendParticles(crit?ParticleTypes.CRIT:ParticleTypes.SWEEP_ATTACK,
+                            chef.target.getX(),chef.target.getY()+.9,chef.target.getZ(),crit?8:1,.2,.3,.2,.1);
+                    if(accepted[0])chef.survival.attackExhaustion();
                 }
-                if(chef.combatJumpWait>0&&!crit&&!movingTarget){chef.combatJumpWait--;if(chef.combatJumpWait>0)return;}
-                chef.combatJumpWait=0;
-                // Combat equip has synchronized the held sword modifiers for this action.
-                double speed=chef.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED);
-                chef.attackDelay=(int)Math.ceil(20/Math.max(.1,speed));
-                chef.swing(InteractionHand.MAIN_HAND,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
-                chef.acted(chef.target.getEyePosition());
-                var level=(ServerLevel)chef.level();
-                var source=new DamageSource(level.damageSources().mobAttack(chef).typeHolder(),chef,chef.owner);
-                float hit=(float)chef.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)*(crit?1.5f:1);
-                var cause=game.items().indirectKills().coldCause(chef.owner,false);
-                boolean[] accepted={false};game.items().indirectKills().withCause(chef.target,cause,()->accepted[0]=chef.target.hurtServer(level,source,hit));
-                level.playSound(null,chef.getX(),chef.getY(),chef.getZ(),accepted[0]
-                        ?(crit?net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_CRIT:net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_STRONG)
-                        :net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_NODAMAGE,net.minecraft.sounds.SoundSource.PLAYERS,1,1);
-                level.sendParticles(crit?ParticleTypes.CRIT:ParticleTypes.SWEEP_ATTACK,
-                        chef.target.getX(),chef.target.getY()+.9,chef.target.getZ(),crit?8:1,.2,.3,.2,.1);
-                if(accepted[0])chef.survival.attackExhaustion();
+                return;
             }
-            return;
-        }
-        if(chef.combatJumpWait>0)chef.combatJumpWait--;
-        chef.brain.tick();
+            if(chef.combatJumpWait>0)chef.combatJumpWait--;
+            chef.brain.tick();
+        }finally{leaveCheckpointCallback();}
     }
     public void tick(){
-        if(!game.server().tickRateManager().runsNormally())return;
-        LbcChefBrain.beginTick(game.server().getTickCount());
-        var batch=List.copyOf(chefs);
-        if(!batch.isEmpty()){int start=Math.floorMod(firstChef++,batch.size());for(int i=0;i<batch.size();i++)step(batch.get((start+i)%batch.size()));}
-        fountains.removeIf(f->{
-            if(!game.items().currentEpoch(f.epoch)||!game.playing())return true;
-            if(game.items().timeStop().stopped(f.level))return false;
-            f.level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,Items.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.YELLOW)),true,false,
-                    f.position.x,f.position.y,f.position.z,0,100,70000,0,.00001);
-            f.level.playSound(null,f.position.x,f.position.y,f.position.z,net.minecraft.sounds.SoundEvents.GRASS_STEP,net.minecraft.sounds.SoundSource.BLOCKS,.5f,2);
-            return ++f.age>=60;
-        });
+        enterCheckpointCallback();try {
+            if(checkpointRestoring)return;
+            if(!game.server().tickRateManager().runsNormally())return;
+            LbcChefBrain.beginTick(game.server().getTickCount());
+            var batch=List.copyOf(chefs);
+            if(!batch.isEmpty()){int start=Math.floorMod(firstChef++,batch.size());for(int i=0;i<batch.size();i++)step(batch.get((start+i)%batch.size()));}
+            fountains.removeIf(f->{
+                if(!game.items().currentEpoch(f.epoch)||!game.playing())return true;
+                if(game.items().timeStop().stopped(f.level))return false;
+                f.level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,Items.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.YELLOW)),true,false,
+                        f.position.x,f.position.y,f.position.z,0,100,70000,0,.00001);
+                f.level.playSound(null,f.position.x,f.position.y,f.position.z,net.minecraft.sounds.SoundEvents.GRASS_STEP,net.minecraft.sounds.SoundSource.BLOCKS,.5f,2);
+                return ++f.age>=60;
+            });
+        }finally{leaveCheckpointCallback();}
     }
     public void crafted(ServerPlayer owner){
-        var base=owner.blockPosition();fountains.add(new Fountain(owner.level(),new Vec3(base.getX()+.5,base.getY()+1,base.getZ()+.5),game.items().epoch()));
-        LbcOverload.sound(owner,owner.position(),"minecraft:lbcsounds.icum",1,1,0);
+        enterCheckpointCallback();try {
+            var base=owner.blockPosition();fountains.add(new Fountain(owner.level(),new Vec3(base.getX()+.5,base.getY()+1,base.getZ()+.5),game.items().epoch()));
+            LbcOverload.sound(owner,owner.position(),"minecraft:lbcsounds.icum",1,1,0);
+        }finally{leaveCheckpointCallback();}
     }
     private void pin(Chef chef,Vec3 at){
-        if(!chefs.contains(chef)||chef.isRemoved())return;
+        if(checkpointRestoring||!chefs.contains(chef)||chef.isRemoved())return;
         var key=new ChunkKey((ServerLevel)chef.level(),net.minecraft.world.level.ChunkPos.containing(BlockPos.containing(at)));
         if(key.equals(chef.ticket))return;
         // TicketStorage coalesces equal type/level tickets, so shared chunks need ownership counts.
@@ -417,21 +437,78 @@ public final class LbcWtf {
     int pinnedChunks(){return tickets.size();}
     /** Explicit erasure/transformation bypasses infinite HP, knock and all death/drop callbacks. */
     boolean erase(Entity entity){if(!(entity instanceof Chef chef)||chef.service!=this)return false;remove(chef);return true;}
-    private void remove(Chef chef){unpin(chef.ticket);chef.ticket=null;chefs.remove(chef);chef.brain.reset();chef.survival.clear();if(!chef.isRemoved())chef.discard();}
+    private void remove(Chef chef){
+        enterCheckpointCallback();try {    unpin(chef.ticket);chef.ticket=null;chefs.remove(chef);chef.brain.reset();chef.survival.clear();if(!chef.isRemoved())chef.discard();
+        }finally{leaveCheckpointCallback();}
+    }
     public void loaded(Entity entity){
-        if(entity instanceof Chef chef){if(!chef.isRemoved()&&chef.service==this&&game.items().currentEpoch(chef))chefs.add(chef);else chef.discard();}
-        else if(entity.entityTags().contains("skywars2.label_chef_display"))entity.discard();
+        enterCheckpointCallback();try {
+            if(checkpointRestoring)return;
+            if(entity instanceof Chef chef){if(!chef.isRemoved()&&chef.service==this&&game.items().currentEpoch(chef))chefs.add(chef);else chef.discard();}
+            else if(entity.entityTags().contains("skywars2.label_chef_display"))entity.discard();
+        }finally{leaveCheckpointCallback();}
     }
     public void unloaded(Entity entity){
-        if(entity instanceof Chef chef){
-            // Visibility/accessibility loss is not destruction. Retire only the removed
-            // actor; a still-live pursuer retains its service state and simulation ticket.
-            if(chef.isRemoved()||chef.service!=this||!game.items().currentEpoch(chef))remove(chef);
-            else pin(chef,chef.position());
+        enterCheckpointCallback();try {
+            if(checkpointRestoring)return;
+            if(entity instanceof Chef chef){
+                // Visibility/accessibility loss is not destruction. Retire only the removed
+                // actor; a still-live pursuer retains its service state and simulation ticket.
+                if(chef.isRemoved()||chef.service!=this||!game.items().currentEpoch(chef))remove(chef);
+                else pin(chef,chef.position());
+            }
+        }finally{leaveCheckpointCallback();}
+    }
+    public void forget(ServerPlayer owner){
+        enterCheckpointCallback();try {    for(var chef:List.copyOf(chefs))if(chef.owner==owner||chef.target==owner)remove(chef);
+        }finally{leaveCheckpointCallback();}
+    }
+    public void stop(){
+        enterCheckpointCallback();try {    for(var chef:List.copyOf(chefs))remove(chef);fountains.clear();checkpointRestoring=false;publicationHands.clear();
+        }finally{leaveCheckpointCallback();}
+    }
+    void checkpointBoundary(){if(checkpointCallbacks!=0)throw new IllegalStateException("Finish Chef native callbacks before checkpointing");}
+    void enterCheckpointCallback(){checkpointCallbacks++;}
+    void leaveCheckpointCallback(){checkpointCallbacks--;}
+    /** Rollback-only release: neither remove(), survival.cancel() nor water/food/native body actions run. */
+    void prepareFrozen(){
+        checkpointBoundary();checkpointRestoring=true;
+        for(var key:List.copyOf(tickets.keySet()))key.level.getChunkSource().removeTicketWithRadius(CHEF_TICKET,key.pos,3);
+        tickets.clear();for(var chef:chefs){chef.ticket=null;chef.brain.resetForCheckpoint();}
+        chefs.clear();fountains.clear();publicationHands.clear();
+    }
+    void publishFrozen(){
+        checkpointBoundary();publicationHands.forEach((chef,age)->chef.handChanged=chef.tickCount-age);publicationHands.clear();
+        checkpointRestoring=false;for(var chef:chefs)pin(chef,chef.position());
+    }
+    void cancelFrozen(){checkpointBoundary();publicationHands.clear();checkpointRestoring=false;for(var chef:chefs)pin(chef,chef.position());}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Image(Chef original,MatchDamageSources.Ref body,MatchDamageSources.Ref owner,MatchDamageSources.Ref target,ServerLevel level,
+                float damage,int stasis,int attackDelay,int jumpWait,int handAge,net.minecraft.world.entity.Pose pose,
+                List<ItemStack> tools,Set<BlockPos> placed,LbcChefSurvival.Checkpoint survival) { }
+        private final List<Image> saved;
+        private final int cadence=firstChef;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            saved=chefs.stream().map(c->new Image(c,links.key(c),links.key(c.owner),links.key(c.target),(ServerLevel)c.level(),c.damage,c.stasis,
+                    c.attackDelay,c.combatJumpWait,c.tickCount-c.handChanged,c.getPose(),c.brain.tools(),c.brain.checkpointPlaced(),c.survival.checkpoint())).toList();
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var plans=new ArrayList<Runnable>();
+            for(var image:saved){var chef=(Chef)links.get(image.body);var owner=(ServerPlayer)links.get(image.owner);var target=(LivingEntity)links.get(image.target);
+                if(chef!=image.original||chef.service!=LbcWtf.this||chef.isRemoved()||chef.level()!=image.level||chef.getPose()!=image.pose)
+                    throw new IllegalStateException("Restore the same canonical native Chef body/pose before macrostate");
+                MatchAuthorityCheckpoint.world(game,image.level);var survival=image.survival.prepare();
+                boolean offlineOwner=MatchOfflinePlayers.retained(owner),offlineTarget=MatchOfflinePlayers.retained(target);
+                plans.add(()->{chef.owner=owner;chef.target=target;chef.retainedOwner=offlineOwner;chef.retainedTarget=offlineTarget;
+                    chef.damage=image.damage;chef.stasis=image.stasis;chef.attackDelay=image.attackDelay;chef.combatJumpWait=image.jumpWait;
+                    chef.handChanged=chef.tickCount-image.handAge;chef.ticket=null;chef.previousTarget=null;chef.actionAim=null;chef.aimUntil=-1;
+                    chef.sentAimYaw=256;chef.sentAimPitch=256;chef.sentAimHead=256;chef.lastActionPoint=null;chef.lastActionError=0;chef.lastHeadActionError=0;chef.actionSerial=0;
+                    chef.brain.restoreCheckpointResources(image.tools,image.placed);survival.run();chefs.add(chef);publicationHands.put(chef,image.handAge);});
+            }
+            return ()->{checkpointRestoring=true;chefs.clear();fountains.clear();publicationHands.clear();plans.forEach(Runnable::run);firstChef=cadence;};
         }
     }
-    public void forget(ServerPlayer owner){for(var chef:List.copyOf(chefs))if(chef.owner==owner||chef.target==owner)remove(chef);}
-    public void stop(){for(var chef:List.copyOf(chefs))remove(chef);fountains.clear();}
     public int count(){return chefs.size();}
     public int fountainCount(){return fountains.size();}
     public int pendingCount(){return chefs.size()+fountains.size();}

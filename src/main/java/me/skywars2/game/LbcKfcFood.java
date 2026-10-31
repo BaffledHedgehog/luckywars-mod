@@ -69,6 +69,7 @@ public final class LbcKfcFood {
     static List<String> sourceScoreAdditions() { return List.of(SOURCE_SCORE_ADDITIONS); }
     private final GameController game;
     private final Map<UUID,Integer> gigaponos=new HashMap<>();
+    private final Map<UUID,ServerPlayer> retainedEaters=new HashMap<>();
     LbcKfcFood(GameController game) { this.game=game; }
     static void register() { }
     private static Item registerCookie() {
@@ -273,7 +274,7 @@ public final class LbcKfcFood {
     public void tick() {
         for(var entry:List.copyOf(gigaponos.entrySet())) {
             var p=game.server().getPlayerList().getPlayer(entry.getKey());
-            if(p==null) { gigaponos.remove(entry.getKey()); continue; }
+            if(p==null) { if(!retainedEaters.containsKey(entry.getKey()))gigaponos.remove(entry.getKey()); continue; }
             if(game.items().polymorph().masked(p))continue;
             if(!active(p) || game.items().magic().rejectEffect(p,MobEffects.HUNGER)) { clear(p); continue; }
             int remaining=entry.getValue();
@@ -289,12 +290,29 @@ public final class LbcKfcFood {
             setGigaponos(p,remaining-1);
         }
     }
-    public void clear(ServerPlayer p) { if(gigaponos.containsKey(p.getUUID())) setGigaponos(p,0); }
+    public void clear(ServerPlayer p) { retainedEaters.remove(p.getUUID());if(gigaponos.containsKey(p.getUUID())) setGigaponos(p,0); }
     public void forget(ServerPlayer p) { clear(p); }
     public void stop() {
         for(UUID id:List.copyOf(gigaponos.keySet())) {
             var p=game.server().getPlayerList().getPlayer(id); if(p!=null) clear(p);
         }
-        gigaponos.clear();
+        gigaponos.clear();retainedEaters.clear();
     }
+
+    ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
+    void prepareResidentFrozen(){gigaponos.clear();retainedEaters.clear();}
+    final class ResidentCheckpoint {
+        private final Map<MatchDamageSources.Ref,Integer> saved=new java.util.LinkedHashMap<>();
+        ResidentCheckpoint(MatchSpellCheckpoint.Links links){gigaponos.forEach((id,ticks)->{
+            var player=game.server().getPlayerList().getPlayer(id);if(player==null)player=retainedEaters.get(id);
+            if(player!=null)saved.put(links.key(player),ticks);
+        });}
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var next=new HashMap<UUID,Integer>();var offline=new HashMap<UUID,ServerPlayer>();
+            saved.forEach((ref,ticks)->{var player=(ServerPlayer)links.get(ref);next.put(player.getUUID(),ticks);
+                if(MatchOfflinePlayers.retained(player))offline.put(player.getUUID(),player);});
+            return ()->{gigaponos.clear();gigaponos.putAll(next);retainedEaters.clear();retainedEaters.putAll(offline);};
+        }
+    }
+
 }
