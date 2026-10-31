@@ -149,19 +149,19 @@ public abstract class WandProjectileMixin {
                 com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original) {
             boolean applied=original.call(target,level,source,amount);
             var projectile=(Projectile)(Object)this; var game=SkyWars2.game();
-            if(applied && game!=null && game.items().wands().isFireProjectile(projectile)
+            if(applied && game!=null && (game.items().wands().isFireProjectile(projectile)||me.skywars2.game.LbcSpecialFireballs.managed(projectile))
                     && projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner
                     && target instanceof net.minecraft.world.entity.LivingEntity living)
-                game.items().indirectKills().projectileIgnited(living,owner,me.skywars2.game.LbcBlaze.isKfcSpirit(projectile));
+                game.items().indirectKills().projectileIgnited(living,owner,me.skywars2.game.LbcBlaze.isKfcSpirit(projectile)||me.skywars2.game.LbcSpecialFireballs.managed(projectile));
             return applied;
         }
         @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="onHitBlock")
         private void skywars2$fireBlockOwner(net.minecraft.world.phys.BlockHitResult hit,
                 com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original) {
             var projectile=(Projectile)(Object)this; var game=SkyWars2.game();
-            if(game!=null && game.items().wands().isFireProjectile(projectile)
+            if(game!=null && (game.items().wands().isFireProjectile(projectile)||me.skywars2.game.LbcSpecialFireballs.managed(projectile))
                     && projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner)
-                game.items().indirectKills().worldChanges(owner.level(),projectile,()->original.call(hit));
+                game.items().indirectKills().worldChanges((net.minecraft.server.level.ServerLevel)projectile.level(),projectile,()->original.call(hit));
             else original.call(hit);
         }
     }

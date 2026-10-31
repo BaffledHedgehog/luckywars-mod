@@ -356,6 +356,10 @@ public final class LbcItems {
     // Source rotation storage survives curse expiry/death; bound its lifetime to this match.
     private final Map<UUID, Rotation> rotations = new HashMap<>();
     private final ArrayList<TurnCurse> tickBatch = new ArrayList<>();
+    private final LbcSpecialFireballs specialFireballs;
+    public LbcSpecialFireballs specialFireballs(){return specialFireballs;}
+    private final LbcLooseRewards looseRewards;
+    public LbcLooseRewards looseRewards(){return looseRewards;}
     private final Set<Snowball> pendingThrows = new LinkedHashSet<>();
     private final Set<PrimedTnt> dynamites = new LinkedHashSet<>();
     private final Set<Marker> nanoTraps = new LinkedHashSet<>();
@@ -771,6 +775,7 @@ public final class LbcItems {
     }
 
     public LbcItems(GameController game) {
+        this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);
         this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.frost = new LbcFrost(game);
         this.mana = new LbcMana(game); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);
         this.terra = new LbcTerra(game);
@@ -1199,7 +1204,7 @@ public final class LbcItems {
         transformator.loaded(entity);
         stalin.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
-        specialDrops.loaded(entity);
+        specialDrops.loaded(entity);looseRewards.loaded(entity);specialFireballs.loaded(entity);
         spellSources.loaded(entity);apocalypseEvents.loaded(entity);apocalypseActors.loaded(entity);witchGluttony.loaded(entity);witchIndolence.loaded(entity);indolenceFingers.loaded(entity);witchLust.loaded(entity);shishEncounter.loaded(entity);
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);
@@ -1297,7 +1302,7 @@ public final class LbcItems {
             return;
         }
         if (entity instanceof PrimedTnt tnt && tnt.entityTags().contains(entityEpochTag)
-                && !tnt.entityTags().contains(LbcHelicopterEncounter.ATTACK)) {
+                && !tnt.entityTags().contains(LbcHelicopterEncounter.ATTACK)&&!LbcSpecialFireballs.managed(tnt)) {
             if (inArena(tnt)) dynamites.add(tnt);
             else tnt.discard();
             return;
@@ -1322,6 +1327,7 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        looseRewards.unloaded(entity);specialFireballs.unloaded(entity);
         if(entity instanceof ServerPlayer player)armorSets.phantom().forget(player);
         if(entity instanceof LivingEntity living)ownedEffects.forget(living);
         specialDrops.unloaded(entity);
@@ -1875,7 +1881,7 @@ public final class LbcItems {
         hohlopitek.tick();
         transformator.tick();
         stalin.tick();
-        specialDrops.tick();
+        specialDrops.tick();looseRewards.tick();specialFireballs.tick();
         portalDrops.tick();
         luckyPigs.tick();
         libraryDrop.tick();
@@ -2045,6 +2051,7 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {
+        looseRewards.stop();specialFireballs.stop();
         polymorph.stop();
         SignedEnvironmentalEffects.clear();
         timeStop.stop();

@@ -808,6 +808,8 @@ public final class GameChecks {
                                 case "raw-raycast-spells" -> { RawRaycastSpellChecks.run(game); return; }
                                 case "fpv-drone" -> { FpvDroneChecks.start(game); return; }
                                 case "reward-tools" -> { RewardToolChecks.start(game); return; }
+                                case "loose-rewards" -> { LooseRewardChecks.start(game); return; }
+                                case "special-fireballs" -> { SpecialFireballChecks.run(game); return; }
                                 case "magic-bean" -> { MagicBeanChecks.run(game); return; }
                                 case "attribute-food" -> { AttributeFoodChecks.start(game); return; }
                                 case "edible-spells" -> { EdibleSpellChecks.run(game); return; }
@@ -1401,7 +1403,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
-            RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);
+            RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
             NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);WitchIndolenceChecks.tick(game);IndolenceFingerChecks.tick(game);WitchClaimChecks.tick(game);WitchLustChecks.tick(game);WitchLifecycleChecks.tick(game);VanityRollbackChecks.tick(game);VanitySnapshotPerfChecks.tick(game);VanityTerrainChecks.tick(game);VanityCoreChecks.tick(game);VanityPlayerChecks.tick(game);VanityActorChecks.tick(game);VanityViewChecks.tick(game);VanityStorageChecks.tick(game);VanityWorkstationChecks.tick(game);VanityBoundViewChecks.tick(game);VanityRandomChecks.tick(game);VanityWorldChecks.tick(game);VanityTimeStopChecks.tick(game);ChefExecutionChecks.tick(game);PolymorphChecks.tick(game);

@@ -14,6 +14,16 @@ public abstract class EvokerWandMixin {
     @Inject(method="dealDamageTo",at=@At("HEAD"),cancellable=true)
     private void skywars2$wandHit(LivingEntity target,CallbackInfo ci){
         var fang=(EvokerFangs)(Object)this;
+        if(me.skywars2.game.LbcSpecialFireballs.managed(fang)){
+            var controller=SkyWars2.game();
+            if(controller!=null&&controller.items().specialFireballs().canAffect(fang,target)&&target.isAlive()){
+                var level=(net.minecraft.server.level.ServerLevel)fang.level();
+                // Ownerless legacy fangs were WILD. Retain native magic damage with the actual fang as cause.
+                var source=new net.minecraft.world.damagesource.DamageSource(target.damageSources().magic().typeHolder(),fang,controller.items().specialFireballs().owner(fang));
+                target.hurtServer(level,source,6);
+            }
+            ci.cancel();return;
+        }
         if(me.skywars2.game.LbcEdibleSpells.managed(fang)){
             var controller=SkyWars2.game();if(controller!=null)controller.items().edibleSpells().fangHit(fang,target);
             ci.cancel();return;

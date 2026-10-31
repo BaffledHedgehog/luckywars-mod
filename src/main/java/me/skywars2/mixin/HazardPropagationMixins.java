@@ -104,6 +104,7 @@ public final class HazardPropagationMixins {
             if(game!=null) {
                 var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
                 entities.removeIf(entity->!game.items().halloweenWind().explosionTarget(source,entity));
+                entities.removeIf(entity->!game.items().specialFireballs().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().helicopterEncounter().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().transformator().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().tntDrops().explosionTarget(source,entity));

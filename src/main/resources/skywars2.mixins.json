@@ -190,6 +190,7 @@
     "ZombieTntDropMixin",
     "NeutralSkullMixin",
     "EvokerWandMixin",
+    "SpecialFireballCloudMixin",
     "SpecialEggMixin",
     "SpecialEggMixin$Offspring",
     "DroneDropMixin$Cart",

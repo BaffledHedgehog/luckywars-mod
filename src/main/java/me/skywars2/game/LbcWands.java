@@ -460,6 +460,7 @@ public final class LbcWands {
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
         if(LbcFpvDrone.matches(stack))return game.items().fpvDrone().use(player,hand);
         if(LbcRewardTools.matches(stack))return LbcRewardTools.use(game,player,hand);
+        if(LbcLooseRewards.luckyWand(stack))return game.items().looseRewards().useLucky(player,hand);
         if(LbcCommunism.matches(stack))return game.items().communism().use(player,hand);
         if(LbcPopit.matches(stack))return game.items().popit().use(player,hand);
         if(LbcPendingCombat.isPiston(stack))return game.items().pendingCombat().use(player,hand);
@@ -1621,6 +1622,7 @@ public final class LbcWands {
                 && game.items().electro().canHit(projectile,target);
     }
     public boolean canHit(Projectile projectile,Entity target) {
+        if(LbcSpecialFireballs.managed(projectile))return LbcGreed.active(target)&&validRoleTarget(target,false)||game.items().specialFireballs().canAffect(projectile,target);
         if(!game.items().chaosTrapActors().canAffect(projectile,target))return false;
         var source=game.items().spellSources().source(projectile);
         if(source!=null)return LbcGreed.active(target)&&validRoleTarget(target,false)
@@ -1657,6 +1659,7 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
+        if(LbcSpecialFireballs.managed(source.getDirectEntity()))return game.items().specialFireballs().canAffect(source.getDirectEntity(),victim);
         if(LbcEdibleSpells.wild(source))return validRoleTarget(victim,false);
         if(LbcFoodLifecycle.managed(source.getDirectEntity()))return game.items().foodLifecycle().canAffect(source.getDirectEntity(),victim);
         if(LbcOreshek.managed(source.getDirectEntity()))return game.items().oreshek().canAffect(source.getDirectEntity(),victim);

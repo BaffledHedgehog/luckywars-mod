@@ -1,3 +1,17 @@
+## Eight reward consumers - NATIVE BATCH, NOT RELEASED (31 October 2026)
+
+[Source behavior and native proof](agent_notes/REWARD_UTILITIES_2026_10_31.md).
+Infinite Lucky Block and Imitator use their real raw inputs and native whole-stack
+loot/copy operations; both are unjammed by explicit user decision. Six thrown
+fireball aliases now use actual native fireballs/TNT/clouds with original Motion,
+2/127 power,32/16 child formations and landing payloads. Shared WILD/self/ally,
+Greed/roles, causality, Time Stop and native PvP gates are connected. No private
+physics/parallel effect engine or helper creepers. Native actors own saved state.
+15e7b726 passes two final actual source suites; six neighboring regressions pass
+on byte-identical production code in51abf1d5. Prior failures retained; exact
+snapshots, normal child exit, no locks. Protected199/live31/main d9087f0a unchanged.
+Full original25 Chaos gate stays CLOSED; no main install/restart/RP/questions edits.
+
 ## Vanity coordinator and sustained abilities - IMPLEMENTED, NOT RELEASED (31 October 2026)
 
 [Contract, native evidence and performance](agent_notes/VANITY_COORDINATOR_2026_10_31.md).

@@ -182,6 +182,7 @@ public final class LbcIndirectKills {
         if(game!=null && game.items().clouds().sourceAcidOwner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().electro().reflectedOwner(source)==null
                 && game.items().inventoryHazards().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null&&LbcSpecialFireballs.managed(source)&&game.items().specialFireballs().owner(source) instanceof ServerPlayer player)return player;
         if(source instanceof Projectile projectile) source=projectile.getOwner();
         if(source instanceof AreaEffectCloud cloud) source=cloud.getOwner();
         if(source instanceof PrimedTnt tnt) source=tnt.getOwner();
@@ -234,6 +235,7 @@ public final class LbcIndirectKills {
         return allowProjectileEffect(target,effect.getEffect(),source);
     }
     public boolean allowProjectileEffect(LivingEntity target,Holder<MobEffect> effect,Entity source) {
+        if(LbcSpecialFireballs.managed(source))return game.items().specialFireballs().canAffect(source,target);
         if(source instanceof net.minecraft.world.entity.monster.warden.Warden && LbcCreatureDrops.managed(source)
                 && effect.value().getCategory()==net.minecraft.world.effect.MobEffectCategory.HARMFUL)
             return game.items().creatureDrops().canAffect(source,target);
@@ -685,6 +687,7 @@ public final class LbcIndirectKills {
 
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
+        if(LbcSpecialFireballs.managed(source.getDirectEntity())&&game.items().specialFireballs().owner(source.getDirectEntity()) instanceof ServerPlayer player)return wildCause(player);
         var event=game.items().apocalypseEvents().cause(source.getDirectEntity());if(event!=null)return event;
         var shish=game.items().shishEncounter().cause(source.getDirectEntity());if(shish!=null)return shish;
         var food=game.items().foodLifecycle().cause(source.getDirectEntity());if(food!=null)return food;
