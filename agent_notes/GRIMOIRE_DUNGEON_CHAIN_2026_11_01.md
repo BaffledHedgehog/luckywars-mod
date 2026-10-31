@@ -1,13 +1,19 @@
-# Grimoire dungeon reward chain ? native staged batch, 1 November 2026
+# Grimoire dungeon reward chain - native verified and installed, 1 November 2026
 
 The original25 Chaos activation graph's confirmed missing branch is implemented:
-evil Lucky Block loot ? dungeon token ? native Shadow Citadel jigsaw ? rooms and
-minibosses ? Grimoire Boss ? Uni Wand and dropped-grimoire composition. The main
-mod remains unchanged at d9087f0a. One gameplay ruling remains pending in chat:
-Uni Wand's legacy dispatcher omits antimagic, while this tested candidate uses the
-shared MAG admission. Do not install until that question is resolved. This is a
-policy gate, not an unfinished dungeon consumer. Questions are in chat; the
-user's PENDING_QUESTIONS.md is untouched.
+evil Lucky Block loot -> dungeon token -> native Shadow Citadel jigsaw -> rooms and
+minibosses -> Grimoire Boss -> Uni Wand and dropped-grimoire composition. The main
+mod before release was d9087f0a. The final gameplay ruling is now resolved:
+Uni Wand uses shared MAG admission, as the user confirmed on1 November2026.
+Both the beacon and artifact suppress its cast. This matches the already tested
+candidate, so no Java/resource change or rebuild is needed. The release gate is
+cleared; installation uses the shared normal-stop installer. The user's
+PENDING_QUESTIONS.md is untouched.
+
+The shared normal-stop installer has installed6763758b on the main server.
+The installed JAR matches the immutable qualified archive by SHA256. Rollback
+d9087f0a is retained. Receipt: build/verification/grimoire-dungeon-chain/main-install.json.
+No server stop/restart or gameplay code/resource change was needed for this ruling.
 
 ## Behavior and shared owners
 
@@ -73,7 +79,7 @@ near misses, native phase2/3 child positions, beacon+artifact preservation,
 accepted source continuation/reload and independent nearby boss cleanup.
 Earlier failed receipts are retained; the focused runner's qualified=false field
 is not relabeled a whole-mod pass. qualification.json states the precise combined
-scope, nine groups, technical result and remaining policy gate.
+scope, nine groups, technical result and confirmed release decision.
 
 The actual dungeon run generated119 pieces in120 chunks and rewound the native
 world point. Final qualified children shut down normally and exact launch
@@ -83,7 +89,8 @@ Gradle bundled-JAR metadata is retained. The full initial Gradle build passed;
 final edits were compiled/processed normally and archive content was checked
 against those exact outputs, avoiding repeated slow packaging of unchanged files.
 224 preexisting author paths and31 live override files remain byte-exact.
-No original RP/template/question-file changes, main install/restart or push.
+During qualification there were no original RP/template/question-file changes,
+main install/restart or push. The subsequent approved installation is recorded above.
 
 A historical035e306f run hit the watchdog in Set.copyOf. Its log/crash/recovery
 archive remain. Recovery booted the owned fixture and stopped normally before

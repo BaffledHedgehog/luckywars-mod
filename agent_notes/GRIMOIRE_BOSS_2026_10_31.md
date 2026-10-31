@@ -1,4 +1,4 @@
-Integrated native status: [batch result and pending Uni MAG ruling](GRIMOIRE_DUNGEON_CHAIN_2026_11_01.md).
+Integrated native status: [batch result and confirmed Uni MAG ruling](GRIMOIRE_DUNGEON_CHAIN_2026_11_01.md).
 
 # Grimoire dungeon boss — implementation awaiting integrated native verification
 

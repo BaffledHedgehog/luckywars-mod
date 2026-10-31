@@ -1,4 +1,4 @@
-## Grimoire dungeon reward chain - NATIVE STAGED, UNI MAG RULING PENDING (1 November 2026)
+## Grimoire dungeon reward chain - NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Current implementation, failures and native proof](agent_notes/GRIMOIRE_DUNGEON_CHAIN_2026_11_01.md).
 Confirmed missing original25 Chaos dependency is implemented: actual dungeon drop,
@@ -13,10 +13,13 @@ Dense BlockPos Set.copyOf stall fixed with immutable HashSet membership.
 9545 inputs/2324classes/7153resources;224 authorpaths/31 live overrides exact.
 Final children normal/no locks/exact launch restoration; historical watchdog and
 its partial fixture recovery are documented without claiming lost snapshots.
-Main remains d9087f0a. NO install/restart/push or RP/PENDING changes.
-ONE policy gate remains: user was asked IN CHAT whether Uni Wand should be MAG-
-suppressed (source omits its check). Current tested candidate blocks beacon and
-artifact. Do not install until user answers; do not infer approval from silence.
+Main is now6763758b, installed by the shared normal-stop installer; prior
+d9087f0a rollback is retained. Receipt: build/verification/grimoire-dungeon-chain/
+main-install.json. No main stop/restart, push or RP/PENDING changes.
+User answered the final policy question: Uni Wand MUST be suppressed by both
+the antimagic beacon and artifact. The existing tested6763758b already does so;
+no Java/resource change or rebuild is required. The full-chain release gate is
+cleared. Use the shared normal-stop installer; never stop/restart the main JVM.
 Do not reopen resolved boss policy, mana equality or complete-chain release scope.
 
 ## Boba rotation and Hagalaz - NATIVE BATCH, NOT RELEASED (31 October 2026)
