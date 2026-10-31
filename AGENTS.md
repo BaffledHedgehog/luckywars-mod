@@ -1,3 +1,17 @@
+## Electric pulse cadence with precise contact - NATIVE BATCH, NOT RELEASED (31 October 2026)
+
+[Behavior/evidence](agent_notes/ELECTRIC_CONTACT_CADENCE_2026_10_31.md).
+User chose exact line/body admission with restored source pulse counts. Shared
+sampled electrical hits now retain legacy unit-cell multiplicity only after true
+finite-ray contact; nearby bodies/endpoints remain protected. Separate native
+hits/amounts/caps, one query, no new state. 838d7165 passes five native groups;
+59441aa3 passes final ordinary Electro. Production/data are byte-identical;
+only check classes differ. Six staged passing groups, prior fixture failure kept.
+Eight directions/repeated cooldown hits/near misses/shield clipping checked.
+Runtime/check build passed; normal children/exact snapshots/no locks.
+Protected196/live31/main d9087f0a unchanged. No RP update. Original25 Chaos gate
+CLOSED; no main install/restart/push.
+
 ## Black-hole body contact and HP drain - NATIVE BATCH, NOT RELEASED (31 October 2026)
 
 [Behavior and evidence](agent_notes/BLACK_HOLE_HEALTH_CONTACT_2026_10_31.md).
@@ -7,8 +21,8 @@ self health metadata avoids renewing LocalPlayer hurtTo, including sheep bodies.
 5752d848 passes contact/player packets; da7cad29 passes actual Void geometry;
 84cbc711 passes six neighboring groups. Production/data are byte-identical;
 eight staged passing groups, earlier failed fixture proofs retained. Tesla native
-cadence/cooldown bypass confirmed; legacy sample-cell versus precise-line choice
-awaits chat reply, no electrical production change. Offline build passed, normal
+cadence/cooldown bypass confirmed. The later precise-admission/source-pulse choice
+is implemented in the electrical follow-up above. Offline build passed, normal
 children/exact snapshots/no locks. Protected196/live31/main d9087f0a unchanged.
 No RP update. Original25 Chaos gate CLOSED; no main install/restart/push.
 

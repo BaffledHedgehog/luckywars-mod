@@ -93,6 +93,7 @@ public final class LbcDamage {
             java.util.function.Consumer<net.minecraft.world.entity.Entity> sampledHit,
             java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
         double length=from.distanceTo(to);
+        boolean electrical=isElectric(damage);
         int maxSample=(int)Math.floor(length/spacing+1e-6);
         int[] perSample=new int[maxSample+1];
         var volume=new net.minecraft.world.phys.AABB(from,to).inflate(padding.x+1,padding.y+1,padding.z+1);
@@ -100,12 +101,25 @@ public final class LbcDamage {
             var box=entity.getBoundingBox().inflate(padding.x,padding.y,padding.z);
             var entry=box.contains(from) ? java.util.Optional.of(from) : box.clip(from,to);
             if(entry.isEmpty()) continue;
-            double first=from.distanceTo(entry.get());
+            // Admission stays an exact body/line intersection. Once admitted, electrical
+            // pulses retain the legacy unit-cell sample count, rather than losing hits
+            // when the selector cell was replaced by a line. This does not admit nearby bodies.
+            if(electrical) {
+                box=new net.minecraft.world.phys.AABB(box.minX-1,box.minY-1,box.minZ-1,box.maxX,box.maxY,box.maxZ);
+                entry=box.contains(from) ? java.util.Optional.of(from) : box.clip(from,to);
+            }
+            double first=from.distanceTo(entry.orElseThrow());
             double last=box.contains(to) ? length : box.clip(to,from).map(from::distanceTo).orElse(first);
             int begin=Math.max(0,(int)Math.ceil(first/spacing-1e-6));
             int end=Math.min(maxSample,(int)Math.floor(last/spacing+1e-6));
             if(end<begin) begin=end=Math.min(maxSample,begin);
             for(int i=begin;i<=end;i++) if(perSample[i]<targetLimit && target.test(entity)) {
+                if(electrical){
+                    var point=from.lerp(to,length>0?i*spacing/length:0);
+                    // Native selector cells use strict overlap, including at sample endpoints.
+                    if(point.x<=box.minX||point.x>=box.maxX||point.y<=box.minY||point.y>=box.maxY
+                            ||point.z<=box.minZ||point.z>=box.maxZ)continue;
+                }
                 perSample[i]++;
                 boolean accepted=entity.hurtServer(level,damage,amount);
                 if(sampledHit!=null)sampledHit.accept(entity);

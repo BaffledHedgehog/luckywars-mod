@@ -14,7 +14,7 @@ Ordinary player health packets alone are insufficient: native `LocalPlayer.hurtT
 
 Tesla moving sources still advance every working tick, with 11 samples at 0.2-block intervals, 0.5 damage per accepted sample and the original per-sample target cap. The electric damage types are in the loaded native cooldown-bypass tag. A new native regression checks four real Tesla sources over two advances with an active hurt cooldown, counting every intersecting body sample and exact HP loss.
 
-Legacy `lbcr` electrical raycasters used a 1?1?1 selector cell at each sample; the present exact line/body test can produce fewer contacts. The geometry choice was asked in chat and remains unanswered. Production electrical damage, cadence and geometry were not altered. Yellow Conduction's terminal cactus trap and native lightning deliberately retain their separate ordinary-cooldown behavior.
+Legacy `lbcr` electrical raycasters used a 1x1x1 selector cell at each sample; the present exact line/body test can produce fewer contacts. The later user reply chose precise admission with restored pulse frequency; implemented in [the follow-up](ELECTRIC_CONTACT_CADENCE_2026_10_31.md). The black-hole patch itself did not alter electrical damage, cadence or geometry. Yellow Conduction's terminal cactus trap and native lightning deliberately retain their separate ordinary-cooldown behavior.
 
 ## Evidence
 

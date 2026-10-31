@@ -25948,6 +25948,18 @@ public final class GameChecks {
                 SkyWars2.LOGGER.info("[check] PASS wands-electro-menu");
         }
 
+        /** Independent legacy selector oracle, gated by the current exact finite ray. */
+        private static int electricSourcePulses(net.minecraft.world.entity.Entity target,LbcWands.ElectroTrace trace,Vec3 end) {
+                var from=trace.position;var box=target.getBoundingBox();
+                if(!box.contains(from)&&box.clip(from,end).isEmpty())return 0;
+                double length=from.distanceTo(end);int count=0;
+                for(int i=0;i<=(int)Math.floor(length/.2+1e-6);i++){
+                        var point=from.lerp(end,length>0?i*.2/length:0);
+                        if(box.intersects(new net.minecraft.world.phys.AABB(point,point.add(1,1,1))))count++;
+                }
+                return count;
+        }
+
         private static void checkWandsElectro(GameController game) {
                 require(game.playing(), "Tiny Electro behavior requires an actual match");
                 var player = game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
@@ -26179,11 +26191,15 @@ public final class GameChecks {
                         float directHealth = directCow.getHealth(), protectedAllyHealth = ally.getHealth();
                         player.teleportTo(level, baseX + .5, testY, baseZ + 1.5, java.util.Set.of(), 0, 0, true);
                         player.getInventory().setItem(20, new ItemStack(LbcTrinkets.SNOW_GEM, 46));
+                        var directTrace=wands.electroSnapshot().getFirst();
+                        int directPulses=electricSourcePulses(directCow,directTrace,directTrace.position.add(
+                                        Vec3.directionFromRotation(directTrace.pitch,directTrace.yaw).scale(2)));
+                        require(directPulses>5,"Exact contact restores the original selector pulse count");
                         wands.tick();
-                        require(directCow.getHealth() == directHealth - 2.5f
+                        require(directCow.getHealth() == directHealth - directPulses*.5f
                                         && ally.getHealth() == protectedAllyHealth
                                         && wands.electroCount() == 1,
-                                        "Native swept hitbox applies five separate half-point hits and skips the allied player");
+                                        "Exact swept hitbox retains separate legacy half-point pulses and skips the allied player");
                         require(game.items().frost().cold(directCow) == 0,
                                         "Electro bolt keeps source arrow_only exclusion from guaranteed Snow Gem procs");
                         directCow.damageCooldownTime = 0;
@@ -26276,8 +26292,14 @@ public final class GameChecks {
                         level.addFreshEntity(beforeShield); level.addFreshEntity(afterShield);
                         testMobs.add(beforeShield); testMobs.add(afterShield);
                         float beforeShieldHealth = beforeShield.getHealth(), afterShieldHealth = afterShield.getHealth();
+                        var shieldTrace=wands.electroSnapshot().getFirst();
+                        var clipped=wands.shieldHit(player,shieldTrace.position,shieldTrace.position.add(
+                                        Vec3.directionFromRotation(shieldTrace.pitch,shieldTrace.yaw).scale(2)));
+                        require(clipped!=null,"Native shield clips the pulse-count oracle");
+                        int shieldPulses=electricSourcePulses(beforeShield,shieldTrace,clipped.getLocation());
+                        require(shieldPulses>0,"Body before the shield has source pulses");
                         wands.tick();
-                        require(wands.electroCount() == 0 && beforeShield.getHealth() == beforeShieldHealth - 2
+                        require(wands.electroCount() == 0 && beforeShield.getHealth() == beforeShieldHealth - shieldPulses*.5f
                                         && afterShield.getHealth() == afterShieldHealth,
                                         "Shield boundary: traces=" + wands.electroCount()
                                                         + ", before=" + beforeShieldHealth + "->" + beforeShield.getHealth()

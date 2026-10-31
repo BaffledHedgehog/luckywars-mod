@@ -113,13 +113,19 @@ public final class TeslaChecks {
         void cadence(){
             clear();
             var start=at.add(0,6,30);var victim=cow(start.add(0,-.6,1));
+            var beside=cow(start.add(.8,-.6,1));
             try{
                 var bolt=new net.minecraft.world.damagesource.DamageSource(owner.level().registryAccess()
                         .lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
                 require(bolt.is(net.minecraft.tags.DamageTypeTags.BYPASSES_COOLDOWN),"loaded direct electric type bypasses native hurt cooldown");
-                int samples=0;
-                for(int i=0;i<=10;i++)if(victim.getBoundingBox().contains(start.add(0,0,i*.2)))samples++;
-                require(samples>1,"native body intersects multiple source samples");
+                int samples=0,lineSamples=0;
+                for(int i=0;i<=10;i++){
+                    var point=start.add(0,0,i*.2);
+                    if(victim.getBoundingBox().contains(point))lineSamples++;
+                    if(victim.getBoundingBox().intersects(new net.minecraft.world.phys.AABB(point,point.add(1,1,1))))samples++;
+                }
+                require(samples>lineSamples&&lineSamples>1,"legacy pulse count exceeds precise body samples");
+                require(beside.getBoundingBox().clip(start,start.add(0,0,2)).isEmpty(),"nearby legacy cell target misses exact line");
                 game.items().wands().teslaVolley(owner,InteractionHand.MAIN_HAND,loot("tesla_wand"),false);
                 var volley=shots();require(volley.size()==4,"four independent moving electric sources");
                 for(int pass=1;pass<=2;pass++){
@@ -127,13 +133,38 @@ public final class TeslaChecks {
                     game.items().wands().tick();
                     int expected=pass*4*samples;
                     require(victim.direct==expected&&victim.getHealth()==1000-expected*.5f,
-                            "each arc applies every body sample through native cooldown: pass="+pass+" attempts="+victim.direct+" expected="+expected+" hp="+victim.getHealth());
+                            "each exact-intersected arc retains every legacy pulse through native cooldown: pass="+pass+" attempts="+victim.direct+" expected="+expected+" hp="+victim.getHealth());
                     require(victim.damageCooldownTime>10,"regression exercises active native hurt cooldown");
+                    require(beside.direct==0&&beside.getHealth()==1000,"legacy pulse count never widens the admission line");
                     int expectedAge=pass;
                     require(volley.stream().allMatch(t->t.age==expectedAge&&Math.abs(t.position.distanceTo(start)-2)<1e-6),
                             "all moving electric sources advance two blocks each working tick");
                 }
-            }finally{clear();victim.discard();}
+            }finally{clear();victim.discard();beside.discard();}
+        }
+        void precisePulseGeometry(){
+            var center=at.add(0,8,34);var victim=cow(center.add(0,-.6,0));
+            try{
+                var damage=new net.minecraft.world.damagesource.DamageSource(owner.level().registryAccess()
+                        .lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
+                var box=victim.getBoundingBox();
+                for(var direction:List.of(new Vec3(1,0,0),new Vec3(-1,0,0),new Vec3(0,1,0),new Vec3(0,-1,0),
+                        new Vec3(0,0,1),new Vec3(0,0,-1),new Vec3(1,.2,1).normalize(),new Vec3(-1,-.2,-1).normalize())){
+                    var from=center.subtract(direction.scale(2));var to=center.add(direction.scale(2));int expected=0;
+                    require(box.clip(from,to).isPresent(),"precise cross-body fixture");
+                    for(int i=0;i<=20;i++){
+                        var point=from.lerp(to,i*.2/from.distanceTo(to));
+                        if(box.intersects(new net.minecraft.world.phys.AABB(point,point.add(1,1,1))))expected++;
+                    }
+                    victim.setHealth(1000);victim.direct=0;
+                    LbcDamage.hurtSegment(owner.level(),damage,from,to,Vec3.ZERO,.2,.5f,2,e->e==victim,false);
+                    require(victim.direct==expected&&victim.getHealth()==1000-expected*.5f,"directional legacy pulse multiplicity after exact contact: "+direction);
+                }
+                // A finite segment stops short of the body, even if its old unit cells overlap it.
+                victim.direct=0;victim.setHealth(1000);
+                LbcDamage.hurtSegment(owner.level(),damage,center.add(0,0,-2),center.add(0,0,-.6),Vec3.ZERO,.2,.5f,2,e->e==victim,false);
+                require(victim.direct==0&&victim.getHealth()==1000,"no damage beyond the exact segment endpoint");
+            }finally{victim.discard();}
         }
         void instantConduction(){
             owner.setYRot(0);owner.setXRot(0);var eye=owner.getEyePosition();var pos=BlockPos.containing(eye);
@@ -183,7 +214,7 @@ public final class TeslaChecks {
             clear();cows.forEach(Entity::discard);technical.discard();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();cadence();instantConduction();chain();boundaries();beginInstant();phase++;return false;}
+            if(phase==0){presentation();geometry();cadence();precisePulseGeometry();instantConduction();chain();boundaries();beginInstant();phase++;return false;}
             if(phase==1){require(game.items().stonekivi().count()>0&&instantVictim.direct==0,"actual Time Stop freezes queued instant work");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){if(game.items().stonekivi().count()>0){require(++waits<200,"queued five rays complete");return false;}require(instantVictim.getHealth()<1000&&instantVictim.direct>=5&&instantVictim.getKillCredit()==owner,"all five native instant beams hit and credit real caster");instantVictim.discard();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("tesla_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"actual Tesla Academy admission");phase++;return false;}
