@@ -227,7 +227,9 @@ public final class SheepChecks {
             boolean queried=owner.level().getEntities((Entity)null,new net.minecraft.world.phys.AABB(holeAt,holeAt).inflate(LbcSheep.INFLUENCE),e->e==far).contains(far);
             require(resident&&queried,"outer pull fixture resident/query admission: block="+resident+", entities="+entityResident+", queried="+queried+", cow="+far.position()+", player="+other.position());
             sheep.tick();
-            require(damage.getHealth()==0&&damage.author==owner&&damage.hits==1,"source10 outside_border credited lethal hit against native10HP cow");
+            require(damage.getHealth()==0&&damage.getKillCredit()==owner&&damage.hits==0
+                    &&damage.getLastDamageSource()!=null&&damage.getLastDamageSource().getEntity()==owner,
+                    "source10 outside_border direct HP death keeps author without native hurt");
             require(role.getHealth()==10&&greed.getHealth()==10&&resistant.getHealth()==10,"technical role, Greed and void resistance preserve HP");
             require(far.getDeltaMovement().x<0,"outer creature receives weak inward pull: far="+far.getDeltaMovement()+", position="+far.position()+", resident="+resident+", entityResident="+entityResident);
             require(near.getDeltaMovement().x<far.getDeltaMovement().x,"inner pull stronger than extended pull: near="+near.getDeltaMovement()+", far="+far.getDeltaMovement()+", hole="+nativeHole.point);

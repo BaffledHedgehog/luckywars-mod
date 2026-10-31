@@ -279,8 +279,9 @@ public final class LbcVoidArcanum {
         var source=hole.wild?new WildDamage(author):new DamageSource(author.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),author);
         for(var target:hole.world.getEntities((Entity)null,new AABB(hole.point,hole.point).inflate(influence),entity->physicalTarget(hole,author,entity))){
             Vec3 offset=hole.point.subtract(target.position());double distance=offset.length();
+            if(target instanceof LivingEntity living&&BlackHoleDamage.distanceSquared(target,hole.point)<=hurt*hurt)
+                BlackHoleDamage.apply(game,living,source,DAMAGE[hole.level]);
             if(distance>influence)continue;
-            if(target instanceof LivingEntity living&&distance<=hurt)living.hurtServer(hole.world,source,DAMAGE[hole.level]);
             // The source never pulls players. Ordinary allied mobs, dropped items and projectiles remain physical.
             if(!(target instanceof ServerPlayer)&&distance>1.0e-6){
                 double strength=distance<=hurt?.18*hole.level:.012*hole.level*Math.max(0,(influence-distance)/(influence-hurt));

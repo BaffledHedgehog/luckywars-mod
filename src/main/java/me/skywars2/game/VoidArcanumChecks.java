@@ -156,7 +156,7 @@ public final class VoidArcanumChecks {
                 for(int i=0;i<32;i++)if(level==1||level>=3)require(service.source(hole).owner().equals(owner.getUUID()),"majority contributions own damage/terrain independently of order");
                 service.updateVisual(hole,owner);float radius=(float)(new double[]{0,2,3,5,9,24}[level]/14);
                 require(hole.visual!=null&&Math.abs(hole.visual.radius-radius)<.00001&&hole.visual.disc==(level==5),"renderer source radius/14 and max-level large disc");
-                for(int i=0;i<5;i++)game.items().blackHoleVisuals().tick();
+                for(int i=0;i<10;i++)game.items().blackHoleVisuals().tick();
                 var index=game.items().blackHoleVisuals().origins(owner).indexOf(hole.visual.point);require(index>=0,"visible native shared-renderer handle");
                 var display=game.items().blackHoleVisuals().displays(owner).get(index);
                 require(Identifier.parse(level==5?"lbc:black_hole_large":"lbc:black_hole_small").equals(display.getItem().get(DataComponents.ITEM_MODEL))&&Math.abs(display.getScale().x()-radius)<.00001,"actual virtual display model and scale");
@@ -169,8 +169,16 @@ public final class VoidArcanumChecks {
         }
         void physical(){
             prime();var hole=spawn(owner,at);var mob=cow(at.add(.5,0,0));var initial=mob.position();var member=service.source(hole);
-            service.physics(hole,owner,member.cause());require(mob.accepted==1&&mob.author==owner&&mob.getHealth()<mob.getMaxHealth(),"actual accepted generic damage carries selected author");
+            service.physics(hole,owner,member.cause());require(mob.accepted==0&&mob.getKillCredit()==owner&&mob.getHealth()<mob.getMaxHealth(),"direct HP contact bypasses native hurt and carries selected author");
             require(mob.position().equals(initial)&&mob.getDeltaMovement().x<0&&game.items().indirectKills().altitudeAuthor(mob)==owner,"native velocity and owned displacement without teleport");
+            var tall=cow(at.add(8,0,0));tall.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE).setBaseValue(4);tall.refreshDimensions();
+            var savedPoint=hole.point;var savedVelocity=hole.velocity;
+            try{
+                hole.point=tall.getEyePosition();float before=tall.getHealth();
+                require(tall.position().distanceToSqr(hole.point)>9,"native head contact lies outside even the feet influence radius");
+                service.physics(hole,owner,member.cause());
+                require(tall.getHealth()<before&&tall.accepted==0,"actual source queries and drains an intersecting head despite distant feet");
+            }finally{tall.discard();hole.point=savedPoint;hole.velocity=savedVelocity;hole.marker.setPos(savedPoint);}
             var victim=cow(at.add(.4,0,0));victim.setHealth(.1f);service.physics(hole,owner,member.cause());require(victim.isDeadOrDying()&&victim.getKillCredit()==owner,"actual native lethal hole hit credits author");
             var late=cow(at.add(.5,0,0));service.physics(hole,owner,member.cause());late.setInvulnerableTime(0);late.damageCooldownTime=0;
             require(late.hurtServer(owner.level(),late.damageSources().playerAttack(other),1),"later real player hit accepted");late.setInvulnerableTime(0);late.damageCooldownTime=0;
@@ -337,7 +345,7 @@ public final class VoidArcanumChecks {
                 if(level<5){game.items().indirectKills().clear(target);target.discard();mobs.remove(target);}
             }
             var member=service.source(hole);
-            service.updateVisual(hole,owner);for(int i=0;i<5;i++)game.items().blackHoleVisuals().tick();
+            service.updateVisual(hole,owner);for(int i=0;i<10;i++)game.items().blackHoleVisuals().tick();
             var normal=hole.tilt.transform(new org.joml.Vector3f(0,1,0));
             require(normal.x>0&&normal.y>Math.cos(Math.toRadians(18.01))&&normal.y<1,"smoothed modest disc lean toward target");
             var index=game.items().blackHoleVisuals().origins(owner).indexOf(hole.point);require(index>=0,"tilted live display present");

@@ -110,6 +110,31 @@ public final class TeslaChecks {
             require(owner.getHealth()==999&&other.getHealth()==999,"conduction reaches caster and allied player even with team friendly fire disabled; owner="+owner.getHealth()+" ally="+other.getHealth()+" armor="+owner.getAttributeValue(Attributes.ARMOR)+"/"+other.getAttributeValue(Attributes.ARMOR)+" cooldown="+owner.damageCooldownTime+"/"+other.damageCooldownTime+" invulnerable="+owner.getInvulnerableTime()+"/"+other.getInvulnerableTime()+" loaded="+owner.connection.hasClientLoaded()+"/"+other.connection.hasClientLoaded()+" changing="+owner.isChangingDimension()+"/"+other.isChangingDimension()+" effects="+owner.getActiveEffects()+"/"+other.getActiveEffects());
             other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);
         }
+        void cadence(){
+            clear();
+            var start=at.add(0,6,30);var victim=cow(start.add(0,-.6,1));
+            try{
+                var bolt=new net.minecraft.world.damagesource.DamageSource(owner.level().registryAccess()
+                        .lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
+                require(bolt.is(net.minecraft.tags.DamageTypeTags.BYPASSES_COOLDOWN),"loaded direct electric type bypasses native hurt cooldown");
+                int samples=0;
+                for(int i=0;i<=10;i++)if(victim.getBoundingBox().contains(start.add(0,0,i*.2)))samples++;
+                require(samples>1,"native body intersects multiple source samples");
+                game.items().wands().teslaVolley(owner,InteractionHand.MAIN_HAND,loot("tesla_wand"),false);
+                var volley=shots();require(volley.size()==4,"four independent moving electric sources");
+                for(int pass=1;pass<=2;pass++){
+                    for(var trace:volley){trace.position=start;trace.yaw=0;trace.pitch=0;}
+                    game.items().wands().tick();
+                    int expected=pass*4*samples;
+                    require(victim.direct==expected&&victim.getHealth()==1000-expected*.5f,
+                            "each arc applies every body sample through native cooldown: pass="+pass+" attempts="+victim.direct+" expected="+expected+" hp="+victim.getHealth());
+                    require(victim.damageCooldownTime>10,"regression exercises active native hurt cooldown");
+                    int expectedAge=pass;
+                    require(volley.stream().allMatch(t->t.age==expectedAge&&Math.abs(t.position.distanceTo(start)-2)<1e-6),
+                            "all moving electric sources advance two blocks each working tick");
+                }
+            }finally{clear();victim.discard();}
+        }
         void instantConduction(){
             owner.setYRot(0);owner.setXRot(0);var eye=owner.getEyePosition();var pos=BlockPos.containing(eye);
             var victim=cow(eye.add(4,-.6,0));var technical=cow(eye.add(-4,-.6,0));technical.entityTags().add("strict_map_object");
@@ -158,7 +183,7 @@ public final class TeslaChecks {
             clear();cows.forEach(Entity::discard);technical.discard();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();instantConduction();chain();boundaries();beginInstant();phase++;return false;}
+            if(phase==0){presentation();geometry();cadence();instantConduction();chain();boundaries();beginInstant();phase++;return false;}
             if(phase==1){require(game.items().stonekivi().count()>0&&instantVictim.direct==0,"actual Time Stop freezes queued instant work");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){if(game.items().stonekivi().count()>0){require(++waits<200,"queued five rays complete");return false;}require(instantVictim.getHealth()<1000&&instantVictim.direct>=5&&instantVictim.getKillCredit()==owner,"all five native instant beams hit and credit real caster");instantVictim.discard();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("tesla_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"actual Tesla Academy admission");phase++;return false;}

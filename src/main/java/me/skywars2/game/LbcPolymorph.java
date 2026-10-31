@@ -162,6 +162,13 @@ public final class LbcPolymorph {
 
         }finally{checkpointDepth--;}
     }
+    /** HP drains must resolve a killed sheep before another match phase observes its human body. */
+    void finishDirectDamage(LivingEntity target){
+        var form=bodies.get(target);if(form!=null&&!target.isAlive())finish(form,true);
+    }
+    ServerPlayer playerOfBody(LivingEntity target){
+        var form=bodies.get(target);return form!=null&&form.original instanceof ServerPlayer player?player:null;
+    }
     private void finish(Form form,boolean died){
         checkpointDepth++;try{
         if(!forms.remove(form.original,form))return;bodies.remove(form.sheep);

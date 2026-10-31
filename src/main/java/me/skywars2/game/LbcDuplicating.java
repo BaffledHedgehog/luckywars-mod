@@ -561,16 +561,17 @@ public final class LbcDuplicating {
         int damaged=0;
         for(var target:marker.level.getEntities((Entity)null,new AABB(marker.point,marker.point).inflate(HOLE_INFLUENCE),entity->
                 !protectedEntity(marker.owner,entity) && game.items().wands().target(marker.owner,entity)
-                        && entity.position().distanceToSqr(marker.point)<=HOLE_INFLUENCE*HOLE_INFLUENCE)) {
+                        && (entity.position().distanceToSqr(marker.point)<=HOLE_INFLUENCE*HOLE_INFLUENCE
+                        || entity instanceof LivingEntity&&BlackHoleDamage.distanceSquared(entity,marker.point)<=HOLE_DAMAGE*HOLE_DAMAGE))) {
             if(game.items().magic().suppressedAt(marker.level,target.position()) || target.entityTags().contains("time_stopped")) continue;
             double distance=target.position().distanceToSqr(marker.point);
             // Input includes walking, jumping, crouching and sprinting.
-            if(distance<=HOLE_STRONG*HOLE_STRONG || !(target instanceof ServerPlayer player)
-                    || player.getLastClientInput().equals(net.minecraft.world.entity.player.Input.EMPTY))
+            if(distance<=HOLE_INFLUENCE*HOLE_INFLUENCE&&(distance<=HOLE_STRONG*HOLE_STRONG || !(target instanceof ServerPlayer player)
+                    || player.getLastClientInput().equals(net.minecraft.world.entity.player.Input.EMPTY)))
                 pulls.computeIfAbsent(target,ignored->new PullSample()).consider(marker);
-            if(target instanceof LivingEntity living && damaged<5 && distance<=HOLE_DAMAGE*HOLE_DAMAGE
+            if(target instanceof LivingEntity living && damaged<5 && BlackHoleDamage.distanceSquared(target,marker.point)<=HOLE_DAMAGE*HOLE_DAMAGE
                     && game.items().mana().score(target,"void_resistance").get()<=0) {
-                living.hurtServer(marker.level,source,.01f); damaged++;
+                BlackHoleDamage.apply(game,living,source,.01f); damaged++;
             }
         }
     }

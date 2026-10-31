@@ -247,14 +247,16 @@ public final class LbcSheep {
         if(rewinding)return;
         callbackDepth++;try{
         // Player friendship admission runs before LivingEntity's inherited-cause
-        // hook. Carry WILD ownership on the source before entering hurtServer.
+        // hook. Carry WILD ownership on the source before applying direct HP damage.
         var source=game.items().indirectKills().captureDamage(new DamageSource(author.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.OUTSIDE_BORDER),h.entity,author),h.cause);
         for(var target:h.level.getEntities((Entity)null,new AABB(h.point,h.point).inflate(INFLUENCE),e->physical(h,e))){
-            Vec3 offset=h.point.subtract(target.position());double distance=offset.length();if(distance>INFLUENCE)continue;
+            Vec3 offset=h.point.subtract(target.position());double distance=offset.length();
+            if(target instanceof LivingEntity living&&BlackHoleDamage.distanceSquared(target,h.point)<=25
+                    &&game.items().mana().score(target,"void_resistance").get()<1)
+                game.items().indirectKills().withCause(living,h.cause,()->BlackHoleDamage.apply(game,living,source,10));
+            if(distance>INFLUENCE)continue;
             if(distance<=5){
                 if(target instanceof Projectile||target instanceof ItemEntity){target.discard();continue;}
-                if(target instanceof LivingEntity living&&game.items().mana().score(target,"void_resistance").get()<1)
-                    game.items().indirectKills().withCause(living,h.cause,()->living.hurtServer(h.level,source,10));
             }
             if(distance<1.0e-6||distance>RADIUS&&target instanceof ServerPlayer p&&!p.getLastClientInput().equals(Input.EMPTY))continue;
             double force=distance<=RADIUS?.24:.012*Math.max(0,(INFLUENCE-distance)/(INFLUENCE-RADIUS));

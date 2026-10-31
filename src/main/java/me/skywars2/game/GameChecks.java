@@ -660,6 +660,7 @@ public final class GameChecks {
                                 case "woodificator" -> checkWoodificator(game);
                                 case "shooter-pair-menu" -> checkShooterPairMenu(game);
                                 case "gun-accuracy" -> { GunAccuracyChecks.run(game); return; }
+                                case "black-hole-contact" -> { BlackHolePlayerChecks.run(game); return; }
                                 case "weapon-spread" -> { WeaponSpreadChecks.run(game); return; }
                                 case "rifle-presentation" -> { RiflePresentationChecks.run(game); return; }
                                 case "magnum" -> { MagnumChecks.run(game); return; }
@@ -11464,11 +11465,11 @@ public final class GameChecks {
                                 require(enemy.position().equals(before) && Math.abs(speed-(count==1?.18:.35))<.00001,
                                                 "Within radius1.3 one hole adds .18 while two and three aligned holes remain capped at .35 without teleporting");
                                 if(count==1) {
-                                        service.transformOrigins(level,ignored->point); enemy.setPos(point.add(3.9,0,0)); enemy.setDeltaMovement(Vec3.ZERO);
+                                        service.transformOrigins(level,ignored->point); enemy.setPos(point.add(3.9+enemy.getBbWidth()*.5,0,0)); enemy.setDeltaMovement(Vec3.ZERO);
                                         enemy.setInvulnerableTime(0); enemy.damageCooldownTime=0; float innerHealth=enemy.getHealth(); service.tick();
                                         require(enemy.getHealth()<innerHealth && Math.abs(enemy.getDeltaMovement().length()-.18)<.00001,
                                                         "Source radius4 damage and radius7 strong pull reach beyond the former1.3core");
-                                        service.transformOrigins(level,ignored->point); enemy.setPos(point.add(4.1,0,0)); enemy.setDeltaMovement(Vec3.ZERO);
+                                        service.transformOrigins(level,ignored->point); enemy.setPos(point.add(4.1+enemy.getBbWidth()*.5,0,0)); enemy.setDeltaMovement(Vec3.ZERO);
                                         enemy.setInvulnerableTime(0); enemy.damageCooldownTime=0; float outerHealth=enemy.getHealth(); service.tick();
                                         require(enemy.getHealth()==outerHealth && Math.abs(enemy.getDeltaMovement().length()-.18)<.00001,
                                                         "Outside radius4 retains strong radius7 pull without core damage");
