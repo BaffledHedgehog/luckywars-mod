@@ -1,4 +1,4 @@
-# Three mechanical tools ? native verified,1 November2026
+# Three mechanical tools ? native verified and installed,1 November2026
 
 Source audit: [next port](NEXT_PORT_2026_11_01_AUDIT.md),
 [breaker history](STEAMPUNK_BREAKER_2026_11_01.md),
@@ -85,3 +85,11 @@ RP/template/PENDING changes, main stop/restart or remote push.
 
 The breaker trigger is the final ACTION rule above; old durability/repair wording
 in historical source notes must not be treated as the current contract.
+
+## Installation
+
+Implementation commitdc2b58bf contains only the26 owned paths. Shared normal-stop
+installer installed036b29de into main `mods/skywars2.jar`; exact SHA confirmed.
+Previous6763758b is retained as a verified rollback. No main stop/restart was
+requested or performed. All224 author paths and31 overrides still hash exactly.
+Receipt: `build/verification/steampunk-tools-2026-11-01/main-install.json`.

@@ -1,4 +1,4 @@
-## Three mechanical tools ? NATIVE VERIFIED (1 November 2026)
+## Three mechanical tools ? NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Final contract and retained failures](agent_notes/STEAMPUNK_TOOLS_2026_11_01.md).
 Native Polymer Breaker/glove/hook and actual kit acquisition are implemented.
@@ -16,7 +16,9 @@ technical armor/full production Vanity. Normal child exit/exact snapshots/no loc
 No new RP changes or questions; PENDING and author source remain untouched.
 Full three-tool release gate is cleared. Shared normal-stop installer only;
 never stop/restart main. Qualification/install receipt is under
-build/verification/steampunk-tools-2026-11-01/. Main baseline before install6763758b.
+build/verification/steampunk-tools-2026-11-01/. Main is now036b29de; installed
+through the shared normal-stop installer, previous6763758b rollback retained.
+No main stop/restart or push. Implementation commitdc2b58bf.
 
 ## Grimoire dungeon reward chain - NATIVE VERIFIED, INSTALLED (1 November 2026)
 
