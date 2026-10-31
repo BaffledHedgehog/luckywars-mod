@@ -1,3 +1,22 @@
+## Boba rotation and Hagalaz - NATIVE BATCH, NOT RELEASED (31 October 2026)
+
+[Current implementation/evidence](agent_notes/BOBA_ROTATION_AND_HAGALAZ_2026_10_31.md).
+User confirmed COMPLETE CHAIN before updating main mod; do not ask release scope
+again or install a partial batch. Hagalaz permanently erases active/knocked Chef.
+Boba blocks caster use with beacon+artifact; original inventory debit precedes
+busy rejection. Shared MapManager tickets/native palettes/terrain dispatcher/
+lighting flip the exact320cube, retaining BE data/facing, native momentum and
+vehicle graph. Current respawn anchors AND pristine islands rotate (user), with
+existing core snapshot retaining these map-owned values. No new function engine.
+b51226c7 passes4 fresh native groups: boba (two full flips + mode3/4),
+chef-execution, imba-runes-globals and vanity-rollback. Original failed receipt
+retained; sparse flips285.8191/363.429ms, max work step50.0811ms, no peakTPS claim.
+9536 inputs/196 authorpaths/31 live overrides/main d9087f0a exact. Normal exit/
+exact snapshots/no locks. No main install/restart/push or RP/question-file edits.
+Confirmed remaining dependency: Evil Lucky Block reward ->grimoire dungeon->
+room/boss->Uni Wand plus grimoire-composition crafting. Worldgen/table presence
+does not implement it. Full release chain remains OPEN; continue that dependency.
+
 ## Damage reactions and reward consumers - STAGED NATIVE BATCH, NOT RELEASED (31 October 2026)
 
 [Current implementation/evidence](agent_notes/DAMAGE_REACTIONS_AND_REWARD_CHAIN_2026_10_31.md).
@@ -13,9 +32,8 @@ passes global rune payloads with rewinds and book/whip (beacon+artifact/both han
 Production/data identical869880d5, which passes Vanity and actual Nautiz restart.
 9532 inputs frozen;195 authorpaths exact, one owned Academy insertion into196th;
 31 live overrides/main d9087f0a exact. Normal exits/exact snapshots/no locks.
-Boba map rotation remains; Hagalaz/Chef and release scope await chat answers.
-Do not generalize the Chaos-armor chain requirement to every mod update without
-the user's answer. No main install/restart/push or RP/question-file changes here.
+Boba/Hagalaz and release scope are resolved by the newer batch above.
+User explicitly requires the ENTIRE chain before updating the main mod. No main install/restart/push or RP/question-file changes here.
 
 ## Electric pulse cadence with precise contact - NATIVE BATCH, NOT RELEASED (31 October 2026)
 

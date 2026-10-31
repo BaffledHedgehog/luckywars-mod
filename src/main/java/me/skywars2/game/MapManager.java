@@ -102,6 +102,50 @@ public final class MapManager {
     }
 
     private final MinecraftServer server;
+    private MapRotation rotation;
+    private long rotationVisits,rotationWrites;
+
+    /** One accepted whole-map transform, using this manager's chunk tickets and shared terrain work. */
+    boolean rotateMap(net.minecraft.server.level.ServerPlayer author,BlockPos origin){
+        var game=SkyWars2.game();
+        if(closed||game==null||game.maps()!=this||!game.playing()||author.level()!=level)return false;
+        if(rotation!=null||busy){author.sendSystemMessage(Component.literal("Map rotation is already in progress."));return false;}
+        if(level.dimension().equals(LbcHedgehogDimensions.NEXUS)||level.dimension().equals(LbcHedgehogDimensions.IMPRINTED))return false;
+        rotation=new MapRotation(game,author,origin);rotationVisits=rotationWrites=0;
+        game.items().stonekivi().queuedWork(rotation);
+        for(var player:server.getPlayerList().getPlayers())player.sendSystemMessage(Component.translatable("map_rotate_warn"));
+        return true;
+    }
+    boolean rotationBusy(){return rotation!=null;}
+    long rotationVisits(){return rotation==null?rotationVisits:rotation.visits();}
+    long rotationWrites(){return rotation==null?rotationWrites:rotation.writes();}
+    void rotationFinished(MapRotation work){if(rotation==work){rotationVisits=work.visits();rotationWrites=work.writes();rotation=null;}}
+    record SpawnState(List<Spawn> spawns,Vec3 look,Map<BlockPos,Map<BlockPos,BlockSnapshot>> islands){}
+    SpawnState spawnState(){return new SpawnState(List.copyOf(spawns),look,Map.copyOf(respawnIslands));}
+    void restoreSpawnState(SpawnState image){spawns=image.spawns;look=image.look;respawnIslands.clear();respawnIslands.putAll(image.islands);}
+    static boolean rotationContains(Vec3 point,BlockPos origin){return point.x>=origin.getX()-160&&point.x<origin.getX()+160
+            &&point.z>=origin.getZ()-160&&point.z<origin.getZ()+160&&point.y>=0&&point.y<320;}
+    static Spawn rotatedSpawn(Spawn spawn,BlockPos origin){return rotationContains(spawn.position,origin)
+            ?new Spawn(MapRotation.entityDestination(spawn.position,origin),spawn.yaw,spawn.pitch):spawn;}
+    /** Current spawn markers and their pristine restoration reference move together (user). */
+    void rotateSpawnState(BlockPos origin){
+        var centers=new HashMap<BlockPos,BlockPos>();
+        for(var spawn:spawns)centers.put(BlockPos.containing(spawn.position),BlockPos.containing(rotatedSpawn(spawn,origin).position));
+        var transformed=new HashMap<BlockPos,Map<BlockPos,BlockSnapshot>>();
+        for(var island:respawnIslands.entrySet()){
+            var cells=new HashMap<BlockPos,BlockSnapshot>();
+            for(var cell:island.getValue().entrySet()){
+                var old=cell.getKey();var at=rotationContains(Vec3.atCenterOf(old),origin)?MapRotation.blockDestination(old,origin):old;
+                var nbt=cell.getValue().entity==null?null:cell.getValue().entity.copy();
+                if(nbt!=null){nbt.putInt("x",at.getX());nbt.putInt("y",at.getY());nbt.putInt("z",at.getZ());}
+                cells.put(at,new BlockSnapshot(cell.getValue().state,nbt));
+            }
+            transformed.put(centers.getOrDefault(island.getKey(),island.getKey()),Map.copyOf(cells));
+        }
+        spawns=spawns.stream().map(s->rotatedSpawn(s,origin)).toList();
+        if(rotationContains(look,origin))look=MapRotation.entityDestination(look,origin);
+        respawnIslands.clear();respawnIslands.putAll(transformed);
+    }
     private final ServerLevel level;
     // Фоновый исполнитель готовит шаблоны; размещение блоков и обработка очереди work остаются на тике сервера.
     private final ExecutorService templatePreloader = Executors.newSingleThreadExecutor(task -> {
@@ -786,6 +830,7 @@ public final class MapManager {
 
     public void shutdown() {
         closed = true;
+        if(rotation!=null)rotation.cancel();
         resetLobbyEntityCleanup();
         // Interrupting ZipFS reads closes Minecraft's shared resource-pack channel.
         // Finish the current read, then abandon CPU preparation at the next checkpoint.

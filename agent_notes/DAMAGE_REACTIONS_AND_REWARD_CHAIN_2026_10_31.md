@@ -83,14 +83,12 @@ paths, one insertion-only Academy integration into the 196th protected path,
 Only our Academy insertion belongs in the commit; its other author changes must
 remain unstaged. No physical-client, arbitrary-map or peak-TPS claim is made.
 
-## Remaining scope
+## Subsequent resolved scope
 
-Boba map rotation is audited but not implemented; its real Paper/FAWE command
-rotates a 32,768,000-cell region. Do not claim the complete original Chaos reward
-chain is closed. The user's release-after-chain answer concerned Chaos armor;
-a chat clarification about releasing other ready work is pending. No main JAR
-installation, main restart or push was performed in this batch.
-
-Hagalaz versus Chef remains a separate pending chat question. Current provisional
-cleanup uses ordinary inherited kill damage (Chef knocks), not forced erasure.
-The global fixture does not qualify that unanswered interaction.
+The user confirmed waiting for the entire Chaos chain before any main mod update,
+and confirmed Hagalaz permanently erases Chef. Both pending chat questions in this
+batch are resolved; do not ask them again. The next
+[Boba/Hagalaz batch](BOBA_ROTATION_AND_HAGALAZ_2026_10_31.md) implements and checks
+those answers, Boba map rotation and rotated pristine respawn islands. A confirmed
+dungeon/boss/Uni Wand reward continuation still prevents full-chain release.
+The archived receipts above retain this batch's original limits and failures.

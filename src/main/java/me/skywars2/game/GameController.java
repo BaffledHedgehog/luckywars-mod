@@ -39,7 +39,7 @@ public final class GameController {
     public enum Stage { LOBBY, LOADING, COUNTDOWN, PLAYING, PHASE_ONE, PHASE_TWO, ENDING }
 
     private static final class Participant {
-        final MapManager.Spawn spawn;
+        MapManager.Spawn spawn;
         int lives;
         boolean awaitingRespawn;
         boolean disconnected;
@@ -769,6 +769,9 @@ public final class GameController {
         var member=participants.get(author.getUUID());if(member==null)return;
         member.lives=(int)Math.clamp((long)member.lives+amount,0L,Integer.MAX_VALUE);
         if(playing())updateBar();
+    }
+    void rotateMapSpawns(net.minecraft.core.BlockPos origin){
+        for(var member:participants.values())if(member.spawn!=null)member.spawn=MapManager.rotatedSpawn(member.spawn,origin);
     }
     public void stopMatch() {
         if (maps.busy()) { announce(text("game.wait_loading")); return; }

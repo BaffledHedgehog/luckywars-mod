@@ -15,7 +15,37 @@ public final class ChefExecutionChecks {
         final GameController game;final ChefChecks.Fixture base;final ServerLevel level;final ShishEncounterChecks.Client client;
         LbcWtf.Chef delayed;boolean stopped,closed;int stage,at,start;
         Fixture(GameController game){this.game=game;base=new ChefChecks.Fixture(game);level=base.owner.level();client=new ShishEncounterChecks.Client(game,base.owner);}
+        void hagalaz(){
+            // Exercise the actual six-pass cleanup without scheduling Hagalaz's unbounded map terrain sweep.
+            var savedTags=new IdentityHashMap<Entity,Set<String>>();
+            var maploaderTags=Set.of("swrg.clear","swrg.look","swrg.spawn","swrg.center","swrg.midle","swrg.default","map_object");
+            level.getAllEntities().forEach(entity->{
+                savedTags.put(entity,new HashSet<>(entity.entityTags()));
+                entity.entityTags().removeAll(maploaderTags);entity.entityTags().add("strict_map_object");
+            });
+            try{
+                var target=base.cow(base.at.add(0,0,6));
+                var active=base.spawn(base.owner,target);var knocked=base.spawn(base.other,target);knocked.receive(20);
+                var protectedChef=base.spawn(base.owner,target);protectedChef.entityTags().add("strict_map_object");
+                var maploader=base.spawn(base.other,target);maploader.entityTags().addAll(Set.of("strict_map_object","swrg.clear"));
+                target.entityTags().add("strict_map_object");
+                var ordinary=base.cow(base.at.add(5,0,6));
+                require(base.service.stasis(active)==0&&base.service.stasis(knocked)==200&&base.service.count()==4&&base.service.pinnedChunks()>0,"active and knocked native Chefs own tickets before Hagalaz");
+                var cleanup=new LbcRuneGlobals(game);var cause=game.items().indirectKills().wildCause(base.owner);
+                cleanup.clearEntities(level,cause);
+                require(active.isRemoved()&&knocked.isRemoved()&&maploader.isRemoved(),"actual Hagalaz cleanup erases active/knocked Chefs and keeps maploader precedence");
+                require(!protectedChef.isRemoved()&&base.service.stasis(protectedChef)==0&&base.service.snapshot().equals(List.of(protectedChef)),"Hagalaz lobby whitelist protects Chef before erasure admission");
+                require(ordinary.isDeadOrDying()&&ordinary.getKillCredit()==base.owner,"ordinary Hagalaz living cleanup retains inherited author");
+                require(!target.isRemoved()&&!base.owner.isRemoved()&&!base.other.isRemoved(),"Hagalaz keeps strict map object and native players");
+                protectedChef.entityTags().remove("strict_map_object");cleanup.clearEntities(level,cause);
+                require(protectedChef.isRemoved()&&base.service.count()==0&&base.service.pinnedChunks()==0,"repeated actual Hagalaz cleanup retires all admitted Chefs and chunk tickets");
+                for(var entity:savedTags.keySet())require(!entity.isRemoved(),"pre-existing fixture entities survive scoped Hagalaz source cleanup");
+            }finally{
+                savedTags.forEach((entity,tags)->{entity.entityTags().clear();entity.entityTags().addAll(tags);});
+            }
+        }
         void initialize(){base.init();game.items().mana().noMagic(base.owner,0);
+            hagalaz();
             var target=base.cow(base.at.add(0,0,6));var chef=base.spawn(base.owner,target);
             require(chef.hurtServer(level,chef.damageSources().generic(),7)&&Math.abs(base.service.damageCount(chef)-7)<.001,"seven real accepted native damage before sacrifice");
             base.owner.removeEffect(MobEffects.RESISTANCE);game.items().acidCorruption().sacrifice(base.owner);
@@ -45,5 +75,5 @@ public final class ChefExecutionChecks {
     }
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.initialize();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}throw error;}SkyWars2.LOGGER.info("[check] START chef-execution");}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS chef-execution (native remaining13 sacrifice/zero repeated donation, nuclear generic-kill survival boundary, real lethal Stand roll, actual End54 source selector/execution and native delayed-death/TimeStop; scoped snapshot restoration)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL chef-execution",error);}}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS chef-execution (actual Hagalaz active/knocked erasure, whitelist/maploader admission and ticket retirement, native remaining13 sacrifice/zero repeated donation, nuclear generic-kill survival boundary, real lethal Stand roll, actual End54 source selector/execution and native delayed-death/TimeStop; scoped snapshot restoration)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL chef-execution",error);}}
 }

@@ -664,6 +664,7 @@ public final class GameChecks {
                                 case "chaos-reward-items" -> { ChaosRewardItemChecks.run(game); return; }
                                 case "rasengan" -> { RasenganChecks.run(game); return; }
                                 case "imba-runes" -> { ImbaRuneChecks.run(game); return; }
+                                case "boba" -> { MapRotationChecks.run(game); return; }
                                 case "imba-runes-globals" -> { ImbaRuneChecks.startGlobals(game); return; }
                                 case "imba-runes-restart" -> { ImbaRuneChecks.startRestart(game); return; }
                                 case "black-hole-contact" -> { BlackHolePlayerChecks.run(game); return; }
@@ -1413,7 +1414,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
-            ImbaRuneChecks.tickGlobals(game);ImbaRuneChecks.tickRestart(game);
+            MapRotationChecks.tick(game);            ImbaRuneChecks.tickGlobals(game);ImbaRuneChecks.tickRestart(game);
             RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);

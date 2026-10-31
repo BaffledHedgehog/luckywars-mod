@@ -370,6 +370,8 @@ public final class LbcItems {
     private final LbcLooseRewards looseRewards;
     private final LbcRasengan rasengan;
     private final LbcImbaRunes imbaRunes;
+    private final LbcBoba boba;
+    public LbcBoba boba(){return boba;}
     public LbcRasengan rasengan(){return rasengan;}
     public LbcImbaRunes imbaRunes(){return imbaRunes;}
     public LbcLooseRewards looseRewards(){return looseRewards;}
@@ -891,6 +893,7 @@ public final class LbcItems {
         this.foodLifecycle = new LbcFoodLifecycle(game);
         this.rasengan = new LbcRasengan(game);
         this.imbaRunes = new LbcImbaRunes(game,new LbcRuneGlobals(game),true);
+        this.boba = new LbcBoba(game);
         this.oreshek = new LbcOreshek(game);
         this.legacyEffects = new LbcLegacyEffects(game);
         this.armorSets = new LbcArmorSets(game);

@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.List;
 import java.util.Set;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,6 +35,11 @@ final class LbcRuneGlobals implements LbcImbaRunes.GlobalActions {
             }
             public void cancel(){area.clear();}
         });
+        clearEntities(level,cause);
+        game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#mapstat"),"swrg.math").set(1);
+    }
+    /** Shared Hagalaz entity phase; independent of its queued terrain sweep. */
+    void clearEntities(ServerLevel level,LbcIndirectKills.Owner cause){
         // The source repeats native cleanup for passengers/drops and keeps only its lobby whitelist.
         for(int pass=0;pass<6;pass++){
             var entities=new java.util.ArrayList<Entity>();level.getAllEntities().forEach(entities::add);
@@ -42,11 +48,12 @@ final class LbcRuneGlobals implements LbcImbaRunes.GlobalActions {
                 boolean lobby=entity instanceof ServerPlayer||tags.stream().anyMatch(Set.of("swrg.quickstart","swrg.look","swrg.spawn","swrg.center","swrg.midle","swrg.default","map_object","strict_map_object")::contains)
                         ||entity instanceof AreaEffectCloud&&(tags.contains("swrg.delete")||tags.contains("swrg.lobby"));
                 if(maploader||!lobby){
+                    // Map destruction retires Chef and his chunk tickets instead of starting another knock.
+                    if(game.items().wtf().erase(entity))continue;
                     if(entity instanceof LivingEntity living)game.items().indirectKills().inheritedKill(living,cause);
                     else entity.kill(level);
                 }
             }
         }
-        game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#mapstat"),"swrg.math").set(1);
     }
 }

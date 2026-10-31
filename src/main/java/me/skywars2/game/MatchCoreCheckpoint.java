@@ -11,6 +11,7 @@ final class MatchCoreCheckpoint {
     private final GameController game;
     private final GameController.Checkpoint core;
     private final MatchValueSnapshot config;
+    private final MapManager.SpawnState mapSpawns;
     private final Map<UUID, MatchValueSnapshot> profiles;
     private final MatchScoreboardCheckpoint scoreboard;
     private final LbcTeamColors.Checkpoint teams;
@@ -22,7 +23,7 @@ final class MatchCoreCheckpoint {
     private final Map<UUID,GameType> online = new LinkedHashMap<>();
 
     MatchCoreCheckpoint(GameController game) {
-        this.game=game;core=game.checkpointCore();config=new MatchValueSnapshot(game.config());
+        this.game=game;core=game.checkpointCore();config=new MatchValueSnapshot(game.config());mapSpawns=game.maps().spawnState();
         profiles=game.players().checkpointProfiles();scoreboard=new MatchScoreboardCheckpoint(game.server());
         teams=game.teamColors().checkpoint();events=game.events().checkpointTimeline();
         lucky=game.luckyModifiers().checkpoint();zone=game.zoneBarrier().checkpoint();
@@ -45,7 +46,7 @@ final class MatchCoreCheckpoint {
     private void restoreFrozen(Set<UUID> roster,Set<UUID> observers) {
         game.validateCheckpoint(core);
         config.restore();game.players().restoreProfiles(profiles);scoreboard.restore(game.server());
-        game.restoreCore(core);game.teamColors().restore(teams);game.events().restoreTimeline(events);
+        game.restoreCore(core);game.maps().restoreSpawnState(mapSpawns);game.teamColors().restore(teams);game.events().restoreTimeline(events);
         game.luckyModifiers().restore(lucky);game.items().witchClaims().restoreOwnership(authorities);
         game.spectators().restoreMembers(observers,roster);
         for(var player:game.server().getPlayerList().getPlayers()) {
