@@ -5,42 +5,7 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:x2"
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiply_by_2",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "multiply_by_2.lore",
-                  "italic": false
-                },
-                {
-                  "translate": "multiply.lore",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{multiply:2}"
-            }
-          ]
+          "value": "lbc:ported/multiply_2"
         }
       ]
     },
@@ -49,42 +14,7 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:x3"
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiply_by_3",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "multiply_by_3.lore",
-                  "italic": false
-                },
-                {
-                  "translate": "multiply.lore",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{multiply:3}"
-            }
-          ]
+          "value": "lbc:ported/multiply_3"
         }
       ]
     },
@@ -93,42 +23,7 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:x4"
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiply_by_4",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "multiply_by_4.lore",
-                  "italic": false
-                },
-                {
-                  "translate": "multiply.lore",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{multiply:4}"
-            }
-          ]
+          "value": "lbc:ported/multiply_4"
         }
       ]
     },
@@ -137,42 +32,7 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:x5"
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "multiply_by_5",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "multiply_by_5.lore",
-                  "italic": false
-                },
-                {
-                  "translate": "multiply1.lore",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{multiply:5,magicwand:1}"
-            }
-          ]
+          "value": "lbc:ported/multiply_5"
         }
       ]
     }

@@ -26,6 +26,9 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/multiply_*.json', 'data/lbc/loot_table/ported/banana_palm.json'
+    include 'data/lbc/loot_table/kit/multiply_tablet.json', 'data/lbc/loot_table/kit/palm_with_bananas.json'
+    include 'data/lbc/loot_table/kit/steampunk.json', 'data/lbc/loot_table/kit/hook.json'
     include 'data/lbc/loot_table/ported/steampunk_pickaxe.json', 'data/lbc/loot_table/ported/steampunk_sword.json', 'data/lbc/loot_table/ported/grapping_hook.json'
     include 'data/lbc/loot_table/item_defs/**/*.json'
     include 'data/lbc/structure/item_gallery.nbt'

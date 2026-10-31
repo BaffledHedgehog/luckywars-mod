@@ -1,0 +1,62 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:banana_palm",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:palm_small",
+                "minecraft:max_damage": 64,
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 5,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -2.4,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "lbckit.23",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "lbckit.23.lore.2",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{banana_palm:1,magicwand:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

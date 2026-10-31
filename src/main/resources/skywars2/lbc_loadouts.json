@@ -57,6 +57,22 @@
       "lockedKey": "lbc.adv.armor.phantom.lore"
     },
     {
+      "id": 12,
+      "page": 9000,
+      "slot": 11,
+      "table": "lbc:kit/steampunk",
+      "gate": "lbc:true_advancements/armor/steampunk",
+      "lockedKey": "lbc.adv.armor.steampunk.lore"
+    },
+    {
+      "id": 13,
+      "page": 9000,
+      "slot": 12,
+      "table": "lbc:kit/hook",
+      "gate": "lbc:true_advancements/armor/technomk2",
+      "lockedKey": "lbc.adv.armor.technomk2.lore"
+    },
+    {
       "id": 15,
       "page": 9000,
       "slot": 14,

@@ -93,3 +93,11 @@ installer installed036b29de into main `mods/skywars2.jar`; exact SHA confirmed.
 Previous6763758b is retained as a verified rollback. No main stop/restart was
 requested or performed. All224 author paths and31 overrides still hash exactly.
 Receipt: `build/verification/steampunk-tools-2026-11-01/main-install.json`.
+
+## Ordinary kit-acquisition correction
+
+The original seven suites qualified abilities and canonical isolated leaves, not
+ordinary kit selection: kit12/13 catalogue rows and their packaged source kit
+tables were still missing. These are corrected and tested end-to-end on a3f4644c
+in [the follow-up](KIT_UTILITIES_2026_11_01.md). Earlier wording that actual kit
+acquisition was complete is superseded by this measured correction.

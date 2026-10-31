@@ -665,6 +665,8 @@ public final class GameChecks {
                                 case "rasengan" -> { RasenganChecks.run(game); return; }
                                 case "imba-runes" -> { ImbaRuneChecks.run(game); return; }
                                 case "uniwand" -> { UniwandChecks.run(game); return; }
+                                case "mechanical-kits-menu" -> { KitUtilityChecks.mechanicalMenus(game); return; }
+                                case "kit-utility-items" -> { KitUtilityChecks.presentation(game); return; }
                                 case "steampunk-breaker" -> { SteampunkBreakerChecks.start(game); return; }
                                 case "steampunk-glove" -> { SteampunkGloveChecks.run(game); return; }
                                 case "steampunk-hook" -> { SteampunkHookChecks.run(game); return; }

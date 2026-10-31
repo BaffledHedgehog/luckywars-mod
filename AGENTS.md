@@ -1,7 +1,28 @@
+## Mechanical kit acquisition + next utility definitions - NATIVE VERIFIED (1 November 2026)
+
+[Current scope and failures](agent_notes/KIT_UTILITIES_2026_11_01.md).
+036b29de qualified mechanical ABILITIES/leaves but omitted actual kit12/13 rows
+and packaged source kit tables. Corrected original page9000 slots11/12, source
+Steampunk/MK2 gates, normal loadout grants; rocket zero-roll pool unchanged.
+a3f4644c passes5 unique native groups in4 fresh matches: mechanical-kits-menu
+(four actual lobby repetitions), kit-utility-items and the three mechanical suites.
+9564 inputs/2345classes/7165resources;224 authorpaths/31 overrides exact.
+Normal child exit/exact snapshots/additional level+ticket restore/no locks.
+Four multiplier tablet types and palm are native DEFINITIONS + source loot only;
+their abilities are NOT activated/implemented/qualified. New kit8 and kit24 remain
+absent from selection. Kit23 is existing fast sword; do not confuse it with palm.
+Five design questions are already in chat; await actual answers, don't infer or
+repeat them into PENDING. Reuse existing banana food and loose/effect owners.
+No RP/PENDING edits, function engine, main stop/restart or remote push.
+Qualified release scope is the completed mechanical acquisition correction only,
+plus inert future definitions. Installer receipt under
+build/verification/kit-utilities-2026-11-01/. Main baseline before install036b29de.
+
 ## Three mechanical tools ? NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Final contract and retained failures](agent_notes/STEAMPUNK_TOOLS_2026_11_01.md).
-Native Polymer Breaker/glove/hook and actual kit acquisition are implemented.
+Native Polymer Breaker/glove/hook abilities are implemented. Ordinary kit
+acquisition is completed by the newer correction above, not the original suite.
 User final correction: breaker chance25% from SUCCESSFUL BLOCK BREAK or MELEE
 CONTACT, independent of durability. Repairs/armor/standalone wear never proc.
 Shared17-cube destroy work/native drops/causality; TECH cancels queued writes.
