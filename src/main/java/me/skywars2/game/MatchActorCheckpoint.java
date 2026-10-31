@@ -85,6 +85,20 @@ public final class MatchActorCheckpoint {
         for(var player:game.server().getPlayerList().getPlayers())result.put(player.getUUID(),player);
         return result;
     }
+    /** Native section storage also contains actors whose destination chunk is not currently visible. */
+    static boolean prepareResident(GameController game){
+        boolean ready=true;
+        for(var body:currentBodies(game).values()){
+            if(body.isRemoved()||!(body.level() instanceof net.minecraft.server.level.ServerLevel level))continue;
+            var pos=BlockPos.containing(body.position());var future=game.maps().prepareChunk(level,new net.minecraft.world.level.ChunkPos(pos.getX() >> 4,pos.getZ() >> 4));
+            if(!future.isDone()){ready=false;continue;}
+            var result=future.join();
+            if(result instanceof net.minecraft.server.level.ChunkResult<?> chunk&&!chunk.isSuccess())
+                throw new IllegalStateException("Could not prepare saved actor chunk "+level.dimension()+" "+pos);
+            if(!level.hasChunkAt(pos))ready=false;
+        }
+        return ready;
+    }
     private List<Entity> registered() {
         var actors=new ArrayList<Entity>();for(var level:game.server().getAllLevels()) {
             var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();

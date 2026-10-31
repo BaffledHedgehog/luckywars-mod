@@ -129,8 +129,17 @@ public final class LbcItems {
         return data != null && data.matchedBy(ICE_SWORD_DATA);
     }
 
+    /** Preserve the same pre-hit equipment/role admission for native and direct-HP damage. */
+    public boolean withIncomingDamageAttempt(ServerPlayer player,java.util.function.BooleanSupplier action) {
+        return incomingArtifacts.withIncomingAttempt(player,()->shulkerArmor.withIncomingAttempt(player,
+                ()->armorSets.nanobots().withIncomingAttempt(player,()->armorSets.glass().withIncomingAttempt(player,
+                        ()->armorSets.berserk().withIncomingAttempt(player,()->armorSets.techno().withIncomingAttempt(player,
+                                ()->armorSets.chaos().withIncomingAttempt(player,action)))))));
+    }
+
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
+        LbcChaosRewardItems.damaged(game,victim,source);
         witchPassives.damaged(victim,source);
         shishEncounter.damaged(victim,source);shishEncounter.incoming(victim);
         armorSets.phantom().damaged(victim,source);
@@ -359,6 +368,10 @@ public final class LbcItems {
     private final LbcSpecialFireballs specialFireballs;
     public LbcSpecialFireballs specialFireballs(){return specialFireballs;}
     private final LbcLooseRewards looseRewards;
+    private final LbcRasengan rasengan;
+    private final LbcImbaRunes imbaRunes;
+    public LbcRasengan rasengan(){return rasengan;}
+    public LbcImbaRunes imbaRunes(){return imbaRunes;}
     public LbcLooseRewards looseRewards(){return looseRewards;}
     private final Set<Snowball> pendingThrows = new LinkedHashSet<>();
     private final Set<PrimedTnt> dynamites = new LinkedHashSet<>();
@@ -777,7 +790,7 @@ public final class LbcItems {
     public LbcItems(GameController game) {
         this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);
         this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.frost = new LbcFrost(game);
-        this.mana = new LbcMana(game); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);
+        this.mana = new LbcMana(game); LbcChaosRewardItems.prepare(mana); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);
         this.terra = new LbcTerra(game);
         this.shooters = new LbcShooters(game);
         this.laserMinigun = new LbcLaserMinigun(game);
@@ -876,6 +889,8 @@ public final class LbcItems {
         this.nukeEvent = new LbcNukeEvent(game);
         this.namedFoods = new LbcNamedFoods(game);
         this.foodLifecycle = new LbcFoodLifecycle(game);
+        this.rasengan = new LbcRasengan(game);
+        this.imbaRunes = new LbcImbaRunes(game,new LbcRuneGlobals(game),true);
         this.oreshek = new LbcOreshek(game);
         this.legacyEffects = new LbcLegacyEffects(game);
         this.armorSets = new LbcArmorSets(game);
@@ -1204,7 +1219,7 @@ public final class LbcItems {
         transformator.loaded(entity);
         stalin.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
-        specialDrops.loaded(entity);looseRewards.loaded(entity);specialFireballs.loaded(entity);
+        specialDrops.loaded(entity);looseRewards.loaded(entity);specialFireballs.loaded(entity);rasengan.loaded(entity);
         spellSources.loaded(entity);apocalypseEvents.loaded(entity);apocalypseActors.loaded(entity);witchGluttony.loaded(entity);witchIndolence.loaded(entity);indolenceFingers.loaded(entity);witchLust.loaded(entity);shishEncounter.loaded(entity);
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);
@@ -1327,7 +1342,7 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
-        looseRewards.unloaded(entity);specialFireballs.unloaded(entity);
+        looseRewards.unloaded(entity);specialFireballs.unloaded(entity);rasengan.unloaded(entity);
         if(entity instanceof ServerPlayer player)armorSets.phantom().forget(player);
         if(entity instanceof LivingEntity living)ownedEffects.forget(living);
         specialDrops.unloaded(entity);
@@ -1763,7 +1778,7 @@ public final class LbcItems {
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
         timeStop.tick();polymorph.tick();fpvDrone.tick();witchClaims.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
-        nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();
+        nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();rasengan.tick();imbaRunes.tick();
         skyHazards.tick();
         lightningAcquisition.tick();
         nuclearVisuals.tick();
@@ -2036,7 +2051,7 @@ public final class LbcItems {
         infinity.forget(player);
         aimbobRewards.forget(player);
         edibleSpells.forget(player);
-        nukeEvent.forget(player);foodLifecycle.forget(player);legacyEffects.forget(player);
+        nukeEvent.forget(player);foodLifecycle.forget(player);legacyEffects.forget(player);rasengan.forget(player);
         foodStatuses.forget(player);
         ownedEffects.forget(player);
         moiseiBoots.forget(player);
@@ -2051,7 +2066,7 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {
-        looseRewards.stop();specialFireballs.stop();
+        looseRewards.stop();specialFireballs.stop();rasengan.stop();imbaRunes.stop();
         polymorph.stop();
         SignedEnvironmentalEffects.clear();
         timeStop.stop();

@@ -215,6 +215,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcMetalPipe.divider(player.getItemInHand(hand)))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.LbcBigBob.matches(player.getItemInHand(hand))
+                    ||me.skywars2.game.LbcImbaRunes.matches(player.getItemInHand(hand))||me.skywars2.game.LbcChaosRewardItems.matches(player.getItemInHand(hand))))
+                return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             // Authored raw spell leaves retain their vanilla carrier, so enter the same two-hand dispatcher here.
             if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.LbcLibrarySpells.matchesRawRaycast(player.getItemInHand(hand))||me.skywars2.game.LbcRewardTools.matches(player.getItemInHand(hand))||me.skywars2.game.LbcLooseRewards.luckyWand(player.getItemInHand(hand))||me.skywars2.game.LbcFpvDrone.matches(player.getItemInHand(hand))||me.skywars2.game.LbcWitchGluttony.matches(player.getItemInHand(hand))||me.skywars2.game.LbcWitchIndolence.matches(player.getItemInHand(hand))||me.skywars2.game.LbcWitchClaims.matches(player.getItemInHand(hand))||me.skywars2.game.LbcWitchLust.matches(player.getItemInHand(hand))))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;

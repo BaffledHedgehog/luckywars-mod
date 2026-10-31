@@ -220,6 +220,7 @@
     "PortalGatewayMixin$Travel",
     "PlayerMechanicsMixin",
     "ConsumableSkillMixin",
+    "ConsumableSkillMixin$Finish",
     "LbcEffectTriggerMixin",
     "LbcColorEffectsMixin",
     "LbcInstantEffectMixin",

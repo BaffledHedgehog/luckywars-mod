@@ -53,6 +53,18 @@ final class MatchTerrainCheckpoint {
         return result;
     }
 
+    /** Include resident actor destinations explicitly, even before ChunkMap makes them visible. */
+    static MatchTerrainCheckpoint captureLoaded(GameController game){
+        var result=captureLoaded(game.server());
+        for(var body:MatchActorCheckpoint.currentBodies(game).values()){
+            if(body.isRemoved()||!(body.level() instanceof ServerLevel level))continue;
+            var at=new ChunkPos(body.getBlockX() >> 4,body.getBlockZ() >> 4);var chunk=level.getChunkSource().getChunkNow(at.x(),at.z());
+            if(chunk==null)throw new IllegalStateException("Prepare actor destinations before terrain capture");
+            result.include(chunk);
+        }
+        return result;
+    }
+
     /** Explicit extension point for a future checkpoint owner's chunk-load boundary. */
     void include(LevelChunk chunk) {
         thread();

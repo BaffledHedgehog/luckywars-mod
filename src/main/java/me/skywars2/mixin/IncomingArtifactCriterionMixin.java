@@ -37,12 +37,7 @@ public abstract class IncomingArtifactCriterionMixin {
         private boolean skywars2$incomingAttempt(ServerLevel level,DamageSource source,float amount,Operation<Boolean> nativeHurt){
             var game=SkyWars2.game();
             if(game!=null&&(Object)this instanceof ServerPlayer player)
-                return game.items().incomingArtifacts().withIncomingAttempt(player,
-                        ()->game.items().shulkerArmor().withIncomingAttempt(player,
-                                ()->game.items().armorSets().nanobots().withIncomingAttempt(player,
-                                        ()->game.items().armorSets().glass().withIncomingAttempt(player,
-                                                ()->game.items().armorSets().berserk().withIncomingAttempt(player,
-                                                        ()->game.items().armorSets().techno().withIncomingAttempt(player,()->game.items().armorSets().chaos().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount))))))));
+                return game.items().withIncomingDamageAttempt(player,()->nativeHurt.call(level,source,amount));
             return nativeHurt.call(level,source,amount);
         }
     }

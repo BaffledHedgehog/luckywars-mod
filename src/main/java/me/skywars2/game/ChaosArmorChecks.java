@@ -28,6 +28,29 @@ public final class ChaosArmorChecks {
         require(Math.abs(net.minecraft.util.Mth.wrapDegrees(actual-(float)expected))<.001f,detail+" actual="+actual+" expected="+expected);
     }
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Chaos armor: "+why);}
+    /** Compare effective native tables after the canonical singleton-reference refactor. */
+    private static com.google.gson.JsonElement canonicalTable(GameController game,net.minecraft.world.level.storage.loot.LootTable table){
+        var ops=game.server().reloadableRegistries().lookup().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
+        var encoded=net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC.encodeStart(ops,table).getOrThrow().getAsJsonObject();
+        var expanded=LootDefinitionChecks.expanded(encoded);
+        fullyExpanded(expanded);
+        // Expansion restores item entries and appends caller modifiers after definition modifiers.
+        // Run the actual codec again so default weights/counts and modifier representation normalize equally.
+        var normalized=net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC.parse(ops,expanded).getOrThrow();
+        return net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC.encodeStart(ops,normalized).getOrThrow();
+    }
+    /** Unsupported generated wrappers must fail, rather than compare as unresolved references. */
+    private static void fullyExpanded(com.google.gson.JsonElement value){
+        if(value.isJsonArray()){for(var child:value.getAsJsonArray())fullyExpanded(child);return;}
+        if(!value.isJsonObject())return;
+        var object=value.getAsJsonObject();
+        if(object.has("type")&&object.get("type").isJsonPrimitive()
+                &&Set.of("loot_table","minecraft:loot_table").contains(object.get("type").getAsString())
+                &&object.has("value")&&object.get("value").isJsonPrimitive())
+            require(!object.get("value").getAsString().startsWith("lbc:item_defs/"),"unsupported or cyclic canonical item definition "+object.get("value").getAsString());
+        // Match the shared expander's structural walk; item components and predicates are opaque payloads.
+        for(String field:List.of("pools","entries","children","value"))if(object.has(field))fullyExpanded(object.get(field));
+    }
     private static java.lang.reflect.Field field(Object value,String name){for(Class<?> type=value.getClass();type!=null;type=type.getSuperclass())try{var f=type.getDeclaredField(name);f.setAccessible(true);return f;}catch(NoSuchFieldException ignored){}throw new IllegalStateException("Missing native fixture field "+name);}
     private static Object read(Object value,String name){try{return field(value,name).get(value);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static void set(Object value,String name,Object replacement){try{field(value,name).set(value,replacement);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
@@ -113,7 +136,7 @@ public final class ChaosArmorChecks {
         net.minecraft.world.level.storage.loot.LootParams params(boolean chest){return new net.minecraft.world.level.storage.loot.LootParams.Builder(owner.level()).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,owner.position()).withOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.THIS_ENTITY,owner).create(chest?net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST:net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.COMMAND);}
         void equal(List<ItemStack> a,List<ItemStack>b,String why){require(a.size()==b.size(),why+" count");for(int n=0;n<a.size();n++)require(ItemStack.matches(a.get(n),b.get(n)),why+" exact components");}
         void acquisition(){var ops=game.server().reloadableRegistries().lookup().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
-            for(int n=0;n<TABLE_IDS.length;n++){String id=TABLE_IDS[n];if(requireReady&&n<7)require(LootTestCatalog.isSuggested(Identifier.parse("lbc:"+id)),"public source readiness "+id);var expected=net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC.parse(ops,com.google.gson.JsonParser.parseString(SOURCE_TABLES[n])).getOrThrow();var actual=table(id);require(net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC.encodeStart(ops,actual).getOrThrow().equals(net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC.encodeStart(ops,expected).getOrThrow()),"frozen complete original table "+id);
+            for(int n=0;n<TABLE_IDS.length;n++){String id=TABLE_IDS[n];if(requireReady&&n<7)require(LootTestCatalog.isSuggested(Identifier.parse("lbc:"+id)),"public source readiness "+id);var expected=net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC.parse(ops,com.google.gson.JsonParser.parseString(SOURCE_TABLES[n])).getOrThrow();var actual=table(id);require(canonicalTable(game,actual).equals(canonicalTable(game,expected)),"frozen complete original table "+id);
                 for(long seed=1;seed<=32;seed++)equal(actual.getRandomItems(params(n==7),seed),expected.getRandomItems(params(n==7),seed),"native seeded source "+id+" seed"+seed);
                 if(n<4){var out=actual.getRandomItems(params(false),1);require(out.size()==1,"source singleton "+id);pieces[n]=out.getFirst();require(LbcFartus.data(pieces[n]).getIntOr("chaoschestplate",0)==1,"original Chaos raw flag");}
             }

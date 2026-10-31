@@ -59,10 +59,13 @@ public final class LbcFoodLifecycle {
     private final Map<Entity,Accepted> causes=new WeakHashMap<>();
     private final Map<UUID,Accepted> unloaded=new HashMap<>();
     private final Set<Entity> publishing=Collections.newSetFromMap(new IdentityHashMap<>());
-    private record Eating(String epoch,InteractionHand hand){}
-    private final Map<UUID,Eating> scheduled=new LinkedHashMap<>();
+    private static final class Finishing {
+        final ServerPlayer player;final ItemStack stack;final String epoch;boolean oldStew;
+        Finishing(ServerPlayer player,ItemStack stack,String epoch){this.player=player;this.stack=stack;this.epoch=epoch;}
+    }
+    private final Deque<Finishing> finishing=new ArrayDeque<>();
     private final Map<UUID,Integer> halloweenTicks=new HashMap<>();
-    private int lastTick=Integer.MIN_VALUE,scheduledTick=Integer.MIN_VALUE;
+    private int lastTick=Integer.MIN_VALUE;
     private Accepted executing;private ServerLevel executingLevel;
     public LbcFoodLifecycle(GameController game){this.game=game;}
 
@@ -85,10 +88,21 @@ public final class LbcFoodLifecycle {
         if(countsAsFood(stack))game.items().mana().score(p,"food_count").add(1);
         var hand=p.getUsedItemHand();
         if(data.getIntOr("inf",0)==1)p.setItemInHand(hand,infiniteSteak());
-        if(data.getIntOr("inf_old",0)==1){p.entityTags().add("scheduled_eating");scheduled.put(p.getUUID(),new Eating(game.items().epoch(),hand));scheduledTick=game.server().getTickCount();}
+        if(data.getIntOr("inf_old",0)==1){
+            var frame=finishing.peek();if(frame!=null&&frame.player==p&&frame.stack==stack)frame.oldStew=true;
+            p.entityTags().remove("scheduled_eating");
+        }
         if(data.getIntOr("halloween_food",0)==1)halloween(p);
         if(data.getIntOr("halloween_chorus",0)==1)chorus(p);
         if(data.getIntOr("bad_apple",0)==1)badApple(p);
+    }
+    /** Return the source replacement after native debit AND bowl handling, in the same use call. */
+    public ItemStack finishUsingItem(ServerPlayer player,ItemStack stack,java.util.function.Supplier<ItemStack> nativeFinish){
+        var frame=new Finishing(player,stack,game.items().epoch());finishing.push(frame);
+        try{
+            var result=nativeFinish.get();
+            return frame.oldStew&&game.items().currentEpoch(frame.epoch)&&admitted(player)?oldInfiniteStew():result;
+        }finally{finishing.pop();}
     }
     public static ItemStack infiniteSteak(){
         var stack=new ItemStack(Items.COOKED_BEEF);presentation(stack,Component.translatable("infinite_steak"),Component.translatable("infinite_steak.lore"));
@@ -182,20 +196,8 @@ public final class LbcFoodLifecycle {
         int now=game.server().getTickCount();if(now==lastTick||!game.server().tickRateManager().runsNormally())return;lastTick=now;
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
         for(var actor:List.copyOf(actors.keySet()))if(actor.isRemoved()||!live(accepted(actor))){actors.remove(actor);if(!actor.isRemoved())actor.discard();}
-        if(scheduled.isEmpty()||now<=scheduledTick||game.items().wands().timeStopped())return;
-        var due=new LinkedHashMap<>(scheduled);scheduled.clear();scheduledTick=Integer.MIN_VALUE;
-        for(var entry:due.entrySet()){
-            var player=game.server().getPlayerList().getPlayer(entry.getKey());if(player==null)continue;
-            if(game.items().polymorph().masked(player)){scheduled.put(entry.getKey(),entry.getValue());scheduledTick=now;continue;}
-            if(game.items().currentEpoch(entry.getValue().epoch())
-                    &&(game.items().timeStop().stopped(player.level())||game.items().wands().timeStopped()||game.items().wands().inputTimeStopped(player))){
-                scheduled.put(entry.getKey(),entry.getValue());scheduledTick=now;continue;
-            }
-            if(player.entityTags().contains("scheduled_eating")&&game.items().currentEpoch(entry.getValue().epoch())&&admitted(player))
-                player.setItemInHand(entry.getValue().hand(),oldInfiniteStew());
-            player.entityTags().remove("scheduled_eating");
-        }
     }
+
     public void loaded(Entity actor){
         if(!managed(actor)||publishing.contains(actor)||actors.containsKey(actor))return;
         var accepted=unloaded.remove(actor.getUUID());if(!live(accepted)||!game.items().currentEpoch(actor)){actor.discard();return;}
@@ -206,12 +208,13 @@ public final class LbcFoodLifecycle {
         if(accepted!=null&&actor.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(actor.getUUID(),accepted);
     }
     /** Accepted falling-block consequences retain their author across death/disconnect. */
-    public void forget(ServerPlayer player){scheduled.remove(player.getUUID());halloweenTicks.remove(player.getUUID());player.entityTags().remove("scheduled_eating");}
+    public void forget(ServerPlayer player){halloweenTicks.remove(player.getUUID());player.entityTags().remove("scheduled_eating");}
     public void stop(){
-        for(var id:scheduled.keySet()){var p=game.server().getPlayerList().getPlayer(id);if(p!=null)p.entityTags().remove("scheduled_eating");}
-        scheduled.clear();halloweenTicks.clear();scheduledTick=Integer.MIN_VALUE;for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();causes.clear();unloaded.clear();
+        halloweenTicks.clear();for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();causes.clear();unloaded.clear();
+        for(var player:game.server().getPlayerList().getPlayers())player.entityTags().remove("scheduled_eating");
     }
-    public int pendingCount(){return scheduled.size();}
+    public int pendingCount(){return 0;}
     public int actorCount(){return actors.size();}
+
     public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
 }

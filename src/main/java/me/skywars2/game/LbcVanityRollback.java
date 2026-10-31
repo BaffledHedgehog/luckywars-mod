@@ -108,6 +108,7 @@ public final class LbcVanityRollback {
         // Complete accepted construction with the existing bounded dispatcher before saving.
         game.items().stonekivi().tick();
         if(!independentTerrainReady()){waitReason="waiting for structure writes to finish";return;}
+        if(!MatchActorCheckpoint.prepareResident(game)){waitReason="waiting for native actor chunks";return;}
         // First establish a usable save point; granting below is a separate entry boundary.
         if(claim&&!granted){
             // Admission does not copy the terrain. The point is captured once, after the

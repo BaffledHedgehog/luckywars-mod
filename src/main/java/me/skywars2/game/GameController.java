@@ -101,6 +101,8 @@ public final class GameController {
 
     void restoreCore(Checkpoint image) {
         validateCheckpoint(image);
+        // Unsupported short restart intent is cancelled by rewind, as other transient actions are.
+        runeRestartPending=false;
         participants.clear();image.members.forEach((id,p)->participants.put(id,Checkpoint.copy(p)));
         pendingLobby.clear();pendingLobby.addAll(image.pending);nativeEntityUnloads.clear();nativeEntityUnloads.addAll(image.unloads);
         stage=image.stage;host=image.host;pendingStarter=image.pendingStarter;victoryWinner=image.victoryWinner;
@@ -165,6 +167,7 @@ public final class GameController {
     private boolean fallEnabled;
     private Component mapFailure = Component.empty();
     private String readyMap;
+    private boolean runeRestartPending;
     private boolean readyBroken;
     private long selectionVersion;
     private boolean preparingSelection;
@@ -551,6 +554,9 @@ public final class GameController {
         spectators.tick();
         attributeHud.tick();
         lbc.tick();
+        if(runeRestartPending&&stage==Stage.LOBBY&&lobbyReady&&!maps.busy()){
+            runeRestartPending=false;requestStart(null,true);
+        }
         // В лобби предметы доступны только developer; основной игровой tick items уже вызывается ниже.
         if (!playing()) items.tick();
         if (stage == Stage.LOBBY && lobbyReady) {
@@ -754,6 +760,16 @@ public final class GameController {
         return true;
     }
 
+    /** Nautiz replaces the round through the same map-ready/lobby/new-match transitions as normal play. */
+    void restartFromRune(ServerPlayer author){
+        if(!playing()||maps.busy()||stopped)return;
+        stopMatch();runeRestartPending=true;
+    }
+    void addRuneLives(ServerPlayer author,int amount){
+        var member=participants.get(author.getUUID());if(member==null)return;
+        member.lives=(int)Math.clamp((long)member.lives+amount,0L,Integer.MAX_VALUE);
+        if(playing())updateBar();
+    }
     public void stopMatch() {
         if (maps.busy()) { announce(text("game.wait_loading")); return; }
         announce(text("game.cancelled")); restoreLobby();
@@ -821,6 +837,7 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        runeRestartPending=false;
         teamColors.stop();
         luckyModifiers.endMatch();
         // Общая точка завершения/отмены матча: снимает временные состояния, готовит арену и ждёт callback лобби.

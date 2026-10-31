@@ -27,6 +27,7 @@ dependencies {
 
 processResources {
     include 'data/lbc/loot_table/item_defs/**/*.json'
+    include 'data/lbc/structure/item_gallery.nbt'
     // Exact existing singleton owners required by canonical item references.
     include 'data/lbc/loot_table/uncrafted/stripped_bamboo_log.json'
     include 'data/lbc/loot_table/uncrafted/acacia_planks.json'

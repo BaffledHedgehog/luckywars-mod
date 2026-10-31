@@ -1,3 +1,22 @@
+## Damage reactions and reward consumers - STAGED NATIVE BATCH, NOT RELEASED (31 October 2026)
+
+[Current implementation/evidence](agent_notes/DAMAGE_REACTIONS_AND_REWARD_CHAIN_2026_10_31.md).
+Hole HP drain now invokes shared admission/effect/criteria/damage/death reactions
+without renewing hurt state; actual incoming/nanobot/reactive callbacks checked.
+Infinite stew restores in the native finish call, without next-tick hand overwrite.
+Ten Imba runes,26-cell Rasengan with x1/x2/x6 native knockback, free unjammed Big
+Bob,55-branch unstable book/Academy and caster-MAG Ender whip are integrated.
+Shared ray/controller/terrain/food owners reused; original gallery packaged.
+Actor destination chunks prepared before Vanity capture and included in terrain.
+21 distinct staged passing native groups; failed receipts retained. Final0794b535
+passes global rune payloads with rewinds and book/whip (beacon+artifact/both hands).
+Production/data identical869880d5, which passes Vanity and actual Nautiz restart.
+9532 inputs frozen;195 authorpaths exact, one owned Academy insertion into196th;
+31 live overrides/main d9087f0a exact. Normal exits/exact snapshots/no locks.
+Boba map rotation remains; Hagalaz/Chef and release scope await chat answers.
+Do not generalize the Chaos-armor chain requirement to every mod update without
+the user's answer. No main install/restart/push or RP/question-file changes here.
+
 ## Electric pulse cadence with precise contact - NATIVE BATCH, NOT RELEASED (31 October 2026)
 
 [Behavior/evidence](agent_notes/ELECTRIC_CONTACT_CADENCE_2026_10_31.md).

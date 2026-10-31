@@ -85,6 +85,10 @@ public final class LbcExasperato {
         void trail(Vec3 from,Vec3 to);
         void complete(net.minecraft.world.phys.HitResult hit);
         default void submitted(RayTicket ticket) { }
+        /** Nonzero only for an original discrete selector ray. The same queue owns its cursor. */
+        default double sampleStep(){return 0;}
+        default net.minecraft.world.phys.HitResult sampleAt(Vec3 point){throw new UnsupportedOperationException();}
+        default boolean sampleContinues(Vec3 point){return true;}
         default MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){return ignored->()->{};}
     }
     /** The original request identity survives replay; its completion bit belongs to Search, not a JDK future. */
@@ -95,6 +99,14 @@ public final class LbcExasperato {
         void cancel(){LbcExasperato.complete(search,null);}
     }
     enum RayMode { SPELL, TERRAIN, PHASED, TECHNOLOGY }
+    /** Original recursive sample count, without a second scheduler or mutable cursor in the caller. */
+    void replayableSamples(ServerPlayer owner,Vec3 from,Vec3 direction,int advances,ReplayableRay replay){
+        double step=replay.sampleStep();
+        if(!(step>0)||!Double.isFinite(step)||advances<0)throw new IllegalArgumentException("Discrete ray bounds");
+        var search=new Search(owner,game.items().epoch(),from,direction.normalize(),advances*step,false,null,false,false,replay::target);
+        search.replay=replay;search.shieldBlockable=false;replay.submitted(new RayTicket(search));
+        if(direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
+    }
     /** Typed form of searchTool; custom source predicates and finite-miss policy are accepted once. */
     void replayableTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,boolean blocksOnly,ReplayableRay replay,boolean finishAtRange){
         direction=direction.normalize();double reach=range;
@@ -393,9 +405,21 @@ public final class LbcExasperato {
         for(int work=0;work<SEARCH_BUDGET && !searches.isEmpty() && System.nanoTime()<deadline;work++) {
             var search=searches.removeFirst(); var owner=search.owner; var level=search.level;
             if(done(search)) continue;
-            if(!valid(owner,search.epoch) || owner.level()!=level || searchOwnerSuppressed(search)) { complete(search,null); continue; }
+            boolean sampled=search.replay!=null&&search.replay.sampleStep()>0;
+            boolean active=sampled?game.items().currentEpoch(search.epoch)&&game.playing()&&owner.isAlive()&&!owner.isRemoved()
+                    &&game.canUseGameplayItems(owner)&&LbcDimensionItems.ordinary(level):valid(owner,search.epoch);
+            if(!active || owner.level()!=level || !sampled&&searchOwnerSuppressed(search)) { complete(search,null); continue; }
             if(owner.entityTags().contains("time_stopped")) { searches.addLast(search); continue; }
+            if(sampled&&game.items().timeStop().stopped(level)){searches.addLast(search);continue;}
             Vec3 from=search.position;
+            if(sampled){
+                if(!level.hasChunkAt(BlockPos.containing(from))){complete(search,null);continue;}
+                var hit=search.replay.sampleAt(from);
+                if(hit!=null){complete(search,hit);continue;}
+                if(search.remaining<=1e-7||!search.replay.sampleContinues(from)){complete(search,null);continue;}
+                double step=search.replay.sampleStep();search.position=from.add(search.direction.scale(step));
+                search.remaining-=step;searches.addLast(search);continue;
+            }
             if(!level.hasChunkAt(BlockPos.containing(from))
                     || searchPointSuppressed(search,from)) { complete(search,null); continue; }
             if(search.remaining<=1e-7){

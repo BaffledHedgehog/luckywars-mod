@@ -455,6 +455,24 @@ public final class LbcMagic {
         double t=(-b-Math.sqrt(discriminant))/a;
         return t>=0 && t<=1 ? t : Double.POSITIVE_INFINITY;
     }
+    /** Rasengan's original three admission radii; released blasts do not acquire a new magic gate. */
+    boolean rasenganSuppressed(ServerLevel level,Vec3 feet) {
+        if(level==game.maps().level()){
+            for(var beacon:loadedBeacons)if(!beacon.mechanism&&beacon.center.distanceToSqr(feet)<=24*24)return true;
+            for(var marker:legacyMarkers)if(!marker.isRemoved()&&marker.level()==level
+                    &&marker.entityTags().contains("stopper_magic")&&marker.position().distanceToSqr(feet)<=24*24)return true;
+        }
+        if(artifactSuppressedAt(level,feet))return true;
+        for(var player:level.players()){
+            double distance=player.position().distanceToSqr(feet);
+            if(distance<=400&&!player.isSpectator()&&player.entityTags().contains("nomagic_active"))return true;
+            if(distance<=144)for(int slot=0;slot<=40;slot++){
+                var data=LbcFartus.data(player.getInventory().getItem(slot));
+                if(data.getIntOr("mystical",0)==1&&data.getIntOr("type",0)==2)return true;
+            }
+        }
+        return false;
+    }
     public boolean mechanismSuppressed(ServerPlayer owner) { return mechanismSuppressedAt(owner.level(),owner.position()); }
     public boolean mechanismSuppressedAt(ServerLevel level, Vec3 position) {
         return level == game.maps().level() && beaconSuppressed(position,true);

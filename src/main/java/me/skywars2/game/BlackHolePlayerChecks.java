@@ -40,6 +40,19 @@ final class BlackHolePlayerChecks {
             var source=new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),other);
             require(!player.isInvulnerableTo(player.level(),source)&&player.canHarmPlayer(other),"loaded, acknowledged native enemy fixture");
             BlackHoleContactChecks.run(game,player);
+            var otherSaved=new GameChecks.WandThirdPlayerState(other,game.items().mana());
+            int oldTier=game.items().mana().score(player,LbcNanobotArmor.TIER).get();
+            int oldCooldown=game.items().mana().score(player,LbcNanobotArmor.COOLDOWN).get();
+            try{
+            other.getInventory().clearContent();other.removeAllEffects();game.items().mana().noMagic(other,0);
+            game.items().mana().set(other,0);
+            var reactive=new ItemStack(Items.PAPER);var flags=new net.minecraft.nbt.CompoundTag();
+            flags.putInt("mystical",2);flags.putInt("type",6);
+            reactive.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(flags));
+            other.getInventory().setItem(0,reactive);
+            game.items().mana().score(player,LbcNanobotArmor.TIER).set(20);
+            game.items().mana().score(player,LbcNanobotArmor.COOLDOWN).set(0);
+            long criteria=game.items().incomingArtifacts().criterionCount();
             player.setHealth(100);player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_ABSORPTION).setBaseValue(8);
             player.setAbsorptionAmount(8);player.setDeltaMovement(new Vec3(.1,.05,-.2));
             float initialHealth=player.getHealth();
@@ -50,6 +63,10 @@ final class BlackHolePlayerChecks {
             player.hurtTime=3;player.hurtDuration=4;player.damageCooldownTime=17;
             var velocity=player.getDeltaMovement();base.recording.packets.clear();
             require(BlackHoleDamage.apply(game,player,source,.25f)&&BlackHoleDamage.apply(game,player,source,.25f),"consecutive player HP contacts");
+            require(game.items().incomingArtifacts().criterionCount()==criteria+2&&game.items().armorSets().nanobots().tier(player)==10,
+                    "each HP drain synchronously invokes the shared incoming criterion and nanobot wear exactly once");
+            require(game.items().mana().get(other)==2000,"each accepted drain synchronously triggers the existing reactive artifact exactly once");
+            other.getInventory().clearContent();
             require(player.getHealth()==initialHealth-.5f&&player.getAbsorptionAmount()==8,"raw HP only");
             require(player.hurtTime==3&&player.hurtDuration==4&&player.damageCooldownTime==17&&player.getInvulnerableTime()==0
                     &&player.getDeltaMovement().equals(velocity),"existing hit state and velocity preserved, no renewed stun");
@@ -70,6 +87,11 @@ final class BlackHolePlayerChecks {
                 require(BlackHoleDamage.apply(game,body,source,.5f)&&body.getHealth()==7.5f&&player.getHealth()==7.5f
                         &&healthPacket(base.recording,player,7.5f),"polymorph body mirrors and publishes direct HP without a hurt packet");
             }finally{game.items().polymorph().forget(player);}
+            }finally{
+                game.items().mana().score(player,LbcNanobotArmor.TIER).set(oldTier);
+                game.items().mana().score(player,LbcNanobotArmor.COOLDOWN).set(oldCooldown);
+                otherSaved.restore(game);
+            }
             }finally{
                 game.items().polymorph().forget(player);
                 player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_ABSORPTION).setBaseValue(absorptionBase);

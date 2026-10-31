@@ -198,6 +198,15 @@ public final class LbcAcademy {
         if (lastInteractions.getOrDefault(player.getUUID(), Long.MIN_VALUE) == now) return true;
         lastInteractions.put(player.getUUID(), now);
         var stack = player.getMainHandItem(); var wand = wand(stack);
+        if(LbcChaosRewardItems.book(stack)){
+            boolean upgraded=data(stack).getIntOr("upgraded",0)==1;
+            LbcChaosRewardItems.academy(game,player,hand);
+            if(!upgraded&&data(stack).getIntOr("upgraded",0)==1){
+                if(academy!=null)consume(academy);
+                game.lbc().academyPromoted(player);
+            }
+            return true;
+        }
         if (wand == null) return true; // Остальным жезлам пока не обещаем несуществующие улучшения.
         var tag = data(stack);
         if (tag.getIntOr("pissed_by_madoka_sob_sob_sob_sob_sob", 0) == 1) return true;

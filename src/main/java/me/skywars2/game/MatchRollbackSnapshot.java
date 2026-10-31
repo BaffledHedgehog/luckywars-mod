@@ -64,7 +64,7 @@ final class MatchRollbackSnapshot {
         residents=new MatchResidentItemCheckpoint(game,sources);
         core=new MatchCoreCheckpoint(game);world=new MatchWorldCheckpoint(game);
         for(var player:game.server().getPlayerList().getPlayers())players.put(player.getUUID(),new MatchPlayerCheckpoint(game,player));
-        terrain=MatchTerrainCheckpoint.captureLoaded(game.server());random=new MatchWorldRandomCheckpoint(game);
+        terrain=MatchTerrainCheckpoint.captureLoaded(game);random=new MatchWorldRandomCheckpoint(game);
         captureNanos=System.nanoTime()-start;
         SkyWars2.LOGGER.info("[vanity] Captured {} chunks, {} actors and {} players in {} ms",
                 terrain.chunks(),actors.size(),players.size(),captureNanos/1_000_000.0);

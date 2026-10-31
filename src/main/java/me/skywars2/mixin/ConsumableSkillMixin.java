@@ -26,4 +26,16 @@ public abstract class ConsumableSkillMixin {
         var game = SkyWars2.game();
         if (game != null && user instanceof ServerPlayer player) game.consumed(player, stack);
     }
+    /** FinishUsingItem owns use-remainders; replacing earlier would be overwritten by a bowl. */
+    @Mixin(ItemStack.class)
+    public static abstract class Finish {
+        @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="finishUsingItem")
+        private ItemStack skywars2$finish(Level level,LivingEntity user,
+                com.llamalad7.mixinextras.injector.wrapoperation.Operation<ItemStack> original){
+            var game=SkyWars2.game();
+            if(game!=null&&user instanceof ServerPlayer player)
+                return game.items().foodLifecycle().finishUsingItem(player,(ItemStack)(Object)this,()->original.call(level,user));
+            return original.call(level,user);
+        }
+    }
 }

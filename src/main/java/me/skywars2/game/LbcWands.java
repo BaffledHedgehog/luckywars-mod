@@ -459,6 +459,9 @@ public final class LbcWands {
         if(LbcShishEncounter.matches(stack))return game.items().shishEncounter().use(player,hand);
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
         if(LbcFpvDrone.matches(stack))return game.items().fpvDrone().use(player,hand);
+        if(LbcBigBob.matches(stack))return LbcBigBob.use(game,player,hand);
+        if(LbcImbaRunes.matches(stack))return game.items().imbaRunes().use(player,hand);
+        if(LbcChaosRewardItems.matches(stack))return LbcChaosRewardItems.use(game,player,hand);
         if(LbcRewardTools.matches(stack))return LbcRewardTools.use(game,player,hand);
         if(LbcLooseRewards.luckyWand(stack))return game.items().looseRewards().useLucky(player,hand);
         if(LbcCommunism.matches(stack))return game.items().communism().use(player,hand);
@@ -1658,6 +1661,7 @@ public final class LbcWands {
     }
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
+        if(LbcRasengan.blast(source))return validRoleTarget(victim,false)&&!LbcGreed.active(victim);
         if(LbcGreed.active(victim)) return false;
         if(LbcSpecialFireballs.managed(source.getDirectEntity()))return game.items().specialFireballs().canAffect(source.getDirectEntity(),victim);
         if(LbcEdibleSpells.wild(source))return validRoleTarget(victim,false);
