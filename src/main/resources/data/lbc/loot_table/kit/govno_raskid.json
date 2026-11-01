@@ -5,30 +5,11 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/snowball__0a07907b8b8e",
-          "functions": [
+          "value": "lbc:ported/bouncing_poop",
+          "modifier": [
             {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:3dpoop"
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "govno_raskid",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_count",
+              "type": "minecraft:set_count",
               "count": 16
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{gadget:1,govno_raskid:1,govnoq:1}"
             }
           ]
         }

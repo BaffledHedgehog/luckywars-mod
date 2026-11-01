@@ -1,3 +1,19 @@
+## Pursuit kits - STAGED, POLICY REPLIES PENDING (1 November 2026)
+
+[Independent preparation and exact Deus source](agent_notes/PURSUIT_KITS_PREPARATION_2026_11_01.md).
+Main remainsef417edd. No new install request/restart/push. User leaves stacks as-is.
+Bouncing Poop kit11 native actor/persistent attachment, bounce/soil/body/mega shared
+rubble implemented, and one independent native group passedb5481bcb. Earlier
+fixture fractional-wall error retainedec663331. Compile passes;9582inputs/2367classes/
+7173resources.224authorpaths/31live overrides exact. Normal child/exact restore/no locks.
+Deus21 definitions+source audit ONLY, no runtime/HUD/reset/cast/catalogue activation.
+Kit11/21 menu routes still absent; no ordinary skill9-selection claim. Suppression
+and Deus target/active-counter policies already asked IN CHAT, still unanswered.
+Keep questions pending, do not infer defaults, do not duplicate into PENDING.
+No ready qualification/installer: staged core tests without jammers do not settle
+policy or qualify release. Finish actual replies, Deus and native acquisition before
+publishing. No RP or protected author edits. Older installed header remains valid.
+
 ## Gaara pot and Clown kit - NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Complete contract, source corrections and failures](agent_notes/GAARA_CLOWN_KITS_2026_11_01.md).

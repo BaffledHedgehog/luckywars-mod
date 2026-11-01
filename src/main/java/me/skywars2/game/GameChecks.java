@@ -668,6 +668,7 @@ public final class GameChecks {
                                 case "mechanical-kits-menu" -> { KitUtilityChecks.mechanicalMenus(game); return; }
                                 case "tablet-ground" -> { TabletGroundChecks.start(game); return; }
                                 case "gaara-pot" -> { GaaraPotChecks.start(game); return; }
+                                case "bouncing-poop" -> { BouncingPoopChecks.start(game); return; }
                                 case "clown-kit" -> { ClownKitChecks.start(game); return; }
                                 case "clown-kit-menu" -> { KitUtilityChecks.clownMenus(game); return; }
                                 case "tablet-hand" -> { TabletHandChecks.start(game); return; }
@@ -1431,7 +1432,7 @@ public final class GameChecks {
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
             TabletGroundChecks.tick(game);
-            GaaraPotChecks.tick(game);ClownKitChecks.tick(game);
+            GaaraPotChecks.tick(game);BouncingPoopChecks.tick(game);ClownKitChecks.tick(game);
             TabletHandChecks.tick(game);
             SteampunkBreakerChecks.tick(game);SteampunkGloveChecks.tick(game);
         SteampunkHookChecks.tick(game);

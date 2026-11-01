@@ -139,6 +139,12 @@ public final class LbcGovnomet {
         for(var block:List.copyOf(falling)) {
             if(!falling.contains(block)) continue;
             if(block.isRemoved()) { falling.remove(block); continue; }
+            if(block.entityTags().contains("skywars2.bouncing_poop.dirt")) {
+                if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(block)) {
+                    falling.remove(block);block.discard();
+                }
+                continue;
+            }
             var owner=game.items().electro().reflectedOwner(block);
             if(owner==null || !validOwner(owner) || owner.level()!=block.level() || !game.items().currentEpoch(block)) {
                 falling.remove(block); block.discard();
@@ -219,8 +225,18 @@ public final class LbcGovnomet {
             applyWither(target,charge);
         }
     }
-    private void spawnDirt(ServerPlayer owner,Vec3 at) {
-        var level=owner.level();
+    void spawnDirt(ServerPlayer owner,Vec3 at) {
+        spawnDirt(owner,at,false);
+    }
+    void spawnDirt(ServerPlayer owner,Vec3 at,boolean retained) {
+        spawnDirt(owner.level(),at,owner,retained,null);
+    }
+    void spawnDirt(ServerLevel level,Vec3 at,LbcSpellSource.Source source) {
+        try(var ignored=game.items().spellSources().scope(source,level)) {
+            spawnDirt(level,at,game.server().getPlayerList().getPlayer(source.author()),true,source);
+        }
+    }
+    private void spawnDirt(ServerLevel level,Vec3 at,ServerPlayer owner,boolean retained,LbcSpellSource.Source source) {
         var block=new OwnedDirt(level);
         var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess());
         output.store("BlockState",net.minecraft.world.level.block.state.BlockState.CODEC,Blocks.DIRT.defaultBlockState());
@@ -230,8 +246,10 @@ public final class LbcGovnomet {
         var random=level.getRandom();
         block.setPos(at.add((random.nextInt(101)-50)*.01,(random.nextInt(101)-50)*.01,(random.nextInt(101)-50)*.01));
         block.setDeltaMovement(Vec3.ZERO);
-        game.items().electro().assignOwner(block,owner);
+        if(owner!=null)game.items().electro().assignOwner(block,owner);
+        if(source!=null){game.items().spellSources().bind(block,source);game.items().markCurrentItemEpoch(block);}
         block.entityTags().add("skywars2.govnomet.dirt");
+        if(retained)block.entityTags().add("skywars2.bouncing_poop.dirt");
         if(level.hasChunkAt(block.blockPosition()) && level.addFreshEntity(block)) falling.add(block);
         else block.discard();
     }
@@ -241,6 +259,13 @@ public final class LbcGovnomet {
         OwnedDirt(ServerLevel level) { super(EntityTypes.FALLING_BLOCK,level); }
         @Override public boolean shouldBeSaved() { return false; }
         @Override public void tick() {
+            if(entityTags().contains("skywars2.bouncing_poop.dirt")){
+                if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(this)
+                        ||!LbcDimensionItems.ordinary(level())){discard();return;}
+                var source=game.items().spellSources().source(this);
+                if(source!=null)game.items().indirectKills().capturedWorldChanges((ServerLevel)level(),source.cause(),()->super.tick());
+                else game.items().indirectKills().worldChanges((ServerLevel)level(),this,()->super.tick());return;
+            }
             var owner=game.items().electro().reflectedOwner(this);
             if(owner==null || !validOwner(owner) || owner.level()!=level() || !game.items().currentEpoch(this)) {
                 discard(); return;
@@ -272,7 +297,7 @@ public final class LbcGovnomet {
     private void remove(Charge charge) { charges.remove(charge); charge.discard(); }
     public void forget(ServerPlayer owner) {
         for(var charge:List.copyOf(charges)) if(charge.getOwner()==owner) remove(charge);
-        for(var block:List.copyOf(falling)) if(game.items().electro().reflectedOwner(block)==owner) { falling.remove(block); block.discard(); }
+        for(var block:List.copyOf(falling)) if(!block.entityTags().contains("skywars2.bouncing_poop.dirt")&&game.items().electro().reflectedOwner(block)==owner) { falling.remove(block); block.discard(); }
     }
     public void stop() {
         for(var charge:List.copyOf(charges)) remove(charge);

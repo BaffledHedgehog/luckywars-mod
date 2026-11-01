@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/bouncing_poop.json', 'data/lbc/loot_table/kit/govno_raskid.json'
     include 'data/lbc/loot_table/ported/gaara_pot.json', 'data/lbc/loot_table/ported/clown_mask.json'
     include 'data/lbc/loot_table/ported/clown_smoke_bomb.json', 'data/lbc/loot_table/ported/false_grave.json'
     include 'data/lbc/loot_table/kit/gaara.json', 'data/lbc/loot_table/kit/clown.json'
