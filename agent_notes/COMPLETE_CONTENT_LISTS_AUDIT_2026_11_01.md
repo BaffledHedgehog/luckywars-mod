@@ -1,0 +1,51 @@
+# Live content-list audit — 1 November 2026
+
+Implementation follow-up: [the consolidated contract](CONTENT_REFRESH_2026_11_01.md)
+records the completed source changes and native evidence. Sulfur cube was added
+to both Mobgun and the general random-Mob producer, plus mobs/monsters tags.
+The author approved adding it to magic_mobs AND connecting that WHOLE tag to
+Nyauwu's enemy pulse, alongside existing summon/actor checks. Global magical
+entity purging is unchanged. PhD gains58items using exact prior analog membership,
+rather than admitting previously excluded wool colors/buckets. The source-only
+mobs_and_markers tag has no current Java consumer and is not packaged; its parent
+inheritance is a source observation, not a claim about a live native tag.
+
+Read-only production audit requested alongside the infinite shulker/Mobgun extension. No Java, resource, build, server, RP or PENDING files were changed by this audit. The infinite item catalog and full registry version delta are owned by the other tasks; this document records additional live consumers and distinguishes exhaustive classification from authored probability presets.
+
+Primary evidence: checked-in `src/main/java/me/skywars2/game`, `src/main/resources/data/minecraft/tags`, and local Loom source archive `.gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-d6f9bb6878/26.3/minecraft-merged-d6f9bb6878-26.3-sources.jar`. Archive entries `EntityTypes.java`, `EntityTypeIds.java`, `Items.java`, `ItemIds.java`, `Blocks.java`, `MobEffects.java` and `Attributes.java` were inspected. This establishes current registration; the separate version-delta report establishes introduction after 1.21.11. Do not infer introduction dates solely from this audit.
+
+## Findings and disposition
+
+Paths in the table are relative to the project root. Resource paths abbreviated `tags/…` mean `src/main/resources/data/minecraft/tags/…`; Java filenames mean `src/main/java/me/skywars2/game/…`.
+
+| File/catalog | Live consumer | Status | Recommended change |
+| --- | --- | --- | --- |
+| `tags/entity_type/mobs.json` | `LbcTransformator` burst target; `LbcClouds`, `LbcChainLightningStatus`, `LbcCorruptedGlyphs`, `LbcApocalypseActors`, many other spell/encounter targets | Hand-maintained classification. `sulfur_cube` absent. Native `EntityTypes.SULFUR_CUBE` uses `SulfurCube::new`, `MobCategory.MONSTER`. | High-priority safe extension: include `minecraft:sulfur_cube`. It is a genuine current mob, not the new cushion entity. Preserve custom `skywars2:fpv_drone` and existing authored membership. |
+| `tags/entity_type/monsters.json` | `LbcClassicMelee` and other monster-specific effects | Hand-maintained classification; sulfur cube absent. | Include sulfur cube where the list means all hostile monsters. Confirm auxiliary `unholy_monsters` / `flammable_monsters` semantics individually; being MONSTER does not imply undead or flammable. |
+| `tags/entity_type/mobs_and_markers.json` | Shared target classification | Already delegates to `#mobs` and adds `marker`. | No duplicate literal needed; fix parent `mobs`. |
+| `tags/entity_type/magic_mobs.json` | Magic-specific classification | Explicit subset, sulfur cube absent. | Review the intended magical subset; do not automatically copy every hostile mob into this tag. |
+| `tags/item/bioitems.json` | `LbcPhdCrafting.BIO`, `matches()`; three biological ingredients plus certificate | Live exhaustive-ish semantic ingredient allowlist, 635 raw entries at inspection. Includes old flowers, most spawn eggs, wool/carpet/beds; no `golden_dandelion`, `sulfur_cube_spawn_egg`, cushion family. PhD resolves Polymer carriers before testing membership. | Strong same-family extensions: golden dandelion and sulfur cube spawn egg. Consider all sixteen `<color>_cushion` items together because textile families are already admitted. Sulfur cube bucket is a separate policy decision: existing axolotl/tadpole bucket membership is absent, so bucket is not established family precedent. Do not admit mineral sulfur blocks as biological automatically. |
+| `LbcRandomMobSpawn.java`, `ENTRIES` | `random()` native random-mob producer | Hardcoded authored source pool, with per-entry NBT and spawn-finalization choice. Registry lookup only resolves the selected entry; it does not enumerate new mobs. | Candidate for adding new mobs if user means every general random-mob producer, beyond Mobgun. Add explicit appropriate entries and validate native summon/admission. Preserve old payloads and weights; replacing with every registry entity would include projectiles/displays. |
+| `LbcPotionSpawnerDrops.java`, `POTIONS` | Both native potion-spawner kinds (`payload`, `SpawnPotentials`) | Eighteen authored effect/amplifier/duration/color presets, including two damage and two levitation variants. Not all vanilla potions/effects. | Preserve existing pool. New effects need authored duration/amplifier/color and explicit balance intent; no automatic registry expansion. |
+| `LbcEnderWiki.java` + `src/main/resources/skywars2/bad_wiki_effects.json` | Bad Wiki random casts and Academy selectable modes | Fixed 84 random presets / 28 Academy modes, hardcoded bounds, three tiers and advancement index 62. Current vanilla `breath_of_the_nautilus` exists, but absence is not proof of a broken exhaustive contract. | Preserve source presets in this batch. If expanded later, update JSON, bounds, selector display, special random-teleport mode and deterministic checks together. Do not merely append JSON. |
+| `LbcRandomStatLevelup.java` | Quiver reward: two independent bonus draws | Explicit 21 bonuses, paired amount array, one multiplied-base operation; `nextInt(21)`. Not all native attributes. | Preserve balance. Adding attributes requires bonus values and player applicability, not just replacing 21 with registry size. |
+| `LbcImbaRunes.java`, `POS` / `NEG`; `LbcCorruptedGlyphs.java`, `DOWN_ATTRIBUTES` | Giant/negative rune modifiers and corrupted glyph debuffs | Curated semantic operation lists. Attributes differ in whether increasing helps; generic expansion can invert intent. | Review only when new meaningful gameplay attributes are added. Current `Attributes.java` also contains name-tag and waypoint ranges; these are not automatically suitable buff/debuff candidates. |
+| `LbcBolts.java`, normal/ultra/lightning reforge arrays; `LbcTinyReforge`, `LbcRerollCrafting` | Committed crafting and dropped/lightning reforges call the same table selection and `rollReforge` | Lists classify authored custom flags and route to authored `lbc:transformables_*` tables. They are not vanilla weapon/material catalogs. | No generic vanilla additions. New vanilla spear/material does not get a custom authored item flag merely because registered. Preserve independent lightning flag/order semantics. |
+| `LbcDamage.java`, `METAL` | Equipment conductivity | Explicit four humanoid armor-slot sets; copper, iron, chainmail, gold, netherite already present. | No copper fix needed. Cushion/entity equipment is unrelated; do not automatically treat every equippable item as metal. |
+| `tags/block/solid*.json`, `tannerkivi*.json`, `electroprovod.json`, transformation destination/source tags | Terrain spells, clouds, snow, magmify inputs and conductivity | Some lists combine literals and native tags (`solid` includes `mineable/*`, `slabs`, logs, etc.). Absence of a new block literal is insufficient evidence of exclusion. | For sulfur block families, resolve transitive native tag membership before changing. Conductive and conversion destination lists need material meaning; sulfur is not automatically conductive. |
+| `LbcMagmify.java`, `collectOreBlocks` / `collectStoneBlocks` | Random ore/stone transformation outputs | Already scans `BuiltInRegistries.BLOCK`; filters solidity and name (`ORE`, `STONE`), occlusion and shape exclusions. | No stale exhaustive list to extend. New sulfur is not selected by the word `STONE`; changing this is a semantic broadening, not a registry bug. |
+| `AttributeHud.java`, `GameController.java`, `MatchEntityState.java` | Attribute HUD / match restoration | Already iterates the native attribute registry (`listElements` in entity snapshot). | No new hand-maintained registry list needed here. Separate display/policy formulas may still be intentionally selective. |
+| Enchantments / potion loot / biome definitions | Native loot resources, enchantment rule mechanics, authored biome resources | Most Java enchantment references select a particular mechanic (Protection, Power, Infinity), not an all-enchantment pool. Three custom biome JSON definitions are not an exhaustive biome catalog. | No evidence in inspected live Java of a stale all-biome/all-enchantment array. Review exact loot resources as reachable table graphs, not all packaged `data` references as active behavior. |
+| Archived TMT/dataRoot references | Deferred source migration | AGENTS current policy explicitly leaves TMT LAST; research/drafts are not implemented shader behavior. | Exclude from claims of live omissions and from this batch. |
+
+## Safest closures in the current batch
+
+1. Add sulfur cube to the live general mob / monster classifications, with one tag-based target check. `mobs_and_markers` inherits the fix.
+2. Extend PhD biological ingredients for the clearly matching golden dandelion / sulfur cube spawn egg families; consider sixteen cushion variants consistently with existing textile acceptance. Verify an actual PhD craft, while preserving original hashing and reusable certificate behavior.
+3. Explicitly decide whether the existing general `LbcRandomMobSpawn.ENTRIES` should share the Mobgun extension. It is a second real finite random-mob producer, unlike the intentionally fixed potion and Wiki presets.
+
+The author-configured spawner, Wiki, rune and stat reward distributions should not be silently rewritten under a claim that every finite list is obsolete. Updating the exhaustive item shulker catalog does not require changing those probabilities.
+
+## Verification boundary
+
+This audit used static local sources only; it makes no claim of native runtime qualification, installed server changes, or exhaustive resolution of every nested vanilla tag. Production edits and qualification belong to the parent task. Source counts are observations, not success criteria.

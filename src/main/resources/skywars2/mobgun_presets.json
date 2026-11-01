@@ -570,6 +570,12 @@
       "offset": 1.0,
       "nbt": "{id:\"minecraft:parched\",Tags:[\"raycastmob\",\"prestartf\"]}",
       "nativeFormat": true
+    },
+    {
+      "outcome": 115,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:sulfur_cube\",Tags:[\"raycastmob\",\"prestartf\"]}",
+      "nativeFormat": true
     }
   ],
   "potions": [

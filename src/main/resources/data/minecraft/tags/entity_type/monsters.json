@@ -37,12 +37,13 @@
         "minecraft:zombie",
         "minecraft:zombie_villager",
         "minecraft:zombified_piglin",
-		"warden",
+        "warden",
         "bogged",
         "creaking",
         "breeze",
-	"camel_husk",
-	"parched",
-	"zombie_nautilus"
+        "camel_husk",
+        "parched",
+        "zombie_nautilus",
+        "minecraft:sulfur_cube"
     ]
 }

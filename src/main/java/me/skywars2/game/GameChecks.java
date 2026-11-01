@@ -1244,6 +1244,8 @@ public final class GameChecks {
                                 case "lifestealer-menu" -> checkLifestealerMenu(game);
                                 case "lifestealer" -> checkLifestealer(game);
                                 case "friendly-projectiles" -> checkFriendlyProjectiles(game);
+                                case "content-catalog" -> { ContentCatalogChecks.run(game); return; }
+                                case "mobgun-catalog" -> { MobgunCatalogChecks.run(game); return; }
                                 case "mobgun-menu" -> checkMobgunMenu(game);
                                 case "mobgun" -> checkMobgun(game);
                                 case "mobgun-stop-probe" -> checkMobgunStopProbe(game);
@@ -8052,7 +8054,7 @@ public final class GameChecks {
                         try(var input=GameChecks.class.getResourceAsStream("/skywars2/mobgun_presets.json")) {
                                 require(input!=null,"Mobgun source fixture catalog exists");
                                 var catalog=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
-                                require(catalog.getAsJsonArray("outcomes").size()==113 && catalog.getAsJsonArray("potions").size()==89,"All114 source outcomes and89 corrected potion choices are present");
+                                require(catalog.getAsJsonArray("outcomes").size()>=113 && catalog.getAsJsonArray("potions").size()==89,"Original114 outcomes retained with current mob additions and89 unchanged potion choices");
                                 for(var raw:catalog.getAsJsonArray("outcomes")) {
                                         var entry=raw.getAsJsonObject(); int outcome=entry.get("outcome").getAsInt();
                                         require(service.launch(owner,outcome,0),"Native Mobgun source outcome instantiates: "+outcome);

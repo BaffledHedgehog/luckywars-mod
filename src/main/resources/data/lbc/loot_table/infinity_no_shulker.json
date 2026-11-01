@@ -7550,6 +7550,776 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/enchanted_book__78a17f45a41e/variant_02f834940c2d"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:abandoned_camp_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:black_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:black_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:black_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:black_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:black_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:blue_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:blue_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:blue_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:blue_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:blue_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:brown_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:brown_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:brown_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:brown_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:brown_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:buried_ancient_city_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:buried_mineshaft_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:buried_treasure_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:buried_trial_chambers_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:chiseled_cinnabar",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:chiseled_sulfur",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cinnabar",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cinnabar_brick_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cinnabar_brick_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cinnabar_brick_wall",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cinnabar_bricks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cinnabar_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cinnabar_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cinnabar_wall",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cyan_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cyan_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cyan_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cyan_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cyan_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:desert_pyramid_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:desert_village_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_dandelion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:gray_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:gray_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:gray_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:gray_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:gray_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:green_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:green_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:green_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:green_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:green_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:jungle_pyramid_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_blue_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_blue_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_blue_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_blue_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_blue_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_gray_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_gray_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_gray_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_gray_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_gray_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lime_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lime_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lime_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lime_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:lime_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:magenta_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:magenta_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:magenta_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:magenta_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:magenta_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:music_disc_bounce",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:ocean_monument_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:orange_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:orange_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:orange_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:orange_poplar_leaves",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:orange_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:orange_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:pink_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:pink_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:pink_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:pink_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:pink_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:plains_village_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:polished_cinnabar",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:polished_cinnabar_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:polished_cinnabar_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:polished_cinnabar_wall",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:polished_sulfur",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:polished_sulfur_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:polished_sulfur_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:polished_sulfur_wall",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_boat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_button",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_chest_boat",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_door",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_fence",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_fence_gate",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_hanging_sign",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_log",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_planks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_pressure_plate",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_sapling",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_shelf",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_sign",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_trapdoor",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:poplar_wood",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potent_sulfur",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:purple_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:purple_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:purple_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:purple_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:purple_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_poplar_leaves",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_shrub",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:savanna_village_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:shelf_mushroom",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:snowy_village_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:straw_bed",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stripped_bamboo_block",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stripped_poplar_log",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stripped_poplar_wood",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_brick_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_brick_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_brick_wall",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_bricks",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_cube_bucket",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_cube_spawn_egg",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_spike",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sulfur_wall",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:swamp_hut_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:taiga_village_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:warm_ocean_ruins_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:white_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:white_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:white_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:white_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:white_wool_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:woodland_mansion_map",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:yellow_concrete_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:yellow_concrete_stairs",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:yellow_cushion",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:yellow_poplar_leaves",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:yellow_wool_slab",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:yellow_wool_stairs",
+          "weight": 1
         }
       ]
     }

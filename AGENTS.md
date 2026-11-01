@@ -1,3 +1,25 @@
+## Current vanilla content catalogs - VERIFIED, QUEUED (1 November2026)
+
+[Contract and qualification](agent_notes/CONTENT_REFRESH_2026_11_01.md).
+User: extend existing vanilla loot pools; no154 per-item singleton resources.
+Infinity retains1816original entries/26rolls and appends154direct weight1 items;
+all1657non-air vanilla IDs covered. Mobgun appends native sulfur cube, derives
+catalog bounds, preserves113old direct/89potion presets and50tick cooldown.
+General random-Mob pool appends sulfur cube at91, original90/luck7 preserved.
+BIO gains58same-family ingredients; curated balanced lists stay authored.
+Author explicitly approved WHOLE magic_mobs for Nyauwu, not just sulfur cube.
+Package that tag and use it locally alongside existing summon/actor checks;
+DO NOT widen LbcMagic.magical/global purging to natural type membership.
+
+cb3fe942 qualifies8 scoped groups;90native Mob types actually launched,154actual
+new loot entries and real new-BIO PhD take verified.9773inputs/2437classes/
+7352resources exact;226author paths/31overrides unchanged. Mixed-run failures
+retained with scoped successful evidence and check-only artifact identity.
+Children normal/exact snapshots/level+ticket restoration/no locks, fixture25577.
+Safe installer queued, waiting-for-normal-shutdown; main still970eef84 at
+qualification. No main stop/restart, RP/template edits, peakTPS claim or push.
+Receipt: build/verification/content-refresh-2026-11-01/main-install.json.
+
 ## One Punch and infinite shulker chain - VERIFIED, INSTALLED (1 November2026)
 
 [Author policy, source migration and native evidence](agent_notes/INFINITE_GEAR_PORT_2026_11_01.md).

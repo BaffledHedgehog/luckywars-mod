@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'skywars2/content_catalog_refresh.json'
+    include 'data/minecraft/tags/entity_type/magic_mobs.json'
     include 'data/lbc/loot_table/ported/one_punch_glove.json'
     include 'data/lbc/loot_table/infinity.json', 'data/lbc/loot_table/infinity_upgraded.json', 'data/lbc/loot_table/infinity_upgraded_luck.json'
     include 'data/lbc/loot_table/infinity_upgraded_only_shulker.json', 'data/lbc/loot_table/infinity_upgraded_only_shulker_luck.json'

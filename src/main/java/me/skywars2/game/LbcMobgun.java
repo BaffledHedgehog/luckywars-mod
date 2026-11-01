@@ -50,7 +50,16 @@ public final class LbcMobgun {
     private CompletableFuture<Prepared> preparation;
     private Prepared prepared;
     private record Preset(int outcome,double offset,CompoundTag data) { }
-    private record Prepared(Map<Integer,Preset> outcomes,Map<Integer,Preset> potions) { }
+    private record Prepared(Map<Integer,Preset> outcomes,List<Preset> potions,int outcomeMax) { }
+    private static int contiguous(Map<Integer,Preset> entries,int reserved,String group) {
+        int maximum=entries.keySet().stream().mapToInt(Integer::intValue).max().orElseThrow();
+        if(entries.containsKey(reserved)) throw new IllegalStateException("Reserved "+group+" outcome: "+reserved);
+        if(entries.size()!=maximum-(reserved>0&&reserved<=maximum?1:0))
+            throw new IllegalStateException("Noncontiguous Mobgun "+group);
+        for(int id=1;id<=maximum;id++) if(id!=reserved&&!entries.containsKey(id))
+            throw new IllegalStateException("Missing Mobgun "+group+" outcome: "+id);
+        return maximum;
+    }
     private static final class Owned {
         ServerPlayer owner; final String epoch; int age;
         Owned(ServerPlayer owner,String epoch) { this.owner=owner; this.epoch=epoch; }
@@ -87,17 +96,28 @@ public final class LbcMobgun {
                 for(String group:List.of("outcomes","potions")) for(var raw:json.getAsJsonArray(group)) {
                     var entry=raw.getAsJsonObject(); int outcome=entry.get("outcome").getAsInt();
                     var tag=TagParser.parseCompoundFully(entry.get("nbt").getAsString());
-                    // Five post-1.21.8 source types only contain native id/Tags;
+                    // Appended current-version types contain native id/Tags;
                     // feeding their IDs into the older schema produces DFU errors.
                     if(!entry.has("nativeFormat") || !entry.get("nativeFormat").getAsBoolean())
                         tag=(CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),version,
                                 SharedConstants.getCurrentVersion().dataVersion().version()).getValue();
                     var preset=new Preset(outcome,entry.has("offset")?entry.get("offset").getAsDouble():1,tag);
-                    if(group.equals("outcomes")) outcomes.put(outcome,preset);
+                    if(group.equals("outcomes")) {
+                        if(outcomes.put(outcome,preset)!=null) throw new IllegalStateException("Duplicate Mobgun outcome: "+outcome);
+                    }
                     else if(potions.put(outcome,preset)!=null) throw new IllegalStateException("Duplicate potion entry");
                 }
-                if(outcomes.size()!=113 || potions.size()!=89) throw new IllegalStateException("Incomplete Mobgun catalog");
-                return new Prepared(Map.copyOf(outcomes),Map.copyOf(potions));
+                int outcomeMax=contiguous(outcomes,75,"direct");
+                if(outcomeMax<75) throw new IllegalStateException("Missing reserved Mobgun potion branch");
+                int potionMax=contiguous(potions,0,"potion");
+                for(var preset:outcomes.values()) {
+                    var id=Identifier.parse(preset.data.getStringOr("id",""));
+                    if(!BuiltInRegistries.ENTITY_TYPE.containsKey(id))
+                        throw new IllegalStateException("Unknown Mobgun native entity type: "+id);
+                }
+                var potionChoices=new ArrayList<Preset>();
+                for(int choice=1;choice<=potionMax;choice++) potionChoices.add(potions.get(choice));
+                return new Prepared(Map.copyOf(outcomes),List.copyOf(potionChoices),outcomeMax);
             } catch(Exception error) { throw new IllegalStateException("Invalid Mobgun presets",error); }
         });
     }
@@ -120,7 +140,7 @@ public final class LbcMobgun {
                 || !valid(owner) || game.items().actionsBlocked(owner) || game.items().wands().inputTimeStopped(owner)
                 || game.items().magic().suppressed(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())
                 || cooldown(owner)>0 || !ready()) return false;
-        int outcome=owner.getRandom().nextInt(114)+1;
+        int outcome=owner.getRandom().nextInt(prepared.outcomeMax)+1;
         var luck=game.items().mana().score(ScoreHolder.forNameOnly("final_luck_modifier"),"lbc.math");
         if(luck.get()==7) outcome=22;
         boolean fired=launch(owner,outcome,0);
@@ -132,10 +152,11 @@ public final class LbcMobgun {
     }
     /** Deterministic catalog entry point for server verification; normal input chooses uniformly. */
     boolean launch(ServerPlayer owner,int outcome,int potionOutcome) {
-        if(!ready() || !valid(owner) || outcome<1 || outcome>114) return false;
-        // All 89 unique source item/effect combinations get equal probability. A
+        if(!ready() || !valid(owner) || outcome<1 || outcome>prepared.outcomeMax) return false;
+        // All unique source item/effect combinations get equal probability. A
         // single corrected native splash/lingering entity is launched per shot.
-        var selected=outcome==75?prepared.potions.get(potionOutcome==0?owner.getRandom().nextInt(89)+1:potionOutcome)
+        if(outcome==75 && (potionOutcome<0 || potionOutcome>prepared.potions.size())) return false;
+        var selected=outcome==75?prepared.potions.get(potionOutcome==0?owner.getRandom().nextInt(prepared.potions.size()):potionOutcome-1)
                 :prepared.outcomes.get(outcome);
         if(selected==null) return false;
         var choices=List.of(selected);

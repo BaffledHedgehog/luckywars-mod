@@ -103,7 +103,8 @@ final class LbcRandomMobSpawn {
         new Entry("minecraft:camel_husk","{}",true),
         new Entry("minecraft:parched","{}",true),
         new Entry("minecraft:nautilus","{}",true),
-        new Entry("minecraft:zombie_nautilus","{}",true) );
+        new Entry("minecraft:zombie_nautilus","{}",true),
+        new Entry("minecraft:sulfur_cube","{}",true) );
     private LbcRandomMobSpawn(){}
     static Entity spawn(GameController game,ServerPlayer player,int selected){
         if(selected<1||selected>ENTRIES.size())throw new IllegalArgumentException("Source mob index "+selected);
@@ -115,7 +116,7 @@ final class LbcRandomMobSpawn {
         catch(CommandSyntaxException rejected){return null;}
     }
     static Entity random(GameController game,ServerPlayer player){
-        int index=1+player.getRandom().nextInt(90);
+        int index=1+player.getRandom().nextInt(ENTRIES.size());
         var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");
         var modifier=objective==null?null:board.getPlayerScoreInfo(net.minecraft.world.scores.ScoreHolder.forNameOnly("final_luck_modifier"),objective);
         if(modifier!=null&&modifier.value()==7)index=22;

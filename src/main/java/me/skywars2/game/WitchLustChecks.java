@@ -69,8 +69,8 @@ public final class WitchLustChecks {
             require(base.owner.getHealth()==health&&game.items().mana().score(base.owner,"lust_cd").get()==30&&!input(InteractionHand.MAIN_HAND),"no instant healing; source30-second cooldown gates repeated cast");
             base.remove(enemy);base.remove(ally);base.owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20);base.owner.setShiftKeyDown(false);resetCooldowns();
         }
-        void pool(){require(LbcRandomMobSpawn.ENTRIES.size()==90,"complete original90 source pool");
-            for(int i=1;i<=90;i++){var e=LbcRandomMobSpawn.spawn(game,base.owner,i);require(e!=null,"native source factory index "+i);own.add(e);
+        void pool(){require(LbcRandomMobSpawn.ENTRIES.size()>=90,"original90 source pool remains with current additions");
+            for(int i=1;i<=LbcRandomMobSpawn.ENTRIES.size();i++){var e=LbcRandomMobSpawn.spawn(game,base.owner,i);require(e!=null,"native source factory index "+i);own.add(e);
                 require(e.getType().builtInRegistryHolder().key().identifier().toString().equals(LbcRandomMobSpawn.ENTRIES.get(i-1).type()),"exact source type "+i);
                 if(i==19)require(((LivingEntity)e).getMainHandItem().is(Items.TRIDENT),"drowned source trident");
                 if(i==75)require(((net.minecraft.world.entity.monster.Creeper)e).isPowered(),"genuine charged creature remains in random pool");
@@ -117,5 +117,5 @@ public final class WitchLustChecks {
     }
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.init();}catch(Throwable error){running.close();running=null;throw error;}SkyWars2.LOGGER.info("[check] START witch-lust");}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS witch-lust (raw source Flesh/both hands, separate ground/air modes, native swap/momentum/HP transfer, exact90 factories and20 luck-modified draws, native dragon/multipart rider/look/current holder, accepted child cause, TimeStop/MAG/TECH)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL witch-lust",error);}}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS witch-lust (raw source Flesh/both hands, separate ground/air modes, native swap/momentum/HP transfer, original90 plus current factories and20 luck-modified draws, native dragon/multipart rider/look/current holder, accepted child cause, TimeStop/MAG/TECH)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL witch-lust",error);}}
 }

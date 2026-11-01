@@ -211,6 +211,15 @@ public final class MageNyauwuChecks {
             }finally{board.removePlayerTeam(team);if(oldTeam!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldTeam);if(oldBetaTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBetaTeam);mana.baseRegen(owner,10);}
         }
         net.minecraft.world.entity.animal.cow.Cow cow(net.minecraft.world.phys.Vec3 at){var mob=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,owner.level());mob.setPos(at);mob.setNoAi(true);mob.setNoGravity(true);mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(500);mob.setHealth(200);require(owner.level().addFreshEntity(mob),"published native pulse cow");created.add(mob);return mob;}
+        net.minecraft.world.entity.Mob naturalMagicMob(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.Mob> type,net.minecraft.world.phys.Vec3 at){
+            var mob=Objects.requireNonNull(type.create(owner.level(),net.minecraft.world.entity.EntitySpawnReason.COMMAND));
+            mob.setPos(at);mob.setNoAi(true);mob.setNoGravity(true);mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(500);mob.setHealth(200);
+            // Normalize armor only so the assertion measures the pulse's25 raw damage through native hurtServer.
+            var armor=mob.getAttribute(Attributes.ARMOR);if(armor!=null)armor.setBaseValue(0);
+            require(!game.items().magic().magical(mob),"natural type has no summon/tag-based magical actor classification "+type);
+            require(type.builtInRegistryHolder().is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,Identifier.parse("minecraft:magic_mobs"))),"native author magic_mobs type membership "+type);
+            require(owner.level().addFreshEntity(mob),"published native natural magic type "+type);created.add(mob);return mob;
+        }
         void effectTick(LivingEntity entity){try{var method=LivingEntity.class.getDeclaredMethod("tickEffects");method.setAccessible(true);method.invoke(entity);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
         boolean paidPulse(){owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcWands.TINY_FIRE));owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);var before=new HashSet<Entity>();owner.level().getAllEntities().forEach(before::add);try{return game.items().wands().use(owner,InteractionHand.MAIN_HAND);}finally{owner.level().getAllEntities().forEach(entity->{if(!before.contains(entity)){created.add(entity);if(game.items().wands().isFireProjectile(entity))entity.discard();}});}}
         void nyauwuMelee(){
@@ -226,12 +235,22 @@ public final class MageNyauwuChecks {
                 var enemy=cow(owner.position().add(3,0,0));enemy.entityTags().add("magic");var ordinary=cow(owner.position().add(4,0,0));var ally=cow(owner.position().add(5,0,0));board.addPlayerToTeam(ally.getScoreboardName(),team);
                 var undead=new net.minecraft.world.entity.monster.zombie.Zombie(EntityTypes.ZOMBIE,owner.level());undead.setPos(owner.position().add(6,0,0));undead.setNoAi(true);undead.setNoGravity(true);undead.getAttribute(Attributes.MAX_HEALTH).setBaseValue(500);undead.setHealth(200);require(owner.level().addFreshEntity(undead),"native allied undead");created.add(undead);board.addPlayerToTeam(undead.getScoreboardName(),team);
                 var distant=cow(owner.position().add(0,-31,0));distant.entityTags().add("summactivated");var protectedRole=cow(owner.position().add(7,0,0));protectedRole.entityTags().add("magic");protectedRole.entityTags().add("spectator");
+                var natural=List.of(naturalMagicMob(EntityTypes.SLIME,owner.position().add(8,0,0)),
+                        naturalMagicMob(EntityTypes.MAGMA_CUBE,owner.position().add(9,0,0)),
+                        naturalMagicMob(EntityTypes.SULFUR_CUBE,owner.position().add(10,0,0)));
+                var naturalAlly=naturalMagicMob(EntityTypes.SLIME,owner.position().add(11,0,0));board.addPlayerToTeam(naturalAlly.getScoreboardName(),team);
+                var summonedCow=cow(owner.position().add(12,0,0));summonedCow.entityTags().add("summactivated");
                 float playerHp=beta.getHealth();require(paidPulse(),"actual successful cast triggers Nyauwu full pulse");near(enemy.getHealth(),175,"exact native 25 arrow pulse on magical enemy");require(enemy.getLastHurtByPlayer()==owner,"native pulse damage credits wearer");near(ordinary.getHealth(),200,"ordinary enemy mob excluded");near(distant.getHealth(),200,"magical mob outside thirty excluded");near(protectedRole.getHealth(),200,"protected mob role excluded");near(beta.getHealth(),playerHp,"pulse never damages allied player");
+                for(var mob:natural){near(mob.getHealth(),175,"whole native magic_mobs tag enables25 damage without actor tags "+mob.getType());require(mob.getLastHurtByPlayer()==owner,"natural magic type native wearer credit");}
+                near(summonedCow.getHealth(),175,"existing source summon-tagged Cow remains a magical enemy");
+                require(naturalAlly.hasEffect(MobEffects.INSTANT_HEALTH),"native magic-type ally heals rather than taking foreign damage");effectTick(naturalAlly);near(naturalAlly.getHealth(),208,"native magic-type ally receives8 healing");
+                natural.forEach(Entity::discard);naturalAlly.discard();summonedCow.discard();
                 require(ally.hasEffect(MobEffects.INSTANT_HEALTH)&&ally.getEffect(MobEffects.INSTANT_HEALTH).getAmplifier()==1,"allied ordinary mob receives native Instant Health II");require(undead.hasEffect(MobEffects.INSTANT_DAMAGE)&&undead.getEffect(MobEffects.INSTANT_DAMAGE).getAmplifier()==1,"allied unholy mob receives native inverted Instant Damage II");effectTick(ally);effectTick(undead);near(ally.getHealth(),208,"native living ally healing");near(undead.getHealth(),208,"native undead inverted healing");
                 mana.set(owner,0);require(!paidPulse(),"insufficient mana prevents actual cast");near(enemy.getHealth(),175,"failed cast emits no damage pulse");require(!ally.hasEffect(MobEffects.INSTANT_HEALTH),"failed cast emits no healing pulse");
                 var target=cow(owner.position().add(0,-25,0));target.entityTags().add("magic");var targetAlly=cow(owner.position().add(0,-26,0));board.addPlayerToTeam(targetAlly.getScoreboardName(),team);var mag=jammer("stopper_magic",owner.position().add(0,-30,0));
-                try{require(!game.items().magic().beaconSuppressed(owner.position())&&game.items().magic().beaconSuppressed(target.position()),"target MAG covers targets while caster remains outside");mana.set(owner,1000);require(paidPulse(),"cast outside target MAG still succeeds");near(target.getHealth(),200,"target MAG blocks magical enemy pulse");require(!targetAlly.hasEffect(MobEffects.INSTANT_HEALTH),"target MAG blocks ally healing pulse");}
-                finally{discardJammer(mag);}
+                var naturalProtected=naturalMagicMob(EntityTypes.SULFUR_CUBE,owner.position().add(0,-24,0));
+                try{require(!game.items().magic().beaconSuppressed(owner.position())&&game.items().magic().beaconSuppressed(target.position()),"target MAG covers targets while caster remains outside");mana.set(owner,1000);require(paidPulse(),"cast outside target MAG still succeeds");near(target.getHealth(),200,"target MAG blocks magical enemy pulse");near(naturalProtected.getHealth(),200,"target MAG also blocks native magic_mobs type damage");require(!targetAlly.hasEffect(MobEffects.INSTANT_HEALTH),"target MAG blocks ally healing pulse");}
+                finally{naturalProtected.discard();discardJammer(mag);}
                 wear(1,3);apply();mana.set(owner,1000);float before=target.getHealth();require(paidPulse(),"partial set still casts");near(target.getHealth(),before,"partial set emits no pulse");
             }finally{board.removePlayerTeam(team);if(oldTeam!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldTeam);if(oldBetaTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBetaTeam);}
         }

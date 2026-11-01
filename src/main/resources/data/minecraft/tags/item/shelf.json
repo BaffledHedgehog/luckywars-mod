@@ -12,6 +12,7 @@
         "minecraft:spruce_shelf",
         "minecraft:dark_oak_shelf",
         "minecraft:mangrove_shelf",
-        "minecraft:pale_oak_shelf"
+        "minecraft:pale_oak_shelf",
+        "minecraft:poplar_shelf"
     ]
 }
