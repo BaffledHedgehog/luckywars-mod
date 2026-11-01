@@ -82,6 +82,7 @@ public final class LbcElementalGrimoires {
         STONEKIVI(233,"stonekivi","stonestone",2500,"s","libspell_stonestone",null,null,"libspell_stonestone.lore"),
         STONEKIVI_EARTH(234,"stonekivi_earth","stonestone",2500,"s","libspell_stonestone_1","powerful",ChatFormatting.DARK_PURPLE,"libspell_stonestone_1.lore"),
         STONEKIVI_SUN(235,"stonekivi_sun","stonestone",2500,"k","libspell_stonestone_2","unreal",ChatFormatting.RED,"libspell_stonestone_2.lore"),
+        STONEKIVI_TRUE_SUN(300,"stonekivi_true_sun","stonestone",2500,"k","libspell_stonekivi_sun","unreal",ChatFormatting.RED,"libspell_stonekivi_sun.lore"),
         STONEKIVI_COMET(236,"stonekivi_comet","stonestone",2500,"ss","libspell_stonestone_3","overhauled",ChatFormatting.GOLD,"libspell_stonestone_3.lore"),
         AWAKENED_ACID(188,"awakened_acid","acidacid",1000,"a","libspell_acidacid",null,null,"libspell_acidacid.lore"),
         AWAKENED_ACID_CAUST(190,"awakened_acid_caust","acidacid",1000,"ss","libspell_acidacid_2","powerful",ChatFormatting.DARK_PURPLE,"libspell_acidacid_2.lore"),
@@ -133,7 +134,7 @@ public final class LbcElementalGrimoires {
 
     static List<Kind> advanced() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=204&&kind.spellId<=215).toList(); }
 
-    static List<Kind> shaping() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=216&&kind.spellId<=224||kind.spellId>=233&&kind.spellId<=236).toList(); }
+    static List<Kind> shaping() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=216&&kind.spellId<=224||kind.spellId>=233&&kind.spellId<=236||kind==Kind.STONEKIVI_TRUE_SUN).toList(); }
 
     static List<Kind> corrosive() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId==188||kind.spellId>=190&&kind.spellId<=194||kind.spellId>=199&&kind.spellId<=203).toList(); }
 
@@ -219,6 +220,7 @@ public final class LbcElementalGrimoires {
                     switch(kind){case ERECTO_RAY -> 2;case ERECTO_SNIPER -> 4;case ERECTO_SPHERE -> 3;default -> 1;});
             case FIREBLAZE,FIREBLAZE_KIUAS,FIREBLAZE_MEGA,FIREBLAZE_PILLARS,FIREBLAZE_WORLD -> game.items().blaze().fireblaze(player,
                     switch(kind){case FIREBLAZE_KIUAS -> 4;case FIREBLAZE_MEGA -> 2;case FIREBLAZE_PILLARS -> 3;case FIREBLAZE_WORLD -> 1;default -> 0;});
+            case STONEKIVI_TRUE_SUN -> game.items().stonekivi().castMode(player,hand,ItemStack.EMPTY,5);
             case STONEKIVI,STONEKIVI_EARTH,STONEKIVI_SUN,STONEKIVI_COMET -> {
                 if(!game.items().stonekivi().ready())return false;
                 game.items().stonekivi().castMode(player,hand,ItemStack.EMPTY,

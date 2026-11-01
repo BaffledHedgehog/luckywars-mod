@@ -92,8 +92,52 @@ public final class FpvDroneChecks {
                 require(drone.isRemoved()&&game.items().fpvDrone().count()==0&&game.items().fpvDrone().explosions()==explosions+1,"shot-down actor explodes once without helper creeper");
                 launch();at=now;phase=4;return false;}
             if(phase==4){if(now-at<3)return false;game.items().fpvDrone().forget(owner);require(!game.items().fpvDrone().controlling(owner)&&game.items().fpvDrone().ticketCount()==0&&!drone.isRemoved(),"forget/disconnect boundary releases only control");
+                shortCircuits();
+                sharedElectricalSegments();
                 game.items().fpvDrone().stop();require(game.items().fpvDrone().count()==0&&game.items().fpvDrone().ticketCount()==0,"exact owned stop cleanup");return true;}
             throw new IllegalStateException("phase");
+        }
+        void shortCircuits(){
+            var service=game.items().fpvDrone();
+            for(int kind=0;kind<4;kind++){
+                if(kind>0)launch();
+                var victim=drone;victim.setPermanentlyInvulnerable(true);victim.setInvulnerableTime(100);victim.damageCooldownTime=100;
+                victim.addEffect(ItemEffectLevels.create(net.minecraft.world.effect.MobEffects.RESISTANCE,100,4,false,false),owner);
+                long before=service.explosions();
+                if(kind==0)require(victim.hurtServer(level,victim.damageSources().source(LbcDamage.ELECTRIC,beta,beta),0),"zero-damage electrical contact bypasses immunity/cooldown");
+                else if(kind==1)victim.thunderHit(level,new LightningBolt(EntityTypes.LIGHTNING_BOLT,level));
+                else if(kind==2)require(victim.hurtServer(level,victim.damageSources().source(LbcDamage.LIGHTNING,beta,beta),.01f),"custom lightning immediately shorts protected drone");
+                else require(service.tryShortCircuit(victim),"shared producer electrical contact detonates before ordinary damage admission");
+                require(victim.isRemoved()&&service.count()==0&&service.explosions()==before+1&&!service.controlling(owner)&&service.ticketCount()==0,"electrical short circuit explodes once and releases owned control/tickets kind="+kind);
+                require(!service.tryShortCircuit(victim)&&service.explosions()==before+1,"repeated electrical callbacks cannot duplicate blast");
+            }
+        }
+        void sharedElectricalSegments(){
+            var service=game.items().fpvDrone();var board=game.server().getScoreboard();var previous=owner.getTeam();
+            String name="fpv_el_"+Integer.toHexString(owner.getId());require(board.getPlayerTeam(name)==null,"exclusive electrical alliance fixture");
+            var team=board.addPlayerTeam(name);team.setAllowFriendlyFire(false);var allied=new ArrayList<LbcFpvDrone.Drone>();
+            try{
+                board.addPlayerToTeam(owner.getScoreboardName(),team);
+                for(var type:List.of(LbcDamage.ELECTRIC,LbcDamage.YELLOW_BOLT,LbcDamage.YELLOW_SPIN,LbcDamage.YELLOW_CONDUCTION)){
+                    launch();var victim=drone;allied.add(victim);board.addPlayerToTeam(victim.getScoreboardName(),team);
+                    require(owner.getUUID().equals(victim.author)&&owner.isAlliedTo(victim),"actual own drone belongs to owner's native team");
+                    victim.setPermanentlyInvulnerable(true);victim.setInvulnerableTime(100);victim.damageCooldownTime=100;
+                    var damage=owner.damageSources().source(type,owner,owner);require(LbcDamage.isElectricalContact(damage),"shared contact classifier includes "+type.identifier());
+                    long before=service.explosions();var center=victim.getBoundingBox().getCenter();
+                    // This passes through the broad query volume but misses the exact native body.
+                    LbcDamage.hurtSegment(level,damage,center.add(-2,0,.8),center.add(2,0,.8),Vec3.ZERO,.2,0,1,entity->false,false);
+                    require(!victim.isRemoved()&&service.explosions()==before&&service.controlling(owner),"nearby electrical line misses own allied drone "+type.identifier());
+                    // The ordinary allegiance predicate rejects every entity. Electrical contact must
+                    // still reach an intersected drone, before immunity, hurt cooldown or damage amount.
+                    LbcDamage.hurtSegment(level,damage,center.add(-2,0,0),center.add(2,0,0),Vec3.ZERO,.2,0,1,entity->false,false);
+                    require(victim.isRemoved()&&service.explosions()==before+1&&service.count()==0&&!service.controlling(owner)&&service.ticketCount()==0,"exact shared electrical line shorts own allied drone "+type.identifier());
+                    require(!service.tryShortCircuit(victim)&&service.explosions()==before+1,"shared line explosion remains idempotent");
+                }
+            }finally{
+                for(var victim:allied)if(victim.getTeam()==team)board.removePlayerFromTeam(victim.getScoreboardName(),team);
+                if(owner.getTeam()==team)board.removePlayerFromTeam(owner.getScoreboardName(),team);
+                if(previous!=null)board.addPlayerToTeam(owner.getScoreboardName(),previous);board.removePlayerTeam(team);
+            }
         }
         public void close(){if(closed)return;closed=true;try{if(stopped)game.items().timeStop().end(level);game.items().fpvDrone().stop();game.config().offhandWands=offhand;
             saved.restore(game);otherSaved.restore(game);if(client!=null)client.ack();attribution.close();}

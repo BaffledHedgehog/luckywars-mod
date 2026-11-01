@@ -694,6 +694,8 @@ public final class GameChecks {
                                 case "imba-runes-globals" -> { ImbaRuneChecks.startGlobals(game); return; }
                                 case "imba-runes-restart" -> { ImbaRuneChecks.startRestart(game); return; }
                                 case "black-hole-contact" -> { BlackHolePlayerChecks.run(game); return; }
+                                case "combat-feedback" -> { CombatFeedbackChecks.run(game); return; }
+                                case "stonekivi-sun" -> { StonekiviSunChecks.run(game); return; }
                                 case "weapon-spread" -> { WeaponSpreadChecks.run(game); return; }
                                 case "rifle-presentation" -> { RiflePresentationChecks.run(game); return; }
                                 case "magnum" -> { MagnumChecks.run(game); return; }
@@ -1477,7 +1479,7 @@ public final class GameChecks {
             SteampunkBreakerChecks.tick(game);SteampunkGloveChecks.tick(game);
         SteampunkHookChecks.tick(game);
             GrimoireBossChecks.tick(game);            UniwandChecks.tick(game);GrimoireDungeonChecks.tick(game);            MapRotationChecks.tick(game);            ImbaRuneChecks.tickGlobals(game);ImbaRuneChecks.tickRestart(game);
-            RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);
+            RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);StonekiviSunChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
             NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);WitchIndolenceChecks.tick(game);IndolenceFingerChecks.tick(game);WitchClaimChecks.tick(game);WitchLustChecks.tick(game);WitchLifecycleChecks.tick(game);VanityRollbackChecks.tick(game);VanitySnapshotPerfChecks.tick(game);VanityTerrainChecks.tick(game);VanityCoreChecks.tick(game);VanityPlayerChecks.tick(game);VanityActorChecks.tick(game);VanityViewChecks.tick(game);VanityStorageChecks.tick(game);VanityWorkstationChecks.tick(game);VanityBoundViewChecks.tick(game);VanityRandomChecks.tick(game);VanityWorldChecks.tick(game);VanityTimeStopChecks.tick(game);ChefExecutionChecks.tick(game);PolymorphChecks.tick(game);
@@ -13232,7 +13234,7 @@ public final class GameChecks {
                         owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,academy);
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
                         mana.set(owner,2500); owner.setShiftKeyDown(true);
-                        int[] modes={2,3,4,1};
+                        int[] modes={2,3,4,5,1};
                         for(int mode:modes)
                                 require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND)
                                                 && academy.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("mode",0)==mode
@@ -13240,7 +13242,7 @@ public final class GameChecks {
                                                 "Academy Stonekivi cycles modes in the used offhand without casting or charging: "+mode);
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND)
                                         && academy.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("mode",0)==2,
-                                        "Academy Stonekivi returns to the Earth mode after a full four-mode cycle");
+                                        "Academy Stonekivi returns to the Earth mode after a full five-mode cycle");
                         owner.setShiftKeyDown(false);
                         level.setBlockAndUpdate(wall,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND)
@@ -16190,6 +16192,12 @@ public final class GameChecks {
                 require(suggestions.stream().anyMatch(value->value.getText().equals("lbc:neko_set_chaos"))
                                 &&suggestions.stream().anyMatch(value->value.getText().equals("lbc:uniwand")),
                         "Completed Chaos chain and native Uni Wand appear in actual loot autocomplete");
+                for(String ready:java.util.List.of("drone","big_bob","boba_eblan","anal_whip","rasengan","infinite_lucky_block","ported/stonekivi_true_sun_grimoire")) {
+                        require(suggestions.stream().anyMatch(value->value.getText().equals("lbc:"+ready)),
+                                "Qualified content appears in actual loot autocomplete: "+ready);
+                        require(!game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:"+ready).isEmpty(),
+                                "Qualified public root resolves a real item: "+ready);
+                }
                 require(suggestions.stream().noneMatch(value->value.getText().startsWith("lbc:gui/")),
                         "Internal GUI tables stay out of autocomplete");
                 require(suggestions.stream().anyMatch(value->value.getText().equals("lbc:neko_set_techno")),

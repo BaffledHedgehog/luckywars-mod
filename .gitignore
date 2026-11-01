@@ -3,6 +3,7 @@ agent_notesagent_notes
 # Local Gradle state, generated artifacts and isolated verification servers.
 /.gradle/
 /build/
+/logs/
 
 # Personal IDE configuration.
 /.vscode/settings.json

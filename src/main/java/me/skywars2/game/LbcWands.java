@@ -591,12 +591,13 @@ public final class LbcWands {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped") || game.items().magic().suppressed(player)
 ) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
+            int mode=Math.floorMod(data.getIntOr("mode",1),5)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2 -> "mode_earth";
                 case 3 -> "mode_sun";
                 case 4 -> "mode_comets";
+                case 5 -> "mode_stonekivi_sun";
                 default -> "mode_default";
             }));
             return true;

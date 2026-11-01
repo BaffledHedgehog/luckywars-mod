@@ -381,10 +381,13 @@ public final class LbcMana {
                 : mana>=-10000 ? ChatFormatting.RED : mana>=-15000 ? ChatFormatting.DARK_RED
                 : mana>=-20000 ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.DARK_PURPLE;
         int regen=effectiveRegeneration(p);
+        int maximum=hudValue(p,"manamax");
         return Component.literal(mana>=0 ? "\uE100" : "\uE132").withStyle(style->style.withColor(0x4e5c24))
                 .append(" ").append(Component.literal(Integer.toString(mana)).withStyle(color)).append("\u00a7a/")
-                .append(Component.literal(Integer.toString(hudValue(p,"manamax"))).withStyle(ChatFormatting.AQUA)).append(" \u00a7a[\u00a7a"+(regen<0?"-":"+"))
-                .append(Component.literal(Long.toString(Math.abs((long)regen))).withStyle(ChatFormatting.AQUA)).append("\u00a7a]");
+                .append(Component.literal(Integer.toString(maximum)).withStyle(maximum<0?ChatFormatting.RED:ChatFormatting.AQUA)).append(" \u00a7a[")
+                .append(Component.literal(regen<0?"-":"+").withStyle(regen<0?ChatFormatting.RED:ChatFormatting.GREEN))
+                .append(Component.literal(Long.toString(Math.abs((long)regen)))
+                        .withStyle(regen<0?ChatFormatting.RED:ChatFormatting.AQUA)).append("\u00a7a]");
     }
     /** Ported mana-related source actionbar entries, kept in source order after the other status icons. */
     public MutableComponent appendHudEarlyStatuses(ServerPlayer p,MutableComponent hud) {

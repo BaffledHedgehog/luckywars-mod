@@ -60,7 +60,7 @@ public final class LbcFpvDrone {
     }
     public static void register(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:fpv_body"),BODY_TICKET);}
     public LbcFpvDrone(GameController game){this.game=game;}
-    public static boolean matches(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("drone_pult",0)==1;}
+    public static boolean matches(ItemStack stack){return ItemData.intValue(stack,"drone_pult",0)==1;}
     public static final class Drone extends Vex implements PolymerEntity {
         UUID author;long order;String epoch="";boolean retired;
         Drone(EntityType<? extends Drone> type,Level level){super(type,level);setNoAi(true);setNoGravity(true);setInvisible(true);setSilent(true);setPersistenceRequired();}
@@ -71,6 +71,13 @@ public final class LbcFpvDrone {
         @Override public void tick(){var g=SkyWars2.game();if(g!=null&&g.items().fpvDrone().paused(this))return;
             setDeltaMovement(Vec3.ZERO);super.tick();setDeltaMovement(Vec3.ZERO);}
         @Override public void die(DamageSource damage){var g=SkyWars2.game();if(g!=null)g.items().fpvDrone().explode(this);else discard();}
+        @Override public boolean hurtServer(ServerLevel level,DamageSource damage,float amount){
+            var game=SkyWars2.game();
+            if(game!=null&&LbcDamage.isElectricalContact(damage)
+                    &&game.items().fpvDrone().tryShortCircuit(this))return true;
+            return super.hurtServer(level,damage,amount);
+        }
+        @Override public void thunderHit(ServerLevel level,LightningBolt bolt){var game=SkyWars2.game();if(game!=null&&game.items().fpvDrone().tryShortCircuit(this))return;super.thunderHit(level,bolt);}
         @Override protected void addAdditionalSaveData(ValueOutput out){super.addAdditionalSaveData(out);
             if(author!=null)out.putString("FpvAuthor",author.toString());out.putLong("FpvOrder",order);out.putString("FpvEpoch",epoch);}
         @Override protected void readAdditionalSaveData(ValueInput in){super.readAdditionalSaveData(in);
@@ -175,6 +182,8 @@ public final class LbcFpvDrone {
             explosions++;game.items().exasperato().encounterBlast(d,level,d.position(),8,tnt->game.items().spellSources().bind(tnt,accepted));
         }finally{retire(d);}
     }
+    /** Electrical contact is admission, independent of ordinary damage amount, immunity or hurt cooldown. */
+    public boolean tryShortCircuit(Entity target){if(!(target instanceof Drone drone)||!live(drone))return false;explode(drone);return true;}
     private void retire(Drone d){d.retired=true;var session=controllers.get(d.author);if(session!=null&&session.drone==d)release(session.player);
         var visual=actors.remove(d);if(visual!=null)visual.discard();if(!d.isRemoved())d.discard();}
     private static ClientboundSetPassengersPacket passengers(int entity,int... ids){var buffer=new FriendlyByteBuf(Unpooled.buffer());

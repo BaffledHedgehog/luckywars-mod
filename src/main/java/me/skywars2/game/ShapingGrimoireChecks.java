@@ -50,7 +50,7 @@ public final class ShapingGrimoireChecks {
                 }
                 case FIREBLAZE_KIUAS,FIREBLAZE_PILLARS -> require(items.blaze().count()==1&&owner.getEffect(MobEffects.FIRE_RESISTANCE)!=null
                         &&owner.getEffect(MobEffects.FIRE_RESISTANCE).isInfiniteDuration(),"captured terrain job and infinite source protection "+kind);
-                case STONEKIVI,STONEKIVI_EARTH,STONEKIVI_SUN,STONEKIVI_COMET -> require(items.stonekivi().count()==1,"one native contact work sequence "+kind);
+                case STONEKIVI,STONEKIVI_EARTH,STONEKIVI_SUN,STONEKIVI_COMET,STONEKIVI_TRUE_SUN -> require(items.stonekivi().count()==1,"one native contact work sequence "+kind);
                 default -> throw new IllegalArgumentException("shaping kind "+kind);
             }
             for(var e:owner.level().getAllEntities())require(base.before.contains(e)||e.getType()!=EntityTypes.SNOWBALL,"no carrier snowball");

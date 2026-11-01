@@ -342,9 +342,10 @@ public final class LbcElectro {
         var at=trace.position;
         var damage=yellowDamage(trace,LbcDamage.YELLOW_CONDUCTION);
         for(var target:trace.level.getEntities(trace.owner,new AABB(at,at).inflate(15),entity->
-                yellowTarget(trace.owner,entity) && entity.distanceToSqr(at)<=225)) {
+                (entity instanceof LbcFpvDrone.Drone || yellowTarget(trace.owner,entity)) && entity.distanceToSqr(at)<=225)) {
             if(!yellowTraces.contains(trace) || !game.items().currentEpoch(trace.epoch)
                     || game.stage()==GameController.Stage.ENDING) return;
+            if(game.items().fpvDrone().tryShortCircuit(target))continue;
             target.hurtServer(trace.level,damage,8);
             if(!game.items().currentEpoch(trace.epoch) || game.stage()==GameController.Stage.ENDING) return;
             var center=target.blockPosition();

@@ -26,6 +26,7 @@ public final class LbcTechnoFlight {
     private static final class Flight {
         final ServerLevel level;
         int delay=2;
+        int fuelHalf;
         Flight(ServerLevel level){this.level=level;}
     }
     private final GameController game;
@@ -37,7 +38,7 @@ public final class LbcTechnoFlight {
     }
     private static boolean piece(ServerPlayer player,EquipmentSlot slot,String key){
         var stack=player.getItemBySlot(slot);
-        return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr(key,0)==1;
+        return ItemData.intValue(stack,key,0)==1;
     }
     private int read(ServerPlayer player,String objective){return game.items().mana().hudValue(player,objective);}
     private void write(ServerPlayer player,String objective,int value){game.items().mana().score(player,objective).set(value);}
@@ -83,7 +84,7 @@ public final class LbcTechnoFlight {
             if(!player.onGround()&&player.isShiftKeyDown()&&read(player,"reactivefuel")>0)begin(player);
             else if(player.onGround())regenerate(player);
         }else if(--flight.delay<=0){
-            flight.delay=1;run(player);
+            flight.delay=1;run(player,flight);
         }
         if(player.entityTags().contains("stopped_flight"))afterFlight(player);
     }
@@ -95,37 +96,59 @@ public final class LbcTechnoFlight {
         if(fuel>=0&&fuel<=9)fuel++;
         write(player,"reactivefuel",fuel);write(player,"reactivefuelsub",0);
     }
-    private void run(ServerPlayer player){
+    private void run(ServerPlayer player,Flight flight){
         int pitch=(int)Math.floor(player.getXRot());
-        if(pitch>=-90&&pitch<=-75)up(player);
-        else if(pitch>=-74&&pitch<=74)hover(player);
+        int cost=0;
+        if(pitch>=-90&&pitch<=-75){up(player);cost=10;}
+        else if(pitch>=-74&&pitch<=74){hover(player);cost=1;}
         else if(pitch>=75&&pitch<=90)down(player);
+        boolean boost=player.isSprinting()&&piece(player,EquipmentSlot.CHEST,"technomk2");
+        if(boost){
+            var motion=player.getDeltaMovement();var heading=Vec3.directionFromRotation(0,player.getYRot()).scale(.02);
+            player.setDeltaMovement(motion.add(heading.x,0,heading.z));player.needsSync=true;
+            cost=Math.max(1,cost); // Active horizontal thrust is not a free descent.
+        }
+        flight.fuelHalf+=cost*(boost?3:2);
+        add(player,"reactivefuelsub",flight.fuelHalf/2);flight.fuelHalf%=2;
         if(read(player,"reactivefuelsub")>=40){
-            add(player,"reactivefuel",-1);write(player,"reactivefuelsub",0);
+            add(player,"reactivefuel",-1);write(player,"reactivefuelsub",boost?read(player,"reactivefuelsub")-40:0);
         }
         if(player.onGround()||read(player,"reactivefuel")==0)end(player,true);
     }
     private void up(ServerPlayer player){
         game.items().ownedEffects().withdraw(player,FLIGHT_OWNER);
-        if(piece(player,EquipmentSlot.LEGS,"technomk2")){
+        boolean upgraded=piece(player,EquipmentSlot.LEGS,"technomk2");
+        if(upgraded&&player.getXRot()==-90f){
             gravity(player,GRAVITY_ONE,null);
             gravity(player,GRAVITY_TWO,(Math.floor((double)player.getXRot()*100)+6420)*.001);
-        }else game.items().ownedEffects().grant(player,FLIGHT_OWNER,
-                ItemEffectLevels.create(MobEffects.LEVITATION,20,21,false,false),player);
+        }else{
+            gravity(player,GRAVITY_ONE,null);gravity(player,GRAVITY_TWO,null);
+            game.items().ownedEffects().grant(player,FLIGHT_OWNER,
+                ItemEffectLevels.create(MobEffects.LEVITATION,20,upgraded?32:21,false,false),player);
+        }
         add(player,"rocket_sound",1);
         if(read(player,"rocket_sound")>=1){sound(player,"rocket_power",3,1);write(player,"rocket_sound",0);}
-        add(player,"reactivefuelsub",10);particles(player,true);
+        particles(player,true);
+    }
+    private static double additiveGravity(ServerPlayer player){
+        var attribute=player.getAttribute(Attributes.GRAVITY);double additive=attribute.getBaseValue();
+        for(var modifier:attribute.getModifiers())if(modifier.operation()==AttributeModifier.Operation.ADD_VALUE
+                &&!modifier.id().equals(GRAVITY_ONE)&&!modifier.id().equals(GRAVITY_TWO))additive+=modifier.amount();
+        return additive;
     }
     private void hover(ServerPlayer player){
         game.items().ownedEffects().withdraw(player,FLIGHT_OWNER);
-        gravity(player,GRAVITY_ONE,-.08);gravity(player,GRAVITY_TWO,read(player,"speedy")*.001);
-        rocket(player,false);add(player,"reactivefuelsub",1);particles(player,false);
+        // Cancel the additive stage, so every native multiplicative stage also remains exactly zero.
+        // Remove only our own modifiers on departure; unusual external gravity is left intact.
+        gravity(player,GRAVITY_TWO,null);gravity(player,GRAVITY_ONE,-additiveGravity(player));
+        var motion=player.getDeltaMovement();player.setDeltaMovement(motion.x,0,motion.z);player.needsSync=true;
+        rocket(player,false);particles(player,false);
     }
     private void down(ServerPlayer player){
         game.items().ownedEffects().withdraw(player,FLIGHT_OWNER);gravity(player,GRAVITY_ONE,null);
         // The old shared tmp was stale without MK2 legs. Use the explicit source fallback .1.
-        gravity(player,GRAVITY_TWO,piece(player,EquipmentSlot.LEGS,"technomk2")
-                ?Math.floor((double)player.getXRot()*70)*.001:.1);
+        boolean upgraded=piece(player,EquipmentSlot.LEGS,"technomk2");
+        gravity(player,GRAVITY_TWO,upgraded?(player.getXRot()==90f?6.3:additiveGravity(player)*.5+.15):.1);
         rocket(player,true);particles(player,false);
     }
     private void rocket(ServerPlayer player,boolean down){
@@ -180,12 +203,12 @@ public final class LbcTechnoFlight {
     ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
     void prepareResidentFrozen(){flights.clear();}
     final class ResidentCheckpoint {
-        private record Image(MatchDamageSources.Ref owner,ServerLevel level,int delay){}
+        private record Image(MatchDamageSources.Ref owner,ServerLevel level,int delay,int fuelHalf){}
         private final java.util.List<Image> saved;
-        ResidentCheckpoint(MatchSpellCheckpoint.Links links){saved=flights.entrySet().stream().map(e->new Image(links.key(e.getKey()),e.getValue().level,e.getValue().delay)).toList();}
+        ResidentCheckpoint(MatchSpellCheckpoint.Links links){saved=flights.entrySet().stream().map(e->new Image(links.key(e.getKey()),e.getValue().level,e.getValue().delay,e.getValue().fuelHalf)).toList();}
         Runnable prepare(MatchSpellCheckpoint.Links links){
             var next=new IdentityHashMap<ServerPlayer,Flight>();for(var image:saved){MatchAuthorityCheckpoint.world(game,image.level);
-                var flight=new Flight(image.level);flight.delay=image.delay;next.put((ServerPlayer)links.get(image.owner),flight);}
+                var flight=new Flight(image.level);flight.delay=image.delay;flight.fuelHalf=image.fuelHalf;next.put((ServerPlayer)links.get(image.owner),flight);}
             return ()->{flights.clear();flights.putAll(next);};
         }
     }

@@ -1,3 +1,38 @@
+## Combat/visual/FPV/MK2 and Stonekivi Sun - VERIFIED, INSTALLED (2 November2026)
+
+[Contract, corrections, evidence and limits](agent_notes/COMBAT_VISUAL_FLIGHT_FIX_2026_11_01.md).
+Latest author: Sun belongs to original Stonekivi, NOT Fireblaze; keep2500mana,
+add mode5 alongside existing mode3 Crystallization. Original stonestone model,
+grimoire300, shaping catalog. Radius100/impact+148; ALL lava AND fire replaced
+with MAGMA, including core/noise/tongues. Existing bounded Stonekivi terrain,
+quiet writes/lighting/journals/checkpoints; no ticking emitter or chunk generation.
+Black-hole raw HP now retains native sounds INCLUDING SELF, credits/no-action,
+game event/exhaustion/stat/effect/reactive/criterion/totem/death paths, preserving
+victim velocity/hit/camera state. Observer hit feedback excludes victim cameras.
+FPV public drone root restored with5other previously qualified raw roots; noTMT/
+kit6 gate change. Electrical exact contacts incl allied drones and yellow types,
+actual lightning and conductor/chain pulses detonate once before immunity.
+Negative mana max and regen digits/minus red; MIN_VALUE safe. MK2 hover noY
+inertia, exact ±90poles get old Wyvern maxima, otherwise1.5x baseline; chest+
+sprint accumulatedXZ thrust and exact1.5x fuel incl checkpoint fraction. Narrow
+read-only scalar CustomData access replaces armor/flight/drone whole-NBT copies.
+
+Separate RP patch REQUIRED: resourcepack_template/updates/visual_repair_2026_11_01/.
+Physical client rejected entire end_of_frame for inaccessible entity_outline;
+move polymorph bloom to legal outline chain, preserve alpha transport, restore
+ordinary bloom. Radar ONLY special markers move to near depth for26.3reverseZ.
+Actual RP untouched.20offscreen RTX4080GPU checks pass; no physical-client claim.
+
+Test10b7c054 / production5ed436dd pass exact split (8editing classes omitted),
+6native actual mode1 groups;9792inputs/2472classes/7353resources exact.226author
+paths/31overrides retained. Child normal/exact snapshots/config/OP/level/tickets
+restored/no locks, fixture25577only. Initial mapping compile failure and native
+test-stat INT_MAX saturation retained; corrected fixture preserves originalstat.
+No full-radius peakTPS/fill-latency claim, main stop/restart or push.
+Main10b7c054 installed by normal-stop worker, prior25dcef82 rollback retained;
+restarted:false. Qualification/install receipt: build/verification/combat-visual-flight-
+2026-11-01/{qualification,main-install}.json. Merge sun_2026_11_01 translations.
+
 ## Test-only map editing and protected deletion - VERIFIED, QUEUED (1 November2026)
 
 [Exact policy, build commands and evidence](agent_notes/MAP_EDITING_BUILDS_2026_11_01.md).

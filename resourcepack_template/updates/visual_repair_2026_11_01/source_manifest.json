@@ -1,0 +1,9 @@
+{
+  "readOnlySource": "C:\\Users\\yarik_temp\\AppData\\Roaming\\FreesmLauncher\\instances\\26.3(1)\\minecraft\\resourcepacks\\all_in_one_1.21.8",
+  "sourceSha256": {
+    "assets/minecraft/post_effect/end_of_frame.json": "80216d01933f1faa44d7dbd50bfe8d7c34182f2a5c9227d3f2147b743d9e2e38",
+    "assets/minecraft/post_effect/entity_outline.json": "e695afb09d5ca655b892ef9a30f4d76b953e9f9afcb2f1968dac9e2d337f13ac",
+    "assets/minecraft/shaders/core/particle.vsh": "e98e6e4d4ce23febef893c442daa323b391ad3be10546b5ede20e383bc3d26b5",
+    "assets/minecraft/shaders/post/bloom.fsh": "3c02cc3693eab068e6f23c86185739d6dc8bfdd46153e0dc790a37a6ec0f5bff"
+  }
+}

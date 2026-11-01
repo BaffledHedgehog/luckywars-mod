@@ -70,11 +70,12 @@ public final class LbcStonekivi {
     public boolean ready() { return templates.size()==6; }
     public int count() { return work.size(); }
     void queuedWork(Work task) { work.add(task); }
+    List<Work> queuedSnapshot() { return List.copyOf(work); }
 
     /** Режимы и цены принадлежат прежнему dispatch жезлов; сам луч завершается только на первом hit. */
     void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean upgraded) {
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)
-                .copyTag().getIntOr("mode",1),1,4):1;
+                .copyTag().getIntOr("mode",1),1,5):1;
         castMode(owner,hand,stack,mode);
     }
     void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
@@ -92,9 +93,9 @@ public final class LbcStonekivi {
             Vec3 point=hit==null?limit:hit.getLocation();
             double distance=from.distanceTo(point);
             var primary=mode==2?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.GRASS_BLOCK.defaultBlockState())
-                    :mode==3?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.LAVA.defaultBlockState()):mode==4?BEDROCK:STONE;
+                    :(mode==3||mode==5)?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.LAVA.defaultBlockState()):mode==4?BEDROCK:STONE;
             var secondary=mode==2?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState())
-                    :mode==3?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.MAGMA_BLOCK.defaultBlockState()):BEDROCK;
+                    :(mode==3||mode==5)?new BlockParticleOption(ParticleTypes.BLOCK,Blocks.MAGMA_BLOCK.defaultBlockState()):BEDROCK;
             for(double d=0;d<=distance;d+=.5) {
                 Vec3 p=from.add(direction.scale(d));
                 owner.level().sendParticles(primary,true,false,p.x,p.y,p.z,2,.1,.1,.1,0);
@@ -104,7 +105,7 @@ public final class LbcStonekivi {
             if(hit==null || hit instanceof BlockHitResult block && !owner.level().hasChunkAt(block.getBlockPos())
                     || Double.isFinite(fraction) && point.distanceToSqr(from)>=limit.distanceToSqr(from)-1e-6) return;
             BlockPos center=hit instanceof BlockHitResult block?block.getBlockPos():BlockPos.containing(point);
-            if(mode==3 && hit instanceof EntityHitResult)
+            if((mode==3||mode==5) && hit instanceof EntityHitResult)
                 center=new BlockPos(center.getX(),owner.level().getHeight(Heightmap.Types.MOTION_BLOCKING,center.getX(),center.getZ())-1,center.getZ());
             switch(mode) {
                 case 1 -> {
@@ -120,6 +121,7 @@ public final class LbcStonekivi {
                 case 2 -> work.add(template(owner,EARTH,center.offset(-22,-22,-22),1));
                 case 3 -> work.add(LbcMagmify.create(game,owner,center));
                 case 4 -> comets(owner,center);
+                case 5 -> work.add(LbcStonekiviSun.create(game,owner,center));
             }
             for(float pitch:new float[]{1,0}) LbcOverload.sound(owner,point,"minecraft:block.deepslate_bricks.break",mode==1?4:7,pitch,0);
         }finally{callbacks.decrementAndGet();}

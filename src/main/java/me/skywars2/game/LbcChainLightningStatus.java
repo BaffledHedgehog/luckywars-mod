@@ -91,6 +91,7 @@ public final class LbcChainLightningStatus {
                     .sorted(Comparator.comparingDouble(target->target.position().distanceToSqr(from.position()))).limit(10).toList();
             for(var target:next){
                 if(!visited.add(target))continue;frontier.addLast(target);sparks(level,from.position(),target.position());
+                if(game.items().fpvDrone().tryShortCircuit(target))continue;
                 var damage=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess()
                         .lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),owner),cause);
                 game.items().indirectKills().withCause(target,cause,()->target.hurtServer(level,damage,16));

@@ -261,6 +261,7 @@ processResources {
     include 'data/lbc/loot_table/ported/stonekivi_earth_grimoire.json'
     include 'data/lbc/loot_table/ported/stonekivi_sun_grimoire.json'
     include 'data/lbc/loot_table/ported/stonekivi_comet_grimoire.json'
+    include 'data/lbc/loot_table/ported/stonekivi_true_sun_grimoire.json'
     include 'data/lbc/loot_table/ported/random_enchanted_shovel.json', 'data/lbc/loot_table/ported/efficient_shovel.json', 'data/lbc/loot_table/ported/mortis.json', 'data/lbc/loot_table/ported/death_scythe.json', 'data/lbc/loot_table/ported/banhammer.json', 'data/lbc/loot_table/transformables_shovel_all.json', 'data/lbc/loot_table/halloween/transformables_shovel.json', 'data/lbc/loot_table/halloween/soulhunter_mace.json'
     include 'data/lbc/loot_table/ported/infinite_totem.json', 'data/lbc/loot_table/ported/devil_totem.json'
     include 'data/lbc/loot_table/ported/sea_legend.json', 'data/lbc/loot_table/ported/harpoon.json', 'data/lbc/loot_table/ported/hylian_shield.json', 'data/lbc/loot_table/ported/holy_shield.json', 'data/lbc/loot_table/transformables_trident.json', 'data/lbc/loot_table/transformables_shield.json', 'data/lbc/loot_table/electro_shield.json'

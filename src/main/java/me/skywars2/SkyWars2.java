@@ -197,6 +197,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                 { game.items().ak47().receivedDamage(player,damage); game.damaged(player, source, damage); }
         });
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, damage, amount) -> {
+            if(game!=null&&LbcDamage.isElectricalContact(damage)&&game.items().fpvDrone().tryShortCircuit(entity))return false;
             boolean allowed=game==null ? LbcDamage.allowDamage(entity,damage) : game.items().allowDamage(entity,damage);
             if(allowed && game!=null && amount>0) game.items().academy().beforeDamage(entity,damage);
             return allowed;

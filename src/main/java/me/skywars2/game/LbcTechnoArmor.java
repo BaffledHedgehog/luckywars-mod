@@ -36,7 +36,7 @@ public final class LbcTechnoArmor {
         this.game=game;this.eligible=eligible;this.admitted=admitted;flight=new LbcTechnoFlight(game,eligible,admitted);
     }
     public LbcTechnoFlight flight(){return flight;}
-    static boolean piece(ServerPlayer p,EquipmentSlot slot,String key){return !p.getItemBySlot(slot).isEmpty()&&LbcFartus.data(p.getItemBySlot(slot)).getIntOr(key,0)==1;}
+    static boolean piece(ServerPlayer p,EquipmentSlot slot,String key){return ItemData.intValue(p.getItemBySlot(slot),key,0)==1;}
     static int count(ServerPlayer p,String key){int n=0;for(var slot:SLOTS)if(piece(p,slot,key))n++;return n;}
     static boolean ordinarySet(ServerPlayer p){return count(p,"techno")==4&&count(p,"technomk2")!=4;}
     private boolean technical(ServerPlayer p){return !game.items().magic().mechanismSuppressed(p);}

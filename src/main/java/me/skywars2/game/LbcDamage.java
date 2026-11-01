@@ -94,13 +94,18 @@ public final class LbcDamage {
             java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
         double length=from.distanceTo(to);
         boolean electrical=isElectric(damage);
+        boolean shortCircuit=isElectricalContact(damage);
+        java.util.function.Predicate<net.minecraft.world.entity.Entity> admitted=shortCircuit
+                ?entity->entity instanceof LbcFpvDrone.Drone||target.test(entity):target;
         int maxSample=(int)Math.floor(length/spacing+1e-6);
         int[] perSample=new int[maxSample+1];
         var volume=new net.minecraft.world.phys.AABB(from,to).inflate(padding.x+1,padding.y+1,padding.z+1);
-        for(var entity:level.getEntities(includeOwner ? null : damage.getEntity(),volume,target)) {
+        for(var entity:level.getEntities(includeOwner ? null : damage.getEntity(),volume,admitted)) {
             var box=entity.getBoundingBox().inflate(padding.x,padding.y,padding.z);
             var entry=box.contains(from) ? java.util.Optional.of(from) : box.clip(from,to);
             if(entry.isEmpty()) continue;
+            var game=me.skywars2.SkyWars2.game();
+            if(shortCircuit&&game!=null&&game.items().fpvDrone().tryShortCircuit(entity))continue;
             // Admission stays an exact body/line intersection. Once admitted, electrical
             // pulses retain the legacy unit-cell sample count, rather than losing hits
             // when the selector cell was replaced by a line. This does not admit nearby bodies.
@@ -113,7 +118,7 @@ public final class LbcDamage {
             int begin=Math.max(0,(int)Math.ceil(first/spacing-1e-6));
             int end=Math.min(maxSample,(int)Math.floor(last/spacing+1e-6));
             if(end<begin) begin=end=Math.min(maxSample,begin);
-            for(int i=begin;i<=end;i++) if(perSample[i]<targetLimit && target.test(entity)) {
+            for(int i=begin;i<=end;i++) if(perSample[i]<targetLimit && admitted.test(entity)) {
                 if(electrical){
                     var point=from.lerp(to,length>0?i*spacing/length:0);
                     // Native selector cells use strict overlap, including at sample endpoints.
@@ -139,6 +144,11 @@ public final class LbcDamage {
         var data = new CompoundTag(); data.putInt(name, 1); return data;
     }
     public static boolean isElectric(DamageSource source) { return source.is(ELECTRIC_TYPES); }
+    /** Contact identity is broader than metal/resistance balancing of electric damage. */
+    public static boolean isElectricalContact(DamageSource source) {
+        return isElectric(source)||source.is(DamageTypes.LIGHTNING_BOLT)||source.is(YELLOW_BOLT)
+                ||source.is(YELLOW_SPIN)||source.is(YELLOW_CONDUCTION);
+    }
     /** Нативный ближний удар игрока, включая sweep; авторство само по себе не означает melee. */
     public static boolean isMeleeAttack(DamageSource source, ServerPlayer owner) {
         return source.is(DamageTypes.PLAYER_ATTACK) && source.getDirectEntity() == owner
