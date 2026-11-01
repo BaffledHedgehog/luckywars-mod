@@ -25,6 +25,8 @@ public final class EffectLayersMixin {
     @Mixin(MobEffectInstance.class)
     public abstract static class Instance implements EffectLayers.Access, OwnedEffectLayers.ClockAccess {
         @Shadow private MobEffectInstance hiddenEffect;
+        @Shadow private int duration;
+        @Override public void skywars2$layerDuration(int value) { duration = value; }
         @Override public MobEffectInstance skywars2$layerHidden() { return hiddenEffect; }
         @Override public void skywars2$layerHidden(MobEffectInstance effect) { hiddenEffect = effect; }
         @Override @Invoker("setDetailsFrom")

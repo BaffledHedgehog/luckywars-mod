@@ -100,6 +100,16 @@ public final class ShadowAbsorption {
             effect = ((HiddenAccess)effect).skywars2$absorptionHidden();
         }
     }
+    /** Duration-only ledger edit: deliberately does not reconcile, publish, heal or refill. */
+    static boolean multiplyDurations(LivingEntity entity, int multiplier) {
+        var s = state(entity);
+        if (s.entries.isEmpty() && entity.hasEffect(MobEffects.ABSORPTION))
+            importEffect(s, entity.getEffect(MobEffects.ABSORPTION));
+        boolean changed = false;
+        for (var effect : s.entries.values())
+            changed |= EffectLayers.multiplyChainDurations(effect, multiplier);
+        return changed;
+    }
     public static void tick(LivingEntity entity) {
         var s = state(entity);
         if (!server(entity) || frozen(entity) || s.loading) return;

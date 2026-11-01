@@ -73,6 +73,19 @@ public final class OwnedEffectLayers {
     }
     public void forget(LivingEntity target) { targets.remove(target); }
 
+    /** Keep independently ticking baselines and leases aligned with their native projection. */
+    boolean multiplyDurations(LivingEntity target, int multiplier) {
+        var types = targets.get(target);
+        if (types == null) return false;
+        boolean changed = false;
+        for (var levels : types.values()) for (var layer : levels.values()) {
+            changed |= EffectLayers.multiplyChainDurations(layer.baseline, multiplier);
+            for (var effect : layer.owners.values())
+                changed |= EffectLayers.multiplyChainDurations(effect, multiplier);
+        }
+        return changed;
+    }
+
     /** Non-destructive value image; leases must survive replacement player objects. */
     Object checkpoint(LivingEntity target) { return copyLayers(targets.get(target)); }
     @SuppressWarnings("unchecked") void restoreCheckpoint(LivingEntity target,Object image) {

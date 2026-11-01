@@ -41,6 +41,14 @@
       "lockedKey": "lbc.adv.armor.moisei.lore"
     },
     {
+      "id": 8,
+      "page": 9000,
+      "slot": 7,
+      "table": "lbc:kit/multiply_tablet",
+      "gate": "lbc:true_advancements/armor/multiplying",
+      "lockedKey": "lbc.adv.armor.multiplying.lore"
+    },
+    {
       "id": 9,
       "page": 9000,
       "slot": 8,
@@ -109,6 +117,14 @@
       "page": 9000,
       "slot": 23,
       "table": "lbc:kit/fast_sword"
+    },
+    {
+      "id": 24,
+      "page": 9000,
+      "slot": 24,
+      "table": "lbc:kit/palm_with_bananas",
+      "gate": "lbc:true_advancements/legends/academy/fartus_nadristailo",
+      "lockedKey": "lbc.adv.fartus_nadristailo_upgrade.lore"
     },
     {
       "id": 25,

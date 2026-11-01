@@ -3,6 +3,7 @@ package me.skywars2.game;
 import java.util.Comparator;
 import java.util.TreeMap;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 
 /** Independent clocks use the native saved hidden chain; only its strongest live node acts. */
 public final class EffectLayers {
@@ -12,6 +13,37 @@ public final class EffectLayers {
         MobEffectInstance skywars2$layerHidden();
         void skywars2$layerHidden(MobEffectInstance effect);
         void skywars2$layerDetails(MobEffectInstance effect);
+        void skywars2$layerDuration(int duration);
+    }
+
+    /** Scale the actual remaining clocks in place; never re-admit or restart an effect. */
+    public static boolean multiplyDurations(GameController game, LivingEntity target, int multiplier) {
+        if (multiplier < 1) throw new IllegalArgumentException("Effect duration multiplier must be positive");
+        if (multiplier == 1 || target.level().isClientSide()) return false;
+        // Import legacy absorption before editing its native carrier, so it is scaled once.
+        boolean changed = ShadowAbsorption.multiplyDurations(target, multiplier);
+        changed |= game.items().ownedEffects().multiplyDurations(target, multiplier);
+        for (var active : target.getActiveEffects()) {
+            if (multiplyChainDurations(active, multiplier)) {
+                changed = true;
+                // Native sync/dirty flags without reapplying modifiers or onEffectStarted.
+                ((OwnedEffectLayers.UpdateAccess)target).skywars2$ownedUpdated(active, false, null);
+            }
+        }
+        return changed;
+    }
+
+    static boolean multiplyChainDurations(MobEffectInstance effect, int multiplier) {
+        boolean changed = false;
+        for (var node = effect; node != null; node = ((Access)node).skywars2$layerHidden()) {
+            if (node.isInfiniteDuration() || node.getDuration() <= 0) continue;
+            int scaled = (int)Math.min(Integer.MAX_VALUE, (long)node.getDuration() * multiplier);
+            if (scaled != node.getDuration()) {
+                ((Access)node).skywars2$layerDuration(scaled);
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     /** Native copy constructor omits hidden successors; a suspension needs every clock. */

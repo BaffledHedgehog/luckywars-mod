@@ -1,3 +1,23 @@
+## Multiplier tablets and banana palm - NATIVE VERIFIED (1 November 2026)
+
+[Complete contract and retained failures](agent_notes/TABLET_ABILITIES_2026_11_01.md).
+All four tablet abilities + physical palm are complete. MAG beacon/artifact blocks
+ALL tablets; TECH does not. Ground one successful-unit debit/no-op retained;
+x2 true native defaults/all attributes, x3 full legal quantity, x4 direct enchants.
+x5 exact ALL clocks including hidden/owned/shadow absorption without payload replay.
+Palm is unjammed ordinary main-hand source palm, reuses3-6 native banana food.
+Actual kit8/24 original slots/gates/normal loadout grants enabled; kit23 preserved.
+be17d07e passes ground+menu; production/resources identical9ee381c6 passed8 other
+scoped groups including actual hand expiry, shared effects/copier and full Vanity.
+Only ground fixture epoch assertion corrected; failed receipt retained.10 groups,
+9568inputs/2351classes/7165resources;224authorpaths/31overrides exact. Normal child
+exit/exact snapshots/additional level+ticket restore/no locks. Fixture25577 only.
+No RP/PENDING changes, giant-stack widening, function engine, main restart or push.
+Full five-item release gate cleared. Qualification under
+build/verification/tablet-abilities-2026-11-01/qualification.json. Use shared normal-
+stop installer; installation receipt/status will follow. Do not reopen resolved
+suppression or duration/debit policy. Older inert-definition status below is history.
+
 ## Mechanical kit acquisition + next utility definitions - NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Current scope and failures](agent_notes/KIT_UTILITIES_2026_11_01.md).
