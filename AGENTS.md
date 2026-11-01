@@ -1,3 +1,24 @@
+## PhD kit18 and144 pills - NATIVE VERIFIED, QUALIFIED (1 November 2026)
+
+[Complete policy, behavior, failures and native evidence](agent_notes/PHD_KIT_PORT_2026_11_01.md).
+User: ordinary output slot; no crafting/intake suppression; personal pill120 stasis
+lasts until death. Native reusable certificate+3BIO recipe, exact canonical per-match
+seed/hash/carrier identity, pure deterministic preview, vanilla debit/Shift/remainders.
+Original kit18 page9000/slot17/BadWiki gate +normal cert/3compost grants enabled.
+All144 native pill outcomes and raw144 feedback implemented; existing shared effects/
+score owners and exact AttributeFood base arithmetic reused, instant payloads immediate.
+Missing shared vacuum119/personal stasis120 consumers completed: physical ungated,
+source Greed distinction, R100/strict guard/momentum, native persistent anchor, recurring
+source effects, world pause, item use and life cleanup; no private checkpoint engine.
+No new RP, stack/range widening or runtime function interpreter. Kit6 remains separate.
+e67403fb passes all144 actual native consumes/menu; production/resources identical
+a9203a08 and5716982d cover eight other scoped groups,10 total. Retained failed fixtures
+are explained, not qualified wholesale.9738inputs/2392classes/7324resources;
+224authorpaths/31overrides exact. Children normal/exact snapshots/extra level+ticket
+restore/no locks, temporary Tiny probe removed, fixture25577 only. Full PhD gate clear.
+Qualification: build/verification/phd-kit-2026-11-01/qualification.json. Main remains
+057b67aa until shared normal-stop installer receipt; never stop/restart main or push.
+
 ## Pursuit kits and shared ray queue ? NATIVE VERIFIED, QUALIFIED (1 November 2026)
 
 [Complete behavior, retained failures and evidence](agent_notes/PURSUIT_WHIP_RELEASE_2026_11_01.md).

@@ -633,6 +633,7 @@ public final class GameController {
     private void startPlaying() {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < 2) { restoreLobby(); return; }
+        LbcPhdCrafting.matchStarted(this);
         luckyModifiers.startMatch();
         maps.cages(false); maps.captureRespawnIslands(); maps.fillChests(false);
         transition(Stage.PLAYING); gameTicks = 0;
@@ -790,7 +791,7 @@ public final class GameController {
         items.foodLifecycle().consumed(player,stack);
         items.kfcFood().consumed(player,stack);
         items.aimbobRewards().consumed(player,stack);
-        items.attributeFood().consumed(player,stack);
+        items.attributeFood().consumed(player,stack);items.pills().consumed(player,stack);
         items.edibleSpells().consumed(player,stack);
         items.namedFoods().consumed(player,stack);items.oreshek().consumed(player,stack);
         events.onConsumed(player, stack);

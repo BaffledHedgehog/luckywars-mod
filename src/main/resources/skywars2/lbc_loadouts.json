@@ -113,6 +113,14 @@
       "lockedKey": "lbc.adv.upgraded_tuntija.acid.lore"
     },
     {
+      "id": 18,
+      "page": 9000,
+      "slot": 17,
+      "table": "lbc:kit/phd",
+      "gate": "lbc:true_advancements/legends/academy/badwiki",
+      "lockedKey": "lbc.adv.upgraded_staff.badwiki"
+    },
+    {
       "id": 19,
       "page": 9000,
       "slot": 19,

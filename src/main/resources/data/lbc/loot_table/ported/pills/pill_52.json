@@ -1,0 +1,60 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:phd_pill",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "consumable": {
+                  "consume_seconds": 0.2,
+                  "animation": "eat",
+                  "has_consume_particles": true
+                },
+                "minecraft:food": {
+                  "nutrition": 1,
+                  "saturation": 1,
+                  "can_always_eat": true
+                },
+                "minecraft:item_model": "lbc:pills/pill_52"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "pill",
+                  "color": "white",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "pill.lore",
+                  "color": "white",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{pill:52}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2521 @@
+{
+  "canonicalOutputCount": 144,
+  "rawCompatibilityId": 144,
+  "pills": [
+    {
+      "id": 0,
+      "key": "max_health_down",
+      "attribute": {
+        "key": "max_health",
+        "inputScale": 1,
+        "step": -1,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_max_health_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 1,
+      "key": "attack_damage_down",
+      "attribute": {
+        "key": "attack_damage",
+        "inputScale": 1,
+        "step": -1,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_attack_damage_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 2,
+      "key": "armor_down",
+      "attribute": {
+        "key": "armor",
+        "inputScale": 1,
+        "step": -1,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_armor_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 3,
+      "key": "armor_toughness_down",
+      "attribute": {
+        "key": "armor_toughness",
+        "inputScale": 1,
+        "step": -1,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_armor_toughness_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 4,
+      "key": "attack_speed_down",
+      "attribute": {
+        "key": "attack_speed",
+        "inputScale": 5,
+        "step": -1,
+        "outputScale": 0.2
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_attack_speed_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 5,
+      "key": "knockback_resistance_down",
+      "attribute": {
+        "key": "knockback_resistance",
+        "inputScale": 10,
+        "step": -10,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_knockback_resistance_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 6,
+      "key": "luck_down",
+      "attribute": {
+        "key": "luck",
+        "inputScale": 1,
+        "step": -1,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_luck_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 7,
+      "key": "movement_speed_down",
+      "attribute": {
+        "key": "movement_speed",
+        "inputScale": 100000,
+        "step": -2000,
+        "outputScale": 1e-05
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_movement_speed_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 8,
+      "key": "attack_knockback_down",
+      "attribute": {
+        "key": "attack_knockback",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_attack_knockback_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 9,
+      "key": "burning_time_down",
+      "attribute": {
+        "key": "burning_time",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_burning_time_down",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 10,
+      "key": "explosion_knockback_resistance_down",
+      "attribute": {
+        "key": "explosion_knockback_resistance",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_explosion_knockback_resistance_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 11,
+      "key": "fall_damage_multiplier_down",
+      "attribute": {
+        "key": "fall_damage_multiplier",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_fall_damage_multiplier_down",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 12,
+      "key": "gravity_down",
+      "attribute": {
+        "key": "gravity",
+        "inputScale": 100,
+        "step": -1,
+        "outputScale": 0.01
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_gravity_down",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 13,
+      "key": "jump_strength_down",
+      "attribute": {
+        "key": "jump_strength",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_jump_strength_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 14,
+      "key": "movement_efficiency_down",
+      "attribute": {
+        "key": "movement_efficiency",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_movement_efficiency_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 15,
+      "key": "oxygen_bonus_down",
+      "attribute": {
+        "key": "oxygen_bonus",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_oxygen_bonus_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 16,
+      "key": "safe_fall_distance_down",
+      "attribute": {
+        "key": "safe_fall_distance",
+        "inputScale": 5,
+        "step": -1,
+        "outputScale": 0.2
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_safe_fall_distance_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 17,
+      "key": "scale_down",
+      "attribute": {
+        "key": "scale",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_scale_down",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 18,
+      "key": "step_height_down",
+      "attribute": {
+        "key": "step_height",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_step_height_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 19,
+      "key": "water_movement_efficiency_down",
+      "attribute": {
+        "key": "water_movement_efficiency",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_water_movement_efficiency_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 20,
+      "key": "block_break_speed_down",
+      "attribute": {
+        "key": "block_break_speed",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_block_break_speed_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 21,
+      "key": "block_interaction_range_down",
+      "attribute": {
+        "key": "block_interaction_range",
+        "inputScale": 5,
+        "step": -1,
+        "outputScale": 0.2
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_block_interaction_range_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 22,
+      "key": "entity_interaction_range_down",
+      "attribute": {
+        "key": "entity_interaction_range",
+        "inputScale": 5,
+        "step": -1,
+        "outputScale": 0.2
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_entity_interaction_range_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 23,
+      "key": "mining_efficiency_down",
+      "attribute": {
+        "key": "mining_efficiency",
+        "inputScale": 3,
+        "step": -1,
+        "outputScale": 0.333333333
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_mining_efficiency_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 24,
+      "key": "sneaking_speed_down",
+      "attribute": {
+        "key": "sneaking_speed",
+        "inputScale": 10,
+        "step": -1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_sneaking_speed_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 25,
+      "key": "submerged_mining_speed_down",
+      "attribute": {
+        "key": "submerged_mining_speed",
+        "inputScale": 20,
+        "step": -1,
+        "outputScale": 0.05
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_submerged_mining_speed_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 26,
+      "key": "sweeping_damage_ratio_down",
+      "attribute": {
+        "key": "sweeping_damage_ratio",
+        "inputScale": 20,
+        "step": -1,
+        "outputScale": 0.05
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_sweeping_damage_ratio_down",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 27,
+      "key": "max_health_up",
+      "attribute": {
+        "key": "max_health",
+        "inputScale": 1,
+        "step": 2,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_max_health_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 28,
+      "key": "attack_damage_up",
+      "attribute": {
+        "key": "attack_damage",
+        "inputScale": 1,
+        "step": 1,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_attack_damage_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 29,
+      "key": "armor_up",
+      "attribute": {
+        "key": "armor",
+        "inputScale": 1,
+        "step": 2,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_armor_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 30,
+      "key": "armor_toughness_up",
+      "attribute": {
+        "key": "armor_toughness",
+        "inputScale": 1,
+        "step": 1,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_armor_toughness_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 31,
+      "key": "attack_speed_up",
+      "attribute": {
+        "key": "attack_speed",
+        "inputScale": 5,
+        "step": 1,
+        "outputScale": 0.2
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_attack_speed_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 32,
+      "key": "knockback_resistance_up",
+      "attribute": {
+        "key": "knockback_resistance",
+        "inputScale": 10,
+        "step": 10,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_knockback_resistance_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 33,
+      "key": "luck_up",
+      "attribute": {
+        "key": "luck",
+        "inputScale": 1,
+        "step": 1,
+        "outputScale": 1.0
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_luck_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 34,
+      "key": "movement_speed_up",
+      "attribute": {
+        "key": "movement_speed",
+        "inputScale": 100000,
+        "step": 2000,
+        "outputScale": 1e-05
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_movement_speed_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 35,
+      "key": "attack_knockback_up",
+      "attribute": {
+        "key": "attack_knockback",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_attack_knockback_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 36,
+      "key": "burning_time_up",
+      "attribute": {
+        "key": "burning_time",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_burning_time_up",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 37,
+      "key": "explosion_knockback_resistance_up",
+      "attribute": {
+        "key": "explosion_knockback_resistance",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_explosion_knockback_resistance_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 38,
+      "key": "fall_damage_multiplier_up",
+      "attribute": {
+        "key": "fall_damage_multiplier",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_fall_damage_multiplier_up",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 39,
+      "key": "gravity_up",
+      "attribute": {
+        "key": "gravity",
+        "inputScale": 100,
+        "step": 1,
+        "outputScale": 0.01
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_gravity_up",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 40,
+      "key": "jump_strength_up",
+      "attribute": {
+        "key": "jump_strength",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_jump_strength_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 41,
+      "key": "movement_efficiency_up",
+      "attribute": {
+        "key": "movement_efficiency",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_movement_efficiency_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 42,
+      "key": "oxygen_bonus_up",
+      "attribute": {
+        "key": "oxygen_bonus",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_oxygen_bonus_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 43,
+      "key": "safe_fall_distance_up",
+      "attribute": {
+        "key": "safe_fall_distance",
+        "inputScale": 5,
+        "step": 1,
+        "outputScale": 0.2
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_safe_fall_distance_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 44,
+      "key": "scale_up",
+      "attribute": {
+        "key": "scale",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_scale_up",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 45,
+      "key": "step_height_up",
+      "attribute": {
+        "key": "step_height",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_step_height_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 46,
+      "key": "water_movement_efficiency_up",
+      "attribute": {
+        "key": "water_movement_efficiency",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_water_movement_efficiency_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 47,
+      "key": "block_break_speed_up",
+      "attribute": {
+        "key": "block_break_speed",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_block_break_speed_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 48,
+      "key": "block_interaction_range_up",
+      "attribute": {
+        "key": "block_interaction_range",
+        "inputScale": 5,
+        "step": 1,
+        "outputScale": 0.2
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_block_interaction_range_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 49,
+      "key": "entity_interaction_range_up",
+      "attribute": {
+        "key": "entity_interaction_range",
+        "inputScale": 5,
+        "step": 1,
+        "outputScale": 0.2
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_entity_interaction_range_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 50,
+      "key": "mining_efficiency_up",
+      "attribute": {
+        "key": "mining_efficiency",
+        "inputScale": 3,
+        "step": 1,
+        "outputScale": 0.333333333
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_mining_efficiency_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 51,
+      "key": "sneaking_speed_up",
+      "attribute": {
+        "key": "sneaking_speed",
+        "inputScale": 10,
+        "step": 1,
+        "outputScale": 0.1
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_sneaking_speed_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 52,
+      "key": "submerged_mining_speed_up",
+      "attribute": {
+        "key": "submerged_mining_speed",
+        "inputScale": 20,
+        "step": 1,
+        "outputScale": 0.05
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_submerged_mining_speed_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 53,
+      "key": "sweeping_damage_ratio_up",
+      "attribute": {
+        "key": "sweeping_damage_ratio",
+        "inputScale": 20,
+        "step": 1,
+        "outputScale": 0.05
+      },
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_sweeping_damage_ratio_up",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 54,
+      "key": "absorption",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "absorption",
+          "seconds": 60,
+          "amplifier": 1,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_absorption",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 55,
+      "key": "absorption_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "absorption",
+          "seconds": 5,
+          "amplifier": 127,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_absorption_99",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 56,
+      "key": "blindness",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "blindness",
+          "seconds": 60,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_blindness",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 57,
+      "key": "conduit_power_1",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "conduit_power",
+          "seconds": 30,
+          "amplifier": 1,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_conduit_power_1",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 58,
+      "key": "conduit_power_2",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "conduit_power",
+          "seconds": 15,
+          "amplifier": 2,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_conduit_power_2",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 59,
+      "key": "darkness",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "darkness",
+          "seconds": 120,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_darkness",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 60,
+      "key": "dolphins_grace",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "dolphins_grace",
+          "seconds": 60,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_dolphins_grace",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 61,
+      "key": "fire_resistance",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "fire_resistance",
+          "seconds": 60,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_fire_resistance",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 62,
+      "key": "fire_resistance_1",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "fire_resistance",
+          "seconds": 30,
+          "amplifier": 1,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_fire_resistance_1",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 63,
+      "key": "fire_resistance_2",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "fire_resistance",
+          "seconds": 15,
+          "amplifier": 2,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_fire_resistance_2",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 64,
+      "key": "glowing",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "glowing",
+          "seconds": 60,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_glowing",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 65,
+      "key": "haste",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "haste",
+          "seconds": 60,
+          "amplifier": 1,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_haste",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 66,
+      "key": "haste_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "haste",
+          "seconds": 10,
+          "amplifier": 99,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_haste_99",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 67,
+      "key": "health_boost",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "health_boost",
+          "seconds": 60,
+          "amplifier": 4,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_health_boost",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 68,
+      "key": "hero_of_the_village",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "hero_of_the_village",
+          "seconds": 120,
+          "amplifier": 127,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_hero_of_the_village",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 69,
+      "key": "hunger",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "hunger",
+          "seconds": 100,
+          "amplifier": 1,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_hunger",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 70,
+      "key": "hunger_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "hunger",
+          "seconds": 4,
+          "amplifier": 127,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_hunger_99",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 71,
+      "key": "infested",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "infested",
+          "seconds": -1,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_infested",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 72,
+      "key": "instant_damage",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "instant_damage",
+          "seconds": 1,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_instant_damage",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 73,
+      "key": "instant_damage_2",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "instant_damage",
+          "seconds": 1,
+          "amplifier": 2,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_instant_damage_2",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 74,
+      "key": "instant_health",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "instant_health",
+          "seconds": 1,
+          "amplifier": 99,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_instant_health",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 75,
+      "key": "invisibility",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "invisibility",
+          "seconds": 60,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_invisibility",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 76,
+      "key": "invisibility_1",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "invisibility",
+          "seconds": 30,
+          "amplifier": 1,
+          "hidden": true
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_invisibility_1",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 77,
+      "key": "jump_boost",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "jump_boost",
+          "seconds": 60,
+          "amplifier": 2,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_jump_boost",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 78,
+      "key": "jump_boost_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "jump_boost",
+          "seconds": 10,
+          "amplifier": 127,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_jump_boost_99",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 79,
+      "key": "levitation",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "levitation",
+          "seconds": 20,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_levitation",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 80,
+      "key": "levitation_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "levitation",
+          "seconds": 1,
+          "amplifier": 127,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_levitation_99",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 81,
+      "key": "luck",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "luck",
+          "seconds": 30,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_luck",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 82,
+      "key": "luck_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "luck",
+          "seconds": 2,
+          "amplifier": 255,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_luck_99",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 83,
+      "key": "mining_fatigue",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "mining_fatigue",
+          "seconds": 60,
+          "amplifier": 1,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_mining_fatigue",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 84,
+      "key": "mining_fatigue_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "mining_fatigue",
+          "seconds": 20,
+          "amplifier": 99,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_mining_fatigue_99",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 85,
+      "key": "nausea",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "nausea",
+          "seconds": 100,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_nausea",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 86,
+      "key": "night_vision",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "night_vision",
+          "seconds": 120,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_night_vision",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 87,
+      "key": "oozing",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "oozing",
+          "seconds": -1,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_oozing",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 88,
+      "key": "poison",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "poison",
+          "seconds": 30,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_poison",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 89,
+      "key": "raid_omen_16",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 60,
+          "amplifier": 16,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_16",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 90,
+      "key": "raid_omen_17",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "mana",
+          "amount": 5000
+        }
+      ],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_17",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 91,
+      "key": "raid_omen_18",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "manamax",
+          "amount": 1000
+        }
+      ],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_18",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 92,
+      "key": "raid_omen_19",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "manaregen",
+          "amount": 3
+        }
+      ],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_19",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 93,
+      "key": "raid_omen_20",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 1,
+          "amplifier": 20,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_20",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 94,
+      "key": "raid_omen_74",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_snus",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_74",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 95,
+      "key": "raid_omen_40",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 10,
+          "amplifier": 40,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_40",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 96,
+      "key": "raid_omen_41",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 10,
+          "amplifier": 41,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_41",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 97,
+      "key": "raid_omen_42",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 10,
+          "amplifier": 42,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_42",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 98,
+      "key": "raid_omen_101",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_small_explosion",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_101",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 99,
+      "key": "raid_omen_102",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_evoker",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_102",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 100,
+      "key": "raid_omen_103",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_shock",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects",
+        "have_lucky_effects_1s",
+        "have_lucky_effects_5t"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_103",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 101,
+      "key": "raid_omen_104",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_explosion",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_104",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 102,
+      "key": "raid_omen_105",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 10,
+          "amplifier": 105,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_105",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 103,
+      "key": "raid_omen_106",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 1,
+          "amplifier": 106,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_106",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 104,
+      "key": "raid_omen_107",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_big_explosion",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_107",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 105,
+      "key": "raid_omen_108",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_traps",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_108",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 106,
+      "key": "raid_omen_109",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_lightning_bolt",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_109",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 107,
+      "key": "raid_omen_110",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 1,
+          "amplifier": 110,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_110",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 108,
+      "key": "raid_omen_111",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 15,
+          "amplifier": 111,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_111",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 109,
+      "key": "raid_omen_112",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 30,
+          "amplifier": 112,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_112",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 110,
+      "key": "raid_omen_113",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 30,
+          "amplifier": 113,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_113",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 111,
+      "key": "raid_omen_114",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 1,
+          "amplifier": 114,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_114",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 112,
+      "key": "raid_omen_115",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 1,
+          "amplifier": 115,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_115",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 113,
+      "key": "raid_omen_116",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 30,
+          "amplifier": 116,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_116",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 114,
+      "key": "raid_omen_117",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 1,
+          "amplifier": 117,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_117",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 115,
+      "key": "raid_omen_118",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_hedgehog_boom",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_118",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 116,
+      "key": "raid_omen_119",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_stand_arrow_hit",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_119",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 117,
+      "key": "raid_omen_120",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "raid_omen",
+          "seconds": 120,
+          "amplifier": 120,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_120",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 118,
+      "key": "raid_omen_121",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_nuking",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_121",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 119,
+      "key": "raid_omen_122",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_vacuum",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_122",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 120,
+      "key": "raid_omen_123",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_timestop",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_123",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 121,
+      "key": "raid_omen_124",
+      "attribute": null,
+      "effects": [],
+      "counters": [
+        {
+          "key": "effect_chain_lightning",
+          "amount": 1
+        }
+      ],
+      "tags": [
+        "have_lucky_effects"
+      ],
+      "paralysis": false,
+      "subtitle": "pill_raid_omen_124",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 122,
+      "key": "regeneration",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "regeneration",
+          "seconds": 60,
+          "amplifier": 1,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_regeneration",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 123,
+      "key": "resistance",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "resistance",
+          "seconds": 60,
+          "amplifier": 1,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_resistance",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 124,
+      "key": "resistance_5",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "resistance",
+          "seconds": 10,
+          "amplifier": 4,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_resistance_5",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 125,
+      "key": "saturation",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "saturation",
+          "seconds": 1,
+          "amplifier": 127,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_saturation",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 126,
+      "key": "slow_falling",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "slow_falling",
+          "seconds": 60,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_slow_falling",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 127,
+      "key": "slowness",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "slowness",
+          "seconds": 60,
+          "amplifier": 2,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_slowness",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 128,
+      "key": "speed",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "speed",
+          "seconds": 60,
+          "amplifier": 2,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_speed",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 129,
+      "key": "strength",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "strength",
+          "seconds": 40,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_strength",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 130,
+      "key": "strength_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "strength",
+          "seconds": 2,
+          "amplifier": 99,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_strength_99",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 131,
+      "key": "unluck",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "unluck",
+          "seconds": 120,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_unluck",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 132,
+      "key": "unluck_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "unluck",
+          "seconds": 60,
+          "amplifier": 99,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_unluck_99",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 133,
+      "key": "water_breathing",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "water_breathing",
+          "seconds": 120,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_water_breathing",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 134,
+      "key": "water_breathing_2",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "water_breathing",
+          "seconds": 60,
+          "amplifier": 2,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_water_breathing_2",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 135,
+      "key": "weakness",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "weakness",
+          "seconds": 120,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_weakness",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 136,
+      "key": "weakness_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "weakness",
+          "seconds": 30,
+          "amplifier": 99,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_weakness_99",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 137,
+      "key": "weaving",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "weaving",
+          "seconds": -1,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_weaving",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 138,
+      "key": "wind_charged",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "wind_charged",
+          "seconds": -1,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_wind_charged",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 139,
+      "key": "wither",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "wither",
+          "seconds": 60,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_wither",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 140,
+      "key": "wither_99",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "wither",
+          "seconds": 10,
+          "amplifier": 99,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_wither_99",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 141,
+      "key": "paralysis",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "slowness",
+          "seconds": 10,
+          "amplifier": 127,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": true,
+      "subtitle": "pill_paralysis",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 142,
+      "key": "excited",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "speed",
+          "seconds": 30,
+          "amplifier": 4,
+          "hidden": false
+        },
+        {
+          "key": "haste",
+          "seconds": 30,
+          "amplifier": 4,
+          "hidden": false
+        },
+        {
+          "key": "jump_boost",
+          "seconds": 30,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_excited",
+      "sound": "minecraft:lbcsounds.pill_good"
+    },
+    {
+      "id": 143,
+      "key": "drowsy",
+      "attribute": null,
+      "effects": [
+        {
+          "key": "slowness",
+          "seconds": 30,
+          "amplifier": 4,
+          "hidden": false
+        },
+        {
+          "key": "mining_fatigue",
+          "seconds": 30,
+          "amplifier": 0,
+          "hidden": false
+        },
+        {
+          "key": "weakness",
+          "seconds": 30,
+          "amplifier": 0,
+          "hidden": false
+        }
+      ],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_drowsy",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    },
+    {
+      "id": 144,
+      "key": "i_found_pills",
+      "attribute": null,
+      "effects": [],
+      "counters": [],
+      "tags": [],
+      "paralysis": false,
+      "subtitle": "pill_i_found_pills",
+      "sound": "minecraft:lbcsounds.pill_bad"
+    }
+  ]
+}

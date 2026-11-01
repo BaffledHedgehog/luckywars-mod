@@ -51,14 +51,7 @@ public final class LbcAttributeFood {
     }
 
     private void improve(ServerPlayer p,Food food){
-        var attribute=p.getAttribute(food.attribute());
-        if(attribute!=null){
-            // AttributeCommand returns a Java int, including truncation toward zero and saturation.
-            // The scoreboard addition then uses ordinary signed int overflow before double storage.
-            int result=(int)(attribute.getBaseValue()*food.inputScale());
-            result+=food.increase();
-            attribute.setBaseValue(result*food.outputScale());
-        }
+        LbcAttributeChanges.change(p,food.attribute(),food.inputScale(),food.increase(),food.outputScale());
         LbcOverload.sound(p,"minecraft:entity.player.levelup",1,1,0);
         p.level().sendParticles(food.particle(),p.getX(),p.getY()+1,p.getZ(),food.count(),.5,.5,.5,food.speed());
     }

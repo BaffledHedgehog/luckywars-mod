@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/phd_certificate.json', 'data/lbc/loot_table/ported/pills/*.json', 'data/lbc/loot_table/kit/phd.json'
+    include 'data/minecraft/tags/item/bioitems.json', 'data/minecraft/tags/item/shelf.json'
     include 'data/lbc/loot_table/ported/bouncing_poop.json', 'data/lbc/loot_table/kit/govno_raskid.json'
     include 'data/lbc/loot_table/ported/deus.json', 'data/lbc/loot_table/kit/deus.json'
     include 'data/lbc/loot_table/ported/gaara_pot.json', 'data/lbc/loot_table/ported/clown_mask.json'

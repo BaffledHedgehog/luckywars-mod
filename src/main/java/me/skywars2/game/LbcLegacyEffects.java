@@ -24,11 +24,13 @@ public final class LbcLegacyEffects {
             "effect_witch_gens_reset","frozen","gigaponos","lookback","nomagic","piss","scared","shock",
             "skill_issue","target","twitching");
     private static final List<String> OWNED=List.of("effect_big_explosion","effect_explosion","effect_nuking",
-            "effect_traps","effect_snus","effect_stand_arrow_hit","effect_witch_gens_reset","effect_hedgehog_boom");
+            "effect_traps","effect_snus","effect_stand_arrow_hit","effect_witch_gens_reset","effect_hedgehog_boom","effect_vacuum","effect_timestop");
     private final GameController game;
+    private final LbcPersonalStasis personalStasis;
     private int lastTick=Integer.MIN_VALUE,lastSelection;
     private long selections,actions;
-    public LbcLegacyEffects(GameController game){this.game=game;}
+    public LbcLegacyEffects(GameController game){this.game=game;this.personalStasis=new LbcPersonalStasis(game);}
+    public LbcPersonalStasis personalStasis(){return personalStasis;}
     private boolean admitted(ServerPlayer p){return p!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&p.isAlive()&&!p.isRemoved()&&game.canUseGameplayItems(p)&&!game.isObserver(p)
             &&game.items().wands().validRoleTarget(p,false)&&LbcDimensionItems.ordinary(p)
@@ -57,6 +59,7 @@ public final class LbcLegacyEffects {
     public void tick(){
         int now=game.server().getTickCount();if(now==lastTick)return;lastTick=now;
         for(var p:List.copyOf(game.server().getPlayerList().getPlayers())){
+            personalStasis.tick(p);
             if(game.items().polymorph().masked(p)||!admitted(p))continue;
             if((now&1)==0)ambientReactions(p);
             boolean greed=p.entityTags().contains("sin_greed_active");
@@ -67,11 +70,13 @@ public final class LbcLegacyEffects {
                 consume(p,"effect_witch_gens_reset",()->{if(!magicBeacon(p))resetWitch(p);});
                 consume(p,"effect_hedgehog_boom",()->{if(!game.items().magic().suppressed(p))game.items().hedgehog().spawnWall(p.level(),p.position(),p);});
             }
-            // This branch deliberately lacks the source Greed exclusion.
+            // These branches deliberately lack the source Greed exclusion.
+            consume(p,"effect_vacuum",()->vacuum(p));
             consume(p,"effect_stand_arrow_hit",()->{if(!game.items().magic().suppressed(p))game.items().stand().arrowHitPre(p);});
             if(!greed){
                 consume(p,"effect_nuking",()->{if(!game.items().magic().mechanismSuppressedAt(p.level(),p.position()))game.items().nukeEvent().pointBurst(p,p.level(),p.position());});
                 consume(p,"effect_snus",()->snus(p));
+                consume(p,"effect_timestop",()->personalStasis.start(p,LbcPersonalStasis.DEFAULT_DURATION_TICKS));
                 if(now%20==0&&read(p,"effect_gravity_curse")>0&&!game.items().pendingCombat().gravityCurseActive(p))gravity(p);
             }
         }
@@ -95,6 +100,17 @@ public final class LbcLegacyEffects {
     }
     private void consume(ServerPlayer p,String objective,Runnable action){if(read(p,objective)<=0)return;
         action.run();drain(p,objective);actions++;
+    }
+    private void vacuum(ServerPlayer p){
+        var origin=p.position();
+        var bounds=new net.minecraft.world.phys.AABB(origin.x-100,origin.y-100,origin.z-100,origin.x+100,origin.y+100,origin.z+100);
+        for(var entity:List.copyOf(p.level().getEntities((net.minecraft.world.entity.Entity)null,bounds,
+                e->!(e instanceof net.minecraft.world.entity.player.Player)&&!e.isRemoved()
+                        &&!e.entityTags().contains("strict_map_object")&&e.position().distanceToSqr(origin)<=10000))){
+            if(entity.teleportTo(p.level(),origin.x,origin.y,origin.z,java.util.Set.of(),p.getYRot(),p.getXRot(),true)
+                    &&entity instanceof net.minecraft.world.entity.LivingEntity living)
+                game.items().indirectKills().teleported(living,p,true);
+        }
     }
     private boolean magicBeacon(ServerPlayer p){return p.level()==game.maps().level()&&game.items().magic().beaconSuppressed(p.position());}
     private boolean explosionSuppressed(ServerPlayer p){
@@ -133,7 +149,7 @@ public final class LbcLegacyEffects {
     public void clear(ServerPlayer p){for(var key:OWNED)game.items().mana().score(p,key).set(0);
         // Shared PendingCombat owns active physical modifiers and its ordinary clear boundary.
         game.items().mana().score(p,"effect_gravity_curse").set(0);}
-    public void forget(ServerPlayer p){clear(p);}
-    public void stop(){for(var p:game.server().getPlayerList().getPlayers())clear(p);lastTick=Integer.MIN_VALUE;}
+    public void forget(ServerPlayer p){personalStasis.clear(p);clear(p);}
+    public void stop(){for(var p:game.server().getPlayerList().getPlayers())forget(p);lastTick=Integer.MIN_VALUE;}
     public int lastSelection(){return lastSelection;}public long selections(){return selections;}public long actions(){return actions;}
 }

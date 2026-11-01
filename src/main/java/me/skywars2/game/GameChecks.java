@@ -673,6 +673,10 @@ public final class GameChecks {
                                 case "ray-queue-fairness" -> { RayQueueFairnessChecks.run(game); return; }
                                 case "govnomancer" -> { GovnomancerChecks.run(game); return; }
                                 case "pursuit-kit-menu" -> { KitUtilityChecks.pursuitMenus(game); return; }
+                                case "phd-kit-menu" -> { PhdChecks.menu(game); return; }
+                                case "phd-crafting" -> { PhdChecks.crafting(game); return; }
+                                case "phd-pills" -> { PhdChecks.consumption(game); return; }
+                                case "phd-consequences" -> { PhdChecks.startConsequences(game); return; }
                                 case "govnomancer-menu" -> { KitUtilityChecks.govnomancerMenu(game); return; }
                                 case "clown-kit" -> { ClownKitChecks.start(game); return; }
                                 case "clown-kit-menu" -> { KitUtilityChecks.clownMenus(game); return; }
@@ -1438,7 +1442,7 @@ public final class GameChecks {
         public static void tick(GameController game) {
             TabletGroundChecks.tick(game);
             GaaraPotChecks.tick(game);BouncingPoopChecks.tick(game);ClownKitChecks.tick(game);
-            DeusWhipChecks.tick(game);RayQueueFairnessChecks.tick(game);
+            DeusWhipChecks.tick(game);RayQueueFairnessChecks.tick(game);PhdChecks.tick(game);
             TabletHandChecks.tick(game);
             SteampunkBreakerChecks.tick(game);SteampunkGloveChecks.tick(game);
         SteampunkHookChecks.tick(game);
