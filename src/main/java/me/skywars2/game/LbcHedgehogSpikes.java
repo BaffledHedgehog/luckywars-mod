@@ -35,13 +35,13 @@ public final class LbcHedgehogSpikes {
     private final List<SpikeArrow> arrows=new ArrayList<>();
     private final List<Pending> pending=new ArrayList<>();
     private final Map<LivingEntity,Water> water=new IdentityHashMap<>();
-    private static final String[] THROW_FLAGS={"confuse","blind","boom","standart","wither","poison","smoke","smoke_old","smoke_bomb"};
+    private static final String[] THROW_FLAGS={"confuse","blind","boom","standart","wither","poison","smoke","smoke_old","smoke_bomb","luckygrenade"};
     private record Pending(LivingEntity target,SpikeKind kind,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){}
     private record Water(MobEffectInstance effect,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){}
     public LbcHedgehogSpikes(GameController game){this.game=game;}
     /** Ordinary darts use the same native arrow transport as the wall's six spikes. */
     public static int legacyThrow(ItemStack stack){
-        if(!stack.is(Items.SNOWBALL)&&!LbcClownKit.smoke(stack))return 0;
+        if(!stack.is(Items.SNOWBALL)&&!LbcClownKit.smoke(stack)&&!stack.is(LbcGadgetItems.LUCKY_GRENADE))return 0;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
         if(data.getIntOr("special",0)!=1)return 0;
         for(int i=0;i<THROW_FLAGS.length;i++)if(data.getIntOr(THROW_FLAGS[i],0)==1)return i+1;
@@ -52,6 +52,7 @@ public final class LbcHedgehogSpikes {
         if(variant==0||!game.playing()||game.stage()==GameController.Stage.ENDING||!p.isAlive()||game.isObserver(p)
                 ||!game.canUseGameplayItems(p)||!LbcDimensionItems.ordinary(p)||frozen(p)||game.items().actionsBlocked(p))return false;
         if(variant==9&&(game.items().magic().mechanismSuppressed(p)||!game.items().clownKit().smokeAllowed(p.level(),p.getEyePosition())))return false;
+        if(variant==10&&!luckyGrenadeAllowed(p.level(),p.position()))return false;
         var transport=new Snowball(p.level(),p,stack);transport.shootFromRotation(p,p.getXRot(),p.getYRot(),0,1.5f,1);
         if(emitLegacy(p,variant,transport.position(),transport.getDeltaMovement())==null)return false;
         LbcOverload.sound(p,p.position(),"minecraft:entity.snowball.throw",.5f,.4f/(p.getRandom().nextFloat()*.4f+.8f),0);
@@ -64,6 +65,8 @@ public final class LbcHedgehogSpikes {
     private boolean allowed(ServerPlayer p){return p!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&p.isAlive()&&!p.isRemoved()
             &&LbcDimensionItems.ordinary(p)&&game.canUseGameplayItems(p)&&!game.isObserver(p)&&!frozen(p)&&!game.items().actionsBlocked(p)
             &&!game.items().magic().suppressed(p)&&!game.items().magic().suppressedAt(p.level(),p.getEyePosition());}
+    private boolean luckyGrenadeAllowed(ServerLevel level,Vec3 at){return !game.items().magic().mechanismSuppressedAt(level,at)
+            &&!game.items().magic().artifactSuppressedAt(level,at);}
     private boolean valid(SpikeArrow a){return !a.isRemoved()&&game.playing()&&game.items().currentEpoch(a)
             &&a.getOwner() instanceof ServerPlayer p&&p.level()==a.level()&&resident((ServerLevel)a.level(),a.position());}
     private boolean effectTarget(LivingEntity target){return game.items().wands().validTarget(target)
@@ -82,12 +85,12 @@ public final class LbcHedgehogSpikes {
     private static ItemStack pickup(SpikeKind kind){return pickup(kind,0);}
     private static ItemStack pickup(SpikeKind kind,int legacy){
         var result=new ItemStack(kind==SpikeKind.STANDARD?Items.ARROW:Items.TIPPED_ARROW);
-        int tint=legacy==0?color(kind):switch(legacy){case 1->11733922;case 2->0;case 3->16756516;case 5->7368816;case 6->392982;default->16777215;};
+        int tint=legacy==0?color(kind):switch(legacy){case 1->11733922;case 2->0;case 3->16756516;case 5->7368816;case 6->392982;case 10->16772608;default->16777215;};
         if(kind!=SpikeKind.STANDARD){result.set(DataComponents.POTION_CONTENTS,new PotionContents(Optional.empty(),Optional.of(tint),List.of(),Optional.empty()));result.set(DataComponents.POTION_DURATION_SCALE,1f);}
         return result;
     }
     private final class SpikeArrow extends Arrow {
-        final SpikeKind kind;final UUID originalAuthor;final int legacy;boolean retired,blockDone;
+        final SpikeKind kind;final UUID originalAuthor;final int legacy;boolean retired,blockDone,luckyGrenadeDone;
         SpikeArrow(ServerPlayer p,SpikeKind kind){this(p,kind,0);}
         SpikeArrow(ServerPlayer p,SpikeKind kind,int legacy){super(p.level(),p,pickup(kind,legacy),null);this.kind=kind;this.legacy=legacy;originalAuthor=p.getUUID();
             setBaseDamage(legacy==0?baseDamage(kind):switch(legacy){case 1->3;case 2,6->2.5;case 3->2;case 4->4;case 5->1.8;default->.01;});
@@ -122,7 +125,7 @@ public final class LbcHedgehogSpikes {
         LbcShooters.orient(a);game.items().timeStop().prepareFrozen(a);if(!p.level().addFreshEntity(a)||a.isRemoved()){retire(a);return null;}return a;
     }
     Arrow emitLegacy(ServerPlayer p,int variant,Vec3 at,Vec3 velocity){
-        if(variant<1||variant>9||!resident(p.level(),at)||variant==9&&!game.items().clownKit().smokeAllowed(p.level(),at))return null;
+        if(variant<1||variant>10||variant==10&&!luckyGrenadeAllowed(p.level(),at)||!resident(p.level(),at)||variant==9&&!game.items().clownKit().smokeAllowed(p.level(),at))return null;
         var kind=switch(variant){case 1->SpikeKind.CONFUSE;case 2->SpikeKind.BLIND;case 3->SpikeKind.BOOM;case 4->SpikeKind.STANDARD;case 5->SpikeKind.WITHER;default->SpikeKind.POISON;};
         var arrow=new SpikeArrow(p,kind,variant);arrow.setPos(at);arrow.setDeltaMovement(velocity);arrow.entityTags().add(TAG);
         game.items().markCurrentItemEpoch(arrow);arrows.add(arrow);LbcShooters.orient(arrow);game.items().timeStop().prepareFrozen(arrow);
@@ -130,6 +133,15 @@ public final class LbcHedgehogSpikes {
     }
     private void legacyImpact(SpikeArrow arrow,LivingEntity target,ServerPlayer owner,Vec3 at){
         if(!valid(arrow)||target!=null&&!game.items().wands().validTarget(target))return;
+        // Native accepted-hurt and block callbacks share one terminal grenade payload.
+        // Claim it before dispatch: loot load callbacks may synchronously reenter gameplay.
+        if(arrow.legacy==10){
+            if(arrow.luckyGrenadeDone||arrow.retired)return;
+            arrow.luckyGrenadeDone=true;
+            try{if(luckyGrenadeAllowed((ServerLevel)arrow.level(),at))game.items().chaosTraps().spawnUnjammed(owner,at);}
+            finally{retire(arrow);}
+            return;
+        }
         var cause=game.items().indirectKills().wildCause(owner);
         switch(arrow.legacy){
             case 1->{if(target!=null&&!immune(target)&&(!(target instanceof ServerPlayer player)||!game.items().magic().rejectCustomEffect(player))){

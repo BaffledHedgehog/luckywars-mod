@@ -26,6 +26,9 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/evolution_sword.json', 'data/lbc/loot_table/ported/evolution_sword.json'
+    include 'data/lbc/loot_table/island_teleporter.json', 'data/lbc/loot_table/swapper.json', 'data/lbc/loot_table/lucky_grenades.json'
+    include 'data/lbc/loot_table/ported/island_teleporter.json', 'data/lbc/loot_table/ported/swapper.json', 'data/lbc/loot_table/ported/lucky_grenade.json'
     include 'data/lbc/loot_table/mom.json', 'data/lbc/loot_table/otchim.json', 'data/lbc/loot_table/tmtrainer_drop.json'
     include 'data/minecraft/loot_table/blocks/red_mushroom_block.json', 'data/minecraft/loot_table/blocks/brown_mushroom_block.json', 'data/minecraft/loot_table/blocks/mushroom_stem.json'
     include 'data/lbc/loot_table/ported/lucky_block*.json', 'data/lbc/loot_table/luckyblock_block.json', 'data/lbc/loot_table/luckyblock_block_only.json'

@@ -764,6 +764,9 @@ public final class GameChecks {
                                 case "phantom-knives-stop-probe" -> checkPhantomKnivesStopProbe(game);
                                 case "phantom-knives-cleanup" -> checkPhantomKnivesCleanup(game);
                                 case "loot-test-catalog" -> checkLootTestCatalog(game);
+                                case "evolution-sword" -> { EvolutionSwordChecks.run(game); return; }
+                                case "lucky-grenade" -> { LuckyGrenadeChecks.start(game); return; }
+                                case "teleport-gadgets" -> { TeleportGadgetChecks.start(game); return; }
                                 case "family-drops" -> { FamilyDropChecks.run(game); return; }
                                 case "family-drop-source" -> { FamilyDropChecks.source(game); return; }
                                 case "family-drops-stop-probe" -> { FamilyDropChecks.stopProbe(game); return; }
@@ -1446,7 +1449,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
-            TabletGroundChecks.tick(game);
+            LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
             GaaraPotChecks.tick(game);BouncingPoopChecks.tick(game);ClownKitChecks.tick(game);
             DeusWhipChecks.tick(game);RayQueueFairnessChecks.tick(game);PhdChecks.tick(game);
             TabletHandChecks.tick(game);

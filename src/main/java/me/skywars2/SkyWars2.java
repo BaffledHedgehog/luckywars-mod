@@ -201,6 +201,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTeleportGadgets.matches(player.getItemInHand(hand)))
+                return game.items().teleportGadgets().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcBouncingPoop.matches(player.getItemInHand(hand)))
                 return game.items().bouncingPoop().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcClownKit.matches(player.getItemInHand(hand)))

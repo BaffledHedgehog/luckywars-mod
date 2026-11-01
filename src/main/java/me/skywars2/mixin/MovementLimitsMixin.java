@@ -23,6 +23,13 @@ public abstract class MovementLimitsMixin {
     @Shadow private boolean clientIsFloating;
     @Shadow private int aboveGroundTickCount;
 
+    /** Observe accepted positions only; rotation packets never interrupt the stationary charge. */
+    @Inject(method="handleMovePlayer",at=@At("RETURN"))
+    private void skywars2$gadgetMovement(ServerboundMovePlayerPacket packet,CallbackInfo ci) {
+        var game=SkyWars2.game();
+        if(game!=null&&game.server().isSameThread())game.items().teleportGadgets().moved(player);
+    }
+
     @Unique private boolean skywars2$stunned() {
         var game=SkyWars2.game();
         return game!=null && (game.items().shooters().stunned(player) || game.items().timeStop().frozen(player) || game.items().fpvDrone().controlling(player));

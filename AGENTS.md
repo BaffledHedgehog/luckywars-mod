@@ -1,3 +1,37 @@
+## Evolution and three gadgets - NATIVE VERIFIED, INSTALLED (1 November2026)
+
+[Contract and native evidence](agent_notes/FINITE_UTILITIES_PORT_2026_11_01.md).
+Evolution grows source2percent/quantized int score, cap214748.3647; only TECH
+suppresses. All unrelated stack properties/modifiers survive. Native/raw direct
+melee only, no spell/summon impersonation. Island uses actual current map spawns
+and60SlowFalling. Swapper now has NO terrain/platform/clamp:10 active stationary
+ticks, free camera, completion-time random target incl allies, native own view/
+momentum, no debit on failure; source/target TECH and strong artifact protection.
+Charge sound minecraft:lbcsounds.swap_charge stops on cancel/success/retirement;
+success swap_go reaches both participants. Red key lbc.swapper.charge_failed.
+Raw and native Lucky Grenade extends existing arrow transport, one causal trap
+roll, TECH+strong artifact launch/impact; MAG permits all three gadgets.
+Shared short-operation rewind cancels pending charges; TimeStop pauses them.
+No new projectile/checkpoint engine. Original random counts/weights retained.
+
+b1a21c55 passes all9 scoped groups in9 real mode1 matches,81.13seconds.9757inputs/
+2419classes/7341resources exact;224author paths +2new user-edited translations and
+31live overrides exact. Child normal/exact snapshots/extra level+ticket restored,
+no locks, fixture25577 only. Qualification under build/verification/finite-utilities-
+2026-11-01/. Shared normal-stop installer only; do not stop/restart main or push.
+Main is now b1a21c55; shared worker retained e67403fb rollback, restarted:false.
+Receipt: main-install.json in that directory. No main stop/restart or push.
+TMT remains LAST, future visuals ITEM atlas only. Full kit6/LuckyWars acquisition
+still gated. This finite batch does not enable those modes. User-edited empty
+swapper language update files are protected and excluded from staging.
+
+## TMT texture decision (user,1 November2026)
+
+Future procedural TMT textures may use ONLY the existing ITEM atlas. The author
+approved this simplification; no shared block/item source sheet is required.
+Keep TMT deferred until other useful item mechanics are ported. Research and
+archived drafts below are not an implemented shader.
+
 ## Author correction: datapack family verified; TMT deferred (1 November 2026)
 
 This section supersedes the prepared Paper/child defaults and pending questions

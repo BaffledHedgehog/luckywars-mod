@@ -1,0 +1,36 @@
+## Implemented and qualified update
+
+The four-item batch is now natively verified; see
+[final contract](FINITE_UTILITIES_PORT_2026_11_01.md). The author replaced Swapper
+terrain edits with a10-active-tick stationary charge and confirmed TECH+strong
+artifact for all three gadgets. Evolution preserves other properties, TECH only,
+old cap214748.3647. Source findings below remain historical; they must not restore
+the removed platform/clearing or reopen answered suppression questions.
+
+﻿# Next finite utilities — bounded source audit, 1 November 2026
+
+Audit only; no Java, resource, build, RP, server or protected author edits. Read current AGENTS.md correction and agent_notes/AGENTS.md. TMT stays last; future shader work is ITEM atlas only. Evolution is assigned to root and excluded here.
+
+Legacy root for every relative source below: `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/`. Native root: `E:/servers_mew/skywars2_last/luckywars-mod/src/main/java/me/skywars2/game/`.
+
+## Best coherent next batch
+
+Three finite snowball utilities: Island Teleporter, Swapper, Lucky Grenade. All have existing native-packaged acquisition tables but no matching Java consumer found after checking all Java and existing dispatch/service owners; literal-marker absence alone is not the evidence. Existing snowball consumption belongs to vanilla; LbcItems currently adopts only its dynamite profile. LbcNeutral and other enum/dynamic families do not contain these profiles. These are datapack requirements, independent of whether a similarly named Paper class was registered.
+
+| Item | Required datapack path and behavior | Native owner to extend/reuse |
+| --- | --- | --- |
+| Island Teleporter | `function/projectiles/eggs.mcfunction` dispatches `function/projectiles/gadgets/islandteleporter.mcfunction`; 3 seconds Slow Falling then random `swrg.spawn` teleport. Acquisition: `loot_table/island_teleporter.json`, referenced by `loot_table/lucky_items.json`, `loot_table/lucky_items_high_quality.json`; legacy table also includes its definition. | LbcItems native snowball admission; MapManager.spawns() supplies actual current map spawn state; TeleportMomentum supplies established movement/camera contract. No new projectile engine or legacy marker search is needed. |
+| Swapper | Same dispatch file to `function/projectiles/gadgets/swapper.mcfunction`; saves original location, builds 3x3 obsidian platform/clears 3x3x3 air, clamps void/high destinations, chooses random other nonspectator outside TECH stopper, exchanges locations. Original side effects precede random-target selection. Acquisition: `loot_table/swapper.json` in both lucky pools and legacy pool. | LbcItems input; MapManager native accepted terrain writes plus indirectKills.trapChanges for platform causality; TeleportMomentum and current role/team targeting. Preserve exact no-target/debit decision explicitly; do not invent safe random terrain search. |
+| Lucky Grenade | `function/projectiles/specials.mcfunction` converts snowball to arrow with raid_omen amplifier108/duration2; `function/projectiles/arrows_f.mcfunction` branch108 rolls `lbc:traps` at impact, blocked by TECH stopper radius20. `loot_table/lucky_grenades.json` has special/luckygrenade carrier. | LbcItems native throw lifecycle and existing native arrow callback transport; LbcChaosTraps already rolls exactly `lbc:traps` using chest context/default luck0, assigns thrower before entity-load, adopts native drop dispatcher and epoch. Add correct impact-position TECH check rather than inheriting Chaos's beacon-based admission. No missing trap payload implementation is implied here. |
+
+Suppression questions still needed unless root has an existing author answer: preserve TECH beacon suppression for both teleport gadgets and Lucky Grenade? Should strong artifact also suppress any of these? Swapper source checks TECH at both caster and selected other player; preserve both? Source provides no MAG check for these three. Do not silently map TECH to MAG. Whole-clock pause and protected-role/team policy already have shared owners and are not new questions.
+
+## Other candidates examined
+
+**One Punch Glove: fourth finite candidate, but a refresh consumer rather than a new damage ability.** Full legacy paths: `advancement/onepunch_get.json` (tick, mainhand one_punch, excludes Nexus/Imprinted), `function/workingitems/one_punch_get_damage.mcfunction` (replace mainhand with `lbc:one_punch_glove`, revoke criterion), `loot_table/one_punch_glove.json` (1 durability, attack speed2147483647, attack damage from this player's hplvl score). Existing native table is packaged and GameChecks only proves loot rolls; no refresh consumer found. Native AttributePolicy/negative melee and existing score-backed loot provider already own arithmetic. Reuse normal LbcItems tick + existing LbcService rollTable/player context, preserving stack replacement and native durability. No source suppression check: ask only if author wants one, do not assume MAG. This can join the batch if useful, but must verify hplvl current owner and real attacks, not merely parse the table.
+
+**Infinite Shulker is not wholly missing.** `loot_table/inf_shulker.json` carries native `minecraft:container_loot=lbc:infinity`; `loot_table/infinity.json` recursively yields a new unopened shell plus `lbc:infinity_no_shulker`. Native vanilla shulker loot/menu mechanics and packaged tables already express opening. Do not add a fake per-tick refill consumer. The genuinely unverified/missing part is upgrade recipes: `function/other/craft_ground.mcfunction`, `function/other/craft/inventory_craft_check.mcfunction`, `function/other/craft/shulker_upgraded.mcfunction`, `function/other/craft/shulker_upgraded_inv.mcfunction`, `function/other/craft/shulker_upgraded_lukcy.mcfunction`, `function/other/craft/shulker_upgraded_lukcy_inv.mcfunction`. Java contains no infinity/inf_shulker recipe identity match. Separate acquisition/crafting closure from base native container behavior; use existing native recipe/ground reward owners when scheduled.
+
+**Kapusta is genuinely absent but unsuitable for a finite bounded batch without a source lifetime decision.** Paths: `function/projectiles/eggs.mcfunction`, `function/other/kapusta/{throw,tick,check,explode,explode_2,explode_new_kapusta,explode_new_kapusta_1,explode_new_kapusta_2}.mcfunction`; acquisition `loot_table/imba/foodblocks.json` (native extraction at item_defs/lbc/kapusta__e3a9b9e791f5.json). Initial melon block display uses shield_blockable shared slowraycast, 8 sample points with seven .2 movements/pass; hits deal6 arrow damage within3.5, spawn fireworks, initial parent creates8 children plus five independent20% children, descendants retain five independent20% chances. Source sets no finite lifetime. Reuse shared LbcHedgehogSpikes / shield-aware accepted transport, shared rays, source damage ownership and ordinary checkpoint owner, but author must decide lifetime/branch bounds before promising finite implementation. Source has no suppression check. Existing agent_notes/review_final_other_groups.md independently records no local lifetime; do not mistake runtime endpoint for despawn.
+
+No deployment behavior was inferred from inactive Paper source. This audit makes no native verification or release claim.

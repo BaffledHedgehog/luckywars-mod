@@ -24,6 +24,7 @@ public final class LbcClassicMelee {
     private final GameController game;
     private int phase;
     public LbcClassicMelee(GameController game){this.game=game;}
+    public static void register(){LbcEvolutionSwordItem.register();}
 
     private boolean admitted(ServerPlayer owner){
         return owner!=null&&owner.isAlive()&&!owner.isRemoved()&&owner.level()==game.maps().level()
@@ -43,6 +44,8 @@ public final class LbcClassicMelee {
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
         var data=LbcFartus.data(owner.getMainHandItem());
+        if(LbcEvolutionSwordItem.matches(owner.getMainHandItem())&&!game.items().magic().mechanismSuppressed(owner))
+            LbcEvolutionSwordItem.grow(owner.getMainHandItem());
         boolean feeding=data.getIntOr("feeding",0)==1,vampire=data.getIntOr("vampire",0)==1,guardian=data.getIntOr("seaguardian",0)==1;
         if(!feeding&&!vampire&&!guardian)return;
         // Source Feeding deliberately precedes and bypasses all magic suppression checks.

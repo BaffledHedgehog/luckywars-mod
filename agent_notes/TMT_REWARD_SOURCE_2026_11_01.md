@@ -1,3 +1,10 @@
+## TMT texture decision (user,1 November2026)
+
+Future procedural TMT textures may use ONLY the existing ITEM atlas. The author
+approved this simplification; no shared block/item source sheet is required.
+Keep TMT deferred until other useful item mechanics are ported. Research and
+archived drafts below are not an implemented shader.
+
 ## Current author direction and shader feasibility,1 November2026
 
 This section supersedes recommendations and inferred LIVE Paper status below.
