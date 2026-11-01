@@ -86,7 +86,10 @@ Candidate: build/verification/clown-gaara-2026-11-01/clown-gaara-ef417edd.jar
 SHA256: ef417edd617eb906e5a2579c4e389a9992f29b60e1340fdccb52b58192bbccad
 Evidence: qualification.json, production-equivalence.json, both native receipts/logs
 and final-fixture-restoration.json in that directory. Full two-kit release gate
-cleared; shared normal-stop installer only. Installation receipt follows commit.
+cleared. Shared normal-stop installer replaced main with ef417edd; receipt
+main-install.json confirms installed status and retained be17d07e rollback.
+No main stop/restart. Implementation commited4d2257; all224 author paths and31
+live overrides were rechecked exact after installation.
 
 ## Remaining source audit, not enabled here
 
