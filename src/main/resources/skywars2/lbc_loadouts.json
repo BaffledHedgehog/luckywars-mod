@@ -189,6 +189,27 @@
       "slot": 8,
       "gate": "lbc:true_advancements/armor/shitty_full",
       "lockedKey": "lbc.adv.armor.shitty_full.lore"
+    },
+    {
+      "id": 4,
+      "page": 10000,
+      "slot": 3,
+      "gate": "lbc:true_advancements/arcanums/tannerkivi",
+      "lockedKey": "lbc.adv.arcanums.tannerkivi.lore"
+    },
+    {
+      "id": 8,
+      "page": 10000,
+      "slot": 7,
+      "gate": "lbc:true_advancements/armor/randchanted",
+      "lockedKey": "lbc.adv.armor.randchanted.lore"
+    },
+    {
+      "id": 11,
+      "page": 10000,
+      "slot": 10,
+      "gate": "lbc:true_advancements/armor/techno_full",
+      "lockedKey": "lbc.adv.armor.techno_full.lore"
     }
   ],
   "levelups": [

@@ -36,6 +36,13 @@ final class LbcErosionSuppression {
     private static boolean same(ItemStack stack,CompoundTag original){return erosion(stack)
             &&original.getStringOr("item","").equals(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());}
     static boolean parked(ItemStack stack){return saved(stack)!=null;}
+    /** Skill8 upgrades canonical Protection without temporarily undoing antimagic suppression. */
+    static boolean upgradeParkedProtection(ItemStack stack){
+        var original=saved(stack);if(original==null||!same(stack,original))return false;
+        int protection=original.getIntOr("protection",0);
+        original.putInt("protection",protection==Integer.MAX_VALUE?Integer.MAX_VALUE:protection+1);
+        var flags=LbcFartus.data(stack);flags.put(SAVED,original);data(stack,flags);return true;
+    }
     private static boolean worn(ServerPlayer player,ItemStack stack){for(var slot:ARMOR)if(player.getItemBySlot(slot)==stack)return true;return false;}
     private boolean jammed(ServerPlayer player){return game.playing()&&eligible.test(player)&&game.items().magic().beaconSuppressed(player.position());}
     private boolean paused(ServerPlayer player){return game.items().wands().timeStopped()||game.items().wands().inputTimeStopped(player)||game.items().timeStop().stopped(player.level());}

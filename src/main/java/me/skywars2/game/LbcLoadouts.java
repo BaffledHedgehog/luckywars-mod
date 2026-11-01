@@ -41,6 +41,8 @@ public final class LbcLoadouts {
     private final PlayerStore players;
     private final java.util.Map<java.util.UUID, ServerPlayer> resistanceOwners = new java.util.HashMap<>();
     private int skillTickCounter;
+    private final Set<java.util.UUID> inventorySkillsChanging=new java.util.HashSet<>();
+    private final Set<java.util.UUID> pendingInventorySkills=new java.util.LinkedHashSet<>();
     // Сетевое отображение читает только опубликованный снимок, не изменяемые профили/файлы с Netty-потока.
     private final java.util.concurrent.ConcurrentMap<java.util.UUID, Boolean> artifactReaders = new java.util.concurrent.ConcurrentHashMap<>();
     private final java.util.concurrent.ConcurrentMap<java.util.UUID, Boolean> knowledgeViews = new java.util.concurrent.ConcurrentHashMap<>();
@@ -52,6 +54,11 @@ public final class LbcLoadouts {
 
     /** Резервная сверка косметического доступа после команд/внешних правок профиля, без изменения предметов. */
     public void tick() {
+        if(!pendingInventorySkills.isEmpty())for(var id:List.copyOf(pendingInventorySkills)){
+            var player=game.server().getPlayerList().getPlayer(id);
+            if(player==null){pendingInventorySkills.remove(id);continue;}
+            inventoryChanged(player);
+        }
         if (++skillTickCounter < 20) return;
         skillTickCounter = 0;
         tickSecond();
@@ -121,6 +128,7 @@ public final class LbcLoadouts {
     }
 
     public void left(ServerPlayer player) {
+        pendingInventorySkills.remove(player.getUUID());
         knowledgeViews.remove(player.getUUID());
         artifactReaders.remove(player.getUUID());
     }
@@ -227,6 +235,26 @@ public final class LbcLoadouts {
         return config.ranked || game.debugPerks(player) || entry.gate == null || hasUnlock(player, entry.gate);
     }
 
+    /** Event-only permanent item upgrades; no inventory polling and no jammer admission. */
+    public void inventoryChanged(ServerPlayer player){
+        var id=player.getUUID();if(inventorySkillsChanging.contains(id))return;
+        var profile=players.get(id);int skill=profile.lbcSkill;
+        var entry=byId(Kind.SKILLS,skill);
+        if(!config.lbcSkills||(skill!=4&&skill!=8&&skill!=11)||entry==null||!allowed(player,entry)
+                ||!game.playing()||game.stage()==GameController.Stage.ENDING||!player.isAlive()||player.isRemoved()
+                ||player.level()!=game.maps().level()||!game.canUseGameplayItems(player)||game.isObserver(player)
+                ||!LbcDimensionItems.ordinary(player)||!game.items().wands().validRoleTarget(player,false)){
+            pendingInventorySkills.remove(id);return;
+        }
+        if(game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally()
+                ||game.items().timeStop().stopped(player.level())||game.items().wands().inputTimeStopped(player)){
+            pendingInventorySkills.add(id);return;
+        }
+        pendingInventorySkills.remove(id);inventorySkillsChanging.add(id);
+        try{if(LbcInventorySkills.apply(player,skill))player.getInventory().setChanged();}
+        finally{inventorySkillsChanging.remove(id);}
+    }
+
     private boolean hasUnlock(ServerPlayer player, String gate) {
         if (players.get(player.getUUID()).lbcUnlocks.contains(gate)) return true;
         // Нативное достижение либо явный административный grant открывает исходный перк.
@@ -314,6 +342,7 @@ public final class LbcLoadouts {
             }
         }
         players.save();
+        if(kind==Kind.SKILLS)inventoryChanged(player);
         return true;
     }
 
@@ -389,6 +418,7 @@ public final class LbcLoadouts {
             resistanceOwners.put(player.getUUID(), player);
         }
         game.items().govnomancer().effectsChanged(player);
+        inventoryChanged(player);
         player.setHealth(player.getMaxHealth());
     }
 
@@ -422,6 +452,7 @@ public final class LbcLoadouts {
 
     /** Remove only this catalog's modifiers, including old persistent copies after a restart. */
     public void clear(ServerPlayer player) {
+        pendingInventorySkills.remove(player.getUUID());
         LbcRandomStatLevelup.clear(player);
         if (resistanceOwners.remove(player.getUUID(), player)) player.removeEffect(MobEffects.RESISTANCE);
         for (Entry entry : CATALOG.get(Kind.LEVELUPS)) for (Modifier modifier : entry.modifiers) {

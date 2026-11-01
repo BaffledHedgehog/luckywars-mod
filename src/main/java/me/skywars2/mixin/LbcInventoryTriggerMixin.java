@@ -18,6 +18,7 @@ public abstract class LbcInventoryTriggerMixin {
         me.skywars2.game.LbcPendingSwords.canonicalizeAntimagic(changed);
         var game = SkyWars2.game();
         if (game != null) {
+            game.lbc().inventoryChanged(player);
             game.items().magic().inventoryChanged(player);
             game.items().malevich().inventoryChanged(player,changed);
             game.items().refreshMinigunMovement(player);

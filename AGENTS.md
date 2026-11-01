@@ -1,3 +1,38 @@
+## Inventory skills4/8/11 - VERIFIED, INSTALLED (2 November2026)
+
+[Final author policy, source, implementation and exact proof](agent_notes/INVENTORY_SKILLS_PORT_2026_11_02.md).
+User: ALL3 unjammed (MAG/TECH/strongartifact); preserve ordinary achievement
+unlocks. Slots10000:3/7/10 nowselect IDs4/8/11, source Tannerkivi/Randchanted/
+TechnoFull gates. LiveGUI alreadycorrect keys; no RP changes/new translations.
+4: fourwornrefs, unbreakable and once+3toughness perpiece, swappedchest/legs guards
+fixed, actualnative defaults andothercomponents preserved.8: source10ench+1,
+nativefull-positive-int saturation, absent/incompatible entries retained; parked
+ErosionProtection incremented canonically without unjamming, recoversupgradedlevel.
+11: BOTHhelditems, ALL MAIN->OFF andOFF->MAIN entries, fulloriginalMAINcoef,
+Entry.display/ops/defaults preserved, deterministicfreshIDs withcollisionavoidance.
+FINAL user70%negativeOFFattack_speed penaltyreduction =>*.3; swordpair native.88.
+NegativeHAND/ANYspeed splitoverexactnative slots, fulloriginaloutsideOFF,30%OFF;
+otherbroadentries/positive/zero unchanged. Sourcepresence markers preserve once-only
+traits ontradeditems/deselection. No source7entry limit/manualoldweaponstat table.
+
+LbcLoadouts owns shared inventory/equipment/start/respawn/debugselection admission;
+no idleinventory polling. Only realpaused events enterUUIDdedup repair; TimeStop
+defers, currentbody/profile resumed, lifecycleclears. Read-onlyItemData.contains
+avoidswholeNBTcopies onmarker checks. Actualnativeattributes remaincanonical.
+
+Test7968842a / productionf007d6eb:3native groups/3actualmode1 matches (inventory-
+skills,combat-feedback,isolatedlbc-loadout). Components/defaults/onceguards,
+INT_MAX,43custommodifiers/allops/displays/slots/IDcollisions, real.88swordpair,
+MAG+TECHpositivecontrols, unlockgates, realOPdebugmenuclicks,77->78erosion,
+TimeStopresume/globaldisable verified.9794inputs/2476classes/7353resources exact;
+238authorpaths/31overrides unchanged. Childnormal/exactsnapshots/config/OP/level/
+tickets restored/nolocks,fixture25577only;8editingclassesabsentinproduction.
+Retained compile/fixture failures documented; runtime authorization notweakened.
+Main7968842a installednormal-stop, b7f05f27rollback,restarted:false. Receipt under
+build/verification/inventory-skills-2026-11-02/. No mainstop/restart/push orpeakTPS
+claim. TMT LAST and fullkit6/LuckyWars gates unchanged. Priorpendingquestionsbelow
+are resolved bythese author answers and latest70%override.
+
 ## FPV free camera and side HUD - VERIFIED, INSTALLED (2 November2026)
 
 [Contract, native causes, failures and exact evidence](agent_notes/FPV_CONTROL_FIX_2026_11_02.md).
@@ -30,9 +65,8 @@ no locks, fixture25577only. Opaque-search diagnostic adapted to existing fair ow
 lanes; actual ray scheduler unchanged. Prior failures retained. Mainb7f05f27 now
 installed by normal-stop worker;10b7c054 rollback, restarted:false. Qualification
 and receipt: build/verification/fpv-control-2026-11-02/{qualification,main-install}.json.
-No main stop/restart or push. Next candidate skills4/8/11 audited; two questions
-asked IN CHAT, not yet answered. Do not assume suppression/offhand-copy policy;
-TMT LAST and full kit6/LuckyWars gates remain unchanged.
+No main stop/restart or push. Subsequent skills4/8/11 author replies and native
+qualification are recorded above. TMT LAST/full kit6/LuckyWars gates remain.
 
 ## Combat/visual/FPV/MK2 and Stonekivi Sun - VERIFIED, INSTALLED (2 November2026)
 

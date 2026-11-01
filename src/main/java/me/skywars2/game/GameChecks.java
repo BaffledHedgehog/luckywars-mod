@@ -695,6 +695,7 @@ public final class GameChecks {
                                 case "imba-runes-restart" -> { ImbaRuneChecks.startRestart(game); return; }
                                 case "black-hole-contact" -> { BlackHolePlayerChecks.run(game); return; }
                                 case "combat-feedback" -> { CombatFeedbackChecks.run(game); return; }
+                                case "inventory-skills" -> { InventorySkillChecks.run(game); return; }
                                 case "stonekivi-sun" -> { StonekiviSunChecks.run(game); return; }
                                 case "weapon-spread" -> { WeaponSpreadChecks.run(game); return; }
                                 case "rifle-presentation" -> { RiflePresentationChecks.run(game); return; }
