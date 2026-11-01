@@ -1,3 +1,27 @@
+## Test-only map editing and protected deletion - VERIFIED, QUEUED (1 November2026)
+
+[Exact policy, build commands and evidence](agent_notes/MAP_EDITING_BUILDS_2026_11_01.md).
+User: map deletion only actual OP BaffledHedgehog on THIS test server; production
+must physically exclude write/delete classes. `/mapsave delete <id_name>` alias
+`/mapdelete <id_name>` removes local authored records only, frees ID/menu slot,
+retains atomic .deleted recovery. Bundled and selected/resident maps protected;
+no terrain removal. Test capability + canonical process directory + actual OP
++ exact GameProfile name checked at parse and execution. Writes also require
+test capability/path; ordinary test-server operators may still save maps.
+Shared MapEditing disabled interface avoids class references in production.
+Whitelist: E:/servers_mew/skywars2_last and owned key-reuse-server fixture only.
+
+Normal jar/build/productionJar is PRODUCTION skywars2-0.1.0.jar, without8
+MapAuthoring*/MapDeletion* implementation/nested/check classes. Explicit
+testServerJar produces skywars2-0.1.0-test-server.jar for THIS installation.
+9809 shared entries byte-identical, native dependencies retained. Test25dcef82
+and production000cc6e8 pass native startup/actual matches; exact-role deletion,
+restart/ID reuse, authoring and tools verified.9785inputs/2462classes/7352resources
+exact;226author paths/31overrides unchanged.4qualified mode1 matches, child normal,
+exact UUID/config/OP/level/ticket restore/no locks, fixture25577 only.6owned test
+records archived then removed. No main stop/restart, RP change or push.
+Test artifact queued: build/verification/map-editing-2026-11-01/main-install.json.
+
 ## Native developer tools, gallery and map save - VERIFIED, QUEUED (1 November2026)
 
 [Contract, commands and exact evidence](agent_notes/DEVELOPER_TOOLS_2026_11_01.md).

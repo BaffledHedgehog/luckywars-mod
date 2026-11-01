@@ -1250,7 +1250,13 @@ public final class GameChecks {
                                 case "developer-mode" -> { DeveloperModeChecks.run(game); return; }
                                 case "developer-solo-menu" -> { DeveloperSoloChecks.prepare(game); return; }
                                 case "developer-solo" -> { DeveloperSoloChecks.run(game); return; }
-                                case "map-authoring" -> { MapAuthoringChecks.run(game); return; }
+                                case "map-authoring" -> { MapEditing.runCheck(game,"MapAuthoringChecks"); return; }
+                                case "map-deletion" -> { MapEditing.runCheck(game,"MapDeletionChecks"); return; }
+                                case "map-deletion-menu" -> {
+                                    require(game.inLobby()&&MapEditing.allowedServer(game.server()),"dedicated test-server lobby");
+                                    createBot(game,"BaffledHedgehog");
+                                }
+                                case "map-editing-policy" -> { MapEditingPolicyChecks.run(game); return; }
                                 case "mobgun-catalog" -> { MobgunCatalogChecks.run(game); return; }
                                 case "mobgun-menu" -> checkMobgunMenu(game);
                                 case "mobgun" -> checkMobgun(game);
@@ -1463,7 +1469,7 @@ public final class GameChecks {
         public static void tick(GameController game) {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
-            MapAuthoringChecks.tick(game);
+            MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
             GaaraPotChecks.tick(game);BouncingPoopChecks.tick(game);ClownKitChecks.tick(game);
             DeusWhipChecks.tick(game);RayQueueFairnessChecks.tick(game);PhdChecks.tick(game);

@@ -99,7 +99,7 @@ public final class MapManager {
     public static void registerLoadingTicket() {
         Registry.register(BuiltInRegistries.TICKET_TYPE,
                 Identifier.fromNamespaceAndPath("skywars2", "map_loading"), LOADING_TICKET);
-        MapAuthoring.registerTicket();
+        MapEditing.registerTicket();
     }
 
     private final MinecraftServer server;
@@ -158,6 +158,8 @@ public final class MapManager {
     private final Map<String, Manifest> manifests = new HashMap<>();
     private final List<MapInfo> catalog;
     private final Map<String, Boolean> localModes = new HashMap<>();
+    // Failed replacement may leave both old and new terrain; retain both IDs until a successful replacement.
+    private final Set<String> residentMapIds = new HashSet<>();
     private final Map<Identifier, Path> localTemplates = new HashMap<>();
 
     Path localMapRoot() { return server.getWorldPath(LevelResource.ROOT).resolve("data/luckywars/maps"); }
@@ -174,6 +176,26 @@ public final class MapManager {
     public boolean bedwars(String id) { return localModes.getOrDefault(id, id != null && id.matches("[0-9]+b")); }
     public List<MapInfo> catalog(boolean bedwars) {
         return catalog.stream().filter(info -> bedwars(info.id()) == bedwars).toList();
+    }
+
+    public List<String> localIds() {
+        return catalog.stream().filter(info -> localModes.containsKey(info.id())).map(MapInfo::id).toList();
+    }
+    public boolean isLocal(String id) { return localModes.containsKey(id); }
+    boolean mapResident(String id) { return residentMapIds.contains(id); }
+    Path localMapDirectory(String id) {
+        if (!isLocal(id)) return null;
+        Path template = localTemplates.get(identifier("luckywars:local/" + id));
+        return template == null ? null : template.getParent();
+    }
+    /** Server-thread catalog removal, after the caller has atomically hidden the directory. */
+    boolean unregisterMap(String id) {
+        if (busy || rotation != null || !isLocal(id) || mapResident(id)) return false;
+        manifests.remove(id);
+        localModes.remove(id);
+        localTemplates.remove(identifier("luckywars:local/" + id));
+        catalog.removeIf(info -> info.id().equals(id));
+        return true;
     }
 
     /** Called on the server thread only after the complete directory was atomically published. */
@@ -524,6 +546,7 @@ public final class MapManager {
         }
 
         pendingMap = id;
+        residentMapIds.add(id);
         pendingBounds = targetBounds;
         placementExternalBounds = List.of();
         removeMapEntitiesWithin(mapBounds);
@@ -1449,6 +1472,8 @@ public final class MapManager {
             cacheLobbyOverlay();
         } else {
             mapBounds = combineBounds(pendingBounds, placementExternalBounds);
+            residentMapIds.clear();
+            residentMapIds.add(pendingMap);
         }
         replaceActiveBounds(combineBounds(lobbyBounds, mapBounds));
         if (blockBoundsDirty) {

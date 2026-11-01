@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /** Developer map capture. World reads belong exclusively to tick(); workers own detached NBT only. */
-public final class MapAuthoring implements AutoCloseable {
+public final class MapAuthoring implements MapEditing {
     private static final TicketType CAPTURE_TICKET = new TicketType(TicketType.NO_TIMEOUT,
             TicketType.FLAG_LOADING | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private static final int BLOCKS_PER_TICK = 16384;
@@ -54,7 +54,7 @@ public final class MapAuthoring implements AutoCloseable {
 
     public MapAuthoring(GameController game) { this.game = Objects.requireNonNull(game); }
     public boolean busy() { return !closed && (capture != null || publication != null); }
-    public void clearSelection(ServerPlayer player) { if (GameController.operator(player)) selections.remove(player.getUUID()); }
+    public void clearSelection(ServerPlayer player) { if (MapEditing.allowedEditing(player)) selections.remove(player.getUUID()); }
     public AABB selectedBounds(ServerPlayer player) {
         var selection = selections.get(player.getUUID());
         if (selection == null || selection.world != player.level() || selection.first == null || selection.second == null) return null;
@@ -64,7 +64,7 @@ public final class MapAuthoring implements AutoCloseable {
     }
 
     public void select(ServerPlayer player, int corner) {
-        if (!GameController.operator(player)) return;
+        if (!MapEditing.allowedEditing(player)) return;
         if (corner != 0 && corner != 1) throw new IllegalArgumentException("Corner must be 0 or 1");
         Selection old = selections.get(player.getUUID());
         ServerLevel world = (ServerLevel) player.level();
@@ -77,7 +77,7 @@ public final class MapAuthoring implements AutoCloseable {
     }
 
     public void save(ServerPlayer player, String mode, String name) {
-        if (!GameController.operator(player)) return;
+        if (!MapEditing.allowedEditing(player)) return;
         if (closed || busy() || game.maps().busy() || game.maps().rotationBusy() || game.playing() && !game.developerMode()) {
             tell(player, "Cannot save a map while another save, match or map operation is active."); return;
         }

@@ -1038,6 +1038,46 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 25
 }
 
+// The ordinary deployable artifact physically contains no map writer/deleter implementation,
+// including their nested classes and native check fixtures. They remain compilation inputs so
+// the explicitly requested test-server artifact can carry the complete authoring implementation.
+def mapEditingClassPatterns = [
+        'me/skywars2/game/MapAuthoring*.class',
+        'me/skywars2/game/MapDeletion*.class'
+]
+def productionModJar = tasks.named('jar', Jar) {
+    exclude(mapEditingClassPatterns)
+}
+
+tasks.register('productionJar') {
+    group = 'build'
+    description = 'Build the ordinary production jar without map writer/deleter classes.'
+    dependsOn(productionModJar)
+}
+
+tasks.register('testServerJar', Jar) {
+    group = 'build'
+    description = 'Build an explicit test-server jar with map authoring; runtime still requires the testpath guard.'
+    dependsOn(productionModJar)
+    archiveClassifier = 'test-server'
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    inputs.file(productionModJar.flatMap { it.archiveFile })
+
+    // Copy the FINAL Loom-produced jar instead of repackaging main.output alone. This retains
+    // Fabric metadata and every nested Jar-in-Jar dependency added by Loom's ordinary jar task.
+    from({ zipTree(productionModJar.get().archiveFile.get().asFile) }) {
+        exclude 'META-INF/MANIFEST.MF'
+    }
+    from(sourceSets.main.output) {
+        include(mapEditingClassPatterns)
+    }
+    doFirst {
+        manifest.from(zipTree(productionModJar.get().archiveFile.get().asFile).matching {
+            include 'META-INF/MANIFEST.MF'
+        }.singleFile)
+    }
+}
+
 tasks.register('deployServerMod', Copy) {
     group = 'deployment'
     description = 'Build and copy the server mod to ../mods/skywars2.jar. Stop the server first.'

@@ -44,7 +44,7 @@ public final class DeveloperTools {
     public static Item ITEM;
     private final GameController game;
     private final ContentGallery gallery;
-    private final MapAuthoring authoring;
+    private final MapEditing authoring;
     private final Set<UUID> visualizing=new HashSet<>();
     private final Map<UUID,Integer> teams=new HashMap<>();
     private int ticks;
@@ -77,9 +77,9 @@ public final class DeveloperTools {
             return stack;
         }
     }
-    public DeveloperTools(GameController game){this.game=game;gallery=new ContentGallery(game);authoring=new MapAuthoring(game);}
+    public DeveloperTools(GameController game){this.game=game;gallery=new ContentGallery(game);authoring=MapEditing.create(game);}
     public ContentGallery gallery(){return gallery;}
-    public MapAuthoring authoring(){return authoring;}
+    public MapEditing authoring(){return authoring;}
     public static void registerItem(){
         if(ITEM!=null)return;
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:dev_tools"));
@@ -98,9 +98,14 @@ public final class DeveloperTools {
             var p=ctx.getSource().getPlayerOrException();boolean enabled=IntegerArgumentType.getInteger(ctx,"enabled")==1;
             SkyWars2.game().developerMode(p,enabled);if(enabled)service().giveTools(p);return 1;})));
         var save=Commands.literal("mapsave").requires(op).executes(ctx->{service().open(ctx.getSource().getPlayerOrException());return 1;})
-                .then(Commands.literal("tools").executes(ctx->{service().giveTools(ctx.getSource().getPlayerOrException());return 1;}))
-                .then(Commands.literal("pos").then(Commands.argument("corner",IntegerArgumentType.integer(0,1)).executes(ctx->{service().authoring.select(ctx.getSource().getPlayerOrException(),IntegerArgumentType.getInteger(ctx,"corner"));return 1;})));
-        for(String mode:List.of("skywars","bedwars"))save.then(Commands.literal("save"+mode).then(Commands.argument("name",StringArgumentType.greedyString()).executes(ctx->{service().authoring.save(ctx.getSource().getPlayerOrException(),mode,StringArgumentType.getString(ctx,"name"));return 1;})));
+                .then(Commands.literal("tools").executes(ctx->{service().giveTools(ctx.getSource().getPlayerOrException());return 1;}));
+        if (MapEditing.enabledHere()) {
+            save.then(Commands.literal("pos").then(Commands.argument("corner",IntegerArgumentType.integer(0,1)).executes(ctx->{service().authoring.select(ctx.getSource().getPlayerOrException(),IntegerArgumentType.getInteger(ctx,"corner"));return 1;})));
+            for(String mode:List.of("skywars","bedwars"))save.then(Commands.literal("save"+mode).then(Commands.argument("name",StringArgumentType.greedyString()).executes(ctx->{service().authoring.save(ctx.getSource().getPlayerOrException(),mode,StringArgumentType.getString(ctx,"name"));return 1;})));
+            java.util.function.Predicate<CommandSourceStack> deletion=source -> op.test(source) && source.getPlayer()!=null && MapEditing.allowedDeletion(source.getPlayer(),source.getServer());
+            save.then(Commands.literal("delete").requires(deletion).then(Commands.argument("id_name",StringArgumentType.word()).executes(ctx->{return MapEditing.delete(SkyWars2.game(),ctx.getSource().getPlayerOrException(),StringArgumentType.getString(ctx,"id_name"));})));
+            dispatcher.register(Commands.literal("mapdelete").requires(deletion).then(Commands.argument("id_name",StringArgumentType.word()).executes(ctx->{return MapEditing.delete(SkyWars2.game(),ctx.getSource().getPlayerOrException(),StringArgumentType.getString(ctx,"id_name"));})));
+        }
         dispatcher.register(save);
     }
     public void giveTools(ServerPlayer player){if(!authorized(player))return;for(int i=0;i<player.getInventory().getContainerSize();i++)if(isTools(player.getInventory().getItem(i)))return;give(player,new ItemStack(ITEM));}
