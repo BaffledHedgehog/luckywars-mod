@@ -32,3 +32,5 @@ The older NextShooter fixture also assumed forget deleted previously launched Bo
 ## Installation
 
 Use the shared `tools/install_when_stopped.py` with this qualification only. Never stop/restart the main JVM. Installer retains prior EF417EDD rollback; installation status and receipt are recorded after the normal-stop worker completes.
+
+Installed by the shared normal-stop worker (PID16656): main mods/skywars2.jar is057b67aa; prior EF417EDD retained at build/verification/main-rollback-ef417edd.jar. main-install.json confirms restarted:false. Implementation commit94a96e2b. No server stop/restart or push.

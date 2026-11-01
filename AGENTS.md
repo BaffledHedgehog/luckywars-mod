@@ -17,7 +17,8 @@ pass,10 distinct groups total. Failed fixture receipts/baseline comparison retai
 normal/exact snapshots/additional level+ticket restoration/no locks, fixture25577.
 Full two-kit gate cleared; qualification under build/verification/pursuit-whip-final-
 2026-11-01/. Shared normal-stop installer only; never stop/restart main or push.
-Main remains EF417EDD until installer receipt is recorded. PENDING/author source
+Main is now057b67aa; shared normal-stop installer retained EF417EDD rollback.
+Receipt: main-install.json in that directory. No main stop/restart; commit94a96e2b. PENDING/author source
 and RP untouched. Do not reopen resolved suppression or stack-size policy.
 
 ## Gaara pot and Clown kit - NATIVE VERIFIED, INSTALLED (1 November 2026)
