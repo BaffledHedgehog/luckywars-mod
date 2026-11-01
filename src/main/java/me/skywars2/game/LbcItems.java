@@ -380,6 +380,10 @@ public final class LbcItems {
     private final LbcClownKit clownKit;
     private final LbcGaaraPot gaaraPot;
     private final LbcBouncingPoop bouncingPoop;
+    private final LbcDeus deus;
+    private final LbcGovnomancer govnomancer;
+    public LbcDeus deus(){return deus;}
+    public LbcGovnomancer govnomancer(){return govnomancer;}
     public LbcBouncingPoop bouncingPoop(){return bouncingPoop;}
     public LbcClownKit clownKit(){return clownKit;}
     public LbcGaaraPot gaaraPot(){return gaaraPot;}
@@ -618,6 +622,7 @@ public final class LbcItems {
         // Overheaven is authored as matches remaining, not an elapsed-time estimate.
         hudPositive(component,"  \uE131 ",mana.hudValue(source,"overheaven"),ChatFormatting.GREEN);
         hudPositive(component,"  \uE135 ",kfcFood.gigaponosRemaining(source),ChatFormatting.WHITE);
+        hudPositive(component,"  \uE168 ",deus.cooldown(source),ChatFormatting.GOLD);
         mana.appendHudManaStatuses(source,component);
         armorSets.techno().appendHud(source,component);component.append(shishEncounter.hud(source));
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_1"),ChatFormatting.WHITE);
@@ -920,7 +925,7 @@ public final class LbcItems {
         this.grimoireDungeon=new LbcGrimoireDungeon(game);
         this.uniwand=new LbcUniwand(game);
         this.steampunkBreaker=new LbcSteampunkBreaker(game);
-        this.clownKit=new LbcClownKit(game);this.gaaraPot=new LbcGaaraPot(game);this.bouncingPoop=new LbcBouncingPoop(game);
+        this.clownKit=new LbcClownKit(game);this.gaaraPot=new LbcGaaraPot(game);this.bouncingPoop=new LbcBouncingPoop(game);this.deus=new LbcDeus(game);this.govnomancer=new LbcGovnomancer(game);
         this.steampunkGlove=new LbcSteampunkGlove(game);
         this.steampunkHook=new LbcSteampunkHook(game);
         this.oreshek = new LbcOreshek(game);
@@ -1658,6 +1663,7 @@ public final class LbcItems {
     public void effectsChanged(ServerPlayer player) {
         mana.effectsChanged(player);
         clownKit.effectsChanged(player);
+        govnomancer.effectsChanged(player);
         // Очищающее зелье снимает эффекты и проклятие предмета; выбор перков и бонусы атрибутов сохраняются.
         var effect = player.getEffect(MobEffects.RAID_OMEN);
         if (effect == null || effect.getAmplifier() != 43 || !active(player)) return;
@@ -1924,7 +1930,7 @@ public final class LbcItems {
         totems.tick();
         laserMinigun.tick();
         magnum.tick();
-        govnomet.tick();bouncingPoop.tick();
+        govnomet.tick();bouncingPoop.tick();deus.tick();
         stand.tick();
         kfcFood.tick();
         helicopterEncounter.tick();
@@ -2070,7 +2076,7 @@ public final class LbcItems {
         totems.clear(player);
         magnum.forget(player);
         rifleZoom.forget(player);
-        govnomet.forget(player);bouncingPoop.forget(player);
+        govnomet.forget(player);bouncingPoop.forget(player);deus.forget(player);
         LbcMinigunMovement.clear(player);
         stand.forget(player);
         timeStop.forget(player);
@@ -2199,7 +2205,7 @@ public final class LbcItems {
         vexSword.stop();
         magnum.stop();
         rifleZoom.stop();
-        govnomet.stop();bouncingPoop.stop();
+        govnomet.stop();bouncingPoop.stop();deus.stop();
         for(var player:game.server().getPlayerList().getPlayers()) LbcMinigunMovement.clear(player);
         stand.stop();
         kfcFood.stop();

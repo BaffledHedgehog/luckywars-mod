@@ -133,7 +133,7 @@ public final class NextShooterChecks {
         try {
             shooters.forget(owner); shooters.forget(other); govno.forget(owner); govno.forget(other);
             prepare(game,owner); prepare(game,other); game.config().offhandWands=true; game.config().lbcSkills=false;
-            other.teleportTo(level,BASE.getX()+40,260,BASE.getZ()+40,Set.of(),0,0,true);
+            other.teleportTo(level,BASE.getX()+4,260,BASE.getZ()-3,Set.of(),0,0,true);
             for(var cell:BlockPos.betweenClosed(BASE.offset(-6,-4,-4),BASE.offset(6,6,24))) {
                 var pos=cell.immutable(); level.getChunk(pos.getX()>>4,pos.getZ()>>4);
                 cells.put(pos,game.maps().snapshot(pos)); level.setBlock(pos,Blocks.AIR.defaultBlockState(),2);
@@ -156,14 +156,14 @@ public final class NextShooterChecks {
             bossTicks(shooters,3); require(arrows(owner).size()==2 && shooters.bossHelicopterCooldownRemaining(owner)==596,"unheld Boss recharges without shooting");
             owner.setItemInHand(InteractionHand.OFF_HAND,boss.copy()); bossTicks(shooters,1);
             require(arrows(owner).size()==4 && arrows(owner).stream().anyMatch(a->Math.abs(Math.abs(a.getX()-owner.getX())-1.45)<.0001),"offhand resumes with original muzzle");
-            shooters.forget(owner); owner.setItemInHand(InteractionHand.MAIN_HAND,boss.copy());
+            shooters.forget(owner); arrows(owner).forEach(Entity::discard); owner.setItemInHand(InteractionHand.MAIN_HAND,boss.copy());
             owner.setItemInHand(InteractionHand.OFF_HAND,boss.copy()); use(owner,InteractionHand.OFF_HAND);
             require(shooters.bossHelicopterCooldownRemaining(owner)==600,"offhand right click arms shared Boss timer");
             other.setItemInHand(InteractionHand.MAIN_HAND,source(game,other,"helicopter_boss")); use(other,InteractionHand.MAIN_HAND);
             require(shooters.bossHelicopterCooldownRemaining(other)==600,"second participant has independent timer");
             bossTicks(shooters,201);
             require(shooters.bossHelicopterCooldownRemaining(owner)==399 && shooters.bossHelicopterCooldownRemaining(other)==399
-                    && arrows(owner).size()==804 && arrows(other).size()==402,"600 through400 inclusive emits402 per hand over201 real ticks");
+                    && arrows(owner).size()==804 && arrows(other).size()==402,"600 through400 inclusive emits402 per hand over201 real ticks clocks="+shooters.bossHelicopterCooldownRemaining(owner)+","+shooters.bossHelicopterCooldownRemaining(other)+" arrows="+arrows(owner).size()+","+arrows(other).size()+" held="+owner.getMainHandItem()+","+owner.getOffhandItem()+" suppressed="+game.items().magic().mechanismSuppressed(owner));
             bossTicks(shooters,1); require(arrows(owner).size()==804 && arrows(other).size()==402,"399 is recovery only");
             require(game.items().mana().get(owner)==-25 && boss.getCount()==1,"burst leaves mana and weapon intact");
             shooters.forget(owner); shooters.forget(other); owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
@@ -182,7 +182,7 @@ public final class NextShooterChecks {
         }
     }
     private static void bossCollision(GameController game,ServerPlayer owner,ItemStack boss,List<Cow> cows) {
-        var shooters=game.items().shooters(); aim(game,owner); owner.setItemInHand(InteractionHand.MAIN_HAND,boss.copy());
+        var shooters=game.items().shooters(); arrows(owner).forEach(Entity::discard); aim(game,owner); owner.setItemInHand(InteractionHand.MAIN_HAND,boss.copy());
         require(shooters.beginBossHelicopter(owner,InteractionHand.MAIN_HAND),"native collision fixture arms Boss");
         bossTicks(shooters,1); var arrow=arrows(owner).getFirst(); var victim=cow(game,cows,.5,5.5);
         arrow.setPos(BASE.getX()+.5,BASE.getY()+1,BASE.getZ()+2); arrow.setDeltaMovement(0,0,6); LbcShooters.orient(arrow); arrow.tick();
@@ -299,7 +299,7 @@ public final class NextShooterChecks {
         }
     }
     private static void bossSuppression(GameController game,ServerPlayer owner,ItemStack boss) {
-        var shooters=game.items().shooters(); var level=game.maps().level(); var beacon=BASE.offset(2,1,0);
+        var shooters=game.items().shooters(); arrows(owner).forEach(Entity::discard); var level=game.maps().level(); var beacon=BASE.offset(2,1,0);
         try {
             aim(game,owner); owner.setItemInHand(InteractionHand.MAIN_HAND,boss.copy());
             owner.getInventory().setItem(9,new ItemStack(LbcMagic.MYSTICAL_ARTIFACT));
@@ -312,7 +312,7 @@ public final class NextShooterChecks {
             int count=arrows(owner).size(),timer=shooters.bossHelicopterCooldownRemaining(owner);
             bossTicks(shooters,2); require(arrows(owner).size()==count && shooters.bossHelicopterCooldownRemaining(owner)==timer-2,
                     "native mechanism beacon suppresses active Boss emissions while cooldown advances");
-            shooters.forget(owner); require(!shooters.beginBossHelicopter(owner,InteractionHand.MAIN_HAND),"mechanism beacon rejects new Boss activation");
+            shooters.forget(owner); arrows(owner).forEach(Entity::discard); require(!shooters.beginBossHelicopter(owner,InteractionHand.MAIN_HAND),"mechanism beacon rejects new Boss activation");
             level.setBlockAndUpdate(beacon,LbcMagic.MAGIC_BEACON_BLOCK.defaultBlockState());
             game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
             require(shooters.beginBossHelicopter(owner,InteractionHand.MAIN_HAND),"native magic beacon permits TECH Boss activation");
@@ -325,10 +325,10 @@ public final class NextShooterChecks {
     }
     private static void wither(GameController game,ServerPlayer owner,Cow target,int duration,String variant) {
         var effect=target.getEffect(MobEffects.WITHER);
-        require(effect!=null && effect.getDuration()==duration && effect.getAmplifier()==10,variant+" accepts native WitherXI for"+duration+"ticks");
+        require(effect!=null && effect.getDuration()==duration && effect.getAmplifier()==ItemEffectLevels.create(MobEffects.WITHER,duration,10).getAmplifier(),variant+" accepts item-capped native Wither for"+duration+"ticks");
         target.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0); target.setLastHurtByMob(null);
         target.setInvulnerableTime(0); target.damageCooldownTime=0; float health=target.getHealth();
-        MobEffects.WITHER.value().applyEffectTick(game.maps().level(),target,10);
+        MobEffects.WITHER.value().applyEffectTick(game.maps().level(),target,effect.getAmplifier());
         require(target.getHealth()<health && target.getKillCredit()==owner,variant+" native Wither tick inherits projectile shooter after prior damage credit is cleared");
     }
     private static void normalStatus(GameController game,ServerPlayer owner,List<Cow> cows,ItemStack gun) {
@@ -391,7 +391,7 @@ public final class NextShooterChecks {
             other.teleportTo(game.maps().level(),point.x,point.y-1,point.z,Set.of(),180,0,true);
             service.tick(); var nausea=other.getEffect(MobEffects.NAUSEA); var wither=other.getEffect(MobEffects.WITHER);
             require(service.count()==0 && nausea!=null && nausea.getDuration()==300 && nausea.getAmplifier()==0
-                    && wither!=null && wither.getDuration()==20 && wither.getAmplifier()==10,"native player contact accepts nausea15seconds and WitherXI1second");
+                    && wither!=null && wither.getDuration()==20 && wither.getAmplifier()==ItemEffectLevels.create(MobEffects.WITHER,20,10).getAmplifier(),"native player contact accepts nausea15seconds and item-capped Wither1second");
         } finally {
             service.forget(owner); other.removeAllEffects();
             if(team!=null) board.addPlayerToTeam(other.getScoreboardName(),team);

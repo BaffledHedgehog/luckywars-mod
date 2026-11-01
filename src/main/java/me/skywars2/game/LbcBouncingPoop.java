@@ -66,7 +66,7 @@ public final class LbcBouncingPoop {
         if(owner.getTeam()!=null)d.putString("team",owner.getTeam().getName());
         actor.setAttached(DATA,d);actor.entityTags().add(TAG);game.items().markCurrentItemEpoch(actor);
         if(!owner.level().hasChunkAt(actor.blockPosition())||!owner.level().addFreshEntity(actor)){actor.discard();return false;}
-        actors.add(actor);game.items().spellSources().bind(actor,source(actor));stack.shrink(1);owner.getInventory().setChanged();owner.containerMenu.broadcastChanges();return true;
+        actors.add(actor);game.items().spellSources().bind(actor,source(actor));owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem()));stack.shrink(1);owner.getInventory().setChanged();owner.containerMenu.broadcastChanges();return true;
     }
     public void loaded(Entity entity){if(!(entity instanceof Display.ItemDisplay actor)||!entity.entityTags().contains(TAG))return;
         var d=state(actor);if(d==null||author(d)==null||!game.items().currentEpoch(d.getStringOr("epoch",""))||!game.playing()){

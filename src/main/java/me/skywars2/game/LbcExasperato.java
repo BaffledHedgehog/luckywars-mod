@@ -39,7 +39,7 @@ public final class LbcExasperato {
     private final GameController game;
     private final Set<Charge> charges = new LinkedHashSet<>();
     private final ArrayList<Charge> batch = new ArrayList<>();
-    private static final int SEARCH_SEGMENT=16, SEARCH_BUDGET=64;
+    private static final int SEARCH_SEGMENT=16, SEARCH_BUDGET=80, SEARCH_HEADROOM_BUDGET=96;
     private static final long BLAST_BUDGET_NANOS=4_000_000;
     private static final int BLASTS_PER_TICK=8;
     private static final double[] BLAST_RAYS=blastRays();
@@ -60,7 +60,7 @@ public final class LbcExasperato {
         final java.util.function.Predicate<Entity> target;
         java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blockRule;
         boolean shieldBlockable=true,finishAtRange;
-        ReplayableRay replay;boolean finished;
+        ReplayableRay replay;boolean finished,started;
         final java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> result=new java.util.concurrent.CompletableFuture<>();
         final java.util.function.BiConsumer<Vec3,Vec3> trail;
         Search(ServerPlayer owner,String epoch,Vec3 from,Vec3 direction,double remaining,boolean walls,
@@ -76,7 +76,44 @@ public final class LbcExasperato {
             this.technology=technology; this.target=target;
         }
     }
-    private final ArrayDeque<Search> searches=new ArrayDeque<>();
+    /** Each author gets one quantum per turn, regardless of the number of accepted rays.
+     * Cycle newest first work, oldest first work and resumed work; every accepted lane progresses. */
+    private static final class SearchQueue implements Iterable<Search> {
+        private static final class Lane {
+            final ArrayDeque<Search> fresh=new ArrayDeque<>(),resumed=new ArrayDeque<>();
+            int turn;
+        }
+        private final java.util.LinkedHashMap<java.util.UUID,Lane> owners=new java.util.LinkedHashMap<>();
+        private int size;
+        int size(){return size;}
+        boolean isEmpty(){return size==0;}
+        void clear(){owners.clear();size=0;}
+        void addLast(Search search){
+            var lane=owners.computeIfAbsent(search.owner.getUUID(),ignored->new Lane());
+            (search.started?lane.resumed:lane.fresh).addLast(search);size++;
+        }
+        Search removeFirst(){
+            var iterator=owners.entrySet().iterator();var entry=iterator.next();
+            var lane=entry.getValue();iterator.remove();
+            int service=lane.turn;
+            for(int skipped=0;skipped<3;skipped++,service=(service+1)%3){
+                if(service==2?!lane.resumed.isEmpty():!lane.fresh.isEmpty())break;
+            }
+            var search=service==2?lane.resumed.removeFirst():service==0?lane.fresh.removeLast():lane.fresh.removeFirst();
+            lane.turn=(service+1)%3;size--;
+            if(!lane.fresh.isEmpty()||!lane.resumed.isEmpty())owners.put(entry.getKey(),lane);
+            return search;
+        }
+        java.util.Map<java.util.UUID,Integer> turns(){
+            var turns=new java.util.HashMap<java.util.UUID,Integer>();
+            owners.forEach((owner,lane)->turns.put(owner,lane.turn));return java.util.Map.copyOf(turns);
+        }
+        void restoreTurns(java.util.Map<java.util.UUID,Integer> turns){owners.forEach((owner,lane)->lane.turn=turns.get(owner));}
+        public java.util.Iterator<Search> iterator(){
+            return owners.values().stream().flatMap(lane->java.util.stream.Stream.concat(lane.fresh.stream(),lane.resumed.stream())).iterator();
+        }
+    }
+    private final SearchQueue searches=new SearchQueue();
     private boolean searching,searchRewind;
     /** Implementations contain reviewed immutable accepted-cast data; no captured mutable player/future. */
     interface ReplayableRay {
@@ -405,8 +442,12 @@ public final class LbcExasperato {
     private void searchTick() {
         if(searchRewind)return;if(searching)throw new IllegalStateException("Reentrant ray advance");searching=true;try {
         if(game.items().wands().timeStopped()) return;
-        long deadline=System.nanoTime()+3_000_000;
-        for(int work=0;work<SEARCH_BUDGET && !searches.isEmpty() && System.nanoTime()<deadline;work++) {
+        long started=System.nanoTime(),headroom=EffectTerrain.deadlineNanos();
+        boolean spare=headroom-started>=4_000_000;
+        // Keep a small progress floor on a busy tick; otherwise share the terrain deadline.
+        long deadline=Math.max(started+500_000,Math.min(headroom,started+(spare?4_000_000:3_500_000)));
+        int budget=headroom<=started?8:spare?SEARCH_HEADROOM_BUDGET:SEARCH_BUDGET;
+        for(int work=0;work<budget && !searches.isEmpty() && System.nanoTime()<deadline;work++) {
             var search=searches.removeFirst(); var owner=search.owner; var level=search.level;
             if(done(search)) continue;
             boolean sampled=search.replay!=null&&search.replay.sampleStep()>0;
@@ -415,6 +456,7 @@ public final class LbcExasperato {
             if(!active || owner.level()!=level || !sampled&&searchOwnerSuppressed(search)) { complete(search,null); continue; }
             if(owner.entityTags().contains("time_stopped")) { searches.addLast(search); continue; }
             if(sampled&&game.items().timeStop().stopped(level)){searches.addLast(search);continue;}
+            search.started=true;
             Vec3 from=search.position;
             if(sampled){
                 if(!level.hasChunkAt(BlockPos.containing(from))){complete(search,null);continue;}
@@ -893,11 +935,12 @@ public final class LbcExasperato {
     void cancelSearchCheckpoint(){searchRewind=false;}
     SearchCheckpoint checkpointSearches(MatchSpellCheckpoint.Links links){return new SearchCheckpoint(links);}
     final class SearchCheckpoint {
-        private record Image(Search original,MatchDamageSources.Ref owner,Vec3 position,double remaining,boolean finished,MatchQueuedWorkCheckpoint.Image terminal) { }
+        private record Image(Search original,MatchDamageSources.Ref owner,Vec3 position,double remaining,boolean finished,boolean started,MatchQueuedWorkCheckpoint.Image terminal) { }
         private final List<Image> images;
-        SearchCheckpoint(MatchSpellCheckpoint.Links links){var list=new ArrayList<Image>();for(var s:searches){if(s.replay==null)throw new IllegalStateException("Missing typed continuation for opaque ray completion");list.add(new Image(s,links.key(s.owner),s.position,s.remaining,s.finished,s.replay.checkpoint(links)));}images=List.copyOf(list);}
+        private final java.util.Map<java.util.UUID,Integer> turns;
+        SearchCheckpoint(MatchSpellCheckpoint.Links links){var list=new ArrayList<Image>();for(var s:searches){if(s.replay==null)throw new IllegalStateException("Missing typed continuation for opaque ray completion");list.add(new Image(s,links.key(s.owner),s.position,s.remaining,s.finished,s.started,s.replay.checkpoint(links)));}images=List.copyOf(list);turns=searches.turns();}
         Runnable prepare(MatchSpellCheckpoint.Links links){var terminalPlans=images.stream().map(image->image.terminal.prepare(links)).toList();var owners=new java.util.IdentityHashMap<Search,ServerPlayer>();for(var image:images){MatchAuthorityCheckpoint.world(game,image.original.level);if(!(links.get(image.owner) instanceof ServerPlayer p))throw new IllegalStateException("Restore current ray author bodies first");owners.put(image.original,p);}
-            return ()->{terminalPlans.forEach(Runnable::run);searches.clear();for(var image:images){var s=image.original;s.owner=owners.get(s);s.position=image.position;s.remaining=image.remaining;s.finished=image.finished;searches.addLast(s);}searchRewind=false;};}
+            return ()->{terminalPlans.forEach(Runnable::run);searches.clear();for(var image:images){var s=image.original;s.owner=owners.get(s);s.position=image.position;s.remaining=image.remaining;s.finished=image.finished;s.started=image.started;searches.addLast(s);}searches.restoreTurns(turns);searchRewind=false;};}
     }
 
 

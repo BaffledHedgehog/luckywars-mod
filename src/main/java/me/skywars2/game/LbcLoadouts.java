@@ -367,13 +367,14 @@ public final class LbcLoadouts {
         }
         if(randomStat)LbcRandomStatLevelup.apply(player);
         Entry skill = byId(Kind.SKILLS, profile.lbcSkill);
-        if (config.lbcSkills && skill != null && allowed(player, skill)) {
+        if (config.lbcSkills && skill != null && skill.id == 5 && allowed(player, skill)) {
             // Native hidden-effect chain reproduces I -> II -> III -> IV application order.
             for (int amplifier = 0; amplifier < 4; amplifier++) {
                 player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, (50 - amplifier * 10) * 20, amplifier));
             }
             resistanceOwners.put(player.getUUID(), player);
         }
+        game.items().govnomancer().effectsChanged(player);
         player.setHealth(player.getMaxHealth());
     }
 

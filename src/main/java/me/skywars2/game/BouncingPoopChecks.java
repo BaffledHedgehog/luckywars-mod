@@ -22,6 +22,7 @@ public final class BouncingPoopChecks {
     private static final class State implements AutoCloseable {
         final GameController game;final AllGrimoireChecks.Fixture f;final ServerPlayer p,beta;
         final RegenerationBeltChecks.Snapshot saved,betaSaved;final RegenerationBeltChecks.ScheduledClient client,audience;
+        final List<net.minecraft.world.entity.Marker> fields=new ArrayList<>();final Map<net.minecraft.world.entity.Marker,MapManager.BlockSnapshot> fieldBlocks=new IdentityHashMap<>();
         final LbcBouncingPoop service;Display.ItemDisplay flight;Vec3 start;int phase,started;boolean closed;
         final Map<net.minecraft.world.item.Item,Integer> stats=new IdentityHashMap<>();final boolean skills;
         State(GameController game){this.game=game;f=new AllGrimoireChecks.Fixture(game);p=f.base.owner;beta=f.beta;
@@ -44,12 +45,17 @@ public final class BouncingPoopChecks {
                 var image=new MatchEntityState(game,a);var savedPosition=a.position();var changed=LbcBouncingPoop.state(a).copy();changed.putInt("age",321);setState(a,changed);a.setPos(savedPosition.add(2,3,4));
                 image.load(a);require(a.position().equals(savedPosition)&&LbcBouncingPoop.state(a).getIntOr("age",-1)==0,"canonical native actor image restores attached clock and pose");
                 service.unloaded(a);require(service.count()==0,"unload removes only derived index");service.loaded(a);require(service.count()==1&&!a.isRemoved(),"native attachment reload rebuilds index");}
-            clear();held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"scheduled flight launch");flight=service.snapshot().getFirst();start=flight.position();
+            clear();
+            for(var tag:List.of("stopper_magic","stopper")){var m=new net.minecraft.world.entity.Marker(net.minecraft.world.entity.EntityTypes.MARKER,f.level);m.setPos(p.position());m.entityTags().add(tag);fieldBlocks.put(m,game.maps().snapshot(f.level,m.blockPosition()));require(f.level.addFreshEntity(m),"real jammer");fields.add(m);game.items().magic().loaded(m);}
+            p.getInventory().setItem(9,new ItemStack(LbcMagic.MYSTICAL_ARTIFACT));game.items().magic().inventoryChanged(p);game.items().magic().flushCleansing();
+            require(game.items().magic().suppressed(p)&&game.items().magic().mechanismSuppressed(p)&&game.items().magic().artifactActive(p),"actual simultaneous MAG/TECH/artifact controls");
+            held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"physical launch through all jammers");flight=service.snapshot().getFirst();start=flight.position();
             p.entityTags().add("time_stopped");game.items().timeStop().begin(f.level,100);started=game.server().getTickCount();phase=0;
         }
         boolean step(){client.acknowledge();audience.acknowledge();int elapsed=game.server().getTickCount()-started;require(elapsed<80,"bounded scheduler stage="+phase);
             if(phase==0){if(elapsed<3)return false;require(flight.position().equals(start)&&LbcBouncingPoop.state(flight).getIntOr("age",-1)==0,"world TimeStop freezes native flight and attached age");game.items().timeStop().end(f.level);p.entityTags().remove("time_stopped");phase=1;started=game.server().getTickCount();return false;}
-            if(phase==1){if(elapsed<1)return false;require(flight.position().distanceTo(start)>.39&&LbcBouncingPoop.state(flight).getIntOr("age",0)>0,"real scheduler advances .4 curve and persisted clock");
+            if(phase==1){if(elapsed<1)return false;require(flight.position().distanceTo(start)>.39&&LbcBouncingPoop.state(flight).getIntOr("age",0)>0,"real scheduler advances .4 curve and persisted clock even under all jammers");
+                removeFields();p.getInventory().setItem(9,ItemStack.EMPTY);game.items().magic().inventoryChanged(p);game.items().magic().flushCleansing();
                 service.stop();clear();held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"bounce launch");flight=service.snapshot().getFirst();
                 flight.setPos(new Vec3(Math.floor(f.at.x)+.5,Math.floor(f.at.y)+2,Math.floor(f.at.z)+.75));flight.setYRot(0);flight.setXRot(0);start=flight.position();
                 f.level.setBlock(BlockPos.containing(start.add(0,0,.8)),Blocks.STONE.defaultBlockState(),2|16|32);
@@ -70,8 +76,9 @@ public final class BouncingPoopChecks {
                 clear();held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"lifetime launch");flight=service.snapshot().getFirst();var d=LbcBouncingPoop.state(flight).copy();d.putInt("age",599);setState(flight,d);phase=5;started=game.server().getTickCount();return false;}
             if(!flight.isRemoved())return false;require(service.count()==0,"exact attached600 active ticks retire actor");return true;
         }
+        void removeFields(){for(var m:fields){game.items().magic().unloaded(m);m.discard();var old=fieldBlocks.remove(m);if(old!=null&&f.level.getBlockState(m.blockPosition()).is(LbcMagic.MECHANISM_BEACON_BLOCK))game.maps().restoreSnapshot(f.level,m.blockPosition(),old);game.items().magic().blockChanged(m.blockPosition(),f.level.getBlockState(m.blockPosition()));}fields.clear();}
         void setState(Display.ItemDisplay actor,net.minecraft.nbt.CompoundTag d){try{var field=LbcBouncingPoop.class.getDeclaredField("DATA");field.setAccessible(true);@SuppressWarnings("unchecked") var type=(net.fabricmc.fabric.api.attachment.v1.AttachmentType<net.minecraft.nbt.CompoundTag>)field.get(null);actor.setAttached(type,d);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
-        public void close(){if(closed)return;closed=true;try{game.items().timeStop().end(f.level);p.entityTags().remove("time_stopped");service.stop();client.close();audience.close();f.close();}finally{game.config().lbcSkills=skills;saved.restore(game);saved.restoreAttributes();saved.restoreUse();betaSaved.restore(game);betaSaved.restoreAttributes();betaSaved.restoreUse();stats.forEach((item,n)->p.getStats().setValue(p,net.minecraft.stats.Stats.ITEM_USED.get(item),n));}}
+        public void close(){if(closed)return;closed=true;try{removeFields();game.items().timeStop().end(f.level);p.entityTags().remove("time_stopped");service.stop();client.close();audience.close();f.close();}finally{game.config().lbcSkills=skills;saved.restore(game);saved.restoreAttributes();saved.restoreUse();betaSaved.restore(game);betaSaved.restoreAttributes();betaSaved.restoreUse();game.items().magic().inventoryChanged(p);game.items().magic().flushCleansing();stats.forEach((item,n)->p.getStats().setValue(p,net.minecraft.stats.Stats.ITEM_USED.get(item),n));}}
     }
     public static void start(GameController game){require(running==null,"exclusive fixture");var s=new State(game);try{s.begin();running=s;SkyWars2.LOGGER.info("[check] START bouncing-poop");}catch(Throwable e){s.close();throw e;}}
     public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS bouncing-poop (native/raw actual hands, source visual, attachment unload/reload, scheduler TimeStop/curve/wall/strict soil/body/cap/lifetime)");}catch(Throwable e){try{running.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL bouncing-poop",e);}}

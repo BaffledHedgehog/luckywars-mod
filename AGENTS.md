@@ -1,18 +1,24 @@
-## Pursuit kits - STAGED, POLICY REPLIES PENDING (1 November 2026)
+## Pursuit kits and shared ray queue ? NATIVE VERIFIED, QUALIFIED (1 November 2026)
 
-[Independent preparation and exact Deus source](agent_notes/PURSUIT_KITS_PREPARATION_2026_11_01.md).
-Main remainsef417edd. No new install request/restart/push. User leaves stacks as-is.
-Bouncing Poop kit11 native actor/persistent attachment, bounce/soil/body/mega shared
-rubble implemented, and one independent native group passedb5481bcb. Earlier
-fixture fractional-wall error retainedec663331. Compile passes;9582inputs/2367classes/
-7173resources.224authorpaths/31live overrides exact. Normal child/exact restore/no locks.
-Deus21 definitions+source audit ONLY, no runtime/HUD/reset/cast/catalogue activation.
-Kit11/21 menu routes still absent; no ordinary skill9-selection claim. Suppression
-and Deus target/active-counter policies already asked IN CHAT, still unanswered.
-Keep questions pending, do not infer defaults, do not duplicate into PENDING.
-No ready qualification/installer: staged core tests without jammers do not settle
-policy or qualify release. Finish actual replies, Deus and native acquisition before
-publishing. No RP or protected author edits. Older installed header remains valid.
+[Complete behavior, retained failures and evidence](agent_notes/PURSUIT_WHIP_RELEASE_2026_11_01.md).
+User replies resolved: Bouncing Poop unjammed; Deus TECH + strong artifact only,
+ordinary MAG permits; retain whole-clock pause. Deus redesigned as bounded curvy
+through-wall electric whip, up to3 sequential actual bodies,2damage/10active ticks,
+reverse-tangent signed pull, no owner teleport. Canonical deus_cd score owns61active
+frames +199 recovery; no private checkpoint engine. Source kit11/21 slots/gates/
+normal grants + skill9 acquisition/physical full-chain immunity enabled. Only
+skill5 receives its Resistance loadout payload. No new RP required; stack sizes unchanged.
+Shared rays fairly rotate authors, then newest/oldest/resumed lanes;80/96 quanta
+and3.5?4ms shared headroom, exact checkpoint turns/cursors, no chunk generation.
+057b67aa passes Deus + old shooter regression; production/resources identical
+97f4eb49 and1b115e91 provide six other scoped gameplay groups; two actual menus
+pass,10 distinct groups total. Failed fixture receipts/baseline comparison retained.
+9587inputs/2379classes/7175resources;224authorpaths/31overrides exact. Children
+normal/exact snapshots/additional level+ticket restoration/no locks, fixture25577.
+Full two-kit gate cleared; qualification under build/verification/pursuit-whip-final-
+2026-11-01/. Shared normal-stop installer only; never stop/restart main or push.
+Main remains EF417EDD until installer receipt is recorded. PENDING/author source
+and RP untouched. Do not reopen resolved suppression or stack-size policy.
 
 ## Gaara pot and Clown kit - NATIVE VERIFIED, INSTALLED (1 November 2026)
 

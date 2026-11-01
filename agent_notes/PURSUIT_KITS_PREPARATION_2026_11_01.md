@@ -1,3 +1,5 @@
+> Superseded by [the complete qualified release](PURSUIT_WHIP_RELEASE_2026_11_01.md); suppression replies are resolved. This file retains historical pre-policy evidence.
+
 # Pursuit kits source and independent preparation - 1 November 2026
 
 STAGED ONLY. Main remains qualifiedef417edd (Gaara/Clown), unchanged. No installer
