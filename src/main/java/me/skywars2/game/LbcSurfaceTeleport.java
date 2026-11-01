@@ -12,6 +12,9 @@ import net.minecraft.world.phys.Vec3;
 final class LbcSurfaceTeleport {
     private LbcSurfaceTeleport(){}
     static Vec3 destination(ServerLevel level,Vec3 center,int radius,int ceiling,RandomSource random){
+        return destination(level,center,radius,ceiling,random,at->true);
+    }
+    static Vec3 destination(ServerLevel level,Vec3 center,int radius,int ceiling,RandomSource random,java.util.function.Predicate<Vec3> accept){
         int minX=Mth.floor(center.x-radius),minZ=Mth.floor(center.z-radius);
         int width=(int)Math.ceil(center.x+radius)-minX,depth=(int)Math.ceil(center.z+radius)-minZ;
         int count=width*depth,index=random.nextInt(count),step;
@@ -25,7 +28,8 @@ final class LbcSurfaceTeleport {
             int y=LbcPortalDrops.spawnY(level,pos,Math.min(ceiling,surface+1));
             pos.set(x,y-1,z);var state=level.getBlockState(pos);
             if(y-1>=ceiling||state.liquid()||!state.is(BlockTags.ENTITIES_CAN_TELEPORT_TO))continue;
-            return new Vec3(x+.5,y,z+.5);
+            var destination=new Vec3(x+.5,y,z+.5);
+            if(accept.test(destination))return destination;
         }
         return null;
     }

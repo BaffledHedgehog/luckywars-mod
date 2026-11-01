@@ -1,0 +1,65 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:clown_mask",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/clownmask",
+                "minecraft:equippable": {
+                  "slot": "head",
+                  "asset_id": "lbc:clown_mask"
+                },
+                "minecraft:max_damage": 25,
+                "minecraft:attribute_modifiers": [
+                  {
+                    "id": "fisjgidsjg4givibhjeswh",
+                    "amount": 3,
+                    "operation": "add_value",
+                    "type": "minecraft:armor",
+                    "slot": "head"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "translate": "clown_mask",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "clown_mask.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "clown_mask.lore.2",
+                  "italic": false,
+                  "color": "gray"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{clown_mask:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

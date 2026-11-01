@@ -201,6 +201,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcClownKit.matches(player.getItemInHand(hand)))
+                return game.items().clownKit().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&(me.skywars2.game.LbcSteampunkHook.matches(player.getItemInHand(hand))||me.skywars2.game.LbcKitUtilities.matches(player.getItemInHand(hand))))
                 return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){

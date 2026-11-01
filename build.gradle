@@ -26,6 +26,9 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/gaara_pot.json', 'data/lbc/loot_table/ported/clown_mask.json'
+    include 'data/lbc/loot_table/ported/clown_smoke_bomb.json', 'data/lbc/loot_table/ported/false_grave.json'
+    include 'data/lbc/loot_table/kit/gaara.json', 'data/lbc/loot_table/kit/clown.json'
     include 'data/lbc/loot_table/ported/multiply_*.json', 'data/lbc/loot_table/ported/banana_palm.json'
     include 'data/lbc/loot_table/kit/multiply_tablet.json', 'data/lbc/loot_table/kit/palm_with_bananas.json'
     include 'data/lbc/loot_table/kit/steampunk.json', 'data/lbc/loot_table/kit/hook.json'

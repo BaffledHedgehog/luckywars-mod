@@ -1,0 +1,51 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:false_grave",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:false_tumba"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "translate": "false_tumba",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "false_tumba.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "false_tumba.lore.2",
+                  "italic": false,
+                  "color": "gray"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{false_tumba:1,gadget:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

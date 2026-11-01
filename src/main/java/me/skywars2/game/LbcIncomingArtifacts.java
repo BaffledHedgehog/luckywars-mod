@@ -82,6 +82,7 @@ public final class LbcIncomingArtifacts {
     public void incoming(ServerPlayer owner,DamageSource source,float originalDamage,float actualDamage,boolean blocked){
         var a=!attempts.isEmpty()&&attempts.peek().owner==owner?attempts.peek():admission(owner);
         if(!a.allowed)return;
+        game.items().gaaraPot().incoming(owner);
         criteria++;
         // The separate shield criterion admits the source entity's original tag, without a magic gate.
         if((a.current&2)!=0&&source.getEntity()!=null&&source.getEntity().getType().builtInRegistryHolder().is(ATTACKS))shield(owner);

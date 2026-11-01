@@ -17,6 +17,14 @@
       "lockedKey": "lbc.adv.accessories.popit.lore"
     },
     {
+      "id": 3,
+      "page": 9000,
+      "slot": 2,
+      "table": "lbc:kit/gaara",
+      "gate": "lbc:true_advancements/accesories/sand_amulet",
+      "lockedKey": "lbc.adv.accessories.sand_amulet.lore"
+    },
+    {
       "id": 4,
       "page": 9000,
       "slot": 3,
@@ -103,6 +111,14 @@
       "table": "lbc:kit/blazefire",
       "gate": "lbc:true_advancements/legends/academy/blazefire",
       "lockedKey": "lbc.adv.upgraded_tuntija.blazefire.lore"
+    },
+    {
+      "id": 20,
+      "page": 9000,
+      "slot": 20,
+      "table": "lbc:kit/clown",
+      "gate": "lbc:true_advancements/legends/academy/confuse",
+      "lockedKey": "lbc.adv.upgraded_staff.confuse.lore"
     },
     {
       "id": 22,

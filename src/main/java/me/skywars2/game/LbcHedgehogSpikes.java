@@ -35,13 +35,13 @@ public final class LbcHedgehogSpikes {
     private final List<SpikeArrow> arrows=new ArrayList<>();
     private final List<Pending> pending=new ArrayList<>();
     private final Map<LivingEntity,Water> water=new IdentityHashMap<>();
-    private static final String[] THROW_FLAGS={"confuse","blind","boom","standart","wither","poison","smoke","smoke_old"};
+    private static final String[] THROW_FLAGS={"confuse","blind","boom","standart","wither","poison","smoke","smoke_old","smoke_bomb"};
     private record Pending(LivingEntity target,SpikeKind kind,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){}
     private record Water(MobEffectInstance effect,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){}
     public LbcHedgehogSpikes(GameController game){this.game=game;}
     /** Ordinary darts use the same native arrow transport as the wall's six spikes. */
     public static int legacyThrow(ItemStack stack){
-        if(!stack.is(Items.SNOWBALL))return 0;
+        if(!stack.is(Items.SNOWBALL)&&!LbcClownKit.smoke(stack))return 0;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
         if(data.getIntOr("special",0)!=1)return 0;
         for(int i=0;i<THROW_FLAGS.length;i++)if(data.getIntOr(THROW_FLAGS[i],0)==1)return i+1;
@@ -51,6 +51,7 @@ public final class LbcHedgehogSpikes {
         var stack=p.getItemInHand(hand);int variant=legacyThrow(stack);
         if(variant==0||!game.playing()||game.stage()==GameController.Stage.ENDING||!p.isAlive()||game.isObserver(p)
                 ||!game.canUseGameplayItems(p)||!LbcDimensionItems.ordinary(p)||frozen(p)||game.items().actionsBlocked(p))return false;
+        if(variant==9&&(game.items().magic().mechanismSuppressed(p)||!game.items().clownKit().smokeAllowed(p.level(),p.getEyePosition())))return false;
         var transport=new Snowball(p.level(),p,stack);transport.shootFromRotation(p,p.getXRot(),p.getYRot(),0,1.5f,1);
         if(emitLegacy(p,variant,transport.position(),transport.getDeltaMovement())==null)return false;
         LbcOverload.sound(p,p.position(),"minecraft:entity.snowball.throw",.5f,.4f/(p.getRandom().nextFloat()*.4f+.8f),0);
@@ -98,7 +99,10 @@ public final class LbcHedgehogSpikes {
             return super.canHitEntity(target)&&(LbcGreed.active(target)||game.items().wands().physicalProjectileTarget(this,target));
         }
         @Override public void tick(){if(!valid(this)){retire(this);return;}if(frozen(this))return;
-            if(legacy==0&&game.items().magic().suppressedAt((ServerLevel)level(),position())){retire(this);return;}super.tick();}
+            if(legacy==0&&game.items().magic().suppressedAt((ServerLevel)level(),position())){retire(this);return;}
+            if(legacy==9&&(!game.items().clownKit().smokeAllowed((ServerLevel)level(),position())
+                    ||Double.isFinite(game.items().magic().mechanismSuppressionFraction((ServerLevel)level(),position(),position().add(getDeltaMovement()))))){retire(this);return;}
+            super.tick();}
         @Override protected void doPostHurtEffects(LivingEntity target){
             // Native AbstractArrow invokes this only after an accepted hurt, including shield admission.
             if(getOwner() instanceof ServerPlayer p){if(legacy>0)legacyImpact(this,target,p,target.position());else accepted(this,target,p);}
@@ -118,7 +122,7 @@ public final class LbcHedgehogSpikes {
         LbcShooters.orient(a);game.items().timeStop().prepareFrozen(a);if(!p.level().addFreshEntity(a)||a.isRemoved()){retire(a);return null;}return a;
     }
     Arrow emitLegacy(ServerPlayer p,int variant,Vec3 at,Vec3 velocity){
-        if(variant<1||variant>8||!resident(p.level(),at))return null;
+        if(variant<1||variant>9||!resident(p.level(),at)||variant==9&&!game.items().clownKit().smokeAllowed(p.level(),at))return null;
         var kind=switch(variant){case 1->SpikeKind.CONFUSE;case 2->SpikeKind.BLIND;case 3->SpikeKind.BOOM;case 4->SpikeKind.STANDARD;case 5->SpikeKind.WITHER;default->SpikeKind.POISON;};
         var arrow=new SpikeArrow(p,kind,variant);arrow.setPos(at);arrow.setDeltaMovement(velocity);arrow.entityTags().add(TAG);
         game.items().markCurrentItemEpoch(arrow);arrows.add(arrow);LbcShooters.orient(arrow);game.items().timeStop().prepareFrozen(arrow);
@@ -140,6 +144,7 @@ public final class LbcHedgehogSpikes {
             case 3->{if((target==null||!immune(target))&&!game.items().magic().mechanismSuppressedAt(owner.level(),at)&&!game.items().magic().luckyEffectWarded(owner.level(),at))
                     game.items().babylonEffects().primeExplosionAt(owner.level(),at,cause);}
             case 7,8->game.items().reactiveArtifacts().grenadeSmoke(owner,at,arrow.legacy==8);
+            case 9->{game.items().clownKit().gas(owner,at);retire(arrow);}
             default->{}
         }
     }

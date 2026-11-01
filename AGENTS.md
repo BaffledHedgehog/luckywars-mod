@@ -1,3 +1,23 @@
+## Gaara pot and Clown kit - NATIVE VERIFIED (1 November 2026)
+
+[Complete contract, source corrections and failures](agent_notes/GAARA_CLOWN_KITS_2026_11_01.md).
+Four abilities + actual kit3/20 original slots/gates/grants complete. User: stacks
+stay unchanged. MAG suppresses Gaara and immediate cabinet; TECH suppresses Clown
+bomb launch/flight/detonation; mask physical unjammed. Cabinet is NOT a projectile,
+old use spot + safe random15 teleport, momentum/camera kept. Physical WILD gas
+uses shared native spike transport, radius4/100tick effects, mask immunity and
+one bounded particle batch. Gaara shared accepted construction/native falling sand
+settles before capture, causal owner retained. No private state/checkpoint engine.
+ef417edd passes Gaara+Clown+menu in2 matches; production classes identical4eda2e84
+passed Clown +5 shared regressions. Only Gaara count64 resource + invalid generic-cooldown
+fixture corrected. Failed receipt retained.8 scoped groups/9 fresh matches;
+9577inputs/2361classes/7171resources;224authorpaths/31overrides exact. Normal exits/
+exact snapshots/additional level+ticket restoration/no locks. No RP/PENDING edits,
+main stop/restart, giant stacks or push. Qualified full two-kit release gate clear.
+Qualification under build/verification/clown-gaara-2026-11-01/; shared normal-stop
+installer only, installation receipt follows. Remaining kits6/11/18/21 audit in
+note; no blanket enablement or assumed Deus jammer policy.
+
 ## Multiplier tablets and banana palm - NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Complete contract and retained failures](agent_notes/TABLET_ABILITIES_2026_11_01.md).

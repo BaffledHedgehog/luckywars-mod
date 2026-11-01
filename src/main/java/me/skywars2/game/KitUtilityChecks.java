@@ -11,9 +11,11 @@ import net.minecraft.world.item.ItemStack;
 public final class KitUtilityChecks {
     private KitUtilityChecks(){}
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Kit utilities: "+why);}
-    public static void mechanicalMenus(GameController game){menus(game,false);}
-    public static void tabletMenus(GameController game){menus(game,true);}
-    private static void menus(GameController game,boolean utilities){
+    public static void mechanicalMenus(GameController game){menus(game,0);}
+    public static void tabletMenus(GameController game){menus(game,1);}
+    public static void clownMenus(GameController game){menus(game,2);}
+    private static void menus(GameController game,int family){
+        boolean utilities=family==1,clown=family==2;
         require(game.inLobby(),"actual lobby catalogue selection");
         var p=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(p!=null,"native menu participant");
         var saved=new RegenerationBeltChecks.Snapshot(game,p);boolean ranked=game.config().ranked,kits=game.config().lbcKits;
@@ -22,9 +24,9 @@ public final class KitUtilityChecks {
             game.config().ranked=false;game.config().lbcKits=true;game.lbc().syncRanked();
             var profile=game.players().get(p.getUUID());profile.lbcKit=0;profile.lbcSkill=0;profile.lbcChallenge=0;profile.lbcChallengeKit=0;profile.lbcTrinket=0;
             Arrays.fill(profile.trinkets,0);Arrays.fill(profile.levelups,0);
-            String[] gates=utilities?new String[]{"lbc:true_advancements/armor/multiplying","lbc:true_advancements/legends/academy/fartus_nadristailo"}:new String[]{"lbc:true_advancements/armor/steampunk","lbc:true_advancements/armor/technomk2"};
+            String[] gates=clown?new String[]{"lbc:true_advancements/accesories/sand_amulet","lbc:true_advancements/legends/academy/confuse"}:utilities?new String[]{"lbc:true_advancements/armor/multiplying","lbc:true_advancements/legends/academy/fartus_nadristailo"}:new String[]{"lbc:true_advancements/armor/steampunk","lbc:true_advancements/armor/technomk2"};
             for(int n=0;n<2;n++){
-                int id=utilities?(n==0?8:24):12+n,slot=utilities?(n==0?7:24):11+n;String gate=gates[n];
+                int id=clown?(n==0?3:20):utilities?(n==0?8:24):12+n,slot=clown?(n==0?2:20):utilities?(n==0?7:24):11+n;String gate=gates[n];
                 var advancement=game.server().getAdvancements().get(net.minecraft.resources.Identifier.parse(gate));require(advancement!=null,"native source gate "+gate);
                 var old=new LinkedHashMap<String,Boolean>();var status=p.getAdvancements().getOrStartProgress(advancement);
                 for(var criterion:advancement.value().criteria().keySet())old.put(criterion,status.getCriterion(criterion).isDone());progress.put(advancement,old);
@@ -34,16 +36,17 @@ public final class KitUtilityChecks {
                 require(game.lbc().select(p,LbcLoadouts.Kind.KITS,9000,slot)&&profile.lbcKit==id&&game.lbc().selected(profile,LbcLoadouts.Kind.KITS,9000,slot),"actual original menu slot selects kit"+id);
                 p.getInventory().clearContent();game.lbc().apply(p,false);
                 var actual=new ArrayList<ItemStack>();for(int i=0;i<p.getInventory().getContainerSize();i++)if(!p.getInventory().getItem(i).isEmpty())actual.add(p.getInventory().getItem(i));
-                var expected=utilities?(n==0?List.of(LbcKitUtilityItems.DOUBLE,LbcKitUtilityItems.TRIPLE,LbcKitUtilityItems.QUADRUPLE,LbcKitUtilityItems.QUINTUPLE):List.of(LbcKitUtilityItems.PALM)):(n==0?List.of(LbcMechanicalItems.BREAKER,LbcMechanicalItems.GLOVE):List.of(LbcMechanicalItems.HOOK));
+                var expected=clown?(n==0?List.of(LbcClownItems.POT,net.minecraft.world.item.Items.SAND,net.minecraft.world.item.Items.RED_SAND):List.of(LbcClownItems.MASK,LbcClownItems.SMOKE_BOMB,LbcClownItems.FALSE_GRAVE)):utilities?(n==0?List.of(LbcKitUtilityItems.DOUBLE,LbcKitUtilityItems.TRIPLE,LbcKitUtilityItems.QUADRUPLE,LbcKitUtilityItems.QUINTUPLE):List.of(LbcKitUtilityItems.PALM)):(n==0?List.of(LbcMechanicalItems.BREAKER,LbcMechanicalItems.GLOVE):List.of(LbcMechanicalItems.HOOK));
                 require(actual.size()==expected.size(),"original kit contents/disabled rocket pool "+id+" actual="+actual);
-                for(var item:expected)require(actual.stream().filter(v->v.is(item)&&v.getCount()==1).count()==1,"selected source grant reaches registered native item "+item);
+                for(var item:expected){int amount=clown?(item==net.minecraft.world.item.Items.SAND||item==net.minecraft.world.item.Items.RED_SAND?64:item==LbcClownItems.SMOKE_BOMB?4:1):1;
+                    require(actual.stream().filter(v->v.is(item)&&v.getCount()==amount).count()==1,"selected source grant reaches native item/count "+item+" x"+amount);}
             }
         }finally{
             game.config().ranked=ranked;game.config().lbcKits=kits;game.lbc().syncRanked();
             for(var a:progress.entrySet())for(var c:a.getValue().entrySet())if(c.getValue())p.getAdvancements().award(a.getKey(),c.getKey());else p.getAdvancements().revoke(a.getKey(),c.getKey());
             saved.restore(game);saved.restoreAttributes();saved.restoreUse();saved.restoreProfile(game);game.players().save();
         }
-        SkyWars2.LOGGER.info("[check] PASS {} (actual lobby selection, original slots and native gate advancements, locked refusal/unlock, normal loadout grant, registered native contents)",utilities?"tablet-kit-menu":"mechanical-kits-menu");
+        SkyWars2.LOGGER.info("[check] PASS {} (actual lobby selection, original slots and native gate advancements, locked refusal/unlock, normal loadout grant, registered native contents)",clown?"clown-kit-menu":utilities?"tablet-kit-menu":"mechanical-kits-menu");
     }
     public static void presentation(GameController game){try(var f=new ElementalGrimoireChecks.Fixture(game)){
         f.initialize();var p=f.owner;

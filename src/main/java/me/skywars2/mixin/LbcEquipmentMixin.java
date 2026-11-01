@@ -37,6 +37,7 @@ public abstract class LbcEquipmentMixin {
         var game = SkyWars2.game();
         if(game!=null && (Object)this instanceof ServerPlayer player) {
             game.items().mana().inventoryChanged(player);
+            if(slot==EquipmentSlot.HEAD)game.items().clownKit().effectsChanged(player);
             game.items().refreshMinigunMovement(player);
             game.items().shulkerArmor().inventoryChanged(player);
             game.items().armorSets().inventoryChanged(player);game.items().shishEncounter().inventoryChanged(player);
