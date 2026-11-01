@@ -1,3 +1,32 @@
+## Looper skill3 - VERIFIED, INSTALLED (2 November2026)
+
+[Source, behavior, diagnostics and qualification](agent_notes/LOOPER_PORT_2026_11_02.md).
+Original10000:2 Mystical Artifact unlock now exposes complete Looper3. Existing
+artifact/fragment/Infinity knowledge retained; exact second grimoire lore line
+projects mana_usage_2 and signed mana privately. Whole authored lore subsequence
+preserves duplicate headers/blank lines. Native server stacks/flags/components
+unchanged; challenge1 masking takes precedence. Existing published reader flags
+remain canonical; no jammer restriction or new RP resources.
+
+Source imba announcement is ONCE first item tick, not a continuous beacon.
+Native tick hook/persisted tag, legacy tagged guard, pause/deferred first tick,
+disabled no-replay, source200dust/bee MASTER1/pitch1/minVolume1, readers only.
+No world/inventory polling or tick NBT copies. Test7757f568 / production057ba9b6:
+2 scoped groups/2actual mode1 matches (looper,inventory-skills),9796inputs/
+2481classes/7353resources exact plus verified Loom metadata,236authorpaths and
+31overrides unchanged. Child normal/exact snapshots/OP/level/tickets/no locks,
+fixture25577 only.8editing classes absent production. Earlier missing-PASS
+fixture timeout retained; final difference is check logging only. Installed
+normally with7968842a rollback, restarted:false; no main stop/restart/push.
+
+Reactive skills6/10/19 remain CLOSED pending the questions already sent in chat:
+suppression classification, reversed ID6 HP-delta formula and arbitrary ID10
+projectile selection. Audit and pure26-penalty helper retained OUTSIDE src/main
+under build/verification/reactive-skills-2026-11-02/. Do not silently choose the
+unanswered policies or repeat them as unrelated progress footnotes. ID2 still
+has unported Nexus wire/Greedstone closure; existing carrier guards alone do not
+make it ready. TMT LAST and fullkit6/LuckyWars gates remain unchanged.
+
 ## Inventory skills4/8/11 - VERIFIED, INSTALLED (2 November2026)
 
 [Final author policy, source, implementation and exact proof](agent_notes/INVENTORY_SKILLS_PORT_2026_11_02.md).

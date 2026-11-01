@@ -177,6 +177,13 @@
   ],
   "skills": [
     {
+      "id": 3,
+      "page": 10000,
+      "slot": 2,
+      "gate": "lbc:true_advancements/accesories/mystical_artifact",
+      "lockedKey": "lbc.adv.accessories.mystical_artifact.lore"
+    },
+    {
       "id": 5,
       "page": 10000,
       "slot": 4,

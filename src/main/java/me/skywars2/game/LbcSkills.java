@@ -39,11 +39,12 @@ public final class LbcSkills {
     public static void register() {
         if (registered) return;
         registered = true;
-        PolymerItemUtils.CONTEXT_ITEM_CHECK.register((stack, context) -> hidesKnowledge(context) || currentArtifact(stack) || currentFragment(stack));
+        PolymerItemUtils.CONTEXT_ITEM_CHECK.register((stack, context) -> hidesKnowledge(context) || currentArtifact(stack) || currentFragment(stack) || currentGrimoire(stack));
         PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original, client, context) -> {
             if (client.isEmpty()) return client;
             client = projectArtifactLore(original, client, context);
             client = projectFragmentLore(original, client, context);
+            client = projectGrimoireLore(original, client, context);
             if (!hidesKnowledge(context)) return client;
             // A callback may receive the original vanilla stack: never mutate either supplied reference.
             var projected = client.copy();
@@ -89,6 +90,57 @@ public final class LbcSkills {
         if(data==null||lore==null||lore.lines().size()<2)return false;
         var flags=data.copyTag();int type=flags.getIntOr("cooltype",-1);
         return flags.getIntOr("fragmentsword",0)==1&&flags.getIntOr("unresolved_fragment",0)==1&&type>=0&&type<=16;
+    }
+
+    private static boolean currentGrimoire(net.minecraft.world.item.ItemInstance stack) {
+        var data=stack.get(DataComponents.CUSTOM_DATA);
+        var lore=stack.get(DataComponents.LORE);
+        return data!=null&&lore!=null&&lore.lines().size()>=2
+                &&((ItemData.IntReader)(Object)data).skywars2$readInt("unresolved_grimoire",0)==1;
+    }
+
+    /** The source replaces only lore[1]; every other authored line and component survives. */
+    private static ItemStack projectGrimoireLore(ItemStack original,ItemStack client,PacketContext context){
+        if(!currentGrimoire(original)||!canReadArtifacts(PolymerCommonUtils.getPlayer(context)))return client;
+        var sourceLore=original.get(DataComponents.LORE);var clientLore=client.get(DataComponents.LORE);
+        if(clientLore==null)return client;
+        var description=Component.translatable("mana_usage_2")
+                .withStyle(style->style.withColor(ChatFormatting.LIGHT_PURPLE).withItalic(false))
+                .append(Component.literal(Integer.toString(ItemData.intValue(original,"mana",0))));
+        var expected=sourceLore.styledLines().stream()
+                .map(line->Component.empty().append(line).setStyle(PolymerItemUtils.CLEAN_STYLE)).toList();
+        var replacement=Component.empty().append(description).setStyle(PolymerItemUtils.CLEAN_STYLE);
+        var lines=new ArrayList<Component>(clientLore.lines());
+        // Equal header/blank lines are legal: locate the complete authored sequence before indexing lore[1].
+        int start=java.util.Collections.indexOfSubList(lines,expected);
+        if(start>=0){lines.set(start+1,replacement);var projected=client.copy();projected.set(DataComponents.LORE,new ItemLore(lines));return projected;}
+        return client;
+    }
+
+    /** Source items_tick_tag_3 is a first-tick announcement, never an item beacon loop. */
+    public static void groundTick(ItemEntity item){
+        final String once="skywars2:lbc_looper_tagged";
+        if(item.entityTags().contains(once)||item.entityTags().contains("tagged")||item.isRemoved())return;
+        if(!(item.level() instanceof net.minecraft.server.level.ServerLevel level))return;
+        var game=SkyWars2.game();
+        if(game==null||!game.server().tickRateManager().runsNormally()||!game.playing()||game.stage()==GameController.Stage.ENDING
+                ||item.level()!=game.maps().level()||!LbcDimensionItems.ordinary(item.level())
+                ||game.items().timeStop().stopped(level)||game.items().timeStop().frozen(item)
+                ||game.items().wands().timeStopped())return;
+        item.entityTags().add(once);
+        if(ItemData.intValue(item.getItem(),"imba",0)!=1||!game.config().lbcSkills)return;
+        var particle=new net.minecraft.core.particles.DustParticleOptions(0xf6d4ff,4);
+        for(var viewer:level.players()){
+            if(!canReadArtifacts(viewer))continue;
+            level.sendParticles(viewer,particle,true,false,item.getX(),item.getY()+20,item.getZ(),200,0,40,0,0);
+            var viewpoint=LbcFpvDrone.viewpoint(viewer);var heardAt=item.position();
+            // playsound volume1/minVolume1 places an out-of-range sound two blocks from its recipient.
+            if(viewpoint.distanceToSqr(heardAt)>256)heardAt=viewpoint.add(heardAt.subtract(viewpoint).normalize().scale(2));
+            viewer.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                    net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(
+                            net.minecraft.resources.Identifier.parse("minecraft:entity.bee.loop_aggressive"))),
+                    net.minecraft.sounds.SoundSource.MASTER,heardAt.x,heardAt.y,heardAt.z,1,1,item.getRandom().nextLong()));
+        }
     }
 
     /** Looper reveals the source fragment_N line only in this recipient's rendered item. */
@@ -176,7 +228,7 @@ public final class LbcSkills {
         // Редкая смена доступа, не тик: полный список загруженных сущностей покрывает и крайние высоты Creative.
         for (var entity : player.level().getAllEntities()) {
             if (entity.isRemoved()) continue;
-            if (entity instanceof ItemEntity item && (allItems || item.getItem().is(LbcMagic.MYSTICAL_ARTIFACT) || currentArtifact(item.getItem()) || currentFragment(item.getItem()))) {
+            if (entity instanceof ItemEntity item && (allItems || item.getItem().is(LbcMagic.MYSTICAL_ARTIFACT) || currentArtifact(item.getItem()) || currentFragment(item.getItem()) || currentGrimoire(item.getItem()))) {
                 if (!PlayerLookup.tracking(entity).contains(player)) continue;
                 var data = entity.getEntityData().getNonDefaultValues();
                 if (data != null) player.connection.send(new ClientboundSetEntityDataPacket(entity.getId(), data));
@@ -184,7 +236,7 @@ public final class LbcSkills {
                 ArrayList<Pair<EquipmentSlot, ItemStack>> equipment = null;
                 for (var slot : EQUIPMENT_SLOTS) {
                     var stack = living.getItemBySlot(slot);
-                    if (!stack.isEmpty() && (allItems || stack.is(LbcMagic.MYSTICAL_ARTIFACT) || currentArtifact(stack) || currentFragment(stack))) {
+                    if (!stack.isEmpty() && (allItems || stack.is(LbcMagic.MYSTICAL_ARTIFACT) || currentArtifact(stack) || currentFragment(stack) || currentGrimoire(stack))) {
                         if (equipment == null) equipment = new ArrayList<>();
                         equipment.add(Pair.of(slot, stack));
                     }
