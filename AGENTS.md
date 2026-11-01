@@ -1,3 +1,39 @@
+## FPV free camera and side HUD - VERIFIED, INSTALLED (2 November2026)
+
+[Contract, native causes, failures and exact evidence](agent_notes/FPV_CONTROL_FIX_2026_11_02.md).
+User: camera FREE; only drone heading has3degree/tick cap. Self-camera on private
+packet-only empty ItemDisplay seat replaces SetCamera(Vex). Native eye-offset
+compensation; one private seat sync per active move, no per-tick player teleport
+or camera-rotation correction. Seat never enters server world/save/ticket graph;
+recreated on checkpoint publication using current player. Preserve drone angles
+after release (repeated approximate-trig Euler conversion caused small drift).
+Vex updateInvisibilityStatus overridden to retain invisible/no-particle metadata;
+native first effect sync formerly cleared constructor invisibility. Other viewers
+retain authored drone model. Owner-only local game-mode event hides hands/hotbar,
+immediate actual abilities resend prevents flight/FOV bonus. Actual server mode,
+inventory, PlayerInfo and vulnerability unchanged. Restore actual presentation,
+seat, abilities and own lbc:fpv_drone effect on exit/death/respawn/join/rewind/stop;
+unrelated post effects survive. No actual spectator/body relocation.
+
+Two NEW RP assets: resourcepack_template/updates/fpv_hud_2026_11_02/. Author must
+apply manually, F3+T. Main-only cyan Magnum-palette thin sidecaps/pixel grids,
+central60% exact, scene alpha exact.60offscreen RTX4080GPU checks across9sizes;
+no physical Minecraft input/render/FPS claim. Existing applied/deleted templates
+and actual RP untouched. Narrow active-local work; no tick NBT/inventory scan.
+
+Testb7f05f27 / production784cf4d5:3native groups in3real mode1 matches, including
+free aim/quiet metadata/seat order and alignment, release/short cleanup,2native
+checkpoint death/respawn/offline replays, active-FPV lethal death and genuine
+replacement+20ticks.9792inputs/2473classes/7353resources exact;233author paths/
+31overrides unchanged. Child normal/exact snapshots/config/OP/level/tickets restored,
+no locks, fixture25577only. Opaque-search diagnostic adapted to existing fair owner
+lanes; actual ray scheduler unchanged. Prior failures retained. Mainb7f05f27 now
+installed by normal-stop worker;10b7c054 rollback, restarted:false. Qualification
+and receipt: build/verification/fpv-control-2026-11-02/{qualification,main-install}.json.
+No main stop/restart or push. Next candidate skills4/8/11 audited; two questions
+asked IN CHAT, not yet answered. Do not assume suppression/offhand-copy policy;
+TMT LAST and full kit6/LuckyWars gates remain unchanged.
+
 ## Combat/visual/FPV/MK2 and Stonekivi Sun - VERIFIED, INSTALLED (2 November2026)
 
 [Contract, corrections, evidence and limits](agent_notes/COMBAT_VISUAL_FLIGHT_FIX_2026_11_01.md).

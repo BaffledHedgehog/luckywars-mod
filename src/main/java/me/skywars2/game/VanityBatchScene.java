@@ -33,7 +33,7 @@ final class VanityBatchScene {
         gamma.entityTags().add("sin_gluttony");gamma.setYRot(0);gamma.setXRot(-25);
         // A genuine source cast owns the typed terminal. Only its partial cursor is explicitly seeded.
         gamma.setItemInHand(InteractionHand.MAIN_HAND,item("snake"));require(gluttony.use(gamma,InteractionHand.MAIN_HAND),"actual target-free snake cast accepted");
-        ray=VanityBatchScene.<ArrayDeque<?>>get(game.items().exasperato(),"searches").getFirst();var direction=VanityBatchScene.<Vec3>get(ray,"direction");
+        ray=searches().getFirst();var direction=VanityBatchScene.<Vec3>get(ray,"direction");
         cursor=VanityBatchScene.<Vec3>get(ray,"position").add(direction.scale(1.25));left=148.75;set(ray,"position",cursor);set(ray,"remaining",left);
         for(int y=3;y<=6;y++)for(int x=4;x<=6;x++)write(base.center.offset(x,y,5),Blocks.BEDROCK);
         rabbit=gluttony.spawn(LbcWitchGluttony.Kind.RABBIT,gamma.level(),base.at.add(-12,2,-12),0,0,gamma.getUUID(),game.items().epoch(),game.items().indirectKills().wildCause(gamma));
@@ -60,10 +60,18 @@ final class VanityBatchScene {
         try{new MatchQueuedWorkCheckpoint(game,sources);}catch(IllegalStateException expected){rejected=expected.getMessage().contains("Missing shared-work checkpoint adapter");}
         require(rejected&&queue.getLast()==opaque&&area.queuedBlockCount()==22,"unsupported callback rejects before any job mutation");require(queue.removeLast()==opaque,"remove only fixture-owned opaque callback");
         var future=game.items().exasperato().searchSpell(gamma,gamma.getEyePosition(),new Vec3(0,1,0),5,false,(pos,state)->false,e->false,null);
-        var searches=VanityBatchScene.<ArrayDeque<?>>get(game.items().exasperato(),"searches");var untyped=searches.getLast();rejected=false;
+        var searches=searches();var untyped=searches.getLast();rejected=false;
         try{new MatchQueuedWorkCheckpoint(game,sources);}catch(IllegalStateException expected){rejected=expected.getMessage().contains("Missing typed continuation");}
-        require(rejected&&!future.isDone()&&searches.getLast()==untyped&&area.queuedBlockCount()==22,"opaque external future rejects without dropping/completing it or mutating earlier jobs");require(searches.removeLast()==untyped,"remove only fixture-owned untyped search");future.cancel(false);
+        require(rejected&&!future.isDone()&&searches().getLast()==untyped&&area.queuedBlockCount()==22,"opaque external future rejects without dropping/completing it or mutating earlier jobs");
+        // The current scheduler has owner lanes, rather than one ArrayDeque.
+        // Remove just this fixture's fresh search without servicing or reordering saved work.
+        var scheduler=get(game.items().exasperato(),"searches");
+        var lane=VanityBatchScene.<Map<UUID,Object>>get(scheduler,"owners").get(gamma.getUUID());
+        var fresh=VanityBatchScene.<ArrayDeque<?>>get(lane,"fresh");
+        require(fresh.remove(untyped)&&!fresh.isEmpty(),"remove only fixture-owned untyped search; retain original owner lane");
+        set(scheduler,"size",VanityBatchScene.<Integer>get(scheduler,"size")-1);future.cancel(false);
     }
+    private List<?> searches(){return java.util.stream.StreamSupport.stream(VanityBatchScene.<Iterable<?>>get(game.items().exasperato(),"searches").spliterator(),false).toList();}
     void verify(ServerPlayer gamma){verify(gamma,0);}
     void verify(ServerPlayer gamma,int extra){verify(gamma,extra,List.of());}
     void verify(ServerPlayer gamma,int extra,List<Object> extraWork){
@@ -71,14 +79,16 @@ final class VanityBatchScene {
         require(VanityBatchScene.<Integer>get(gluttony,"phase")==cadence&&VanityBatchScene.<Set<?>>get(gluttony,"pending").equals(Set.of(LbcWitchGluttony.Kind.SNAKE)),"logical cadence and pending cast restored");
         require(VanityBatchScene.<Set<?>>get(gluttony,"terrain").equals(Set.of(work))&&area.queuedBlockCount()==22&&!VanityBatchScene.<Boolean>get(work,"cancelled"),"same owned terrain job and independent22-cell bitmap return");
         var queue=VanityBatchScene.<ArrayDeque<?>>get(game.items().stonekivi(),"work");var expectedWork=new ArrayList<Object>();expectedWork.add(work);expectedWork.addAll(extraWork);require(List.copyOf(queue).equals(expectedWork),"dispatcher membership aliases exactly the original owner jobs in captured order");
-        var searches=VanityBatchScene.<ArrayDeque<?>>get(game.items().exasperato(),"searches");require(searches.size()==1+extra&&searches.getFirst()==ray&&VanityBatchScene.<Vec3>get(ray,"position").equals(cursor)&&VanityBatchScene.<Double>get(ray,"remaining")==left&&!VanityBatchScene.<Boolean>get(ray,"finished")&&VanityBatchScene.<Object>get(ray,"owner")==gamma,"typed ray terminal, current caster and exact partial position replay without completed future reset");
+        var searches=searches();require(searches.size()==1+extra&&searches.getFirst()==ray&&VanityBatchScene.<Vec3>get(ray,"position").equals(cursor)&&VanityBatchScene.<Double>get(ray,"remaining")==left&&!VanityBatchScene.<Boolean>get(ray,"finished")&&VanityBatchScene.<Object>get(ray,"owner")==gamma,"typed ray terminal, current caster and exact partial position replay without completed future reset");
         require(fpv.snapshot().equals(List.of(drone))&&!drone.retired&&fpv.controlling(gamma)&&fpv.ticketCount()==1&&fpv.explosions()==blasts,"FPV actor/private retirement/current-body controller and unique body ticket restore");
         var s=VanityBatchScene.<Map<UUID,Object>>get(fpv,"controllers").get(gamma.getUUID());require(VanityBatchScene.<Object>get(s,"player")==gamma&&VanityBatchScene.<Object>get(s,"drone")==drone&&VanityBatchScene.<Float>get(s,"yaw")==87&&VanityBatchScene.<Float>get(s,"pitch")==-17,"saved control aim is separate from restored physical body pose");
         require(game.server().getTickCount()-VanityBatchScene.<Integer>get(s,"born")==bornAge&&game.server().getTickCount()-VanityBatchScene.<Integer>get(fpv,"lastTick")==lastAge,"publication wait does not consume saved attach/dedup clocks");
     }
     void published(ServerPlayer gamma,List<Packet<?>> packets){
-        var seat=packets.stream().filter(ClientboundSetPassengersPacket.class::isInstance).map(ClientboundSetPassengersPacket.class::cast).filter(p->p.getVehicle()==drone.getId()).toList();
-        require(!seat.isEmpty()&&Arrays.equals(seat.getLast().getPassengers(),new int[]{gamma.getId()})&&packets.stream().anyMatch(p->p instanceof ClientboundSetCameraPacket c&&c.getEntity(gamma.level())==drone),"republished camera/seat use actual restored drone and CURRENT player IDs");
+        int seatId=fpv.cameraSeatId(gamma);
+        var seat=packets.stream().filter(ClientboundSetPassengersPacket.class::isInstance).map(ClientboundSetPassengersPacket.class::cast).filter(p->p.getVehicle()==seatId).toList();
+        require(seatId>=0&&gamma.level().getEntity(seatId)==null&&!seat.isEmpty()&&Arrays.equals(seat.getLast().getPassengers(),new int[]{gamma.getId()})&&packets.stream().anyMatch(p->p instanceof ClientboundSetCameraPacket c&&c.getEntity(gamma.level())==gamma),"republished transient camera seat uses CURRENT player ID and free self-camera");
+        require(gamma.getPostEffects().contains(LbcFpvDrone.HUD)&&packets.stream().anyMatch(p->p instanceof ClientboundGameEventPacket event&&event.getEvent()==ClientboundGameEventPacket.CHANGE_GAME_MODE&&event.getParam()==3),"FPV checkpoint republishes owned HUD and client-only clean view");
         require(!gamma.isPassenger()&&gamma.getCamera()==gamma,"packet-only FPV never replaces native physical vehicle/camera ownership");
     }
     void thawed(){

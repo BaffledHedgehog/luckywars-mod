@@ -43,6 +43,7 @@ public final class LbcFpvDrone {
     private static final TicketType BODY_TICKET=new TicketType(TicketType.NO_TIMEOUT,
             TicketType.FLAG_LOADING|TicketType.FLAG_SIMULATION|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     static final double TURN_DEGREES=3;
+    static final Identifier HUD=Identifier.parse("lbc:fpv_drone");
     private final GameController game;
     private IdentityHashMap<Drone,Visual> actors=new IdentityHashMap<>();
     private HashMap<UUID,Session> controllers=new HashMap<>();
@@ -68,6 +69,8 @@ public final class LbcFpvDrone {
         @Override public boolean isPushable(){return false;}
         @Override public boolean canCollideWith(Entity other){return false;}
         @Override public boolean isPushedByFluid(){return false;}
+        // Native effect synchronization otherwise clears constructor invisibility.
+        @Override protected void updateInvisibilityStatus(){setInvisible(true);removeEffectParticles();}
         @Override public void tick(){var g=SkyWars2.game();if(g!=null&&g.items().fpvDrone().paused(this))return;
             setDeltaMovement(Vec3.ZERO);super.tick();setDeltaMovement(Vec3.ZERO);}
         @Override public void die(DamageSource damage){var g=SkyWars2.game();if(g!=null)g.items().fpvDrone().explode(this);else discard();}
@@ -94,11 +97,55 @@ public final class LbcFpvDrone {
         @Override public boolean shouldBeSaved(){return false;}
         @Override public boolean broadcastToPlayer(ServerPlayer p){return !controlling(p)||controllers.get(p.getUUID()).drone!=drone;}
     }
+    /** Empty, owner-only client entity: no world insertion, ticking actor or saved state. */
+    private static final class Seat extends Display.ItemDisplay {
+        Seat(ServerLevel level){super(EntityTypes.ITEM_DISPLAY,level);
+            try{load(TagValueInput.create(ProblemReporter.DISCARDING,registryAccess(),TagParser.parseCompoundFully("{teleport_duration:1}")));}
+            catch(CommandSyntaxException error){throw new IllegalStateException("FPV camera seat",error);}
+        }
+    }
     private static final class Session {
-        final ServerPlayer player;final Drone drone;int born;float yaw,pitch;boolean attached;BodyChunk body;
+        final ServerPlayer player;final Drone drone;int born;float yaw,pitch;boolean attached;BodyChunk body;Seat seat;
         Session(ServerPlayer player,Drone drone,int born){this.player=player;this.drone=drone;this.born=born;yaw=player.getYRot();pitch=player.getXRot();}
     }
     public boolean controlling(ServerPlayer p){var s=controllers.get(p.getUUID());return s!=null&&s.player==p;}
+    int cameraSeatId(ServerPlayer p){var s=controllers.get(p.getUUID());return s==null||s.player!=p||s.seat==null?-1:s.seat.getId();}
+    /** Position self-camera at the physical drone's eyes, independent of vanilla vehicle eye offsets. */
+    private static void positionSeat(Session s){
+        var dimensions=s.player.getDimensions(Pose.STANDING);
+        double eyeOffset=s.seat.getPassengerRidingPosition(s.player).y-s.seat.getY()
+                -dimensions.attachments().getClamped(EntityAttachment.VEHICLE,0,s.player.getYRot()).y+dimensions.eyeHeight();
+        s.seat.setPos(s.drone.getEyePosition().add(0,-eyeOffset,0));
+    }
+    private void attach(Session s){
+        s.seat=new Seat(s.player.level());positionSeat(s);
+        var seat=s.seat;var p=s.player;
+        p.connection.send(new ClientboundAddEntityPacket(seat.getId(),seat.getUUID(),seat.getX(),seat.getY(),seat.getZ(),0,0,EntityTypes.ITEM_DISPLAY,0,Vec3.ZERO,0));
+        var data=seat.getEntityData().getNonDefaultValues();
+        if(data!=null&&!data.isEmpty())p.connection.send(new ClientboundSetEntityDataPacket(seat.getId(),data));
+        p.connection.send(passengers(seat.getId(),p.getId()));
+        // Mouse input rotates LocalPlayer directly. Looking through the Vex instead
+        // makes its limited flight heading the camera heading as well.
+        p.connection.send(new ClientboundSetCameraPacket(p));
+        // Presentation only: no server game-mode/abilities/inventory or tab-list change.
+        // The client hand renderer and hotbar use this local mode, unlike body gameplay.
+        p.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE,net.minecraft.world.level.GameType.SPECTATOR.getId()));
+        // Local mode selection also sets flying client-side; restore native abilities
+        // immediately so hiding hands does not introduce a flight/FOV bonus.
+        p.onUpdateAbilities();
+        if(p.addPostEffect(HUD))p.sendPostEffects();s.attached=true;
+    }
+    private void clearHud(ServerPlayer p){if(p.removePostEffect(HUD)&&p.connection!=null&&!p.isRemoved())p.sendPostEffects();}
+    private void detach(Session s){
+        var p=s.player;clearHud(p);
+        if(!s.attached)return;
+        s.attached=false;
+        if(p.isRemoved()||game.server().getPlayerList().getPlayer(p.getUUID())!=p)return;
+        if(s.seat!=null){p.connection.send(passengers(s.seat.getId()));p.connection.send(new ClientboundRemoveEntitiesPacket(s.seat.getId()));}
+        p.connection.send(new ClientboundSetCameraPacket(p));
+        p.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE,p.gameMode.getGameModeForPlayer().getId()));
+        p.onUpdateAbilities();
+    }
     public static Vec3 viewpoint(ServerPlayer player){var g=SkyWars2.game();if(g==null||g.items().fpvDrone()==null)return player.position();
         var s=g.items().fpvDrone().controllers.get(player.getUUID());return s!=null&&s.attached?trackingPosition(player):player.position();}
     /** Prefetch around the drone before switching the visible camera to its published entity. */
@@ -135,7 +182,7 @@ public final class LbcFpvDrone {
             ||game.items().wands().timeStopped()||game.items().timeStop().frozen(d)||d.entityTags().contains("time_stopped");}
     private LbcSpellSource.Source source(Drone d){return new LbcSpellSource.Source(d.getUUID(),d.author,d.epoch,new LbcIndirectKills.Owner(d.author,d.order,true,false),Set.of(),true);}
     private void bind(Drone d){game.items().spellSources().bind(d,source(d));}
-    public void loaded(Entity e){if(!(e instanceof Drone d))return;if(!live(d)){d.discard();return;}bind(d);
+    public void loaded(Entity e){if(e instanceof ServerPlayer p){if(!controlling(p))clearHud(p);return;}if(!(e instanceof Drone d))return;if(!live(d)){d.discard();return;}bind(d);
         if(!actors.containsKey(d)){var visual=new Visual(d);visual.setPos(d.position());visual.setYRot(d.getYRot());visual.setXRot(d.getXRot());actors.put(d,visual);
             if(!((ServerLevel)d.level()).addFreshEntity(visual)){actors.remove(d);visual.discard();d.discard();}}
         game.items().timeStop().prepareFrozen(d);
@@ -154,15 +201,15 @@ public final class LbcFpvDrone {
             // while prefetching too, before waiting for the camera attachment condition.
             s.player.level().getChunkSource().move(s.player);s.player.setLastClientInput(Input.EMPTY);
             // Native tracker has published the actor before its ID becomes the client camera/seat.
-            if(!s.attached&&now-s.born>=2&&net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(s.drone).contains(s.player)){s.player.connection.send(passengers(s.drone.getId(),s.player.getId()));
-                s.player.connection.send(new ClientboundSetCameraPacket(s.drone));s.attached=true;}
+            if(!s.attached&&now-s.born>=2&&net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(s.drone).contains(s.player))attach(s);
         }
         for(var entry:List.copyOf(actors.entrySet())){var d=entry.getKey();var visual=entry.getValue();
             if(!live(d)){retire(d);continue;}var level=(ServerLevel)d.level();if(paused(d))continue;
             if(game.items().magic().mechanismSuppressedAt(level,d.position())){retire(d);continue;}
             var session=controllers.get(d.author);Vec3 direction=d.getLookAngle();
-            if(session!=null&&session.drone==d)direction=turn(direction,Vec3.directionFromRotation(session.pitch,session.yaw),TURN_DEGREES);
-            orientation(d,direction);var from=d.position();var to=from.add(direction);
+            if(session!=null&&session.drone==d){direction=turn(direction,Vec3.directionFromRotation(session.pitch,session.yaw),TURN_DEGREES);orientation(d,direction);}
+            // Repeated approximate-trig Euler conversion would drift an unpiloted heading.
+            var from=d.position();var to=from.add(direction);
             if(!Level.isInSpawnableBounds(BlockPos.containing(to))){retire(d);continue;}
             // Released drones retain the source's unloaded-chunk pause; no infinite chunk generation.
             if(!resident(level,to))continue;
@@ -171,7 +218,10 @@ public final class LbcFpvDrone {
             var hit=ProjectileUtil.getEntityHitResult(level,d,from,end,new AABB(from,end).inflate(1),
                     entity->entity!=visual&&entity instanceof LivingEntity&&game.items().wands().validRoleTarget(entity,false),0);
             d.setPos(hit==null?end:hit.getLocation());visual.setPos(d.position());visual.setYRot(d.getYRot());visual.setXRot(d.getXRot());
-            if(session!=null&&session.drone==d)session.player.level().getChunkSource().move(session.player);
+            if(session!=null&&session.drone==d){
+                if(session.attached){positionSeat(session);session.player.connection.send(ClientboundEntityPositionSyncPacket.of(session.seat));}
+                session.player.level().getChunkSource().move(session.player);
+            }
             LbcOverload.sound(level,d.position(),"minecraft:lbcsounds.drone_tick",net.minecraft.sounds.SoundSource.HOSTILE,.15f,1,35,.04f);
             if(hit!=null||wall!=null&&level.hasChunkAt(wall.getBlockPos()))explode(d);
         }
@@ -190,18 +240,18 @@ public final class LbcFpvDrone {
         try{buffer.writeVarInt(entity);buffer.writeVarIntArray(ids);return ClientboundSetPassengersPacket.STREAM_CODEC.decode(buffer);}finally{buffer.release();}}
     public void release(ServerPlayer p){var session=controllers.get(p.getUUID());if(session==null||session.player!=p)return;controllers.remove(p.getUUID());releaseBody(session);
         p.setLastClientInput(Input.EMPTY);p.setShiftKeyDown(false);
+        boolean attached=session.attached;detach(session);
         // Respawn replaces ServerPlayer. Never send an obsolete entity ID or re-add its chunk ticket.
         if(p.isRemoved()||game.server().getPlayerList().getPlayer(p.getUUID())!=p)return;
-        if(session.attached){p.connection.send(passengers(session.drone.getId()));p.connection.send(new ClientboundSetCameraPacket(p));
-            p.connection.teleport(p.getX(),p.getY(),p.getZ(),session.yaw,session.pitch);}
+        if(attached)p.connection.teleport(p.getX(),p.getY(),p.getZ(),session.yaw,session.pitch);
         p.level().getChunkSource().move(p);
     }
     private void bodyTicket(Session s){var next=new BodyChunk(s.player.level(),s.player.chunkPosition());if(next.equals(s.body))return;releaseBody(s);
         s.body=next;if(tickets.merge(next,1,Integer::sum)==1)next.level.getChunkSource().addTicketWithRadius(BODY_TICKET,next.pos,3);}
     private void releaseBody(Session s){var key=s.body;if(key==null)return;s.body=null;int count=tickets.getOrDefault(key,1)-1;
         if(count>0)tickets.put(key,count);else{tickets.remove(key);key.level.getChunkSource().removeTicketWithRadius(BODY_TICKET,key.pos,3);}}
-    public void forget(ServerPlayer p){var s=controllers.get(p.getUUID());if(s!=null)release(s.player);}
-    public void stop(){for(var s:List.copyOf(controllers.values()))release(s.player);for(var d:List.copyOf(actors.keySet()))retire(d);lastTick=Integer.MIN_VALUE;rewinding=false;}
+    public void forget(ServerPlayer p){var s=controllers.get(p.getUUID());if(s!=null)release(s.player);clearHud(p);}
+    public void stop(){for(var s:List.copyOf(controllers.values()))release(s.player);for(var d:List.copyOf(actors.keySet()))retire(d);for(var p:game.server().getPlayerList().getPlayers())clearHud(p);lastTick=Integer.MIN_VALUE;rewinding=false;}
     public int count(){return actors.size();}public long explosions(){return explosions;}public int ticketCount(){return tickets.size();}
     public List<Drone> snapshot(){return List.copyOf(actors.keySet());}
     Checkpoint checkpoint(MatchDamageSources sources){return new Checkpoint(sources);}
@@ -210,7 +260,7 @@ public final class LbcFpvDrone {
     private void prepareCheckpoint(){
         rewinding=true;var old=List.copyOf(controllers.values());controllers.clear();
         for(var key:List.copyOf(tickets.keySet()))key.level.getChunkSource().removeTicketWithRadius(BODY_TICKET,key.pos,3);tickets.clear();
-        for(var session:old)if(session.attached&&!session.player.isRemoved()&&game.server().getPlayerList().getPlayer(session.player.getUUID())==session.player){session.player.connection.send(passengers(session.drone.getId()));session.player.connection.send(new ClientboundSetCameraPacket(session.player));}
+        for(var session:old)detach(session);
     }
     final class Checkpoint {
         private record Actor(MatchDamageSources.Ref drone,MatchDamageSources.Ref visual,boolean retired) { }
@@ -251,7 +301,7 @@ public final class LbcFpvDrone {
             stable(true);if(!installed)throw new IllegalStateException("Install FPV state before client presentation");var pending=new LinkedHashSet<UUID>();
             for(var image:sessions){if(omittedControllers.contains(image.key))continue;var s=controllers.get(image.key);if(s==null||game.server().getPlayerList().getPlayer(image.key)!=s.player)throw new IllegalStateException("FPV client body changed during publication");
                 if(image.attached&&!s.attached){s.player.level().getChunkSource().move(s.player);if(s.player.isChangingDimension()||!s.player.connection.hasClientLoaded()||!net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(s.drone).contains(s.player)){pending.add(image.key);continue;}
-                    s.player.connection.send(passengers(s.drone.getId(),s.player.getId()));s.player.connection.send(new ClientboundSetCameraPacket(s.drone));s.attached=true;}
+                    attach(s);}
             }
             if(pending.isEmpty()){for(var image:sessions)if(!omittedControllers.contains(image.key))controllers.get(image.key).born=clock.time(image.born,game);lastTick=clock.last(game);rewinding=false;prepared=false;}
             return Set.copyOf(pending);

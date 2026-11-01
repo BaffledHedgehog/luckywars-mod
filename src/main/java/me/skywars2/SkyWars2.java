@@ -155,10 +155,11 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             player.connection.player = player;
             // При респауне объект игрока заменяется, а UUID остаётся: старый доступ камеры не переносится.
             FullInvisibility.cameraChanging(oldPlayer, null);
-            if (game != null) game.respawned(player);
+            if (game != null) { game.items().fpvDrone().forget(oldPlayer); game.items().fpvDrone().forget(player); game.respawned(player); }
             me.skywars2.game.SignedEffectVisuals.joined(player);
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damage) -> {
+            if(game!=null&&entity instanceof ServerPlayer player)game.items().fpvDrone().forget(player);
             // Fabric пропускает AFTER_DAMAGE при смертельном ударе; испытания должны учитывать и такие попадания.
             if (game != null) game.items().stand().onAcceptedDamage(entity, damage);
             if (game != null) game.items().academy().damaged(entity, damage);

@@ -275,6 +275,7 @@ public final class GameController {
         if(vanity.joined(player))return;
         items.witchClaims().reconcile(player);
         items.rifleZoom().joined(player);
+        items.fpvDrone().forget(player);
         players.get(player.getUUID()).username = player.getScoreboardName();
         if (host == null || server.getPlayerList().getPlayer(host) == null) host = player.getUUID();
         // Joining during a match never silently enrolls a new participant.

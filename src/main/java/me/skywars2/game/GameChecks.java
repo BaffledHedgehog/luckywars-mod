@@ -857,6 +857,7 @@ public final class GameChecks {
                                 case "hostile-electro" -> { HostileElectroChecks.run(game); return; }
                                 case "raw-raycast-spells" -> { RawRaycastSpellChecks.run(game); return; }
                                 case "fpv-drone" -> { FpvDroneChecks.start(game); return; }
+                                case "fpv-respawn" -> { DeveloperSoloChecks.runFpv(game); return; }
                                 case "reward-tools" -> { RewardToolChecks.start(game); return; }
                                 case "loose-rewards" -> { LooseRewardChecks.start(game); return; }
                                 case "canonical-loot" -> { LootDefinitionChecks.run(game); return; }
