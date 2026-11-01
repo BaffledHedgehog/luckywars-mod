@@ -196,9 +196,8 @@ public final class MatchEvents {
         }
         tickVexSummons(now);
         spawnReadyAirdrops();
-        if (config.vanillaSkills) {
-            for (ServerPlayer player : controller.alivePlayers()) tickSkill(player);
-        }
+        for (ServerPlayer player : controller.alivePlayers())
+            if (config.vanillaSkills || controller.debugPerks(player)) tickSkill(player);
     }
 
     /** Cancels every delayed/repeating action immediately. */
@@ -218,24 +217,35 @@ public final class MatchEvents {
 
     /** Gives only the player's selected vanilla kit; an unset/unsupported kit is empty. */
     public void giveKit(ServerPlayer player) {
-        if (!config.vanillaKits) return;
+        giveKit(player, false);
+    }
+    void giveDebugKit(ServerPlayer player) { if (controller.debugPerks(player)) giveKit(player, true); }
+    private void giveKit(ServerPlayer player, boolean debug) {
+        if (!config.vanillaKits && !debug) return;
         PlayerStore.Profile profile = players.get(player.getUUID());
         if (profile == null || profile.kit <= 0
                 || !OriginalGuiDesign.unlocked(player, "swrg", 3000, profile.kit - 1, profile, config)) return;
-        String target = player.getScoreboardName();
         for (String item : KIT_COMMANDS.getOrDefault(profile.kit, List.of())) {
-            issue("give " + target + " " + item, player);
+            try {
+                var input = new com.mojang.brigadier.StringReader(item);
+                var parsed = new net.minecraft.commands.arguments.item.ItemParser(player.registryAccess()).parse(input);
+                input.skipWhitespace();
+                int count = input.canRead() ? Integer.parseInt(input.getRemaining()) : 1;
+                player.getInventory().placeItemBackInInventory(parsed.createItemStack(count),net.minecraft.util.Prediction.SERVER_ONLY);
+            } catch (Exception error) {
+                me.skywars2.SkyWars2.LOGGER.error("Cannot give native vanilla kit {} item {}",profile.kit,item,error);
+            }
         }
-        if (profile.kit == 11) issue("experience add " + target + " 20 levels", player);
+        if (profile.kit == 11) player.giveExperienceLevels(20);
         if (profile.kit == 12 || profile.kit == 18 || profile.kit == 22) {
-            issue("loot give " + target + " loot swrg:game/kit/" + (profile.kit == 22 ? "halloween_pies" : profile.kit), player);
+            controller.lbc().grantTable(player,"swrg:game/kit/" + (profile.kit == 22 ? "halloween_pies" : profile.kit));
         }
     }
 
     /** Records the selected skill for a fresh spawn or respawn. */
     public void giveSkill(ServerPlayer player) {
         removePlayerSkill(player);
-        if (!config.vanillaSkills) {
+        if (!config.vanillaSkills && !controller.debugPerks(player)) {
             return;
         }
         int skill = selectedSkill(player);
@@ -258,7 +268,7 @@ public final class MatchEvents {
     }
 
     private boolean activeSkillOwner(ServerPlayer player) {
-        return running && config.vanillaSkills && controller.playing() && player.isAlive()
+        return running && (config.vanillaSkills || controller.debugPerks(player)) && controller.playing() && player.isAlive()
                 && !controller.isObserver(player) && !player.isSpectator() && controller.allowDamage(player)
                 && controller.server().getPlayerList().getPlayer(player.getUUID()) == player;
     }
@@ -391,7 +401,7 @@ public final class MatchEvents {
 
     /** Call from the server's successful living-entity damage callback. */
     public void onPlayerDamaged(ServerPlayer victim, DamageSource source, float damage) {
-        if (!running || !config.vanillaSkills || damage <= 0 || !controller.playing()
+        if (!running || !config.vanillaSkills && !controller.debugPerks(victim) || damage <= 0 || !controller.playing()
                 || controller.isObserver(victim)) return;
         int victimSkill = selectedSkill(victim);
         Entity sourceEntity = source.getEntity();
@@ -408,7 +418,7 @@ public final class MatchEvents {
 
     /** Call for the attacker from the same successful-damage callback. */
     public void onPlayerAttack(ServerPlayer attacker, ServerPlayer victim, DamageSource source, float damage) {
-        if (!running || !config.vanillaSkills || damage <= 0 || !controller.playing() || attacker == victim
+        if (!running || !config.vanillaSkills && !controller.debugPerks(attacker) || damage <= 0 || !controller.playing() || attacker == victim
                 || controller.isObserver(attacker) || controller.isObserver(victim)) return;
         int skill = selectedSkill(attacker);
         switch (skill) {

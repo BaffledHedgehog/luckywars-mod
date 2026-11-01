@@ -1,3 +1,28 @@
+## Native developer tools, gallery and map save - VERIFIED, QUEUED (1 November2026)
+
+[Contract, commands and exact evidence](agent_notes/DEVELOPER_TOOLS_2026_11_01.md).
+OP2 `/gallery` contains MOD content only, not vanilla novelty items. Native public
+loot/component identities and mod registry items drive refresh, fixed protected
+frames, persistent layout and central operator debug-perk ender chest. No RP edits.
+`/developer 1|0` persists global practice separately from player developer tags:
+one-player start, no natural completion, unlimited respawn lives. Native actual
+solo lethal death/replacement-body/AFTER_RESPAWN and20ticks are verified.
+`/mapsave tools` gives skywars2:dev_tools; native15marker menu handles imported
+map markers, numeric BW team selection, visualization/count/cages/save controls.
+`/mapsave pos 0|1`, saveskywars/savebedwars <name>: bounded non-air capture,
+native container/entity/team NBT, worker compression and atomic persistent local
+map directories. User: CENTER X/Z on load, KEEP original Y. Dynamic25-card map
+pages retain bundled maps and append literal names/spawn counts. BW export does
+not enable unfinished BW gameplay. No structure blocks/manual saving required.
+
+a5a8532a passes7 scoped groups incl ordinary LBC menu/loadout and OP settings.
+9781inputs/2457classes/7352resources exact;226author paths/31overrides unchanged.
+All children normal/exact player/config/extra level/ticket/OP restore/no locks,
+fixture25577 only. Test map files archived then only their exact dirs removed.
+Retained initial kit-delivery and regression-fixture failures are documented.
+Shared normal-stop installer queued; no main stop/restart, client-FPS/peakTPS
+claim or push. Receipt: build/verification/developer-tools-2026-11-01/main-install.json.
+
 ## Current vanilla content catalogs - VERIFIED, QUEUED (1 November2026)
 
 [Contract and qualification](agent_notes/CONTENT_REFRESH_2026_11_01.md).

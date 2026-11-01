@@ -51,6 +51,8 @@ public final class GameConfig {
     public boolean noBorders;
     public String mapId = "1";
     public boolean broken;
+    /** Operator-only practice mode; independent of normal match settings and player tags. */
+    public boolean developerMode;
     public int gamesPlayed;
 
     public static GameConfig load() {

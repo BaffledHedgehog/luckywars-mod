@@ -224,7 +224,7 @@ public final class LbcLoadouts {
     }
 
     private boolean allowed(ServerPlayer player, Entry entry) {
-        return config.ranked || entry.gate == null || hasUnlock(player, entry.gate);
+        return config.ranked || game.debugPerks(player) || entry.gate == null || hasUnlock(player, entry.gate);
     }
 
     private boolean hasUnlock(ServerPlayer player, String gate) {
@@ -235,7 +235,7 @@ public final class LbcLoadouts {
     }
 
     public boolean challengeRewardAvailable(ServerPlayer player) {
-        return config.ranked || hasUnlock(player, "lbc:challenges/no_knowledge");
+        return config.ranked || game.debugPerks(player) || hasUnlock(player, "lbc:challenges/no_knowledge");
     }
 
     /** В одной исходной ячейке два разных выбора: испытание до достижения, набор после него. */
@@ -336,13 +336,27 @@ public final class LbcLoadouts {
     }
 
     public void apply(ServerPlayer player, boolean grantTrinkets) {
+        apply(player, grantTrinkets, true);
+    }
+
+    /** Debug selection updates native bonuses immediately without reissuing an unrelated kit. */
+    void refreshDebugSelection(ServerPlayer player, Kind kind) {
+        if (!game.debugPerks(player)) return;
+        var profile = players.get(player.getUUID());
+        if (kind == Kind.KITS || kind == Kind.TRINKETS) {
+            var entry = byId(kind, kind == Kind.KITS ? profile.lbcKit : profile.lbcTrinket);
+            if (entry != null && allowed(player, entry)) grant(player, entry);
+        } else apply(player, false, false);
+    }
+
+    private void apply(ServerPlayer player, boolean grantTrinkets, boolean grantKits) {
         // При старте и возрождении сначала снимаются старые бонусы, затем выдаются комплект и выбранные улучшения.
         clear(player);
         var profile = players.get(player.getUUID());
         // Награды испытаний включаются отдельно от наборов и повторяются на новой жизни, как в source.
-        if (config.lbcChallenges && profile.lbcChallengeKit == 1 && challengeRewardAvailable(player))
+        if (grantKits && config.lbcChallenges && profile.lbcChallengeKit == 1 && challengeRewardAvailable(player))
             grantTable(player, "lbc:ported/academy_token");
-        if (config.lbcKits) {
+        if (grantKits && config.lbcKits) {
             Entry kit = byId(Kind.KITS, profile.lbcKit);
             if (kit != null && allowed(player, kit)) {
                 grant(player, kit);

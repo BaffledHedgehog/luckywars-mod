@@ -45,6 +45,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         // Здесь связываются жизненный цикл сервера, игровые события и команды; состояние матча хранит контроллер.
         CoreEntityMerging.load();
         MapManager.registerLoadingTicket();
+        DeveloperTools.registerItem();
         LbcHomes.registerTicket();
         LbcPortalDrops.registerTicket();
         LbcItems.register();
@@ -202,6 +203,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && game.developerTools().useItem(owner, hand)) return InteractionResult.SUCCESS;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTeleportGadgets.matches(player.getItemInHand(hand)))
                 return game.items().teleportGadgets().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcBouncingPoop.matches(player.getItemInHand(hand)))
@@ -348,6 +350,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if (game != null && player instanceof ServerPlayer owner && game.developerTools().useBlock(owner, hand, hit)) return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
@@ -366,6 +369,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if (game != null && player instanceof ServerPlayer owner && game.developerTools().useEntity(owner, entity)) return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             // Matching-mob spawn eggs reach vanilla offspring interaction before Item.useOn.
@@ -388,6 +392,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if (game != null && game.developerTools().gallery().protectEntity(entity)) return InteractionResult.FAIL;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if(game==null)return InteractionResult.PASS;
             if(game.items().actionsBlocked(player)||player instanceof ServerPlayer observer&&game.isObserver(observer))return InteractionResult.FAIL;
@@ -395,6 +400,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
+            DeveloperTools.registerCommands(dispatcher);
             me.skywars2.game.BulkPlayerCommand.register(dispatcher);
             var root = Commands.literal("sw").executes(ctx -> {
                 if (game != null) game.menus().open(ctx.getSource().getPlayerOrException()); return 1;

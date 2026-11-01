@@ -99,6 +99,7 @@ public final class MapManager {
     public static void registerLoadingTicket() {
         Registry.register(BuiltInRegistries.TICKET_TYPE,
                 Identifier.fromNamespaceAndPath("skywars2", "map_loading"), LOADING_TICKET);
+        MapAuthoring.registerTicket();
     }
 
     private final MinecraftServer server;
@@ -156,6 +157,66 @@ public final class MapManager {
     private final Path boundsJournal;
     private final Map<String, Manifest> manifests = new HashMap<>();
     private final List<MapInfo> catalog;
+    private final Map<String, Boolean> localModes = new HashMap<>();
+    private final Map<Identifier, Path> localTemplates = new HashMap<>();
+
+    Path localMapRoot() { return server.getWorldPath(LevelResource.ROOT).resolve("data/luckywars/maps"); }
+
+    /** IDs are never recycled over bundled (even unavailable) or published local entries. */
+    String nextLocalId(boolean bedwars) {
+        for (int slot = 1; slot < Integer.MAX_VALUE; slot++) {
+            String id = bedwars ? slot + "b" : Integer.toString(slot);
+            if (!manifests.containsKey(id) && !Files.exists(localMapRoot().resolve(id))) return id;
+        }
+        throw new IllegalStateException("No map IDs remain");
+    }
+
+    public boolean bedwars(String id) { return localModes.getOrDefault(id, id != null && id.matches("[0-9]+b")); }
+    public List<MapInfo> catalog(boolean bedwars) {
+        return catalog.stream().filter(info -> bedwars(info.id()) == bedwars).toList();
+    }
+
+    /** Called on the server thread only after the complete directory was atomically published. */
+    void registerLocalMap(JsonObject object, Path directory) {
+        String id = object.get("id").getAsString();
+        boolean bedwars = object.get("mode").getAsString().equals("bedwars");
+        if (!(bedwars ? id.matches("[1-9][0-9]*b") : id.matches("[1-9][0-9]*")))
+            throw new IllegalArgumentException("Invalid local map ID");
+        if (manifests.containsKey(id)) throw new IllegalArgumentException("Map ID is already occupied: " + id);
+        Manifest source = parseManifest(object);
+        if (source.placements.size() != 1) throw new IllegalArgumentException("Local map needs one native template");
+        String template = "luckywars:local/" + id;
+        if (!source.placements.getFirst().template.equals(template)) throw new IllegalArgumentException("Invalid local template");
+        if (object.has("teams")) for (var team : object.getAsJsonArray("teams")) {
+            var name = team.getAsString();
+            if (!name.isBlank() && name.length() <= 64 && server.getScoreboard().getPlayerTeam(name) == null)
+                server.getScoreboard().addPlayerTeam(name);
+        }
+        MapInfo info = new MapInfo(id, source.info.name(), source.info.playerCapacity(),
+                source.info.available(), source.info.reason(), true);
+        manifests.put(id, new Manifest(info, source.placements, List.of(), false));
+        localModes.put(id, bedwars);
+        localTemplates.put(identifier(template), directory.resolve("map.nbt"));
+        catalog.add(info);
+    }
+
+    private void readLocalCatalog() {
+        Path root = localMapRoot();
+        if (!Files.isDirectory(root)) return;
+        try (var directories = Files.list(root)) {
+            for (Path directory : directories.filter(Files::isDirectory).sorted().toList()) {
+                if (directory.getFileName().toString().startsWith(".")) continue;
+                try (var reader = Files.newBufferedReader(directory.resolve("manifest.json"), StandardCharsets.UTF_8)) {
+                    JsonObject manifest = JsonParser.parseReader(reader).getAsJsonObject();
+                    if (!manifest.get("id").getAsString().equals(directory.getFileName().toString()))
+                        throw new IllegalArgumentException("Directory/manifest ID mismatch");
+                    registerLocalMap(manifest, directory);
+                } catch (Exception error) {
+                    LOGGER.error("Could not read local map {}", directory, error);
+                }
+            }
+        } catch (IOException error) { LOGGER.error("Could not read local map catalog", error); }
+    }
     private final Queue<Work> work = new ArrayDeque<>();
     private final Queue<Entity> lobbyEntityCandidates = new ArrayDeque<>();
     private int lobbyEntityAuditTicks;
@@ -213,7 +274,8 @@ public final class MapManager {
         // replay its cleanup coordinates against an existing legacy overworld.
         this.boundsJournal = server.getWorldPath(LevelResource.ROOT)
                 .resolve("data/luckywars/overworld-bounds.json");
-        this.catalog = readCatalog();
+        this.catalog = new ArrayList<>(readCatalog());
+        readLocalCatalog();
         activeBoxes.addAll(readBoundsJournal());
         diagnoseChestLootTables();
     }
@@ -229,7 +291,7 @@ public final class MapManager {
     }
 
     public List<MapInfo> catalog() {
-        return catalog;
+        return List.copyOf(catalog);
     }
 
     public MapInfo info(String id) {
@@ -808,6 +870,9 @@ public final class MapManager {
     }
 
     private boolean keepLobbyEntity(Entity entity) {
+        if (entity instanceof net.minecraft.world.entity.decoration.ItemFrame && entity.entityTags().contains("skywars2.gallery")) return true;
+        if (entity.entityTags().contains("developer_map_marker") && (entity instanceof Marker
+                || entity instanceof net.minecraft.world.entity.npc.villager.Villager && entity.entityTags().contains("bedwars_shop"))) return true;
         // Подсветка редактора не является частью карты, даже если сохранена внутри её bounds.
         if (entity.entityTags().contains("marker")
                 && (entity instanceof net.minecraft.world.entity.item.FallingBlockEntity
@@ -936,6 +1001,7 @@ public final class MapManager {
         workTicks = completedSlices = 0;
         var manager = server.getStructureTemplateManager();
         var blocks = server.registryAccess().lookupOrThrow(Registries.BLOCK);
+        var localFiles = Map.copyOf(localTemplates);
         try {
             preparation = CompletableFuture.supplyAsync(() -> {
                 Map<Identifier, PreparedTemplate> prepared = new HashMap<>();
@@ -945,7 +1011,16 @@ public final class MapManager {
                     }
                     Identifier id = identifier(rawId);
                     try {
-                        StructureTemplate template = manager.get(id).orElse(null);
+                        StructureTemplate template;
+                        Path local = localFiles.get(id);
+                        if (local != null) {
+                            if (!Files.isRegularFile(local)) continue;
+                            try {
+                                template = new StructureTemplate();
+                                template.load(blocks, net.minecraft.nbt.NbtIo.readCompressed(local,
+                                        net.minecraft.nbt.NbtAccounter.create(256L * 1024 * 1024)));
+                            } catch (IOException error) { throw new CompletionException(error); }
+                        } else template = manager.get(id).orElse(null);
                         if (template != null) prepared.put(id, splitTemplate(template, blocks));
                     } finally {
                         // The full template is never needed on the server thread afterwards.
@@ -1721,13 +1796,18 @@ public final class MapManager {
     private record Manifest(MapInfo info, List<Placement> placements,
                             List<Placement> brokenPlacements, boolean brokenAvailable) { }
 
-    public record MapInfo(String id, String name, int playerCapacity, boolean available, String reason) {
+    public record MapInfo(String id, String name, int playerCapacity, boolean available, String reason, boolean custom) {
+        public MapInfo(String id, String name, int playerCapacity, boolean available, String reason) {
+            this(id, name, playerCapacity, available, reason, false);
+        }
         public Component displayName() {
+            if (custom) return Component.literal(name + " (" + playerCapacity + ")");
             Component guiName = OriginalGuiDesign.sourceMapName(id);
             return guiName != null ? guiName : Component.translatable("skywars2.map." + id + ".name");
         }
 
         public Component unavailableReason() {
+            if (custom) return Component.literal(reason);
             return Component.translatable("skywars2.map." + id + ".unavailable");
         }
     }

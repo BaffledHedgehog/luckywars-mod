@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 import java.net.URI;
@@ -66,13 +67,29 @@ public final class GameMenus {
     }
 
     public void open(ServerPlayer player, Page page) {
+        open(player, page, debugAccess(player));
+    }
+
+    /** Only the gallery chest grants this context; ordinary menus keep their normal gates. */
+    public void openDebug(ServerPlayer player) {
+        if (!GameController.operator(player)) return;
+        player.entityTags().add("skywars2.debug_perks");
+        open(player, Page.HUB, true);
+    }
+
+    public boolean debugAccess(ServerPlayer player) {
+        return GameController.operator(player) && SguiUtils.getCurrentGui(player) instanceof Menu menu && menu.debug;
+    }
+
+    private void open(ServerPlayer player, Page page, boolean debug) {
+        debug = debug && GameController.operator(player);
         if (controller.items().shooters().stunned(player)) return;
         boolean observer = controller.isObserver(player);
         if (observer && !observerPage(page)) {
             player.sendSystemMessage(c("lobby_only"));
             return;
         }
-        if (!controller.canUseMenus(player) && page != Page.STATS) {
+        if (!debug && !controller.canUseMenus(player) && page != Page.STATS) {
             player.sendSystemMessage(c("lobby_only"));
             return;
         }
@@ -81,6 +98,7 @@ public final class GameMenus {
         if (observer && controller.spectators().attached(player)) controller.spectators().detach(player);
         PlayerStore.Profile profile = players.get(player.getUUID(), player.getName().getString());
         Menu gui = new Menu(player, page);
+        gui.debug = debug;
         gui.setTitle(Component.translatable("container.enderchest"));
         gui.setLockPlayerInventory(true);
         switch (page) {
@@ -101,6 +119,7 @@ public final class GameMenus {
         // so rapid clicks and client close packets cannot target a half-open replacement.
         if (SguiUtils.getCurrentGui(player) instanceof Menu active) {
             active.page = page;
+            active.debug = debug;
             for (int slot = 0; slot < 27; slot++) {
                 GuiElement element = gui.getGuiElement(slot);
                 if (element == null) active.clearSlot(slot);
@@ -202,78 +221,41 @@ public final class GameMenus {
     }
 
     private void renderMaps(Menu gui, ServerPlayer player) {
-        // Как в datapack: отдельные цепочки страниц SkyWars и BedWars, без смешивания карт.
         boolean bedwars = config.gameMode == 3 || config.gameMode == 4;
-        String[] sourcePages = bedwars ? BEDWARS_MAP_PAGES : SKYWARS_MAP_PAGES;
-        int pages = sourcePages.length;
+        var entries = maps.catalog(bedwars);
+        int pages = Math.max(bedwars ? 1 : 3, entries.stream().mapToInt(map -> mapPage(map.id()) + 1).max().orElse(1));
         int page = Math.max(0, Math.min(mapPages.getOrDefault(player.getUUID(), 0), pages - 1));
         mapPages.put(player.getUUID(), page);
-        String sourcePage = sourcePages[page];
-        for (MapManager.MapInfo map : maps.catalog()) {
-            if (!mapSourcePage(map.id()).equals(sourcePage)) continue;
-            boolean selected = map.id().equals(config.mapId);
-            OriginalGuiDesign.SourceMapButton source = OriginalGuiDesign.sourceMapButton(player, map.id(), selected);
-            Runnable selectMap =
-                    source != null
-                            ? () -> {
-                                MapManager.MapInfo current = maps.info(map.id());
-                                if (current == null || !current.available()) {
-                                    player.sendSystemMessage(current == null ? t("maps.now_unavailable") : current.unavailableReason());
-                                    return;
-                                }
-                                if (current.playerCapacity() > 0
-                                        && server.getPlayerList().getPlayers().size()
-                                                > current.playerCapacity()) {
-                                    player.sendSystemMessage(t("maps.capacity"));
-                                    return;
-                                }
-                                if (controller.selectMap(player, map.id(), config.broken)) {
-                                    open(player, Page.MAPS);
-                                }
-                            }
-                            : null;
-            if (source != null) {
-                ItemStack stack = source.stack();
-                GuiElementBuilder builder = new GuiElementBuilder(stack);
-                if (source.selected()) {
-                    List<Component> lore = new java.util.ArrayList<>();
-                    lore.add(Component.translatable("swrg.gui.select")
-                            .withStyle(style -> style.withColor(ChatFormatting.GREEN).withItalic(false)));
-                    var existingLore = stack.get(DataComponents.LORE);
-                    if (existingLore != null) lore.addAll(existingLore.lines());
-                    builder.setLoreRaw(lore);
+        for (var map : entries) {
+            if (mapPage(map.id()) != page) continue;
+            var source = OriginalGuiDesign.sourceMapButton(player, map.id(), map.id().equals(config.mapId));
+            int logical = (mapNumber(map.id()) - 1) % 25;
+            int slot = source == null ? (logical < 18 ? logical : logical + 1) : source.slot();
+            ItemStack stack = source == null ? new ItemStack(Items.MAP) : source.stack();
+            if (source == null) stack.set(DataComponents.CUSTOM_NAME, map.displayName());
+            original(gui, player, slot, stack, null, List.of(), () -> {
+                if (bedwars != (config.gameMode == 3 || config.gameMode == 4)) { open(player, Page.MAPS); return; }
+                var current = maps.info(map.id());
+                if (current == null || !current.available()) {
+                    player.sendSystemMessage(current == null ? t("maps.now_unavailable") : current.unavailableReason()); return;
                 }
-                builder.setCallback((index, type, action, menu) -> {
-                    if (!controller.canUseMenus(player)) {
-                        player.sendSystemMessage(c("lobby_only"));
-                        return;
-                    }
-                    // Обновляем даже недоступную карту, если другой игрок сменил общий режим.
-                    if (bedwars != (config.gameMode == 3 || config.gameMode == 4)) {
-                        open(player, Page.MAPS);
-                        return;
-                    }
-                    if (selectMap != null) {
-                        playOriginalClick(player);
-                        selectMap.run();
-                    }
-                });
-                gui.setSlot(source.slot(), builder.build());
-            }
+                if (current.playerCapacity() > 0 && server.getPlayerList().getPlayers().size() > current.playerCapacity()) {
+                    player.sendSystemMessage(t("maps.capacity")); return;
+                }
+                if (controller.selectMap(player, map.id(), config.broken)) open(player, Page.MAPS);
+            }, map.id().equals(config.mapId));
         }
-        originalTable(gui, player, 18, "swrg:gui/back", null, List.of(),
-                () -> {
-                    if (page > 0) {
-                        mapPages.put(player.getUUID(), page - 1);
-                        open(player, Page.MAPS);
-                    } else open(player, Page.HUB);
-                });
-        if (page + 1 < pages)
-            originalTable(gui, player, 26, "swrg:gui/next", null, List.of(), () -> {
-                mapPages.put(player.getUUID(), page + 1);
-                open(player, Page.MAPS);
-            });
+        originalTable(gui, player, 18, "swrg:gui/back", null, List.of(), () -> {
+            if (page > 0) { mapPages.put(player.getUUID(), page - 1); open(player, Page.MAPS); }
+            else open(player, Page.HUB);
+        });
+        if (page + 1 < pages) originalTable(gui, player, 26, "swrg:gui/next", null, List.of(), () -> {
+            mapPages.put(player.getUUID(), page + 1); open(player, Page.MAPS);
+        });
     }
+
+    static int mapNumber(String id) { return Integer.parseInt(id.endsWith("b") ? id.substring(0, id.length() - 1) : id); }
+    static int mapPage(String id) { return (mapNumber(id) - 1) / 25; }
 
     private void renderKits(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
         for (int id = 1; id <= 24; id++) {
@@ -285,6 +267,7 @@ public final class GameMenus {
                 if (!OriginalGuiDesign.unlocked(player, "swrg", 3000, sourceSlot, p, config)) return;
                 p.kit = kit;
                 players.save();
+                if (debugAccess(player) && controller.playing()) controller.events().giveDebugKit(player);
                 open(player, Page.VANILLA_KITS);
             }, p.kit == kit && OriginalGuiDesign.unlocked(player, "swrg", 3000, sourceSlot, p, config));
         }
@@ -305,6 +288,7 @@ public final class GameMenus {
                 if (!OriginalGuiDesign.unlocked(player, "swrg", 4000, sourceSlot, p, config)) return;
                 p.skill = skill;
                 players.save();
+                if (debugAccess(player) && controller.playing()) controller.events().giveSkill(player);
                 open(player, Page.VANILLA_SKILLS);
             }, p.skill == skill && OriginalGuiDesign.unlocked(player, "swrg", 4000, sourceSlot, p, config));
         }
@@ -401,7 +385,10 @@ public final class GameMenus {
                     ? () -> { if (controller.lbc().selectChallenge(player, sourceSlot)) open(player, page); } : null;
             if (loadoutKind != null) {
                 click = () -> {
-                    if (controller.lbc().select(player, loadoutKind, sourcePage, sourceSlot)) open(player, page);
+                    if (controller.lbc().select(player, loadoutKind, sourcePage, sourceSlot)) {
+                        if (debugAccess(player) && controller.playing()) controller.lbc().refreshDebugSelection(player, loadoutKind);
+                        open(player, page);
+                    }
                 };
             }
             boolean selected = page == Page.LBC_CHALLENGE && slot == 0
@@ -443,6 +430,8 @@ public final class GameMenus {
                     }
                     players.save();
                     controller.lbc().refreshArtifactView(player);
+                    if (debugAccess(player) && controller.playing() && (page == Page.LBC_SKILLS || page == Page.LBC_LEVELUPS))
+                        controller.lbc().refreshDebugSelection(player, page == Page.LBC_SKILLS ? LbcLoadouts.Kind.SKILLS : LbcLoadouts.Kind.LEVELUPS);
                     open(player, page);
                 });
         if (index + 1 < sourcePages.length)
@@ -637,6 +626,7 @@ public final class GameMenus {
 
     private static final class Menu extends SimpleGui {
         private Page page;
+        private boolean debug;
 
         private Menu(ServerPlayer player, Page page) {
             super(MenuType.GENERIC_9x3, player, false);

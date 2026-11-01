@@ -1245,6 +1245,12 @@ public final class GameChecks {
                                 case "lifestealer" -> checkLifestealer(game);
                                 case "friendly-projectiles" -> checkFriendlyProjectiles(game);
                                 case "content-catalog" -> { ContentCatalogChecks.run(game); return; }
+                                case "content-gallery" -> { ContentGalleryChecks.run(game); break; }
+                                case "developer-tools" -> { DeveloperToolsChecks.run(game); return; }
+                                case "developer-mode" -> { DeveloperModeChecks.run(game); return; }
+                                case "developer-solo-menu" -> { DeveloperSoloChecks.prepare(game); return; }
+                                case "developer-solo" -> { DeveloperSoloChecks.run(game); return; }
+                                case "map-authoring" -> { MapAuthoringChecks.run(game); return; }
                                 case "mobgun-catalog" -> { MobgunCatalogChecks.run(game); return; }
                                 case "mobgun-menu" -> checkMobgunMenu(game);
                                 case "mobgun" -> checkMobgun(game);
@@ -1455,6 +1461,9 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            DeveloperModeChecks.tick(game);
+            DeveloperSoloChecks.tick(game);
+            MapAuthoringChecks.tick(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
             GaaraPotChecks.tick(game);BouncingPoopChecks.tick(game);ClownKitChecks.tick(game);
             DeusWhipChecks.tick(game);RayQueueFairnessChecks.tick(game);PhdChecks.tick(game);

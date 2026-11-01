@@ -144,6 +144,7 @@ public final class GameController {
     private final GameLuckyModifiers luckyModifiers;
     private final Spectators spectators;
     private final AttributeHud attributeHud;
+    private final DeveloperTools developerTools;
     private final ZoneBarrier zoneBarrier;
     private final LbcTeamColors teamColors;
     private final ManualVisualTracking visualTracking=new ManualVisualTracking(this);
@@ -186,6 +187,7 @@ public final class GameController {
         this.lbc.syncRanked();
         this.spectators = new Spectators(this);
         this.attributeHud = new AttributeHud(this);
+        this.developerTools = new DeveloperTools(this);
     }
 
     public void menus(GameMenus menus) { this.menus = menus; }
@@ -195,7 +197,26 @@ public final class GameController {
     public UUID host() { return host; }
     public boolean inLobby() { return stage == Stage.LOBBY && lobbyReady; }
     public boolean canUseMenus() { return !stopped && (inLobby() || stage == Stage.LOADING); }
-    public boolean canUseMenus(ServerPlayer player) { return canUseMenus() || !stopped && isObserver(player); }
+    public boolean canUseMenus(ServerPlayer player) { return canUseMenus() || !stopped && (isObserver(player)
+            || menus != null && menus.debugAccess(player)); }
+    public static boolean operator(ServerPlayer player) {
+        return net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS)
+                .test(player.createCommandSourceStack());
+    }
+    public boolean debugPerks(ServerPlayer player) { return operator(player) && player.entityTags().contains("skywars2.debug_perks"); }
+    public DeveloperTools developerTools() { return developerTools; }
+    public boolean developerMode() { return config.developerMode; }
+    public void developerMode(ServerPlayer player, boolean enabled) {
+        if (!operator(player)) return;
+        config.developerMode = enabled; config.save(); lastAliveTicks = 5;
+        if (enabled) {
+            player.entityTags().add("developer");
+            if (playing() && isObserver(player)) returnFromGameModeCommand(player, GameType.CREATIVE);
+            player.setGameMode(GameType.CREATIVE);
+            for (var member : participants.values()) if (!member.disconnected) member.lives = Math.max(1, member.lives);
+        } else player.entityTags().remove("developer");
+        player.sendSystemMessage(Component.literal("Developer mode: " + (enabled ? "ON" : "OFF")));
+    }
     public boolean isDeveloper(ServerPlayer player) { return player.entityTags().contains("developer"); }
     public boolean isObserver(ServerPlayer player) { return spectators.contains(player); }
     public Spectators spectators() { return spectators; }
@@ -316,10 +337,10 @@ public final class GameController {
 
     /** Separate unsupported modes from map preparation, so their rejection is actionable. */
     private Component startFailure(ServerPlayer player) {
-        if (stopped || !inLobby() || maps.busy() && !preparingSelection) return text("game.start_unavailable");
+        if (stopped || !inLobby() || developerTools.authoring().busy() || maps.busy() && !preparingSelection) return text("game.start_unavailable");
         if (!mayControlMatch(player)) return text("game.admin_only");
         if (config.gameMode != 1) return Component.translatable("skywars2.game.mode_unavailable", config.gameMode);
-        if (online().size() < 2) return text("game.start_requirements");
+        if (online().size() < (developerMode() ? 1 : 2)) return text("game.start_requirements");
         return null;
     }
 
@@ -329,7 +350,7 @@ public final class GameController {
     }
 
     private boolean selectMapAuthorized(ServerPlayer player, String id, boolean broken) {
-        if (!inLobby()) return false;
+        if (!inLobby() || developerTools.authoring().busy()) return false;
         MapManager.MapInfo map = maps.info(id);
         if (map == null || !map.available()) {
             tell(player, map == null ? text("game.map_unknown", id) : map.unavailableReason()); return false;
@@ -350,7 +371,7 @@ public final class GameController {
     }
 
     private void prepareSelectedMap() {
-        if (stopped || !inLobby() || maps.busy()) return;
+        if (stopped || !inLobby() || maps.busy() || developerTools.authoring().busy()) return;
         String id = config.mapId;
         boolean broken = config.broken;
         long version = selectionVersion;
@@ -498,7 +519,7 @@ public final class GameController {
                 mapFailure = result.message(); announce(text("game.load_failed", result.message())); restoreLobby(); return;
             }
             List<ServerPlayer> ready = enrolled.stream().map(id -> server.getPlayerList().getPlayer(id)).filter(p -> p != null).toList();
-            if (ready.size() < 2 || maps.spawns().size() < ready.size()) {
+            if (ready.size() < (developerMode() ? 1 : 2) || maps.spawns().size() < ready.size()) {
                 announce(text("game.cancelled_players")); restoreLobby(); return;
             }
             participants.clear();
@@ -551,6 +572,7 @@ public final class GameController {
         lifetimeTicks++;
         if (inventoryLocked()) for (ServerPlayer player : online()) enforceLobbyInventory(player);
         maps.tick();
+        developerTools.tick();
         spectators.tick();
         attributeHud.tick();
         lbc.tick();
@@ -618,7 +640,7 @@ public final class GameController {
                     && !e.getValue().disconnected && server.getPlayerList().getPlayer(e.getKey()) != null
                     && !isObserver(server.getPlayerList().getPlayer(e.getKey()))).count();
             boolean waiting = participants.values().stream().anyMatch(p -> p.lives > 0 && p.awaitingRespawn && !p.disconnected);
-            if (eligible >= 2 || waiting) lastAliveTicks = 5;
+            if (developerMode() || eligible >= 2 || waiting) lastAliveTicks = 5;
             else if (--lastAliveTicks <= 0) finish();
         } else if (stage == Stage.ENDING) {
             if (victoryWinner != null) {
@@ -632,7 +654,7 @@ public final class GameController {
 
     private void startPlaying() {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
-        if (alivePlayers().size() < 2) { restoreLobby(); return; }
+        if (alivePlayers().size() < (developerMode() ? 1 : 2)) { restoreLobby(); return; }
         LbcPhdCrafting.matchStarted(this);
         luckyModifiers.startMatch();
         maps.cages(false); maps.captureRespawnIslands(); maps.fillChests(false);
@@ -676,7 +698,8 @@ public final class GameController {
         events.removePlayerSkill(player);
         items.stand().died(player);
         items.mobgun().forget(player);
-        if(!items.indolenceFingers().prepareDeath(player))p.lives--;
+        if (developerMode()) p.lives = Math.max(1, p.lives);
+        else if(!items.indolenceFingers().prepareDeath(player))p.lives--;
         p.awaitingRespawn = true;
         attributeHud.clear(player);
         items.resetRocket(player);
@@ -685,9 +708,9 @@ public final class GameController {
         items.indirectKills().clear(player);
         items.clear(player);
         lbc.clear(player);
-        players.get(player.getUUID()).deaths++;
+        if (!developerMode()) players.get(player.getUUID()).deaths++;
         Entity attacker = damage.getEntity()!=null ? damage.getEntity() : player.getKillCredit();
-        if (attacker instanceof ServerPlayer killer && !killer.getUUID().equals(player.getUUID())
+        if (!developerMode() && attacker instanceof ServerPlayer killer && !killer.getUUID().equals(player.getUUID())
                 && participants.containsKey(killer.getUUID())) {
             players.get(killer.getUUID()).kills++;
             players.get(killer.getUUID()).coins += 50;
@@ -775,6 +798,7 @@ public final class GameController {
         for(var member:participants.values())if(member.spawn!=null)member.spawn=MapManager.rotatedSpawn(member.spawn,origin);
     }
     public void stopMatch() {
+        if (developerTools.authoring().busy()) { announce(text("game.wait_loading")); return; }
         if (maps.busy()) { announce(text("game.wait_loading")); return; }
         announce(text("game.cancelled")); restoreLobby();
     }
@@ -1088,6 +1112,7 @@ public final class GameController {
     }
 
     public void shutdown() {
+        developerTools.close();
         vanity.stop();
         visualTracking.stop();
         teamColors.stop();

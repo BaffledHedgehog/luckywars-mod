@@ -179,6 +179,8 @@ final class OriginalGuiDesign {
     static boolean unlocked(ServerPlayer player, String namespace, int page, int slot,
                             PlayerStore.Profile profile, GameConfig config) {
         design();
+        if (me.skywars2.SkyWars2.game() != null && me.skywars2.SkyWars2.game().debugPerks(player)
+                && perkPage(namespace, Integer.toString(page))) return true;
         if (config.ranked && perkPage(namespace, Integer.toString(page))) return true;
         var entry = sourceSlots.get(namespace + ":" + page + ":" + slot);
         if (entry == null) return false;
@@ -213,7 +215,8 @@ final class OriginalGuiDesign {
 
     private static ItemStack lockedButton(ServerPlayer player, String namespace, String page, JsonObject entry,
                                           PlayerStore.Profile profile, GameConfig config) {
-        if (!entry.has("lockedVariants") || config.ranked && perkPage(namespace, page)) return null;
+        if (!entry.has("lockedVariants") || (config.ranked || me.skywars2.SkyWars2.game() != null
+                && me.skywars2.SkyWars2.game().debugPerks(player)) && perkPage(namespace, page)) return null;
         ItemStack result = null;
         for (var element : entry.getAsJsonArray("lockedVariants")) {
             var variant = element.getAsJsonObject();
