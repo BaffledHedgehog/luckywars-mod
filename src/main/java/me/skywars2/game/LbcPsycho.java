@@ -15,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -65,6 +66,14 @@ public final class LbcPsycho {
     private final Set<Charge> charges=new LinkedHashSet<>();
     private final Map<LivingEntity,Affliction> effects=new IdentityHashMap<>();
     private final Map<ServerPlayer,Integer> rays=new IdentityHashMap<>();
+    // Existing RP clip: 4.036333 seconds at pitch 2, renewed independently of the caster's counter.
+    static final Identifier BEAM_SOUND=Identifier.parse("minecraft:lbcsounds.scream");
+    static final int BEAM_SOUND_TICKS=40;
+    private final Map<ServerPlayer,BeamAudio> beamAudio=new IdentityHashMap<>();
+    private static final class BeamAudio {
+        final Map<ServerPlayer,Integer> sources=new IdentityHashMap<>();
+        int started;
+    }
     private final Set<PsychoVex> vexes=new LinkedHashSet<>();
     private int ticks;
 
@@ -336,10 +345,12 @@ public final class LbcPsycho {
     void unloaded(Entity entity) {
         if(entity instanceof Charge charge) { charges.remove(charge); if(!charge.isRemoved()) charge.discard(); }
         if(entity instanceof LivingEntity living) removeEffect(living);
+        if(entity instanceof ServerPlayer player) clearBeamAudio(player);
         if(entity instanceof PsychoVex vex) vexes.remove(vex);
     }
     public void tick() {
         ticks++; tickCharges(); tickEffects(); tickRays();
+        tickBeamAudio();
         for(var vex:List.copyOf(vexes)) if(vex.isRemoved() || !game.items().currentEpoch(vex)) {
             vexes.remove(vex); vex.discard();
         }
@@ -546,13 +557,55 @@ public final class LbcPsycho {
             afflict(target,owner,1,1,0,1); game.items().screamer(target,owner);
             var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),owner);
             target.hurtServer(owner.level(),source,.01f);
-            if(remaining%40==39) LbcOverload.sound(owner,target.position(),"minecraft:lbcsounds.scream",3,2,10);
+            if(target instanceof ServerPlayer player) beamSound(owner,player);
         }
         for(double d=0;d<=length;d+=.33) {
             var p=from.add(direction.scale(d));
             owner.level().sendParticles(RAY_DUST,true,false,p.x,p.y,p.z,1,1,1,1,0);
         }
-        if(remaining%40==39) LbcOverload.sound(owner,"minecraft:lbcsounds.scream",.5f,2,30);
+    }
+    /** Multiple overlapping beams renew one target-local voice; caster and bystanders receive none. */
+    private void beamSound(ServerPlayer owner,ServerPlayer target) {
+        var audio=beamAudio.computeIfAbsent(target,key->new BeamAudio());
+        boolean start=audio.sources.isEmpty() || ticks-audio.started>=BEAM_SOUND_TICKS;
+        audio.sources.put(owner,ticks);
+        if(start) {
+            audio.started=ticks;
+            // Vanilla has no packet loop/seek control. At pitch 2 this existing clip lasts 40.363 ticks;
+            // forty-tick renewal leaves ~18 ms overlap, with unavoidable network/TPS timing variation.
+            SoundNormalization.sendExempt(target,new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(BEAM_SOUND)),
+                    SoundSource.MASTER,target,3,2,target.getRandom().nextLong()));
+        }
+    }
+    private void tickBeamAudio() {
+        for(var entry:List.copyOf(beamAudio.entrySet())) {
+            var target=entry.getKey(); var audio=entry.getValue();
+            // One tick of grace also covers library beams emitted after this service's tick.
+            audio.sources.entrySet().removeIf(source->ticks-source.getValue()>1 || !valid(source.getKey())
+                    || source.getKey().level()!=target.level() || paused(source.getKey())
+                    || game.items().polymorph().masked(source.getKey()));
+            if(audio.sources.isEmpty() || !target.isAlive() || target.isRemoved() || !valid(target)) stopBeamAudio(target);
+        }
+    }
+    /** End-of-server-frame cleanup also runs while the gameplay scheduler is frozen. */
+    public void audioMaintenance() {
+        if(game.server().tickRateManager().isFrozen() || !game.playing())silenceBeamAudio();
+        else tickBeamAudio();
+    }
+    /** Retire future renewals without touching ray clocks; the last short clip finishes naturally. */
+    public void silenceBeamAudio() {
+        for(var target:List.copyOf(beamAudio.keySet()))stopBeamAudio(target);
+    }
+    private void stopBeamAudio(ServerPlayer target) {
+        // Vanilla cannot stop an individual instance; stopping this event would kill unrelated screams.
+        beamAudio.remove(target);
+    }
+    private void clearBeamAudio(ServerPlayer player) {
+        stopBeamAudio(player);
+        for(var entry:List.copyOf(beamAudio.entrySet())) {
+            entry.getValue().sources.remove(player);
+            if(entry.getValue().sources.isEmpty())stopBeamAudio(entry.getKey());
+        }
     }
     private void privateSound(LivingEntity target,String id,float volume,float pitch,Vec3 position) {
         if(target instanceof ServerPlayer player) player.connection.send(new ClientboundSoundPacket(
@@ -561,7 +614,7 @@ public final class LbcPsycho {
     }
     private void remove(Charge charge) { charges.remove(charge); charge.discard(); }
     public void clearEffects(LivingEntity entity){if(entity instanceof ServerPlayer player)clearEffects(player);else removeEffect(entity);}
-    public void clearEffects(ServerPlayer owner) { removeEffect(owner); rays.remove(owner); game.items().mana().score(owner,"screamray").set(0); }
+    public void clearEffects(ServerPlayer owner) { removeEffect(owner); rays.remove(owner); clearBeamAudio(owner); game.items().mana().score(owner,"screamray").set(0); }
     public void forget(ServerPlayer owner) {
         clearEffects(owner);
         for(var entry:List.copyOf(effects.entrySet())) if(entry.getValue().owner==owner){
@@ -573,6 +626,7 @@ public final class LbcPsycho {
         for(var vex:List.copyOf(vexes)) if(vex.caster==owner) { vexes.remove(vex); vex.discard(); }
     }
     public void stop() {
+        silenceBeamAudio();
         for(var charge:List.copyOf(charges)) remove(charge);
         for(var vex:List.copyOf(vexes)) vex.discard(); vexes.clear();
         for(var entity:List.copyOf(effects.keySet())) removeEffect(entity);

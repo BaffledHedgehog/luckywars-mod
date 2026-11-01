@@ -1,3 +1,27 @@
+## Server-only custom sound normalization - VERIFIED, INSTALLED (1 November2026)
+
+[Policy, limitations, measurements and native evidence](agent_notes/SOUND_NORMALIZATION_2026_11_01.md).
+User rejected ANY RP changes.112 measured custom events;83 caps below1, no boost
+or extra reduction of already quiet calls. Metal Pipe globally exempt; Psycho
+beam exemption is context-only. Original audiences retained at outgoing send
+boundary, including direct/bundle/entity paths. Mono P>1 projects virtual origin
+per viewer like playsound minVolume; preserves INITIAL bearing/attenuation only.
+Long moving listener/entity curves remain approximate. Stereo retains origin.
+No seek, live instance gain or sample-perfect seamless loop claim on vanilla.
+Psycho uses original scream only at hit target, one40-active-tick cadence shared
+by overlapping casters, independent of recast counter; lease cleanup avoids broad
+StopSound. Last clip ends naturally ~2.018s. Glove rocket now native radius16, not
+unbounded all-player stereo send. Actual source RP and template untouched.
+
+5b79a46f passes all7 scoped groups in7 actual mode1 matches,87.38s.9762inputs/
+2427classes/7342resources exact;226author paths/31overrides and112OGG+sounds.json
+exact. Measured caps reproduce byte-identically. Child normal/exact snapshots/
+extra level+ticket restored/no locks, fixture25577 only. Retained first failure
+is documented. Qualification under build/verification/sound-normalization-2026-11-01/.
+Main now5b79a46f, shared normal-stop installer retained b1a21c55 rollback,
+restarted:false. No main stop/restart or push. Full kit6/LuckyWars still gated;
+TMT stays LAST, ITEM atlas only. Author paths/empty Swapper translations protected.
+
 ## Evolution and three gadgets - NATIVE VERIFIED, INSTALLED (1 November2026)
 
 [Contract and native evidence](agent_notes/FINITE_UTILITIES_PORT_2026_11_01.md).

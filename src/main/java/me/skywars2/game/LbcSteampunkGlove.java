@@ -1,12 +1,8 @@
 package me.skywars2.game;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
@@ -15,7 +11,6 @@ import net.minecraft.world.phys.Vec3;
 public final class LbcSteampunkGlove {
     static final Identifier SPEED=Identifier.parse("minecraft:c1cda724-0ea2-460a-98b8-9631eafd2515");
     static final Identifier DAMAGE=Identifier.parse("minecraft:585f98b8-a8b8-4e4c-838a-f2e124831040");
-    private static final Holder<SoundEvent> ROCKET=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse("minecraft:lbcsounds.rocket")));
     private final GameController game;
     public LbcSteampunkGlove(GameController game){this.game=game;}
     public static boolean selected(ServerPlayer player){var stack=player.getMainHandItem();return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("steampunk_sword",0)==1;}
@@ -53,7 +48,7 @@ public final class LbcSteampunkGlove {
                     Vec3 at=p.position().add(Vec3.directionFromRotation(0,p.getYRot()-90).scale(.4))
                             .add(Vec3.directionFromRotation(p.getXRot()-90,p.getYRot()));
                     p.level().sendParticles(ParticleTypes.CLOUD,at.x,at.y,at.z,1,.1,.1,.1,.2);
-                    for(var viewer:game.server().getPlayerList().getPlayers())viewer.connection.send(new ClientboundSoundPacket(ROCKET,SoundSource.MASTER,p.getX(),p.getY(),p.getZ(),.6f,.8f,p.getRandom().nextLong()));
+                    LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.rocket",.6f,.8f,0);
                 }
         }
         if(game.server().getTickCount()%20==0)secondPlayer(p,elapsed);

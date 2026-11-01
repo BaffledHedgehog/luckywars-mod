@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'skywars2/sound_levels.json'
     include 'data/lbc/loot_table/evolution_sword.json', 'data/lbc/loot_table/ported/evolution_sword.json'
     include 'data/lbc/loot_table/island_teleporter.json', 'data/lbc/loot_table/swapper.json', 'data/lbc/loot_table/lucky_grenades.json'
     include 'data/lbc/loot_table/ported/island_teleporter.json', 'data/lbc/loot_table/ported/swapper.json', 'data/lbc/loot_table/ported/lucky_grenade.json'

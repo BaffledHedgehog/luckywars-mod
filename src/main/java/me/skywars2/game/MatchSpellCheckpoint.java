@@ -72,6 +72,7 @@ final class MatchSpellCheckpoint {
         policy.run();control.run();summon.run();
         // User permits cancellation of short pending operations at rewind. No stale charge may commit.
         game.items().teleportGadgets().stop();
+        game.items().psycho().silenceBeamAudio();
         // Frozen canonical body replay suppresses ENTITY_LOAD. Rebuild this derived
         // index only after every shared policy/body link has installed successfully.
         game.items().familyDrops().reindexAfterRestore();
