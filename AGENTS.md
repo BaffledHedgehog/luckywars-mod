@@ -16,8 +16,10 @@ a9203a08 and5716982d cover eight other scoped groups,10 total. Retained failed f
 are explained, not qualified wholesale.9738inputs/2392classes/7324resources;
 224authorpaths/31overrides exact. Children normal/exact snapshots/extra level+ticket
 restore/no locks, temporary Tiny probe removed, fixture25577 only. Full PhD gate clear.
-Qualification: build/verification/phd-kit-2026-11-01/qualification.json. Main remains
-057b67aa until shared normal-stop installer receipt; never stop/restart main or push.
+Qualification: build/verification/phd-kit-2026-11-01/qualification.json. Main is now
+e67403fb; shared normal-stop installer retained057b67aa rollback, restarted:false.
+Receipt: main-install.json in that directory; implementation commit2b1f2604.
+Never stop/restart main or push.
 
 ## Pursuit kits and shared ray queue ? NATIVE VERIFIED, QUALIFIED (1 November 2026)
 

@@ -39,3 +39,5 @@ Measurement limits:144 synchronous actual consumes and finite real scheduled con
 ## Installation
 
 The full PhD chain gate is clear. Use only the shared normal-stop installer with this qualification; never stop/restart the main JVM. Installation receipt/status is recorded after the worker completes, with057b67aa rollback retained.
+
+Installed by shared normal-stop worker PID11428. Main mods/skywars2.jar ise67403fb; prior057b67aa retained in build/verification/main-rollback-057b67aa.jar. main-install.json confirms restarted:false. Implementation commit2b1f2604. No main stop/restart or push.
