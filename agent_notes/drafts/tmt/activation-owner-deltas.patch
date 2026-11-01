@@ -1,0 +1,47 @@
+diff --git a/src/main/java/me/skywars2/game/LbcChargedSwords.java b/src/main/java/me/skywars2/game/LbcChargedSwords.java
+index 73145efd..910746da 100644
+--- a/src/main/java/me/skywars2/game/LbcChargedSwords.java
++++ b/src/main/java/me/skywars2/game/LbcChargedSwords.java
+@@ -124,11 +124,21 @@ public final class LbcChargedSwords {
+                 ||!game.items().wands().validRoleTarget(victim,true))return;
+         var dimension=owner.level().dimension().identifier();
+         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
++        chargeHeld(owner);
++
++        }finally{callbackDepth--;}
++    }
++    /** Explicit source swords-group charge; uses the same admission and counter owner. */
++    public void tmtCharge(ServerPlayer owner){
++        callbackDepth++;try{
++            if(!admitted(owner)||!LbcDimensionItems.ordinary(owner))return;
++            chargeHeld(owner);
++        }finally{callbackDepth--;}
++    }
++    private void chargeHeld(ServerPlayer owner){
+         var held=owner.getMainHandItem();
+         if(isTriple(held)&&tripleCharges(owner)<=5)game.items().mana().score(owner,TRIPLE_CHARGE).add(1);
+         if(isBlaze(held))game.items().mana().score(owner,BLAZE_CHARGE).set((int)Math.min(Integer.MAX_VALUE,(long)blazeCharges(owner)+1));
+-
+-        }finally{callbackDepth--;}
+     }
+     public boolean use(ServerPlayer owner,InteractionHand hand){
+         callbackDepth++;try{
+diff --git a/src/main/java/me/skywars2/game/LbcClassicMelee.java b/src/main/java/me/skywars2/game/LbcClassicMelee.java
+index 04f47794..5b92ae0d 100644
+--- a/src/main/java/me/skywars2/game/LbcClassicMelee.java
++++ b/src/main/java/me/skywars2/game/LbcClassicMelee.java
+@@ -42,6 +42,14 @@ public final class LbcClassicMelee {
+                 ||!game.items().wands().validRoleTarget(victim,true))return;
+         var dimension=owner.level().dimension().identifier();
+         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
++        selfEffects(owner);
++    }
++    /** Source TMT swords group invokes self branches without manufacturing a hit. */
++    public void tmtSelf(ServerPlayer owner){
++        if(!admitted(owner)||!LbcDimensionItems.ordinary(owner))return;
++        selfEffects(owner);
++    }
++    private void selfEffects(ServerPlayer owner){
+         var data=LbcFartus.data(owner.getMainHandItem());
+         boolean feeding=data.getIntOr("feeding",0)==1,vampire=data.getIntOr("vampire",0)==1,guardian=data.getIntOr("seaguardian",0)==1;
+         if(!feeding&&!vampire&&!guardian)return;

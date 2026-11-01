@@ -1,0 +1,131 @@
+package me.skywars2.game;
+
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Objects;
+import java.util.Set;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+
+/**
+ * UNREGISTERED DRAFT: typed continuation of the four source TMT entry points.
+ * The ordinary event owner runs its own group first; this adapter runs only its
+ * source continuation. It never manufactures a melee hit or a projectile shot.
+ */
+public final class LbcTmtActivation {
+    /**
+     * Source groups must delegate to the ordinary engines, with their ordinary
+     * admission, payment and source policies. In particular swords must not
+     * replay a fabricated DamageSource or guess a nearby HurtTime victim.
+     */
+    public interface SourceGroups {
+        void swords(ServerPlayer player, InteractionHand hand);
+        void crossbowCharging(ServerPlayer player, InteractionHand hand);
+        void bows(ServerPlayer player, InteractionHand hand);
+        void crossbows(ServerPlayer player, InteractionHand hand);
+        void spells(ServerPlayer player, InteractionHand hand);
+    }
+
+    public enum Result { IGNORED, ALREADY_TRIGGERED, DISPATCHED }
+
+    private enum Entry { USING_ITEM, BOW_SHOT, CROSSBOW_SHOT, DAMAGED }
+    private final GameController game;
+    private final SourceGroups groups;
+    private final Set<ServerPlayer> triggered = Collections.newSetFromMap(new IdentityHashMap<>());
+    private int tick;
+    private String epoch;
+
+    public LbcTmtActivation(GameController game) {
+        this(game, new LbcTmtSourceGroups(game));
+    }
+
+    public LbcTmtActivation(GameController game, SourceGroups groups) {
+        this.game = Objects.requireNonNull(game);
+        this.groups = Objects.requireNonNull(groups);
+    }
+
+    public static boolean matches(ItemStack stack) {
+        return !stack.isEmpty() && LbcFartus.data(stack).getIntOr("tmt_item", 0) == 1;
+    }
+
+    /** Actual USING_ITEM callback, including successive active-use ticks. */
+    public Result usingItem(ServerPlayer player, InteractionHand hand, ItemStack used) {
+        return dispatch(player, hand, used, Entry.USING_ITEM);
+    }
+
+    /** Called once after the real bow volley was admitted and spawned. */
+    public Result bowShot(ServerPlayer player, InteractionHand hand, ItemStack weapon) {
+        return dispatch(player, hand, weapon, Entry.BOW_SHOT);
+    }
+
+    /** Called once after the real crossbow volley was admitted and spawned. */
+    public Result crossbowShot(ServerPlayer player, InteractionHand hand, ItemStack weapon) {
+        return dispatch(player, hand, weapon, Entry.CROSSBOW_SHOT);
+    }
+
+    /** Source trigger_smth_not_damaged only sets tmticked; no groups run. */
+    public Result damaged(ServerPlayer player, InteractionHand hand, ItemStack held) {
+        return dispatch(player, hand, held, Entry.DAMAGED);
+    }
+
+    /** Damage source tests the whole source Inventory, including worn armor. */
+    public Result damaged(ServerPlayer player) {
+        if (player == null) return Result.IGNORED;
+        for (int slot = 0; slot <= 40; slot++) {
+            var stack = player.getInventory().getItem(slot);
+            if (matches(stack)) return dispatch(player, InteractionHand.MAIN_HAND, stack, Entry.DAMAGED);
+        }
+        return Result.IGNORED;
+    }
+
+    private Result dispatch(ServerPlayer player, InteractionHand hand, ItemStack stack, Entry entry) {
+        if (player == null || hand == null || !matches(stack) || !admitted(player)) return Result.IGNORED;
+        refresh();
+        // Mark before invoking any engine: synchronous child damage and nested
+        // use callbacks cannot enter the fanout again during the same tick.
+        if (!triggered.add(player)) return Result.ALREADY_TRIGGERED;
+        if (entry == Entry.DAMAGED) return Result.DISPATCHED;
+        groups.swords(player, hand);
+        armor(player);
+        if (entry == Entry.CROSSBOW_SHOT) groups.bows(player, hand);
+        groups.crossbowCharging(player, hand);
+        if (entry == Entry.BOW_SHOT) groups.crossbows(player, hand);
+        if (entry == Entry.BOW_SHOT || entry == Entry.CROSSBOW_SHOT) groups.spells(player, hand);
+        return Result.DISPATCHED;
+    }
+
+    private boolean admitted(ServerPlayer player) {
+        return player.isAlive() && !player.isRemoved() && player.level() == game.maps().level()
+                && LbcDimensionItems.ordinary(player) && game.canUseGameplayItems(player)
+                && !game.isObserver(player) && game.stage() != GameController.Stage.ENDING
+                && !game.items().actionsBlocked(player) && !game.items().wands().inputTimeStopped(player)
+                && !game.items().timeStop().stopped(player.level());
+    }
+
+    /** Existing armor owners retain equipment, suppression, role and team gates. */
+    private void armor(ServerPlayer player) {
+        var items = game.items();
+        items.armorSets().techno().jump(player);
+        items.jumpArtifacts().jump(player);
+        items.shulkerArmor().jump(player);
+        items.armorSets().chaos().activate(player);
+        items.mana().overload().armor().jump(player);
+        items.halloweenWind().jump(player);
+        items.soulhunter().jump(player);
+    }
+
+    /** Lazy tick reset also covers callbacks before the normal items tick. */
+    private void refresh() {
+        int now = game.server().getTickCount();
+        String currentEpoch = game.items().epoch();
+        if (now != tick || !currentEpoch.equals(epoch)) {
+            triggered.clear();
+            tick = now;
+            epoch = currentEpoch;
+        }
+    }
+
+    public void forget(ServerPlayer player) { triggered.remove(player); }
+    public void stop() { triggered.clear(); epoch = null; }
+}

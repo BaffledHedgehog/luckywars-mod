@@ -1,0 +1,265 @@
+package me.skywars2.game;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import eu.pb4.polymer.core.api.item.PolymerItem;
+import eu.pb4.polymer.core.api.item.SimplePolymerItem;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.*;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.world.item.equipment.Equippable;
+
+/** Typed native implementation of the full authored datapack TMT generator. */
+public final class LbcTmtGenerator {
+    private LbcTmtGenerator() {}
+
+    private record TagWrite(String key, int value, boolean booleanValue) {}
+    private record Source(List<TagWrite> tags, List<String> names, List<String> hex,
+                          List<String> sounds, List<String> attributes, List<String> enchantments,
+                          CompoundTag baseFlags) {}
+    private static final Source SOURCE = load();
+    private static final Item[] CARRIERS = {Items.CARROT_ON_A_STICK, Items.BOW, Items.SNOWBALL,
+            Items.CROSSBOW, Items.GOLDEN_APPLE};
+    private static final Item TOKEN = token();
+    private static final Item[] OUTPUTS = outputs();
+    private static final EquipmentSlot[] ARMOR_SLOTS = {EquipmentSlot.HEAD, EquipmentSlot.CHEST,
+            EquipmentSlot.LEGS, EquipmentSlot.FEET};
+    private static final EquipmentSlotGroup[] ATTRIBUTE_SLOTS = {EquipmentSlotGroup.ANY,
+            EquipmentSlotGroup.ARMOR, EquipmentSlotGroup.BODY, EquipmentSlotGroup.CHEST,
+            EquipmentSlotGroup.FEET, EquipmentSlotGroup.HAND, EquipmentSlotGroup.HEAD,
+            EquipmentSlotGroup.LEGS, EquipmentSlotGroup.MAINHAND, EquipmentSlotGroup.OFFHAND};
+    private static final AttributeModifier.Operation[] OPERATIONS = {AttributeModifier.Operation.ADD_VALUE,
+            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, AttributeModifier.Operation.ADD_MULTIPLIED_BASE};
+
+    /** Current complete native domains; immutable ordered source arrays remain in the audit data. */
+    public record Pools(List<Identifier> attributes, List<Identifier> enchantments,
+                        List<String> sounds, List<ItemUseAnimation> animations) {
+        public Pools {
+            attributes = List.copyOf(attributes);
+            enchantments = List.copyOf(enchantments);
+            sounds = List.copyOf(sounds);
+            animations = List.copyOf(animations);
+        }
+    }
+
+    public static Pools pools(ServerLevel level) {
+        var attributes = level.registryAccess().lookupOrThrow(Registries.ATTRIBUTE).listElements()
+                .map(holder -> holder.key().identifier()).sorted().toList();
+        var enchantments = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).listElements()
+                .map(holder -> holder.key().identifier()).sorted().toList();
+        var sounds = new ArrayList<>(SOURCE.sounds);
+        var knownSounds = new HashSet<Identifier>();
+        SOURCE.sounds.forEach(value -> knownSounds.add(Identifier.parse(value)));
+        BuiltInRegistries.SOUND_EVENT.keySet().stream().sorted().forEach(id -> {
+            if (knownSounds.add(id)) sounds.add(id.toString());
+        });
+        return new Pools(attributes, enchantments, sounds, List.of(ItemUseAnimation.values()));
+    }
+
+    public static void register() {}
+    public static Item tokenItem() { return TOKEN; }
+    public static ItemStack generate(ServerLevel level) { return generate(level, level.getRandom()); }
+
+    /** The explicit random source permits bounded deterministic verification of every branch. */
+    public static ItemStack generate(ServerLevel level, RandomSource random) {
+        var pools = pools(level);
+        int base = between(random, 1, 5) - 1;
+        var stack = new ItemStack(OUTPUTS[base]);
+        // Native defaults include durability, charged projectiles and food listeners.
+        stack.applyComponents(CARRIERS[base].getDefaultInstance().getComponents());
+        var data = SOURCE.baseFlags.copy();
+        if (base == 4) {
+            var animation = pools.animations.get(random.nextInt(pools.animations.size()));
+            String sound = pools.sounds.get(random.nextInt(pools.sounds.size()));
+            stack.set(DataComponents.FOOD, new FoodProperties(20, 20, true));
+            // The datapack component replaces its consumable rather than merging vanilla effects.
+            stack.set(DataComponents.CONSUMABLE, new Consumable(2, animation,
+                    Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(sound))), true, List.of()));
+        }
+        for (int i = 0; i < 7; i++) {
+            var write = SOURCE.tags.get(between(random, 0, 1048));
+            if (write.booleanValue) data.putBoolean(write.key, write.value != 0);
+            else data.putInt(write.key, write.value);
+        }
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
+        stack.remove(DataComponents.CUSTOM_NAME);
+        stack.set(DataComponents.ITEM_NAME, randomText(random));
+        var lore = new ArrayList<Component>(6);
+        for (int i = 0; i < 6; i++) lore.add(randomText(random));
+        stack.set(DataComponents.LORE, new ItemLore(List.copyOf(lore)));
+        var slot = ARMOR_SLOTS[between(random, 1, 4) - 1];
+        between(random, 1, 4); // Authored dead res assignment still consumes its random draw.
+        int equipment = between(random, 1, 707);
+        int model = between(random, 1, 12758);
+        stack.set(DataComponents.EQUIPPABLE, Equippable.builder(slot).setAsset(ResourceKey.create(
+                EquipmentAssets.ROOT_ID, Identifier.parse("lbc:tmt/tmt_" + equipment))).build());
+        stack.set(DataComponents.ITEM_MODEL, Identifier.parse("lbc:tmt/tmt_" + model));
+
+        var modifiers = new ArrayList<ItemAttributeModifiers.Entry>();
+        for (int attempt = 0; attempt < 29; attempt++) {
+            float chance = attempt == 0 ? 1 : attempt <= 4 ? .2F : attempt <= 12 ? .1F : .05F;
+            if (random.nextFloat() >= chance) continue;
+            int id = between(random, 1, Integer.MAX_VALUE);
+            int index = random.nextInt(pools.attributes.size());
+            double amount = between(random, -50, 100) * .01;
+            if (random.nextFloat() < .01F) amount = between(random, -1000000000, 1000000000) * .01;
+            if (random.nextFloat() < .1F) amount = between(random, -200, 1200) * .01;
+            if (random.nextFloat() < .1F) amount = between(random, -100, 400) * .01;
+            var group = ATTRIBUTE_SLOTS[between(random, 1, 10) - 1];
+            var operation = OPERATIONS[between(random, 1, 3) - 1];
+            // User correction: every current attribute participates uniformly, with no stale scratch fallback.
+            Holder<Attribute> attribute = level.registryAccess().lookupOrThrow(Registries.ATTRIBUTE)
+                    .getOrThrow(ResourceKey.create(Registries.ATTRIBUTE, pools.attributes.get(index)));
+            modifiers.add(new ItemAttributeModifiers.Entry(attribute, new AttributeModifier(
+                    Identifier.withDefaultNamespace(Integer.toString(id)), amount, operation), group));
+        }
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, new ItemAttributeModifiers(List.copyOf(modifiers)));
+        var enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+        for (int attempt = 0; attempt < 21; attempt++) {
+            if (random.nextFloat() >= (attempt < 4 ? .2F : .1F)) continue;
+            int index = random.nextInt(pools.enchantments.size());
+            int value = between(random, 1, 5);
+            if (random.nextFloat() < .1F) value = between(random, 1, 255);
+            if (random.nextFloat() < .1F) value = between(random, 1, 15);
+            var key = ResourceKey.create(Registries.ENCHANTMENT, pools.enchantments.get(index));
+            enchantments.set(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(key), value);
+        }
+        stack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
+        return stack;
+    }
+
+    private static int between(RandomSource random, int min, int max) {
+        return random.nextInt(max - min + 1) + min;
+    }
+
+    private static Component randomText(RandomSource random) {
+        String name = SOURCE.names.get(between(random, 0, 11681));
+        var color = new StringBuilder(6);
+        for (int i = 0; i < 6; i++) color.append(SOURCE.hex.get(between(random, 0, 15)));
+        boolean italic = between(random, 1, 6) == 1;
+        boolean bold = between(random, 1, 7) == 1;
+        boolean underlined = between(random, 1, 6) == 1;
+        boolean obfuscated = between(random, 1, 7) == 1;
+        boolean strikethrough = between(random, 1, 7) == 1;
+        MutableComponent text = between(random, 1, 6) == 1 ? Component.literal(name) : Component.translatable(name);
+        return text.withStyle(style -> style.withColor(Integer.parseInt(color.toString(), 16))
+                .withItalic(italic).withBold(bold).withUnderlined(underlined)
+                .withObfuscated(obfuscated).withStrikethrough(strikethrough));
+    }
+
+    private static Item token() {
+        var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:tmt_token"));
+        var data = new CompoundTag(); data.putInt("tmt", 1); data.putInt("drop", 1);
+        var props = new Item.Properties().setId(key).component(DataComponents.ITEM_MODEL, Identifier.parse("lbc:drop_trap"))
+                .component(DataComponents.TOOLTIP_STYLE, Identifier.parse("lbc:tier_u"))
+                .component(DataComponents.CUSTOM_NAME, Component.translatable("trap_tmt")
+                        .withStyle(ChatFormatting.YELLOW).withStyle(s -> s.withItalic(false)))
+                .component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("trap_desc")
+                        .withStyle(ChatFormatting.WHITE).withStyle(s -> s.withItalic(false)))))
+                .component(DataComponents.CUSTOM_DATA, CustomData.of(data));
+        return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(props, Items.REPEATING_COMMAND_BLOCK, true));
+    }
+
+    private static Item[] outputs() {
+        Item[] result = new Item[5];
+        for (int i = 0; i < 5; i++) {
+            var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:tmt_" +
+                    new String[]{"carrot_on_a_stick", "bow", "snowball", "crossbow", "golden_apple"}[i]));
+            var properties = new Item.Properties().setId(key);
+            Item item = switch (i) {
+                case 0 -> new NativeCarrot(properties.durability(25));
+                case 1 -> new NativeBow(properties.durability(384).enchantable(1));
+                case 2 -> new NativeSnowball(properties.stacksTo(16));
+                case 3 -> new NativeCrossbow(properties.durability(465).enchantable(1)
+                        .component(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY));
+                default -> new NativeApple(properties.food(net.minecraft.world.food.Foods.GOLDEN_APPLE,
+                        Consumables.GOLDEN_APPLE));
+            };
+            result[i] = Registry.register(BuiltInRegistries.ITEM, key, item);
+        }
+        return result;
+    }
+
+    private static final class NativeCarrot extends FoodOnAStickItem<Pig> implements PolymerItem {
+        NativeCarrot(Properties properties) { super(EntityTypes.PIG, 7, properties); }
+        public Item getPolymerItem(ItemStack stack, PacketContext context) { return Items.CARROT_ON_A_STICK; }
+    }
+    private static final class NativeBow extends BowItem implements PolymerItem {
+        NativeBow(Properties properties) { super(properties); }
+        public Item getPolymerItem(ItemStack stack, PacketContext context) { return Items.BOW; }
+    }
+    private static final class NativeSnowball extends SnowballItem implements PolymerItem {
+        NativeSnowball(Properties properties) { super(properties); }
+        public Item getPolymerItem(ItemStack stack, PacketContext context) { return Items.SNOWBALL; }
+    }
+    private static final class NativeCrossbow extends CrossbowItem implements PolymerItem {
+        NativeCrossbow(Properties properties) { super(properties); }
+        public Item getPolymerItem(ItemStack stack, PacketContext context) { return Items.CROSSBOW; }
+    }
+    private static final class NativeApple extends Item implements PolymerItem {
+        NativeApple(Properties properties) { super(properties); }
+        public Item getPolymerItem(ItemStack stack, PacketContext context) { return Items.GOLDEN_APPLE; }
+    }
+
+    private static Source load() {
+        try (var input = LbcTmtGenerator.class.getResourceAsStream("/skywars2/tmt_source.json")) {
+            if (input == null) throw new IllegalStateException("Missing typed TMT source data");
+            JsonObject root = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
+            String[] tables = {"tags", "names", "hex", "sounds", "attributes", "enchantments"};
+            int[] lengths = {1049, 11682, 16, 1735, 32, 42};
+            for (int i = 0; i < tables.length; i++) {
+                if (root.getAsJsonArray(tables[i]).size() != lengths[i])
+                    throw new IllegalStateException("Unexpected authored TMT table length: " + tables[i]);
+            }
+            var tags = new ArrayList<TagWrite>();
+            for (var value : root.getAsJsonArray("tags")) {
+                var pair = value.getAsJsonArray();
+                String literal = pair.get(1).getAsString();
+                boolean bool = literal.equals("true") || literal.equals("false");
+                tags.add(new TagWrite(pair.get(0).getAsString(), bool ? literal.equals("true") ? 1 : 0
+                        : Integer.parseInt(literal), bool));
+            }
+            var flags = new CompoundTag();
+            root.getAsJsonObject("baseFlags").entrySet().forEach(entry -> flags.putInt(entry.getKey(), entry.getValue().getAsInt()));
+            return new Source(List.copyOf(tags), strings(root.getAsJsonArray("names")), strings(root.getAsJsonArray("hex")),
+                    strings(root.getAsJsonArray("sounds")), strings(root.getAsJsonArray("attributes")),
+                    strings(root.getAsJsonArray("enchantments")), flags);
+        } catch (Exception error) {
+            throw new ExceptionInInitializerError(error);
+        }
+    }
+    private static List<String> strings(JsonArray values) {
+        var result = new ArrayList<String>();
+        values.forEach(value -> result.add(value.getAsString()));
+        return List.copyOf(result);
+    }
+}

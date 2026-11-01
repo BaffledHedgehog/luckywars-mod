@@ -1,3 +1,13 @@
+## Author correction,1 November2026 (supersedes provisional behavior below)
+
+The author confirmed physical unjammed opening/parents, current Luck+1 rolls,
+and DATAPACK Absurd Child behavior. The previous Paper beam/visual-bolt and
+whole-child suppression assertions below describe an abandoned provisional port,
+not evidence of historical deployment. Corrected component40a3370d is verified
+but not installed. See [exact correction/evidence](FAMILY_DATAPACK_CORRECTION_2026_11_01.md).
+TMT has since been explicitly deferred until other mechanics are ported; this
+must not be expanded into a global ban on unrelated porting or releases.
+
 # Native Lucky blocks and family rewards,1 November2026
 
 This is a bounded opening/reward component. Kit6 and LuckyWars modes2..4 stay gated;

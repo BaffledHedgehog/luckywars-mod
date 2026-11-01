@@ -1,3 +1,30 @@
+## Author correction: datapack family verified; TMT deferred (1 November 2026)
+
+This section supersedes the prepared Paper/child defaults and pending questions
+below. The author states Absurd Child actually used DATAPACK behavior: do not
+infer deployed historical behavior from a Paper class or registration alone.
+Lucky opening, Mom/Otchim/birth are unjammed. Birth uses real lightning at each
+pre-existing loaded entity in the birth dimension, excluding Nexus AND Imprinted;
+new bolts are not recursively enumerated. Child retains quantized source movement,
+not the invented Paper beam; chat and held-block cycle are never suppressed.
+Only its source movement gate remains MAG/artifact. World clocks still pause.
+Corrected candidate40a3370d passes family-drops, family-drop-source, actual stop
+probe/cleanup and full vanity-rollback. Main remains e67403fb; NOT installed.
+[Correction evidence](agent_notes/FAMILY_DATAPACK_CORRECTION_2026_11_01.md).
+
+Newest user direction: TMT is LAST, after the other useful item mechanics exist.
+Creation itself is unjammed. Use the full datapack generation design, uniformly
+include current useful registry entries, and choose meaningful actual abilities;
+skip meaningless markers rather than blindly activating every tag. No arbitrary
+function interpreter. Current incomplete TMT code is archived, unregistered and
+UNVERIFIED under agent_notes/drafts/tmt/; tools/extract_tmt_source.py only extracts
+literal tables. It is excluded from the verified component's compilation inputs.
+This deferral does NOT block unrelated porting. Full kit6/LuckyWars acquisition
+stays gated until its complete reward dependencies are ready. Current correction
+receipt alone is not installation qualification; normal shared release rules apply.
+Procedural texture work is feasibility research only; actual RP untouched.
+[Updated source/visual plan](agent_notes/TMT_REWARD_SOURCE_2026_11_01.md).
+
 ## Native Lucky blocks and family actors - COMPONENT VERIFIED, NOT RELEASED (1 November 2026)
 
 [Contract, failures and exact scope](agent_notes/LUCKY_BLOCK_NATIVE_PORT_2026_11_01.md).

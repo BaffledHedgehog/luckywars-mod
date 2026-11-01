@@ -33,8 +33,6 @@ import java.util.*;
 /** Native family actors. Durable state belongs to native entities and scoreboard, not a checkpoint service. */
 public final class LbcFamilyDrops {
     private static final String ACTOR="skywars2.family", CLOCK="skywars2.family_clock.";
-    // Central policy switches, pending the author's final suppression decision.
-    public static final boolean PARENTS_MAGIC_SUPPRESSED=false, CHILD_MAGIC_SUPPRESSED=true;
     private static final CompoundTag MOM=preset("""
             {Tags:["mom","rc_1sec","active"],CustomNameVisible:1b,ShowArms:1b,Invulnerable:1b,NoBasePlate:1b,DisabledSlots:4144959,Pose:{LeftLeg:[180f,0f,0f],RightLeg:[180f,0f,0f],RightArm:[0f,0f,0f]}}
             """);
@@ -51,11 +49,10 @@ public final class LbcFamilyDrops {
     public static boolean matches(ItemStack stack){return LbcFamilyDropItems.matches(stack);}
     public static boolean managed(Entity e){return e!=null&&e.entityTags().contains(ACTOR)&&(e instanceof ArmorStand||e instanceof Zombie||e instanceof Allay);}
     private boolean active(Entity e){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&e.level()==game.maps().level()&&game.items().currentEpoch(e);}
-    private boolean suppressed(Entity e){return (e instanceof Allay?CHILD_MAGIC_SUPPRESSED:PARENTS_MAGIC_SUPPRESSED)&&game.items().magic().suppressedAt((ServerLevel)e.level(),e.position());}
     public boolean ready(ItemEntity token){
         if(token.isRemoved()||token.getAge()>=5999||!matches(token.getItem())||!game.playing()||game.stage()==GameController.Stage.ENDING||token.level()!=game.maps().level()||!(token.level() instanceof ServerLevel level)||paused(level))return false;
         for(var tag:token.entityTags())if(tag.startsWith("skywars2.items.")&&!game.items().currentEpoch(tag))return false;
-        return level.getChunkSource().getChunkNow(token.blockPosition().getX()>>4,token.blockPosition().getZ()>>4)!=null&&(!PARENTS_MAGIC_SUPPRESSED||!game.items().magic().suppressedAt(level,token.position()));
+        return level.getChunkSource().getChunkNow(token.blockPosition().getX()>>4,token.blockPosition().getZ()>>4)!=null;
     }
     public boolean spawn(ItemEntity token){
         if(!ready(token))return false;
@@ -102,7 +99,7 @@ public final class LbcFamilyDrops {
         for(var e:List.copyOf(actors)){
             if(e.isRemoved()){actors.remove(e);continue;}if(!active(e)){actors.remove(e);e.discard();continue;}
             var level=(ServerLevel)e.level();if(paused(level))continue;
-            int n=(clock(e)+1)%20;clock(e,n);if(suppressed(e))continue;
+            int n=(clock(e)+1)%20;clock(e,n);
             try(var scope=game.items().spellSources().scope(e)){
                 if(e instanceof ArmorStand stand&&n==0)mom(stand);
                 else if(e instanceof Zombie zombie&&n%5==0)birth(zombie);
@@ -122,32 +119,38 @@ public final class LbcFamilyDrops {
         for(var viewer:game.server().getPlayerList().getPlayers())viewer.connection.send(packet);
     }
     private void birth(Zombie dad){
-        var level=(ServerLevel)dad.level();var mom=level.getEntitiesOfClass(ArmorStand.class,new AABB(dad.position(),dad.position()).inflate(2.5),e->managed(e)&&e.entityTags().contains("mom")&&!e.isRemoved()).stream().findFirst().orElse(null);if(mom==null)return;
+        var level=(ServerLevel)dad.level();var mom=level.getEntitiesOfClass(ArmorStand.class,new AABB(dad.position(),dad.position()).inflate(2.5),e->managed(e)&&e.entityTags().contains("mom")&&!e.isRemoved()&&e.distanceToSqr(dad)<=6.25).stream().min(java.util.Comparator.comparingDouble(e->e.distanceToSqr(dad))).orElse(null);if(mom==null)return;
         var child=EntityTypes.ALLAY.create(level,EntitySpawnReason.COMMAND);if(child==null)return;
         child.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),CHILD.copy()));child.setPos(dad.position().add(0,1,0));child.setItemSlot(EquipmentSlot.MAINHAND,loot("luckyblock_block_only",child,null));prepare(child,dad);
+        birthLightning(level);
         if(!level.addFreshEntity(child)){actors.remove(child);child.discard();return;}
-        // Live Paper override uses one harmless visual strike, not the old datapack's global strike.
-        var bolt=EntityTypes.LIGHTNING_BOLT.create(level,EntitySpawnReason.COMMAND);if(bolt!=null){bolt.setPos(dad.position());bolt.setVisualOnly(true);level.addFreshEntity(bolt);}
         level.sendParticles(new net.minecraft.core.particles.DustColorTransitionOptions(0x000a64,0x640a00,4),dad.getX(),dad.getY(),dad.getZ(),5000,1,1,1,2);
         for(var p:level.players())if(!p.isSpectator()&&p.distanceToSqr(dad)<=225)game.items().mana().award(p,"lbc:true_advancements/legends/absurd_child");
         broadcast(Component.translatable("absurd_child_born"));mom.discard();dad.discard();
     }
     private void child(Allay child){
-        var level=(ServerLevel)child.level();LivingEntity target=null;double distance=400;
-        for(var e:level.getEntitiesOfClass(LivingEntity.class,child.getBoundingBox().inflate(20),e->e!=child&&game.items().wands().validTarget(e))){double d=e.distanceToSqr(child);if(d<=distance){distance=d;target=e;}}
-        if(target!=null&&distance>25)ray(child,target);
+        var level=(ServerLevel)child.level();
+        var target=nearestPlayer(level,child.position());
+        if(target!=null&&target.distanceToSqr(child)>25&&!game.items().magic().suppressedAt(level,child.position())){
+            var delta=target.getEyePosition().subtract(child.position());var direction=delta.normalize();
+            child.setYRot((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));
+            child.setXRot((float)-Math.toDegrees(Math.atan2(delta.y,Math.sqrt(delta.x*delta.x+delta.z*delta.z))));
+            // The datapack stores truncated Pos*10000, then Motion with scale0.00005.
+            child.setDeltaMovement(new Vec3((int)(direction.x*10000)*.00005,(int)(direction.y*10000)*.00005,(int)(direction.z*10000)*.00005));
+        }
         if(level.getRandom().nextInt(100)<3){var message=Component.translatable("absurd_child").append(Component.translatable("absurd_child_msg_"+(level.getRandom().nextInt(20)+1)));for(var p:level.players())if(!p.isSpectator()&&p.distanceToSqr(child)<=900)p.sendSystemMessage(message);}
         var held=child.getMainHandItem();String table=held.is(Items.RED_MUSHROOM_BLOCK)||held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NORMAL))?"luckyblock_neko_block":held.is(Items.BROWN_MUSHROOM_BLOCK)||held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NEKO))?"luckyblock_loli_block":held.is(Items.MUSHROOM_STEM)||held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.LOLI))?"luckyblock_block_only":null;
         if(table!=null)child.setItemSlot(EquipmentSlot.MAINHAND,loot(table,child,null));
     }
-    private void ray(Allay child,LivingEntity target){
-        var level=(ServerLevel)child.level();var start=child.getEyePosition();var direction=target.getEyePosition().subtract(start).normalize();var end=start.add(direction.scale(20));
-        // Never load a ray's next chunk. Stop at its first unloaded sample.
-        for(double d=0;d<=20;d+=.2){var at=start.add(direction.scale(d));if(level.getChunkSource().getChunkNow(((int)Math.floor(at.x))>>4,((int)Math.floor(at.z))>>4)==null){end=start.add(direction.scale(Math.max(0,d-.2)));break;}}
-        var block=level.clip(new ClipContext(start,end,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,child));end=block.getLocation();double nearest=start.distanceToSqr(end);LivingEntity hit=null;
-        for(var e:level.getEntitiesOfClass(LivingEntity.class,new AABB(start,end).inflate(.2),e->e!=child&&game.items().wands().validTarget(e))){var box=e.getBoundingBox();if(!LbcBeamGeometry.intersects(box,start,end))continue;var contact=box.clip(start,end);if(box.contains(start)){hit=e;nearest=0;end=start;break;}if(contact.isPresent()){double d=start.distanceToSqr(contact.get());if(d<nearest){nearest=d;hit=e;}}}
-        double length=Math.sqrt(nearest);for(double d=0;d<=length;d+=.4){var at=start.add(direction.scale(d));level.sendParticles(ParticleTypes.END_ROD,at.x,at.y,at.z,1,0,0,0,0);}
-        if(hit!=null){var damage=game.items().spellSources().damage(level.damageSources().mobAttack(child));hit.hurtServer(level,damage,6);}
+    /** Source @e is local to the birth dimension. Snapshot first: new bolts cannot recurse. */
+    int birthLightning(ServerLevel level){
+        if(!LbcDimensionItems.ordinary(level))return 0;
+        var positions=new ArrayList<Vec3>();
+        for(var entity:level.getAllEntities())if(!entity.isRemoved())positions.add(entity.position());
+        int count=0;
+        for(var at:positions){var bolt=EntityTypes.LIGHTNING_BOLT.create(level,EntitySpawnReason.COMMAND);
+            if(bolt!=null){bolt.setPos(at);if(level.addFreshEntity(bolt))count++;}}
+        return count;
     }
     public void loaded(Entity e){if(!managed(e))return;if(!active(e)){e.discard();return;}actors.add(e);game.items().timeStop().prepareFrozen(e);}
     /** Rebuild only the derived loaded-body index after canonical frozen entity replay.

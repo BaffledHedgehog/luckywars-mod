@@ -1,3 +1,50 @@
+## Current author direction and shader feasibility,1 November2026
+
+This section supersedes recommendations and inferred LIVE Paper status below.
+Code or registration in the Paper tree alone does not prove historical execution;
+the author specifically corrected that mistake for Absurd Child. For TMT the
+chosen source is the FULL DATAPACK generator, creation unjammed. The author then
+deferred TMT until the other item mechanics are available, asking for meaningful
+random properties from all available mechanics and all legacy generator families.
+Skip useless tags. Attribute/enchantment pools must be uniform over all current
+entries; add missing modern sounds/use animations too. Earlier advice preserving
+an unreachable index-zero entry is superseded by this explicit correction.
+
+Incomplete generator/activation code has been archived outside src under
+[drafts/tmt](drafts/tmt/README.md); no runtime registration, hooks or checks are
+claimed. Its source-table extractor reproduces the literal legacy arrays exactly.
+Do not mistake that extraction check for runtime generator qualification.
+
+Read-only inspection of the actual RP found12,758 item PNGs under
+assets/minecraft/textures/item/tmt/:48.04MiB on disk and243.64MiB summed RGBA8
+pixels BEFORE atlas padding/packing. These are not measured GPU allocation.
+Sizes:7,248 at16x16;2,260 at32x32;1,871 at64x64;780 at128x128;599 at256x256.
+Equipment textures are additional and excluded from these counts.
+
+Procedural collage in item shaders is feasible: a persistent seed per item can
+select pixelated patches, rotations/reflections, scales, colors and alpha masks.
+Use a dedicated explicit carrier marker; never classify ordinary textures by a
+broad color heuristic. Seed transport (e.g. model tint) needs a real render test
+for GUI/hand/drop agreement, without time/camera/name-dependent rerolls.
+
+The current renderer binds a single material atlas as Sampler0; declaring another
+sampler does not make the client bind the other atlas. Official Mojang documents
+separate block/item atlases and a one-atlas-per-item-model restriction:
+https://www.minecraft.net/en-us/article/minecraft-java-edition-1-21-11 .
+Local RenderTypes.java and actual RP item.vsh/item.fsh were inspected read-only.
+An unmodified-client design can instead include source sprites once in one shared
+atlas/source sheet, then compose combinations in GLSL. Exact atlas arrangement
+and model selection require a prototype. Random arbitrary atlas crops need no
+sprite-name map; selecting named whole sprites does need UV metadata because
+atlas packing is dynamic. Do not promise immediate access to both existing
+atlases, identical pixel-edge extrusion or automatic resource-pack adaptation.
+
+A small fixed source sheet is predictable; adding every sprite to an existing
+atlas may increase its power-of-two allocation. Shader work replaces memory with
+extra fragment sampling/arithmetic, so compare GPU time as well as pack size and
+VRAM. Armor rendering is a separate path; item.fsh alone does not replace its
+707 equipment assets. No shader/RP changes or GPU benchmark were performed.
+
 # TMT reward dependency audit ? 2026-11-01
 
 Read-only audit except this new note. No source/resources/build/server changes. No final mode-readiness claim.
