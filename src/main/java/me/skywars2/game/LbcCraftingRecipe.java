@@ -15,6 +15,8 @@ import net.minecraft.world.level.Level;
 /** Общий native shapeless-контейнер: matches/preview не расходуют предметы и не запускают эффекты. */
 public final class LbcCraftingRecipe extends CustomRecipe {
     public enum Kind {
+        INFINITE_SHULKER("infinite_shulker_upgrade",null),
+        LUCKY_SHULKER("lucky_shulker_upgrade",null),
         PHD("phd",null),
         ROCKET("rocket_boots_transfer",null),
         NYAUWU_HELMET("nyauwu_helmet",null),
@@ -97,6 +99,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         var game = SkyWars2.game();
         if(game==null) return ItemStack.EMPTY;
         if(kind==Kind.PHD) return LbcPhdCrafting.result(game,input);
+        if(kind==Kind.INFINITE_SHULKER||kind==Kind.LUCKY_SHULKER)return craftingKind(input)==kind?LbcInfiniteShulker.assemble(game,input):ItemStack.EMPTY;
         if(kind==Kind.ROCKET) return game.items().rocketCraftResult(input);
         if(kind==Kind.TINY_REFORGE) return craftingKind(input)==kind ? LbcTinyReforge.placeholder() : ItemStack.EMPTY;
         if(kind==Kind.REROLL_MACHINE) return craftingKind(input)==kind ? LbcRerollCrafting.placeholder() : ItemStack.EMPTY;
@@ -134,6 +137,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     public static Kind craftingKind(CraftingInput input) {
         if(LbcPhdCrafting.matches(input))return Kind.PHD;
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        var shulker=LbcInfiniteShulker.recipeKind(input);if(shulker!=null)return shulker;
         var nyauwu=LbcNyauwuCrafting.kind(input);if(nyauwu!=null)return nyauwu;
         var cyberpunk=LbcNyauwuCrafting.mk2Kind(input);if(cyberpunk!=null)return cyberpunk;
         if(LbcNyauwuCrafting.flyingBootsMatches(input))return Kind.FLYING_BOOTS;
@@ -403,6 +407,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null||kind==Kind.PHD) return;
+        if(kind==Kind.INFINITE_SHULKER||kind==Kind.LUCKY_SHULKER){LbcInfiniteShulker.crafted(player.level(),player.position(),kind);return;}
         if(LbcNyauwuCrafting.kind(input)==kind){LbcNyauwuCrafting.crafted(player.level(),player.position());return;}
         if(LbcNyauwuCrafting.mk2Kind(input)==kind){LbcNyauwuCrafting.craftedMk2(player.level(),player.position());return;}
         if(kind==Kind.FLYING_BOOTS){LbcNyauwuCrafting.craftedFlyingBoots(player.level(),player.position());return;}

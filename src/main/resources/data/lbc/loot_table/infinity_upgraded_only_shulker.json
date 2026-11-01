@@ -6,9 +6,9 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/black_shulker_box__5be32c8f82ec",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_s",
                 "minecraft:container_loot": {
@@ -17,7 +17,7 @@
               }
             },
             {
-              "function": "minecraft:set_name",
+              "type": "minecraft:set_name",
               "name": [
                 {
                   "translate": "infinite_shulker_upgraded",
@@ -26,7 +26,7 @@
               ]
             },
             {
-              "function": "minecraft:set_lore",
+              "type": "minecraft:set_lore",
               "mode": "replace_all",
               "lore": [
                 {
@@ -37,7 +37,7 @@
               ]
             },
             {
-              "function": "minecraft:set_custom_data",
+              "type": "minecraft:set_custom_data",
               "tag": "{craftusable:1,inf_inf_shulker:1}"
             }
           ]

@@ -1,3 +1,11 @@
+## Follow-up now completed (1 November2026)
+
+One Punch and the complete infinite-shulker crafting/opening/replacement chain
+are natively qualified and installed on970eef84. Both are explicitly UNJAMMED
+by author reply; glove updates only own damage, preserving all other properties.
+See INFINITE_GEAR_PORT_2026_11_01.md. Historical missing-consumer notes below are
+superseded. TMT and the remaining Kapusta decision are still separate future work.
+
 ## Implemented and qualified update
 
 The four-item batch is now natively verified; see

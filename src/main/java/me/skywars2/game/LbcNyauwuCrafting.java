@@ -137,6 +137,24 @@ public final class LbcNyauwuCrafting {
         else item.setItem(item.getItem().copyWithCount(item.getItem().getCount()-1));
     }
 
+    /** Shulker upgrades share the established tracked ground cadence and atomic publication. */
+    private boolean tryInfiniteShulker(ItemEntity first){
+        if(!LbcInfiniteShulker.isBase(first.getItem())&&!LbcInfiniteShulker.isUpgraded(first.getItem()))return false;
+        var level=game.maps().level();
+        for(var second:level.getEntitiesOfClass(ItemEntity.class,first.getBoundingBox().inflate(1),other->
+                other!=first&&eligible(other)&&other.position().distanceToSqr(first.position())>=.000001
+                        &&other.position().distanceToSqr(first.position())<=1)){
+            var kind=LbcInfiniteShulker.pairKind(first.getItem(),second.getItem());if(kind==null)continue;
+            var stack=LbcInfiniteShulker.result(game,kind);if(stack.isEmpty())return false;
+            var at=first.position();var output=new ItemEntity(level,at.x,at.y+.1,at.z,stack);
+            output.setDefaultPickUpDelay();if(first.getOwner() instanceof LivingEntity owner)output.setThrower(owner);
+            game.items().markCurrentItemEpoch(output);
+            if(!level.addFreshEntity(output))return false;
+            consumeOne(first);consumeOne(second);LbcInfiniteShulker.crafted(level,at,kind);return true;
+        }
+        return false;
+    }
+
     /** Source chance40 predicate: exactly forty percent, with no draw during matching. */
     public static boolean technoConsumesWand(float roll){return roll<.4f;}
 
@@ -187,7 +205,7 @@ public final class LbcNyauwuCrafting {
         phase=(phase+1)%20;if(phase!=0)return;
         for(var first:List.copyOf(items)){
             if(!eligible(first)||LbcFartus.data(first.getItem()).getIntOr("craftusable",0)!=1)continue;
-            if(tryTechnoSet(first))continue;
+            if(tryInfiniteShulker(first)||tryTechnoSet(first))continue;
             for(var fusion:Fusion.values()){
                 if(!eligible(first))break;
                 int part=ingredientPart(first.getItem(),fusion.first);

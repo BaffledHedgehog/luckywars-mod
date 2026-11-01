@@ -764,6 +764,8 @@ public final class GameChecks {
                                 case "phantom-knives-stop-probe" -> checkPhantomKnivesStopProbe(game);
                                 case "phantom-knives-cleanup" -> checkPhantomKnivesCleanup(game);
                                 case "loot-test-catalog" -> checkLootTestCatalog(game);
+                                case "one-punch-glove" -> { OnePunchGloveChecks.run(game); return; }
+                                case "infinite-shulker" -> { InfiniteShulkerChecks.run(game); return; }
                                 case "psycho-sound" -> { PsychoSoundChecks.start(game); return; }
                                 case "sound-normalization" -> { SoundNormalizationChecks.run(game); return; }
                                 case "evolution-sword" -> { EvolutionSwordChecks.run(game); return; }
@@ -1451,7 +1453,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
-            PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
+            OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
             GaaraPotChecks.tick(game);BouncingPoopChecks.tick(game);ClownKitChecks.tick(game);
             DeusWhipChecks.tick(game);RayQueueFairnessChecks.tick(game);PhdChecks.tick(game);
             TabletHandChecks.tick(game);

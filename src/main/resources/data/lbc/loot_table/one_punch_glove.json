@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:iron_sword",
+          "name": "skywars2:one_punch_glove",
           "modifier": [
             {
               "count": 1,

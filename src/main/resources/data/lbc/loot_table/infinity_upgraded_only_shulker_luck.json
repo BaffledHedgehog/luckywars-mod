@@ -6,9 +6,9 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/yellow_shulker_box__acbe6ac26675",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_x",
                 "minecraft:container_loot": {
@@ -18,7 +18,7 @@
               }
             },
             {
-              "function": "minecraft:set_name",
+              "type": "minecraft:set_name",
               "name": [
                 {
                   "translate": "infinite_shulker_upgraded_luck",

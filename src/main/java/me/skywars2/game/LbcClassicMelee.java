@@ -24,7 +24,7 @@ public final class LbcClassicMelee {
     private final GameController game;
     private int phase;
     public LbcClassicMelee(GameController game){this.game=game;}
-    public static void register(){LbcEvolutionSwordItem.register();}
+    public static void register(){LbcEvolutionSwordItem.register();LbcOnePunchGloveItem.register();}
 
     private boolean admitted(ServerPlayer owner){
         return owner!=null&&owner.isAlive()&&!owner.isRemoved()&&owner.level()==game.maps().level()
@@ -69,13 +69,17 @@ public final class LbcClassicMelee {
     public void tick(){
         var level=game.maps().level();
         if(level==null||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
-        phase=(phase+1)%5;if(phase!=0)return;
+        phase=(phase+1)%5;
         for(var owner:game.server().getPlayerList().getPlayers()){
             if(!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner)
                     ||game.isObserver(owner)||!game.items().wands().validRoleTarget(owner,false)
                     ||game.items().wands().inputTimeStopped(owner)||game.items().timeStop().stopped(level))continue;
             var dimension=level.dimension().identifier();
             if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))continue;
+            // One Punch follows the native health criterion without a stale dummy score or stack replacement.
+            if(LbcOnePunchGloveItem.matches(owner.getMainHandItem()))
+                LbcOnePunchGloveItem.updateDamage(owner.getMainHandItem(),net.minecraft.util.Mth.ceil(owner.getHealth()+owner.getAbsorptionAmount()));
+            if(phase!=0)continue;
             var data=owner.getMainHandItem().get(DataComponents.CUSTOM_DATA);
             if(owner.getMainHandItem().isEmpty()||data==null||!data.matchedBy(HYLIAN)
                     ||game.items().magic().beaconSuppressed(owner.position()))continue;

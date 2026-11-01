@@ -1,3 +1,30 @@
+## One Punch and infinite shulker chain - VERIFIED, INSTALLED (1 November2026)
+
+[Author policy, source migration and native evidence](agent_notes/INFINITE_GEAR_PORT_2026_11_01.md).
+User: One Punch and ALL infinite-shulker crafting/opening/replacement are unjammed.
+Glove native Polymer iron sword, original metadata and1durability. Shared
+ClassicMelee refreshes only selected mainhand base damage from ceil(HP+absorption),
+ignoring stale dummy hplvl; retains all other stack properties/modifiers. No
+loot reroll or stack replacement. Hylian retains5tick phase. Actual source final
+set_attributes replaces the earlier speed declaration; do not revive it silently.
+Both exact unopened shulker upgrades use normal2x2/3x3 output slots and shared
+tracked20tick ground fusion, oneunit per donor, publication before debit. Native
+container fills remain native; lucky actual fill returns1shell at opener, once
+per consumed loot key. No hidden advancement/function/interpreter required.
+Five unshipped roots now packaged and functions/function migrated to modifier/type;
+inverse schema equals original values/counts/weights/functions exactly. Nested
+lucky source produces variable raw rewards; native27slot split/overflow preserved.
+No RP/template edits. Existing full kit6/LuckyWars gate and TMT deferral unchanged.
+
+Main970eef84 installed via shared normal-stop worker,5b79a46f rollback retained,
+restarted:false. Qualification under build/verification/infinite-gear-2026-11-01/.
+Six scoped groups: One Punch from5ebf88ab, shulker/classic/mage/PhD/Vanity from
+aa38d77f; all production/resources byte-identical, only fixture diagnostics/log
+changed.9770inputs/2435classes/7350resources exact;226author paths/31overrides
+unchanged. Six qualified matches/seven observed incl retained fixture failure,
+110.85s. Children normal/exact snapshots/extra level+ticket restored/no locks,
+fixture25577 only. No main stop/restart, client-render/peakTPS claim or push.
+
 ## Server-only custom sound normalization - VERIFIED, INSTALLED (1 November2026)
 
 [Policy, limitations, measurements and native evidence](agent_notes/SOUND_NORMALIZATION_2026_11_01.md).
