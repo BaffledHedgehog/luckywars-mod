@@ -79,4 +79,7 @@ SHA256: be17d07e6678b653490900143f3456893a5df1535fc438d11a6005189e58f858
 Proof: qualification.json, production-equivalence.json, both result/log files and
 final-fixture-restoration.json in that directory. Release gate cleared for this
 complete batch; shared normal-stop installer only, never stop/restart main.
-Installation status/receipt recorded after the local implementation commit.
+Installed be17d07e through the shared normal-stop installer; main-install.json
+confirms replacement and a3f4644c rollback. Main was not stopped/restarted by us.
+Implementation commite40ed448. All224 author paths and31 overrides rechecked
+after installation and remain exact.

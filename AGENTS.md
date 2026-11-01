@@ -1,4 +1,4 @@
-## Multiplier tablets and banana palm - NATIVE VERIFIED (1 November 2026)
+## Multiplier tablets and banana palm - NATIVE VERIFIED, INSTALLED (1 November 2026)
 
 [Complete contract and retained failures](agent_notes/TABLET_ABILITIES_2026_11_01.md).
 All four tablet abilities + physical palm are complete. MAG beacon/artifact blocks
@@ -15,7 +15,9 @@ exit/exact snapshots/additional level+ticket restore/no locks. Fixture25577 only
 No RP/PENDING changes, giant-stack widening, function engine, main restart or push.
 Full five-item release gate cleared. Qualification under
 build/verification/tablet-abilities-2026-11-01/qualification.json. Use shared normal-
-stop installer; installation receipt/status will follow. Do not reopen resolved
+stop installer. Main is nowbe17d07e; a3f4644c rollback retained, no main restart.
+Receipt: main-install.json in that directory. Implementation commite40ed448.
+Do not reopen resolved
 suppression or duration/debit policy. Older inert-definition status below is history.
 
 ## Mechanical kit acquisition + next utility definitions - NATIVE VERIFIED, INSTALLED (1 November 2026)
