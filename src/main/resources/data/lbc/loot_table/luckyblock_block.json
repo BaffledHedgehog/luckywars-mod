@@ -15,16 +15,16 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:item_model": "lbc:drop_not_trap"
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_custom_data",
-              "tag": "{drop:1,adv_check_lbc:1}"
+              "tag": "{drop:1,adv_check_lbc:1}",
+              "type": "minecraft:set_custom_data"
             }
           ]
         }

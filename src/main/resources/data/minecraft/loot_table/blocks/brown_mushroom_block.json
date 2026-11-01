@@ -12,63 +12,66 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:nekoluckyblock",
-          "conditions": [
-            {
-              "condition": "minecraft:block_state_property",
-              "block": "minecraft:brown_mushroom_block",
-              "properties": {
-                "down": "false",
-                "east": "false",
-                "north": "false",
-                "south": "false",
-                "up": "false",
-                "west": "false"
-              }
-            },
-            {
-              "condition": "minecraft:inverted",
-              "term": {
-                "condition": "minecraft:match_tool",
-                "predicate": {
-                  "predicates": {
-                    "minecraft:enchantments": [
-                      {
-                        "enchantments": "minecraft:silk_touch",
-                        "levels": {
-                          "min": 1
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "condition": "minecraft:inverted",
-              "term": {
-                "condition": "minecraft:entity_scores",
-                "entity": "this",
-                "scores": {
-                  "luck_amount": {
-                    "min": 16
-                  }
-                }
-              }
-            }
-          ],
-          "functions": [
+          "modifier": [
             {
               "enchantment": "minecraft:fortune",
               "formula": "minecraft:ore_drops",
-              "function": "minecraft:apply_bonus"
+              "type": "minecraft:apply_bonus"
             },
             {
-              "function": "minecraft:limit_count",
               "limit": {
                 "max": 99
-              }
+              },
+              "type": "minecraft:limit_count"
             }
-          ]
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "type": "minecraft:match_block",
+                "blocks": "minecraft:brown_mushroom_block",
+                "state": {
+                  "down": "false",
+                  "east": "false",
+                  "north": "false",
+                  "south": "false",
+                  "up": "false",
+                  "west": "false"
+                }
+              },
+              {
+                "term": {
+                  "predicate": {
+                    "predicates": {
+                      "minecraft:enchantments": [
+                        {
+                          "enchantments": "minecraft:silk_touch",
+                          "levels": {
+                            "min": 1
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "type": "minecraft:match_tool"
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "scores": {
+                    "luck_amount": {
+                      "min": 16
+                    }
+                  },
+                  "type": "minecraft:entity_scores"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
         }
       ]
     },
@@ -78,79 +81,80 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:nekoluckyblock",
-          "conditions": [
-            {
-              "condition": "minecraft:block_state_property",
-              "block": "minecraft:brown_mushroom_block",
-              "properties": {
-                "down": "false",
-                "east": "false",
-                "north": "false",
-                "south": "false",
-                "up": "false",
-                "west": "false"
-              }
-            },
-            {
-              "condition": "minecraft:inverted",
-              "term": {
-                "condition": "minecraft:entity_scores",
-                "entity": "this",
-                "scores": {
-                  "luck_amount": {
-                    "min": -999
-                  }
-                }
-              }
-            },
-            {
-              "condition": "minecraft:inverted",
-              "term": {
-                "condition": "minecraft:match_tool",
-                "predicate": {
-                  "predicates": {
-                    "minecraft:enchantments": [
-                      {
-                        "enchantments": "minecraft:silk_touch",
-                        "levels": {
-                          "min": 1
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          ],
-          "functions": [
+          "modifier": [
             {
               "enchantment": "minecraft:fortune",
               "formula": "minecraft:ore_drops",
-              "function": "minecraft:apply_bonus"
+              "type": "minecraft:apply_bonus"
             },
             {
-              "function": "minecraft:limit_count",
               "limit": {
                 "max": 99
-              }
+              },
+              "type": "minecraft:limit_count"
             }
-          ]
+          ],
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "type": "minecraft:match_block",
+                "blocks": "minecraft:brown_mushroom_block",
+                "state": {
+                  "down": "false",
+                  "east": "false",
+                  "north": "false",
+                  "south": "false",
+                  "up": "false",
+                  "west": "false"
+                }
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "scores": {
+                    "luck_amount": {
+                      "min": -999
+                    }
+                  },
+                  "type": "minecraft:entity_scores"
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "predicate": {
+                    "predicates": {
+                      "minecraft:enchantments": [
+                        {
+                          "enchantments": "minecraft:silk_touch",
+                          "levels": {
+                            "min": 1
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "type": "minecraft:match_tool"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
         },
         {
           "type": "minecraft:loot_table",
           "value": "lbc:tmtrainer_drop",
           "weight": 100000000000000000,
-          "conditions": [
-            {
-              "condition": "minecraft:entity_scores",
-              "entity": "this",
-              "scores": {
-                "luck_amount": {
-                  "min": 16
-                }
+          "condition": {
+            "entity": "this",
+            "scores": {
+              "luck_amount": {
+                "min": 16
               }
-            }
-          ]
+            },
+            "type": "minecraft:entity_scores"
+          }
         }
       ]
     },
@@ -163,11 +167,60 @@
             {
               "type": "minecraft:loot_table",
               "value": "lbc:luckyblock_neko_block",
-              "conditions": [
+              "condition": {
+                "type": "minecraft:all_of",
+                "terms": [
+                  {
+                    "type": "minecraft:match_block",
+                    "blocks": "minecraft:brown_mushroom_block",
+                    "state": {
+                      "down": "false",
+                      "east": "false",
+                      "north": "false",
+                      "south": "false",
+                      "up": "false",
+                      "west": "false"
+                    }
+                  },
+                  {
+                    "predicate": {
+                      "predicates": {
+                        "minecraft:enchantments": [
+                          {
+                            "enchantments": "minecraft:silk_touch",
+                            "levels": {
+                              "min": 1
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "type": "minecraft:match_tool"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "minecraft:loot_table",
+              "value": "lbc:item_defs/minecraft/red_mushroom__0b42354a0a9b",
+              "modifier": [
                 {
-                  "condition": "minecraft:block_state_property",
-                  "block": "minecraft:brown_mushroom_block",
-                  "properties": {
+                  "count": {
+                    "min": -6,
+                    "max": 2,
+                    "type": "minecraft:uniform"
+                  },
+                  "type": "minecraft:set_count"
+                },
+                {
+                  "type": "minecraft:explosion_decay"
+                }
+              ],
+              "condition": {
+                "term": {
+                  "type": "minecraft:match_block",
+                  "blocks": "minecraft:brown_mushroom_block",
+                  "state": {
                     "down": "false",
                     "east": "false",
                     "north": "false",
@@ -176,56 +229,8 @@
                     "west": "false"
                   }
                 },
-                {
-                  "condition": "minecraft:match_tool",
-                  "predicate": {
-                    "predicates": {
-                      "minecraft:enchantments": [
-                        {
-                          "enchantments": "minecraft:silk_touch",
-                          "levels": {
-                            "min": 1
-                          }
-                        }
-                      ]
-                    }
-                  }
-                }
-              ]
-            },
-            {
-              "type": "minecraft:loot_table",
-              "value": "lbc:item_defs/minecraft/red_mushroom__0b42354a0a9b",
-              "functions": [
-                {
-                  "function": "minecraft:set_count",
-                  "count": {
-                    "min": -6,
-                    "max": 2,
-                    "type": "minecraft:uniform"
-                  }
-                },
-                {
-                  "function": "minecraft:explosion_decay"
-                }
-              ],
-              "conditions": [
-                {
-                  "condition": "minecraft:inverted",
-                  "term": {
-                    "condition": "minecraft:block_state_property",
-                    "block": "minecraft:brown_mushroom_block",
-                    "properties": {
-                      "down": "false",
-                      "east": "false",
-                      "north": "false",
-                      "south": "false",
-                      "up": "false",
-                      "west": "false"
-                    }
-                  }
-                }
-              ]
+                "type": "minecraft:inverted"
+              }
             }
           ]
         },
@@ -233,17 +238,15 @@
           "type": "minecraft:loot_table",
           "value": "lbc:tmtrainer_drop",
           "weight": 100000000000000000,
-          "conditions": [
-            {
-              "condition": "minecraft:entity_scores",
-              "entity": "this",
-              "scores": {
-                "luck_amount": {
-                  "min": 16
-                }
+          "condition": {
+            "entity": "this",
+            "scores": {
+              "luck_amount": {
+                "min": 16
               }
-            }
-          ]
+            },
+            "type": "minecraft:entity_scores"
+          }
         }
       ]
     }

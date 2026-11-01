@@ -32,11 +32,13 @@ public final class LbcWitchStatistics {
     public static ObjectiveCriteria criterion(String name){return switch(name){
         case "dmg_dealt"->ObjectiveCriteria.DUMMY;
         case "lolidefecation"->Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM);
+        case "lucky_block_count"->Stats.BLOCK_MINED.get(Blocks.RED_MUSHROOM_BLOCK);
         default->ObjectiveCriteria.DUMMY;
     };}
     private static String name(Stat<?> stat){
         if(stat==Stats.CUSTOM.get(Stats.DAMAGE_DEALT))return "dmg_dealt";
-        if(stat==Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM))return "lolidefecation";
+        if(stat==Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM)||stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI)))return "lolidefecation";
+        if(stat==Stats.BLOCK_MINED.get(Blocks.RED_MUSHROOM_BLOCK)||stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL)))return "lucky_block_count";
         return null;
     }
     /** Create before vanilla forAllObjectives, so the first native award is counted too. */
@@ -50,7 +52,9 @@ public final class LbcWitchStatistics {
         if(stat==Stats.CUSTOM.get(Stats.DAMAGE_DEALT))return;
         var game=SkyWars2.game();var name=name(stat);if(game==null||name==null)return;
         var objective=player.level().getScoreboard().getObjective(name);
-        if(objective!=null&&objective.getCriteria()==ObjectiveCriteria.DUMMY)game.items().mana().score(player,name).add(count);
+        if(objective!=null&&(objective.getCriteria()==ObjectiveCriteria.DUMMY
+                ||stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI))
+                ||stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL))))game.items().mana().score(player,name).add(count);
     }
     public static void reset(ServerPlayer player,Stat<?> stat){
         var game=SkyWars2.game();var name=name(stat);if(game==null||name==null)return;

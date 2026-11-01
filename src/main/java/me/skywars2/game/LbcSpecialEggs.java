@@ -40,6 +40,12 @@ import java.util.List;
 /** Source eggs retain vanilla placement, finalizeSpawn, fluid use and dispenser spawning. */
 public final class LbcSpecialEggs {
     public enum Kind {
+        MOM("skywars2:mom_spawn_egg", "mom_spawn_egg", Items.PIG_SPAWN_EGG, EntityTypes.ITEM, "lbc:tier_ff", """
+                {"PickupDelay":32767,"Item":{"count":1,"id":"skywars2:mom_drop"}}
+                """),
+        OTCHIM("skywars2:otchim_spawn_egg", "otchim_spawn_egg", Items.SNOW_GOLEM_SPAWN_EGG, EntityTypes.ITEM, "lbc:tier_ff", """
+                {"PickupDelay":32767,"Item":{"count":1,"id":"skywars2:otchim_drop"}}
+                """),
         SLAB("skywars2:slab_spawn_egg", "slab_spawn_egg", Items.ZOMBIE_SPAWN_EGG, EntityTypes.ZOMBIE, "lbc:tier_ff", """
                 {PersistenceRequired:true,DeathLootTable:"minecraft:empty",IsBaby:true,Silent:true,
                  equipment:{head:{id:"minecraft:oak_slab",count:1,components:{
@@ -163,7 +169,7 @@ public final class LbcSpecialEggs {
                     game.items().markCurrentItemEpoch(token);game.items().helicopterEncounter().loaded(token);
                 }
             }
-            case SHAHID,HOHOL -> {
+            case SHAHID,HOHOL,MOM,OTCHIM -> {
                 if(entity instanceof ItemEntity token) {
                     if(user!=null) token.setThrower(user);
                     game.items().specialDrops().loaded(token);

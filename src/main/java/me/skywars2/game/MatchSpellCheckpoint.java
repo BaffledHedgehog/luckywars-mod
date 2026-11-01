@@ -69,6 +69,10 @@ final class MatchSpellCheckpoint {
     Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){
         stable(true);var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
         var policy=policies.prepare(links);var control=controls.prepare(links);var summon=summons.prepare(links);
-        policy.run();control.run();summon.run();return Set.of();
+        policy.run();control.run();summon.run();
+        // Frozen canonical body replay suppresses ENTITY_LOAD. Rebuild this derived
+        // index only after every shared policy/body link has installed successfully.
+        game.items().familyDrops().reindexAfterRestore();
+        return Set.of();
     }
 }

@@ -30,7 +30,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcGrimoireDungeon.matches(stack) || LbcMagicBean.recognized(stack) || LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
+        return LbcLuckyBlocks.silkToken(stack) || LbcFamilyDrops.matches(stack) || LbcGrimoireDungeon.matches(stack) || LbcMagicBean.recognized(stack) || LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
     }
 
     public void loaded(Entity entity) {
@@ -115,6 +115,9 @@ public final class LbcSpecialDrops {
         if (token.isRemoved() || token.getAge() >= 5999 || stale(token) || !active(token)
                 || !(token.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return false;
         if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token).epoch())) return false;
+        boolean silkToken=LbcLuckyBlocks.silkToken(token.getItem());
+        boolean family=LbcFamilyDrops.matches(token.getItem());
+        if(family&&!game.items().familyDrops().ready(token))return false;
         boolean chaosActors = LbcChaosTrapActors.matches(token.getItem());
         boolean sauvojenBoss = LbcSauvojenBoss.recognized(token.getItem());
         boolean infinity = LbcInfinity.recognized(token.getItem());
@@ -154,7 +157,7 @@ public final class LbcSpecialDrops {
         boolean bees = LbcBeeDropItem.matches(token.getItem());
         boolean pigs = LbcLuckyPigDropItem.matches(token.getItem());
         boolean enzan = LbcLevitationDropItem.matches(token.getItem());
-        if (!grimoireDungeon && !magicBean && !infinity && !chaosActors && !sauvojenBoss && !chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !normalVex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants && !portal && !luckyRoom && !pisa && !antigravity && !ultraponos && !transformator && !stalin) return false;
+        if (!silkToken && !family && !grimoireDungeon && !magicBean && !infinity && !chaosActors && !sauvojenBoss && !chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !normalVex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants && !portal && !luckyRoom && !pisa && !antigravity && !ultraponos && !transformator && !stalin) return false;
         if (chaosActors && !game.items().chaosTrapActors().ready(token)) return false;
         if (sauvojenBoss && !game.items().sauvojenBoss().ready(token)) return false;
         if (infinity && !game.items().infinity().ready(token)) return false;
@@ -285,6 +288,8 @@ public final class LbcSpecialDrops {
         if(grimoireDungeon)game.items().grimoireDungeon().spawn(token);
         if (LbcFeedbackDropItem.matches(token.getItem(), LbcFeedbackDropItem.Kind.DEATH_LUST))
             game.items().feedbackDrops().spawn(token, LbcFeedbackDropItem.Kind.DEATH_LUST);
+        if(silkToken)LbcLuckyBlocks.silkToken(token);
+        if(family)game.items().familyDrops().spawn(token);
         if (transformator) game.items().transformator().spawn(token);
         if (stalin) game.items().stalin().spawn(token);
         var remaining = token.getItem().copy();

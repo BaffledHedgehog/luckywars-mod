@@ -6,20 +6,19 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_count",
-              "count": 1
+              "count": 1,
+              "type": "minecraft:set_count"
             },
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_f",
                 "minecraft:item_model": "lbc:mum"
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_name",
               "entity": "this",
               "name": [
                 {
@@ -38,7 +37,8 @@
                   "italic": false,
                   "type": "selector"
                 }
-              ]
+              ],
+              "type": "minecraft:set_name"
             }
           ]
         }

@@ -764,6 +764,12 @@ public final class GameChecks {
                                 case "phantom-knives-stop-probe" -> checkPhantomKnivesStopProbe(game);
                                 case "phantom-knives-cleanup" -> checkPhantomKnivesCleanup(game);
                                 case "loot-test-catalog" -> checkLootTestCatalog(game);
+                                case "family-drops" -> { FamilyDropChecks.run(game); return; }
+                                case "family-drop-source" -> { FamilyDropChecks.source(game); return; }
+                                case "family-drops-stop-probe" -> { FamilyDropChecks.stopProbe(game); return; }
+                                case "family-drops-cleanup" -> { FamilyDropChecks.cleanup(game); return; }
+                                case "lucky-blocks" -> { LuckyBlockChecks.run(game); return; }
+                                case "lucky-block-rules" -> { LuckyBlockChecks.rules(game); return; }
                                 case "shooter-pools-menu" -> ShooterPoolChecks.menu(game);
                                 case "shooter-pools" -> ShooterPoolChecks.run(game);
                                 case "shooter-pools-stop-probe" -> ShooterPoolChecks.stopProbe(game);

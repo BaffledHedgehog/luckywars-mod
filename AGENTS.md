@@ -1,3 +1,26 @@
+## Native Lucky blocks and family actors - COMPONENT VERIFIED, NOT RELEASED (1 November 2026)
+
+[Contract, failures and exact scope](agent_notes/LUCKY_BLOCK_NATIVE_PORT_2026_11_01.md).
+Three native Polymer blocks/items + original map mushroom states share real BLOCK
+loot: original tools/Fortune/Silk/luck/legacy pools, Neko slot predicates, causal
+breaker drops and existing Witch mining counters. Native Mom/Otchim/Allay rewards
+and eggs use shared dispatcher, persistent source policy and native clock tags.
+Frozen body replay reindexes the derived family set through MatchSpellCheckpoint;
+actual birth->rewind->rebirth and departure credit verified. No private engine/RP.
+Prepared defaults (not author approvals): opening/parents physical; child MAG plus
+artifact; live Paper single visual birth bolt and6damage exact-body beam/1s.
+11 scoped groups plus actual stop cleanup; candidate1e989ad3, explicit production
+byte identity across scoped receipts.9747inputs/2407classes/7337resources;
+224authorpaths/31overrides exact. Fixture25577 normal/exact restoration/no locks.
+DO NOT INSTALL YET. Full kit6/LuckyWars modes remain gated. Native TMT generator
+and multi-marker activation are missing; only its source token table is prepared
+for registry closure. Chat decisions also pending (full datapack vs Paper TMT,
+creation/actor suppression, child behavior). [TMT source/RP audit](agent_notes/TMT_REWARD_SOURCE_2026_11_01.md).
+Original RP has all12758 nested models and707 equipment assets; Paper top-level
+four-model keys are absent. No function interpreter requested. Questions in chat.
+Component receipt: build/verification/lucky-blocks-2026-11-01/component-verification.json.
+It is NOT an installer qualification. Main stays e67403fb; no stop/restart/push.
+
 ## PhD kit18 and144 pills - NATIVE VERIFIED, QUALIFIED (1 November 2026)
 
 [Complete policy, behavior, failures and native evidence](agent_notes/PHD_KIT_PORT_2026_11_01.md).

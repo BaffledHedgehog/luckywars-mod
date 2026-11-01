@@ -26,6 +26,10 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/mom.json', 'data/lbc/loot_table/otchim.json', 'data/lbc/loot_table/tmtrainer_drop.json'
+    include 'data/minecraft/loot_table/blocks/red_mushroom_block.json', 'data/minecraft/loot_table/blocks/brown_mushroom_block.json', 'data/minecraft/loot_table/blocks/mushroom_stem.json'
+    include 'data/lbc/loot_table/ported/lucky_block*.json', 'data/lbc/loot_table/luckyblock_block.json', 'data/lbc/loot_table/luckyblock_block_only.json'
+    include 'data/lbc/loot_table/nekoluckyblock.json', 'data/lbc/loot_table/nekolucky_zaika_items.json'
     include 'data/lbc/loot_table/ported/phd_certificate.json', 'data/lbc/loot_table/ported/pills/*.json', 'data/lbc/loot_table/kit/phd.json'
     include 'data/minecraft/tags/item/bioitems.json', 'data/minecraft/tags/item/shelf.json'
     include 'data/lbc/loot_table/ported/bouncing_poop.json', 'data/lbc/loot_table/kit/govno_raskid.json'
