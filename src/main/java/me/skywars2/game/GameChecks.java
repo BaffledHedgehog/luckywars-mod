@@ -699,6 +699,10 @@ public final class GameChecks {
                                 case "looper" -> { LbcLooperChecks.run(game); return; }
                                 case "reactive-skills" -> { ReactiveSkillChecks.run(game); return; }
                                 case "parasite" -> { ParasiteChecks.run(game); return; }
+                                case "contained-skills" -> { ContainedSkillChecks.run(game); return; }
+                                case "contained-vip-respawn" -> { ContainedSkillChecks.runVipDeath(game); return; }
+                                case "contained-vip-sum-respawn" -> { ContainedSkillChecks.runVipSumDeath(game); return; }
+                                case "contained-vip-fall-respawn" -> { ContainedSkillChecks.runVipFallDeath(game); return; }
                                 case "stonekivi-sun" -> { StonekiviSunChecks.run(game); return; }
                                 case "weapon-spread" -> { WeaponSpreadChecks.run(game); return; }
                                 case "rifle-presentation" -> { RiflePresentationChecks.run(game); return; }
@@ -1476,6 +1480,7 @@ public final class GameChecks {
         public static void tick(GameController game) {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
+            ContainedSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
             GaaraPotChecks.tick(game);BouncingPoopChecks.tick(game);ClownKitChecks.tick(game);

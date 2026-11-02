@@ -111,6 +111,8 @@ public final class SpecialToolChecks {
         for(int n=0;n<15;n++){victim.setInvulnerableTime(0);victim.damageCooldownTime=0;require(victim.hurtServer(f.level,f.level.damageSources().playerAttack(p),1),"real accepted hammer strike");}
         require(mana.hudValue(p,"swordcharging7")==0&&mana.hudValue(p,"swordcharged7")==1,"15 actual strikes produce one hammer charge");victim.discard();
         var oldSkill=g.players().get(p.getUUID()).lbcSkill;var oldBetaSkill=g.players().get(f.beta.getUUID()).lbcSkill;boolean enabled=g.config().lbcSkills;
+        boolean vipUnlocked=g.players().get(p.getUUID()).lbcUnlocks.contains("lbc:true_advancements/axes/banhammer");
+        g.players().get(p.getUUID()).lbcUnlocks.add("lbc:true_advancements/axes/banhammer");
         var oldConnection=p.connection;var oldBetaConnection=f.beta.connection;var capture=new KickRecording(p);var betaCapture=new KickRecording(f.beta);
         var board=g.server().getScoreboard();var originalTeam=p.getTeam();var betaTeam=f.beta.getTeam();var team=board.addPlayerTeam("codex_banhammer");
         try{
@@ -144,6 +146,7 @@ public final class SpecialToolChecks {
             require(f.base.input(InteractionHand.OFF_HAND),"final native self-impact cast");var third=service.hammerSnapshot().getFirst();p.setPos(third.impact);f.beta.setPos(third.impact.add(10,0,0));service.impact(third);require(capture.kicks()==1&&betaCapture.kicks()==1,"WILD impact includes author and respects radius");
         }finally{
             p.entityTags().remove("sin_greed_active");p.connection=oldConnection;f.beta.connection=oldBetaConnection;g.config().lbcSkills=enabled;g.players().get(p.getUUID()).lbcSkill=oldSkill;g.players().get(f.beta.getUUID()).lbcSkill=oldBetaSkill;
+            if(!vipUnlocked)g.players().get(p.getUUID()).lbcUnlocks.remove("lbc:true_advancements/axes/banhammer");
             board.removePlayerFromTeam(p.getScoreboardName());board.removePlayerFromTeam(f.beta.getScoreboardName());board.removePlayerTeam(team);if(originalTeam!=null)board.addPlayerToTeam(p.getScoreboardName(),originalTeam);if(betaTeam!=null)board.addPlayerToTeam(f.beta.getScoreboardName(),betaTeam);service.stop();reset(f);
         }
     }

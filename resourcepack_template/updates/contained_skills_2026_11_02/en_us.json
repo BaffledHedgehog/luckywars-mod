@@ -1,0 +1,6 @@
+{
+  "lore.lbcskill.0.1": "> Slowness becomes Resistance of equal level and duration, capped at IV",
+  "lore.lbcskill.11.1": "> If damage from other players in one tick reaches your maximum HP,",
+  "lore.lbcskill.11.2": "  a fatal hit from another player lets you respawn without spending a life",
+  "lore.lbcskill.11.3": " * Falls and other consequences count while attributed to another player"
+}

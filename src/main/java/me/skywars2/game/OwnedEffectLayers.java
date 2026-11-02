@@ -43,6 +43,9 @@ public final class OwnedEffectLayers {
         try { accepted = target.addEffect(single(effect), source); }
         finally { internal--; }
         if (!accepted) return false;
+        // A Frozen Heart conversion accepted Resistance rather than an owned Slowness lease.
+        if(target instanceof net.minecraft.server.level.ServerPlayer player&&effect.is(MobEffects.SLOWNESS)
+                &&me.skywars2.SkyWars2.game()!=null&&me.skywars2.SkyWars2.game().items().containedSkills().convertsSlowness(player,effect))return true;
         if (layer == null) {
             layer = new Layer();
             layer.baseline = baseline;
@@ -68,6 +71,14 @@ public final class OwnedEffectLayers {
     }
 
     Object suspend(LivingEntity target) { return targets.remove(target); }
+    /** Frozen Heart consumes slowdowns, including their old leases, but keeps useful reversed layers. */
+    void purgePositiveSlowness(LivingEntity target) {
+        var types=targets.get(target);if(types==null)return;
+        var levels=types.get(MobEffects.SLOWNESS);if(levels==null)return;
+        levels.keySet().removeIf(level->level>=0);
+        if(levels.isEmpty())types.remove(MobEffects.SLOWNESS);
+        if(types.isEmpty())targets.remove(target);
+    }
     @SuppressWarnings("unchecked") void resume(LivingEntity target,Object saved) {
         if(saved!=null)targets.put(target,(Map<Holder<MobEffect>,Map<Integer,Layer>>)saved);
     }

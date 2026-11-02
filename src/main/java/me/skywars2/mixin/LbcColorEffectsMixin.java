@@ -83,6 +83,9 @@ public abstract class LbcColorEffectsMixin {
                 ci.setReturnValue(game.items().quiver().accept(target,effect,quiverArrow));return;
             }
             if(!game.items().indirectKills().allowProjectileEffect(target,effect,source)) { ci.setReturnValue(false); return; }
+            if(target instanceof ServerPlayer player&&game.items().containedSkills().acceptSlowness(player,effect,source)){
+                ci.setReturnValue(true);return;
+            }
             if(me.skywars2.game.LbcKiuas.isCurse(effect)){
                 ci.setReturnValue(game.items().kiuas().acceptCurse(target,effect,quiverArrow==null?source:quiverArrow));return;
             }
@@ -107,6 +110,7 @@ public abstract class LbcColorEffectsMixin {
         var game = SkyWars2.game();
         if (game != null && (Object)this instanceof ServerPlayer player) {
             me.skywars2.game.LbcParasite.beforeEffects(player);
+            game.items().containedSkills().beforeEffects(player);
             game.items().magic().beforeEffects(player);
         }
     }

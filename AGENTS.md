@@ -1,3 +1,35 @@
+## Skills1/12/13 - VERIFIED, INSTALLED (2 November2026)
+
+[Author rules, source and exact qualification](agent_notes/CONTAINED_SKILLS_PORT_2026_11_02.md).
+Original10000 slots0/11/12, Jaakivi/Banhammer/Hammer unlocks now exposed.
+1FrozenHeart entirely unjammed: harmfulSlowness -> same ticks/infinity and matching
+Resistance level, capIV; useful reversedSlowness retained, hidden layers/old leases
+reconciled before first action.12VIP entirely unjammed, Banhammer immunity uses
+shared admission. Sum accepted finalHPdamage within ONE SERVER TICK >=maxHP preserves
+one life on death, including true inherited ownership AND AUTHOR-APPROVED native
+old-attacker credit (e.g. player hit then fatal fall in a LATER tick). Explicit
+self damage wins over old credit; uncredited environment damage excluded. Native
+CombatTracker owns shared native/rawHP receipt, before death/health clamp; no new
+damage synthesis. Check before death cleanup removes event-skill HP modifiers.
+13FallingHedgehogs:100active ticks, resident spread70/surface+100 native Silverfish,
+MAG+TECH destroy at own position, WILD native radius7 terrain blast, no creeper.
+Native bodies/tags/source graph and scoreboard phase reuse full rewind ownership.
+No body push, chunk forcing, inventory scan or tick NBT copies. Temporary native
+blast carrier source binding is removed after dispatch (no unload event exists).
+
+Final test0971bd4f / productionbe0863df:8 scoped groups/8actual mode1 matches on
+THIS exact artifact, including direct lethal, actual native40+raw60 same-tick sum,
+and real player hit -> later native fall -> death/replacement+20ticks.9805inputs/
+2497classes/7354resources (includes Fabric metadata) exact;236authorpaths and
+31overrides unchanged; child normal/exact snapshots/OP/level/tickets/no locks,
+fixture25577only;8editing classes absent production. Prior renamed setter compile
+failure and fall probe blocked by normal match spawn grace retained, fixture-only
+rule enable/restore verified. Installed normally with e11faf22 rollback,
+restarted:false; no main stop/restart/push or peakTPS claim. RP description-only
+fragments: resourcepack_template/updates/contained_skills_2026_11_02/.
+All author questions for this batch resolved. TMT LAST/fullkit6/LuckyWars gates
+unchanged; skill2 still needs its previously documented Nexus/Greedstone closure.
+
 ## Reactive skills6/10/19 - VERIFIED, INSTALLED (2 November2026)
 
 [Author rules, source ownership, diagnostics and qualification](agent_notes/REACTIVE_SKILLS_PORT_2026_11_02.md).

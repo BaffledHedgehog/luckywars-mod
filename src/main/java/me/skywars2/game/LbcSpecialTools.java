@@ -234,7 +234,7 @@ public final class LbcSpecialTools {
             if(dy>requested+1e-8){impact=point.add(0,-2,0);impact(this);}
         }
     }
-    boolean immuneToHammer(ServerPlayer p){return LbcGreed.active(p)||game.config().lbcSkills&&game.players().get(p.getUUID()).lbcSkill==12;}
+    boolean immuneToHammer(ServerPlayer p){return LbcGreed.active(p)||game.lbc().hasSkill(p,12);}
     /** WILD ban: disconnect players and discard mobs without death loot. Never spam client-hanging particles. */
     void impact(Hammer hammer){
         if(hammer.impacted)return;hammer.impacted=true;

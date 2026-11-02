@@ -177,6 +177,27 @@
   ],
   "skills": [
     {
+      "id": 1,
+      "page": 10000,
+      "slot": 0,
+      "gate": "lbc:true_advancements/accesories/jaakivi",
+      "lockedKey": "lbc.adv.accessories.jaakivi.lore"
+    },
+    {
+      "id": 12,
+      "page": 10000,
+      "slot": 11,
+      "gate": "lbc:true_advancements/axes/banhammer",
+      "lockedKey": "lbc.adv.axe.banhammer.lore"
+    },
+    {
+      "id": 13,
+      "page": 10000,
+      "slot": 12,
+      "gate": "lbc:true_advancements/axes/hammer",
+      "lockedKey": "lbc.adv.axe.hammer.lore"
+    },
+    {
       "id": 3,
       "page": 10000,
       "slot": 2,

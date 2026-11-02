@@ -389,9 +389,13 @@ public final class LbcItems {
     public LbcPills pills(){return pills;}
     private final LbcGovnomancer govnomancer;
     private final LbcReactiveSkills reactiveSkills;
+    private final LbcContainedSkills containedSkills;
+    private final LbcFallingHedgehogs fallingHedgehogs;
     public LbcDeus deus(){return deus;}
     public LbcGovnomancer govnomancer(){return govnomancer;}
     public LbcReactiveSkills reactiveSkills(){return reactiveSkills;}
+    public LbcContainedSkills containedSkills(){return containedSkills;}
+    public LbcFallingHedgehogs fallingHedgehogs(){return fallingHedgehogs;}
     public LbcBouncingPoop bouncingPoop(){return bouncingPoop;}
     public LbcClownKit clownKit(){return clownKit;}
     public LbcGaaraPot gaaraPot(){return gaaraPot;}
@@ -938,6 +942,7 @@ public final class LbcItems {
         this.uniwand=new LbcUniwand(game);
         this.steampunkBreaker=new LbcSteampunkBreaker(game);
         this.clownKit=new LbcClownKit(game);this.gaaraPot=new LbcGaaraPot(game);this.bouncingPoop=new LbcBouncingPoop(game);this.deus=new LbcDeus(game);this.pills=new LbcPills(game);this.govnomancer=new LbcGovnomancer(game);this.reactiveSkills=new LbcReactiveSkills(game);
+        this.containedSkills=new LbcContainedSkills(game);this.fallingHedgehogs=new LbcFallingHedgehogs(game);
         this.steampunkGlove=new LbcSteampunkGlove(game);
         this.steampunkHook=new LbcSteampunkHook(game);
         this.oreshek = new LbcOreshek(game);
@@ -1272,7 +1277,7 @@ public final class LbcItems {
         transformator.loaded(entity);
         stalin.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
-        familyDrops.loaded(entity);specialDrops.loaded(entity);looseRewards.loaded(entity);specialFireballs.loaded(entity);rasengan.loaded(entity);
+        familyDrops.loaded(entity);specialDrops.loaded(entity);looseRewards.loaded(entity);specialFireballs.loaded(entity);rasengan.loaded(entity);fallingHedgehogs.loaded(entity);
         spellSources.loaded(entity);apocalypseEvents.loaded(entity);apocalypseActors.loaded(entity);witchGluttony.loaded(entity);witchIndolence.loaded(entity);indolenceFingers.loaded(entity);witchLust.loaded(entity);shishEncounter.loaded(entity);
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);grimoireRooms.loaded(entity);grimoireBoss.loaded(entity);
@@ -1396,6 +1401,7 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        fallingHedgehogs.unloaded(entity);
         looseRewards.unloaded(entity);specialFireballs.unloaded(entity);rasengan.unloaded(entity);
         if(entity instanceof ServerPlayer player)armorSets.phantom().forget(player);
         if(entity instanceof LivingEntity living)ownedEffects.forget(living);
@@ -1677,6 +1683,7 @@ public final class LbcItems {
     /** Same point as the source effects_changed advancement; includes splash/cloud/commands. */
     public void effectsChanged(ServerPlayer player) {
         LbcParasite.beforeEffects(player);
+        containedSkills.beforeEffects(player);
         mana.effectsChanged(player);
         clownKit.effectsChanged(player);
         govnomancer.effectsChanged(player);
@@ -1835,6 +1842,7 @@ public final class LbcItems {
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
         for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);
+        containedSkills.tick();fallingHedgehogs.tick();
         reactiveSkills.tick();
         timeStop.tick();polymorph.tick();fpvDrone.tick();witchClaims.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         grimoireRooms.tick();grimoireBoss.tick();uniwand.tick();
@@ -2041,6 +2049,7 @@ public final class LbcItems {
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
     private void clear(ServerPlayer player,boolean resetNanobots) { steampunkHook.clear(player);steampunkGlove.clear(player);legacyEffects.clear(player); if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); clearTurnCurse(player); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
+        containedSkills.clear(player);
         steampunkHook.reset(player);steampunkGlove.reset(player);teleportGadgets.forget(player);
         indolenceFingers.forget(player);witchLust.forget(player);
         polymorph.forget(player);
@@ -2130,6 +2139,7 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {
+        containedSkills.stop();fallingHedgehogs.stop();
         grimoireRooms.stop();grimoireBoss.stop();uniwand.stop();
         steampunkHook.stop();steampunkGlove.stop();teleportGadgets.stop();
         looseRewards.stop();specialFireballs.stop();rasengan.stop();imbaRunes.stop();
