@@ -31,14 +31,14 @@ public final class LbcWitchStatistics {
     static net.minecraft.world.damagesource.DamageSource checkpointWrappedSource(net.minecraft.world.damagesource.DamageSource source){return source instanceof Melee melee?melee.original:null;}
     public static ObjectiveCriteria criterion(String name){return switch(name){
         case "dmg_dealt"->ObjectiveCriteria.DUMMY;
-        case "lolidefecation"->Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM);
-        case "lucky_block_count"->Stats.BLOCK_MINED.get(Blocks.RED_MUSHROOM_BLOCK);
+        case "lolidefecation"->Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI));
+        case "lucky_block_count"->Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL));
         default->ObjectiveCriteria.DUMMY;
     };}
     private static String name(Stat<?> stat){
         if(stat==Stats.CUSTOM.get(Stats.DAMAGE_DEALT))return "dmg_dealt";
-        if(stat==Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM)||stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI)))return "lolidefecation";
-        if(stat==Stats.BLOCK_MINED.get(Blocks.RED_MUSHROOM_BLOCK)||stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL)))return "lucky_block_count";
+        if(stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI)))return "lolidefecation";
+        if(stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL)))return "lucky_block_count";
         return null;
     }
     /** Create before vanilla forAllObjectives, so the first native award is counted too. */
@@ -50,11 +50,18 @@ public final class LbcWitchStatistics {
         // DAMAGE_DEALT also has non-melee producers, and its attack total includes item side effects.
         // The combat tracker below owns this one objective; vanilla statistics stay untouched.
         if(stat==Stats.CUSTOM.get(Stats.DAMAGE_DEALT))return;
-        var game=SkyWars2.game();var name=name(stat);if(game==null||name==null)return;
+        var game=SkyWars2.game();
+        if(game!=null){
+            // Old saves bind these objectives to the old vanilla carrier statistic. Cancel only
+            // that native automatic increment: a real mushroom is no longer a Lucky Block.
+            String oldName=stat==Stats.BLOCK_MINED.get(Blocks.RED_MUSHROOM_BLOCK)?"lucky_block_count"
+                    :stat==Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM)?"lolidefecation":null;
+            if(oldName!=null){var old=player.level().getScoreboard().getObjective(oldName);
+                if(old!=null&&old.getCriteria()==stat)game.items().mana().score(player,oldName).add(-count);return;}
+        }
+        var name=name(stat);if(game==null||name==null)return;
         var objective=player.level().getScoreboard().getObjective(name);
-        if(objective!=null&&(objective.getCriteria()==ObjectiveCriteria.DUMMY
-                ||stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI))
-                ||stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL))))game.items().mana().score(player,name).add(count);
+        if(objective!=null&&objective.getCriteria()!=stat)game.items().mana().score(player,name).add(count);
     }
     public static void reset(ServerPlayer player,Stat<?> stat){
         var game=SkyWars2.game();var name=name(stat);if(game==null||name==null)return;

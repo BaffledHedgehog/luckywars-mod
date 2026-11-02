@@ -380,6 +380,7 @@ public final class GameController {
         long version = selectionVersion;
         preparingSelection = true;
         // Кэшированный оверлей сохраняет лобби при вставке карты; устаревший результат не разрешает старт.
+        developerTools.gallery().clearForMatchStart();
         maps.load(id, broken, result -> {
             if (stopped || !inLobby()) return;
             preparingSelection = false;
@@ -509,6 +510,7 @@ public final class GameController {
     }
 
     private void begin() {
+        developerTools.gallery().clearForMatchStart();
         maps.removeLobbyOverlay();
         items.terra().resetCharges();
         // Выбранная карта уже размещена; старт только фиксирует состав и распределяет игроков по клеткам.

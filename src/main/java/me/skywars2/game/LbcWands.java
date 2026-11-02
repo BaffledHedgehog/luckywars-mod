@@ -261,7 +261,7 @@ public final class LbcWands {
         REGULAR_EXOPERSO(LbcWands.EXOPERSO,"exoperso","megumin_staff_mana_use",5000),
         ACADEMY_BEDROCK(LbcWands.ACADEMY_BEDROCK,"bedrock_wand","bedrock_wand_mana_use",2500),
         REGULAR_BEDROCK(LbcWands.BEDROCK,"bedrock_wand","bedrock_wand_mana_use",2500),
-        ACADEMY_WALL(LbcWands.ACADEMY_WALL,"wall","wall_wand_mana_use",500),
+        ACADEMY_WALL(LbcWands.ACADEMY_WALL,"wall","academy_wall_wand_mana_use",500),
         REGULAR_WALL(LbcWands.WALL,"wall","wall_wand_mana_use",1500),
         ACADEMY_STONEKIVI(LbcWands.ACADEMY_STONEKIVI,"stonekivi_wand","stonekivi_wand_mana_use",2500),
         REGULAR_STONEKIVI(LbcWands.STONEKIVI,"stonekivi_wand","stonekivi_wand_mana_use",2500),
@@ -740,8 +740,8 @@ public final class LbcWands {
                 return true;
             }
         }
-        // Улучшенный Wall в исходнике имеет собственную фиксированную цену 500.
-        int requiredMana=spell==Spell.ACADEMY_WALL?500:mana.score(spell.cost,"lbc.math").get();
+        // Academy Wall keeps its original 500 default through its own reloadable operand.
+        int requiredMana=mana.score(spell.cost,"lbc.math").get();
         int spentMana=spell==Spell.REGULAR_EXOPERSO?25000:spell==Spell.ACADEMY_EXOPERSO?10000:requiredMana;
         if(!mana.trySpendWand(player,requiredMana,spentMana)) return false;
         switch(spell) {

@@ -60,6 +60,9 @@ public final class ContentGalleryChecks {
         var layout = new ContentGallery.Layout(level.dimension().identifier().toString(), origin.below(), UUID.randomUUID(), UUID.randomUUID());
         var service = new ContentGallery(game, layout);
         var frames = new ArrayList<ItemFrame>();
+        var terrain=new LinkedHashMap<net.minecraft.core.BlockPos,MapManager.BlockSnapshot>();
+        var chest=origin.offset(10,0,0);var foreignCell=chest.east();
+        terrain.put(chest,game.maps().snapshot(level,chest));terrain.put(foreignCell,game.maps().snapshot(level,foreignCell));
         var inventory = new ArrayList<ItemStack>();
         for (int index = 0; index < player.getInventory().getContainerSize(); index++) inventory.add(player.getInventory().getItem(index).copy());
         try {
@@ -92,7 +95,26 @@ public final class ContentGalleryChecks {
             require(!service.owned(foreign) && !service.useEntity(player, foreign), "foreign frame is never claimed");
             service.close();
             require(!nativeFrame.isRemoved() && !foreign.isRemoved(), "shutdown preserves persistent and foreign display entities");
+            game.maps().restoreSnapshot(level,chest,new MapManager.BlockSnapshot(net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState(),null));
+            var container=(net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(chest);
+            container.setItem(0,new ItemStack(Items.DIAMOND,3));container.setChanged();
+            var before=game.maps().snapshot(level,chest);
+            game.maps().restoreSnapshot(level,foreignCell,new MapManager.BlockSnapshot(net.minecraft.world.level.block.Blocks.DIRT.defaultBlockState(),null));
+            service.writeFixtureCell(level,chest,net.minecraft.world.level.block.Blocks.STONE_BRICKS);
+            service.writeFixtureCell(level,chest,net.minecraft.world.level.block.Blocks.ENDER_CHEST);
+            service.writeFixtureCell(level,foreignCell,net.minecraft.world.level.block.Blocks.STONE_BRICKS);
+            level.setBlock(foreignCell,net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState(),2);
+            service.roundTripJournalForChecks();
+            service.clearForMatchStart();
+            var restored=game.maps().snapshot(level,chest);
+            require(restored.state()==before.state() && Objects.equals(restored.entity(),before.entity()),"exact first baseline including container items survives repeated writes and compact journal roundtrip");
+            require(level.getBlockState(foreignCell).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK),"cleanup preserves foreign replacement of a gallery-written cell");
+            require(nativeFrame.isRemoved() && !foreign.isRemoved(), "match admission removes owned frames and preserves foreign frames");
+            require(!service.ownsChest(level,layout.chest()),"suspended gallery no longer intercepts its chest");
+            service.tick();
+            require(!foreign.isRemoved(),"suspended tick cannot regenerate display placements or remove foreign frames");
         } finally {
+            terrain.forEach((pos,snapshot)->game.maps().restoreSnapshot(level,pos,snapshot));
             for (var frame : frames) { frame.discard(); require(frame.isRemoved(), "only fixture-owned entities cleaned up"); }
             for (int index = 0; index < inventory.size(); index++) player.getInventory().setItem(index, inventory.get(index));
             player.inventoryMenu.broadcastChanges();

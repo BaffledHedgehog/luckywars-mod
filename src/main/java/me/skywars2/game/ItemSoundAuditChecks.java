@@ -58,8 +58,6 @@ public final class ItemSoundAuditChecks {
         public void close(){player.connection=previous;previous.resetPosition();}
     }
     private static void sound(ClientboundSoundPacket p,float volume,float pitch,Vec3 at){
-        float cap=SoundNormalization.volumeCap(p.getSound().value().location());
-        if(cap<1)volume=Math.min(volume,cap);
         require(p.getSource()==SoundSource.MASTER&&p.getVolume()==volume&&p.getPitch()==pitch,
                 "MASTER volume"+volume+" pitch"+pitch+" for "+p.getSound().value().location());
         require(Math.abs(p.getX()-at.x)<=.125&&Math.abs(p.getY()-at.y)<=.125&&Math.abs(p.getZ()-at.z)<=.125,

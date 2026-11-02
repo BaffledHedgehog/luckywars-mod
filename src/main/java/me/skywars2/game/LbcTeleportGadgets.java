@@ -86,7 +86,7 @@ public final class LbcTeleportGadgets {
             if(!eligible(player)||player.level()!=charge.level||!game.items().currentEpoch(charge.epoch)
                     ||player.getItemInHand(charge.hand)!=charge.stack||kind(charge.stack)!=2
                     ||suppressed(player)
-                    ||player.position().distanceToSqr(charge.origin)>1e-8){cancel(player,true);continue;}
+                    ||player.position().distanceToSqr(charge.origin)>1e-4){cancel(player,true);continue;}
             if(paused(player))continue;
             if(game.items().actionsBlocked(player)){cancel(player,true);continue;}
             if(game.server().getTickCount()==charge.createdTick)continue;
@@ -123,7 +123,7 @@ public final class LbcTeleportGadgets {
     private void cancel(ServerPlayer player,boolean report){if(charges.remove(player)!=null){stopSound(player);if(report&&player.isAlive()&&!player.hasDisconnected()){player.containerMenu.broadcastFullState();failure(player);}}}
     public void forget(ServerPlayer player){cancel(player,false);}
     /** Native packet completion catches moving away and back between two item-service ticks. */
-    public void moved(ServerPlayer player){var charge=charges.get(player);if(charge!=null&&player.position().distanceToSqr(charge.origin)>1e-8)cancel(player,true);}
+    public void moved(ServerPlayer player){var charge=charges.get(player);if(charge!=null&&player.position().distanceToSqr(charge.origin)>1e-4)cancel(player,true);}
     public void stop(){for(var player:new ArrayList<>(charges.keySet()))cancel(player,false);}
     public int chargingCount(){return charges.size();}
 }

@@ -577,7 +577,7 @@ public final class LbcPsycho {
             audio.started=ticks;
             // Vanilla has no packet loop/seek control. At pitch 2 this existing clip lasts 40.363 ticks;
             // forty-tick renewal leaves ~18 ms overlap, with unavoidable network/TPS timing variation.
-            SoundNormalization.sendExempt(target,new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(BEAM_SOUND)),
+            target.connection.send(new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(BEAM_SOUND)),
                     SoundSource.MASTER,target,3,2,target.getRandom().nextLong()));
         }
     }

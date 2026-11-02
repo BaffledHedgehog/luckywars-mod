@@ -117,6 +117,13 @@ public final class EnchantmentRulesChecks {
                     require(identities.add(entry.getKey()),"native table never repeats same enchantment identity");
             }
             require(mixed,"actual native table selection chains retain previously incompatible protection combinations");
+            var commandItem=new ItemStack(Items.APPLE);player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,commandItem);
+            var dispatcher=game.server().getCommands().getDispatcher();var console=game.server().createCommandSourceStack();
+            for(String spec:List.of("sharpness 2147483647","smite 1000","fortune 1000","silk_touch 10","sharpness 10"))
+                try{require(dispatcher.execute("enchant "+player.getGameProfile().name()+" "+spec,console)==1,"actual operator /enchant accepts "+spec);}
+                catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
+            require(level(player,commandItem,Enchantments.SHARPNESS)==Integer.MAX_VALUE&&level(player,commandItem,Enchantments.SMITE)==1000
+                    &&level(player,commandItem,Enchantments.FORTUNE)==1000&&level(player,commandItem,Enchantments.SILK_TOUCH)==10,"native command retains int levels, unsupported item, incompatible and repeated enchantments");
         } finally {
             if(cow!=null)cow.discard();
             for(var entry:saved.entrySet()) {

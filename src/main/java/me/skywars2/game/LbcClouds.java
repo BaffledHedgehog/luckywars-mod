@@ -62,7 +62,7 @@ public final class LbcClouds {
     private static final AttachmentType<Integer> ACID_AGE = AttachmentRegistry.create(
             Identifier.parse("skywars2:acid_age"), builder -> builder.persistent(Codec.INT).initializer(() -> 1));
 
-    static void register() { } // Регистрируем тип и attachment до чтения сущностей мира.
+    static void register() { PolymerEntityUtils.registerType(EntityTypes.AREA_EFFECT_CLOUD); } // Регистрируем тип и attachment до чтения сущностей мира.
 
     private static EntityType<AcidProjectile> registerAcidProjectile() {
         var key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("skywars2:acid_projectile"));

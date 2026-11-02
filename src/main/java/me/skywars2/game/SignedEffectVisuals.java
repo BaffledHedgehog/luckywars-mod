@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class SignedEffectVisuals {
     private static final String PREFIX = "signed_effects/";
     private static final Identifier NEXUS = Identifier.parse("lbc:nexus");
+    private static final Identifier SKILL_ISSUE = Identifier.parse("lbc:skill_issue");
     private record Presentation(long invisibility, boolean spectator, List<ParticleOptions> particles) { }
     private static final ConcurrentHashMap<Integer, Presentation> PRESENTATIONS = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Long> REVEAL = new ConcurrentHashMap<>();
@@ -105,7 +106,7 @@ public final class SignedEffectVisuals {
         if (entity instanceof ServerPlayer player) REVEAL.remove(player.getUUID());
     }
     public static boolean owned(Identifier id) {
-        return id.equals(NEXUS) || id.getNamespace().equals("lbc") && id.getPath().startsWith(PREFIX);
+        return id.equals(NEXUS) || id.equals(SKILL_ISSUE) || id.getNamespace().equals("lbc") && id.getPath().startsWith(PREFIX);
     }
     /** Visual response saturates at display limits; signed values never saturate server-side. */
     public static int visualTier(long level) {
@@ -118,6 +119,10 @@ public final class SignedEffectVisuals {
     static List<Identifier> desired(LivingEntity entity, String dimension) {
         var result = new ArrayList<Identifier>();
         if (dimension.equals("minecraft:nexus")) result.add(NEXUS);
+        // This is the authoritative timed disorder, not a score-only or actionbar projection.
+        var game=me.skywars2.SkyWars2.game();
+        if(entity instanceof ServerPlayer player&&game!=null&&game.items()!=null
+                &&game.items().curseTicks(player)>0&&!game.items().magic().rejectCustomDebuff(player))result.add(SKILL_ISSUE);
         long blindness = level(entity, MobEffects.BLINDNESS);
         long darkness = level(entity, MobEffects.DARKNESS);
         long night = level(entity, MobEffects.NIGHT_VISION);

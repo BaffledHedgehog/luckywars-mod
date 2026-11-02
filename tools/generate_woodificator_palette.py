@@ -421,7 +421,12 @@ def wooden_candidates(assets, entries, wood_sources):
     return sorted(identifier for identifier in wood_sources
                   if entries[identifier].get("fullCube") is True
                   and not entries[identifier].get("hasBlockEntity",False)
-                  and identifier not in block_entities)
+                  and identifier not in block_entities
+                  # Bark-on ordinary logs/stems are deliberately not output colours.
+                  # Stripped logs/stems and all wood/hyphae remain valid candidates.
+                  and not (not identifier.split(":",1)[1].startswith("stripped_")
+                           and (identifier.endswith("_log") or identifier in
+                                {"minecraft:crimson_stem","minecraft:warped_stem"})))
 
 
 def preserved_wood(assets, ids):

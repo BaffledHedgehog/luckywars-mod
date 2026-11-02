@@ -115,47 +115,49 @@ public final class LuckyBlockChecks {
                 require(stack.useOn(new UseOnContext(p,hand,hit)).consumesAction()&&stack.getCount()==1&&p.getItemInHand(other).getCount()==7,"real native block item placement and exact used-hand debit "+kind+" "+hand);
                 var state=world.level.getBlockState(pos);require(state.is(LbcLuckyBlocks.block(kind))&&LbcLuckyBlocks.kind(state)==kind,"placed actual native identity "+kind);
                 require(state.getCollisionShape(world.level,pos).bounds().equals(new net.minecraft.world.phys.AABB(0,0,0,1,1,1)),"native full cube collision "+kind);
-                var polymer=(eu.pb4.polymer.core.api.block.PolymerBlock)state.getBlock();require(polymer.getPolymerBlockState(state,null).equals(LbcLuckyBlocks.legacyState(kind)),"stable authored block proxy "+kind);
-                world.level.setBlock(pos.east(),Blocks.STONE.defaultBlockState(),3);require(LbcLuckyBlocks.kind(world.level.getBlockState(pos))==kind,"neighbor update preserves native kind");world.level.setBlock(pos.east(),Blocks.AIR.defaultBlockState(),3);
-                var breaker=hand==InteractionHand.MAIN_HAND?p:beta;breaker.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);String counter=kind==LbcLuckyBlocks.Kind.NORMAL?"lucky_block_count":kind==LbcLuckyBlocks.Kind.LOLI?"lolidefecation":null;int before=counter==null?0:counter(breaker,counter);require(breaker.gameMode.destroyBlock(pos),"placed native block real break "+kind);if(counter!=null)require(counter(breaker,counter)==before+1,"actual native mined counter increments once "+counter);var physical=drops();only(physical.stream().map(e->e.getItem()).toList(),MARKERS[kind.ordinal()],1,"placed native physical reward "+kind);
+                var polymer=(eu.pb4.polymer.core.api.block.PolymerBlock)state.getBlock();require(polymer.getPolymerBlockState(state,null).is(Blocks.BARRIER),"collision proxy does not consume real mushroom states "+kind);
+                var attachment=eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment.get(world.level,pos);
+                require(attachment!=null&&attachment.holder().getElements().size()==1,"one Polymer-owned block visual "+kind);
+                var savedState=BlockState.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE,state).getOrThrow();
+                require(BlockState.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,savedState).getOrThrow()==state,"registered block state persists without visual entities "+kind);
+                world.level.setBlock(pos.east(),Blocks.STONE.defaultBlockState(),3);require(LbcLuckyBlocks.kind(world.level.getBlockState(pos))==kind,"neighbor update preserves native kind");require(eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment.get(world.level,pos)==attachment,"neighbor update reuses the single visual");world.level.setBlock(pos.east(),Blocks.AIR.defaultBlockState(),3);
+                var breaker=hand==InteractionHand.MAIN_HAND?p:beta;breaker.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);String counter=kind==LbcLuckyBlocks.Kind.NORMAL?"lucky_block_count":kind==LbcLuckyBlocks.Kind.LOLI?"lolidefecation":null;int before=counter==null?0:counter(breaker,counter);require(breaker.gameMode.destroyBlock(pos),"placed native block real break "+kind);require(attachment.isRemoved(),"native break removes Polymer visual");if(counter!=null)require(counter(breaker,counter)==before+1,"actual native mined counter increments once "+counter);var physical=drops();only(physical.stream().map(e->e.getItem()).toList(),MARKERS[kind.ordinal()],1,"placed native physical reward "+kind);
                 for(var entity:physical){var source=game.items().spellSources().source(entity);require(source!=null&&source.author().equals(breaker.getUUID())&&source.cause()!=null&&source.cause().player().equals(breaker.getUUID())&&game.items().currentEpoch(source.epoch()),"actual reward cause belongs to breaker, including foreign placer "+kind);}
             }
         }
         void lootRules(){
             for(var kind:LbcLuckyBlocks.Kind.values()){
                 var raw=LbcLuckyBlocks.legacyState(kind);var nativeState=LbcLuckyBlocks.block(kind).defaultBlockState();var marker=MARKERS[kind.ordinal()];
-                require(LbcLuckyBlocks.kind(raw)==kind,"raw six false compatibility "+kind);
+                require(LbcLuckyBlocks.kind(raw)==null,"all raw mushroom states remain vanilla "+kind);
                 var ordinary=raw.setValue(BlockStateProperties.UP,true);require(LbcLuckyBlocks.kind(ordinary)==null,"one true face is ordinary "+kind);
                 for(int rolls:new int[]{0,-1,1,3}){
                     luck.set(rolls);p.getAttribute(Attributes.LUCK).setBaseValue(rolls-1);
-                    only(context(raw,p,tool(false,0)),marker,Math.max(0,rolls),"actual raw BLOCK score rolls "+kind+" "+rolls);
                     only(context(nativeState,p,tool(false,0)),marker,Math.max(0,rolls),"actual native BLOCK score rolls "+kind+" "+rolls);
                 }
                 // A nonliving native actor has no luck attribute: source refresh cannot create its missing score.
                 var actor=new net.minecraft.world.entity.Marker(net.minecraft.world.entity.EntityTypes.MARKER,world.level);actor.setPos(Vec3.atCenterOf(pos));require(world.level.addFreshEntity(actor),"native no-score actor");created.add(actor);
                 require(game.server().getScoreboard().getPlayerScoreInfo(actor,luck.objective)==null,"genuine absent actor score before fallback");
-                only(context(raw,actor,tool(false,0)),marker,1,"missing score fallback real vanilla context "+kind);
                 only(context(nativeState,actor,tool(false,0)),marker,1,"missing score fallback real native context "+kind);
                 require(game.server().getScoreboard().getPlayerScoreInfo(actor,luck.objective)==null,"absent actor score remains absent");
                 var mob=new net.minecraft.world.entity.decoration.ArmorStand(net.minecraft.world.entity.EntityTypes.ARMOR_STAND,world.level);
                 mob.setPos(Vec3.atCenterOf(pos));require(world.level.addFreshEntity(mob),"native living actor without luck attribute");created.add(mob);
                 require(mob.getAttribute(Attributes.LUCK)==null,"living fixture has no player luck attribute");
-                only(context(raw,mob,ItemStack.EMPTY),marker,1,"living nonplayer source fallback raw block");
                 only(context(nativeState,mob,ItemStack.EMPTY),marker,1,"living nonplayer source fallback native block");
                 require(game.server().getScoreboard().getPlayerScoreInfo(mob,luck.objective)==null,"nonplayer source refresh never creates a player luck score");
                 luck.set(null);p.getAttribute(Attributes.LUCK).setBaseValue(0);
-                only(context(raw,null,tool(false,0)),marker,1,"no actor real vanilla BLOCK fallback "+kind);
                 only(context(nativeState,null,tool(false,0)),marker,1,"no actor real native BLOCK fallback "+kind);
-                only(context(raw,null,ItemStack.EMPTY,true),marker,1,"no-actor explosion raw BLOCK source fallback "+kind);
                 only(context(nativeState,null,ItemStack.EMPTY,true),marker,1,"no-actor explosion native BLOCK source fallback "+kind);
                 luck.set(3);p.getAttribute(Attributes.LUCK).setBaseValue(2);
-                silk(context(raw,p,tool(true,0)),kind,false,"raw Silk native item "+kind);
                 silk(context(nativeState,p,tool(true,0)),kind,false,"native Silk native item "+kind);
+                var authored=game.lbc().rollTable(world.level,Vec3.atCenterOf(pos),p,"lbc:ported/silk_pickaxe").getFirst();
+                silk(breakBlock(p,nativeState,authored),kind,false,"authored SilkX pickaxe native break "+kind);
+                var highSilk=tool(false,0);highSilk.enchant(p.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH),1000);
+                silk(breakBlock(p,nativeState,highSilk),kind,false,"positive Silk level1000 native break "+kind);
                 String mined=kind==LbcLuckyBlocks.Kind.NORMAL?"lucky_block_count":kind==LbcLuckyBlocks.Kind.LOLI?"lolidefecation":null;int minedBefore=mined==null?0:counter(p,mined);
-                silk(breakBlock(p,raw,tool(true,0)),kind,false,"actual raw Silk physical item "+kind);
-                if(mined!=null)require(counter(p,mined)==minedBefore+1,"actual raw mined counter increments once "+mined);
+                only(breakBlock(p,raw,tool(true,0)),raw.getBlock().asItem(),1,"vanilla mushroom Silk returns its real block "+kind);
+                if(mined!=null)require(counter(p,mined)==minedBefore,"real mushroom does not advance lucky counter "+mined);
                 silk(breakBlock(p,nativeState,tool(true,0)),kind,false,"actual native Silk physical item "+kind);
-                if(mined!=null)require(counter(p,mined)==minedBefore+2,"actual native mined counter increments once "+mined);
+                if(mined!=null)require(counter(p,mined)==minedBefore+1,"actual native mined counter increments once "+mined);
                 boolean bonus=false;luck.set(1);p.getAttribute(Attributes.LUCK).setBaseValue(0);
                 for(int n=0;n<24;n++){var out=context(nativeState,p,tool(false,255));int count=0;for(var s:out){require(s.is(marker)&&s.getCount()<=99,"Fortune native per-stack cap99 "+kind);count+=s.getCount();}require(count>=1&&count<=99,"one Fortune roll bounds "+kind);bonus|=count>1;}
                 require(bonus,"actual ore_drops Fortune changes native reward "+kind);
@@ -169,7 +171,7 @@ public final class LuckyBlockChecks {
             only(context(normal,p,tool(false,0)),Items.LAPIS_LAZULI,1,"legacy branch exactly once regardless luck");
             silk(context(normal,p,tool(true,0)),LbcLuckyBlocks.Kind.NORMAL,true,"ordinary legacy plus Silk block and advancement pools");legacy.set(0);
             luck.set(16);p.getAttribute(Attributes.LUCK).setBaseValue(15);
-            for(var brown:List.of(LbcLuckyBlocks.legacyState(LbcLuckyBlocks.Kind.NEKO),LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NEKO).defaultBlockState())){
+            for(var brown:List.of(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NEKO).defaultBlockState())){
                 var high=context(brown,p,tool(false,0));only(high,Items.AMETHYST_SHARD,2,"source brown luck16 disables repeated rewards and executes both TMT pools");
                 only(context(brown,p,tool(true,0)),Items.AMETHYST_SHARD,2,"brown high-luck Silk retains both source TMT pools");
             }
@@ -181,7 +183,7 @@ public final class LuckyBlockChecks {
             double oldLuck=p.getAttribute(Attributes.LUCK).getBaseValue();var previous=game.server().getScoreboard().getPlayerScoreInfo(p,luck.objective);Integer oldScore=previous==null?null:previous.value();
             try{
                 p.getAttribute(Attributes.LUCK).setBaseValue(0);luck.set(1);
-                for(var state:List.of(LbcLuckyBlocks.legacyState(LbcLuckyBlocks.Kind.NEKO),LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NEKO).defaultBlockState()))for(int location=0;location<4;location++){
+                for(var state:List.of(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NEKO).defaultBlockState()))for(int location=0;location<4;location++){
                     p.getInventory().clearContent();for(var slot:equipmentSlots)p.setItemSlot(slot,ItemStack.EMPTY);
                     if(location==1)p.getInventory().setItem(9,flag("zaika"));
                     if(location==2)p.setItemInHand(InteractionHand.OFF_HAND,flag("zaika"));
@@ -209,5 +211,5 @@ public final class LuckyBlockChecks {
         }
     }
     public static void run(GameController game){try(var f=new Fixture(game)){f.placement();}SkyWars2.LOGGER.info("[check] PASS lucky-blocks (three canonical native leaves/Polymer roundtrip, both actual placement hands/exact debit, full collision/stable proxy/neighbor identity, actual placed-block gameMode destruction/physical root rewards)");}
-    public static void rules(GameController game){try(var f=new Fixture(game)){f.lootRules();f.nekoBranches();f.policies();}SkyWars2.LOGGER.info("[check] PASS lucky-block-rules (actual native/raw BLOCK contexts, zero/negative/positive/missing-score/no-actor, Silk physical native returns and exact advancement token, Fortune/per-stack99, ordinary mushroom exclusion, legacy plus Silk pools, Neko real inventory/offhand/armor zaika and mainhand luck_key predicates, raw/native mined counters, Creative/developer/observer/input/world TimeStop)");}
+    public static void rules(GameController game){try(var f=new Fixture(game)){f.lootRules();f.nekoBranches();f.policies();}SkyWars2.LOGGER.info("[check] PASS lucky-block-rules (actual native BLOCK / vanilla mushroom contexts, zero/negative/positive/missing-score/no-actor, Silk physical native returns and exact advancement token, Fortune/per-stack99, ordinary mushroom exclusion, legacy plus Silk pools, Neko real inventory/offhand/armor zaika and mainhand luck_key predicates, separate vanilla/native mined counters, Creative/developer/observer/input/world TimeStop)");}
 }

@@ -78,11 +78,15 @@ public final class LbcPendingCombat {
         if(data.getIntOr("chaos_swo",0)==1)volley(owner);
         if(data.getIntOr("gravitationsword",0)==1&&magic(owner))gravity(owner);
     }
-    private void gravity(ServerPlayer owner){
+    private double[] gravityValues(ServerPlayer owner){
         double[] values=new double[7];
         for(int i=0;i<6;i++)values[i]=(owner.getRandom().nextInt(RANGES[i][1]-RANGES[i][0]+1)+RANGES[i][0])/100.0;
         // Author changed only the amount: preserve the original add_multiplied_total operation.
         values[6]=-3+3*owner.getRandom().nextDouble();
+        return values;
+    }
+    private void gravity(ServerPlayer owner){
+        double[] values=gravityValues(owner);
         LbcOverload.sound(owner,"minecraft:entity.phantom.flap",1,2,0);
         var origin=owner.position();var cause=game.items().indirectKills().coldCause(owner,false);
         for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(origin,origin).inflate(8),e->{
@@ -90,14 +94,23 @@ public final class LbcPendingCombat {
                 &&e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().target(owner,e);
         })){
             if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))continue;
-            clearEffects(target);
-            var slam=target.getAttribute(Attributes.GRAVITY);if(slam!=null)slam.removeModifier(Identifier.parse("minecraft:slamslamslaaaaaaamslaaam"));
-            for(int i=0;i<7;i++){var attribute=target.getAttribute(ATTRIBUTES.get(i));if(attribute!=null)
-                attribute.addTransientModifier(new AttributeModifier(CURSE,values[i],AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));}
-            curses.put(target,new Curse(owner,game.items().epoch(),cause));
-            if(target instanceof ServerPlayer player)game.items().mana().score(player,"effect_gravity_curse").set(10);
-            game.items().indirectKills().displaced(target,cause);
+            installGravityCurse(owner,target,10,values,cause);
         }
+    }
+    /** Direct timed status grant shares the actual native modifiers and their existing cleanup owner. */
+    public boolean applyGravityCurse(ServerPlayer owner,LivingEntity target,int seconds){
+        if(seconds<=0||!valid(owner)||!target.isAlive()||target.level()!=owner.level()
+                ||target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return false;
+        installGravityCurse(owner,target,seconds,gravityValues(owner),game.items().indirectKills().coldCause(owner,false));return true;
+    }
+    private void installGravityCurse(ServerPlayer owner,LivingEntity target,int seconds,double[] values,LbcIndirectKills.Owner cause){
+        clearEffects(target);
+        var slam=target.getAttribute(Attributes.GRAVITY);if(slam!=null)slam.removeModifier(Identifier.parse("minecraft:slamslamslaaaaaaamslaaam"));
+        for(int i=0;i<7;i++){var attribute=target.getAttribute(ATTRIBUTES.get(i));if(attribute!=null)
+            attribute.addTransientModifier(new AttributeModifier(CURSE,values[i],AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));}
+        var curse=new Curse(owner,game.items().epoch(),cause);curse.seconds=seconds;curses.put(target,curse);
+        if(target instanceof ServerPlayer player)game.items().mana().score(player,"effect_gravity_curse").set(seconds);
+        game.items().indirectKills().displaced(target,cause);
     }
     public boolean gravityCurseActive(LivingEntity target){return curses.containsKey(target);}
     public void clearEffects(LivingEntity target){

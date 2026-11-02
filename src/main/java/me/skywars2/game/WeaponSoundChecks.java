@@ -69,8 +69,6 @@ public final class WeaponSoundChecks {
         sound(packet,volume,2,at);
     }
     private static void sound(ClientboundSoundPacket packet,float volume,float pitch,Vec3 at){
-        float cap=SoundNormalization.volumeCap(packet.getSound().value().location());
-        if(cap<1)volume=Math.min(volume,cap);
         require(packet.getSource()==SoundSource.MASTER && packet.getVolume()==volume && packet.getPitch()==pitch,
                 "native MASTER volume "+volume+" / pitch"+pitch);
         require(Math.abs(packet.getX()-at.x)<=.125 && Math.abs(packet.getY()-at.y)<=.125
@@ -230,9 +228,9 @@ public final class WeaponSoundChecks {
                             && shooter.getInventory().getItem(9).getCount()==ammo-1,"accepted native shot pays ammo and starts cooldown");
                     var own=shooterSwap.recording.gunSounds();var heard=viewerSwap.recording.gunSounds();
                     require(own.size()==1,"exactly one shooter gun packet for each mode/hand");
-                    // karich is measured mono: inverse original volume preserves its initial attenuation.
+                    // No normalization or synthetic relocation: retain the native emitter position.
                     var quantized=new Vec3((int)(at.x*8)/8d,(int)(at.y*8)/8d,(int)(at.z*8)/8d);
-                    sound(own.getFirst(),2,shooter.getEyePosition().lerp(quantized,.5));
+                    sound(own.getFirst(),2,quantized);
                     if(distant) require(heard.isEmpty(),"listener beyond source selector120 receives no gun packet");
                     else {
                         require(heard.size()==1,"listener60 blocks away receives native minimum-volume packet");

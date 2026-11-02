@@ -1,3 +1,31 @@
+## 24 author feedback fixes - QUALIFIED, INSTALLED (3 November 2026)
+
+[Scope, source corrections, final evidence and limitations](agent_notes/FEEDBACK_24_FIXES_2026_11_03.md).
+Test f46f2e01 / production669a319b. All31 selected groups passed on the exact artifact:
+27 broad match scopes plus Lucky2 and isolated automatic kit/respawn Rocket/BRBad2.
+33 matches observed; two broad kit preparations were rejected because frost-menu reset
+selection, then repeated successfully with genuine persisted kit selection. Initial
+ac692dc1 was never released. Legacy GUI locked-card fixture assumptions are documented.
+
+Native Lucky blocks use Polymer-owned item displays/barrier collision, with separate
+native_lucky loot; ALL raw map mushrooms remain vanilla (author decision). Gallery
+relocation/match cleanup restores its journal. Source presentation, 98config operands/
+7derived prices, /skywars reloadconfig/effect, first5000/5000+10, source snow eye origin,
+weakness-only floor, deterministic Deus, glider boots, chemical marker projection,
+SkillIssue post effect, original smoke/suppressor particles, rescue motion and uncapped
+/enchant are qualified. Global sound normalization is completely removed.
+
+Riptide receives true final native motion, without added cap; block cursors skip absent
+Y terrain while retaining border shapes. Unmodified-client extreme traversal/huge in-world
+XZ work remains unqualified. No physical client/audio or peakTPS claim.
+9863 frozen inputs,2683classes/7366resources;242author paths and31live overrides unchanged;
+8authoring classes absent production. Fixture25577only, normal shutdown/exact controlled
+snapshots/config/gallery/OP/level/tickets/regional journal/no locks. Actual RP unchanged:
+apply the separate custom_blocks_2026_11_02 and skill_issue_2026_11_03 template patches.
+Qualification/normal-stop install receipt: build/verification/feedback-24-2026-11-02/.
+Installed normally with964bd267 rollback and restarted:false. No main stop/restart/push.
+Broad Stonekivi/current-hand rewind gate stays closed; TMT LAST.
+
 ## Bow trinkets / special bows / inventory guards ? VERIFIED, INSTALLED (2 November 2026)
 
 [Final author rules, source closure and exact evidence](agent_notes/BOW_TRINKETS_SPECIAL_BOWS_2026_11_02.md).

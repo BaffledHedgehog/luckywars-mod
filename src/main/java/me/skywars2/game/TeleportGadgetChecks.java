@@ -80,7 +80,7 @@ public final class TeleportGadgetChecks {
                 require(packet.relatives().containsAll(Set.of(net.minecraft.world.entity.Relative.DELTA_X,net.minecraft.world.entity.Relative.DELTA_Y,net.minecraft.world.entity.Relative.DELTA_Z))&&packet.change().deltaMovement().equals(Vec3.ZERO),"each client retains its own velocity through relative zero impulse");}world();}
         boolean tick(){client.acknowledge();audience.acknowledge();require(game.server().getTickCount()-sequence<180,"finite scheduled trial");int age=game.server().getTickCount()-started;
             switch(phase){
-                case 0->{p.setYRot(91);p.setXRot(-32);if(age<10){require(service.chargingCount()==1&&stack.getCount()==2,"first9 real ticks retain charge/item");near(p.position(),origin,"camera rotation never cancels stationary charge");return false;}require(age==10,"exact10 real active ticks");swapped();begin(1,false);move(p,origin.add(.001,0,0));return false;}
+                case 0->{if(age==1)move(p,origin.add(.009,0,0));if(age==2)move(p,origin);p.setYRot(91);p.setXRot(-32);if(age<10){require(service.chargingCount()==1&&stack.getCount()==2,"first9 real ticks retain charge/item");require(p.position().distanceToSqr(origin)<=.0001,"camera rotation and total sub-centimetre inertia retain charge");return false;}require(age==10,"exact10 real active ticks");swapped();begin(1,false);move(p,origin.add(.011,0,0));return false;}
                 case 1->{failed();begin(2,false);p.getInventory().setSelectedSlot(1);return false;}
                 case 2->{failed();begin(3,false);field("stopper");return false;}
                 case 3->{failed();begin(4,false);artifact(true);return false;}

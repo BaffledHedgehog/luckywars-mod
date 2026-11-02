@@ -790,7 +790,13 @@ public final class GameChecks {
                                 case "one-punch-glove" -> { OnePunchGloveChecks.run(game); return; }
                                 case "infinite-shulker" -> { InfiniteShulkerChecks.run(game); return; }
                                 case "psycho-sound" -> { PsychoSoundChecks.start(game); return; }
-                                case "sound-normalization" -> { SoundNormalizationChecks.run(game); return; }
+                                case "sound-normalization" -> { SoundPlaybackChecks.run(game,"sound-normalization"); return; }
+                                case "sound-playback" -> { SoundPlaybackChecks.run(game,"sound-playback"); return; }
+                                case "riptide-velocity" -> { RiptideVelocityChecks.run(game); return; }
+                                case "block-collision-height" -> { BlockCollisionHeightChecks.run(game); return; }
+                                case "feedback-mana" -> { FeedbackBatchChecks.mana(game); return; }
+                                case "feedback-visuals" -> { FeedbackBatchChecks.visuals(game); return; }
+                                case "feedback-first-join" -> { FeedbackBatchChecks.firstJoin(game); return; }
                                 case "evolution-sword" -> { EvolutionSwordChecks.run(game); return; }
                                 case "lucky-grenade" -> { LuckyGrenadeChecks.start(game); return; }
                                 case "teleport-gadgets" -> { TeleportGadgetChecks.start(game); return; }

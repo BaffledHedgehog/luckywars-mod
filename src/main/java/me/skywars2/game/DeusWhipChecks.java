@@ -33,7 +33,7 @@ public final class DeusWhipChecks {
         final List<Cow> cows=new ArrayList<>();final Map<Cow,Vec3> homes=new LinkedHashMap<>();
         final List<Marker> fields=new ArrayList<>();final Map<Marker,MapManager.BlockSnapshot> fieldBlocks=new IdentityHashMap<>();final Map<net.minecraft.world.item.Item,Integer> stats=new IdentityHashMap<>();
         final boolean frozen;int stage=-1,when,started,lastClock,frames,damages,ownerUpdates;boolean closed;
-        Vec3 pose;float yaw,pitch;Cow pullTarget;double ordinaryPull;
+        List<Vec3> stablePath;Vec3 pose;float yaw,pitch;Cow pullTarget;double ordinaryPull;
         State(GameController game){this.game=game;
             p=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));beta=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(p!=null&&beta!=null,"two actual participants");saved=new RegenerationBeltChecks.Snapshot(game,p);betaSaved=new RegenerationBeltChecks.Snapshot(game,beta);
@@ -84,6 +84,9 @@ public final class DeusWhipChecks {
             if(stage==0){
                 require(clock()==lastClock-1,"one decrement per scheduled active frame");frames++;var hits=service.snapshotLastHits(p);require(hits.size()==3&&new HashSet<>(hits).size()==3&&hits.stream().allMatch(id->cows.stream().anyMatch(c->c.getUUID().equals(id))),"exactly three unique actual reached cow bodies: "+hits);
                 var path=service.snapshotLastPath(p);require(path.size()>2&&path.stream().anyMatch(v->Math.abs(v.x-p.getEyePosition().x)>.01),"electrowhip has lateral curvature under straight aim");
+                if(stablePath==null)stablePath=List.copyOf(path);else require(stablePath.equals(path),"stationary endpoints produce the same curve on successive ticks, without phase jitter");
+                require(path.size()<=161,"fixed per-caster curve sample budget");
+                for(int i=1;i<path.size();i++)require(path.get(i).distanceTo(path.get(i-1))<=.200001,"bounded exact collision segments");
                 geometry();damageFrame();pose();pin();lastClock=clock();
                 if(frames<3)return false;field("stopper");next(1);return false;
             }
@@ -97,7 +100,7 @@ public final class DeusWhipChecks {
             if(stage==8){require(clock()==Math.max(0,199-elapsed),"real scheduled199 cooldown expiry");if(clock()>0)return false;pullTarget=cow(f.at.add(0,0,4),0);launch();next(9);return false;}
             if(stage==9){var tangent=service.snapshotLastTangents(p).get(pullTarget.getUUID());require(tangent!=null,"actual reached target has incoming curve tangent");var motion=pullTarget.getDeltaMovement();ordinaryPull=motion.dot(tangent.scale(-1));require(ordinaryPull>0&&motion.normalize().dot(tangent.scale(-1))>.98,"target pulled opposite final curve tangent");pin();pullTarget.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(-.5);service.reset(p);launch();next(10);return false;}
             if(stage==10){var tangent=service.snapshotLastTangents(p).get(pullTarget.getUUID());require(tangent!=null,"negative resistance actual target reached");double amplified=pullTarget.getDeltaMovement().dot(tangent.scale(-1));require(amplified>ordinaryPull*1.4,"signed negative knockback resistance amplifies pull: normal="+ordinaryPull+" negative="+amplified);pose();clearCows();position(beta,f.at.add(14,0,18));cow(f.at.add(19,0,0),1);cow(f.at.add(0,0,20),1);launch();next(11);return false;}
-            if(stage==11){require(service.snapshotLastHits(p).isEmpty()&&cows.stream().allMatch(c->c.getHealth()==1000),"unreachable nearest first target cannot jump to reachable later body");var path=service.snapshotLastPath(p);require(path.size()>100,"unreachable first consumes actual finite curved search");pose();service.reset(p);require(clock()==0,"death/reset clears native source clock");return true;}
+            if(stage==11){require(service.snapshotLastHits(p).equals(List.of(cows.getFirst().getUUID())),"smooth curve reaches the first sideways target before considering the next link");near(cows.getFirst().getHealth(),998,"first real segment contact deals2");near(cows.get(1).getHealth(),1000,"remaining path budget cannot jump to a distant second target");var path=service.snapshotLastPath(p);require(path.size()<=161,"sideways target preserves finite sample budget");pose();service.reset(p);require(clock()==0,"death/reset clears native source clock");return true;}
             throw new IllegalStateException("Deus stage "+stage);
         }
         @Override public void close(){if(closed)return;closed=true;game.server().tickRateManager().setFrozen(frozen);try{game.items().timeStop().end(f.level);p.entityTags().remove("time_stopped");artifact(false);for(var m:List.copyOf(fields))remove(m);clearCows();service.reset(p);client.close();audience.close();f.close();}finally{saved.restore(game);saved.restoreAttributes();saved.restoreUse();betaSaved.restore(game);betaSaved.restoreAttributes();betaSaved.restoreUse();stats.forEach((item,n)->p.getStats().setValue(p,net.minecraft.stats.Stats.ITEM_USED.get(item),n));game.items().magic().inventoryChanged(p);game.items().magic().inventoryChanged(beta);game.items().magic().flushCleansing();}}

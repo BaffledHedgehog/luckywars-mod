@@ -121,7 +121,10 @@ public final class LbcItems {
         // Базовые свойства прежних кольчужных ботинок; точное оформление выдачи остаётся в исходной loot table.
         var properties = new Item.Properties().setId(key)
                 .humanoidArmor(ArmorMaterials.CHAINMAIL, ArmorType.BOOTS).rarity(Rarity.UNCOMMON)
-                .overrideDescription("lbckit.21")
+                .overrideDescription("lbckit.21").durability(280)
+                .component(DataComponents.GLIDER,Unit.INSTANCE)
+                .component(DataComponents.EQUIPPABLE,net.minecraft.world.item.equipment.Equippable.builder(EquipmentSlot.FEET)
+                        .setAsset(ResourceKey.create(net.minecraft.world.item.equipment.EquipmentAssets.ROOT_ID,Identifier.parse("lbc:rocket"))).build())
                 .component(DataComponents.ITEM_MODEL, Identifier.parse("lbc:armors/rocket_boots"));
         // Третий аргумент обязателен: двухаргументный конструктор SimplePolymerItem скрывает custom item_model.
         return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(properties, Items.CHAINMAIL_BOOTS, true));
@@ -507,6 +510,8 @@ public final class LbcItems {
         ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
         if (!isRocketBoots(boots)) return false;
         boolean elytra = player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA);
+        // Clear client-predicted glide even on a suppressed or exhausted boost attempt.
+        if(!elytra)player.stopFallFlying();
         if (!active(player)) return !elytra;
         RocketState state = rockets.computeIfAbsent(player.getUUID(), ignored -> new RocketState(player));
         // Native mechanism beacons use a sphere; legacy markers retain the Paper cube check.
@@ -560,11 +565,8 @@ public final class LbcItems {
             component.append(Component.literal(" \uE175").withColor(0x4e5c24));
         if(magic.mechanismSuppressed(source))
             component.append(Component.literal(" \uE176").withColor(0x4e5c24));
-        int cold=frost.cold(source), coldCooldown=frost.cooldown(source), frozen=frost.frozenSeconds(source);
+        int cold=frost.cold(source), frozen=frost.frozenSeconds(source);
         if(cold>0) component.append(Component.literal("  \uE137 \u00a7fx")).append(Component.literal(Integer.toString(cold)).withStyle(ChatFormatting.RED));
-        if(coldCooldown>0) component.append(Component.literal(" \u00a7f(").withStyle(ChatFormatting.RED))
-                .append(Component.literal(Integer.toString(coldCooldown)).withStyle(ChatFormatting.WHITE))
-                .append(Component.literal("\u00a7fs)").withStyle(ChatFormatting.RED));
         hudPositive(component,"  \uE138 ",frozen,ChatFormatting.RED);
         hudPositive(component,"  \uE139 ",babylonEffects.queued(source,110),ChatFormatting.RED);
         hudPositive(component,"  \uE144 ",quiver.queued(source,102),ChatFormatting.RED);

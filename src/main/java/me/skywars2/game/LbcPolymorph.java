@@ -135,6 +135,13 @@ public final class LbcPolymorph {
     public boolean eligible(Entity entity){return entity instanceof LivingEntity living&&!(entity instanceof Sheep)&&!active(entity)
             &&!LbcParasite.active(living)&&living.isAlive()&&!game.items().magic().suppressedAt((ServerLevel)entity.level(),entity.position())&&game.items().wands().validTarget(entity)&&!game.items().timeStop().frozen(entity)
             &&!game.items().timeStop().stopped((ServerLevel)entity.level());}
+    /** Operator timed grant uses the real reversible form and its authoritative countdown. */
+    public boolean applyTimed(LivingEntity original,LbcIndirectKills.Owner cause,int ticks){
+        if(ticks<=0)return false;
+        var existing=forms.get(original);if(existing!=null){existing.remaining=ticks;return true;}
+        if(transform(original,cause)==null)return false;
+        forms.get(original).remaining=ticks;return true;
+    }
     Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause){return transform(original,cause,false);}
     Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause,boolean rainbow){
         checkpointDepth++;try{

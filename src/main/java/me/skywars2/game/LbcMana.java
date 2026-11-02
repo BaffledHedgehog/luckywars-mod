@@ -68,19 +68,33 @@ public final class LbcMana {
         return Registry.register(BuiltInRegistries.ITEM,key,proxy==Items.POTION ? new Drink(properties)
                 : proxy==Items.SPLASH_POTION ? new Splash(properties) : new Lingering(properties));
     }
-    static void register() { LbcOverload.register(); }
+    static void register() { LbcOverload.register(); LbcTooltipScores.register(); }
     private static final CompoundTag BELT=flag("manabelt"), MAGE=flag("mage"), OVERLOAD=flag("overload");
     private static final EquipmentSlot[] ARMOR={EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET};
     private static final int[] ARMOR_REGEN={4,6,7,4};
     private record Gear(int belts,int regeneration,int overload,int mageMask) { }
     private final GameController game;
     private final LbcOverload overload;
+    private final LbcSourceConfig sourceConfig;
+    private final Set<UUID> initializedResources=new HashSet<>();
     private final Map<UUID,Gear> gear=new HashMap<>();
     private final Set<UUID> dirty=new HashSet<>();
     private final Set<LivingEntity> pendingPotions=new LinkedHashSet<>();
     private final Set<LivingEntity> statEffects=new LinkedHashSet<>();
 
-    LbcMana(GameController game) { this.game=game; this.overload=new LbcOverload(game,this); }
+    LbcMana(GameController game) { this.game=game; this.sourceConfig=new LbcSourceConfig(game.server()); this.overload=new LbcOverload(game,this); }
+    public LbcSourceConfig sourceConfig(){return sourceConfig;}
+    /** Absence, rather than a numeric sentinel, distinguishes a new player's resource entries. */
+    public void initializeResources(ServerPlayer player){
+        if(!initializedResources.add(player.getUUID()))return;
+        initializeResource(player,"mana",5000);initializeResource(player,"manamax",5000);
+        initializeResource(player,"manaregen",10);initializeResource(player,"manaregen_visual",hudValue(player,"manaregen"));
+    }
+    private void initializeResource(ServerPlayer player,String name,int fallback){
+        var board=game.server().getScoreboard();var objective=board.getObjective(name);
+        if(objective==null)objective=board.addObjective(name,LbcWitchStatistics.criterion(name),Component.literal(name),ObjectiveCriteria.RenderType.INTEGER,false,null);
+        if(board.getPlayerScoreInfo(player,objective)==null)board.getOrCreatePlayerScore(player,objective).set(fallback);
+    }
     public LbcOverload overload() { return overload; }
     private static CompoundTag flag(String name) { var tag=new CompoundTag(); tag.putInt(name,1); return tag; }
     private static boolean matches(ItemStack stack,CompoundTag flag) {
@@ -88,9 +102,19 @@ public final class LbcMana {
     }
     /** Один bridge для ресурсов и кастомных таймеров; не создаёт отдельный account JSON на каждый тик. */
     ScoreAccess score(net.minecraft.world.scores.ScoreHolder entity,String name) {
+        if(entity instanceof ServerPlayer player)initializeResources(player);
         var board=game.server().getScoreboard(); var objective=board.getObjective(name);
         if(objective==null) objective=board.addObjective(name,LbcWitchStatistics.criterion(name),Component.literal(name),ObjectiveCriteria.RenderType.INTEGER,false,null);
-        return board.getOrCreatePlayerScore(entity,objective);
+        var result=board.getOrCreatePlayerScore(entity,objective);
+        // Legacy constructors repeat their defaults. Migration/configuration already committed the
+        // canonical operands before constructing the item owners; don't overwrite those operands.
+        if(sourceConfig!=null&&game.items()==null&&sourceConfig.owns(name,entity.getScoreboardName()))return new ScoreAccess(){
+            public int get(){return result.get();}public void set(int ignored){}
+            public boolean locked(){return result.locked();}public void lock(){result.lock();}public void unlock(){result.unlock();}
+            public Component display(){return result.display();}public void display(Component display){result.display(display);}
+            public void numberFormatOverride(net.minecraft.network.chat.numbers.NumberFormat format){result.numberFormatOverride(format);}
+        };
+        return result;
     }
     private void write(Entity entity,String name,int value) {
         var score=score(entity,name); if(score.get()!=value) score.set(value);
@@ -268,6 +292,7 @@ public final class LbcMana {
         if(roll<=6) score(p,"manaregen").add(-1);
     }
     void loaded(LivingEntity p) {
+        if(p instanceof ServerPlayer player)initializeResources(player);
         if(LbcParasite.active(p))clearDebuffs(p);
         effectsChanged(p);
         var board=game.server().getScoreboard();

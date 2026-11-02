@@ -68,10 +68,6 @@ public final class LbcOrdinaryAccessories {
         var level=owner.level();var donor=owner.getInventory().getItem(slot);if(!flag(donor,"save"))return;
         var from=BlockPos.containing(owner.getX()-2,1,owner.getZ()-2);
         var to=BlockPos.containing(owner.getX()+2,1,owner.getZ()+2);
-        // Source commands continue independently: a failed teleport or fill does not cancel effects, consumption or the award.
-        // Relative X/Z and absolute Y edit only position; momentum is preserved by the common teleport policy.
-        var relatives=Relative.union(Relative.direction(true,false,true),Relative.position(true,false,true),Relative.ROTATION);
-        if(Level.isInSpawnableBounds(BlockPos.containing(owner.getX(),2,owner.getZ())))teleport(owner,0,2,0,0,0,relatives);
         owner.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,99,false,false,false),owner);
         owner.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,400,0),owner);
         boolean fill=!level.isDebug()&&!level.isOutsideBuildHeight(from)&&!level.isOutsideBuildHeight(to)
@@ -80,6 +76,13 @@ public final class LbcOrdinaryAccessories {
             if(!Level.isInSpawnableBounds(pos)||!level.hasChunkAt(pos)){fill=false;break;}
         // Guard only this STRICT fill against unavailable terrain; never load chunks or write a partial plane.
         if(fill)game.items().indirectKills().trapChanges(owner,()->LbcDropBlocks.fill(level,from,to,Blocks.SLIME_BLOCK,true));
+        // Build first, then rescue above the plane. A delayed client must not retain its void-fall Y velocity.
+        var relatives=Relative.union(Relative.direction(true,false,true),Relative.position(true,false,true),Relative.ROTATION);
+        if(Level.isInSpawnableBounds(BlockPos.containing(owner.getX(),2,owner.getZ())))teleport(owner,0,2,0,0,0,relatives);
+        var velocity=owner.getDeltaMovement();
+        if(velocity.y<0)owner.setDeltaMovement(velocity.x,0,velocity.z);
+        owner.resetFallDistance();
+        owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(owner));
         // Native /clear has broader scope and order than activation: inventory/equipment, crafting, then cursor.
         owner.getInventory().clearOrCountMatchingItems(stack->flag(stack,"save"),false,1,owner.inventoryMenu.getCraftSlots());
         owner.getInventory().setChanged();

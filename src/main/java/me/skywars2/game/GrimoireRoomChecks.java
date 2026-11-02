@@ -67,9 +67,8 @@ public final class GrimoireRoomChecks {
                         case 10->{require(spawned.size()==3,"three original Lucky Block mobs");for(var entity:spawned){
                             var data=saved(entity);require(data.getStringOr("DeathLootTable","").equals("lbc:luckyblock"),"original native Lucky Block loot");
                             require(entity instanceof LivingEntity living&&living.getItemBySlot(EquipmentSlot.HEAD).is(Items.PLAYER_HEAD),"exact source head carrier");}}
-                        case 11->{require(level.getBlockState(pos).is(Blocks.RED_MUSHROOM_BLOCK)&&level.getBlockState(pos.above()).is(Blocks.BROWN_MUSHROOM_BLOCK)
-                                    &&level.getBlockState(pos.above(2)).is(Blocks.MUSHROOM_STEM),"three native Lucky Block blocks");
-                            require(!level.getBlockState(pos).getValue(HugeMushroomBlock.UP)&&!level.getBlockState(pos).getValue(HugeMushroomBlock.DOWN),"original all-false mushroom faces");}
+                        case 11->{require(level.getBlockState(pos).is(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL))&&level.getBlockState(pos.above()).is(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NEKO))
+                                    &&level.getBlockState(pos.above(2)).is(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI)),"three native Lucky Block blocks");}
                     }
                     for(var entity:spawned){rooms.unloaded(entity);game.items().entityUnloaded(entity);entity.discard();}rooms.unloaded(seed);seed.discard();
                 }

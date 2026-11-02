@@ -85,8 +85,12 @@ public final class LbcClownKit {
             game.items().indirectKills().wildEffect(target,ItemEffectLevels.create(MobEffects.BLINDNESS,100,0),cause);
             game.items().indirectKills().wildEffect(target,ItemEffectLevels.create(MobEffects.POISON,100,0),cause);
         }
-        // Source emitted6000 forced particles separately for every victim. A single spatial batch
-        // keeps the physical gas readable without multiplying the client load by nearby players.
-        level.sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,at.x,at.y+.3,at.z,160,1.5,.6,1.5,.03);
+        // Legacy "execute as" retained the bomb origin; each unmasked nearby player received
+        // the dense, narrow forced plume privately, never a broad public cloud.
+        for(var audience:level.getEntitiesOfClass(ServerPlayer.class,new AABB(at,at).inflate(4),
+                player->player.position().distanceToSqr(at)<=16&&!mask(player)))
+            level.sendParticles(audience,ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,
+                    at.x,at.y+.3,at.z,6000,.1,.1,.1,.03);
+
     }
 }

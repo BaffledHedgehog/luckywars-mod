@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'skywars2/source_config_defaults.json', 'skywars2/authored_presentations.json', 'skywars2/academy_presentations.json'
+    include 'data/lbc/loot_table/native_lucky/*.json'
     include 'skywars2/content_catalog_refresh.json'
     include 'data/minecraft/tags/entity_type/magic_mobs.json'
     include 'data/minecraft/tags/entity_type/projectiles_double.json'
@@ -33,7 +35,6 @@ processResources {
     include 'data/lbc/loot_table/infinity.json', 'data/lbc/loot_table/infinity_upgraded.json', 'data/lbc/loot_table/infinity_upgraded_luck.json'
     include 'data/lbc/loot_table/infinity_upgraded_only_shulker.json', 'data/lbc/loot_table/infinity_upgraded_only_shulker_luck.json'
 
-    include 'skywars2/sound_levels.json'
     include 'data/lbc/loot_table/evolution_sword.json', 'data/lbc/loot_table/ported/evolution_sword.json'
     include 'data/lbc/loot_table/island_teleporter.json', 'data/lbc/loot_table/swapper.json', 'data/lbc/loot_table/lucky_grenades.json'
     include 'data/lbc/loot_table/ported/island_teleporter.json', 'data/lbc/loot_table/ported/swapper.json', 'data/lbc/loot_table/ported/lucky_grenade.json'

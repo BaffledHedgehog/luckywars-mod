@@ -31,6 +31,7 @@ public abstract class AuthoredItemDefaultsMixin {
         var result=cir.getReturnValue();
         if(skywars2$authoredModel!=null)result=result.add(DataComponents.ITEM_MODEL,skywars2$authoredModel);
         if(skywars2$authoredName!=null)result=result.add(DataComponents.ITEM_NAME,skywars2$authoredName);
+        result=result.andThen((components,context,key)->me.skywars2.game.AuthoredItemPresentation.fill(components,name,key.identifier(),skywars2$authoredName!=null));
         cir.setReturnValue(result);
     }
 }

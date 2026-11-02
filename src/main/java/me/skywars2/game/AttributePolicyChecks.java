@@ -60,6 +60,27 @@ public final class AttributePolicyChecks {
         var speed=owner.getAttribute(Attributes.ATTACK_SPEED);double saved=speed.getBaseValue();var modifiers=List.copyOf(speed.getModifiers());var permanent=Set.copyOf(speed.getPermanentModifiers());
         try{speed.removeModifiers();speed.setBaseValue(0);require(owner.getCurrentItemAttackStrengthDelay()==Float.POSITIVE_INFINITY,"zero attack speed uses native floating division");speed.setBaseValue(-4);require(owner.getCurrentItemAttackStrengthDelay()==-5,"negative attack speed remains finite without integer division failure");}
         finally{speed.removeModifiers();speed.setBaseValue(saved);for(var modifier:modifiers)if(permanent.contains(modifier))speed.addPermanentModifier(modifier);else speed.addTransientModifier(modifier);}
+        var damage=new net.minecraft.world.entity.ai.attributes.AttributeInstance(Attributes.ATTACK_DAMAGE,ignored->{});
+        var weakness=net.minecraft.resources.Identifier.withDefaultNamespace("effect.weakness");
+        var other=net.minecraft.resources.Identifier.parse("skywars2:negative_damage_probe");
+        damage.setBaseValue(3);
+        damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(weakness,-400,
+                net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+        require(damage.getValue()==0,"Weakness's own penalty stops at zero");
+        damage.setBaseValue(-7);require(damage.getValue()==-7,"negative authored base survives Weakness");
+        damage.removeModifier(weakness);damage.setBaseValue(3);
+        damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(other,-8,
+                net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+        require(damage.getValue()==-5,"independent negative additive damage remains signed");
+        damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(weakness,-400,
+                net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+        require(damage.getValue()==-5,"Weakness does not deepen an existing other-source negative total");
+        damage.removeModifier(other);damage.removeModifier(weakness);damage.setBaseValue(3);
+        damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(other,-2,
+                net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(weakness,-1,
+                net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+        require(damage.getValue()==-2,"other-source negative percentage remains signed after Weakness's own deduction");
         SkyWars2.LOGGER.info("[check] PASS attribute-policy");
     }
 }

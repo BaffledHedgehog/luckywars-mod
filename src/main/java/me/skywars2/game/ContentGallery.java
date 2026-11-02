@@ -36,7 +36,19 @@ public final class ContentGallery {
     private Catalog catalog;
     private List<ItemStack> contents = List.of();
     private final ArrayDeque<RunnablePlacement> placements = new ArrayDeque<>();
+    private final LinkedHashMap<CellKey, Cell> baseline = new LinkedHashMap<>();
+    private final LinkedHashMap<CellKey, Cell> restoring = new LinkedHashMap<>();
+    private final List<LegacyFootprint> legacy = new ArrayList<>();
+    private boolean legacyLayout;
+    record CellKey(String dimension, BlockPos pos) { }
+    record Cell(MapManager.BlockSnapshot before, net.minecraft.world.level.block.state.BlockState built) { }
+    static final class LegacyFootprint {
+        final Layout layout;
+        int rows;
+        LegacyFootprint(Layout layout, int rows) { this.layout=layout; this.rows=rows; }
+    }
     private boolean refresh;
+    private boolean enabled = true;
     private int clock;
     private int catalogErrors;
     private UUID requester;
@@ -59,7 +71,10 @@ public final class ContentGallery {
                 layout = new Layout(data.get("dimension").getAsString(),
                         new BlockPos(data.get("x").getAsInt(), data.get("y").getAsInt(), data.get("z").getAsInt()),
                         UUID.fromString(data.get("owner").getAsString()), UUID.randomUUID());
-                refresh = true;
+                enabled = !data.has("enabled") || data.get("enabled").getAsBoolean();
+                refresh = enabled;
+                legacyLayout = !data.has("cells");
+                readCells(data);
             } catch (Exception error) { SkyWars2.LOGGER.error("Cannot restore content gallery metadata", error); }
         }
     }
@@ -71,16 +86,51 @@ public final class ContentGallery {
 
     public void spawn(ServerPlayer player) {
         if (!allowed(player)) { player.sendSystemMessage(Component.literal("Gallery requires operator permission.")); return; }
-        requester = player.getUUID();
-        if (layout == null) {
-            var at = player.blockPosition().below();
-            if (at.getY() < player.level().getMinY() || at.getY() + 4 >= player.level().getMaxY()) {
-                player.sendSystemMessage(Component.literal("Not enough vertical room for the gallery.")); return;
-            }
-            layout = new Layout(player.level().dimension().identifier().toString(), at, UUID.randomUUID(), UUID.randomUUID());
+        var at = player.blockPosition().below();
+        if (at.getY() < player.level().getMinY() || at.getY() + 4 >= player.level().getMaxY()) {
+            player.sendSystemMessage(Component.literal("Not enough vertical room for the gallery.")); return;
         }
+        retireTerrain();
+        restoreLoaded(Integer.MAX_VALUE);
+        requester = player.getUUID();
+        var owner = layout == null ? UUID.randomUUID() : layout.owner;
+        // Invalidate every old generation immediately, including pending placements.
+        layout = new Layout(player.level().dimension().identifier().toString(), at, owner, UUID.randomUUID());
+        enabled = true;
+        legacyLayout = false;
+        placements.clear(); catalog = null;
+        removeObsoleteFrames();
         refresh = true;
-        player.sendSystemMessage(Component.literal("Gallery refresh queued. Existing gallery location is reused; construction waits for loaded chunks."));
+        save();
+        player.sendSystemMessage(Component.literal("Gallery queued at your current location; old display frames removed."));
+    }
+
+    /** Match admission must clear presentation work before any new map is populated. */
+    public void clearForMatchStart() {
+        enabled = false;
+        placements.clear(); catalog = null; requester = null; refresh = false;
+        retireTerrain();
+        removeObsoleteFrames();
+        restoreLoaded(Integer.MAX_VALUE);
+        save();
+    }
+
+    private void removeObsoleteFrames() {
+        if (layout == null) return;
+        for (var world : game.server().getAllLevels())
+            for (var entity : world.getAllEntities()) if (obsolete(entity)) {
+                for (var old : legacy) if (old.layout.dimension.equals(world.dimension().identifier().toString())) {
+                    var at = entity.blockPosition();
+                    int offset = at.getZ()-old.layout.center.getZ()-5;
+                    if (at.getY()==old.layout.center.getY()+2 && offset>=0 && offset%3==0
+                            && Math.abs(at.getX()-old.layout.center.getX())<COLUMNS)
+                    {
+                        expandLegacy(old,offset/3+1);
+                        legacyCell(old.layout,at.below(),Blocks.STONE_BRICKS);
+                    }
+                }
+                entity.discard();
+            }
     }
 
     private ServerLevel level() {
@@ -89,6 +139,11 @@ public final class ContentGallery {
 
     public void tick() {
         if (layout == null) return;
+        if (legacyLayout) { retireTerrain(); restoreLoaded(Integer.MAX_VALUE); }
+        // Retain ownership after a match start, so late-loaded old frames are also removed.
+        if (++clock % 20 == 0) removeObsoleteFrames();
+        restoreLoaded(256);
+        if (!enabled) return;
         var level = level();
         if (level == null) return;
         var current = game.server().reloadableRegistries().lookup();
@@ -107,20 +162,19 @@ public final class ContentGallery {
             catalog = null;
             plan();
         }
-        // Bounded late cleanup also catches obsolete frames whose chunks were unloaded during refresh.
-        if (++clock % 100 == 0) {
-            int removed = 0;
-            for (var entity : level.getAllEntities()) {
-                if (obsolete(entity)) { entity.discard(); if (++removed >= 128) break; }
-            }
-        }
         int attempts = Math.min(placements.size(), 256), completed = 0;
+        var ready = new ArrayList<RunnablePlacement>();
         while (attempts-- > 0 && completed < 128) {
             var placement = placements.removeFirst();
             if (!level.hasChunkAt(placement.position)) { placements.addLast(placement); continue; }
-            place(level, placement);
+            var key = new CellKey(layout.dimension,placement.position);
+            if (restoring.containsKey(key)) { placements.addLast(placement); continue; }
+            remember(level,placement.position,placement.kind==1?Blocks.ENDER_CHEST:Blocks.STONE_BRICKS);
+            ready.add(placement);
             completed++;
         }
+        // Write ahead once per bounded construction batch, preserving the first overwritten snapshot.
+        if (!ready.isEmpty()) { save(); for (var placement : ready) place(level,placement); }
         if (placements.isEmpty() && requester != null) {
             var player = game.server().getPlayerList().getPlayer(requester);
             if (player != null) player.sendSystemMessage(Component.literal("Gallery ready: " + contents.size() + " distinct mod item identities. Right-click a frame to copy one; central ender chest opens perks."
@@ -141,10 +195,10 @@ public final class ContentGallery {
     }
 
     private void place(ServerLevel level, RunnablePlacement placement) {
-        if (placement.kind == 0) level.setBlock(placement.position, Blocks.STONE_BRICKS.defaultBlockState(), 2);
-        else if (placement.kind == 1) level.setBlock(placement.position, Blocks.ENDER_CHEST.defaultBlockState(), 3);
+        if (placement.kind == 0) paint(level,placement.position,Blocks.STONE_BRICKS);
+        else if (placement.kind == 1) paint(level,placement.position,Blocks.ENDER_CHEST);
         else {
-            level.setBlock(placement.position, Blocks.STONE_BRICKS.defaultBlockState(), 2);
+            paint(level,placement.position,Blocks.STONE_BRICKS);
             var at = placement.position.above();
             for (var old : level.getEntitiesOfClass(ItemFrame.class, new AABB(at).inflate(.2), this::owned)) old.discard();
             level.addFreshEntity(frame(level, at, contents.get(placement.item), layout));
@@ -169,12 +223,12 @@ public final class ContentGallery {
 
     boolean owned(Entity entity) {
         return layout != null && entity instanceof ItemFrame && entity.entityTags().contains(TAG)
-                && entity.entityTags().contains(layout.ownerTag()) && entity.level() == level();
+                && entity.entityTags().contains(layout.ownerTag());
     }
     /** Consume player attacks on gallery frames, including vanilla creative invulnerability bypass. */
     public boolean protectEntity(Entity entity) { return owned(entity); }
     private boolean obsolete(Entity entity) {
-        return owned(entity) && !entity.entityTags().contains(layout.generationTag());
+        return owned(entity) && (!enabled || !entity.entityTags().contains(layout.generationTag()));
     }
 
     public boolean useEntity(ServerPlayer player, Entity entity) {
@@ -197,7 +251,138 @@ public final class ContentGallery {
         return true;
     }
     boolean ownsChest(ServerLevel level, BlockPos position) {
-        return layout != null && level == level() && position.equals(layout.chest());
+        return enabled && layout != null && level == level() && position.equals(layout.chest());
+    }
+
+    private void paint(ServerLevel level,BlockPos pos,net.minecraft.world.level.block.Block block) {
+        // Capture happened before this write. Clear native container contents before replacement
+        // so restoring its exact baseline cannot duplicate items dropped by onRemove.
+        game.maps().restoreSnapshot(level,pos,new MapManager.BlockSnapshot(block.defaultBlockState(),null),2);
+    }
+    void writeFixtureCell(ServerLevel level,BlockPos pos,net.minecraft.world.level.block.Block block) {
+        remember(level,pos,block);save();paint(level,pos,block);
+    }
+    void roundTripJournalForChecks() {
+        try {
+            var palette=new LinkedHashMap<net.minecraft.world.level.block.state.BlockState,Integer>();
+            var cells=encodeCells(baseline,palette);var queue=encodeCells(restoring,palette);
+            var states=List.copyOf(palette.keySet());baseline.clear();restoring.clear();
+            decodeCells(cells,states,baseline);decodeCells(queue,states,restoring);
+        } catch(IOException error) { throw new IllegalStateException(error); }
+    }
+
+    void remember(ServerLevel level, BlockPos pos, net.minecraft.world.level.block.Block block) {
+        var key=new CellKey(level.dimension().identifier().toString(),pos.immutable());
+        var prior=baseline.get(key);
+        baseline.put(key,new Cell(prior==null?game.maps().snapshot(level,pos):prior.before,block.defaultBlockState()));
+    }
+
+    private void retireTerrain() {
+        restoring.putAll(baseline); baseline.clear();
+        if (legacyLayout && layout!=null) {
+            var old=new LegacyFootprint(layout,0); legacy.add(old); expandLegacy(old,1);
+            // Infer the known historical extent from actual owned frames, never a world-sized box.
+            for (var world:game.server().getAllLevels()) for (var e:world.getAllEntities())
+                if (owned(e) && world.dimension().identifier().toString().equals(layout.dimension)) {
+                    int row=e.blockPosition().getZ()-layout.center.getZ()-5;
+                    if (e.blockPosition().getY()==layout.center.getY()+2 && row>=0 && row%3==0
+                            && Math.abs(e.blockPosition().getX()-layout.center.getX())<COLUMNS)
+                    {
+                        expandLegacy(old,row/3+1);
+                        legacyCell(old.layout,e.blockPosition().below(),Blocks.STONE_BRICKS);
+                    }
+                }
+            legacyLayout=false;
+        }
+        save();
+    }
+
+    private void expandLegacy(LegacyFootprint old,int rows) {
+        if(rows<=old.rows)return;
+        int previous=old.rows;old.rows=rows;
+        for(int z=previous==0?-3:previous*3+8;z<=rows*3+7;z++)
+            for(int x=-WIDTH/2;x<=WIDTH/2;x++)
+                legacyCell(old.layout,old.layout.center.offset(x,0,z),Blocks.STONE_BRICKS);
+        legacyCell(old.layout,old.layout.center,Blocks.ENDER_CHEST);
+    }
+    private void legacyCell(Layout at,BlockPos pos,net.minecraft.world.level.block.Block built) {
+        var key=new CellKey(at.dimension,pos);
+        var active=baseline.get(key);
+        if(active!=null) {
+            // A legacy chunk may arrive after the new showroom began rebuilding this cell.
+            if(active.before.state().is(built))baseline.put(key,new Cell(MapManager.BlockSnapshot.air(),active.built));
+        } else restoring.put(key,new Cell(MapManager.BlockSnapshot.air(),built.defaultBlockState()));
+    }
+
+    /** Restore only recorded writes still bearing the gallery material. Never force a chunk load. */
+    private void restoreLoaded(int budget) {
+        boolean changed=false;
+        int attempts=Math.min(budget,restoring.size());
+        while(attempts-->0) {
+            var iterator=restoring.entrySet().iterator();var entry=iterator.next();iterator.remove();
+            var key=entry.getKey();var cell=entry.getValue();
+            var world=game.server().getLevel(ResourceKey.create(Registries.DIMENSION,Identifier.parse(key.dimension)));
+            if(world==null || !world.hasChunkAt(key.pos)) { restoring.put(key,cell);continue; }
+            if(!baseline.containsKey(key) && (world.getBlockState(key.pos)==cell.built
+                    || cell.built.is(Blocks.ENDER_CHEST) && world.getBlockState(key.pos).is(Blocks.STONE_BRICKS)))
+                game.maps().restoreSnapshot(world,key.pos,cell.before);
+            changed=true;
+        }
+        if(changed)save();
+    }
+
+    /** Call from Fabric CHUNK_LOAD before an imported map can replace queued old gallery cells. */
+    public void chunkLoaded(ServerLevel world,net.minecraft.world.level.chunk.LevelChunk chunk) {
+        String dimension=world.dimension().identifier().toString();
+        boolean changed=false;
+        var iterator=restoring.entrySet().iterator();
+        while(iterator.hasNext()) {
+            var entry=iterator.next();var key=entry.getKey();var cell=entry.getValue();
+            if(!key.dimension.equals(dimension) || (key.pos.getX()>>4)!=chunk.getPos().x() || (key.pos.getZ()>>4)!=chunk.getPos().z())continue;
+            var actual=chunk.getBlockState(key.pos);
+            if(!baseline.containsKey(key) && (actual==cell.built || cell.built.is(Blocks.ENDER_CHEST)&&actual.is(Blocks.STONE_BRICKS)))
+                game.maps().restoreSnapshot(world,key.pos,cell.before);
+            iterator.remove();changed=true;
+        }
+        if(changed)save();
+    }
+
+    private void readCells(JsonObject data) throws IOException {
+        if(!data.has("cells"))return;
+        var palette=new ArrayList<net.minecraft.world.level.block.state.BlockState>();
+        for(var value:data.getAsJsonArray("states"))palette.add(net.minecraft.world.level.block.state.BlockState.CODEC.parse(JsonOps.INSTANCE,value).getOrThrow());
+        decodeCells(data.getAsJsonArray("cells"),palette,baseline);
+        decodeCells(data.getAsJsonArray("restoring"),palette,restoring);
+        if(data.has("legacy"))for(var value:data.getAsJsonArray("legacy")) {
+            var row=value.getAsJsonObject();
+            var at=new Layout(row.get("dimension").getAsString(),new BlockPos(row.get("x").getAsInt(),row.get("y").getAsInt(),row.get("z").getAsInt()),layout.owner,UUID.randomUUID());
+            legacy.add(new LegacyFootprint(at,row.get("rows").getAsInt()));
+        }
+    }
+    private static void decodeCells(JsonArray rows,List<net.minecraft.world.level.block.state.BlockState> palette,Map<CellKey,Cell> target) throws IOException {
+        if(rows==null)return;
+        for(var value:rows) {
+            var row=value.getAsJsonArray();
+            net.minecraft.nbt.CompoundTag nbt=null;
+            if(row.size()>6)try(var stream=new java.io.ByteArrayInputStream(Base64.getDecoder().decode(row.get(6).getAsString()))) {
+                nbt=net.minecraft.nbt.NbtIo.readCompressed(stream,net.minecraft.nbt.NbtAccounter.create(16L*1024*1024));
+            }
+            target.put(new CellKey(row.get(0).getAsString(),new BlockPos(row.get(1).getAsInt(),row.get(2).getAsInt(),row.get(3).getAsInt())),
+                    new Cell(new MapManager.BlockSnapshot(palette.get(row.get(4).getAsInt()),nbt),palette.get(row.get(5).getAsInt())));
+        }
+    }
+    private static JsonArray encodeCells(Map<CellKey,Cell> source,Map<net.minecraft.world.level.block.state.BlockState,Integer> palette) throws IOException {
+        var rows=new JsonArray();
+        for(var entry:source.entrySet()) {
+            var key=entry.getKey();var cell=entry.getValue();var row=new JsonArray();
+            row.add(key.dimension);row.add(key.pos.getX());row.add(key.pos.getY());row.add(key.pos.getZ());
+            row.add(palette.computeIfAbsent(cell.before.state(),s->palette.size()));row.add(palette.computeIfAbsent(cell.built,s->palette.size()));
+            if(cell.before.entity()!=null)try(var stream=new java.io.ByteArrayOutputStream()) {
+                net.minecraft.nbt.NbtIo.writeCompressed(cell.before.entity(),stream);row.add(Base64.getEncoder().encodeToString(stream.toByteArray()));
+            }
+            rows.add(row);
+        }
+        return rows;
     }
 
     private void save() {
@@ -208,6 +393,15 @@ public final class ContentGallery {
             data.addProperty("dimension", layout.dimension);
             data.addProperty("x", layout.center.getX()); data.addProperty("y", layout.center.getY()); data.addProperty("z", layout.center.getZ());
             data.addProperty("owner", layout.owner.toString());
+            data.addProperty("enabled", enabled);
+            var palette=new LinkedHashMap<net.minecraft.world.level.block.state.BlockState,Integer>();
+            data.add("cells",encodeCells(baseline,palette));data.add("restoring",encodeCells(restoring,palette));
+            var states=new JsonArray();for(var state:palette.keySet())states.add(net.minecraft.world.level.block.state.BlockState.CODEC.encodeStart(JsonOps.INSTANCE,state).getOrThrow());
+            data.add("states",states);
+            var oldLayouts=new JsonArray();for(var old:legacy) {
+                var row=new JsonObject();row.addProperty("dimension",old.layout.dimension);row.addProperty("x",old.layout.center.getX());row.addProperty("y",old.layout.center.getY());row.addProperty("z",old.layout.center.getZ());row.addProperty("rows",old.rows);oldLayouts.add(row);
+            }
+            data.add("legacy",oldLayouts);
             var temporary = journal.resolveSibling(journal.getFileName() + ".tmp");
             Files.writeString(temporary, data.toString());
             Files.move(temporary, journal, StandardCopyOption.REPLACE_EXISTING);

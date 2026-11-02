@@ -33,9 +33,7 @@ public final class LuckyRoomDropChecks {
         if(Math.abs(x)<=2 && Math.abs(z)<=2 && y>=-1 && y<=1) {
             if(y>=0 && Math.abs(x)<=1 && Math.abs(z)<=1) {
                 if(y==0 && Math.abs(x)==1 && Math.abs(z)==1) {
-                    var state=Blocks.RED_MUSHROOM_BLOCK.defaultBlockState();
-                    for(var property:state.getProperties())state=state.setValue((net.minecraft.world.level.block.state.properties.BooleanProperty)property,false);
-                    return state;
+                    return LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL).defaultBlockState();
                 }
                 return Blocks.AIR.defaultBlockState();
             }

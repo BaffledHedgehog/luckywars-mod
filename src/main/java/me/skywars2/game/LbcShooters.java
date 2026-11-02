@@ -724,9 +724,14 @@ public final class LbcShooters {
     }
     /** Shared full input lock. Spell families own their own additional status payloads. */
     public boolean stun(ServerPlayer owner,LivingEntity target,int ticks){
+        return stun(owner,target,ticks,false);
+    }
+    /** Explicit self-target grant shares the native stun owner without changing projectile targeting. */
+    public boolean selfStun(ServerPlayer owner,int ticks){return stun(owner,owner,ticks,true);}
+    private boolean stun(ServerPlayer owner,LivingEntity target,int ticks,boolean self){
         statusCallbacks++;try {if(statusRestoring)return false;
             if(ticks<=0||!active(owner)||target.level()!=owner.level()
-                    ||!game.items().wands().projectileTarget(owner,target)
+                    ||!(self&&target==owner?game.items().wands().validRoleTarget(target,false):game.items().wands().projectileTarget(owner,target))
                     ||game.items().wands().inputTimeStopped(owner)
                     ||game.items().timeStop().frozen(target)
                     ||target instanceof ServerPlayer player&&(LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.SLOWNESS)))return false;

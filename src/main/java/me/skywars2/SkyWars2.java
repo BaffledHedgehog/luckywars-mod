@@ -104,7 +104,6 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (game != null) { game.tick(); GameChecks.tick(game); game.items().psycho().audioMaintenance(); }
-            me.skywars2.game.SoundNormalization.captureViews(server);
             me.skywars2.game.SignedEnvironmentalEffects.tick();
             me.skywars2.game.SignedEffectVisuals.tick(server);
             me.skywars2.game.WeaponSpreadVisuals.tick(server);
@@ -125,6 +124,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.queueEntityUnload(entity);
         });
         ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> {
+            if(game!=null)game.developerTools().gallery().chunkLoaded(level,chunk);
             if(game!=null)game.vanity().chunkLoaded(chunk);
             if (game != null && level == game.maps().level()) game.items().magic().chunkLoaded(chunk);
             if (game != null && level == game.maps().level()) game.items().bedrock().chunkLoaded(chunk);
@@ -141,7 +141,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) { game.shutdown(); game = null; }
             me.skywars2.game.WeaponSpreadVisuals.stop();
         });
-        ServerPlayerEvents.JOIN.register(player -> { if (game != null) game.join(player); me.skywars2.game.SignedEffectVisuals.joined(player); });
+        ServerPlayerEvents.JOIN.register(player -> { if (game != null) { game.items().mana().initializeResources(player); game.join(player); } me.skywars2.game.SignedEffectVisuals.joined(player); });
         ServerPlayerEvents.LEAVE.register(player -> {
             me.skywars2.game.WeaponSpreadVisuals.forget(player);
             FullInvisibility.cameraChanging(player, null);
@@ -488,7 +488,15 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                                         }
                                     }))));
             var command = dispatcher.register(root);
-            dispatcher.register(Commands.literal("skywars").executes(command.getCommand()).redirect(command));
+            // A redirect would bypass local effect/reload children. Share child nodes instead.
+            var skywars=dispatcher.register(Commands.literal("skywars").executes(command.getCommand()));
+            for(var child:command.getChildren())skywars.addChild(child);
+            for(String alias:java.util.List.of("gallery","developer","mapsave","mapdelete","settings","player")){
+                var target=dispatcher.getRoot().getChild(alias);
+                if(target!=null)skywars.addChild(Commands.literal(alias).requires(target.getRequirement())
+                        .executes(target.getCommand()).redirect(target).build());
+            }
+            me.skywars2.game.SkyWarsFeedbackCommands.register(dispatcher);
         });
         LOGGER.info("SkyWars game cycle registered");
     }

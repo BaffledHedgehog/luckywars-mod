@@ -52,14 +52,14 @@ public final class LbcAdvancedSnow {
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly(snow?"snow_wand_mana_use":"advanced_ender_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(p,cost))return false;
-        if(snow&&!academy)spawn(p,p.position(),hand,stack);
+        if(snow&&!academy)spawn(p,p.getEyePosition(),hand,stack);
         else aim(p,hand,stack,snow,academy,mode,cost);
         // Source upgraded snow/cast omits the mage/trinket hook; the ordinary cast and both Enders have it.
         if(!snow||!academy)game.items().wands().wandCasted(p);
         return true;
     }
     void grimoire(ServerPlayer p,InteractionHand hand,boolean snow,boolean academy,int mode){
-        if(snow&&!academy)spawn(p,p.position(),hand,ItemStack.EMPTY);
+        if(snow&&!academy)spawn(p,p.getEyePosition(),hand,ItemStack.EMPTY);
         else aim(p,InteractionHand.MAIN_HAND,ItemStack.EMPTY,snow,academy,mode,0);
     }
     private void aim(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean snow,boolean academy,int mode,int cost){
@@ -92,6 +92,7 @@ public final class LbcAdvancedSnow {
             inProgress++;try {
             if(hit==null||!game.items().currentEpoch(epoch)||!p.isAlive()||p.isRemoved())return;
             Vec3 point=hit.getLocation();
+            // Upgraded/check positions +1 above impact; summon adds another +2.
             if(snow){spawn(p,point.add(0,1,0),hand,stack);return;}
             Vec3 destination;
             if(academy&&mode==2){

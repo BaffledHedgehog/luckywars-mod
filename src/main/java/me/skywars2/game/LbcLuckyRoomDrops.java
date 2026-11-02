@@ -47,9 +47,7 @@ public final class LbcLuckyRoomDrops {
         fill(level,center.offset(-1,0,-1),center.offset(1,1,1),Blocks.AIR.defaultBlockState());
         for (int x : new int[]{-2,2}) for (int z : new int[]{-2,2})
             place(level,center.offset(x,2,z),Blocks.GOLD_BLOCK.defaultBlockState());
-        var mushroom = Blocks.RED_MUSHROOM_BLOCK.defaultBlockState();
-        for (var property : mushroom.getProperties())
-            mushroom = mushroom.setValue((net.minecraft.world.level.block.state.properties.BooleanProperty)property,false);
+        var mushroom = LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL).defaultBlockState();
         for (int x : new int[]{-1,1}) for (int z : new int[]{-1,1})
             place(level,center.offset(x,0,z),mushroom);
     }

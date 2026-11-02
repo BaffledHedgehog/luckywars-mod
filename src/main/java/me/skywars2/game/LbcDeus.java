@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/** The scoreboard owns the entire sustained cast; each visible whip is rebuilt from current bodies. */
+/** Scoreboard sustained cast with deterministic, distance-based curves between successive targets. */
 public final class LbcDeus {
     private static final String CLOCK="deus_cd";
     private static final double REACH=28, STEP=.2, PULL=.4;
@@ -88,6 +88,10 @@ public final class LbcDeus {
         // One broadphase per attempt. Neither curve samples nor target chaining query entities.
         var bodies=owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(origin,origin).inflate(REACH+1),
                 target->eligible(owner,target));
+        // Crowded arenas have a bounded collision candidate pool, selected deterministically once per frame.
+        bodies.sort(java.util.Comparator.<LivingEntity>comparingDouble(body->body.getBoundingBox().getCenter().distanceToSqr(origin))
+                .thenComparingInt(LivingEntity::getId));
+        if(bodies.size()>128)bodies=new ArrayList<>(bodies.subList(0,128));
         var artifacts=new ArrayList<Vec3>();
         for(var holder:game.server().getPlayerList().getPlayers())
             if(holder.level()==owner.level()&&holder.isAlive()&&game.canUseGameplayItems(holder)
@@ -100,51 +104,67 @@ public final class LbcDeus {
         double spent=0;
         DamageSource damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(LbcDamage.LIGHTNING),owner);
-        for(int sample=0;sample<140&&spent<REACH-1e-8;sample++){
-            Vec3 aim=direction;
-            if(target!=null){
-                Vec3 towards=target.getBoundingBox().getCenter().subtract(point);
-                aim=towards.lengthSqr()<2.5*2.5?towards.normalize():direction.add(towards.normalize().scale(.01)).normalize();
+        Curve curve=curve(point,direction,target==null?point.add(direction.scale(REACH)):target.getBoundingBox().getCenter());
+        double progress=0;
+        // Both geometry and particles have a fixed per-caster upper bound; no per-tick randomness.
+        for(int sample=0;sample<160&&spent<REACH-1e-8;sample++){
+            double nextProgress=Math.min(1,progress+STEP/Math.max(STEP,curve.tangent(progress).length()));
+            Vec3 next=curve.at(nextProgress);
+            for(int refine=0;refine<8&&point.distanceToSqr(next)>STEP*STEP;refine++){
+                nextProgress=progress+(nextProgress-progress)*Math.min(.99,STEP/point.distanceTo(next)*.99);next=curve.at(nextProgress);
             }
-            Vec3 side=aim.cross(Math.abs(aim.y)<.9?new Vec3(0,1,0):new Vec3(1,0,0)).normalize();
-            Vec3 up=side.cross(aim).normalize();
-            // Two independent waves also bend a perfectly straight, stationary aim.
-            double phase=sample*.57+age*.24;
-            direction=aim.add(side.scale(.16*Math.sin(phase+.4)))
-                    .add(up.scale(.09*Math.cos(phase*.73))).normalize();
-            Vec3 next=point.add(direction.scale(Math.min(STEP,REACH-spent)));
+            double remaining=REACH-spent,length=point.distanceTo(next);
+            if(length>remaining)next=point.lerp(next,remaining/length);
+            Vec3 tangent=next.subtract(point).normalize();
             double limit=game.items().magic().mechanismSuppressionFraction(owner.level(),point,next);
             for(var center:artifacts)limit=Math.min(limit,sphereEntry(point,next,center));
             boolean jammed=limit<=1;
             if(jammed)next=point.lerp(next,Math.max(0,limit-1e-6));
             if(!owner.level().hasChunkAt(BlockPos.containing(next)))break;
-            Vec3 contact=null;
-            if(target!=null&&LbcBeamGeometry.intersects(target.getBoundingBox(),point,next))
-                contact=target.getBoundingBox().contains(point)?point:target.getBoundingBox().clip(point,next).orElse(null);
-            if(contact!=null){
-                next=contact;hits.add(target.getUUID());tangents.put(target.getUUID(),direction);
-            }
-            double length=point.distanceTo(next);spent+=length;path.add(next);
-            // Keep all .2-block collision segments; .6-block visual spacing bounds network work.
-            if(sample%3==0||contact!=null||jammed){
-                owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,next.x,next.y,next.z,1,0,0,0,0);
-                lastVisual=next;
-            }
-            point=next;
-            if(contact!=null){
-                if(pulse){
-                    if(!target.hurtServer(owner.level(),damage,2))break;
-                    accepted.add(target.getUUID());pull(owner,target,direction);
+            LivingEntity contactBody=null;Vec3 contact=null;double first=Double.POSITIVE_INFINITY;
+            for(var body:bodies){
+                if(hits.contains(body.getUUID())||!eligible(owner,body))continue;
+                if(!LbcBeamGeometry.intersects(body.getBoundingBox(),point,next))continue;
+                var intersection=body.getBoundingBox().contains(point)?point:body.getBoundingBox().clip(point,next).orElse(null);
+                if(intersection==null)continue;
+                double distance=point.distanceToSqr(intersection);
+                if(distance<first||distance==first&&contactBody!=null&&body.getId()<contactBody.getId()){
+                    contactBody=body;contact=intersection;first=distance;
                 }
-                if(hits.size()>=3)break;
-                target=nearest(bodies,hits,point,REACH-spent);
-                if(target!=null)direction=target.getBoundingBox().getCenter().subtract(point).normalize();
             }
-            if(jammed)break;
+            if(contact!=null){next=contact;hits.add(contactBody.getUUID());tangents.put(contactBody.getUUID(),tangent);}
+            spent+=point.distanceTo(next);path.add(next);
+            if(sample%3==0||contact!=null||jammed){
+                owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,next.x,next.y,next.z,1,0,0,0,0);lastVisual=next;
+            }
+            point=next;progress=nextProgress;direction=tangent;
+            if(contact!=null){
+                // A rejected native hit cannot open the next link on a damage pulse.
+                if(pulse){
+                    if(!contactBody.hurtServer(owner.level(),damage,2))break;
+                    accepted.add(contactBody.getUUID());pull(owner,contactBody,tangent);
+                }
+                if(hits.size()>=3||jammed)break;
+                target=nearest(bodies,hits,point,REACH-spent);
+                if(target==null)break;
+                curve=curve(point,direction,target.getBoundingBox().getCenter());progress=0;
+            }else if(progress>=1||jammed)break;
         }
         if(path.size()>1&&!point.equals(lastVisual))
             owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,0,0,0,0);
         frames.put(owner.getUUID(),new Frame(List.copyOf(path),List.copyOf(hits),Map.copyOf(tangents),List.copyOf(accepted)));
+    }
+    /** Fixed control points depend only on endpoints and incoming tangent, never tick age or RNG. */
+    private record Curve(Vec3 a,Vec3 b,Vec3 c,Vec3 d){
+        Vec3 tangent(double t){double u=1-t;return b.subtract(a).scale(3*u*u).add(c.subtract(b).scale(6*u*t)).add(d.subtract(c).scale(3*t*t));}
+        Vec3 at(double t){double u=1-t;return a.scale(u*u*u).add(b.scale(3*u*u*t)).add(c.scale(3*u*t*t)).add(d.scale(t*t*t));}
+    }
+    private static Curve curve(Vec3 start,Vec3 incoming,Vec3 end){
+        Vec3 delta=end.subtract(start);double distance=delta.length();Vec3 forward=distance<1e-8?incoming:delta.scale(1/distance);
+        Vec3 side=forward.cross(Math.abs(forward.y)<.9?new Vec3(0,1,0):new Vec3(1,0,0)).normalize();
+        Vec3 up=side.cross(forward).normalize();double bend=Math.min(3,distance*.18);
+        return new Curve(start,start.add(incoming.scale(distance*.3)).add(side.scale(bend)),
+                end.subtract(forward.scale(distance*.3)).add(up.scale(bend*.5)),end);
     }
     private void pull(ServerPlayer owner,LivingEntity target,Vec3 incoming){
         if(!target.isAlive()||LbcGreed.active(target)||game.items().timeStop().frozen(target))return;

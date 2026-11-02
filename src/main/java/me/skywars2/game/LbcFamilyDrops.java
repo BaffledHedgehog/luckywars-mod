@@ -139,7 +139,7 @@ public final class LbcFamilyDrops {
             child.setDeltaMovement(new Vec3((int)(direction.x*10000)*.00005,(int)(direction.y*10000)*.00005,(int)(direction.z*10000)*.00005));
         }
         if(level.getRandom().nextInt(100)<3){var message=Component.translatable("absurd_child").append(Component.translatable("absurd_child_msg_"+(level.getRandom().nextInt(20)+1)));for(var p:level.players())if(!p.isSpectator()&&p.distanceToSqr(child)<=900)p.sendSystemMessage(message);}
-        var held=child.getMainHandItem();String table=held.is(Items.RED_MUSHROOM_BLOCK)||held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NORMAL))?"luckyblock_neko_block":held.is(Items.BROWN_MUSHROOM_BLOCK)||held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NEKO))?"luckyblock_loli_block":held.is(Items.MUSHROOM_STEM)||held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.LOLI))?"luckyblock_block_only":null;
+        var held=child.getMainHandItem();String table=held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NORMAL))?"luckyblock_neko_block":held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NEKO))?"luckyblock_loli_block":held.is(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.LOLI))?"luckyblock_block_only":null;
         if(table!=null)child.setItemSlot(EquipmentSlot.MAINHAND,loot(table,child,null));
     }
     /** Source @e is local to the birth dimension. Snapshot first: new bolts cannot recurse. */

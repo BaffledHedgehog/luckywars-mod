@@ -165,7 +165,7 @@ public final class LbcGrimoireRooms {
             case 8->spawn(marker,at,parse("{id:'minecraft:creeper',powered:1b,Tags:['dungeon_mob'],PersistenceRequired:1b}"));
             case 9->{mob(marker,at,"breeze");mob(marker,at,"breeze");}
             case 10->{spawn(marker,at.add(-1,0,0),LUCKY_0);spawn(marker,at.add(0,0,-1),LUCKY_1);spawn(marker,at.add(1,0,-1),LUCKY_2);}
-            case 11->{block(level,pos,lucky(Blocks.RED_MUSHROOM_BLOCK.defaultBlockState()),null);block(level,pos.above(),lucky(Blocks.BROWN_MUSHROOM_BLOCK.defaultBlockState()),null);block(level,pos.above(2),lucky(Blocks.MUSHROOM_STEM.defaultBlockState()),null);}
+            case 11->{block(level,pos,LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL).defaultBlockState(),null);block(level,pos.above(),LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NEKO).defaultBlockState(),null);block(level,pos.above(2),LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI).defaultBlockState(),null);}
             case 12->{block(level,pos,Blocks.SPAWNER.defaultBlockState(),MINE);game.items().potionSpawnerDrops().admitSourceSpawner(level,pos,game.items().spellSources().source(marker));}
             default->throw new IllegalArgumentException("Dungeon reward "+choice);
         }

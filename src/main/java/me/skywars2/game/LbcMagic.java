@@ -655,8 +655,8 @@ public final class LbcMagic {
     }
     void second() {
         var level = game.maps().level();
-        for (var state : loadedBeacons) if (!state.mechanism)
-            level.sendParticles(ParticleTypes.WITCH,state.center.x,state.center.y,state.center.z,10,.2,.4,.2,0);
+        for (var state : loadedBeacons) if (state.data!=null&&!state.data.isRemoved())
+            level.sendParticles(state.mechanism?ParticleTypes.END_ROD:ParticleTypes.WITCH,state.center.x,state.center.y,state.center.z,10,.2,.4,.2,0);
     }
     /** Однократная сверка после старта/перезагрузки тегов: события могли пройти до создания контроллера. */
     public void refreshEntityIndexes() {

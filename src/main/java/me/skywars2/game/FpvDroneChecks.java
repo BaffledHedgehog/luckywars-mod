@@ -127,17 +127,7 @@ public final class FpvDroneChecks {
         }
         void audioViewpoint(){
             var eye=drone.getEyePosition();require(eye.equals(LbcFpvDrone.viewpoint(owner))&&owner.getCamera()==owner,"shared sound audience follows actual private FPV camera eye, independent of native body camera");
-            var event=net.minecraft.resources.Identifier.parse("minecraft:lbcsounds.shitting_2");float cap=SoundNormalization.volumeCap(event);
-            require(cap<1,"fixture uses measured normalized mono custom event");
-            var source=eye.add(32,8,16);var sound=net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(event));
-            var input=new ClientboundSoundPacket(sound,net.minecraft.sounds.SoundSource.HOSTILE,source.x,source.y,source.z,4,1,517L);
-            var normalized=(ClientboundSoundPacket)SoundNormalization.project(owner,input);
-            var expected=eye.add(source.subtract(eye).scale(.25));
-            require(new Vec3(normalized.getX(),normalized.getY(),normalized.getZ()).distanceToSqr(expected)<.05,"normalization projects loud mono sound around drone listener rather than distant stationary body");
-            SoundNormalization.captureViews(game.server());
-            // The periodic publisher must carry the same actual listener to network-thread sends.
-            try{var field=SoundNormalization.class.getDeclaredField("VIEWS");field.setAccessible(true);require(eye.equals(((Map<?,?>)field.get(null)).get(owner.getUUID())),"immutable sound listener snapshot captures drone eye for asynchronous packet projection");}
-            catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
+            // Audio audience follows the remote eye; gains and source coordinates remain authored.
             var buzz=packets().stream().filter(ClientboundSoundPacket.class::isInstance).map(ClientboundSoundPacket.class::cast).filter(packet->packet.getSound().value().location().toString().equals("minecraft:lbcsounds.drone_tick")).reduce((a,b)->b).orElseThrow();
             require(new Vec3(buzz.getX(),buzz.getY(),buzz.getZ()).distanceToSqr(eye)<4&&buzz.getVolume()==.15f&&buzz.getPitch()==1&&buzz.getSource()==net.minecraft.sounds.SoundSource.HOSTILE,"authored looping buzz reaches actual FPV listener at full legacy gain, never the remote body/minimum-volume fallback");
         }

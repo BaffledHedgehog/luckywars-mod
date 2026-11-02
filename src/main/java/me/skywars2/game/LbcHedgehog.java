@@ -102,7 +102,7 @@ public final class LbcHedgehog {
             mode=mode%5+1;tag.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));p.getInventory().setChanged();
             p.sendSystemMessage(Component.translatable(MODES[mode-1]));return true;
         }
-        int cost=academy?1000:game.items().mana().score(ScoreHolder.forNameOnly("baffled_wand_mana_use"),"lbc.math").get();
+        int cost=game.items().mana().score(ScoreHolder.forNameOnly(academy?"academy_baffled_wand_mana_use":"baffled_wand_mana_use"),"lbc.math").get();
         if(cost<0||!game.items().mana().trySpendWand(p,cost))return false;
         cast(p,academy?Kind.values()[mode]:Kind.ORDINARY);
         long helpers=fish.stream().filter(f->f.isAlive()&&!f.isRemoved()&&f.level()==p.level()&&f.position().distanceToSqr(p.position())<=100
