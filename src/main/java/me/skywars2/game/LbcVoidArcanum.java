@@ -78,7 +78,7 @@ public final class LbcVoidArcanum {
     static final class Hole {
         final ServerLevel world;Marker marker;final String epoch;
         final List<Contribution> members=new ArrayList<>();
-        Vec3 point;int level=1;boolean wild;
+        Vec3 point;int level=1,cloneMask;boolean wild;
         Vec3 velocity=Vec3.ZERO;
         final Quaternionf tilt=new Quaternionf();
         BlackHoleVisuals.Handle visual;
@@ -252,7 +252,7 @@ public final class LbcVoidArcanum {
                 Hole other=holes.get(j);
                 if(other.world!=into.world||into.point.distanceToSqr(other.point)>100
                         ||into.marker.entityTags().contains("time_stopped")||other.marker.entityTags().contains("time_stopped")){j++;continue;}
-                into.members.addAll(other.members);into.wild|=other.wild;
+                into.members.addAll(other.members);into.wild|=other.wild;into.cloneMask|=other.cloneMask;
                 remove(other);updateLevel(into);
                 for(var member:into.members){var player=owner(member);if(player!=null){
                     if(into.level>=2)game.items().mana().award(player,"lbc:true_advancements/arcanums/black_hole_2");
@@ -425,14 +425,14 @@ public final class LbcVoidArcanum {
     void cancelFrozen(){checkpointBoundary();restoreVisuals.clear();restoreVisualOwners.clear();rewinding=false;}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     final class Checkpoint {
-        private record Image(Hole original,MatchDamageSources.Ref marker,List<Contribution> members,Vec3 point,Vec3 velocity,int level,boolean wild,Quaternionf tilt,LbcIndirectKills.Owner terrainCause,UUID visualOwner,boolean visible){}
+        private record Image(Hole original,MatchDamageSources.Ref marker,List<Contribution> members,Vec3 point,Vec3 velocity,int level,boolean wild,Quaternionf tilt,LbcIndirectKills.Owner terrainCause,UUID visualOwner,boolean visible,int cloneMask){}
         private record Hand(boolean main,boolean off){}
         private final List<Image> values=new ArrayList<>();private final Map<UUID,Hand> held=new HashMap<>();
         private final int turn=terrainTurn,cost=costClock;
         Checkpoint(MatchSpellCheckpoint.Links links){
             if(rewinding)throw new IllegalStateException("Publish void holes before checkpointing");
             for(var hole:holes){var marker=links.key(hole.marker);if(marker.historical()!=null)throw new IllegalStateException("Void hole requires its canonical native marker");
-                values.add(new Image(hole,marker,List.copyOf(hole.members),hole.point,hole.velocity,hole.level,hole.wild,new Quaternionf(hole.tilt),hole.terrainCause,hole.visual==null?null:hole.visual.owner.getUUID(),hole.visual!=null));
+                values.add(new Image(hole,marker,List.copyOf(hole.members),hole.point,hole.velocity,hole.level,hole.wild,new Quaternionf(hole.tilt),hole.terrainCause,hole.visual==null?null:hole.visual.owner.getUUID(),hole.visual!=null,hole.cloneMask));
                 for(var member:hole.members){var player=owner(member);if(player!=null)links.key(player);}
             }
             hands.forEach((id,value)->held.put(id,new Hand(value.main,value.off)));
@@ -443,9 +443,40 @@ public final class LbcVoidArcanum {
             var nextHands=new HashMap<UUID,Hands>();held.forEach((id,value)->{var hand=new Hands();hand.main=value.main;hand.off=value.off;nextHands.put(id,hand);});
             return ()->{for(var future:List.copyOf(holes))detachCheckpointVisual(future);holes.clear();restoreVisuals.clear();restoreVisualOwners.clear();
                 for(int i=0;i<values.size();i++){var image=values.get(i);var hole=image.original;hole.marker=bodies.get(i);hole.members.clear();hole.members.addAll(image.members);
-                    hole.point=image.point;hole.velocity=image.velocity;hole.level=image.level;hole.wild=image.wild;hole.tilt.set(image.tilt);hole.terrainCause=image.terrainCause;
+                    hole.cloneMask=image.cloneMask;hole.point=image.point;hole.velocity=image.velocity;hole.level=image.level;hole.wild=image.wild;hole.tilt.set(image.tilt);hole.terrainCause=image.terrainCause;
                     hole.terrain=null;hole.terrainLevel=0;hole.frontier=1;hole.visual=null;holes.add(hole);if(image.visible){restoreVisuals.add(hole);restoreVisualOwners.put(hole,image.visualOwner);}}
                 hands.clear();hands.putAll(nextHands);terrainTurn=turn;costClock=cost;};
         }
     }
+
+    static boolean cloneProtected(Entity e){return e instanceof Body||e.entityTags().contains(BODY_TAG);}
+    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
+        for(var original:List.copyOf(holes)){
+            if(budget-made<count||System.nanoTime()>=deadline)break;
+            if(rewinding||original.marker.isRemoved()||!game.items().currentEpoch(original.epoch)
+                    ||game.items().timeStop().frozen(original.marker)||original.marker.entityTags().contains("time_stopped")
+                    ||!CloneVirtualAbilityStates.near(game,holder,original.world,original.point,original.cloneMask,skill))continue;
+            var points=CloneVirtualAbilityStates.positions(holder,original.world,original.point,skill);if(points==null)continue;
+            var created=new ArrayList<Hole>();
+            try{
+                for(var point:points){var marker=new Body(original.world);marker.setPos(point);
+                    marker.entityTags().addAll(original.marker.entityTags());game.items().markCurrentItemEpoch(marker);
+                    var copy=new Hole(original.world,marker,point,original.epoch);created.add(copy);
+                    copy.members.addAll(original.members);copy.level=original.level;copy.wild=original.wild;
+                    copy.velocity=skill==15?original.velocity:LbcCloneSkills.spreadMotion(original.velocity,holder,1000,1500);
+                    copy.cloneMask=original.cloneMask|bit;copy.tilt.set(original.tilt);copy.terrainCause=original.terrainCause;
+                    copy.frontier=original.frontier;copy.terrainLevel=original.terrainLevel;
+                    if(original.terrain!=null)copy.terrain=original.terrain.copyTranslated(point.subtract(original.point));
+                    holes.add(copy);game.items().spellSources().inherit(original.marker,marker);game.items().timeStop().prepareFrozen(marker);
+                    if(!copy.world.addFreshEntity(marker)||marker.isRemoved()||!holes.contains(copy))throw new IllegalStateException("Void clone body rejected");
+                    if(original.visual!=null)updateVisual(copy,original.visual.owner);
+                }
+                original.cloneMask|=bit;made+=count;
+                if(skill==17)original.velocity=LbcCloneSkills.spreadMotion(original.velocity,holder,10,10);
+            }catch(RuntimeException failure){for(var copy:created){game.items().spellSources().reflected(copy.marker);remove(copy);}throw failure;}
+        }
+        return made;
+    }
+
 }

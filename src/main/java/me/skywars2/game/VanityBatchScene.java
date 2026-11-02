@@ -60,9 +60,9 @@ final class VanityBatchScene {
         try{new MatchQueuedWorkCheckpoint(game,sources);}catch(IllegalStateException expected){rejected=expected.getMessage().contains("Missing shared-work checkpoint adapter");}
         require(rejected&&queue.getLast()==opaque&&area.queuedBlockCount()==22,"unsupported callback rejects before any job mutation");require(queue.removeLast()==opaque,"remove only fixture-owned opaque callback");
         var future=game.items().exasperato().searchSpell(gamma,gamma.getEyePosition(),new Vec3(0,1,0),5,false,(pos,state)->false,e->false,null);
-        var searches=searches();var untyped=searches.getLast();rejected=false;
+        var searches=searches();var untyped=searches.stream().filter(ray->VanityBatchScene.<Object>get(ray,"result")==future).findFirst().orElseThrow();rejected=false;
         try{new MatchQueuedWorkCheckpoint(game,sources);}catch(IllegalStateException expected){rejected=expected.getMessage().contains("Missing typed continuation");}
-        require(rejected&&!future.isDone()&&searches().getLast()==untyped&&area.queuedBlockCount()==22,"opaque external future rejects without dropping/completing it or mutating earlier jobs");
+        require(rejected&&!future.isDone()&&searches().contains(untyped)&&area.queuedBlockCount()==22,"opaque external future rejects without dropping/completing it or mutating earlier jobs");
         // The current scheduler has owner lanes, rather than one ArrayDeque.
         // Remove just this fixture's fresh search without servicing or reordering saved work.
         var scheduler=get(game.items().exasperato(),"searches");

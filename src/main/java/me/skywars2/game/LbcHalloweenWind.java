@@ -222,4 +222,12 @@ public final class LbcHalloweenWind {
     public void unloaded(Entity e){if(managed(e)){if(e instanceof NativeCharge charge)charge.retired=true;shots.remove(e);if(!e.isRemoved())e.discard();}}
     public void forget(ServerPlayer p){for(var shot:List.copyOf(shots))if(shot.getOwner()==p)unloaded(shot);purify(p);}
     public void stop(){for(var shot:List.copyOf(shots))unloaded(shot);for(var p:game.server().getPlayerList().getPlayers())purify(p);seconds.clear();}
+
+    static boolean cloneRecognizes(Entity e){return managed(e)||e instanceof LbcHalloweenWind.NativeCharge;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!(source instanceof NativeCharge c)||c.retired)return null;
+        return CloneComplexProjectileStates.image(NativeCharge::new,e->{var n=(NativeCharge)e;n.retired=false;shots.add(n);},
+                e->shots.remove(e));
+    }
+
 }

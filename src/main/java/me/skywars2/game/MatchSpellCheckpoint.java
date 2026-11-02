@@ -55,27 +55,44 @@ final class MatchSpellCheckpoint {
     private final LbcSpellSource.Checkpoint policies;
     private final LbcCommunism.Checkpoint controls;
     private final LbcSummons.Checkpoint summons;
+    private final CloneFinalAbilityStates.Checkpoint logicalActors;
+    private boolean installed,published;
     MatchSpellCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);links=new Links(sources);
         policies=game.items().spellSources().checkpoint(links);controls=game.items().communism().checkpoint(links);
         summons=game.items().summons().checkpoint(links);
+        logicalActors=new CloneFinalAbilityStates.Checkpoint(game,links);
     }
     private void stable(boolean frozen){
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)
                 ||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore spell state on the same stable frozen match thread");
         game.items().spellSources().checkpointBoundary();game.items().summons().checkpointBoundary();
+        game.items().cloneSkills().checkpointBoundary();
     }
     /** Resolve and prepare EVERY map/queue first. Missing bodies defer the entire private install. */
-    Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){
+    Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){return restoreFrozen(lookup,true);}
+    Set<UUID> restoreFrozen(Function<UUID,Entity> lookup,boolean rewind){
         stable(true);var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
         var policy=policies.prepare(links);var control=controls.prepare(links);var summon=summons.prepare(links);
-        policy.run();control.run();summon.run();
+        var actors=logicalActors.prepare(links);
+        policy.run();control.run();summon.run();actors.run();
+        installed=true;published=false;
         // User permits cancellation of short pending operations at rewind. No stale charge may commit.
         game.items().teleportGadgets().stop();
+        // These stop methods touch only short moving electrical traces and detached star
+        // actors (40/100/25 ticks), never the restored Sphere/Drone/Hammer producers.
+        if(rewind){game.items().wands().stop();game.items().sauvojen().stars().stop();}
+        game.items().cloneSkills().clearPending();
         game.items().psycho().silenceBeamAudio();
         // Frozen canonical body replay suppresses ENTITY_LOAD. Rebuild this derived
         // index only after every shared policy/body link has installed successfully.
         game.items().familyDrops().reindexAfterRestore();
         return Set.of();
+    }
+    /** Client presentation waits for the outer canonical body/authority/status publication phase. */
+    void publishFrozen(){
+        stable(true);if(published)return;
+        if(!installed)throw new IllegalStateException("Install spell actors before presentation publication");
+        CloneFinalAbilityStates.publishCheckpoint(game);published=true;
     }
 }

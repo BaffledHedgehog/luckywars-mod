@@ -415,4 +415,43 @@ public final class LbcSoulless {
         boolean hasPending(){return installed.size()!=entries.size();}
     }
 
+    static boolean cloneRecognizes(Entity e){return managed(e);}
+    static boolean cloneProtected(Entity e){return e.entityTags().contains(DISPLAY)||e.entityTags().contains(TRIAL);}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(cloneProtected(source))return null;
+        var field=find(source);
+        var visualData=field==null?null:cloneVisualData(field.display);
+        var fieldOwner=field==null?null:field.owner;var fieldCause=field==null?null:field.cause;
+        int type=field==null?0:field.type,age=field==null?0:field.age,fieldFrame=field==null?0:field.frame;
+        var children=new java.util.IdentityHashMap<Entity,Field>();
+        var vex=source instanceof GhostVex v?v:null;
+        var ghost=source instanceof LivingEntity l?ghosts.get(l):null;
+        var cooldown=source instanceof LivingEntity l?incarnationCooldowns.get(l):null;
+        if(field==null&&vex==null&&ghost==null&&cooldown==null)return null;
+        int ghostSeconds=ghost==null?0:mana.score(source,"effect_ghosting").get();
+        var owner=ghost==null?null:ghost.owner;var cause=ghost==null?null:ghost.cause;int frame=ghost==null?0:ghost.frame;
+        var caster=vex==null?null:vex.caster;boolean retired=vex!=null&&vex.retired;
+        return new LbcCloneSkills.ActorImage(){
+            public Entity create(Entity original,ServerLevel level){if(fieldOwner!=null)return new Body(level);return caster==null?LbcCloneSkills.ActorImage.super.create(original,level):new GhostVex(caster,false);}
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(fieldOwner!=null){
+                    var visual=new Visual((ServerLevel)clone.level());var id=visual.getUUID();
+                    visual.load(TagValueInput.create(ProblemReporter.DISCARDING,visual.registryAccess(),visualData.copy()));visual.setUUID(id);visual.setPos(clone.position());
+                    var f=new Field(fieldOwner,(Pig)clone,visual,type,fieldCause);f.age=age;f.frame=fieldFrame;
+                    fields.add(f);children.put(clone,f);game.items().spellSources().inherit(original,visual);
+                    if(!((ServerLevel)clone.level()).addFreshEntity(visual)||visual.isRemoved())throw new IllegalStateException("Metasola clone visual publication rejected");
+                }
+                if(caster!=null){var v=(GhostVex)clone;v.retired=retired;vexes.add(v);}
+                if(owner!=null){var g=new Ghosting(owner,cause);g.frame=frame;ghosts.put((LivingEntity)clone,g);mana.score(clone,"effect_ghosting").set(ghostSeconds);}
+                if(cooldown!=null)incarnationCooldowns.put((LivingEntity)clone,cooldown);
+            }
+            public void rollback(Entity clone){var f=children.remove(clone);if(f!=null){fields.remove(f);game.items().spellSources().reflected(f.display);f.display.discard();}vexes.remove(clone);ghosts.remove(clone);incarnationCooldowns.remove(clone);}
+        };
+    }
+
+    private static CompoundTag cloneVisualData(Entity visual){
+        var out=net.minecraft.world.level.storage.TagValueOutput.createWithContext(ProblemReporter.DISCARDING,visual.registryAccess());
+        visual.saveWithoutId(out);var nbt=out.buildResult().copy();nbt.remove("UUID");nbt.remove("uuid");nbt.remove("Passengers");return nbt;
+    }
+
 }

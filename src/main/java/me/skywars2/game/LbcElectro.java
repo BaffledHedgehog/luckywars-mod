@@ -686,4 +686,18 @@ public final class LbcElectro {
             };
         }
     }
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var shock=source instanceof LivingEntity l?shocks.get(l):null;var reflected=reflectedOwners.get(source);
+        boolean sped=accelerated.contains(source),bolt=liveBolts.contains(source);
+        if(shock==null&&reflected==null&&!sped&&!bolt)return null;
+        var caster=shock==null?null:shock.owner;int pulses=shock==null?0:shock.pulses,next=shock==null?0:shock.untilNext;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,java.util.Map<Entity,Entity> family){
+                if(caster!=null){var s=new Shock(caster,pulses);s.untilNext=next;shocks.put((LivingEntity)clone,s);}
+                if(reflected!=null)reflectedOwners.put(clone,reflected);if(sped)accelerated.add(clone);if(bolt)liveBolts.add((LightningBolt)clone);
+            }
+            public void rollback(Entity clone){shocks.remove(clone);reflectedOwners.remove(clone);accelerated.remove(clone);liveBolts.remove(clone);}
+        };
+    }
+
 }

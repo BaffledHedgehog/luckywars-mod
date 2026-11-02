@@ -701,6 +701,7 @@ public final class GameChecks {
                                 case "parasite" -> { ParasiteChecks.run(game); return; }
                                 case "contained-skills" -> { ContainedSkillChecks.run(game); return; }
                                 case "armor-zeus-skills" -> { ArmorZeusSkillChecks.run(game); return; }
+                                case "clone-skills" -> { CloneSkillChecks.run(game); return; }
                                 case "combat-reward-skills" -> { CombatRewardSkillChecks.run(game); return; }
                                 case "machinegun-skill" -> { CombatRewardSkillChecks.runMachinegun(game); return; }
                                 case "combat-reward-player-death" -> { CombatRewardSkillChecks.runPlayerDeath(game); return; }
@@ -1485,7 +1486,7 @@ public final class GameChecks {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
             ContainedSkillChecks.tick(game);
-            CombatRewardSkillChecks.tick(game);
+            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);
             ArmorZeusSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);

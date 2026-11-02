@@ -333,4 +333,28 @@ public final class LbcFartus {
     public void stop(){for(var shot:List.copyOf(shots))remove(shot);for(var owner:game.server().getPlayerList().getPlayers())game.items().mana().score(owner,"fartus_sword").set(0);}
 
     void cancelTransient(){for(var shot:List.copyOf(shots))remove(shot);}
+
+    LbcCloneSkills.ActorImage cloneImage(Shot source) {
+        var kind=source.kind;int age=source.age;float yaw=source.launchYaw,pitch=source.launchPitch;
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family) {
+                var target=(Shot)clone;target.service=LbcFartus.this;target.kind=kind;target.age=age;
+                target.launchYaw=yaw;target.launchPitch=pitch;
+                var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,target.level());target.display=display;
+                try{
+                    var preset=TagParser.parseCompoundFully("{teleport_duration:1,interpolation_duration:1,shadow_radius:0f,shadow_strength:0f,item_display:'fixed',view_range:10f,transformation:{translation:[0f,0f,0f],left_rotation:"+(target.kind==Kind.LABEL?"[1f,0f,0f,1f]":"[0f,0f,0f,1f]")+",right_rotation:[0f,0f,0f,1f],scale:"+(target.kind==Kind.LABEL?"[.5f,.5f,.5f]":"[1f,1f,1f]")+"},item:{id:'"+(target.kind==Kind.LABEL?"minecraft:repeating_command_block":"minecraft:carrot_on_a_stick")+"',count:1,components:{'minecraft:item_model':'"+(target.kind==Kind.LABEL?"lbc:banan":"lbc:banana")+"'}}}");
+                    display.load(TagValueInput.create(ProblemReporter.DISCARDING,target.registryAccess(),preset));
+                }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
+                // Visual actors never simulate gravity; ordinary banana gravity belongs only
+                // to physical(shot), while homing flight has no gravitational acceleration.
+                display.setNoGravity(true);
+                display.entityTags().add("skywars2.fartus_display");if(target.kind!=Kind.BANANA)display.entityTags().add("magic");game.items().markCurrentItemEpoch(display);
+                orient(target);shots.add(target);game.items().spellSources().inherit(target,display);
+                game.items().timeStop().prepareFrozen(display);
+                if(!target.level().addFreshEntity(display)||display.isRemoved())throw new IllegalStateException("Fartus clone display publication failed");
+            }
+            public void rollback(Entity clone){remove((Shot)clone);}
+        };
+    }
+
 }

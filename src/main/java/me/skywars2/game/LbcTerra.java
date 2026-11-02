@@ -617,4 +617,17 @@ public final class LbcTerra {
         for(var shot:old){shot.destroyModel();if(!shot.isRemoved())shot.discard();}
         for(var model:finishingModels)model.holder().destroy();finishingModels.clear();
     }
+
+    LbcCloneSkills.ActorImage cloneImage(TerraProjectile source) {
+        var kind=source.kind;int age=source.age,lifetime=source.sourceLifetime;
+        boolean emitter=source.emitterStyle,paused=source.modelPaused;
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family) {
+                var target=(TerraProjectile)clone;target.kind=kind;target.age=age;target.sourceLifetime=lifetime;
+                target.emitterStyle=emitter;target.modelPaused=paused;target.attachModel();
+            }
+            public void rollback(Entity clone){unloaded(clone);}
+        };
+    }
+
 }

@@ -177,4 +177,16 @@ final class BlackHoleErosion {
         value = (value ^ (value >>> 27)) * 0x94d049bb133111ebL;
         return value ^ (value >>> 31);
     }
+
+    /** Copy relative scan progress, never the effects of an earlier terrain pass. */
+    BlackHoleErosion copyTranslated(Vec3 offset) {
+        var copy=new BlackHoleErosion(level,seed,noisy);
+        copy.center=center==null?null:center.add(offset);copy.radiusSquared=radiusSquared;
+        copy.guaranteedCoreSquared=guaranteedCoreSquared;copy.offsets=offsets.clone();
+        copy.cursor=cursor;copy.coreCursor=coreCursor;copy.clock=clock;copy.completedClock=completedClock;
+        copy.pass=pass;copy.completed=completed;
+        if(copy.center!=null){var block=BlockPos.containing(copy.center);copy.baseX=block.getX();copy.baseY=block.getY();copy.baseZ=block.getZ();}
+        return copy;
+    }
+
 }

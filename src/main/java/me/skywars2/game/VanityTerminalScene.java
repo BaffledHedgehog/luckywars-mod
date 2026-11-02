@@ -35,7 +35,9 @@ final class VanityTerminalScene {
     static <T>T get(Object object,String field){return VanitySpellScene.get(object,field);}
     static void set(Object object,String field,Object value){VanitySpellScene.set(object,field,value);}
     static Object invoke(Object object,String method,Class<?>[] types,Object...args){return VanityBatchScene.invoke(object,method,types,args);}
-    ArrayDeque<Object> queue(){return get(game.items().exasperato(),"searches");}
+    private final Set<Object> observedRays=Collections.newSetFromMap(new IdentityHashMap<>());
+    List<Object> queue(){return java.util.stream.StreamSupport.stream(VanityTerminalScene.<Iterable<Object>>get(game.items().exasperato(),"searches").spliterator(),false).toList();}
+    Object newSearch(){var added=queue().stream().filter(observedRays::add).toList();require(added.size()==1,"exactly one newly accepted source ray");return added.getFirst();}
     void write(BlockPos pos,Block block){require(base.blocks.containsKey(pos),"bounded source cell "+pos);base.owner.level().setBlock(pos,block.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);}
     ItemStack item(String flag,int count){var stack=new ItemStack(Items.CARROT_ON_A_STICK,count);var tag=new CompoundTag();tag.putInt(flag,1);tag.putInt("raycastspell",1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));return stack;}
     void select(ServerPlayer p,int slot,ItemStack stack){p.getInventory().setSelectedSlot(slot);p.setItemInHand(InteractionHand.MAIN_HAND,stack);}
@@ -44,16 +46,16 @@ final class VanityTerminalScene {
     Object newLava(ServerPlayer author,BlockPos center){try{var type=Arrays.stream(LbcLibraryRandom.class.getDeclaredClasses()).filter(c->c.getSimpleName().equals("Lava")).findFirst().orElseThrow();var ctor=type.getDeclaredConstructor(LbcLibraryRandom.class,ServerPlayer.class,BlockPos.class);ctor.setAccessible(true);return ctor.newInstance(library,author,center);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
 
     VanityTerminalScene(GameController game,ChefChecks.Fixture base,ServerPlayer gamma){
-        this.game=game;this.base=base;snow=game.items().advancedSnow();charged=game.items().chargedSwords();library=game.items().libraryRandom();
+        this.game=game;this.base=base;observedRays.addAll(queue());snow=game.items().advancedSnow();charged=game.items().chargedSwords();library=game.items().libraryRandom();
         require(snow.snapshot().isEmpty()&&charged.count()==0&&charged.pulseSnapshot().isEmpty()&&library.count()==0,"exclusive additional terminal producers");
         var beta=base.other;var savedClock=beta.getMainHandItem();float yaw=beta.getYRot(),pitch=beta.getXRot();game.items().mana().set(beta,100000);
         var list=new ArrayList<Object>();
         // Ordinary Ender is an accepted cast with a short saved miss, avoiding its harmful arrival.
-        select(beta,3,new ItemStack(LbcWands.ADVANCED_ENDER));aim(beta,-90);require(snow.use(beta,InteractionHand.MAIN_HAND,beta.getMainHandItem(),false,false),"real ordinary Ender admission");var ordinary=queue().getLast();list.add(ordinary);cursor(ordinary,base.at.add(-15,10,14),.5);
+        select(beta,3,new ItemStack(LbcWands.ADVANCED_ENDER));aim(beta,-90);require(snow.use(beta,InteractionHand.MAIN_HAND,beta.getMainHandItem(),false,false),"real ordinary Ender admission");var ordinary=newSearch();list.add(ordinary);cursor(ordinary,base.at.add(-15,10,14),.5);
         select(beta,5,new ItemStack(LbcWands.ACADEMY_ADVANCED_ENDER));var mode=LbcFartus.data(beta.getMainHandItem());mode.putInt("mode",3);beta.getMainHandItem().set(DataComponents.CUSTOM_DATA,CustomData.of(mode));aim(beta,0);
-        require(snow.use(beta,InteractionHand.MAIN_HAND,beta.getMainHandItem(),false,true),"real academic wall-clip admission");var academic=queue().getLast();list.add(academic);clip=get(academic,"replay");
+        require(snow.use(beta,InteractionHand.MAIN_HAND,beta.getMainHandItem(),false,true),"real academic wall-clip admission");var academic=newSearch();list.add(academic);clip=get(academic,"replay");
         cursor(academic,base.at.add(-14,3,-10),2);set(clip,"entered",true);clipDestination=Vec3.atCenterOf(BlockPos.containing(base.at.add(-14,3,-10)));
-        select(beta,7,new ItemStack(LbcWands.ACADEMY_SNOW));require(snow.use(beta,InteractionHand.MAIN_HAND,beta.getMainHandItem(),true,true),"real aimed Academy snow admission");var aimedSnow=queue().getLast();list.add(aimedSnow);
+        select(beta,7,new ItemStack(LbcWands.ACADEMY_SNOW));require(snow.use(beta,InteractionHand.MAIN_HAND,beta.getMainHandItem(),true,true),"real aimed Academy snow admission");var aimedSnow=newSearch();list.add(aimedSnow);
         var snowWall=base.center.offset(0,6,15);write(snowWall,Blocks.BEDROCK);cursor(aimedSnow,base.at.add(0,6.5,12),4);
         select(beta,4,new ItemStack(LbcWands.SNOW));require(snow.use(beta,InteractionHand.MAIN_HAND,beta.getMainHandItem(),true,false),"real ordinary snow creates native cloud");
         var initialCloud=snow.snapshot().getFirst().entity();initialCloud.setPos(base.at.add(0,10,14));initialCloud.entityTags().add("sin_gluttony");
@@ -63,13 +65,13 @@ final class VanityTerminalScene {
         beta.getInventory().setItem(4,new ItemStack(Items.STONE));
         brush=base.center.offset(-14,6,12);lightning=base.center.offset(12,7,12);rawWall=base.center.offset(-16,11,16);
         for(var cell:List.of(brush,lightning,rawWall))write(cell,Blocks.BEDROCK);
-        select(beta,1,item("shetka",2));require(LbcRewardTools.use(game,beta,InteractionHand.MAIN_HAND),"real toothbrush producer");var brushRay=queue().getLast();list.add(brushRay);cursor(brushRay,base.at.add(-14,6.5,9),4);
-        select(beta,2,item("lightning_bolt",2));require(LbcRewardTools.use(game,beta,InteractionHand.MAIN_HAND),"real lightning tool producer");var boltRay=queue().getLast();list.add(boltRay);cursor(boltRay,base.at.add(12,7.5,9),4);
+        select(beta,1,item("shetka",2));require(LbcRewardTools.use(game,beta,InteractionHand.MAIN_HAND),"real toothbrush producer");var brushRay=newSearch();list.add(brushRay);cursor(brushRay,base.at.add(-14,6.5,9),4);
+        select(beta,2,item("lightning_bolt",2));require(LbcRewardTools.use(game,beta,InteractionHand.MAIN_HAND),"real lightning tool producer");var boltRay=newSearch();list.add(boltRay);cursor(boltRay,base.at.add(12,7.5,9),4);
         donor=new Cow(EntityTypes.COW,beta.level());donor.setPos(base.at.add(-12,1,3));donor.setNoAi(true);donor.setNoGravity(true);donor.entityTags().addAll(Set.of("have_stand","sin_gluttony"));donor.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(Items.GOLD_INGOT,7));require(beta.level().addFreshEntity(donor),"dedicated native donor carrying a complete stack");
-        select(beta,0,item("krazha",2));require(LbcRewardTools.use(game,beta,InteractionHand.MAIN_HAND),"real retained launch-hand glove producer");var theft=queue().getLast();list.add(theft);cursor(theft,base.at.add(-12,2,0),5);
+        select(beta,0,item("krazha",2));require(LbcRewardTools.use(game,beta,InteractionHand.MAIN_HAND),"real retained launch-hand glove producer");var theft=newSearch();list.add(theft);cursor(theft,base.at.add(-12,2,0),5);
         // Whole-inventory raw debit resolves CURRENT Gamma despite the existing FPV input block.
         var raw=item("heal1",2);var rawData=LbcFartus.data(raw);rawData.putInt("spell",1);raw.set(DataComponents.CUSTOM_DATA,CustomData.of(rawData));gamma.getInventory().setItem(6,raw);
-        float gammaYaw=gamma.getYRot(),gammaPitch=gamma.getXRot();aim(gamma,0);library.ray(gamma,19,"heal1",raw.getItem());var rawRay=queue().getLast();list.add(rawRay);cursor(rawRay,Vec3.atCenterOf(rawWall).add(0,0,-3),4);
+        float gammaYaw=gamma.getYRot(),gammaPitch=gamma.getXRot();aim(gamma,0);library.ray(gamma,19,"heal1",raw.getItem());var rawRay=newSearch();list.add(rawRay);cursor(rawRay,Vec3.atCenterOf(rawWall).add(0,0,-3),4);
         // The safe library emitter expires before its next ten-tick phantom-production phase.
         library.impact(gamma,base.at.add(-15,9,-15),17);emitter=VanityTerminalScene.<List<Object>>get(library,"emitters").getFirst();set(emitter,"age",1599);
         // Instantiate the production Lava adapter, restricting only its fixture geometry; no ghast wrapper.
@@ -79,7 +81,7 @@ final class VanityTerminalScene {
         scan.step(game,gamma,1,Long.MAX_VALUE);require(scan.queuedBlockCount()==2,"explicit source Lava partial cursor leaves exactly2/3 bounded cells");game.items().stonekivi().queuedWork((LbcStonekivi.Work)lava);
         // The pulse's original source sample is remote from every existing health control.
         var gammaAt=gamma.position();gamma.setPos(base.at.add(-15,3,12));aim(gamma,-90);game.items().mana().score(gamma,"swordcharged9").set(3);
-        invoke(charged,"pulse",new Class<?>[]{ServerPlayer.class},gamma);pulse=VanityTerminalScene.<Set<Object>>get(charged,"pulses").iterator().next();var pulseRay=queue().getLast();list.add(pulseRay);
+        invoke(charged,"pulse",new Class<?>[]{ServerPlayer.class},gamma);pulse=VanityTerminalScene.<Set<Object>>get(charged,"pulses").iterator().next();var pulseRay=newSearch();list.add(pulseRay);
         set(pulse,"nextSample",3);VanityTerminalScene.<Set<UUID>>get(pulse,"hit").add(sampled);cause=get(pulse,"cause");
         var origin=VanityTerminalScene.<Vec3>get(pulse,"origin");cursor(pulseRay,origin.add(0,3,0),.5);
         gamma.setPos(gammaAt);gamma.setYRot(gammaYaw);gamma.setXRot(gammaPitch);

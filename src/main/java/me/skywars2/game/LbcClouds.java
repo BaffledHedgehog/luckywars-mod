@@ -221,7 +221,7 @@ public final class LbcClouds {
             int kind = LbcItems.chemicalAmplifier(cloud.get(DataComponents.POTION_CONTENTS));
             if (kind == 0) return false;
             if (!mayRun(entity, cloud.getOwner())) entity.discard();
-            else clouds.put(cloud, new CloudState(cloud, kind));
+            else clouds.computeIfAbsent(cloud, c -> new CloudState(c, kind));
             return true;
         }
         if (entity instanceof AcidProjectile projectile) {
@@ -230,7 +230,7 @@ public final class LbcClouds {
             if (sourceAcidManaged(projectile) ? !sourceAcidActive(projectile) : !mayRun(entity, projectile.getOwner())) entity.discard();
             else {
                 if (projectile.entityTags().contains(ACID_STUCK)) stick(projectile, projectile.position());
-                acids.put(projectile, new AcidState(projectile));
+                acids.computeIfAbsent(projectile, AcidState::new);
             }
             return true;
         }
@@ -715,4 +715,29 @@ public final class LbcClouds {
         clouds.clear(); acids.clear(); potions.clear();acidAuthors.clear();
         for (var entity : entities) entity.discard();
     }
+
+    static boolean cloneRecognizes(Entity e) {
+        return e instanceof AcidProjectile||e instanceof ThrownLingeringPotion p&&LbcItems.isChemicalPotion(p.getItem())
+                ||e instanceof AreaEffectCloud c&&LbcItems.chemicalAmplifier(c.get(DataComponents.POTION_CONTENTS))!=0;
+    }
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(source instanceof AreaEffectCloud c){var state=clouds.get(c);if(state==null)return null;
+            int kind=state.kind,life=state.lifetime;var owner=c.getOwner();
+            return CloneComplexProjectileStates.image(e->{var n=(AreaEffectCloud)e;n.setOwner(owner);
+                var copy=new CloudState(n,kind);copy.lifetime=life;clouds.put(n,copy);},this::unloaded);
+        }
+        if(source instanceof AcidProjectile c){var state=acids.get(c);if(state==null)return null;
+            int life=state.lifetime;var shield=c.shieldFrom;var swept=c.sweptFrom;var capturedAt=c.position();
+            // acidAuthors is a retained external author index keyed by AUTHOR UUID, never body UUID.
+            // Keeping its existing entries preserves offline causal authors; a clone installs none.
+            return CloneComplexProjectileStates.image(e->{var n=(AcidProjectile)e;n.setAttached(ACID_AGE,life);
+                var offset=n.position().subtract(capturedAt);n.shieldFrom=shield==null?null:shield.add(offset);
+                n.sweptFrom=swept==null?null:swept.add(offset);var copy=new AcidState(n);copy.lifetime=life;acids.put(n,copy);
+            },this::unloaded);
+        }
+        if(source instanceof ThrownLingeringPotion p&&potions.contains(p))
+            return CloneComplexProjectileStates.image(e->potions.add((ThrownLingeringPotion)e),this::unloaded);
+        return null;
+    }
+
 }

@@ -75,9 +75,9 @@ public final class LbcExoperso {
         final Set<UUID> requiredPlayers = new HashSet<>();
         final Set<UUID> kills = new HashSet<>();
         Series(ServerPlayer owner, String epoch) {
-            this.owner = owner.getUUID();
-            this.epoch = epoch;
+            this(owner.getUUID(),epoch);
         }
+        Series(UUID owner,String epoch){this.owner=owner;this.epoch=epoch;}
         public void accept(PrimedTnt tnt){if(tnt==null)return;tnt.entityTags().add(EXPLOSIVE);game.items().markCurrentItemEpoch(tnt);blastSources.put(tnt,this);}
         public void checkpoint(MatchBlastCheckpoint.Graph graph){graph.remember(this,()->{var required=Set.copyOf(requiredPlayers);var saved=Set.copyOf(kills);return links->()->{requiredPlayers.clear();requiredPlayers.addAll(required);kills.clear();kills.addAll(saved);};});}
     }
@@ -293,4 +293,21 @@ public final class LbcExoperso {
         Checkpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.flightAge,c.upgraded,c.aim)).toList();blastSources.values().forEach(v->v.checkpoint(graph));series=new MatchSpellCheckpoint.IdentityImage<>(blastSources,graph.links);}
         Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exoperso charges first");bodies.add(c);}var ledger=series.restore(links);return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.flightAge=a.flight;c.upgraded=a.upgraded;c.aim=a.aim;}blastSources=ledger;rewinding=false;};}
     }
+
+    static boolean cloneRecognizes(Entity e){return e instanceof Charge||e.entityTags().contains(EXPLOSIVE);}
+    /** Copy only this body's live series binding; never duplicate other blasts in its series. */
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        var series=blastSources.get(source);
+        if(series!=null){var owner=series.owner;var epoch=series.epoch;
+            var required=Set.copyOf(series.requiredPlayers);var kills=Set.copyOf(series.kills);
+            return CloneComplexProjectileStates.image(e->{var copy=new Series(owner,epoch);
+                copy.requiredPlayers.addAll(required);copy.kills.addAll(kills);blastSources.put(e,copy);
+            },e->blastSources.remove(e));
+        }
+        if(!(source instanceof Charge c))return null;
+        int age=c.age,flight=c.flightAge;boolean upgraded=c.upgraded;Vec3 aim=c.aim;
+        return CloneComplexProjectileStates.image(e->{var n=(Charge)e;n.age=age;n.flightAge=flight;
+            n.upgraded=upgraded;n.aim=aim;charges.add(n);},e->charges.remove(e));
+    }
+
 }

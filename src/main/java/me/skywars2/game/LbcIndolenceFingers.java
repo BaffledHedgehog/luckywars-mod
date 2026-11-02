@@ -163,4 +163,18 @@ public final class LbcIndolenceFingers {
             return ()->{actors=restored;unloaded.clear();unloaded.putAll(asleep);rebirths.clear();rebirths.putAll(records);ready.clear();ready.addAll(readyImage);consumed.clear();consumed.addAll(spent);costs.clear();costs.addAll(queue);lastTick=clock.last(game);};}
     }
 
+    static boolean cloneRecognizes(Entity e){return e.entityTags().contains(MANAGED);}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var state=actors.get(source);if(state==null)return null;
+        var payments=costs.stream().filter(c->c.finger.equals(source.getUUID())).map(c->new Cost(c.finger,c.player,c.level,c.born,c.left)).toList();
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var next=new LbcSpellSource.Source(clone.getUUID(),state.author(),state.epoch(),state.cause(),state.excluded(),state.persistent());
+                actors.put(clone,next);game.items().spellSources().bind(clone,next);
+                for(var c:payments)costs.add(new Cost(clone.getUUID(),c.player,c.level,c.born,c.left));
+            }
+            public void rollback(Entity clone){actors.remove(clone);costs.removeIf(c->c.finger.equals(clone.getUUID()));}
+        };
+    }
+
 }

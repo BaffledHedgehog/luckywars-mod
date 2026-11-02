@@ -588,4 +588,40 @@ public final class LbcSummons {
             return ()->{mobs=restoredActors;consequences=restoredChildren;rays.clear();rays.addAll(queued);activeRays.clear();activeRays.addAll(running);ticks=cadence;command.run();};}
     }
 
+    static boolean cloneRecognizes(Entity e){return e.entityTags().contains("skywars2.summons.actor")||e.entityTags().contains(PROJECTILE);}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var summon=source instanceof Mob mob?mobs.get(mob):null;var cause=consequences.get(source);
+        if(summon==null&&cause==null)return null;
+        var command=orders.cloneImage(source);
+        var waiting=rays.stream().filter(r->r.actor==source).map(CloneRay::new).toList();
+        var running=activeRays.stream().filter(r->r.actor==source).map(CloneRay::new).toList();
+        return new LbcCloneSkills.ActorImage(){
+            public Entity create(Entity original,ServerLevel level){
+                if(original instanceof SoulVex)return new SoulVex(level);
+                if(original instanceof CultSkeleton)return new CultSkeleton(level);
+                if(original instanceof CultWither)return new CultWither(level);
+                if(original instanceof CultZombie)return new CultZombie(level);
+                if(original instanceof SoulRavager)return new SoulRavager(level);
+                if(original instanceof SoulGhast)return new SoulGhast(level);
+                if(original instanceof SoulBlaze)return new SoulBlaze(level);
+                if(original instanceof SoulGuardian)return new SoulGuardian(level);
+                if(original instanceof SoulBat)return new SoulBat(level);
+                if(original instanceof SoulHorse)return new SoulHorse(level);
+                return LbcCloneSkills.ActorImage.super.create(original,level);
+            }
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(summon!=null){mobs.put((Mob)clone,new Summon(summon.owner,summon.epoch,summon.kind));orders.attach((Mob)clone);}
+                if(cause!=null)consequences.put(clone,cause);
+                if(command!=null)command.install(original,clone,family);
+                for(var r:waiting)rays.add(r.make((Mob)clone));
+                for(var r:running)activeRays.addLast(r.make((Mob)clone));
+            }
+            public void rollback(Entity clone){mobs.remove(clone);consequences.remove(clone);if(clone instanceof Mob m)orders.removed(m);rays.removeIf(r->r.actor==clone);activeRays.removeIf(r->r.actor==clone);}
+        };
+    }
+    private record CloneRay(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,Vec3 direction,int step){
+        CloneRay(StrangeRay r){this(r.owner,r.epoch,r.level,r.origin,r.due,r.direction,r.step);}
+        StrangeRay make(Mob actor){var r=new StrangeRay(owner,epoch,level,origin,due,actor);r.direction=direction;r.step=step;return r;}
+    }
+
 }

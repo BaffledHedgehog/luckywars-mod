@@ -138,4 +138,17 @@ public final class LbcWitchLust {
             return ()->{actors=restored;unloaded.clear();unloaded.putAll(asleep);hidden.clear();hidden.addAll(current);lastTick=clock.last(game);phaseOffset=clock.offset(game);};}
     }
 
+    static boolean cloneRecognizes(Entity e){return e.entityTags().contains(MANAGED);}
+    static boolean cloneProtected(Entity e){return e.entityTags().contains(DRAGON);}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var state=actors.get(source);if(state==null||cloneProtected(source))return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var next=clone instanceof LivingEntity?new LbcSpellSource.Source(clone.getUUID(),state.author(),state.epoch(),state.cause(),state.excluded(),state.persistent()):state;
+                actors.put(clone,next);game.items().spellSources().bind(clone,next);
+            }
+            public void rollback(Entity clone){actors.remove(clone);}
+        };
+    }
+
 }

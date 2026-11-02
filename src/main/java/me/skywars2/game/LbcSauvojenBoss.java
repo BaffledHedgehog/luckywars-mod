@@ -297,4 +297,14 @@ public final class LbcSauvojenBoss {
             return ()->{actors=restored;unloaded.clear();unloaded.putAll(dormant);stagedClouds=List.copyOf(next);phase=savedPhase;selections=savedSelections;emissions=savedEmissions;rewards=savedRewards;};
         }
     }
+
+    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+        var state=actors.get(original);if(state==null)return null;
+        UUID id=original.getUUID();
+        return CloneComplexProjectileStates.image(clone->{
+            var source=CloneEncounterStates.rebase(state.source(),id,clone);
+            actors.put(clone,new Actor(state.author(),state.epoch(),source));game.items().spellSources().bind(clone,source);
+        },clone->{actors.remove(clone);unloaded.remove(clone.getUUID());});
+    }
+
 }

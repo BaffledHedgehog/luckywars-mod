@@ -28,27 +28,29 @@ final class VanityRayScene {
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Vanity rays: "+why);}
     static <T>T get(Object object,String field){return VanitySpellScene.get(object,field);}
     static void set(Object object,String field,Object value){VanitySpellScene.set(object,field,value);}
-    ArrayDeque<Object> queue(){return get(game.items().exasperato(),"searches");}
+    private final Set<Object> observedRays=Collections.newSetFromMap(new IdentityHashMap<>());
+    List<Object> queue(){return java.util.stream.StreamSupport.stream(VanityRayScene.<Iterable<Object>>get(game.items().exasperato(),"searches").spliterator(),false).toList();}
+    Object newSearch(){var added=queue().stream().filter(observedRays::add).toList();require(added.size()==1,"exactly one newly accepted source ray");return added.getFirst();}
     DroneSpawnerCheckpointAccess nativeSpawner(){return (DroneSpawnerCheckpointAccess)cart.getSpawner();}
     static Object invoke(Object object,String name,Class<?>[] types,Object...args){return VanityBatchScene.invoke(object,name,types,args);}
     void bounded(Vec3 point){require(base.bounds.isInside(BlockPos.containing(point)),"source remains inside explicit Chef bounds "+point);}
     void protectedActor(Entity actor){bounded(actor.position());actor.setNoGravity(true);actor.entityTags().add("sin_gluttony");actor.entityTags().add("have_stand");if(actor instanceof Mob mob)mob.setNoAi(true);}
 
     VanityRayScene(GameController game,ChefChecks.Fixture base,ServerPlayer gamma){
-        this.game=game;this.base=base;hohl=game.items().hohlopitek();reactive=game.items().reactive();homing=game.items().homing();drops=game.items().droneDrops();
+        this.game=game;this.base=base;observedRays.addAll(queue());hohl=game.items().hohlopitek();reactive=game.items().reactive();homing=game.items().homing();drops=game.items().droneDrops();
         require(hohl.pendingRayCount()==0&&reactive.pendingRayCount()==0&&homing.pendingRayCount()==0&&homing.count()==0&&drops.snapshot().isEmpty(),"exclusive native ray/ability owners");
         var beta=base.other;var held=beta.getMainHandItem().copy();float yaw=beta.getYRot(),pitch=beta.getXRot();
         beta.setYRot(0);beta.setXRot(-90);beta.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcHohlopitek.ITEM));
         require(hohl.use(beta,InteractionHand.MAIN_HAND),"real Beta technology cast admitted despite Gamma FPV controller");
-        var tech=queue().getLast();bomberAim=get(tech,"replay");
-        require(reactive.castWall(beta,false),"real unpaid source wall ray admitted");var wall=queue().getLast();
+        var tech=newSearch();bomberAim=get(tech,"replay");
+        require(reactive.castWall(beta,false),"real unpaid source wall ray admitted");var wall=newSearch();
         beta.setItemInHand(InteractionHand.MAIN_HAND,held);beta.setYRot(yaw);beta.setXRot(pitch);
         var miss=base.at.add(-14,8,-14);bounded(miss);
-        homing.emitAt(gamma,InteractionHand.MAIN_HAND,ItemStack.EMPTY,1,miss,new Vec3(0,1,0));var launch=queue().getLast();
+        homing.emitAt(gamma,InteractionHand.MAIN_HAND,ItemStack.EMPTY,1,miss,new Vec3(0,1,0));var launch=newSearch();
         victim=new Cow(EntityTypes.COW,gamma.level());victim.setPos(base.at.add(10,2,-7));protectedActor(victim);
         require(gamma.level().addFreshEntity(victim),"native dedicated non-damaging curse target");
         var origin=base.at.add(10,3,-10);bounded(origin);
-        homing.emitAt(gamma,InteractionHand.MAIN_HAND,ItemStack.EMPTY,4,origin,new Vec3(0,0,1));var curse=queue().getLast();
+        homing.emitAt(gamma,InteractionHand.MAIN_HAND,ItemStack.EMPTY,4,origin,new Vec3(0,0,1));var curse=newSearch();
         rays=List.of(tech,wall,launch,curse);
         curseTicket=VanityRayScene.<Set<LbcExasperato.RayTicket>>get(homing,"pendingRays").stream().filter(t->get(t,"search")==curse).findFirst().orElseThrow();
         // Accepted casts retain their actual policies/directions. Only pending progress is seeded.

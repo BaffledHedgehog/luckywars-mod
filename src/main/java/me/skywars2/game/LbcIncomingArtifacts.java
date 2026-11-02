@@ -369,4 +369,11 @@ public final class LbcIncomingArtifacts {
         }
         @Override public void cancel(){cancelled=true;terrain.remove(this);}
     }
+    LbcCloneSkills.ActorImage cloneImage(Entity source){var author=actors.get(source);if(author==null)return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){actors.put(clone,author);}
+            public void rollback(Entity clone){actors.remove(clone);}
+        };
+    }
+
 }

@@ -202,13 +202,16 @@ public final class LbcSpecialTools {
         final ServerPlayer author;final ServerLevel level;final String epoch;
         final eu.pb4.polymer.virtualentity.api.ElementHolder holder=new eu.pb4.polymer.virtualentity.api.ElementHolder();
         final eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement display;
-        Vec3 point,impact;int age;boolean impacted;
-        Hammer(ServerPlayer p,Vec3 at){author=p;level=p.level();epoch=game.items().epoch();impact=new Vec3(at.x,Math.floor(at.y),at.z);point=impact.add(0,200,0);
+        Vec3 point,impact;int age,cloneMask;boolean impacted;
+        Hammer(ServerPlayer p,Vec3 at){this(p,p.level(),game.items().epoch(),new Vec3(at.x,Math.floor(at.y)+200,at.z),new Vec3(at.x,Math.floor(at.y),at.z),true);}
+        Hammer(ServerPlayer author,ServerLevel level,String epoch,Vec3 point,Vec3 impact,boolean publish){
+            this.author=author;this.level=level;this.epoch=epoch;this.point=point;this.impact=impact;
             var stack=new ItemStack(Items.CARROT_ON_A_STICK);stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:banhammer3d"));
             display=new eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement(stack);display.setItemDisplayContext(net.minecraft.world.item.ItemDisplayContext.NONE);
             display.setScale(new org.joml.Vector3f(4));display.setTeleportDuration(1);display.setViewRange(10);holder.addElement(display);
-            game.visualTracking().attach(holder,level,()->point);viewers();holder.tick();
+            if(publish)publish();
         }
+        void publish(){game.visualTracking().attach(holder,level,()->point);viewers();holder.tick();}
         void viewers(){var players=game.server().getPlayerList().getPlayers();
             for(var c:List.copyOf(holder.getWatchingPlayers()))if(c.player.connection!=c||!players.contains(c.player)||c.player.level()!=level||c.player.position().distanceToSqr(point)>409600)holder.stopWatching(c);
             for(var p:players)if(p.level()==level&&p.position().distanceToSqr(point)<=409600)holder.startWatching(p);
@@ -279,4 +282,37 @@ public final class LbcSpecialTools {
     }
     void clear(ServerPlayer p){for(var name:new String[]{CHARGING,CHARGED,"swordcharging7","swordcharged7"})game.items().mana().score(p,name).set(0);}
     void stop(){for(var task:List.copyOf(erasures))task.cancel();for(var hammer:List.copyOf(hammers))hammer.destroy();for(var p:game.server().getPlayerList().getPlayers())clear(p);}
+
+    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
+        for(var original:List.copyOf(hammers)){
+            if(budget-made<count||System.nanoTime()>=deadline)break;
+            if(original.impacted||original.age>=200||!game.items().currentEpoch(original.epoch)
+                    ||!CloneVirtualAbilityStates.near(game,holder,original.level,original.point,original.cloneMask,skill))continue;
+            var points=CloneVirtualAbilityStates.positions(holder,original.level,original.point,skill);if(points==null)continue;
+            var created=new java.util.ArrayList<Hammer>();
+            try{
+                for(var point:points){var copy=new Hammer(original.author,original.level,original.epoch,point,
+                            original.impact.add(point.subtract(original.point)),false);created.add(copy);
+                    copy.age=original.age;copy.cloneMask=original.cloneMask|bit;hammers.add(copy);copy.publish();}
+                original.cloneMask|=bit;made+=count;
+            }catch(RuntimeException failure){for(var copy:created)copy.destroy();throw failure;}
+        }
+        return made;
+    }
+    private boolean cloneHammersPending;
+    HammerCheckpoint checkpointHammers(MatchSpellCheckpoint.Links links){return new HammerCheckpoint(links);}
+    final class HammerCheckpoint {
+        private record Image(MatchDamageSources.Ref author,ServerLevel level,String epoch,Vec3 point,Vec3 impact,int age,int mask,boolean impacted){}
+        private final List<Image> images;
+        HammerCheckpoint(MatchSpellCheckpoint.Links links){images=hammers.stream().map(h->new Image(links.key(h.author),h.level,h.epoch,h.point,h.impact,h.age,h.cloneMask,h.impacted)).toList();}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Hammer>();
+            for(var image:images){var author=(ServerPlayer)links.get(image.author);MatchAuthorityCheckpoint.world(game,image.level);
+                var hammer=new Hammer(author,image.level,image.epoch,image.point,image.impact,false);
+                hammer.age=image.age;hammer.cloneMask=image.mask;hammer.impacted=image.impacted;values.add(hammer);}
+            return ()->{for(var future:List.copyOf(hammers))future.destroy();hammers.clear();hammers.addAll(values);cloneHammersPending=true;};
+        }
+    }
+    void publishCloneHammers(){if(!cloneHammersPending)return;cloneHammersPending=false;for(var hammer:List.copyOf(hammers))hammer.publish();}
+
 }

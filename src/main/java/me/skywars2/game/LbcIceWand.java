@@ -290,4 +290,23 @@ final class LbcIceWand {
     void unloaded(Entity entity){if(entity instanceof IceShot shot)remove(shot);else {var crystal=actors.get(entity);if(crystal!=null)remove(crystal);else for(var shot:List.copyOf(shots))if(shot.display==entity)remove(shot);}}
     void forget(ServerPlayer owner){for(var shot:List.copyOf(shots))if(shot.getOwner()==owner)remove(shot);for(var crystal:List.copyOf(crystals))if(crystal.owner==owner)remove(crystal);}
     void stop(){for(var shot:List.copyOf(shots))remove(shot);for(var crystal:List.copyOf(crystals))remove(crystal);barriers.clear();}
+
+    LbcCloneSkills.ActorImage cloneImage(IceShot source) {
+        var hand=source.hand;var stack=source.initiatingStack==null?ItemStack.EMPTY:source.initiatingStack.copy();
+        int age=source.activeTicks;
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family) {
+                var target=(IceShot)clone;target.service=LbcIceWand.this;target.hand=hand;
+                target.initiatingStack=stack.copy();target.activeTicks=age;
+                if(!(target.getOwner() instanceof ServerPlayer owner))throw new IllegalStateException("Ice shot requires original player owner");
+                target.display=display(owner,target.position(),SHOT_MODEL,target.getYRot(),target.getXRot(),-.04f);
+                target.display.entityTags().add("ice_projectile");
+                shots.add(target);game.items().spellSources().inherit(target,target.display);
+                game.items().timeStop().prepareFrozen(target.display);
+                if(!target.level().addFreshEntity(target.display)||target.display.isRemoved())throw new IllegalStateException("Ice clone display publication failed");
+            }
+            public void rollback(Entity clone){remove((IceShot)clone);}
+        };
+    }
+
 }

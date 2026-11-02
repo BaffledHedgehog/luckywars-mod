@@ -228,4 +228,16 @@ public final class LbcPrism {
     void unloaded(Entity e){if(e instanceof Charge c){charges.remove(c);immediate.remove(c);}}
     void forget(ServerPlayer p){for(var c:List.copyOf(charges))if(c.getOwner()==p)c.discard();}
     void stop(){var old=List.copyOf(charges);charges.clear();immediate.clear();old.forEach(Entity::discard);spent=0;}
+
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!(source instanceof Charge c)||c.phase==Charge.Phase.ACADEMY||c.stack!=null&&LbcAcademy.trial(c.stack))return null;
+        var phase=c.phase;int age=c.age,steps=c.steps,bounces=c.bounces;var origin=c.origin;
+        var hand=c.hand;var stack=c.stack==null?null:c.stack.copy();var caster=c.caster;var particle=c.particle;
+        var hit=Set.copyOf(c.hit);boolean queued=immediate.contains(c);
+        return CloneComplexProjectileStates.image(e->{var n=(Charge)e;n.phase=phase;n.age=age;n.steps=steps;
+            n.bounces=bounces;n.origin=origin;n.hand=hand;n.stack=stack==null?null:stack.copy();n.caster=caster;
+            n.particle=particle;n.hit.addAll(hit);charges.add(n);if(queued)immediate.addLast(n);
+        },e->{charges.remove(e);immediate.remove(e);});
+    }
+
 }

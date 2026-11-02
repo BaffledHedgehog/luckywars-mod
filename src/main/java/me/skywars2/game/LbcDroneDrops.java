@@ -342,10 +342,13 @@ public final class LbcDroneDrops {
         }
         SpawnerImage(BaseSpawner source,
                 IdentityHashMap<net.minecraft.world.level.SpawnData,net.minecraft.world.level.SpawnData> aliases){
+            this(source,aliases,true);
+        }
+        SpawnerImage(BaseSpawner source,IdentityHashMap<net.minecraft.world.level.SpawnData,net.minecraft.world.level.SpawnData> aliases,boolean exactDisplay){
             var a=(DroneSpawnerCheckpointAccess)source;delay=a.skywars2$delay();min=a.skywars2$min();max=a.skywars2$max();
             count=a.skywars2$count();near=a.skywars2$near();range=a.skywars2$range();spawnRange=a.skywars2$spawnRange();
             spin=a.skywars2$spin();oldSpin=a.skywars2$oldSpin();
-            if(a.skywars2$display()!=null)throw new IllegalStateException("Drone display cache requires a native display-state owner before checkpointing");
+            if(exactDisplay&&a.skywars2$display()!=null)throw new IllegalStateException("Drone display cache requires a native display-state owner before checkpointing");
             next=copy(a.skywars2$next(),aliases);potentials=a.skywars2$potentials().map(v->copy(v,aliases));
         }
         Runnable prepare(BaseSpawner source,
@@ -360,4 +363,28 @@ public final class LbcDroneDrops {
     }
 
     public int trackedCount(){return tracked.size();}
+
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!managed(source))return null;
+        var cause=LbcIndirectKills.playerSource(retainedOwner(source));
+        boolean knownCause=cause==null||authors.containsKey(cause.getUUID());
+        String host=hostKey(source);boolean closed=source.entityTags().contains(CLOSED)||deadHosts.contains(host);
+        var spawner=source instanceof MinecartSpawner cart?new SpawnerImage(cart.getSpawner(),new IdentityHashMap<>(),false):null;
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(cause!=null)authors.putIfAbsent(cause.getUUID(),cause);
+                if(!host.isEmpty()){
+                    String key=host;
+                    try{var id=UUID.fromString(host.substring(HOST.length()));
+                        for(var entry:family.entrySet())if(entry.getKey().getUUID().equals(id)){key=HOST+entry.getValue().getUUID();break;}
+                    }catch(IllegalArgumentException malformed){throw new IllegalStateException("Malformed drone host identity",malformed);}
+                    clone.entityTags().removeIf(tag->tag.startsWith(HOST));clone.entityTags().add(key);
+                }
+                if(closed)clone.entityTags().add(CLOSED);
+                if(spawner!=null){var cart=(MinecartSpawner)clone;spawner.prepare(cart.getSpawner(),new IdentityHashMap<>()).run();}
+                // Native loaded owns fresh stable registry slots and producer indexing.
+            }
+            public void rollback(Entity clone){unloaded(clone);if(!knownCause)authors.remove(cause.getUUID(),cause);}
+        };
+    }
 }

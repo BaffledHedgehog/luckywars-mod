@@ -304,4 +304,15 @@ public final class LbcGovnomet {
         for(var block:List.copyOf(falling)) block.discard();
         falling.clear(); batch.clear();
     }
+
+    static boolean cloneRecognizes(Entity e){return e instanceof Charge||e instanceof LbcGovnomet.OwnedDirt;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(source instanceof OwnedDirt)return CloneComplexProjectileStates.image(OwnedDirt::new,
+                e->falling.add((FallingBlockEntity)e),e->falling.remove(e));
+        if(!(source instanceof Charge c)||c.retired)return null;
+        int age=c.age;boolean mega=c.mega;
+        return CloneComplexProjectileStates.image(e->{var n=(Charge)e;n.age=age;n.mega=mega;n.retired=false;
+            charges.add(n);},e->charges.remove(e));
+    }
+
 }

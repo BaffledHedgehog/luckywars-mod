@@ -98,8 +98,10 @@ public final class LbcStand {
         Vec3 direction;
         int age;
         Fist(ServerPlayer owner,String epoch,Display.ItemDisplay display,Vec3 direction,int variant) {
-            this.owner=owner; level=owner.level(); this.epoch=epoch; this.display=display;
-            this.direction=direction; this.variant=variant;
+            this(owner,owner.level(),epoch,display,direction,variant);
+        }
+        Fist(ServerPlayer owner,ServerLevel level,String epoch,Display.ItemDisplay display,Vec3 direction,int variant){
+            this.owner=owner;this.level=level;this.epoch=epoch;this.display=display;this.direction=direction;this.variant=variant;
         }
     }
     private static final class StandArrow extends TippedArrowItem implements PolymerItem {
@@ -109,7 +111,8 @@ public final class LbcStand {
     /** Native item displays have no physics or saving; their source five-tick lifetime is owned below. */
     private static final class FistDisplay extends Display.ItemDisplay {
         final ServerPlayer owner;
-        FistDisplay(ServerPlayer owner) { super(EntityTypes.ITEM_DISPLAY,owner.level()); this.owner=owner; }
+        FistDisplay(ServerPlayer owner) { this(owner,owner.level()); }
+        FistDisplay(ServerPlayer owner,ServerLevel level){super(EntityTypes.ITEM_DISPLAY,level);this.owner=owner;}
         @Override public boolean shouldBeSaved() { return false; }
     }
 
@@ -567,6 +570,17 @@ public final class LbcStand {
                 burst.cooldown=image.cooldown;burst.delay=image.delay;burst.retainedOffline=MatchOfflinePlayers.retained(player);nextBursts.put(player.getUUID(),burst);}
             return ()->{retained.clear();retained.putAll(nextOwners);bursts.clear();bursts.putAll(nextBursts);ticks=cadence;tickTargets.clear();};
         }
+    }
+
+    static boolean cloneRecognizes(Entity source){return source instanceof FistDisplay||source.entityTags().contains(FIST_TAG);}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var fist=fists.stream().filter(f->f.display==source).findFirst().orElse(null);if(fist==null)return null;
+        var owner=fist.owner;var fistLevel=fist.level;var epoch=fist.epoch;var direction=fist.direction;int age=fist.age,variant=fist.variant;
+        return new LbcCloneSkills.ActorImage(){
+            public Entity create(Entity original,ServerLevel level){return new FistDisplay(owner,level);}
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){var f=new Fist(owner,fistLevel,epoch,(Display.ItemDisplay)clone,direction,variant);f.age=age;fists.add(f);}
+            public void rollback(Entity clone){fists.removeIf(f->f.display==clone);}
+        };
     }
 
 }

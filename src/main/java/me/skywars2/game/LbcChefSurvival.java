@@ -486,4 +486,22 @@ final class LbcChefSurvival {
         }
     }
 
+
+    /** Per-body supplies/nutrition only; cloned actors receive no authority over existing world water. */
+    java.util.function.Consumer<LbcChefSurvival> cloneState() {
+        var savedBucket=Supply.capture(chef,bucket);var savedFood=Supply.capture(chef,food);
+        int nutrition=foodLevel,cooldown=waterCooldown,count=eatingCount,meal=eatingNutrition;
+        float savedSaturation=saturation,spent=exhaustion,mealSaturation=eatingSaturation;
+        boolean consuming=eating;
+        return target->{
+            target.bucket=savedBucket.resolve(target.chef);target.food=savedFood.resolve(target.chef);
+            target.lastPosition=target.chef.position();target.foodLevel=nutrition;target.waterCooldown=cooldown;
+            target.saturation=savedSaturation;target.exhaustion=spent;
+            target.eating=consuming;target.eatingCount=count;target.eatingNutrition=meal;target.eatingSaturation=mealSaturation;
+            target.ownedWater=null;target.ownedWaterState=null;target.pickupWater=null;target.nextWaterSearch=0;
+            target.waterAge=0;target.settledWaterTicks=0;target.touchedWater=false;
+            target.descentLanding=null;target.descentLip=null;target.descentAirborne=false;
+            target.descentStarted=0;target.nextDescentSearch=target.chef.tickCount;
+        };
+    }
 }

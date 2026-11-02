@@ -318,4 +318,18 @@ public final class LbcColors {
         }
     }
     void stop() { waterEffects.clear(); for(var target:List.copyOf(teleporting)) clearEffects(target); }
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!(source instanceof LivingEntity living))return null;
+        boolean water=waterEffects.contains(living),teleport=teleporting.contains(living);
+        var timers=CloneRemainingStatusStates.scores(game,source,List.of(RTP));
+        if(!water&&!teleport&&timers.values().stream().noneMatch(v->v>0))return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                CloneRemainingStatusStates.installScores(game,clone,timers);
+                if(water)waterEffects.add((LivingEntity)clone);if(teleport)teleporting.add((LivingEntity)clone);
+            }
+            public void rollback(Entity clone){waterEffects.remove(clone);teleporting.remove(clone);}
+        };
+    }
+
 }

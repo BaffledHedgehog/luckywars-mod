@@ -135,7 +135,10 @@ public final class LbcShooters {
         final Map<net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect>,StunEffect> effects=new java.util.IdentityHashMap<>();
         int ticks;
         Stun(ServerPlayer owner,LivingEntity target,String epoch,int ticks) {
-            this.owner=owner; this.epoch=epoch; this.ticks=ticks; yaw=target.getYRot(); pitch=target.getXRot();
+            this(owner,epoch,ticks,target.getYRot(),target.getXRot());
+        }
+        Stun(ServerPlayer owner,String epoch,int ticks,float yaw,float pitch){
+            this.owner=owner;this.epoch=epoch;this.ticks=ticks;this.yaw=yaw;this.pitch=pitch;
         }
     }
     private static final class Burst {
@@ -1087,4 +1090,23 @@ public final class LbcShooters {
         var removed = List.copyOf(arrows); arrows.clear();
         for (var arrow : removed) arrow.discard();
     }
+    LbcCloneSkills.ActorImage cloneStatusImage(Entity source){
+        if(!(source instanceof LivingEntity target))return null;var stun=stuns.get(target);if(stun==null)return null;
+        var owner=stun.owner;var epoch=stun.epoch;int ticks=stun.ticks;float yaw=stun.yaw,pitch=stun.pitch;
+        record Image(net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> type,MobEffectInstance installed,MobEffectInstance previous,int age,boolean active){}
+        var effects=new java.util.ArrayList<Image>();
+        stun.effects.forEach((type,e)->effects.add(new Image(type,EffectLayers.copy(e.installed),e.previous==null?null:EffectLayers.copy(e.previous),target.tickCount-e.installedAt,target.getEffect(type)==e.installed)));
+        var restored=restoredStunAges.get(target);var ages=restored==null?null:new java.util.IdentityHashMap<>(restored);
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var living=(LivingEntity)clone;var s=new Stun(owner,epoch,ticks,yaw,pitch);
+                for(var e:effects){var installed=e.active?living.getEffect(e.type):EffectLayers.copy(e.installed);
+                    if(installed==null)throw new IllegalStateException("Missing native clone stun effect");
+                    s.effects.put(e.type,new StunEffect(installed,e.previous==null?null:EffectLayers.copy(e.previous),living.tickCount-e.age));}
+                stuns.put(living,s);if(ages!=null)restoredStunAges.put(living,new java.util.IdentityHashMap<>(ages));
+            }
+            public void rollback(Entity clone){stuns.remove(clone);restoredStunAges.remove(clone);}
+        };
+    }
+
 }

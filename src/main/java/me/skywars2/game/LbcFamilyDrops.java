@@ -165,4 +165,11 @@ public final class LbcFamilyDrops {
     public void unloaded(Entity e){actors.remove(e);}
     public void stop(){for(var e:List.copyOf(actors))if(!e.isRemoved())e.discard();actors.clear();}
     public List<Entity> snapshot(){return List.copyOf(actors);}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){if(!actors.contains(source))return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){actors.add(clone);}
+            public void rollback(Entity clone){actors.remove(clone);}
+        };
+    }
+
 }

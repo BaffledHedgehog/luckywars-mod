@@ -327,7 +327,7 @@ public final class LbcWands {
         ItemStack trialStack;
         Vec3 position;
         float yaw,pitch;
-        int age;
+        int age,cloneMask;
         ElectroTrace(ServerPlayer owner,Vec3 position,String epoch) {
             this(owner,position,epoch,40);
         }
@@ -356,6 +356,18 @@ public final class LbcWands {
             npcSource=null;sourcePolicy=source;cause=source.cause();explicitEmitter=level.getEntity(source.emitter());hostileSauvojen=true;
             yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
             pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        }
+
+        ElectroTrace(ElectroTrace old) {
+            owner=old.owner;npcSource=old.npcSource;explicitEmitter=old.explicitEmitter;level=old.level;epoch=old.epoch;
+            lifetime=old.lifetime;meditation=old.meditation;mechanism=old.mechanism;teslaChain=old.teslaChain;
+            statusWild=old.statusWild;cause=old.cause;sourcePolicy=old.sourcePolicy;hostileSauvojen=old.hostileSauvojen;
+            trialOwner=old.trialOwner;trialHand=old.trialHand;trialStack=old.trialStack;
+            position=old.position;yaw=old.yaw;pitch=old.pitch;age=old.age;cloneMask=old.cloneMask;
+            if(old.erecto!=null){var path=old.erecto;
+                erecto=new LbcErecto.Path(path.kind,path.origin,path.focus,path.focusSteps,path.side,path.caster,path.hand,path.stack.copy());
+                erecto.terrainCause=path.terrainCause;
+            }
         }
         LivingEntity source() { return owner==null?npcSource:owner; }
         Entity damageEmitter(){return explicitEmitter!=null?explicitEmitter:source();}
@@ -1733,4 +1745,30 @@ public final class LbcWands {
                 && (victim==owner || (projectile.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE)
                     ? target(owner,victim,true) : projectileTarget(owner,victim)));
     }
+
+    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
+        for(var trace:java.util.List.copyOf(electroTraces)){
+            if(budget-made<count||System.nanoTime()>=deadline)break;
+            if(trace.age>=trace.lifetime||!game.items().currentEpoch(trace.epoch)||trace.trialOwner!=null
+                    ||trace.erecto!=null&&LbcAcademy.trial(trace.erecto.stack)
+                    ||!CloneVirtualAbilityStates.near(game,holder,trace.level,trace.position,trace.cloneMask,skill)
+                    ||timeStopped()||trace.sourcePolicy==null&&trace.owner!=null
+                    &&(trace.owner.entityTags().contains("time_stopped")||game.items().timeStop().frozen(trace.owner)))continue;
+            var points=CloneVirtualAbilityStates.positions(holder,trace.level,trace.position,skill);if(points==null)continue;
+            var clones=new java.util.ArrayList<ElectroTrace>();
+            for(var point:points){var copy=new ElectroTrace(trace);copy.position=point;copy.cloneMask|=bit;
+                if(skill==17){var direction=LbcCloneSkills.spreadMotion(Vec3.directionFromRotation(copy.pitch,copy.yaw),holder,1000,1500);
+                    copy.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+                    copy.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));}
+                clones.add(copy);
+            }
+            electroTraces.addAll(clones);trace.cloneMask|=bit;made+=count;
+            if(skill==17){var direction=LbcCloneSkills.spreadMotion(Vec3.directionFromRotation(trace.pitch,trace.yaw),holder,10,10);
+                trace.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+                trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));}
+        }
+        return made;
+    }
+
 }

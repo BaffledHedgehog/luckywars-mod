@@ -419,4 +419,26 @@ public final class LbcKfcRewards {
     int bombCount() { return bombs.size(); }
     int celebrationCount() { return celebrations.size(); }
     int pendingMulticastCount() { return multicasts.size(); }
+    static boolean cloneRecognizes(Entity e){return e instanceof CultBat||e instanceof CultItem||e instanceof LooseBolt;}
+    static boolean cloneProtected(Entity e){return false;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(cloneProtected(source))return null;
+        var owner=owned.get(source);var hostile=looseConsequences.get(source);var bomb=source instanceof CultItem item?bombs.get(item):null;
+        if(owner==null&&hostile==null&&bomb==null)return null;
+        return new LbcCloneSkills.ActorImage(){
+            public Entity create(Entity original,ServerLevel level){
+                if(original instanceof CultBat)return new CultBat(level);
+                if(original instanceof LooseBolt)return new LooseBolt(level);
+                if(original instanceof CultItem item)return new CultItem(level,item.position(),item.getItem().copy());
+                return LbcCloneSkills.ActorImage.super.create(original,level);
+            }
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(owner!=null)owned.put(clone,owner);
+                if(hostile!=null)looseConsequences.put(clone,(LivingEntity)family.getOrDefault(hostile,hostile));
+                if(bomb!=null)bombs.put((CultItem)clone,new Bomb(bomb.owner,bomb.hostileOwner==null?null:(LivingEntity)family.getOrDefault(bomb.hostileOwner,bomb.hostileOwner),bomb.epoch,bomb.variant));
+            }
+            public void rollback(Entity clone){owned.remove(clone);looseConsequences.remove(clone);bombs.remove(clone);}
+        };
+    }
+
 }

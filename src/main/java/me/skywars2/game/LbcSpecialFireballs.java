@@ -142,4 +142,14 @@ public final class LbcSpecialFireballs {
     public int pendingCount(){return pending.size();}
     public int trackedCount(){return actors.size();}
     public List<Entity> snapshot(){return List.copyOf(actors);}
+
+    static boolean cloneRecognizes(Entity e){return managed(e)||e instanceof Snowball b&&variant(b.getItem())!=0;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        boolean actor=actors.contains(source),waiting=pending.contains(source);
+        if(!actor&&!waiting)return null;
+        // CHILD marks damaging released siblings too; it is not a visual/protected role tag.
+        return CloneComplexProjectileStates.image(e->{if(actor)actors.add(e);if(waiting)pending.add((Snowball)e);},
+                e->{actors.remove(e);pending.remove(e);});
+    }
+
 }

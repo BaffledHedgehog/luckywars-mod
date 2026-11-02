@@ -257,4 +257,42 @@ public final class LbcTransformator {
     List<View> snapshot() {return pairs.stream().map(pair->new View(pair.actor,pair.text,pair.ticks)).toList();}
     List<Entity> attackSnapshot() {return List.copyOf(attacks);}
     int activeCount() {return pairs.size();}
+
+    static boolean cloneProtected(Entity actor){return actor instanceof Label || actor.entityTags().contains(TEXT);}
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!managed(source)||cloneProtected(source))return null;
+        var pair=source instanceof Zombie zombie?find(zombie):null;
+        if(source.entityTags().contains(ACTOR)&&pair==null)return null;
+        boolean hasLabel=pair!=null&&pair.text!=null;int ticks=pair==null?0:pair.ticks;
+        var epoch=pair==null?game.items().epoch():pair.epoch;
+        var author=authors.get(source);if(author==null)author=unloadedAuthors.get(source.getUUID());
+        final var causalAuthor=author;
+        var blastCause=source instanceof Blast blast?blast.cause:null;
+        return new LbcCloneSkills.ActorImage() {
+            public Entity create(Entity original,ServerLevel level){
+                if(original instanceof Actor)return new Actor(level);
+                if(original instanceof Blast)return new Blast(level,blastCause);
+                return LbcCloneSkills.ActorImage.super.create(original,level);
+            }
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(causalAuthor!=null)authors.put(clone,causalAuthor);
+                if(clone.entityTags().contains(ATTACK))attacks.add(clone);
+                if(clone.entityTags().contains(ACTOR)){
+                    Label label=null;
+                    if(hasLabel){label=new Label((ServerLevel)clone.level());
+                        load(label,"{view_range:2f,shadow_radius:0f,shadow_strength:0f,width:200f,height:200f,billboard:'center',see_through:1b,alignment:'center',text:[{translate:'transformator',color:'gold',italic:false},{text:' Nightmare23 Birthday',color:'gray'}]}");
+                        label.setPos(clone.position().add(0,3,0));label.entityTags().addAll(List.of(TEXT,"tr_text"));
+                        game.items().markCurrentItemEpoch(label);game.items().spellSources().inherit(clone,label);
+                    }
+                    var copied=new Pair((Zombie)clone,label,epoch);copied.ticks=ticks;pairs.add(copied);
+                    if(label!=null){game.items().timeStop().prepareFrozen(label);
+                        if(!clone.level().addFreshEntity(label)||label.isRemoved())throw new IllegalStateException("Transformator clone label publication failed");}
+                }
+            }
+            public void rollback(Entity clone){
+                for(var pair:List.copyOf(pairs))if(pair.actor==clone)terminal(pair);
+                attacks.remove(clone);authors.remove(clone);unloadedAuthors.remove(clone.getUUID());
+            }
+        };
+    }
 }

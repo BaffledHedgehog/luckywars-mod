@@ -969,4 +969,13 @@ public final class LbcExasperato {
         Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exasperato charges first");bodies.add(c);}var owners=new java.util.IdentityHashMap<BlastBatch,ServerPlayer>();for(var b:queue){MatchAuthorityCheckpoint.world(game,b.original.level);var owner=links.get(b.owner);if(owner!=null&&!(owner instanceof ServerPlayer))throw new IllegalStateException("Restore current burst authors first");owners.put(b.original,(ServerPlayer)owner);}
             return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.mode=a.mode;c.lifetime=a.life;c.academyTrial=a.trial;}blasts.clear();for(var b:queue){var live=b.original;live.owner=owners.get(live);live.offsets=b.offsets.clone();live.radius=b.radius;live.protectedDamage=b.protectedDamage;live.cosmos=b.cosmos;live.next=b.next;live.sourceInit=b.init;blasts.addLast(live);}blastRewind=false;};}
     }
+
+    /** Charge state has no Search/RayTicket link; searches are separate accepted virtual casts. */
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!(source instanceof Charge c)||c.academyTrial)return null;
+        int age=c.age,mode=c.mode,life=c.lifetime;
+        return CloneComplexProjectileStates.image(e->{var n=(Charge)e;n.age=age;n.mode=mode;n.lifetime=life;
+            n.academyTrial=false;charges.add(n);},e->charges.remove(e));
+    }
+
 }

@@ -126,4 +126,10 @@ public final class LbcNeutral {
     void forget(ServerPlayer p){for(var shot:List.copyOf(projectiles))if(shot.getOwner()==p)unloaded(shot);}
     void tick(){for(var shot:List.copyOf(projectiles))if(shot.isRemoved()||!game.playing()||!game.items().currentEpoch(shot)||!shot.level().hasChunkAt(shot.blockPosition()))unloaded(shot);}
     void stop(){for(var shot:List.copyOf(projectiles))unloaded(shot);}
+
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!managed(source))return null;
+        return CloneComplexProjectileStates.image(e->projectiles.add((Projectile)e),e->projectiles.remove(e));
+    }
+
 }

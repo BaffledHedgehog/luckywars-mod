@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -79,7 +80,10 @@ public final class LbcSheep {
         final ServerLevel level;Vec3 point,velocity=Vec3.ZERO;final Quaternionf tilt=new Quaternionf();
         BlackHoleErosion terrain;BlackHoleVisuals.Handle visual;
         Hole(Marker entity,ServerPlayer owner,Vec3 point,LbcIndirectKills.Owner cause,String epoch){
-            this.entity=entity;this.owner=owner.getUUID();this.level=owner.level();this.point=point;this.cause=cause;this.epoch=epoch;
+            this(entity,owner.getUUID(),owner.level(),point,cause,epoch);
+        }
+        Hole(Marker entity,UUID owner,ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,String epoch){
+            this.entity=entity;this.owner=owner;this.level=level;this.point=point;this.cause=cause;this.epoch=epoch;
         }
     }
     private static final class Body extends Marker {
@@ -400,4 +404,28 @@ public final class LbcSheep {
                 sheep.clear();sheep.addAll(transformed);terrainTurn=turn;};
         }
     }
+    static boolean cloneRecognizes(Entity source){return managed(source)||source instanceof Body||source instanceof MagicSheep;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var converted=sheep.stream().filter(c->c.entity==source).findFirst().orElse(null);
+        if(converted!=null){var owner=converted.owner;var cause=converted.cause;var epoch=converted.epoch;
+            return new LbcCloneSkills.ActorImage(){
+                public Entity create(Entity original,ServerLevel level){return new MagicSheep(level);}
+                public void install(Entity original,Entity clone,Map<Entity,Entity> family){sheep.add(new Converted((Sheep)clone,owner,cause,epoch));}
+                public void rollback(Entity clone){sheep.removeIf(c->c.entity==clone);}
+            };
+        }
+        var hole=holes.stream().filter(h->h.entity==source).findFirst().orElse(null);if(hole==null)return null;
+        var owner=hole.owner;var level=hole.level;var cause=hole.cause;var epoch=hole.epoch;var point=hole.point;var origin=source.position();var velocity=hole.velocity;
+        var tilt=new Quaternionf(hole.tilt);var terrain=hole.terrain==null?null:hole.terrain.copyTranslated(Vec3.ZERO);
+        return new LbcCloneSkills.ActorImage(){
+            public Entity create(Entity original,ServerLevel level){return new Body(level);}
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var author=player(owner);
+                var offset=clone.position().subtract(origin);var h=new Hole((Marker)clone,owner,level,point.add(offset),cause,epoch);
+                h.velocity=velocity;h.tilt.set(tilt);h.terrain=terrain==null?null:terrain.copyTranslated(offset);holes.add(h);if(author!=null&&author.level()==level)updateVisual(h,author);
+            }
+            public void rollback(Entity clone){for(var h:List.copyOf(holes))if(h.entity==clone){holes.remove(h);if(h.terrain!=null)h.terrain.clear();if(h.visual!=null)game.items().blackHoleVisuals().remove(h.visual);}}
+        };
+    }
+
 }

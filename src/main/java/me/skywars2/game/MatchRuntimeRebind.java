@@ -47,7 +47,7 @@ final class MatchRuntimeRebind {
         stop.prepareFrozen();fpv.prepareFrozen();if(queued!=null)queued.prepareFrozen();blasts.prepareFrozen();
         statuses.prepareFrozen();chefs.prepareFrozen();hedgehogs.prepareFrozen();encounters.prepareFrozen();residents.prepareFrozen();
         var pending=new LinkedHashSet<UUID>();sources.restore(lookup,pending);ready(pending);
-        ready(spells.restoreFrozen(lookup));ready(authorities.restoreFrozen(lookup));ready(attribution.restoreFrozen(lookup));
+        ready(spells.restoreFrozen(lookup,false));ready(authorities.restoreFrozen(lookup));ready(attribution.restoreFrozen(lookup));
         ready(fpv.finishFrozen(lookup));
         ready(statuses.restoreFrozen(lookup));ready(chefs.restoreFrozen(lookup));ready(hedgehogs.restoreFrozen(lookup));ready(encounters.restoreFrozen(lookup));ready(residents.restoreFrozen(lookup));
     }
@@ -56,6 +56,6 @@ final class MatchRuntimeRebind {
         if(!installed){if(queued!=null)ready(queued.finishFrozen(lookup));ready(blasts.finishFrozen(lookup));ready(stop.finishFrozen(lookup));installed=true;}
         if(queued!=null&&!queued.publishFrozen().isEmpty())return false;
         if(!encounters.publishFrozen().isEmpty())return false;
-        authorities.publishFrozen();ready(statuses.publishFrozen());ready(chefs.publishFrozen());ready(hedgehogs.publishFrozen());ready(residents.publishFrozen());return true;
+        spells.publishFrozen();authorities.publishFrozen();ready(statuses.publishFrozen());ready(chefs.publishFrozen());ready(hedgehogs.publishFrozen());ready(residents.publishFrozen());return true;
     }
 }

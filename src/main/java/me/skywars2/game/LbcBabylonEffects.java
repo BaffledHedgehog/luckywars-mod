@@ -186,7 +186,7 @@ public final class LbcBabylonEffects {
     public void clear(LivingEntity target){retainedTargets.remove(target);pending.remove(target);target.removeAttached(DATA);for(var name:COUNTERS)mana.score(target,name).set(0);}
     public void loaded(Entity entity){
         if(entity.entityTags().contains("skywars2.babylon.effect")&&(!secondary.containsKey(entity)||!game.items().currentEpoch(entity))){entity.discard();return;}
-        if(!(entity instanceof LivingEntity target))return;if(LbcParasite.active(target)){clear(target);return;}var tag=target.getAttached(DATA);if(tag==null)return;
+        if(!(entity instanceof LivingEntity target))return;if(pending.containsKey(target))return;if(LbcParasite.active(target)){clear(target);return;}var tag=target.getAttached(DATA);if(tag==null)return;
         if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clear(target);return;}
         var all=queues();for(var value:tag.getListOrEmpty("entries"))if(value instanceof CompoundTag entry)try{
             int kind=index(entry.getIntOr("amp",0)),ticks=entry.getIntOr("ticks",0);if(kind<0||ticks<=0)continue;
@@ -230,6 +230,19 @@ public final class LbcBabylonEffects {
             var nextChildren=new WeakHashMap<Entity,LbcIndirectKills.Owner>();children.forEach((ref,cause)->nextChildren.put(links.get(ref),cause));
             return ()->{pending.clear();pending.putAll(next);secondary.clear();secondary.putAll(nextChildren);retainedTargets.clear();retainedTargets.addAll(offline);};
         }
+    }
+
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var original=source instanceof LivingEntity living?pending.get(living):null;var cause=secondary.get(source);
+        if(original==null&&cause==null)return null;
+        var image=original==null?null:original.stream().map(q->q.stream().map(c->new Contribution(c.remaining,c.cause)).toList()).toList();
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(cause!=null)secondary.put(clone,cause);
+                if(image!=null){var queues=queues();for(int i=0;i<3;i++)for(var c:image.get(i))queues.get(i).addLast(new Contribution(c.remaining,c.cause));pending.put((LivingEntity)clone,queues);sync((LivingEntity)clone);}
+            }
+            public void rollback(Entity clone){secondary.remove(clone);pending.remove(clone);retainedTargets.remove(clone);}
+        };
     }
 
 }

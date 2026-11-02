@@ -136,6 +136,7 @@ public final class LbcSyringe {
     private static final class BonusFireball extends LargeFireball {
         private final Mob origin;private boolean leftOrigin;
         BonusFireball(ServerPlayer owner,Mob origin,net.minecraft.world.phys.Vec3 direction){super(owner.level(),owner,direction,2);this.origin=origin;}
+        BonusFireball(net.minecraft.world.level.Level level,Mob origin){super(net.minecraft.world.entity.EntityTypes.FIREBALL,level);this.origin=origin;}
         @Override public void tick(){if(!leftOrigin)leftOrigin=origin.isRemoved()||origin.getRootVehicle().getSelfAndPassengers()
                 .noneMatch(e->e.getBoundingBox().inflate(.3).intersects(getBoundingBox()));super.tick();}
         @Override protected boolean canHitEntity(Entity entity){return (leftOrigin||entity.getRootVehicle()!=origin.getRootVehicle())&&super.canHitEntity(entity);}
@@ -167,4 +168,14 @@ public final class LbcSyringe {
         var p=game.server().getPlayerList().getPlayer(id);if(p!=null)p.entityTags().remove("holding_syringe");}
     void forget(ServerPlayer p){forget(p.getUUID());p.entityTags().remove("holding_syringe");}
     void stop(){for(var id:List.copyOf(holding.keySet()))forget(id);for(var m:List.copyOf(buffs.keySet()))end(m);}
+
+    static boolean cloneRecognizes(Entity e){return e instanceof BonusFireball;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!(source instanceof BonusFireball b))return null;
+        var origin=b.origin;boolean left=b.leftOrigin;
+        // origin is an external launch unit; it remains the original unit after reflection/cloning.
+        return CloneComplexProjectileStates.image(level->new BonusFireball(level,origin),
+                e->((BonusFireball)e).leftOrigin=left,e->{});
+    }
+
 }

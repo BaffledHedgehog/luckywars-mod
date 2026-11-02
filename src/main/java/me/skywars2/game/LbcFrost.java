@@ -353,6 +353,7 @@ public final class LbcFrost {
         statusCallbacks++;try {
             if(statusRestoring)return;
             if (!(entity instanceof LivingEntity living)) return;
+            if(affected.containsKey(living))return;
             var tag = living.getAttached(DATA);
             if (tag == null) return;
             if (!epoch.equals(tag.getStringOr("epoch", ""))) { living.removeAttached(DATA); return; }
@@ -462,4 +463,19 @@ public final class LbcFrost {
     public int trackedCount() { return affected.size(); }
     public int iceBlockCount() { return ice.size(); }
     private ServerLevel level() { return game.maps().level(); }
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!(source instanceof LivingEntity living))return null;var state=affected.get(living);if(state==null)return null;
+        int cold=state.cold,cooldown=state.cooldown,seconds=state.frozen;var cause=state.source;var anchor=state.anchor;
+        var cells=List.copyOf(state.cells);var saved=state.savedIce.copy();
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var next=new State((LivingEntity)clone);next.cold=cold;next.cooldown=cooldown;next.frozen=seconds;next.source=cause;
+                next.anchor=anchor;next.cells=cells;next.savedIce=saved.copy();affected.put((LivingEntity)clone,next);
+                if(seconds>0){for(var cell:cells){var block=ice.get(cell);if(block==null)throw new IllegalStateException("Missing source frost ice lease");block.owners.add(clone.getUUID());}frozen.add(next);}
+                save(next);
+            }
+            public void rollback(Entity clone){var next=affected.remove(clone);if(next!=null){frozen.remove(next);for(var cell:next.cells){var block=ice.get(cell);if(block!=null)block.owners.remove(clone.getUUID());}}}
+        };
+    }
+
 }

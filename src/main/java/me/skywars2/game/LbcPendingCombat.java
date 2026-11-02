@@ -269,4 +269,21 @@ public final class LbcPendingCombat {
     public void stop(){for(var copy:List.copyOf(copies))remove(copy);for(var target:List.copyOf(curses.keySet()))clearEffects(target);phase=0;}
     List<Copy> snapshot(){return List.copyOf(copies);}
     int curseSeconds(LivingEntity target){var curse=curses.get(target);return curse==null?0:curse.seconds;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var curse=source instanceof LivingEntity l?curses.get(l):null;
+        var copy=copies.stream().filter(c->c.display==source).findFirst().orElse(null);
+        if(curse==null&&copy==null)return null;
+        var owner=curse==null?null:curse.owner;var epoch=curse==null?null:curse.epoch;var cause=curse==null?null:curse.cause;int seconds=curse==null?0:curse.seconds;
+        var emitter=copy==null?null:copy.owner;var copyEpoch=copy==null?null:copy.epoch;var copyCause=copy==null?null:copy.cause;var direction=copy==null?null:copy.direction;boolean ground=copy!=null&&copy.grounded;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(owner!=null){var c=new Curse(owner,epoch,cause);c.seconds=seconds;curses.put((LivingEntity)clone,c);}
+                if(emitter!=null){var c=new Copy(emitter,(Display.ItemDisplay)clone,copyEpoch,copyCause,direction);c.grounded=ground;copies.add(c);}
+            }
+            public void rollback(Entity clone){curses.remove(clone);copies.removeIf(c->c.display==clone);}
+        };
+    }
+
+    static boolean cloneRecognizes(Entity source){return source.entityTags().contains(ACTOR);}
+
 }

@@ -100,8 +100,10 @@ public final class LbcWtf {
         int actionSerial;
         float damage;
         Chef(LbcWtf service,ServerPlayer owner,LivingEntity target){
-            super(owner.level());this.service=service;this.owner=owner;this.target=target;
-            this.cause=service.game.items().indirectKills().coldCause(owner,true);
+            this(service,owner,target,owner.level(),service.game.items().indirectKills().coldCause(owner,true));
+        }
+        Chef(LbcWtf service,ServerPlayer owner,LivingEntity target,Level level,LbcIndirectKills.Owner cause){
+            super(level);this.service=service;this.owner=owner;this.target=target;this.cause=cause;
             this.brain=new LbcChefBrain(this);
             this.survival=new LbcChefSurvival(this);
             // Add combat attributes only to this mannequin, leaving decorative mannequins unchanged.
@@ -522,4 +524,21 @@ public final class LbcWtf {
     float damageCount(Chef chef){return chef.damage;}
     List<ItemStack> tools(Chef chef){var tools=new ArrayList<>(chef.brain.tools());tools.addAll(chef.survival.supplies());return List.copyOf(tools);}
     List<Chef> snapshot(){return List.copyOf(chefs);}
+
+    LbcCloneSkills.ActorImage cloneImage(Chef source) {
+        var owner=source.owner;var target=source.target;var cause=source.cause;
+        float damage=source.damage;int stasis=source.stasis,delay=source.attackDelay,jump=source.combatJumpWait;
+        int handAge=source.tickCount-source.handChanged;
+        boolean retainedOwner=source.retainedOwner,retainedTarget=source.retainedTarget;
+        var tools=source.brain.tools();var survival=source.survival.cloneState();
+        return new LbcCloneSkills.ActorImage() {
+            public Entity create(Entity original,ServerLevel level){return new Chef(LbcWtf.this,owner,target,level,cause);}
+            public void install(Entity original,Entity clone,java.util.Map<Entity,Entity> family){
+                var chef=(Chef)clone;chef.damage=damage;chef.stasis=stasis;chef.attackDelay=delay;chef.combatJumpWait=jump;
+                chef.retainedOwner=retainedOwner;chef.retainedTarget=retainedTarget;chef.handChanged=chef.tickCount-handAge;
+                chef.brain.restoreCheckpointResources(tools,Set.of());survival.accept(chef.survival);
+            }
+            public void rollback(Entity clone){var chef=(Chef)clone;unpin(chef.ticket);chef.ticket=null;chefs.remove(chef);}
+        };
+    }
 }

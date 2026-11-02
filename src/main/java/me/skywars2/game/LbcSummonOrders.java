@@ -109,4 +109,16 @@ public final class LbcSummonOrders {
             return ()->{assignments=restored;ticks=cadence;};}
     }
 
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!(source instanceof Mob mob))return null;
+        var order=assignments.get(mob);if(order==null)return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var target=family.getOrDefault(order.target,order.target);
+                assignments.put((Mob)clone,new Assignment(order.owner,(LivingEntity)target));
+            }
+            public void rollback(Entity clone){assignments.remove(clone);}
+        };
+    }
+
 }

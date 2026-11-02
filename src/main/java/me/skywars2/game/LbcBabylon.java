@@ -185,4 +185,24 @@ public final class LbcBabylon {
         @Override public boolean shouldBeSaved(){return false;}
         @Override public void tick(){if(!valid(this)){unloaded(this);return;}super.tick();}
     }
+    static boolean cloneRecognizes(Entity source){return managed(source)||source instanceof BabylonArrow||source instanceof BabylonTrident||source instanceof BabylonRocket;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!projectiles.contains(source))return null;
+        int amp=source instanceof BabylonArrow a?a.transportAmp:0;boolean block=source instanceof BabylonArrow a&&a.blockEffectDone;
+        boolean retired=source instanceof BabylonArrow a?a.retired:source instanceof BabylonTrident t?t.retired:source instanceof BabylonRocket r&&r.retired;
+        return new LbcCloneSkills.ActorImage(){
+            public Entity create(Entity original,ServerLevel level){
+                if(original instanceof BabylonArrow)return new BabylonArrow(level,amp);
+                if(original instanceof BabylonTrident)return new BabylonTrident(level);
+                if(original instanceof BabylonRocket)return new BabylonRocket(level);return null;
+            }
+            public void install(Entity original,Entity clone,java.util.Map<Entity,Entity> family){
+                if(clone instanceof BabylonArrow a){a.retired=retired;a.blockEffectDone=block;}
+                if(clone instanceof BabylonTrident t)t.retired=retired;if(clone instanceof BabylonRocket r)r.retired=retired;
+                projectiles.add((Projectile)clone);
+            }
+            public void rollback(Entity clone){projectiles.remove(clone);}
+        };
+    }
+
 }

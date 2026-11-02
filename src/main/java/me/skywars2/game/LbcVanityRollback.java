@@ -163,6 +163,9 @@ public final class LbcVanityRollback {
         complete(privateData(()->image.residents.restoreFrozen(image.actors::resolve)),"resident item state");
         image.auras.restoreFrozen(image.actors::resolve);image.fields.finishFrozen(image.actors::resolve);
         image.polymorph.finishFrozen(image.actors::resolve);image.aim.finishFrozen(image.actors::resolve);
+        var restoredBodies=image.actors.restoredBodies();
+        game.items().grimoireBoss().reindexRestored(restoredBodies);
+        game.items().bouncingPoop().reindexRestored(restoredBodies);
     }
     private boolean waiting(Set<UUID> players,String owner){
         if(players.isEmpty())return false;waitReason=owner+": "+players;return true;
@@ -184,7 +187,7 @@ public final class LbcVanityRollback {
         complete(privateData(image.statuses::publishFrozen),"custom status publication");image.academy.publishFrozen();
         complete(privateData(image.chefs::publishFrozen),"Chef publication");complete(privateData(image.hedgehogs::publishFrozen),"Hedgehog publication");
         complete(privateData(image.residents::publishFrozen),"resident item publication");
-        image.auras.publishFrozen();image.fields.publishFrozen();image.polymorph.publishFrozen();image.aim.publishFrozen();image.random.restoreFrozen();
+        image.spells.publishFrozen();image.auras.publishFrozen();image.fields.publishFrozen();image.polymorph.publishFrozen();image.aim.publishFrozen();image.random.restoreFrozen();
         for(var player:game.server().getPlayerList().getPlayers())
             if(!game.isObserver(player)&&player.getCamera() instanceof LbcFpvDrone.Drone&&!game.items().fpvDrone().controlling(player))player.setCamera(player);
         game.items().duplicating().endCheckpointDrain();game.players().save();game.config().save();

@@ -44,9 +44,9 @@ final class SauvojenStars {
         final Marker carrier;
         final Kind kind;
         final int flavour,lifetime;
-        final Vec3 direction,left;
+        Vec3 direction,left;
         final LbcIndirectKills.Owner cause;
-        int age;
+        int age,cloneMask;
         Actor(ServerPlayer owner,InteractionHand hand,ItemStack stack,String epoch,Marker carrier,Kind kind,int flavour,Vec3 direction,LbcIndirectKills.Owner cause){
             this.owner=owner;this.hand=hand;this.stack=stack.copy();this.epoch=epoch;this.carrier=carrier;this.kind=kind;this.flavour=flavour;
             this.direction=direction.normalize();left=left(this.direction);this.cause=cause;
@@ -206,4 +206,33 @@ final class SauvojenStars {
     void forget(ServerPlayer owner){for(var actor:List.copyOf(actors.values()))if(actor.owner==owner)remove(actor);}
     void stop(){for(var actor:List.copyOf(actors.values()))remove(actor);}
     private void remove(Actor actor){if(actors.remove(actor.carrier)!=null&&!actor.carrier.isRemoved())actor.carrier.discard();}
+
+    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
+        for(var original:List.copyOf(actors.values())){
+            if(budget-made<count||System.nanoTime()>=deadline)break;
+            var level=(ServerLevel)original.carrier.level();
+            if(original.carrier.isRemoved()||original.age>=original.lifetime||!game.items().currentEpoch(original.epoch)
+                    ||LbcAcademy.trial(original.stack)||game.items().timeStop().frozen(original.carrier)
+                    ||original.owner.entityTags().contains("time_stopped")
+                    ||!CloneVirtualAbilityStates.near(game,holder,level,original.carrier.position(),original.cloneMask,skill))continue;
+            var points=CloneVirtualAbilityStates.positions(holder,level,original.carrier.position(),skill);if(points==null)continue;
+            var created=new java.util.ArrayList<Actor>();
+            try{
+                for(var point:points){var carrier=new Marker(EntityTypes.MARKER,level);carrier.setPos(point);
+                    carrier.entityTags().addAll(original.carrier.entityTags());game.items().markCurrentItemEpoch(carrier);
+                    carrier.setYRot(original.carrier.getYRot());carrier.setXRot(original.carrier.getXRot());
+                    var direction=skill==15?original.direction:LbcCloneSkills.spreadMotion(original.direction,holder,1000,1500);
+                    var copy=new Actor(original.owner,original.hand,original.stack,original.epoch,carrier,original.kind,original.flavour,direction,original.cause);
+                    copy.direction=direction;copy.left=left(direction);copy.age=original.age;copy.cloneMask=original.cloneMask|bit;created.add(copy);actors.put(carrier,copy);
+                    game.items().spellSources().inherit(original.carrier,carrier);game.items().timeStop().prepareFrozen(carrier);
+                    if(!level.addFreshEntity(carrier)||carrier.isRemoved()||!actors.containsKey(carrier))throw new IllegalStateException("Star clone rejected");
+                }
+                original.cloneMask|=bit;made+=count;
+                if(skill==17){original.direction=LbcCloneSkills.spreadMotion(original.direction,holder,10,10);original.left=left(original.direction);}
+            }catch(RuntimeException failure){for(var copy:created){game.items().spellSources().reflected(copy.carrier);remove(copy);}throw failure;}
+        }
+        return made;
+    }
+
 }

@@ -220,4 +220,16 @@ final class LbcAcidCorruption {
     void unloaded(Entity e){if(e instanceof Charge c)charges.remove(c);}
     void forget(ServerPlayer owner){clear(owner);for(var c:List.copyOf(charges))if(c.getOwner()==owner)c.discard();}
     void stop(){for(var target:List.copyOf(deaths.keySet()))clear(target);for(var c:List.copyOf(charges))c.discard();charges.clear();}
+
+    LbcCloneSkills.ActorImage cloneStatusImage(Entity actor) {
+        if(!(actor instanceof LivingEntity living)||!deaths.containsKey(living))return null;
+        var cause=deaths.get(living);int remaining=deathRemaining(living);
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family) {
+                var target=(LivingEntity)clone;deaths.put(target,cause);
+                game.items().mana().score(target,"delayed_death").set(remaining);
+            }
+            public void rollback(Entity clone){deaths.remove(clone);}
+        };
+    }
 }

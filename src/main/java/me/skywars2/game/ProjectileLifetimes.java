@@ -262,4 +262,18 @@ public final class ProjectileLifetimes {
         double reach = forward + TARGET_BUFFER + target.getSize() * 2;
         return expanded.clip(from, from.add(direction.scale(reach))).isPresent();
     }
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!(source instanceof Projectile p))return null;var r=tracked.get(p);if(r==null)return null;
+        boolean terrain=r.terrain,queued=r.queued;int next=r.nextReview,index=r.targetIndex,revision=r.targetRevision,age=r.age;
+        var owner=r.owner;var position=r.scanPosition;var direction=r.scanDirection;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,java.util.Map<Entity,Entity> family){
+                var current=new Review((Projectile)clone,next,terrain);current.owner=owner==null?null:family.getOrDefault(owner,owner);
+                current.scanPosition=position;current.scanDirection=direction;current.targetIndex=index;current.targetRevision=revision;current.age=age;current.queued=queued;
+                tracked.put((Projectile)clone,current);if(queued)queue.addLast(current);
+            }
+            public void rollback(Entity clone){if(clone instanceof Projectile shot)forget(shot);}
+        };
+    }
+
 }

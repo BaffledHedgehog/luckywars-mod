@@ -331,4 +331,50 @@ public final class LbcSauvojen {
         if(!drone.carrier.isRemoved())drone.carrier.discard();
     }
     public void stop(){meditation.stop();stars.stop();for(var drone:snapshot())remove(drone,false);}
+
+    static boolean cloneProtected(Entity e){return e.entityTags().contains(DRONE);}
+    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
+        for(var original:snapshot()){
+            if(budget-made<count||System.nanoTime()>=deadline)break;
+            int mask=(original.carrier.entityTags().contains("doubled")?1:0)|(original.carrier.entityTags().contains("quadried")?2:0);
+            if(original.carrier.isRemoved()||!game.items().currentEpoch(original.epoch)||LbcAcademy.trial(original.usedStack)
+                    ||game.items().wands().timeStopped()||original.owner.entityTags().contains("time_stopped")
+                    ||game.items().timeStop().frozen(original.carrier)
+                    ||!CloneVirtualAbilityStates.near(game,holder,(ServerLevel)original.carrier.level(),original.position,mask,skill))continue;
+            var points=CloneVirtualAbilityStates.positions(holder,(ServerLevel)original.carrier.level(),original.position,skill);if(points==null)continue;
+            var created=new java.util.ArrayList<Drone>();String marker=skill==15?"doubled":"quadried";
+            try{
+                for(var point:points){var carrier=new Marker(EntityTypes.MARKER,original.carrier.level());carrier.setPos(point);
+                    carrier.entityTags().addAll(original.carrier.entityTags());carrier.entityTags().add(marker);game.items().markCurrentItemEpoch(carrier);
+                    var copy=new Drone(original.owner,original.hand,original.usedStack,original.kind,original.epoch,carrier);created.add(copy);
+                    copy.position=point;copy.direction=original.direction;copy.lifetime=original.lifetime;copy.nextMode=original.nextMode;
+                    copy.display.setItem(original.display.getItem().copy());drones.put(carrier,copy);
+                    game.items().spellSources().inherit(original.carrier,carrier);game.items().timeStop().prepareFrozen(carrier);
+                    if(!carrier.level().addFreshEntity(carrier)||carrier.isRemoved()||!drones.containsKey(carrier))throw new IllegalStateException("Sauvojen clone rejected");
+                    game.visualTracking().attach(copy.holder,(ServerLevel)carrier.level(),()->copy.position);sync(copy);
+                }
+                original.carrier.entityTags().add(marker);made+=count;
+            }catch(RuntimeException failure){for(var copy:created){game.items().spellSources().reflected(copy.carrier);remove(copy,false);}throw failure;}
+        }
+        return made;
+    }
+    private boolean cloneDronesPending;
+    DroneCheckpoint checkpointDrones(MatchSpellCheckpoint.Links links){return new DroneCheckpoint(links);}
+    final class DroneCheckpoint {
+        private record Image(MatchDamageSources.Ref owner,MatchDamageSources.Ref carrier,InteractionHand hand,ItemStack stack,
+                Kind kind,String epoch,Vec3 point,Vec3 direction,int lifetime,int nextMode,ItemStack model){}
+        private final List<Image> images;
+        DroneCheckpoint(MatchSpellCheckpoint.Links links){images=snapshot().stream().map(d->new Image(links.key(d.owner),links.key(d.carrier),d.hand,
+                d.usedStack.copy(),d.kind,d.epoch,d.position,d.direction,d.lifetime,d.nextMode,d.display.getItem().copy())).toList();}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Drone>();
+            for(var image:images){var owner=(ServerPlayer)links.get(image.owner);var carrier=(Marker)links.get(image.carrier);
+                var drone=new Drone(owner,image.hand,image.stack,image.kind,image.epoch,carrier);drone.position=image.point;
+                drone.direction=image.direction;drone.lifetime=image.lifetime;drone.nextMode=image.nextMode;drone.display.setItem(image.model.copy());values.add(drone);}
+            return ()->{for(var future:snapshot())future.holder.destroy();drones.clear();for(var drone:values)drones.put(drone.carrier,drone);cloneDronesPending=true;};
+        }
+    }
+    void publishCloneDrones(){if(!cloneDronesPending)return;cloneDronesPending=false;for(var drone:snapshot()){
+        game.visualTracking().attach(drone.holder,(ServerLevel)drone.carrier.level(),()->drone.position);sync(drone);}}
+
 }

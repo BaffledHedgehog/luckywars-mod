@@ -99,7 +99,8 @@ public final class LbcPsycho {
     /** Враждебный vanilla Vex сохраняет настоящий последний удар и автора призыва. */
     private final class PsychoVex extends Vex {
         final ServerPlayer caster;
-        PsychoVex(ServerPlayer caster) { super(EntityTypes.VEX,caster.level()); this.caster=caster; }
+        PsychoVex(ServerPlayer caster) { this(caster,caster.level()); }
+        PsychoVex(ServerPlayer caster,Level level) { super(EntityTypes.VEX,level); this.caster=caster; }
         @Override public boolean canAttack(LivingEntity target) {
             return caster!=null && game.playing() && game.items().currentEpoch(this)
                     && (target==caster ? game.canUseGameplayItems(caster) && !game.isObserver(caster)
@@ -639,4 +640,37 @@ public final class LbcPsycho {
         for(var entity:List.copyOf(effects.keySet())) removeEffect(entity);
         rays.clear(); ticks=0;
     }
+
+    static boolean cloneVex(Entity actor){return actor instanceof LbcPsycho.PsychoVex;}
+    LbcCloneSkills.ActorImage cloneVexImage(Entity actor) {
+        if(!(actor instanceof PsychoVex source))return null;
+        var caster=source.caster;
+        return new LbcCloneSkills.ActorImage() {
+            public Entity create(Entity original,ServerLevel level){
+                return new PsychoVex(caster,level);
+            }
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){vexes.add((PsychoVex)clone);}
+            public void rollback(Entity clone){vexes.remove(clone);}
+        };
+    }
+    LbcCloneSkills.ActorImage cloneStatusImage(Entity actor) {
+        if(!(actor instanceof LivingEntity living))return null;
+        var source=effects.get(living);if(source==null)return null;
+        int scared=source.scared,lookback=source.lookback,twitching=source.twitching,piss=source.piss;
+        boolean persistent=source.persistentPiss;var owner=source.owner;var epoch=source.epoch;
+        var follow=source.previousFollowRange;var hand=source.forcedHand;
+        var item=source.forcedItem==null?null:source.forcedItem.copy();
+        int forced=source.forcedTicks,last=source.lastUseTicks;
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family) {
+                var target=(LivingEntity)clone;var effect=new Affliction();
+                effect.scared=scared;effect.lookback=lookback;effect.twitching=twitching;effect.piss=piss;
+                effect.persistentPiss=persistent;effect.owner=owner;effect.epoch=epoch;effect.previousFollowRange=follow;
+                effect.forcedHand=hand;effect.forcedItem=item==null?null:item.copy();effect.forcedTicks=forced;effect.lastUseTicks=last;
+                effects.put(target,effect);sync(target,effect);
+            }
+            public void rollback(Entity clone){effects.remove(clone);}
+        };
+    }
+
 }

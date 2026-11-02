@@ -126,4 +126,27 @@ public final class LbcBouncingPoop {
     /** Accepted actors retain their causal author after a player lifecycle transition. */
     public void forget(ServerPlayer owner){}
     public void stop(){for(var actor:List.copyOf(actors))retire(actor);actors.clear();}
+
+    static boolean cloneRecognizes(Entity e){return e.entityTags().contains(TAG);}
+    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+        var state=state(original);if(!(original instanceof Display.ItemDisplay)||state==null||!actors.contains(original))return null;
+        var saved=state.copy();
+        // DATA is the sole gameplay clock/author state. Native NBT/metadata carries its presentation.
+        return CloneComplexProjectileStates.image(clone->{clone.setAttached(DATA,saved.copy());
+            actors.add((Display.ItemDisplay)clone);game.items().spellSources().bind(clone,source(clone));
+        },clone->actors.remove(clone));
+    }
+
+
+    /** Native DATA/NBT is already restored; only the suppressed loaded-body index is missing. */
+    void reindexRestored(Iterable<Entity> restored){
+        actors.clear();
+        for(var entity:restored){
+            if(entity.isRemoved()||!(entity instanceof Display.ItemDisplay actor)||!entity.entityTags().contains(TAG))continue;
+            var state=state(actor);
+            if(state==null||author(state)==null||!game.playing()||!game.items().currentEpoch(state.getStringOr("epoch","")))continue;
+            actors.add(actor);game.items().spellSources().bind(actor,source(actor));
+        }
+    }
+
 }

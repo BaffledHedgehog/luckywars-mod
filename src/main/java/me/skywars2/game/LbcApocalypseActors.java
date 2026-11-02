@@ -207,4 +207,15 @@ public final class LbcApocalypseActors {
         Runnable prepare(MatchSpellCheckpoint.Links links){checkpointBoundary();var restored=registry.restore(links);
             return ()->{for(var age:ages)age.original.lifetime=age.lifetime;actors=restored;unloaded.clear();unloaded.putAll(dormant);phase=savedPhase;};}
     }
+
+    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+        var state=actors.get(original);if(state==null)return null;
+        var authority=state.authority;var source=state.source;var type=state.type;var kind=state.kind;
+        int lifetime=state.lifetime;UUID id=original.getUUID();
+        return CloneComplexProjectileStates.image(clone->{
+            var policy=CloneEncounterStates.rebase(source,id,clone);var copy=new Actor(authority,policy,type,kind);
+            copy.lifetime=lifetime;actors.put(clone,copy);game.items().spellSources().bind(clone,policy);
+        },clone->{actors.remove(clone);unloaded.remove(clone.getUUID());});
+    }
+
 }

@@ -124,4 +124,11 @@ public final class LbcCommunism {
             return ()->{owners.clear();owners.putAll(restored);};}
     }
 
+    LbcCloneSkills.ActorImage cloneImage(Entity source){var owner=owners.get(source);if(owner==null)return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){owners.put(clone,owner);}
+            public void rollback(Entity clone){owners.remove(clone);}
+        };
+    }
+
 }

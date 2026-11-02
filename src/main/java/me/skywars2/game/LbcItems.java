@@ -393,6 +393,7 @@ public final class LbcItems {
     private final LbcCombatRewards combatRewards;
     private final LbcMachinegunSkill machinegunSkill;
     private final LbcZeusSkill zeusSkill;
+    private final LbcCloneSkills cloneSkills;
     private final LbcFallingHedgehogs fallingHedgehogs;
     public LbcDeus deus(){return deus;}
     public LbcGovnomancer govnomancer(){return govnomancer;}
@@ -401,6 +402,7 @@ public final class LbcItems {
     public LbcCombatRewards combatRewards(){return combatRewards;}
     public LbcMachinegunSkill machinegunSkill(){return machinegunSkill;}
     public LbcZeusSkill zeusSkill(){return zeusSkill;}
+    public LbcCloneSkills cloneSkills(){return cloneSkills;}
     public LbcFallingHedgehogs fallingHedgehogs(){return fallingHedgehogs;}
     public LbcBouncingPoop bouncingPoop(){return bouncingPoop;}
     public LbcClownKit clownKit(){return clownKit;}
@@ -950,6 +952,7 @@ public final class LbcItems {
         this.clownKit=new LbcClownKit(game);this.gaaraPot=new LbcGaaraPot(game);this.bouncingPoop=new LbcBouncingPoop(game);this.deus=new LbcDeus(game);this.pills=new LbcPills(game);this.govnomancer=new LbcGovnomancer(game);this.reactiveSkills=new LbcReactiveSkills(game);
         this.containedSkills=new LbcContainedSkills(game);this.fallingHedgehogs=new LbcFallingHedgehogs(game);
         this.combatRewards=new LbcCombatRewards(game);this.machinegunSkill=new LbcMachinegunSkill(game);this.zeusSkill=new LbcZeusSkill(game);
+        this.cloneSkills=new LbcCloneSkills(game);this.cloneSkills.installAdapter(new CloneActorStates(game));
         this.steampunkGlove=new LbcSteampunkGlove(game);
         this.steampunkHook=new LbcSteampunkHook(game);
         this.oreshek = new LbcOreshek(game);
@@ -1851,7 +1854,7 @@ public final class LbcItems {
     public void tick() {
         for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);
         containedSkills.tick();fallingHedgehogs.tick();
-        combatRewards.tick();machinegunSkill.tick();zeusSkill.tick();
+        combatRewards.tick();machinegunSkill.tick();zeusSkill.tick();cloneSkills.tick();
         reactiveSkills.tick();
         timeStop.tick();polymorph.tick();fpvDrone.tick();witchClaims.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         grimoireRooms.tick();grimoireBoss.tick();uniwand.tick();
@@ -2149,7 +2152,7 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {
-        combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();
+        combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();cloneSkills.stop();
         containedSkills.stop();fallingHedgehogs.stop();
         grimoireRooms.stop();grimoireBoss.stop();uniwand.stop();
         steampunkHook.stop();steampunkGlove.stop();teleportGadgets.stop();

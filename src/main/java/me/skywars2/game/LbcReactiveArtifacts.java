@@ -142,4 +142,17 @@ public final class LbcReactiveArtifacts {
     public void clearEffects(ServerPlayer player){clouds.removeIf(c->c.owner==player);updateSmoke(false);blind.remove(player);var range=player.getAttribute(Attributes.FOLLOW_RANGE);if(reduced.remove(player)&&range!=null)range.removeModifier(RANGE);}
     public void forget(ServerPlayer owner){attacks.remove(owner);clouds.removeIf(c->c.owner==owner);updateSmoke(false);}
     public void stop(){clouds.clear();attacks.clear();for(var entry:List.copyOf(blind.entrySet()))restoreBlindness(entry.getKey(),entry.getValue());blind.clear();for(var mob:reduced){var range=mob.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.removeModifier(RANGE);}reduced.clear();producing=false;}
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!(source instanceof LivingEntity target))return null;var state=blind.get(target);boolean range=reduced.contains(target);
+        if(state==null&&!range)return null;var baseline=state==null||state.baseline==null?null:EffectLayers.copy(state.baseline);
+        int amp=state==null?0:state.amplifier,last=state==null?0:state.lastTick;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(state!=null){var b=new Blindness(null,last,amp);b.baseline=baseline==null?null:EffectLayers.copy(baseline);blind.put((LivingEntity)clone,b);}
+                if(range)reduced.add((LivingEntity)clone);
+            }
+            public void rollback(Entity clone){blind.remove(clone);reduced.remove(clone);}
+        };
+    }
+
 }

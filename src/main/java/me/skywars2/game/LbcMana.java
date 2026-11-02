@@ -425,4 +425,19 @@ public final class LbcMana {
         for(var p:List.copyOf(statEffects)) for(String timer:POTION_TIMERS) write(p,timer,0);
         statEffects.clear(); for(var p:game.server().getPlayerList().getPlayers()) { write(p,"falltimer",0); clearEffects(p); overload.reset(p); }
     }
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!(source instanceof LivingEntity living)||source instanceof ServerPlayer)return null;
+        boolean pending=pendingPotions.contains(living),stats=statEffects.contains(living);
+        var timers=CloneRemainingStatusStates.scores(game,source,POTION_TIMERS.subList(1,POTION_TIMERS.size()));
+        if(!pending&&!stats&&timers.values().stream().noneMatch(v->v>0))return null;
+        var resources=CloneRemainingStatusStates.scores(game,source,List.of("mana","manamax","manaregen"));
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                CloneRemainingStatusStates.installScores(game,clone,timers);CloneRemainingStatusStates.installScores(game,clone,resources);
+                if(pending)pendingPotions.add((LivingEntity)clone);if(stats)statEffects.add((LivingEntity)clone);
+            }
+            public void rollback(Entity clone){pendingPotions.remove(clone);statEffects.remove(clone);}
+        };
+    }
+
 }

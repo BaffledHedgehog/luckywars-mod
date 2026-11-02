@@ -379,4 +379,38 @@ public final class LbcHelicopterEncounter {
             };
         }
     }
+
+    static boolean cloneRecognizes(Entity e){return e.entityTags().contains(DISPLAY)||e.entityTags().contains(HITBOX)
+            ||e.entityTags().contains(ATTACK)||e instanceof BossArrow||e instanceof BossTnt;}
+    static boolean cloneProtected(Entity e){return e.entityTags().contains(DISPLAY);}
+    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+        var pair=pairs.stream().filter(p->p.hitbox==original&&!p.terminal).findFirst().orElse(null);
+        if(pair!=null){
+            var visual=new CloneEncounterStates.Presentation(pair.display);var at=original.position();
+            var epoch=pair.epoch;int phase=pair.phase,frame=pair.frame,lastTick=pair.lastTick;long dispatches=pair.dispatches;
+            var bodyAuthor=authors.get(original);var visualAuthor=authors.get(pair.display);
+            return CloneComplexProjectileStates.image(clone->{
+                var level=(ServerLevel)clone.level();var display=(Display.ItemDisplay)visual.create(level);
+                display.setPos(visual.position.add(clone.position().subtract(at)));
+                var copy=new Pair(display,(Ravager)clone,epoch);copy.phase=phase;copy.frame=frame;
+                copy.dispatches=dispatches;copy.lastTick=lastTick;pairs.add(copy);
+                if(bodyAuthor!=null)authors.put(clone,bodyAuthor);if(visualAuthor!=null)authors.put(display,visualAuthor);
+                game.items().markCurrentItemEpoch(display);game.items().timeStop().prepareFrozen(display);
+                if(!level.addFreshEntity(display)||display.isRemoved())throw new IllegalStateException("Helicopter clone visual rejected");
+            },clone->{
+                for(var copy:List.copyOf(pairs))if(copy.hitbox==clone){pairs.remove(copy);copy.terminal=true;
+                    authors.remove(copy.display);copy.display.discard();}
+                authors.remove(clone);
+            });
+        }
+        if(!attacks.contains(original))return null;
+        var author=authors.get(original);
+        java.util.function.Function<ServerLevel,Entity> factory=null;
+        if(original instanceof BossArrow arrow)factory=level->new BossArrow(level,null);
+        if(original instanceof BossTnt tnt){var source=tnt.source;float power=tnt.power;
+            factory=level->new BossTnt(level,Vec3.ZERO,source,power);}
+        return CloneComplexProjectileStates.image(factory,clone->{attacks.add(clone);if(author!=null)authors.put(clone,author);},
+                clone->{attacks.remove(clone);authors.remove(clone);});
+    }
+
 }

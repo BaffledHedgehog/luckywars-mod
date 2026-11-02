@@ -166,6 +166,12 @@ public final class MatchActorCheckpoint {
             bodiesRestored=true;
         });
     }
+    /** Canonical saved bodies only; no world enumeration, chunk request or load callback replay. */
+    List<Entity> restoredBodies(){
+        if(!bodiesRestored)throw new IllegalStateException("Restore native actor bodies before derived indexes");
+        return images.values().stream().filter(image->!omitted.contains(image.uuid)&&!image.actor.isRemoved())
+                .map(Image::actor).toList();
+    }
     private void detachLinks(Entity actor) {
         var vehicle=actor.getVehicle();
         if(vehicle!=null) {

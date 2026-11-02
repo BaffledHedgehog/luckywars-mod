@@ -308,4 +308,17 @@ public final class LbcFpvDrone {
         }
         void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel FPV on its frozen native thread");prepareCheckpoint();omittedControllers.clear();rewinding=false;prepared=false;installed=false;}
     }
+
+    static boolean cloneProtected(Entity actor){return actor instanceof LbcFpvDrone.Visual || actor instanceof Seat;}
+    LbcCloneSkills.ActorImage cloneImage(Drone source) {
+        if(!live(source))return null;
+        var author=source.author;long order=source.order;var epoch=source.epoch;
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var target=(Drone)clone;target.author=author;target.order=order;target.epoch=epoch;target.retired=false;
+                // No controller Session is created: loaded regenerates one public visual, then normal autopilot flies straight.
+            }
+            public void rollback(Entity clone){unloaded(clone);}
+        };
+    }
 }

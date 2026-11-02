@@ -49,7 +49,7 @@ public final class LbcDuplicating {
         Owned(ServerPlayer owner,String epoch) { this.owner=owner; level=owner.level(); this.epoch=epoch; }
     }
     private static final class MarkerState extends Owned {
-        Vec3 point; final Vec3 direction; final int mode,lifetime; int age;
+        Vec3 point,direction; final int mode,lifetime; int age,cloneMask;
         BlackHoleVisuals.Handle visual;
         HoleTerrain terrain;
         LiveShuffle shuffle;
@@ -520,7 +520,7 @@ public final class LbcDuplicating {
     }
     /** Shared noisy radial erosion follows the latest body, without queued old positions. */
     private final class HoleTerrain extends Job {
-        final MarkerState marker;final BlackHoleErosion erosion;int clock=Integer.MIN_VALUE;
+        final MarkerState marker;BlackHoleErosion erosion;int clock=Integer.MIN_VALUE;
         HoleTerrain(MarkerState marker){
             super(marker.owner);this.marker=marker;
             if(marker.erosionSeed==null)marker.erosionSeed=owner.getRandom().nextLong();
@@ -718,17 +718,17 @@ public final class LbcDuplicating {
         return new Checkpoint(links);
     }
     final class Checkpoint {
-        private record MarkerImage(MarkerState original,MatchDamageSources.Ref owner,Vec3 point,int age,boolean cancelled,Long erosionSeed) { }
+        private record MarkerImage(MarkerState original,MatchDamageSources.Ref owner,Vec3 point,int age,boolean cancelled,Long erosionSeed,int cloneMask,Vec3 direction) { }
         private final List<MarkerImage> saved;
         private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Integer> timers;
         Checkpoint(MatchSpellCheckpoint.Links links){
-            saved=markers.stream().map(marker->new MarkerImage(marker,links.key(marker.owner),marker.point,marker.age,marker.cancelled,marker.erosionSeed)).toList();
+            saved=markers.stream().map(marker->new MarkerImage(marker,links.key(marker.owner),marker.point,marker.age,marker.cancelled,marker.erosionSeed,marker.cloneMask,marker.direction)).toList();
             timers=new MatchSpellCheckpoint.IdentityImage<>(dividerTimers,links);
         }
         Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var timerValues=timers.restore(links);var plans=new ArrayList<Runnable>();
             for(var image:saved){var current=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.original.level);
-                plans.add(()->{var marker=image.original;marker.owner=current;marker.retainedOwner=MatchOfflinePlayers.retained(current);marker.point=image.point;marker.age=image.age;marker.cancelled=image.cancelled;marker.erosionSeed=image.erosionSeed;
+                plans.add(()->{var marker=image.original;marker.owner=current;marker.retainedOwner=MatchOfflinePlayers.retained(current);marker.point=image.point;marker.age=image.age;marker.cancelled=image.cancelled;marker.erosionSeed=image.erosionSeed;marker.cloneMask=image.cloneMask;marker.direction=image.direction;
                     marker.visual=null;marker.terrain=null;marker.shuffle=null;markers.add(marker);});}
             return ()->{enterCheckpointCallback();try{
                 checkpointDraining=true;discardFutureCheckpointWork();plans.forEach(Runnable::run);dividerTimers=timerValues;
@@ -740,4 +740,32 @@ public final class LbcDuplicating {
     List<MarkerView> markerSnapshot() { return markers.stream().map(state->new MarkerView(state.owner,state.epoch,state.level,state.point,state.age,state.lifetime,state.mode)).toList(); }
     List<SeedView> seedSnapshot() { return List.of(); }
     int pendingWorkCount() { return (int)jobs.stream().filter(job->job instanceof HoleTerrain terrain?terrain.ready():job instanceof LiveShuffle live?live.ready():!job.held || !job.operations.isEmpty()).count(); }
+
+    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
+        for(var original:List.copyOf(markers)){
+            if(budget-made<count||System.nanoTime()>=deadline)break;
+            if(checkpointDraining||!valid(original)||original.retainedOwner||paused(original.owner)
+                    ||game.items().timeStop().frozen(original.owner)
+                    ||!CloneVirtualAbilityStates.near(game,holder,original.level,original.point,original.cloneMask,skill))continue;
+            var points=CloneVirtualAbilityStates.positions(holder,original.level,original.point,skill);if(points==null)continue;
+            var created=new ArrayList<MarkerState>();
+            try{
+                for(var point:points){double speed=original.mode==2?2:original.mode==4?.3:1;
+                    var direction=skill==15?original.direction:LbcCloneSkills.spreadMotion(original.direction.scale(speed),holder,1000,1500).scale(1/speed);
+                    var copy=new MarkerState(original.owner,original.epoch,point,direction,original.mode,original.lifetime);created.add(copy);
+                    copy.age=original.age;copy.cloneMask=original.cloneMask|bit;copy.erosionSeed=original.erosionSeed;markers.add(copy);
+                    if(original.terrain!=null){copy.terrain=new HoleTerrain(copy);
+                        copy.terrain.erosion=original.terrain.erosion.copyTranslated(point.subtract(original.point));
+                        copy.terrain.clock=original.terrain.clock;queue(copy.terrain);}
+                    if(original.visual!=null)copy.visual=game.items().blackHoleVisuals().create(original.owner,point,HOLE_SHADER_RADIUS);
+                }
+                original.cloneMask|=bit;made+=count;
+                if(skill==17){double speed=original.mode==2?2:original.mode==4?.3:1;
+                    original.direction=LbcCloneSkills.spreadMotion(original.direction.scale(speed),holder,10,10).scale(1/speed);}
+            }catch(RuntimeException failure){for(var copy:created){markers.remove(copy);removeVisual(copy);}throw failure;}
+        }
+        return made;
+    }
+
 }

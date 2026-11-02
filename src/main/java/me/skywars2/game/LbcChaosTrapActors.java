@@ -201,4 +201,17 @@ public final class LbcChaosTrapActors {
     public List<Entity> snapshot(){return List.copyOf(tracked);}
     public int trackedCount(){return tracked.size();}
     public void stop(){var old=snapshot();tracked.clear();for(var actor:old)if(!actor.isRemoved())actor.discard();authors.clear();lastTick=Integer.MIN_VALUE;}
+
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!managed(source))return null;
+        var cause=LbcIndirectKills.playerSource(owner(source));
+        boolean knownCause=cause==null||authors.containsKey(cause.getUUID());
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(cause!=null)authors.putIfAbsent(cause.getUUID(),cause);
+                // Exact age/lineage/source flags are in native tags; loaded admits the fresh body.
+            }
+            public void rollback(Entity clone){tracked.remove(clone);if(!knownCause)authors.remove(cause.getUUID(),cause);}
+        };
+    }
 }

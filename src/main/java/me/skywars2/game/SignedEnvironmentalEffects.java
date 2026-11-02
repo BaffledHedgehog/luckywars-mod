@@ -185,4 +185,18 @@ public final class SignedEnvironmentalEffects {
     public static void tickWebs() {
         EffectTerrain.tick();
     }
+    static LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var active=new HashMap<Holder<MobEffect>,ServerPlayer>();
+        if(source instanceof LivingEntity living){var map=authors.get(living);if(map!=null)map.forEach((type,a)->{if(living.getEffect(type)==a.effect)active.put(type,a.player);});}
+        var offspring=offspringOwners.get(source);if(active.isEmpty()&&offspring==null)return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(offspring!=null)offspringOwners.put(clone,offspring);
+                if(!active.isEmpty()){var target=(LivingEntity)clone;var map=new HashMap<Holder<MobEffect>,Author>();
+                    active.forEach((type,player)->{var effect=target.getEffect(type);if(effect!=null)map.put(type,new Author(effect,player));});authors.put(target,map);}
+            }
+            public void rollback(Entity clone){authors.remove(clone);offspringOwners.remove(clone);}
+        };
+    }
+
 }

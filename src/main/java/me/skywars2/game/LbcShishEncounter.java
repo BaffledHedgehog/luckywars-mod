@@ -290,4 +290,24 @@ public final class LbcShishEncounter {
             };
         }
     }
+
+    static boolean cloneProtected(Entity e) {
+        return managed(e)&&(e instanceof net.minecraft.world.entity.Interaction
+                ||e.entityTags().contains("supply_drop")||e.entityTags().contains(POINT));
+    }
+    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+        var state=state(original);if(state==null||state.kind!=Kind.CYBORG&&state.kind!=Kind.YELLOW&&state.kind!=Kind.CHILD)return null;
+        var authority=state.authority;var kind=state.kind;int fall=state.fall,lastHurt=state.lastHurt;boolean opening=state.opening;
+        var policy=game.items().spellSources().source(original);UUID id=original.getUUID();
+        java.util.function.Function<ServerLevel,Entity> factory=original instanceof NativeCyborg
+                ?level->new NativeCyborg(level,authority):original instanceof YellowBall?level->new YellowBall(level,authority):null;
+        return CloneComplexProjectileStates.image(factory,clone->{
+            var copy=new State(authority,kind);copy.fall=fall;copy.opening=opening;copy.lastHurt=lastHurt;
+            actors.put(clone,copy);causes.put(clone,copy);
+            var source=CloneEncounterStates.rebase(policy,id,clone);
+            if(source==null)source=new LbcSpellSource.Source(clone.getUUID(),authority.author(),authority.epoch(),authority.cause(),Set.of(),true);
+            game.items().spellSources().bind(clone,source);
+        },clone->{actors.remove(clone);causes.remove(clone);unloaded.remove(clone.getUUID());});
+    }
+
 }

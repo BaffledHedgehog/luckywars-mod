@@ -256,4 +256,59 @@ public final class LbcGrimoireBoss {
     public int count(){return actors.size();}
     List<Entity> snapshot(){return List.copyOf(actors);}
     List<TrialWarningVisual> warningSnapshot(){return warnings.values().stream().map(Warning::visual).toList();}
+
+    static boolean cloneProtected(Entity e){var d=data(e);if(!managed(e)||d==null)return false;
+        int kind=integer(d,"kind");return kind==1||kind==4;}
+    private record CloneChild(CloneEncounterStates.Presentation nativeImage,CompoundTag state){}
+    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+        var state=data(original);if(state==null||cloneProtected(original))return null;
+        var saved=state.copy();UUID originalId=original.getUUID();var originalAt=original.position();
+        var children=new ArrayList<CloneChild>();
+        if(original instanceof Warden)for(var child:List.copyOf(actors))if(childOf(child,original)){
+            int kind=integer(data(child),"kind");if(kind==1||kind==4)
+                children.add(new CloneChild(new CloneEncounterStates.Presentation(child),data(child).copy()));
+        }
+        var visuals=List.copyOf(children);var warning=warnings.get(original);
+        int warningPhase=warning==null?0:warning.phase(),warningAge=warning==null?0:warning.age();
+        int visualAge=warning==null?0:warning.visual().age(),visualLife=warning==null?0:warning.visual().lifetime();
+        Vec3 warningFrom=warning==null?null:warning.from(),warningTo=warning==null?null:warning.to();
+        return CloneComplexProjectileStates.image(clone->{
+            var level=(ServerLevel)clone.level();var offset=clone.position().subtract(originalAt);var copy=saved.copy();
+            if(originalId.equals(id(copy,"boss"))){copy.putString("boss",clone.getStringUUID());
+                vector(copy,"anchor",vector(copy,"anchor").add(offset));}
+            save(clone,copy);actors.add(clone);game.items().spellSources().bind(clone,source(clone));
+            for(var child:visuals){var body=child.nativeImage().create(level);
+                body.setPos(child.nativeImage().position.add(offset));var childData=child.state().copy();
+                childData.putString("boss",clone.getStringUUID());vector(childData,"anchor",vector(childData,"anchor").add(offset));
+                save(body,childData);body.entityTags().add(TAG);game.items().markCurrentItemEpoch(body);
+                actors.add(body);game.items().spellSources().bind(body,source(body));game.items().timeStop().prepareFrozen(body);
+                if(!level.addFreshEntity(body)||body.isRemoved())throw new IllegalStateException("Grimoire clone presentation rejected");
+            }
+            if(warningFrom!=null){var from=warningFrom.add(offset);var to=warningTo.add(offset);
+                var beam=TrialWarningVisual.worldBeam(game,level,copy.getStringOr("epoch",""),from,to,false,visualLife);
+                warnings.put(clone,new Warning(beam,warningPhase,warningAge,from,to));
+                for(int i=0;i<visualAge;i++)beam.tick();
+            }
+            if(clone instanceof Warden boss)bar(boss);
+        },clone->{
+            for(var child:List.copyOf(actors))if(childOf(child,clone)){
+                actors.remove(child);closeWarning(child);game.items().spellSources().reflected(child);child.discard();}
+            actors.remove(clone);closeWarning(clone);var bar=bars.remove(clone.getUUID());if(bar!=null)bar.removeAllPlayers();
+        });
+    }
+
+
+    /** DATA owns phase/causality; rebuild only derived indexes after native ENTITY_LOAD was suppressed. */
+    void reindexRestored(Iterable<Entity> restored){
+        for(var warning:List.copyOf(warnings.values()))warning.visual().close();warnings.clear();
+        for(var bar:bars.values())bar.removeAllPlayers();bars.clear();actors.clear();
+        for(var actor:restored){
+            if(actor.isRemoved()||!managed(actor))continue;var state=data(actor);
+            if(state==null||!game.playing()||!game.items().currentEpoch(state.getStringOr("epoch","")))continue;
+            actors.add(actor);game.items().spellSources().bind(actor,source(actor));
+        }
+        // The next ordinary tick derives warning geometry/remaining life and bars from DATA.
+        // Never call laser/tickChild here: those paths also emit damage and accepted attacks.
+    }
+
 }

@@ -132,6 +132,7 @@ public final class LbcHedgehog {
         final UUID author;final Kind kind;final LbcIndirectKills.Owner cause;int timer=8;boolean retired,retainedOwner;
         Fish(ServerLevel level,ServerPlayer p,Kind kind){super(EntityTypes.SILVERFISH,level);this.author=p.getUUID();this.kind=kind;
             cause=kind==Kind.WALL?game.items().indirectKills().wildCause(p):game.items().indirectKills().coldCause(p,false);}
+        Fish(ServerLevel level,UUID author,Kind kind,LbcIndirectKills.Owner cause){super(EntityTypes.SILVERFISH,level);this.author=author;this.kind=kind;this.cause=cause;}
         @Override public boolean shouldBeSaved(){return false;}
         @Override public void setTarget(LivingEntity target){if(target!=null&&author!=null&&!MatchActorCheckpoint.restoring(this)&&!enemy(this,target))target=null;super.setTarget(target);}
         @Override public void tick(){
@@ -252,6 +253,7 @@ public final class LbcHedgehog {
     }
     private final class HelperArrow extends Arrow {
         final UUID author,helper;final LbcIndirectKills.Owner cause;
+        HelperArrow(ServerLevel level,UUID author,UUID helper,LbcIndirectKills.Owner cause){super(net.minecraft.world.entity.EntityTypes.ARROW,level);this.author=author;this.helper=helper;this.cause=cause;}
         HelperArrow(ServerLevel level,ServerPlayer p,Fish helper){super(level,helper,new ItemStack(Items.ARROW),null);author=p.getUUID();this.helper=helper.getUUID();cause=helper.cause;}
         @Override public boolean shouldBeSaved(){return false;}
         @Override protected boolean canHitEntity(Entity e){var p=getOwner() instanceof ServerPlayer current?current:player(author);if(e.getUUID().equals(helper)||p==null)return false;
@@ -443,4 +445,22 @@ public final class LbcHedgehog {
             return ()->{checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();children.clear();blasts.clear();plans.forEach(Runnable::run);completedBlasts=completed;};
         }
     }
+
+    static boolean cloneRecognizes(Entity e){return e instanceof LbcHedgehog.Fish||e instanceof LbcHedgehog.HelperArrow||managed(e);}
+    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+        if(original instanceof Fish f){if(f.retired)return null;
+            var author=f.author;var kind=f.kind;var cause=f.cause;int timer=f.timer;boolean retained=f.retainedOwner;
+            return CloneComplexProjectileStates.image(level->new Fish(level,author,kind,cause),clone->{var n=(Fish)clone;
+                n.timer=timer;n.retainedOwner=retained;fish.add(n);silverfish.add(n);
+            },clone->{fish.remove(clone);silverfish.remove(clone);});
+        }
+        if(original instanceof HelperArrow arrow){var author=arrow.author;var helper=arrow.helper;var cause=arrow.cause;
+            return CloneComplexProjectileStates.image(level->new HelperArrow(level,author,helper,cause),
+                    clone->arrows.add((HelperArrow)clone),clone->arrows.remove(clone));
+        }
+        var child=children.get(original);if(child!=null)return CloneComplexProjectileStates.image(clone->children.put(clone,child),
+                clone->children.remove(clone));
+        return null;
+    }
+
 }

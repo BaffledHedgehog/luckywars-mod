@@ -543,4 +543,15 @@ public final class LbcKiuas {
         }
         boolean hasWork() { return small.hasWork() || large.hasWork() || sun.hasWork(); }
     }
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!(source instanceof LivingEntity target)||!cursed.containsKey(target))return null;
+        var cause=cursed.get(target);var timer=CloneRemainingStatusStates.scores(game,source,java.util.List.of("effect_kiuaskivi"));
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                cursed.put((LivingEntity)clone,cause);CloneRemainingStatusStates.installScores(game,clone,timer);saveCurse((LivingEntity)clone,cause);
+            }
+            public void rollback(Entity clone){cursed.remove(clone);}
+        };
+    }
+
 }

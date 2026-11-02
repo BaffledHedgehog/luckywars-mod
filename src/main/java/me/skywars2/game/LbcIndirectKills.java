@@ -112,6 +112,26 @@ public final class LbcIndirectKills {
         if(active!=null)active.forEach((type,status)->{if(target.getEffect(type)==status.effect)result.put(type,status.owner);});
         return java.util.Map.copyOf(result);
     }
+    /** Immutable pre-suspension causes; no effect instance or live actor identity is shared. */
+    record SuspendedEffectCauses(Map<Holder<MobEffect>,Owner> effects,Owner pendingMana) {
+        SuspendedEffectCauses {effects=Map.copyOf(effects);}
+    }
+    SuspendedEffectCauses suspendEffectCauses(LivingEntity target){
+        var pending=pendingMana.get(target);
+        return new SuspendedEffectCauses(effectCauses(target),
+                pending!=null&&target.getEffect(pending.effect.getEffect())==pending.effect?pending.owner:null);
+    }
+    /** Rebind only accepted restored instances, after native effects and owned leases have resumed. */
+    void resumeEffectCauses(LivingEntity target,SuspendedEffectCauses saved,Map<Holder<MobEffect>,MobEffectInstance> restored){
+        saved.effects.forEach((type,owner)->{
+            var effect=restored.get(type);
+            if(effect!=null&&target.getEffect(type)==effect)
+                statuses.computeIfAbsent(target,ignored->new HashMap<>()).put(type,new Status(owner,effect));
+        });
+        var mana=restored.get(MobEffects.RAID_OMEN);
+        if(saved.pendingMana!=null&&mana!=null&&mana.getAmplifier()==20&&target.getEffect(MobEffects.RAID_OMEN)==mana)
+            pendingMana.put(target,new Status(saved.pendingMana,mana));
+    }
     private LivingEntity effectTarget, manaTarget;
     private LivingEntity altitudeTarget;
     private Owner altitudeCause;
@@ -966,5 +986,39 @@ public final class LbcIndirectKills {
         }
         private <V> void restore(Map<LivingEntity,V> current,Map<MatchDamageSources.Ref,V> image,Map<MatchDamageSources.Ref,LivingEntity> victims){current.clear();image.forEach((ref,v)->current.put(victims.get(ref),v));}
     }
+    private record CloneEffect(Holder<MobEffect> type,boolean active,MobEffectInstance detached){}
+    private record CloneStatus(Owner owner,CloneEffect effect){}
+    private static CloneStatus cloneStatusImage(LivingEntity target,Status status,java.util.IdentityHashMap<MobEffectInstance,CloneEffect> aliases){
+        if(status==null)return null;var effect=aliases.computeIfAbsent(status.effect,e->new CloneEffect(e.getEffect(),target.getEffect(e.getEffect())==e,EffectLayers.copy(e)));
+        return new CloneStatus(status.owner,effect);
+    }
+    private static Status cloneStatusInstall(LivingEntity target,CloneStatus status,java.util.IdentityHashMap<CloneEffect,MobEffectInstance> aliases){
+        if(status==null)return null;var image=status.effect;var effect=aliases.get(image);
+        if(effect==null){effect=image.active?target.getEffect(image.type):EffectLayers.copy(image.detached);if(effect==null)throw new IllegalStateException("Missing active clone causal effect");aliases.put(image,effect);}
+        return new Status(status.owner,effect);
+    }
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        if(!(source instanceof LivingEntity target))return null;
+        var fall=falls.get(target);var map=statuses.get(target);var aliases=new java.util.IdentityHashMap<MobEffectInstance,CloneEffect>();
+        var effects=new HashMap<Holder<MobEffect>,CloneStatus>();if(map!=null)map.forEach((type,status)->effects.put(type,cloneStatusImage(target,status,aliases)));
+        var pending=cloneStatusImage(target,pendingMana.get(target),aliases);var drain=manaDrains.get(target);var debt=manaDebts.get(target);
+        var support=removedSupports.get(target);var attack=laterAttacks.get(target);var fire=burning.get(target);var arrival=arrivals.get(target);
+        var arrivalImage=arrival==null?null:new Arrival(arrival.owner,arrival.level,new HashMap<>(arrival.cells));
+        var falling=fall==null?null:new Fall(fall.owner,fall.levitation);if(falling!=null)falling.grace=fall.grace;
+        if(falling==null&&effects.isEmpty()&&pending==null&&drain==null&&debt==null&&support==null&&attack==null&&fire==null&&arrivalImage==null)return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var living=(LivingEntity)clone;var current=new java.util.IdentityHashMap<CloneEffect,MobEffectInstance>();
+                if(falling!=null){var f=new Fall(falling.owner,falling.levitation);f.grace=falling.grace;falls.put(living,f);}
+                if(!effects.isEmpty()){var installed=new HashMap<Holder<MobEffect>,Status>();effects.forEach((type,image)->installed.put(type,cloneStatusInstall(living,image,current)));statuses.put(living,installed);}
+                if(pending!=null)pendingMana.put(living,cloneStatusInstall(living,pending,current));
+                if(drain!=null)manaDrains.put(living,drain);if(debt!=null)manaDebts.put(living,debt);if(support!=null)removedSupports.put(living,support);
+                if(attack!=null)laterAttacks.put(living,attack);if(fire!=null)burning.put(living,fire);
+                if(arrivalImage!=null)arrivals.put(living,new Arrival(arrivalImage.owner,arrivalImage.level,new HashMap<>(arrivalImage.cells)));
+            }
+            public void rollback(Entity clone){falls.remove(clone);statuses.remove(clone);pendingMana.remove(clone);manaDrains.remove(clone);manaDebts.remove(clone);removedSupports.remove(clone);laterAttacks.remove(clone);burning.remove(clone);arrivals.remove(clone);}
+        };
+    }
+
 }
 

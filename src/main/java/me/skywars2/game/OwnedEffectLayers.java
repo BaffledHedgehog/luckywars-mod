@@ -230,4 +230,12 @@ public final class OwnedEffectLayers {
         EffectLayers.merge(result, single(grant));
         return result;
     }
+    LbcCloneSkills.ActorImage cloneImage(net.minecraft.world.entity.Entity source){
+        if(!(source instanceof LivingEntity living))return null;var image=checkpoint(living);if(image==null)return null;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(net.minecraft.world.entity.Entity original,net.minecraft.world.entity.Entity clone,Map<net.minecraft.world.entity.Entity,net.minecraft.world.entity.Entity> family){restoreCheckpoint((LivingEntity)clone,image);}
+            public void rollback(net.minecraft.world.entity.Entity clone){targets.remove(clone);}
+        };
+    }
+
 }

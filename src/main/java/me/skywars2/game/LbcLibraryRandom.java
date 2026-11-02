@@ -242,4 +242,14 @@ final class LbcLibraryRandom {
         }
     }
 
+
+    boolean cloneManaged(Entity actor){return actorTable.containsKey(actor);}
+    LbcCloneSkills.ActorImage cloneImage(Entity source) {
+        if(!actorTable.containsKey(source))return null;
+        var value=actorTable.get(source);
+        return new LbcCloneSkills.ActorImage() {
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){actorTable.put(clone,value);}
+            public void rollback(Entity clone){actorTable.remove(clone);}
+        };
+    }
 }

@@ -46,14 +46,16 @@ public final class LbcPolymorph {
         final boolean invisible,noGravity; final float health,absorption; final int fire,air;
         final EnumMap<EquipmentSlot,ItemStack> equipment=new EnumMap<>(EquipmentSlot.class);
         List<MobEffectInstance> effects; Object owned; CompoundTag absorptionState;
+        LbcIndirectKills.SuspendedEffectCauses effectCauses;
         final Map<String,Integer> counters=new LinkedHashMap<>();
         net.minecraft.world.entity.ai.attributes.AttributeMap attributes;
         final List<ItemStack> inventory=new ArrayList<>(); final GameType mode;
-        int remaining=DURATION;
+        int remaining=DURATION;boolean clonePending;
         Form(LbcPolymorph service,LivingEntity original,Body sheep,LbcIndirectKills.Owner cause){
             this.original=original;this.sheep=sheep;this.cause=cause;epoch=service.game.items().epoch();
             invisible=original.isInvisible();noGravity=original.isNoGravity();
             health=original.getHealth();absorption=original.getAbsorptionAmount();fire=original.getRemainingFireTicks();air=original.getAirSupply();
+            effectCauses=service.game.items().indirectKills().suspendEffectCauses(original);
             effects=original.getActiveEffects().stream().map(EffectLayers::copy).toList();
             owned=service.game.items().ownedEffects().suspend(original);
             var out=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,original.registryAccess());ShadowAbsorption.save(original,out);absorptionState=out.buildResult();
@@ -68,6 +70,16 @@ public final class LbcPolymorph {
                     if(score!=null)counters.put(name,score.value());
                 }
             }else {mode=null;attributes=null;}
+        }
+        /** Copy the saved pre-transform values; never resnapshot or suspend an already concealed body. */
+        Form(Form source,LivingEntity original,Body sheep){
+            this.original=original;this.sheep=sheep;epoch=source.epoch;cause=source.cause;
+            invisible=source.invisible;noGravity=source.noGravity;health=source.health;absorption=source.absorption;
+            fire=source.fire;air=source.air;remaining=source.remaining;mode=source.mode;
+            source.equipment.forEach((slot,stack)->equipment.put(slot,stack.copy()));
+            effects=source.effects.stream().map(EffectLayers::copy).toList();owned=OwnedEffectLayers.copyCheckpoint(source.owned);effectCauses=source.effectCauses;
+            absorptionState=source.absorptionState.copy();counters.putAll(source.counters);
+            attributes=copyAttributes(source.attributes);source.inventory.forEach(stack->inventory.add(stack.copy()));
         }
     }
     private static boolean status(String name){return STATUS.contains(name)||name.startsWith("effect_");}
@@ -130,7 +142,7 @@ public final class LbcPolymorph {
         var level=(ServerLevel)original.level();if(!resident(level,original.position()))return null;
         var sheep=new Body(level);load(sheep,rainbow?"{DeathLootTable:'minecraft:empty',CustomName:'jeb_',CustomNameVisible:0b,attributes:[{id:'minecraft:knockback_resistance',base:20}]}":"{DeathLootTable:'minecraft:empty'}");
         if(rainbow){sheep.setCustomName(net.minecraft.network.chat.Component.literal("jeb_"));sheep.setCustomNameVisible(false);}
-        sheep.setPos(original.position());sheep.setYRot(original.getYRot());sheep.setXRot(original.getXRot());sheep.entityTags().add(BODY);game.items().markCurrentItemEpoch(sheep);
+        sheep.setPos(original.position());sheep.setYRot(original.getYRot());sheep.setXRot(original.getXRot());sheep.entityTags().add(BODY);game.items().markCurrentItemEpoch(sheep);copyOnceFlags(original,sheep);
         if(original instanceof ServerPlayer p){p.closeContainer();game.items().fpvDrone().release(p);game.items().rifleZoom().forget(p);}
         var form=new Form(this,original,sheep,cause);forms.put(original,form);bodies.put(sheep,form);publishing.add(sheep);
         try{if(!level.addFreshEntity(sheep)||sheep.isRemoved()){forms.remove(original);bodies.remove(sheep);game.items().ownedEffects().resume(original,form.owned);return null;}}
@@ -173,7 +185,7 @@ public final class LbcPolymorph {
     private void finish(Form form,boolean died){
         checkpointDepth++;try{
         if(!forms.remove(form.original,form))return;bodies.remove(form.sheep);
-        var original=form.original;var at=form.sheep.position();var motion=form.sheep.getDeltaMovement();
+        var original=form.original;var at=form.sheep.position();var motion=form.sheep.getDeltaMovement();copyOnceFlags(form.sheep,original);
         if(form.sheep.getTeam()!=null)game.server().getScoreboard().removePlayerFromTeam(form.sheep.getScoreboardName(),form.sheep.getTeam());
         if(!form.sheep.isRemoved())form.sheep.discard();
         if(original.isRemoved())return;
@@ -188,9 +200,14 @@ public final class LbcPolymorph {
                 p.setGameMode(form.mode);form.counters.forEach((k,v)->game.items().mana().score(p,k).set(v));
             }
             form.equipment.forEach(original::setItemSlot);
-            for(var effect:form.effects)original.addEffect(EffectLayers.copy(effect));
+            var restoredEffects=new HashMap<net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect>,MobEffectInstance>();
+            for(var effect:form.effects)if(original.addEffect(EffectLayers.copy(effect))){
+                var active=original.getEffect(effect.getEffect());
+                if(active!=null&&active.getAmplifier()==effect.getAmplifier())restoredEffects.put(effect.getEffect(),active);
+            }
             ShadowAbsorption.beforeLoad(original);ShadowAbsorption.load(original,TagValueInput.create(ProblemReporter.DISCARDING,original.registryAccess(),form.absorptionState));
             game.items().ownedEffects().resume(original,form.owned);
+            game.items().indirectKills().resumeEffectCauses(original,form.effectCauses,restoredEffects);
             game.items().frost().resumeForm(original);
             original.setHealth(Math.min(form.health,original.getMaxHealth()));original.setAbsorptionAmount(form.absorption);
             if(original instanceof ServerPlayer p){FullInvisibility.effectsChanged(p);p.inventoryMenu.sendAllDataToRemote();p.onUpdateAbilities();game.items().mana().inventoryChanged(p);game.items().magic().inventoryChanged(p);game.items().invalidateHud(p);}
@@ -222,7 +239,7 @@ public final class LbcPolymorph {
         var stack=new ItemStack(Items.STICK);stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:polymorph_sphere"));display.setItemStack(stack);display.setPos(at);
         display.entityTags().add(ORB);game.items().markCurrentItemEpoch(display);publishing.add(display);
         try{if(!level.addFreshEntity(display)||display.isRemoved())return null;}finally{publishing.remove(display);}
-        var orb=new Orb(display,authority,direction.normalize().scale(SPEED));orbs.add(orb);emitted++;return orb;
+        var orb=new Orb(display,authority,direction.normalize().scale(SPEED));display.setDeltaMovement(orb.motion);orbs.add(orb);emitted++;return orb;
 
         }finally{checkpointDepth--;}
     }
@@ -241,7 +258,7 @@ public final class LbcPolymorph {
             var original=form.original;var sheep=form.sheep;
             if(LbcParasite.active(original)){finish(form,false);continue;}
             if(!game.items().currentEpoch(form.epoch)||original.isRemoved()||original.level()!=sheep.level()){finish(form,false);continue;}
-            if(!sheep.isAlive()||sheep.isRemoved()){finish(form,true);continue;}
+            if(!sheep.isAlive()||sheep.isRemoved()){finish(form,sheep.getHealth()<=0||sheep.getRemovalReason()==Entity.RemovalReason.KILLED);continue;}
             if(game.items().magic().suppressedAt((ServerLevel)original.level(),sheep.position())){finish(form,false);continue;}
             if(game.items().timeStop().stopped((ServerLevel)original.level())||game.items().timeStop().frozen(sheep))continue;
             if(original instanceof ServerPlayer p){
@@ -265,11 +282,13 @@ public final class LbcPolymorph {
             var display=orb.display;var level=(ServerLevel)display.level();var from=display.position();
             if(!live(orb.authority)||display.isRemoved()||!resident(level,from)||orb.age>=ORB_LIFE){retire(orb);continue;}
             if(game.items().timeStop().stopped(level))continue;
+            // Native motion mirrors the service flight vector so cloning can apply its normal source spread.
+            orb.motion=display.getDeltaMovement();
             LivingEntity nearest=null;double distance=80*80;
             for(var entity:level.getEntitiesOfClass(LivingEntity.class,new AABB(from,from).inflate(80),this::eligible)){
                 double d=entity.getEyePosition().distanceToSqr(from);if(d<distance){distance=d;nearest=entity;}
             }
-            if(nearest!=null)orb.motion=steer(orb.motion,nearest.getEyePosition().subtract(from));
+            if(nearest!=null)orb.motion=steer(orb.motion,nearest.getEyePosition().subtract(from));display.setDeltaMovement(orb.motion);
             var to=from.add(orb.motion);LivingEntity hit=null;double closest=Double.POSITIVE_INFINITY;
             for(var candidate:level.getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(.25),this::eligible)){
                 var box=candidate.getBoundingBox().inflate(.2);var point=box.contains(from)?Optional.of(from):box.clip(from,to);
@@ -287,11 +306,11 @@ public final class LbcPolymorph {
     private void retire(Orb orb){orbs.remove(orb);if(!orb.display.isRemoved())orb.display.discard();}
     private static void load(Entity entity,String nbt){try{entity.load(TagValueInput.create(ProblemReporter.DISCARDING,entity.registryAccess(),TagParser.parseCompoundFully(nbt)));}catch(Exception e){throw new IllegalStateException(e);}}
     public void loaded(Entity e){
-        checkpointDepth++;try{if(rewinding||heldBodies.containsKey(e))return;if((e.entityTags().contains(BODY)||e.entityTags().contains(ORB))&&!publishing.contains(e)&&!bodies.containsKey(e)&&orbs.stream().noneMatch(o->o.display==e))e.discard();
+        checkpointDepth++;try{if(rewinding||heldBodies.containsKey(e))return;var copied=bodies.get(e);if(copied!=null)copied.clonePending=false;if((e.entityTags().contains(BODY)||e.entityTags().contains(ORB))&&!publishing.contains(e)&&!bodies.containsKey(e)&&orbs.stream().noneMatch(o->o.display==e))e.discard();
         }finally{checkpointDepth--;}
     }
     public void unloaded(Entity e){
-        checkpointDepth++;try{if(rewinding)return;for(var form:List.copyOf(forms.values()))if(form.sheep==e||form.original==e)finish(form,false);for(var orb:List.copyOf(orbs))if(orb.display==e)retire(orb);
+        checkpointDepth++;try{if(rewinding)return;for(var form:List.copyOf(forms.values()))if(form.sheep==e||form.original==e){if(form.clonePending){forms.remove(form.original,form);bodies.remove(form.sheep,form);}else finish(form,false);}for(var orb:List.copyOf(orbs))if(orb.display==e)retire(orb);
         }finally{checkpointDepth--;}
     }
     public void forget(ServerPlayer p){
@@ -349,6 +368,7 @@ public final class LbcPolymorph {
         private final EnumMap<EquipmentSlot,ItemStack> equipment=new EnumMap<>(EquipmentSlot.class);
         private final List<ItemStack> inventory;
         private final List<MobEffectInstance> effects;
+        private final LbcIndirectKills.SuspendedEffectCauses effectCauses;
         private final Object owned;
         private final CompoundTag absorption;
         private final Map<String,Integer> counters;
@@ -358,7 +378,7 @@ public final class LbcPolymorph {
             this.form=form;links=new MatchSpellCheckpoint.Links(sources);original=links.key(form.original);sheep=links.key(form.sheep);
             if(original.historical()!=null||sheep.historical()!=null)throw new IllegalStateException("Polymorph requires canonical current human/mob and sheep bodies");
             remaining=form.remaining;form.equipment.forEach((slot,stack)->equipment.put(slot,stack.copy()));
-            inventory=form.inventory.stream().map(ItemStack::copy).toList();effects=form.effects.stream().map(EffectLayers::copy).toList();
+            inventory=form.inventory.stream().map(ItemStack::copy).toList();effects=form.effects.stream().map(EffectLayers::copy).toList();effectCauses=form.effectCauses;
             owned=OwnedEffectLayers.copyCheckpoint(form.owned);absorption=form.absorptionState.copy();counters=new LinkedHashMap<>(form.counters);attributes=copyAttributes(form.attributes);
             sheepInvisible=form.sheep.isInvisible();
         }
@@ -379,7 +399,7 @@ public final class LbcPolymorph {
             return ()->{
                 forms.remove(form.original,form);bodies.remove(form.sheep,form);heldBodies.remove(body);body.checkpointHeld=false;body.setInvisible(sheepInvisible);
                 form.original=human;form.sheep=body;form.remaining=remaining;
-                form.equipment.clear();form.equipment.putAll(items);form.inventory.clear();form.inventory.addAll(bag);form.effects=statuses;
+                form.equipment.clear();form.equipment.putAll(items);form.inventory.clear();form.inventory.addAll(bag);form.effects=statuses;form.effectCauses=effectCauses;
                 form.owned=leases;form.absorptionState=shadow;form.counters.clear();form.counters.putAll(counters);form.attributes=attrs;
                 // Same-tick duplicate-hit cache is transient; native health/motion/combat remain canonical.
                 body.lastHit=null;body.lastHitTick=Integer.MIN_VALUE;body.redirected=false;body.lastRedirected=false;
@@ -388,4 +408,48 @@ public final class LbcPolymorph {
         }
     }
 
+
+    private static void copyOnceFlags(Entity source,Entity target){
+        for(var flag:List.of("doubled","quadried"))if(source.entityTags().contains(flag))target.entityTags().add(flag);
+    }
+    boolean cloneRecognizes(Entity actor){return actor instanceof Body || actor instanceof Visual || actor.entityTags().contains(BODY)||actor.entityTags().contains(ORB);}
+    boolean cloneGameplay(Entity actor){return actor.entityTags().contains(ORB)&&orbs.stream().anyMatch(orb->orb.display==actor);}
+    boolean cloneProtected(Entity actor){
+        if(forms.containsKey(actor))return true;
+        var form=bodies.get(actor);return form!=null&&form.original instanceof ServerPlayer;
+    }
+    LbcCloneSkills.ActorImage cloneImage(Entity actor){
+        if(cloneProtected(actor))return null;
+        for(var orb:orbs)if(orb.display==actor){
+            var authority=orb.authority;int age=orb.age;
+            return new LbcCloneSkills.ActorImage(){
+                public Entity create(Entity original,ServerLevel level){return new Visual(level);}
+                public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                    var copied=new Orb((Visual)clone,authority,clone.getDeltaMovement());copied.age=age;orbs.add(copied);
+                }
+                public void rollback(Entity clone){orbs.removeIf(orb->orb.display==clone);}
+            };
+        }
+        var source=bodies.get(actor);
+        if(source==null||source.original instanceof ServerPlayer)return null;
+        // Immutable operation-local saved values; every install copies collections again.
+        var saved=new Form(source,source.original,source.sheep);var hidden=source.original;
+        var rollbackAuxiliaries=new IdentityHashMap<Entity,Runnable>();
+        return new LbcCloneSkills.ActorImage(){
+            public Entity create(Entity original,ServerLevel level){return new Body(level);}
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var sheep=(Body)clone;
+                var auxiliary=game.items().cloneSkills().copyAuxiliary(hidden,body->{
+                    if(!(body instanceof LivingEntity living)||body instanceof ServerPlayer)throw new IllegalStateException("Polymorph copy requires an independent nonplayer original");
+                    var form=new Form(saved,living,sheep);form.clonePending=true;living.setPos(sheep.position());copyOnceFlags(sheep,living);
+                    forms.put(living,form);bodies.put(sheep,form);
+                });
+                rollbackAuxiliaries.put(clone,auxiliary::rollback);
+            }
+            public void rollback(Entity clone){
+                var form=bodies.remove(clone);if(form!=null)forms.remove(form.original,form);
+                var rollback=rollbackAuxiliaries.remove(clone);if(rollback!=null)rollback.run();
+            }
+        };
+    }
 }

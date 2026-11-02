@@ -177,6 +177,20 @@
   ],
   "skills": [
     {
+      "id": 15,
+      "page": 10000,
+      "slot": 14,
+      "gate": "lbc:true_advancements/bows/double",
+      "lockedKey": "lbc.adv.bow.double.lore"
+    },
+    {
+      "id": 17,
+      "page": 10000,
+      "slot": 16,
+      "gate": "lbc:true_advancements/hoes/sickle",
+      "lockedKey": "lbc.adv.hoe.sickle.lore"
+    },
+    {
       "id": 7,
       "page": 10000,
       "slot": 6,

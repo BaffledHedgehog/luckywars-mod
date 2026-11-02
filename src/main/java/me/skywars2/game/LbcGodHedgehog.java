@@ -65,7 +65,10 @@ public final class LbcGodHedgehog {
         final ServerLevel level;final UUID author;final LbcIndirectKills.Owner cause;final String epoch;final Silverfish boss;
         boolean retired;
         Encounter(ServerLevel level,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch,Silverfish boss){
-            this.level=level;this.author=author.getUUID();this.cause=cause;this.epoch=epoch;this.boss=boss;
+            this(level,author.getUUID(),cause,epoch,boss);
+        }
+        Encounter(ServerLevel level,UUID author,LbcIndirectKills.Owner cause,String epoch,Silverfish boss){
+            this.level=level;this.author=author;this.cause=cause;this.epoch=epoch;this.boss=boss;
         }
     }
     private static final class Actor {
@@ -420,4 +423,40 @@ public final class LbcGodHedgehog {
             return ()->{checkpointRestoring=true;encounters.clear();actors.clear();lasers.clear();blastSources.clear();blastChildren.clear();plans.forEach(Runnable::run);activeTicker=ticker;};
         }
     }
+
+    static boolean cloneRecognizes(Entity e){return !cloneActorRecognizes(e)&&(managed(e)||e instanceof LbcGodHedgehog.Boss);}
+    static boolean cloneProtected(Entity e){return false;}
+    LbcCloneSkills.ActorImage cloneImage(Entity original) {
+        var encounter=find(original);if(encounter==null||encounter.retired)return null;
+        if(original instanceof Boss){var author=encounter.author;var cause=encounter.cause;var epoch=encounter.epoch;
+            // Phase is service-global activeTicker: adding one Encounter preserves the same live phase.
+            return CloneComplexProjectileStates.image(Boss::new,clone->{var boss=(Boss)clone;
+                var copy=new Encounter((ServerLevel)clone.level(),author,cause,epoch,boss);
+                boss.encounter=copy;encounters.add(copy);
+            },clone->{var copy=((Boss)clone).encounter;if(copy!=null){encounters.remove(copy);copy.retired=true;}
+                ((Boss)clone).encounter=null;});
+        }
+        if(blastSources.containsKey(original)){boolean child=blastChildren.contains(original);
+            return CloneComplexProjectileStates.image(clone->{blastSources.put(clone,encounter);if(child)blastChildren.add(clone);},
+                    clone->{blastSources.remove(clone);blastChildren.remove(clone);});
+        }
+        return null;
+    }
+
+    static boolean cloneActorRecognizes(Entity source){return source instanceof Visual||source instanceof RayBody;}
+    LbcCloneSkills.ActorImage cloneActorImage(Entity source){
+        var actor=actors.stream().filter(a->a.body()==source).findFirst().orElse(null);if(actor==null)return null;
+        var encounter=actor.encounter;var point=actor.point;var direction=actor.direction;var origin=source.position();int kind=actor.kind,age=actor.age;
+        return new LbcCloneSkills.ActorImage(){
+            public Entity create(Entity original,ServerLevel level){return original instanceof RayBody?new RayBody(level):new Visual(level);}
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                var copiedBoss=family.get(encounter.boss);var e=copiedBoss instanceof Boss b&&b.encounter!=null?b.encounter:encounter;
+                var at=point.add(clone.position().subtract(origin));var a=new Actor(e,clone instanceof Display.ItemDisplay d?d:null,kind,at,direction);
+                if(clone instanceof Marker marker)a.marker=marker;a.age=age;actors.add(a);
+                if(kind==1&&age<40){var from=at.add(0,.2,0);a.warning=TrialWarningVisual.worldBeam(game,e.level,e.epoch,from,from.add(direction.scale(10)),false,Math.max(1,40-age));}
+            }
+            public void rollback(Entity clone){for(var a:List.copyOf(actors))if(a.body()==clone){actors.remove(a);if(a.warning!=null)a.warning.close();}}
+        };
+    }
+
 }

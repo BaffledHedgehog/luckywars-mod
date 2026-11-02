@@ -57,7 +57,7 @@ public final class LbcHoming {
         final ServerLevel level;
         final String epoch;
         Vec3 position;
-        int remaining;
+        int remaining,cloneMask;
         Effect(ServerPlayer owner,Vec3 position,int remaining,String epoch) {
             this.owner=owner; this.level=owner.level(); this.position=position;
             this.remaining=remaining; this.epoch=epoch;
@@ -313,7 +313,7 @@ public final class LbcHoming {
             if(entity instanceof Projectile || entity.getType().builtInRegistryHolder().is(PROJECTILES)) projectiles.add(entity);
             if(entity instanceof LargeFireball fireball && family(fireball)) {
                 if(!game.items().currentEpoch(entity)) entity.discard();
-                else { fireballs.add(fireball); ages.put(fireball,0); }
+                else { fireballs.add(fireball); ages.putIfAbsent(fireball,0); }
             }
 
         }finally{--inProgress;}
@@ -542,7 +542,7 @@ public final class LbcHoming {
     void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish Homing native callbacks before checkpointing");}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     final class Checkpoint {
-        private record EffectImage(Effect original,MatchDamageSources.Ref owner,Vec3 position,int remaining) { }
+        private record EffectImage(Effect original,MatchDamageSources.Ref owner,Vec3 position,int remaining,int cloneMask) { }
         private record CurseImage(Curse original,MatchDamageSources.Ref owner,long remaining,boolean rawWild) { }
         private final List<EffectImage> rainImage,destinyImage;
         private final List<CurseImage> curseValues=new ArrayList<>();
@@ -563,7 +563,7 @@ public final class LbcHoming {
             var seen=new IdentityHashMap<Curse,Boolean>();for(var curse:curses.values())if(seen.put(curse,true)==null)
                 curseValues.add(new CurseImage(curse,links.key(curse.owner),curse.remaining,curse.rawWild));
         }
-        private EffectImage effect(Effect e,MatchSpellCheckpoint.Links links){return new EffectImage(e,links.key(e.owner),e.position,e.remaining);}
+        private EffectImage effect(Effect e,MatchSpellCheckpoint.Links links){return new EffectImage(e,links.key(e.owner),e.position,e.remaining,e.cloneMask);}
         @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();
             var nextBalls=balls.stream().map(ref->(LargeFireball)links.get(ref)).toList();
@@ -583,8 +583,44 @@ public final class LbcHoming {
         }
         private Runnable effectPlan(EffectImage image,MatchSpellCheckpoint.Links links){
             var owner=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.original.level);
-            return ()->{image.original.owner=owner;image.original.position=image.position;image.original.remaining=image.remaining;};
+            return ()->{image.original.owner=owner;image.original.position=image.position;image.original.remaining=image.remaining;image.original.cloneMask=image.cloneMask;};
         }
+    }
+
+    LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var curse=source instanceof LivingEntity l?curses.get(l):null;
+        var age=source instanceof LargeFireball f?ages.get(f):null;var target=source instanceof LargeFireball f?steeringTargets.get(f):null;
+        boolean fireball=fireballs.contains(source);if(curse==null&&age==null&&target==null&&!fireball)return null;
+        var owner=curse==null?null:curse.owner;long remaining=curse==null?0:curse.remaining;boolean wild=curse!=null&&curse.rawWild;
+        return new LbcCloneSkills.ActorImage(){
+            public void install(Entity original,Entity clone,java.util.Map<Entity,Entity> family){
+                if(owner!=null){var c=new Curse(owner,remaining);c.rawWild=wild;curses.put((LivingEntity)clone,c);}
+                if(fireball)fireballs.add((LargeFireball)clone);if(age!=null)ages.put((LargeFireball)clone,age);
+                if(target!=null)steeringTargets.put((LargeFireball)clone,(LivingEntity)family.getOrDefault(target,target));
+            }
+            public void rollback(Entity clone){curses.remove(clone);fireballs.remove(clone);ages.remove(clone);steeringTargets.remove(clone);}
+        };
+    }
+
+
+    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=cloneEffects(rains,holder,skill,budget,deadline);
+        return made+cloneEffects(destinies,holder,skill,budget-made,deadline);
+    }
+    private int cloneEffects(List<Effect> effects,ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
+        for(var effect:List.copyOf(effects)){
+            if(budget-made<count||System.nanoTime()>=deadline)break;
+            if(effect.remaining<=0||!game.items().currentEpoch(effect.epoch)||effect.owner.level()!=effect.level
+                    ||game.items().wands().timeStopped()||effect.owner.entityTags().contains("time_stopped")
+                    ||game.items().timeStop().frozen(effect.owner)
+                    ||!CloneVirtualAbilityStates.near(game,holder,effect.level,effect.position,effect.cloneMask,skill))continue;
+            var points=CloneVirtualAbilityStates.positions(holder,effect.level,effect.position,skill);if(points==null)continue;
+            for(var point:points){var copy=new Effect(effect.owner,point,effect.remaining,effect.epoch);
+                copy.cloneMask=effect.cloneMask|bit;effects.add(copy);}
+            effect.cloneMask|=bit;made+=count;
+        }
+        return made;
     }
 
 }

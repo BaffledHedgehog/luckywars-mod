@@ -44,7 +44,7 @@ final class LbcErecto {
         }
     }
     static final class Sphere {
-        final ServerPlayer owner;final ServerLevel level;final Vec3 position;final String epoch;int age;
+        final ServerPlayer owner;final ServerLevel level;final Vec3 position;final String epoch;int age,cloneMask;
         Sphere(ServerPlayer owner,Vec3 position,String epoch){this.owner=owner;level=owner.level();this.position=position;this.epoch=epoch;}
     }
     private final GameController game;
@@ -263,4 +263,31 @@ final class LbcErecto {
     private void clearSniperWindup(ServerPlayer owner){sniperWindups.remove(owner);owner.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(SNIPER_WINDUP);}
     void forget(ServerPlayer owner){clearRay(owner);clearSniperWindup(owner);spheres.removeIf(s->s.owner==owner);}
     void stop(){for(var owner:List.copyOf(rays.keySet()))clearRay(owner);for(var owner:List.copyOf(sniperWindups.keySet()))clearSniperWindup(owner);spheres.clear();}
+
+    int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
+        int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
+        for(var sphere:List.copyOf(spheres)){
+            if(budget-made<count||System.nanoTime()>=deadline)break;
+            if(sphere.age>=300||!active(sphere.owner,sphere.epoch)||sphere.owner.level()!=sphere.level
+                    ||!CloneVirtualAbilityStates.near(game,holder,sphere.level,sphere.position,sphere.cloneMask,skill))continue;
+            var points=CloneVirtualAbilityStates.positions(holder,sphere.level,sphere.position,skill);if(points==null)continue;
+            for(var point:points){var copy=new Sphere(sphere.owner,point,sphere.epoch);copy.age=sphere.age;
+                copy.cloneMask=sphere.cloneMask|bit;spheres.add(copy);}
+            sphere.cloneMask|=bit;made+=count;
+        }
+        return made;
+    }
+    SphereCheckpoint checkpointSpheres(MatchSpellCheckpoint.Links links){return new SphereCheckpoint(links);}
+    final class SphereCheckpoint {
+        private record Image(MatchDamageSources.Ref owner,ServerLevel level,Vec3 position,String epoch,int age,int mask){}
+        private final List<Image> images;
+        SphereCheckpoint(MatchSpellCheckpoint.Links links){images=spheres.stream().map(s->new Image(links.key(s.owner),s.level,s.position,s.epoch,s.age,s.cloneMask)).toList();}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var values=new java.util.ArrayList<Sphere>();
+            for(var image:images){var owner=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.level);
+                if(owner.level()!=image.level)throw new IllegalStateException("Restore sphere's original author dimension");
+                var sphere=new Sphere(owner,image.position,image.epoch);sphere.age=image.age;sphere.cloneMask=image.mask;values.add(sphere);}
+            return ()->{spheres.clear();spheres.addAll(values);};
+        }
+    }
+
 }
