@@ -1,6 +1,14 @@
 package me.skywars2.game;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.world.entity.decoration.Mannequin;
+import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import io.netty.buffer.Unpooled;
@@ -95,7 +103,7 @@ public final class LbcFpvDrone {
                     """)));}catch(CommandSyntaxException error){throw new IllegalStateException("Drone source model",error);}
             entityTags().add("skywars2.fpv_visual");game.items().markCurrentItemEpoch(this);}
         @Override public boolean shouldBeSaved(){return false;}
-        @Override public boolean broadcastToPlayer(ServerPlayer p){return !controlling(p)||controllers.get(p.getUUID()).drone!=drone;}
+        @Override public boolean broadcastToPlayer(ServerPlayer p){return true;}
     }
     /** Empty, owner-only client entity: no world insertion, ticking actor or saved state. */
     private static final class Seat extends Display.ItemDisplay {
@@ -104,8 +112,24 @@ public final class LbcFpvDrone {
             catch(CommandSyntaxException error){throw new IllegalStateException("FPV camera seat",error);}
         }
     }
+    /** Owner-only copy of the body missing from its own native entity tracker. Never a gameplay actor. */
+    private static final class Operator extends Mannequin {
+        final ServerPlayer owner;
+        Operator(ServerPlayer owner){super(owner.level());this.owner=owner;
+            applyImplicitComponent(net.minecraft.core.component.DataComponents.PROFILE,ResolvableProfile.createResolved(owner.getGameProfile()));
+            ((me.skywars2.mixin.ChefMannequinAccess)(Object)this).skywars2$hideDescription(true);
+            setMainArm(owner.getMainArm());sync();
+        }
+        void sync(){setPos(owner.position());setYRot(owner.getYRot());setXRot(owner.getXRot());setYBodyRot(owner.yBodyRot);setYHeadRot(owner.getYHeadRot());setPose(owner.getPose());
+            byte layers=0;for(var part:net.minecraft.world.entity.player.PlayerModelPart.values())if(owner.isModelPartShown(part))layers|=(byte)part.getMask();
+            getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION,layers);
+            setInvisible(owner.isInvisible());
+        }
+        @Override public boolean shouldBeSaved(){return false;}
+    }
     private static final class Session {
-        final ServerPlayer player;final Drone drone;int born;float yaw,pitch;boolean attached;BodyChunk body;Seat seat;
+        final ServerPlayer player;final Drone drone;int born;float yaw,pitch;boolean attached;BodyChunk body;Seat seat;Operator operator;PlayerTeam hiddenTeam;
+        final EnumMap<EquipmentSlot,ItemStack> appearance=new EnumMap<>(EquipmentSlot.class);
         Session(ServerPlayer player,Drone drone,int born){this.player=player;this.drone=drone;this.born=born;yaw=player.getYRot();pitch=player.getXRot();}
     }
     public boolean controlling(ServerPlayer p){var s=controllers.get(p.getUUID());return s!=null&&s.player==p;}
@@ -134,20 +158,73 @@ public final class LbcFpvDrone {
         // immediately so hiding hands does not introduce a flight/FOV bonus.
         p.onUpdateAbilities();
         if(p.addPostEffect(HUD))p.sendPostEffects();s.attached=true;
+        // The native real body remains public and vulnerable. Only its owner gets this mirror.
+        s.operator=new Operator(p);var body=s.operator;
+        p.connection.send(new ClientboundAddEntityPacket(body.getId(),body.getUUID(),body.getX(),body.getY(),body.getZ(),body.getXRot(),body.getYRot(),EntityTypes.MANNEQUIN,0,Vec3.ZERO,body.getYHeadRot()));
+        p.connection.send(new ClientboundSetEntityDataPacket(body.getId(),body.getEntityData().getNonDefaultValues()));
+        s.hiddenTeam=new PlayerTeam(new Scoreboard(),"sw2fpv"+Integer.toHexString(seat.getId()));s.hiddenTeam.setSeeFriendlyInvisibles(false);
+        s.hiddenTeam.getPlayers().add(p.getScoreboardName());
+        p.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(s.hiddenTeam,true));
+        p.connection.send(selfFlags(p,true));
+        var empty=new ArrayList<Pair<EquipmentSlot,ItemStack>>();for(var slot:EquipmentSlot.values())empty.add(Pair.of(slot,ItemStack.EMPTY));
+        p.connection.send(new ClientboundSetEquipmentPacket(p.getId(),empty));updateOperator(s);
+    }
+    private static ClientboundSetEntityDataPacket selfFlags(ServerPlayer p,boolean hidden){
+        byte flags=0;var values=p.getEntityData().getNonDefaultValues();if(values!=null)for(var value:values)if(value.id()==0)flags=(Byte)value.value();
+        if(hidden)flags=(byte)((flags|0x20)&~0x40);
+        return new ClientboundSetEntityDataPacket(p.getId(),List.of(new SynchedEntityData.DataValue<>(0,EntityDataSerializers.BYTE,flags)));
+    }
+    private void updateOperator(Session s){
+        var body=s.operator;if(body==null)return;var p=s.player;
+        var oldPosition=body.position();float yaw=body.getYRot(),pitch=body.getXRot(),head=body.getYHeadRot();body.sync();
+        if(!oldPosition.equals(body.position())||yaw!=body.getYRot()||pitch!=body.getXRot())p.connection.send(ClientboundEntityPositionSyncPacket.of(body));
+        if(head!=body.getYHeadRot())p.connection.send(new ClientboundRotateHeadPacket(body,(byte)Mth.floor(body.getYHeadRot()*256/360)));
+        var dirty=body.getEntityData().packDirty();if(dirty!=null)p.connection.send(new ClientboundSetEntityDataPacket(body.getId(),dirty));
+        // Eight visible native slots only; no inventory/NBT scan or gameplay inventory shell.
+        var changed=new ArrayList<Pair<EquipmentSlot,ItemStack>>();
+        for(var slot:EquipmentSlot.values()){var actual=p.getItemBySlot(slot);var previous=s.appearance.get(slot);
+            if(previous==null||!ItemStack.matches(previous,actual)){var copy=actual.copy();s.appearance.put(slot,copy);changed.add(Pair.of(slot,copy));}}
+        if(!changed.isEmpty())p.connection.send(new ClientboundSetEquipmentPacket(body.getId(),changed));
+    }
+    /** Recipient-only presentation, including later native effect/equipment updates. */
+    @SuppressWarnings({"unchecked","rawtypes"})
+    public Packet<?> presentation(ServerPlayer p,Packet<?> packet){
+        var s=controllers.get(p.getUUID());if(s==null||s.player!=p||!s.attached)return packet;
+        if(packet instanceof ClientboundBundlePacket bundle){var packets=new ArrayList<Packet<? super ClientGamePacketListener>>();for(var child:bundle.subPackets())packets.add((Packet)presentation(p,child));return new ClientboundBundlePacket(packets);}
+        if(packet instanceof ClientboundSetEntityDataPacket data&&data.id()==p.getId()){
+            var fields=new ArrayList<SynchedEntityData.DataValue<?>>();for(var field:data.packedItems())fields.add(field.id()==0?new SynchedEntityData.DataValue<>(0,EntityDataSerializers.BYTE,(byte)(((Byte)field.value()|0x20)&~0x40)):field);
+            return new ClientboundSetEntityDataPacket(data.id(),fields);
+        }
+        if(packet instanceof ClientboundSetEquipmentPacket equipment&&equipment.getEntity()==p.getId())return new ClientboundSetEquipmentPacket(p.getId(),equipment.getSlots().stream().map(pair->Pair.of(pair.getFirst(),ItemStack.EMPTY)).toList());
+        if(packet instanceof ClientboundSetPlayerInventoryPacket slot)return new ClientboundSetPlayerInventoryPacket(slot.slot(),ItemStack.EMPTY);
+        if(packet instanceof ClientboundContainerSetSlotPacket slot&&slot.getContainerId()==0)return new ClientboundContainerSetSlotPacket(slot.getContainerId(),slot.getStateId(),slot.getSlot(),ItemStack.EMPTY);
+        if(packet instanceof ClientboundContainerSetContentPacket contents&&contents.containerId()==0)return new ClientboundContainerSetContentPacket(0,contents.stateId(),Collections.nCopies(contents.items().size(),ItemStack.EMPTY),ItemStack.EMPTY);
+        if(packet instanceof ClientboundSetPlayerTeamPacket team&&s.hiddenTeam!=null&&!team.getName().equals(s.hiddenTeam.getName())&&team.getPlayerAction()==ClientboundSetPlayerTeamPacket.Action.ADD&&team.getPlayers().contains(p.getScoreboardName()))
+            return new ClientboundBundlePacket(List.of(team,ClientboundSetPlayerTeamPacket.createPlayerPacket(s.hiddenTeam,p.getScoreboardName(),ClientboundSetPlayerTeamPacket.Action.ADD)));
+        return packet;
     }
     private void clearHud(ServerPlayer p){if(p.removePostEffect(HUD)&&p.connection!=null&&!p.isRemoved())p.sendPostEffects();}
     private void detach(Session s){
         var p=s.player;clearHud(p);
         if(!s.attached)return;
         s.attached=false;
+        s.appearance.clear();
         if(p.isRemoved()||game.server().getPlayerList().getPlayer(p.getUUID())!=p)return;
+        if(s.operator!=null)p.connection.send(new ClientboundRemoveEntitiesPacket(s.operator.getId()));
+        if(s.hiddenTeam!=null){p.connection.send(ClientboundSetPlayerTeamPacket.createRemovePacket(s.hiddenTeam));if(p.getTeam()!=null)p.connection.send(ClientboundSetPlayerTeamPacket.createPlayerPacket(p.getTeam(),p.getScoreboardName(),ClientboundSetPlayerTeamPacket.Action.ADD));}
+        p.connection.send(selfFlags(p,false));
+        var restored=new ArrayList<Pair<EquipmentSlot,ItemStack>>();for(var slot:EquipmentSlot.values())restored.add(Pair.of(slot,p.getItemBySlot(slot).copy()));
+        p.connection.send(new ClientboundSetEquipmentPacket(p.getId(),restored));p.containerMenu.sendAllDataToRemote();
         if(s.seat!=null){p.connection.send(passengers(s.seat.getId()));p.connection.send(new ClientboundRemoveEntitiesPacket(s.seat.getId()));}
         p.connection.send(new ClientboundSetCameraPacket(p));
         p.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE,p.gameMode.getGameModeForPlayer().getId()));
         p.onUpdateAbilities();
     }
     public static Vec3 viewpoint(ServerPlayer player){var g=SkyWars2.game();if(g==null||g.items().fpvDrone()==null)return player.position();
-        var s=g.items().fpvDrone().controllers.get(player.getUUID());return s!=null&&s.attached?trackingPosition(player):player.position();}
+        var at=audioViewpoint(player);return at==null?player.position():at;}
+    /** The private seat deliberately leaves ServerPlayer.getCamera() on its real body. */
+    static Vec3 audioViewpoint(ServerPlayer player){var g=SkyWars2.game();if(g==null||g.items().fpvDrone()==null)return null;
+        var s=g.items().fpvDrone().controllers.get(player.getUUID());return s!=null&&s.player==player&&s.attached&&s.drone.level()==player.level()?s.drone.getEyePosition():null;}
     /** Prefetch around the drone before switching the visible camera to its published entity. */
     public static Vec3 trackingPosition(ServerPlayer player){var g=SkyWars2.game();if(g==null||g.items().fpvDrone()==null)return player.position();
         var s=g.items().fpvDrone().controllers.get(player.getUUID());return s!=null&&s.player==player&&s.drone.level()==player.level()?s.drone.position():player.position();}
@@ -196,7 +273,7 @@ public final class LbcFpvDrone {
     public void tick(){if(rewinding)return;if(advancing)throw new IllegalStateException("Reentrant FPV advance");advancing=true;try{int now=game.server().getTickCount();if(now==lastTick)return;lastTick=now;
         for(var s:List.copyOf(controllers.values())){
             if(!eligible(s.player)||s.player.level()!=s.drone.level()||!live(s.drone)){release(s.player);continue;}
-            bodyTicket(s);
+            bodyTicket(s);if(s.attached)updateOperator(s);
             // A stationary/frozen drone may never cross a section: refresh native pairing
             // while prefetching too, before waiting for the camera attachment condition.
             s.player.level().getChunkSource().move(s.player);s.player.setLastClientInput(Input.EMPTY);
@@ -309,7 +386,7 @@ public final class LbcFpvDrone {
         void cancelFrozen(){if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel FPV on its frozen native thread");prepareCheckpoint();omittedControllers.clear();rewinding=false;prepared=false;installed=false;}
     }
 
-    static boolean cloneProtected(Entity actor){return actor instanceof LbcFpvDrone.Visual || actor instanceof Seat;}
+    static boolean cloneProtected(Entity actor){return actor instanceof LbcFpvDrone.Visual || actor instanceof Seat || actor instanceof Operator;}
     LbcCloneSkills.ActorImage cloneImage(Drone source) {
         if(!live(source))return null;
         var author=source.author;long order=source.order;var epoch=source.epoch;

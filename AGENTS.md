@@ -1,3 +1,23 @@
+## Test feedback batch - VERIFIED, INSTALLED (2 November 2026)
+
+[Scope, fixes, exact evidence and remaining boundaries](agent_notes/TEST_FEEDBACK_2026_11_02.md).
+Test ae4e77ae / production201c306a; 11actual mode1 matches on exact artifact,
+9843inputs/2639classes/7355resources. 241protected paths unchanged; original author
+Academy bytes preserved plus exactly six user-requested active-drop replacements.
+31live overrides unchanged, fixture25577 only, normal/exact snapshots/OP/level/tickets/
+regional journal/no locks; 8authoring classes absent production. Installed normally
+with c68da1b2 rollback, restarted:false. No main stop/restart/push or peakTPS claim.
+
+FPV owner Mannequin/self hiding/drone model and remote sound eye; Academy active drop
+immediate/token grounded; native synchronous nuclear damage and one shared noisy terrain
+operation; Polymer nut identity and strictly same-explosion death symbol; authored default
+model/name finalization fixed. 28grimoire variants also need the minimal21-model RP patch
+at resourcepack_template/updates/item_models_2026_11_02/; original RP unchanged.
+Cold/freeze source timing verified unchanged. Boba commits all terrain before transport
+and persistent regional gravity/fluids. Native AI/waterline/special bbox boundaries remain
+in the scoped note; no complete arbitrary-axis vanilla renderer claim. Client F5/audio
+still require physical-client author testing. TMT LAST/other existing gates unchanged.
+
 ## Cloning skills15/17 - VERIFIED, INSTALLED (2 November2026)
 
 [Author rules, owners, failures and exact qualification](agent_notes/CLONE_SKILLS_PORT_2026_11_02.md).

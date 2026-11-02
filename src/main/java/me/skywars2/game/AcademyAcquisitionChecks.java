@@ -50,13 +50,13 @@ public final class AcademyAcquisitionChecks {
                 ItemStack stack=rolled.getFirst().copy(); stack.setCount(2);
                 require(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag()
                         .getIntOr(token?"academy_token":"magic_academy",0)==1,"real source flag");
-                var drop=new ItemEntity(level,source.x,source.y,source.z,stack); drop.setThrower(owner); drop.setOnGround(true);
+                var drop=new ItemEntity(level,source.x,source.y,source.z,stack); drop.setThrower(owner); drop.setOnGround(token);
                 require(level.addFreshEntity(drop),"native item admission");
                 game.items().timeStop().begin(level,40); academy.tick();
                 require(academy.pendingCount()==0 && !drop.isRemoved() && drop.getItem().getCount()==2,"Time Stop prevents debit");
                 game.items().timeStop().end(level); academy.tick();
-                require(academy.pendingCount()==1 && academy.pendingRow()==1,"one bounded row after admission");
-                require(owner.position().distanceToSqr(prior)<.0001,"no early teleport");
+                require(token?academy.pendingCount()==1 && academy.pendingRow()==1:academy.pendingCount()==0,"token is grounded/sliced; active aerial drop completes in its first callback");
+                require(token?owner.position().distanceToSqr(prior)<.0001:owner.position().distanceToSqr(source.add(0,1,-2))<.0001,"token waits; active drop is completed before its immediate teleport");
                 require(token?drop.isRemoved():!drop.isRemoved() && drop.getItem().getCount()==1,"variant debit semantics");
                 drop.discard(); // Remaining base unit is separately eligible on its next grounded tick.
                 int row=academy.pendingRow();game.items().timeStop().begin(level,40);academy.tick();

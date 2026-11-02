@@ -121,9 +121,9 @@ public final class MapManager {
     long rotationVisits(){return rotation==null?rotationVisits:rotation.visits();}
     long rotationWrites(){return rotation==null?rotationWrites:rotation.writes();}
     void rotationFinished(MapRotation work){if(rotation==work){rotationVisits=work.visits();rotationWrites=work.writes();rotation=null;}}
-    record SpawnState(List<Spawn> spawns,Vec3 look,Map<BlockPos,Map<BlockPos,BlockSnapshot>> islands){}
-    SpawnState spawnState(){return new SpawnState(List.copyOf(spawns),look,Map.copyOf(respawnIslands));}
-    void restoreSpawnState(SpawnState image){spawns=image.spawns;look=image.look;respawnIslands.clear();respawnIslands.putAll(image.islands);}
+    record SpawnState(List<Spawn> spawns,Vec3 look,Map<BlockPos,Map<BlockPos,BlockSnapshot>> islands,List<BobaRegionPhysics.Region> physics){}
+    SpawnState spawnState(){return new SpawnState(List.copyOf(spawns),look,Map.copyOf(respawnIslands),rotationPhysics.capture());}
+    void restoreSpawnState(SpawnState image){spawns=image.spawns;look=image.look;respawnIslands.clear();respawnIslands.putAll(image.islands);rotationPhysics.restore(image.physics);}
     static boolean rotationContains(Vec3 point,BlockPos origin){return point.x>=origin.getX()-160&&point.x<origin.getX()+160
             &&point.z>=origin.getZ()-160&&point.z<origin.getZ()+160&&point.y>=0&&point.y<320;}
     static Spawn rotatedSpawn(Spawn spawn,BlockPos origin){return rotationContains(spawn.position,origin)
@@ -155,6 +155,8 @@ public final class MapManager {
         return thread;
     });
     private final Path boundsJournal;
+    private final BobaRegionPhysics rotationPhysics;
+    public BobaRegionPhysics rotationPhysics(){return rotationPhysics;}
     private final Map<String, Manifest> manifests = new HashMap<>();
     private final List<MapInfo> catalog;
     private final Map<String, Boolean> localModes = new HashMap<>();
@@ -296,6 +298,7 @@ public final class MapManager {
         // replay its cleanup coordinates against an existing legacy overworld.
         this.boundsJournal = server.getWorldPath(LevelResource.ROOT)
                 .resolve("data/luckywars/overworld-bounds.json");
+        this.rotationPhysics=new BobaRegionPhysics(boundsJournal.resolveSibling("boba-regions.csv"));
         this.catalog = new ArrayList<>(readCatalog());
         readLocalCatalog();
         activeBoxes.addAll(readBoundsJournal());
@@ -1656,6 +1659,7 @@ public final class MapManager {
     }
 
     private void removeArenaEntities() {
+        rotationPhysics.clear();
         if (level == null) return;
         for (Entity entity : allArenaEntities()) {
             if (!(entity instanceof Player)) entity.discard();

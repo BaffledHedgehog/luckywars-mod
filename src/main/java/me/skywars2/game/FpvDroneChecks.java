@@ -62,7 +62,7 @@ public final class FpvDroneChecks {
                 var seen=packets();int spawn=-1,camera=-1;
                 for(int n=0;n<seen.size();n++){var p=seen.get(n);if(p instanceof ClientboundAddEntityPacket add&&add.getId()==drone.getId())spawn=n;if(p instanceof ClientboundSetCameraPacket c&&c.getEntity(level)==owner)camera=n;}
                 require(spawn>=0&&camera>spawn,"actual native pairing precedes camera attachment");
-                attachedPresentation();quietInvisibility();
+                attachedPresentation();operatorPresentation();audioViewpoint();quietInvisibility();
                 require(level.sendParticles(owner,net.minecraft.core.particles.ParticleTypes.END_ROD,false,false,drone.getX(),drone.getY(),drone.getZ(),1,0,0,0,0),"native particle range uses camera instead of distant body");
                 long sounds=packets().stream().filter(ClientboundSoundPacket.class::isInstance).count();
                 var sound=net.minecraft.sounds.SoundEvent.createVariableRangeEvent(net.minecraft.resources.Identifier.parse("minecraft:block.note_block.pling"));
@@ -125,8 +125,40 @@ public final class FpvDroneChecks {
             require(other.stream().noneMatch(p->p instanceof ClientboundGameEventPacket e&&e.getEvent()==ClientboundGameEventPacket.CHANGE_GAME_MODE&&e.getParam()==3),"hand/HUD presentation mode packet is owner-only");
             require(other.stream().noneMatch(p->p instanceof ClientboundAddEntityPacket e&&e.getId()==attachedSeat),"transient seat is never sent to another player");
         }
+        void audioViewpoint(){
+            var eye=drone.getEyePosition();require(eye.equals(LbcFpvDrone.viewpoint(owner))&&owner.getCamera()==owner,"shared sound audience follows actual private FPV camera eye, independent of native body camera");
+            var event=net.minecraft.resources.Identifier.parse("minecraft:lbcsounds.shitting_2");float cap=SoundNormalization.volumeCap(event);
+            require(cap<1,"fixture uses measured normalized mono custom event");
+            var source=eye.add(32,8,16);var sound=net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(event));
+            var input=new ClientboundSoundPacket(sound,net.minecraft.sounds.SoundSource.HOSTILE,source.x,source.y,source.z,4,1,517L);
+            var normalized=(ClientboundSoundPacket)SoundNormalization.project(owner,input);
+            var expected=eye.add(source.subtract(eye).scale(.25));
+            require(new Vec3(normalized.getX(),normalized.getY(),normalized.getZ()).distanceToSqr(expected)<.05,"normalization projects loud mono sound around drone listener rather than distant stationary body");
+            SoundNormalization.captureViews(game.server());
+            // The periodic publisher must carry the same actual listener to network-thread sends.
+            try{var field=SoundNormalization.class.getDeclaredField("VIEWS");field.setAccessible(true);require(eye.equals(((Map<?,?>)field.get(null)).get(owner.getUUID())),"immutable sound listener snapshot captures drone eye for asynchronous packet projection");}
+            catch(ReflectiveOperationException failure){throw new IllegalStateException(failure);}
+            var buzz=packets().stream().filter(ClientboundSoundPacket.class::isInstance).map(ClientboundSoundPacket.class::cast).filter(packet->packet.getSound().value().location().toString().equals("minecraft:lbcsounds.drone_tick")).reduce((a,b)->b).orElseThrow();
+            require(new Vec3(buzz.getX(),buzz.getY(),buzz.getZ()).distanceToSqr(eye)<4&&buzz.getVolume()==.15f&&buzz.getPitch()==1&&buzz.getSource()==net.minecraft.sounds.SoundSource.HOSTILE,"authored looping buzz reaches actual FPV listener at full legacy gain, never the remote body/minimum-volume fallback");
+        }
+        @SuppressWarnings("unchecked") void operatorPresentation(){
+            var service=game.items().fpvDrone();var operator=(net.minecraft.world.entity.decoration.Mannequin)read(session(),"operator");
+            require(operator!=null&&level.getEntity(operator.getId())==null&&operator.position().equals(owner.position()),"owner-only Mannequin mirrors real body without a second gameplay actor");
+            require(operator.getProfile().partialProfile().equals(owner.getGameProfile()),"operator mirror retains exact resolved skin profile");
+            require(packets().stream().anyMatch(packet->packet instanceof ClientboundAddEntityPacket add&&add.getId()==operator.getId()&&add.getType()==EntityTypes.MANNEQUIN),"owner receives native Mannequin body appearance");
+            require(packets().stream().filter(ClientboundSetEquipmentPacket.class::isInstance).map(ClientboundSetEquipmentPacket.class::cast).anyMatch(packet->packet.getEntity()==operator.getId()&&packet.getSlots().stream().anyMatch(pair->pair.getFirst()==EquipmentSlot.MAINHAND&&ItemStack.matches(pair.getSecond(),owner.getMainHandItem()))),"body mirror shows real remaining controller with all native components");
+            var visual=(Entity)((Map<?,?>)read(service,"actors")).get(drone);require(visual.broadcastToPlayer(owner),"actual drone model remains visible to its own controller in F5");
+            require(packets().stream().filter(ClientboundSetEntityDataPacket.class::isInstance).map(ClientboundSetEntityDataPacket.class::cast).anyMatch(packet->packet.id()==owner.getId()&&packet.packedItems().stream().anyMatch(value->value.id()==0&&value.value() instanceof Byte flags&&(flags&0x20)!=0)),"owner self metadata hides local player model");
+            var before=owner.getMainHandItem().copy();var normal=new ClientboundSetEquipmentPacket(owner.getId(),List.of(com.mojang.datafixers.util.Pair.of(EquipmentSlot.MAINHAND,before)));
+            var hidden=(ClientboundSetEquipmentPacket)service.presentation(owner,normal);
+            require(hidden.getSlots().getFirst().getSecond().isEmpty()&&ItemStack.matches(owner.getMainHandItem(),before),"self equipment presentation hides rendered item without editing authoritative inventory");
+            require(service.presentation(beta,normal)==normal,"other players receive original body equipment");
+            var observer=new ArrayList<Packet<?>>();for(var packet:(List<Packet<?>>)read(read(observerClient,"wire"),"packets"))flatten(packet,observer);
+            require(observer.stream().noneMatch(packet->packet instanceof ClientboundAddEntityPacket add&&add.getId()==operator.getId()),"body mirror remains owner-only while public real player stays native");
+        }
         void restoredPresentation(String boundary){
             require(latestClientMode()==owner.gameMode().getId(),boundary+" restores actual client game mode");authoritativeBody();
+            require(packets().stream().filter(ClientboundSetEquipmentPacket.class::isInstance).map(ClientboundSetEquipmentPacket.class::cast).anyMatch(packet->packet.getEntity()==owner.getId()&&packet.getSlots().stream().anyMatch(pair->pair.getFirst()==EquipmentSlot.MAINHAND&&ItemStack.matches(pair.getSecond(),owner.getMainHandItem()))),boundary+" restores actual self equipment presentation");
             require(attachedSeat<0||packets().stream().anyMatch(p->p instanceof ClientboundRemoveEntitiesPacket removed&&removed.entityIds().contains(attachedSeat)),boundary+" removes transient camera seat");
             var packet=packets().stream().filter(ClientboundPlayerAbilitiesPacket.class::isInstance).map(ClientboundPlayerAbilitiesPacket.class::cast).reduce((a,b)->b).orElseThrow();var expected=new ClientboundPlayerAbilitiesPacket(owner.getAbilities());
             require(packet.isInvulnerable()==expected.isInvulnerable()&&packet.isFlying()==expected.isFlying()&&packet.canFly()==expected.canFly()&&packet.canInstabuild()==expected.canInstabuild()&&packet.getFlyingSpeed()==expected.getFlyingSpeed()&&packet.getWalkingSpeed()==expected.getWalkingSpeed(),boundary+" restores latest authoritative abilities packet");

@@ -33,7 +33,7 @@ public final class OreshekChecks {
         final Map<net.minecraft.advancements.AdvancementHolder,Set<String>> advancements=new LinkedHashMap<>();final Map<EquipmentSlot,ItemStack> equipment=new EnumMap<>(EquipmentSlot.class);
         State(GameController game,ServerPlayer p){player=p;require(!p.isUsingItem(),"fixture starts with idle hands");state=new GameChecks.WandThirdPlayerState(p,game.items().mana());ground=p.onGround();sprint=p.isSprinting();shift=p.isShiftKeyDown();known=p.getKnownMovement();pose=p.getPose();
             for(var h:net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.listElements().toList()){var a=p.getAttribute(h);if(a!=null)attributes.getInstance(h).replaceFrom(a);}
-            for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var s=Stats.CUSTOM.get(id);stats.put(s,p.getStats().getValue(s));}for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN))for(var item:List.of(Items.REPEATING_COMMAND_BLOCK,Items.GOLDEN_APPLE,Items.APPLE,Items.IRON_HELMET,Items.SHIELD,Items.LEATHER_BOOTS,Items.LEATHER_LEGGINGS,Items.LEATHER_CHESTPLATE,Items.LEATHER_HELMET)){var s=type.get(item);stats.put(s,p.getStats().getValue(s));}
+            for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var s=Stats.CUSTOM.get(id);stats.put(s,p.getStats().getValue(s));}for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN))for(var item:List.of(LbcOreshek.ITEM,Items.REPEATING_COMMAND_BLOCK,Items.GOLDEN_APPLE,Items.APPLE,Items.IRON_HELMET,Items.SHIELD,Items.LEATHER_BOOTS,Items.LEATHER_LEGGINGS,Items.LEATHER_CHESTPLATE,Items.LEATHER_HELMET)){var s=type.get(item);stats.put(s,p.getStats().getValue(s));}
             for(var objective:game.server().getScoreboard().getObjectives()){var score=game.server().getScoreboard().getPlayerScoreInfo(p,objective);if(score!=null)scores.put(objective,score.value());}
             for(var a:game.server().getAdvancements().getAllAdvancements()){var done=new HashSet<String>();p.getAdvancements().getOrStartProgress(a).getCompletedCriteria().forEach(done::add);advancements.put(a,done);}
             for(var name:List.of("attackStrengthTicker","itemSwapTicker","xxa","yya","zza","jumping","yHeadRot","yHeadRotO","hurtTime","hurtDuration","lastHurt","lastDamageStamp","lastDamageSource","lastRecordedFoodLevel","lastSentFood","lastFoodSaturationZero","lastSentHealth","lastRecordedHealthAndAbsorption"))values.put(field(p,name),read(p,name));
@@ -45,7 +45,7 @@ public final class OreshekChecks {
     }
 
     /** Replace only the explicit source branch draws, delegating all unrelated native random. */
-    private static final class Choices implements AutoCloseable {
+    static final class Choices implements AutoCloseable {
         final ServerLevel level;final Object random;final ArrayDeque<Float> floats=new ArrayDeque<>();boolean debuff;
         Choices(ServerLevel level,float... values){this.level=level;random=read(level,"random");for(float v:values)floats.add(v);debuff=true;
             set(level,"random",java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(p,m,args)->{
@@ -102,7 +102,7 @@ public final class OreshekChecks {
             p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);p.setHealth(1000);p.setNoGravity(true);p.teleportTo(level,high.x,high.y,high.z,Set.of(),0,0,true);acknowledge();p.setInvulnerableTime(0);p.damageCooldownTime=0;
             game.players().get(p.getUUID()).lbcSkill=0;reset();
             var pool=game.lbc().rollTable(level,high,p,"lbc:oreshki_10");nut=pool.stream().filter(LbcOreshek::matches).findFirst().orElseThrow(()->new IllegalStateException("actual source nut leaf missing"));
-            require(nut.is(Items.REPEATING_COMMAND_BLOCK)&&nut.getCount()==1&&nut.has(DataComponents.CONSUMABLE)&&nut.has(DataComponents.FOOD),"actual native nut rawflag/food/consumable/single count");
+            require(nut.is(LbcOreshek.ITEM)&&nut.getCount()==1&&nut.has(DataComponents.CONSUMABLE)&&nut.has(DataComponents.FOOD),"actual registered public nut identity/rawflag/food/consumable/single count");
         }
         void acknowledge(){p.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());if(read(p.connection,"awaitingPositionFromClient")!=null){ClientboundPlayerPositionPacket last=null;for(var packet:base.recording.packets)if(packet instanceof ClientboundPlayerPositionPacket update)last=update;require(last!=null,"native dimension position packet");p.connection.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(last.id(),p.getX(),p.getY(),p.getZ(),p.getYRot(),p.getXRot()));}require(!p.isChangingDimension(),"native client acknowledges dimension");}
         void reset(){game.items().clear(p);for(var key:COUNTERS)game.items().mana().score(p,key).set(0);p.removeAllEffects();p.entityTags().remove("skywars2.oreshek.returned");p.setHealth(1000);p.setInvulnerableTime(0);p.damageCooldownTime=0;p.setPos(high);}
@@ -111,12 +111,13 @@ public final class OreshekChecks {
             try(var choices=new Choices(level,.5f,.5f,.5f)){eat();}
             require(service.consumedCount()==used+1&&service.lastOutcome()==LbcOreshek.Outcome.NONE&&!service.pendingDeathMessage(p)&&p.hasEffect(MobEffects.GLOWING),"actual fallthrough runs native debuff then revokes return latch");
             reset();try(var choices=new Choices(level,0)){eat();}
-            require(service.lastOutcome()==LbcOreshek.Outcome.EXPLOSION&&service.pendingDeathMessage(p)&&service.explosionCount()>0&&p.getHealth()<1000&&p.isAlive(),"actual native15 explosion hurts author and preserves early-return latch");
-            long beforeAgain=service.consumedCount();try(var choices=new Choices(level,0)){eat();}require(service.consumedCount()==beforeAgain+1&&service.pendingDeathMessage(p),"a second actual consumed nut still runs after a special outcome");
-            int messages=base.recording.packets.size();require(service.resetBoundary(p)&&!service.pendingDeathMessage(p)&&!service.resetBoundary(p),"native death/reset bridge is idempotent and clears latch");
-            require(base.recording.packets.subList(messages,base.recording.packets.size()).stream().anyMatch(packet->packet instanceof ClientboundSystemChatPacket c&&c.content().getString().equals("\uE202")),"actual global U+E202 death/reset packet");
+            require(service.lastOutcome()==LbcOreshek.Outcome.EXPLOSION&&!service.pendingDeathMessage(p)&&service.explosionCount()>0&&p.getHealth()<1000&&p.isAlive(),"actual native15 survivor retains no deferred death announcement");
+            long beforeAgain=service.consumedCount();try(var choices=new Choices(level,0)){eat();}require(service.consumedCount()==beforeAgain+1&&!service.pendingDeathMessage(p),"second actual consumed nut still runs without a persistent death-message latch");
+            int messages=base.recording.packets.size();p.entityTags().add("skywars2.oreshek.returned");
+            require(!service.resetBoundary(p)&&!service.pendingDeathMessage(p)&&!p.entityTags().contains("skywars2.oreshek.returned")&&!service.resetBoundary(p),"reset only clears obsolete persistent marker and never announces a survivor death");
+            require(base.recording.packets.subList(messages,base.recording.packets.size()).stream().noneMatch(packet->packet instanceof ClientboundSystemChatPacket c&&c.content().getString().equals("\uE202")),"survivor reset emits no global U+E202 packet");
             reset();try(var choices=new Choices(level,.5f,0)){eat();}
-            require(service.lastOutcome()==LbcOreshek.Outcome.NEXUS&&service.pendingDeathMessage(p)&&p.level().dimension().equals(LbcHedgehogDimensions.NEXUS)&&p.getX()==0&&p.getY()==2332&&p.getZ()==0,"actual native Nexus early-return transfer at exact source random boundaries");
+            require(service.lastOutcome()==LbcOreshek.Outcome.NEXUS&&!service.pendingDeathMessage(p)&&p.level().dimension().equals(LbcHedgehogDimensions.NEXUS)&&p.getX()==0&&p.getY()==2332&&p.getZ()==0,"actual native Nexus early-return transfer at exact source random boundaries");
             p.teleportTo(level,high.x,high.y,high.z,Set.of(),0,0,true);acknowledge();reset();
         }
         void producer(){var service=game.items().legacyEffects();
@@ -163,5 +164,5 @@ public final class OreshekChecks {
             if(failure[0]!=null)throw new IllegalStateException("Oreshek fixture cleanup",failure[0]);
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.branches();f.producer();}SkyWars2.LOGGER.info("[check] PASS oreshek (actual nut consumption, native15 isolated blast, Nexus, latch/reset,47producer; no Zelensky/nuke cascade qualification)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.branches();f.producer();}SkyWars2.LOGGER.info("[check] PASS oreshek (actual nut consumption, native15 isolated survivor blast, Nexus, silent obsolete-latch reset,47producer; no Zelensky/nuke cascade qualification)");}
 }

@@ -22,7 +22,9 @@ import org.spongepowered.asm.mixin.Mixin;
 /** Только нативные тики опасных блоков наследуют источник; обычный setBlock его не получает. */
 public final class HazardPropagationMixins {
     @Mixin(ServerExplosion.class)
-    public abstract static class Blast {
+    public abstract static class Blast implements me.skywars2.game.NuclearTerrain.BlockEffects {
+        @org.spongepowered.asm.mixin.gen.Invoker("interactWithBlocks")
+        public abstract void skywars2$applyNuclearBlocks(java.util.List<BlockPos> positions);
         @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final
         private net.minecraft.world.level.ExplosionDamageCalculator damageCalculator;
         @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final @org.spongepowered.asm.mixin.Mutable
@@ -55,7 +57,7 @@ public final class HazardPropagationMixins {
                 if(authority==null) authority=game.items().oreshek().owner(source);
                 if(authority==null) authority=game.items().foodLifecycle().owner(source);
                 if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
-                if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
+                if(authority!=null&&!me.skywars2.game.LbcNukeEvent.managed(source)) damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
                 var godCause=game.items().godHedgehog().cause(source);
                 var babylonCause=game.items().babylonEffects().cause(source);
@@ -78,6 +80,7 @@ public final class HazardPropagationMixins {
         private java.util.List<BlockPos> skywars2$fastBlastBlocks(Operation<java.util.List<BlockPos>> original) {
             var blast=(ServerExplosion)(Object)this;
             var source=blast.getDirectSourceEntity();
+            if(me.skywars2.game.NuclearTerrain.damageOnly(blast))return java.util.List.of();
             if(!skywars2$skipEmptyBlastBlocks || source.getClass()!=net.minecraft.world.entity.item.PrimedTnt.class
                     && !source.entityTags().contains(me.skywars2.game.LbcGodHedgehog.BLAST)
                     || damageCalculator.getClass()!=net.minecraft.world.level.EntityBasedExplosionDamageCalculator.class
@@ -119,6 +122,8 @@ public final class HazardPropagationMixins {
                         || game.items().ultraponos().isExplosion(savedDamage)))
                     entities.removeIf(entity->!game.items().wands().allowDamage(entity,savedDamage));
                 entities.removeIf(me.skywars2.game.LbcGreed::active);
+                if(me.skywars2.game.LbcNukeEvent.managed(source))
+                    entities.removeIf(entity->!game.items().nukeEvent().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().zombieTntDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().droneDrops().canAffect(source,entity));

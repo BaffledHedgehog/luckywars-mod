@@ -61,7 +61,8 @@ public final class LbcHedgehog {
     private ServerPlayer blastAuthor;
     private static final class BlastBatch {
         final ServerLevel level;final Vec3 origin;final Silverfish source;final ServerPlayer author;final LbcIndirectKills.Owner cause;final String epoch;int next;
-        BlastBatch(ServerLevel level,Vec3 origin,Silverfish source,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){this.level=level;this.origin=origin;this.source=source;this.author=author;this.cause=cause;this.epoch=epoch;}
+        NuclearTerrain.Shape terrain;
+        BlastBatch(ServerLevel level,Vec3 origin,Silverfish source,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){this.level=level;this.origin=origin;this.source=source;this.author=author;this.cause=cause;this.epoch=epoch;terrain=NuclearTerrain.wand(origin);}
     }
     // Raw source offsets, preserving all32 simultaneous radius20 creepers.
     private static final int[][] SNEEZE_OFFSETS={{0,0,0},{5,0,0},{-5,0,0},{0,0,5},{0,0,-5},{5,0,5},{-5,0,-5},{5,0,-5},{-5,0,5},
@@ -346,8 +347,8 @@ public final class LbcHedgehog {
                 LbcOverload.sound(level,at,sound,100,0,0,0);
             level.sendParticles(ParticleTypes.EXPLOSION_EMITTER,at.x,at.y+10,at.z,500,15,10,15,0);
             game.items().nuclearVisuals().show(level,at,12,false);
-            blasts.addLast(new BlastBatch(level,at,source,causal,acceptedCause,game.items().epoch()));
-            tickBlasts();
+            var batch=new BlastBatch(level,at,source,causal,acceptedCause,game.items().epoch());batch.next=1;
+            blasts.addLast(batch);sneezeWave(batch,at);
         }finally{leaveCheckpointCallback();}
     }
     /** Native explosion callbacks retain the original accepted event even after its fish has died. */
@@ -381,22 +382,42 @@ public final class LbcHedgehog {
                 var batch=blasts.removeFirst();examined++;
                 if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(batch.epoch))continue;
                 if(game.items().timeStop().stopped(batch.level)){blasts.addLast(batch);continue;}
+                if(batch.terrain!=null){if(batch.terrain.step(game,batch.level,batch.cause,()->sneezeTerrainApplication(batch),
+                        writes->withSneezeTerrainSource(batch,writes)))batch.terrain=null;
+                    processed++;blasts.addLast(batch);continue;}
                 var shift=SNEEZE_OFFSETS[batch.next];var point=batch.origin.add(shift[0],shift[1],shift[2]);
                 if(!resident(batch.level,point)){blasts.addLast(batch);continue;}
                 if(resident(batch.level,point)){
-                    var oldSource=blastSource;var oldCause=blastCause;var oldLevel=blastLevel;var oldAuthor=blastAuthor;
-                    blastSource=batch.source;blastCause=batch.cause;blastLevel=batch.level;blastAuthor=batch.author;
-                    try{
-                        var nativeDamage=batch.level.damageSources().explosion(batch.source,batch.author);
-                        var damage=game.items().indirectKills().captureDamage(nativeDamage,batch.cause);
-                        // Null explosion actor prevents vanilla from excluding the fish itself from exposure.
-                        game.items().indirectKills().trapChanges(batch.level,batch.cause,()->batch.level.explode(null,damage,null,point.x,point.y,point.z,20,false,Level.ExplosionInteraction.MOB));
-                        completedBlasts++;batch.next++;
-                    }finally{blastSource=oldSource;blastCause=oldCause;blastLevel=oldLevel;blastAuthor=oldAuthor;}
+                    sneezeWave(batch,point);batch.next++;
                 }
                 processed++;if(batch.next<SNEEZE_OFFSETS.length)blasts.addLast(batch);
             }
         }finally{leaveCheckpointCallback();}
+    }
+    private void sneezeWave(BlastBatch batch,Vec3 point){
+        var oldSource=blastSource;var oldCause=blastCause;var oldLevel=blastLevel;var oldAuthor=blastAuthor;
+        blastSource=batch.source;blastCause=batch.cause;blastLevel=batch.level;blastAuthor=batch.author;
+        try{
+            var nativeDamage=batch.level.damageSources().explosion(batch.source,batch.author);
+            var damage=game.items().indirectKills().captureDamage(nativeDamage,batch.cause);
+            // Null actor retains native self-exposure of the fish; exact damage-source identity scopes terrain suppression.
+            NuclearTerrain.damageWave(batch.source,()->game.items().indirectKills().trapChanges(batch.level,batch.cause,
+                    ()->batch.level.explode(null,damage,null,point.x,point.y,point.z,20,false,Level.ExplosionInteraction.MOB)));
+            completedBlasts++;
+        }finally{blastSource=oldSource;blastCause=oldCause;blastLevel=oldLevel;blastAuthor=oldAuthor;}
+    }
+    private net.minecraft.world.level.ServerExplosion sneezeTerrainApplication(BlastBatch batch){
+        var damage=game.items().indirectKills().captureDamage(batch.level.damageSources().explosion(batch.source,batch.author),batch.cause);
+        var rules=batch.level.getGameRules();
+        var interaction=!rules.get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING)?net.minecraft.world.level.Explosion.BlockInteraction.KEEP:
+                rules.get(net.minecraft.world.level.gamerules.GameRules.MOB_EXPLOSION_DROP_DECAY)?net.minecraft.world.level.Explosion.BlockInteraction.DESTROY_WITH_DECAY:
+                        net.minecraft.world.level.Explosion.BlockInteraction.DESTROY;
+        return new net.minecraft.world.level.ServerExplosion(batch.level,null,damage,null,batch.origin,20,false,interaction);
+    }
+    private void withSneezeTerrainSource(BlastBatch batch,Runnable writes){
+        var oldSource=blastSource;var oldCause=blastCause;var oldLevel=blastLevel;var oldAuthor=blastAuthor;
+        blastSource=batch.source;blastCause=batch.cause;blastLevel=batch.level;blastAuthor=batch.author;
+        try{writes.run();}finally{blastSource=oldSource;blastCause=oldCause;blastLevel=oldLevel;blastAuthor=oldAuthor;}
     }
     public int trackedCount(){return fish.size()+arrows.size()+children.size();}
     public record View(UUID entity,UUID owner,Kind kind,Vec3 point,int timer,boolean passenger){}
@@ -418,7 +439,7 @@ public final class LbcHedgehog {
         private record FishImage(Fish original,MatchDamageSources.Ref body,int timer,boolean retired){}
         private record ArrowImage(HelperArrow original,MatchDamageSources.Ref body){}
         private record ChildImage(MatchDamageSources.Ref body,MatchDamageSources.Ref author,LbcIndirectKills.Owner cause,String epoch){}
-        private record BlastImage(BlastBatch original,MatchDamageSources.Ref source,MatchDamageSources.Ref author,int next){}
+        private record BlastImage(BlastBatch original,MatchDamageSources.Ref source,MatchDamageSources.Ref author,int next,NuclearTerrain.Shape terrain){}
         private final List<FishImage> savedFish;
         private final List<ArrowImage> savedArrows;
         private final List<MatchDamageSources.Ref> savedSilverfish;
@@ -430,7 +451,7 @@ public final class LbcHedgehog {
             savedArrows=arrows.stream().map(a->new ArrowImage(a,links.key(a))).toList();
             savedSilverfish=silverfish.stream().map(links::key).toList();
             var childImages=new ArrayList<ChildImage>();children.forEach((body,c)->childImages.add(new ChildImage(links.key(body),links.key(c.author),c.cause,c.epoch)));savedChildren=List.copyOf(childImages);
-            savedBlasts=blasts.stream().map(b->new BlastImage(b,links.key(b.source),links.key(b.author),b.next)).toList();
+            savedBlasts=blasts.stream().map(b->new BlastImage(b,links.key(b.source),links.key(b.author),b.next,b.terrain==null?null:b.terrain.copy())).toList();
         }
         Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var plans=new ArrayList<Runnable>();
@@ -441,7 +462,7 @@ public final class LbcHedgehog {
             for(var image:savedChildren){var body=links.get(image.body);var author=(ServerPlayer)links.get(image.author);var child=new Child(author,image.cause,image.epoch);plans.add(()->children.put(body,child));}
             for(var image:savedBlasts){var b=image.original;var source=(Silverfish)links.get(image.source);var author=(ServerPlayer)links.get(image.author);
                 if(source!=b.source)throw new IllegalStateException("Restore the same accepted Hedgehog blast source");MatchAuthorityCheckpoint.world(game,b.level);
-                var batch=new BlastBatch(b.level,b.origin,source,author,b.cause,b.epoch);batch.next=image.next;plans.add(()->blasts.addLast(batch));}
+                var batch=new BlastBatch(b.level,b.origin,source,author,b.cause,b.epoch);batch.next=image.next;batch.terrain=image.terrain==null?null:image.terrain.copy();plans.add(()->blasts.addLast(batch));}
             return ()->{checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();children.clear();blasts.clear();plans.forEach(Runnable::run);completedBlasts=completed;};
         }
     }

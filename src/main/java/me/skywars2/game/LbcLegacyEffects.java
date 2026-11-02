@@ -76,7 +76,13 @@ public final class LbcLegacyEffects {
             consume(p,"effect_vacuum",()->vacuum(p));
             consume(p,"effect_stand_arrow_hit",()->{if(!game.items().magic().suppressed(p))game.items().stand().arrowHitPre(p);});
             if(!greed){
-                consume(p,"effect_nuking",()->{if(!game.items().magic().mechanismSuppressedAt(p.level(),p.position()))game.items().nukeEvent().pointBurst(p,p.level(),p.position());});
+                // Debit before native lethal callbacks; death cleanup must not be followed by
+                // re-adding the corpse's lucky-effect marker or draining a freshly cleared score.
+                if(read(p,"effect_nuking")>0){
+                    drain(p,"effect_nuking");actions++;
+                    if(!game.items().magic().mechanismSuppressedAt(p.level(),p.position()))game.items().nukeEvent().pointStatusBurst(p,p.level(),p.position());
+                    if(!admitted(p))continue;
+                }
                 consume(p,"effect_snus",()->snus(p));
                 consume(p,"effect_timestop",()->personalStasis.start(p,LbcPersonalStasis.DEFAULT_DURATION_TICKS));
                 if(now%20==0&&read(p,"effect_gravity_curse")>0&&!game.items().pendingCombat().gravityCurseActive(p))gravity(p);

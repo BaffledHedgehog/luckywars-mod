@@ -28,10 +28,6 @@ import net.minecraft.world.entity.Marker;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.StructureBlockEntity;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.templatesystem.BlockRotProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -39,7 +35,6 @@ import net.minecraft.world.phys.Vec3;
 /** Source bruh nuclear event: one replaceable global schedule, native selectors and queued native terrain/blasts. */
 public final class LbcNukeEvent {
     private static final String TAG="skywars2.nuke_event", CHILD="skywars2.nuke_event.child";
-    private static final Identifier AIR=Identifier.parse("lbc:air");
     private static final EntitySelector ARMED=selector("@e[tag=nuke1,tag=nuke_bruh]");
     private static final EntitySelector POINT_ARMED=selector("@e[tag=nuke1]");
     private static final EntitySelector RANDOM=selector("@e[tag=!spectator,sort=random,limit=16]");
@@ -50,7 +45,6 @@ public final class LbcNukeEvent {
             Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.PURPLE),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.YELLOW),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.PINK),
             Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.BROWN),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.ORANGE),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.GREEN),
             Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.LIME),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.CYAN),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.GRAY),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.LIGHT_GRAY)};
-    private static final int[] INNER={0,60,120,180,240,300},OUTER={0,30,90,150,210,270,330};
     private static final String[] MUSIC={"nuke","ponos","backrooms","burning_balance","penis_bossfight","kazahstan"};
     private record Cause(UUID author,LbcIndirectKills.Owner accepted,String epoch){}
     /** Unpublished source survives in captured DamageSource records, without a service-map entry. */
@@ -66,6 +60,7 @@ public final class LbcNukeEvent {
     private record Visual(Marker marker,Cause cause,int age){}
     private record SavedChild(Cause cause,int visualAge){}
     private record Burst(Site site,long after,float power){}
+    private record Terrain(Site site,NuclearTerrain.Shape shape){}
     private final GameController game;
     private IdentityHashMap<Marker,State> actors=new IdentityHashMap<>();
     private final Map<UUID,State> unloaded=new HashMap<>();
@@ -74,6 +69,7 @@ public final class LbcNukeEvent {
     private final Map<UUID,SavedChild> unloadedChildren=new HashMap<>();
     private final List<Visual> visuals=new ArrayList<>();
     private final Set<Job> jobs=Collections.newSetFromMap(new IdentityHashMap<>());
+    private final IdentityHashMap<ServerPlayer,Job> statusBursts=new IdentityHashMap<>();
     private volatile List<MapManager.TemplateSlice> air=List.of();
     private int generation,lastTick=Integer.MIN_VALUE,pending=-1;
     private int callbackDepth,cadenceOffset,preparationToken;private boolean rewinding;private volatile boolean preparing;
@@ -89,9 +85,8 @@ public final class LbcNukeEvent {
     private List<? extends Entity> select(EntitySelector selector,Site at){try{return selector.findEntities(game.server().createCommandSourceStack()
             .withLevel(at.level).withPosition(at.at).withRotation(new Vec2(0,at.yaw)).withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput());}
         catch(CommandSyntaxException error){throw new IllegalStateException("Native nuclear selector failed",error);}}
-    public void prepare(){int version=++preparationToken;generation++;preparing=true;air=List.of();game.maps().prepareSpellTemplates(List.of(AIR)).whenComplete((result,error)->game.server().execute(()->{
-        if(version!=preparationToken)return;if(error!=null)SkyWars2.LOGGER.error("Nuclear air template preparation failed",error);else air=result.getOrDefault(AIR,List.of());preparing=false;}));}
-    public boolean prepared(){return !air.isEmpty();}
+    public void prepare(){preparationToken++;generation++;preparing=false;air=List.of();}
+    public boolean prepared(){return generation>0;}
     private boolean live(String epoch){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch);}
     private boolean paused(ServerLevel level){return game.items().timeStop().stopped(level);}
     public static boolean managed(Entity entity){return entity!=null&&(entity.entityTags().contains(TAG)||entity.entityTags().contains(CHILD));}
@@ -234,11 +229,11 @@ public final class LbcNukeEvent {
         var additions=new ArrayDeque<Operation>();
         for(var site:sites){
             centers++;
-            for(int angle:INNER)template(additions,site,angle,25,.5f);
-            for(int angle:OUTER)template(additions,site,angle,60,.25f);
+            job.terrain.add(new Terrain(site,NuclearTerrain.point(site.at)));
             additions.add(new Operation(site.level,BlockPos.containing(site.at),BlockPos.containing(site.at),site.cause,()->wither(site)));
             // Creeper fuse1 was a deferred explosion carrier. Queue exact24 native MOB blasts after the synchronous kill phase.
             job.bursts.add(new Burst(site,game.server().getTickCount(),16));
+            blast(site,site.at.add(18,0,0),16);
             additions.add(killOperation(site));
         }
         additions.add(new Operation(marker.level,BlockPos.containing(marker.at),BlockPos.containing(marker.at),marker.cause,()->{
@@ -253,43 +248,36 @@ public final class LbcNukeEvent {
     }
     /** Point nuclear status shares terrain/visual lifecycle, retaining its own source angles and power. */
     public boolean pointBurst(ServerPlayer author,ServerLevel level,Vec3 at){
+        return pointBurst(author,level,at,false);
+    }
+    /** Only a repeating body status joins its own pending payload; independent bombs remain independent. */
+    public boolean pointStatusBurst(ServerPlayer author,ServerLevel level,Vec3 at){
+        if(statusBursts.containsKey(author))return false;
+        return pointBurst(author,level,at,true);
+    }
+    public boolean pendingStatusBurst(ServerPlayer author){return statusBursts.containsKey(author);}
+    private boolean pointBurst(ServerPlayer author,ServerLevel level,Vec3 at,boolean status){
         if(author==null||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
                 ||!level.hasChunkAt(BlockPos.containing(at)))return false;
         if(generation==0)prepare();
         var site=new Site(level,at,author.getYRot(),new Cause(author.getUUID(),game.items().indirectKills().wildCause(author),game.items().epoch()));
-        pointBurst(site);return true;
+        pointBurst(site,status?author:null);return true;
     }
-    private void pointBurst(Site site){
+    private void pointBurst(Site site){pointBurst(site,null);}
+    private void pointBurst(Site site,ServerPlayer statusBody){
         var level=site.level;var at=site.at;var job=new Job(site.cause.epoch);var center=BlockPos.containing(at);
-        job.add(level,center,center,site.cause,()->visual(site));
-        for(int angle:INNER)template(job.operations,site,angle,25,.5f);
-        for(int angle:INNER)template(job.operations,site,angle,60,.25f);
+        visual(site);
+        job.terrain.add(new Terrain(site,NuclearTerrain.point(at)));
         job.add(level,center,center,site.cause,()->wither(site));
         job.bursts.add(new Burst(site,game.server().getTickCount(),25));
         job.add(level,center,center,site.cause,()->{
             for(var player:game.server().getPlayerList().getPlayers())player.connection.send(new ClientboundStopSoundPacket(Identifier.parse("minecraft:lbcsounds.nuke"),SoundSource.MASTER));
         });
-        job.operations.add(killOperation(site));job.submit();
-    }
-    private void template(ArrayDeque<Operation> operations,Site site,int rotation,int radius,float integrity){
-        var at=site.at.add(Vec3.directionFromRotation(0,site.yaw+rotation).scale(radius));var origin=BlockPos.containing(at.add(-24,-24,-24));
-        // Native /place uses two independent createRandom(0) instances, and never advances the world's loot random.
-        var processorRandom=StructureBlockEntity.createRandom(0);var placementRandom=StructureBlockEntity.createRandom(0);
-        int sizeX=0,sizeY=0,sizeZ=0;for(var part:air){sizeX=Math.max(sizeX,part.bounds().maxX()+1);sizeY=Math.max(sizeY,part.bounds().maxY()+1);sizeZ=Math.max(sizeZ,part.bounds().maxZ()+1);}
-        boolean[] admitted={false};
-        // PlaceCommand validates the entire template invocation before its first write; unavailable chunks fail that invocation.
-        operations.add(new Operation(site.level,origin,origin.offset(sizeX,sizeY,sizeZ),site.cause,()->admitted[0]=true));
-        for(var part:air){var bounds=part.bounds();
-            int minX=origin.getX()+bounds.minX(),maxX=origin.getX()+bounds.maxX(),minZ=origin.getZ()+bounds.minZ(),maxZ=origin.getZ()+bounds.maxZ();
-            int minY=Math.max(site.level.getMinY(),origin.getY()+bounds.minY()),maxY=Math.min(site.level.getMaxY(),origin.getY()+bounds.maxY());if(minY>maxY)continue;
-            var clip=new BoundingBox(minX,minY,minZ,maxX,maxY,maxZ);
-            operations.add(new Operation(site.level,new BlockPos(minX,minY,minZ),new BlockPos(maxX,maxY,maxZ),site.cause,()->{
-                if(!admitted[0])return;
-                var settings=new StructurePlaceSettings().setIgnoreEntities(false).setKnownShape(false).setBoundingBox(clip)
-                        .addProcessor(new BlockRotProcessor(integrity)).setRandom(processorRandom);
-                part.template().placeInWorld(site.level,origin,origin,settings,placementRandom,2);
-            }));
-        }
+        job.operations.add(killOperation(site));job.statusBody=statusBody;job.submit();
+        if(statusBody!=null)statusBursts.put(statusBody,job);
+        // The first wave is centered on the actual detonation body, so enclosure cannot
+        // postpone the owner's native lethal hit. Other targets retain native wall exposure.
+        blast(site,at,25);
     }
     private void wither(Site site){
         for(var entity:site.level.getEntities((Entity)null,new AABB(site.at,site.at).inflate(45),
@@ -328,7 +316,8 @@ public final class LbcNukeEvent {
         executingCause=site.cause;executingLevel=site.level;executingEmitter=direct;
         try{
             var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
-            game.items().indirectKills().trapChanges(site.level,site.cause.accepted,()->site.level.explode(null,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB));blasts++;
+            NuclearTerrain.damageWave(direct,()->game.items().indirectKills().trapChanges(site.level,site.cause.accepted,
+                    ()->site.level.explode(direct,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB)));blasts++;
         }finally{executingCause=previousCause;executingLevel=previousLevel;executingEmitter=previousEmitter;direct.discard();}
 
         }finally{callbackDepth--;}
@@ -345,21 +334,26 @@ public final class LbcNukeEvent {
         void run(){if(resident(level,from,to))game.items().indirectKills().trapChanges(level,cause.accepted,action);}
     }
     private final class Job implements LbcStonekivi.Work {
-        final String epoch;final ArrayDeque<Operation> operations=new ArrayDeque<>();final ArrayDeque<Burst> bursts=new ArrayDeque<>();boolean cancelled;
+        final String epoch;final ArrayDeque<Operation> operations=new ArrayDeque<>();final ArrayDeque<Burst> bursts=new ArrayDeque<>();
+        final ArrayDeque<Terrain> terrain=new ArrayDeque<>();boolean cancelled;
+        ServerPlayer statusBody;
         Job(String epoch){this.epoch=epoch;}
         void add(ServerLevel level,BlockPos from,BlockPos to,Cause cause,Runnable action){operations.add(new Operation(level,from,to,cause,action));}
         void submit(){jobs.add(this);game.items().stonekivi().queuedWork(this);}
         @Override public boolean ready(){if(cancelled||!live(epoch))return true;if(!operations.isEmpty())return prepared()&&operations.peekFirst().ready();
+            if(!terrain.isEmpty())return !paused(terrain.peekFirst().site.level);
             if(bursts.isEmpty())return true;var burst=bursts.peekFirst();return game.server().getTickCount()>burst.after&&!paused(burst.site.level);}
         @Override public boolean step(){
         callbackDepth++;try{
             if(cancelled||!live(epoch)){cancel();return true;}
             if(!operations.isEmpty()){operations.removeFirst().run();return false;}
+            if(!terrain.isEmpty()){var task=terrain.peekFirst();if(task.shape.step(game,task.site.level,task.site.cause.accepted))terrain.removeFirst();return false;}
             if(!bursts.isEmpty()){
                 var burst=bursts.removeFirst();var site=burst.site;
                 // Source order: outer12(radius39), then inner12(radius18), cardinal4 per Y layer.
                 var offsets=new ArrayDeque<Operation>();
                 for(int radius:new int[]{39,18})for(int y:new int[]{0,40,-40})for(var offset:List.of(new Vec3(radius,y,0),new Vec3(-radius,y,0),new Vec3(0,y,radius),new Vec3(0,y,-radius))){
+                    if(radius==18&&y==0&&offset.x==18)continue; // already dispatched synchronously
                     var point=site.at.add(offset);var p=BlockPos.containing(point);int reach=(int)(burst.power*2)+1;offsets.add(new Operation(site.level,p.offset(-reach,-reach,-reach),p.offset(reach,reach,reach),site.cause,()->blast(site,point,burst.power)));
                 }
                 operations.addAll(offsets);return false;
@@ -369,7 +363,8 @@ public final class LbcNukeEvent {
         }finally{callbackDepth--;}
     }
         @Override public void cancel(){
-        callbackDepth++;try{cancelled=true;operations.clear();bursts.clear();jobs.remove(this);
+        callbackDepth++;try{cancelled=true;operations.clear();bursts.clear();terrain.clear();jobs.remove(this);
+            if(statusBody!=null&&statusBursts.get(statusBody)==this)statusBursts.remove(statusBody);
         }finally{callbackDepth--;}
     }
     }

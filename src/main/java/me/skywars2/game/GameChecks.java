@@ -701,6 +701,9 @@ public final class GameChecks {
                                 case "parasite" -> { ParasiteChecks.run(game); return; }
                                 case "contained-skills" -> { ContainedSkillChecks.run(game); return; }
                                 case "armor-zeus-skills" -> { ArmorZeusSkillChecks.run(game); return; }
+                                case "feedback-models" -> { FeedbackModelChecks.run(game); return; }
+                                case "nuclear-blast" -> { NuclearBlastChecks.run(game); return; }
+                                case "frost-timing" -> { FrostTimingChecks.start(game); return; }
                                 case "clone-skills" -> { CloneSkillChecks.run(game); return; }
                                 case "combat-reward-skills" -> { CombatRewardSkillChecks.run(game); return; }
                                 case "machinegun-skill" -> { CombatRewardSkillChecks.runMachinegun(game); return; }
@@ -883,6 +886,7 @@ public final class GameChecks {
                                 case "named-food" -> { NamedFoodChecks.run(game); return; }
                                 case "food-lifecycle" -> { FoodLifecycleChecks.run(game); return; }
                                 case "oreshek" -> { OreshekChecks.run(game); return; }
+                                case "oreshek-death" -> { OreshekDeathChecks.run(game); return; }
                                 case "witch-passives" -> { WitchPassiveChecks.run(game); return; }
                                 case "witch-envy" -> { WitchEnvyChecks.run(game); return; }
                                 case "witch-progress" -> { WitchProgressChecks.run(game); return; }
@@ -1486,7 +1490,7 @@ public final class GameChecks {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
             ContainedSkillChecks.tick(game);
-            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);
+            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
             ArmorZeusSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
@@ -14201,6 +14205,7 @@ public final class GameChecks {
                         game.items().mana().inventoryChanged(owner);
                         game.config().offhandWands = false;
                         owner.setNoGravity(true); ally.setNoGravity(true);
+                        for(var participant:java.util.List.of(owner,ally)){participant.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);participant.setHealth(1000);}
                         double x = Math.floor(owner.getX() / 16) * 16 + 8;
                         double z = Math.floor(owner.getZ() / 16) * 16 + 8;
                         owner.teleportTo(level, x + .5, 260, z + .5, java.util.Set.of(), -90, 0, true);
@@ -14335,10 +14340,10 @@ public final class GameChecks {
                         charge = exoperso.snapshot().getFirst(); charge.age = 321;
                         charge.setPos(x + .5, owner.getEyeY(), z + .5); charge.setDeltaMovement(2, 0, 0);
                         exoperso.tick();
-                        require(charge.isRemoved() && exoperso.count() == 0 && blast.pendingBlasts() == 32,
-                                        "Wall collision consumes one charge and queues exactly 32 radius-20 burst steps");
+                        require(charge.isRemoved() && exoperso.count() == 0 && blast.pendingBlasts() == 31,
+                                        "Wall collision consumes one charge and applies one native wave and queues exactly 31 remaining radius-20 steps");
                         exoperso.tick();
-                        require(blast.pendingBlasts() == 32,
+                        require(blast.pendingBlasts() == 31,
                                         "A removed wall-impact charge cannot enqueue the same burst twice");
                         blast.stop();
                         level.setBlockAndUpdate(wall, changedBlocks.get(wall)); changedBlocks.remove(wall);
@@ -14350,10 +14355,10 @@ public final class GameChecks {
                         charge = exoperso.snapshot().getFirst(); charge.age = 321;
                         charge.setPos(x + .5, owner.getEyeY(), z + .5); charge.setDeltaMovement(2, 0, 0);
                         exoperso.tick();
-                        require(charge.isRemoved() && exoperso.count() == 0 && blast.pendingBlasts() == 32,
-                                        "Living entity collision consumes one charge and queues the same 32 radius-20 burst steps");
+                        require(charge.isRemoved() && exoperso.count() == 0 && blast.pendingBlasts() == 31,
+                                        "Living entity collision consumes one charge and applies one native wave and queues the same 31 remaining radius-20 steps");
                         exoperso.tick();
-                        require(blast.pendingBlasts() == 32,
+                        require(blast.pendingBlasts() == 31,
                                         "A removed entity-impact charge cannot enqueue the same burst twice");
                         exoperso.stop(); blast.stop();
                         require(exoperso.count() == 0 && blast.pendingBlasts() == 0 && blast.mushroomCount() == 0,
@@ -14394,6 +14399,7 @@ public final class GameChecks {
                 boolean oldNoGravity = owner.isNoGravity();
                 try {
                         owner.setNoGravity(true);
+                        owner.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);owner.setHealth(1000);
                         owner.getInventory().clearContent();
                         game.items().mana().inventoryChanged(owner);
                         double x = Math.floor(owner.getX() / 16) * 16 + 8;
@@ -14416,8 +14422,8 @@ public final class GameChecks {
                         var charge = exo.snapshot().getFirst(); charge.age = 321;
                         charge.setPos(x + .5, owner.getEyeY(), z + .5); charge.setDeltaMovement(2, 0, 0);
                         exo.tick();
-                        require(charge.isRemoved() && burst.pendingBlasts() == 32,
-                                        "Swept wall collision queues the actual 32-step Exoperso burst");
+                        require(charge.isRemoved() && burst.pendingBlasts() == 31,
+                                        "Swept wall collision applies the immediate native wave and queues 31 remaining Exoperso steps");
                         // Move the owner clear of the explosion radius; the spawned TNT keeps its owner.
                         owner.teleportTo(level, x + 64.5, 260, z + .5, java.util.Set.of(), 0, 0, true);
                         for (int tick = 0; tick < 64 && burst.pendingBlasts() > 0; tick++) burst.tick();

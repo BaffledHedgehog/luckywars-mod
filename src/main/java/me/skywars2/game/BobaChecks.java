@@ -20,6 +20,7 @@ public final class BobaChecks {
         return stack;
     }
     public static void geometry(){
+        regionFrames();
         require(LbcBoba.matches(token(1))&&!LbcBoba.matches(new ItemStack(Items.CARROT_ON_A_STICK)),"raw flags required");
         var missing=token(1);var data=missing.get(DataComponents.CUSTOM_DATA).copyTag();data.remove("magicwand");
         missing.set(DataComponents.CUSTOM_DATA,CustomData.of(data));require(!LbcBoba.matches(missing),"real magicwand dispatcher flag required");
@@ -29,6 +30,69 @@ public final class BobaChecks {
         }
         for(var at:new Vec3[]{new Vec3(-16000.001,77,0),new Vec3(16001,77,0),new Vec3(0,77,-16000.001),new Vec3(0,77,16001)})
             require(LbcBoba.origin(at).equals(BlockPos.containing(at)),"outside source threshold follows caster "+at);
+    }
+    private static void regionFrames(){
+        var v=new Vec3(.3,-.2,.5);var turned=v;
+        for(int i=0;i<4;i++)turned=MapRotation.rotateVector(turned);
+        require(turned.equals(v),"four turns restore momentum exactly");
+        var look=MapRotation.rotateLook(37,-24);
+        require(Vec3.directionFromRotation(look[1],look[0]).distanceToSqr(MapRotation.rotateVector(Vec3.directionFromRotation(-24,37)))<1e-7,"rotated yaw/pitch follow look vector");
+        java.nio.file.Path folder=null;
+        try{
+            folder=java.nio.file.Files.createTempDirectory("boba-region-check-");var file=folder.resolve("regions.csv");
+            var field=new BobaRegionPhysics(file);var center=new BlockPos(0,160,0);
+            for(int i=1;i<=4;i++){
+                field.rotate(center);
+                require(field.turns(new BlockPos(0,160,0))==(i&3),"persistent repeated regional turns "+i);
+                require(field.turns(new BlockPos(160,160,0))==0&&field.turns(new BlockPos(0,320,0))==0,"outside half-open region remains native");
+                require(new BobaRegionPhysics(file).capture().equals(field.capture()),"world restart retains region frame "+i);
+            }
+            field.rotate(center);var once=field.capture();field.rotate(new BlockPos(160,160,0));
+            require(field.turns(new BlockPos(-159,100,0))==1&&field.turns(new BlockPos(200,100,0))==1,"overlapping cubes preserve both exterior frames");
+            require(field.turns(new BlockPos(100,100,0))==2,"overlap composes map gravity");
+            field.restore(once);require(field.turns(new BlockPos(200,100,0))==0&&field.turns(new BlockPos(100,100,0))==1,"rewind restores exact region ownership");
+            field.clear();require(field.capture().isEmpty(),"map cleanup clears region physics");
+        }catch(java.io.IOException e){throw new IllegalStateException("Boba region fixture",e);}
+        finally{if(folder!=null)try{java.nio.file.Files.deleteIfExists(folder.resolve("regions.csv"));java.nio.file.Files.deleteIfExists(folder.resolve("regions.csv.tmp"));java.nio.file.Files.deleteIfExists(folder);}catch(java.io.IOException e){throw new IllegalStateException("Boba fixture cleanup",e);}}
+    }
+    /** Caller owns terrain rollback; run in the completed first-turn region. */
+    static void nativeRegionPhysics(GameController game){
+        var level=game.maps().level();var at=new BlockPos(32,240,32);
+        require(game.maps().rotationPhysics().turns(at)==1,"first-turn native physics fixture");
+        var original=new java.util.LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
+        for(int x=-1;x<=1;x++)for(int y=-1;y<=1;y++)for(int z=-1;z<=1;z++){
+            var p=at.offset(x,y,z);original.put(p,game.maps().snapshot(level,p));
+            level.setBlock(p,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2|16);
+        }
+        try{
+            var item=new net.minecraft.world.entity.item.ItemEntity(level,at.getX()+.5,at.getY()+.5,at.getZ()+.5,new ItemStack(Items.DIAMOND));
+            item.setDeltaMovement(Vec3.ZERO);item.tick();
+            require(item.getDeltaMovement().z<-.02&&Math.abs(item.getDeltaMovement().y)<1e-8,"native item gravity follows local DOWN");
+            var cow=new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW,level);
+            cow.setNoAi(true);cow.setPos(Vec3.atCenterOf(at));cow.setDeltaMovement(Vec3.ZERO);cow.travel(Vec3.ZERO);
+            require(cow.getDeltaMovement().z<-.02&&Math.abs(cow.getDeltaMovement().y)<1e-8,"native living air gravity follows local DOWN");
+            level.setBlock(at.north(),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2|16);
+            item.setPos(at.getX()+.5,at.getY()+.5,at.getZ()+.4);item.setDeltaMovement(0,0,-.6);
+            item.move(net.minecraft.world.entity.MoverType.SELF,item.getDeltaMovement());
+            // Native boxes are anchored at local feet. After +X rotation, local +Y
+            // extends from item.z toward +Z; width/2 is not a world-Z center offset.
+            var contact=item.getBoundingBox();double wallFace=at.north().getZ()+1;
+            String contactState="pos="+item.position()+" bbox="+contact+" wallFace="+wallFace
+                    +" velocity="+item.getDeltaMovement()+" onGround="+item.onGround()
+                    +" vertical="+item.verticalCollision+" below="+item.verticalCollisionBelow
+                    +" horizontal="+item.horizontalCollision+" support="+item.getOnPos()
+                    +" frame="+game.maps().rotationPhysics().turns(item.blockPosition());
+            require(item.onGround()&&item.verticalCollision&&item.verticalCollisionBelow&&!item.horizontalCollision
+                    &&Math.abs(contact.minZ-wallFace)<1e-7&&contact.minZ>=wallFace-1e-7
+                    &&Math.abs(item.getZ()-contact.minZ)<1e-7&&item.getOnPos().equals(at.north()),
+                    "regional ground collision prevents item penetrating support wall; "+contactState);
+            for(var player:game.server().getPlayerList().getPlayers())require(BobaRegionPhysics.turns(player)==0,"player gravity remains native");
+            level.setBlock(at.north(),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2|16);
+            level.setBlock(at,net.minecraft.world.level.block.Blocks.WATER.defaultBlockState(),2|16);
+            var fluid=level.getFluidState(at);((net.minecraft.world.level.material.FlowingFluid)fluid.getType()).tick(level,at,level.getBlockState(at),fluid);
+            require(!level.getFluidState(at.north()).isEmpty()&&level.getFluidState(at.below()).isEmpty(),"native water falls toward regional DOWN, not overworld DOWN");
+            item.discard();cow.discard();
+        }finally{for(var e:original.entrySet())game.maps().restoreSnapshot(level,e.getKey(),e.getValue());}
     }
     /** Invoke while the asynchronous fixture already owns an accepted rotation, in one server callback. */
     public static void busyUses(GameController game,ServerPlayer owner){

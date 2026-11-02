@@ -477,18 +477,18 @@ public final class LbcAcademy {
             var item = it.next();
             if (item.isRemoved() || !isDrop(item.getItem())) { it.remove(); continue; }
             if (stale(item)) { item.discard(); it.remove(); continue; }
-            if (!item.onGround() || item.level() != game.maps().level() || game.maps().busy()
+            boolean token = item.getItem().is(TOKEN) || data(item.getItem()).getIntOr("academy_token", 0) == 1;
+            if (token && !item.onGround() || item.level() != game.maps().level() || game.maps().busy()
                     || game.stage() == GameController.Stage.ENDING
                     || game.items().timeStop().stopped(game.maps().level())) continue;
             if (!game.playing() && !(item.getOwner() instanceof ServerPlayer p && active(p))) continue;
             var template = game.server().getStructureTemplateManager().get(TEMPLATE).orElse(null);
             if (template == null || template.getSize().getY() == 0) continue;
-            boolean token = item.getItem().is(TOKEN) || data(item.getItem()).getIntOr("academy_token", 0) == 1;
             var origin = item.blockPosition().offset(-6, token ? -1 : 0, -6);
             var part = new Placement(template, game.maps().level(), origin, item.position(),
                     game.items().epoch(), token, item.getRandom().nextLong());
             if (!resident(part)) continue; // Reject before debit; never request a chunk for acquisition.
-            placements.addLast(part);
+            if(token)placements.addLast(part);else placements.addFirst(part);
             it.remove();
             if (token) {
                 game.maps().level().sendParticles(ParticleTypes.WITCH, item.getX(), item.getY(), item.getZ(), 350, 5, 5, 5, 1);
@@ -510,7 +510,7 @@ public final class LbcAcademy {
         }
         if (game.items().timeStop().stopped(part.level) || !resident(part)) { placements.addLast(part); return; }
         var bounds = new BoundingBox(origin.getX(), origin.getY()+part.row, origin.getZ(),
-                origin.getX()+size.getX()-1, origin.getY()+part.row, origin.getZ()+size.getZ()-1);
+                origin.getX()+size.getX()-1, origin.getY()+(part.token?part.row:size.getY()-1), origin.getZ()+size.getZ()-1);
         placing = part;
         try {
             game.maps().placeMapSlice(part.level, part.template, origin,
@@ -526,14 +526,15 @@ public final class LbcAcademy {
                 }
         } finally { placing = null; }
         // Claim a background row when it is written, including during overlapping construction.
-        for (var pos : part.background) if (pos.getY() == origin.getY()+part.row
+        for (var pos : part.background) if ((!part.token || pos.getY() == origin.getY()+part.row)
                 && part.level.getBlockState(pos).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE))) {
             var cell = GlobalPos.of(part.level.dimension(),pos);
             if (part.token) { part.panels.add(cell); panelOwners.put(cell,part); }
             else panelOwners.remove(cell);
             pendingWhite.remove(cell);
         }
-        if (++part.row < size.getY()) placements.addLast(part);
+        part.row=part.token?part.row+1:size.getY();
+        if (part.row < size.getY()) placements.addLast(part);
         else {
             part.spawned.forEach(entity -> entity.entityTags().remove(BUILDING_TAG));
             // Native placement can fail to create an actor. Never send a player into that incomplete acquisition.

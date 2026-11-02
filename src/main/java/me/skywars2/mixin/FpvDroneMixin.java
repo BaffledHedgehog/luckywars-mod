@@ -31,6 +31,13 @@ public final class FpvDroneMixin {
                 at=@At(value="INVOKE",target="Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",shift=At.Shift.AFTER),cancellable=true)
         private void fpvActions(@Coerce net.minecraft.network.protocol.Packet<?> packet,CallbackInfo ci){var g=SkyWars2.game();if(g!=null&&g.items().fpvDrone().controlling(player))ci.cancel();}
     }
+    @Mixin(net.minecraft.server.network.ServerCommonPacketListenerImpl.class)
+    public abstract static class Presentation {
+        @org.spongepowered.asm.mixin.injection.ModifyVariable(method="send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V",at=@At("HEAD"),argsOnly=true)
+        private net.minecraft.network.protocol.Packet<?> fpvPresentation(net.minecraft.network.protocol.Packet<?> packet){
+            if((Object)this instanceof ServerGamePacketListenerImpl connection){var game=SkyWars2.game();if(game!=null)return game.items().fpvDrone().presentation(connection.player,packet);}return packet;
+        }
+    }
     /** Move the existing native player ticket/view, without moving the real player entity. */
     @Mixin(ChunkMap.class)
     public abstract static class Chunks {

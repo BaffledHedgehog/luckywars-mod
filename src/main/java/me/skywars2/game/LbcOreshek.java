@@ -24,14 +24,44 @@ public final class LbcOreshek {
     private static final CompoundTag PIGLIN=parse("""
 {equipment:{head:{"id":"netherite_helmet","count":1,"components":{"equippable":{"slot":head,"asset_id":"lbc:zelensky"}}},chest:{"id":"netherite_chestplate","count":1,"components":{"equippable":{"slot":chest,"asset_id":"lbc:zelensky"}}},legs:{"id":"netherite_leggings","count":1,"components":{"equippable":{"slot":legs,"asset_id":"lbc:zelensky"}}},feet:{"id":"netherite_boots","count":1,"components":{"equippable":{"slot":feet,"asset_id":"lbc:zelensky"}}}},drop_chances:{head:0,chest:0,legs:0,feet:0},CustomName:[{"text":"Володiмiр","color":"aqua"},{"text":" Zelensky","color":"yellow"}],CustomNameVisible:true}
             """);
+    public static final net.minecraft.world.item.Item ITEM=registerItem();
+    public static void register(){}
     private final GameController game;
     private final Set<Entity> tracked=Collections.newSetFromMap(new IdentityHashMap<>());
     private ServerLevel executingLevel;private LbcIndirectKills.Owner executingCause;private Entity executingSource;
+    private boolean deathNoticeSent;
     private long consumed,explosions,transfers,zelenskys;private Outcome last=Outcome.NONE;
     public enum Outcome { NONE, EXPLOSION, NEXUS, ZELENSKY }
     public LbcOreshek(GameController game){this.game=game;}
     private static CompoundTag parse(String value){try{return TagParser.parseCompoundFully(value);}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new ExceptionInInitializerError(error);}}
+    private static net.minecraft.world.item.Item registerItem(){
+        var key=net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM,
+                net.minecraft.resources.Identifier.parse("skywars2:oreshek"));
+        var data=new CompoundTag();data.putInt("eat_oreshek",1);
+        var props=new net.minecraft.world.item.Item.Properties().setId(key).stacksTo(1).overrideDescription("oreshek")
+                .food(new net.minecraft.world.food.FoodProperties(0,0,true),net.minecraft.world.item.component.Consumable.builder()
+                    .onConsume(new net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect(
+                        new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.INSTANT_HEALTH,1,2,false,false,false))).build())
+                .component(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data))
+                .component(net.minecraft.core.component.DataComponents.ITEM_MODEL,net.minecraft.resources.Identifier.parse("lbc:bob"))
+                .component(net.minecraft.core.component.DataComponents.TOOLTIP_STYLE,net.minecraft.resources.Identifier.parse("lbc:tier_f"));
+        // Read the canonical authored name/lore once at registration; every dispenser uses this same identity.
+        try(var input=LbcOreshek.class.getResourceAsStream("/data/lbc/loot_table/item_defs/lbc/bob__dbf4db459264.json")){
+            if(input==null)throw new IllegalStateException("Missing canonical nut definition");
+            var root=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            var modifiers=root.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().getAsJsonArray("modifier");
+            for(var modifier:modifiers){var row=modifier.getAsJsonObject();var type=row.get("type").getAsString();
+                if(type.equals("minecraft:set_name"))props.component(net.minecraft.core.component.DataComponents.CUSTOM_NAME,
+                    net.minecraft.network.chat.ComponentSerialization.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,row.get("name")).getOrThrow());
+                if(type.equals("minecraft:set_lore")){var lore=new ArrayList<Component>();for(var line:row.getAsJsonArray("lore"))
+                    lore.add(net.minecraft.network.chat.ComponentSerialization.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,line).getOrThrow());
+                    props.component(net.minecraft.core.component.DataComponents.LORE,new net.minecraft.world.item.component.ItemLore(lore));}
+            }
+        }catch(java.io.IOException error){throw new IllegalStateException("Cannot read canonical nut definition",error);}
+        return net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.ITEM,key,
+                new eu.pb4.polymer.core.api.item.SimplePolymerItem(props,net.minecraft.world.item.Items.REPEATING_COMMAND_BLOCK,true));
+    }
     public static boolean matches(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("eat_oreshek",0)==1;}
     private boolean admitted(ServerPlayer p){return p!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&p.isAlive()&&!p.isRemoved()&&p.level()==game.maps().level()&&LbcDimensionItems.ordinary(p)
@@ -40,8 +70,8 @@ public final class LbcOreshek {
     /** Native consume owns the only debit. Notification state never blocks subsequent nuts. */
     public void consumed(ServerPlayer p,ItemStack stack){
         if(!matches(stack)||!admitted(p))return;
-        // Source consume_item completes its hidden advancement BEFORE its reward runs, including a potentially lethal debuff.
-        p.entityTags().add(LATCH);consumed++;last=Outcome.NONE;
+        // Old persistent return markers must never announce an unrelated later death/reset.
+        p.entityTags().remove(LATCH);consumed++;last=Outcome.NONE;
         var level=p.level();var origin=p.position();var accepted=game.items().indirectKills().wildCause(p);
         game.items().legacyEffects().randomDebuff(p);
         if(level.getRandom().nextFloat()<.1f){last=Outcome.EXPLOSION;explode(p,level,origin,accepted);return;}
@@ -52,10 +82,10 @@ public final class LbcOreshek {
         p.entityTags().remove(LATCH);
     }
     private void explode(ServerPlayer p,ServerLevel level,Vec3 origin,LbcIndirectKills.Owner accepted){
-        var previousLevel=executingLevel;var previousCause=executingCause;var previousSource=executingSource;
+        var previousLevel=executingLevel;var previousCause=executingCause;var previousSource=executingSource;boolean previousNotice=deathNoticeSent;deathNoticeSent=false;
         final PrimedTnt[] direct={null};executingLevel=level;executingCause=accepted;
         try{game.items().exasperato().encounterBlast(p,level,origin,15,tnt->{direct[0]=tnt;stamp(tnt,accepted);executingSource=tnt;});explosions++;}
-        finally{executingLevel=previousLevel;executingCause=previousCause;executingSource=previousSource;if(direct[0]!=null)direct[0].discard();}
+        finally{executingLevel=previousLevel;executingCause=previousCause;executingSource=previousSource;deathNoticeSent=previousNotice;if(direct[0]!=null)direct[0].discard();}
         LbcOverload.sound(level,origin,"minecraft:lbcsounds.donbass",4,1,0,0);
     }
     private void zelensky(ServerPlayer p,ServerLevel level,Vec3 origin,LbcIndirectKills.Owner accepted){
@@ -99,13 +129,18 @@ public final class LbcOreshek {
     public void tick(){for(var entity:List.copyOf(tracked))if(entity.isRemoved())tracked.remove(entity);
         else if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(entity)){tracked.remove(entity);entity.discard();}}
     public void stop(){for(var entity:List.copyOf(tracked))entity.discard();tracked.clear();}
-    public boolean pendingDeathMessage(ServerPlayer p){return p!=null&&p.entityTags().contains(LATCH);}
-    /** Source leave_death is also called by active leave and explicit match/player resets. Idempotent across duplicate boundaries. */
-    public boolean died(ServerPlayer p){if(!pendingDeathMessage(p))return false;
+    public boolean pendingDeathMessage(ServerPlayer p){return p!=null&&!deathNoticeSent&&executingCause!=null
+            &&executingSource!=null&&executingLevel==p.level()&&executingCause.player().equals(p.getUUID());}
+    public boolean died(ServerPlayer p){return died(p,p.getLastDamageSource());}
+    /** Only an actual death in this nut's synchronous native explosion may broadcast the symbol. */
+    public boolean died(ServerPlayer p,net.minecraft.world.damagesource.DamageSource damage){
+        p.entityTags().remove(LATCH);
+        if(!pendingDeathMessage(p)||damage==null||damage.getDirectEntity()!=executingSource)return false;
+        deathNoticeSent=true;
         for(var viewer:game.server().getPlayerList().getPlayers())viewer.sendSystemMessage(Component.literal("\uE202"));
-        p.entityTags().remove(LATCH);return true;
+        return true;
     }
-    public boolean resetBoundary(ServerPlayer p){return died(p);}
+    public boolean resetBoundary(ServerPlayer p){p.entityTags().remove(LATCH);return false;}
     public List<Entity> snapshot(){return List.copyOf(tracked);}
     public long consumedCount(){return consumed;}public long explosionCount(){return explosions;}public long transferCount(){return transfers;}
     public long zelenskyCount(){return zelenskys;}public Outcome lastOutcome(){return last;}

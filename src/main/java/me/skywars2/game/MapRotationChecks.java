@@ -38,7 +38,7 @@ public final class MapRotationChecks {
         final List<BlockPos> origins=List.of(new BlockPos(0,160,0),new BlockPos(3,160,5));
         Marker marker;Cow vehicle,rider;
         Vec3 markerAt;int phase,index,frames,stat;
-        boolean closed;
+        boolean closed,sawPublication;
         Fixture(GameController game){
             this.game=game;require(!game.vanity().hasSnapshot()&&!game.vanity().busy()&&!game.maps().rotationBusy(),"exclusive native world fixture");
             core=new MatchCoreCheckpoint(game);anchors=game.maps().spawnState();players=game.server().getPlayerList().getPlayers().stream().map(p->new MatchPlayerCheckpoint(game,p)).toList();
@@ -73,7 +73,18 @@ public final class MapRotationChecks {
                 require(!game.items().stonekivi().captureSettled(),"accepted transform prevents saving half of its terrain");
                 phase=2;return false;
             }
-            if(phase==2){if(game.maps().rotationBusy())return false;
+            if(phase==2){
+                if(game.maps().rotationWrites()>0&&!sawPublication){
+                    sawPublication=true;
+                    for(int i=0;i<probes.size();i++){
+                        var p=probes.get(i);var origin=origins.get(index);
+                        var target=MapManager.rotationContains(Vec3.atCenterOf(p),origin)?MapRotation.blockDestination(p,origin):p;
+                        var expected=i==1?Blocks.CHEST:i==2?Blocks.GOLD_BLOCK:i==3?Blocks.DIAMOND_BLOCK:Blocks.OBSIDIAN;
+                        require(level.getBlockState(target).is(expected),"first visible writes already contain complete region publication");
+                    }
+                    require(marker.position().distanceToSqr(MapRotation.entityDestination(markerAt,origins.get(index)))<1e-12,"entity transport follows complete block publication in same commit tick");
+                }
+                if(game.maps().rotationBusy())return false;
                 require(game.maps().rotationVisits()==32_768_000L&&game.maps().rotationWrites()>0,"all source cube cells accounted for, native writes performed");
                 for(int i=0;i<probes.size();i++){
                     var from=probes.get(i);boolean inside=from.getX()>=origins.get(index).getX()-160&&from.getX()<origins.get(index).getX()+160&&from.getZ()>=origins.get(index).getZ()-160&&from.getZ()<origins.get(index).getZ()+160;
@@ -83,8 +94,8 @@ public final class MapRotationChecks {
                     if(i==1){require(level.getBlockState(target).getValue(ChestBlock.FACING)==Direction.WEST,"source preserves block facing, not rotated state");
                         var chest=(ChestBlockEntity)level.getBlockEntity(target);require(chest!=null&&chest.getItem(0).is(Items.DIAMOND)&&chest.getItem(0).getCount()==17&&chest.getBlockPos().equals(target),"native chest payload and new BE coordinates");}
                 }
-                require(marker.position().distanceToSqr(MapRotation.entityDestination(markerAt,origins.get(index)))<1e-12&&marker.getDeltaMovement().equals(new Vec3(.3,-.2,.5))
-                        &&marker.getYRot()==37&&marker.getXRot()==-24,"native actor uses source pivot with retained yaw/pitch/momentum");
+                require(marker.position().distanceToSqr(MapRotation.entityDestination(markerAt,origins.get(index)))<1e-12&&marker.getDeltaMovement().equals(MapRotation.rotateVector(new Vec3(.3,-.2,.5)))
+                        &&Math.abs(marker.getYRot()-MapRotation.rotateLook(37,-24)[0])<1e-5&&Math.abs(marker.getXRot()-MapRotation.rotateLook(37,-24)[1])<1e-5,"native actor uses source pivot with rotated yaw/pitch/momentum");
                 require(rider.getVehicle()==vehicle&&vehicle.getPassengers().equals(List.of(rider)),"native passenger graph retained without duplicate members");
                 var moved=game.maps().spawnState();require(!anchors.spawns().isEmpty()&&!anchors.islands().isEmpty(),"real map spawn/island reference exists");
                 for(int n=0;n<anchors.spawns().size();n++){
@@ -98,12 +109,13 @@ public final class MapRotationChecks {
                         require(after.containsKey(target)&&after.get(target).state()==cell.getValue().state(),"pristine terrain follows exact clipped block transpose");
                     }
                 }
+                if(index==0)BobaChecks.nativeRegionPhysics(game);
                 require(game.items().stonekivi().captureSettled()&&game.vanity().requestRestoreForCheck(),"actual complete transform rewinds through canonical owners");phase=3;return false;
             }
             if(phase==3){if(game.vanity().busy()||!game.vanity().status().equals("IDLE"))return false;
                 require(marker.position().equals(markerAt)&&rider.getVehicle()==vehicle&&level.getBlockState(probes.get(1)).is(Blocks.CHEST),"actual native world/actor/vehicle rewind");
                 require(game.maps().spawnState().equals(anchors),"existing core rewind restores current spawn and pristine island reference");
-                if(++index<origins.size()){phase=1;return false;}
+                if(++index<origins.size()){sawPublication=false;phase=1;return false;}
                 BobaChecks.bedwars(game,base.owner);
                 require(game.vanity().requestRestoreForCheck(),"actual Bedwars loot/target replay");phase=4;return false;
             }
@@ -116,6 +128,6 @@ public final class MapRotationChecks {
             }finally{game.server().tickRateManager().setFrozen(frozen);}}
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS boba (two actual 320-cube transforms, fixed and unaligned origins, raw native two-hand/busy/debit admission, full BE payload/state, source entity pivot/momentum/passenger graph, completed-construction guard and real full-world rewinds)");}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS boba (two actual 320-cube transforms, fixed and unaligned origins, raw native two-hand/busy/debit admission, full BE payload/state, rotated entity pivot/look/momentum/passenger graph and bounded native item/mob/fluid physics, completed-construction guard and real full-world rewinds)");}
         catch(Throwable failure){try{running.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL boba",failure);}}
 }

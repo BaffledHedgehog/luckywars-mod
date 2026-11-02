@@ -86,7 +86,8 @@ public final class DeveloperTools {
         var flags=new CompoundTag();flags.putBoolean("developer_menu",true);
         ITEM=Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(new Item.Properties().setId(key).stacksTo(1)
                 .component(DataComponents.CUSTOM_NAME,Component.literal("Developer Tools").withStyle(net.minecraft.ChatFormatting.GREEN))
-                .component(DataComponents.CUSTOM_DATA,CustomData.of(flags)),Items.PAPER,true));
+                .component(DataComponents.CUSTOM_DATA,CustomData.of(flags))
+                .component(DataComponents.ITEM_MODEL,Identifier.withDefaultNamespace("chest_minecart")),Items.CHEST_MINECART,true));
     }
     public static boolean authorized(ServerPlayer player){return Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(player.createCommandSourceStack());}
     private static void message(ServerPlayer player,String text){player.sendSystemMessage(Component.literal(text));}

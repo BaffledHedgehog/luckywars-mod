@@ -693,7 +693,7 @@ public final class GameController {
 
     public void died(ServerPlayer player, DamageSource damage) {
         if(vanity.death(player))return;
-        items.oreshek().died(player);
+        items.oreshek().died(player,damage);
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;

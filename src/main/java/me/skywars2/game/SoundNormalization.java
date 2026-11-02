@@ -52,6 +52,10 @@ public final class SoundNormalization {
     }
     private static Vec3 view(ServerPlayer player){
         if(!player.level().getServer().isSameThread())return VIEWS.get(player.getUUID());
+        // FPV keeps the native camera on self to preserve unrestricted mouse packets.
+        // Its packet-only seat is not in the world and cannot be resolved via CAMERAS.
+        var fpv=LbcFpvDrone.audioViewpoint(player);
+        if(fpv!=null){VIEWS.put(player.getUUID(),fpv);return fpv;}
         var camera=player.getCamera();var id=CAMERAS.get(player.getUUID());
         if(id!=null){var actual=player.level().getEntity(id);if(actual!=null)camera=actual;}
         var at=camera.getEyePosition();VIEWS.put(player.getUUID(),at);return at;
