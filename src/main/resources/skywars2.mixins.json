@@ -329,7 +329,9 @@
     "PhantomActivityMixin",
     "PhantomActivityMixin$Combat",
     "PhantomActivityMixin$Punch",
-    "PhantomActivityMixin$Shots"
+    "PhantomActivityMixin$Shots",
+    "ArmorReserveMixin$Damage",
+    "ArmorReserveMixin$Equipment"
   ],
   "injectors": {
     "defaultRequire": 1

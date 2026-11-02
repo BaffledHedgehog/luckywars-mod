@@ -177,6 +177,20 @@
   ],
   "skills": [
     {
+      "id": 7,
+      "page": 10000,
+      "slot": 6,
+      "gate": "lbc:true_advancements/armor/paladin",
+      "lockedKey": "lbc.adv.armor.paladin.lore"
+    },
+    {
+      "id": 22,
+      "page": 10000,
+      "slot": 22,
+      "gate": "lbc:true_advancements/legends/academy/boltbolt",
+      "lockedKey": "lbc.adv.upgraded_tuntija.boltbolt.lore"
+    },
+    {
       "id": 14,
       "page": 10000,
       "slot": 13,

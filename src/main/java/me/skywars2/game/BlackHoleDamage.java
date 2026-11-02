@@ -49,6 +49,8 @@ final class BlackHoleDamage {
     }
     private static boolean accepted(GameController game,LivingEntity target,DamageSource source,float amount,ServerLevel level){
         ServerPlayer recipient=target instanceof ServerPlayer player?player:game.items().polymorph().playerOfBody(target);
+        float reactionAmount=amount;
+        if(target instanceof ServerPlayer player)amount=LbcArmorReserveSkill.apply(game,player,source,amount);
         // Bypass mitigation/physical hit response, while publishing the ordinary damage events.
         // Native criteria/attempt owners remain shared with hurtServer, including fatal hits.
         if(target.isSleeping())target.stopSleeping();
@@ -85,13 +87,13 @@ final class BlackHoleDamage {
         }
         // Match native ordering: death/totem, effect reactions, criteria, surviving-hit event.
         // Death dispatches its own listeners; never synthesize another AFTER_DEATH.
-        for(var effect:java.util.List.copyOf(target.getActiveEffects()))effect.onMobHurt(level,target,source,amount);
+        for(var effect:java.util.List.copyOf(target.getActiveEffects()))effect.onMobHurt(level,target,source,reactionAmount);
         if(target instanceof ServerPlayer player)
-            net.minecraft.advancements.triggers.CriteriaTriggers.ENTITY_HURT_PLAYER.trigger(player,source,amount,amount,false);
+            net.minecraft.advancements.triggers.CriteriaTriggers.ENTITY_HURT_PLAYER.trigger(player,source,reactionAmount,reactionAmount,false);
         if(source.getEntity() instanceof ServerPlayer attacker)
-            net.minecraft.advancements.triggers.CriteriaTriggers.PLAYER_HURT_ENTITY.trigger(attacker,target,source,amount,amount,false);
+            net.minecraft.advancements.triggers.CriteriaTriggers.PLAYER_HURT_ENTITY.trigger(attacker,target,source,reactionAmount,reactionAmount,false);
         if(!target.isDeadOrDying())net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DAMAGE.invoker()
-                .afterDamage(target,source,amount,amount,false);
+                .afterDamage(target,source,reactionAmount,reactionAmount,false);
         if(recipient!=null&&recipient.isAlive()){
             // LocalPlayer.hurtTo also starts hurtTime from an ordinary health packet.
             // Publish native health metadata first so its later health/food packet has

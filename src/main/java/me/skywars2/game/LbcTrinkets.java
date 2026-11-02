@@ -199,7 +199,7 @@ public final class LbcTrinkets {
         if (snow > 0 && attacker.getRandom().nextFloat() < (80 + 20 * snow) * .001f) game.items().frost().hitTargets(attacker);
         int copies = count(attacker, INTERCAL, INTERCAL_DATA);
         if (copies == 0 || attacker.getRandom().nextFloat() >= (100 + 50 * copies) * .001f) return;
-        boolean upgraded = game.config().lbcSkills && game.players().get(attacker.getUUID()).lbcSkill == 15;
+        boolean upgraded = game.lbc().hasSkill(attacker,9);
         for (var target : attacker.level().getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(10), entity ->
                 entity.isAlive() && entity.getType().builtInRegistryHolder().is(MOBS)
                         && !entity.entityTags().contains("spectator") && !attacker.isAlliedTo(entity)
