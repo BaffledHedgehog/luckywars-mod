@@ -1,3 +1,20 @@
+## Next combat/reward skills14/16/18 - PREPARED, NOT RELEASED (2 November2026)
+
+[Bounded source audit](agent_notes/COMBAT_REWARD_SKILLS_SOURCE_2026_11_02.md).
+Chat author questions PENDING: suppression for3, Soul Hunter victim-base scope,
+actual-victim loot duplication versus old global bug, and Machinegun safe terminal
+cadence. Do not infer answers or expose these IDs yet. Skill7 deferred armor pool.
+Independent numeric helper LbcAttributeGains now holds the exact uniform26 positive
+BASE operations, reusing LbcAttributeChanges. NO CALLERS YET. Source comparison
+`python tools/check_attribute_gain_sources.py` matches26 leaves and uniform bounds;
+`gradlew --offline compileJava` passes. Outcome2's source feedback still belongs to
+the future caller. This is preparation, not native behavior qualification.
+Source14 negative-divisor recursive-shot bug and velocity discontinuity documented;
+16 current wrong-victim selector and18 global Age0/1 scan must follow author answers.
+Only independent numeric preparation performed while waiting. Main still installed
+0971bd4f below; no new JAR built/installed, no RP changes, no restart/push. Do not
+repeat resolved old skills/Looper questions. TMT LAST and existing gates unchanged.
+
 ## Skills1/12/13 - VERIFIED, INSTALLED (2 November2026)
 
 [Author rules, source and exact qualification](agent_notes/CONTAINED_SKILLS_PORT_2026_11_02.md).
