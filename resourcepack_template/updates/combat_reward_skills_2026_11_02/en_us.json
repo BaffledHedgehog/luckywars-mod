@@ -1,0 +1,7 @@
+{
+  "lore.lbcskill.13.1": " * 50%% chance not to consume an arrow",
+  "lore.lbcskill.13.2": " * Accelerates to a burst/tick, then +1 arrow per 20 bursts; spread decreases",
+  "lore.lbcskill.15.1": "  Killing a player adds their positive base-attribute bonuses",
+  "lore.lbcskill.15.2": "  above normal, including attack speed; penalties do not transfer",
+  "lore.lbcskill.15.3": "  (Base health follows the match settings)"
+}

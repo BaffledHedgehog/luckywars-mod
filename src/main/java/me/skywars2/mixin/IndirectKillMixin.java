@@ -15,6 +15,9 @@ public abstract class IndirectKillMixin {
     @Inject(method="die",at=@At("HEAD"))
     private void skywars2$indirectKill(DamageSource source, CallbackInfo ci) {
         var game=SkyWars2.game();
-        if(game!=null) game.items().indirectKills().dying((LivingEntity)(Object)this,source);
+        if(game!=null){
+            game.items().indirectKills().dying((LivingEntity)(Object)this,source);
+            game.items().combatRewards().beforeDeath((LivingEntity)(Object)this,source);
+        }
     }
 }

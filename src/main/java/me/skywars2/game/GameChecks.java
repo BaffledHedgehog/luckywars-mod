@@ -700,6 +700,9 @@ public final class GameChecks {
                                 case "reactive-skills" -> { ReactiveSkillChecks.run(game); return; }
                                 case "parasite" -> { ParasiteChecks.run(game); return; }
                                 case "contained-skills" -> { ContainedSkillChecks.run(game); return; }
+                                case "combat-reward-skills" -> { CombatRewardSkillChecks.run(game); return; }
+                                case "machinegun-skill" -> { CombatRewardSkillChecks.runMachinegun(game); return; }
+                                case "combat-reward-player-death" -> { CombatRewardSkillChecks.runPlayerDeath(game); return; }
                                 case "contained-vip-respawn" -> { ContainedSkillChecks.runVipDeath(game); return; }
                                 case "contained-vip-sum-respawn" -> { ContainedSkillChecks.runVipSumDeath(game); return; }
                                 case "contained-vip-fall-respawn" -> { ContainedSkillChecks.runVipFallDeath(game); return; }
@@ -1481,6 +1484,7 @@ public final class GameChecks {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
             ContainedSkillChecks.tick(game);
+            CombatRewardSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
             GaaraPotChecks.tick(game);BouncingPoopChecks.tick(game);ClownKitChecks.tick(game);

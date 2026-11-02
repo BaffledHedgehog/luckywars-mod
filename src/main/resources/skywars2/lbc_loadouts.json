@@ -177,6 +177,27 @@
   ],
   "skills": [
     {
+      "id": 14,
+      "page": 10000,
+      "slot": 13,
+      "gate": "lbc:true_advancements/bows/minigun",
+      "lockedKey": "lbc.adv.bow.minigun.lore"
+    },
+    {
+      "id": 16,
+      "page": 10000,
+      "slot": 15,
+      "gate": "lbc:true_advancements/hoes/death_skytche",
+      "lockedKey": "lbc.adv.hoe.death_skytche.lore"
+    },
+    {
+      "id": 18,
+      "page": 10000,
+      "slot": 17,
+      "gate": "lbc:true_advancements/hoes/socializm",
+      "lockedKey": "lbc.adv.hoe.communism.lore"
+    },
+    {
       "id": 1,
       "page": 10000,
       "slot": 0,

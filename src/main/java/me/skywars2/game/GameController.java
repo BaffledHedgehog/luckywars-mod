@@ -104,6 +104,7 @@ public final class GameController {
         // Unsupported short restart intent is cancelled by rewind, as other transient actions are.
         runeRestartPending=false;
         items.containedSkills().stop();
+        items.combatRewards().clear();items.machinegunSkill().clearTransient();
         participants.clear();image.members.forEach((id,p)->participants.put(id,Checkpoint.copy(p)));
         pendingLobby.clear();pendingLobby.addAll(image.pending);nativeEntityUnloads.clear();nativeEntityUnloads.addAll(image.unloads);
         stage=image.stage;host=image.host;pendingStarter=image.pendingStarter;victoryWinner=image.victoryWinner;
@@ -698,6 +699,7 @@ public final class GameController {
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
         // Compare maximum HP before ordinary death cleanup removes event skill modifiers.
         boolean vipRespawn=items.containedSkills().protectsDeath(player,damage);
+        items.machinegunSkill().clear(player);
         items.witchClaims().leavingOrDying(player);
         events.removePlayerSkill(player);
         items.stand().died(player);

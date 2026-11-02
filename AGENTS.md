@@ -1,19 +1,31 @@
-## Next combat/reward skills14/16/18 - PREPARED, NOT RELEASED (2 November2026)
+## Combat/reward skills14/16/18 - VERIFIED, INSTALLED (2 November2026)
 
-[Bounded source audit](agent_notes/COMBAT_REWARD_SKILLS_SOURCE_2026_11_02.md).
-Chat author questions PENDING: suppression for3, Soul Hunter victim-base scope,
-actual-victim loot duplication versus old global bug, and Machinegun safe terminal
-cadence. Do not infer answers or expose these IDs yet. Skill7 deferred armor pool.
-Independent numeric helper LbcAttributeGains now holds the exact uniform26 positive
-BASE operations, reusing LbcAttributeChanges. NO CALLERS YET. Source comparison
-`python tools/check_attribute_gain_sources.py` matches26 leaves and uniform bounds;
-`gradlew --offline compileJava` passes. Outcome2's source feedback still belongs to
-the future caller. This is preparation, not native behavior qualification.
-Source14 negative-divisor recursive-shot bug and velocity discontinuity documented;
-16 current wrong-victim selector and18 global Age0/1 scan must follow author answers.
-Only independent numeric preparation performed while waiting. Main still installed
-0971bd4f below; no new JAR built/installed, no RP changes, no restart/push. Do not
-repeat resolved old skills/Looper questions. TMT LAST and existing gates unchanged.
+[Author policy, implementation and exact qualification](agent_notes/COMBAT_REWARD_SKILLS_PORT_2026_11_02.md).
+All3 unjammed; author explicitly keeps shared TECH deletion of normal auto-arrows.
+14Machinegun: actual either-hand native bow use,50percent per-arrow ammo consumption,
+source speed/spread, native final release. One burst/tick then +1arrow per20 completed
+saturated bursts. Fair128-arrow/soft4ms budget, one unfinished burst/owner, no recursion
+or catch-up debt. TimeStop pauses; ordinary effect cleansing does not reset draws.
+16SoulHunter: source uniform26 positive BASE gain per actual credited living kill;
+player donor adds ALL positive BASE surplus over native/configured defaults, including
+attack speed. Configured match HP and classic-PvP AS100000 baselines, no old fractions,
+negative transfer or equipment modifiers. Native body identity is essential: Entity.equals
+compares numeric IDs reused by player respawn. Removed/alive death receipts are cleared.
+18FallenApart: actual victim's successful native item publications copied exactly once,
+including inventory/equipment/components/count; nested scopes independent, no global age
+scan/reroll/XP doubling. Unpaused immediate, TimeStop defers earned rewards, epoch/core
+rewind clears transient receipts. Original slots10000:13/15/17 and unlock gates exposed.
+
+Final test7130c506 / productiond26e450f:8scoped groups/8actual mode1 matches on EXACT
+artifact, including native bow/release, player death+replacement+second death, exact loot
+and positive attack-speed donation.9811inputs/2516classes/7354resources exact;
+236authorpaths/31overrides unchanged, child normal/exact snapshots/OP/level/tickets,
+no locks, fixture25577only;8editing classes absent production. Retained failures exposed
+TECH marker->block fixture migration, breakable fixture helmet, and real ID-reuse death
+dedup bug. Final EOF-only cleanup recompiled byte-identically. Installed normally with
+0971bd4f rollback, restarted:false; no main stop/restart/push or peakTPS claim.
+RP description fragments: resourcepack_template/updates/combat_reward_skills_2026_11_02/.
+All questions for this batch resolved; TMT LAST, skills2/7 deferred, other gates unchanged.
 
 ## Skills1/12/13 - VERIFIED, INSTALLED (2 November2026)
 
