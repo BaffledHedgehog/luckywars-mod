@@ -330,6 +330,8 @@ public final class LbcMagic {
 
     /** Общая точка допуска будущих кастомных статусов; type 5 сохраняет исходный native-перечень. */
     public boolean rejectCustomEffect(ServerPlayer player) { return LbcGreed.active(player) || cleansesCustomEffects(player); }
+    /** Harmful custom grants share absolute Parasite immunity; useful grants retain their own admission. */
+    public boolean rejectCustomDebuff(ServerPlayer player) { return rejectCustomEffect(player) || LbcParasite.active(player); }
     /** Incoming immunity and deletion of an already-owned status are distinct source policies. */
     public boolean cleansesCustomEffects(ServerPlayer player) { return (cleansingTypes(player) & CLEAR_EFFECTS) != 0; }
 

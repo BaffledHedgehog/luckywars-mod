@@ -1,9 +1,9 @@
 # Looper skill — 2 November 2026
 
-This stage completes skill3, independently of the pending author decisions for
-reactive skills6/10/19. Those three remain unavailable; their source audit and
-unconnected penalty helper are retained outside build inputs under
-`build/verification/reactive-skills-2026-11-02/`.
+This stage completed skill3 while reactive skills6/10/19 awaited author decisions.
+Those answers and the subsequent completed qualification are now recorded in
+[the reactive skills contract](REACTIVE_SKILLS_PORT_2026_11_02.md). The earlier
+audit under `build/verification/reactive-skills-2026-11-02/` is historical.
 
 ## Source and access
 

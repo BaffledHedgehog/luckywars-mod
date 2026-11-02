@@ -248,8 +248,10 @@ public final class LbcPills {
     /** Native consumption owns nutrition, normal consumption events, and the sole item debit. */
     public void consumed(ServerPlayer p,ItemStack stack){
         int id=pillId(stack);if(id<0||!admitted(p))return;var pill=DEFINITIONS.get(id);
-        if(pill.attribute()!=null){var a=pill.attribute();LbcAttributeChanges.change(p,a.attribute(),a.inputScale(),a.step(),a.outputScale());}
+        boolean parasite=LbcParasite.active(p);
+        if(pill.attribute()!=null&&!(parasite&&pill.sound().equals("minecraft:lbcsounds.pill_bad"))){var a=pill.attribute();LbcAttributeChanges.change(p,a.attribute(),a.inputScale(),a.step(),a.outputScale());}
         for(var effect:pill.effects()){
+            if(parasite&&LbcParasite.rejects(p,ItemEffectLevels.create(effect.type(),1,effect.amplifier())))continue;
             if(effect.type().value().isInstantaneous()){
                 effect.type().value().applyInstantaneousEffect(p.level(),null,null,p,
                         ItemEffectLevels.amplifier(effect.type(),effect.amplifier()),1.0);
@@ -258,10 +260,14 @@ public final class LbcPills {
                 p.addEffect(ItemEffectLevels.create(effect.type(),ticks,effect.amplifier(),false,!effect.hidden()),p);
             }
         }
-        for(var counter:pill.counters())game.items().mana().score(p,counter.key()).add(counter.amount());
+        for(var counter:pill.counters()){
+            if(parasite&&(LbcLegacyEffects.RANDOM_COUNTERS.contains(counter.key())
+                    ||List.of("effect_shock","effect_vacuum","effect_timestop","effect_chain_lightning").contains(counter.key())))continue;
+            game.items().mana().score(p,counter.key()).add(counter.amount());
+        }
         p.entityTags().addAll(pill.tags());
         if(!pill.counters().isEmpty())game.items().adoptRawFoodStatuses(p);
-        if(pill.paralysis()){
+        if(pill.paralysis()&&!parasite){
             // /tp wraps the relative +200 pitch to -160 before adding the old pitch and clamping.
             // Shared native teleport mixin preserves server and client motion independently.
             if(p.teleportTo(p.level(),p.getX(),p.getY()-2,p.getZ(),Set.of(Relative.Y_ROT,Relative.X_ROT),0,

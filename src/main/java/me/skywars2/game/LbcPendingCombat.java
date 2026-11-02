@@ -89,7 +89,7 @@ public final class LbcPendingCombat {
             double distance=e.position().distanceToSqr(origin);return distance>=.0001&&distance<=64&&e.hurtTime==10
                 &&e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().target(owner,e);
         })){
-            if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player))continue;
+            if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))continue;
             clearEffects(target);
             var slam=target.getAttribute(Attributes.GRAVITY);if(slam!=null)slam.removeModifier(Identifier.parse("minecraft:slamslamslaaaaaaamslaaam"));
             for(int i=0;i<7;i++){var attribute=target.getAttribute(ATTRIBUTES.get(i));if(attribute!=null)
@@ -247,7 +247,7 @@ public final class LbcPendingCombat {
         for(var entry:List.copyOf(curses.entrySet())){var target=entry.getKey();var curse=entry.getValue();
             if(game.items().polymorph().masked(target))continue;
             if(!target.isAlive()||target.isRemoved()||!valid(curse.owner)||target.level()!=curse.owner.level()||!game.items().currentEpoch(curse.epoch)
-                ||target instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player)){clearEffects(target);continue;}
+                ||target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player)){clearEffects(target);continue;}
             if(paused(curse.owner)||LbcGreed.active(target))continue;
             game.items().indirectKills().displaced(target,curse.cause);
             if(phase==0){

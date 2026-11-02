@@ -46,13 +46,14 @@ public final class LbcFoodStatuses {
     public void tick(){
         int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
         for(var p:List.copyOf(game.server().getPlayerList().getPlayers())){
+            if(LbcParasite.active(p))clearDebuffs(p);
             if(game.items().polymorph().masked(p)||!admitted(p))continue;
             if(!game.items().magic().suppressedAt(p.level(),p.position())){
                 if(read(p,"all_seeing_eye")>0)allSeeingEye(p);
                 if(read(p,"living_legend")>0)livingLegend(p);
             }
             if(now%20==0&&read(p,"dimensional_shifting")>0)shifting(p);
-            if(now%200==0&&p.level().dimension().equals(Level.END)&&!LbcGreed.active(p))endDamage(p);
+            if(!LbcParasite.active(p)&&now%200==0&&p.level().dimension().equals(Level.END)&&!LbcGreed.active(p))endDamage(p);
         }
     }
     /** Original players_10s End consequence; the same ledger is also changed by stew/KFC. */
@@ -113,6 +114,7 @@ public final class LbcFoodStatuses {
         game.items().mana().award(p,"lbc:true_advancements/potions/effect_shifting");
     }
     /** Source death/leave resets; temporary suppression only pauses and never calls this method. */
+    public void clearDebuffs(ServerPlayer p){for(var objective:List.of("dimensional_shifting","end_damage"))if(game.items().mana().hudValue(p,objective)!=0)game.items().mana().score(p,objective).set(0);}
     public void clear(ServerPlayer p){for(var objective:COUNTERS)game.items().mana().score(p,objective).set(0);}
     public void forget(ServerPlayer p){clear(p);}
     public void stop(){for(var p:game.server().getPlayerList().getPlayers())clear(p);lastTick=Integer.MIN_VALUE;}

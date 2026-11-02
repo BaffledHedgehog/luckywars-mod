@@ -97,7 +97,11 @@ public final class LbcNamedFoods {
                 case "transdimensional_fish"->{fish(player,5760,1000000,100,100000);}
                 case "multiverse_fish"->{fish(player,11520,10000000,1000,1000000);}
                 case "netherite_stew"->{
-                    for(var counter:STEW_COUNTERS)game.items().mana().score(player,counter).set(counter.equals("end_damage")?21474:Integer.MAX_VALUE);
+                    for(var counter:STEW_COUNTERS){
+                        if(LbcParasite.active(player)&&(LbcLegacyEffects.RANDOM_COUNTERS.contains(counter)
+                                ||List.of("reverse_mana","end_damage","dimensional_shifting","effect_shock","effect_vacuum","effect_timestop","effect_chain_lightning").contains(counter)))continue;
+                        game.items().mana().score(player,counter).set(counter.equals("end_damage")?21474:Integer.MAX_VALUE);
+                    }
                     player.entityTags().addAll(List.of("have_lucky_effects","have_lucky_effects_5t","have_lucky_effects_1s"));
                     game.items().adoptRawFoodStatuses(player);
                 }
@@ -110,7 +114,7 @@ public final class LbcNamedFoods {
         player.addEffect(ItemEffectLevels.create(effect.type(),ticks,effect.amplifier(),false,!effect.hidden()),player);
     }
     private static void clearSight(ServerPlayer player){player.removeEffect(MobEffects.BLINDNESS);player.removeEffect(MobEffects.DARKNESS);}
-    private void add(ServerPlayer player,String counter,int amount){game.items().mana().score(player,counter).add(amount);}
+    private void add(ServerPlayer player,String counter,int amount){if(LbcParasite.active(player)&&(counter.equals("dimensional_shifting")||counter.equals("end_damage")))return;game.items().mana().score(player,counter).add(amount);}
     private void fish(ServerPlayer player,int seconds,int mana,int regeneration,int maximum){
         add(player,"void_resistance",seconds);add(player,"dimensional_shifting",seconds);add(player,"mana",mana);add(player,"manaregen",regeneration);add(player,"manamax",maximum);
         game.items().adoptRawFoodStatuses(player);

@@ -48,7 +48,7 @@ public final class LbcBabylonEffects {
     public boolean accept(LivingEntity target,Projectile arrow,MobEffectInstance effect){
         if(!isEffect(effect)||!LbcBabylon.managed(arrow)||!game.items().currentEpoch(arrow)
                 ||target.entityTags().contains("sin_greed_active")||!valid(target)||!target.canBeAffected(effect)
-                ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return false;
+                ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         var owner=LbcIndirectKills.playerSource(arrow);if(owner==null)return false;
         if(skillImmune(target)){clear(target);return true;}
         int duration=effect.getDuration();if(duration==2)duration=1;if(duration<=0)return true;
@@ -61,7 +61,7 @@ public final class LbcBabylonEffects {
     public boolean acceptQuiver101(LivingEntity target,MobEffectInstance effect,net.minecraft.world.entity.projectile.arrow.Arrow arrow){
         if(effect.getAmplifier()!=101||!isEffect(effect)||!game.items().quiver().validEffectArrow(arrow,101)
                 ||target.entityTags().contains("sin_greed_active")||!valid(target)||!target.canBeAffected(effect)
-                ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return false;
+                ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         var owner=LbcIndirectKills.playerSource(arrow);if(owner==null)return false;
         if(skillImmune(target)){clear(target);return true;}
         int duration=effect.getDuration();if(duration==2)duration=1;if(duration<=0)return true;
@@ -70,7 +70,7 @@ public final class LbcBabylonEffects {
         sync(target);return true;
     }
     private boolean valid(LivingEntity target){return game.playing()&&target.level()==game.maps().level()&&game.items().wands().validTarget(target);}
-    private boolean skillImmune(LivingEntity target){return mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#lbcskill"),"swrg.math").get()==1 && mana.score(target,"lbc.skill").get()==19;}
+    private boolean skillImmune(LivingEntity target){return LbcParasite.active(target);}
     /** Legacy in-ground arrows fire once, independent of living-target duration queues. */
     void blockImpact(Projectile arrow,int amp,Vec3 at){
         int kind=index(amp);var owner=LbcIndirectKills.playerSource(arrow);
@@ -90,7 +90,7 @@ public final class LbcBabylonEffects {
         if(game.items().polymorph().masked(target))return;
         var all=pending.get(target);if(all==null)return;
         if(target.entityTags().contains("sin_greed_active"))return;
-        if(!valid(target)||skillImmune(target)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p)){clear(target);return;}
+        if(!valid(target)||skillImmune(target)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p)){clear(target);return;}
         if(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped((ServerLevel)target.level())||game.items().timeStop().frozen(target)
                 ||target.entityTags().contains("time_stopped")||game.items().frost().isFrozen(target)||target.entityTags().contains("sin_greed_active"))return;
         for(int kind=0;kind<3;kind++){
@@ -186,7 +186,7 @@ public final class LbcBabylonEffects {
     public void clear(LivingEntity target){retainedTargets.remove(target);pending.remove(target);target.removeAttached(DATA);for(var name:COUNTERS)mana.score(target,name).set(0);}
     public void loaded(Entity entity){
         if(entity.entityTags().contains("skywars2.babylon.effect")&&(!secondary.containsKey(entity)||!game.items().currentEpoch(entity))){entity.discard();return;}
-        if(!(entity instanceof LivingEntity target))return;var tag=target.getAttached(DATA);if(tag==null)return;
+        if(!(entity instanceof LivingEntity target))return;if(LbcParasite.active(target)){clear(target);return;}var tag=target.getAttached(DATA);if(tag==null)return;
         if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clear(target);return;}
         var all=queues();for(var value:tag.getListOrEmpty("entries"))if(value instanceof CompoundTag entry)try{
             int kind=index(entry.getIntOr("amp",0)),ticks=entry.getIntOr("ticks",0);if(kind<0||ticks<=0)continue;
@@ -202,7 +202,7 @@ public final class LbcBabylonEffects {
     public void forget(ServerPlayer player){clear(player);}
     public void stop(){for(var target:List.copyOf(pending.keySet()))clear(target);for(var entity:List.copyOf(secondary.keySet()))if(!entity.isRemoved())entity.discard();secondary.clear();retainedTargets.clear();}
     void adoptRawFoodStatuses(ServerPlayer player){
-        if(!valid(player)||skillImmune(player)||game.items().magic().rejectCustomEffect(player))return;
+        if(!valid(player)||skillImmune(player)||game.items().magic().rejectCustomDebuff(player))return;
         int[] desired=new int[3];for(int i=0;i<3;i++)desired[i]=mana.hudValue(player,COUNTERS[i]);
         for(int i=0;i<3;i++){long delta=(long)desired[i]-queued(player,AMPS[i]);if(delta>0)
             pending.computeIfAbsent(player,k->queues()).get(i).addLast(new Contribution((int)Math.min(Integer.MAX_VALUE,delta),game.items().indirectKills().wildCause(player)));}

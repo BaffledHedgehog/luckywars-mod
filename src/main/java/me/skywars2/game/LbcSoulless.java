@@ -154,7 +154,7 @@ public final class LbcSoulless {
     }
     void apply(ServerPlayer p,LivingEntity target){
         checkpointDepth++;try{
-        if(!eligible(target)||target instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player))return;
+        if(!eligible(target)||target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return;
         if(target instanceof Vex){convert(p,target);return;}
         var previous=ghosts.get(target);var status=new Ghosting(p,game.items().indirectKills().wildCause(p));
         if(previous!=null)status.frame=previous.frame;ghosts.put(target,status);
@@ -177,7 +177,7 @@ public final class LbcSoulless {
         checkpointDepth++;try{
         if(!ownerValid(status.owner)||target.isRemoved()||!target.isAlive()||target.level()!=status.owner.level()){clear(target);return;}
         if(paused(target)||LbcGreed.active(target))return;
-        if(!game.items().wands().validTarget(target)||target instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player)||game.items().magic().suppressedAt((ServerLevel)target.level(),target.position())){clear(target);return;}
+        if(!game.items().wands().validTarget(target)||target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player)||game.items().magic().suppressedAt((ServerLevel)target.level(),target.position())){clear(target);return;}
         if(mana.score(target,"effect_ghosting").get()<=0){clear(target);return;}
         target.addEffect(ItemEffectLevels.create(MobEffects.INVISIBILITY,20,1,false,false),status.owner);
         if(target.isSprinting()&&!target.onGround()){

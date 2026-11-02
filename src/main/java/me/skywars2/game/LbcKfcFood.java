@@ -153,7 +153,7 @@ public final class LbcKfcFood {
             case 14 -> {
                 sound(p,"minecraft:lbcsounds.shitting_2",20,1);
                 effect(p,MobEffects.HUNGER,20,255,true); effect(p,MobEffects.LEVITATION,20,10,false);
-                if(!game.items().magic().rejectEffect(p,MobEffects.HUNGER)) setGigaponos(p,gigaponosRemaining(p)+400);
+                if(!(LbcParasite.active(p)||game.items().magic().rejectEffect(p,MobEffects.HUNGER))) setGigaponos(p,gigaponosRemaining(p)+400);
             }
             case 15 -> {
                 effect(p,MobEffects.LEVITATION,10,0,true); effect(p,MobEffects.GLOWING,10,0,true);
@@ -177,6 +177,8 @@ public final class LbcKfcFood {
     private void addExactSourceScores(ServerPlayer p) {
         var mana=game.items().mana();
         for(String name:SOURCE_SCORE_ADDITIONS) {
+            if(LbcParasite.active(p)&&(LbcLegacyEffects.RANDOM_COUNTERS.contains(name)
+                    ||name.equals("end_damage")||name.equals("dimensional_shifting")||name.equals("effect_rtp_1")||name.equals("effect_rtp_2")||name.equals("effect_rtp_3")))continue;
             switch(name) {
                 case "reverse_mana" -> mana.reverse(p,mana.reverse(p)+1);
                 case "nomagic" -> mana.noMagic(p,mana.noMagic(p)+1);
@@ -205,7 +207,7 @@ public final class LbcKfcFood {
         game.items().magic().colors().addPlayerCounters(p);
         mana.addPlayerCounters(p);
         game.items().addPlayerCounters(p);
-        if(gigaponosRemaining(p)>0 && !game.items().magic().rejectEffect(p,MobEffects.HUNGER))
+        if(gigaponosRemaining(p)>0 && !(LbcParasite.active(p)||game.items().magic().rejectEffect(p,MobEffects.HUNGER)))
             setGigaponos(p,gigaponosRemaining(p)+1);
         // Extend finite native effects in their own tick units, preserving visible flags and amplifier.
         for(var current:List.copyOf(p.getActiveEffects())) game.items().indirectKills().extendEffectDuration(p,current);
@@ -264,7 +266,7 @@ public final class LbcKfcFood {
     private static void sound(ServerPlayer p,String id,float volume,float pitch) { LbcOverload.sound(p,id,volume,pitch,0); }
     void adoptRawFoodStatuses(ServerPlayer p){
         int remaining=game.items().mana().hudValue(p,"gigaponos");
-        if(remaining>0&&!game.items().magic().rejectEffect(p,MobEffects.HUNGER))gigaponos.put(p.getUUID(),remaining);
+        if(remaining>0&&!(LbcParasite.active(p)||game.items().magic().rejectEffect(p,MobEffects.HUNGER)))gigaponos.put(p.getUUID(),remaining);
     }
     int gigaponosRemaining(ServerPlayer p) { return gigaponos.getOrDefault(p.getUUID(),0); }
     private void setGigaponos(ServerPlayer p,int ticks) {
@@ -276,7 +278,7 @@ public final class LbcKfcFood {
             var p=game.server().getPlayerList().getPlayer(entry.getKey());
             if(p==null) { if(!retainedEaters.containsKey(entry.getKey()))gigaponos.remove(entry.getKey()); continue; }
             if(game.items().polymorph().masked(p))continue;
-            if(!active(p) || game.items().magic().rejectEffect(p,MobEffects.HUNGER)) { clear(p); continue; }
+            if(!active(p) || (LbcParasite.active(p)||game.items().magic().rejectEffect(p,MobEffects.HUNGER))) { clear(p); continue; }
             int remaining=entry.getValue();
             particle(p,new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),.7,5,.1,.1,.1,0);
             particle(p,new BlockParticleOption(ParticleTypes.BLOCK,Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.BROWN).defaultBlockState()),.7,5,.1,.1,.1,0);

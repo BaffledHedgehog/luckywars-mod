@@ -32,8 +32,7 @@ public final class LbcChainLightningStatus {
     LbcChainLightningStatus(GameController game){this.game=game;}
     public static boolean isMarker(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==124;}
     private boolean role(LivingEntity target){return target.level()==game.maps().level()&&game.items().wands().validTarget(target);}
-    private boolean immune(LivingEntity target){return target instanceof ServerPlayer player&&(game.items().magic().rejectCustomEffect(player)
-            ||game.config().lbcSkills&&game.players().get(player.getUUID()).lbcSkill==19);}
+    private boolean immune(LivingEntity target){return target instanceof ServerPlayer player&&(game.items().magic().rejectCustomDebuff(player));}
     boolean accept(LivingEntity target,MobEffectInstance effect,Entity source){
         callbackDepth++;try{
         if(!isMarker(effect)||!game.playing()||!role(target)||LbcGreed.active(target)||!target.canBeAffected(effect)||immune(target))return false;
@@ -122,6 +121,7 @@ public final class LbcChainLightningStatus {
     void loaded(LivingEntity target){
         callbackDepth++;try{
         if(rewinding)return;
+        if(immune(target)){clear(target);return;}
         var tag=target.getAttached(DATA);if(tag==null){observe(target);return;}
         if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clear(target);return;}
         var queue=new ArrayDeque<Contribution>();for(var value:tag.getListOrEmpty("contributions"))if(value instanceof CompoundTag row){

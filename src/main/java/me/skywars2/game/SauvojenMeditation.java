@@ -273,7 +273,7 @@ public final class SauvojenMeditation {
         h.actor=actor;h.uuid=actor.getUUID();if(!t.level.addFreshEntity(actor)){t.hazards.remove(h);actor.discard();}
     }
     void blind(Trial t){
-        if(looking(t)&&!game.items().magic().rejectCustomEffect(t.owner)){
+        if(looking(t)&&!game.items().magic().rejectCustomDebuff(t.owner)){
             // The canonical Psycho counter also supplies the source five-tick decay, debuff and HUD.
             game.items().psycho().afflict(t.owner,t.owner,10,0,0,0);
             int scared=game.items().psycho().effectValue(t.owner,"scared");

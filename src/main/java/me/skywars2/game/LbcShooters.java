@@ -503,7 +503,7 @@ public final class LbcShooters {
         var boss=bossHelicopterBursts.get(player.getUUID());
         if(boss.remaining>1) boss.phase++;
         var stun=stuns.get(player);
-        if(stun!=null && !game.items().magic().rejectEffect(player,MobEffects.SLOWNESS)) stun.ticks++;
+        if(stun!=null && !(LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))) stun.ticks++;
         kfcCooldowns.merge(player.getUUID(),1,Integer::sum);
         slrCooldowns.merge(player.getUUID(),1,Integer::sum);
         var burst=bursts.get(player.getUUID());
@@ -726,7 +726,7 @@ public final class LbcShooters {
                     ||!game.items().wands().projectileTarget(owner,target)
                     ||game.items().wands().inputTimeStopped(owner)
                     ||game.items().timeStop().frozen(target)
-                    ||target instanceof ServerPlayer player&&game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))return false;
+                    ||target instanceof ServerPlayer player&&(LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.SLOWNESS)))return false;
             clearStun(target);
             var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);
             if(movement!=null)movement.addOrUpdateTransientModifier(new AttributeModifier(STUN_MOVEMENT,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
@@ -763,6 +763,7 @@ public final class LbcShooters {
     /** Remove voluntary input only: deltaMovement belongs to native physics and external forces. */
     public void prepareStunnedInput(LivingEntity target) {
         statusCallbacks++;try {
+            if(LbcParasite.active(target)){clearStun(target);return;}
             var stun=stuns.get(target); if(statusRestoring||stun==null||stun.retainedTarget||game.items().polymorph().masked(target)) return;
             target.xxa=0; target.yya=0; target.zza=0;
             target.setJumping(false); target.setSprinting(false); target.setShiftKeyDown(false);
@@ -775,6 +776,7 @@ public final class LbcShooters {
     /** Correct only pose; the shared teleport policy keeps server and client momentum independently. */
     public void correctStun(ServerPlayer player) {
         statusCallbacks++;try {
+            if(LbcParasite.active(player)){clearStun(player);return;}
             var state=stuns.get(player);if(statusRestoring||state!=null&&state.retainedTarget||!stunned(player)) return;
             prepareStunnedInput(player);
             player.connection.teleport(player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot());
@@ -790,7 +792,7 @@ public final class LbcShooters {
                 if(!target.isAlive() || target.isRemoved() || target.level()!=game.maps().level()
                         || !stun.retainedOwner&&!active(stun.owner) || !game.items().currentEpoch(stun.epoch)
                         || target instanceof ServerPlayer player && (!active(player)
-                            || game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))) {
+                            || (LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.SLOWNESS)))) {
                     clearStun(target); continue;
                 }
                 if(game.items().timeStop().stopped((ServerLevel)target.level())||game.items().timeStop().frozen(target))continue;

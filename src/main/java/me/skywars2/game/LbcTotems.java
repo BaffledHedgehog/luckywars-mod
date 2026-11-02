@@ -162,7 +162,7 @@ public final class LbcTotems {
         level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,at.x,at.y,at.z,3000,1,1,1,2);
         level.sendParticles(ParticleTypes.SOUL,at.x,at.y,at.z+1,500,5,5,5,0);
         LbcOverload.sound(p,at,"minecraft:entity.wither.death",1,2,0);
-        game.items().mana().score(p,"death_timer").set(5);deaths.put(p,new Debt(deathCause,0));
+        if(!LbcParasite.active(p)){game.items().mana().score(p,"death_timer").set(5);deaths.put(p,new Debt(deathCause,0));}
     }
     private final class Lava implements LbcStonekivi.Work {
         final ServerLevel level;final List<BlockPos> cells;final LbcIndirectKills.Owner cause;final String epoch;int cursor;boolean cancelled;
@@ -196,6 +196,7 @@ public final class LbcTotems {
         if(rewinding)return;
         callbackDepth++;try{for(var entry:List.copyOf(deaths.entrySet())){
         var p=entry.getKey();var debt=entry.getValue();
+        if(LbcParasite.active(p)){clear(p);continue;}
         if(!p.isAlive()||p.isRemoved()||!participant(p)){deaths.remove(p);continue;}
         if(!running(p))continue;
         if(debt.phase==0){deaths.put(p,new Debt(debt.cause,1));continue;}

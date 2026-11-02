@@ -43,7 +43,7 @@ public final class LbcLegacyEffects {
     /** Known literal selections share the actual producer, useful for other source consumers too. */
     public void applyDebuff(ServerPlayer p,int selection){
         if(selection<1||selection>47)throw new IllegalArgumentException("random_debuff selection "+selection);
-        if(!admitted(p))return;
+        if(!admitted(p)||LbcParasite.active(p))return;
         p.entityTags().addAll(List.of("have_lucky_effects","have_lucky_effects_1s","have_lucky_effects_5t"));
         lastSelection=selection;selections++;
         game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("randebuff"),"lbc.math").set(selection);
@@ -53,12 +53,14 @@ public final class LbcLegacyEffects {
     }
     /** Scores are authoritative; no private duration is introduced for generic consumers. */
     public void adoptRawFoodStatuses(ServerPlayer p){
+        if(LbcParasite.active(p)){clearDebuffs(p);return;}
         if(OWNED.stream().anyMatch(k->read(p,k)>0))p.entityTags().add("have_lucky_effects");
         if(read(p,"effect_gravity_curse")>0)p.entityTags().add("have_lucky_effects_1s");
     }
     public void tick(){
         int now=game.server().getTickCount();if(now==lastTick)return;lastTick=now;
         for(var p:List.copyOf(game.server().getPlayerList().getPlayers())){
+            if(LbcParasite.active(p))clearDebuffs(p);
             personalStasis.tick(p);
             if(game.items().polymorph().masked(p)||!admitted(p))continue;
             if((now&1)==0)ambientReactions(p);
@@ -145,6 +147,12 @@ public final class LbcLegacyEffects {
                     Attributes.SAFE_FALL_DISTANCE,Attributes.JUMP_STRENGTH,Attributes.MOVEMENT_SPEED)){
                 var attribute=p.getAttribute(type);if(attribute!=null)attribute.removeModifier(id);}}
         game.items().mana().score(p,"effect_gravity_curse").add(-1);p.entityTags().add("have_lucky_effects_1s");
+    }
+    public void clearDebuffs(ServerPlayer p){
+        var mana=game.items().mana();
+        for(var key:RANDOM_COUNTERS)if(mana.hudValue(p,key)!=0)mana.score(p,key).set(0);
+        for(var key:List.of("effect_vacuum","effect_timestop"))if(mana.hudValue(p,key)!=0)mana.score(p,key).set(0);
+        game.items().pendingCombat().clearEffects(p);personalStasis.clear(p);
     }
     public void clear(ServerPlayer p){for(var key:OWNED)game.items().mana().score(p,key).set(0);
         // Shared PendingCombat owns active physical modifiers and its ordinary clear boundary.

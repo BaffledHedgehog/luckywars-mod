@@ -119,22 +119,22 @@ public final class LbcEdibleSpells {
         var rocket=new FireworkRocketEntity(EntityTypes.FIREWORK_ROCKET,p.level());load(rocket,FIREWORK);rocket.setOwner(p);rocket.setPos(p.position());insert(p,rocket);blast(p);
     }
     private void cum(ServerPlayer p){for(float pitch:new float[]{0,.2f,.3f,.5f,.8f,1})LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.agggght",.75f,pitch,0);
-        p.removeAllEffects();for(var e:List.of(MobEffects.POISON,MobEffects.WITHER,MobEffects.NAUSEA,MobEffects.SLOWNESS))effect(p,e,200,0,true);
+        if(!game.items().magic().rejectCustomDebuff(p))p.removeAllEffects();for(var e:List.of(MobEffects.POISON,MobEffects.WITHER,MobEffects.NAUSEA,MobEffects.SLOWNESS))effect(p,e,200,0,true);
         effect(p,MobEffects.SATURATION,100,0,true);effect(p,MobEffects.REGENERATION,2000,10,true);effect(p,MobEffects.SPEED,2000,1,true);effect(p,MobEffects.STRENGTH,2000,1,true);
     }
     private void book(ServerPlayer p){LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.agggght",1,1,10);
         for(int n=0;n<10;n++)drop(p,p,"lbc:transformables_spells");drop(p,p,"lbc:transformables_staff_all");
-        p.connection.teleport(p.getX(),p.getY(),p.getZ(),p.getYRot(),p.getXRot()-40);
+        if(!game.items().magic().rejectCustomDebuff(p))p.connection.teleport(p.getX(),p.getY(),p.getZ(),p.getYRot(),p.getXRot()-40);
         for(var e:List.of(MobEffects.NAUSEA,MobEffects.BLINDNESS,MobEffects.DARKNESS))effect(p,e,20,0,true);
     }
     private void danmaku(ServerPlayer p){var at=p.getEyePosition().add(0,-.5,0);
         for(int n=1;n<=360;n++){game.items().danmaku().card(p,at,Vec3.directionFromRotation(p.getXRot()-10,p.getYRot()+n),true);LbcOverload.sound(p,at,"minecraft:ui.cartography_table.take_result",.5f,2,0);}
         for(int n=1;n<=360;n++){game.items().danmaku().card(p,at,Vec3.directionFromRotation(p.getXRot(),p.getYRot()+n),false);LbcOverload.sound(p,at,"minecraft:ui.cartography_table.take_result",.5f,2,0);}
     }
-    private void teleport(ServerPlayer p,int radius){var board=game.server().getScoreboard();var objective=board.getObjective("swrg.math");var score=objective==null?null:board.getPlayerScoreInfo(ScoreHolder.forNameOnly("no_borders"),objective);
+    private void teleport(ServerPlayer p,int radius){if(game.items().magic().rejectCustomDebuff(p))return;var board=game.server().getScoreboard();var objective=board.getObjective("swrg.math");var score=objective==null?null:board.getPlayerScoreInfo(ScoreHolder.forNameOnly("no_borders"),objective);
         boolean bounded=score!=null&&score.value()==0;execute(p,"spreadplayers "+(bounded?"0 0 0 190":p.getX()+" "+p.getZ()+" 0 "+radius)+" true @s");
     }
-    private void polymorph(ServerPlayer p){var sheep=EntityTypes.SHEEP.create(p.level(),EntitySpawnReason.TRIGGERED);if(sheep==null)return;
+    private void polymorph(ServerPlayer p){if(game.items().magic().rejectCustomDebuff(p))return;var sheep=EntityTypes.SHEEP.create(p.level(),EntitySpawnReason.TRIGGERED);if(sheep==null)return;
         load(sheep,"{DeathLootTable:'minecraft:empty',CustomName:'jeb_',CustomNameVisible:0b,attributes:[{id:'minecraft:knockback_resistance',base:10}]}");sheep.setCustomName(Component.literal("jeb_"));sheep.setCustomNameVisible(false);sheep.entityTags().add("magicalsheep");sheep.setPos(p.position());
         if(!insert(p,sheep))return;var body=new Body(p,sheep,p.gameMode(),game.items().epoch());bodies.add(body);
         p.level().sendParticles(ParticleTypes.POOF,p.getX(),p.getY()+.5,p.getZ(),20,.1,.1,.1,.5);LbcOverload.sound(p,p.position(),"minecraft:block.fire.extinguish",1,2,0);
@@ -177,9 +177,11 @@ public final class LbcEdibleSpells {
     }
     /** Native game tick only maintains accepted polymorphs and native child ownership. */
     public void tick(){
-        for(var body:List.copyOf(bodies))if(!game.items().currentEpoch(body.epoch)||!game.playing()||game.stage()==GameController.Stage.ENDING||body.player.isRemoved())release(body);
+        for(var body:List.copyOf(bodies))if(LbcParasite.active(body.player)||!game.items().currentEpoch(body.epoch)||!game.playing()||game.stage()==GameController.Stage.ENDING||body.player.isRemoved())release(body);
         for(var e:List.copyOf(nativeChildren))if(e.isRemoved()||!game.items().currentEpoch(e)||!game.playing()||game.stage()==GameController.Stage.ENDING){nativeChildren.remove(e);authors.remove(e);if(!e.isRemoved())e.discard();}
     }
+    public boolean polymorphed(ServerPlayer player){return bodies.stream().anyMatch(body->body.player==player);}
+    public void clearDebuffs(ServerPlayer player){for(var body:List.copyOf(bodies))if(body.player==player)release(body);}
     private void release(Body body){bodies.remove(body);if(body.player.getCamera()==body.sheep){body.player.setCamera(body.player);body.player.setGameMode(body.previous);}nativeChildren.remove(body.sheep);authors.remove(body.sheep);if(!body.sheep.isRemoved())body.sheep.discard();}
     public void loaded(Entity entity){if(managed(entity)&&!publishing.contains(entity)&&!nativeChildren.contains(entity))entity.discard();}
     public void unloaded(Entity entity){nativeChildren.remove(entity);authors.remove(entity);}

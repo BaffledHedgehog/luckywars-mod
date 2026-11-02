@@ -159,6 +159,7 @@ public final class LbcFoodLifecycle {
     }
     private void particles(ServerPlayer p,Vec3 at){p.level().sendParticles(new ItemParticleOption(ParticleTypes.ITEM,ItemStackTemplate.fromNonEmptyStack(new ItemStack(Items.PUMPKIN))),at.x,at.y+1,at.z,150,.3,.6,.3,0);}
     private void spread(ServerPlayer p,Vec3 at){
+        if(game.items().magic().rejectCustomDebuff(p))return;
         var source=game.server().createCommandSourceStack().withSource(CommandSource.NULL).withLevel(p.level()).withEntity(p)
                 .withPosition(at).withRotation(p.getRotationVector()).withPermission(PermissionSet.ALL_PERMISSIONS).withSuppressedOutput();
         try{game.server().getCommands().getDispatcher().execute("spreadplayers "+at.x+" "+at.z+" 0 10 false @s",source);}

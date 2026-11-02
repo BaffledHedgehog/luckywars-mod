@@ -199,6 +199,7 @@ public final class LbcSheep {
     Sheep transform(ServerPlayer p,Entity original,boolean academy){
         if(rewinding)return null;
         callbackDepth++;try{
+        if(original instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return null;
         if(!validOwner(p)||!rayTarget(p,original,academy)||original instanceof ItemEntity
                 ||!resident(p.level(),original.position())||suppressed(p.level(),original.position()))return null;
         if(academy&&original.getType().builtInRegistryHolder().is(MOBS)){

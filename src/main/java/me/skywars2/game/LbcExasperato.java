@@ -224,6 +224,19 @@ public final class LbcExasperato {
     LbcExasperato(GameController game) { this.game=game; }
     public int count() { charges.removeIf(Entity::isRemoved); return charges.size(); }
     public int pendingSearches() { return searches.size(); }
+    /** Teleportit observes resident virtual rays through their canonical scheduler, without spawning probes. */
+    boolean hostileRayNear(ServerPlayer observer,double radius){
+        double reach=radius*radius;
+        for(var search:searches){
+            if(search.finished||search.blocksOnly||search.level!=observer.level()
+                    ||search.position.distanceToSqr(observer.position())>reach
+                    ||!game.items().currentEpoch(search.epoch))continue;
+            var owner=search.owner;
+            if(owner!=observer&&owner.isAlive()&&!owner.isRemoved()&&!owner.isAlliedTo(observer)
+                    &&!game.items().wands().inputTimeStopped(owner))return true;
+        }
+        return false;
+    }
     public int mushroomCount() { return game.items().nuclearVisuals().count(); }
     public int pendingBlasts() {
         int remaining=0;

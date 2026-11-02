@@ -217,6 +217,27 @@
       "slot": 10,
       "gate": "lbc:true_advancements/armor/techno_full",
       "lockedKey": "lbc.adv.armor.techno_full.lore"
+    },
+    {
+      "id": 6,
+      "page": 10000,
+      "slot": 5,
+      "gate": "lbc:true_advancements/armor/nyauwu",
+      "lockedKey": "lbc.adv.armor.nyauwu.lore"
+    },
+    {
+      "id": 10,
+      "page": 10000,
+      "slot": 9,
+      "gate": "lbc:true_advancements/armor/shulker_full",
+      "lockedKey": "lbc.adv.armor.shulker_full.lore"
+    },
+    {
+      "id": 19,
+      "page": 10000,
+      "slot": 19,
+      "gate": "lbc:true_advancements/legends/academy/acidacid",
+      "lockedKey": "lbc.adv.upgraded_tuntija.acidacid.lore"
     }
   ],
   "levelups": [

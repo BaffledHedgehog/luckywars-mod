@@ -106,7 +106,7 @@ public final class LbcHoming {
     public int curseSeconds(LivingEntity entity) { return curseValue(entity); }
     void adoptRawFoodStatuses(ServerPlayer player){
         int seconds=game.items().mana().hudValue(player,"target");
-        if(seconds<=0||!valid(player)||game.items().magic().rejectCustomEffect(player))return;
+        if(seconds<=0||!valid(player)||game.items().magic().rejectCustomDebuff(player))return;
         var curse=curses.computeIfAbsent(player,p->new Curse(player,0));curse.remaining=(long)seconds*20;curse.rawWild=true;
     }
     private boolean curseTarget(Curse curse,LivingEntity target){return curse.rawWild
@@ -114,7 +114,7 @@ public final class LbcHoming {
             :target(curse.owner,target);}
     private void syncCurse(LivingEntity target){game.items().mana().score(target,"target").set(curseValue(target));}
     void addPlayerCounters(ServerPlayer player) {
-        if(!game.items().magic().rejectCustomEffect(player))
+        if(!game.items().magic().rejectCustomDebuff(player))
             curses.computeIfAbsent(player,ignored->new Curse(player,0)).remaining+=20;
         syncCurse(player);
         // These are sustained casts owned by the player, rather than projectile/entity ages.
@@ -437,7 +437,7 @@ public final class LbcHoming {
         void finish(ServerPlayer owner,net.minecraft.world.phys.HitResult hit){
             if(!(hit instanceof EntityHitResult entityHit) || !(entityHit.getEntity() instanceof LivingEntity living)
                     || !projectileTarget(owner,living)) return;
-            if(living instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) return;
+            if(living instanceof ServerPlayer player && game.items().magic().rejectCustomDebuff(player)) return;
             curses.compute(living,(entity,old)->new Curse(owner,(old==null?0:old.remaining)+1200));
             syncCurse(living);
             owner.level().sendParticles(new DustParticleOptions(net.minecraft.util.ARGB.colorFromFloat(1,.314f,.294f,.129f)&0xffffff,3),
@@ -458,7 +458,7 @@ public final class LbcHoming {
             var victim=entry.getKey(); var curse=entry.getValue();
             if(game.items().polymorph().masked(victim))continue;
             if(!valid(curse.owner) || !(curse.rawWild?curseTarget(curse,victim):projectileTarget(curse.owner,victim))
-                    || victim instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) { clear(victim); continue; }
+                    || victim instanceof ServerPlayer player && game.items().magic().rejectCustomDebuff(player)) { clear(victim); continue; }
             if(paused(curse.owner) || victim.entityTags().contains("time_stopped")
                     || game.items().frost().isFrozen(victim)) continue;
             if(--curse.remaining<=0) clear(victim);else syncCurse(victim);

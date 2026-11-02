@@ -77,7 +77,7 @@ public final class LbcFrost {
                 && entity.level() == game.maps().level() && entity.isAlive() && !entity.isRemoved()
                 && !entity.entityTags().contains("spectator")
                 && (!(entity instanceof ServerPlayer player) || game.allowDamage(player)
-                        && !game.items().magic().rejectCustomEffect(player));
+                        && !game.items().magic().rejectCustomDebuff(player));
     }
 
     /** Общая исходная область Ice Sword / Snow Pearl: все недавно раненые чужие цели вокруг владельца. */
@@ -285,6 +285,7 @@ public final class LbcFrost {
     }
 
     private void hold(State state) {
+        if(LbcParasite.active(state.entity)){clear(state.entity);return;}
         var entity = state.entity;
         var anchor = state.anchor;
         double x = anchor.getX()+.5, y = anchor.getY(), z = anchor.getZ()+.5;
@@ -451,6 +452,7 @@ public final class LbcFrost {
         }finally{statusCallbacks--;}
     }
     void resumeForm(LivingEntity entity){
+        if(LbcParasite.active(entity)){clear(entity);return;}
         statusCallbacks++;try {if(statusRestoring)return;    var state=affected.get(entity);if(state!=null&&state.frozen>0&&entity.level()==level()){
             state.anchor=entity.blockPosition();captureIce(state);frozen.add(state);hold(state);save(state);
         }

@@ -64,6 +64,7 @@ public final class SignedEnvironmentalEffects {
         return level(e,MobEffects.WATER_BREATHING)>0||level(e,MobEffects.CONDUIT_POWER)>0||level(e,MobEffects.BREATH_OF_THE_NAUTILUS)>0;
     }
     public static long airPenalty(LivingEntity e) {
+        LbcParasite.beforeEnvironment(e);
         long result=0;
         for(var effect:List.of(MobEffects.WATER_BREATHING,MobEffects.CONDUIT_POWER,MobEffects.BREATH_OF_THE_NAUTILUS)) {
             long l=level(e,effect);if(l<0)result+=Math.abs(l);
@@ -75,6 +76,7 @@ public final class SignedEnvironmentalEffects {
         return (int)Math.max(-20,(long)supply-amount);
     }
     public static boolean outsideDrain(LivingEntity e) {
+        LbcParasite.beforeEnvironment(e);
         return level(e,MobEffects.WATER_BREATHING)>=2&&!e.isEyeInFluid(FluidTags.WATER)&&!protectedTarget(e);
     }
     public static void airTick(LivingEntity e) {

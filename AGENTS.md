@@ -1,3 +1,37 @@
+## Reactive skills6/10/19 - VERIFIED, INSTALLED (2 November2026)
+
+[Author rules, source ownership, diagnostics and qualification](agent_notes/REACTIVE_SKILLS_PORT_2026_11_02.md).
+User:6Mokrenkoe/10Teleportit MAG+strongartifact only;19Parasite entirely unjammed.
+ALL native/new/custom debuffs blocked BEFORE first action, including native direct
+instant harm, harmful hidden layers/leases, shock/stun/fear/mana/death/food/form/
+control queues. Keep useful signed effects/buffs; mixed breathing retains underwater
+benefit and is removed before harmful land air drain. No questions remain here.
+Future harmful grants use magic.rejectCustomDebuff BEFORE mutation, with narrow
+owner cleanup for loaded/raw states. Do NOT put Parasite in rejectCustomEffect,
+which also admits useful boosts/caster queues. Native holder-only proxy checks
+need explicit Parasite handling; they cannot classify signed levels.
+
+Original10000 slots5/9/19 and original unlocks exposed. Shared hasSkill owns live
+admission; narrow owned edible-sheep recovery permits cleansing restored forms.
+Skill6 actual HP loss*100*abs(BASEregen), safe additive INT saturation, no maxmana
+cap, no absorption-only/rejected payout or nested double counting. Native/rawHP
+share the incoming wrapper. Skill10 any foreign enemy native/mob projectile in
+sphere4 plus existing resident virtual rays; self/allies/grounded excluded,
+radius5 projectile/radius3 on20percent hurt, resident search and momentum flags.
+19 keeps source40percent uniform26 permanent penalty; its downside remains.
+No inventory polling or tick NBT copies; positive native chains are not cloned
+unless actual cleansing is needed. Reentrant effect callbacks are guarded.
+
+Final teste11faf22 / productionb46a0bb5.7groups/8qualifying actual mode1 matches:
+7groups on d5a7360a, final native mob-owner extension reactive retry on e11faf22;
+only reactive owner/check entries changed between those, remaining entries exact.
+9801inputs/2489classes/7353resources plus Loom metadata verified;236authorpaths/
+31overrides unchanged. Native children normal/exact snapshots/config/OP/level/
+tickets/no locks, fixture25577 only;8editing classes absent production. Retained
+compile/fixture/callback-order/proxy failures are documented, no weakened tests.
+Installed normally with7757f568 rollback, restarted:false. No RP update, main
+stop/restart/push or peakTPS claim. TMT LAST/fullkit6/LuckyWars gates unchanged.
+
 ## Looper skill3 - VERIFIED, INSTALLED (2 November2026)
 
 [Source, behavior, diagnostics and qualification](agent_notes/LOOPER_PORT_2026_11_02.md).
@@ -19,11 +53,8 @@ fixture25577 only.8editing classes absent production. Earlier missing-PASS
 fixture timeout retained; final difference is check logging only. Installed
 normally with7968842a rollback, restarted:false; no main stop/restart/push.
 
-Reactive skills6/10/19 remain CLOSED pending the questions already sent in chat:
-suppression classification, reversed ID6 HP-delta formula and arbitrary ID10
-projectile selection. Audit and pure26-penalty helper retained OUTSIDE src/main
-under build/verification/reactive-skills-2026-11-02/. Do not silently choose the
-unanswered policies or repeat them as unrelated progress footnotes. ID2 still
+Reactive skills6/10/19 were subsequently completed with all author answers and
+qualified above. The earlier source audit is historical. ID2 still
 has unported Nexus wire/Greedstone closure; existing carrier guards alone do not
 make it ready. TMT LAST and fullkit6/LuckyWars gates remain unchanged.
 

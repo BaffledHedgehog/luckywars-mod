@@ -193,6 +193,7 @@ public final class LbcCorruptedGlyphs {
         remove(glyph);
     }
     private void leaveTeam(LivingEntity target){
+        if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return;
         var team=target.getTeam();if(team!=null)game.server().getScoreboard().removePlayerFromTeam(target.getScoreboardName(),team);
     }
     /** Starts a real two-way AI duel; admission never damages either mob. */
@@ -281,6 +282,7 @@ public final class LbcCorruptedGlyphs {
             Attributes.KNOCKBACK_RESISTANCE,Attributes.LUCK,Attributes.MAX_HEALTH,Attributes.ATTACK_DAMAGE,Attributes.ATTACK_SPEED,Attributes.MOVEMENT_SPEED);
     private static final int[] DOWN_SCALE={1,1,10,1,1,1,5,100000},DOWN_DEBIT={1,1,10,1,2,1,1,2000};
     private void randomAttributesDown(Glyph glyph,LivingEntity target){
+        if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return;
         for(int i=0;i<DOWN_ATTRIBUTES.size();i++)if(glyph.owner.level().getRandom().nextBoolean()){
             var attribute=target.getAttribute(DOWN_ATTRIBUTES.get(i));
             if(attribute!=null)attribute.setBaseValue((Math.floor(attribute.getBaseValue()*DOWN_SCALE[i])-DOWN_DEBIT[i])/(double)DOWN_SCALE[i]);

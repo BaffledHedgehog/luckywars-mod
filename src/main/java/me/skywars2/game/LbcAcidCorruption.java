@@ -190,12 +190,12 @@ final class LbcAcidCorruption {
     private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e);}
     void debuff(ServerPlayer owner,LivingEntity target,int index){target.addEffect(ItemEffectLevels.create(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]),owner);}
     void adoptRawFoodStatuses(ServerPlayer player){
-        if(deathRemaining(player)>0&&!game.items().magic().rejectCustomEffect(player))
+        if(deathRemaining(player)>0&&!game.items().magic().rejectCustomDebuff(player))
             deaths.computeIfAbsent(player,p->game.items().indirectKills().wildCause(player));
     }
     int deathRemaining(LivingEntity target){return Math.max(0,game.items().mana().hudValue(target,"delayed_death"));}
     void applyDeath(ServerPlayer owner,LivingEntity target,int seconds){
-        if(seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return;
+        if(seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return;
         game.items().mana().score(target,"delayed_death").set((int)Math.min(Integer.MAX_VALUE,(long)deathRemaining(target)+seconds));
         deaths.put(target,game.items().indirectKills().wildCause(owner));
         target.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,20,0),owner);
@@ -207,7 +207,7 @@ final class LbcAcidCorruption {
     void tick(){
         for(var entry:List.copyOf(deaths.entrySet())){
             var target=entry.getKey();if(target==null||game.items().polymorph().masked(target))continue;if(!target.isAlive()||target.isRemoved()||deathRemaining(target)==0){clear(target);continue;}
-            if(target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p)){clear(target);continue;}
+            if(target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p)){clear(target);continue;}
             if(game.server().getTickCount()%20!=0||game.items().timeStop().stopped((ServerLevel)target.level())||target.entityTags().contains("sin_greed_active"))continue;
             int remaining=deathRemaining(target);if(remaining==1&&game.items().mana().hudValue(target,"void_resistance")<=0)game.items().indirectKills().inheritedExecution(target,entry.getValue());
             game.items().mana().score(target,"delayed_death").set(remaining-1);

@@ -131,14 +131,16 @@ public final class LbcItems {
 
     /** Preserve the same pre-hit equipment/role admission for native and direct-HP damage. */
     public boolean withIncomingDamageAttempt(ServerPlayer player,java.util.function.BooleanSupplier action) {
-        return incomingArtifacts.withIncomingAttempt(player,()->shulkerArmor.withIncomingAttempt(player,
+        return reactiveSkills.withIncomingAttempt(player,()->incomingArtifacts.withIncomingAttempt(player,()->shulkerArmor.withIncomingAttempt(player,
                 ()->armorSets.nanobots().withIncomingAttempt(player,()->armorSets.glass().withIncomingAttempt(player,
                         ()->armorSets.berserk().withIncomingAttempt(player,()->armorSets.techno().withIncomingAttempt(player,
-                                ()->armorSets.chaos().withIncomingAttempt(player,action)))))));
+                                ()->armorSets.chaos().withIncomingAttempt(player,action))))))));
     }
 
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
+        reactiveSkills.damaged(victim,source);
+        LbcParasite.damaged(victim,source);
         grimoireRooms.damaged(victim);
         LbcChaosRewardItems.damaged(game,victim,source);
         witchPassives.damaged(victim,source);
@@ -386,8 +388,10 @@ public final class LbcItems {
     private final LbcPills pills;
     public LbcPills pills(){return pills;}
     private final LbcGovnomancer govnomancer;
+    private final LbcReactiveSkills reactiveSkills;
     public LbcDeus deus(){return deus;}
     public LbcGovnomancer govnomancer(){return govnomancer;}
+    public LbcReactiveSkills reactiveSkills(){return reactiveSkills;}
     public LbcBouncingPoop bouncingPoop(){return bouncingPoop;}
     public LbcClownKit clownKit(){return clownKit;}
     public LbcGaaraPot gaaraPot(){return gaaraPot;}
@@ -933,7 +937,7 @@ public final class LbcItems {
         this.grimoireDungeon=new LbcGrimoireDungeon(game);
         this.uniwand=new LbcUniwand(game);
         this.steampunkBreaker=new LbcSteampunkBreaker(game);
-        this.clownKit=new LbcClownKit(game);this.gaaraPot=new LbcGaaraPot(game);this.bouncingPoop=new LbcBouncingPoop(game);this.deus=new LbcDeus(game);this.pills=new LbcPills(game);this.govnomancer=new LbcGovnomancer(game);
+        this.clownKit=new LbcClownKit(game);this.gaaraPot=new LbcGaaraPot(game);this.bouncingPoop=new LbcBouncingPoop(game);this.deus=new LbcDeus(game);this.pills=new LbcPills(game);this.govnomancer=new LbcGovnomancer(game);this.reactiveSkills=new LbcReactiveSkills(game);
         this.steampunkGlove=new LbcSteampunkGlove(game);
         this.steampunkHook=new LbcSteampunkHook(game);
         this.oreshek = new LbcOreshek(game);
@@ -1179,12 +1183,13 @@ public final class LbcItems {
     public LbcLegacyEffects legacyEffects(){return legacyEffects;}
     /** Attach raw food score writes to their existing consumers without adding another dose. */
     public void adoptRawFoodStatuses(ServerPlayer player){
+        LbcParasite.reconcile(player);
         blaze.adoptRawFoodStatuses(player);awakenedAcid.adoptRawFoodStatuses(player);erecto.adoptRawFoodStatuses(player);
         psycho.adoptRawFoodStatuses(player);electro.adoptRawFoodStatuses(player);frost.adoptRawFoodStatuses(player);
         acidCorruption.adoptRawFoodStatuses(player);kfcFood.adoptRawFoodStatuses(player);blind.adoptRawFoodStatuses(player);
         babylonEffects.adoptRawFoodStatuses(player);quiver.adoptRawFoodStatuses(player);kiuas.adoptRawFoodStatuses(player);
         mana.loaded(player);homing.adoptRawFoodStatuses(player);legacyEffects.adoptRawFoodStatuses(player);
-        int skill=mana.hudValue(player,"skill_issue");if(skill>0&&!magic.rejectCustomEffect(player))
+        int skill=mana.hudValue(player,"skill_issue");if(skill>0&&!magic.rejectCustomDebuff(player))
             turnCurses.computeIfAbsent(player.getUUID(),p->new TurnCurse(player)).remaining=skill;
     }
     public OwnedEffectLayers ownedEffects() { return ownedEffects; }
@@ -1671,6 +1676,7 @@ public final class LbcItems {
 
     /** Same point as the source effects_changed advancement; includes splash/cloud/commands. */
     public void effectsChanged(ServerPlayer player) {
+        LbcParasite.beforeEffects(player);
         mana.effectsChanged(player);
         clownKit.effectsChanged(player);
         govnomancer.effectsChanged(player);
@@ -1697,7 +1703,7 @@ public final class LbcItems {
         var data = used.get(DataComponents.CUSTOM_DATA);
         if (data == null || !data.matchedBy(BROKEN_TOTEM) || !active(player)) return;
         screamer(player,null);
-        if (!magic.rejectCustomEffect(player)){
+        if (!magic.rejectCustomDebuff(player)){
             var curse=turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player));curse.remaining+=100;
             mana.score(player,"skill_issue").set(curse.remaining);
         }
@@ -1828,6 +1834,8 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
+        for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);
+        reactiveSkills.tick();
         timeStop.tick();polymorph.tick();fpvDrone.tick();witchClaims.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         grimoireRooms.tick();grimoireBoss.tick();uniwand.tick();
         steampunkHook.tick();familyDrops.tick();teleportGadgets.tick();
@@ -1983,6 +1991,7 @@ public final class LbcItems {
             if (turnCurses.get(id) != curse || polymorph.masked(owner)) continue;
             if (!active(owner) || !owner.isAlive() || owner.isRemoved()) { clear(owner); continue; }
             if (magic.rejectCustomEffect(owner)) { clearEffects(owner); continue; }
+            if (LbcParasite.active(owner)) { clearTurnCurse(owner); continue; }
             // Author: this psychic disorder is unaffected by either jammer.
             Rotation current = new Rotation(Mth.floor(owner.getYRot()), Mth.floor(owner.getXRot()));
             Rotation previous = rotations.getOrDefault(id, ZERO_ROTATION);
@@ -2005,7 +2014,7 @@ public final class LbcItems {
 
     /** Only gameplay counts/deadlines; published HUD caches and tick clocks are never incremented. */
     void addPlayerCounters(ServerPlayer player) {
-        if(!magic.rejectCustomEffect(player)){
+        if(!magic.rejectCustomDebuff(player)){
             var curse=turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player));curse.remaining++;
             mana.score(player,"skill_issue").set(curse.remaining);
         }

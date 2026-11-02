@@ -235,6 +235,18 @@ public final class LbcLoadouts {
         return config.ranked || game.debugPerks(player) || entry.gate == null || hasUnlock(player, entry.gate);
     }
 
+    /** Shared live skill admission; immunity checks never advance clocks or query suppressors. */
+    public boolean hasSkill(ServerPlayer player,int skill){
+        if(!config.lbcSkills||players.get(player.getUUID()).lbcSkill!=skill)return false;
+        var entry=byId(Kind.SKILLS,skill);
+        return entry!=null&&allowed(player,entry)&&game.playing()&&game.stage()!=GameController.Stage.ENDING
+                &&player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()
+                &&game.canUseGameplayItems(player)&&!game.isObserver(player)&&LbcDimensionItems.ordinary(player)
+                &&(game.items().wands().validRoleTarget(player,false)
+                    ||skill==19&&player.isSpectator()&&game.items().edibleSpells().polymorphed(player)
+                    &&java.util.Collections.disjoint(player.entityTags(),java.util.Set.of("spectator","rcdenyalways","strict_map_object","magic_academy","sauvojen_tuntija")));
+    }
+
     /** Event-only permanent item upgrades; no inventory polling and no jammer admission. */
     public void inventoryChanged(ServerPlayer player){
         var id=player.getUUID();if(inventorySkillsChanging.contains(id))return;
@@ -326,7 +338,7 @@ public final class LbcLoadouts {
         var profile = players.get(player.getUUID());
         switch (kind) {
             case KITS -> profile.lbcKit = entry.id;
-            case SKILLS -> { profile.lbcSkill = entry.id; refreshArtifactView(player); }
+            case SKILLS -> { profile.lbcSkill = entry.id; refreshArtifactView(player); LbcParasite.beforeEffects(player); }
             case TRINKETS -> {
                 int limit = Math.max(1, config.lbcTrinketLimit);
                 int slotIndex = Math.floorMod(profile.lbcTrinketSlot, limit);
@@ -418,6 +430,7 @@ public final class LbcLoadouts {
             resistanceOwners.put(player.getUUID(), player);
         }
         game.items().govnomancer().effectsChanged(player);
+        LbcParasite.beforeEffects(player);
         inventoryChanged(player);
         player.setHealth(player.getMaxHealth());
     }

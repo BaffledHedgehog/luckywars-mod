@@ -241,7 +241,7 @@ public final class LbcColors {
     /** Transport only: do not start vanilla raids or replace other Raid Omen variants. */
     public boolean acceptTeleport(LivingEntity target,MobEffectInstance effect,Entity source){
         if(!isTeleportMarker(effect)||!game.playing()||target.level()!=game.maps().level()||!eligible(target)||!target.canBeAffected(effect))return false;
-        if(target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return false;
+        if(target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         int tier=effect.getAmplifier()-40;
         score(target,RTP[tier]).add(Math.max(0,effect.getDuration()));teleporting.add(target);
         var owner=LbcIndirectKills.playerSource(source);if(owner!=null)game.items().indirectKills().displaced(target,owner);
@@ -251,12 +251,13 @@ public final class LbcColors {
     public int teleportTicks(LivingEntity target) { return score(target,RTP[0]).get(); }
     void addPlayerCounters(ServerPlayer player) {
         for(var key:RTP){int remaining=score(player,key).get();
-            if(remaining>0&&!game.items().magic().rejectCustomEffect(player))score(player,key).set(remaining+1);
+            if(remaining>0&&!game.items().magic().rejectCustomDebuff(player))score(player,key).set(remaining+1);
         }
     }
     void clearEffects(LivingEntity target) { for(var key:RTP)score(target,key).set(0);teleporting.remove(target); }
     void loaded(Entity e) {
         if(e instanceof LivingEntity living) {
+            if(LbcParasite.active(living)){clearEffects(living);return;}
             effectsChanged(living);
             var board=game.server().getScoreboard();
             for(var key:RTP){var objective=board.getObjective(key);var value=objective==null?null:board.getPlayerScoreInfo(living,objective);
@@ -303,7 +304,7 @@ public final class LbcColors {
         for(var target:List.copyOf(teleporting)) {
             if(!eligible(target) || target.level()!=game.maps().level()) { clearEffects(target); continue; }
             if(target.entityTags().contains("sin_greed_active"))continue;
-            if(target instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) {
+            if(target instanceof ServerPlayer player && game.items().magic().rejectCustomDebuff(player)) {
                 clearEffects(target); continue;
             }
             if(target.entityTags().contains("time_stopped"))continue;

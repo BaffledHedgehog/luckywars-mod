@@ -71,6 +71,16 @@ public final class OwnedEffectLayers {
     @SuppressWarnings("unchecked") void resume(LivingEntity target,Object saved) {
         if(saved!=null)targets.put(target,(Map<Holder<MobEffect>,Map<Integer,Layer>>)saved);
     }
+    /** Forget only harmful amplifier leases before the native chain is cleansed. */
+    public void purgeDebuffs(LivingEntity target) {
+        var types=targets.get(target);if(types==null)return;
+        for(var type:new HashMap<>(types).entrySet()){
+            type.getValue().entrySet().removeIf(entry->LbcParasite.rejects(target,
+                    new MobEffectInstance(type.getKey(),1,entry.getKey())));
+            if(type.getValue().isEmpty())types.remove(type.getKey());
+        }
+        if(types.isEmpty())targets.remove(target);
+    }
     public void forget(LivingEntity target) { targets.remove(target); }
 
     /** Keep independently ticking baselines and leases aligned with their native projection. */

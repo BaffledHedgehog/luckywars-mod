@@ -232,6 +232,7 @@
     "ConsumableSkillMixin$Finish",
     "LbcEffectTriggerMixin",
     "LbcColorEffectsMixin",
+    "LbcColorEffectsMixin$ParasiteInstant",
     "LbcInstantEffectMixin",
     "FullInvisibilityEntityMixin",
     "FullInvisibilityCameraMixin",

@@ -121,7 +121,7 @@ public final class LbcPolymorph {
     public boolean restoring(){return restoring||rewinding;}
     public ServerPlayer owner(Entity entity){var f=bodies.get(entity);return f==null||f.cause==null?null:game.server().getPlayerList().getPlayer(f.cause.player());}
     public boolean eligible(Entity entity){return entity instanceof LivingEntity living&&!(entity instanceof Sheep)&&!active(entity)
-            &&living.isAlive()&&!game.items().magic().suppressedAt((ServerLevel)entity.level(),entity.position())&&game.items().wands().validTarget(entity)&&!game.items().timeStop().frozen(entity)
+            &&!LbcParasite.active(living)&&living.isAlive()&&!game.items().magic().suppressedAt((ServerLevel)entity.level(),entity.position())&&game.items().wands().validTarget(entity)&&!game.items().timeStop().frozen(entity)
             &&!game.items().timeStop().stopped((ServerLevel)entity.level());}
     Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause){return transform(original,cause,false);}
     Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause,boolean rainbow){
@@ -169,6 +169,7 @@ public final class LbcPolymorph {
     ServerPlayer playerOfBody(LivingEntity target){
         var form=bodies.get(target);return form!=null&&form.original instanceof ServerPlayer player?player:null;
     }
+    public void clearDebuffs(ServerPlayer player){var form=forms.get(player);if(form!=null)finish(form,false);}
     private void finish(Form form,boolean died){
         checkpointDepth++;try{
         if(!forms.remove(form.original,form))return;bodies.remove(form.sheep);
@@ -238,6 +239,7 @@ public final class LbcPolymorph {
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
         for(var form:List.copyOf(forms.values())){
             var original=form.original;var sheep=form.sheep;
+            if(LbcParasite.active(original)){finish(form,false);continue;}
             if(!game.items().currentEpoch(form.epoch)||original.isRemoved()||original.level()!=sheep.level()){finish(form,false);continue;}
             if(!sheep.isAlive()||sheep.isRemoved()){finish(form,true);continue;}
             if(game.items().magic().suppressedAt((ServerLevel)original.level(),sheep.position())){finish(form,false);continue;}

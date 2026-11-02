@@ -74,6 +74,7 @@ public final class LbcCommunism {
     }
     /** lbcr:podchinenie keeps its distinct counter payload; historical projectile causes are not rebound. */
     void subjugate(ServerPlayer p,Entity target,boolean leave,boolean copyId){
+        if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return;
         control(p,target,leave);copyScore(p,target,"team_number");if(copyId)copyScore(p,target,"lbcID2");
         if(!(target instanceof Player))game.items().spellSources().controllerChanged(target,p);
     }

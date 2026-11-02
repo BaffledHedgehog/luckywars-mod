@@ -138,6 +138,7 @@ public final class LbcWitchPassives {
     }
     /** Shared by Lust melee and its flesh spell. Source integer base arithmetic does not heal the wearer. */
     void transferHealth(ServerPlayer owner,net.minecraft.world.entity.LivingEntity target,int amount){
+        if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return;
         var own=owner.getAttribute(Attributes.MAX_HEALTH);var other=target.getAttribute(Attributes.MAX_HEALTH);
         if(own==null||other==null)return;
         own.setBaseValue(net.minecraft.util.Mth.floor(own.getBaseValue())+amount);
@@ -145,10 +146,11 @@ public final class LbcWitchPassives {
     }
     void transferHealth(ServerPlayer owner,java.util.List<? extends net.minecraft.world.entity.LivingEntity> targets,int amount){
         var own=owner.getAttribute(Attributes.MAX_HEALTH);if(own==null)return;
-        for(var target:targets)if(target.getAttribute(Attributes.MAX_HEALTH)!=null)own.setBaseValue(net.minecraft.util.Mth.floor(own.getBaseValue())+amount);
+        for(var target:targets)if(!(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))&&target.getAttribute(Attributes.MAX_HEALTH)!=null)own.setBaseValue(net.minecraft.util.Mth.floor(own.getBaseValue())+amount);
         for(var target:targets)lowerHealth(owner,target,amount);
     }
     private void lowerHealth(ServerPlayer owner,net.minecraft.world.entity.LivingEntity target,int amount){
+        if(target instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return;
         var other=target.getAttribute(Attributes.MAX_HEALTH);if(other==null)return;
         other.setBaseValue(net.minecraft.util.Mth.floor(other.getBaseValue())-amount);
         if(net.minecraft.util.Mth.floor(other.getBaseValue())<=0

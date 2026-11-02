@@ -697,6 +697,8 @@ public final class GameChecks {
                                 case "combat-feedback" -> { CombatFeedbackChecks.run(game); return; }
                                 case "inventory-skills" -> { InventorySkillChecks.run(game); return; }
                                 case "looper" -> { LbcLooperChecks.run(game); return; }
+                                case "reactive-skills" -> { ReactiveSkillChecks.run(game); return; }
+                                case "parasite" -> { ParasiteChecks.run(game); return; }
                                 case "stonekivi-sun" -> { StonekiviSunChecks.run(game); return; }
                                 case "weapon-spread" -> { WeaponSpreadChecks.run(game); return; }
                                 case "rifle-presentation" -> { RiflePresentationChecks.run(game); return; }

@@ -71,8 +71,8 @@ public final class LbcHedgehogSpikes {
             &&a.getOwner() instanceof ServerPlayer p&&p.level()==a.level()&&resident((ServerLevel)a.level(),a.position());}
     private boolean effectTarget(LivingEntity target){return game.items().wands().validTarget(target)
             &&!frozen(target)&&!game.items().magic().suppressedAt((ServerLevel)target.level(),target.position())
-            &&(!(target instanceof ServerPlayer p)||!game.items().magic().rejectCustomEffect(p));}
-    private boolean immune(LivingEntity target){return game.items().mana().score(ScoreHolder.forNameOnly("#lbcskill"),"swrg.math").get()==1&&game.items().mana().score(target,"lbc.skill").get()==19;}
+            &&(!(target instanceof ServerPlayer p)||!game.items().magic().rejectCustomDebuff(p));}
+    private boolean immune(LivingEntity target){return LbcParasite.active(target);}
     public boolean use(ServerPlayer p,InteractionHand hand){
         var stack=p.getItemInHand(hand);var kind=LbcHedgehogItems.spike(stack);if(kind==null||!allowed(p))return false;
         var transport=new Snowball(p.level(),p,stack);transport.shootFromRotation(p,p.getXRot(),p.getYRot(),0,1.5f,1);
@@ -144,7 +144,7 @@ public final class LbcHedgehogSpikes {
         }
         var cause=game.items().indirectKills().wildCause(owner);
         switch(arrow.legacy){
-            case 1->{if(target!=null&&!immune(target)&&(!(target instanceof ServerPlayer player)||!game.items().magic().rejectCustomEffect(player))){
+            case 1->{if(target!=null&&!immune(target)&&(!(target instanceof ServerPlayer player)||!game.items().magic().rejectCustomDebuff(player))){
                 boolean borders=game.config().noBorders;var center=borders?target.position():Vec3.ZERO;
                 int ceiling=target.level().dimension().equals(net.minecraft.world.level.Level.NETHER)?120:target.level().getMaxY()-1;
                 var destination=LbcSurfaceTeleport.destination((ServerLevel)target.level(),center,borders?140:190,ceiling,owner.getRandom());

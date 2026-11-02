@@ -116,25 +116,25 @@ public final class LbcMana {
     private final java.util.Map<ServerPlayer,LbcIndirectKills.Owner> reverseOwners=new java.util.WeakHashMap<>();
     /** A repeated plague is a new player action; duration-only extensions retain the old cause. */
     void applyReverse(ServerPlayer owner,ServerPlayer target,int seconds){
-        if(seconds<=0||game.items().magic().rejectCustomEffect(target))return;
+        if(seconds<=0||game.items().magic().rejectCustomDebuff(target))return;
         reverse(target,(int)Math.min(Integer.MAX_VALUE,(long)reverse(target)+seconds));
         reverseOwners.put(target,game.items().indirectKills().wildCause(owner));
     }
     public int reverse(ServerPlayer p) { return score(p,"reverse_mana").get(); }
     public void reverse(ServerPlayer p,int seconds) {
-        if(seconds>0 && game.items().magic().rejectCustomEffect(p)) return;
+        if(seconds>0 && game.items().magic().rejectCustomDebuff(p)) return;
         write(p,"reverse_mana",Math.max(0,seconds));
         if(seconds<=0)reverseOwners.remove(p);
     }
     /** Personal anti-magic countdown in seconds; it is not a cast or aura gate. */
     public int noMagic(ServerPlayer p) { return score(p,"nomagic").get(); }
     public void noMagic(ServerPlayer p,int seconds) {
-        if(seconds>0 && game.items().magic().rejectCustomEffect(p)) return;
+        if(seconds>0 && game.items().magic().rejectCustomDebuff(p)) return;
         write(p,"nomagic",Math.max(0,seconds));
     }
     /** Source effect_nomagic: extend the timer and empty the mana pool. */
     public void applyNoMagic(ServerPlayer p,int seconds) {
-        if(game.items().magic().rejectCustomEffect(p)) return;
+        if(game.items().magic().rejectCustomDebuff(p)) return;
         noMagic(p,noMagic(p)+seconds);
         set(p,0);
     }
@@ -143,6 +143,7 @@ public final class LbcMana {
         if(game.items().magic().rejectCustomEffect(player)) return;
         for(String name:POTION_TIMERS) {
             int remaining=hudValue(player,name);
+            if(name.equals("effect_remove_mana")&&LbcParasite.active(player))continue;
             if(remaining>0) write(player,name,remaining+1);
         }
         for(String name:List.of("overload_jump","overload_slam")) {
@@ -184,6 +185,12 @@ public final class LbcMana {
         maximum(p,5000); set(p,5000); baseRegen(p,10); write(p,"manaregen_visual",10);
         clearEffects(p); overload.reset(p); game.items().armorSets().techno().reset(p); write(p,"falltimer",0); write(p,"food_count",0); inventoryChanged(p);
     }
+    public void clearDebuffs(LivingEntity p) {
+        for(var key:List.of("effect_remove_mana","reverse_mana","nomagic"))if(hudValue(p,key)!=0)write(p,key,0);
+        reverseOwners.remove(p);game.items().indirectKills().manaEffectCleared(p);
+        var marker=p.getEffect(MobEffects.RAID_OMEN);
+        if(marker!=null&&marker.getAmplifier()==20){pendingPotions.remove(p);p.removeEffect(MobEffects.RAID_OMEN);}
+    }
     public void clearEffects(LivingEntity p) {
         game.items().bolts().clearChainStatus(p);
         game.items().indirectKills().manaEffectCleared(p);
@@ -224,7 +231,7 @@ public final class LbcMana {
         int duration=effect.getDuration()==2 ? 1 : effect.getDuration();
         score(p,POTION_TIMERS.get(effect.getAmplifier()-16)).add(duration);
         // Source arrows2_nodebuff checks the selected skill after converting any sentinel.
-        if(p instanceof ServerPlayer player && game.config().lbcSkills && game.players().get(player.getUUID()).lbcSkill==19)
+        if(LbcParasite.active(p))
             write(p,"effect_remove_mana",0);
         if(effect.getAmplifier()==20 && score(p,"effect_remove_mana").get()>0)
             game.items().indirectKills().manaPotionConsumed(p);
@@ -236,6 +243,7 @@ public final class LbcMana {
         if(game.items().polymorph().masked(p))return;
         if(!statEffects.contains(p) || !effectActor(p) || p.entityTags().contains("time_stopped")) return;
         if(p instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) { clearEffects(p); return; }
+        if(LbcParasite.active(p))clearDebuffs(p);
         boolean remaining=false;
         for(int index:STAT_EFFECT_ORDER) {
             var timer=score(p,POTION_TIMERS.get(index)); int ticks=timer.get(); if(ticks<=0) continue;
@@ -252,6 +260,7 @@ public final class LbcMana {
         if(!remaining) statEffects.remove(p);
     }
     private void badPotion(LivingEntity p) {
+        if(LbcParasite.active(p))return;
         game.items().indirectKills().manaLost(p);
         int roll=p.getRandom().nextInt(10)+1;
         score(p,"mana").add(-2000);
@@ -259,6 +268,7 @@ public final class LbcMana {
         if(roll<=6) score(p,"manaregen").add(-1);
     }
     void loaded(LivingEntity p) {
+        if(LbcParasite.active(p))clearDebuffs(p);
         effectsChanged(p);
         var board=game.server().getScoreboard();
         for(int index=1;index<POTION_TIMERS.size();index++) {
@@ -292,6 +302,7 @@ public final class LbcMana {
     void tickPlayer(ServerPlayer p) {
         if(game.items().polymorph().masked(p))return;
         game.items().bolts().observeStatus(p);
+        if(LbcParasite.active(p))clearDebuffs(p);
         // После выхода из подавления старые таймеры не должны успеть изменить ману до пассивной очистки.
         if(game.items().magic().rejectCustomEffect(p)
                 && (pendingPotions.contains(p) || statEffects.contains(p)

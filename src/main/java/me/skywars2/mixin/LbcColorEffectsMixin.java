@@ -19,6 +19,30 @@ import java.util.Collection;
 /** Изменения эффектов обновляют индексы маны/цветов и представление полной невидимости. */
 @Mixin(LivingEntity.class)
 public abstract class LbcColorEffectsMixin {
+    /** Instant potions bypass addEffect, including commands and direct item consumers. */
+    @Mixin(targets="net.minecraft.world.effect.HealOrHarmMobEffect",priority=1100)
+    public abstract static class ParasiteInstant {
+        @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final private boolean isHarm;
+        @org.spongepowered.asm.mixin.Unique
+        private boolean skywars2$parasiteRejectsInstant(LivingEntity target,int amplifier) {
+            long signed=(long)amplifier+1;
+            boolean healing=(isHarm==target.isInvertedHealAndHarm())==(signed>0);
+            return signed!=0 && !healing && me.skywars2.game.LbcParasite.active(target);
+        }
+        // Wrap the completed method, including lower-priority signed HEAD callbacks which
+        // cancel vanilla execution themselves. A second HEAD callback can run too late.
+        @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="applyInstantaneousEffect")
+        private void skywars2$parasiteInstant(net.minecraft.server.level.ServerLevel level,Entity source,Entity owner,
+                LivingEntity target,int amplifier,double scale,
+                com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original) {
+            if(!skywars2$parasiteRejectsInstant(target,amplifier)) original.call(level,source,owner,target,amplifier,scale);
+        }
+        @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="applyEffectTick")
+        private boolean skywars2$parasiteInstantTick(net.minecraft.server.level.ServerLevel level,LivingEntity target,
+                int amplifier,com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original) {
+            return skywars2$parasiteRejectsInstant(target,amplifier)||original.call(level,target,amplifier);
+        }
+    }
     /** Оглушение убирает AI/прыжок, сохраняя обычный travel с гравитацией и внешней скоростью. */
     @Inject(method="isImmobile",at=@At("HEAD"),cancellable=true)
     private void skywars2$stunnedInput(CallbackInfoReturnable<Boolean> ci) {
@@ -43,6 +67,9 @@ public abstract class LbcColorEffectsMixin {
         var game=SkyWars2.game();
         if(game!=null) {
             var target=(LivingEntity)(Object)this;
+            if(me.skywars2.game.LbcParasite.active(target) && me.skywars2.game.LbcParasite.rejects((LivingEntity)(Object)this,effect)) {
+                ci.setReturnValue(false); return;
+            }
             if(me.skywars2.game.LbcGreed.active(target) && source!=target) { ci.setReturnValue(false); return; }
             var arrow=me.skywars2.game.LbcBabylon.effectArrow();
             var quiverArrow=me.skywars2.game.LbcQuiver.effectArrow();
@@ -65,6 +92,8 @@ public abstract class LbcColorEffectsMixin {
     }
     @Inject(method="canBeAffected",at=@At("HEAD"),cancellable=true)
     private void skywars2$artifactEffectGuard(MobEffectInstance effect, CallbackInfoReturnable<Boolean> ci) {
+        if(me.skywars2.game.LbcParasite.active((LivingEntity)(Object)this)
+                && me.skywars2.game.LbcParasite.rejects((LivingEntity)(Object)this,effect)) { ci.setReturnValue(false); return; }
         // Raid Omen 119 служил транспортом Stand-стрелы в датапаке. Настоящее
         // попадание уже обработано один раз; не запускаем эффект и повторные попытки.
         if(me.skywars2.game.LbcStand.isArrowMarker(effect)) { ci.setReturnValue(false); return; }
@@ -76,7 +105,10 @@ public abstract class LbcColorEffectsMixin {
     @Inject(method="tickEffects",at=@At("HEAD"))
     private void skywars2$artifactBeforeEffects(CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null && (Object)this instanceof ServerPlayer player) game.items().magic().beforeEffects(player);
+        if (game != null && (Object)this instanceof ServerPlayer player) {
+            me.skywars2.game.LbcParasite.beforeEffects(player);
+            game.items().magic().beforeEffects(player);
+        }
     }
     @Inject(method="readAdditionalSaveData",at=@At("TAIL"))
     private void skywars2$loadedInvisibility(ValueInput input, CallbackInfo ci) {

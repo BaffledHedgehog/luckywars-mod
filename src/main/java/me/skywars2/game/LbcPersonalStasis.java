@@ -22,7 +22,7 @@ public final class LbcPersonalStasis {
     public int remaining(ServerPlayer p){var data=p.getAttached(DATA);return data==null?0:data.getIntOr("ticks",-1);}
     public void start(ServerPlayer p,int ticks){
         if(ticks==0||ticks< -1)throw new IllegalArgumentException("stasis ticks");
-        if(!p.isAlive()||p.isRemoved())return;
+        if(!p.isAlive()||p.isRemoved()||LbcParasite.active(p))return;
         var data=new CompoundTag();data.putString("epoch",game.items().epoch());
         data.putString("dimension",p.level().dimension().identifier().toString());
         data.putDouble("x",p.getX());data.putDouble("y",p.getY());data.putDouble("z",p.getZ());
@@ -34,6 +34,7 @@ public final class LbcPersonalStasis {
     public void clear(ServerPlayer p){p.removeAttached(DATA);p.entityTags().remove(TAG);}
     public void tick(ServerPlayer p){
         var data=p.getAttached(DATA);if(data==null)return;
+        if(LbcParasite.active(p)){clear(p);return;}
         if(!p.isAlive()||p.isRemoved()||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||!game.items().currentEpoch(data.getStringOr("epoch",""))){clear(p);return;}
         // Freeze pauses the existing anchor; it neither moves the pose nor spends its remaining duration.

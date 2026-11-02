@@ -85,7 +85,7 @@ public final class LbcKiuas {
     public boolean acceptCurse(LivingEntity target,MobEffectInstance effect,Entity source){
         checkpointCallbacks++;try {
             if(!isCurse(effect)||!game.playing()||target.level()!=game.maps().level()||!game.items().wands().validTarget(target)
-                    ||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return false;
+                    ||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
             var owner=LbcIndirectKills.playerSource(source);
             var cause=owner==null?null:game.items().indirectKills().coldCause(owner,true);
             cursed.put(target,cause);
@@ -100,7 +100,7 @@ public final class LbcKiuas {
     }
     void loaded(Entity entity){
         checkpointCallbacks++;try {
-            if(!(entity instanceof LivingEntity target))return;var tag=target.getAttached(CURSE);if(tag==null)return;
+            if(!(entity instanceof LivingEntity target))return;if(LbcParasite.active(target)){clearCurse(target);return;}var tag=target.getAttached(CURSE);if(tag==null)return;
             if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clearCurse(target);return;}
             LbcIndirectKills.Owner cause=null;
             try{cause=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("owner","")),tag.getLongOr("order",0),tag.getBooleanOr("projectile",false));}catch(IllegalArgumentException ignored){}
@@ -112,7 +112,7 @@ public final class LbcKiuas {
         }finally{checkpointCallbacks--;}
     }
     void adoptRawFoodStatuses(ServerPlayer player){
-        if(game.items().mana().hudValue(player,"effect_kiuaskivi")<=0||game.items().magic().rejectCustomEffect(player))return;
+        if(game.items().mana().hudValue(player,"effect_kiuaskivi")<=0||game.items().magic().rejectCustomDebuff(player))return;
         var cause=cursed.computeIfAbsent(player,p->game.items().indirectKills().wildCause(player));saveCurse(player,cause);
     }
     public void clearCurse(LivingEntity target){
@@ -125,7 +125,7 @@ public final class LbcKiuas {
             if(game.items().polymorph().masked(target))continue;
             int remaining=game.items().mana().hudValue(target,"effect_kiuaskivi");
             if(remaining<=0||!game.items().wands().validTarget(target)||target.level()!=game.maps().level()
-                    ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p)){clearCurse(target);continue;}
+                    ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p)){clearCurse(target);continue;}
             if(game.items().timeStop().frozen(target)||game.items().frost().isFrozen(target)||target.entityTags().contains("sin_greed_active"))continue;
             if(!game.items().magic().suppressedAt(game.maps().level(),target.position())){
                 game.items().indirectKills().trapChanges(game.maps().level(),cursed.get(target),()->{

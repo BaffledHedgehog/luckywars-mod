@@ -42,7 +42,7 @@ public final class LbcWitchWrath {
             &&!e.entityTags().contains("spectator")&&!e.entityTags().contains("strict_map_object")
             &&!e.entityTags().contains("magic_academy")&&!e.entityTags().contains("rcdenyalways")
             &&(boss||!e.entityTags().contains("sauvojen_tuntija"))
-            &&(!(e instanceof ServerPlayer p)||game.canUseGameplayItems(p))&&!protectedAt(e)
+            &&(!(e instanceof ServerPlayer p)||game.canUseGameplayItems(p)&&!game.items().magic().rejectCustomDebuff(p))&&!protectedAt(e)
             &&!game.items().timeStop().stopped((ServerLevel)e.level())&&!game.items().timeStop().frozen(e);}
     public void tick(){if(advancing)throw new IllegalStateException("Reentrant authority advance");advancing=true;try{
         int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
@@ -94,6 +94,7 @@ public final class LbcWitchWrath {
         }
     }
     private void health(ServerPlayer owner,ServerPlayer target){
+        if(game.items().magic().rejectCustomDebuff(target))return;
         target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(Mth.floor(owner.getMaxHealth()));
         // The old hplvl criterion is ceil(HP+absorption). Read its actual native owner, without a stale dummy copy.
         int theirs=Mth.ceil(target.getHealth()+target.getAbsorptionAmount());
@@ -127,6 +128,7 @@ public final class LbcWitchWrath {
             for(var victim:victims)game.items().indirectKills().inheritedKill(victim,death.cause);
         }
     }
+    public void clearDebuffs(ServerPlayer player){player.entityTags().remove("affected_by_wrath");}
     public void stop(){deaths.clear();lastTick=Integer.MIN_VALUE;}
     void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish Wrath callbacks first");}
     Checkpoint checkpoint(){return new Checkpoint();}

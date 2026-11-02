@@ -373,7 +373,7 @@ public final class LbcElectro {
     }
 
     void adoptRawFoodStatuses(ServerPlayer player){
-        if(game.items().magic().rejectEffect(player,MobEffects.WITHER))return;
+        if((LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.WITHER)))return;
         int pulses=game.items().mana().hudValue(player,"shock");if(pulses<=0)return;
         var existing=shocks.computeIfAbsent(player,p->new Shock(player,0));existing.pulses=pulses;
     }
@@ -381,7 +381,7 @@ public final class LbcElectro {
     /** Общий статус shock используется также медитацией жезла телепорта; выбор цели остаётся у способности. */
     public boolean shock(LivingEntity target,ServerPlayer owner,int pulses) {
         if(pulses<=0 || !target.isAlive() || target.isRemoved()
-                || target instanceof ServerPlayer player && game.items().magic().rejectEffect(player,MobEffects.WITHER)) return false;
+                || target instanceof ServerPlayer player && (LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.WITHER))) return false;
         var shock=shocks.computeIfAbsent(target,ignored->new Shock(owner,0));
         shock.owner=owner;shock.retainedTarget=MatchOfflinePlayers.retained(target);shock.retainedOwner=MatchOfflinePlayers.retained(owner); shock.pulses+=pulses; game.items().mana().score(target,"shock").set(shock.pulses); return true;
     }
@@ -405,7 +405,7 @@ public final class LbcElectro {
         for (var target : level.getEntitiesOfClass(LivingEntity.class,
                 new AABB(at, at).inflate(SHOCK_RADIUS), entity -> game.items().wands().target(owner, entity)
                         && entity.distanceToSqr(owner) <= (double) SHOCK_RADIUS * SHOCK_RADIUS)) {
-            if(target instanceof ServerPlayer player && game.items().magic().rejectEffect(player,MobEffects.WITHER)) continue;
+            if(target instanceof ServerPlayer player && (LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.WITHER))) continue;
             shock(target,owner,2);
             level.sendParticles(ParticleTypes.END_ROD, target.getX(), target.getY() + 20, target.getZ(),
                     400, .5, 20, .5, .01);
@@ -437,7 +437,7 @@ public final class LbcElectro {
                 ServerPlayer owner = shock.owner;
                 if (!target.isAlive() || target.isRemoved() || target.level() != game.maps().level()
                         || target instanceof ServerPlayer player && (!game.canUseGameplayItems(player)
-                            || game.items().magic().rejectEffect(player,MobEffects.WITHER))) { clearEffects(target); continue; }
+                            || (LbcParasite.active(player)||game.items().magic().rejectEffect(player,MobEffects.WITHER)))) { clearEffects(target); continue; }
                 if (target.entityTags().contains("time_stopped") || owner.entityTags().contains("time_stopped")) continue;
                 if (--shock.untilNext > 0) continue;
                 shock.untilNext = SHOCK_INTERVAL;
@@ -591,6 +591,7 @@ public final class LbcElectro {
         if(progress)state.hits=value;else state.charges=value;
     }
     void sourceShock(ServerPlayer player,int value) {
+        if(value>0&&LbcParasite.active(player)){clearEffects(player);return;}
         game.items().mana().score(player,"shock").set(value);
         var state=shocks.get(player);
         if(value<=0)shocks.remove(player);else if(state!=null)state.pulses=value;
@@ -604,7 +605,7 @@ public final class LbcElectro {
         var cyber=charges.computeIfAbsent(player.getUUID(),ignored->new Charge());
         var yellow=yellowCharges.computeIfAbsent(player.getUUID(),ignored->new Charge());
         var shock=shocks.get(player);
-        if(shock!=null && !game.items().magic().rejectCustomEffect(player)) shock.untilNext+=amount;
+        if(shock!=null && !game.items().magic().rejectCustomDebuff(player)) shock.untilNext+=amount;
         cyber.charges+=amount; cyber.hits+=amount;
         yellow.charges+=amount; yellow.hits+=amount;
     }

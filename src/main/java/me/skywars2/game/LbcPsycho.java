@@ -139,6 +139,8 @@ public final class LbcPsycho {
     void adoptRawFoodStatuses(ServerPlayer player) {
         if(!valid(player)||game.items().magic().rejectCustomEffect(player))return;
         var mana=game.items().mana();
+        int ray=mana.hudValue(player,"screamray");if(ray>0)rays.put(player,ray);
+        if(game.items().magic().rejectCustomDebuff(player)){clearDebuffs(player);return;}
         int scared=mana.hudValue(player,"scared"),lookback=mana.hudValue(player,"lookback"),
                 twitching=mana.hudValue(player,"twitching"),piss=mana.hudValue(player,"piss");
         if(scared>0||lookback>0||twitching>0||piss>0){
@@ -147,7 +149,6 @@ public final class LbcPsycho {
             effect.epoch=game.items().epoch();effect.scared=scared;effect.lookback=lookback;
             effect.twitching=twitching;effect.piss=piss;
         }
-        int ray=mana.hudValue(player,"screamray");if(ray>0)rays.put(player,ray);
     }
     private void sync(LivingEntity entity,Affliction effect){
         var mana=game.items().mana();mana.score(entity,"scared").set(effect.scared);
@@ -156,7 +157,7 @@ public final class LbcPsycho {
     }
     void addPlayerCounters(ServerPlayer player) {
         var current=effects.get(player);
-        if(current!=null && current.forcedTicks>0 && !game.items().magic().rejectCustomEffect(player)) current.forcedTicks++;
+        if(current!=null && current.forcedTicks>0 && !game.items().magic().rejectCustomDebuff(player)) current.forcedTicks++;
         afflict(player,player,1,1,1,1);
         addRayTicks(player,1);
     }
@@ -166,6 +167,7 @@ public final class LbcPsycho {
     /** Один принудительный клик принадлежит только уже наложенному Twitching. */
     void twitchClick(ServerPlayer player,boolean attack) {
         var effect=effects.get(player);
+        if(game.items().magic().rejectCustomDebuff(player)){clearDebuffs(player);return;}
         if(effect==null || effect.twitching<=0) return;
         boolean wasUsing=player.isUsingItem();
         game.items().mouseAction(player,attack);
@@ -184,6 +186,7 @@ public final class LbcPsycho {
     }
     /** Reduction of a source counter preserves attribution, other afflictions and forced-use phase. */
     void reduceSourceStatus(ServerPlayer player,String name,int value) {
+        if(value>0&&LbcParasite.active(player)){clearStatus(player,name);return;}
         if(value<=0){clearStatus(player,name);game.items().mana().score(player,name).set(value);return;}
         var effect=effects.get(player);
         if(effect!=null)switch(name){case "scared"->effect.scared=value;case "lookback"->effect.lookback=value;
@@ -404,7 +407,7 @@ public final class LbcPsycho {
                 target.getX(),target.getY()+1,target.getZ(),200,0,0,0,1);
     }
     void afflict(LivingEntity entity,ServerPlayer owner,int scared,int lookback,int twitching,int piss) {
-        if(entity instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) return;
+        if(entity instanceof ServerPlayer player && game.items().magic().rejectCustomDebuff(player)) return;
         var effect=effects.computeIfAbsent(entity,e->new Affliction()); effect.owner=owner; effect.epoch=game.items().epoch();
         effect.scared+=scared; effect.lookback+=lookback; effect.twitching+=twitching; effect.piss+=piss;
         sync(entity,effect);
@@ -414,7 +417,7 @@ public final class LbcPsycho {
         return yellow(entity,owner,100);
     }
     boolean yellow(LivingEntity entity,ServerPlayer owner,int ticks){
-        if(entity instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player))return false;
+        if(entity instanceof ServerPlayer player&&game.items().magic().rejectCustomDebuff(player))return false;
         afflict(entity,owner,0,0,0,0);effects.get(entity).piss=ticks;effects.get(entity).persistentPiss=false;sync(entity,effects.get(entity));return true;
     }
     boolean yellowPersistent(LivingEntity entity,ServerPlayer owner,int ticks){
@@ -425,7 +428,7 @@ public final class LbcPsycho {
             var entity=entry.getKey(); var effect=entry.getValue();
             if(game.items().polymorph().masked(entity))continue;
             if(!entity.isAlive() || entity.isRemoved() || !game.items().currentEpoch(effect.epoch)
-                    || entity.level()!=game.maps().level()&&!effect.persistentPiss || entity instanceof ServerPlayer player && game.items().magic().cleansesCustomEffects(player)
+                    || entity.level()!=game.maps().level()&&!effect.persistentPiss || entity instanceof ServerPlayer player && game.items().magic().cleansesCustomEffects(player) || LbcParasite.active(entity)
                     || entity.isSpectator() || entity.entityTags().contains("spectator")) { removeEffect(entity); continue; }
             if(LbcGreed.active(entity) || game.items().wands().timeStopped() || entity.entityTags().contains("time_stopped") || game.items().frost().isFrozen(entity)) continue;
             if(entity instanceof ServerPlayer player && effect.forcedItem!=null) {
@@ -613,6 +616,10 @@ public final class LbcPsycho {
                 position.x,position.y,position.z,volume,pitch,player.getRandom().nextLong()));
     }
     private void remove(Charge charge) { charges.remove(charge); charge.discard(); }
+    public void clearDebuffs(LivingEntity entity){
+        removeEffect(entity);
+        for(String name:List.of("scared","lookback","twitching","piss"))if(game.items().mana().hudValue(entity,name)!=0)game.items().mana().score(entity,name).set(0);
+    }
     public void clearEffects(LivingEntity entity){if(entity instanceof ServerPlayer player)clearEffects(player);else removeEffect(entity);}
     public void clearEffects(ServerPlayer owner) { removeEffect(owner); rays.remove(owner); clearBeamAudio(owner); game.items().mana().score(owner,"screamray").set(0); }
     public void forget(ServerPlayer owner) {
