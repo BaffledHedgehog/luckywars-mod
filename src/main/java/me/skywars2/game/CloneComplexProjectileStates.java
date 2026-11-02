@@ -11,18 +11,21 @@ import net.minecraft.world.entity.EntitySpawnReason;
 public final class CloneComplexProjectileStates {
     private CloneComplexProjectileStates() { }
     public static boolean recognizes(Entity e) {
-        return LbcClouds.cloneRecognizes(e)||e instanceof LbcExasperato.Charge
+        return LbcShulkerBow.cloneRecognizes(e)||LbcMadokaBow.cloneRecognizes(e)||LbcTrinketArrows.cloneRecognizes(e)||LbcClouds.cloneRecognizes(e)||e instanceof LbcExasperato.Charge
                 ||LbcExoperso.cloneRecognizes(e)||LbcSpecialFireballs.cloneRecognizes(e)
                 ||LbcHalloweenWind.cloneRecognizes(e)||LbcGovnomet.cloneRecognizes(e)
                 ||e instanceof LbcPrism.Charge||LbcSyringe.cloneRecognizes(e)||LbcNeutral.managed(e);
     }
     public static boolean protectedActor(Entity e) {
-        return e instanceof LbcExasperato.Charge explosive&&explosive.academyTrial
+        return LbcMadokaBow.restoreJob(e)||e instanceof LbcExasperato.Charge explosive&&explosive.academyTrial
                 ||e instanceof LbcPrism.Charge prism&&(prism.phase==LbcPrism.Charge.Phase.ACADEMY
                     ||prism.stack!=null&&LbcAcademy.trial(prism.stack));
     }
     /** Returns null for protected trial authority and unsupported managed body variants. */
     public static LbcCloneSkills.ActorImage capture(GameController game,Entity e) {
+        if(LbcShulkerBow.cloneRecognizes(e))return game.items().shulkerBow().cloneImage(e);
+        if(LbcMadokaBow.cloneRecognizes(e))return game.items().madokaBow().cloneImage(e);
+        if(LbcTrinketArrows.cloneRecognizes(e))return game.items().trinketArrows().cloneImage(e);
         if(LbcClouds.cloneRecognizes(e))return game.items().clouds().cloneImage(e);
         if(e instanceof LbcExasperato.Charge)return game.items().exasperato().cloneImage(e);
         if(LbcExoperso.cloneRecognizes(e))return game.items().exoperso().cloneImage(e);

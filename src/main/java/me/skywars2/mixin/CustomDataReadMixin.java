@@ -10,5 +10,6 @@ import org.spongepowered.asm.mixin.*;
 public abstract class CustomDataReadMixin implements ItemData.IntReader {
     @Shadow @Final private CompoundTag tag;
     @Override public int skywars2$readInt(String key,int fallback){return tag.getIntOr(key,fallback);}
+    @Override public String skywars2$readString(String key,String fallback){return tag.getStringOr(key,fallback);}
     @Override public boolean skywars2$contains(String key){return tag.contains(key);}
 }

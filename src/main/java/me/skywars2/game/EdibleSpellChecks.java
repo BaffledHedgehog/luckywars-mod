@@ -121,7 +121,37 @@ public final class EdibleSpellChecks {
         }
         ItemStack consume(String flag){var held=food(flag);owner.setItemInHand(InteractionHand.MAIN_HAND,held);var output=held.finishUsingItem(level,owner);require(output.getCount()==1&&held.getCount()==1,"exactly one native consume debit "+flag);return output;}
         void effect(Holder<MobEffect> type,int ticks,int amplifier,boolean visible){var effect=owner.getEffect(type);require(effect!=null&&effect.getDuration()==ticks&&effect.getAmplifier()==amplifier&&effect.isVisible()==visible,"native effect duration/amplifier/visibility "+type+" expected="+ticks+"/"+amplifier+"/"+visible+" actual="+(effect==null?"missing":effect.getDuration()+"/"+effect.getAmplifier()+"/"+effect.isVisible()));}
+        List<ItemStack> inventoryStacks(ServerPlayer p){
+            var out=new ArrayList<ItemStack>();for(int i=0;i<p.getInventory().getContainerSize();i++)out.add(p.getInventory().getItem(i));
+            var craft=p.inventoryMenu.getCraftSlots();for(int i=0;i<craft.getContainerSize();i++)out.add(craft.getItem(i));out.add(p.containerMenu.getCarried());
+            for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET,EquipmentSlot.MAINHAND,EquipmentSlot.OFFHAND))out.add(p.getItemBySlot(slot));return out;
+        }
+        void protectedSlabInventories(){
+            boolean skills=game.config().lbcSkills;
+            try{
+                reset();game.config().lbcSkills=true;
+                for(var p:List.of(owner,beta)){
+                    game.players().get(p.getUUID()).lbcSkill=2;
+                    var sentinel=new ItemStack(Items.DIAMOND,7);sentinel.set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("protected slab inventory"));
+                    var tag=new net.minecraft.nbt.CompoundTag();tag.putInt("slab_probe",73);sentinel.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(tag));
+                    for(int i=0;i<p.getInventory().getContainerSize();i++)p.getInventory().setItem(i,sentinel.copy());
+                    var craft=p.inventoryMenu.getCraftSlots();for(int i=0;i<craft.getContainerSize();i++)craft.setItem(i,sentinel.copy());p.containerMenu.setCarried(sentinel.copy());
+                    var refs=inventoryStacks(p);var exact=refs.stream().map(ItemStack::copy).toList();
+                    // Exercise the actual player branch without the source's dimension-wide entity destruction.
+                    game.items().edibleSpells().slabInventory(p);var after=inventoryStacks(p);
+                    for(int i=0;i<exact.size();i++)require(after.get(i)==refs.get(i)&&ItemStack.matches(after.get(i),exact.get(i)),"protected caster/other slab target retains every slot/craft/cursor/equipment reference, count and component "+i);
+                }
+                game.players().get(beta.getUUID()).lbcSkill=0;game.items().edibleSpells().slabInventory(beta);
+                for(int i=0;i<36;i++)require(!beta.getInventory().getItem(i).isEmpty()&&!beta.getInventory().getItem(i).is(Items.DIAMOND),"unprotected slab inventory still replaced "+i);
+                for(var slot:List.of(EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET,EquipmentSlot.OFFHAND))require(!beta.getItemBySlot(slot).isEmpty()&&!beta.getItemBySlot(slot).is(Items.DIAMOND),"unprotected slab equipment replaced "+slot);
+                var craft=beta.inventoryMenu.getCraftSlots();for(int i=0;i<craft.getContainerSize();i++)require(!craft.getItem(i).isEmpty()&&!craft.getItem(i).is(Items.DIAMOND),"unprotected slab craft replaced "+i);
+                require(!beta.containerMenu.getCarried().isEmpty()&&!beta.containerMenu.getCarried().is(Items.DIAMOND),"unprotected slab cursor replaced");
+                game.config().lbcSkills=false;game.items().edibleSpells().slabInventory(owner);
+                require(!owner.getInventory().getItem(0).is(Items.DIAMOND),"disabled skill2 preserves ordinary slab replacement");
+            }finally{game.config().lbcSkills=skills;reset();}
+        }
         void synchronous(){
+            protectedSlabInventories();
             reset();consume("eat_damage");require(owner.getHealth()==485,"actual native eat_damage callback WILD self-arrow15 despite no-friendly-fire team");require(owner.getLastDamageSource()!=null&&owner.getLastDamageSource().is(DamageTypes.ARROW),"retains native arrow damage type");
             reset();consume("eat_poison");effect(MobEffects.POISON,200,4,true);
             // Shared independent layers retain hidden food Regen VI above visible native golden-apple Regen II.

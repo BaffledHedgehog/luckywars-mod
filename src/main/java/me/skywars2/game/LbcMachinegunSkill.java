@@ -7,12 +7,11 @@ import java.util.UUID;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
-import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.phys.Vec3;
 
 /** Actual native bow draws, with one unfinished burst per owner and no catch-up debt. */
@@ -100,21 +99,32 @@ public final class LbcMachinegunSkill {
             if(System.nanoTime()-start>=DELIVERY_NANOS)break;
         }
     }
-    private ItemStack ammo(ServerPlayer p){
-        // Event-time lookup only. Normal-arrow custom components qualify but are never copied.
+    private ItemStack weapon(ServerPlayer p){
+        if(p.isUsingItem()&&p.getUseItem().getItem() instanceof BowItem)return p.getUseItem();
+        for(var hand:InteractionHand.values())if(p.getItemInHand(hand).getItem() instanceof BowItem)return p.getItemInHand(hand);
+        return ItemStack.EMPTY;
+    }
+    private ItemStack ammo(ServerPlayer p){return ammo(p,weapon(p));}
+    private ItemStack ammo(ServerPlayer p,ItemStack weapon){
+        if(!(weapon.getItem() instanceof BowItem bow))return null;
+        // Native held-first selection, without the creative fallback's fabricated normal arrow.
+        var held=ProjectileWeaponItem.getHeldProjectile(p,bow.getSupportedHeldProjectiles());
+        if(!held.isEmpty()&&held.getItem() instanceof ArrowItem)return held;
         for(int slot=0;slot<p.getInventory().getContainerSize();slot++){
-            var stack=p.getInventory().getItem(slot);if(!stack.isEmpty()&&stack.is(Items.ARROW))return stack;
+            var stack=p.getInventory().getItem(slot);
+            if(!stack.isEmpty()&&stack.getItem() instanceof ArrowItem&&bow.getAllSupportedProjectiles().test(stack))return stack;
         }
         return null;
     }
     private boolean shoot(ServerPlayer p){
-        var ammo=ammo(p);if(ammo==null)return false;
+        var weapon=weapon(p);var ammo=ammo(p,weapon);if(ammo==null)return false;
+        var fired=weapon.copy();
         int q=charge(p),spread=spread(q);var random=p.getRandom();var direction=p.getLookAngle();
         // q is nonnegative for real draws: spread is at most 2000 and nextInt cannot overflow.
         var motion=new Vec3(component(direction.x,q,random.nextInt(spread*2+1)-spread),
                 component(direction.y,q,random.nextInt(spread*2+1)-spread),
                 component(direction.z,q,random.nextInt(spread*2+1)-spread));
-        var arrow=new Arrow(EntityTypes.ARROW,p.level());arrow.setOwner(p);double damage=2;
+        var arrow=((ArrowItem)ammo.getItem()).createArrow(p.level(),ammo,p,fired);double damage=2;
         arrow.setPos(p.getEyePosition());arrow.entityTags().add(TAG);arrow.entityTags().add("killedarrow");
         if(game.config().lbcLevelups){
             var tags=p.entityTags();
@@ -127,7 +137,9 @@ public final class LbcMachinegunSkill {
         if(!p.level().addFreshEntity(arrow))return false;
         game.items().lifetimes().track(arrow);game.items().timeStop().prepareFrozen(arrow);
         if(random.nextBoolean()){ammo.shrink(1);p.getInventory().setChanged();}
-        game.items().trinkets().shot(p);
+        var family=game.items().shulkerBow().augment(p,fired,java.util.List.of(arrow));
+        game.items().madokaBow().augment(p,fired,family);
+        game.items().trinkets().shot(p,family);
         return true;
     }
     static Vec3 accelerated(Vec3 motion){
@@ -141,7 +153,7 @@ public final class LbcMachinegunSkill {
     public boolean loaded(Entity actor){
         if(!managed(actor))return false;
         if(!game.playing()||actor.level()!=game.maps().level()||!game.items().currentEpoch(actor)){actor.discard();return true;}
-        if(actor instanceof Arrow arrow)game.items().lifetimes().track(arrow);
+        if(actor instanceof AbstractArrow arrow)game.items().lifetimes().track(arrow);
         game.items().timeStop().prepareFrozen(actor);return true;
     }
     /** Narrow native-arrow tick hook also covers arrows restored by full match rewind. */

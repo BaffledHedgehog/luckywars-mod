@@ -99,10 +99,15 @@ public abstract class WandProjectileMixin {
         @Inject(method="tick",at=@At("HEAD"),cancellable=true)
         private void skywars2$cloudTick(CallbackInfo ci) {
             var game=SkyWars2.game();
+            if(game!=null && !game.items().madokaBow().beforeProjectile((Projectile)(Object)this)){ci.cancel();return;}
+            if(game!=null && (Object)this instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow actual
+                    && actual.level() instanceof net.minecraft.server.level.ServerLevel && !game.items().trinketArrows().beforeArrow(actual)){ci.cancel();return;}
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.projectile.arrow.Arrow arrow
                     && arrow.entityTags().contains(me.skywars2.game.LbcTeleport.CLOUD)
                     && !game.items().teleport().beforeCloudTick(arrow)) ci.cancel();
         }
+        @Inject(method="doPostHurtEffects",at=@At("HEAD"))
+        private void skywars2$madokaAccepted(net.minecraft.world.entity.LivingEntity target,CallbackInfo ci){var game=SkyWars2.game();if(game!=null)game.items().madokaBow().entityHit((Projectile)(Object)this,target);}
         @Inject(method="onHitBlock",at=@At("TAIL"))
         private void skywars2$cloudLanded(net.minecraft.world.phys.BlockHitResult hit,CallbackInfo ci) {
             var game=SkyWars2.game();
@@ -136,7 +141,12 @@ public abstract class WandProjectileMixin {
     @Inject(method="onHit",at=@At("TAIL"))
     private void skywars2$shooterHit(HitResult hit, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null) game.items().shooters().hit((Projectile)(Object)this, hit);
+        if (game != null){
+            var projectile=(Projectile)(Object)this;
+            if(hit instanceof net.minecraft.world.phys.BlockHitResult block&&me.skywars2.game.LbcMadokaBow.recognizes(projectile)
+                    &&!game.items().madokaBow().blockHit(projectile,block))return;
+            game.items().shooters().hit(projectile,hit);game.items().trinketArrows().hit(projectile,hit);
+        }
     }
 
     /** Поджигание происходит до hurtServer; записываем автора только принятого попадания. */

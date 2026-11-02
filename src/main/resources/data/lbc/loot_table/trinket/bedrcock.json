@@ -4,27 +4,26 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "functions": [
+          "type": "minecraft:item",
+          "name": "skywars2:bedrock_balls",
+          "modifier": [
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:item_model": "lbc:trinket_6",
                 "minecraft:max_stack_size": 99
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_name",
               "entity": "this",
               "name": {
                 "translate": "lbctrinket.6",
                 "italic": false,
                 "color": "white"
-              }
+              },
+              "type": "minecraft:set_name"
             },
             {
-              "function": "minecraft:set_lore",
               "mode": "replace_all",
               "entity": "this",
               "lore": [
@@ -38,11 +37,12 @@
                   "italic": false,
                   "color": "gray"
                 }
-              ]
+              ],
+              "type": "minecraft:set_lore"
             },
             {
-              "function": "minecraft:set_custom_data",
-              "tag": "{trinket:\"bedrcock\"}"
+              "tag": "{trinket:\"bedrcock\"}",
+              "type": "minecraft:set_custom_data"
             }
           ]
         }

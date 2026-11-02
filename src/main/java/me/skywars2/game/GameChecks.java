@@ -701,6 +701,11 @@ public final class GameChecks {
                                 case "parasite" -> { ParasiteChecks.run(game); return; }
                                 case "contained-skills" -> { ContainedSkillChecks.run(game); return; }
                                 case "armor-zeus-skills" -> { ArmorZeusSkillChecks.run(game); return; }
+                                case "bow-trinket-actors" -> { BowTrinketChecks.runActors(game); return; }
+                                case "minigun-crossbow" -> { MinigunCrossbowChecks.run(game); return; }
+                                case "special-bows" -> { SpecialBowChecks.run(game); return; }
+                                case "madoka-bow" -> { SpecialBowChecks.runMadoka(game); return; }
+                                case "bow-trinkets" -> { BowTrinketChecks.run(game); return; }
                                 case "feedback-models" -> { FeedbackModelChecks.run(game); return; }
                                 case "nuclear-blast" -> { NuclearBlastChecks.run(game); return; }
                                 case "frost-timing" -> { FrostTimingChecks.start(game); return; }
@@ -1490,7 +1495,7 @@ public final class GameChecks {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
             ContainedSkillChecks.tick(game);
-            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
+            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
             ArmorZeusSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
@@ -1986,8 +1991,8 @@ public final class GameChecks {
                         if (entity instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow
                                         && entity.getY() >= 195)
                                 entity.discard();
-                require(game.items().trinkets().projectileCount() == 0,
-                                "Native unload removes projectile tracker references");
+                require(trinketProjectiles(game).size() == 0,
+                                "Discard immediately removes live projectiles; native index unload is checked after match stop");
         }
 
         private static boolean nativeTrinketBow(ServerPlayer player, int heldTicks) {
@@ -2055,17 +2060,17 @@ public final class GameChecks {
                 // С‚СЂРёРЅРєРµС‚ РІ РЅС‘Рј.
                 player.getInventory().setItem(20, blaze.copyWithCount(11));
                 player.getInventory().setItem(21, ghast.copyWithCount(16));
-                require(!nativeTrinketBow(player, 20) && game.items().trinkets().projectileCount() == 0,
+                require(!nativeTrinketBow(player, 20) && trinketProjectiles(game).size() == 0,
                                 "No ammunition produces no trinket proc");
                 player.getInventory().setItem(10, new ItemStack(Items.ARROW, 64));
-                require(!nativeTrinketBow(player, 1) && game.items().trinkets().projectileCount() == 0,
+                require(!nativeTrinketBow(player, 1) && trinketProjectiles(game).size() == 0,
                                 "Cancelled short draw produces no trinket proc");
                 game.config().lbcTrinketLimit = 0;
-                require(nativeTrinketBow(player, 20) && game.items().trinkets().projectileCount() == 0,
+                require(nativeTrinketBow(player, 20) && trinketProjectiles(game).size() == 0,
                                 "Disabled trinkets preserve ordinary bow shot");
                 game.config().lbcTrinketLimit = 3;
                 clearTrinketShots(game);
-                require(nativeTrinketBow(player, 20) && game.items().trinkets().projectileCount() == 2,
+                require(nativeTrinketBow(player, 20) && trinketProjectiles(game).size() == 2,
                                 "Successful bow adds one of each guaranteed trinket projectile");
                 var shots = trinketProjectiles(game);
                 var fireball = (net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball) shots.stream()
@@ -2127,7 +2132,7 @@ public final class GameChecks {
                 player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, crossbow);
                 ((net.minecraft.world.item.CrossbowItem) Items.CROSSBOW).performShooting(level, player,
                                 net.minecraft.world.InteractionHand.MAIN_HAND, crossbow, 3.15f, 1, null);
-                require(game.items().trinkets().projectileCount() == 2
+                require(trinketProjectiles(game).size() == 2
                                 && crossbow.get(DataComponents.CHARGED_PROJECTILES).isEmpty(),
                                 "Three-projectile crossbow volley rolls trinkets once and consumes native charged payload");
                 var arrows = java.util.stream.StreamSupport.stream(level.getAllEntities().spliterator(), false)
@@ -2169,7 +2174,7 @@ public final class GameChecks {
                 observer.getInventory().setItem(21, ghast.copyWithCount(99));
                 observer.getInventory().setItem(10, new ItemStack(Items.ARROW, 16));
                 nativeTrinketBow(observer, 20);
-                require(game.items().trinkets().projectileCount() == 0,
+                require(trinketProjectiles(game).size() == 0,
                                 "Copied observer inventory cannot launch bonus projectiles");
                 clearTrinketShots(game);
                 nativeTrinketBow(player, 20);
@@ -9618,6 +9623,20 @@ public final class GameChecks {
                                 owner.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,ItemStack.EMPTY); owner.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND,ItemStack.EMPTY);
                         }
                         require(hitSlots.size()==38,"All36 inventory slots plus helmet and offhand are reachable");
+                        boolean protectedSkills=game.config().lbcSkills;int previousKfcSkill=game.players().get(owner.getUUID()).lbcSkill;
+                        try {
+                                game.config().lbcSkills=true;game.players().get(owner.getUUID()).lbcSkill=2;
+                                var protectedStacks=new java.util.ArrayList<ItemStack>();
+                                for(int slot=0;slot<owner.getInventory().getContainerSize();slot++) {
+                                        var stack=new ItemStack(Items.DIAMOND,slot+1);stack.set(DataComponents.CUSTOM_NAME,Component.literal("protected chicken slot "+slot));
+                                        owner.getInventory().setItem(slot,stack);protectedStacks.add(stack.copy());
+                                }
+                                var protectedHead=owner.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).copy();var protectedOffhand=owner.getOffhandItem().copy();
+                                food.applyOutcome(owner,4);
+                                require(ItemStack.matches(owner.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD),protectedHead)&&ItemStack.matches(owner.getOffhandItem(),protectedOffhand),"Protected chicken prank preserves head/offhand slots too");
+                                for(int slot=0;slot<protectedStacks.size();slot++)require(ItemStack.matches(owner.getInventory().getItem(slot),protectedStacks.get(slot)),"Protected inventory preserves exact chicken-prank slot "+slot);
+                        } finally {game.config().lbcSkills=protectedSkills;game.players().get(owner.getUUID()).lbcSkill=previousKfcSkill;}
+
                         owner.getInventory().clearContent(); food.applyOutcome(owner,14);
                         var cleanser=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:ported/mystical_artifact_clear").getFirst();
                         owner.getInventory().setItem(0,cleanser); triggerNativeInventoryChange(owner,cleanser); game.items().magic().tick(); game.items().magic().tickPassives();

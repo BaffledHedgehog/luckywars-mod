@@ -1,3 +1,23 @@
+## Bow trinkets / special bows / inventory guards ? VERIFIED, INSTALLED (2 November 2026)
+
+[Final author rules, source closure and exact evidence](agent_notes/BOW_TRINKETS_SPECIAL_BOWS_2026_11_02.md).
+Six trinkets3/7/9/11/13/14 compose on the actual successful native shot family, without
+potion sentinels or overwriting ammo/weapon stats. Native Shulker (4HP, homing Trapper),
+Madoka (guarded curse and pristine map/chest restoration), minigun crossbow (exact special
+ammo reload) and auto-bow skill share the path. Shared reflection also transfers secondary
+authority. Retained selected map slices survive completion/Boba/full-core reference state.
+Protected inventory blocks theft, Succubus potion consumption, edible-slab replacement and
+chicken's random-slot prank; this does not independently expose/qualify the full skill2 chain.
+
+Test964bd267 / production4605fbc0:15groups/15actual mode1 matches on exact artifact,
+9854inputs/2667classes/7364resources. 241protected author paths unchanged; Academy author
+bytes plus exactly one helper reconstruct current file. 31live overrides unchanged; fixture
+25577only, normal child shutdown/exact controlled snapshots/OPs/level/tickets/journal/no locks.
+Eight authoring classes absent production. Installed normally with ae4e77ae rollback and
+restarted:false. No main stop/restart/push, original RP changes or peakTPS/client-render claim.
+The separate broad resident rewind coordinator remains unqualified at Stonekivi/current-hand;
+its gate stays closed. TMT LAST and all other existing gates remain unchanged.
+
 ## Test feedback batch - VERIFIED, INSTALLED (2 November 2026)
 
 [Scope, fixes, exact evidence and remaining boundaries](agent_notes/TEST_FEEDBACK_2026_11_02.md).

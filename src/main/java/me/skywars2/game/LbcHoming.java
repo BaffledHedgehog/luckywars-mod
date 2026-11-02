@@ -43,11 +43,14 @@ public final class LbcHoming {
     private static final net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> PROJECTILES=
             net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
                     net.minecraft.resources.Identifier.parse("minecraft:projectiles"));
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> FOURIER_MOBS=
+            net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
+                    net.minecraft.resources.Identifier.parse("minecraft:mobs"));
     private final Set<Entity> projectiles=new LinkedHashSet<>();
     private final Set<LbcExasperato.RayTicket> pendingRays=new LinkedHashSet<>();
     private IdentityHashMap<LargeFireball,Integer> ages=new IdentityHashMap<>();
     private IdentityHashMap<LargeFireball,LivingEntity> steeringTargets=new IdentityHashMap<>();
-    private final List<Effect> rains=new ArrayList<>(),destinies=new ArrayList<>();
+    private final List<Effect> rains=new ArrayList<>(),destinies=new ArrayList<>(),fouriers=new ArrayList<>();
     private IdentityHashMap<LivingEntity,Curse> curses=new IdentityHashMap<>();
     private int ticks;
     private int inProgress;
@@ -58,6 +61,7 @@ public final class LbcHoming {
         final String epoch;
         Vec3 position;
         int remaining,cloneMask;
+        Vec3 direction=Vec3.ZERO;
         Effect(ServerPlayer owner,Vec3 position,int remaining,String epoch) {
             this.owner=owner; this.level=owner.level(); this.position=position;
             this.remaining=remaining; this.epoch=epoch;
@@ -78,6 +82,7 @@ public final class LbcHoming {
         ++inProgress;try {
             transformOrigins(rains,level,transform);
             transformOrigins(destinies,level,transform);
+            transformOrigins(fouriers,level,transform);
 
         }finally{--inProgress;}
     }
@@ -91,7 +96,7 @@ public final class LbcHoming {
         });
     }
 
-    public int count() { return fireballs.size()+rains.size()+destinies.size()+curses.size(); }
+    public int count() { return fireballs.size()+rains.size()+destinies.size()+fouriers.size()+curses.size(); }
     record EffectView(ServerPlayer owner,String epoch,Vec3 position,int remaining){}
     List<EffectView> destinySnapshot(){return destinies.stream().map(e->new EffectView(e.owner,e.epoch,e.position,e.remaining)).toList();}
     List<LargeFireball> snapshot() { return List.copyOf(fireballs); }
@@ -108,6 +113,17 @@ public final class LbcHoming {
         int seconds=game.items().mana().hudValue(player,"target");
         if(seconds<=0||!valid(player)||game.items().magic().rejectCustomDebuff(player))return;
         var curse=curses.computeIfAbsent(player,p->new Curse(player,0));curse.remaining=(long)seconds*20;curse.rawWild=true;
+    }
+    record FourierView(ServerPlayer owner,String epoch,Vec3 position,Vec3 direction,int age) { }
+    List<FourierView> fourierSnapshot() {
+        return fouriers.stream().map(e->new FourierView(e.owner,e.epoch,e.position,e.direction,130-e.remaining)).toList();
+    }
+    /** Accepted successful-shot proc; no wand payment or cast passives. */
+    void forgetFourier(ServerPlayer owner){fouriers.removeIf(effect->effect.owner==owner);}
+    public boolean launchFourier(ServerPlayer owner) {
+        if(!valid(owner)) return false;
+        var effect=new Effect(owner,owner.getEyePosition(),130,game.items().epoch());
+        effect.direction=owner.getLookAngle(); fouriers.add(effect); return true;
     }
     private boolean curseTarget(Curse curse,LivingEntity target){return curse.rawWild
             ?game.items().wands().validRoleTarget(target,false)&&!LbcGreed.active(target)
@@ -387,9 +403,49 @@ public final class LbcHoming {
         ++inProgress;try {
             ++ticks;
             tickEffects(rains,true); tickEffects(destinies,false);
+            tickFourier();
             tickCurses();
 
         }finally{--inProgress;}
+    }
+    private void tickFourier() {
+        for(var effect:List.copyOf(fouriers)) {
+            var owner=effect.owner; var at=effect.position; var level=effect.level;
+            if(!valid(owner) || owner.level()!=level || !game.items().currentEpoch(effect.epoch)
+                    || !level.hasChunkAt(BlockPos.containing(at)) || game.items().magic().suppressedAt(level,at)) {
+                fouriers.remove(effect); continue;
+            }
+            if(game.items().wands().timeStopped() || game.items().timeStop().stopped(level)
+                    || owner.entityTags().contains("time_stopped")) continue;
+            // The source emits before its steering step, including its final Lifetime=130 pass.
+            if(owner.isSpectator() || owner.position().distanceToSqr(at)>4) {
+                int surface=level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                        net.minecraft.util.Mth.floor(at.x),net.minecraft.util.Mth.floor(at.z));
+                double dy=surface+1000-at.y;
+                Vec3 fangAt=dy*dy<=1007d*1007?new Vec3(at.x,surface,at.z):at;
+                game.items().evokerBass().spawnOwned(owner,fangAt);
+            }
+            // Source local-coordinate lookahead: retain forward momentum and turn by targetDirection*0.1.
+            var nearest=level.getEntitiesOfClass(LivingEntity.class,new net.minecraft.world.phys.AABB(at,at).inflate(40),
+                    e->fourierTarget(owner,e) && e.position().distanceToSqr(at)<=1600).stream()
+                    .min(java.util.Comparator.comparingDouble(e->e.position().distanceToSqr(at))).orElse(null);
+            if(nearest!=null) {
+                Vec3 lookahead=effect.direction.add(nearest.position().subtract(at).normalize().scale(.1));
+                if(lookahead.lengthSqr()>1e-12) effect.direction=lookahead.normalize();
+                Vec3 next=at.add(effect.direction);
+                if(!level.hasChunkAt(BlockPos.containing(next))
+                        || Double.isFinite(game.items().magic().suppressionFraction(level,at,next))) {
+                    fouriers.remove(effect); continue;
+                }
+                effect.position=next;
+            }
+            if(--effect.remaining<=0) fouriers.remove(effect);
+        }
+    }
+    private boolean fourierTarget(ServerPlayer owner,LivingEntity target) {
+        return target!=owner && target.getType().builtInRegistryHolder().is(FOURIER_MOBS)
+                && game.items().wands().projectileTarget(owner,target)
+                && !target.entityTags().contains("strict_map_object");
     }
     private void tickEffects(List<Effect> effects,boolean rain) {
         // spawn/unload callbacks могут менять другие коллекции, поэтому задания удаляются до вызова эффекта.
@@ -522,7 +578,7 @@ public final class LbcHoming {
     }
     public void forget(ServerPlayer owner) {
         ++inProgress;try {
-            rains.removeIf(e->e.owner==owner); destinies.removeIf(e->e.owner==owner);
+            rains.removeIf(e->e.owner==owner); destinies.removeIf(e->e.owner==owner); fouriers.removeIf(e->e.owner==owner);
             curses.entrySet().removeIf(e->e.getKey()==owner || e.getValue().owner==owner);
             for(var fireball:List.copyOf(fireballs)) if(fireball.getOwner()==owner) fireball.discard();
 
@@ -533,7 +589,7 @@ public final class LbcHoming {
             for(var pending:List.copyOf(pendingRays)) pending.cancel();
             pendingRays.clear();
             var pending=List.copyOf(fireballs); fireballs.clear(); ages.clear(); steeringTargets.clear();
-            rains.clear(); destinies.clear(); curses.clear(); ticks=0;
+            rains.clear(); destinies.clear(); fouriers.clear(); curses.clear(); ticks=0;
             for(var fireball:pending) fireball.discard();
             // Индекс прочих нативных снарядов сохраняется: stop не является выгрузкой мира.
 
@@ -542,9 +598,9 @@ public final class LbcHoming {
     void checkpointBoundary(){if(inProgress!=0)throw new IllegalStateException("Finish Homing native callbacks before checkpointing");}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
     final class Checkpoint {
-        private record EffectImage(Effect original,MatchDamageSources.Ref owner,Vec3 position,int remaining,int cloneMask) { }
+        private record EffectImage(Effect original,MatchDamageSources.Ref owner,Vec3 position,int remaining,int cloneMask,Vec3 direction) { }
         private record CurseImage(Curse original,MatchDamageSources.Ref owner,long remaining,boolean rawWild) { }
-        private final List<EffectImage> rainImage,destinyImage;
+        private final List<EffectImage> rainImage,destinyImage,fourierImage;
         private final List<CurseImage> curseValues=new ArrayList<>();
         private final List<MatchDamageSources.Ref> balls=new ArrayList<>(),shots=new ArrayList<>();
         private final List<LbcExasperato.RayTicket> waiting=List.copyOf(pendingRays);
@@ -554,6 +610,7 @@ public final class LbcHoming {
         private final int cadence=ticks;
         @SuppressWarnings("unchecked") Checkpoint(MatchSpellCheckpoint.Links links){
             rainImage=rains.stream().map(e->effect(e,links)).toList();destinyImage=destinies.stream().map(e->effect(e,links)).toList();
+            fourierImage=fouriers.stream().map(e->effect(e,links)).toList();
             fireballs.forEach(e->balls.add(links.key(e)));projectiles.forEach(e->shots.add(links.key(e)));
             ageImage=new MatchSpellCheckpoint.IdentityImage<>(ages,links);
             var steering=(IdentityHashMap<LargeFireball,MatchDamageSources.Ref>)(IdentityHashMap<?,?>)steeringTargets.clone();
@@ -563,7 +620,7 @@ public final class LbcHoming {
             var seen=new IdentityHashMap<Curse,Boolean>();for(var curse:curses.values())if(seen.put(curse,true)==null)
                 curseValues.add(new CurseImage(curse,links.key(curse.owner),curse.remaining,curse.rawWild));
         }
-        private EffectImage effect(Effect e,MatchSpellCheckpoint.Links links){return new EffectImage(e,links.key(e.owner),e.position,e.remaining,e.cloneMask);}
+        private EffectImage effect(Effect e,MatchSpellCheckpoint.Links links){return new EffectImage(e,links.key(e.owner),e.position,e.remaining,e.cloneMask,e.direction);}
         @SuppressWarnings("unchecked") Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();
             var nextBalls=balls.stream().map(ref->(LargeFireball)links.get(ref)).toList();
@@ -574,16 +631,18 @@ public final class LbcHoming {
             for(var ball:refs.keySet())nextSteering.put(ball,(LivingEntity)links.get(refs.get(ball)));
             var effects=new ArrayList<Runnable>();
             for(var image:rainImage)effects.add(effectPlan(image,links));for(var image:destinyImage)effects.add(effectPlan(image,links));
+            for(var image:fourierImage)effects.add(effectPlan(image,links));
             for(var image:curseValues){var owner=(ServerPlayer)links.get(image.owner);
                 effects.add(()->{image.original.owner=owner;image.original.remaining=image.remaining;image.original.rawWild=image.rawWild;});}
             return ()->{effects.forEach(Runnable::run);fireballs.clear();fireballs.addAll(nextBalls);projectiles.clear();projectiles.addAll(nextShots);
                 ages=nextAges;steeringTargets=nextSteering;curses=nextCurses;
                 rains.clear();rainImage.forEach(i->rains.add(i.original));destinies.clear();destinyImage.forEach(i->destinies.add(i.original));
+                fouriers.clear();fourierImage.forEach(i->fouriers.add(i.original));
                 pendingRays.clear();pendingRays.addAll(waiting);ticks=cadence;};
         }
         private Runnable effectPlan(EffectImage image,MatchSpellCheckpoint.Links links){
             var owner=(ServerPlayer)links.get(image.owner);MatchAuthorityCheckpoint.world(game,image.original.level);
-            return ()->{image.original.owner=owner;image.original.position=image.position;image.original.remaining=image.remaining;image.original.cloneMask=image.cloneMask;};
+            return ()->{image.original.owner=owner;image.original.position=image.position;image.original.remaining=image.remaining;image.original.cloneMask=image.cloneMask;image.original.direction=image.direction;};
         }
     }
 
@@ -605,7 +664,8 @@ public final class LbcHoming {
 
     int cloneNearby(ServerPlayer holder,int skill,int budget,long deadline) {
         int made=cloneEffects(rains,holder,skill,budget,deadline);
-        return made+cloneEffects(destinies,holder,skill,budget-made,deadline);
+        made+=cloneEffects(destinies,holder,skill,budget-made,deadline);
+        return made+cloneEffects(fouriers,holder,skill,budget-made,deadline);
     }
     private int cloneEffects(List<Effect> effects,ServerPlayer holder,int skill,int budget,long deadline) {
         int made=0,count=CloneVirtualAbilityStates.count(skill),bit=CloneVirtualAbilityStates.bit(skill);
@@ -617,7 +677,7 @@ public final class LbcHoming {
                     ||!CloneVirtualAbilityStates.near(game,holder,effect.level,effect.position,effect.cloneMask,skill))continue;
             var points=CloneVirtualAbilityStates.positions(holder,effect.level,effect.position,skill);if(points==null)continue;
             for(var point:points){var copy=new Effect(effect.owner,point,effect.remaining,effect.epoch);
-                copy.cloneMask=effect.cloneMask|bit;effects.add(copy);}
+                copy.cloneMask=effect.cloneMask|bit;copy.direction=effect.direction;effects.add(copy);}
             effect.cloneMask|=bit;made+=count;
         }
         return made;

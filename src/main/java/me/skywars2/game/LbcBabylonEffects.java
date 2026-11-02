@@ -59,15 +59,16 @@ public final class LbcBabylonEffects {
     }
     /** Both ordinary Quiver and Babylon 101 feed the same source counter, retaining their own policy. */
     public boolean acceptQuiver101(LivingEntity target,MobEffectInstance effect,net.minecraft.world.entity.projectile.arrow.Arrow arrow){
-        if(effect.getAmplifier()!=101||!isEffect(effect)||!game.items().quiver().validEffectArrow(arrow,101)
-                ||target.entityTags().contains("sin_greed_active")||!valid(target)||!target.canBeAffected(effect)
-                ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
-        var owner=LbcIndirectKills.playerSource(arrow);if(owner==null)return false;
+        if(!game.items().quiver().validEffectArrow(arrow,101))return false;
+        var owner=LbcIndirectKills.playerSource(arrow);return owner!=null&&acceptCarrier101(target,effect,game.items().indirectKills().coldCause(owner,true));
+    }
+    /** Arrow-equivalent carriers feed the same accepted counter, without a synthetic world arrow. */
+    public boolean acceptCarrier101(LivingEntity target,MobEffectInstance effect,LbcIndirectKills.Owner cause){
+        if(cause==null||effect.getAmplifier()!=101||!isEffect(effect)||target.entityTags().contains("sin_greed_active")
+                ||!valid(target)||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         if(skillImmune(target)){clear(target);return true;}
-        int duration=effect.getDuration();if(duration==2)duration=1;if(duration<=0)return true;
-        pending.computeIfAbsent(target,k->queues()).get(0).addLast(new Contribution(duration,
-                game.items().indirectKills().coldCause(owner,true)));
-        sync(target);return true;
+        int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
+        pending.computeIfAbsent(target,k->queues()).get(0).addLast(new Contribution(duration,cause));sync(target);return true;
     }
     private boolean valid(LivingEntity target){return game.playing()&&target.level()==game.maps().level()&&game.items().wands().validTarget(target);}
     private boolean skillImmune(LivingEntity target){return LbcParasite.active(target);}

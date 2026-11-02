@@ -82,7 +82,8 @@ public final class LbcRewardTools {
     /** Full stacks/components transfer exactly once. Failure never consumes the glove. */
     static boolean steal(GameController game,ServerPlayer player,InteractionHand hand,LivingEntity target){
         if(target==player||!target.isAlive()||!game.items().wands().validRoleTarget(target,false)||LbcGreed.active(target)
-                ||game.items().magic().suppressedAt(player.level(),target.position()))return false;
+                ||game.items().magic().suppressedAt(player.level(),target.position())
+                ||target instanceof ServerPlayer guarded&&game.items().inventoryHazards().protectedInventory(guarded))return false;
         SlotAccess chosen=null;
         for(var slot:List.of(EquipmentSlot.MAINHAND,EquipmentSlot.OFFHAND))if(!target.getItemBySlot(slot).isEmpty()){
             chosen=SlotAccess.forEquipmentSlot(target,slot);break;

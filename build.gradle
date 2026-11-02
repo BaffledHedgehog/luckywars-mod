@@ -52,6 +52,10 @@ processResources {
     include 'data/lbc/loot_table/kit/multiply_tablet.json', 'data/lbc/loot_table/kit/palm_with_bananas.json'
     include 'data/lbc/loot_table/kit/steampunk.json', 'data/lbc/loot_table/kit/hook.json'
     include 'data/lbc/loot_table/ported/steampunk_pickaxe.json', 'data/lbc/loot_table/ported/steampunk_sword.json', 'data/lbc/loot_table/ported/grapping_hook.json'
+    include 'data/lbc/loot_table/madoka_bow.json'
+    include 'data/lbc/loot_table/ported/shulker_bow.json', 'data/lbc/loot_table/ported/minigun_crossbow.json', 'data/lbc/loot_table/ported/minigun_crossbow_old.json'
+    // Native bow-trinket singleton definitions; selection readiness stays in the loadout catalog.
+    include 'data/lbc/loot_table/trinket/penis_gun.json', 'data/lbc/loot_table/trinket/bedrcock.json', 'data/lbc/loot_table/trinket/volos.json', 'data/lbc/loot_table/trinket/cocktail.json', 'data/lbc/loot_table/trinket/fourier.json', 'data/lbc/loot_table/trinket/rocket_spell.json'
     include 'data/lbc/loot_table/item_defs/**/*.json'
     include 'data/lbc/structure/item_gallery.nbt'
     include 'data/lbc/worldgen/structure/grimoire_dungeon.json', 'data/lbc/worldgen/template_pool/grimoire_dungeon/**', 'data/lbc/structure/grimoire_dungeon/**'

@@ -150,11 +150,7 @@ public final class LbcKfcRewards {
         var bat=new CultBat(owner.level()); bat.setPos(position); bat.setSilent(true); bat.entityTags().add("no_penis");
         bat.addEffect(ItemEffectLevels.create(MobEffects.INVISIBILITY,-1,0,false,false));
         bat.addEffect(ItemEffectLevels.create(MobEffects.WITHER,-1,0,false,false),owner);
-        var stack=new ItemStack(Items.REPEATING_COMMAND_BLOCK);
-        stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:penis_"+variant));
-        stack.set(DataComponents.ITEM_NAME,Component.translatable("penis"));
-        var flags=new CompoundTag(); flags.putInt("instantitem",1); flags.putInt("penis_bomb",1); flags.putInt("penis_num",variant);
-        if(variant==2) flags.putInt("govnoq",1); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(flags));
+        var stack=bombStack(variant,false);
         var item=new CultItem(owner.level(),position,stack); item.setPermanentlyInvulnerable(true);
         item.entityTags().add("penis"); item.entityTags().add("penis_bomb");
         game.items().markCurrentItemEpoch(bat); game.items().markCurrentItemEpoch(item);
@@ -170,14 +166,7 @@ public final class LbcKfcRewards {
     ItemEntity spawnLooseBomb(LivingEntity hostileOwner,Vec3 position,int variant) {
         if(variant<1 || variant>6) throw new IllegalArgumentException("Unknown cultus variant "+variant);
         if(!(hostileOwner.level() instanceof ServerLevel level)) return null;
-        var stack=new ItemStack(Items.REPEATING_COMMAND_BLOCK);
-        stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:penis_"+variant));
-        stack.set(DataComponents.ITEM_NAME,Component.translatable("penis"));
-        stack.set(DataComponents.MAX_STACK_SIZE,1);
-        stack.set(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_ff"));
-        var flags=new CompoundTag(); flags.putInt("instantitem",1); flags.putInt("penis_bomb",1); flags.putInt("penis_num",variant);
-        if(variant==2) flags.putInt("govnoq",1);
-        stack.set(DataComponents.CUSTOM_DATA,CustomData.of(flags));
+        var stack=bombStack(variant,true);
         var item=new CultItem(level,position,stack); item.setPermanentlyInvulnerable(true);
         var random=hostileOwner.getRandom();
         item.setDeltaMovement((random.nextInt(21)-10)*.01,(random.nextInt(21)-10)*.01,(random.nextInt(21)-10)*.01);
@@ -185,6 +174,45 @@ public final class LbcKfcRewards {
         bombs.put(item,new Bomb(hostileOwner.getUUID(),hostileOwner,game.items().epoch(),variant));
         if(level.addFreshEntity(item)) return item;
         bombs.remove(item); item.discard(); return null;
+    }
+    /** Accepted bow proc; owns a free native inventory mine, without casting Cultus. */
+    public ItemEntity launchTrinketBomb(ServerPlayer owner) {
+        if(!active(owner)) return null;
+        int variant=1+owner.getRandom().nextInt(6);
+        Vec3 origin=owner.getEyePosition();
+        var item=new CultItem(owner.level(),origin,bombStack(variant,true));
+        item.setPermanentlyInvulnerable(true);
+        item.entityTags().add("penis"); item.entityTags().add("penis_bomb");
+        game.items().markCurrentItemEpoch(item);
+        owned.put(item,owner.getUUID());
+        bombs.put(item,new Bomb(owner.getUUID(),null,game.items().epoch(),variant));
+        var look=owner.getLookAngle();
+        item.setDeltaMovement(Math.floor(look.x*10000)*.0002,Math.floor(look.y*10000)*.0002,
+                Math.floor(look.z*10000)*.0002);
+        if(!owner.level().addFreshEntity(item)) {
+            bombs.remove(item); owned.remove(item); item.discard(); return null;
+        }
+        String sound=switch(variant) {
+            case 2->"dick_1"; case 3->"spank"; case 4->"woo"; case 5->"shityeah";
+            case 6->"weewee"; default->"suction";
+        };
+        // Author-approved correction: the sound follows the actual launch position.
+        LbcOverload.sound(owner,origin,"minecraft:lbcsounds."+sound,.5f,1,0);
+        return item;
+    }
+    private static ItemStack bombStack(int variant,boolean styled) {
+        if(variant<1 || variant>6) throw new IllegalArgumentException("Unknown cultus variant "+variant);
+        var stack=new ItemStack(Items.REPEATING_COMMAND_BLOCK);
+        stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:penis_"+variant));
+        stack.set(DataComponents.ITEM_NAME,Component.translatable("penis"));
+        if(styled) {
+            stack.set(DataComponents.MAX_STACK_SIZE,1);
+            stack.set(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_ff"));
+        }
+        var flags=new CompoundTag(); flags.putInt("instantitem",1); flags.putInt("penis_bomb",1); flags.putInt("penis_num",variant);
+        if(variant==2) flags.putInt("govnoq",1);
+        stack.set(DataComponents.CUSTOM_DATA,CustomData.of(flags));
+        return stack;
     }
     private LivingEntity bombOwner(Bomb state) {
         return state==null?null:state.hostileOwner!=null?state.hostileOwner:game.server().getPlayerList().getPlayer(state.owner);
@@ -417,6 +445,7 @@ public final class LbcKfcRewards {
         for(var job:List.copyOf(multicasts.keySet())) job.cancel();
     }
     int bombCount() { return bombs.size(); }
+    List<ItemEntity> bombSnapshot() { return List.copyOf(bombs.keySet()); }
     int celebrationCount() { return celebrations.size(); }
     int pendingMulticastCount() { return multicasts.size(); }
     static boolean cloneRecognizes(Entity e){return e instanceof CultBat||e instanceof CultItem||e instanceof LooseBolt;}

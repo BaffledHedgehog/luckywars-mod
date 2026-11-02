@@ -549,6 +549,9 @@ public final class LbcElectro {
         entity.entityTags().add("skywars2.electro.reflected");
         game.items().markCurrentItemEpoch(entity);
         game.items().summons().ownerChanged(entity,owner);
+        game.items().trinketArrows().ownerChanged(entity,owner);
+        game.items().madokaBow().ownerChanged(entity,owner);
+        game.items().shulkerBow().ownerChanged(entity,owner);
     }
 
     private void emitLightning(ServerPlayer owner, LivingEntity target) {

@@ -39,6 +39,19 @@ public final class RewardToolChecks {
         boolean IdentifierModel(ItemStack s,String id){return net.minecraft.resources.Identifier.parse(id).equals(s.get(DataComponents.ITEM_MODEL));}
         void transferCases(){
             var donor=base.beta;donor.getInventory().clearContent();donor.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(Items.GOLD_INGOT,11));
+            // Failed theft must not consume the glove, choose an offhand fallback or invent a substitute.
+            boolean enabled=game.config().lbcSkills;int skill=game.players().get(donor.getUUID()).lbcSkill;
+            try{game.config().lbcSkills=true;game.players().get(donor.getUUID()).lbcSkill=2;
+                for(var hand:InteractionHand.values()){
+                    var held=new ItemStack(Items.DIAMOND,7);held.set(DataComponents.CUSTOM_NAME,Component.literal("protected exact stack"));
+                    donor.setItemInHand(InteractionHand.MAIN_HAND,held);var off=donor.getOffhandItem().copy();
+                    var denied=tool("krazha");p.setItemInHand(hand,denied);
+                    require(!LbcRewardTools.steal(game,p,hand,donor)&&p.getItemInHand(hand)==denied&&denied.getCount()==1
+                            &&donor.getMainHandItem()==held&&ItemStack.matches(donor.getOffhandItem(),off),"protected inventory rejects theft before either hand mutates");
+                    donor.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);donor.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                    require(!LbcRewardTools.steal(game,p,hand,donor)&&p.getItemInHand(hand)==denied&&denied.getCount()==1,"protected empty inventory cannot yield substitute or consume glove");
+                }
+            }finally{game.config().lbcSkills=enabled;game.players().get(donor.getUUID()).lbcSkill=skill;donor.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);donor.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(Items.GOLD_INGOT,11));}
             var sameTeam=p.getTeam();var oldTeam=donor.getTeam();
             if(oldTeam!=null)game.server().getScoreboard().removePlayerFromTeam(donor.getScoreboardName());
             if(sameTeam!=null)game.server().getScoreboard().addPlayerToTeam(donor.getScoreboardName(),sameTeam);

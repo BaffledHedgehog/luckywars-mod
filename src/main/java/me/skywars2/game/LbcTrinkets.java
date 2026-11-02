@@ -51,6 +51,14 @@ public final class LbcTrinkets {
     public static final Item ICE_GEM = register("skywars2:ice_gem", Items.REPEATING_COMMAND_BLOCK, "lbctrinket.19", "lbc:snow_gem", false);
     public static final Item MANA_GEM = register("skywars2:mana_gem", Items.REPEATING_COMMAND_BLOCK, "lbctrinket.20", "lbc:mana_gem", false);
     public static final Item BLOOD_ANAL_BOOM = register("skywars2:blood_anal_boom", Items.REPEATING_COMMAND_BLOCK, "lbctrinket.4", "lbc:blood_anal_boom", false);
+    public static final Item PENIS_GUN = registerAuthored("skywars2:penis_gun_trinket", "lbctrinket.2", "lbc:trinket_2", "penis_gun");
+    public static final Item BEDROCK_BALLS = registerAuthored("skywars2:bedrock_balls", "lbctrinket.6", "lbc:trinket_6", "bedrcock");
+    public static final Item VOLOS = registerAuthored("skywars2:volos_trinket", "lbctrinket.8", "lbc:trinket_8", "volos");
+    public static final Item COCKTAIL = registerAuthored("skywars2:polarization_cocktail", "lbctrinket.10", "lbc:trinket_10", "cocktail");
+    public static final Item FOURIER = registerAuthored("skywars2:fourier_trinket", "lbctrinket.12", "lbc:trinket_12", "fourier");
+    public static final Item ROCKET_SPELL = registerAuthored("skywars2:rocket_spell_trinket", "lbctrinket.13", "lbc:trinket_13", "rocket_spell");
+    private static final Item[] SHOT_ITEMS={BLAZE,GHAST,PENIS_GUN,BEDROCK_BALLS,VOLOS,COCKTAIL,FOURIER,ROCKET_SPELL};
+    private static final String[] SHOT_IDENTITIES={"blaze","ghast","penis_gun","bedrcock","volos","cocktail","fourier","rocket_spell"};
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mobs"));
     private static final CompoundTag INTERCAL_DATA = identity("intercal");
     private static final CompoundTag GNEISS_DATA = identity("gneiss_stone");
@@ -92,6 +100,29 @@ public final class LbcTrinkets {
         });
     }
 
+    /** Keep native /give and source loot identical without parsing item NBT during gameplay. */
+    private static Item registerAuthored(String id,String name,String model,String table) {
+        var key=ResourceKey.create(Registries.ITEM,Identifier.parse(id));
+        var props=new Item.Properties().setId(key).stacksTo(99).overrideDescription(name)
+                .component(DataComponents.ITEM_MODEL,Identifier.parse(model));
+        try(var input=LbcTrinkets.class.getResourceAsStream("/data/lbc/loot_table/trinket/"+table+".json")){
+            if(input==null)throw new IllegalStateException("Missing trinket definition "+table);
+            var root=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,StandardCharsets.UTF_8)).getAsJsonObject();
+            var entry=root.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject();
+            var functions=entry.has("modifier")?entry.getAsJsonArray("modifier"):entry.getAsJsonArray("functions");
+            for(var value:functions){var row=value.getAsJsonObject();String type=row.get(row.has("type")?"type":"function").getAsString();
+                if(type.equals("minecraft:set_name"))props.component(DataComponents.CUSTOM_NAME,
+                        net.minecraft.network.chat.ComponentSerialization.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,row.get("name")).getOrThrow());
+                if(type.equals("minecraft:set_lore")){var lines=new java.util.ArrayList<net.minecraft.network.chat.Component>();
+                    for(var line:row.getAsJsonArray("lore"))lines.add(net.minecraft.network.chat.ComponentSerialization.CODEC.parse(com.mojang.serialization.JsonOps.INSTANCE,line).getOrThrow());
+                    props.component(DataComponents.LORE,new net.minecraft.world.item.component.ItemLore(lines));}
+                if(type.equals("minecraft:set_custom_data"))props.component(DataComponents.CUSTOM_DATA,
+                        net.minecraft.world.item.component.CustomData.of(TagParser.parseCompoundFully(row.get("tag").getAsString())));
+            }
+        }catch(Exception error){throw new IllegalStateException("Invalid trinket definition "+table,error);}
+        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,Items.REPEATING_COMMAND_BLOCK,true));
+    }
+
     private static int count(ServerPlayer player, Item item, CompoundTag identity) {
         if(!LbcDimensionItems.ordinary(player))return 0;
         // Как /clear ... 0: инвентарь, личная сетка крафта и предмет на курсоре, без изменения стаков.
@@ -101,9 +132,22 @@ public final class LbcTrinkets {
         }, true, 0, player.inventoryMenu.getCraftSlots());
     }
 
-    public void shot(ServerPlayer player) {
+    /** One traversal of the source inventory/crafting/cursor set, only on successful native volleys. */
+    private static int[] shotCounts(ServerPlayer player){
+        var counts=new int[SHOT_ITEMS.length];if(!LbcDimensionItems.ordinary(player))return counts;
+        player.getInventory().clearOrCountMatchingItems(stack->{
+            var identity=ItemData.stringValue(stack,"trinket","");
+            for(int i=0;i<SHOT_ITEMS.length;i++)if(stack.is(SHOT_ITEMS[i])||identity.equals(SHOT_IDENTITIES[i]))
+                counts[i]=(int)Math.min(Integer.MAX_VALUE,(long)counts[i]+stack.getCount());
+            return false; // Native count-only traversal; no debit or item mutation.
+        },true,0,player.inventoryMenu.getCraftSlots());
+        return counts;
+    }
+    public void shot(ServerPlayer player){shot(player,List.of());}
+    public void shot(ServerPlayer player,List<? extends Projectile> family) {
         if (!game.canUseGameplayItems(player) || player.level() != game.maps().level() || game.config().lbcTrinketLimit == 0) return;
-        int copies = count(player, BLAZE, BLAZE_DATA);
+        var counts=shotCounts(player);
+        int copies = counts[0];
         // Сохраняем отдельные source-ветки для одной копии и гарантированного количества.
         if (copies > 0 && (copies >= 11 || player.getRandom().nextFloat() < (copies == 1 ? .15f : (175 + 75 * copies) * .001f))) {
             var fireball = new SmallFireball(EntityTypes.SMALL_FIREBALL, player.level());
@@ -115,7 +159,7 @@ public final class LbcTrinkets {
             spawn(fireball);
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BLAZE_SHOOT, SoundSource.MASTER, 1, 1);
         }
-        copies = count(player, GHAST, GHAST_DATA);
+        copies = counts[1];
         if (copies > 0 && (copies >= 16 || player.getRandom().nextFloat() < (copies == 1 ? .25f : (100 + 50 * copies) * .001f))) {
             var rocket = new FireworkRocketEntity(EntityTypes.FIREWORK_ROCKET, player.level());
             // Нативная загрузка сохраняет source LifeTime=100, ShotAtAngle и точные пять burst-взрывов без accessor к private полям.
@@ -125,6 +169,24 @@ public final class LbcTrinkets {
             rocket.setDeltaMovement(aim(player, 10000, .0002));
             spawn(rocket);
         }
+        // Independent source rolls apply to the exact published family, never nearby foreign arrows.
+        boolean magical=(counts[3]==0&&counts[4]==0&&counts[6]==0)||!game.items().magic().suppressed(player);
+        boolean technical=(counts[2]==0&&counts[5]==0&&counts[7]==0)||!game.items().magic().mechanismSuppressed(player);
+        copies=counts[2];if(technical&&copies>0&&(copies>=37||player.getRandom().nextFloat()<(.1f+.025f*(copies-1))))
+            game.items().kfcRewards().launchTrinketBomb(player);
+        int mask=0;
+        copies=counts[3];if(magical&&copies>0&&player.getRandom().nextFloat()<(.2f+.1f*(copies-1)))mask|=LbcTrinketArrows.BEDROCK;
+        copies=counts[4];if(magical&&copies>0&&player.getRandom().nextFloat()<(.05f+.01f*(copies-1)))mask|=LbcTrinketArrows.VOLOS;
+        copies=counts[5];if(technical&&copies>0&&player.getRandom().nextFloat()<(.1f+.05f*(copies-1)))mask|=LbcTrinketArrows.COCKTAIL;
+        copies=counts[6];if(magical&&copies>0&&player.getRandom().nextFloat()<(.15f+.05f*(copies-1)))game.items().homing().launchFourier(player);
+        copies=counts[7];if(technical&&copies>0&&player.getRandom().nextFloat()<(.05f+.01f*(copies-1))
+                &&family.stream().anyMatch(p->p instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow||LbcShulkerBow.managed(p))
+                &&game.items().mana().trySpend(player,6)){
+            mask|=LbcTrinketArrows.ROCKET;
+            LbcOverload.sound(player,player.getEyePosition(),"minecraft:lbcsounds.hihihiha",2,1,0);
+        }
+        if(mask!=0)for(var projectile:family)if((projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow||LbcShulkerBow.managed(projectile))
+                &&projectile.getOwner()==player&&!projectile.isRemoved()&&projectile.level()==player.level())game.items().trinketArrows().mark(projectile,mask);
     }
 
     private static Vec3 aim(ServerPlayer player, int precision, double scale) {

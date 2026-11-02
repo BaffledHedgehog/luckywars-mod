@@ -121,9 +121,14 @@ public final class MapManager {
     long rotationVisits(){return rotation==null?rotationVisits:rotation.visits();}
     long rotationWrites(){return rotation==null?rotationWrites:rotation.writes();}
     void rotationFinished(MapRotation work){if(rotation==work){rotationVisits=work.visits();rotationWrites=work.writes();rotation=null;}}
-    record SpawnState(List<Spawn> spawns,Vec3 look,Map<BlockPos,Map<BlockPos,BlockSnapshot>> islands,List<BobaRegionPhysics.Region> physics){}
-    SpawnState spawnState(){return new SpawnState(List.copyOf(spawns),look,Map.copyOf(respawnIslands),rotationPhysics.capture());}
-    void restoreSpawnState(SpawnState image){spawns=image.spawns;look=image.look;respawnIslands.clear();respawnIslands.putAll(image.islands);rotationPhysics.restore(image.physics);}
+    private List<Placement> pristinePlacements=List.of();
+    // Retain only this arena's already-decoded parts after the transient loader cache clears.
+    private Map<Identifier,PreparedTemplate> pristineTemplates=Map.of();
+    private final List<BlockPos> pristineRotations=new ArrayList<>();
+    void rotatePristineReference(BlockPos origin){pristineRotations.add(origin.immutable());}
+    record SpawnState(List<Spawn> spawns,Vec3 look,Map<BlockPos,Map<BlockPos,BlockSnapshot>> islands,List<BobaRegionPhysics.Region> physics,List<BlockPos> pristineRotations,List<Placement> pristinePlacements,Map<Identifier,PreparedTemplate> pristineTemplates){}
+    SpawnState spawnState(){return new SpawnState(List.copyOf(spawns),look,Map.copyOf(respawnIslands),rotationPhysics.capture(),List.copyOf(pristineRotations),List.copyOf(pristinePlacements),pristineTemplates);}
+    void restoreSpawnState(SpawnState image){spawns=image.spawns;look=image.look;respawnIslands.clear();respawnIslands.putAll(image.islands);rotationPhysics.restore(image.physics);pristineRotations.clear();pristineRotations.addAll(image.pristineRotations);pristinePlacements=image.pristinePlacements;pristineTemplates=image.pristineTemplates;}
     static boolean rotationContains(Vec3 point,BlockPos origin){return point.x>=origin.getX()-160&&point.x<origin.getX()+160
             &&point.z>=origin.getZ()-160&&point.z<origin.getZ()+160&&point.y>=0&&point.y<320;}
     static Spawn rotatedSpawn(Spawn spawn,BlockPos origin){return rotationContains(spawn.position,origin)
@@ -763,6 +768,85 @@ public final class MapManager {
         }
     }
 
+    /** Bounded white-world clone from the already cached native map parts. Air is copied too.
+     * No live terrain is sampled and no source dimension/chunk is loaded. Boba's reference
+     * follows exactly the same coordinate permutation as its respawn references. */
+    boolean restoreMadokaRegion(ServerLevel world,Vec3 center) {
+        if(world!=level||busy||rotation!=null||pristinePlacements.isEmpty())return false;
+        var feet=BlockPos.containing(center);
+        var originals=new HashMap<BlockPos,BlockPos>();
+        var cells=new HashMap<BlockPos,BlockSnapshot>();
+        for(var mutable:BlockPos.betweenClosed(feet.offset(-5,-5,-5),feet.offset(5,5,5))){
+            var at=mutable.immutable();
+            if(at.getY()<level.getMinY()||at.getY()>=level.getMaxY()
+                    ||level.getChunkSource().getChunkNow(at.getX()>>4,at.getZ()>>4)==null)return false;
+            var original=at;
+            for(int i=pristineRotations.size()-1;i>=0;i--){var pivot=pristineRotations.get(i);
+                if(rotationContains(Vec3.atCenterOf(original),pivot)){
+                    int start=pivot.getZ()-160;
+                    original=new BlockPos(original.getX(),original.getZ()-start,start+319-original.getY());
+                }
+            }
+            originals.put(at,original);cells.put(at,BlockSnapshot.air());
+        }
+        var blocks=level.registryAccess().lookupOrThrow(Registries.BLOCK);
+        for(var placement:pristinePlacements){
+            var prepared=pristineTemplates.get(identifier(placement.template));if(prepared==null)return false;
+            var requested=new HashMap<BlockPos,List<BlockPos>>();
+            for(var entry:originals.entrySet()){
+                var relative=entry.getValue().subtract(placement.origin);
+                if(relative.getX()>=0&&relative.getY()>=0&&relative.getZ()>=0
+                        &&relative.getX()<prepared.size.getX()&&relative.getY()<prepared.size.getY()&&relative.getZ()<prepared.size.getZ())
+                    requested.computeIfAbsent(relative,ignored->new ArrayList<>()).add(entry.getKey());
+            }
+            if(requested.isEmpty())continue;
+            int minX=Integer.MAX_VALUE,minY=minX,minZ=minX,maxX=Integer.MIN_VALUE,maxY=maxX,maxZ=maxX;
+            for(var pos:requested.keySet()){
+                minX=Math.min(minX,pos.getX());minY=Math.min(minY,pos.getY());minZ=Math.min(minZ,pos.getZ());
+                maxX=Math.max(maxX,pos.getX());maxY=Math.max(maxY,pos.getY());maxZ=Math.max(maxZ,pos.getZ());
+            }
+            var requestedBounds=new BoundingBox(minX,minY,minZ,maxX,maxY,maxZ);
+            for(var part:prepared.slices){
+                if(!part.bounds.intersects(requestedBounds))continue;
+                var settings=new StructurePlaceSettings().setRandom(RandomSource.create(placement.seed));
+                // Each part contains at most 8^3 block rows; the full arena is never serialized.
+                var nbt=part.template.save(new CompoundTag());
+                var palette=nbt.getListOrEmpty("palette");
+                if(palette.isEmpty()){
+                    var palettes=nbt.getListOrEmpty("palettes");
+                    if(!palettes.isEmpty())palette=(ListTag)palettes.get(settings.getRandom(placement.origin).nextInt(palettes.size()));
+                }else settings.getRandom(placement.origin).nextInt(1); // Native palette selection advances the same RNG.
+                var decoded=new HashMap<Integer,BlockState>();
+                for(var raw:nbt.getListOrEmpty("blocks")){
+                    var row=(CompoundTag)raw;var pos=row.getListOrEmpty("pos");
+                    var relative=new BlockPos(pos.getIntOr(0,0),pos.getIntOr(1,0),pos.getIntOr(2,0));
+                    boolean included=placement.integrity>=1||settings.getRandom(relative.offset(placement.origin)).nextFloat()<=.75f;
+                    var destinations=requested.get(relative);if(destinations==null)continue;
+                    if(!included)continue;
+                    int index=row.getIntOr("state",0);var state=decoded.get(index);
+                    if(state==null){state=net.minecraft.nbt.NbtUtils.readBlockState(blocks,(CompoundTag)palette.get(index));decoded.put(index,state);}
+                    if(state.is(Blocks.STRUCTURE_VOID))continue;
+                    for(var at:destinations){var entity=row.contains("nbt")?row.getCompoundOrEmpty("nbt").copy():null;
+                        if(entity!=null){entity.putInt("x",at.getX());entity.putInt("y",at.getY());entity.putInt("z",at.getZ());}
+                        cells.put(at,new BlockSnapshot(state,entity));
+                    }
+                }
+            }
+        }
+        placingMapSlice=true;
+        try{
+            int flags=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
+                    |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
+            for(var entry:cells.entrySet()){recordBlockChange(entry.getKey());restoreSnapshot(level,entry.getKey(),entry.getValue(),flags);}
+        }finally{
+            placingMapSlice=false;
+            if(lobbyOverlayActive)for(var pos:List.copyOf(mapWritesUnderLobby)){mapUnderLobby.put(pos,snapshot(pos));restoreLobbyCell(pos);}
+            mapWritesUnderLobby.clear();
+        }
+        fillChests(false,center,8.5);
+        return true;
+    }
+
     /** Test the landing column below the spawn, rather than treating a roof as a floor. */
     boolean hasRespawnLanding(Spawn spawn) {
         if(level==null)return false;
@@ -937,6 +1021,7 @@ public final class MapManager {
         flushChangedBlockBounds();
         work.clear();
         preparedTemplates = Map.of();
+        pristineTemplates=Map.of();pristinePlacements=List.of();pristineRotations.clear();
         cancelMapLighting();
         for(var lighting:overlayLighting)lighting.cancel();
         overlayLighting.clear();
@@ -1323,6 +1408,12 @@ public final class MapManager {
     }
 
     private void addPasteWork(List<Placement> placements) {
+        if(pendingMap!=null){
+            var selected=new HashMap<Identifier,PreparedTemplate>();
+            for(var placement:placements){var id=identifier(placement.template);
+                selected.put(id,Objects.requireNonNull(preparedTemplates.get(id),placement.template));}
+            pristineTemplates=Map.copyOf(selected);pristinePlacements=List.copyOf(placements);pristineRotations.clear();
+        }
         for (Placement placement : placements) {
             PreparedTemplate template = template(placement.template);
             if (template == null) throw new IllegalStateException("Missing structure template " + placement.template);
@@ -1659,6 +1750,7 @@ public final class MapManager {
     }
 
     private void removeArenaEntities() {
+        pristinePlacements=List.of();pristineTemplates=Map.of();pristineRotations.clear();
         rotationPhysics.clear();
         if (level == null) return;
         for (Entity entity : allArenaEntities()) {

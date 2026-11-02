@@ -1,0 +1,54 @@
+﻿# Special bow / trinket integration audit — 2026-11-02
+
+Read-only audit; no runtime/build/server/git/RP changes. Java tree inspected at E:/servers_mew/skywars2_last/luckywars-mod. Original source root: E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/function.
+
+## Critical finding
+
+The requested three special weapons exist as imported loot, but their original special runtime behavior is **not currently ported into Java**. Entire src/main/java search finds no shulker_new, madoka_bow, fast/fast_old handler, no minigun-crossbow autoreload, and no production CHARGED_PROJECTILES access. LbcShooters is guns/knives/helicopter, not the bow integration owner. Do not report these weapons fully supported just because their base BowItem/CrossbowItem launch enters TrinketBowMixin.
+
+- Shulker loot: data/lbc/loot_table/item_defs/lbc/shulkerbow__31b28b65ce39.json custom_data shulker_new:1; old __ae63b4e4317f uses shulker:1.
+- Madoka: data/lbc/loot_table/madoka_bow.json custom_data madoka_bow:1.
+- Minigun crossbow: item_defs/minecraft/crossbow__9d0c2c339729.json custom_data fast:1; __1e188044c7a2 is legacy variant. This is distinct from LbcMachinegunSkill (skill14) and LbcLaserMinigun (mana beam gun).
+
+## Current exact launch coverage
+
+TrinketBowMixin @Mixin(ProjectileWeaponItem.class), lines28–46 wraps the actual spawnProjectile invocation in shoot, collects only registered successful entities, and calls trinkets.shot once at RETURN for BowItem/CrossbowItem. Native vanilla multishot is one family and one roll. Special item custom_data does not prevent coverage of its base native launch. Ordinary Arrow and SpectralArrow are both AbstractArrow. Firework native crossbow launches reach shot but are excluded from arrow traits and rocket mana predicate.
+
+LbcMachinegunSkill.shoot lines108–130 directly addFreshEntity and calls trinkets.shot separately after success. It does not invoke ProjectileWeaponItem.shoot, so there is no current duplicate with that mixin. ammo lines102–107 accepts only Items.ARROW; line117 creates a naked Arrow. Potion/custom components and spectral identity are lost/rejected by design in that distinct skill. It must also change if user ALL-ammo instruction includes skill14.
+
+LbcShooters.helicopterArrow (402), phantomArrow (967), knife emissions (986) spawn Arrow directly without trinkets.shot; these are shooter mechanisms, not currently bow/crossbow launches. Do not globally hook all Projectile spawns to compensate: that would proc on auxiliary fireballs, rockets, clones and summoned actors.
+
+LbcTrinkets.shot lines147–187 rolls additional actors and trait mask. Rocket condition line182 requires AbstractArrow; final mark loop line186 only accepts AbstractArrow with the exact player owner and level. No current call occurs twice in inspected paths. A future special bow that transforms/discards the initial native arrow after the RETURN hook will lose its traits; calling shot again for its replacement would duplicate RNG/additional actor emission/mana spend.
+
+## Original special behavior and destructive source assumptions
+
+Original items/bows.mcfunction calls bow-specific handlers BEFORE bows_get_trinket. It dispatches explosive, double, double_old, onetnt, shulker, shulker_new, railgun_bow, shish_gun and madoka_bow. items/crossbows.mcfunction dispatches fast/other special crossbows. These all need the same finalized-family contract, not per-item extra proc calls.
+
+workingitems/shulkerbow_new.mcfunction:2 tags nearest #minecraft:arrows; :4 summons native ShulkerBullet; :5–7 translates raid_omen amplifier112/113 into lighttrail/trappertrail; :10 copies Motion, :11 Owner, :12–13 author/team scores; :15 kills original arrow. Other effects, arrow damage/piercing/critical/pickup/potion/spectral state are not copied. This source loss conflicts with current user preservation requirement and must not be reproduced.
+
+items/bows/kaname_bow/shoot.mcfunction:1 converts spectral to normal using spec_in_norm, then tags madoka_arrow and appends raid_omen amplifier76 to potion custom_effects. spec_in_norm only copies Motion, Rotation and Owner before killing spectral original: spectral identity and remaining state disappear. Current requirement overrides that conversion: retain SpectralArrow and attach Madoka behavior out of band; append to ordinary potion data without replacing its existing effects/components if a transport sentinel remains necessary.
+
+workingitems/fastbow.mcfunction:2 reloads by REPLACING the whole mainhand crossbow with a hardcoded normal-arrow crossbow, conditional only on Inventory minecraft:arrow; :4 clears one minecraft:arrow unless infinite_arrow. It discards selected ammo components and user weapon modifications. No Java equivalent exists yet. Implement autoreload by mutating only CHARGED_PROJECTILES on the existing weapon stack, using selected supported ammo.copyWithCount(1), preserving full item identity/components and consuming that exact selected stack. Accept normal, tipped/custom and spectral arrows; preserve existing infinity source policy separately. Never reload the projectile that just fired with a new generic arrow, and never reconstruct the bow.
+
+## Minimal common architecture
+
+Keep one shot transaction around ProjectileWeaponItem.shoot, with immutable weapon/ammo snapshots and a mutable list of successful primary carriers. Apply native special-bow augmentation/transformation to exact captured actors before final trinkets.shot; return the final primary family. No nearest-entity lookup. Direct skill14 supplies a family explicitly after successful publication. Duplicated projectile families inherit traits but never call shot again.
+
+Prefer preserving native AbstractArrow entities whenever possible (Madoka, spectral, ordinary special arrow enhancements). For genuine ShulkerBullet replacement, generalize mark/mask/beforeTick/hit lifecycle to Projectile while keeping arrow-only operations behind an AbstractArrow capability adapter. Introduce an explicit arrow-equivalent carrier test (AbstractArrow OR recognized special-bow ShulkerBullet), not all ShulkerBullets: creature-drop/armor shells must stay out. Store the exact consumed ammo stack plus original arrow damage/piercing/critical/knockback/fire/etc. in typed carrier state; apply their effects through the native shulker hit path without overwriting its base special behavior. Potion effects and spectral glow require explicit delivery because native ShulkerBullet cannot carry arrow components automatically. Pickup handling is a separate capability, not a reason to create an invisible duplicate damaging arrow.
+
+Trinket additions should alter only their own state: OR flags, preserve velocity/base damage/effects/enchantments; rocket visuals must not replace carrier. Extend rocket eligibility to recognized arrow-equivalent carriers. Agent owning LbcTrinketArrows should own this generic lifecycle change. Existing CreatureDropMixin ShulkerBullet tick hooks and LbcCreatureDrops armor/drop bullet policies require noninterference.
+
+## Meaningful native checks to add
+
+BowTrinketChecks already launches real owner.gameMode.useItem crossbows with exact CHARGED_PROJECTILES (line124); QuiverChecks line167 proves actual spectral crossbow generation. Reuse native launch APIs and compare actual resulting entities/components, not helper-return booleans.
+
+Test each special weapon with ordinary/custom/tipped/spectral ammo and stacked upgrades; verify exactly one proc family, preserved native damage/pierce/crit/fire/gravity/potion/custom pickup state, Madoka behavior plus spectral glow, shulker native endpoint plus all trait masks, and no unrelated nearby actor marking. Failed spawn/empty/dry fire must roll/spend nothing. Minigun-crossbow reload must conserve exact selected ammo and all weapon components across repeated shots; include only-special-ammo inventory, offhand, infinite-arrow, multishot and no-ammo cases. Frozen launch/resume and removal/epoch cleanup must cover ShulkerBullet without changing unrelated creature/armor bullets. Existing checks do not yet establish these missing special runtime behaviors.
+
+## Bounded source closure for implementation owner
+
+- No three-weapon special launch has a mana debit or random launch chance in the original functions. Shulker_new/Madoka launch is suppressed only by owner MAG marker within20; fast/fast_old autoreload is suppressed by TECH marker within20. Native base shot still happens under suppression. Mainhand source selection is original; final user ALL-bow contract should cover native hand parameter.
+- Original crossbows.mcfunction:2–7 attaches team/author and applies fast_charge accelerate, strong_charge damage_up, strong_charge_1 damage_up_1, gravitas NoGravity before reload dispatch. Preserve those plus native weapon enchantments rather than setting generic damage/motion.
+- Shulker bullet original projectilestick.mcfunction:7 invokes projectiles/shulker_bullet for every bullet. lighttrail creates slowraycast lightarrowtrail/magic marker lifetime200 each tick. trappertrail invokes shulker_bullet_generate: summon secondary native bullet at current location, copy author/team/Owner, target nearest eligible #mobs within100 excluding same_id/spectator. It does not propagate trappertrail onto child, preventing recursive branching. No explicit base target is installed by shulkerbow_new; primary carries straight copied motion and native bullet physics. Existing quiver trail service should be reused for magic/suppression/lifecycle semantics where possible.
+- Madoka projectiles/arrows.mcfunction:4 dispatches madoka_arrow tick: 20% heart particle per tick; inGround calls fall. fall clones an 11x11x11 cube from minecraft:white at same coordinates to overworld, repopulates swrg chest markers within8.5, emits100 hearts radius6, levelup sound pitch2, kills carrier. This is a dependency on the retained white/template arena, terrain mutation and chest refill; not just a hit tag. Must use existing map/checkpoint/regional mutation APIs without global forceload.
+- Madoka entity hit transported through raid_omen76 (projectiles/arrows2.mcfunction:21) to kaname_bow/hit: for each upgraded carrot_on_a_stick container item, and offhand, remove upgraded/upgradable/upgrade_available, replace last lore row with red madoka_cursed, set pissed_by_madoka_sob_sob_sob_sob_sob:1, tellraw lost_upgrade. hit_find iterates container slots via storage macro. hit_adv grants true_advancements/bows/madoka_bow and revokes madoka_bow_hit. Implement typed native hit callback rather than deleting or replacing existing potion data.
+- chest_loot_spawn removes existing chest Items, restores default/midle/center LootTable from marker flags and updates swrg chest count. Needs explicit equivalent or scoped unsupported boundary; do not claim full Madoka semantics from particles alone.

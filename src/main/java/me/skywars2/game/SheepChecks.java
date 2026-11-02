@@ -184,6 +184,18 @@ public final class SheepChecks {
             held(loot("sheep_wand"),InteractionHand.MAIN_HAND);move(other,holeAt.add(0,0,-5));other.getInventory().setItem(5,potion());owner.getInventory().setItem(5,potion());mana.set(owner,500);
             other.entityTags().add("sin_greed_active");
             try{require(input(InteractionHand.MAIN_HAND)&&sheep.holeViews().isEmpty()&&!other.getInventory().getItem(5).isEmpty()&&!owner.getInventory().getItem(5).isEmpty(),"nearby active Greed cannot trigger or lose its potion through an area inventory scan");}finally{other.entityTags().remove("sin_greed_active");}
+            game.config().lbcSkills=true;game.players().get(other.getUUID()).lbcSkill=2;
+            var protectedPotion=other.getInventory().getItem(5);protectedPotion.setCount(3);flag(protectedPotion,"inventory_probe",71);var exactPotion=protectedPotion.copy();
+            require(!sheep.consumePotion(owner,InteractionHand.MAIN_HAND,owner.getMainHandItem(),other.position())&&sheep.holeViews().isEmpty()
+                    &&other.getInventory().getItem(5)==protectedPotion&&ItemStack.matches(protectedPotion,exactPotion),"protected inventory cannot trigger a hole and preserves exact potion components/count/reference");
+            var guardedDrop=new ItemEntity(owner.level(),other.getX(),other.getY(),other.getZ(),potion());guardedDrop.setNoGravity(true);add(guardedDrop);
+            require(sheep.consumePotion(owner,InteractionHand.MAIN_HAND,owner.getMainHandItem(),other.position())&&guardedDrop.isRemoved()&&sheep.holeViews().size()==1
+                    &&ItemStack.matches(protectedPotion,exactPotion),"protected holder leaves dropped-potion trigger and cleanup unchanged");clear();
+            game.players().get(other.getUUID()).lbcSkill=0;game.players().get(owner.getUUID()).lbcSkill=2;move(owner,other.position().add(3,0,0));
+            var selfPotion=owner.getInventory().getItem(5);var exactSelf=selfPotion.copy();
+            require(sheep.consumePotion(owner,InteractionHand.MAIN_HAND,owner.getMainHandItem(),other.position())&&sheep.holeViews().size()==1&&other.getInventory().getItem(5).isEmpty()
+                    &&owner.getInventory().getItem(5)==selfPotion&&ItemStack.matches(selfPotion,exactSelf),"unprotected holder still triggers/consumes while protected caster survives radius5 inventory consumption");clear();
+            game.config().lbcSkills=false;game.players().get(owner.getUUID()).lbcSkill=0;other.getInventory().setItem(5,potion());move(owner,holeAt.add(0,0,-10));
             mana.set(owner,500);
             require(input(InteractionHand.MAIN_HAND)&&sheep.holeViews().size()==1&&other.getInventory().getItem(5).isEmpty()&&owner.getInventory().getItem(5).isEmpty()&&other.isAlive(),"inventory potion creates one hole and clears matching potions from nearby players without transformation");
             clear();move(owner,at);move(other,at.add(8,0,0));

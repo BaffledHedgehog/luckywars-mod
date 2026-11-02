@@ -916,6 +916,54 @@
       "table": "lbc:ported/mana_gem",
       "gate": "lbc:true_advancements/legends/academy/neutral",
       "lockedKey": "lbc.adv.upgraded_staff.neutral.lore"
+    },
+    {
+      "id": 3,
+      "page": 11000,
+      "slot": 2,
+      "table": "lbc:trinket/penis_gun",
+      "gate": "lbc:true_advancements/bows/penis_gun",
+      "lockedKey": "lbc.adv.bow.penis_gun.lore"
+    },
+    {
+      "id": 7,
+      "page": 11000,
+      "slot": 6,
+      "table": "lbc:trinket/bedrcock",
+      "gate": "lbc:true_advancements/legends/academy/bedrock",
+      "lockedKey": "lbc.adv.upgraded_tuntija.bedrock.lore"
+    },
+    {
+      "id": 9,
+      "page": 11000,
+      "slot": 8,
+      "table": "lbc:trinket/volos",
+      "gate": "lbc:true_advancements/legends/academy/blind",
+      "lockedKey": "lbc.adv.upgraded_tuntija.blind.lore"
+    },
+    {
+      "id": 11,
+      "page": 11000,
+      "slot": 10,
+      "table": "lbc:trinket/cocktail",
+      "gate": "lbc:true_advancements/legends/academy/electro",
+      "lockedKey": "lbc.adv.upgraded_tuntija.electro.lore"
+    },
+    {
+      "id": 13,
+      "page": 11000,
+      "slot": 12,
+      "table": "lbc:trinket/fourier",
+      "gate": "lbc:true_advancements/legends/academy/evoker",
+      "lockedKey": "lbc.adv.upgraded_staff.evoker.lore"
+    },
+    {
+      "id": 14,
+      "page": 11000,
+      "slot": 13,
+      "table": "lbc:trinket/rocket_spell",
+      "gate": "lbc:true_advancements/legends/academy/exoperso",
+      "lockedKey": "lbc.adv.upgraded_staff.exoperso.lore"
     }
   ]
 }

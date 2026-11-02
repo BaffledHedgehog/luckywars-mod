@@ -121,7 +121,7 @@ final class MapRotation implements LbcStonekivi.Work {
                 commitBlocks();
                 rotateEntities();
                 var origin=new BlockPos(xStart+160,160,zStart+160);
-                maps.rotateSpawnState(origin);game.rotateMapSpawns(origin);
+                maps.rotateSpawnState(origin);game.rotateMapSpawns(origin);maps.rotatePristineReference(origin);
                 maps.rotationPhysics().rotate(origin);
                 scheduleRotatedFluids();
                 lighting.finishWrites();published=true;

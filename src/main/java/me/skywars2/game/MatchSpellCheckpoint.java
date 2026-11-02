@@ -87,6 +87,8 @@ final class MatchSpellCheckpoint {
         // Frozen canonical body replay suppresses ENTITY_LOAD. Rebuild this derived
         // index only after every shared policy/body link has installed successfully.
         game.items().familyDrops().reindexAfterRestore();
+        var nativeBodies=MatchActorCheckpoint.currentBodies(game).values();
+        game.items().trinketArrows().reindexRestored(nativeBodies);game.items().madokaBow().reindexRestored(nativeBodies);game.items().shulkerBow().reindexRestored(nativeBodies);
         return Set.of();
     }
     /** Client presentation waits for the outer canonical body/authority/status publication phase. */

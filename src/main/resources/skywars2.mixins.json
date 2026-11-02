@@ -343,7 +343,11 @@
     "PhantomActivityMixin$Punch",
     "PhantomActivityMixin$Shots",
     "ArmorReserveMixin$Damage",
-    "ArmorReserveMixin$Equipment"
+    "ArmorReserveMixin$Equipment",
+    "ShulkerBowMixin",
+    "ShulkerBowMixin$ArrowAccess",
+    "ShulkerBowMixin$SpectralAccess",
+    "ShulkerBowMixin$BulletAccess"
   ],
   "injectors": {
     "defaultRequire": 1

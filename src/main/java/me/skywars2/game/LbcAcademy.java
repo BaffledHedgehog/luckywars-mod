@@ -110,6 +110,8 @@ public final class LbcAcademy {
             this.conditionKey=conditionKey; this.successKey=successKey;
         }
     }
+    /** Shared reverse progression: downgrades use the same native pairs as Academy upgrades. */
+    static Item baseWandItem(Item upgraded){for(var wand:Wand.values())if(wand.upgraded==upgraded)return wand.base;return upgraded;}
     private static Item registerToken() {
         var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:academy_token"));
         var data = new CompoundTag(); data.putInt("academy_token", 1);

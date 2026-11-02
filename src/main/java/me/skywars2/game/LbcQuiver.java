@@ -102,6 +102,18 @@ public final class LbcQuiver {
         if(skillImmune(target)){clear(target);return true;}int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
         var owner=(ServerPlayer)arrow.getOwner();var state=shot(arrow);var queues=pending.computeIfAbsent(target,k->queues());queues.get(index(effect.getAmplifier())).addLast(new Contribution(duration,new Authority(state.cause,state.epoch)));sync(target);return true;
     }
+    /** Shared native ammo payload delivery for the Shulker bow's real projectile. */
+    public boolean acceptCarrier(LivingEntity target,MobEffectInstance effect,ServerPlayer owner,LbcIndirectKills.Owner cause){
+        if(!isEffect(effect))return false;
+        if(effect.getAmplifier()==101){game.items().babylonEffects().acceptCarrier101(target,effect,cause);return true;}
+        if(cause==null||!runtime(target)||!game.items().wands().validTarget(target)||!target.canBeAffected(effect)
+                ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return true;
+        if(skillImmune(target)){clear(target);return true;}
+        int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
+        pending.computeIfAbsent(target,k->queues()).get(index(effect.getAmplifier())).addLast(new Contribution(duration,new Authority(cause,game.items().epoch())));
+        sync(target);return true;
+    }
+    public void shulkerLightTrail(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){if(cause!=null)trail(level,at,112,new Authority(cause,game.items().epoch()));}
     void adoptRawFoodStatuses(ServerPlayer player){
         if(!runtime(player)||skillImmune(player)||game.items().magic().rejectCustomDebuff(player))return;
         int[] desired=new int[AMPS.length];for(int i=0;i<AMPS.length;i++)desired[i]=game.items().mana().hudValue(player,SCORES[i]);

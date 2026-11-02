@@ -214,6 +214,9 @@ public final class LbcItems {
     private final GameController game;
     private final LbcClouds clouds;
     private final LbcTrinkets trinkets;
+    private final LbcTrinketArrows trinketArrows;
+    private final LbcShulkerBow shulkerBow;
+    private final LbcMadokaBow madokaBow;
     private final LbcFrost frost;
     private final LbcMagic magic;
     private final LbcMana mana;
@@ -853,7 +856,7 @@ public final class LbcItems {
 
     public LbcItems(GameController game) {
         this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);
-        this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.frost = new LbcFrost(game);
+        this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.trinketArrows = new LbcTrinketArrows(game);this.shulkerBow = new LbcShulkerBow(game);this.madokaBow = new LbcMadokaBow(game); this.frost = new LbcFrost(game);
         this.mana = new LbcMana(game); LbcChaosRewardItems.prepare(mana); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);
         this.terra = new LbcTerra(game);
         this.shooters = new LbcShooters(game);
@@ -1042,6 +1045,9 @@ public final class LbcItems {
     }
     public LbcClouds clouds() { return clouds; }
     public LbcTrinkets trinkets() { return trinkets; }
+    public LbcTrinketArrows trinketArrows() { return trinketArrows; }
+    public LbcShulkerBow shulkerBow(){return shulkerBow;}
+    public LbcMadokaBow madokaBow(){return madokaBow;}
     public LbcFrost frost() { return frost; }
     public LbcMagic magic() { return magic; }
     public LbcMana mana() { return mana; }
@@ -1279,6 +1285,7 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
+        trinketArrows.loaded(entity);shulkerBow.loaded(entity);madokaBow.loaded(entity);
         if(machinegunSkill.loaded(entity)&&entity.isRemoved())return;
         grimoireDungeon.capture(entity);uniwand.loaded(entity);
         spellSources.capture(entity);apocalypseEvents.inheritChild(entity);shishEncounter.inheritChild(entity);
@@ -1517,7 +1524,7 @@ public final class LbcItems {
         magic.unloaded(entity);
         frost.unloaded(entity);
         clouds.unloaded(entity);
-        trinkets.unloaded(entity);
+        trinkets.unloaded(entity);trinketArrows.unloaded(entity);shulkerBow.unloaded(entity);madokaBow.unloaded(entity);
         blaze.unloaded(entity);
         psycho.unloaded(entity);
         syringe.unloaded(entity);
@@ -1934,7 +1941,7 @@ public final class LbcItems {
         psycho.tick();
         summons.tick();
         syringe.tick();
-        homing.tick();
+        homing.tick();trinketArrows.tick();shulkerBow.tick();madokaBow.tick();
         libraryRandom.tick();
         bolts.tick();
         blind.tick();
@@ -2304,7 +2311,7 @@ public final class LbcItems {
         homes.stop();
         kfcRewards.stop();
         electro.stop();
-        trinkets.stop();
+        trinkets.stop();trinketArrows.stop();shulkerBow.stop();madokaBow.clear();
         for (RocketState state : List.copyOf(rockets.values())) resetRocket(state.owner);
         rockets.clear(); rechargingRockets.clear(); rocketCraftDrops.clear();
         for(var player:game.server().getPlayerList().getPlayers())

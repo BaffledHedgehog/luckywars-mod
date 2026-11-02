@@ -244,6 +244,18 @@ public final class LbcBlind {
         if(sourceLevel(owner).addFreshEntity(charge))charges.add(charge);
     }
 
+    /** Volos uses one ordinary native charge, with its authored35 active ticks. No wand admission/payment. */
+    void spawnFromTrinket(Projectile arrow,Vec3 origin,Vec3 velocity){
+        var level=(net.minecraft.server.level.ServerLevel)arrow.level();
+        if(!level.hasChunkAt(BlockPos.containing(origin)))return;
+        var charge=new Charge(TYPE,level);charge.setOwner(arrow.getOwner());charge.setPos(origin);charge.setNoGravity(true);
+        charge.setDeltaMovement(velocity);LbcShooters.orient(charge);charge.lifetime=35;
+        charge.entityTags().addAll(List.of("magic","shield_blockable2"));game.items().markCurrentItemEpoch(charge);
+        game.items().spellSources().inherit(arrow,charge);game.items().timeStop().prepareFrozen(charge);
+        if(level.addFreshEntity(charge))charges.add(charge);
+        LbcOverload.sound(level,origin,"minecraft:entity.squid.squirt",1,1,0,0);
+    }
+
     void tick() {
         tick++;
         tickCharges();

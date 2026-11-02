@@ -225,6 +225,7 @@ public final class LbcKfcFood {
         effect(p,MobEffects.SPEED,10,9,false);
     }
     private void replaceRandomSlot(ServerPlayer p) {
+        if(game.items().inventoryHazards().protectedInventory(p))return;
         int roll=p.getRandom().nextInt(38);
         var stacks=game.lbc().rollTable(p.level(),p.position(),p,"lbc:govno_lot_2");
         var replacement=stacks.isEmpty()?ItemStack.EMPTY:stacks.getFirst();
