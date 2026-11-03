@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 1,
-          "name": "minecraft:repeating_command_block",
+          "name": "skywars2:nexus_wire_blue",
           "modifier": [
             {
               "count": 1,

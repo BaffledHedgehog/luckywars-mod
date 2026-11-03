@@ -189,6 +189,8 @@
     "lbc:ported/nexus_corrupter",
     "lbc:ported/nexus_orb_gun",
     "lbc:ported/nexus_pulsar",
-    "lbc:ported/nexus_roadgun"
+    "lbc:ported/nexus_roadgun",
+    "lbc:nexus_wire_white",
+    "lbc:ported/nexus_wire_white"
   ]
 }

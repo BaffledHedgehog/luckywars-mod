@@ -507,6 +507,7 @@ public final class ContentGallery {
             }
         }
         private void add(ItemStack item) {
+            if(!LootTestCatalog.publicNativeItem(item.getItem()))return;
             if (item.isEmpty()) return;
             represented.add(item.getItem());
             var identity = new Identity(item);

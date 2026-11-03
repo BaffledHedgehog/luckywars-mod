@@ -29,6 +29,8 @@ processResources {
     include 'skywars2/source_config_defaults.json', 'skywars2/authored_presentations.json', 'skywars2/academy_presentations.json'
     include 'data/lbc/loot_table/native_lucky/*.json'
     include 'skywars2/content_catalog_refresh.json'
+    include 'data/lbc/loot_table/nexus_wire_blue.json', 'data/lbc/loot_table/nexus_wire_white.json'
+    include 'data/lbc/loot_table/ported/nexus_wire_white.json'
     include 'skywars2/nexus_uncrafting.json'
     include 'data/minecraft/tags/block/airs_only.json'
     include 'data/lbc/loot_table/nexus_item_red.json', 'data/lbc/loot_table/nexus_item_white.json'

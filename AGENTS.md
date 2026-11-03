@@ -1,3 +1,36 @@
+## Nexus environmental acquisition - QUALIFIED, INSTALLED (3 November 2026)
+
+[Author rules, runtime and exact evidence](agent_notes/NEXUS_ACQUISITION_PORT_2026_11_03.md).
+AUTHOR: natural trees/cages/centers/spread UNJAMMABLE; white proximity craft spends
+exactly1red+1green+1black; clicked cage only/used-hand debit/own visuals; spread
+removes only Nexus cages. Confirmed0.5% same-level global stop across owners kept.
+Persistent source markers, cardinal tree growth, exact AIR centers, native blue/black
+outputs and all four pre-rolled full-stack cage pools. Green CAGE gives native
+Compass; white50/50Roadgun/Pulsar, redOrb, blackCorrupter; no pool filtering.
+Event indexes/bounded native work/temporary tickets/per-world TimeStop/no tick NBT,
+IO or world scans. Loaded/unloaded native associations and pending cube work join
+full coordinator. Dead saved references filtered, unloaded bodies retained.
+
+Full-height native chunk MOVE engine reuses shared construction barrier; atomic
+block+container move prevents duplicates, entities follow completed terrain with
+actual chunk delta, exact pre-dismount passenger geometry/motion/riding links;
+standalone players/markers excluded. This is the registered Paper clone geometry
+engine, NOT the complete Supernova item/world-restart producer (still deferred).
+Existing saved Nexus ecology/cages can be adopted. No invented population trigger.
+White wire is ready/public in loot+gallery. Internal green wire's outside
+random_glack/TMT consumer remains deferred LAST and hidden from gallery/loot.
+New native source events need the remaining Supernova closure before full Nexus.
+
+Testba2ee4a5 / productionaa195386:11groups/11actual mode1 matches pass on exact
+artifact, including full-height inventories/passengers, all cage colors/real positive
+ordinary jammers, exact recipe, native growth, nonempty full rollback and prior
+Nexus tools/wires/Orb/Pulsar/dimension/gallery/merging/TimeStop.9884other inputs/
+272authorpaths guarded;15fresh Java families/4JSON, all archive entries verified,
+authoring absent production. Fixture25577normal/exact restoration/no locks. Both
+build/libs/main JAR updated with2c4679ee rollback,restarted:false. No main stop/start,
+RP edits, physical-client/peakTPS claim. Full Nexus/green,TMT-last,skill2/broad rewind
+release gates unchanged. Evidence:build/verification/nexus-acquisition-2026-11-03/.
+
 ## Nexus Pulsar / Orb Gun - QUALIFIED, INSTALLED (3 November 2026)
 
 [Author rules, source corrections and exact evidence](agent_notes/NEXUS_COMBAT_PORT_2026_11_03.md).

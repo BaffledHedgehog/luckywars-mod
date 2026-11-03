@@ -34,6 +34,11 @@ public final class LootTestCatalog {
 
     private LootTestCatalog() { }
 
+    /** The green wire's outside reward depends on the deferred full random_glack/TMT pool. */
+    public static boolean publicNativeItem(net.minecraft.world.item.Item item) {
+        return item != LbcNexusWireItems.BLUE;
+    }
+
     public static boolean isSuggested(Identifier id) {
         return !MANAGED_NAMESPACES.contains(id.getNamespace()) || TABLES.contains(id)
                 || PREFIXES.stream().anyMatch(prefix -> id.toString().startsWith(prefix));

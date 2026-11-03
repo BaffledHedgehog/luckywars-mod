@@ -37,6 +37,10 @@ public final class VanityRollbackChecks {
         final java.util.Map<BlockPos,MapManager.BlockSnapshot> pulsarOriginal=new java.util.LinkedHashMap<>();
         final int[] pulsarFrontier=new int[5],pulsarVisited=new int[5];
         final net.minecraft.world.level.block.state.BlockState[] pulsarTerrain=new net.minecraft.world.level.block.state.BlockState[2];
+        final BlockPos acquisitionCageCell=new BlockPos(8,190,8),acquisitionCenterCell=new BlockPos(4,190,8);
+        java.util.UUID acquisitionCageId,acquisitionCenterId,acquisitionRewardId,acquisitionFrameId;
+        ItemStack acquisitionReward;
+        long acquisitionCenterLifetime;
         long pulsarAge;
         boolean pulsarStopped;
         java.util.concurrent.CompletableFuture<?> pulsarChunk;
@@ -116,6 +120,8 @@ public final class VanityRollbackChecks {
                 base.block(base.center.offset(-8+constructionSteps,0,-4),Blocks.DIAMOND_BLOCK);
                 if(++constructionSteps==2){
                     game.items().timeStop().begin(nexus,200);pulsarStopped=true;
+                    var center=game.items().nexusAcquisition().ecology().snapshot().stream().filter(a->a.id.equals(acquisitionCenterId)).findFirst().orElseThrow();
+                    acquisitionCenterLifetime=center.lifetime;
                     var pulse=game.items().nexusCombat().pulsar();pulsarAge=pulse.age();
                     int remaining=0;for(int n=0;n<5;n++){pulsarFrontier[n]=pulse.frontierSize(n);pulsarVisited[n]=pulse.visitedSize(n);remaining+=pulsarFrontier[n];}
                     for(int n=0;n<2;n++)pulsarTerrain[n]=nexus.getBlockState(pulsarOrigin.offset(n,0,0));
@@ -145,13 +151,51 @@ public final class VanityRollbackChecks {
                 }
             }
             for(var pos:pulsarOriginal.keySet())LbcDropBlocks.setBlock(pulsarLevel,pos,Blocks.STONE.defaultBlockState(),true);
-            game.items().nexusCombat().pulsar().start(pulsarLevel,pulsarOrigin,game.items().indirectKills().wildCause(base.owner),LbcNexusCombat.PULSAR_DELAYS);
+            var acquisition=game.items().nexusAcquisition();
+            var cagePoint=Vec3.atBottomCenterOf(acquisitionCageCell);
+            var centerPoint=Vec3.atCenterOf(acquisitionCenterCell);
+            require(acquisition.cages().stream().noneMatch(c->c.level==pulsarLevel&&c.position.distanceToSqr(cagePoint)<25),"no foreign cage in acquisition fixture scope");
+            require(acquisition.ecology().snapshot().stream().noneMatch(a->a.level==pulsarLevel&&(a.position.distanceToSqr(cagePoint)<4096||a.position.distanceToSqr(centerPoint)<4096)),"no foreign ecology actor in acquisition fixture scope");
+            require(pulsarLevel.getEntitiesOfClass(net.minecraft.world.entity.Entity.class,new net.minecraft.world.phys.AABB(acquisitionCageCell).inflate(1)).isEmpty()
+                    &&pulsarLevel.getEntitiesOfClass(net.minecraft.world.entity.Entity.class,new net.minecraft.world.phys.AABB(acquisitionCenterCell)).isEmpty(),"acquisition fixture native actor cells are unused");
+            for(var pos:BlockPos.betweenClosed(acquisitionCageCell.offset(-1,-1,-1),acquisitionCageCell.offset(1,1,1)))
+                pulsarOriginal.put(pos.immutable(),game.maps().snapshot(pulsarLevel,pos));
+            pulsarOriginal.put(acquisitionCenterCell,game.maps().snapshot(pulsarLevel,acquisitionCenterCell));
+            LbcDropBlocks.setBlock(pulsarLevel,acquisitionCenterCell,Blocks.STONE.defaultBlockState(),true);
+            var cause=game.items().indirectKills().wildCause(base.owner);
+            var center=acquisition.ecology().center(pulsarLevel,centerPoint,cause);
+            require(center!=null&&center.body!=null&&!center.body.isRemoved(),"native acquisition CENTER created on idle stone");acquisitionCenterId=center.id;
+            acquisition.createCage(pulsarLevel,cagePoint,4,cause);
+            var cage=acquisition.cages().stream().filter(c->c.level==pulsarLevel&&c.position.equals(cagePoint)).findFirst().orElseThrow();
+            acquisitionCageId=cage.id;acquisitionRewardId=cage.rewardId;acquisitionFrameId=cage.frameId;
+            require(cage.body!=null&&cage.reward!=null&&cage.frame!=null&&!cage.reward.getItemStack().isEmpty(),"native white-pool acquisition cage and displays created");
+            acquisitionReward=cage.reward.getItemStack().copy();
+            game.items().nexusCombat().pulsar().start(pulsarLevel,pulsarOrigin,cause,LbcNexusCombat.PULSAR_DELAYS);
             pulsarSeeded=true;return true;
         }
         void ack(ServerPlayer player,ElementalGrimoireChecks.Recording wire){
             player.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
             var positions=wire.packets.stream().filter(ClientboundPlayerPositionPacket.class::isInstance).map(ClientboundPlayerPositionPacket.class::cast).toList();
             if(!positions.isEmpty())player.connection.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(positions.getLast().id(),player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));
+        }
+        void discardAcquisition(){
+            var acquisition=game.items().nexusAcquisition();
+            for(var cage:acquisition.cages())if(cage.id.equals(acquisitionCageId)&&cage.body!=null){var body=cage.body;body.discard();acquisition.unloaded(body);}
+            for(var actor:acquisition.ecology().snapshot())if(actor.id.equals(acquisitionCenterId)&&actor.body!=null){var body=actor.body;body.discard();acquisition.unloaded(body);}
+        }
+        void verifyAcquisition(){
+            var acquisition=game.items().nexusAcquisition();
+            var cage=acquisition.cages().stream().filter(c->c.id.equals(acquisitionCageId)).findFirst().orElseThrow();
+            require(cage.level==pulsarLevel&&cage.color==4&&cage.body!=null&&!cage.body.isRemoved()&&cage.body.getUUID().equals(acquisitionCageId)
+                    &&cage.frame!=null&&!cage.frame.isRemoved()&&cage.frame.getUUID().equals(acquisitionFrameId)
+                    &&cage.reward!=null&&!cage.reward.isRemoved()&&cage.reward.getUUID().equals(acquisitionRewardId)
+                    &&pulsarLevel.getEntity(acquisitionCageId)==cage.body&&pulsarLevel.getEntity(acquisitionFrameId)==cage.frame&&pulsarLevel.getEntity(acquisitionRewardId)==cage.reward,"native acquisition cage and both display UUIDs survive full coordinator");
+            require(ItemStack.matches(cage.reward.getItemStack(),acquisitionReward),"exact complete pre-rolled acquisition reward survives full coordinator");
+            var center=acquisition.ecology().snapshot().stream().filter(a->a.id.equals(acquisitionCenterId)).findFirst().orElseThrow();
+            require(center.kind==LbcNexusEcology.Kind.CENTER&&center.level==pulsarLevel&&center.body!=null&&!center.body.isRemoved()
+                    &&center.body.getUUID().equals(acquisitionCenterId)&&pulsarLevel.getEntity(acquisitionCenterId)==center.body&&center.lifetime==acquisitionCenterLifetime
+                    &&center.cause!=null&&center.cause.player().equals(base.owner.getUUID())
+                    &&pulsarLevel.getBlockState(acquisitionCenterCell).is(Blocks.STONE)&&game.items().timeStop().stopped(pulsarLevel),"paused native acquisition CENTER identity and lifetime survive full coordinator");
         }
         void mutate(){
             gamma.entityTags().remove("vanity_schedule_point");
@@ -160,7 +204,7 @@ public final class VanityRollbackChecks {
             for(int n=0;n<12;n++)base.block(base.center.offset(-8+n,0,-4),Blocks.DIRT);
             game.items().voidArcanum().forget(base.owner);game.items().polymorph().stop();
             chef.discard();game.items().wtf().unloaded(chef);game.items().eternalWealth().stop();nexusOrb.discard();game.items().nexusWires().stop();game.items().nexusTools().stop();
-            game.items().nexusCombat().stop();
+            game.items().nexusCombat().stop();discardAcquisition();
             for(var pos:pulsarOriginal.keySet())LbcDropBlocks.setBlock(pulsarLevel,pos,Blocks.DIRT.defaultBlockState(),true);
             if(gamma!=null&&!gamma.isRemoved()){game.items().clearTurnCurse(gamma);game.items().resetRocket(gamma);}
             base.owner.getInventory().setItem(2,new ItemStack(Items.IRON_INGOT,55));
@@ -209,10 +253,12 @@ public final class VanityRollbackChecks {
                 mutate();phase=1;return false;
             }
             if(game.vanity().busy())return false;
+            verifyAcquisition();
             if(phase==3){
                 if(!gamma.getInventory().getItem(4).is(Items.EMERALD))return false;
                 require(game.items().curseTicks(gamma)>=curseRemaining-3&&game.items().rocketJumps(gamma)==2,"private curse and rocket state bind to the real reconnect body");
                 require(gamma.getInventory().getItem(4).getCount()==13,"offline native player image applies on real login");
+                discardAcquisition();
                 require(gamma.hurtServer(gamma.level(),gamma.damageSources().genericKill(),10000),"actual holder death enters native death handling");phase=4;return false;
             }
             if(phase==4){require(game.canUseGameplayItems(gamma)&&game.allowDamage(gamma)&&gamma.isAlive()&&gamma.getInventory().getItem(4).is(Items.EMERALD),"death requests real native respawn plus world rewind: alive="+gamma.isAlive()+" observer="+game.isObserver(gamma)+" allowed="+game.allowDamage(gamma)+" lives="+game.lives(gamma.getUUID())+" awaiting="+game.awaitingRespawn(gamma.getUUID())+" emerald="+gamma.getInventory().getItem(4));return true;}
@@ -263,7 +309,7 @@ public final class VanityRollbackChecks {
                 var live=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(gammaName));
                 if(live!=null)live.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Vanity fixture cleanup")));
                 game.items().polymorph().stop();game.items().voidArcanum().forget(base.owner);game.items().eternalWealth().stop();game.items().nexusWires().stop();game.items().nexusTools().stop();if(nexusOrb!=null)nexusOrb.discard();
-                game.items().nexusCombat().stop();
+                game.items().nexusCombat().stop();discardAcquisition();
                 if(pulsarLevel!=null){
                     if(pulsarStopped)game.items().timeStop().end(pulsarLevel);
                     for(var entry:pulsarOriginal.entrySet())game.maps().restoreSnapshot(pulsarLevel,entry.getKey(),entry.getValue());
@@ -279,7 +325,7 @@ public final class VanityRollbackChecks {
     }
     public static void tick(GameController game){
         if(running==null)return;
-        try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS vanity-rollback (production end-tick coordinator, completed construction, repeated black-hole/polymorph/Chef/terrain/actor/player replay, offline real login, native holder death and respawn, packet/load acknowledgements, qualified one-token source acquisition, actual Carpet player restoration, private curse/rocket/MK2 flight restoration, repeated offline point replacement and online-role reconciliation)");}
+        try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS vanity-rollback (production end-tick coordinator, completed construction, repeated black-hole/polymorph/Chef/terrain/actor/player replay, offline real login, native holder death and respawn, packet/load acknowledgements, qualified one-token source acquisition, actual Carpet player restoration, private curse/rocket/MK2 flight restoration, repeated offline point replacement and online-role reconciliation, paused nonempty native Nexus acquisition cage/reward/CENTER replay)");}
         catch(Throwable failure){try{running.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL vanity-rollback",failure);}
     }
 }
