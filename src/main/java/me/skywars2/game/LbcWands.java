@@ -1328,7 +1328,7 @@ public final class LbcWands {
         return game.items().timeStop().frozen(player) || player.entityTags().contains("time_stopped")
                 || legacyTimeStopped();
     }
-    private boolean legacyTimeStopped() {
+    boolean legacyTimeStopped() {
         var board=game.server().getScoreboard(); var objective=board.getObjective("lbc.math");
         var stopped=objective==null ? null : board.getPlayerScoreInfo(TIME_STOPPED,objective);
         return stopped!=null && stopped.value()>=1;

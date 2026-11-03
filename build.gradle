@@ -29,6 +29,14 @@ processResources {
     include 'skywars2/source_config_defaults.json', 'skywars2/authored_presentations.json', 'skywars2/academy_presentations.json'
     include 'data/lbc/loot_table/native_lucky/*.json'
     include 'skywars2/content_catalog_refresh.json'
+    include 'skywars2/nexus_uncrafting.json'
+    include 'data/minecraft/tags/block/airs_only.json'
+    include 'data/lbc/loot_table/nexus_item_red.json', 'data/lbc/loot_table/nexus_item_white.json'
+    include 'data/lbc/loot_table/ported/nexus_orb_gun.json', 'data/lbc/loot_table/ported/nexus_pulsar.json'
+    def nexusUncraft = new groovy.json.JsonSlurper().parse(file('src/main/resources/skywars2/nexus_uncrafting.json'))
+    (nexusUncraft.items.values() + nexusUncraft.suspicious_stew_effects.values()).toSet().each { id ->
+        include 'data/lbc/loot_table/' + id.split(':', 2)[1] + '.json'
+    }
     include 'skywars2/nexus_coords.json'
     include 'data/lbc/loot_table/nexus_item_green.json', 'data/lbc/loot_table/nexus_item_black.json'
     include 'data/lbc/loot_table/ported/nexus_compass.json', 'data/lbc/loot_table/ported/nexus_corrupter.json', 'data/lbc/loot_table/ported/nexus_roadgun.json'

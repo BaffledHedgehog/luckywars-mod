@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/magma_cream__9fb2175ecf61",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 4
-            }
-          ]
+          "modifier": {
+            "count": 4,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

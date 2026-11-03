@@ -1,0 +1,60 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:nexus_pulsar",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:pulsar"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "nexus_pulsar",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "nexus_pulsar.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_pulsar.lore.2",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_pulsar.lore.3",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{magicwand:1,spellwithcooldown_n:1,spellwithcooldown:1,nexus_pulsar:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

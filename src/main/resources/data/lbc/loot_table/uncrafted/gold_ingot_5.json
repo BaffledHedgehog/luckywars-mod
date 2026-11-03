@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/gold_ingot__dd4f4f2cfa79/variant_4f53cda18c2b",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 5
-            }
-          ]
+          "modifier": {
+            "count": 5,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

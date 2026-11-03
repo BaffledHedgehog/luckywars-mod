@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/oxidized_copper_trapdoor__b92ad17b6fc8",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "modifier": {
+            "count": 1,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },

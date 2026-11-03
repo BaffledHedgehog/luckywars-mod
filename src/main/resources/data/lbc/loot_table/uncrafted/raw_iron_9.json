@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/raw_iron__b4b555eef9da",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 9
-            }
-          ]
+          "modifier": {
+            "count": 9,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

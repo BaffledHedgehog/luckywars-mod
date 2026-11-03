@@ -15,12 +15,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/stick__213ddfc47337",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 2
-            }
-          ]
+          "modifier": {
+            "count": 2,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

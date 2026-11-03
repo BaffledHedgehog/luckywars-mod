@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:uncrafted/dark_oak_planks",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 5
-            }
-          ]
+          "modifier": {
+            "count": 5,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

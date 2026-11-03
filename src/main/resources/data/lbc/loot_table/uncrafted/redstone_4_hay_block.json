@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/redstone__2f536b1d79af/variant_4f53cda18c2b",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 4
-            }
-          ]
+          "modifier": {
+            "count": 4,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },

@@ -448,7 +448,12 @@ public final class LbcExasperato {
     /** Dedicated Nexus tools share exact collision and CPU scheduling without ordinary-wand admission. */
     java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchNexusTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,
             java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,java.util.function.Predicate<Entity> targets){
-        var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,null,false,false,targets);
+        return searchNexusTool(owner,from,direction,range,blocks,targets,null);
+    }
+    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchNexusTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,
+            java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,java.util.function.Predicate<Entity> targets,
+            java.util.function.BiConsumer<Vec3,Vec3> trail){
+        var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,trail,false,false,targets);
         search.nexus=true;search.blockRule=blocks;search.shieldBlockable=false;
         if(range>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);return search.result;
     }
@@ -464,9 +469,10 @@ public final class LbcExasperato {
     }
 
     /** Ограничиваем работу, а не дальность: каждый незавершённый луч продолжится в следующих тиках. */
+    void tickSearchesWhileMapStopped(){searchTick();}
     private void searchTick() {
         if(searchRewind)return;if(searching)throw new IllegalStateException("Reentrant ray advance");searching=true;try {
-        if(game.items().wands().timeStopped()) return;
+        if(!game.server().tickRateManager().runsNormally()||game.items().wands().legacyTimeStopped()) return;
         long started=System.nanoTime(),headroom=EffectTerrain.deadlineNanos();
         boolean spare=headroom-started>=4_000_000;
         // Keep a small progress floor on a busy tick; otherwise share the terrain deadline.
@@ -475,9 +481,10 @@ public final class LbcExasperato {
         for(int work=0;work<budget && !searches.isEmpty() && System.nanoTime()<deadline;work++) {
             var search=searches.removeFirst(); var owner=search.owner; var level=search.level;
             if(done(search)) continue;
+            if(game.items().timeStop().stopped(level)){searches.addLast(search);continue;}
             boolean sampled=search.replay!=null&&search.replay.sampleStep()>0;
             boolean active=search.nexus?game.items().currentEpoch(search.epoch)&&game.playing()&&owner.isAlive()&&!owner.isRemoved()
-                    &&game.canUseGameplayItems(owner)&&level.dimension().equals(LbcHedgehogDimensions.NEXUS):sampled?game.items().currentEpoch(search.epoch)&&game.playing()&&owner.isAlive()&&!owner.isRemoved()
+                    &&game.canUseGameplayItems(owner)&&!level.dimension().equals(LbcHedgehogDimensions.IMPRINTED):sampled?game.items().currentEpoch(search.epoch)&&game.playing()&&owner.isAlive()&&!owner.isRemoved()
                     &&game.canUseGameplayItems(owner)&&LbcDimensionItems.ordinary(level):valid(owner,search.epoch);
             if(!active || owner.level()!=level || !sampled&&!search.nexus&&searchOwnerSuppressed(search)) { complete(search,null); continue; }
             if(owner.entityTags().contains("time_stopped")) { searches.addLast(search); continue; }

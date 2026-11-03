@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/dark_oak_slab__6760fbce57ac/variant_4f53cda18c2b",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 3
-            }
-          ]
+          "modifier": {
+            "count": 3,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },
@@ -21,12 +19,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/quartz__4b7c4824d36c",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 3
-            }
-          ]
+          "modifier": {
+            "count": 3,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },
@@ -36,12 +32,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:uncrafted/glass",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 3
-            }
-          ]
+          "modifier": {
+            "count": 3,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

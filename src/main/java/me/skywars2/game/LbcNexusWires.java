@@ -89,7 +89,7 @@ public final class LbcNexusWires {
     }
     public void tick(){
         int tick=game.server().getTickCount();if(tick==lastTick||frozen)return;lastTick=tick;
-        if(!game.playing()||game.stage()==GameController.Stage.ENDING)return;
+        if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.server().tickRateManager().runsNormally()||game.items().wands().legacyTimeStopped())return;
         tickGateways();
         for(var orb:List.copyOf(pending)){
             if(orb.isRemoved()||!(orb.level() instanceof ServerLevel level)||!nexusExperience(level)){pending.remove(orb);continue;}
@@ -101,7 +101,7 @@ public final class LbcNexusWires {
             if(found)carriers.add(id);else carriers.remove(id);
         }
         for(var id:Set.copyOf(carriers)){var p=game.server().getPlayerList().getPlayer(id);consume(p,true);consume(p,false);}
-        if(!game.items().wands().timeStopped()&&++heightPhase%20==0)for(var p:game.server().getPlayerList().getPlayers())
+        if(++heightPhase%20==0)for(var p:game.server().getPlayerList().getPlayers())
             if(p.isAlive()&&!p.isSpectator()&&!game.isObserver(p)&&LbcDimensionItems.ordinary(p)&&p.getY()>=14500000&&!paused(p))game.items().hedgehogDimensions().heightNexus(p);
     }
     void stop(){pending.clear();dirty.clear();carriers.clear();gateways.clear();for(var key:loads.keySet())key.level().getChunkSource().removeTicketWithRadius(GATEWAY_TICKET,key.pos(),0);loads.clear();frozen=false;heightPhase=0;}

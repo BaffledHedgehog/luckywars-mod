@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/packed_ice__5e6d118bfd9c",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 9
-            }
-          ]
+          "modifier": {
+            "count": 9,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

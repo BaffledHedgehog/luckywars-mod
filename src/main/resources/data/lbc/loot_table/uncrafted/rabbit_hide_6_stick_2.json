@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/rabbit_hide__6caad4a76777",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 6
-            }
-          ]
+          "modifier": {
+            "count": 6,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },
@@ -21,12 +19,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/stick__213ddfc47337",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 2
-            }
-          ]
+          "modifier": {
+            "count": 2,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

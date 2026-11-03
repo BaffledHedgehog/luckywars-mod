@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:uncrafted/lapis_lazuli",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 9
-            }
-          ]
+          "modifier": {
+            "count": 9,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

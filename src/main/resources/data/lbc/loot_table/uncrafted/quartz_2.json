@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/quartz__4b7c4824d36c",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 2
-            }
-          ]
+          "modifier": {
+            "count": 2,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

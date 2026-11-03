@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/pointed_dripstone__b4417b85aec8",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 4
-            }
-          ]
+          "modifier": {
+            "count": 4,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/dried_kelp__417ce28c2b5e/variant_4f53cda18c2b",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 9
-            }
-          ]
+          "modifier": {
+            "count": 9,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

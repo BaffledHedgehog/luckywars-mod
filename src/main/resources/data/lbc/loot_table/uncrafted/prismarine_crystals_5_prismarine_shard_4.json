@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/prismarine_crystals__5fdcfbe5bf4a",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 5
-            }
-          ]
+          "modifier": {
+            "count": 5,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },
@@ -21,12 +19,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/prismarine_shard__f9395d37313c",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 4
-            }
-          ]
+          "modifier": {
+            "count": 4,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

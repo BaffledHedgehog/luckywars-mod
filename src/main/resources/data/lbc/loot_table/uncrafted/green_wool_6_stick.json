@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/green_wool__3d7c9237afe1/variant_4f53cda18c2b",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 6
-            }
-          ]
+          "modifier": {
+            "count": 6,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },

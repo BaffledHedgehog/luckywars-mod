@@ -1,3 +1,33 @@
+## Nexus Pulsar / Orb Gun - QUALIFIED, INSTALLED (3 November 2026)
+
+[Author rules, source corrections and exact evidence](agent_notes/NEXUS_COMBAT_PORT_2026_11_03.md).
+Native Polymer Pulsar/Orb Gun, source tier-X and canonical loot IDs; ready testing
+leaves/catalog. AUTHOR: Pulsar0/40/60/70/75 active ticks, both tools UNJAMMABLE.
+Orb preserves exact progress+1 XP debit, floor(progress/2) HP, zero-progress debit,
+whole custom-stack vanilla carriers and stew ingredients PLUS fallbackXP. Cached
+659+9 selectors/594 native tables/1027 entries/396 count modifiers; existing schema
+importer fixes292 old count-function tables. Shared item_defs remain factored.
+Exact airs_only tag is now bundled. Connected five-wave terrain uses primitive
+visited keys, async retained frontier tickets, typed nonempty full rewind, bounded
+fair CPU scheduling and native per-world TimeStop. Orb units are native atomic
+input/output steps; real XP joins existing Nexus red-wire producer before merge.
+
+CORRECTION: active ordinary spell1_default/_left also route Roadgun and Corrupter;
+they work outside Nexus too (except Imprinted), preserving their source ordinary
+artifact gate. New Orb/Pulsar ignore it per author. Multiworld Nexus services and
+shared ray queue advance in live worlds even when map Overworld is stopped.
+Successful casts use the existing wand bonus handler. No tick NBT/IO/global scan.
+
+Test2c4679ee / production1f1ce28f:9groups/9actual mode1 matches pass on exact artifact,
+including real packet/offhand input, full Pulsar phases/cooldown, nonempty full
+coordinator replay, XP/count/WILD death/stew/wire chain and shared ray/TimeStop/
+dimension/previous Nexus-tools regressions.9018other inputs/272authorpaths guarded;
+16fresh Java families/863resources; all archive entries verified; authoring absent
+production. Fixture25577normal/exact controlled restoration/no locks. Both build/libs
+and main JAR updated with7d241372 rollback,restarted:false. No main stop/start, RP
+edits, physical-client/peakTPS claim. Full Nexus/green graph, skill2 and broad rewind
+gates unchanged; TMT LAST. Evidence:build/verification/nexus-combat-2026-11-03/.
+
 ## Nexus Compass / Roadgun / Corrupter - QUALIFIED, INSTALLED (3 November 2026)
 
 [Author rules, source priority and evidence](agent_notes/NEXUS_TOOLS_PORT_2026_11_03.md).

@@ -32,6 +32,15 @@ public final class VanityRollbackChecks {
         net.minecraft.world.entity.Marker wealthField;
         net.minecraft.world.entity.ExperienceOrb nexusOrb;
         LbcNexusTools.Actor nexusCell;
+        net.minecraft.server.level.ServerLevel pulsarLevel;
+        final BlockPos pulsarOrigin=new BlockPos(12,180,1);
+        final java.util.Map<BlockPos,MapManager.BlockSnapshot> pulsarOriginal=new java.util.LinkedHashMap<>();
+        final int[] pulsarFrontier=new int[5],pulsarVisited=new int[5];
+        final net.minecraft.world.level.block.state.BlockState[] pulsarTerrain=new net.minecraft.world.level.block.state.BlockState[2];
+        long pulsarAge;
+        boolean pulsarStopped;
+        java.util.concurrent.CompletableFuture<?> pulsarChunk;
+        boolean pulsarSeeded;
         Vec3 holePoint;
         int constructionSteps,formRemaining,curseRemaining;
         ServerPlayer gamma,carpet;
@@ -98,9 +107,21 @@ public final class VanityRollbackChecks {
             require(nexus.addFreshEntity(nexusOrb),"actual paused Nexus XP source");game.items().nexusWires().loaded(nexusOrb);
             nexusCell=game.items().nexusTools().cube(nexus,new Vec3(3.5,180.5,1.5),game.items().indirectKills().wildCause(base.owner));
             require(nexusCell!=null,"actual functional Nexus field before full capture");nexusCell.body.entityTags().add("time_stopped");
+            pulsarLevel=nexus;
+            require(!game.items().timeStop().stopped(nexus)&&game.items().nexusCombat().pulsar().count()==0,"exclusive owned Nexus Pulsar and world stop fixture");
+            pulsarChunk=game.maps().prepareChunk(nexus,new net.minecraft.world.level.ChunkPos(pulsarOrigin.getX()>>4,pulsarOrigin.getZ()>>4));
             int began=game.server().getTickCount();
-            game.items().stonekivi().queuedWork(new LbcStonekivi.Work(){public boolean ready(){return game.server().getTickCount()>=began+constructionSteps;}public boolean step(){
-                base.block(base.center.offset(-8+constructionSteps,0,-4),Blocks.DIAMOND_BLOCK);return ++constructionSteps==12;
+            game.items().stonekivi().queuedWork(new LbcStonekivi.Work(){public boolean ready(){return pulsarSeeded&&game.server().getTickCount()>=began+constructionSteps
+                    &&(constructionSteps!=1||game.items().nexusCombat().pulsar().visitedSize(0)>0);}public boolean step(){
+                base.block(base.center.offset(-8+constructionSteps,0,-4),Blocks.DIAMOND_BLOCK);
+                if(++constructionSteps==2){
+                    game.items().timeStop().begin(nexus,200);pulsarStopped=true;
+                    var pulse=game.items().nexusCombat().pulsar();pulsarAge=pulse.age();
+                    int remaining=0;for(int n=0;n<5;n++){pulsarFrontier[n]=pulse.frontierSize(n);pulsarVisited[n]=pulse.visitedSize(n);remaining+=pulsarFrontier[n];}
+                    for(int n=0;n<2;n++)pulsarTerrain[n]=nexus.getBlockState(pulsarOrigin.offset(n,0,0));
+                    require(pulse.count()==1&&pulsarAge>=0&&pulsarVisited[0]>0&&remaining>0,"natural Pulsar work progresses before nonempty world-stop capture");
+                }
+                return constructionSteps==12;
             }});
             for(var p:List.of(base.owner,base.other)){p.setNoGravity(true);p.setDeltaMovement(Vec3.ZERO);}
             block=base.center.offset(0,0,4);base.block(block,Blocks.DIAMOND_BLOCK);
@@ -109,6 +130,23 @@ public final class VanityRollbackChecks {
             game.items().mana().set(base.owner,321);base.owner.entityTags().add("vanity_fixture");
 
             SkyWars2.LOGGER.info("[check] START vanity-rollback");
+        }
+        boolean seedPulsar(){
+            if(pulsarChunk.isCompletedExceptionally()||pulsarChunk.isCancelled())throw new IllegalStateException("Pulsar coordinator async chunk preparation failed");
+            if(!pulsarChunk.isDone()||pulsarLevel.getChunkSource().getChunkNow(pulsarOrigin.getX()>>4,pulsarOrigin.getZ()>>4)==null)return false;
+            for(int n=0;n<2;n++){
+                var pos=pulsarOrigin.offset(n,0,0);
+                pulsarOriginal.put(pos,game.maps().snapshot(pulsarLevel,pos));
+                require(pulsarLevel.getBlockState(pos).isAir(),"floating Pulsar component starts in unused air");
+                for(var direction:net.minecraft.core.Direction.values()){
+                    var neighbor=pos.relative(direction);
+                    if(!neighbor.equals(pulsarOrigin)&&!neighbor.equals(pulsarOrigin.offset(1,0,0)))
+                        require(pulsarLevel.getBlockState(neighbor).isAir(),"Pulsar coordinator component remains isolated");
+                }
+            }
+            for(var pos:pulsarOriginal.keySet())LbcDropBlocks.setBlock(pulsarLevel,pos,Blocks.STONE.defaultBlockState(),true);
+            game.items().nexusCombat().pulsar().start(pulsarLevel,pulsarOrigin,game.items().indirectKills().wildCause(base.owner),LbcNexusCombat.PULSAR_DELAYS);
+            pulsarSeeded=true;return true;
         }
         void ack(ServerPlayer player,ElementalGrimoireChecks.Recording wire){
             player.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
@@ -122,6 +160,8 @@ public final class VanityRollbackChecks {
             for(int n=0;n<12;n++)base.block(base.center.offset(-8+n,0,-4),Blocks.DIRT);
             game.items().voidArcanum().forget(base.owner);game.items().polymorph().stop();
             chef.discard();game.items().wtf().unloaded(chef);game.items().eternalWealth().stop();nexusOrb.discard();game.items().nexusWires().stop();game.items().nexusTools().stop();
+            game.items().nexusCombat().stop();
+            for(var pos:pulsarOriginal.keySet())LbcDropBlocks.setBlock(pulsarLevel,pos,Blocks.DIRT.defaultBlockState(),true);
             if(gamma!=null&&!gamma.isRemoved()){game.items().clearTurnCurse(gamma);game.items().resetRocket(gamma);}
             base.owner.getInventory().setItem(2,new ItemStack(Items.IRON_INGOT,55));
             game.items().mana().set(base.owner,900);base.owner.entityTags().remove("vanity_fixture");
@@ -129,6 +169,7 @@ public final class VanityRollbackChecks {
         }
         boolean step(){
             require(++ticks<500,"bounded coordinator phases: "+game.vanity().status());
+            if(!pulsarSeeded&&!seedPulsar())return false;
             ack(base.owner,alphaWire);ack(base.other,betaWire);
             var live=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(gammaName));
             if(live!=null){gamma=live;ack(gamma,gammaWire);}
@@ -193,6 +234,10 @@ public final class VanityRollbackChecks {
             require(future.isRemoved(),"future native actor removed");
             require(!nexusOrb.isRemoved()&&game.items().nexusWires().checkpoint().waiting.contains(nexusOrb.getUUID()),"paused native Nexus XP and pending producer survive actual full coordinator");
             require(!nexusCell.body.isRemoved()&&game.items().nexusTools().snapshot().stream().anyMatch(a->a.body==nexusCell.body&&a.cause.player().equals(base.owner.getUUID())&&a.age==0),"paused Nexus concrete body and typed owner survive actual full coordinator");
+            var pulse=game.items().nexusCombat().pulsar();
+            require(pulsarStopped&&game.items().timeStop().stopped(pulsarLevel)&&pulse.count()==1&&pulse.age()==pulsarAge,"nonempty Pulsar and world TimeStop clock survive actual full coordinator");
+            for(int n=0;n<5;n++)require(pulse.frontierSize(n)==pulsarFrontier[n]&&pulse.visitedSize(n)==pulsarVisited[n],"exact Pulsar frontier and visited progress restored for phase "+n);
+            for(int n=0;n<2;n++)require(pulsarLevel.getBlockState(pulsarOrigin.offset(n,0,0)).equals(pulsarTerrain[n]),"captured Pulsar terrain restored through full coordinator");
             require(!wealthField.isRemoved()&&game.items().eternalWealth().fields()==1,"native cursed-field body and typed owner resume through actual full coordinator");
             var stack=base.owner.getInventory().getItem(2);
             require(stack.is(Items.DIAMOND)&&stack.getCount()==9,"native player inventory rewound");
@@ -218,6 +263,11 @@ public final class VanityRollbackChecks {
                 var live=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(gammaName));
                 if(live!=null)live.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Vanity fixture cleanup")));
                 game.items().polymorph().stop();game.items().voidArcanum().forget(base.owner);game.items().eternalWealth().stop();game.items().nexusWires().stop();game.items().nexusTools().stop();if(nexusOrb!=null)nexusOrb.discard();
+                game.items().nexusCombat().stop();
+                if(pulsarLevel!=null){
+                    if(pulsarStopped)game.items().timeStop().end(pulsarLevel);
+                    for(var entry:pulsarOriginal.entrySet())game.maps().restoreSnapshot(pulsarLevel,entry.getKey(),entry.getValue());
+                }
                 base.owner.entityTags().remove("time_stopped");base.owner.entityTags().remove("vanity_fixture");base.owner.connection=alphaConnection;base.other.connection=betaConnection;
                 base.close();originalCore.restoreFrozen();for(var player:originalPlayers)player.restoreFrozen();
             }finally{game.server().tickRateManager().setFrozen(frozen);}

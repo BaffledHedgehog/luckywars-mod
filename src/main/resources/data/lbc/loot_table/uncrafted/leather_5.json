@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/leather__c3000e9a4ce9",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 5
-            }
-          ]
+          "modifier": {
+            "count": 5,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

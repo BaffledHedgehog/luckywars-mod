@@ -912,6 +912,8 @@ public final class GameChecks {
                                 case "eternal-wealth" -> { EternalWealthChecks.run(game); return; }
                                 case "nexus-red-wire" -> { NexusWireChecks.run(game); return; }
                                 case "nexus-tools" -> { NexusToolsChecks.run(game); return; }
+                                case "nexus-pulsar" -> { NexusPulsarChecks.run(game); return; }
+                                case "nexus-orb" -> { NexusOrbChecks.run(game); return; }
                                 case "vanity-rollback" -> { VanityRollbackChecks.run(game); return; }
                                 case "vanity-snapshot-perf" -> { VanitySnapshotPerfChecks.run(game); return; }
                                 case "vanity-snapshot-perf-services" -> { VanitySnapshotPerfChecks.runServices(game); return; }
@@ -1520,7 +1522,7 @@ public final class GameChecks {
             RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);StonekiviSunChecks.tick(game);
             AttributeFoodChecks.tick(game);
             EdibleSpellChecks.tick(game);
-            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);WitchIndolenceChecks.tick(game);IndolenceFingerChecks.tick(game);WitchClaimChecks.tick(game);WitchLustChecks.tick(game);WitchLifecycleChecks.tick(game);EternalWealthChecks.tick(game);NexusWireChecks.tick(game);NexusToolsChecks.tick(game);VanityRollbackChecks.tick(game);VanitySnapshotPerfChecks.tick(game);VanityTerrainChecks.tick(game);VanityCoreChecks.tick(game);VanityPlayerChecks.tick(game);VanityActorChecks.tick(game);VanityViewChecks.tick(game);VanityStorageChecks.tick(game);VanityWorkstationChecks.tick(game);VanityBoundViewChecks.tick(game);VanityRandomChecks.tick(game);VanityWorldChecks.tick(game);VanityTimeStopChecks.tick(game);ChefExecutionChecks.tick(game);PolymorphChecks.tick(game);
+            NukeEventChecks.tick(game);FoodLifecycleChecks.tick(game);ApocalypseEventChecks.tick(game);ShishEncounterChecks.tick(game);WitchPassiveChecks.tick(game);WitchEnvyChecks.tick(game);WitchProgressChecks.tick(game);WitchWrathChecks.tick(game);WitchGluttonyChecks.tick(game);WitchIndolenceChecks.tick(game);IndolenceFingerChecks.tick(game);WitchClaimChecks.tick(game);WitchLustChecks.tick(game);WitchLifecycleChecks.tick(game);EternalWealthChecks.tick(game);NexusWireChecks.tick(game);NexusToolsChecks.tick(game);NexusPulsarChecks.tick(game);NexusOrbChecks.tick(game);VanityRollbackChecks.tick(game);VanitySnapshotPerfChecks.tick(game);VanityTerrainChecks.tick(game);VanityCoreChecks.tick(game);VanityPlayerChecks.tick(game);VanityActorChecks.tick(game);VanityViewChecks.tick(game);VanityStorageChecks.tick(game);VanityWorkstationChecks.tick(game);VanityBoundViewChecks.tick(game);VanityRandomChecks.tick(game);VanityWorldChecks.tick(game);VanityTimeStopChecks.tick(game);ChefExecutionChecks.tick(game);PolymorphChecks.tick(game);
             MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);

@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/gold_nugget__989b5766a59f",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 8
-            }
-          ]
+          "modifier": {
+            "count": 8,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },

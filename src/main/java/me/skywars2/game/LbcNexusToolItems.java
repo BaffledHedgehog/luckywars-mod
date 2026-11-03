@@ -22,6 +22,8 @@ public final class LbcNexusToolItems {
     private static final CompoundTag COMPASS_TRIGGER = trigger("nexus_compass");
     private static final CompoundTag ROADGUN_TRIGGER = trigger("nexus_roadgun");
     private static final CompoundTag CORRUPTER_TRIGGER = trigger("nexus_corrupter");
+    private static final CompoundTag ORB_GUN_TRIGGER = trigger("nexus_orb_gun");
+    private static final CompoundTag PULSAR_TRIGGER = trigger("nexus_pulsar");
     private static final CompoundTag COMPASS_LWS_TRIGGER = paperCompass("lws:item", "lws:type");
     private static final CompoundTag COMPASS_LEGACY_TRIGGER = paperCompass("lucky_wars:item", "lucky_wars:type");
 
@@ -35,6 +37,14 @@ public final class LbcNexusToolItems {
             "nexus_corrupter", true, List.of(
                     lore("nexus_corrupter.lore.1"), lore("nexus_corrupter.lore.2"),
                     lore("nexus_corrupter.lore.3"), lore("nexus_corrupter.lore.4")));
+
+    public static final Item ORB_GUN = tool("skywars2:nexus_orb_gun", "lbc:nexus_orb_gun", "lbc:tier_x",
+            "nexus_orb_gun", orbGunFlags(), List.of(
+                    lore("nexus_orb_gun.lore.1"), lore("nexus_orb_gun.lore.2"),
+                    lore("nexus_orb_gun.lore.3"), lore("nexus_orb_gun.lore.4")));
+    public static final Item PULSAR = tool("skywars2:nexus_pulsar", "lbc:pulsar", "lbc:tier_x",
+            "nexus_pulsar", true, List.of(
+                    lore("nexus_pulsar.lore.1"), lore("nexus_pulsar.lore.2"), lore("nexus_pulsar.lore.3")));
 
     private LbcNexusToolItems() { }
 
@@ -56,6 +66,12 @@ public final class LbcNexusToolItems {
         return tag;
     }
 
+    private static CompoundTag orbGunFlags() {
+        var flags = trigger("nexus_orb_gun");
+        flags.putInt("magicwand", 1);
+        return flags;
+    }
+
     private static Component lore(String key) {
         return Component.translatable(key)
                 .withStyle(style -> style.withColor(ChatFormatting.WHITE).withItalic(false));
@@ -63,8 +79,6 @@ public final class LbcNexusToolItems {
 
     private static Item tool(String id, String modelName, String tooltipStyle, String name,
                              boolean spellCooldown, List<Component> lore) {
-        var key = ResourceKey.create(Registries.ITEM, Identifier.parse(id));
-        var model = Identifier.parse(modelName);
         var flags = trigger(name);
         flags.putInt("magicwand", 1);
         flags.putInt("spellwithcooldown_n", 1);
@@ -73,6 +87,13 @@ public final class LbcNexusToolItems {
         } else {
             flags.merge(COMPASS_LWS_TRIGGER);
         }
+        return tool(id, modelName, tooltipStyle, name, flags, lore);
+    }
+
+    private static Item tool(String id, String modelName, String tooltipStyle, String name,
+                             CompoundTag flags, List<Component> lore) {
+        var key = ResourceKey.create(Registries.ITEM, Identifier.parse(id));
+        var model = Identifier.parse(modelName);
         var properties = new Item.Properties() {
             @Override public Identifier effectiveModel() { return model; }
         }.setId(key).durability(25).overrideDescription(name)
@@ -103,5 +124,15 @@ public final class LbcNexusToolItems {
     public static boolean isCorrupter(ItemStack stack) {
         return !stack.isEmpty() && (stack.is(CORRUPTER)
                 || stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).matchedBy(CORRUPTER_TRIGGER));
+    }
+
+    public static boolean isOrbGun(ItemStack stack) {
+        return !stack.isEmpty() && (stack.is(ORB_GUN)
+                || stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).matchedBy(ORB_GUN_TRIGGER));
+    }
+
+    public static boolean isPulsar(ItemStack stack) {
+        return !stack.isEmpty() && (stack.is(PULSAR)
+                || stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).matchedBy(PULSAR_TRIGGER));
     }
 }

@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:uncrafted/cobblestone",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 8
-            }
-          ]
+          "modifier": {
+            "count": 8,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },

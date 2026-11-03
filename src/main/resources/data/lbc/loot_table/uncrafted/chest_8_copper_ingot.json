@@ -15,12 +15,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/copper_ingot__d0f688e1c473",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 9
-            }
-          ]
+          "modifier": {
+            "count": 9,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

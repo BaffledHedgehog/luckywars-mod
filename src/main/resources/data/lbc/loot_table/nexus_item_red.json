@@ -7,7 +7,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 0,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:nexus_orb_gun",
           "modifier": [
             {
               "count": 1,

@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/beetroot__1d2386534f05/variant_4f53cda18c2b",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 6
-            }
-          ]
+          "modifier": {
+            "count": 6,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },

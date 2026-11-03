@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/netherite_ingot__3baa9642cb07",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "modifier": {
+            "count": 1,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },
@@ -21,12 +19,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/diamond_boots__37448d81e2d7",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "modifier": {
+            "count": 1,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },
@@ -36,12 +32,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/netherite_upgrade_smithing_template__49894b9d21da",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "modifier": {
+            "count": 1,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }

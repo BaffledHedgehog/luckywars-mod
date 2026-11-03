@@ -1,0 +1,65 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:nexus_orb_gun",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:nexus_orb_gun"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "nexus_orb_gun",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "nexus_orb_gun.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_orb_gun.lore.2",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_orb_gun.lore.3",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_orb_gun.lore.4",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{magicwand:1,nexus_orb_gun:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

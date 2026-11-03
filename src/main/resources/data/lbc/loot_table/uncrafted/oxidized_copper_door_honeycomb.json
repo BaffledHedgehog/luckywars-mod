@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/oxidized_copper_door__8571d060f05a",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "modifier": {
+            "count": 1,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     },

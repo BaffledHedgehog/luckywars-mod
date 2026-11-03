@@ -6,12 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/sand__a938cf8712d6",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 6
-            }
-          ]
+          "modifier": {
+            "count": 6,
+            "type": "minecraft:set_count"
+          }
         }
       ]
     }
