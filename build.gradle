@@ -403,6 +403,9 @@ processResources {
     include 'data/lbc/loot_table/ported/duplicating_wand.json',
             'data/lbc/loot_table/ported/academy_duplicating_wand.json',
             'data/lbc/loot_table/ported/divider.json',
+            'data/lbc/loot_table/greedcurse.json', 'data/lbc/loot_table/ported/greedcurse_drop.json',
+            'data/lbc/loot_table/ported/greedcurse_drop_imba.json', 'data/lbc/loot_table/ported/greedstone.json',
+            'data/lbc/structure/avarice_diamond.nbt',
             'data/skywars2/recipe/duplicating_combine.json',
             'data/lbc/structure/obsidian_sphere_air_r7.nbt'
     // Consuming reuses the prepared native templates and existing recipe engine.

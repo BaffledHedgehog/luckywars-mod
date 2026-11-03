@@ -1,3 +1,23 @@
+## Eternal Wealth - QUALIFIED, INSTALLED (3 November 2026)
+
+[Final author rules, source semantics and evidence](agent_notes/ETERNAL_WEALTH_PORT_2026_11_03.md).
+Native Polymer Greedstone/drop variants, exact delayed diamond and637-cell cursed
+terrain. MAG/artifact suppress intake/fields/target damage; TECH does not; diamond
+unjammable. Native WILD damage with source probes/cooldown/owner credit. Cleansing
+removes curses in10, rewards each cleansed player and each uncursed toucher; field
+cleanup only directly touching cursed owners, preserving foreign overlaps. Both extra
+fluid layers fixed. Raw map mushrooms unchanged. Typed nonempty resident/full-world
+replay, construction barrier, TimeStop and match cleanup share existing lifecycles.
+Event-dirtied inventory/fixed predicates; grouped local target queries, no tick NBT/IO.
+
+Test064f05b8 / production85592a45: five groups/five actual mode1 matches pass on exact
+artifact.9856other inputs/272author paths guarded;11fresh Java families plus8JSON and
+exact source NBT over qualified Loom resources; all archive bytes verified. Fixture25577
+normal/exact controlled restoration/no locks. Both final build/libs and main JAR updated
+with506b57d4 rollback, restarted:false. No main stop/start, RP edits or physical-client/
+peakTPS claim. Broad full-rewind, skill2 and remaining Nexus gates unchanged; TMT LAST.
+Evidence and install receipt:build/verification/eternal-wealth-2026-11-03/.
+
 ## Vanity rolling save points - QUALIFIED, INSTALLED (3 November 2026)
 
 [Author rule and scoped evidence](agent_notes/VANITY_ROLLING_POINTS_2026_11_03.md).

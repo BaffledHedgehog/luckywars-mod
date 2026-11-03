@@ -30,6 +30,7 @@
         "minecraft:verdant_froglight",
         "minecraft:end_rod",
         "minecraft:glowstone",
-        "minecraft:bone_block"
+        "minecraft:bone_block",
+        "skywars2:greedstone_cursed_block"
     ]
 }

@@ -176,6 +176,10 @@
     "lbc:trinket/cocktail",
     "lbc:trinket/fourier",
     "lbc:trinket/rocket_spell",
-    "lbc:madoka_bow"
+    "lbc:madoka_bow",
+    "lbc:greedcurse",
+    "lbc:ported/greedcurse_drop",
+    "lbc:ported/greedcurse_drop_imba",
+    "lbc:ported/greedstone"
   ]
 }

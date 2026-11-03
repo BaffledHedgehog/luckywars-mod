@@ -304,7 +304,7 @@ public final class LbcMana {
         }
     }
     void unloaded(LivingEntity p) { pendingPotions.remove(p); statEffects.remove(p); }
-    public void inventoryChanged(ServerPlayer p) { dirty.add(p.getUUID()); }
+    public void inventoryChanged(ServerPlayer p) { dirty.add(p.getUUID());if(game.items()!=null&&game.items().eternalWealth()!=null)game.items().eternalWealth().inventoryChanged(p); }
     public int overloadArmor(ServerPlayer p) { return equipment(p).overload(); }
     public boolean mageFullSet(ServerPlayer p) { return equipment(p).mageMask()==15; }
     private Gear equipment(ServerPlayer p) {

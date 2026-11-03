@@ -138,6 +138,7 @@ public final class LbcParasite {
         items.totems().clear(player);
         items.magic().colors().clearEffects(player);
         items.legacyEffects().clearDebuffs(player);
+        player.entityTags().remove("greed_cursed");
     }
 
     /** One 40 percent roll per accepted damage event, followed by one uniform 1..26 roll. */

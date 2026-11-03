@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:repeating_command_block",
+          "name": "skywars2:greedcurse_drop",
           "modifier": [
             {
               "count": 1,
