@@ -177,6 +177,20 @@
   ],
   "skills": [
     {
+      "id": 20,
+      "page": 10000,
+      "slot": 20,
+      "gate": "lbc:true_advancements/legends/academy/acidcorrupt",
+      "lockedKey": "lbc.adv.upgraded_tuntija.acidcorrupt.lore"
+    },
+    {
+      "id": 21,
+      "page": 10000,
+      "slot": 21,
+      "gate": "lbc:true_advancements/legends/academy/big_stone",
+      "lockedKey": "lbc.adv.upgraded_tuntija.big_stone"
+    },
+    {
       "id": 15,
       "page": 10000,
       "slot": 14,

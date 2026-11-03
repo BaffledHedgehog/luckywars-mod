@@ -398,4 +398,13 @@ public final class LbcFpvDrone {
             public void rollback(Entity clone){unloaded(clone);}
         };
     }
+
+    void directionChanged(Entity actor) {
+        if(actor instanceof Drone drone){
+            drone.setYHeadRot(drone.getYRot());drone.setYBodyRot(drone.getYRot());
+            var visual=actors.get(drone);
+            if(visual!=null)visual.snapTo(drone.getX(),drone.getY(),drone.getZ(),drone.getYRot(),drone.getXRot());
+        }
+    }
+
 }

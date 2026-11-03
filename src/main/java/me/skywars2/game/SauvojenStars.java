@@ -235,4 +235,14 @@ final class SauvojenStars {
         return made;
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var actor:actors.values())if(!actor.carrier.isRemoved()&&game.items().currentEpoch(actor.epoch)
+                &&!game.items().timeStop().frozen(actor.carrier)&&!actor.carrier.entityTags().contains("time_stopped")
+                &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)actor.carrier.level(),actor.carrier.position())){
+            actor.direction=LbcPlanetoidSkill.direction(holder,actor.carrier.position(),82);
+            actor.left=left(actor.direction);LbcPlanetoidSkill.orient(actor.carrier,actor.direction);
+        }
+    }
+
 }

@@ -413,7 +413,9 @@ public final class LbcItems {
     private final LbcCombatRewards combatRewards;
     private final LbcMachinegunSkill machinegunSkill;
     private final LbcZeusSkill zeusSkill;
+    private final LbcSymbioteSkill symbioteSkill;
     private final LbcCloneSkills cloneSkills;
+    private final LbcPlanetoidSkill planetoidSkill;
     private final LbcFallingHedgehogs fallingHedgehogs;
     public LbcDeus deus(){return deus;}
     public LbcGovnomancer govnomancer(){return govnomancer;}
@@ -422,7 +424,9 @@ public final class LbcItems {
     public LbcCombatRewards combatRewards(){return combatRewards;}
     public LbcMachinegunSkill machinegunSkill(){return machinegunSkill;}
     public LbcZeusSkill zeusSkill(){return zeusSkill;}
+    public LbcSymbioteSkill symbioteSkill(){return symbioteSkill;}
     public LbcCloneSkills cloneSkills(){return cloneSkills;}
+    public LbcPlanetoidSkill planetoidSkill(){return planetoidSkill;}
     public LbcFallingHedgehogs fallingHedgehogs(){return fallingHedgehogs;}
     public LbcBouncingPoop bouncingPoop(){return bouncingPoop;}
     public LbcClownKit clownKit(){return clownKit;}
@@ -970,7 +974,8 @@ public final class LbcItems {
         this.steampunkBreaker=new LbcSteampunkBreaker(game);
         this.clownKit=new LbcClownKit(game);this.gaaraPot=new LbcGaaraPot(game);this.bouncingPoop=new LbcBouncingPoop(game);this.deus=new LbcDeus(game);this.pills=new LbcPills(game);this.govnomancer=new LbcGovnomancer(game);this.reactiveSkills=new LbcReactiveSkills(game);
         this.containedSkills=new LbcContainedSkills(game);this.fallingHedgehogs=new LbcFallingHedgehogs(game);
-        this.combatRewards=new LbcCombatRewards(game);this.machinegunSkill=new LbcMachinegunSkill(game);this.zeusSkill=new LbcZeusSkill(game);
+        this.combatRewards=new LbcCombatRewards(game);this.machinegunSkill=new LbcMachinegunSkill(game);this.zeusSkill=new LbcZeusSkill(game);this.symbioteSkill=new LbcSymbioteSkill(game);
+        this.planetoidSkill=new LbcPlanetoidSkill(game);
         this.cloneSkills=new LbcCloneSkills(game);this.cloneSkills.installAdapter(new CloneActorStates(game));
         this.steampunkGlove=new LbcSteampunkGlove(game);
         this.steampunkHook=new LbcSteampunkHook(game);
@@ -1287,6 +1292,7 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
+        communism.loaded(entity);
         trinketArrows.loaded(entity);shulkerBow.loaded(entity);madokaBow.loaded(entity);
         if(machinegunSkill.loaded(entity)&&entity.isRemoved())return;
         grimoireDungeon.capture(entity);uniwand.loaded(entity);
@@ -1877,7 +1883,7 @@ public final class LbcItems {
     public void tick() {
         for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);
         containedSkills.tick();fallingHedgehogs.tick();
-        combatRewards.tick();machinegunSkill.tick();zeusSkill.tick();cloneSkills.tick();
+        combatRewards.tick();machinegunSkill.tick();zeusSkill.tick();symbioteSkill.tick();cloneSkills.tick();
         reactiveSkills.tick();
         timeStop.tick();polymorph.tick();fpvDrone.tick();witchClaims.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         grimoireRooms.tick();grimoireBoss.tick();uniwand.tick();
@@ -2024,6 +2030,7 @@ public final class LbcItems {
         tickRockets();
         tickRocketCrafts();
         for(var player:game.server().getPlayerList().getPlayers()) { aimbobRewards.tickPlayer(player);refreshHud(player); }
+        planetoidSkill.tick();
         if (turnCurses.isEmpty()) return;
         // Reuse a bounded snapshot: damage can synchronously remove an owner through AFTER_DEATH.
         tickBatch.addAll(turnCurses.values());
@@ -2084,7 +2091,7 @@ public final class LbcItems {
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
     private void clear(ServerPlayer player,boolean resetNanobots) { steampunkHook.clear(player);steampunkGlove.clear(player);legacyEffects.clear(player); if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); clearTurnCurse(player); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
-        machinegunSkill.clear(player);zeusSkill.clear(player);
+        machinegunSkill.clear(player);zeusSkill.clear(player);symbioteSkill.clear(player);
         containedSkills.clear(player);
         steampunkHook.reset(player);steampunkGlove.reset(player);teleportGadgets.forget(player);
         indolenceFingers.forget(player);witchLust.forget(player);
@@ -2175,7 +2182,7 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {
-        combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();cloneSkills.stop();
+        combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();symbioteSkill.stop();cloneSkills.stop();
         containedSkills.stop();fallingHedgehogs.stop();
         grimoireRooms.stop();grimoireBoss.stop();uniwand.stop();
         steampunkHook.stop();steampunkGlove.stop();teleportGadgets.stop();

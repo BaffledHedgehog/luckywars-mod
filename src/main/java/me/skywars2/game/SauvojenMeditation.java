@@ -333,7 +333,7 @@ public final class SauvojenMeditation {
                 }
             }
             case ACID_RING->{rings(t,h.at.add(0,1,0),10,0x00ff00,true);
-                h.at=h.at.add(Vec3.directionFromRotation(0,h.yaw).scale(.25));h.yaw+=5;
+                h.at=h.at.add(Vec3.directionFromRotation(pitch(h.direction),h.yaw).scale(.25));h.yaw+=5;
                 if(h.warning!=null)h.warning.moveTo(h.at.add(0,1,0));return h.age>=130;}
             case ACID_BALLER->{
                 if(h.age<40){if(t.owner.getRandom().nextFloat()<.15f){
@@ -543,4 +543,17 @@ public final class SauvojenMeditation {
         }
     }
     public void stop(){for(var t:List.copyOf(trials.values()))finish(t,null);terraTicker=0;}
+
+    void planetoid(ServerPlayer holder) {
+        for(var trial:trials.values())if(game.items().currentEpoch(trial.epoch))for(var hazard:trial.hazards)
+            if(LbcPlanetoidSkill.near(game,holder,trial.level,hazard.at)
+                    &&(hazard.actor==null||!game.items().timeStop().frozen(hazard.actor)
+                    &&!hazard.actor.entityTags().contains("time_stopped"))){
+                hazard.direction=LbcPlanetoidSkill.direction(holder,hazard.at,82);
+                hazard.yaw=yaw(hazard.direction);
+                if(hazard.actor!=null)LbcPlanetoidSkill.orient(hazard.actor,hazard.direction);
+                if(hazard.warning!=null)hazard.warning.direction(hazard.direction);
+            }
+    }
+
 }

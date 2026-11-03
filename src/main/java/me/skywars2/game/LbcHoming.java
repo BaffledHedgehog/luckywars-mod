@@ -683,4 +683,12 @@ public final class LbcHoming {
         return made;
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var effects:List.of(rains,destinies,fouriers))for(var effect:effects)
+            if(effect.remaining>0&&game.items().currentEpoch(effect.epoch)
+                    &&LbcPlanetoidSkill.near(game,holder,effect.level,effect.position))
+                effect.direction=LbcPlanetoidSkill.direction(holder,effect.position,82);
+    }
+
 }

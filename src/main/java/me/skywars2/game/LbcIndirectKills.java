@@ -74,9 +74,34 @@ public final class LbcIndirectKills {
     private static final class CapturedDamage extends DamageSource {
         final Owner cause;final DamageSource original;
         CapturedDamage(DamageSource source,Owner cause){super(source.typeHolder(),source.getDirectEntity(),source.getEntity());this.cause=cause;this.original=source;}
+        @Override public boolean isDirect(){return original.isDirect();}
+        @Override public net.minecraft.world.phys.Vec3 sourcePositionRaw(){return original.sourcePositionRaw();}
+        @Override public net.minecraft.world.item.ItemStack getWeaponItem(){return original.getWeaponItem();}
+        @Override public boolean is(net.minecraft.tags.TagKey<net.minecraft.world.damagesource.DamageType> tag){return original.is(tag);}
+        @Override public boolean is(net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){return original.is(type);}
+        @Override public float getFoodExhaustion(){return original.getFoodExhaustion();}
         @Override public net.minecraft.world.phys.Vec3 getSourcePosition(){return original.getSourcePosition();}
         @Override public boolean scalesWithDifficulty(){return original.scalesWithDifficulty();}
         @Override public net.minecraft.network.chat.Component getLocalizedDeathMessage(LivingEntity victim){return original.getLocalizedDeathMessage(victim);}
+    }
+    /** One accepted owner debit is indirect at its subordinate, never a second impact. */
+    private static final class TransferredDamage extends DamageSource {
+        final DamageSource original;
+        TransferredDamage(DamageSource original){super(original.typeHolder(),null,original.getEntity());this.original=original;}
+        @Override public boolean isDirect(){return false;}
+        @Override public net.minecraft.world.phys.Vec3 getSourcePosition(){return original.getSourcePosition();}
+        @Override public net.minecraft.world.phys.Vec3 sourcePositionRaw(){return original.sourcePositionRaw();}
+        @Override public boolean scalesWithDifficulty(){return original.scalesWithDifficulty();}
+        @Override public net.minecraft.world.item.ItemStack getWeaponItem(){return original.getWeaponItem();}
+        @Override public net.minecraft.network.chat.Component getLocalizedDeathMessage(LivingEntity victim){return original.getLocalizedDeathMessage(victim);}
+        @Override public boolean is(net.minecraft.tags.TagKey<net.minecraft.world.damagesource.DamageType> tag){return original.is(tag);}
+        @Override public boolean is(net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){return original.is(type);}
+        @Override public float getFoodExhaustion(){return original.getFoodExhaustion();}
+    }
+    DamageSource transferDamage(DamageSource source){
+        // Capture historical projectile/spell authority while its original direct actor is present.
+        var cause=babylonCause(source);
+        return captureDamage(new TransferredDamage(source),cause);
     }
     public void withCause(LivingEntity target,Owner cause,Runnable action){
         var previousTarget=causeTarget;var previousCause=activeCause;causeTarget=target;activeCause=cause;
@@ -91,11 +116,15 @@ public final class LbcIndirectKills {
     public DamageSource captureDamage(DamageSource source,Owner cause){return cause==null?source:new CapturedDamage(source,cause);}
     /** Preserve source-specific behavior when native attribution has wrapped a damage source. */
     static DamageSource originalDamage(DamageSource source){
-        while(source instanceof CapturedDamage captured)source=captured.original;
+        while(true){
+            if(source instanceof CapturedDamage captured)source=captured.original;
+            else if(source instanceof TransferredDamage transferred)source=transferred.original;
+            else break;
+        }
         return source;
     }
     /** Read-only parent for the native combat checkpoint; accepted causes are never regenerated. */
-    static DamageSource checkpointWrappedSource(DamageSource source){return source instanceof CapturedDamage captured?captured.original:null;}
+    static DamageSource checkpointWrappedSource(DamageSource source){return source instanceof CapturedDamage captured?captured.original:source instanceof TransferredDamage transferred?transferred.original:null;}
     /** Native ServerPlayer friendship admission runs before LivingEntity's damage callbacks. */
     public static boolean isWildCaptured(DamageSource source){return source instanceof CapturedDamage captured&&captured.cause.friendlyFire();}
     public void inheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){

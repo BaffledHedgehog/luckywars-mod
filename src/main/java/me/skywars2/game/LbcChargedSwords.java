@@ -514,4 +514,7 @@ public final class LbcChargedSwords {
         }
     }
 
+
+    void directionChanged(Entity actor) { if(actor instanceof ThrownSword sword)sword.sync(sword.position()); }
+
 }

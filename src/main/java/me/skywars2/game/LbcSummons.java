@@ -148,6 +148,11 @@ public final class LbcSummons {
         return summon!=null && game.items().currentEpoch(summon.epoch)
                 ? game.server().getPlayerList().getPlayer(summon.owner):null;
     }
+    List<Entity> controlledActors(UUID id){
+        var result=new ArrayList<Entity>();
+        mobs.forEach((mob,state)->{if(state.owner.equals(id)&&game.items().currentEpoch(state.epoch))result.add(mob);});
+        return result;
+    }
     boolean friendly(ServerPlayer player,Entity entity) {
         var owner=owner(entity); return owner!=null && (owner==player || player.isAlliedTo(owner));
     }

@@ -307,4 +307,16 @@ public final class LbcSauvojenBoss {
         },clone->{actors.remove(clone);unloaded.remove(clone.getUUID());});
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var cloud:clouds){var drone=cloud.visual();
+            if(!drone.carrier.isRemoved()&&game.items().currentEpoch(drone.epoch)
+                    &&!game.items().timeStop().frozen(drone.carrier)&&!drone.carrier.entityTags().contains("time_stopped")
+                    &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)drone.carrier.level(),drone.position)){
+                drone.direction=LbcPlanetoidSkill.direction(holder,drone.position,82);
+                LbcPlanetoidSkill.orient(drone.carrier,drone.direction);game.items().sauvojen().sync(drone);
+            }
+        }
+    }
+
 }

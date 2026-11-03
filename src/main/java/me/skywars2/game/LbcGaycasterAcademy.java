@@ -120,7 +120,7 @@ final class LbcGaycasterAcademy {
         owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(Component.translatable(key)));
     }
     static final class Hazard {
-        final int kind;Vec3 at;final Vec3 direction;int age;Entity display;UUID visual;TrialWarningVisual warning;
+        final int kind;Vec3 at,direction;int age;Entity display;UUID visual;TrialWarningVisual warning;
         final List<TrialWarningVisual> laneWarnings=new ArrayList<>();
         Hazard(int kind,Vec3 at,Vec3 direction){this.kind=kind;this.at=at;this.direction=direction;}
         void close(){if(display!=null)display.discard();if(warning!=null)warning.close();laneWarnings.forEach(TrialWarningVisual::close);}
@@ -324,4 +324,17 @@ final class LbcGaycasterAcademy {
     }
 
     boolean transientCaptureReady(){return trials.isEmpty();}
+
+    void planetoid(ServerPlayer holder) {
+        for(var trial:trials.values())if(game.items().currentEpoch(trial.epoch))for(var hazard:trial.hazards)
+            if(LbcPlanetoidSkill.near(game,holder,trial.level,hazard.at)
+                    &&(hazard.display==null||!game.items().timeStop().frozen(hazard.display)
+                    &&!hazard.display.entityTags().contains("time_stopped"))){
+                hazard.direction=LbcPlanetoidSkill.direction(holder,hazard.at,82);
+                if(hazard.display!=null)LbcPlanetoidSkill.orient(hazard.display,hazard.direction);
+                if(hazard.warning!=null)hazard.warning.direction(hazard.direction);
+                for(var warning:hazard.laneWarnings)warning.direction(hazard.direction);
+            }
+    }
+
 }

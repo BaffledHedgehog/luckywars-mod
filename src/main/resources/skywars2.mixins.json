@@ -2,6 +2,8 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "SymbioteScoreMixin",
+    "SymbioteTransferAccess",
     "BlockCollisionHeightMixin",
     "RiptideVelocityMixin",
     "EnchantCommandRulesMixin",

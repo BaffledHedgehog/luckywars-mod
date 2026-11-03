@@ -19,7 +19,8 @@ public interface ArmorReserveMixin {
         private void skywars2$armorReserve(DamageSource source,float original,CallbackInfoReturnable<Float> result){
             var game=SkyWars2.game();
             if(game!=null&&(Object)this instanceof ServerPlayer player)
-                result.setReturnValue(LbcArmorReserveSkill.apply(game,player,source,result.getReturnValueF()));
+                result.setReturnValue(LbcArmorReserveSkill.apply(game,player,source,
+                        game.items().symbioteSkill().absorb(player,source,result.getReturnValueF())));
         }
     }
     @Mixin(LivingEntity.class)

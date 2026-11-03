@@ -743,4 +743,10 @@ public final class LbcConsuming {
         }
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var part:partitions)if(valid(part)&&LbcPlanetoidSkill.near(game,holder,part.level,part.point))
+            part.direction=LbcPlanetoidSkill.direction(holder,part.point,82);
+    }
+
 }

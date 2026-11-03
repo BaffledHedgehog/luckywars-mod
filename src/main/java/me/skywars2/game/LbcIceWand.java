@@ -309,4 +309,10 @@ final class LbcIceWand {
         };
     }
 
+
+    void directionChanged(Entity actor) {
+        if(actor instanceof IceShot shot&&shot.display!=null)
+            shot.display.snapTo(shot.getX(),shot.getY(),shot.getZ(),shot.getYRot(),shot.getXRot());
+    }
+
 }

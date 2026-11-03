@@ -768,4 +768,11 @@ public final class LbcDuplicating {
         return made;
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        if(checkpointDraining)return;
+        for(var marker:markers)if(valid(marker)&&LbcPlanetoidSkill.near(game,holder,marker.level,marker.point))
+            marker.direction=LbcPlanetoidSkill.direction(holder,marker.point,82);
+    }
+
 }

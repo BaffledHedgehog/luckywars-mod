@@ -67,7 +67,7 @@ final class MatchSpellCheckpoint {
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)
                 ||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore spell state on the same stable frozen match thread");
         game.items().spellSources().checkpointBoundary();game.items().summons().checkpointBoundary();
-        game.items().cloneSkills().checkpointBoundary();
+        game.items().cloneSkills().checkpointBoundary();game.items().symbioteSkill().checkpointBoundary();
     }
     /** Resolve and prepare EVERY map/queue first. Missing bodies defer the entire private install. */
     Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){return restoreFrozen(lookup,true);}
@@ -88,6 +88,7 @@ final class MatchSpellCheckpoint {
         // index only after every shared policy/body link has installed successfully.
         game.items().familyDrops().reindexAfterRestore();
         var nativeBodies=MatchActorCheckpoint.currentBodies(game).values();
+        game.items().communism().reindexOwnership(nativeBodies);
         game.items().trinketArrows().reindexRestored(nativeBodies);game.items().madokaBow().reindexRestored(nativeBodies);game.items().shulkerBow().reindexRestored(nativeBodies);
         return Set.of();
     }

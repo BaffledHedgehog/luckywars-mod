@@ -1771,4 +1771,14 @@ public final class LbcWands {
         return made;
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var trace:electroTraces)if(trace.age<trace.lifetime&&game.items().currentEpoch(trace.epoch)
+                &&LbcPlanetoidSkill.near(game,holder,trace.level,trace.position)){
+            var aim=LbcPlanetoidSkill.direction(holder,trace.position,82);
+            trace.yaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
+            trace.pitch=(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
+        }
+    }
+
 }

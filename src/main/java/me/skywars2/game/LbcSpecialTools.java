@@ -315,4 +315,16 @@ public final class LbcSpecialTools {
     }
     void publishCloneHammers(){if(!cloneHammersPending)return;cloneHammersPending=false;for(var hammer:List.copyOf(hammers))hammer.publish();}
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var hammer:hammers)if(!hammer.impacted&&game.items().currentEpoch(hammer.epoch)
+                &&LbcPlanetoidSkill.near(game,holder,hammer.level,hammer.point)){
+            var aim=LbcPlanetoidSkill.direction(holder,hammer.point,82);
+            hammer.display.setYaw((float)Math.toDegrees(Math.atan2(-aim.x,aim.z)));
+            hammer.display.setPitch((float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance())));
+            hammer.holder.tick();
+        }
+        // Source fall is world-relative. Facing never changes its vertical impact path.
+    }
+
 }

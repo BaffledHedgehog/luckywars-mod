@@ -1,3 +1,26 @@
+## Symbiote20 and Planetoid21 - QUALIFIED, INSTALLED (3 November 2026)
+
+[Final author rules, integration and exact evidence](agent_notes/ORBIT_SYMBIOTE_SKILLS_2026_11_03.md).
+20unjammed: source-radius2 subjugation, canonical same-dimension all-subordinate cohort;
+actual equal float HP shares, owner0 while any pet remains, no minimum/millionHP/reverse
+damage. Native reactions/credit retained; transferred indirect source cannot retrigger
+direct-melee weapons. Reentrant feedback cannot bypass protection or recurse forever.
+Derived native score/controller/summon ownership index follows load/change/clone/restore.
+21MAG/artifact only: exact five source phases/radii/quantized movement, WILD including
+protected magic, complete logical roots with one visual family and unchanged clocks.
+Post-owner tick order preserves actual next-frame flight. Warning endpoints and holder
+identity remain coherent; source-native versus custom raycaster classification is explicit.
+
+Testd52b643b / productionfedb83e0:10groups/10actual mode1 matches, including
+registered skull/Shulker/Air/controlledFPV continuation and all8shared regressions.
+9871 frozen inputs/2696 classes/7366 resources;265authorpaths/31overrides unchanged.
+Fresh successful Gradle compileJava plus exact prior-qualified Loom resource recipe,
+only2changed JSON; cancelled serial processResources output NEVER used. Both complete
+archives byte-verified,8authoring classes absent production; final build/libs updated.
+Fixture25577only, normal/exact controlled restoration/no locks. No main stop/restart,
+RP changes, physical-client/audio or peakTPS claim. Full-rewind gate unchanged; TMT LAST.
+Evidence and install receipt: build/verification/orbit-symbiote-2026-11-03/.
+
 ## Five mana levelups - QUALIFIED, INSTALLED (3 November 2026)
 
 [Author rules, implementation and evidence](agent_notes/MANA_LEVELUPS_PORT_2026_11_03.md).

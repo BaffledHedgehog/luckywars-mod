@@ -294,4 +294,17 @@ public final class LbcDanmaku {
 {new Pattern(0.366498,0.407037,0.0,true,0.0f,0.0f,false),new Pattern(0.535754,-0.113878,0.0,true,0.0f,0.0f,false),new Pattern(0.169256,-0.520915,0.0,true,0.0f,0.0f,false),new Pattern(-0.366498,-0.407037,0.0,true,0.0f,0.0f,false),new Pattern(-0.535754,0.113878,0.0,true,0.0f,0.0f,false),new Pattern(-0.169256,0.520915,0.0,true,0.0f,0.0f,false)},
 {new Pattern(0.407037,0.366498,0.0,true,0.0f,0.0f,false),new Pattern(0.520915,-0.169256,0.0,true,0.0f,0.0f,false),new Pattern(0.113878,-0.535754,0.0,true,0.0f,0.0f,false),new Pattern(-0.407037,-0.366498,0.0,true,0.0f,0.0f,false),new Pattern(-0.520915,0.169256,0.0,true,0.0f,0.0f,false),new Pattern(-0.113878,0.535754,0.0,true,0.0f,0.0f,false)},
 {new Pattern(0.443117,0.321943,0.0,true,0.0f,0.0f,false),new Pattern(0.500369,-0.222779,0.0,true,0.0f,0.0f,false),new Pattern(0.057253,-0.544722,0.0,true,0.0f,0.0f,false),new Pattern(-0.443117,-0.321943,0.0,true,0.0f,0.0f,false),new Pattern(-0.500369,0.222779,0.0,true,0.0f,0.0f,false),new Pattern(-0.057253,0.544722,0.0,true,0.0f,0.0f,false)}}};
+
+    void planetoid(ServerPlayer holder) {
+        for(var card:cards)if(!card.display.isRemoved()&&game.items().currentEpoch(card.display)
+                &&!game.items().timeStop().frozen(card.display)&&!card.display.entityTags().contains("time_stopped")
+                &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)card.display.level(),card.display.position())){
+            card.direction=LbcPlanetoidSkill.direction(holder,card.display.position(),82);orient(card);
+        }
+        for(var bomb:bombs)for(var display:List.of(bomb.positive,bomb.negative))
+            if(!display.isRemoved()&&!game.items().timeStop().frozen(display)&&!display.entityTags().contains("time_stopped")
+                    &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)display.level(),display.position()))
+                LbcPlanetoidSkill.orient(display,LbcPlanetoidSkill.direction(holder,display.position(),82));
+    }
+
 }

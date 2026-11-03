@@ -357,4 +357,7 @@ public final class LbcFartus {
         };
     }
 
+
+    void directionChanged(Entity actor) { if(actor instanceof Shot shot)orient(shot); }
+
 }

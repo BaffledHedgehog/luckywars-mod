@@ -479,4 +479,13 @@ public final class LbcVoidArcanum {
         return made;
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var hole:holes)if(!hole.marker.isRemoved()&&game.items().currentEpoch(hole.epoch)
+                &&!game.items().timeStop().frozen(hole.marker)&&!hole.marker.entityTags().contains("time_stopped")
+                &&LbcPlanetoidSkill.near(game,holder,hole.world,hole.point))
+            LbcPlanetoidSkill.orient(hole.marker,LbcPlanetoidSkill.direction(holder,hole.point,82));
+        // Its source chase uses absolute Motion, not local forward movement: do not redirect velocity.
+    }
+
 }

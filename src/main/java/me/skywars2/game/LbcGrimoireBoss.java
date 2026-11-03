@@ -208,11 +208,11 @@ public final class LbcGrimoireBoss {
         if(kind==4){actor.setPos(parent.position().add(-.5,5.5,-.5));return;}
         if(kind==2){
             if(game.items().magic().suppressedAt(level,actor.position())){remove(actor);return;}
-            var from=actor.position();var to=from.add(vector(d,"aim").scale(27));double boundary=game.items().magic().suppressionFraction(level,from,to);if(Double.isFinite(boundary))to=from.lerp(to,boundary);
+            var from=actor.position();var direction=Vec3.directionFromRotation(actor.getXRot(),actor.getYRot());var to=from.add(direction.scale(27));double boundary=game.items().magic().suppressionFraction(level,from,to);if(Double.isFinite(boundary))to=from.lerp(to,boundary);
             if(age<31){warning(actor,2,age,from,to,31-age);if(age==1||age==11||age==21)sound(level,from,"minecraft:block.beacon.activate",1,2);}
             else{closeWarning(actor);var damage=damage(actor,DamageTypes.ARROW);var hit=new HashSet<UUID>();
                 LbcDamage.hurtSegment(level,damage,from,to,Vec3.ZERO,.3,7,1,e->target(actor,e)&&!hit.contains(e.getUUID()),true,e->hit.add(e.getUUID()),null);
-                for(int n=0;n<=90;n++){var p=from.add(vector(d,"aim").scale(n*.3));level.sendParticles(ParticleTypes.FIREWORK,p.x,p.y,p.z,1,.01,.01,.01,.01);}
+                for(int n=0;n<=90;n++){var p=from.add(direction.scale(n*.3));level.sendParticles(ParticleTypes.FIREWORK,p.x,p.y,p.z,1,.01,.01,.01,.01);}
                 sound(level,from,"minecraft:lbcsounds.laser_attack",1.5f,1);remove(actor);
             }
         }else if(kind==3){
@@ -309,6 +309,20 @@ public final class LbcGrimoireBoss {
         }
         // The next ordinary tick derives warning geometry/remaining life and bars from DATA.
         // Never call laser/tickChild here: those paths also emit damage and accepted attacks.
+    }
+
+
+    void directionChanged(Entity actor,Vec3 aim) {
+        var warning=warnings.get(actor);if(warning==null)return;
+        // Use the same native Rotation and suppression clipping as the next tickChild pass.
+        // Keep metadata coherent too: warning() otherwise recreates the still-live holder.
+        var from=actor.position();
+        var direction=Vec3.directionFromRotation(actor.getXRot(),actor.getYRot());
+        var to=from.add(direction.scale(27));
+        double boundary=game.items().magic().suppressionFraction((ServerLevel)actor.level(),from,to);
+        if(Double.isFinite(boundary))to=from.lerp(to,boundary);
+        warning.visual().retargetBeam(from,to);
+        warnings.put(actor,new Warning(warning.visual(),warning.phase(),warning.age(),from,to));
     }
 
 }

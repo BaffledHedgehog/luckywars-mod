@@ -459,4 +459,15 @@ public final class LbcGodHedgehog {
         };
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var actor:actors)if(actor.body()!=null&&!actor.body().isRemoved()&&game.items().currentEpoch(actor.encounter.epoch)
+                &&!game.items().timeStop().frozen(actor.body())&&!actor.body().entityTags().contains("time_stopped")
+                &&LbcPlanetoidSkill.near(game,holder,actor.encounter.level,actor.point)){
+            actor.direction=LbcPlanetoidSkill.direction(holder,actor.point,82);
+            LbcPlanetoidSkill.orient(actor.body(),actor.direction);
+            if(actor.warning!=null)actor.warning.direction(actor.direction);
+        }
+    }
+
 }

@@ -38,6 +38,12 @@ final class BlackHoleDamage {
                 ?game.items().withIncomingDamageAttempt(player,()->accepted(game,target,source,amount,level))
                 :accepted(game,target,source,amount,level);
     }
+    /** Already accepted owner debit: bypass pet mitigation/admission, retain native accepted handlers. */
+    static boolean transferAccepted(GameController game,LivingEntity target,DamageSource source,float amount){
+        if(!(amount>0)||!Float.isFinite(amount)||!target.isAlive()||target.isRemoved()
+                ||!(target.level() instanceof ServerLevel level))return false;
+        return accepted(game,target,source,amount,level,true);
+    }
     private static void sound(LivingEntity target,net.minecraft.sounds.SoundEvent sound){
         if(sound==null)return;
         if(target instanceof ServerPlayer){
@@ -48,9 +54,15 @@ final class BlackHoleDamage {
         }else target.makeSound(sound);
     }
     private static boolean accepted(GameController game,LivingEntity target,DamageSource source,float amount,ServerLevel level){
+        return accepted(game,target,source,amount,level,false);
+    }
+    private static boolean accepted(GameController game,LivingEntity target,DamageSource source,float amount,ServerLevel level,boolean physical){
         ServerPlayer recipient=target instanceof ServerPlayer player?player:game.items().polymorph().playerOfBody(target);
         float reactionAmount=amount;
-        if(target instanceof ServerPlayer player)amount=LbcArmorReserveSkill.apply(game,player,source,amount);
+        if(target instanceof ServerPlayer player){
+            amount=game.items().symbioteSkill().absorb(player,source,amount);
+            amount=LbcArmorReserveSkill.apply(game,player,source,amount);
+        }
         // Bypass mitigation/physical hit response, while publishing the ordinary damage events.
         // Native criteria/attempt owners remain shared with hurtServer, including fatal hits.
         if(target.isSleeping())target.stopSleeping();
@@ -70,9 +82,16 @@ final class BlackHoleDamage {
         }
         // Other viewers retain the normal red hit response. Never send it to a client
         // whose camera is this victim: that packet itself starts client hurtTime/tilt.
+        if(physical){
+            // Native response API, never HurtTime polling or a synthetic damage attempt.
+            target.animateHurt(0);
+            if(!source.is(DamageTypeTags.NO_IMPACT))((me.skywars2.mixin.SymbioteTransferAccess)target).skywars2$transferMarkHurt();
+            if(!source.is(DamageTypeTags.NO_KNOCKBACK))target.dealDefaultKnockback(source,reactionAmount,false);
+            level.broadcastDamageEvent(target,source);
+        }
         var response=new net.minecraft.network.protocol.game.ClientboundDamageEventPacket(target,source);
         for(var viewer:net.fabricmc.fabric.api.networking.v1.PlayerLookup.tracking(target))
-            if(viewer!=recipient&&viewer!=target&&viewer.getCamera()!=target)viewer.connection.send(response);
+            if(!physical&&viewer!=recipient&&viewer!=target&&viewer.getCamera()!=target)viewer.connection.send(response);
         boolean deathPath=target.getHealth()<=0&&net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.ALLOW_DEATH.invoker()
                 .allowDeath(target,source,amount);
         if(deathPath){

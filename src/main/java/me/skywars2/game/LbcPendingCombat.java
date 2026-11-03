@@ -299,4 +299,14 @@ public final class LbcPendingCombat {
 
     static boolean cloneRecognizes(Entity source){return source.entityTags().contains(ACTOR);}
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var copy:copies)if(!copy.display.isRemoved()&&game.items().currentEpoch(copy.epoch)
+                &&!game.items().timeStop().frozen(copy.display)&&!copy.display.entityTags().contains("time_stopped")
+                &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)copy.display.level(),copy.display.position())){
+            copy.direction=LbcPlanetoidSkill.direction(holder,copy.display.position(),82);
+            LbcPlanetoidSkill.orient(copy.display,copy.direction);
+        }
+    }
+
 }

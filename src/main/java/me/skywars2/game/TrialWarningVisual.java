@@ -54,10 +54,7 @@ final class TrialWarningVisual implements AutoCloseable {
     private static TrialWarningVisual beam(GameController game,ServerLevel level,String epoch,Vec3 from,Vec3 to,boolean green,int life,boolean arenaBound){
         var v=new TrialWarningVisual(game,level,epoch,Kind.BEAM,green?"beam_green":"beam_red",from,to,life,0);
         v.arenaBound=arenaBound;
-        Vec3 delta=to.subtract(from);double length=delta.length();
-        v.display.setYaw((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));
-        v.display.setPitch((float)-Math.toDegrees(Math.atan2(delta.y,delta.horizontalDistance())));
-        v.display.setScale(new Vector3f(1,1,(float)Math.max(.001,length)));v.spawn();return v;
+        v.applyBeam(from,to);v.spawn();return v;
     }
     static TrialWarningVisual wall(GameController game,ServerLevel level,String epoch,Vec3 center,Vec3 direction,double width,double height,int life){
         var v=new TrialWarningVisual(game,level,epoch,Kind.WALL,"wall_red",center,center,life,0);
@@ -112,4 +109,28 @@ final class TrialWarningVisual implements AutoCloseable {
     Identifier model(){return model;} boolean closed(){return closed;}
     int age(){return age;} int lifetime(){return lifetime;} double radius(){return radius;}
     Kind kind(){return kind;} ItemDisplayElement display(){return display;}
+
+    /** Creation and deliberate retargeting share the exact local-Z beam geometry. */
+    void retargetBeam(Vec3 from,Vec3 to){
+        if(closed||kind!=Kind.BEAM)return;
+        applyBeam(from,to);holder.tick();
+    }
+    private void applyBeam(Vec3 from,Vec3 to){
+        origin=from;end=to;Vec3 delta=to.subtract(from);
+        display.setYaw((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));
+        display.setPitch((float)-Math.toDegrees(Math.atan2(delta.y,delta.horizontalDistance())));
+        display.setScale(new Vector3f(1,1,(float)Math.max(.001,delta.length())));
+    }
+
+    /** Change the existing family presentation without recreating its lifetime or animation clock. */
+    void direction(Vec3 aim) {
+        if(closed)return;
+        if(kind==Kind.BEAM){
+            double length=aim.length();if(length==0)return;
+            retargetBeam(origin,origin.add(aim.scale(end.distanceTo(origin)/length)));
+            return;
+        }else if(kind==Kind.WALL)display.setYaw((float)Math.toDegrees(Math.atan2(-aim.x,aim.z))+90);
+        holder.tick();
+    }
+
 }

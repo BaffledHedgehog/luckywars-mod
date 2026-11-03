@@ -583,4 +583,14 @@ public final class LbcStand {
         };
     }
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var fist:fists)if(!fist.display.isRemoved()&&game.items().currentEpoch(fist.epoch)
+                &&!game.items().timeStop().frozen(fist.display)&&!fist.display.entityTags().contains("time_stopped")
+                &&LbcPlanetoidSkill.near(game,holder,fist.level,fist.display.position())){
+            fist.direction=LbcPlanetoidSkill.direction(holder,fist.display.position(),82);
+            LbcPlanetoidSkill.orient(fist.display,fist.direction);
+        }
+    }
+
 }

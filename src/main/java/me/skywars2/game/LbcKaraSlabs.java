@@ -75,8 +75,11 @@ public final class LbcKaraSlabs {
         add(owner,at,yaw,0,true,game.items().epoch(),game.items().indirectKills().coldCause(owner,false));
     }
     private void add(ServerPlayer owner,Vec3 at,float yaw,int age,boolean central,String epoch,LbcIndirectKills.Owner cause){
+        add(owner,at,yaw,0,age,central,epoch,cause);
+    }
+    private void add(ServerPlayer owner,Vec3 at,float yaw,float pitch,int age,boolean central,String epoch,LbcIndirectKills.Owner cause){
         if(!resident(owner,at)||game.items().magic().suppressedAt(owner.level(),at))return;
-        var marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(at);marker.setYRot(yaw);marker.setXRot(0);
+        var marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(at);marker.setYRot(yaw);marker.setXRot(pitch);
         marker.setNoGravity(true);marker.entityTags().add(TAG);marker.entityTags().add(epoch);
         marker.entityTags().addAll(List.of("magic","slowraycast","imba_rc","imba_kara"));
         if(central)marker.entityTags().add("central");
@@ -101,11 +104,11 @@ public final class LbcKaraSlabs {
             owner.level().sendParticles(ParticleTypes.END_ROD,true,false,at.x,at.y,at.z,100,0,50,0,0);
             LbcOverload.sound(owner,at,"minecraft:entity.generic.explode",.1f,1,50,.1f);
             if(actor.central){
-                Vec3 left=Vec3.directionFromRotation(0,actor.yaw-90).scale(.8);
-                add(owner,at.add(left),actor.yaw+30,age,false,actor.epoch,actor.cause);
-                add(owner,at.subtract(left),actor.yaw-30,age,false,actor.epoch,actor.cause);
+                Vec3 left=Vec3.directionFromRotation(0,marker.getYRot()-90).scale(.8);
+                add(owner,at.add(left),marker.getYRot()+30,marker.getXRot(),age,false,actor.epoch,actor.cause);
+                add(owner,at.subtract(left),marker.getYRot()-30,marker.getXRot(),age,false,actor.epoch,actor.cause);
             }
-            marker.setPos(at.add(Vec3.directionFromRotation(0,actor.yaw).scale(.7)));
+            marker.setPos(at.add(Vec3.directionFromRotation(marker.getXRot(),marker.getYRot()).scale(.7)));
             if(age>=100)remove(actor);
         }
     }

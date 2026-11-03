@@ -377,4 +377,14 @@ public final class LbcSauvojen {
     void publishCloneDrones(){if(!cloneDronesPending)return;cloneDronesPending=false;for(var drone:snapshot()){
         game.visualTracking().attach(drone.holder,(ServerLevel)drone.carrier.level(),()->drone.position);sync(drone);}}
 
+
+    void planetoid(ServerPlayer holder) {
+        for(var drone:drones.values())if(!drone.carrier.isRemoved()&&game.items().currentEpoch(drone.epoch)
+                &&!game.items().timeStop().frozen(drone.carrier)&&!drone.carrier.entityTags().contains("time_stopped")
+                &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)drone.carrier.level(),drone.position)){
+            drone.direction=LbcPlanetoidSkill.direction(holder,drone.position,82);
+            LbcPlanetoidSkill.orient(drone.carrier,drone.direction);sync(drone);
+        }
+    }
+
 }
