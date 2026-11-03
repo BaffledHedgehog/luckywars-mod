@@ -326,7 +326,22 @@ public final class MapManager {
 
     public MapInfo info(String id) {
         if (id == null) return null;
+        if (id.equals(BALANCE_MAP)) return BALANCE_MANIFEST.info();
         return catalog.stream().filter(entry -> entry.id().equals(id)).findFirst().orElse(null);
+    }
+
+    private static final String BALANCE_MAP = "__balance_old";
+    private static final Manifest BALANCE_MANIFEST = new Manifest(
+            new MapInfo(BALANCE_MAP,"Balance",12,true,"",true),List.of(
+                    new Placement("swrg:-1-6",new BlockPos(-48,48,-48),1,0),
+                    new Placement("swrg:-1-7",new BlockPos(0,48,-48),1,0),
+                    new Placement("swrg:-1-10",new BlockPos(-48,48,0),1,0),
+                    new Placement("swrg:-1-11",new BlockPos(0,48,0),1,0)),List.of(),false);
+
+    /** Private fixed old-mode layout; uses the same journaling, clear, paste and completion owner. */
+    public void loadBalance(Consumer<Result> completion) {
+        manifests.put(BALANCE_MAP,BALANCE_MANIFEST);
+        load(BALANCE_MAP,false,completion);
     }
 
     /** Use actual imported capacity; legacy numeric pools omitted valid large maps. */
@@ -335,6 +350,23 @@ public final class MapManager {
         return catalog.stream().filter(map -> map.id().matches("[0-9]+")
                 && map.available() && map.playerCapacity() >= players
                 && (!broken || brokenAvailable(map.id()))).toList();
+    }
+
+    /** Same-match replacements use the current mode's entire catalog, including saved local maps. */
+    public List<MapInfo> renewalCandidates(int players, boolean broken, boolean bedwars) {
+        if (players < 1) return List.of();
+        return catalog(bedwars).stream().filter(map -> map.available() && map.playerCapacity() >= players
+                && (!broken || brokenAvailable(map.id()))).toList();
+    }
+
+    /** Source final purge is dimension scoped and must use Chef's permanent erasure owner. */
+    public void purgeRenewalEntities() {
+        var game = SkyWars2.game();
+        for (Entity entity : allArenaEntities()) {
+            if (entity instanceof Player) continue;
+            if (game != null && game.items().wtf().erase(entity)) continue;
+            entity.discard();
+        }
     }
 
     public boolean busy() {

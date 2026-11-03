@@ -214,6 +214,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
+            if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
+                return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useItem(owner, hand)) return InteractionResult.SUCCESS;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTeleportGadgets.matches(player.getItemInHand(hand)))
@@ -363,6 +365,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
+            if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
+                return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useBlock(owner, hand, hit)) return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;

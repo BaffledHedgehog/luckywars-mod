@@ -237,7 +237,7 @@ public final class LbcLoadouts {
 
     /** Shared live skill admission; immunity checks never advance clocks or query suppressors. */
     public boolean hasSkill(ServerPlayer player,int skill){
-        if(!config.lbcSkills||players.get(player.getUUID()).lbcSkill!=skill)return false;
+        if(game.balanceLegacy()||!config.lbcSkills||players.get(player.getUUID()).lbcSkill!=skill)return false;
         var entry=byId(Kind.SKILLS,skill);
         return entry!=null&&allowed(player,entry)&&game.playing()&&game.stage()!=GameController.Stage.ENDING
                 &&player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()

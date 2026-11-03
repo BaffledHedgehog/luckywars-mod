@@ -18,7 +18,7 @@ public abstract class MachinegunBowMixin {
     private void skywars2$usingBow(ItemStack used,CallbackInfo ci){
         var game=SkyWars2.game();
         if(game!=null&&(Object)this instanceof ServerPlayer player&&used.getItem() instanceof BowItem)
-            game.items().machinegunSkill().usingBow(player,used);
+            {game.items().machinegunSkill().usingBow(player,used);game.items().chargedBows().charging(player,used,player.getTicksUsingItem());}
     }
     @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="stopUsingItem")
     private void skywars2$stoppedBow(com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original){

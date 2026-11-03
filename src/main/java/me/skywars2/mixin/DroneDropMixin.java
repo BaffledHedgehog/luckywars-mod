@@ -41,10 +41,15 @@ public final class DroneDropMixin {
 
     @Mixin(PrimedTnt.class)
     public abstract static class Ground {
-        @Inject(method="tick",at=@At("HEAD"))
+        @Inject(method="explode",at=@At("HEAD"))
+        private void skywars2$oldBowImpact(CallbackInfo ci){var game=SkyWars2.game();if(game!=null)game.items().balance().exploding((PrimedTnt)(Object)this);}
+        @Inject(method="tick",at=@At("HEAD"),cancellable=true)
         private void skywars2$groundbam(CallbackInfo ci){
             var game=SkyWars2.game();
-            if(game!=null)game.items().droneDrops().groundbam((PrimedTnt)(Object)this);
+            if(game!=null){var self=(PrimedTnt)(Object)this;
+                if(!game.items().balance().beforeTnt(self)){ci.cancel();return;}
+                game.items().droneDrops().groundbam(self);
+            }
         }
     }
 

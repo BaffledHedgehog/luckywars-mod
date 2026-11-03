@@ -1,0 +1,45 @@
+# Supernova / charged bows / Balance ? QUALIFIED, INSTALLED (4 November 2026)
+
+Author answers (3 November 2026, binding):
+- Supernova unjammable. TimeStop pauses entire event, clone work and map delay.
+- Exactly one Shit Katana + one Shishgun; one active event, no second pair debit.
+- Ordinary Supernova replacement retains participants/inventory/XP/lives, no repeated kits/perks, no eliminated revival. Eligible current-mode catalog INCLUDING local saved maps. Return everyone from Nexus. Imprinted remains untouched. Permanent final Chef purge.
+- Balance reward MUST include full old mode. Unlike Supernova, Balance fully clears players and returns ALL from Nexus AND Imprinted, fixed original map. Source jammer checks for OLD magic retained, NOT blanket modern MAG.
+- Railgun TECH+artifact; Shishgun MAG+TECH+artifact. Beam-only attacks carry ALL ammo effects and finalized trinket traits, no extra ordinary arrow.
+- Fix Railgun missing-bow/multiple-bow bug: one actual bow+one Tiny Electro, catalyst retained60%. Shishgun one Railgun+one Reactive Shish.
+
+Source notes: SUPERNOVA_CORE_SOURCE, SUPERNOVA_MAP_TRANSITION_SOURCE, RAILGUN_SOURCE, SHISHGUN_SOURCE, BALANCE_REWARD_SOURCE and BALANCE_LEGACY_RUNTIME_SOURCE (all dated2026_11_03). Further direct reads corrected old Corrupter FOUR outcomes, old Evoker/Bass WILD selectors, source legs-versus-feet jump mismatch preserved. Old loot root144; the complete lazy closure now contains2082tables/2056itemdefinitions/2263edges with no missing targets, including container_loot. Additional old double/shulker/bridge/lucky-spawner/explosive-bow/dynamite-chest and entity_data consumers are implemented; readiness requires the native checks below.
+
+Workspace E:/servers_mew/skywars2_last/luckywars-mod. Original server/Paper/RP read-only. Main server never stopped/restarted. Baseline ff8b11a94166fce0711c57e6142f01caecfdd2b6, main SHA ba2ee4a5d3c74dcc1eec62114b28ee39f7f4c0d127e50ebacefdf7a1b7149887;272protected author paths in build/verification/supernova-2026-11-03/baseline.json.
+
+Implementation complete, runtime-qualified and installed on the test server; no server restart was issued. Native Polymer Railgun/Shishgun use captured ammunition and finalized trinkets through shared beam/job engines, exact grid/ground recipes, source suppression and native bow charging. Supernova reuses full-height Nexus chunk movement and ecology; same-match renewal preserves canonical player state and all accepted whole structures. Balance performs the confirmed full old-world/player boundary, fixed four-template map/twelve spawns, source scoreboard overlay, eight old wands,81Wiki outcomes, ten scroll families, native egg/TNT/rain consumers and lazy recursive containers. All these services join existing TimeStop, causal attribution, common clone dispatch and full coordinator. No function interpreter or duplicate ammo/container engine.
+
+Source audit notes describe the pre-implementation blockers and are historical; this integration note and exact native evidence supersede those readiness statements. TMT remains LAST; full-rewind/skill2 release gates and hidden green-wire TMT consumer remain unchanged. No RP edits or global sound normalization.
+
+## Pre-qualification update (4 November)
+
+Finite old pool now includes actual native rain cart producers, all discovered flagged consumers, source compressed/native old-nuke/fake-pig entity_data eggs, source teleport1 and lazy infinity_old container recursion. Complete dependency graph2082tables/2056itemdefinitions/2263edges, missing0 (component container_loot references included; never eagerly roll nestedcontainers). Root exact legacy nuke uses existing NukeEvent Job/causal damage with3strict31cube fills, WILD wither400amp30 and9nativeMOB power30blasts; bounded async retained footprints release on completion/abort. No helpercreepers. Source trait/cause/clone integration reuses existing engines. Supernova producer pauses new work during any map renewal; its DELAY phase still advances60 active ticks.
+
+Historical provisional artifact c5c7d978/production5775b7a4 was only packaged, NOT qualified/installed. A later one-line producer-admission fix requires fresh compile/package. First native e070687d child failed: ROOT added CreatureDrops tag check dereferenced null directdamage source on environmental damage; corrected actor!=null. Child shut down naturally, fixture restored exactly; failure preserved charged-first-failure.json, not counted as passing. New Supernova fixture participant is TestBeta (not TestBravo). Main SHA still baseline. That sourcefreeze contained55Javafamilies/2096resources/272authorpaths,7778other publishedinputs.
+
+## Native qualification corrections (4 November)
+
+- e070687d: environmental direct entity can be null; fixed the added CreatureDrops check. Natural child exit and exact fixture recovery retained.
+- ef852aca: charged bows passed; Supernova timed out in DELAY because new-work admission was reused for its own active transition. DELAY now advances through the controller hold, with native TimeStop still checked by running().
+- de31542d: full Supernova/Balance transition passed; old compressed egg failed because the existing egg postprocessor only enrolled native custom kinds. The same postprocessor now invokes the existing adopting service for every SpawnEggItem, where actual marker/fakepig tags filter intake. Ordinary egg payloads remain vanilla.
+- Corrected Anvil rain SpawnData BlockState codec Name -> id; actual child block state now checked. Prevented Vanity from releasing renewal's Duplicating drain; full Balance reset now reaches eliminated respawn bodies; short pending Vex reactions are cancelled when the retained match clock resets.
+-64dbae60: native runtime passed through old nuke and full rollback, then a faulty test expected26potions from infinity_old. Source actually contains the full mixed item pool; corrected to26random occupied outputs plus one unopened selfreference. No runtime pool reduction.
+
+Previous complete candidate f42e99c1 / production898cd47a;58fresh Java families,2096resource inputs,7775other qualified inputs and272author paths guarded. Original mixed Java line endings restored without changing normalized contents; repack produced the identical artifact hashes. Exact evidence directory: build/verification/supernova-2026-11-03/. This paragraph records the pre-qualification state; final publication is recorded below.
+
+Known fixture-only Polymer missing packet-context warning also exists in the prior qualified Nexus fake-player logs; no physical-client rendering/audio qualification or peakTPS claim is made. Old-mode nuclear terrain is native source semantics (three strict31cubes plus9MOB power30blasts), not a measured peak-load optimization claim.
+
+Final scheduling correction: DRAINING no longer invokes clone.stop(), which synchronously finishes started full-height moves for teardown. During a live event, the accepted moves now drain through their existing bounded scheduler and their own chunk tickets. Map delay waits captureReady; completed structures are preserved without an unbounded final copy tick. Final candidate d6e42d14 / production926a93ac repeats all16groups on the exact archive. Previous f42e99c1 passed all16groups in two normal runs; retained only as earlier evidence.
+
+## Final publication (4 November 2026)
+
+Test SHA d6e42d14b9b6a963ca768678116206b065216a785794d008d894407b7636d3f3; production SHA926a93acbf04332d04938df018dee76bfdba171ede02d1d23076fb39d39e8fde. One exact final artifact passed16groups in15real mode1matches: charged-bows, bow-trinkets, teleport-gadgets, special-eggs, egg-presentation, nexus-clone, nexus-acquisition, nexus-tools, shadow-absorption, vanity-rollback, time-stop, dimension-items, content-gallery, entity-merging, supernova-chain and balance-runtime. Final runner normalChildShutdown/exactSnapshotsRestored true, no failures, live child, retained locks or cleanup errors. Earlier failures remain archived, never counted as passes.
+
+Fresh successful Gradle compilation; explicit58Java families/2096resource inputs over prior qualified Loom archives; every ZIP byte verified, production map-authoring classes absent.7775other sourceinputs and272authorpaths unchanged. Both build/libs archives published, main mods/skywars2.jar installed only after its port/world lock were free, rollback ba2ee4a5 retained, restarted:false. Exact qualification.json, package-proof.json, d6e42d14-charged-bows-results.json, final-fixture-restoration.json and main-install.json are under build/verification/supernova-2026-11-03/.
+
+Public native items Railgun/Shishgun/Balance are included in gallery. Ready loot leaves: lbc:ported/railgun, lbc:ported/shishgun, lbc:ported/balance. Old nested tables remain internal lazy references; the original mode reaches them through its actual LuckyBlock/source overlay. No RP changes needed for these existing source models/keys. No main stop/start, physical-client or peakTPS qualification. TMT/green-wire outside consumer and unrelated release gates unchanged.

@@ -51,7 +51,7 @@ public final class LbcExasperato {
         ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
-        final Vec3 direction;
+        Vec3 direction;
         Vec3 position;
         double remaining;
         final boolean walls;
@@ -124,6 +124,7 @@ public final class LbcExasperato {
         default void submitted(RayTicket ticket) { }
         /** Nonzero only for an original discrete selector ray. The same queue owns its cursor. */
         default double sampleStep(){return 0;}
+        default Vec3 directionAt(Vec3 point,Vec3 direction){return direction;}
         default net.minecraft.world.phys.HitResult sampleAt(Vec3 point){throw new UnsupportedOperationException();}
         default boolean sampleContinues(Vec3 point){return true;}
         default MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){return ignored->()->{};}
@@ -493,6 +494,7 @@ public final class LbcExasperato {
             Vec3 from=search.position;
             if(sampled){
                 if(!level.hasChunkAt(BlockPos.containing(from))){complete(search,null);continue;}
+                search.direction=search.replay.directionAt(from,search.direction).normalize();
                 var hit=search.replay.sampleAt(from);
                 if(hit!=null){complete(search,hit);continue;}
                 if(search.remaining<=1e-7||!search.replay.sampleContinues(from)){complete(search,null);continue;}
@@ -1007,12 +1009,12 @@ public final class LbcExasperato {
     void cancelSearchCheckpoint(){searchRewind=false;}
     SearchCheckpoint checkpointSearches(MatchSpellCheckpoint.Links links){return new SearchCheckpoint(links);}
     final class SearchCheckpoint {
-        private record Image(Search original,MatchDamageSources.Ref owner,Vec3 position,double remaining,boolean finished,boolean started,MatchQueuedWorkCheckpoint.Image terminal) { }
+        private record Image(Search original,MatchDamageSources.Ref owner,Vec3 position,Vec3 direction,double remaining,boolean finished,boolean started,MatchQueuedWorkCheckpoint.Image terminal) { }
         private final List<Image> images;
         private final java.util.Map<java.util.UUID,Integer> turns;
-        SearchCheckpoint(MatchSpellCheckpoint.Links links){var list=new ArrayList<Image>();for(var s:searches){if(s.replay==null)throw new IllegalStateException("Missing typed continuation for opaque ray completion");list.add(new Image(s,links.key(s.owner),s.position,s.remaining,s.finished,s.started,s.replay.checkpoint(links)));}images=List.copyOf(list);turns=searches.turns();}
+        SearchCheckpoint(MatchSpellCheckpoint.Links links){var list=new ArrayList<Image>();for(var s:searches){if(s.replay==null)throw new IllegalStateException("Missing typed continuation for opaque ray completion");list.add(new Image(s,links.key(s.owner),s.position,s.direction,s.remaining,s.finished,s.started,s.replay.checkpoint(links)));}images=List.copyOf(list);turns=searches.turns();}
         Runnable prepare(MatchSpellCheckpoint.Links links){var terminalPlans=images.stream().map(image->image.terminal.prepare(links)).toList();var owners=new java.util.IdentityHashMap<Search,ServerPlayer>();for(var image:images){MatchAuthorityCheckpoint.world(game,image.original.level);if(!(links.get(image.owner) instanceof ServerPlayer p))throw new IllegalStateException("Restore current ray author bodies first");owners.put(image.original,p);}
-            return ()->{terminalPlans.forEach(Runnable::run);searches.clear();for(var image:images){var s=image.original;s.owner=owners.get(s);s.position=image.position;s.remaining=image.remaining;s.finished=image.finished;s.started=image.started;searches.addLast(s);}searches.restoreTurns(turns);searchRewind=false;};}
+            return ()->{terminalPlans.forEach(Runnable::run);searches.clear();for(var image:images){var s=image.original;s.owner=owners.get(s);s.position=image.position;s.direction=image.direction;s.remaining=image.remaining;s.finished=image.finished;s.started=image.started;searches.addLast(s);}searches.restoreTurns(turns);searchRewind=false;};}
     }
 
 

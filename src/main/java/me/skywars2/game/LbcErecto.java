@@ -100,6 +100,14 @@ final class LbcErecto {
             default->throw new IllegalArgumentException("Erecto producer mode "+mode);
         }
     }
+    void phantomBurst(ServerPlayer owner,Vec3 origin,LbcIndirectKills.Owner cause){
+        for(int i=0;i<16;i++){
+            var trace=new LbcWands.ElectroTrace(owner,origin,game.items().epoch(),8);
+            trace.yaw=owner.getRandom().nextFloat()*360-180;trace.pitch=owner.getRandom().nextFloat()*180-90;trace.cause=cause;
+            trace.erecto=new Path(PHANTOM,origin,null,0,0,owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+            game.items().wands().higherElectro(trace);
+        }
+    }
     private void sniper(ServerPlayer owner,InteractionHand hand,ItemStack stack) {
         add(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),200,
                     new Path(SNIPER,owner.getEyePosition(),null,0,0,owner,hand,stack));

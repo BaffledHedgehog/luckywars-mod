@@ -145,7 +145,7 @@ public final class LbcTrinkets {
     }
     public void shot(ServerPlayer player){shot(player,List.of());}
     public void shot(ServerPlayer player,List<? extends Projectile> family) {
-        if (!game.canUseGameplayItems(player) || player.level() != game.maps().level() || game.config().lbcTrinketLimit == 0) return;
+        if (game.balanceLegacy() || !game.canUseGameplayItems(player) || player.level() != game.maps().level() || game.config().lbcTrinketLimit == 0) return;
         var counts=shotCounts(player);
         int copies = counts[0];
         // Сохраняем отдельные source-ветки для одной копии и гарантированного количества.

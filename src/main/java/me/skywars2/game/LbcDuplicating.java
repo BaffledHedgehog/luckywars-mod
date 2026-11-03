@@ -677,7 +677,7 @@ public final class LbcDuplicating {
     }
     /** Pause producers only. Existing shared jobs retain their original native step and chunk waits. */
     void beginCheckpointDrain(){checkpointBoundary();checkpointDraining=true;}
-    void endCheckpointDrain(){checkpointBoundary();checkpointDraining=false;}
+    void endCheckpointDrain(){checkpointBoundary();checkpointDraining=game.supernovaMapTransition();}
     private int checkpointWrites(Job job){
         if(job.cancelled)return 0;
         int pending=job.operations.size();

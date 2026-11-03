@@ -34,6 +34,31 @@ public final class LbcNexusCompass {
     private final Set<UUID> active = new HashSet<>();
     private List<Vec3> bundled = List.of(), destinations = List.of();
     private int lastTick = Integer.MIN_VALUE;
+    private final java.util.concurrent.atomic.AtomicReference<List<Vec3>> pendingWrite=new java.util.concurrent.atomic.AtomicReference<>();
+    private final java.util.concurrent.atomic.AtomicBoolean writing=new java.util.concurrent.atomic.AtomicBoolean();
+    /** Called once after a complete native chunk move, never during a cell write. */
+    void appendedIsland(int x,int y,int z){
+        var updated=new ArrayList<>(destinations);updated.add(new Vec3(x+5,y+321,z+5));
+        destinations=List.copyOf(updated);persistDestinations();
+    }
+    List<Vec3> checkpointDestinations(){return destinations;}
+    void restoreDestinations(List<Vec3> saved){destinations=List.copyOf(saved);persistDestinations();}
+    private void persistDestinations(){pendingWrite.set(destinations);startWriter();}
+    private void startWriter(){
+        if(!writing.compareAndSet(false,true))return;
+        java.util.concurrent.CompletableFuture.runAsync(()->{
+            try{
+                for(var next=pendingWrite.getAndSet(null);next!=null;next=pendingWrite.getAndSet(null)){
+                    var json=new com.google.gson.JsonArray();for(var point:next){var row=new com.google.gson.JsonObject();row.addProperty("x",point.x);row.addProperty("y",point.y);row.addProperty("z",point.z);json.add(row);}
+                    Files.createDirectories(OVERRIDE.getParent());var temporary=OVERRIDE.resolveSibling("nexus_coords.json.writing");
+                    Files.writeString(temporary,json.toString(),StandardCharsets.UTF_8);
+                    try{Files.move(temporary,OVERRIDE,java.nio.file.StandardCopyOption.ATOMIC_MOVE,java.nio.file.StandardCopyOption.REPLACE_EXISTING);}
+                    catch(java.nio.file.AtomicMoveNotSupportedException ignored){Files.move(temporary,OVERRIDE,java.nio.file.StandardCopyOption.REPLACE_EXISTING);}
+                }
+            }catch(IOException failure){SkyWars2.LOGGER.error("Cannot persist completed Nexus island coordinates",failure);}
+            finally{writing.set(false);if(pendingWrite.get()!=null)startWriter();}
+        });
+    }
 
     public LbcNexusCompass(GameController game, Predicate<ServerPlayer> suppressed) {
         this.game = game;

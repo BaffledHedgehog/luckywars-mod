@@ -72,6 +72,12 @@ public final class LbcEvokerBass {
         spawnOwned(owner,position);
     }
     /** Shared native fang producer; callers may mark their own formation without losing its owner or lifecycle. */
+    EvokerFangs spawnLegacyOwned(ServerPlayer owner,Vec3 position){
+        if(!owner.level().hasChunkAt(BlockPos.containing(position)))return null;
+        var fang=new EvokerFangs(owner.level(),position.x,position.y,position.z,0,0,owner);
+        fang.entityTags().add(FANG);fang.entityTags().add("skywars2.balance.old_fang");game.items().markCurrentItemEpoch(fang);
+        if(owner.level().addFreshEntity(fang)){fangs.add(fang);return fang;}return null;
+    }
     EvokerFangs spawnOwned(ServerPlayer owner,Vec3 position) {
         if(!owner.level().hasChunkAt(BlockPos.containing(position)) || game.items().magic().suppressedAt(owner.level(),position))return null;
         var fang=new EvokerFangs(owner.level(),position.x,position.y,position.z,0,0,owner);
@@ -80,12 +86,13 @@ public final class LbcEvokerBass {
         return null;
     }
     /** Quiver's original producer is beacon-only and admits its caster as a victim. */
-    EvokerFangs spawnQuiverOwned(ServerPlayer owner,Vec3 position) {
-        if(!owner.level().hasChunkAt(BlockPos.containing(position)) || game.items().magic().beaconSuppressed(position))return null;
-        var fang=new EvokerFangs(owner.level(),position.x,position.y,position.z,0,0,owner);
+    EvokerFangs spawnQuiverOwned(ServerPlayer owner,Vec3 position) {return spawnQuiverOwned(owner.level(),owner,position);}
+    EvokerFangs spawnQuiverOwned(net.minecraft.server.level.ServerLevel level,ServerPlayer owner,Vec3 position) {
+        if(!level.hasChunkAt(BlockPos.containing(position)) || level==game.maps().level()&&game.items().magic().beaconSuppressed(position))return null;
+        var fang=new EvokerFangs(level,position.x,position.y,position.z,0,0,owner);
         fang.entityTags().add(FANG);fang.entityTags().add("skywars2.quiver.fang");fang.entityTags().add("magic");
         game.items().markCurrentItemEpoch(fang);
-        if(owner.level().addFreshEntity(fang)){fangs.add(fang);return fang;}return null;
+        if(level.addFreshEntity(fang)){fangs.add(fang);return fang;}return null;
     }
     void evoker(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         if(mode==1)for(var mob:mobs(owner,17)) {
@@ -113,6 +120,13 @@ public final class LbcEvokerBass {
     }
     /** Called only at the native attack tick; replaces its owner-allies shortcut for friendly mobs. */
     public void fangHit(EvokerFangs fang,LivingEntity victim) {
+        if(fang.entityTags().contains("skywars2.balance.old_fang")){
+            if(!(fang.getOwner() instanceof ServerPlayer owner)||!game.items().currentEpoch(fang)
+                    ||!game.items().wands().validRoleTarget(victim,false)||!game.items().wands().validTarget(victim)||victim.isInvulnerable())return;
+            var source=game.items().indirectKills().captureDamage(owner.damageSources().indirectMagic(fang,owner),game.items().indirectKills().wildCause(owner));
+            if(victim.hurtServer((net.minecraft.server.level.ServerLevel)victim.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
+            return;
+        }
         if(fang.entityTags().contains("skywars2.quiver.fang")){
             if(!(fang.getOwner() instanceof ServerPlayer owner)||!game.items().currentEpoch(fang)
                     ||!game.items().wands().validTarget(victim)||victim.isInvulnerable()
@@ -120,7 +134,7 @@ public final class LbcEvokerBass {
                         :victim!=owner&&!game.items().wands().projectileTarget(owner,victim))
                     ||game.items().magic().beaconSuppressed(fang.position()))return;
             var source=game.items().indirectKills().captureDamage(owner.damageSources().indirectMagic(fang,owner),game.items().quiver().cause(fang));
-            if(victim.hurtServer(owner.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
+            if(victim.hurtServer((net.minecraft.server.level.ServerLevel)victim.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
             return;
         }
         if(!(fang.getOwner() instanceof ServerPlayer owner)||!game.items().currentEpoch(fang)
@@ -128,7 +142,7 @@ public final class LbcEvokerBass {
                 ||game.items().magic().suppressedAt(owner.level(),fang.position())
                 ||victim.entityTags().contains("nomagic_active")||game.items().magic().suppressedAt(owner.level(),victim.position()))return;
         var source=owner.damageSources().indirectMagic(fang,owner);
-        if(victim.hurtServer(owner.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
+        if(victim.hurtServer((net.minecraft.server.level.ServerLevel)victim.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
     }
     void bass(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean academy) {
         Holder<MobEffect> effect=switch(mode){case 1->MobEffects.WEAKNESS;case 2->MobEffects.SLOWNESS;case 3->MobEffects.BLINDNESS;default->MobEffects.MINING_FATIGUE;};

@@ -125,6 +125,12 @@ public final class MatchEvents {
     Timeline checkpointTimeline() { return new Timeline(running, nextWitherTick, nextTntTick); }
     void restoreTimeline(Timeline image) { running=image.running; nextWitherTick=image.nextWitherTick; nextTntTick=image.nextTntTick; }
 
+    /** Short hit reactions belong to the old clock; persistent skill state remains intact. */
+    void cancelPendingHitReactions() {
+        pendingVex.clear();
+        for(var state:skillStates.values())state.vexTick=-1;
+    }
+
     /** Activates the repeat-event runner for a new match. Stage timing belongs to the controller. */
     public void start() {
         stop();

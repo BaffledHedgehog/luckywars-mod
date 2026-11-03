@@ -36,6 +36,7 @@ public final class LbcTeleportGadgets {
     public LbcTeleportGadgets(GameController game){this.game=game;}
     private static int kind(ItemStack stack){
         if(stack.isEmpty())return 0;
+        if(ItemData.intValue(stack,"teleport1",0)==1&&ItemData.intValue(stack,"gadget",0)==1)return 3;
         var data=LbcFartus.data(stack);
         return data.getIntOr("islandtp",0)==1?1:data.getIntOr("randtp",0)==1?2:0;
     }
@@ -57,7 +58,16 @@ public final class LbcTeleportGadgets {
     }
     public boolean use(ServerPlayer player,InteractionHand hand){
         var stack=player.getItemInHand(hand);int kind=kind(stack);
-        if(kind==0||!eligible(player)||game.items().actionsBlocked(player)||suppressed(player)||paused(player))return false;
+        if(kind==0||!eligible(player)||game.items().actionsBlocked(player)||paused(player))return false;
+        if(kind==3){
+            var from=player.position();if(game.items().magic().mechanismSuppressedAt(player.level(),from,24))return false;
+            var destination=from.add(player.getLookAngle().scale(5));
+            if(!move(player,destination,player.getYRot(),player.getXRot()))return false;
+            player.level().sendParticles(ParticleTypes.REVERSE_PORTAL,from.x,from.y+1,from.z,200,.2,.4,.2,.3);
+            LbcOverload.sound(player,from,"minecraft:entity.enderman.teleport",10,1,20);
+            debit(player,stack);return true;
+        }
+        if(suppressed(player))return false;
         if(kind==1){if(!island(player))return false;debit(player,stack);return true;}
         // Held use and the other hand cannot restart an existing charge.
         if(charges.containsKey(player))return false;

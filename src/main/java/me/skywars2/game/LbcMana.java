@@ -339,6 +339,7 @@ public final class LbcMana {
             overload.armor().tick(p);
             return;
         }
+        if(game.balanceLegacy())return;
         overload.beforeRegen(p);
         var equipment=equipment(p); int base=baseRegen(p), visual=base+equipment.regeneration()+equipment.belts()*2;
         if(equipment.belts()*2>base) award(p,"lbc:true_advancements/accesories/mana_belt");

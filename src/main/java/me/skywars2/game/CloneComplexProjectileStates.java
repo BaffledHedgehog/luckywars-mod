@@ -11,18 +11,22 @@ import net.minecraft.world.entity.EntitySpawnReason;
 public final class CloneComplexProjectileStates {
     private CloneComplexProjectileStates() { }
     public static boolean recognizes(Entity e) {
-        return LbcShulkerBow.cloneRecognizes(e)||LbcMadokaBow.cloneRecognizes(e)||LbcTrinketArrows.cloneRecognizes(e)||LbcClouds.cloneRecognizes(e)||e instanceof LbcExasperato.Charge
+        return LbcBalance.managedRain(e)||LbcBalance.managedTnt(e)||LbcShulkerBow.cloneRecognizes(e)||LbcMadokaBow.cloneRecognizes(e)||LbcTrinketArrows.cloneRecognizes(e)||LbcClouds.cloneRecognizes(e)||e instanceof LbcExasperato.Charge
                 ||LbcExoperso.cloneRecognizes(e)||LbcSpecialFireballs.cloneRecognizes(e)
                 ||LbcHalloweenWind.cloneRecognizes(e)||LbcGovnomet.cloneRecognizes(e)
                 ||e instanceof LbcPrism.Charge||LbcSyringe.cloneRecognizes(e)||LbcNeutral.managed(e);
     }
     public static boolean protectedActor(Entity e) {
-        return LbcMadokaBow.restoreJob(e)||e instanceof LbcExasperato.Charge explosive&&explosive.academyTrial
+        return e.entityTags().contains("skywars2.supernova")
+                ||e instanceof net.minecraft.world.entity.Marker&&e.entityTags().contains("nuke_old")
+                ||LbcMadokaBow.restoreJob(e)||e instanceof LbcExasperato.Charge explosive&&explosive.academyTrial
                 ||e instanceof LbcPrism.Charge prism&&(prism.phase==LbcPrism.Charge.Phase.ACADEMY
                     ||prism.stack!=null&&LbcAcademy.trial(prism.stack));
     }
     /** Returns null for protected trial authority and unsupported managed body variants. */
     public static LbcCloneSkills.ActorImage capture(GameController game,Entity e) {
+        if(LbcBalance.managedRain(e))return game.items().balance().cloneRain(e);
+        if(LbcBalance.managedTnt(e))return game.items().balance().cloneTnt(e);
         if(LbcShulkerBow.cloneRecognizes(e))return game.items().shulkerBow().cloneImage(e);
         if(LbcMadokaBow.cloneRecognizes(e))return game.items().madokaBow().cloneImage(e);
         if(LbcTrinketArrows.cloneRecognizes(e))return game.items().trinketArrows().cloneImage(e);

@@ -29,7 +29,7 @@ public abstract class SpecialEggMixin {
     @Inject(method="appendCustomEntityStackConfig",at=@At("RETURN"),cancellable=true)
     private static <T extends Entity> void skywars2$adoptSpecialEgg(PostSpawnProcessor<T> initial,Level level,
             ItemStack stack,LivingEntity user,CallbackInfoReturnable<PostSpawnProcessor<T>> cir) {
-        if(LbcSpecialEggs.matches(stack)) cir.setReturnValue(cir.getReturnValue()
+        if(stack.getItem() instanceof SpawnEggItem) cir.setReturnValue(cir.getReturnValue()
                 .andThen(entity->LbcSpecialEggs.adopt(SkyWars2.game(),entity,user,stack)));
     }
 

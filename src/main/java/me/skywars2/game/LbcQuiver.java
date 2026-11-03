@@ -122,6 +122,24 @@ public final class LbcQuiver {
                     new Authority(game.items().indirectKills().wildCause(player),game.items().epoch())));}
         if(pending.containsKey(player))sync(player);
     }
+    /** Beam variants share real fang, phantom and trail owners with ordinary ammunition. */
+    public void beamSample(ServerPlayer owner,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause,int variant){
+        if(cause==null||!level.hasChunkAt(BlockPos.containing(at)))return;
+        var authority=new Authority(cause,game.items().epoch());
+        switch(variant){
+            case 102->{if(!game.items().magic().suppressedAt(level,at)){
+                for(var victim:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(8),e->e!=owner
+                        &&e.position().distanceToSqr(at)>=.0001&&e.position().distanceToSqr(at)<=64
+                        &&e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e))){
+                    if(!level.getEntitiesOfClass(net.minecraft.world.entity.projectile.EvokerFangs.class,victim.getBoundingBox().inflate(1),e->e.position().distanceToSqr(victim.position())<=1).isEmpty())continue;
+                    for(int[] offset:new int[][]{{0,0},{1,1},{-1,-1},{1,-1},{-1,1},{1,0},{-1,0},{0,1},{0,-1}})fang(victim.position().add(offset[0],0,offset[1]),authority);
+                }
+            }}
+            case 103->{if(!game.items().magic().mechanismSuppressedAt(level,at)&&level.getRandom().nextFloat()<.1f)game.items().erecto().phantomBurst(owner,at,cause);}
+            case 112,113->{if(!game.items().magic().suppressedAt(level,at))trail(level,at,variant,authority);}
+            default->{}
+        }
+    }
     private static List<ArrayDeque<Contribution>> queues(){return List.of(new ArrayDeque<>(),new ArrayDeque<>(),new ArrayDeque<>(),new ArrayDeque<>());}
     private ServerPlayer owner(Authority authority){return authority==null?null:game.server().getPlayerList().getPlayer(authority.cause.player());}
     private boolean target(ServerPlayer owner,Entity target){return owner!=null&&(target==owner?game.items().wands().validRoleTarget(target,false)&&!LbcGreed.active(target):game.items().wands().projectileTarget(owner,target));}

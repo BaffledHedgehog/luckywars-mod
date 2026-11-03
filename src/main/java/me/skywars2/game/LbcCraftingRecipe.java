@@ -42,6 +42,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         ACID("acid_combine","acid_wand"),
         CYBERKATANA("electro_katana","cyberkatana"),
         SHIT_KATANA("shit_katana","shit_katana"),
+        RAILGUN("railgun_combine","railgun"),
+        SHISHGUN("shishgun_combine","shishgun"),
         ELECTRO_SHIELD("electro_shield","electro_shield"),
         ELECTROBLOCKER("electroblocker","electroblocker"),
         EXASPERATO("exasperato_combine","exasperato_wand"),
@@ -280,6 +282,9 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(stone==1 && tanner==1) return Kind.STONEKIVI;
         if(fire==1 && kiuas==1) return Kind.SUN;
         if(fire==1 && blaze==1) return Kind.FIREBLAZE;
+        var bowPair=input.items().stream().filter(stack->!stack.isEmpty()).toList();
+        var bowRecipe=bowPair.size()==2?LbcChargedBowCrafting.kind(bowPair.get(0),bowPair.get(1)):null;
+        if(bowRecipe!=null)return bowRecipe;
         int katana=0,donor=0;
         for(var stack:input.items()) if(!stack.isEmpty()) {
             if(LbcElectro.isKatana(stack) && !LbcElectro.isShitKatana(stack)) katana++;
@@ -391,7 +396,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
                 for(int i=0;i<input.size();i++)if(neutralDonor(input.getItem(i))){result.set(i,remainder);break;}
             }
         }
-        if((kind==Kind.CYBERKATANA || kind==Kind.ELECTRO_SHIELD) && game!=null
+        if((kind==Kind.CYBERKATANA || kind==Kind.ELECTRO_SHIELD || kind==Kind.RAILGUN) && game!=null
                 && craftingKind(input)==kind && game.maps().level().getRandom().nextFloat()<.6f)
             for(int i=0;i<input.size();i++) if(tinyElectro(input.getItem(i))) {
                 result.set(i,input.getItem(i).copyWithCount(1));
@@ -411,6 +416,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(LbcNyauwuCrafting.kind(input)==kind){LbcNyauwuCrafting.crafted(player.level(),player.position());return;}
         if(LbcNyauwuCrafting.mk2Kind(input)==kind){LbcNyauwuCrafting.craftedMk2(player.level(),player.position());return;}
         if(kind==Kind.FLYING_BOOTS){LbcNyauwuCrafting.craftedFlyingBoots(player.level(),player.position());return;}
+        if(kind==Kind.RAILGUN||kind==Kind.SHISHGUN){LbcChargedBowCrafting.present(player.level(),player.position(),kind);return;}
         if(kind==Kind.COMMUNISM){
             player.level().sendParticles(net.minecraft.core.particles.ParticleTypes.FIREWORK,player.getX(),player.getY(),player.getZ(),300,0,0,0,1);
             LbcOverload.sound(player,player.position(),"minecraft:entity.player.levelup",1,0,0);return;

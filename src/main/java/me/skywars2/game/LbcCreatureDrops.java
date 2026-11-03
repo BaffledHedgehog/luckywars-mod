@@ -165,6 +165,7 @@ public final class LbcCreatureDrops {
     }
     private boolean active(Entity actor){return game.playing() && game.stage()!=GameController.Stage.ENDING && actor.level()==game.maps().level() && game.items().currentEpoch(actor);}
     public boolean canAffect(Entity actor,Entity target){
+        if(actor!=null&&actor.entityTags().contains("skywars2.balance.old_scroll_actor"))return game.items().spellSources().canAffect(actor,target);
         if(!managed(actor))return true;
         if(target==null || !active(actor) || !game.items().wands().validTarget(target))return false;
         if(actor instanceof ShulkerBullet || actor instanceof Vex && actor.entityTags().contains(NORMAL_VEX))return true; // WILD trap: self, allies and enemies are all eligible.

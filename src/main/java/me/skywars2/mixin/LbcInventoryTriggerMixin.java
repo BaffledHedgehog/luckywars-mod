@@ -20,6 +20,8 @@ public abstract class LbcInventoryTriggerMixin {
         if (game != null) {
             game.lbc().inventoryChanged(player);
             game.items().magic().inventoryChanged(player);
+            game.items().supernova().craftChanged(player);
+            game.items().balance().inventoryChanged(player);
             game.items().malevich().inventoryChanged(player,changed);
             game.items().refreshMinigunMovement(player);
         }

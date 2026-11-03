@@ -74,6 +74,9 @@ public final class ShadowAbsorption {
         var s = state(entity);
         if (!entity.canBeAffected(effect) || (LbcGreed.active(entity) && source != entity)) return false;
         if (effect.getDuration() != -1 && effect.getDuration() <= 0) return false;
+        if (entity instanceof net.minecraft.server.level.ServerPlayer player && !s.internal) {
+            var game=SkyWars2.game();if(game!=null)game.items().supernova().absorptionChanged(player,effect);
+        }
         var old = s.entries.get(effect.getAmplifier());
         var updated = old == null ? new MobEffectInstance(effect) : new MobEffectInstance(old);
         boolean changed = old == null || updated.update(effect);
@@ -138,6 +141,9 @@ public final class ShadowAbsorption {
     public static void clear(LivingEntity entity) {
         var s = state(entity);
         if (s.internal || s.loading || s.entries.isEmpty()) return;
+        if(entity instanceof net.minecraft.server.level.ServerPlayer player){
+            var game=SkyWars2.game();if(game!=null)game.items().supernova().absorptionCleared(player);
+        }
         s.entries.clear();
         reconcile(entity, false);
     }

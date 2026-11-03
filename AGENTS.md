@@ -1,3 +1,33 @@
+## Supernova / Railgun / Shishgun / original Balance ? QUALIFIED, INSTALLED (4 November 2026)
+
+[Author decisions, implementation, retained failures and exact evidence](agent_notes/SUPERNOVA_CHAIN_PORT_2026_11_03.md).
+AUTHOR: Supernova unjammable; entire cycle pauses with TimeStop; one exact Katana+
+Shishgun pair/single active event. Same-match replacement retains items/XP/lives/
+participants, no kits/perks or eliminated revival; local maps included, Nexus return,
+Imprinted untouched, permanent old-arena Chef purge. Full accepted structures drain
+through bounded native work before renewal; no synchronous final full-height copy.
+Balance explicitly wipes all players, returns Nexus AND Imprinted, exact original
+four-template/twelve-spawn map. Preserve ORIGINAL old magic/artifact jammer checks.
+Native old overlay/scoreboard,8wands/81Wiki outcomes/10scroll families and every
+finite audited old pool consumer, native rain/egg/TNT actors/lazy shulker recursion.
+Full dependency closure2082tables/2056definitions/2263edges,missing0; no interpreter.
+
+Native Polymer charged bows preserve ammo/enchantments and one finalized trinket
+family through beam-only attacks/shared fair rays. Railgun TECH+artifact; Shishgun
+MAG+TECH+artifact. Exact one bow+Tiny Electro/60%retention and one Railgun+Reactive
+Shish recipes, grid and dropped pairs. Source visuals/tier/Infinity intact. Existing
+TimeStop, attribution, clone and typed whole-coordinator owners reused, no tick IO/
+whole-NBT/world scans. New ready leaves ported/{railgun,shishgun,balance}; gallery.
+
+Testd6e42d14 / production926a93ac:16groups/15actual mode1matches passed on exact
+artifact, including both real map transitions, old20s/9blast nuke and nonempty TNT/
+terrain rollback.58freshJavafamilies/2096resourceinputs;7775other qualified inputs/
+272authorpaths preserved; every archive entry verified; authoring absent production.
+Fixture25577normal/exact restoration/no locks. Both build/libs/main JAR updated with
+ba2ee4a5rollback,restarted:false. No RP edits or main stop/start, physical-client/
+peakTPS claim. TMT/green outside consumer,skill2/broad rewind gates unchanged.
+Evidence:build/verification/supernova-2026-11-03/.
+
 ## Nexus environmental acquisition - QUALIFIED, INSTALLED (3 November 2026)
 
 [Author rules, runtime and exact evidence](agent_notes/NEXUS_ACQUISITION_PORT_2026_11_03.md).

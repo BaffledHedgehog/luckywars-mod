@@ -35,6 +35,7 @@ public final class LbcVanityRollback {
     private VanityCheckpointSchedule schedule;
 
     LbcVanityRollback(GameController game){this.game=game;}
+    public boolean capturePreparing(){return phase==Phase.REQUESTED;}
     public boolean busy(){return phase!=Phase.IDLE&&phase!=Phase.REQUESTED;}
     public boolean blocked(ServerPlayer player){return busy()||restoringLogins.contains(player.getUUID())||awaitingRebind.contains(player.getUUID())
             ||phase==Phase.REQUESTED&&granted&&player.getUUID().equals(requested);}
@@ -77,7 +78,7 @@ public final class LbcVanityRollback {
                 &&MatchEventActorCheckpoint.captureReady(game)&&MatchFieldCheckpoint.captureReady(game)
                 &&MatchTransientSpells.captureReady(game)&&MatchAcademyCheckpoint.captureReady(game)
                 &&MatchEncounterCheckpoint.captureReady(game)&&items.sauvojen().meditation().count()==0
-                &&items.duplicating().captureReady()&&items.stonekivi().captureSettled()&&items.eternalWealth().captureReady()&&items.nexusWires().captureReady();
+                &&items.duplicating().captureReady()&&items.stonekivi().captureSettled()&&items.eternalWealth().captureReady()&&items.nexusWires().captureReady()&&items.supernova().captureReady();
     }
     /** Called once at END_SERVER_TICK, including ticks whose native simulation is frozen. */
     public void tick(){
@@ -124,6 +125,7 @@ public final class LbcVanityRollback {
             waitReason="waiting for time to resume";return;
         }
         // Complete accepted construction with the existing bounded dispatcher before saving.
+        game.items().supernova().settle();
         game.items().stonekivi().tick();
         if(!independentTerrainReady()){waitReason="waiting for structure writes to finish";return;}
         if(!MatchActorCheckpoint.prepareResident(game)){waitReason="waiting for native actor chunks";return;}

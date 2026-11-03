@@ -16,10 +16,11 @@ public abstract class LbcLooperItemMixin {
     private void skywars2$wireStackChanged(net.minecraft.world.item.ItemStack stack,CallbackInfo ci){
         var self=(ItemEntity)(Object)this;
         if(self.level() instanceof net.minecraft.server.level.ServerLevel level
-                &&level.dimension().identifier().equals(skywars2$nexusDimension)
                 &&level.getEntity(self.getUUID())==self){
             var game=me.skywars2.SkyWars2.game();
-            if(game!=null)game.items().nexusAcquisition().itemChanged(self);
+            if(game!=null){game.items().supernova().itemChanged(self);game.items().chargedBows().itemChanged(self);
+                if(level.dimension().identifier().equals(skywars2$nexusDimension))game.items().nexusAcquisition().itemChanged(self);
+            }
         }
     }
 

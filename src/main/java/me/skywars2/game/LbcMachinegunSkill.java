@@ -137,9 +137,19 @@ public final class LbcMachinegunSkill {
         if(!p.level().addFreshEntity(arrow))return false;
         game.items().lifetimes().track(arrow);game.items().timeStop().prepareFrozen(arrow);
         if(random.nextBoolean()){ammo.shrink(1);p.getInventory().setChanged();}
-        var family=game.items().shulkerBow().augment(p,fired,java.util.List.of(arrow));
+        boolean traitsRolled=false;
+        if(ItemData.intValue(fired,"explosive",0)==1){
+            var ballistic=java.util.List.<net.minecraft.world.entity.projectile.Projectile>of(arrow);game.items().trinkets().shot(p,ballistic);traitsRolled=true;
+            if(game.items().balance().explosiveBow(p,fired,ballistic))return true;
+        }
+        if(LbcChargedBows.matches(fired)){
+            var ballistic=java.util.List.<net.minecraft.world.entity.projectile.Projectile>of(arrow);if(!traitsRolled)game.items().trinkets().shot(p,ballistic);
+            game.items().chargedBows().release(p,fired,p.getTicksUsingItem(),ballistic);return true;
+        }
+        var oldFamily=game.items().balance().augment(p,fired,java.util.List.of(arrow));
+        var family=game.items().shulkerBow().augment(p,fired,oldFamily);
         game.items().madokaBow().augment(p,fired,family);
-        game.items().trinkets().shot(p,family);
+        if(!traitsRolled)game.items().trinkets().shot(p,family);
         return true;
     }
     static Vec3 accelerated(Vec3 motion){

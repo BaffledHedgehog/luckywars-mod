@@ -109,6 +109,12 @@ public final class LbcMadokaBow {
     }
     /** Invoke only after vanilla accepted an entity hit (doPostHurtEffects), before curse mutation.
      * Native arrow damage, potion delivery, spectral glow, piercing and pickup remain vanilla. */
+    public void beamContact(ServerPlayer owner,ItemStack weapon,net.minecraft.world.entity.projectile.arrow.Arrow context,LivingEntity victim){
+        if(!matches(weapon))return;
+        var cause=game.items().indirectKills().coldCause(owner,true);
+        context.entityTags().add(MARK);context.entityTags().add(AUTHOR+cause.player());context.entityTags().add(ORDER+cause.order());
+        game.items().markCurrentItemEpoch(context);entityHit(context,victim);
+    }
     public void entityHit(Projectile arrow,LivingEntity victim){
         if(!recognizes(arrow)||!current(arrow)||paused(arrow))return;
         if(game.items().magic().suppressedAt((ServerLevel)victim.level(),victim.position())

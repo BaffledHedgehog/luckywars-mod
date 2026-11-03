@@ -118,6 +118,15 @@ public final class LbcShulkerBow {
             &&!s.cause.player().equals(victim.getUUID())&&game.items().wands().validTarget(victim)&&game.items().wands().validRoleTarget(victim,false)
             &&(!(victim instanceof ServerPlayer player)||player.getTeam()==null||s.team.isEmpty()||!s.team.equals(player.getTeam().getName()));}
     public boolean canHit(ShulkerBullet bullet,Entity target){var s=state(bullet);return s==null||(!s.contacts.contains(target.getUUID())&&game.items().wands().validTarget(target));}
+    public void beamSample(ServerPlayer owner,ItemStack weapon,net.minecraft.world.entity.projectile.arrow.Arrow context,Vec3 at,LbcIndirectKills.Owner cause){
+        if(ItemData.intValue(weapon,"shulker_new",0)!=1||game.items().magic().mechanismSuppressedAt(owner.level(),at))return;
+        boolean trapper=false;
+        for(var effect:context.getPickupItemStackOrigin().getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).getAllEffects())
+            if(effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==113)trapper=true;
+        if(!trapper)return;
+        var parent=new ShulkerBullet(EntityTypes.SHULKER_BULLET,owner.level());parent.setOwner(owner);parent.setPos(at);
+        child(parent,new State(ItemStack.EMPTY,weapon.copy(),2,false,0,0,113,0,cause,game.items().epoch(),owner.getTeam()==null?"":owner.getTeam().getName(),true));
+    }
     private void child(ShulkerBullet parent,State s){var level=(ServerLevel)parent.level();
         var target=level.getEntitiesOfClass(LivingEntity.class,new AABB(parent.position(),parent.position()).inflate(100),e->target(s,e)&&e.position().distanceToSqr(parent.position())<=10000)
                 .stream().min(Comparator.comparingDouble(e->e.distanceToSqr(parent))).orElse(null);

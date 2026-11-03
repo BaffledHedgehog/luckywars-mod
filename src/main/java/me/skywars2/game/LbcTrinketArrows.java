@@ -118,6 +118,15 @@ public final class LbcTrinketArrows {
         if(arrow instanceof AbstractArrow&&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)arrow).skywars2$isInGround()){terminal(arrow,at,true);return !arrow.isRemoved();}
         return true;
     }
+    /** Detached native context: same trait handlers, no second ballistic entity. */
+    public void beamSample(net.minecraft.world.entity.projectile.arrow.Arrow context,Vec3 at){
+        if(context.isRemoved())return;
+        var before=context.position();context.setPos(at);context.setDeltaMovement(at.subtract(before));
+        if(!beforeProjectile(context))return;
+        var level=(ServerLevel)context.level();var state=level.getBlockState(BlockPos.containing(at));
+        if(!state.getCollisionShape(level,BlockPos.containing(at)).isEmpty())
+            hit(context,new BlockHitResult(at,net.minecraft.core.Direction.getApproximateNearest(context.getDeltaMovement().reverse()),BlockPos.containing(at),false));
+    }
     public void hit(Projectile arrow,HitResult hit){if(equivalent(arrow)&&hit.getType()!=HitResult.Type.MISS&&mask(arrow)!=0){
         if(!currentContext(arrow)){arrows.remove(arrow);arrow.discard();return;}
         terminal(arrow,hit.getLocation(),hit instanceof BlockHitResult);}}

@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -43,13 +44,30 @@ public final class GameController {
         int lives;
         boolean awaitingRespawn;
         boolean disconnected;
+        boolean renewalRespawn;
         Participant(MapManager.Spawn spawn, int lives) { this.spawn = spawn; this.lives = lives; }
+    }
+
+    private enum RenewalPhase { SETTLING, HOLDING, LOADING, READY, FAILED }
+    /** Immutable intent belongs to the match checkpoint; asynchronous work itself is never copied. */
+    private record SupernovaMap(UUID event, UUID owner, LbcIndirectKills.Owner cause, String map,
+                                boolean broken, RenewalPhase phase, boolean requested) {
+        SupernovaMap phase(RenewalPhase next) { return new SupernovaMap(event,owner,cause,map,broken,next,requested); }
+        SupernovaMap request() { return new SupernovaMap(event,owner,cause,map,broken,phase,true); }
+    }
+    private record BalanceMap(UUID event, RenewalPhase phase) {
+        BalanceMap phase(RenewalPhase next) { return new BalanceMap(event,next); }
     }
 
     /** Core values only; native bodies, entities and ability queues have their own restore phase. */
     static final class Checkpoint {
         private final GameController owner;
         private final String epoch;
+        private final SupernovaMap renewal;
+        private final BalanceMap balanceRenewal;
+        private final boolean legacy;
+        private final Set<UUID> balanceResets;
+        private final Map<UUID,Integer> balanceRewards;
         private final Map<UUID, Participant> members = new LinkedHashMap<>();
         private final Set<UUID> pending;
         private final List<Entity> unloads;
@@ -69,6 +87,9 @@ public final class GameController {
 
         private Checkpoint(GameController g) {
             owner=g;epoch=g.items.epoch();
+            renewal=g.supernovaMap;
+            balanceRenewal=g.balanceMap;legacy=g.balanceLegacy;balanceResets=Set.copyOf(g.balancePendingReset);
+            balanceRewards=Map.copyOf(g.balancePendingRewards);
             g.participants.forEach((id,p)->members.put(id,copy(p)));
             pending=Set.copyOf(g.pendingLobby);unloads=List.copyOf(g.nativeEntityUnloads);
             stage=g.stage;host=g.host;pendingStarter=g.pendingStarter;victoryWinner=g.victoryWinner;
@@ -85,12 +106,15 @@ public final class GameController {
         }
         private static Participant copy(Participant source) {
             var result=new Participant(source.spawn,source.lives);
-            result.awaitingRespawn=source.awaitingRespawn;result.disconnected=source.disconnected;return result;
+            result.awaitingRespawn=source.awaitingRespawn;result.disconnected=source.disconnected;
+            result.renewalRespawn=source.renewalRespawn;return result;
         }
     }
 
     Checkpoint checkpointCore() {
-        if(!server.isSameThread()||!playing()||stopped||maps.busy())throw new IllegalStateException("Capture a stable active match on its server thread");
+        if(!server.isSameThread()||!playing()||stopped||maps.busy()
+                ||supernovaMap!=null&&(supernovaMap.phase()==RenewalPhase.FAILED||!supernovaTerrainSettled())
+                ||balanceMap!=null)throw new IllegalStateException("Capture a stable active match on its server thread");
         return new Checkpoint(this);
     }
 
@@ -103,6 +127,10 @@ public final class GameController {
         validateCheckpoint(image);
         // Unsupported short restart intent is cancelled by rewind, as other transient actions are.
         runeRestartPending=false;
+        supernovaMap=image.renewal;
+        balanceMap=image.balanceRenewal;balanceLegacy(image.legacy);
+        balancePendingReset.clear();balancePendingReset.addAll(image.balanceResets);
+        balancePendingRewards.clear();balancePendingRewards.putAll(image.balanceRewards);
         items.containedSkills().stop();
         items.combatRewards().clear();items.machinegunSkill().clearTransient();items.zeusSkill().clearTransient();
         participants.clear();image.members.forEach((id,p)->participants.put(id,Checkpoint.copy(p)));
@@ -171,6 +199,12 @@ public final class GameController {
     private Component mapFailure = Component.empty();
     private String readyMap;
     private boolean runeRestartPending;
+    private SupernovaMap supernovaMap;
+    private boolean supernovaNativeTick;
+    private BalanceMap balanceMap;
+    private boolean balanceLegacy;
+    private final Set<UUID> balancePendingReset=new java.util.HashSet<>();
+    private final Map<UUID,Integer> balancePendingRewards=new LinkedHashMap<>();
     private boolean readyBroken;
     private long selectionVersion;
     private boolean preparingSelection;
@@ -228,12 +262,285 @@ public final class GameController {
     }
     /** Item abilities can be tested by tagged developers in the lobby, but observer inventory stays powerless. */
     public boolean canUseGameplayItems(ServerPlayer player) {
-        return !isObserver(player) && (allowDamage(player) || isDeveloper(player) && !stopped
+        var member=participants.get(player.getUUID());
+        boolean retained=supernovaNativeTick && playing() && member!=null && member.lives>0
+                && !member.disconnected && !member.awaitingRespawn;
+        return (!supernovaMapTransition() || supernovaNativeTick || !renewalPlayer(player)) && !isObserver(player)
+                && (allowDamage(player) || retained || isDeveloper(player) && !stopped
                 && (inLobby() || stage == Stage.LOADING));
     }
     public boolean selectedMapReady() { return readyMap != null && readyMap.equals(config.mapId) && readyBroken == config.broken && !maps.busy(); }
     public boolean playing() { return stage == Stage.PLAYING || stage == Stage.PHASE_ONE || stage == Stage.PHASE_TWO; }
     public int matchTicks() { return gameTicks; }
+    public boolean supernovaMapTransition() { return supernovaMap != null || balanceMap != null; }
+    public boolean balanceLegacy() { return balanceLegacy; }
+    private void balanceLegacy(boolean active){
+        balanceLegacy=active;
+        items.mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("legacy"),"lbc.math").set(active?1:0);
+    }
+    public void activateBalance(ServerPlayer player) {
+        if (!playing() || stopped || supernovaMapTransition() || maps.busy()
+                || vanity.busy() || vanity.capturePreparing() || items.supernova().phase()!=LbcSupernova.Phase.IDLE
+                || !canUseGameplayItems(player)) return;
+        balanceMap=new BalanceMap(UUID.randomUUID(),RenewalPhase.SETTLING);
+        items.duplicating().beginCheckpointDrain();
+    }
+
+    private int renewalCapacity() {
+        return Math.max(1,(int)participants.values().stream().filter(p->p.lives>0&&!p.disconnected).count());
+    }
+    public boolean canBeginSupernova(ServerLevel level, UUID owner) {
+        return server.isSameThread() && level == maps.level() && playing() && !stopped && !maps.busy()
+                && !supernovaMapTransition() && !vanity.busy() && !vanity.capturePreparing()
+                && !maps.renewalCandidates(renewalCapacity(),config.broken,maps.bedwars(config.mapId)).isEmpty();
+    }
+    /** Called once at DELAY admission. Neither the match nor any item epoch is restarted. */
+    public void prepareSupernovaMap(UUID event, UUID owner, LbcIndirectKills.Owner cause) {
+        if (supernovaMap != null || !playing() || stopped) return;
+        var pool=maps.renewalCandidates(renewalCapacity(),config.broken,maps.bedwars(config.mapId));
+        String selected=pool.isEmpty()?null:pool.get(maps.level().getRandom().nextInt(pool.size())).id();
+        supernovaMap=new SupernovaMap(event,owner,cause,selected,config.broken,RenewalPhase.SETTLING,false);
+        items.duplicating().beginCheckpointDrain();
+    }
+    public void replaceSupernovaMap(UUID event, UUID owner, LbcIndirectKills.Owner cause) {
+        if (supernovaMap == null || !supernovaMap.event().equals(event)) return;
+        supernovaMap=supernovaMap.request();
+    }
+    public void finishSupernovaMap(UUID event, UUID owner, boolean success) {
+        if (supernovaMap == null || !supernovaMap.event().equals(event)) return;
+        // A failed paste retains its safety hold and the old public checkpoint for explicit rewind.
+        if (!success) { supernovaMap=supernovaMap.phase(RenewalPhase.FAILED); return; }
+        balancePendingRewards.merge(supernovaMap.owner(),1,Integer::sum);
+        var recipient=server.getPlayerList().getPlayer(supernovaMap.owner());
+        supernovaMap=null;
+        items.duplicating().endCheckpointDrain();
+        if(recipient!=null)givePendingBalanceRewards(recipient);
+    }
+    private void givePendingBalanceRewards(ServerPlayer player) {
+        var count=balancePendingRewards.remove(player.getUUID());if(count==null)return;
+        for(int i=0;i<count;i++){
+            var rolled=lbc.rollTable(player.level(),player.position(),player,"lbc:balance");
+            var reward=rolled.isEmpty()?new ItemStack(LbcBalanceItems.BALANCE):rolled.getFirst().copyWithCount(1);
+            player.getInventory().add(reward);
+            if(!reward.isEmpty())player.drop(reward,false,net.minecraft.util.Prediction.SERVER_ONLY);
+        }
+    }
+    private boolean supernovaPaused() {
+        return items.wands().legacyTimeStopped() || items.timeStop().stopped(maps.level());
+    }
+    private boolean supernovaTerrainSettled() {
+        return !maps.busy() && SignedEnvironmentalEffects.queuedTerrain()==0
+                && items.blaze().terrainCount()==0 && items.kiuas().queuedBlockCount()==0
+                && items.tanner().queuedBlockCount()==0 && items.portalDrops().idle()
+                && MatchEventActorCheckpoint.captureReady(this) && MatchFieldCheckpoint.captureReady(this)
+                && MatchTransientSpells.captureReady(this) && MatchAcademyCheckpoint.captureReady(this)
+                && MatchEncounterCheckpoint.captureReady(this) && items.sauvojen().meditation().count()==0
+                && items.duplicating().pendingCheckpointWrites()==0 && items.stonekivi().captureSettled()
+                && items.eternalWealth().captureReady() && items.nexusWires().captureReady();
+    }
+    private boolean renewalPlayer(ServerPlayer player) {
+        return balanceMap!=null || !player.level().dimension().equals(LbcHedgehogDimensions.IMPRINTED);
+    }
+    private void holdSupernovaPlayers() {
+        for (var player:online()) {
+            if (!renewalPlayer(player) || !player.isAlive()) continue;
+            player.closeContainer(); player.stopRiding();
+            teleport(player,new Vec3(0,1000,0),player.getYRot(),player.getXRot());
+            player.setDeltaMovement(Vec3.ZERO); player.fallDistance=0;
+            items.ownedEffects().grant(player,"supernova.map.hold",new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.RESISTANCE,100,3,false,false),null);
+        }
+    }
+    private void tickSupernovaMap() {
+        if (supernovaMap==null || supernovaPaused()) return;
+        if (supernovaMap.phase()==RenewalPhase.SETTLING) {
+            // Drain every accepted native structure rather than abandoning a half-built footprint.
+            if (!supernovaTerrainSettled()) return;
+            holdSupernovaPlayers(); maps.purgeRenewalEntities();
+            supernovaMap=supernovaMap.phase(RenewalPhase.HOLDING);
+        }
+        if (supernovaMap.phase()!=RenewalPhase.SETTLING && lifetimeTicks%20==0) holdSupernovaPlayers();
+        if (supernovaMap.phase()==RenewalPhase.HOLDING && supernovaMap.requested()) {
+            if (maps.busy() || !supernovaTerrainSettled()) return;
+            var intent=supernovaMap;
+            if (intent.map()==null) { failSupernovaMap(Component.literal("No eligible replacement map")); return; }
+            maps.purgeRenewalEntities();
+            supernovaMap=intent.phase(RenewalPhase.LOADING);
+            maps.load(intent.map(),intent.broken(),result->{
+                if (supernovaMap==null || !supernovaMap.event().equals(intent.event()) || stopped) return;
+                if (!result.success()) { failSupernovaMap(result.message()); return; }
+                // Completion can arrive during TimeStop; player placement waits for the active clock.
+                supernovaMap=supernovaMap.phase(RenewalPhase.READY);
+            });
+        }
+        if (supernovaMap!=null && supernovaMap.phase()==RenewalPhase.READY) completeSupernovaMap();
+    }
+    private void failSupernovaMap(Component reason) {
+        var intent=supernovaMap;
+        mapFailure=reason.copy(); supernovaMap=intent.phase(RenewalPhase.FAILED);
+        announce(text("game.load_failed",reason));
+        items.supernova().completed(intent.event(),false);
+    }
+    private void completeSupernovaMap() {
+        var intent=supernovaMap;
+        var retained=participants.entrySet().stream().filter(e->e.getValue().lives>0&&!e.getValue().disconnected).toList();
+        var spawns=new ArrayList<>(maps.spawns()); Collections.shuffle(spawns);
+        if (spawns.size()<retained.size()) { failSupernovaMap(Component.literal("Replacement map has insufficient spawns")); return; }
+        for (int i=0;i<retained.size();i++) {
+            var entry=retained.get(i); var member=entry.getValue(); member.spawn=spawns.get(i);
+            var player=server.getPlayerList().getPlayer(entry.getKey());
+            if (player==null || !renewalPlayer(player)) continue;
+            player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
+                    maps.level().dimension(),net.minecraft.core.BlockPos.containing(member.spawn.position()),
+                    member.spawn.yaw(),member.spawn.pitch()),true),false);
+            if (member.awaitingRespawn || !player.isAlive() || isObserver(player)) continue;
+            teleport(player,member.spawn.position(),member.spawn.yaw(),member.spawn.pitch());
+            player.setDeltaMovement(Vec3.ZERO);player.fallDistance=0;
+            items.ownedEffects().grant(player,"supernova.map.arrival",new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.SLOW_FALLING,200,0,false,false),null);
+        }
+        for (var player:online()) {
+            if (!renewalPlayer(player)) continue;
+            items.ownedEffects().withdraw(player,"supernova.map.hold");
+            var member=participants.get(player.getUUID());
+            if (player.isAlive() && (member==null || member.lives<=0 || member.disconnected || isObserver(player)))
+                teleport(player,maps.look(),0,0);
+        }
+        config.mapId=intent.map(); config.broken=intent.broken();
+        readyMap=intent.map();readyBroken=intent.broken();mapFailure=Component.empty();
+        maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);
+        // Restart only stage scheduling. Skill state, inventory, resources and lives retain their owners.
+        zoneBarrier.stop(); events.cancelPendingHitReactions();events.restoreTimeline(new MatchEvents.Timeline(true,-1,-1));
+        transition(Stage.PLAYING);gameTicks=0;lastAliveTicks=5;fallEnabled=false;
+        maps.level().getGameRules().set(GameRules.FALL_DAMAGE,false,server);
+        maps.level().getGameRules().set(GameRules.BLOCK_DROPS,true,server);
+        maps.level().getGameRules().set(GameRules.ENTITY_DROPS,true,server);
+        maps.level().getGameRules().set(GameRules.MOB_DROPS,true,server);
+        bar.setColor(BossEvent.BossBarColor.GREEN);updateBar();
+        for(var player:online())if(renewalPlayer(player)){
+            player.connection.send(new ClientboundSetTitleTextPacket(Component.literal(" ")));
+            player.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("end_respawn")));
+            if(!player.isSpectator())items.mana().award(player,"lbc:true_advancements/legends/supernova");
+        }
+        items.supernova().completed(intent.event(),true);
+        for (var entry:participants.entrySet()) {
+            var member=entry.getValue();
+            if (!member.renewalRespawn) continue;
+            member.renewalRespawn=false;
+            var player=server.getPlayerList().getPlayer(entry.getKey());
+            if (player!=null) respawned(player);
+        }
+    }
+
+    private void resetBalancePlayer(ServerPlayer player) {
+        int level=player.experienceLevel,total=player.totalExperience;float progress=player.experienceProgress;
+        resetPlayer(player,20,true);
+        // The source clears inventory/perks, but never debits existing XP.
+        player.experienceLevel=level;player.totalExperience=total;player.experienceProgress=progress;
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetExperiencePacket(progress,total,level));
+        player.entityTags().removeAll(List.of("levelups","gamehealthmodifier","darkness_player","abyss","powerfall","trollhunter"));
+        var modifier=player.getAttribute(Attributes.MAX_HEALTH);
+        if(modifier!=null)modifier.setBaseValue(20);
+        player.setHealth(player.getMaxHealth());
+    }
+    private void tickBalanceMap() {
+        if(balanceMap==null || supernovaPaused())return;
+        if(balanceMap.phase()==RenewalPhase.SETTLING){
+            if(!supernovaTerrainSettled())return;
+            var intent=balanceMap;
+            holdSupernovaPlayers();
+            // This is the explicit full old-mode boundary, distinct from same-match Supernova.
+            vanity.stop();events.stop();zoneBarrier.stop();luckyModifiers.endMatch();attributeHud.stop();
+            items.stop();
+            balanceMap=intent.phase(RenewalPhase.LOADING);
+            balanceLegacy(false);
+            for(var entry:participants.entrySet()){
+                if(entry.getValue().lives>0&&!entry.getValue().disconnected)entry.getValue().lives=1;
+                if(server.getPlayerList().getPlayer(entry.getKey())==null)balancePendingReset.add(entry.getKey());
+            }
+            for(var player:online()){
+                if(player.isAlive())resetBalancePlayer(player);else balancePendingReset.add(player.getUUID());
+            }
+            for(var dimension:List.of(net.minecraft.world.level.Level.OVERWORLD,net.minecraft.world.level.Level.NETHER,
+                    net.minecraft.world.level.Level.END,LbcHedgehogDimensions.IMPRINTED)){
+                var level=server.getLevel(dimension);if(level==null)continue;
+                // These are source game rules, never a legacy-function execution bridge.
+                var rules=level.getGameRules();
+                rules.set(GameRules.WATER_SOURCE_CONVERSION,true,server);
+                rules.set(GameRules.RANDOM_TICK_SPEED,3,server);
+                rules.set(GameRules.NATURAL_HEALTH_REGENERATION,true,server);
+                rules.set(GameRules.LIMITED_CRAFTING,false,server);
+                rules.set(GameRules.MAX_BLOCK_MODIFICATIONS,32777000,server);
+                rules.set(GameRules.ADVANCE_TIME,true,server);
+                rules.set(GameRules.IMMEDIATE_RESPAWN,true,server);
+                rules.set(GameRules.BLOCK_DROPS,true,server);
+                rules.set(GameRules.ENTITY_DROPS,true,server);
+                rules.set(GameRules.MOB_DROPS,true,server);
+                if(!dimension.equals(LbcHedgehogDimensions.IMPRINTED))
+                    for(long chunk:level.getForceLoadedChunks().toLongArray())
+                        level.setChunkForced(net.minecraft.world.level.ChunkPos.getX(chunk),net.minecraft.world.level.ChunkPos.getZ(chunk),false);
+            }
+            maps.removeLobbyOverlay();maps.purgeRenewalEntities();
+            maps.level().getGameRules().set(GameRules.BLOCK_DROPS,false,server);
+            maps.level().getGameRules().set(GameRules.ENTITY_DROPS,false,server);
+            maps.level().getGameRules().set(GameRules.MOB_DROPS,false,server);
+            maps.level().getWorldBorder().setCenter(0,0);maps.level().getWorldBorder().setSize(59_999_968);
+            server.setWeatherParameters(200000000,0,false,false);
+            maps.loadBalance(result->{
+                if(balanceMap==null||!balanceMap.event().equals(intent.event())||stopped)return;
+                if(!result.success()){
+                    mapFailure=result.message();balanceMap=balanceMap.phase(RenewalPhase.FAILED);
+                    announce(text("game.load_failed",result.message()));return;
+                }
+                balanceMap=balanceMap.phase(RenewalPhase.READY);
+            });
+        }
+        if(balanceMap==null)return;
+        if(lifetimeTicks%20==0)holdSupernovaPlayers();
+        if(balanceMap.phase()!=RenewalPhase.READY)return;
+        var retained=participants.entrySet().stream().filter(e->e.getValue().lives>0&&!e.getValue().disconnected).toList();
+        var spawns=new ArrayList<>(maps.spawns());Collections.shuffle(spawns);
+        if(spawns.isEmpty()){
+            mapFailure=Component.literal("Balance map has no spawns");balanceMap=balanceMap.phase(RenewalPhase.FAILED);return;
+        }
+        // Source has twelve real spawn markers. Excess players remain on its staging platform.
+        for(int i=0;i<retained.size();i++){
+            var entry=retained.get(i);var member=entry.getValue();
+            var spawn=i<spawns.size()?spawns.get(i):new MapManager.Spawn(new Vec3(0,128,0),0,0);
+            member.spawn=spawn;var player=server.getPlayerList().getPlayer(entry.getKey());
+            if(player==null)continue;
+            player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(maps.level().dimension(),
+                    net.minecraft.core.BlockPos.containing(spawn.position()),spawn.yaw(),spawn.pitch()),true),false);
+            if(player.isAlive()&&!member.awaitingRespawn&&!isObserver(player))teleport(player,spawn.position(),spawn.yaw(),spawn.pitch());
+        }
+        for(var player:online()){
+            items.ownedEffects().withdraw(player,"supernova.map.hold");
+            var member=participants.get(player.getUUID());
+            if(player.isAlive()&&(member==null||member.lives<=0||member.disconnected||isObserver(player)))teleport(player,maps.look(),0,0);
+        }
+        balanceLegacy(true);balanceMap=null;readyMap=null;mapFailure=Component.empty();
+        maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);
+        gameTicks=0;lastAliveTicks=5;fallEnabled=false;transition(Stage.PLAYING);
+        events.restoreTimeline(new MatchEvents.Timeline(true,-1,-1));
+        maps.level().getGameRules().set(GameRules.FALL_DAMAGE,false,server);
+        maps.level().getGameRules().set(GameRules.BLOCK_DROPS,true,server);
+        maps.level().getGameRules().set(GameRules.ENTITY_DROPS,true,server);
+        maps.level().getGameRules().set(GameRules.MOB_DROPS,true,server);
+        items.balance().begin();
+        for(var player:online()){
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE,100,4,false,false),player);
+            net.minecraft.world.effect.MobEffects.INSTANT_HEALTH.value().applyInstantaneousEffect(player.level(),player,player,player,4,1);
+            net.minecraft.world.effect.MobEffects.SATURATION.value().applyInstantaneousEffect(player.level(),player,player,player,40,1);
+            LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.burning_balance",1,1,1);
+            LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.burning_balance",1,1,1);
+            if(!player.isSpectator())items.mana().award(player,"lbc:true_advancements/legends/new_world");
+        }
+        bar.setColor(BossEvent.BossBarColor.GREEN);updateBar();
+        for(var entry:participants.entrySet())if(entry.getValue().renewalRespawn){
+            entry.getValue().renewalRespawn=false;var player=server.getPlayerList().getPlayer(entry.getKey());
+            if(player!=null)respawned(player);
+        }
+    }
     public ZoneBarrier zoneBarrier() { return zoneBarrier; }
     public int lives(UUID id) { Participant p = participants.get(id); return p == null ? 0 : p.lives; }
     public boolean awaitingRespawn(UUID id) { Participant p = participants.get(id); return p != null && p.awaitingRespawn; }
@@ -274,6 +581,7 @@ public final class GameController {
     }
 
     public void join(ServerPlayer player) {
+        if(balancePendingReset.remove(player.getUUID()))resetBalancePlayer(player);
         if(vanity.joined(player))return;
         items.witchClaims().reconcile(player);
         items.rifleZoom().joined(player);
@@ -294,6 +602,7 @@ public final class GameController {
         zoneBarrier.playerJoined(player);
         lbc.joined(player);
         items.stand().joined(player);
+        givePendingBalanceRewards(player);
     }
 
     public void leave(ServerPlayer player) {
@@ -576,11 +885,18 @@ public final class GameController {
         if (stopped || vanity.busy() || !server.tickRateManager().runsNormally()) return;
         lifetimeTicks++;
         if (inventoryLocked()) for (ServerPlayer player : online()) enforceLobbyInventory(player);
-        maps.tick();
+        if (!supernovaMapTransition() || !supernovaPaused()) maps.tick();
         developerTools.tick();
         spectators.tick();
         attributeHud.tick();
         lbc.tick();
+        if (supernovaMapTransition()) {
+            // The item owner advances TimeStop, accepted construction and the Supernova delay.
+            // Match stages, win detection and the border remain paused throughout replacement.
+            supernovaNativeTick=true;
+            try { items.tick(); } finally { supernovaNativeTick=false; }
+            tickSupernovaMap(); tickBalanceMap(); return;
+        }
         if(runeRestartPending&&stage==Stage.LOBBY&&lobbyReady&&!maps.busy()){
             runeRestartPending=false;requestStart(null,true);
         }
@@ -626,7 +942,9 @@ public final class GameController {
                 transition(Stage.PHASE_TWO); rewardAlive(40, "swrg.reward.stage2"); events.stageTwo(config.stageTwoEvent);
             }
             events.tick();
-            items.tick();
+            supernovaNativeTick=true;
+            try { items.tick(); } finally { supernovaNativeTick=false; }
+            if (supernovaMapTransition()) return;
             if (gameTicks % 20 == 0) {
                 updateBar();
                 updateTrackers();
@@ -690,7 +1008,8 @@ public final class GameController {
 
     public boolean allowDamage(ServerPlayer player) {
         Participant p = participants.get(player.getUUID());
-        return playing() && !isObserver(player) && p != null && p.lives > 0 && !p.disconnected && !p.awaitingRespawn;
+        return (!supernovaMapTransition() || !renewalPlayer(player)) && playing() && !isObserver(player)
+                && p != null && p.lives > 0 && !p.disconnected && !p.awaitingRespawn;
     }
 
     public void died(ServerPlayer player, DamageSource damage) {
@@ -732,10 +1051,24 @@ public final class GameController {
 
     public void respawned(ServerPlayer player) {
         if(MatchPlayerCheckpoint.restoring(player)||vanity.busy())return;
+        // Balance resets every actual player body, including eliminated spectators.
+        if(balancePendingReset.remove(player.getUUID()))resetBalancePlayer(player);
+        if (supernovaMapTransition() && renewalPlayer(player)) {
+            var member=participants.get(player.getUUID());
+            if (member!=null && member.lives>0 && !member.disconnected) member.renewalRespawn=true;
+            else spectators.enter(player);
+            teleport(player,new Vec3(0,1000,0),0,0);
+            return;
+        }
         items.witchClaims().reconcile(player);
         attributeHud.clear(player);
         Participant p = participants.get(player.getUUID());
         if (playing() && p != null && !p.disconnected && p.lives > 0) {
+            if(balanceLegacy){
+                p.awaitingRespawn=false;balancePendingReset.remove(player.getUUID());resetBalancePlayer(player);
+                player.setGameMode(GameType.SURVIVAL);maps.restoreRespawnIsland(p.spawn);
+                teleport(player,p.spawn.position(),p.spawn.yaw(),p.spawn.pitch());return;
+            }
             // Полная нормализация относится к границам матча; новую жизнь готовим по прежним правилам.
             p.awaitingRespawn = false; resetPlayer(player, config.health, false);
             boolean fingerSpawn=items.indolenceFingers().fingerSpawn(player);
@@ -813,6 +1146,7 @@ public final class GameController {
 
     public void damaged(ServerPlayer victim, DamageSource source, float amount) {
         if (!playing() || !allowDamage(victim)) return;
+        if(amount>0)items.balance().damaged(victim);
         events.onPlayerDamaged(victim, source, amount);
         if (source.getEntity() instanceof ServerPlayer attacker && allowDamage(attacker))
             events.onPlayerAttack(attacker, victim, source, amount);
@@ -834,6 +1168,7 @@ public final class GameController {
     public void cancelQueuedEntityUnload(Entity entity) { nativeEntityUnloads.remove(entity); }
 
     private void finish() {
+        balanceLegacy(false);balanceMap=null;balancePendingReset.clear();balancePendingRewards.clear();
         vanity.stop();
         luckyModifiers.endMatch();
         items.stop();
@@ -874,6 +1209,8 @@ public final class GameController {
 
     private void restoreLobby() {
         runeRestartPending=false;
+        supernovaMap=null;
+        balanceMap=null;balanceLegacy(false);balancePendingReset.clear();balancePendingRewards.clear();
         teamColors.stop();
         luckyModifiers.endMatch();
         // Общая точка завершения/отмены матча: снимает временные состояния, готовит арену и ждёт callback лобби.

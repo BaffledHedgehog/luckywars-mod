@@ -49,9 +49,19 @@ public abstract class TrinketBowMixin {
         var game = SkyWars2.game();
         if (spawned.get()!=null&&!spawned.get().isEmpty() && game != null && ((Object) this instanceof BowItem || (Object) this instanceof CrossbowItem)
                 && shooter instanceof ServerPlayer player){
-            var fired=firedWeapon.get();var family=game.items().shulkerBow().augment(player,fired,List.copyOf(spawned.get()));
+            var fired=firedWeapon.get();boolean traitsRolled=false;
+            if(me.skywars2.game.ItemData.intValue(fired,"explosive",0)==1){
+                var nativeFamily=List.copyOf(spawned.get());if(!traitsRolled)game.items().trinkets().shot(player,nativeFamily);traitsRolled=true;
+                if(game.items().balance().explosiveBow(player,fired,nativeFamily))return;
+            }
+            if(me.skywars2.game.LbcChargedBows.matches(fired)){
+                var nativeFamily=List.copyOf(spawned.get());if(!traitsRolled)game.items().trinkets().shot(player,nativeFamily);traitsRolled=true;
+                game.items().chargedBows().release(player,fired,player.getTicksUsingItem(),nativeFamily);return;
+            }
+            var oldFamily=game.items().balance().augment(player,fired,List.copyOf(spawned.get()));
+            var family=game.items().shulkerBow().augment(player,fired,oldFamily);
             game.items().madokaBow().augment(player,fired,family);
-            game.items().trinkets().shot(player,family);
+            if(!traitsRolled)game.items().trinkets().shot(player,family);
             me.skywars2.game.LbcMinigunCrossbow.afterShot(game,player,hand,weapon,family,fired);
         }
     }

@@ -232,6 +232,13 @@ public final class ProjectileLifetimes {
         }
     }
 
+    LivingEntity nearestBeamTarget(net.minecraft.server.level.ServerLevel level,Vec3 at,java.util.function.Predicate<Entity> selection){
+        LivingEntity nearest=null;double distance=Double.POSITIVE_INFINITY;
+        for(var candidate:targets)if(candidate.level()==level&&!candidate.isRemoved()&&candidate.isAlive()&&selection.test(candidate)){
+            double next=candidate.position().distanceToSqr(at);if(next<distance){distance=next;nearest=candidate;}
+        }
+        return nearest;
+    }
     boolean target(ServerPlayer owner, Entity entity) {
         return entity instanceof LivingEntity && entity.level() == game.items().spellSources().level(owner)
                 && entity.getType().builtInRegistryHolder().is(MOBS)

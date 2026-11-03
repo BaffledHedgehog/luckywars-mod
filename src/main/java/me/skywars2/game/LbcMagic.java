@@ -479,6 +479,13 @@ public final class LbcMagic {
     public boolean mechanismSuppressedAt(ServerLevel level, Vec3 position) {
         return level == game.maps().level() && beaconSuppressed(position,true);
     }
+    /** Exact source radii reuse the same loaded suppressor index. */
+    public boolean mechanismSuppressedAt(ServerLevel level,Vec3 position,double radius){
+        if(level!=game.maps().level())return false;double distance=radius*radius;
+        for(var beacon:loadedBeacons)if(beacon.mechanism&&beacon.center.distanceToSqr(position)<=distance)return true;
+        for(var marker:legacyMarkers)if(!marker.isRemoved()&&marker.level()==level&&marker.entityTags().contains("stopper")&&marker.position().distanceToSqr(position)<=distance)return true;
+        return false;
+    }
     public double mechanismSuppressionFraction(ServerLevel level, Vec3 from, Vec3 to) {
         double nearest = Double.POSITIVE_INFINITY;
         if (level != game.maps().level()) return nearest;

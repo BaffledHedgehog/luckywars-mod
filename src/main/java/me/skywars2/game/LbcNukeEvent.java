@@ -35,6 +35,9 @@ import net.minecraft.world.phys.Vec3;
 /** Source bruh nuclear event: one replaceable global schedule, native selectors and queued native terrain/blasts. */
 public final class LbcNukeEvent {
     private static final String TAG="skywars2.nuke_event", CHILD="skywars2.nuke_event.child";
+    private static final net.minecraft.server.level.TicketType LEGACY_TICKET=new net.minecraft.server.level.TicketType(0,net.minecraft.server.level.TicketType.FLAG_LOADING|net.minecraft.server.level.TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+    public static void registerLegacyTicket(){net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:legacy_nuclear"),LEGACY_TICKET);}
+
     private static final EntitySelector ARMED=selector("@e[tag=nuke1,tag=nuke_bruh]");
     private static final EntitySelector POINT_ARMED=selector("@e[tag=nuke1]");
     private static final EntitySelector RANDOM=selector("@e[tag=!spectator,sort=random,limit=16]");
@@ -263,6 +266,23 @@ public final class LbcNukeEvent {
         var site=new Site(level,at,author.getYRot(),new Cause(author.getUUID(),game.items().indirectKills().wildCause(author),game.items().epoch()));
         pointBurst(site,status?author:null);return true;
     }
+    /** Original old-mode nuclear payload, using this same native damage/job owner. */
+    public boolean legacyBurst(ServerLevel level,Vec3 at,LbcIndirectKills.Owner accepted){
+        if(accepted==null||!live(game.items().epoch())||paused(level))return false;
+        if(generation==0)prepare();
+        var cause=new Cause(accepted.player(),accepted,game.items().epoch());var site=new Site(level,at,0,cause);
+        var center=BlockPos.containing(at);var job=new Job(cause.epoch);job.legacyClear=new LegacyClear(site);
+        job.add(level,center,center,cause,()->{
+            for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(45),e->e.position().distanceToSqr(at)<=2025
+                    &&game.items().wands().validRoleTarget(e,false)))
+                game.items().indirectKills().wildEffect(target,ItemEffectLevels.create(MobEffects.WITHER,400,30,false,false),accepted);
+        });
+        for(var offset:List.of(new Vec3(10,0,0),new Vec3(-10,0,0),new Vec3(0,0,10),new Vec3(0,0,-10),new Vec3(0,10,0),new Vec3(-10,-15,0),new Vec3(10,-15,0),new Vec3(0,-15,-10),new Vec3(0,-15,10))){
+            var point=at.add(offset);var pos=BlockPos.containing(point);
+            job.add(level,pos.offset(-61,-61,-61),pos.offset(61,61,61),cause,()->blast(site,point,30,false));
+        }
+        job.operations.add(killOperation(site));job.submit();return true;
+    }
     private void pointBurst(Site site){pointBurst(site,null);}
     private void pointBurst(Site site,ServerPlayer statusBody){
         var level=site.level;var at=site.at;var job=new Job(site.cause.epoch);var center=BlockPos.containing(at);
@@ -308,7 +328,8 @@ public final class LbcNukeEvent {
         @Override public boolean scalesWithDifficulty(){return true;}
         @Override public Component getLocalizedDeathMessage(LivingEntity victim){return Component.translatable("death.attack.explosion.player",victim.getDisplayName(),Component.translatable("killed_by_nuke"));}
     }
-    private void blast(Site site,Vec3 at,float power){
+    private void blast(Site site,Vec3 at,float power){blast(site,at,power,true);}
+    private void blast(Site site,Vec3 at,float power,boolean damageOnly){
         callbackDepth++;try{
         var direct=new BlastSource(site.level,site.cause);
         direct.setPos(at);direct.entityTags().add(CHILD);direct.setCustomName(Component.translatable("killed_by_nuke"));game.items().markCurrentItemEpoch(direct);
@@ -316,8 +337,9 @@ public final class LbcNukeEvent {
         executingCause=site.cause;executingLevel=site.level;executingEmitter=direct;
         try{
             var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
-            NuclearTerrain.damageWave(direct,()->game.items().indirectKills().trapChanges(site.level,site.cause.accepted,
-                    ()->site.level.explode(direct,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB)));blasts++;
+            Runnable action=()->game.items().indirectKills().trapChanges(site.level,site.cause.accepted,
+                    ()->site.level.explode(direct,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB));
+            if(damageOnly||at.y-power*2>site.level.getMaxY()||at.y+power*2<site.level.getMinY())NuclearTerrain.damageWave(direct,action);else action.run();blasts++;
         }finally{executingCause=previousCause;executingLevel=previousLevel;executingEmitter=previousEmitter;direct.discard();}
 
         }finally{callbackDepth--;}
@@ -333,20 +355,58 @@ public final class LbcNukeEvent {
         boolean ready(){return !paused(level);}
         void run(){if(resident(level,from,to))game.items().indirectKills().trapChanges(level,cause.accepted,action);}
     }
+    /** Three strict source fills retain native height/volume admission, then load each blast footprint asynchronously. */
+    private final class LegacyClear {
+        final Site site;final BlockPos center;final int[][] bands={{15,45},{-15,15},{-45,-15}};
+        final Map<net.minecraft.world.level.ChunkPos,java.util.concurrent.CompletableFuture<?>> tickets=new LinkedHashMap<>();
+        int band,cursor;boolean done;
+        LegacyClear(Site site){this.site=site;center=BlockPos.containing(site.at);}
+        boolean resident(BlockPos from,BlockPos to){
+            if(from.getY()>site.level.getMaxY()||to.getY()<site.level.getMinY())return true;
+            boolean ready=true;
+            for(int x=from.getX()>>4;x<=to.getX()>>4;x++)for(int z=from.getZ()>>4;z<=to.getZ()>>4;z++){
+                if(site.level.getChunkSource().getChunkNow(x,z)!=null)continue;
+                var chunk=new net.minecraft.world.level.ChunkPos(x,z);tickets.computeIfAbsent(chunk,key->site.level.getChunkSource().addTicketAndLoadWithRadius(LEGACY_TICKET,key,0));ready=false;
+            }
+            return ready;
+        }
+        boolean step(){
+            var level=site.level;
+            for(int budget=4096;budget>0&&band<bands.length;){
+                var range=bands[band];int low=center.getY()+range[0],high=center.getY()+range[1];
+                if(level.isOutsideBuildHeight(low)||level.isOutsideBuildHeight(high)||29791>level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MAX_BLOCK_MODIFICATIONS)){band++;cursor=0;continue;}
+                if(cursor>=29791){band++;cursor=0;continue;}
+                var pos=center.offset(cursor%31-15,range[0]+cursor/(31*31),cursor/31%31-15);
+                if(!resident(pos,pos))return false;
+                cursor++;budget--;
+                if(!level.getBlockState(pos).isAir())game.items().indirectKills().capturedWorldChanges(level,site.cause.accepted,()->LbcDropBlocks.setBlock(level,pos,Blocks.AIR.defaultBlockState(),true));
+            }
+            done=band>=bands.length;return done;
+        }
+        void close(){for(var chunk:tickets.keySet())site.level.getChunkSource().removeTicketWithRadius(LEGACY_TICKET,chunk,0);tickets.clear();}
+    }
     private final class Job implements LbcStonekivi.Work {
+        LegacyClear legacyClear;
         final String epoch;final ArrayDeque<Operation> operations=new ArrayDeque<>();final ArrayDeque<Burst> bursts=new ArrayDeque<>();
         final ArrayDeque<Terrain> terrain=new ArrayDeque<>();boolean cancelled;
         ServerPlayer statusBody;
         Job(String epoch){this.epoch=epoch;}
         void add(ServerLevel level,BlockPos from,BlockPos to,Cause cause,Runnable action){operations.add(new Operation(level,from,to,cause,action));}
         void submit(){jobs.add(this);game.items().stonekivi().queuedWork(this);}
-        @Override public boolean ready(){if(cancelled||!live(epoch))return true;if(!operations.isEmpty())return prepared()&&operations.peekFirst().ready();
+        @Override public boolean ready(){if(cancelled||!live(epoch))return true;
+            if(legacyClear!=null&&!legacyClear.done)return !paused(legacyClear.site.level);
+            if(!operations.isEmpty()){var operation=operations.peekFirst();return prepared()&&operation.ready()&&(legacyClear==null||legacyClear.resident(operation.from,operation.to));}
             if(!terrain.isEmpty())return !paused(terrain.peekFirst().site.level);
             if(bursts.isEmpty())return true;var burst=bursts.peekFirst();return game.server().getTickCount()>burst.after&&!paused(burst.site.level);}
         @Override public boolean step(){
         callbackDepth++;try{
             if(cancelled||!live(epoch)){cancel();return true;}
-            if(!operations.isEmpty()){operations.removeFirst().run();return false;}
+            if(legacyClear!=null&&!legacyClear.done){legacyClear.step();return false;}
+            if(!operations.isEmpty()){
+                var operation=operations.removeFirst();
+                if(legacyClear!=null)game.items().indirectKills().trapChanges(operation.level,operation.cause.accepted,operation.action);else operation.run();
+                return false;
+            }
             if(!terrain.isEmpty()){var task=terrain.peekFirst();if(task.shape.step(game,task.site.level,task.site.cause.accepted))terrain.removeFirst();return false;}
             if(!bursts.isEmpty()){
                 var burst=bursts.removeFirst();var site=burst.site;
@@ -363,7 +423,7 @@ public final class LbcNukeEvent {
         }finally{callbackDepth--;}
     }
         @Override public void cancel(){
-        callbackDepth++;try{cancelled=true;operations.clear();bursts.clear();terrain.clear();jobs.remove(this);
+        callbackDepth++;try{cancelled=true;if(legacyClear!=null)legacyClear.close();operations.clear();bursts.clear();terrain.clear();jobs.remove(this);
             if(statusBody!=null&&statusBursts.get(statusBody)==this)statusBursts.remove(statusBody);
         }finally{callbackDepth--;}
     }
