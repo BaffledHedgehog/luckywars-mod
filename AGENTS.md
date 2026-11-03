@@ -1,3 +1,12 @@
+## Java codebase navigation (3 November 2026)
+
+Local Serena MCP `luckywars_codebase` is configured for this project.
+When its tools are available, use symbol definitions/references for Java navigation;
+call `initial_instructions` once, then read the relevant symbols rather than whole
+large classes. Use `rg` for exact text, JSON and legacy datapack functions.
+Normal editing tools remain available. See [.serena/README.md](.serena/README.md)
+for local paths, disabled background compilation and MCP reconnection.
+
 ## Symbiote20 and Planetoid21 - QUALIFIED, INSTALLED (3 November 2026)
 
 [Final author rules, integration and exact evidence](agent_notes/ORBIT_SYMBIOTE_SKILLS_2026_11_03.md).
