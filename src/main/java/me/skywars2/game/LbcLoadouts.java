@@ -407,11 +407,11 @@ public final class LbcLoadouts {
             Entry trinket = byId(Kind.TRINKETS, profile.trinkets[index]);
             if (trinket != null && allowed(player, trinket)) grant(player, trinket);
         }
-        boolean randomStat=false;
+        boolean randomStat=false;var resourceLevelups=new java.util.HashSet<Integer>();
         if (config.lbcLevelups) for (int index = 0; index < Math.min(config.lbcLevelupLimit, profile.levelups.length); index++) {
             Entry levelup = byId(Kind.LEVELUPS, profile.levelups[index]);
             if (levelup == null || !allowed(player, levelup)) continue;
-            if(levelup.id==1)randomStat=true;
+            if(levelup.id==1)randomStat=true;resourceLevelups.add(levelup.id);
             for (Modifier modifier : levelup.modifiers) {
                 var attribute = player.getAttribute(modifier.attribute);
                 if (attribute == null) continue;
@@ -420,6 +420,7 @@ public final class LbcLoadouts {
                 attribute.addTransientModifier(modifier.value);
             }
         }
+        LbcManaLevelups.apply(game,player,resourceLevelups);
         if(randomStat)LbcRandomStatLevelup.apply(player);
         Entry skill = byId(Kind.SKILLS, profile.lbcSkill);
         if (config.lbcSkills && skill != null && skill.id == 5 && allowed(player, skill)) {
@@ -466,6 +467,7 @@ public final class LbcLoadouts {
 
     /** Remove only this catalog's modifiers, including old persistent copies after a restart. */
     public void clear(ServerPlayer player) {
+        LbcManaLevelups.clear(game,player);
         pendingInventorySkills.remove(player.getUUID());
         LbcRandomStatLevelup.clear(player);
         if (resistanceOwners.remove(player.getUUID(), player)) player.removeEffect(MobEffects.RESISTANCE);

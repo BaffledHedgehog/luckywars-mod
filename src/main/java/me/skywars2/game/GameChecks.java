@@ -795,6 +795,7 @@ public final class GameChecks {
                                 case "riptide-velocity" -> { RiptideVelocityChecks.run(game); return; }
                                 case "block-collision-height" -> { BlockCollisionHeightChecks.run(game); return; }
                                 case "feedback-mana" -> { FeedbackBatchChecks.mana(game); return; }
+                                case "mana-levelups" -> { ManaLevelupChecks.run(game); return; }
                                 case "feedback-visuals" -> { FeedbackBatchChecks.visuals(game); return; }
                                 case "feedback-first-join" -> { FeedbackBatchChecks.firstJoin(game); return; }
                                 case "evolution-sword" -> { EvolutionSwordChecks.run(game); return; }
@@ -27095,7 +27096,7 @@ public final class GameChecks {
                         mana.set(player, 123);
                         var hud = mana.hud(player);
                         var hudParts = hud.getSiblings();
-                        require(hud.getString().equals("\uE100 123\u00a7a/1000 \u00a7a[\u00a7a+10\u00a7a]") && hudParts.size() == 7
+                        require(hud.getString().equals("\uE100 123\u00a7a/1000 \u00a7a[+10\u00a7a]") && hudParts.size() == 8
                                         && hudParts.get(1).getString().equals("123")
                                         && java.util.Objects.equals(hudParts.get(1).getStyle().getColor(),
                                                         net.minecraft.network.chat.TextColor.fromLegacyFormat(
@@ -27105,16 +27106,36 @@ public final class GameChecks {
                                         && java.util.Objects.equals(hudParts.get(3).getStyle().getColor(),
                                                         net.minecraft.network.chat.TextColor.fromLegacyFormat(
                                                                         net.minecraft.ChatFormatting.AQUA))
-                                        && hudParts.get(4).getString().equals(" \u00a7a[\u00a7a+")
-                                        && hudParts.get(5).getString().equals("10")
+                                        && hudParts.get(4).getString().equals(" \u00a7a[")
+                                        && hudParts.get(5).getString().equals("+")
                                         && java.util.Objects.equals(hudParts.get(5).getStyle().getColor(),
                                                         net.minecraft.network.chat.TextColor.fromLegacyFormat(
+                                                                        net.minecraft.ChatFormatting.GREEN))
+                                        && hudParts.get(6).getString().equals("10")
+                                        && java.util.Objects.equals(hudParts.get(6).getStyle().getColor(),
+                                                        net.minecraft.network.chat.TextColor.fromLegacyFormat(
                                                                         net.minecraft.ChatFormatting.AQUA))
-                                        && hudParts.get(6).getString().equals("\u00a7a]"),
+                                        && hudParts.get(7).getString().equals("\u00a7a]"),
                                         "Mana HUD keeps the source glyph, values, spacing and literal green separators");
                         require(java.util.Objects.equals(mana.hud(player).getStyle().getColor(),
                                         net.minecraft.network.chat.TextColor.fromRgb(0x4E5C24)),
                                         "Mana HUD glyph keeps the source olive color");
+
+                        mana.maximum(player, -1000);
+                        mana.score(player, "manaregen_visual").set(-10);
+                        var negativeHudParts = mana.hud(player).getSiblings();
+                        var red = net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.RED);
+                        require(negativeHudParts.get(3).getString().equals("-1000")
+                                        && java.util.Objects.equals(negativeHudParts.get(3).getStyle().getColor(), red)
+                                        && negativeHudParts.get(5).getString().equals("-")
+                                        && java.util.Objects.equals(negativeHudParts.get(5).getStyle().getColor(), red)
+                                        && negativeHudParts.get(6).getString().equals("10")
+                                        && java.util.Objects.equals(negativeHudParts.get(6).getStyle().getColor(), red)
+                                        && negativeHudParts.get(4).getString().equals(" \u00a7a[")
+                                        && negativeHudParts.get(7).getString().equals("\u00a7a]"),
+                                        "Negative maximum and regeneration color only their numbers and sign red");
+                        mana.maximum(player, 1000);
+                        mana.score(player, "manaregen_visual").set(10);
 
                         mana.set(player, 400);
                         player.setGameMode(GameType.CREATIVE);

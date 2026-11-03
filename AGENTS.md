@@ -1,3 +1,22 @@
+## Five mana levelups - QUALIFIED, INSTALLED (3 November 2026)
+
+[Author rules, implementation and evidence](agent_notes/MANA_LEVELUPS_PORT_2026_11_03.md).
+IDs2/11/17/31/32 restore source resources/native stats and original menu gates.
+FINAL author override: initial Nulla reset runs AFTER other mana bonuses, yielding
+exact0/0/0 with all five. One-time reset only; future resource changes remain allowed.
+Three owned scoreboard deltas make debug reapplication/removal reversible; no new
+tick/NBT/file work. Existing native start/death/resource-reset lifecycle is shared.
+
+Test1ca92393 / production7cf81adb: six groups/six actual mode1 matches,
+including signed HUD and independent native loadout respawn regression. 9865 inputs,
+2686 classes/7366 resources verified. 264 other author paths and31live
+overrides preserved; PENDING original prefix retained with exact authorized append.
+Eight map authoring classes absent production. Fixture25577only, normal shutdown,
+exact controlled restoration/no locks. No main stop/restart or RP edits. No physical
+client/peakTPS claim. Broad rewind gate unchanged; TMT LAST. Symbiote/Planetoid
+author answers are recorded, implementation continues separately; not exposed here.
+Evidence/install receipt: build/verification/mana-levelups-2026-11-03/.
+
 ## 24 author feedback fixes - QUALIFIED, INSTALLED (3 November 2026)
 
 [Scope, source corrections, final evidence and limitations](agent_notes/FEEDBACK_24_FIXES_2026_11_03.md).

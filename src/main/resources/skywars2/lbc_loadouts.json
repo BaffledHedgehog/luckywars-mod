@@ -852,6 +852,78 @@
           "operation": "add_value"
         }
       ]
+    },
+    {
+      "id": 2,
+      "page": 8000,
+      "slot": 1,
+      "gate": "lbc:true_advancements/accesories/mana_belt",
+      "lockedKey": "lbc.adv.accessories.mana_belt",
+      "modifiers": []
+    },
+    {
+      "id": 11,
+      "page": 8000,
+      "slot": 10,
+      "gate": "lbc:true_advancements/arcanums/neutral",
+      "lockedKey": "lbc.adv.arcanums.neutral",
+      "modifiers": []
+    },
+    {
+      "id": 17,
+      "page": 8000,
+      "slot": 16,
+      "gate": "lbc:true_advancements/armor/mage",
+      "lockedKey": "lbc.adv.armor.mage",
+      "modifiers": []
+    },
+    {
+      "id": 31,
+      "page": 8100,
+      "slot": 3,
+      "gate": "lbc:true_advancements/legends/academy/blood",
+      "lockedKey": "lbc.adv.upgraded_staff.blood",
+      "modifiers": [
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:8fy489ygkdj89gysd89byvgko8fsyb7ftgddkc8s9p",
+          "amount": -16,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "page": 8100,
+      "slot": 4,
+      "gate": "lbc:true_advancements/armor/antimagic",
+      "lockedKey": "lbc.adv.armor.overload",
+      "modifiers": [
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:nulla_magicae1",
+          "amount": 6,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:nulla_magicae2",
+          "amount": 3,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:armor",
+          "key": "minecraft:nulla_magicae3",
+          "amount": 10,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:armor_toughness",
+          "key": "minecraft:nulla_magicae4",
+          "amount": 8,
+          "operation": "add_value"
+        }
+      ]
     }
   ],
   "trinkets": [
