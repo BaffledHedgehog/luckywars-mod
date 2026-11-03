@@ -37,7 +37,9 @@ public final class VanityRollbackChecks {
         ElementalGrimoireChecks.Recording gammaWire;
         BlockPos block;
         Vec3 spot;
-        int phase=-1,ticks,round,offlineRecaptures;
+        int phase=-1,ticks,round,offlineRecaptures,schedulePhase;
+        long scheduledDeadline;
+        VanityCheckpointSchedule.State savedSchedule;
         boolean closed;
         Fixture(GameController game){
             this.game=game;require(!game.vanity().hasSnapshot()&&!game.vanity().busy(),"exclusive save point");
@@ -102,6 +104,7 @@ public final class VanityRollbackChecks {
             if(!positions.isEmpty())player.connection.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(positions.getLast().id(),player.getX(),player.getY(),player.getZ(),player.getYRot(),player.getXRot()));
         }
         void mutate(){
+            gamma.entityTags().remove("vanity_schedule_point");
             game.items().armorSets().techno().flight().forget(carpet);
             base.block(block,Blocks.DIRT);saved.discard();future=base.cow(spot.add(3,0,0));
             for(int n=0;n<12;n++)base.block(base.center.offset(-8+n,0,-4),Blocks.DIRT);
@@ -134,6 +137,17 @@ public final class VanityRollbackChecks {
             }
             if(phase==0){
                 if(!game.vanity().hasSnapshot()||game.vanity().busy())return false;
+                var clock=game.vanity().scheduleState();
+                require(clock!=null,"successful source acquisition fixes the rolling checkpoint timeline");
+                if(schedulePhase==0){
+                    scheduledDeadline=clock.nextAt();
+                    require(scheduledDeadline>=600&&scheduledDeadline<=12000,"first interval is 30..600 seconds");
+                    gamma.entityTags().add("vanity_schedule_point");
+                    game.vanity().restoreSchedule(new VanityCheckpointSchedule.State(clock.seed(),scheduledDeadline-1,clock.ordinal(),scheduledDeadline));
+                    schedulePhase=1;return false;
+                }
+                if(clock.nextAt()<=scheduledDeadline)return false;
+                savedSchedule=clock;
                 require(gamma.entityTags().contains("sin_vanity")&&LbcWitchClaims.matches(gamma.getMainHandItem())&&gamma.getMainHandItem().getCount()==1,"exactly one source token consumed for the granted authority");
                 require(gamma.getInventory().getItem(4).is(Items.EMERALD),"native point includes the prepared real-player inventory");
                 require(constructionSteps==12,"accepted structure completes before capture instead of being abandoned");
@@ -158,6 +172,10 @@ public final class VanityRollbackChecks {
                 gamma=GameChecks.createBot(game,gammaName);gammaWire=wire(gamma);phase=3;return false;
             }
             require(!game.server().tickRateManager().isFrozen(),"native tick rate restored");
+            var restoredClock=game.vanity().scheduleState();
+            require(restoredClock.seed()==savedSchedule.seed()&&restoredClock.ordinal()==savedSchedule.ordinal()
+                    &&restoredClock.nextAt()==savedSchedule.nextAt(),"rewinds retain the acquisition-fixed future schedule");
+            if(phase!=2)require(gamma.entityTags().contains("vanity_schedule_point"),"death returns to the newer automatic point, not the acquisition point");
             require(base.owner.level().getBlockState(block).is(Blocks.DIAMOND_BLOCK),"saved terrain returns through actual coordinator");
             require(!saved.isRemoved()&&saved.getHealth()==16&&saved.position().distanceToSqr(spot)<.001,"same native actor returns with its saved HP and position");
             require(future.isRemoved(),"future native actor removed");

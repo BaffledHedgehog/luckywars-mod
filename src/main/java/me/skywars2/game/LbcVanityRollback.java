@@ -27,11 +27,12 @@ public final class LbcVanityRollback {
     private MatchTerrainCheckpoint.Restore terrain;
     private MatchRuntimeRebind rebind;
     private UUID requested;
-    private boolean claim,granted,previousFreeze,privateInstalled;
+    private boolean claim,granted,previousFreeze,privateInstalled,scheduledCapture;
     private Phase phase=Phase.IDLE;
     private int lastFrame=Integer.MIN_VALUE,nextCaptureAttempt;
     private String waitReason="";
     private long restoreStarted;
+    private VanityCheckpointSchedule schedule;
 
     LbcVanityRollback(GameController game){this.game=game;}
     public boolean busy(){return phase!=Phase.IDLE&&phase!=Phase.REQUESTED;}
@@ -39,9 +40,22 @@ public final class LbcVanityRollback {
             ||phase==Phase.REQUESTED&&granted&&player.getUUID().equals(requested);}
     public boolean hasSnapshot(){return image!=null&&game.items().currentEpoch(image.epoch);}
     public String status(){return phase+(!waitReason.isEmpty()?": "+waitReason:"");}
+    VanityCheckpointSchedule.State scheduleState(){return schedule==null?null:schedule.state();}
+    VanityCheckpointSchedule.State scheduleAfterCapture(){return schedule==null?null:schedule.afterCapture();}
+    void restoreSchedule(VanityCheckpointSchedule.State state){schedule=state==null?null:new VanityCheckpointSchedule(state);}
+    private void tickSchedule(){
+        if(schedule==null||phase!=Phase.IDLE&&phase!=Phase.REQUESTED)return;
+        var id=game.items().witchClaims().owner(LbcWitchClaims.Mode.VANITY);
+        var holder=id==null?null:game.server().getPlayerList().getPlayer(id);
+        boolean running=holder!=null&&holder.isAlive()&&!game.isObserver(holder)
+                &&holder.entityTags().contains("sin_vanity")&&!game.server().tickRateManager().isFrozen()
+                &&!game.items().timeStop().stopped(holder.level());
+        schedule.tick(running);
+        if(running&&phase==Phase.IDLE&&hasSnapshot()&&schedule.due()&&requestCapture(holder,false))scheduledCapture=true;
+    }
     boolean requestCapture(ServerPlayer holder,boolean grant){
         if(phase!=Phase.IDLE||!game.playing()||game.maps().busy())return false;
-        requested=holder.getUUID();claim=grant;granted=false;nextCaptureAttempt=0;captureFrom=image;phase=Phase.REQUESTED;
+        requested=holder.getUUID();claim=grant;granted=false;scheduledCapture=false;nextCaptureAttempt=0;captureFrom=image;phase=Phase.REQUESTED;
         game.items().duplicating().beginCheckpointDrain();return true;
     }
     boolean death(ServerPlayer holder){
@@ -71,6 +85,7 @@ public final class LbcVanityRollback {
         if(!game.playing()||image!=null&&!game.items().currentEpoch(image.epoch)){stop();return;}
         if(phase==Phase.FAILED)return;
         try{
+            tickSchedule();
             if(phase==Phase.REQUESTED){if(frame>=nextCaptureAttempt)capture();return;}
             if(phase==Phase.BODIES&&terrain==null){beginRestore();return;}
             if(phase==Phase.TERRAIN){
@@ -105,6 +120,9 @@ public final class LbcVanityRollback {
         if(player==null||!player.isAlive()||game.isObserver(player)){
             requested=null;phase=Phase.IDLE;game.items().duplicating().endCheckpointDrain();return;
         }
+        if(scheduledCapture&&(game.server().tickRateManager().isFrozen()||game.items().timeStop().stopped(player.level()))){
+            waitReason="waiting for time to resume";return;
+        }
         // Complete accepted construction with the existing bounded dispatcher before saving.
         game.items().stonekivi().tick();
         if(!independentTerrainReady()){waitReason="waiting for structure writes to finish";return;}
@@ -116,11 +134,11 @@ public final class LbcVanityRollback {
             var admissionActors=MatchActorCheckpoint.captureRegistered(game);
             new MatchQueuedWorkCheckpoint(game,admissionActors.damageSources());
             if(!game.items().witchClaims().finishVanityClaim(player)){phase=Phase.IDLE;game.items().duplicating().endCheckpointDrain();return;}
-            granted=true;image=null;
+            granted=true;image=null;schedule=new VanityCheckpointSchedule(player.getRandom().nextLong());
         }
         var candidate=privateData(()->new MatchRollbackSnapshot(game,captureFrom));
         pendingPlayers.forEach(candidate.players::putIfAbsent);
-        image=candidate;captureFrom=null;image.terrain.retain(game);
+        image=candidate;captureFrom=null;image.terrain.retain(game);restoreSchedule(image.vanitySchedule);
         restoringLogins.clear();requested=null;claim=false;granted=false;waitReason="";phase=Phase.IDLE;
         game.items().duplicating().endCheckpointDrain();
     }
@@ -191,6 +209,7 @@ public final class LbcVanityRollback {
         for(var player:game.server().getPlayerList().getPlayers())
             if(!game.isObserver(player)&&player.getCamera() instanceof LbcFpvDrone.Drone&&!game.items().fpvDrone().controlling(player))player.setCamera(player);
         game.items().duplicating().endCheckpointDrain();game.players().save();game.config().save();
+        restoreSchedule(image.vanitySchedule);
         phase=Phase.IDLE;waitReason="";game.server().tickRateManager().setFrozen(previousFreeze);
         SkyWars2.LOGGER.info("[vanity] Rewind finished in {} ms; {} offline player images retained",
                 (System.nanoTime()-restoreStarted)/1_000_000.0,pendingPlayers.size());
@@ -268,7 +287,7 @@ public final class LbcVanityRollback {
             }
         }
         if(terrain!=null){terrain.close();terrain=null;}
-        image=null;captureFrom=null;requested=null;claim=false;granted=false;privateInstalled=false;pendingPlayers.clear();restoringLogins.clear();waitReason="";
+        image=null;captureFrom=null;schedule=null;scheduledCapture=false;requested=null;claim=false;granted=false;privateInstalled=false;pendingPlayers.clear();restoringLogins.clear();waitReason="";
         retainedBodies.clear();logoutBodies.clear();awaitingRebind.clear();rebind=null;preparedOffline.clear();
         game.items().duplicating().endCheckpointDrain();
         if(busy())game.server().tickRateManager().setFrozen(previousFreeze);phase=Phase.IDLE;

@@ -139,6 +139,7 @@ public final class LbcWitchClaims {
         if(!p.entityTags().contains("sin_greed"))p.entityTags().remove("sin_greed_active");
         if(!p.entityTags().contains("sin_indolence")){p.entityTags().remove("indolence_active");p.entityTags().remove("kill_one_skeleton");}
     }
+    UUID owner(Mode mode){return owners.get(mode);}
     Map<Mode,UUID> ownership(){return Map.copyOf(owners);}
     void restoreOwnership(Map<Mode,UUID> image){owners.clear();owners.putAll(image);}
     /** Match-end remove_tags boundary; normal deaths/respawns deliberately retain authority. */

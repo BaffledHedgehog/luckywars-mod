@@ -1,3 +1,18 @@
+## Vanity rolling save points - QUALIFIED, INSTALLED (3 November 2026)
+
+[Author rule and scoped evidence](agent_notes/VANITY_ROLLING_POINTS_2026_11_03.md).
+Successful acquisition fixes one seed and an unbounded deterministic sequence of
+30..600 second intervals. Timeline/elapsed/next deadline belong to the full point;
+death preserves future timing. Canonical owner, freeze/TimeStop/offline pause,
+existing construction barrier, old point retained until replacement, no per-tick
+NBT/IO or new world scans. 20000 pure intervals and actual vanity-rollback match pass,
+including the newer automatic point, death/respawn and offline replay/replacement.
+Test506b57d4 / productionb3030bd4;9864other inputs/272author paths preserved;
+five fresh class families over exact qualified resources. Fixture25577 normal exit/
+exact controlled restoration/no locks. Both build/libs and normal-stop main install
+updated, rollbackd52b643b, restarted:false. Full-rewind gate unchanged; no RP edits
+or physical-client/peakTPS claim. Evidence:build/verification/vanity-schedule-2026-11-03/.
+
 ## Java codebase navigation (3 November 2026)
 
 Local Serena MCP `luckywars_codebase` is configured for this project.

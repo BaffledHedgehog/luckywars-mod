@@ -39,9 +39,10 @@ final class MatchRollbackSnapshot {
     final MatchResidentItemCheckpoint residents;
     MatchPolymorphCheckpoint polymorph;
     final long captureNanos;
+    final VanityCheckpointSchedule.State vanitySchedule;
 
     MatchRollbackSnapshot(GameController game){
-        long start=System.nanoTime();epoch=game.items().epoch();
+        long start=System.nanoTime();epoch=game.items().epoch();vanitySchedule=game.vanity().scheduleAfterCapture();
         // Check pending continuations BEFORE copying the whole terrain. Unsupported short work
         // finishes naturally and the coordinator retries; it is never cut in half at acquisition.
         var skipped=new java.util.LinkedHashSet<>(MatchTransientSpells.captureOmitted(game));
