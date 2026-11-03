@@ -55,6 +55,10 @@ public final class LbcHedgehogDimensions {
                 ||!(target.level() instanceof ServerLevel from))return false;
         return transferTo(target,owner,from,world(NEXUS),random)!=null;
     }
+    /** Source altitude entry is environmental, independent of a usable item or a spell owner. */
+    boolean heightNexus(ServerPlayer player){
+        return transferTo(player,player,player.level(),world(NEXUS),player.getRandom())!=null;
+    }
     private LivingEntity transferTo(LivingEntity target,ServerPlayer owner,ServerLevel from,ServerLevel destination,
             net.minecraft.util.RandomSource random){
         if(destination==null||destination==from)return null;

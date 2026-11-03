@@ -77,7 +77,7 @@ public final class LbcVanityRollback {
                 &&MatchEventActorCheckpoint.captureReady(game)&&MatchFieldCheckpoint.captureReady(game)
                 &&MatchTransientSpells.captureReady(game)&&MatchAcademyCheckpoint.captureReady(game)
                 &&MatchEncounterCheckpoint.captureReady(game)&&items.sauvojen().meditation().count()==0
-                &&items.duplicating().captureReady()&&items.stonekivi().captureSettled()&&items.eternalWealth().captureReady();
+                &&items.duplicating().captureReady()&&items.stonekivi().captureSettled()&&items.eternalWealth().captureReady()&&items.nexusWires().captureReady();
     }
     /** Called once at END_SERVER_TICK, including ticks whose native simulation is frozen. */
     public void tick(){

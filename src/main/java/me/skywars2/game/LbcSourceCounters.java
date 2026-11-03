@@ -26,6 +26,13 @@ final class LbcSourceCounters {
     boolean copyBetter(ServerPlayer target,ServerPlayer donor,String name,boolean maximum){
         Integer before=read(target,name),next=read(donor,name);
         if(before==null||next==null||(maximum?before>=next:before<=next))return false;
+        write(target,name,next);return true;
+    }
+    /** Red Nexus wire grants all seven real sword resources, including the three non-scoreboard owners. */
+    void addSwordCharges(ServerPlayer target,int amount){
+        for(int i=1;i<=7;i++){String name="swordcharged"+i;Integer before=read(target,name);write(target,name,(before==null?0:before)+amount);}
+    }
+    private void write(ServerPlayer target,String name,int next){
         var items=game.items();switch(name){
             case "swordcharged1","swordcharging1","swordcharged5","swordcharging5"->
                 items.electro().sourceCharge(target,name.endsWith("5"),name.startsWith("swordcharging"),next);
@@ -41,6 +48,5 @@ final class LbcSourceCounters {
         items.mana().score(target,name).set(next);
         // This source counter is already scoreboard-owned, but a newly positive one needs its native consumer.
         if(name.equals("divider_cd"))items.duplicating().addPlayerCounters(target);
-        return true;
     }
 }

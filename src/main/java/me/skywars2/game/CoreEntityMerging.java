@@ -54,11 +54,13 @@ public final class CoreEntityMerging {
     public static boolean enabled(ServerLevel level) {
         var game = SkyWars2.game();
         return settings.experienceMergeRadius > 0
-                && (game == null || !game.items().timeStop().stopped(level));
+                && (game == null || !game.items().timeStop().stopped(level)&&!game.items().nexusWires().nexusExperience(level));
     }
 
     /** Called before publication, so absorbed orbs never get their own entity tracker. */
     public static boolean mergeOnSpawn(ServerLevel level, ExperienceOrb incoming) {
+        var game=SkyWars2.game();
+        if(game!=null&&game.items().nexusWires().convert(incoming))return true;
         if (!enabled(level) || incoming.isRemoved()) return false;
         for (var existing : level.getEntitiesOfClass(ExperienceOrb.class,
                 incoming.getBoundingBox().inflate(settings.experienceMergeRadius), other -> !other.isRemoved())) {

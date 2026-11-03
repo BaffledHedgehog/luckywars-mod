@@ -1,0 +1,62 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "skywars2:nexus_wire_black",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_q",
+                "minecraft:item_model": "lbc:nexus_wire_onyx"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "nexus_wire_black",
+                  "italic": false,
+                  "color": "gray"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "nexus_wire_black.lore.1",
+                  "color": "gray",
+                  "italic": false
+                },
+                {
+                  "translate": "nexus_wire_black.lore.2",
+                  "color": "gray",
+                  "italic": false
+                },
+                {
+                  "translate": "nexus_wire.lore",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{nexus_wire_black:1,instantitem:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

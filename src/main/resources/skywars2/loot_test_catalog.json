@@ -180,6 +180,10 @@
     "lbc:greedcurse",
     "lbc:ported/greedcurse_drop",
     "lbc:ported/greedcurse_drop_imba",
-    "lbc:ported/greedstone"
+    "lbc:ported/greedstone",
+    "lbc:nexus_wire_red",
+    "lbc:ported/nexus_wire_red",
+    "lbc:nexus_wire_black",
+    "lbc:ported/nexus_wire_black"
   ]
 }

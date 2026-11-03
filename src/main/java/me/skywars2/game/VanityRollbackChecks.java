@@ -30,6 +30,7 @@ public final class VanityRollbackChecks {
         LbcVoidArcanum.Hole hole;
         LbcWtf.Chef chef;
         net.minecraft.world.entity.Marker wealthField;
+        net.minecraft.world.entity.ExperienceOrb nexusOrb;
         Vec3 holePoint;
         int constructionSteps,formRemaining,curseRemaining;
         ServerPlayer gamma,carpet;
@@ -91,6 +92,9 @@ public final class VanityRollbackChecks {
             wealthField.setPos(base.at.add(0,4,0));wealthField.entityTags().addAll(List.of(LbcEternalWealth.TAG,LbcEternalWealth.TAG+".kind.FIELD",LbcEternalWealth.TAG+".age.0",LbcEternalWealth.TAG+".owner."+base.owner.getUUID(),LbcEternalWealth.TAG+".order.1","magic"));
             game.items().markCurrentItemEpoch(wealthField);base.owner.level().addFreshEntity(wealthField);
             require(game.items().eternalWealth().fields()==1,"nonempty functional cursed-field source before full capture");
+            var nexus=game.server().getLevel(LbcHedgehogDimensions.NEXUS);require(nexus!=null,"native Nexus checkpoint world");
+            nexusOrb=new net.minecraft.world.entity.ExperienceOrb(nexus,new Vec3(1,180,1),Vec3.ZERO,7);nexusOrb.setNoGravity(true);nexusOrb.entityTags().add("time_stopped");
+            require(nexus.addFreshEntity(nexusOrb),"actual paused Nexus XP source");game.items().nexusWires().loaded(nexusOrb);
             int began=game.server().getTickCount();
             game.items().stonekivi().queuedWork(new LbcStonekivi.Work(){public boolean ready(){return game.server().getTickCount()>=began+constructionSteps;}public boolean step(){
                 base.block(base.center.offset(-8+constructionSteps,0,-4),Blocks.DIAMOND_BLOCK);return ++constructionSteps==12;
@@ -114,7 +118,7 @@ public final class VanityRollbackChecks {
             base.block(block,Blocks.DIRT);saved.discard();future=base.cow(spot.add(3,0,0));
             for(int n=0;n<12;n++)base.block(base.center.offset(-8+n,0,-4),Blocks.DIRT);
             game.items().voidArcanum().forget(base.owner);game.items().polymorph().stop();
-            chef.discard();game.items().wtf().unloaded(chef);game.items().eternalWealth().stop();
+            chef.discard();game.items().wtf().unloaded(chef);game.items().eternalWealth().stop();nexusOrb.discard();game.items().nexusWires().stop();
             if(gamma!=null&&!gamma.isRemoved()){game.items().clearTurnCurse(gamma);game.items().resetRocket(gamma);}
             base.owner.getInventory().setItem(2,new ItemStack(Items.IRON_INGOT,55));
             game.items().mana().set(base.owner,900);base.owner.entityTags().remove("vanity_fixture");
@@ -184,6 +188,7 @@ public final class VanityRollbackChecks {
             require(base.owner.level().getBlockState(block).is(Blocks.DIAMOND_BLOCK),"saved terrain returns through actual coordinator");
             require(!saved.isRemoved()&&saved.getHealth()==16&&saved.position().distanceToSqr(spot)<.001,"same native actor returns with its saved HP and position");
             require(future.isRemoved(),"future native actor removed");
+            require(!nexusOrb.isRemoved()&&game.items().nexusWires().checkpoint().waiting.contains(nexusOrb.getUUID()),"paused native Nexus XP and pending producer survive actual full coordinator");
             require(!wealthField.isRemoved()&&game.items().eternalWealth().fields()==1,"native cursed-field body and typed owner resume through actual full coordinator");
             var stack=base.owner.getInventory().getItem(2);
             require(stack.is(Items.DIAMOND)&&stack.getCount()==9,"native player inventory rewound");
@@ -208,7 +213,7 @@ public final class VanityRollbackChecks {
                 if(carpet!=null&&!carpet.isRemoved())carpet.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Vanity Carpet fixture cleanup")));
                 var live=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid(gammaName));
                 if(live!=null)live.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component.literal("Vanity fixture cleanup")));
-                game.items().polymorph().stop();game.items().voidArcanum().forget(base.owner);game.items().eternalWealth().stop();
+                game.items().polymorph().stop();game.items().voidArcanum().forget(base.owner);game.items().eternalWealth().stop();game.items().nexusWires().stop();if(nexusOrb!=null)nexusOrb.discard();
                 base.owner.entityTags().remove("time_stopped");base.owner.entityTags().remove("vanity_fixture");base.owner.connection=alphaConnection;base.other.connection=betaConnection;
                 base.close();originalCore.restoreFrozen();for(var player:originalPlayers)player.restoreFrozen();
             }finally{game.server().tickRateManager().setFrozen(frozen);}

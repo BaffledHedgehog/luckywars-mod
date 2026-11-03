@@ -1,3 +1,24 @@
+## Red/black Nexus wires and altitude entry - QUALIFIED, INSTALLED (3 November 2026)
+
+[Author rules, exact source behavior, boundaries and evidence](agent_notes/NEXUS_WIRES_PORT_2026_11_03.md).
+All3 outside-world wire consumers UNJAMMABLE, including artifact; green policy recorded,
+its handler/pool remains deferred. Red: real Nexus XP entity -> one floating Polymer wire
+before merging, native20XP/5000mana/all7charges/+100nanobots; canonical resource owners,
+separate charging progress. Black: one source random remote native gateway, own async
+chunk ticket released after completion, exact exit1/15000000/1. Environmental altitude
+>=14500000 -> actual random Nexus XZ[-4800,4800],Y2332 via shared native transfer.
+Protected mainhand/source order, TimeStop, typed paused-XP replay and terrain capture
+barrier integrated; no tick NBT/world scan or duplicate resource ledger.
+
+Test602fd22c / production3beebde7:8groups/8actual mode1 matches pass on exact artifact,
+including native gateway teleport/height entry and paused Nexus XP through the full
+coordinator.9864other inputs/272authorpaths guarded;12fresh Java families/5JSON over
+qualified Loom resources; all archive bytes verified, authoring absent production.
+Fixture25577normal/exact controlled restoration/no locks. Both build/libs and main JAR
+updated,064f05b8 rollback,restarted:false. No main stop/start,RP edits,physical-client/
+peakTPS claim. Full Nexus acquisition/tools/green reward graph,skill2 and broad rewind
+gates unchanged; TMT LAST. Evidence:build/verification/nexus-red-wire-2026-11-03/.
+
 ## Eternal Wealth - QUALIFIED, INSTALLED (3 November 2026)
 
 [Final author rules, source semantics and evidence](agent_notes/ETERNAL_WEALTH_PORT_2026_11_03.md).
