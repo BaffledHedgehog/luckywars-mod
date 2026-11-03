@@ -1,0 +1,62 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 0,
+          "name": "skywars2:nexus_compass",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:nexus_compass"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "nexus_compass",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "nexus_compass.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_compass.lore.2",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "nexus_compass.lore.3",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{magicwand:1,spellwithcooldown_n:1,nexus_compass:1,PublicBukkitValues:{\"lws:item\":{\"lws:type\":\"nexus_compass\"}}}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

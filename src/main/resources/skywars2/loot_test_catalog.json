@@ -184,6 +184,9 @@
     "lbc:nexus_wire_red",
     "lbc:ported/nexus_wire_red",
     "lbc:nexus_wire_black",
-    "lbc:ported/nexus_wire_black"
+    "lbc:ported/nexus_wire_black",
+    "lbc:ported/nexus_compass",
+    "lbc:ported/nexus_corrupter",
+    "lbc:ported/nexus_roadgun"
   ]
 }

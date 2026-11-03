@@ -59,7 +59,7 @@ public final class LbcExasperato {
         final boolean technology;
         final java.util.function.Predicate<Entity> target;
         java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blockRule;
-        boolean shieldBlockable=true,finishAtRange;
+        boolean shieldBlockable=true,finishAtRange,nexus;
         ReplayableRay replay;boolean finished,started;
         final java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> result=new java.util.concurrent.CompletableFuture<>();
         final java.util.function.BiConsumer<Vec3,Vec3> trail;
@@ -445,11 +445,20 @@ public final class LbcExasperato {
         if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);
         return search.result;
     }
+    /** Dedicated Nexus tools share exact collision and CPU scheduling without ordinary-wand admission. */
+    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchNexusTool(ServerPlayer owner,Vec3 from,Vec3 direction,double range,
+            java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,java.util.function.Predicate<Entity> targets){
+        var search=new Search(owner,game.items().epoch(),from,direction.normalize(),range,true,null,false,false,targets);
+        search.nexus=true;search.blockRule=blocks;search.shieldBlockable=false;
+        if(range>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else complete(search,null);return search.result;
+    }
     private boolean searchPointSuppressed(Search search,Vec3 point) {
+        if(search.nexus)return false;
         return search.technology ? game.items().magic().mechanismSuppressedAt(search.level,point)
                 : game.items().magic().suppressedAt(search.level,point);
     }
     private double searchSuppressionFraction(Search search,Vec3 from,Vec3 to) {
+        if(search.nexus)return Double.POSITIVE_INFINITY;
         if(!search.technology) return game.items().magic().suppressionFraction(search.level,from,to);
         return game.items().magic().mechanismSuppressionFraction(search.level,from,to);
     }
@@ -467,11 +476,12 @@ public final class LbcExasperato {
             var search=searches.removeFirst(); var owner=search.owner; var level=search.level;
             if(done(search)) continue;
             boolean sampled=search.replay!=null&&search.replay.sampleStep()>0;
-            boolean active=sampled?game.items().currentEpoch(search.epoch)&&game.playing()&&owner.isAlive()&&!owner.isRemoved()
+            boolean active=search.nexus?game.items().currentEpoch(search.epoch)&&game.playing()&&owner.isAlive()&&!owner.isRemoved()
+                    &&game.canUseGameplayItems(owner)&&level.dimension().equals(LbcHedgehogDimensions.NEXUS):sampled?game.items().currentEpoch(search.epoch)&&game.playing()&&owner.isAlive()&&!owner.isRemoved()
                     &&game.canUseGameplayItems(owner)&&LbcDimensionItems.ordinary(level):valid(owner,search.epoch);
-            if(!active || owner.level()!=level || !sampled&&searchOwnerSuppressed(search)) { complete(search,null); continue; }
+            if(!active || owner.level()!=level || !sampled&&!search.nexus&&searchOwnerSuppressed(search)) { complete(search,null); continue; }
             if(owner.entityTags().contains("time_stopped")) { searches.addLast(search); continue; }
-            if(sampled&&game.items().timeStop().stopped(level)){searches.addLast(search);continue;}
+            if((sampled||search.nexus)&&game.items().timeStop().stopped(level)){searches.addLast(search);continue;}
             search.started=true;
             Vec3 from=search.position;
             if(sampled){

@@ -40,6 +40,13 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         return Component.translatable(MOD_ID + "." + key, args);
     }
 
+    private static InteractionResult nexusToolUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
+        if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.PASS;
+        var held=player.getItemInHand(hand);boolean compass=LbcNexusToolItems.isCompass(held);
+        if(!compass&&!LbcNexusTools.matches(held))return InteractionResult.PASS;
+        if(game.items().actionsBlocked(owner))return InteractionResult.FAIL;
+        return (compass?game.items().nexusCompass().use(owner,hand):game.items().nexusTools().use(owner,hand))?InteractionResult.SUCCESS:InteractionResult.FAIL;
+    }
     @Override
     public void onInitializeServer() {
         // Здесь связываются жизненный цикл сервера, игровые события и команды; состояние матча хранит контроллер.
@@ -67,6 +74,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             game = new GameController(server, config, players, maps);
             game.menus(new GameMenus(server, game, config, players, maps));
             game.startServer();
+            game.items().nexusCompass().reload();
             game.items().academy().prepare();
             game.items().stone().prepare();
             game.items().bedrock().prepare();
@@ -83,6 +91,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resources, success) -> {
             if (success && game != null) {
+                game.items().nexusCompass().reload();
                 game.items().magic().refreshEntityIndexes();
                 game.items().academy().prepare();
                 game.items().stone().prepare();
@@ -204,6 +213,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useItem(owner, hand)) return InteractionResult.SUCCESS;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTeleportGadgets.matches(player.getItemInHand(hand)))
@@ -352,6 +362,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useBlock(owner, hand, hit)) return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;

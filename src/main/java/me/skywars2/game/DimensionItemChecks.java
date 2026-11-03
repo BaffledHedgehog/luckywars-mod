@@ -17,7 +17,7 @@ public final class DimensionItemChecks {
                 &&game.maps().level()==game.server().overworld(),"ordinary source worlds and actual Overworld map");
         for(String flag:new String[]{"nexus_roadgun","nexus_corrupter","nexus_orb_gun","nexus_pulsar","nexus_compass","nexus_wire_red","cool","heall"}){
             var stack=new ItemStack(Items.CARROT_ON_A_STICK);var tag=new CompoundTag();tag.putInt(flag,1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
-            require(LbcDimensionItems.nexusTool(stack)==java.util.Set.of("nexus_roadgun","nexus_corrupter","nexus_orb_gun","nexus_pulsar").contains(flag),"exact active Nexus RC exception "+flag);
+            require(LbcDimensionItems.nexusTool(stack)==java.util.Set.of("nexus_roadgun","nexus_corrupter","nexus_orb_gun","nexus_pulsar","nexus_compass").contains(flag),"exact active Nexus RC exception "+flag);
         }
         require(!LbcDimensionItems.nexusTool(ItemStack.EMPTY),"empty item never creates Nexus exception");
         require(!LbcDimensionItems.custom(new ItemStack(Items.STICK))&&!LbcDimensionItems.custom(new ItemStack(Items.ARROW)),"ordinary vanilla items and projectile ammunition remain ordinary");
@@ -53,5 +53,5 @@ public final class DimensionItemChecks {
     }
     private static Fixture running;
     public static void run(GameController game){require(running==null,"exclusive dimension fixture");classification(game);running=new Fixture(game);}
-    public static void tick(GameController game){if(game==null||running==null)return;try{if(running.step()){running.close();running=null;SkyWars2.LOGGER.info("[check] PASS dimension-items (actual native Imprinted/Nexus transfers/ACK; shared UseItem and direct wand rejection/no payment; native ordinary arrow damage remains targetable; exact four Nexus exception flags classify only; scoped restoration)");}}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL dimension-items",error);}}
+    public static void tick(GameController game){if(game==null||running==null)return;try{if(running.step()){running.close();running=null;SkyWars2.LOGGER.info("[check] PASS dimension-items (actual native Imprinted/Nexus transfers/ACK; shared UseItem and direct wand rejection/no payment; native ordinary arrow damage remains targetable; exact Nexus exceptions include active Paper compass; scoped restoration)");}}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL dimension-items",error);}}
 }

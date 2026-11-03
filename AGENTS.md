@@ -1,3 +1,30 @@
+## Nexus Compass / Roadgun / Corrupter - QUALIFIED, INSTALLED (3 November 2026)
+
+[Author rules, source priority and evidence](agent_notes/NEXUS_TOOLS_PORT_2026_11_03.md).
+Three native Polymer tools/source X/S/A presentation; only native IDs change in
+canonical loot. Scoped completed leaves added to testing catalog. Compass follows
+REGISTERED Paper: mainhand,30s,58 exact bundled points, outside/inside Nexus except
+Imprinted; MAG/artifact only. Config override cached at startup/reloadconfig/datapack
+reload; retained camera/momentum. This corrects the earlier four-flag Nexus audit.
+Roadgun Nexus-only:525block ride/15s cooldown/source sparse white terrain/finish pad.
+Corrupter Nexus-only:shared exact fair ray queue,20s cooldown after hit, native WILD
+10 outside-border damage/owner credit and source six-way black-concrete growth.
+AUTHOR CONFIRMED:0.25% per sim_cube step clears ALL same-kind Nexus fields across
+owners. Analogous0.5% global wire-center stop is confirmed for its FUTURE port.
+Owned actor index/async temporary tickets/TimeStop/typed full rewind/native scores;
+no tick NBT/IO/global entity scan. Match end clears owned cooldowns.
+
+Test7d241372 / production6eda26e2:6groups/6actual mode1 matches pass on exact artifact,
+including real callbacks,complete ride,owned WILD death,cross-owner clear,paused
+nonempty field through full coordinator,and shared ray/dimension/wire regressions.
+9867other inputs/272authorpaths guarded;14fresh class families/8JSON; every archive
+entry verified,authoring absent production. Fixture25577normal/exact restoration/
+no locks. Earlier native-stop timeout completed naturally; durable recovery exact,
+no forced termination; final isolated normal-stop wait600s. Both build/libs and main
+JAR updated with602fd22c rollback,restarted:false. No main stop/start,RP edits,
+physical-client/peakTPS claim. Full Nexus/green graph,skill2/broad rewind gates
+unchanged; TMT LAST. Evidence:build/verification/nexus-tools-2026-11-03/.
+
 ## Red/black Nexus wires and altitude entry - QUALIFIED, INSTALLED (3 November 2026)
 
 [Author rules, exact source behavior, boundaries and evidence](agent_notes/NEXUS_WIRES_PORT_2026_11_03.md).

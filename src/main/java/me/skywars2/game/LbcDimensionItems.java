@@ -26,7 +26,7 @@ public final class LbcDimensionItems {
     public static boolean nexusTool(ItemStack stack){
         if(stack.isEmpty())return false;var d=LbcFartus.data(stack);
         return d.getIntOr("nexus_roadgun",0)==1||d.getIntOr("nexus_corrupter",0)==1
-                ||d.getIntOr("nexus_orb_gun",0)==1||d.getIntOr("nexus_pulsar",0)==1;
+                ||d.getIntOr("nexus_orb_gun",0)==1||d.getIntOr("nexus_pulsar",0)==1||LbcNexusToolItems.isCompass(stack);
     }
     /** For a dedicated Nexus RC router only; ordinary input must use ordinary(player). */
     public static boolean nexusInput(ServerPlayer player,ItemStack stack){return player!=null&&player.level().dimension().identifier().toString().equals("minecraft:nexus")&&nexusTool(stack);}

@@ -33,7 +33,7 @@ public final class SkyWarsFeedbackCommands {
         dispatcher.register(Commands.literal("skywars")
             .then(Commands.literal("reloadconfig").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(ctx->{
                 var game=SkyWars2.game();if(game==null)return 0;
-                try{int count=game.items().mana().sourceConfig().reload();
+                try{int count=game.items().mana().sourceConfig().reload();game.items().nexusCompass().reload();
                     for(var player:game.server().getPlayerList().getPlayers()){player.getInventory().setChanged();player.inventoryMenu.sendAllDataToRemote();if(player.containerMenu!=player.inventoryMenu)player.containerMenu.sendAllDataToRemote();}
                     ctx.getSource().sendSuccess(()->Component.literal("Reloaded "+count+" source values from "+LbcSourceConfig.FILE),true);return count;
                 }catch(RuntimeException e){ctx.getSource().sendFailure(Component.literal(e.getMessage()));return 0;}
