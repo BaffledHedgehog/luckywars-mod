@@ -21,6 +21,7 @@ public abstract class OutgoingSkillCriterionMixin {
         var game=SkyWars2.game();
         if(game==null||blocked||!(target instanceof LivingEntity victim))return;
         try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)){
+            game.items().reactiveTrinkets().outgoing(attacker,victim,source,blocked);
             game.items().championSkill().damaged(victim,source);
             game.items().manaVampireSkill().damaged(victim,source);
         }

@@ -63,6 +63,14 @@ public final class LbcEvokerBass {
         }
         game.items().wands().wandCasted(owner);return true;
     }
+    /** Free source trinket proc: the ordinary effect and rhythm, without wand input/cost hooks. */
+    void trinketCast(ServerPlayer owner) {
+        try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)) {
+            bass(owner,InteractionHand.MAIN_HAND,owner.getMainHandItem(),owner.getRandom().nextInt(4)+1,false);
+        }
+    }
+    int checkpointClock(){return clock;}
+    void restoreClock(int value){clock=value;}
     private List<LivingEntity> mobs(ServerPlayer owner,double radius) {
         return owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(owner.position(),owner.position()).inflate(radius),
                 e->e.getType().builtInRegistryHolder().is(MOBS)&&e.position().distanceToSqr(owner.position())<=radius*radius

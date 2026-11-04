@@ -62,6 +62,8 @@ public final class LbcPrism {
         enum Phase { UNSTABLE,STABLE,ACADEMY }
         Phase phase=Phase.UNSTABLE;
         int age,steps,bounces;Vec3 origin=Vec3.ZERO;
+        boolean trinket,continueUp;UUID producer;
+        Vec3 producerOrigin=Vec3.ZERO;int producerFeetY;
         InteractionHand hand;ItemStack stack;UUID caster;
         DustColorTransitionOptions particle=UNSTABLE;
         final Set<UUID> hit=new HashSet<>();
@@ -81,6 +83,7 @@ public final class LbcPrism {
     private final ArrayDeque<Charge> immediate=new ArrayDeque<>();
     private int budgetTick=Integer.MIN_VALUE;
     private long spent;
+    private boolean pumping;
     LbcPrism(GameController game){this.game=game;}
     List<Charge> snapshot(){return List.copyOf(charges);}
     int pendingRays(){return immediate.size();}
@@ -104,6 +107,60 @@ public final class LbcPrism {
         game.items().timeStop().prepareFrozen(charge);
         if(owner.level().addFreshEntity(charge)&&academy)immediate.addLast(charge);
         if(wandBonus)game.items().wands().wandCasted(owner);pump();return true;
+    }
+    /** Source Solar Prism producer: no mana debit, wand bonus or Academy trial mutation. */
+    public boolean trinket(ServerPlayer owner){
+        if(!trinketOwner(owner))return false;
+        var origin=owner.position().add(0,3,0);int feetY=Mth.floor(owner.getY());
+        var target=trinketTarget(owner,origin,feetY);
+        if(target==null)return false;
+        var charge=new Charge(TYPE,owner.level());charge.trinket=true;charge.continueUp=true;
+        charge.producer=owner.getUUID();charge.producerOrigin=origin;charge.producerFeetY=feetY;
+        charge.caster=owner.getUUID();charge.phase=Charge.Phase.ACADEMY;
+        charge.setOwner(owner);charge.origin=origin;charge.setPos(origin);
+        charge.setDeltaMovement(target.getEyePosition().subtract(origin).normalize());
+        charge.entityTags().addAll(List.of("prism","player","slowraycast","magic",game.items().epoch()));
+        trinketColor(charge,owner);game.items().timeStop().prepareFrozen(charge);
+        if(!owner.level().addFreshEntity(charge)){charge.discard();return false;}
+        immediate.addLast(charge);pump();return true;
+    }
+    private boolean trinketOwner(ServerPlayer owner){
+        return owner!=null&&owner.isAlive()&&!owner.isRemoved()&&game.playing()
+                &&owner.level()==game.maps().level()&&game.canUseGameplayItems(owner)
+                &&!game.items().actionsBlocked(owner)&&!game.items().wands().inputTimeStopped(owner)
+                &&!game.items().magic().suppressed(owner)
+                &&owner.level().hasChunkAt(owner.blockPosition());
+    }
+    private LivingEntity trinketTarget(ServerPlayer owner,Vec3 origin,int feetY){
+        var feet=BlockPos.containing(origin.add(0,-3,0));
+        if(!owner.level().hasChunkAt(feet)||!owner.level().canSeeSky(feet))return null;
+        return owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(origin,origin).inflate(24),target->
+                target.getType().builtInRegistryHolder().is(MOBS)&&Mth.floor(target.getY())<=feetY
+                &&target.position().distanceToSqr(origin)<=24*24
+                &&game.items().wands().projectileTarget(owner,target))
+                .stream().min(Comparator.comparingDouble(target->target.position().distanceToSqr(origin))).orElse(null);
+    }
+    private void trinketColor(Charge charge,ServerPlayer owner){
+        var mana=game.items().mana();int h=mana.score(owner,"h").get()+20;
+        if(h>=360)h-=360;
+        mana.score(owner,"h").set(h);mana.score(owner,"s").set(80);mana.score(owner,"v").set(100);
+        charge.particle=new DustColorTransitionOptions(Mth.hsvToRgb(h/360f,.8f,1),0xffffff,2);
+    }
+    private void completeRay(Charge charge){
+        if(charge.trinket&&charge.continueUp){
+            charge.continueUp=false;
+            var owner=game.server().getPlayerList().getPlayer(charge.producer);
+            if(trinketOwner(owner)){
+                var origin=charge.producerOrigin;
+                // Source executes its second conditional only after the complete first ray returns.
+                if(trinketTarget(owner,origin,charge.producerFeetY)!=null){
+                    charge.setOwner(owner);charge.caster=owner.getUUID();charge.origin=origin;
+                    charge.setPos(origin);charge.setDeltaMovement(new Vec3(0,1,0));
+                    charge.steps=0;charge.bounces=0;charge.hit.clear();trinketColor(charge,owner);return;
+                }
+            }
+        }
+        charge.discard();
     }
     private boolean active(Charge c){return !c.isRemoved()&&game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&c.level()==game.maps().level()&&game.items().currentEpoch(c)&&c.getOwner() instanceof ServerPlayer owner
@@ -203,13 +260,15 @@ public final class LbcPrism {
             if(++c.steps>=451||!((ServerLevel)c.level()).getBlockState(c.blockPosition()).is(PASS)){c.discard();return;}
             move(c,.33,false);
         }else{
-            if(++c.steps>=301){c.discard();return;}move(c,.3,true);
+            if(++c.steps>=301){completeRay(c);return;}move(c,.3,true);
         }
     }
     /** No queue cap: every surviving cast completes; the same budget covers casts and end-of-tick work. */
     private void pump(){
+        if(pumping)return;
         int tick=game.server().getTickCount();if(budgetTick!=tick){budgetTick=tick;spent=0;}
         if(spent>=3_000_000)return;long start=System.nanoTime(),deadline=start+3_000_000-spent;
+        pumping=true;
         try{while(!immediate.isEmpty()&&System.nanoTime()<deadline){
             int round=immediate.size();boolean progressed=false;
             while(round-->0&&!immediate.isEmpty()&&System.nanoTime()<deadline){
@@ -221,7 +280,7 @@ public final class LbcPrism {
                 if(!c.isRemoved())immediate.addLast(c);
             }
             if(!progressed)break;
-        }}finally{spent+=System.nanoTime()-start;}
+        }}finally{spent+=System.nanoTime()-start;pumping=false;}
     }
     void tick(){pump();}
     void loaded(Entity e){if(e instanceof Charge c){if(game.playing()&&game.items().currentEpoch(c))charges.add(c);else c.discard();}}
@@ -229,14 +288,52 @@ public final class LbcPrism {
     void forget(ServerPlayer p){for(var c:List.copyOf(charges))if(c.getOwner()==p)c.discard();}
     void stop(){var old=List.copyOf(charges);charges.clear();immediate.clear();old.forEach(Entity::discard);spent=0;}
 
+    /** Root transient policy must retain typed trinket rays for the native body checkpoint. */
+    List<Charge> transientSnapshot(){return charges.stream().filter(c->!c.trinket).toList();}
+    void cancelTransient(){for(var charge:List.copyOf(charges))if(!charge.trinket)charge.discard();}
+    void checkpointBoundary(){if(pumping)throw new IllegalStateException("Finish Prism sampling before checkpointing");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    private record TrinketImage(MatchDamageSources.Ref body,MatchDamageSources.Ref owner,
+            Vec3 origin,int age,int steps,int bounces,UUID caster,UUID producer,Vec3 producerOrigin,int producerFeetY,boolean continueUp,
+            DustColorTransitionOptions particle,Set<UUID> hit){}
+    final class Checkpoint {
+        private final List<TrinketImage> saved;
+        private final List<MatchDamageSources.Ref> queue;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            saved=charges.stream().filter(c->c.trinket&&!c.isRemoved()).map(c->new TrinketImage(
+                    links.key(c),links.key(c.getOwner()),c.origin,c.age,c.steps,c.bounces,c.caster,c.producer,c.producerOrigin,c.producerFeetY,
+                    c.continueUp,c.particle,Set.copyOf(c.hit))).toList();
+            queue=immediate.stream().filter(c->c.trinket&&!c.isRemoved()).map(links::key).toList();
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var bodies=new LinkedHashMap<Charge,TrinketImage>();var owners=new IdentityHashMap<Charge,Entity>();
+            for(var image:saved){var body=(Charge)links.get(image.body);bodies.put(body,image);owners.put(body,links.get(image.owner));}
+            var restoredQueue=queue.stream().map(ref->(Charge)links.get(ref)).toList();
+            return ()->{
+                charges.removeIf(c->c.trinket);immediate.removeIf(c->c.trinket);
+                bodies.forEach((body,image)->{
+                    body.phase=Charge.Phase.ACADEMY;body.trinket=true;body.continueUp=image.continueUp;
+                    body.producer=image.producer;body.producerOrigin=image.producerOrigin;body.producerFeetY=image.producerFeetY;
+                    body.caster=image.caster;body.origin=image.origin;
+                    body.age=image.age;body.steps=image.steps;body.bounces=image.bounces;body.particle=image.particle;
+                    body.hand=null;body.stack=null;body.hit.clear();body.hit.addAll(image.hit);body.setOwner(owners.get(body));charges.add(body);
+                });
+                immediate.addAll(restoredQueue);budgetTick=Integer.MIN_VALUE;spent=0;
+            };
+        }
+    }
     LbcCloneSkills.ActorImage cloneImage(Entity source) {
-        if(!(source instanceof Charge c)||c.phase==Charge.Phase.ACADEMY||c.stack!=null&&LbcAcademy.trial(c.stack))return null;
+        if(!(source instanceof Charge c)||c.phase==Charge.Phase.ACADEMY&&!c.trinket||c.stack!=null&&LbcAcademy.trial(c.stack))return null;
         var phase=c.phase;int age=c.age,steps=c.steps,bounces=c.bounces;var origin=c.origin;
         var hand=c.hand;var stack=c.stack==null?null:c.stack.copy();var caster=c.caster;var particle=c.particle;
         var hit=Set.copyOf(c.hit);boolean queued=immediate.contains(c);
+        boolean trinket=c.trinket,continueUp=c.continueUp;var producer=c.producer;
+        var producerOrigin=c.producerOrigin;int producerFeetY=c.producerFeetY;
         return CloneComplexProjectileStates.image(e->{var n=(Charge)e;n.phase=phase;n.age=age;n.steps=steps;
             n.bounces=bounces;n.origin=origin;n.hand=hand;n.stack=stack==null?null:stack.copy();n.caster=caster;
-            n.particle=particle;n.hit.addAll(hit);charges.add(n);if(queued)immediate.addLast(n);
+            n.particle=particle;n.hit.addAll(hit);n.trinket=trinket;n.continueUp=continueUp;n.producer=producer;
+            n.producerOrigin=producerOrigin;n.producerFeetY=producerFeetY;
+            charges.add(n);if(queued)immediate.addLast(n);
         },e->{charges.remove(e);immediate.remove(e);});
     }
 

@@ -4,18 +4,18 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "functions": [
+          "type": "minecraft:item",
+          "name": "skywars2:psycho_soul",
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:item_model": "lbc:psycho_soul",
                 "minecraft:max_stack_size": 99
               }
             },
             {
-              "function": "minecraft:set_name",
+              "type": "minecraft:set_name",
               "entity": "this",
               "name": {
                 "translate": "lbctrinket.23",
@@ -24,7 +24,7 @@
               }
             },
             {
-              "function": "minecraft:set_lore",
+              "type": "minecraft:set_lore",
               "mode": "replace_all",
               "entity": "this",
               "lore": [
@@ -41,7 +41,7 @@
               ]
             },
             {
-              "function": "minecraft:set_custom_data",
+              "type": "minecraft:set_custom_data",
               "tag": "{trinket:\"psycho_soul\"}"
             }
           ]

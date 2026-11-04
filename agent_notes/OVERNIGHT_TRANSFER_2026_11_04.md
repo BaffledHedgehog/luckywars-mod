@@ -108,3 +108,12 @@ Homing30 and Phoenix31 remain unpublished pending the recorded author decisions.
 ## Second night batch: ordinary native BedWars3 qualified and installed
 
 See BEDWARS_NATIVE_PORT_2026_11_04.md. Testdc033ee7/production29deedff;18groups/17actual matches,47freshfamilies/1mixinJSON,9947otherinputs/272authorpaths guarded. Main and both build/libs updated,223c424b rollback,restarted:false. Mode3 admitted;2/4,TMT-last,skill2 and broad rewind gates unchanged. Source defaults Q6-9 remain unanswered. Continue independent chains from NIGHT_REMAINING_CHAINS_2026_11_04.md while author sleeps.
+
+
+## Third completed batch
+
+Remaining nine reactive trinkets qualified/installed as test51f98ac3,production0c3adbd9;
+14groups/14actual matches, common native criteria plus typed actors/queues.
+Details:REACTIVE_TRINKETS_PORT_2026_11_04.md. Night questions now17.
+Rainbow Aura32/Psychblind36 source closure and isolated ignored drafts prepared next;
+not implemented in production or exposed by this trinket build. TMT stays last.

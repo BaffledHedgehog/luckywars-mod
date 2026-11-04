@@ -213,6 +213,34 @@ public final class LbcSheep {
         if(original instanceof LivingEntity living&&living.getHealth()>=1000)game.items().mana().award(p,"lbc:true_advancements/staffs/polymorph");
         if(!academy&&original instanceof LivingEntity living)return game.items().polymorph().transform(living,game.items().indirectKills().coldCause(p,false),true);
         if(original instanceof Player)return null;
+        return permanent(p,original);
+        }finally{callbackDepth--;}
+    }
+
+    /** Source gem shares permanent sheep construction, without the Academy gender branch. */
+    boolean trinket(ServerPlayer p){
+        if(rewinding||!validOwner(p)||frozen(p))return false;
+        var at=p.getEyePosition();
+        var targets=p.level().getEntities(p,new AABB(at,at).inflate(24),e->
+                !(e instanceof Player||e instanceof Marker||e instanceof Display||e instanceof Interaction)
+                &&!managed(e)&&!LbcWtf.managed(e)&&!e.entityTags().contains("magicalsheep")
+                &&e.position().distanceToSqr(at)<=576&&game.items().wands().validTarget(e)
+                &&game.items().wands().projectileTarget(p,e)&&!frozen(e)
+                &&resident(p.level(),e.position())&&!suppressed(p.level(),e.position()));
+        if(targets.isEmpty())return false;
+        var original=targets.get(p.getRandom().nextInt(targets.size()));
+        callbackDepth++;try{
+            if(original instanceof ItemEntity item&&potion(item.getItem())){
+                if(spawnHole(p,original.position())==null)return false;
+                clearItems(p.level(),original.position());return true;
+            }
+            if(original instanceof LivingEntity living&&living.getHealth()>=1000)
+                game.items().mana().award(p,"lbc:true_advancements/staffs/polymorph");
+            return permanent(p,original)!=null;
+        }finally{callbackDepth--;}
+    }
+
+    private Sheep permanent(ServerPlayer p,Entity original){
         var replacement=new MagicSheep(p.level());
         try{replacement.load(TagValueInput.create(ProblemReporter.DISCARDING,p.registryAccess(),TagParser.parseCompoundFully(
                 "{DeathLootTable:'minecraft:empty',CustomName:'jeb_',CustomNameVisible:0b,attributes:[{id:'minecraft:knockback_resistance',base:20}]}")));}
@@ -231,7 +259,6 @@ public final class LbcSheep {
         LbcOverload.sound(p,replacement.position(),"minecraft:block.fire.extinguish",1,2,0);
         return replacement;
 
-        }finally{callbackDepth--;}
     }
     Hole spawnHole(ServerPlayer p,Vec3 at){
         if(rewinding)return null;

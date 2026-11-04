@@ -56,6 +56,8 @@ final class MatchSpellCheckpoint {
     private final LbcCommunism.Checkpoint controls;
     private final LbcSummons.Checkpoint summons;
     private final LbcDanmaku.Checkpoint danmaku;
+    private final LbcPrism.Checkpoint prism;
+    private final LbcReactiveDefense.Checkpoint reactiveDefense;
     private final LbcBedwarsAuxiliaries.Checkpoint bedwars;
     private final CloneFinalAbilityStates.Checkpoint logicalActors;
     private boolean installed,published;
@@ -64,12 +66,13 @@ final class MatchSpellCheckpoint {
         policies=game.items().spellSources().checkpoint(links);controls=game.items().communism().checkpoint(links);
         summons=game.items().summons().checkpoint(links);danmaku=game.items().danmaku().checkpoint(links);
         bedwars=game.bedwars().auxiliaries().checkpoint(links);
+        prism=game.items().prism().checkpoint(links);reactiveDefense=game.items().reactiveTrinkets().defense().checkpoint(links);
         logicalActors=new CloneFinalAbilityStates.Checkpoint(game,links);
     }
     private void stable(boolean frozen){
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)
                 ||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore spell state on the same stable frozen match thread");
-        game.items().spellSources().checkpointBoundary();game.items().summons().checkpointBoundary();
+        game.items().prism().checkpointBoundary();game.items().spellSources().checkpointBoundary();game.items().summons().checkpointBoundary();
         game.items().cloneSkills().checkpointBoundary();game.items().symbioteSkill().checkpointBoundary();
     }
     /** Resolve and prepare EVERY map/queue first. Missing bodies defer the entire private install. */
@@ -77,8 +80,9 @@ final class MatchSpellCheckpoint {
     Set<UUID> restoreFrozen(Function<UUID,Entity> lookup,boolean rewind){
         stable(true);var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
         var policy=policies.prepare(links);var control=controls.prepare(links);var summon=summons.prepare(links);
+        var prismPlan=prism.prepare(links);var defensePlan=reactiveDefense.prepare(links);
         var actors=logicalActors.prepare(links);var danmakuState=danmaku.prepare(links);var bedwarsState=bedwars.prepare(links);
-        policy.run();control.run();summon.run();actors.run();danmakuState.run();bedwarsState.run();
+        prismPlan.run();defensePlan.run();policy.run();control.run();summon.run();actors.run();danmakuState.run();bedwarsState.run();
         installed=true;published=false;
         // User permits cancellation of short pending operations at rewind. No stale charge may commit.
         game.items().teleportGadgets().stop();

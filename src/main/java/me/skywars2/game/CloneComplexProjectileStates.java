@@ -20,7 +20,7 @@ public final class CloneComplexProjectileStates {
         return e.entityTags().contains("skywars2.pozdman_display")||e.entityTags().contains("skywars2.supernova")
                 ||e instanceof net.minecraft.world.entity.Marker&&e.entityTags().contains("nuke_old")
                 ||LbcMadokaBow.restoreJob(e)||e instanceof LbcExasperato.Charge explosive&&explosive.academyTrial
-                ||e instanceof LbcPrism.Charge prism&&(prism.phase==LbcPrism.Charge.Phase.ACADEMY
+                ||e instanceof LbcPrism.Charge prism&&(prism.phase==LbcPrism.Charge.Phase.ACADEMY&&!prism.trinket
                     ||prism.stack!=null&&LbcAcademy.trial(prism.stack));
     }
     /** Returns null for protected trial authority and unsupported managed body variants. */

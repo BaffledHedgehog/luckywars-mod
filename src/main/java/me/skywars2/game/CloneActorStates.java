@@ -28,7 +28,8 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
         return e instanceof LbcWtf.Chef||(CloneEncounterStates.recognizes(e)||CloneMobStates.recognizes(e))&&e instanceof net.minecraft.world.entity.LivingEntity;
     }
     public boolean gameplayActor(Entity e){
-        return LbcDanmaku.managed(e)&&!game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
+        return game.items().reactiveTrinkets().defense().cloneRecognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
+                ||LbcDanmaku.managed(e)&&!game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||CloneComplexProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||e instanceof LbcFpvDrone.Drone||CloneVirtualAbilityStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||(CloneRemainingStatusStates.recognizesGameplay(e)||CloneExtraAbilityStates.recognizesGameplay(e))&&!(e instanceof net.minecraft.world.entity.Mob)
@@ -37,6 +38,7 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
     public LbcCloneSkills.ActorImage capture(Entity source){
         // A hidden pre-form body is captured only by its own polymorph image's auxiliary transaction.
         var factories=new ArrayList<LbcCloneSkills.ActorImage>();
+        if(game.items().reactiveTrinkets().defense().cloneRecognizes(source)&&!require(factories,game.items().reactiveTrinkets().defense().cloneImage(source)))return null;
         if(LbcDanmaku.managed(source)&&!require(factories,game.items().danmaku().cloneImage(source)))return null;
         if(CloneSimpleProjectileStates.recognizes(source)&&!require(factories,CloneSimpleProjectileStates.capture(game,source)))return null;
         if(CloneComplexProjectileStates.recognizes(source)&&!require(factories,CloneComplexProjectileStates.capture(game,source)))return null;

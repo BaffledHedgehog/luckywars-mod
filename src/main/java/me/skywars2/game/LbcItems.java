@@ -148,10 +148,10 @@ public final class LbcItems {
 
     /** Preserve the same pre-hit equipment/role admission for native and direct-HP damage. */
     public boolean withIncomingDamageAttempt(ServerPlayer player,java.util.function.BooleanSupplier action) {
-        return stoneGolemSkill.withIncomingAttempt(player,()->reactiveSkills.withIncomingAttempt(player,()->incomingArtifacts.withIncomingAttempt(player,()->shulkerArmor.withIncomingAttempt(player,
+        return reactiveTrinkets.withIncomingAttempt(player,()->stoneGolemSkill.withIncomingAttempt(player,()->reactiveSkills.withIncomingAttempt(player,()->incomingArtifacts.withIncomingAttempt(player,()->shulkerArmor.withIncomingAttempt(player,
                 ()->armorSets.nanobots().withIncomingAttempt(player,()->armorSets.glass().withIncomingAttempt(player,
                         ()->armorSets.berserk().withIncomingAttempt(player,()->armorSets.techno().withIncomingAttempt(player,
-                                ()->armorSets.chaos().withIncomingAttempt(player,action)))))))));
+                                ()->armorSets.chaos().withIncomingAttempt(player,action))))))))));
     }
 
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
@@ -217,6 +217,7 @@ public final class LbcItems {
     private final GameController game;
     private final LbcClouds clouds;
     private final LbcTrinkets trinkets;
+    private final LbcReactiveTrinkets reactiveTrinkets;
     private final LbcTrinketArrows trinketArrows;
     private final LbcShulkerBow shulkerBow;
     private final LbcMadokaBow madokaBow;
@@ -899,7 +900,7 @@ public final class LbcItems {
 
     public LbcItems(GameController game) {
         this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);
-        this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.trinketArrows = new LbcTrinketArrows(game);this.shulkerBow = new LbcShulkerBow(game);this.madokaBow = new LbcMadokaBow(game); this.frost = new LbcFrost(game);
+        this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.reactiveTrinkets=new LbcReactiveTrinkets(game); this.trinketArrows = new LbcTrinketArrows(game);this.shulkerBow = new LbcShulkerBow(game);this.madokaBow = new LbcMadokaBow(game); this.frost = new LbcFrost(game);
         this.mana = new LbcMana(game); LbcChaosRewardItems.prepare(mana); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);
         this.terra = new LbcTerra(game);
         this.shooters = new LbcShooters(game);
@@ -1120,6 +1121,7 @@ public final class LbcItems {
     }
     public LbcClouds clouds() { return clouds; }
     public LbcTrinkets trinkets() { return trinkets; }
+    public LbcReactiveTrinkets reactiveTrinkets(){return reactiveTrinkets;}
     public LbcTrinketArrows trinketArrows() { return trinketArrows; }
     public LbcShulkerBow shulkerBow(){return shulkerBow;}
     public LbcMadokaBow madokaBow(){return madokaBow;}
@@ -1398,7 +1400,7 @@ public final class LbcItems {
         transformator.loaded(entity);
         stalin.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
-        lightsabersLoaded(entity);pozdmanBot.loaded(entity);cursedPumpkin.loaded(entity);familyDrops.loaded(entity);specialDrops.loaded(entity);eternalWealth.loaded(entity);nexusWires.loaded(entity);nexusAcquisition.loaded(entity);supernova.loaded(entity);balance.loaded(entity);chargedBows.loaded(entity);nexusTools.loaded(entity);if(entity instanceof ServerPlayer p){nexusCompass.inventoryChanged(p);nexusTools.inventoryChanged(p);balance.inventoryChanged(p);touhouCollectibles.inventoryChanged(p);}looseRewards.loaded(entity);specialFireballs.loaded(entity);rasengan.loaded(entity);fallingHedgehogs.loaded(entity);
+        reactiveTrinkets.loaded(entity);lightsabersLoaded(entity);pozdmanBot.loaded(entity);cursedPumpkin.loaded(entity);familyDrops.loaded(entity);specialDrops.loaded(entity);eternalWealth.loaded(entity);nexusWires.loaded(entity);nexusAcquisition.loaded(entity);supernova.loaded(entity);balance.loaded(entity);chargedBows.loaded(entity);nexusTools.loaded(entity);if(entity instanceof ServerPlayer p){nexusCompass.inventoryChanged(p);nexusTools.inventoryChanged(p);balance.inventoryChanged(p);touhouCollectibles.inventoryChanged(p);}looseRewards.loaded(entity);specialFireballs.loaded(entity);rasengan.loaded(entity);fallingHedgehogs.loaded(entity);
         spellSources.loaded(entity);apocalypseEvents.loaded(entity);apocalypseActors.loaded(entity);witchGluttony.loaded(entity);witchIndolence.loaded(entity);indolenceFingers.loaded(entity);witchLust.loaded(entity);shishEncounter.loaded(entity);
         chaosTrapActors.loaded(entity);
         sauvojenBoss.loaded(entity);grimoireRooms.loaded(entity);grimoireBoss.loaded(entity);
@@ -1615,7 +1617,7 @@ public final class LbcItems {
         magic.unloaded(entity);
         frost.unloaded(entity);
         clouds.unloaded(entity);
-        trinkets.unloaded(entity);trinketArrows.unloaded(entity);shulkerBow.unloaded(entity);madokaBow.unloaded(entity);
+        reactiveTrinkets.unloaded(entity);trinkets.unloaded(entity);trinketArrows.unloaded(entity);shulkerBow.unloaded(entity);madokaBow.unloaded(entity);
         blaze.unloaded(entity);
         psycho.unloaded(entity);
         syringe.unloaded(entity);
@@ -1964,6 +1966,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
+        reactiveTrinkets.tick();
         for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);
         containedSkills.tick();fallingHedgehogs.tick();godClaw.tick();stoneGolemSkill.tick();expansionSkill.tick();hakureiSkill.tick();touhouCollectibles.tick();
         combatRewards.tick();machinegunSkill.tick();zeusSkill.tick();symbioteSkill.tick();cloneSkills.tick();
@@ -2180,7 +2183,7 @@ public final class LbcItems {
         cursedPumpkin.forget(player);pozdmanBot.forget(player);
         nexusCompass.forget(player);
         machinegunSkill.clear(player);zeusSkill.clear(player);symbioteSkill.clear(player);
-        containedSkills.clear(player);godClaw.clear(player);stoneGolemSkill.clear(player);championSkill.clear(player);expansionSkill.clear(player);hakureiSkill.forget(player);touhouCollectibles.forget(player);
+        containedSkills.clear(player);godClaw.clear(player);stoneGolemSkill.clear(player);championSkill.clear(player);expansionSkill.clear(player);hakureiSkill.forget(player);touhouCollectibles.forget(player);reactiveTrinkets.forget(player);
         steampunkHook.reset(player);steampunkGlove.reset(player);teleportGadgets.forget(player);
         indolenceFingers.forget(player);witchLust.forget(player);
         polymorph.forget(player);
@@ -2410,7 +2413,7 @@ public final class LbcItems {
         homes.stop();
         kfcRewards.stop();
         electro.stop();
-        trinkets.stop();trinketArrows.stop();shulkerBow.stop();madokaBow.clear();
+        reactiveTrinkets.stop();trinkets.stop();trinketArrows.stop();shulkerBow.stop();madokaBow.clear();
         for (RocketState state : List.copyOf(rockets.values())) resetRocket(state.owner);
         rockets.clear(); rechargingRockets.clear(); rocketCraftDrops.clear();
         for(var player:game.server().getPlayerList().getPlayers())

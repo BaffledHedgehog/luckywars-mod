@@ -90,7 +90,7 @@ public abstract class LbcCursorCraftingMixin {
         }
         if (changed) {
             var game = SkyWars2.game();
-            if (game != null) {game.items().magic().inventoryChanged(this.player);game.items().supernova().craftChanged(this.player);}
+            if (game != null) {game.items().magic().inventoryChanged(this.player);game.items().supernova().craftChanged(this.player);game.items().reactiveTrinkets().inventoryChanged(this.player);}
         }
     }
 }

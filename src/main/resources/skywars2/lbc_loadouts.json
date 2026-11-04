@@ -1090,6 +1090,78 @@
       "table": "lbc:trinket/rocket_spell",
       "gate": "lbc:true_advancements/legends/academy/exoperso",
       "lockedKey": "lbc.adv.upgraded_staff.exoperso.lore"
+    },
+    {
+      "id": 4,
+      "page": 11000,
+      "slot": 3,
+      "table": "lbc:trinket/drojjevoe_odealo",
+      "gate": "lbc:true_advancements/legends/academy/acid",
+      "lockedKey": "lbc.adv.upgraded_staff.acid.lore"
+    },
+    {
+      "id": 6,
+      "page": 11000,
+      "slot": 5,
+      "table": "lbc:trinket/mandoahuet",
+      "gate": "lbc:true_advancements/legends/academy/bass",
+      "lockedKey": "lbc.adv.upgraded_staff.bass.lore"
+    },
+    {
+      "id": 8,
+      "page": 11000,
+      "slot": 7,
+      "table": "lbc:trinket/nether_plug",
+      "gate": "lbc:true_advancements/legends/academy/blaze",
+      "lockedKey": "lbc.adv.upgraded_staff.blaze.lore"
+    },
+    {
+      "id": 12,
+      "page": 11000,
+      "slot": 11,
+      "table": "lbc:trinket/banangay",
+      "gate": "lbc:true_advancements/legends/academy/ender_random",
+      "lockedKey": "lbc.adv.upgraded_staff.ender_random.lore"
+    },
+    {
+      "id": 15,
+      "page": 11000,
+      "slot": 14,
+      "table": "lbc:trinket/twilight_sparkle",
+      "gate": "lbc:true_advancements/legends/academy/falling_stars",
+      "lockedKey": "lbc.adv.upgraded_staff.falling_stars.lore"
+    },
+    {
+      "id": 17,
+      "page": 11000,
+      "slot": 16,
+      "table": "lbc:trinket/hedgehog_gauntlet",
+      "gate": "lbc:true_advancements/legends/academy/hedgehog",
+      "lockedKey": "lbc.adv.upgraded_staff.hedgehog.lore"
+    },
+    {
+      "id": 22,
+      "page": 11000,
+      "slot": 21,
+      "table": "lbc:trinket/poly_gem",
+      "gate": "lbc:true_advancements/legends/academy/polymorph",
+      "lockedKey": "lbc.adv.upgraded_staff.polymorph.lore"
+    },
+    {
+      "id": 23,
+      "page": 11000,
+      "slot": 22,
+      "table": "lbc:trinket/glass_shard",
+      "gate": "lbc:true_advancements/legends/academy/prism",
+      "lockedKey": "lbc.adv.upgraded_staff.prism.lore"
+    },
+    {
+      "id": 24,
+      "page": 11000,
+      "slot": 23,
+      "table": "lbc:trinket/psycho_soul",
+      "gate": "lbc:true_advancements/legends/academy/psycho",
+      "lockedKey": "lbc.adv.upgraded_staff.psycho.lore"
     }
   ]
 }

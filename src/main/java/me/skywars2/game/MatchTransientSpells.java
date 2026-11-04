@@ -19,7 +19,7 @@ final class MatchTransientSpells {
         if(!game.server().isSameThread())throw new IllegalStateException("Inspect transient spell actors on their native match thread");
         var ids=new LinkedHashSet<UUID>();var items=game.items();
         add(ids,items.ruby().snapshot());add(ids,items.air().snapshot());add(ids,items.stone().snapshot());
-        add(ids,items.blind().snapshot());add(ids,items.teleport().snapshot());add(ids,items.prism().snapshot());
+        add(ids,items.blind().snapshot());add(ids,items.teleport().snapshot());add(ids,items.prism().transientSnapshot());
         add(ids,items.electro().transientSnapshot());add(ids,items.babylon().snapshot());add(ids,items.trinkets().transientSnapshot());
         add(ids,items.fartus().snapshot());for(var shot:items.fartus().snapshot())if(shot.display!=null)ids.add(shot.display.getUUID());
         add(ids,items.evokerBass().snapshot());add(ids,items.terra().transientSnapshot());
@@ -32,7 +32,7 @@ final class MatchTransientSpells {
         if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())
             throw new IllegalStateException("Cancel abandoned short spells on the frozen native match thread");
         var items=game.items();items.wands().stop();items.electro().cancelTransient();
-        items.ruby().stop();items.air().stop();items.stone().stop();items.prism().stop();
+        items.ruby().stop();items.air().stop();items.stone().stop();items.prism().cancelTransient();
         items.blind().stop();items.teleport().stop();items.erecto().stop();items.bedrock().stop();items.gaycasterAcademy().stop();
         items.babylon().stop();items.trinkets().stop();
         items.fartus().cancelTransient();items.evokerBass().cancelTransient();items.terra().cancelTransient();

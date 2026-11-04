@@ -1,3 +1,22 @@
+## Remaining reactive trinkets - QUALIFIED, INSTALLED (4 November 2026)
+
+[Source defaults, native ownership, failures and exact proof](agent_notes/REACTIVE_TRINKETS_PORT_2026_11_04.md).
+Nine remaining trinkets complete all23 selectable entries. Exact native source
+singletons/gated slots; shared Acid/Bass/Sheep/Prism producers, actual-victim
+Psycho Soul, source Banana/Twilight/grounded spike. Old/new reactions share native
+criteria and one inventory count pass; former AFTER_DAMAGE route removed.
+Event-dirtied periodic counts, fair work, TimeStop, typed whole-coordinator and
+x2/x4 adapters; x2 still excludes mobs. No RP edits or arbitrary functions.
+Questions10-15 retain documented provisional defaults; gem excludes Chef pending
+its specific ruling. Questions16-17 concern the next two skills, not this release.
+
+Test51f98ac3 /production0c3adbd9:14groups/14actual matches pass exact JAR
+(11mode1,3mode3);22freshJavafamilies/11resources,9966otherinputs/272authorpaths
+guarded, all ZIP entries verified, authoring/deletion absent production. Fixture
+normal/exact/no locks. Both build/libs/main updated,dc033ee7rollback,restarted:false.
+No main stop/start, physical-client/audio or peakTPS claim. Modes2/4,skill2,TMT-last
+and broad public rewind gates unchanged. Evidence:build/verification/reactive-trinkets-2026-11-04/.
+
 ## Ordinary native BedWars3 - QUALIFIED, INSTALLED (4 November 2026)
 
 [Source, native owners, retained failures and exact qualification](agent_notes/BEDWARS_NATIVE_PORT_2026_11_04.md).

@@ -57,6 +57,15 @@ public final class LbcTrinkets {
     public static final Item COCKTAIL = registerAuthored("skywars2:polarization_cocktail", "lbctrinket.10", "lbc:trinket_10", "cocktail");
     public static final Item FOURIER = registerAuthored("skywars2:fourier_trinket", "lbctrinket.12", "lbc:trinket_12", "fourier");
     public static final Item ROCKET_SPELL = registerAuthored("skywars2:rocket_spell_trinket", "lbctrinket.13", "lbc:trinket_13", "rocket_spell");
+    public static final Item DROJJI = registerAuthored("skywars2:drojjevoe_odealo", "lbctrinket.3", "lbc:trinket_3", "drojjevoe_odealo");
+    public static final Item MANDOAHUET = registerAuthored("skywars2:mandoahuet", "lbctrinket.5", "lbc:trinket_5", "mandoahuet");
+    public static final Item NETHER_PLUG = registerAuthored("skywars2:nether_plug", "lbctrinket.7", "lbc:trinket_7", "nether_plug");
+    public static final Item BANANGAY = registerAuthored("skywars2:banangay", "lbctrinket.11", "lbc:trinket_11", "banangay");
+    public static final Item TWILIGHT_SPARKLE = registerAuthored("skywars2:twilight_sparkle", "lbctrinket.14", "lbc:trinket_14", "twilight_sparkle");
+    public static final Item HEDGEHOG_GAUNTLET = registerAuthored("skywars2:hedgehog_gauntlet", "lbctrinket.16", "lbc:hedgehog_gauntlet", "hedgehog_gauntlet");
+    public static final Item POLY_GEM = registerAuthored("skywars2:poly_gem", "lbctrinket.21", "lbc:poly_gem", "poly_gem");
+    public static final Item GLASS_SHARD = registerAuthored("skywars2:glass_shard", "lbctrinket.22", "lbc:glass_shard", "glass_shard");
+    public static final Item PSYCHO_SOUL = registerAuthored("skywars2:psycho_soul", "lbctrinket.23", "lbc:psycho_soul", "psycho_soul");
     private static final Item[] SHOT_ITEMS={BLAZE,GHAST,PENIS_GUN,BEDROCK_BALLS,VOLOS,COCKTAIL,FOURIER,ROCKET_SPELL};
     private static final String[] SHOT_IDENTITIES={"blaze","ghast","penis_gun","bedrcock","volos","cocktail","fourier","rocket_spell"};
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mobs"));
@@ -244,22 +253,29 @@ public final class LbcTrinkets {
     public void damaged(LivingEntity victim, DamageSource source) {
         if ((!game.playing() && !game.items().debugItemUseWindow()) || game.config().lbcTrinketLimit == 0) return;
         if (victim instanceof ServerPlayer player && LbcDimensionItems.ordinary(player) && game.allowDamage(player) && player.isAlive()) {
-            int ice = count(player, ICE_GEM, ICE_DATA);
-            if (ice > 0 && player.getRandom().nextFloat() < (90 + 10 * ice) * .001f) iceTargets(player);
-            int copies = count(player, GNEISS_STONE, GNEISS_DATA);
-            if (copies > 0 && player.getRandom().nextFloat() < (80 + 20 * copies) * .001f) {
+            incoming(player,count(player,ICE_GEM,ICE_DATA),count(player,GNEISS_STONE,GNEISS_DATA));
+        }
+        if(source.getEntity() instanceof ServerPlayer attacker)
+            outgoing(attacker,source,count(attacker,INTERCAL,INTERCAL_DATA),count(attacker,SNOW_GEM,SNOW_DATA));
+    }
+
+    /** Both old and new defensive trinkets share the actual native incoming criterion. */
+    void incoming(ServerPlayer player,int ice,int copies){
+        if(!player.isAlive()||!game.allowDamage(player))return;
+        if (ice > 0 && player.getRandom().nextFloat() < (90 + 10d * ice) * .001) iceTargets(player);
+        if (copies > 0 && player.getRandom().nextFloat() < (80 + 20d * copies) * .001) {
                 player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, 40, 4));
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 1, 1);
                 player.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.STONE.defaultBlockState()),
                         player.getX(), player.getY() + 1, player.getZ(), 30, .3, .6, .3, 0);
-            }
         }
+    }
+
+    void outgoing(ServerPlayer attacker,DamageSource source,int copies,int snow){
         // Source arrow_only также покрывает отдельный тип Electro bolt; остальные снаряды не исключаем.
-        if (LbcDamage.isArrowDamage(source) || !(source.getEntity() instanceof ServerPlayer attacker)
+        if (LbcDamage.isArrowDamage(source)
                 || !LbcDimensionItems.ordinary(attacker) || !game.allowDamage(attacker) && !game.canUseGameplayItems(attacker)) return;
-        int snow = count(attacker, SNOW_GEM, SNOW_DATA);
         if (snow > 0 && attacker.getRandom().nextFloat() < (80 + 20 * snow) * .001f) game.items().frost().hitTargets(attacker);
-        int copies = count(attacker, INTERCAL, INTERCAL_DATA);
         if (copies == 0 || attacker.getRandom().nextFloat() >= (100 + 50 * copies) * .001f) return;
         boolean upgraded = game.lbc().hasSkill(attacker,9);
         for (var target : attacker.level().getEntitiesOfClass(LivingEntity.class, attacker.getBoundingBox().inflate(10), entity ->

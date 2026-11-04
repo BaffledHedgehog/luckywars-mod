@@ -498,17 +498,30 @@ public final class LbcClouds {
 
     /** Exact source variants share acid movement, collision, reactivity and effect code. */
     public AcidProjectile sourceAcid(ServerLevel level,Vec3 origin,float yaw,float pitch,int lifetime,boolean shield,ServerPlayer author){
+        return sourceAcid(level,origin,yaw,pitch,lifetime,shield,author,false);
+    }
+    /** Normal offensive trinket acid keeps source ID/team immunity and shared acid physics. */
+    AcidProjectile trinketAcid(ServerPlayer author,Vec3 origin,float yaw,float pitch){
+        var policy=new LbcSpellSource.Source(author.getUUID(),author.getUUID(),game.items().epoch(),
+                game.items().indirectKills().coldCause(author,true),java.util.Set.of());
+        try(var scope=game.items().spellSources().scope(policy,author.level())){
+            return sourceAcid(author.level(),origin,yaw,pitch,300,true,author,true);
+        }
+    }
+    private AcidProjectile sourceAcid(ServerLevel level,Vec3 origin,float yaw,float pitch,int lifetime,boolean shield,ServerPlayer author,boolean trinket){
         if(lifetime!=300 && lifetime!=500)throw new IllegalArgumentException("Source acid budget must be 300 or 500");
         var projectile=new AcidProjectile(ACID_PROJECTILE,level);
         projectile.setPos(origin);projectile.setYRot(yaw);projectile.setXRot(pitch);
         var direction=projectile.getLookAngle();projectile.shoot(direction.x,direction.y,direction.z,.5f,0);
         projectile.entityTags().addAll(List.of(ACID,SOURCE_ACID,"raycastacid","player","slowraycast","actived",game.items().epoch()));
+        if(trinket)projectile.entityTags().add("skywars2.trinket_acid");
         if(shield)projectile.entityTags().add("shield_blockable2");
         if(lifetime==500)projectile.entityTags().add(ACID_500);
         projectile.setAttached(ACID_AGE,0);
         if(author!=null){acidAuthors.put(author.getUUID(),author);projectile.entityTags().add(ACID_OWNER+author.getUUID());}
         // Keep the native owner empty: source acid must not gain projectile owner collision immunity.
-        game.items().timeStop().prepareFrozen(projectile);level.addFreshEntity(projectile);return projectile;
+        game.items().timeStop().prepareFrozen(projectile);
+        if(!level.addFreshEntity(projectile)&&trinket)projectile.discard();return projectile;
     }
     public static boolean sourceAcidManaged(Entity entity){return entity instanceof AcidProjectile && entity.entityTags().contains(SOURCE_ACID);}
     public LivingEntity sourceAcidOwner(Entity entity){
@@ -525,6 +538,10 @@ public final class LbcClouds {
             && (entity.level()==game.maps().level()||game.items().spellSources().persistent(entity)) && game.items().currentEpoch(entity);}
     public boolean sourceAcidCanAffect(Entity source,Entity target){
         if(!sourceAcidManaged(source))return true; // Acid policy must not re-filter unrelated captured arrows or melee.
+        if(source.entityTags().contains("skywars2.trinket_acid")){
+            var author=sourceAcidOwner(source);
+            if(author!=null&&target!=null&&(target==author||author.isAlliedTo(target)))return false;
+        }
         var authority=game.items().spellSources().source(source);
         if(authority!=null)try(var scope=game.items().spellSources().scope(authority)){
             return sourceAcidActive(source)&&Boolean.TRUE.equals(game.items().spellSources().target(game.items().spellSources().owner(source),target));
@@ -533,6 +550,7 @@ public final class LbcClouds {
                 && (!source.entityTags().contains("skywars2.ant_acid") || game.items().antDrops().acidCanAffect(source,target));
     }
     public boolean sourceAcidWild(Entity source){return sourceAcidManaged(source)
+            && !source.entityTags().contains("skywars2.trinket_acid")
             && (!source.entityTags().contains("skywars2.ant_acid") || game.items().antDrops().acidWild(source));}
     public void sourceSound(ServerLevel level,Vec3 origin,net.minecraft.sounds.SoundEvent event,float volume,float pitch){
         sound(level,origin,event,volume,pitch,Double.POSITIVE_INFINITY,0);

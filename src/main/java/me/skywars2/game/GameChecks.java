@@ -1260,6 +1260,8 @@ public final class GameChecks {
                                 case "lightning-acquisition-cleanup" -> LightningAcquisitionChecks.cleanup(game);
                                 case "lightning-rules" -> LightningRulesChecks.run(game);
                                 case "lightning-rules-chain" -> LightningRulesChecks.chain(game);
+                                case "reactive-trinkets" -> {ReactiveTrinketChecks.run(game);return;}
+                                case "reactive-trinkets-rewind" -> {ReactiveTrinketChecks.runRewind(game);return;}
                                 case "typed-items" -> TypedItemChecks.run(game);
                                 case "kfc-wild" -> KfcWildChecks.run(game);
                                 case "kfc-counters" -> KfcCounterChecks.run(game);
@@ -1536,7 +1538,7 @@ public final class GameChecks {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
             ContainedSkillChecks.tick(game);
-            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
+            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);ReactiveTrinketChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
             ArmorZeusSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
@@ -1763,9 +1765,9 @@ public final class GameChecks {
                 inventoryClick(player, 15, 0, ContainerInput.PICKUP);
                 require(profile.trinkets[0] == 16 && profile.lbcTrinketSlot == 1,
                                 "Free Gneiss fills first cyclic slot");
-                inventoryClick(player, 2, 0, ContainerInput.PICKUP);
+                inventoryClick(player, 24, 0, ContainerInput.PICKUP);
                 require(profile.lbcTrinketSlot == 1 && player.containerMenu.getCarried().isEmpty(),
-                                "Unimplemented trinket slot cannot be selected or taken");
+                                "Empty source trinket slot cannot be selected or taken");
                 awardAllCriteria(player,
                                 game.server().getAdvancements().get(net.minecraft.resources.Identifier.parse(gate)));
                 inventoryClick(player, 9, 0, ContainerInput.PICKUP);
@@ -1893,12 +1895,15 @@ public final class GameChecks {
                 require(player.inventoryMenu.getCraftSlots().getItem(0).getCount() == 9
                                 && player.containerMenu.getCarried().getCount() == 9,
                                 "Count-only inventory scan never consumes trinkets");
-                game.players().get(player.getUUID()).lbcSkill = 15;
+                game.players().get(player.getUUID()).lbcSkill = 9;
+                awardAllCriteria(player,game.server().getAdvancements().get(
+                        net.minecraft.resources.Identifier.parse("lbc:true_advancements/armor/shitty_full")));
+                require(game.lbc().hasSkill(player,9),"Actual unlocked Govnoman admits its Intercal synergy");
                 readyForItemDamage(enemy);
                 enemy.hurtServer(level, enemy.damageSources().playerAttack(player), 1);
                 var wither = enemy.getEffect(MobEffects.WITHER);
                 require(wither != null && wither.getAmplifier() == 3 && wither.getDuration() == 60,
-                                "Source skill 15 synergy overlays short Wither IV");
+                                "Approved Govnoman skill 9 synergy overlays short Wither IV");
                 for (int tick = 0; tick < 60; tick++)
                         wither.tickServer(level, enemy, () -> {
                         });
