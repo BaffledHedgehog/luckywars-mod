@@ -40,6 +40,19 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         return Component.translatable(MOD_ID + "." + key, args);
     }
 
+    private static InteractionResult seasonalUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
+        if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.PASS;
+        var stack=owner.getItemInHand(hand);
+        if(me.skywars2.game.LbcNovemberLightsaberItems.selector(stack)){
+            if(game.vanity().blocked(owner))return InteractionResult.FAIL;
+            return game.items().lightsabers().use(owner,hand);
+        }
+        if(me.skywars2.game.ItemData.intValue(stack,"pozdman_bot",0)==1){
+            if(game.vanity().blocked(owner))return InteractionResult.FAIL;
+            return game.items().pozdmanBot().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+        }
+        return InteractionResult.PASS;
+    }
     private static InteractionResult nexusToolUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
         if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.PASS;
         var held=player.getItemInHand(hand);boolean compass=LbcNexusToolItems.isCompass(held);
@@ -214,6 +227,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
+            var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
             if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
                 return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
@@ -365,6 +379,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
+            var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
             if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
                 return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useBlock(owner, hand, hit)) return InteractionResult.SUCCESS;

@@ -3,6 +3,7 @@
   "package": "me.skywars2.mixin",
   "mixins": [
     "SymbioteScoreMixin",
+    "PozdmanDolphinMixin",
     "SymbioteTransferAccess",
     "BlockCollisionHeightMixin",
     "RiptideVelocityMixin",

@@ -1019,6 +1019,8 @@ public final class GameController {
         Participant p = participants.get(player.getUUID());
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
         // Compare maximum HP before ordinary death cleanup removes event skill modifiers.
+        Entity seasonalKiller=damage.getEntity()!=null?damage.getEntity():player.getKillCredit();
+        if(seasonalKiller instanceof ServerPlayer killer)items.lightsabers().onKill(killer,player);
         boolean vipRespawn=items.containedSkills().protectsDeath(player,damage);
         items.machinegunSkill().clear(player);items.zeusSkill().clear(player);
         items.witchClaims().leavingOrDying(player);

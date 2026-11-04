@@ -231,27 +231,10 @@ public final class LbcFartus {
     }
     /** Source physical banana: centered cube, axis X/Y/Z clipping, .08 gravity and .9 rebound. */
     private void physical(Shot shot){
-        var level=(ServerLevel)shot.level();var velocity=shot.getDeltaMovement().add(0,-.08,0);
-        int n=Math.max(1,(int)Math.ceil(Math.max(Math.abs(velocity.x),Math.max(Math.abs(velocity.y),Math.abs(velocity.z)))/.5));
-        var step=velocity.scale(1d/n);boolean ground=false;
-        for(int i=0;i<n&&!shot.isRemoved();i++)for(var axis:Direction.Axis.values()){
-            // Axis enum is X,Y,Z, matching the source physics loop.
-            double requested=axis==Direction.Axis.X?step.x:axis==Direction.Axis.Y?step.y:step.z;
-            var delta=axis==Direction.Axis.X?new Vec3(requested,0,0):axis==Direction.Axis.Y?new Vec3(0,requested,0):new Vec3(0,0,requested);
-            var from=shot.position();var to=from.add(delta);
-            if(LbcTerra.wallHit(level,from,to,state->false)!=null){remove(shot);return;}
-            var box=new AABB(from,from).inflate(.5);
-            var shapes=level.getBlockCollisions(shot,box.expandTowards(delta));
-            double allowed=Shapes.collide(axis,box,shapes,requested);
-            var actual=axis==Direction.Axis.X?new Vec3(allowed,0,0):axis==Direction.Axis.Y?new Vec3(0,allowed,0):new Vec3(0,0,allowed);
-            if(contact(shot,from,from.add(actual),.5))return;
-            shot.setPos(from.add(actual));
-            if(Math.abs(allowed-requested)>1e-9){
-                if(axis==Direction.Axis.Y&&requested<0)ground=true;
-                velocity=axis==Direction.Axis.X?new Vec3(-velocity.x*.9,velocity.y,velocity.z):axis==Direction.Axis.Y?new Vec3(velocity.x,-velocity.y*.9,velocity.z):new Vec3(velocity.x,velocity.y,-velocity.z*.9);
-            }
-        }
-        if(ground)velocity=velocity.multiply(.8,.78,.8);shot.setDeltaMovement(velocity);
+        var level=(ServerLevel)shot.level();
+        LbcPhysicalObjects.step(shot,.5,.9,.8,1,(from,to)->{
+            if(LbcTerra.wallHit(level,from,to,state->false)!=null){remove(shot);return true;}return false;
+        },(from,to)->contact(shot,from,to,.5));
     }
     private boolean contact(Shot shot,Vec3 from,Vec3 to,double padding){
         var level=(ServerLevel)shot.level();var owner=(ServerPlayer)shot.getOwner();

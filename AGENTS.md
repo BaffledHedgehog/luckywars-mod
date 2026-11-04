@@ -1,3 +1,31 @@
+## November lightsabers / Pozdman / Cursed Pumpkin - QUALIFIED, INSTALLED (4 November 2026)
+
+[Author decisions, source closure and exact evidence](agent_notes/SEASONAL_NOVELTY_PORT_2026_11_04.md).
+AUTHOR: side selection UNJAMMABLE; Pozdman activation TECH (existing enhanced artifact
+gate retained), already-spawned dolphin AND coins UNJAMMABLE; pumpkin intake/walk
+MAG, dropped contents always return under jammers.
+Shared curse stacks remain source behavior: one moving stack/common contents,
+unpacked once. All native clocks/work pause with TimeStop.
+
+Native Polymer selector/Jedi/Sith shield carriers, exact canonical contextual loot;
+actual lucky-block/source-score acquisition and faction kill counters. Full99reply/
+rare David Dolphin50HP+physical bitcoin15damage+fuse2TNT closure, actual owner,
+shared Fartus physics, native HEAD contact/pre-pursuit source origin. Exact41slot
+pumpkin walk/equippable graph, source Pumpkin King sword direct-target melee,
+protected inventory/target MAG, complete immutable native item storage, bounded
+unpack with saved cursor and no first-entry loss/phantom stone. Native component
+encoder cache; ordinary Polymer original-stack metadata retained. No interpreter,
+new tick-NBT/world scans or author RP changes. Source styles/models intact.
+
+Testb9e191a9 / production4cd48def:14groups/14actual mode1matches on exact final
+artifact, including actual input/jammers/TimeStop/x2/x4/nonempty coordinator replay,
+shared-stack3/300distinct outputs and partial-cursor rewind, shared regressions.
+24freshJavafamilies/16resources,9910otherinputs/272authorpaths guarded; every
+archive entry verified; authoring absent production. Fixture25577normal/exact/no
+locks. Both build/libs/main JAR updated with 84f76e47rollback,restarted:false.
+No main stop/start, physical-client/audio or peakTPS claim. Skill2/full modes/
+fullrewind/TMT gates unchanged; TMT LAST. Evidence:build/verification/seasonal-2026-11-04/.
+
 ## Supernova / Railgun / Shishgun / original Balance ? QUALIFIED, INSTALLED (4 November 2026)
 
 [Author decisions, implementation, retained failures and exact evidence](agent_notes/SUPERNOVA_CHAIN_PORT_2026_11_03.md).

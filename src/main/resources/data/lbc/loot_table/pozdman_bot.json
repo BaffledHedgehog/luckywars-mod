@@ -5,52 +5,7 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:pozdman_bot",
-                "!minecraft:max_damage": {}
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "pozdman_bot",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_lore",
-              "mode": "replace_all",
-              "entity": "this",
-              "lore": [
-                {
-                  "translate": "pozdman_bot.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "pozdman_bot.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{magicwand:1,pozdman_bot:1}"
-            }
-          ],
-          "weight": 1
+          "value": "lbc:item_defs/lbc/pozdman_bot"
         }
       ]
     }

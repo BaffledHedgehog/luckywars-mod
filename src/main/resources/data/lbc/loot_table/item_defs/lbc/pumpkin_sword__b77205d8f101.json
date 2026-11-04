@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:wooden_sword",
+          "name": "skywars2:pumpkin_king_sword",
           "modifier": [
             {
               "count": 1,

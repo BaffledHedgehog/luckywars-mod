@@ -187,6 +187,7 @@ public final class LbcKfcFood {
                 case "ray" -> game.items().erecto().addPlayerCounter(p);
                 case "acid_rifle" -> game.items().awakenedAcid().addPlayerCounter(p);
                 default -> mana.score(p,name).add(1);
+                case "november","lucky_block_count" -> {mana.score(p,name).add(1);game.items().lightsabers().sourceScoreChanged(p);}
             }
         }
         game.items().psycho().addPlayerCounters(p);

@@ -1032,7 +1032,8 @@ public final class LbcMagic {
     }
     private boolean mechanical(Entity entity) {
         var tags=entity.entityTags();
-        return !(entity instanceof ServerPlayer) && !entity.isSpectator() && !tags.contains("spectator")
+        // (user) Pozdman coins remain physical and unjammable, including legacy mecha tags.
+        return !(entity instanceof ServerPlayer) && !(entity instanceof LbcPozdmanBot.Coin) && !entity.isSpectator() && !tags.contains("spectator")
                 && !tags.contains("strict_map_object") && !tags.contains("core_marker") && !tags.contains("map_object")
                 && !tags.contains("rcdenyalways") && !tags.contains("sauvojen_tuntija")
                 && !tags.contains("magic_academy") && !tags.contains("transformator")

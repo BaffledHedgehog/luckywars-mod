@@ -18,7 +18,7 @@ public abstract class LbcLooperItemMixin {
         if(self.level() instanceof net.minecraft.server.level.ServerLevel level
                 &&level.getEntity(self.getUUID())==self){
             var game=me.skywars2.SkyWars2.game();
-            if(game!=null){game.items().supernova().itemChanged(self);game.items().chargedBows().itemChanged(self);
+            if(game!=null){game.items().supernova().itemChanged(self);game.items().chargedBows().itemChanged(self);game.items().cursedPumpkin().itemChanged(self);
                 if(level.dimension().identifier().equals(skywars2$nexusDimension))game.items().nexusAcquisition().itemChanged(self);
             }
         }

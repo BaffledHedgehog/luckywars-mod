@@ -62,6 +62,7 @@ public final class LbcWitchStatistics {
         var name=name(stat);if(game==null||name==null)return;
         var objective=player.level().getScoreboard().getObjective(name);
         if(objective!=null&&objective.getCriteria()!=stat)game.items().mana().score(player,name).add(count);
+        if(name.equals("lucky_block_count"))game.items().lightsabers().onLuckyBlockOpened(player);
     }
     public static void reset(ServerPlayer player,Stat<?> stat){
         var game=SkyWars2.game();var name=name(stat);if(game==null||name==null)return;

@@ -5,276 +5,42 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:lightsaber_empty",
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 0,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "lightsaber_no_color",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "sword",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                {
-                  "translate": "lightsaber_no_color.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "lightsaber_no_color.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{transformable:1,sword:1,lightsaberrc:1,magicwand:1}"
-            }
-          ],
-          "conditions": [
-            {
-              "condition": "minecraft:inverted",
-              "term": {
-                "condition": "minecraft:value_check",
-                "value": {
-                  "type": "minecraft:score",
-                  "target": {
-                    "type": "minecraft:context",
-                    "target": "this"
-                  },
-                  "score": "november",
-                  "scale": 1
-                },
-                "range": {
+          "value": "lbc:item_defs/lbc/lightsaber_empty",
+          "condition": {
+            "type": "minecraft:inverted",
+            "term": {
+              "type": "minecraft:entity_scores",
+              "entity": "this",
+              "scores": {
+                "november": {
                   "min": 1,
                   "max": 2
                 }
               }
             }
-          ]
+          }
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/shield__a6e4d38455cb",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:lightsaber_jedi",
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 7,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "lightsaber_blue",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "sword",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                {
-                  "translate": "lightsaber_blue.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "lightsaber_blue.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{transformable:1,sword:1,lightsaber:1}"
+          "value": "lbc:item_defs/lbc/lightsaber_jedi",
+          "condition": {
+            "type": "minecraft:entity_scores",
+            "entity": "this",
+            "scores": {
+              "november": 1
             }
-          ],
-          "conditions": [
-            {
-              "condition": "minecraft:value_check",
-              "value": {
-                "type": "minecraft:score",
-                "target": {
-                  "type": "minecraft:context",
-                  "target": "this"
-                },
-                "score": "november",
-                "scale": 1
-              },
-              "range": 1
-            }
-          ]
+          }
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/shield__a6e4d38455cb",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:lightsaber_sith",
-                "minecraft:attribute_modifiers": [
-                  {
-                    "type": "minecraft:attack_damage",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_damage",
-                    "amount": 7,
-                    "operation": "add_value"
-                  },
-                  {
-                    "type": "minecraft:attack_speed",
-                    "slot": "mainhand",
-                    "id": "minecraft:base_attack_speed",
-                    "amount": -1.5,
-                    "operation": "add_value"
-                  }
-                ]
-              }
-            },
-            {
-              "function": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "lightsaber_red",
-                  "color": "aqua",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                [
-                  {
-                    "translate": "type",
-                    "italic": false,
-                    "color": "aqua"
-                  },
-                  {
-                    "translate": "sword",
-                    "italic": false,
-                    "color": "aqua"
-                  }
-                ],
-                {
-                  "translate": "lightsaber_red.lore.1",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "lightsaber_red.lore.2",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "function": "minecraft:set_custom_data",
-              "tag": "{transformable:1,sword:1,lightsaber:1}"
+          "value": "lbc:item_defs/lbc/lightsaber_sith",
+          "condition": {
+            "type": "minecraft:entity_scores",
+            "entity": "this",
+            "scores": {
+              "november": 2
             }
-          ],
-          "conditions": [
-            {
-              "condition": "minecraft:value_check",
-              "value": {
-                "type": "minecraft:score",
-                "target": {
-                  "type": "minecraft:context",
-                  "target": "this"
-                },
-                "score": "november",
-                "scale": 1
-              },
-              "range": 2
-            }
-          ]
+          }
         }
       ]
     }
