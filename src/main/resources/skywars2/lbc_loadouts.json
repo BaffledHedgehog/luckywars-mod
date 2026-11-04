@@ -331,6 +331,20 @@
       "lockedKey": "lbc.adv.upgraded_tuntija.consuming.lore"
     },
     {
+      "id": 24,
+      "page": 10000,
+      "slot": 24,
+      "gate": "lbc:true_advancements/legends/academy/dublicating",
+      "lockedKey": "lbc.adv.upgraded_tuntija.dublicating.lore"
+    },
+    {
+      "id": 28,
+      "page": 10100,
+      "slot": 0,
+      "gate": "lbc:true_advancements/legends/academy/danmaku",
+      "lockedKey": "lbc.adv.upgraded_staff.danmaku_staff.lore"
+    },
+    {
       "id": 29,
       "page": 10100,
       "slot": 1,

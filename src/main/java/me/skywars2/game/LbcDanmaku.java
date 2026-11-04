@@ -110,6 +110,14 @@ public final class LbcDanmaku {
         if(charge>=1500&&!trialStack.isEmpty()&&!isAcademy(trialStack)&&LbcAcademy.trial(trialStack))game.items().academy().ready(p,hand,trialStack);
         LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.bomb",2,1,0);game.items().wands().wandCasted(p);return true;
     }
+    /** Source consumable: no staff charge, mana, wand bonus or local launch jammer. */
+    public boolean useTouhouBomb(ServerPlayer player){
+        if(!validOwner(player)||game.items().actionsBlocked(player)||game.items().wands().inputTimeStopped(player))return false;
+        var a=display(player,player.position(),false,true,true);var b=display(player,player.position(),false,true,true);
+        if(a==null||b==null){if(a!=null)a.discard();if(b!=null)b.discard();return false;}
+        a.entityTags().add("act");scale(b,-1);bombs.add(new Bomb(player,a,b,300,true));
+        LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.bomb",2,1,0);return true;
+    }
     public static boolean isItem(ItemStack stack){return !stack.isEmpty()&&(stack.is(ITEM)||stack.is(ACADEMY)||LbcFartus.data(stack).getIntOr("danmaku_staff",0)==1);}
     public static boolean isAcademy(ItemStack stack){return isItem(stack)&&(stack.is(ACADEMY)||LbcFartus.data(stack).getIntOr("upgraded",0)==1);}
     public static boolean managed(Entity e){return e.entityTags().contains(TAG);}
@@ -118,8 +126,9 @@ public final class LbcDanmaku {
         Card(ServerPlayer owner,Display.ItemDisplay display,Vec3 direction,boolean homing){this.owner=owner;this.display=display;this.direction=direction.normalize();this.homing=homing;}
     }
     static final class Bomb {
-        final ServerPlayer owner;final Display.ItemDisplay positive,negative;final int charge;int age;
-        Bomb(ServerPlayer owner,Display.ItemDisplay positive,Display.ItemDisplay negative,int charge){this.owner=owner;this.positive=positive;this.negative=negative;this.charge=charge;}
+        final ServerPlayer owner;final Display.ItemDisplay positive,negative;final int charge;final boolean fast;int age,empty;
+        Bomb(ServerPlayer owner,Display.ItemDisplay positive,Display.ItemDisplay negative,int charge){this(owner,positive,negative,charge,false);}
+        Bomb(ServerPlayer owner,Display.ItemDisplay positive,Display.ItemDisplay negative,int charge,boolean fast){this.owner=owner;this.positive=positive;this.negative=negative;this.charge=charge;this.fast=fast;}
         int radius(){return (int)((int)(age*1.2)*.05);}
     }
     List<Card> cards(){return List.copyOf(cards);} List<Bomb> bombs(){return List.copyOf(bombs);}
@@ -164,10 +173,14 @@ public final class LbcDanmaku {
     private boolean valid(ServerPlayer p,Display.ItemDisplay d){return validOwner(p)&&!d.isRemoved()&&game.items().currentEpoch(d)&&p.level()==d.level()&&d.level().hasChunkAt(d.blockPosition())&&!game.items().magic().suppressedAt((ServerLevel)d.level(),d.position());}
     Card card(ServerPlayer p,Vec3 pos,Vec3 direction,boolean homing){var d=display(p,pos,homing,false);if(d==null)return null;var c=new Card(p,d,direction,homing);cards.add(c);orient(c);game.items().armorSets().phantom().activity(p);return c;}
     private Display.ItemDisplay display(ServerPlayer p,Vec3 pos,boolean homing,boolean bomb){
+        return display(p,pos,homing,bomb,false);
+    }
+    private Display.ItemDisplay display(ServerPlayer p,Vec3 pos,boolean homing,boolean bomb,boolean fast){
         if(!p.level().hasChunkAt(BlockPos.containing(pos)))return null;
         var d=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,p.level());
         try{var nbt=TagParser.parseCompoundFully("{teleport_duration:"+(bomb?30:1)+",interpolation_duration:"+(bomb?30:1)+",start_interpolation:0,shadow_radius:0f,shadow_strength:0f,item_display:'"+(bomb?"none":"fixed")+"',view_range:"+(bomb?"500000f":"10f")+",transformation:{translation:[0f,0f,0f],left_rotation:"+(bomb?"[0f,0f,0f,1f]":"[1f,0f,0f,1f]")+",right_rotation:[0f,0f,0f,1f],scale:"+(bomb?"[1f,1f,1f]":"[.5f,.5f,.5f]")+"},item:{id:'"+(bomb?"minecraft:red_stained_glass":"minecraft:repeating_command_block")+"',count:1"+(bomb?"":",components:{'minecraft:item_model':'lbc:card_"+(homing?2:1)+"'}")+"}}");d.load(TagValueInput.create(ProblemReporter.DISCARDING,p.registryAccess(),nbt));}catch(Exception e){throw new IllegalStateException(e);}
-        d.setPos(pos);d.setNoGravity(true);d.entityTags().add(TAG);d.entityTags().add("magic");d.entityTags().add("slowraycast");d.entityTags().add("player");d.entityTags().add(bomb?"danmaku_bomb":"danmaku");if(bomb)d.entityTags().add("cant_be_homing");if(homing)d.entityTags().add("homing");game.items().markCurrentItemEpoch(d);game.items().timeStop().prepareFrozen(d);spawning.add(d);try{return p.level().addFreshEntity(d)&&!d.isRemoved()?d:null;}finally{spawning.remove(d);}
+        if(fast)d.setItemStack(new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:yellow_stained_glass"))));
+        d.setPos(pos);d.setNoGravity(true);d.entityTags().add(TAG);d.entityTags().add("magic");d.entityTags().add("slowraycast");d.entityTags().add("player");d.entityTags().add(bomb?(fast?"danmaku_bomb_fast":"danmaku_bomb"):"danmaku");if(bomb)d.entityTags().add("cant_be_homing");if(homing)d.entityTags().add("homing");game.items().markCurrentItemEpoch(d);game.items().timeStop().prepareFrozen(d);spawning.add(d);try{return p.level().addFreshEntity(d)&&!d.isRemoved()?d:null;}finally{spawning.remove(d);}
     }
     private static void scale(Display.ItemDisplay d,float value){d.setTransformation(new com.mojang.math.Transformation(new org.joml.Vector3f(),new org.joml.Quaternionf(),new org.joml.Vector3f(value),new org.joml.Quaternionf()));}
     private static void orient(Card c){var v=c.direction;c.display.setYRot((float)Math.toDegrees(Math.atan2(-v.x,v.z)));c.display.setXRot((float)-Math.toDegrees(Math.atan2(v.y,Math.sqrt(v.x*v.x+v.z*v.z))));}
@@ -219,12 +232,13 @@ public final class LbcDanmaku {
 
     private void tick(Bomb b){
         if(!valid(b.owner,b.positive)||!valid(b.owner,b.negative)){remove(b);return;}if(game.items().timeStop().frozen(b.positive)||b.positive.entityTags().contains("time_stopped"))return;
-        b.age+=4;scale(b.positive,b.age*.2f);scale(b.negative,-b.age*.2f);
+        if(b.fast){if(b.age<=b.charge)b.age+=10;if(b.age<=11){scale(b.positive,b.charge*.1f);scale(b.negative,-b.charge*.1f);}}
+        else{b.age+=4;scale(b.positive,b.age*.2f);scale(b.negative,-b.age*.2f);}
         int radius=b.radius();game.items().wands().clearDanmakuRays(b.owner,b.positive.position(),radius);for(var e:b.positive.level().getEntities(b.positive,b.positive.getBoundingBox().inflate(radius),e->e!=b.negative&&e.distanceToSqr(b.positive)<=radius*(double)radius)){
             if(hostileProjectile(b.owner,e)){e.discard();continue;}
-            if(e instanceof LivingEntity living&&game.items().wands().target(b.owner,e))damage(b.owner,living,b.positive,true,1);
+            if(e instanceof LivingEntity living&&game.items().wands().target(b.owner,e))damage(b.owner,living,b.positive,true,b.fast?2:1);
         }
-        if(b.age>b.charge)remove(b);
+        if(b.age>b.charge&&(!b.fast||++b.empty>=60))remove(b);
     }
     private boolean hostileProjectile(ServerPlayer p,Entity e){
         if(managed(e)){var owner=owner(e);return owner!=null&&owner!=p&&!p.isAlliedTo(owner)&&cards.stream().anyMatch(c->c.display==e);}
@@ -305,6 +319,48 @@ public final class LbcDanmaku {
             if(!display.isRemoved()&&!game.items().timeStop().frozen(display)&&!display.entityTags().contains("time_stopped")
                     &&LbcPlanetoidSkill.near(game,holder,(ServerLevel)display.level(),display.position()))
                 LbcPlanetoidSkill.orient(display,LbcPlanetoidSkill.direction(holder,display.position(),82));
+    }
+
+    boolean cloneProtected(Entity entity){return bombs.stream().anyMatch(b->b.negative==entity);}
+    LbcCloneSkills.ActorImage cloneImage(Entity original){
+        var card=cards.stream().filter(c->c.display==original).findFirst().orElse(null);
+        var bomb=bombs.stream().filter(b->b.positive==original).findFirst().orElse(null);
+        if(card==null&&bomb==null)return null;
+        final ServerPlayer owner=card!=null?card.owner:bomb.owner;
+        final int age=card!=null?card.age:bomb.age,charge=bomb==null?0:bomb.charge,empty=bomb==null?0:bomb.empty;
+        final Vec3 direction=card==null?Vec3.ZERO:card.direction;
+        final boolean homing=card!=null&&card.homing,fast=bomb!=null&&bomb.fast;
+        return new LbcCloneSkills.ActorImage(){
+            private final Map<Entity,Display.ItemDisplay> companions=new IdentityHashMap<>();
+            public void install(Entity source,Entity clone,Map<Entity,Entity> family){
+                var display=(Display.ItemDisplay)clone;
+                if(card!=null){var copied=new Card(owner,display,direction,homing);copied.age=age;cards.add(copied);return;}
+                var negative=LbcDanmaku.this.display(owner,clone.position(),false,true,fast);
+                if(negative==null)throw new IllegalStateException("Native Danmaku cloned companion publication failed");
+                companions.put(clone,negative);
+                negative.entityTags().remove("act");scale(negative,age==0?-1:fast?-charge*.1f:-age*.2f);
+                var copied=new Bomb(owner,display,negative,charge,fast);copied.age=age;copied.empty=empty;bombs.add(copied);
+            }
+            public void rollback(Entity clone){try{for(var c:List.copyOf(cards))if(c.display==clone)remove(c);for(var b:List.copyOf(bombs))if(b.positive==clone)remove(b);}finally{var companion=companions.remove(clone);if(companion!=null)companion.discard();}}
+        };
+    }
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){if(!spawning.isEmpty())throw new IllegalStateException("Danmaku checkpoint during native publication");return new Checkpoint(links);}
+    final class Checkpoint{
+        private record CardImage(MatchDamageSources.Ref owner,MatchDamageSources.Ref display,Vec3 direction,boolean homing,int age){}
+        private record BombImage(MatchDamageSources.Ref owner,MatchDamageSources.Ref positive,MatchDamageSources.Ref negative,int charge,boolean fast,int age,int empty){}
+        private final List<CardImage> savedCards;
+        private final List<BombImage> savedBombs;
+        private final Map<UUID,Map<InteractionHand,External>> savedExternal=new HashMap<>();
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            savedCards=cards.stream().map(c->new CardImage(links.key(c.owner),links.key(c.display),c.direction,c.homing,c.age)).toList();
+            savedBombs=bombs.stream().map(b->new BombImage(links.key(b.owner),links.key(b.positive),links.key(b.negative),b.charge,b.fast,b.age,b.empty)).toList();
+            external.forEach((id,hands)->savedExternal.put(id,Map.copyOf(hands)));
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var restoredCards=new ArrayList<Card>();for(var image:savedCards){var card=new Card((ServerPlayer)links.get(image.owner),(Display.ItemDisplay)links.get(image.display),image.direction,image.homing);card.age=image.age;restoredCards.add(card);}
+            var restoredBombs=new ArrayList<Bomb>();for(var image:savedBombs){var bomb=new Bomb((ServerPlayer)links.get(image.owner),(Display.ItemDisplay)links.get(image.positive),(Display.ItemDisplay)links.get(image.negative),image.charge,image.fast);bomb.age=image.age;bomb.empty=image.empty;restoredBombs.add(bomb);}
+            return ()->{cards.clear();cards.addAll(restoredCards);bombs.clear();bombs.addAll(restoredBombs);external.clear();savedExternal.forEach((id,hands)->{var copy=new EnumMap<InteractionHand,External>(InteractionHand.class);copy.putAll(hands);external.put(id,copy);});targets.clear();};
+        }
     }
 
 }

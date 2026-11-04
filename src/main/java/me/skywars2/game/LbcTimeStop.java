@@ -36,6 +36,7 @@ public final class LbcTimeStop {
     private final Map<Entity,Frozen> frozen=new IdentityHashMap<>();
     private final Map<UUID,Cooldown> cooldowns=new HashMap<>();
     private final Map<ServerPlayer,Exemption> exemptions=new IdentityHashMap<>();
+    private final Map<ServerLevel,Set<UUID>> touhouCasters=new IdentityHashMap<>();
     private final Map<ServerLevel,ArrayDeque<Hit>> hits=new IdentityHashMap<>();
     private final Map<ServerLevel,Trail> trails=new IdentityHashMap<>();
     private static final class Trail {
@@ -127,6 +128,17 @@ public final class LbcTimeStop {
         return true;
     }
 
+    /** Source consumable replaces the common stop's remaining duration with eleven seconds. */
+    public boolean useTouhouClock(ServerPlayer player){
+        if(rewinding!=null||!game.canUseGameplayItems(player)||!player.isAlive()||player.isRemoved()
+                ||game.stage()==GameController.Stage.ENDING||game.items().actionsBlocked(player)
+                ||frozen(player)||game.items().wands().inputTimeStopped(player))return false;
+        touhouCasters.computeIfAbsent(player.level(),key->new HashSet<>()).add(player.getUUID());
+        begin(player.level(),220);
+        LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",.5f,1,0,.5f);
+        return true;
+    }
+
     /** Продление не переснимает нулевой Motion и не нормализует повторно очередь scheduled ticks. */
     void begin(ServerLevel level,int ticks) {
         if(rewinding!=null)throw new IllegalStateException("Finish the Time Stop checkpoint transaction before starting a stop");
@@ -143,6 +155,8 @@ public final class LbcTimeStop {
     public boolean frozen(Entity entity) {
         if(rewinding!=null)return false;
         if(!(entity.level() instanceof ServerLevel level) || !stopped(level) || entity.isRemoved()) return false;
+        var casters=touhouCasters.get(level);
+        if(casters!=null&&(casters.contains(entity.getUUID())||entity instanceof net.minecraft.world.entity.Mob mob&&mob.isNoAi()))return false;
         if(entity.entityTags().contains("have_stand")) return false;
         if(game.items().stand().movesDuringTimeStop(entity)) return false;
         if(entity instanceof ServerPlayer player) {
@@ -304,6 +318,7 @@ public final class LbcTimeStop {
     }
     void end(ServerLevel level) {
         if(stops.remove(level)==null) return;
+        touhouCasters.remove(level);
         var trail=trails.remove(level);
         if(trail!=null&&game.items().currentEpoch(trail.epoch)){
             var dust=new net.minecraft.core.particles.DustColorTransitionOptions(0xffffff,0,3);
@@ -374,13 +389,14 @@ public final class LbcTimeStop {
     void forget(ServerPlayer player) {
         var state=frozen.remove(player); if(state!=null) restore(player,state);
         exemptions.remove(player); cooldowns.remove(player.getUUID());
+        for(var casters:touhouCasters.values())casters.remove(player.getUUID());
     }
     void stop() {
         rewinding=null; // Match/service cancellation must not leave the next stop permanently gated.
         // Match/epoch cancellation restores physics but must not replay an old stop's presentation.
         trails.clear();
         for(var level:List.copyOf(stops.keySet())) end(level);
-        cooldowns.clear(); exemptions.clear(); hits.clear(); replaying=null;
+        cooldowns.clear(); exemptions.clear(); touhouCasters.clear(); hits.clear(); replaying=null;
         LbcTimeStopSchedules.clear();
     }
 
@@ -406,9 +422,11 @@ public final class LbcTimeStop {
         private final List<Exempt> immune;
         private final Map<ServerLevel,List<Damage>> damage=new IdentityHashMap<>();
         private final Map<ServerLevel,Path> paths=new IdentityHashMap<>();
+        private final Map<ServerLevel,Set<UUID>> casterLeases=new IdentityHashMap<>();
         Checkpoint(MatchDamageSources sources){
             this.sources=sources;stable(false);if(rewinding!=null||replaying!=null)throw new IllegalStateException("Capture Time Stop outside replay/rewind callbacks");validateContacts();clocks=new LbcTimeStopSchedules.Checkpoint(game.server());
             stopped.putAll(stops);cooldowns.forEach((id,value)->cool.put(id,new Cool(value.level,value.ticks)));
+            touhouCasters.forEach((level,ids)->casterLeases.put(level,Set.copyOf(ids)));
             var leaseIds=new IdentityHashMap<Contact,Integer>();var leaseLevels=new IdentityHashMap<Contact,ServerLevel>();for(var state:frozen.values())if(state.contact!=null)leaseLevels.put(state.contact,state.level);
             var allLeases=new java.util.ArrayList<Lease>();for(var contact:contactLeases){var level=leaseLevels.get(contact);if(level==null||level.getChunkSource().getChunkNow(contact.pos.getX()>>4,contact.pos.getZ()>>4)!=contact.chunk)throw new IllegalStateException("Reconcile loaded Time Stop contact chunks before capture");leaseIds.put(contact,allLeases.size());allLeases.add(new Lease(level,contact.pos.immutable(),contact.previous,contact.holders));}leases=List.copyOf(allLeases);
             var allCells=new java.util.ArrayList<Cell>();contacts.forEach((level,map)->map.forEach((pos,contact)->allCells.add(new Cell(level,pos.immutable(),leaseIds.get(contact)))));cells=List.copyOf(allCells);
@@ -429,7 +447,7 @@ public final class LbcTimeStop {
             for(var lease:leases)chunk(lease); // Entire loaded-contact preflight precedes writes.
             rewinding=this;
             for(var state:List.copyOf(frozen.values()))releaseContact(state);
-            stops.clear();frozen.clear();cooldowns.clear();exemptions.clear();hits.clear();trails.clear();contacts.clear();contactLeases.clear();
+            stops.clear();frozen.clear();cooldowns.clear();exemptions.clear();touhouCasters.clear();hits.clear();trails.clear();contacts.clear();contactLeases.clear();
             clocks.restoreFrozen();
         }
         private net.minecraft.world.level.chunk.LevelChunk chunk(Lease lease){
@@ -453,6 +471,7 @@ public final class LbcTimeStop {
             for(var cell:cells)contacts.computeIfAbsent(cell.level,key->new HashMap<>()).put(cell.pos,restored.get(cell.lease));
             for(var body:bodies){var state=new Frozen(body.level,body.position,body.velocity,body.yaw,body.pitch,body.noGravity);state.correctedAt=stamp(body.corrected);state.presentedAt=stamp(body.presented);if(body.lease>=0)state.contact=restored.get(body.lease);frozen.put(resolved.get(body.ref),state);}
             stopped.forEach(stops::put);cool.forEach((id,value)->{var current=new Cooldown(value.level);current.ticks=value.ticks;cooldowns.put(id,current);});
+            casterLeases.forEach((level,ids)->touhouCasters.put(level,new HashSet<>(ids)));
             for(var cache:immune)exemptions.put((ServerPlayer)resolved.get(cache.ref),new Exemption(stamp(cache.tick),cache.immune));
             damage.forEach((level,queue)->{var current=new ArrayDeque<Hit>();for(var hit:queue)current.add(new Hit((LivingEntity)resolved.get(hit.ref),hit.level,MatchDamageSources.value(hit.source),hit.amount,hit.epoch));hits.put(level,current);});
             paths.forEach((level,image)->{var path=new Trail(image.epoch);for(var point:image.points){path.points.add(point);path.cells.computeIfAbsent(BlockPos.containing(point),key->new java.util.ArrayList<>()).add(point);}trails.put(level,path);});

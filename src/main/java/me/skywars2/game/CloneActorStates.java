@@ -15,7 +15,7 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
     CloneActorStates(GameController game){this.game=game;}
     public boolean completeCoverage(){return true;}
     public boolean protectedActor(Entity e){
-        return CloneSimpleProjectileStates.protectedActor(e)||CloneComplexProjectileStates.protectedActor(e)
+        return game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.protectedActor(e)||CloneComplexProjectileStates.protectedActor(e)
                 ||CloneMobStates.protectedActor(e)||CloneOtherActorStates.protectedActor(e)
                 ||CloneEncounterStates.protectedActor(e)||CloneVirtualAbilityStates.protectedActor(e)
                 ||CloneRemainingStatusStates.protectedActor(e)||CloneExtraAbilityStates.protectedActor(e)
@@ -27,7 +27,7 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
         return e instanceof LbcWtf.Chef||(CloneEncounterStates.recognizes(e)||CloneMobStates.recognizes(e))&&e instanceof net.minecraft.world.entity.LivingEntity;
     }
     public boolean gameplayActor(Entity e){
-        return CloneSimpleProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
+        return LbcDanmaku.managed(e)&&!game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||CloneComplexProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||e instanceof LbcFpvDrone.Drone||CloneVirtualAbilityStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||(CloneRemainingStatusStates.recognizesGameplay(e)||CloneExtraAbilityStates.recognizesGameplay(e))&&!(e instanceof net.minecraft.world.entity.Mob)
@@ -36,6 +36,7 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
     public LbcCloneSkills.ActorImage capture(Entity source){
         // A hidden pre-form body is captured only by its own polymorph image's auxiliary transaction.
         var factories=new ArrayList<LbcCloneSkills.ActorImage>();
+        if(LbcDanmaku.managed(source)&&!require(factories,game.items().danmaku().cloneImage(source)))return null;
         if(CloneSimpleProjectileStates.recognizes(source)&&!require(factories,CloneSimpleProjectileStates.capture(game,source)))return null;
         if(CloneComplexProjectileStates.recognizes(source)&&!require(factories,CloneComplexProjectileStates.capture(game,source)))return null;
         if(CloneOtherActorStates.recognizes(source)&&!require(factories,CloneOtherActorStates.capture(game,source)))return null;

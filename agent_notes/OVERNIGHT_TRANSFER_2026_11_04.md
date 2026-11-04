@@ -1,0 +1,105 @@
+# Overnight native transfer — 4 November 2026
+
+Author instruction: continue while absent; collect questions in
+[NIGHT_QUESTIONS_2026_11_04.md](NIGHT_QUESTIONS_2026_11_04.md). Existing author
+answers and `PENDING_QUESTIONS.md` remain untouched. TMT LAST; no arbitrary
+function execution, main-server restart, or author resource-pack mutation.
+
+## Closed batch — qualified and installed
+
+- **admin_zaika is passive.** The earlier claim that an active spell remained
+  unported was incorrect: neither live source dispatcher nor registered Paper
+  code has one. Ready leaf references the existing canonical birthday item.
+  Twelve exact Loli exclusions now use carried-slot predicates, including
+  armor/offhand; every other condition and weight is unchanged. Neko retains
+  luck-key priority and five equal full-set outcomes, including the technical
+  set's extra exoskeleton.
+- **Expansion24:** actual sixty-tick charge, directional virtual frontier,
+  source probability/order/down-copy and container normalization, shared fair
+  terrain work, temporary chunk tickets, source1106 palette slots plus missing
+  current vanilla defaults. New native lucky-block carriers normalize before
+  cloning. No per-cell entities, world scans, or silent accepted-cell limit.
+- **Hakurei28 and complete Touhou chain:** four rolls per actual newly published
+  victim item/XP body through the existing native death scope. Nested/same-tick
+  deaths remain separate. Resident XP merges add no new-body roll; ordinary XP
+  stays unchanged. Synthetic copied drops and Touhou outputs are excluded.
+  All ten collectibles work for any admitted picker. Once-per-intake fragment
+  conversion and excess counters preserve the source. Shared fast Danmaku bomb
+  and eleven-second TimeStop consumables replace vanilla projectile workarounds.
+
+New scalar/queue state joins Resident checkpoint ownership; Danmaku joins the
+existing Spell Links graph and managed clone adapter. No private world rewind.
+Actual inventory events coalesce into a fair queue of at most32 visits per tick;
+paused/rejected entries rotate and remain pending. Scalar custom-data reads use
+the existing borrowed `ItemData` accessor, without whole-tag copies.
+
+Source/default jammer and mixed-clock rules awaiting the author are explicitly
+listed in the questions file. They are not recorded as author-approved rules.
+
+## Evidence and current status
+
+Implementation notes: [Zaika source](NIGHT_ZAIKA_SOURCE_2026_11_04.md),
+[Zaika native](NIGHT_ZAIKA_NATIVE_2026_11_04.md),
+[Expansion](NIGHT_EXPANSION_NATIVE_2026_11_04.md),
+[Hakurei/Touhou](NIGHT_HAKUREI_NATIVE_2026_11_04.md),
+[actual death scope](NIGHT_HAKUREI_DEATH_2026_11_04.md),
+[checkpoint/clone integration](NIGHT_CHECKPOINT_INTEGRATION_2026_11_04.md),
+[resource closure](NIGHT_RESOURCE_INTEGRATION_2026_11_04.md).
+
+`build/verification/overnight-2026-11-04/` owns baseline, exact compile inputs,
+source equality/closure proofs, both candidate archives, archive-entry byte proof,
+native results and normal-stop/restoration evidence. Initial compile exposed
+current26.3 API differences in block-state values, chest naming, chunk keys and
+colored item constants; those were corrected before candidate packaging.
+
+Fresh offline compile passed. Final test223c424b / production8d6afa66 contains19
+fresh Java families/18 resources, preserving9942 other qualified inputs and272
+author paths. Static closure:48 tables/51 edges/missing0; original Touhou total3234.
+Every archive entry is verified, including absence of authoring/deletion classes
+from production. All12 planned scopes passed in12 actual mode1 matches on that
+exact artifact, with normal child shutdown, exact fixture restoration and no
+retained child PID/locks. Qualification does not claim physical-client visuals,
+audio, arbitrary-map behavior or peak TPS.
+
+`qualification.json` lists all12 exact scopes and their three result files.
+`main-install.json` confirms installation over ea9d5066 using its rollback archive,
+with `restarted:false`. Both build/libs artifacts are updated. No main server
+stop/start was performed. Release gates for other modes/skill2/TMT remain unchanged.
+Pending author choices are explicitly recorded as source defaults, not approvals.
+
+First native candidate179633cc: Zaika passed; Expansion/Hakurei/Danmaku-clones
+failed and the candidate was not installed. The full failure log is retained.
+Touhou's newly admitted source resources still used pre26.3 `functions/function`
+fields, which the current loot codec ignored. The twelve affected documents now
+use `modifier/type`; canonical normalized source equality still passes. The
+Expansion fixture now allows ordinary mushroom-face neighbor updates after
+conversion, while still requiring the correct ordinary block and absence of
+every native lucky-block carrier. Its previous all-faces-true assertion was
+stronger than source gameplay and normal block updates. No production terrain
+semantics were loosened to satisfy this fixture.
+
+Candidate512c65d2 passed Expansion and reached the successful Hakurei path, then
+its fixture cleanup removed entities while iterating the live entity collection.
+The resulting cleanup exception ended that isolated child. Cleanup now snapshots
+its selected bodies before removals, and scheduled failures log an explicit FAIL
+without escaping the server tick. Normal child exit and exact fixture restoration
+were verified; this was not a main-server operation.
+
+Candidate223c424b passed all four new native scopes. A separately attempted older
+`vanity-resident-spells` regression fails during setup: its own scene explosion
+kills TestAlpha and clears the Stand clocks before their activation assertion.
+An unchanged qualified ea9d5066 control reproduces the identical failure in
+`baseline-control/`. Diagnostic8f08f980 additionally records empty hand,
+alive=false/admitted=false and no cooldown/jammer/action restriction. That
+diagnostic-only fixture edit was then removed exactly. Failure/control archives
+remain. The final regression plan uses the existing `vanity-rollback` control
+alongside the three new nonempty whole-coordinator scenes; it does not claim the
+unrelated old resident fixture passed or change its production mechanics.
+
+## Subsequent work
+
+[Mode source audit](NIGHT_MODES_SOURCE_2026_11_04.md) confirms1 SkyWars,
+2 Lucky Blocks SkyWars,3 BedWars,4 Lucky Blocks BedWars. Mode2/4 retain the
+concrete Neko→TMT downstream gate; source table closure alone does not qualify
+behavior. Mode3's full native lifecycle/shop/map dependency audit is separate.
+Homing30 and Phoenix31 remain unpublished pending the recorded author decisions.

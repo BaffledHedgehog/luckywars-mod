@@ -68,11 +68,48 @@
               },
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               }
@@ -118,11 +155,48 @@
               },
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               }
@@ -153,11 +227,48 @@
               },
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               }
@@ -230,11 +341,48 @@
               },
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               }
@@ -265,11 +413,48 @@
               },
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               }
@@ -305,11 +490,48 @@
               },
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               }
@@ -372,11 +594,48 @@
             "terms": [
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               },
@@ -407,11 +666,48 @@
             "terms": [
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               },
@@ -441,11 +737,48 @@
           "weight": 10,
           "condition": {
             "term": {
-              "entity": "this",
-              "predicate": {
-                "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-              },
-              "type": "minecraft:entity_properties"
+              "type": "minecraft:any_of",
+              "terms": [
+                {
+                  "type": "minecraft:entity_properties",
+                  "entity": "this",
+                  "predicate": {
+                    "slots": {
+                      "container.*": {
+                        "predicates": {
+                          "minecraft:custom_data": "{zaika:1}"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "minecraft:entity_properties",
+                  "entity": "this",
+                  "predicate": {
+                    "slots": {
+                      "armor.*": {
+                        "predicates": {
+                          "minecraft:custom_data": "{zaika:1}"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "minecraft:entity_properties",
+                  "entity": "this",
+                  "predicate": {
+                    "slots": {
+                      "weapon.offhand": {
+                        "predicates": {
+                          "minecraft:custom_data": "{zaika:1}"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
             },
             "type": "minecraft:inverted"
           }
@@ -495,11 +828,48 @@
             "terms": [
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               },
@@ -535,11 +905,48 @@
             "terms": [
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               },
@@ -583,11 +990,48 @@
             "terms": [
               {
                 "term": {
-                  "entity": "this",
-                  "predicate": {
-                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
-                  },
-                  "type": "minecraft:entity_properties"
+                  "type": "minecraft:any_of",
+                  "terms": [
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "container.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "armor.*": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "minecraft:entity_properties",
+                      "entity": "this",
+                      "predicate": {
+                        "slots": {
+                          "weapon.offhand": {
+                            "predicates": {
+                              "minecraft:custom_data": "{zaika:1}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
                 "type": "minecraft:inverted"
               },

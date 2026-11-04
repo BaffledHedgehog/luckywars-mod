@@ -53,6 +53,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         }
         return InteractionResult.PASS;
     }
+    private static InteractionResult touhouUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
+        if(game==null||!(player instanceof ServerPlayer owner)||!me.skywars2.game.LbcTouhouCollectibles.consumable(owner.getItemInHand(hand)))return InteractionResult.PASS;
+        return game.items().touhouCollectibles().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+    }
     private static InteractionResult nexusToolUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
         if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.PASS;
         var held=player.getItemInHand(hand);boolean compass=LbcNexusToolItems.isCompass(held);
@@ -226,6 +230,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
             if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
@@ -378,6 +383,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
             if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))

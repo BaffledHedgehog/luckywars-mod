@@ -26,6 +26,22 @@ dependencies {
 }
 
 processResources {
+    // Closed overnight batch: source Touhou pool (all eleven entries), bomb and ready singleton leaves.
+    include 'data/lbc/loot_table/touhou_item.json', 'data/lbc/loot_table/bomb_item.json'
+    include 'data/lbc/loot_table/ported/admin_zaika.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_1.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_2.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_3.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_4.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_5.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_6.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_7.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_8.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_9.json'
+    include 'data/lbc/loot_table/ported/touhou_collectible_10.json'
+    include 'data/lbc/loot_table/ported/touhou_bomb_item.json'
+    include 'data/lbc/loot_table/ported/touhou_time_stopper.json'
+
     include 'data/lbc/loot_table/lightsaber.json', 'data/lbc/loot_table/pozdman_bot.json', 'data/lbc/loot_table/halloween/pumpkin_curse.json'
     include 'data/lbc/loot_table/ported/lightsaber_*.json', 'data/lbc/loot_table/ported/pozdman_bot.json', 'data/lbc/loot_table/ported/cursed_pumpkin.json', 'data/lbc/loot_table/ported/pumpkin_king_sword.json'
 

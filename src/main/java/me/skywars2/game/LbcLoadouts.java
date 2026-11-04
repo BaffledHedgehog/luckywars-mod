@@ -338,7 +338,7 @@ public final class LbcLoadouts {
         var profile = players.get(player.getUUID());
         switch (kind) {
             case KITS -> profile.lbcKit = entry.id;
-            case SKILLS -> { game.items().godClaw().clear(player);game.items().stoneGolemSkill().clear(player);game.items().championSkill().clear(player);game.items().symbioteSkill().clear(player);game.items().zeusSkill().clear(player);game.items().machinegunSkill().clear(player);game.items().containedSkills().clear(player);profile.lbcSkill = entry.id; refreshArtifactView(player); LbcParasite.beforeEffects(player);game.items().containedSkills().beforeEffects(player); }
+            case SKILLS -> { game.items().godClaw().clear(player);game.items().expansionSkill().clear(player);game.items().stoneGolemSkill().clear(player);game.items().championSkill().clear(player);game.items().symbioteSkill().clear(player);game.items().zeusSkill().clear(player);game.items().machinegunSkill().clear(player);game.items().containedSkills().clear(player);profile.lbcSkill = entry.id; refreshArtifactView(player); LbcParasite.beforeEffects(player);game.items().containedSkills().beforeEffects(player); }
             case TRINKETS -> {
                 int limit = Math.max(1, config.lbcTrinketLimit);
                 int slotIndex = Math.floorMod(profile.lbcTrinketSlot, limit);

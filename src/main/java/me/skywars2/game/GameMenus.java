@@ -416,7 +416,7 @@ public final class GameMenus {
                 null, List.of(), () -> {
                     switch (page) {
                         case LBC_KITS -> p.lbcKit = 0;
-                        case LBC_SKILLS -> {controller.items().godClaw().clear(player);controller.items().stoneGolemSkill().clear(player);controller.items().championSkill().clear(player);p.lbcSkill = 0;}
+                        case LBC_SKILLS -> {controller.items().godClaw().clear(player);controller.items().expansionSkill().clear(player);controller.items().stoneGolemSkill().clear(player);controller.items().championSkill().clear(player);p.lbcSkill = 0;}
                         case LBC_TRINKETS -> {
                             p.lbcTrinket = 0;
                             java.util.Arrays.fill(p.trinkets, 0);

@@ -1,3 +1,35 @@
+## Overnight Zaika / Expansion / Hakurei - QUALIFIED, INSTALLED (4 November 2026)
+
+[Source, failures, exact qualification and follow-up](agent_notes/OVERNIGHT_TRANSFER_2026_11_04.md).
+AUTHOR ASLEEP: continue transfer; collect questions in
+[the separate night file](agent_notes/NIGHT_QUESTIONS_2026_11_04.md), currently9.
+PENDING SOURCE DEFAULTS (not author approvals): Expansion MAG/artifact frontier-only;
+Touhou rewards/intake/consumable launches no extra local jammer gates, existing
+magical bomb clearing retained; Touhou shared clock sets remaining11s. Questions1-3.
+
+admin_zaika is PASSIVE, no active spell exists in source. Canonical birthday leaf,
+12 exact Loli carried-slot negative gates, five equal Neko full sets and luck-key
+priority. Expansion24 virtual directional field/source probabilities/down-copy,
+clear container before clones/native Lucky normalization,1106 retained slots plus
+182 current vanilla defaults (1288 weighted total), shared fair work/tickets.
+Hakurei28 four rolls per actual victim item/XP body; shared native death scopes,
+no global age scan or synthetic descendants. All10 Touhou collectibles/one-shot
+thresholds, fair dirty inventory events and borrowed scalar custom-data reads.
+Source fast paired Danmaku bomb/11s consumable clock share existing engines;
+typed Resident/Spell/queued graph and x2/x4 families preserve active state.
+Source models/styles/menu gates/status glyphs retained,13 new ready leaves, no RP edits.
+
+Test223c424b / production8d6afa66:12groups/12actual mode1matches passed exact JAR,
+19fresh Java families/18resources,9942otherinputs/272authorpaths guarded; all ZIP
+entries verified, authoring absent production. Fixture normal/exact/no locks.
+Both build/libs/main JAR updated with ea9d5066 rollback,restarted:false. No main
+stop/start, physical-client/audio or peakTPS claim. Old vanity-resident fixture
+also fails on unchanged ea9d5066: its setup explosion kills the clock user before
+activation. Failure/control evidence retained; final full rollback and3new nonempty
+coordinator scenes pass, no claim that old fixture passed. Other gates unchanged;
+TMT LAST. Mode3 full source/protection audits prepared, not a playable mode release.
+Evidence:build/verification/overnight-2026-11-04/.
+
 ## God Claw / Mana Vampirism / Champion / Stone Golem - QUALIFIED, INSTALLED (4 November 2026)
 
 [Author rulings, source closure and exact evidence](agent_notes/ADVANCED_SKILLS_PORT_2026_11_04.md).
@@ -26,7 +58,7 @@ Testea9d5066 / production7b262c21:15groups/15actual mode1matches passed exact JA
 entry verified, authoring absent production. Fixture normal/exact/no locks.
 Both build/libs/main JAR updated with b9e191a9rollback,restarted:false. No main
 stop/start, physical-client/audio or peakTPS claim. Other mode/skill2/TMT/fullrewind
-gates unchanged; TMT LAST. admin_zaika active ability still unported (status checked).
+gates unchanged; TMT LAST. admin_zaika is passive; the prior active-ability status was incorrect (corrected by overnight source audit).
 Evidence:build/verification/advanced-skills-2026-11-04/.
 
 ## November lightsabers / Pozdman / Cursed Pumpkin - QUALIFIED, INSTALLED (4 November 2026)
