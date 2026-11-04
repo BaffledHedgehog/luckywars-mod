@@ -218,6 +218,7 @@ public final class LbcIndirectKills {
         if(controller!=null && controller.items().communism().owner(source) instanceof ServerPlayer player)return player;
         var game=me.skywars2.SkyWars2.game();
         if(source!=null&&game!=null&&game.bedwars()!=null&&game.bedwars().auxiliaries().owner(source) instanceof ServerPlayer player)return player;
+        if(game!=null && game.items().cosmetics().owner(source) instanceof ServerPlayer player)return player;
         if(game!=null && game.items().spellSources().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().chaosTrapActors().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().magicBean().owner(source) instanceof ServerPlayer player) return player;
@@ -766,6 +767,7 @@ public final class LbcIndirectKills {
     }
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
+        var cosmeticCause=game.items().cosmetics().cause(source.getDirectEntity());if(cosmeticCause!=null)return cosmeticCause;
         if(LbcSpecialFireballs.managed(source.getDirectEntity())&&game.items().specialFireballs().owner(source.getDirectEntity()) instanceof ServerPlayer player)return wildCause(player);
         var event=game.items().apocalypseEvents().cause(source.getDirectEntity());if(event!=null)return event;
         var shish=game.items().shishEncounter().cause(source.getDirectEntity());if(shish!=null)return shish;

@@ -28,7 +28,8 @@ public abstract class AdvancementFilterMixin {
             if (id.getNamespace().equals("lbc") && (id.getPath().equals("true_advancements")
                     || id.getPath().startsWith("true_advancements/")
                     // Внутренний impossible-флаг награды; без display он не создаёт ещё одну ветку UI.
-                    || id.getPath().equals("challenges/no_knowledge"))) allowed.put(id, holder);
+                    || id.getPath().equals("challenges/no_knowledge"))
+                    || me.skywars2.game.LbcSourceUnlocks.caseAdvancement(id)) allowed.put(id, holder);
         });
         advancements = Map.copyOf(allowed);
         tree = new AdvancementTree();

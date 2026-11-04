@@ -190,6 +190,90 @@ final class OriginalGuiDesign {
         return true;
     }
 
+    private static JsonObject cosmeticDesign;
+
+    /** Finite authored detail-page data; shares the original item and text owners. */
+    private static JsonObject cosmeticDesign() {
+        if (cosmeticDesign != null) return cosmeticDesign;
+        try (InputStream input = OriginalGuiDesign.class.getResourceAsStream("/skywars2/cases_cosmetics_menu_source.json")) {
+            if (input == null) throw failure("Missing cosmetic detail source");
+            cosmeticDesign = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
+            return cosmeticDesign;
+        } catch (Exception e) { throw new IllegalStateException("Could not load cosmetic detail source", e); }
+    }
+
+    static ItemStack cosmeticButton(ServerPlayer player, int page, int slot, int selected,
+                                    PlayerStore.Profile profile, GameConfig config) {
+        ItemStack stack = ItemStack.EMPTY;
+        var prepared = cosmeticDesign();
+        for (var element : prepared.getAsJsonObject("pages").getAsJsonArray(Integer.toString(page))) {
+            var step = element.getAsJsonObject();
+            if (step.get("slot").getAsInt() != slot) continue;
+            if (step.has("season") && step.get("season").getAsString().equals("halloween") != config.eventHalloween) continue;
+            if (step.has("gate") && LbcSourceUnlocks.has(player, profile, step.get("gate").getAsString())
+                    != step.get("owned").getAsBoolean()) continue;
+            if (step.has("table")) stack = button(player, step.get("table").getAsString(), profile, config);
+            if (step.has("literal")) {
+                try {
+                    stack = new net.minecraft.commands.arguments.item.ItemParser(player.registryAccess())
+                            .parse(new com.mojang.brigadier.StringReader(step.get("literal").getAsString())).createItemStack(1);
+                } catch (Exception e) { throw new IllegalStateException("Invalid authored cosmetic literal", e); }
+            }
+            if (step.has("modifier") && !stack.isEmpty())
+                cosmeticModifier(stack, step.get("modifier").getAsString(), player, profile, config);
+        }
+        if (!stack.isEmpty()) for (var overlay : prepared.getAsJsonObject("overlays").getAsJsonArray(Integer.toString(page))) {
+            var value = overlay.getAsJsonObject();
+            if (value.get("slot").getAsInt() == slot && value.get("selected").getAsInt() == selected)
+                cosmeticModifier(stack, "swrg:select", player, profile, config);
+        }
+        return stack;
+    }
+
+    private static JsonElement cosmeticText(JsonElement source, RuntimeValues values) {
+        if (source.isJsonArray()) {
+            var result = new JsonArray();
+            for (var child : source.getAsJsonArray()) result.add(cosmeticText(child, values));
+            return result;
+        }
+        if (!source.isJsonObject()) return source.deepCopy();
+        var object = source.getAsJsonObject();
+        if (object.has("nbt") && object.has("storage") && object.get("storage").getAsString().equals("swrg:lang"))
+            return resolveStorageComponent(object.get("nbt").getAsString(), values);
+        var result = new JsonObject();
+        for (var entry : object.entrySet()) result.add(entry.getKey(), cosmeticText(entry.getValue(), values));
+        return resolveDynamic(result, values, "cosmetic source component");
+    }
+
+    private static void cosmeticModifier(ItemStack stack, String id, ServerPlayer player,
+                                          PlayerStore.Profile profile, GameConfig config) {
+        var values = new RuntimeValues(profile, config, player);
+        for (var element : cosmeticDesign().getAsJsonObject("modifiers").getAsJsonArray(id)) {
+            var function = element.getAsJsonObject();
+            switch (function.get("function").getAsString()) {
+                case "minecraft:set_name" -> stack.set(DataComponents.CUSTOM_NAME,
+                        decodeComponent(cosmeticText(function.get("name"), values), id));
+                case "minecraft:set_lore" -> {
+                    var lines = new ArrayList<Component>();
+                    for (var line : function.getAsJsonArray("lore"))
+                        lines.add(decodeComponent(cosmeticText(line, values), id));
+                    var current = stack.get(DataComponents.LORE);
+                    String mode = function.has("mode") ? function.get("mode").getAsString() : "append";
+                    if (current != null && mode.equals("insert")) lines.addAll(current.lines());
+                    else if (current != null && mode.equals("append")) lines.addAll(0, current.lines());
+                    stack.set(DataComponents.LORE, new ItemLore(lines));
+                }
+                case "minecraft:set_components" -> {
+                    var components = function.getAsJsonObject("components");
+                    if (components.has("minecraft:enchantment_glint_override"))
+                        stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, components.get("minecraft:enchantment_glint_override").getAsBoolean());
+                    else throw failure("Unexpected cosmetic modifier components " + id);
+                }
+                default -> throw failure("Unexpected cosmetic modifier " + id);
+            }
+        }
+    }
+
     private static boolean perkPage(String namespace, String page) {
         return namespace.equals("swrg") && (page.equals("3000") || page.equals("4000"))
                 || namespace.equals("lbc") && List.of("8000", "8100", "9000", "9100",
@@ -200,7 +284,7 @@ final class OriginalGuiDesign {
         for (var tagElement : conditions.getAsJsonArray("tags")) {
             String tag = tagElement.getAsString();
             boolean inverted = tag.startsWith("!");
-            if (player.entityTags().contains(inverted ? tag.substring(1) : tag) == inverted) return false;
+            if (LbcSourceUnlocks.has(player, profile, inverted ? tag.substring(1) : tag) == inverted) return false;
         }
         for (var gate : conditions.getAsJsonObject("advancements").entrySet()) {
             boolean done = profile != null && profile.lbcUnlocks.contains(gate.getKey());

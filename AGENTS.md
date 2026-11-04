@@ -1,3 +1,25 @@
+## Cases and cosmetics - QUALIFIED, INSTALLED (4 November 2026)
+
+[Source, defaults, native ownership and exact proof](agent_notes/CASES_COSMETICS_PORT_2026_11_04.md).
+Five source case types and six cosmetic pages now use canonical currencies/keys,
+permanent unlocks and the existing native loot/menu engine. Exact source strip,
+duplicate compensation, one debit and one durable payout; accepted sessions resume
+without reroll. Source20 cages/29 suffixes/13 private death sounds, causal kill
+cosmetics and bounded postgame gold/pumpkin/Midas share existing native work.
+Typed whole-coordinator replay; no second economy/snapshot or tick-NBT scan.
+Questions24-27 retain explicit provisional source defaults; no external prize
+messaging/grants. Exact33 impossible entitlement flags admitted, no function
+interpreter or broad vanilla/SWRG advancement enable. RP/template unchanged.
+
+Testdb4914ab /production30974037:13groups/13 actual matches (10mode1,3mode3)
+pass one exact archive.19freshJavafamilies/34resources/one narrow Gradle block,
+9965otherinputs/272authorpaths unchanged; all ZIP entries verified. Rejected
+runtime candidates retained; genuine death cleanup admission bug corrected.
+Both build/libs/main updated,0998bbb0 rollback,restarted:false; no main stop/start.
+No physical-client/audio/crash-kill/peakTPS or ENDING whole-rewind claim. TMT LAST;
+mode2/4,skill2 and broad public rewind gates unchanged. Evidence:
+build/verification/cases-cosmetics-2026-11-04/.
+
 ## Bad Apple IMBA - QUALIFIED, INSTALLED (4 November 2026)
 
 [Native source chain, bounded work and exact proof](agent_notes/BADAPPLE_IMBA_PORT_2026_11_04.md).

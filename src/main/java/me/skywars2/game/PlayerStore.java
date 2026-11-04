@@ -110,6 +110,31 @@ public final class PlayerStore {
         }
     }
 
+    /** Checked canonical save for case debit and payout; ordinary autosave is unchanged. */
+    void saveAtomic() throws IOException {
+        Path temporary = FILE.resolveSibling(FILE.getFileName() + ".tmp");
+        try {
+            Files.createDirectories(FILE.getParent());
+            Map<String, Profile> serialized = new LinkedHashMap<>();
+            profiles.forEach((uuid, profile) -> {
+                profile.normalize();
+                serialized.put(uuid.toString(), profile);
+            });
+            byte[] payload = GSON.toJson(serialized).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            try (var channel = java.nio.channels.FileChannel.open(temporary,
+                    java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING,
+                    java.nio.file.StandardOpenOption.WRITE)) {
+                var buffer = java.nio.ByteBuffer.wrap(payload);
+                while (buffer.hasRemaining()) channel.write(buffer);
+                channel.force(true);
+            }
+            // Unsupported atomic replacement fails acceptance; never partially accept the key debit.
+            Files.move(temporary, FILE, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } finally {
+            try { Files.deleteIfExists(temporary); } catch (IOException ignored) { }
+        }
+    }
+
     public static final class Profile {
         public String username = "";
         public int coins;
@@ -125,6 +150,12 @@ public final class PlayerStore {
         public int suffix;
         public int winEffect;
         public int cage;
+        public int killEffect;
+        // Exact SWRG tags/advancements, separate from LBC achievement unlocks.
+        public Set<String> legacyUnlocks = new HashSet<>();
+        // Immutable typed LbcCases.Pending serialized as one scalar. MatchValueSnapshot
+        // already captures Strings exactly, including offline profiles; no ItemStack/NBT here.
+        public String casePending = "";
         public int lbcKit;
         public int lbcSkill;
         public int lbcTrinket;
@@ -155,6 +186,12 @@ public final class PlayerStore {
             suffix = Math.max(0, suffix);
             winEffect = Math.max(0, winEffect);
             cage = Math.max(0, cage);
+            killEffect = Math.clamp(killEffect, 0, 3);
+            if (casePending == null) casePending = "";
+            Set<String> normalizedLegacy = new HashSet<>();
+            if (legacyUnlocks != null) for (String unlock : legacyUnlocks)
+                if (LbcSourceUnlocks.valid(unlock)) normalizedLegacy.add(unlock);
+            legacyUnlocks = normalizedLegacy;
             lbcKit = Math.max(0, lbcKit);
             lbcSkill = Math.max(0, lbcSkill);
             lbcTrinket = Math.max(0, lbcTrinket);

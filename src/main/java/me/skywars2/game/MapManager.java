@@ -692,6 +692,12 @@ public final class MapManager {
         return look;
     }
 
+    /** Cosmetic variants share the exact native cage removal set, including source chain corners. */
+    void cageBlock(ServerLevel target,BlockPos pos,BlockState state){
+        if(target!=level||!target.hasChunkAt(pos))throw new IllegalStateException("Cosmetic cage must be in its loaded native map");
+        cageBlocks.add(pos.immutable());target.setBlock(pos,state,2);
+    }
+
     /** Builds the legacy open glass spawn cage; opening it removes every glass block. */
     public void cages(boolean enabled) {
         if (level == null) return;

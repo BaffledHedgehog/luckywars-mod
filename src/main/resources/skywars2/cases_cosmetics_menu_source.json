@@ -1,0 +1,2489 @@
+{
+  "schema": 1,
+  "pages": {
+    "7100": [
+      {
+        "slot": 0,
+        "gate": "swrg.sound1",
+        "owned": true,
+        "literal": "minecraft:music_disc_13[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"entity.minecraft.zombified_piglin\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg.sound2",
+        "owned": true,
+        "literal": "minecraft:music_disc_blocks[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"entity.minecraft.zombie\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg.sound3",
+        "owned": true,
+        "literal": "minecraft:music_disc_cat[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"entity.minecraft.witch\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg.sound4",
+        "owned": true,
+        "literal": "minecraft:music_disc_chirp[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"entity.minecraft.bee\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg.sound5",
+        "owned": true,
+        "literal": "minecraft:music_disc_far[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"entity.minecraft.horse\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 5,
+        "gate": "swrg.sound6",
+        "owned": true,
+        "literal": "minecraft:music_disc_mall[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"entity.minecraft.chicken\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 6,
+        "gate": "swrg.sound7",
+        "owned": true,
+        "literal": "minecraft:music_disc_mellohi[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"entity.minecraft.pig\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 7,
+        "gate": "swrg.sound8",
+        "owned": true,
+        "literal": "minecraft:music_disc_stal[minecraft:item_name={\"color\":\"gold\",\"italic\":false,\"translate\":\"entity.minecraft.wolf\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 8,
+        "gate": "swrg.sound9",
+        "owned": true,
+        "literal": "minecraft:music_disc_strad[minecraft:item_name={\"color\":\"gold\",\"italic\":false,\"translate\":\"entity.minecraft.villager\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 9,
+        "gate": "swrg.sound10",
+        "owned": true,
+        "literal": "minecraft:music_disc_wait[minecraft:item_name={\"color\":\"gold\",\"italic\":false,\"translate\":\"entity.minecraft.vindicator\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 10,
+        "gate": "swrg.sound11",
+        "owned": true,
+        "literal": "minecraft:music_disc_ward[minecraft:item_name={\"color\":\"light_purple\",\"italic\":false,\"translate\":\"subtitles.entity.lightning_bolt.thunder\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 11,
+        "gate": "swrg.sound12",
+        "owned": true,
+        "literal": "minecraft:music_disc_11[minecraft:item_name={\"color\":\"red\",\"italic\":false,\"translate\":\"entity.minecraft.ender_dragon\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 12,
+        "gate": "swrg.sound13",
+        "owned": true,
+        "literal": "minecraft:music_disc_pigstep[minecraft:item_name={\"color\":\"red\",\"italic\":false,\"translate\":\"entity.minecraft.ghast\"},tooltip_display={hidden_components:[\"jukebox_playable\"]}]"
+      },
+      {
+        "slot": 0,
+        "gate": "swrg.sound1",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg.sound2",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg.sound3",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg.sound4",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg.sound5",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 5,
+        "gate": "swrg.sound6",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 6,
+        "gate": "swrg.sound7",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 7,
+        "gate": "swrg.sound8",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 8,
+        "gate": "swrg.sound9",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 9,
+        "gate": "swrg.sound10",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 10,
+        "gate": "swrg.sound11",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 11,
+        "gate": "swrg.sound12",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 12,
+        "gate": "swrg.sound13",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 0,
+        "gate": "swrg.sound1",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg.sound2",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg.sound3",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg.sound4",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg.sound5",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 5,
+        "gate": "swrg.sound6",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 6,
+        "gate": "swrg.sound7",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 7,
+        "gate": "swrg.sound8",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 8,
+        "gate": "swrg.sound9",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 9,
+        "gate": "swrg.sound10",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 10,
+        "gate": "swrg.sound11",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 11,
+        "gate": "swrg.sound12",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 12,
+        "gate": "swrg.sound13",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 18,
+        "table": "swrg:gui/back"
+      },
+      {
+        "slot": 26,
+        "table": "swrg:gui/reset"
+      }
+    ],
+    "7200": [
+      {
+        "slot": 0,
+        "table": "swrg:gui/page/7200/0"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg.bars1",
+        "owned": true,
+        "literal": "minecraft:white_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.white_stained_glass\"}]"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg.bars2",
+        "owned": true,
+        "literal": "minecraft:orange_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.orange_stained_glass\"}]"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg.bars3",
+        "owned": true,
+        "literal": "minecraft:magenta_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.magenta_stained_glass\"}]"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg.bars4",
+        "owned": true,
+        "literal": "minecraft:light_blue_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.light_blue_stained_glass\"}]"
+      },
+      {
+        "slot": 5,
+        "gate": "swrg.bars5",
+        "owned": true,
+        "literal": "minecraft:yellow_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.orange_stained_glass\"}]"
+      },
+      {
+        "slot": 6,
+        "gate": "swrg.bars6",
+        "owned": true,
+        "literal": "minecraft:lime_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.lime_stained_glass\"}]"
+      },
+      {
+        "slot": 7,
+        "gate": "swrg.bars7",
+        "owned": true,
+        "literal": "minecraft:pink_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.pink_stained_glass\"}]"
+      },
+      {
+        "slot": 8,
+        "gate": "swrg.bars8",
+        "owned": true,
+        "literal": "minecraft:gray_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.gray_stained_glass\"}]"
+      },
+      {
+        "slot": 9,
+        "gate": "swrg.bars9",
+        "owned": true,
+        "literal": "minecraft:light_gray_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.light_gray_stained_glass\"}]"
+      },
+      {
+        "slot": 10,
+        "gate": "swrg.bars10",
+        "owned": true,
+        "literal": "minecraft:cyan_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.cyan_stained_glass\"}]"
+      },
+      {
+        "slot": 11,
+        "gate": "swrg.bars11",
+        "owned": true,
+        "literal": "minecraft:purple_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.purple_stained_glass\"}]"
+      },
+      {
+        "slot": 12,
+        "gate": "swrg.bars12",
+        "owned": true,
+        "literal": "minecraft:blue_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.blue_stained_glass\"}]"
+      },
+      {
+        "slot": 13,
+        "gate": "swrg.bars13",
+        "owned": true,
+        "literal": "minecraft:brown_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.brown_stained_glass\"}]"
+      },
+      {
+        "slot": 14,
+        "gate": "swrg.bars14",
+        "owned": true,
+        "literal": "minecraft:green_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.green_stained_glass\"}]"
+      },
+      {
+        "slot": 15,
+        "gate": "swrg.bars15",
+        "owned": true,
+        "literal": "minecraft:red_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.red_stained_glass\"}]"
+      },
+      {
+        "slot": 16,
+        "gate": "swrg.bars16",
+        "owned": true,
+        "literal": "minecraft:black_stained_glass[minecraft:item_name={\"color\":\"aqua\",\"italic\":false,\"translate\":\"block.minecraft.black_stained_glass\"}]"
+      },
+      {
+        "slot": 17,
+        "gate": "swrg.bars17",
+        "owned": true,
+        "literal": "minecraft:barrier[minecraft:item_name={\"color\":\"light_purple\",\"italic\":false,\"translate\":\"block.minecraft.barrier\"}]"
+      },
+      {
+        "slot": 19,
+        "gate": "swrg.bars18",
+        "owned": true,
+        "literal": "minecraft:ice[minecraft:item_name={\"color\":\"light_purple\",\"italic\":false,\"translate\":\"block.minecraft.ice\"}]"
+      },
+      {
+        "slot": 20,
+        "gate": "swrg.bars19",
+        "owned": true,
+        "literal": "minecraft:iron_chain[minecraft:item_name={\"color\":\"light_purple\",\"italic\":false,\"translate\":\"block.minecraft.iron_chain\"}]"
+      },
+      {
+        "slot": 21,
+        "gate": "swrg.bars20",
+        "owned": true,
+        "literal": "minecraft:crying_obsidian[minecraft:item_name={\"color\":\"red\",\"italic\":false,\"text\":\"LGBT\"}]"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg.bars1",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg.bars2",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg.bars3",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg.bars4",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 5,
+        "gate": "swrg.bars5",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 6,
+        "gate": "swrg.bars6",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 7,
+        "gate": "swrg.bars7",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 8,
+        "gate": "swrg.bars8",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 9,
+        "gate": "swrg.bars9",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 10,
+        "gate": "swrg.bars10",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 11,
+        "gate": "swrg.bars11",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 12,
+        "gate": "swrg.bars12",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 13,
+        "gate": "swrg.bars13",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 14,
+        "gate": "swrg.bars14",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 15,
+        "gate": "swrg.bars15",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 16,
+        "gate": "swrg.bars16",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 17,
+        "gate": "swrg.bars17",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 19,
+        "gate": "swrg.bars18",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 20,
+        "gate": "swrg.bars19",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 21,
+        "gate": "swrg.bars20",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case\"]"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg.bars1",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg.bars2",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg.bars3",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg.bars4",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 5,
+        "gate": "swrg.bars5",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 6,
+        "gate": "swrg.bars6",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 7,
+        "gate": "swrg.bars7",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 8,
+        "gate": "swrg.bars8",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 9,
+        "gate": "swrg.bars9",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 10,
+        "gate": "swrg.bars10",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 11,
+        "gate": "swrg.bars11",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 12,
+        "gate": "swrg.bars12",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 13,
+        "gate": "swrg.bars13",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 14,
+        "gate": "swrg.bars14",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 15,
+        "gate": "swrg.bars15",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 16,
+        "gate": "swrg.bars16",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 17,
+        "gate": "swrg.bars17",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 19,
+        "gate": "swrg.bars18",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 20,
+        "gate": "swrg.bars19",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 21,
+        "gate": "swrg.bars20",
+        "owned": false,
+        "modifier": "swrg:locked_cosmetics_default"
+      },
+      {
+        "slot": 18,
+        "table": "swrg:gui/back"
+      }
+    ],
+    "7300": [
+      {
+        "slot": 0,
+        "gate": "swrg:rewards/suffix_1",
+        "owned": true,
+        "table": "swrg:gui/page/7300/0"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg:rewards/suffix_2",
+        "owned": true,
+        "table": "swrg:gui/page/7300/1"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg:rewards/suffix_3",
+        "owned": true,
+        "table": "swrg:gui/page/7300/2"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg:rewards/suffix_4",
+        "owned": true,
+        "table": "swrg:gui/page/7300/3"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg:rewards/suffix_5",
+        "owned": true,
+        "table": "swrg:gui/page/7300/4"
+      },
+      {
+        "slot": 5,
+        "gate": "swrg:rewards/suffix_6",
+        "owned": true,
+        "table": "swrg:gui/page/7300/5"
+      },
+      {
+        "slot": 6,
+        "gate": "swrg:rewards/suffix_7",
+        "owned": true,
+        "table": "swrg:gui/page/7300/6"
+      },
+      {
+        "slot": 7,
+        "gate": "swrg:rewards/suffix_8",
+        "owned": true,
+        "table": "swrg:gui/page/7300/7"
+      },
+      {
+        "slot": 8,
+        "gate": "swrg:rewards/suffix_9",
+        "owned": true,
+        "table": "swrg:gui/page/7300/8"
+      },
+      {
+        "slot": 9,
+        "gate": "swrg:rewards/suffix_10",
+        "owned": true,
+        "table": "swrg:gui/page/7300/9"
+      },
+      {
+        "slot": 10,
+        "gate": "swrg:rewards/suffix_11",
+        "owned": true,
+        "table": "swrg:gui/page/7300/10"
+      },
+      {
+        "slot": 11,
+        "gate": "swrg:rewards/suffix_12",
+        "owned": true,
+        "table": "swrg:gui/page/7300/11"
+      },
+      {
+        "slot": 12,
+        "gate": "swrg:rewards/suffix_13",
+        "owned": true,
+        "table": "swrg:gui/page/7300/12"
+      },
+      {
+        "slot": 13,
+        "gate": "swrg:rewards/suffix_14",
+        "owned": true,
+        "table": "swrg:gui/page/7300/13"
+      },
+      {
+        "slot": 14,
+        "gate": "swrg:rewards/suffix_15",
+        "owned": true,
+        "table": "swrg:gui/page/7300/14"
+      },
+      {
+        "slot": 15,
+        "gate": "swrg:rewards/suffix_16",
+        "owned": true,
+        "table": "swrg:gui/page/7300/15"
+      },
+      {
+        "slot": 16,
+        "gate": "swrg:rewards/suffix_17",
+        "owned": true,
+        "table": "swrg:gui/page/7300/16"
+      },
+      {
+        "slot": 17,
+        "gate": "swrg:rewards/suffix_18",
+        "owned": true,
+        "table": "swrg:gui/page/7300/17"
+      },
+      {
+        "slot": 19,
+        "gate": "swrg:rewards/suffix_19",
+        "owned": true,
+        "table": "swrg:gui/page/7300/18"
+      },
+      {
+        "slot": 20,
+        "gate": "swrg:rewards/suffix_20",
+        "owned": true,
+        "table": "swrg:gui/page/7300/19"
+      },
+      {
+        "slot": 21,
+        "gate": "swrg:rewards/suffix_21",
+        "owned": true,
+        "table": "swrg:gui/page/7300/20"
+      },
+      {
+        "slot": 22,
+        "gate": "swrg:rewards/suffix_22",
+        "owned": true,
+        "table": "swrg:gui/page/7300/21"
+      },
+      {
+        "slot": 23,
+        "gate": "swrg:rewards/suffix_23",
+        "owned": true,
+        "table": "swrg:gui/page/7300/22"
+      },
+      {
+        "slot": 24,
+        "gate": "swrg:rewards/suffix_24",
+        "owned": true,
+        "table": "swrg:gui/page/7300/23"
+      },
+      {
+        "slot": 18,
+        "table": "swrg:gui/back"
+      },
+      {
+        "slot": 25,
+        "table": "swrg:gui/reset"
+      },
+      {
+        "slot": 26,
+        "table": "swrg:gui/next"
+      },
+      {
+        "slot": 0,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_1",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 1,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_2",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 2,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_3",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 3,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_4",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 4,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_5",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 5,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_6",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 6,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_7",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 7,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_8",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 8,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_9",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 9,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_10",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 10,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_11",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 11,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_12",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 12,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_13",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 13,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_14",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 14,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_15",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 15,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_16",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 16,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_17",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 17,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_18",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 19,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_19",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 20,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_20",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 21,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_21",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 22,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_22",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 23,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_23",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 24,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_24",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 0,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_1",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 1,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_2",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 2,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_3",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 3,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_4",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 4,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_5",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 5,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_6",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 6,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_7",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 7,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_8",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 8,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_9",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 9,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_10",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 10,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_11",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 11,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_12",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 12,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_13",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 13,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_14",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 14,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_15",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 15,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_16",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 16,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_17",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 17,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_18",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 19,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_19",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 20,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_20",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 21,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_21",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 22,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_22",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 23,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_23",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 24,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_24",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 0,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_1",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 1,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_2",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 2,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_3",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 3,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_4",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 4,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_5",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 5,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_6",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 6,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_7",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 7,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_8",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 8,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_9",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 9,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_10",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 10,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_11",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 11,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_12",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 12,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_13",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 13,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_14",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 14,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_15",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 15,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_16",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 16,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_17",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 17,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_18",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 19,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_19",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 20,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_20",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 21,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_21",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 22,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_22",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 23,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_23",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 24,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_24",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 0,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_1",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 1,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_2",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 2,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_3",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 3,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_4",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 4,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_5",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 5,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_6",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 6,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_7",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 7,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_8",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 8,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_9",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 9,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_10",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 10,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_11",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 11,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_12",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 12,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_13",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 13,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_14",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 14,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_15",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 15,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_16",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 16,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_17",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 17,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_18",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 19,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_19",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 20,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_20",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 21,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_21",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 22,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_22",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 23,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_23",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 24,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_24",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      }
+    ],
+    "7310": [
+      {
+        "slot": 0,
+        "gate": "swrg:rewards/suffix_25",
+        "owned": true,
+        "table": "swrg:gui/page/7300/24"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg:rewards/suffix_26",
+        "owned": true,
+        "table": "swrg:gui/page/7300/25"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg:rewards/turnir/trophy1",
+        "owned": true,
+        "table": "swrg:gui/page/7300/26"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg:rewards/turnir/trophy2",
+        "owned": true,
+        "table": "swrg:gui/page/7300/27"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg:rewards/turnir/trophy3",
+        "owned": true,
+        "table": "swrg:gui/page/7300/28"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg:rewards/turnir/trophy1",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked\"]"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg:rewards/turnir/trophy2",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked\"]"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg:rewards/turnir/trophy3",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked\"]"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg:rewards/turnir/trophy1",
+        "owned": false,
+        "modifier": "swrg:locked_event"
+      },
+      {
+        "slot": 3,
+        "gate": "swrg:rewards/turnir/trophy2",
+        "owned": false,
+        "modifier": "swrg:locked_event"
+      },
+      {
+        "slot": 4,
+        "gate": "swrg:rewards/turnir/trophy3",
+        "owned": false,
+        "modifier": "swrg:locked_event"
+      },
+      {
+        "slot": 18,
+        "table": "swrg:gui/back"
+      },
+      {
+        "slot": 25,
+        "table": "swrg:gui/reset"
+      },
+      {
+        "slot": 0,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_25",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 1,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_26",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_pandora\"]"
+      },
+      {
+        "slot": 0,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_25",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 1,
+        "season": "default",
+        "gate": "swrg:rewards/suffix_26",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_pandora"
+      },
+      {
+        "slot": 0,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_25",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 1,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_26",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked_case_halloween\"]"
+      },
+      {
+        "slot": 0,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_25",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      },
+      {
+        "slot": 1,
+        "season": "halloween",
+        "gate": "swrg:rewards/suffix_26",
+        "owned": false,
+        "modifier": "swrg:locked_suffix_halloween"
+      }
+    ],
+    "7400": [
+      {
+        "slot": 0,
+        "gate": "lbc:true_advancements/event/pumpkin_sword",
+        "owned": true,
+        "table": "swrg:gui/page/7400/0"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg:rewards/turnir/trophy1",
+        "owned": true,
+        "table": "swrg:gui/page/7400/1"
+      },
+      {
+        "slot": 0,
+        "gate": "lbc:true_advancements/event/pumpkin_sword",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked\"]"
+      },
+      {
+        "slot": 0,
+        "gate": "lbc:true_advancements/event/pumpkin_sword",
+        "owned": false,
+        "modifier": "swrg:locked/pumpkin_sword"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg:rewards/turnir/trophy1",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked\"]"
+      },
+      {
+        "slot": 1,
+        "gate": "swrg:rewards/turnir/trophy1",
+        "owned": false,
+        "modifier": "swrg:locked/turnir1"
+      },
+      {
+        "slot": 18,
+        "table": "swrg:gui/back"
+      },
+      {
+        "slot": 25,
+        "table": "swrg:gui/reset"
+      }
+    ],
+    "7500": [
+      {
+        "slot": 0,
+        "gate": "lbc:true_advancements/event/soulcorrupt_wand_upgraded",
+        "owned": true,
+        "table": "swrg:gui/page/7500/0"
+      },
+      {
+        "slot": 1,
+        "gate": "lbc:true_advancements/event/soulhunter_mace",
+        "owned": true,
+        "table": "swrg:gui/page/7500/1"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg:rewards/turnir/killer",
+        "owned": true,
+        "table": "swrg:gui/page/7500/2"
+      },
+      {
+        "slot": 0,
+        "gate": "lbc:true_advancements/event/soulcorrupt_wand_upgraded",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked\"]"
+      },
+      {
+        "slot": 0,
+        "gate": "lbc:true_advancements/event/soulcorrupt_wand_upgraded",
+        "owned": false,
+        "modifier": "swrg:locked/soulcorrupt_wand_upgraded"
+      },
+      {
+        "slot": 1,
+        "gate": "lbc:true_advancements/event/soulhunter_mace",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked\"]"
+      },
+      {
+        "slot": 1,
+        "gate": "lbc:true_advancements/event/soulhunter_mace",
+        "owned": false,
+        "modifier": "swrg:locked/soulhunter_mace"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg:rewards/turnir/killer",
+        "owned": false,
+        "literal": "minecraft:repeating_command_block[minecraft:item_model=\"lbc:locked\"]"
+      },
+      {
+        "slot": 2,
+        "gate": "swrg:rewards/turnir/killer",
+        "owned": false,
+        "modifier": "swrg:locked/turnir1"
+      },
+      {
+        "slot": 18,
+        "table": "swrg:gui/back"
+      },
+      {
+        "slot": 25,
+        "table": "swrg:gui/reset"
+      }
+    ]
+  },
+  "modifiers": {
+    "swrg:locked_cosmetics_default": [
+      {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+          {
+            "translate": "gui.locked1",
+            "color": "red",
+            "bold": true,
+            "italic": false
+          }
+        ]
+      },
+      {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+          {
+            "translate": "use_case_for_open",
+            "color": "red"
+          },
+          {
+            "translate": "open_case_cosmetics_normal",
+            "color": "red"
+          }
+        ]
+      }
+    ],
+    "swrg:locked_suffix_pandora": [
+      {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+          {
+            "translate": "gui.locked1",
+            "color": "red",
+            "bold": true,
+            "italic": false
+          }
+        ]
+      },
+      {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+          {
+            "translate": "use_case_for_open",
+            "color": "red"
+          },
+          {
+            "translate": "open_case_pandora",
+            "color": "red"
+          }
+        ]
+      }
+    ],
+    "swrg:locked_suffix_halloween": [
+      {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+          {
+            "translate": "gui.locked1",
+            "color": "red",
+            "bold": true,
+            "italic": false
+          }
+        ]
+      },
+      {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+          {
+            "translate": "use_case_for_open",
+            "color": "red"
+          },
+          {
+            "translate": "open_case_halloween",
+            "color": "red"
+          }
+        ]
+      }
+    ],
+    "swrg:locked_event": [
+      {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+          {
+            "translate": "gui.locked1",
+            "color": "red",
+            "bold": true,
+            "italic": false
+          }
+        ]
+      },
+      {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+          {
+            "translate": "tournament_open",
+            "color": "red"
+          }
+        ]
+      }
+    ],
+    "swrg:locked/pumpkin_sword": [
+      {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+          {
+            "translate": "gui.locked",
+            "color": "red",
+            "bold": true,
+            "italic": false
+          }
+        ]
+      },
+      {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+          {
+            "translate": "gui.for_open",
+            "color": "red"
+          },
+          {
+            "translate": "lbc.adv.event.pumpkin_sword",
+            "color": "red"
+          }
+        ]
+      }
+    ],
+    "swrg:locked/turnir1": [
+      {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+          {
+            "translate": "gui.locked",
+            "color": "red",
+            "bold": true,
+            "italic": false
+          }
+        ]
+      },
+      {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+          {
+            "translate": "tournament_open",
+            "color": "red"
+          }
+        ]
+      }
+    ],
+    "swrg:locked/soulcorrupt_wand_upgraded": [
+      {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+          {
+            "translate": "gui.locked",
+            "color": "red",
+            "bold": true,
+            "italic": false
+          }
+        ]
+      },
+      {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+          {
+            "translate": "gui.for_open",
+            "color": "red"
+          },
+          {
+            "translate": "lbc.adv.event.upgraded_soulcorrupt_wand",
+            "color": "red"
+          }
+        ]
+      }
+    ],
+    "swrg:locked/soulhunter_mace": [
+      {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+          {
+            "translate": "gui.locked",
+            "color": "red",
+            "bold": true,
+            "italic": false
+          }
+        ]
+      },
+      {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+          {
+            "translate": "gui.for_open",
+            "color": "red"
+          },
+          {
+            "translate": "lbc.adv.event.soulhunter_mace",
+            "color": "red"
+          }
+        ]
+      }
+    ],
+    "swrg:select": [
+      {
+        "function": "minecraft:set_lore",
+        "entity": "this",
+        "lore": [
+          {
+            "nbt": "gui.select",
+            "storage": "swrg:lang",
+            "interpret": true,
+            "source": "storage",
+            "type": "nbt"
+          }
+        ],
+        "mode": "insert"
+      },
+      {
+        "function": "minecraft:set_components",
+        "components": {
+          "minecraft:enchantment_glint_override": true
+        }
+      }
+    ]
+  },
+  "overlays": {
+    "7100": [
+      {
+        "slot": 0,
+        "selected": 1
+      },
+      {
+        "slot": 1,
+        "selected": 2
+      },
+      {
+        "slot": 2,
+        "selected": 3
+      },
+      {
+        "slot": 3,
+        "selected": 4
+      },
+      {
+        "slot": 4,
+        "selected": 5
+      },
+      {
+        "slot": 5,
+        "selected": 6
+      },
+      {
+        "slot": 6,
+        "selected": 7
+      },
+      {
+        "slot": 7,
+        "selected": 8
+      },
+      {
+        "slot": 8,
+        "selected": 9
+      },
+      {
+        "slot": 9,
+        "selected": 10
+      },
+      {
+        "slot": 10,
+        "selected": 11
+      },
+      {
+        "slot": 11,
+        "selected": 12
+      },
+      {
+        "slot": 12,
+        "selected": 13
+      }
+    ],
+    "7200": [
+      {
+        "slot": 0,
+        "selected": 0
+      },
+      {
+        "slot": 1,
+        "selected": 1
+      },
+      {
+        "slot": 2,
+        "selected": 2
+      },
+      {
+        "slot": 3,
+        "selected": 3
+      },
+      {
+        "slot": 4,
+        "selected": 4
+      },
+      {
+        "slot": 5,
+        "selected": 5
+      },
+      {
+        "slot": 6,
+        "selected": 6
+      },
+      {
+        "slot": 7,
+        "selected": 7
+      },
+      {
+        "slot": 8,
+        "selected": 8
+      },
+      {
+        "slot": 9,
+        "selected": 9
+      },
+      {
+        "slot": 10,
+        "selected": 10
+      },
+      {
+        "slot": 11,
+        "selected": 11
+      },
+      {
+        "slot": 12,
+        "selected": 12
+      },
+      {
+        "slot": 13,
+        "selected": 13
+      },
+      {
+        "slot": 14,
+        "selected": 14
+      },
+      {
+        "slot": 15,
+        "selected": 15
+      },
+      {
+        "slot": 16,
+        "selected": 16
+      },
+      {
+        "slot": 17,
+        "selected": 17
+      },
+      {
+        "slot": 19,
+        "selected": 18
+      },
+      {
+        "slot": 20,
+        "selected": 19
+      },
+      {
+        "slot": 21,
+        "selected": 20
+      }
+    ],
+    "7300": [
+      {
+        "slot": 0,
+        "selected": 1
+      },
+      {
+        "slot": 1,
+        "selected": 2
+      },
+      {
+        "slot": 2,
+        "selected": 3
+      },
+      {
+        "slot": 3,
+        "selected": 4
+      },
+      {
+        "slot": 4,
+        "selected": 5
+      },
+      {
+        "slot": 5,
+        "selected": 6
+      },
+      {
+        "slot": 6,
+        "selected": 7
+      },
+      {
+        "slot": 7,
+        "selected": 8
+      },
+      {
+        "slot": 8,
+        "selected": 9
+      },
+      {
+        "slot": 9,
+        "selected": 10
+      },
+      {
+        "slot": 10,
+        "selected": 11
+      },
+      {
+        "slot": 11,
+        "selected": 12
+      },
+      {
+        "slot": 12,
+        "selected": 13
+      },
+      {
+        "slot": 13,
+        "selected": 14
+      },
+      {
+        "slot": 14,
+        "selected": 15
+      },
+      {
+        "slot": 15,
+        "selected": 16
+      },
+      {
+        "slot": 16,
+        "selected": 17
+      },
+      {
+        "slot": 17,
+        "selected": 18
+      },
+      {
+        "slot": 19,
+        "selected": 19
+      },
+      {
+        "slot": 20,
+        "selected": 20
+      },
+      {
+        "slot": 21,
+        "selected": 21
+      },
+      {
+        "slot": 22,
+        "selected": 22
+      },
+      {
+        "slot": 23,
+        "selected": 23
+      },
+      {
+        "slot": 24,
+        "selected": 24
+      },
+      {
+        "slot": 25,
+        "selected": 0
+      }
+    ],
+    "7310": [
+      {
+        "slot": 0,
+        "selected": 25
+      },
+      {
+        "slot": 1,
+        "selected": 26
+      },
+      {
+        "slot": 2,
+        "selected": 27
+      },
+      {
+        "slot": 3,
+        "selected": 28
+      },
+      {
+        "slot": 4,
+        "selected": 29
+      },
+      {
+        "slot": 5,
+        "selected": 30
+      },
+      {
+        "slot": 6,
+        "selected": 31
+      },
+      {
+        "slot": 7,
+        "selected": 32
+      },
+      {
+        "slot": 8,
+        "selected": 33
+      },
+      {
+        "slot": 9,
+        "selected": 34
+      },
+      {
+        "slot": 10,
+        "selected": 35
+      },
+      {
+        "slot": 11,
+        "selected": 36
+      },
+      {
+        "slot": 12,
+        "selected": 37
+      },
+      {
+        "slot": 13,
+        "selected": 38
+      },
+      {
+        "slot": 14,
+        "selected": 39
+      },
+      {
+        "slot": 15,
+        "selected": 40
+      },
+      {
+        "slot": 16,
+        "selected": 41
+      },
+      {
+        "slot": 17,
+        "selected": 42
+      },
+      {
+        "slot": 19,
+        "selected": 43
+      },
+      {
+        "slot": 20,
+        "selected": 44
+      },
+      {
+        "slot": 21,
+        "selected": 45
+      },
+      {
+        "slot": 22,
+        "selected": 46
+      },
+      {
+        "slot": 23,
+        "selected": 47
+      },
+      {
+        "slot": 24,
+        "selected": 48
+      },
+      {
+        "slot": 25,
+        "selected": 0
+      }
+    ],
+    "7400": [
+      {
+        "slot": 0,
+        "selected": 1
+      },
+      {
+        "slot": 1,
+        "selected": 2
+      },
+      {
+        "slot": 2,
+        "selected": 3
+      },
+      {
+        "slot": 3,
+        "selected": 4
+      },
+      {
+        "slot": 4,
+        "selected": 5
+      },
+      {
+        "slot": 5,
+        "selected": 6
+      },
+      {
+        "slot": 6,
+        "selected": 7
+      },
+      {
+        "slot": 7,
+        "selected": 8
+      },
+      {
+        "slot": 8,
+        "selected": 9
+      },
+      {
+        "slot": 9,
+        "selected": 10
+      },
+      {
+        "slot": 10,
+        "selected": 11
+      },
+      {
+        "slot": 11,
+        "selected": 12
+      },
+      {
+        "slot": 12,
+        "selected": 13
+      },
+      {
+        "slot": 13,
+        "selected": 14
+      },
+      {
+        "slot": 14,
+        "selected": 15
+      },
+      {
+        "slot": 15,
+        "selected": 16
+      },
+      {
+        "slot": 16,
+        "selected": 17
+      },
+      {
+        "slot": 17,
+        "selected": 18
+      },
+      {
+        "slot": 19,
+        "selected": 19
+      },
+      {
+        "slot": 20,
+        "selected": 20
+      },
+      {
+        "slot": 21,
+        "selected": 21
+      },
+      {
+        "slot": 22,
+        "selected": 22
+      },
+      {
+        "slot": 23,
+        "selected": 23
+      },
+      {
+        "slot": 24,
+        "selected": 24
+      },
+      {
+        "slot": 25,
+        "selected": 0
+      }
+    ],
+    "7500": [
+      {
+        "slot": 0,
+        "selected": 1
+      },
+      {
+        "slot": 1,
+        "selected": 2
+      },
+      {
+        "slot": 2,
+        "selected": 3
+      },
+      {
+        "slot": 3,
+        "selected": 4
+      },
+      {
+        "slot": 4,
+        "selected": 5
+      },
+      {
+        "slot": 5,
+        "selected": 6
+      },
+      {
+        "slot": 6,
+        "selected": 7
+      },
+      {
+        "slot": 7,
+        "selected": 8
+      },
+      {
+        "slot": 8,
+        "selected": 9
+      },
+      {
+        "slot": 9,
+        "selected": 10
+      },
+      {
+        "slot": 10,
+        "selected": 11
+      },
+      {
+        "slot": 11,
+        "selected": 12
+      },
+      {
+        "slot": 12,
+        "selected": 13
+      },
+      {
+        "slot": 13,
+        "selected": 14
+      },
+      {
+        "slot": 14,
+        "selected": 15
+      },
+      {
+        "slot": 15,
+        "selected": 16
+      },
+      {
+        "slot": 16,
+        "selected": 17
+      },
+      {
+        "slot": 17,
+        "selected": 18
+      },
+      {
+        "slot": 19,
+        "selected": 19
+      },
+      {
+        "slot": 20,
+        "selected": 20
+      },
+      {
+        "slot": 21,
+        "selected": 21
+      },
+      {
+        "slot": 22,
+        "selected": 22
+      },
+      {
+        "slot": 23,
+        "selected": 23
+      },
+      {
+        "slot": 24,
+        "selected": 24
+      },
+      {
+        "slot": 25,
+        "selected": 0
+      }
+    ]
+  }
+}

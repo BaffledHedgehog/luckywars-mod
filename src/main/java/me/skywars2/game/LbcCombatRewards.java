@@ -37,9 +37,10 @@ public final class LbcCombatRewards {
         final UUID killer;
         final String epoch;
         final boolean soul, loot, hakurei;
+        final LbcCosmetics.AcceptedKill cosmetic;
         boolean lootCaptured;
-        Death(UUID killer,String epoch,boolean soul,boolean loot,boolean hakurei) {
-            this.killer=killer;this.epoch=epoch;this.soul=soul;this.loot=loot;this.hakurei=hakurei;
+        Death(UUID killer,String epoch,boolean soul,boolean loot,boolean hakurei,LbcCosmetics.AcceptedKill cosmetic) {
+            this.killer=killer;this.epoch=epoch;this.soul=soul;this.loot=loot;this.hakurei=hakurei;this.cosmetic=cosmetic;
         }
     }
     private static final class Scope {
@@ -47,6 +48,7 @@ public final class LbcCombatRewards {
         final ServerLevel level;
         final Set<Entity> published=Collections.newSetFromMap(new IdentityHashMap<>());
         final List<Vec3> hakureiDrops=new ArrayList<>();
+        final List<LbcCosmetics.DropBody> cosmeticDrops=new ArrayList<>();
         final List<ItemEntity> drops=new ArrayList<>();
         Scope(LivingEntity victim,ServerLevel level){this.victim=victim;this.level=level;}
     }
@@ -61,13 +63,13 @@ public final class LbcCombatRewards {
     public void beforeDeath(LivingEntity victim,DamageSource source) {
         if(!victim.isDeadOrDying()||victim.isRemoved()||deaths.containsKey(victim))return;
         // Mark even an ineligible death: overlapping native callbacks must never add a reward later.
-        deaths.put(victim,new Death(null,game.items().epoch(),false,false,false));
+        deaths.put(victim,new Death(null,game.items().epoch(),false,false,false,null));
         if(victim.level()!=game.maps().level()||!game.items().wands().validRoleTarget(victim,true)
                 ||!LbcDimensionItems.ordinary(victim.level()))return;
         var owner=attacker(victim,source);
         if(owner==null||owner==victim)return;
         boolean soul=game.lbc().hasSkill(owner,16),loot=game.lbc().hasSkill(owner,18);
-        var death=new Death(owner.getUUID(),game.items().epoch(),soul,loot,game.items().hakureiSkill().eligible(owner));deaths.put(victim,death);
+        var death=new Death(owner.getUUID(),game.items().epoch(),soul,loot,game.items().hakureiSkill().eligible(owner),game.items().cosmetics().acceptKill(owner,victim));deaths.put(victim,death);
         if(soul) {
             var surplus=victim instanceof ServerPlayer player?surplus(player,includeAttackSpeed):Map.<Holder<Attribute>,Double>of();
             var reward=new Reward(owner.getUUID(),death.epoch,(ServerLevel)victim.level(),true,surplus,List.of());
@@ -129,6 +131,9 @@ public final class LbcCombatRewards {
         // Count an actual admitted body once, even if it is merged later in the same death.
         // Core/vanilla XP absorbed before publication has no new body and contributes zero.
         scope.hakureiDrops.add(entity.position());
+        var death=deaths.get(scope.victim);
+        if(death!=null&&death.cosmetic!=null)
+            scope.cosmeticDrops.add(new LbcCosmetics.DropBody(entity.getUUID(),entity instanceof ExperienceOrb,entity instanceof ItemEntity item&&item.getAge()>0?1:0,entity.position()));
         if(entity instanceof ItemEntity item)scope.drops.add(item);
     }
     private void finish(Scope scope) {
@@ -139,6 +144,7 @@ public final class LbcCombatRewards {
         var owner=game.server().getPlayerList().getPlayer(death.killer);
         if(owner==null)return;
         if(death.hakurei)for(var at:scope.hakureiDrops)game.items().hakureiSkill().reward(owner,scope.level,at,1);
+        game.items().cosmetics().killed(death.cosmetic,List.copyOf(scope.cosmeticDrops));
         if(!death.loot)return;
         var drops=new ArrayList<Drop>();
         for(var entity:scope.drops)if(!entity.isRemoved()&&!entity.getItem().isEmpty())

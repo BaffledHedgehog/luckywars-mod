@@ -159,6 +159,8 @@ public final class GameController {
     private final LbcLoadouts lbc;
     private final LbcItems items;
     private final LbcBedwars bedwars;
+    private final LbcCases cases;
+    LbcCases cases() { return cases; }
     private final LbcVanityRollback vanity=new LbcVanityRollback(this);
     public LbcVanityRollback vanity(){return vanity;}
     void reconcileRollbackParticipants(Set<UUID> absent,Set<UUID> captured){
@@ -224,6 +226,7 @@ public final class GameController {
         this.lbc = new LbcLoadouts(this, config, players);
         this.items = new LbcItems(this);
         this.bedwars = new LbcBedwars(this);
+        this.cases = new LbcCases(this);
         this.luckyModifiers = new GameLuckyModifiers(this);
         this.lbc.syncRanked();
         this.spectators = new Spectators(this);
@@ -627,9 +630,11 @@ public final class GameController {
         lbc.joined(player);
         items.stand().joined(player);
         givePendingBalanceRewards(player);
+        cases.onJoin(player);
     }
 
     public void leave(ServerPlayer player) {
+        cases.onLeave(player);
         vanity.leaving(player);
         if(vanity.busy())return;
         items.witchClaims().leavingOrDying(player);
@@ -900,7 +905,11 @@ public final class GameController {
                 var profile = players.get(player.getUUID()); profile.games++; profile.coins += 10;
                 player.sendSystemMessage(rewardText("swrg.reward.start_game"));
             }
-            players.save(); if(!bedwars.mode())maps.cages(true);
+            players.save(); if(!bedwars.mode()){
+                maps.cages(true);
+                for(var player:ready){var member=participants.get(player.getUUID());items.cosmetics().cage(player,maps.level(),net.minecraft.core.BlockPos.containing(member.spawn.position()),config.gameMode);}
+            }
+            items.cosmetics().startSuffixes(ready,maps.level().getRandom().nextLong());
             countdownTicks = bedwars.mode()?60:Math.max(1, config.countdownSeconds) * 20;
             gameTicks = 0; lastAliveTicks = 5; fallEnabled = false;
             maps.level().getGameRules().set(GameRules.FALL_DAMAGE, false, server);
@@ -925,6 +934,8 @@ public final class GameController {
         for(var entity:unloaded) entityUnloaded(entity);
         if (stopped || vanity.busy() || !server.tickRateManager().runsNormally()) return;
         lifetimeTicks++;
+        // Accepted case sessions also advance in lobby/postgame; menu refresh never ticks them.
+        cases.tick();
         if (inventoryLocked()) for (ServerPlayer player : online()) enforceLobbyInventory(player);
         if (!supernovaMapTransition() || !supernovaPaused()) maps.tick();
         developerTools.tick();
@@ -1022,6 +1033,7 @@ public final class GameController {
             if (developerMode() || eligible >= 2 || waiting) lastAliveTicks = 5;
             else if (--lastAliveTicks <= 0) finish();
         } else if (stage == Stage.ENDING) {
+            items.stonekivi().tick();
             if (victoryWinner != null) {
                 ServerPlayer winner = server.getPlayerList().getPlayer(victoryWinner);
                 if (winner != null && finishTicks > 1) events.victoryTick(winner, finishTicks - 1);
@@ -1114,7 +1126,7 @@ public final class GameController {
     public void died(ServerPlayer player, DamageSource damage) {
         if(vanity.death(player))return;
         items.projectileLevelups().clear(player.getUUID());
-        items.rainbowAura().clear(player);items.psychblindSkill().leaveOrDeath(player);
+        items.cosmetics().deathSound(player);items.rainbowAura().clear(player);items.psychblindSkill().leaveOrDeath(player);
         items.oreshek().died(player,damage);
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());
@@ -1340,7 +1352,7 @@ public final class GameController {
         config.gamesPlayed++; config.save(); players.save();
         transition(Stage.ENDING); finishTicks = Math.max(1, config.endingSeconds) * 20;
         // В исходном конце игры первая четвёрка ракет появляется сразу, затем раз в секунду.
-        if (winner != null) events.victoryTick(winner, finishTicks);
+        if (winner != null) {items.cosmetics().winner(winner,gameTicks);events.victoryTick(winner, finishTicks);}
     }
 
     private void restoreLobby() {

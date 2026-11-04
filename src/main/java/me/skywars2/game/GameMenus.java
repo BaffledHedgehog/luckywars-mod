@@ -112,6 +112,8 @@ public final class GameMenus {
             case LBC_KITS, LBC_SKILLS, LBC_TRINKETS, LBC_LEVELUPS, LBC_CHALLENGE ->
                     renderLbc(gui, player, profile);
             case COSMETICS -> renderCosmetics(gui, player, profile);
+            case COSMETIC_SOUNDS, COSMETIC_CAGES, COSMETIC_SUFFIXES, COSMETIC_SUFFIXES_NEXT,
+                    COSMETIC_WINS, COSMETIC_KILLS -> renderCosmeticDetails(gui, player, profile);
             case CASES -> renderCases(gui, player, profile);
             case BEDWARS -> renderBedwarsTeams(gui,player);
         }
@@ -443,16 +445,110 @@ public final class GameMenus {
 
     private void renderCosmetics(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
         for (int slot : new int[] {4, 10, 12, 14, 16}) {
+            Page target = switch (slot) {
+                case 4 -> Page.COSMETIC_KILLS;
+                case 10 -> Page.COSMETIC_WINS;
+                case 12 -> Page.COSMETIC_SOUNDS;
+                case 14 -> Page.COSMETIC_CAGES;
+                default -> Page.COSMETIC_SUFFIXES;
+            };
             original(gui, player, slot, OriginalGuiDesign.button(player, "swrg", 7000, slot, p, config),
-                    null, List.of(), null);
+                    null, List.of(), () -> open(player, target));
         }
         originalTable(gui, player, 18, "swrg:gui/back", null, List.of(), () -> open(player, Page.HUB));
     }
 
+    private int cosmeticPage(Page page) {
+        return switch (page) {
+            case COSMETIC_SOUNDS -> 7100;
+            case COSMETIC_CAGES -> 7200;
+            case COSMETIC_SUFFIXES -> 7300;
+            case COSMETIC_SUFFIXES_NEXT -> 7310;
+            case COSMETIC_WINS -> 7400;
+            case COSMETIC_KILLS -> 7500;
+            default -> throw new IllegalArgumentException("Not a cosmetic detail page");
+        };
+    }
+
+    private int cosmeticValue(int page, int slot) {
+        if (page == 7100) return slot < 13 ? slot + 1 : slot == 26 ? 0 : -1;
+        if (page == 7200) return slot < 18 ? slot : slot >= 19 && slot <= 21 ? slot - 1 : -1;
+        if (page == 7300) return slot < 18 ? slot + 1 : slot >= 19 && slot <= 24 ? slot : slot == 25 ? 0 : -1;
+        if (page == 7310) return slot < 5 ? slot + 25 : slot == 25 ? 0 : -1;
+        if (page == 7400) return slot < 2 ? slot + 1 : slot == 25 ? 0 : -1;
+        return slot < 3 ? slot + 1 : slot == 25 ? 0 : -1;
+    }
+
+    private String cosmeticGate(int page, int value) {
+        if (value == 0) return null;
+        return switch (page) {
+            case 7100 -> "swrg.sound" + value;
+            case 7200 -> "swrg.bars" + value;
+            case 7300, 7310 -> value <= 26 ? "swrg:rewards/suffix_" + value : "swrg:rewards/turnir/trophy" + (value - 26);
+            case 7400 -> value == 1 ? "lbc:true_advancements/event/pumpkin_sword" : "swrg:rewards/turnir/trophy1";
+            case 7500 -> switch (value) {
+                case 1 -> "lbc:true_advancements/event/soulcorrupt_wand_upgraded";
+                case 2 -> "lbc:true_advancements/event/soulhunter_mace";
+                default -> "swrg:rewards/turnir/killer";
+            };
+            default -> throw new IllegalArgumentException("Not a cosmetic detail page");
+        };
+    }
+
+    private void renderCosmeticDetails(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
+        int page = cosmeticPage(gui.page);
+        int selected = switch (page) {
+            case 7100 -> p.killSound;
+            case 7200 -> p.cage;
+            case 7300, 7310 -> p.suffix;
+            case 7400 -> p.winEffect;
+            default -> p.killEffect;
+        };
+        for (int slot = 0; slot < 27; slot++) {
+            int value = cosmeticValue(page, slot);
+            String gate = value < 0 ? null : cosmeticGate(page, value);
+            boolean allowed = gate == null || LbcSourceUnlocks.has(player, p, gate);
+            Runnable click = null;
+            if (value >= 0 && allowed) click = () -> {
+                // Recheck permanent ownership at acceptance; ranked/debug never bypass cosmetics.
+                if (gate != null && !LbcSourceUnlocks.has(player, p, gate)) return;
+                switch (page) {
+                    case 7100 -> p.killSound = value;
+                    case 7200 -> p.cage = value;
+                    case 7300, 7310 -> p.suffix = value;
+                    case 7400 -> p.winEffect = value;
+                    default -> p.killEffect = value;
+                }
+                players.save();
+                open(player, gui.page);
+            };
+            if (slot == 18) click = () -> open(player, page == 7310 ? Page.COSMETIC_SUFFIXES : Page.COSMETICS);
+            if (slot == 26 && page == 7300) click = () -> open(player, Page.COSMETIC_SUFFIXES_NEXT);
+            original(gui, player, slot, OriginalGuiDesign.cosmeticButton(player, page, slot,
+                    allowed ? selected : -1, p, config), null, List.of(), click);
+        }
+    }
+
     private void renderCases(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
+        var view = controller.cases().renderView(player);
+        if (view != null) {
+            // All five source case pages share this exact frame; logical Slot2 wins at menu slot11.
+            for (int i = 0; i < 9; i++)
+                original(gui, player, 9 + i, view.strip().get(i).copy(), null, List.of(), null);
+            var separator = new ItemStack(Items.IRON_CHAIN);
+            separator.set(DataComponents.TOOLTIP_DISPLAY, new net.minecraft.world.item.component.TooltipDisplay(true, new java.util.LinkedHashSet<>()));
+            original(gui, player, 2, separator.copy(), null, List.of(), null);
+            original(gui, player, 20, separator.copy(), null, List.of(), null);
+            gui.lastCasePhase = view.phase();
+            return;
+        }
+        gui.lastCasePhase = -1;
         for (int slot = 0; slot < 5; slot++) {
+            int kind = slot;
             original(gui, player, slot, OriginalGuiDesign.button(player, "swrg", 5000, slot, p, config),
-                    null, List.of(), null);
+                    null, List.of(), () -> {
+                        if (controller.cases().open(player, kind)) open(player, Page.CASES);
+                    });
         }
         originalTable(gui, player, 18, "swrg:gui/back", null, List.of(), () -> open(player, Page.HUB));
     }
@@ -614,7 +710,8 @@ public final class GameMenus {
         return switch (page) {
             case HUB, VANILLA_KITS, VANILLA_SKILLS, KEY_SHOP, STATS,
                     LBC_KITS, LBC_SKILLS, LBC_TRINKETS, LBC_LEVELUPS, LBC_CHALLENGE,
-                    COSMETICS, CASES -> true;
+                    COSMETICS, CASES, COSMETIC_SOUNDS, COSMETIC_CAGES, COSMETIC_SUFFIXES,
+                    COSMETIC_SUFFIXES_NEXT, COSMETIC_WINS, COSMETIC_KILLS -> true;
             case SETTINGS, MAPS, BEDWARS -> false;
         };
     }
@@ -633,17 +730,31 @@ public final class GameMenus {
         LBC_LEVELUPS,
         LBC_CHALLENGE,
         COSMETICS,
+        COSMETIC_SOUNDS, COSMETIC_CAGES, COSMETIC_SUFFIXES, COSMETIC_SUFFIXES_NEXT,
+        COSMETIC_WINS, COSMETIC_KILLS,
         CASES,
         BEDWARS
     }
 
-    private static final class Menu extends SimpleGui {
+    private final class Menu extends SimpleGui {
+        private int lastCasePhase = Integer.MIN_VALUE;
         private Page page;
         private boolean debug;
 
         private Menu(ServerPlayer player, Page page) {
             super(MenuType.GENERIC_9x3, player, false);
             this.page = page;
+        }
+
+        @Override
+        public void onTick() {
+            if (page != Page.CASES) return;
+            var player = getPlayer();
+            var view = controller.cases().renderView(player);
+            int phase = view == null ? -1 : view.phase();
+            if (phase == lastCasePhase) return;
+            for (int slot = 0; slot < 27; slot++) clearSlot(slot);
+            renderCases(this, player, players.get(player.getUUID(), player.getName().getString()));
         }
 
         @Override

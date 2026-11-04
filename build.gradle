@@ -26,6 +26,10 @@ dependencies {
 }
 
 processResources {
+    // Exact permanent SWRG case/cosmetic entitlements; no tournament2 or function interpreter.
+    (1..26).each { include "data/swrg/advancement/rewards/suffix_${it}.json" }
+    (1..3).each { include "data/swrg/advancement/rewards/drop_${it}.json"; include "data/swrg/advancement/rewards/turnir/trophy${it}.json" }
+    include 'data/swrg/advancement/rewards/turnir/killer.json'
     include 'data/lbc/loot_table/ported/bad_apple_imba.json'
     // Closed overnight batch: source Touhou pool (all eleven entries), bomb and ready singleton leaves.
     include 'data/lbc/loot_table/touhou_item.json', 'data/lbc/loot_table/bomb_item.json'

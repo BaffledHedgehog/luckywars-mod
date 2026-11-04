@@ -212,6 +212,8 @@ public final class LbcVanityRollback {
         complete(privateData(image.residents::publishFrozen),"resident item publication");
         image.spells.publishFrozen();image.auras.publishFrozen();image.fields.publishFrozen();image.polymorph.publishFrozen();image.aim.publishFrozen();
         image.levelups.publishFrozen();image.random.restoreFrozen();
+        // Profiles, real player ownership and RNG are now canonical; rebuild only derived case views.
+        game.cases().restored();
         for(var player:game.server().getPlayerList().getPlayers())
             if(!game.isObserver(player)&&player.getCamera() instanceof LbcFpvDrone.Drone&&!game.items().fpvDrone().controlling(player))player.setCamera(player);
         game.items().duplicating().endCheckpointDrain();game.players().save();game.config().save();
@@ -242,6 +244,7 @@ public final class LbcVanityRollback {
         if(hasSnapshot()&&game.playing()&&!busy())image.terrain.include(chunk);
     }
     private void restoreLogins(){
+        var restoredCases=new ArrayList<ServerPlayer>();
         boolean wasFrozen=game.server().tickRateManager().isFrozen();game.server().tickRateManager().setFrozen(true);
         try{
             for(var id:Set.copyOf(restoringLogins)){
@@ -255,6 +258,7 @@ public final class LbcVanityRollback {
                 game.items().duplicating().rebindRetained(player);
                 game.items().sauvojenBoss().rebindRetained(player);
                 awaitingRebind.add(id);
+                if(phase!=Phase.PUBLICATION)restoredCases.add(player);
                 pendingPlayers.remove(id);restoringLogins.remove(id);
             }
             var current=MatchActorCheckpoint.currentBodies(game);
@@ -262,6 +266,8 @@ public final class LbcVanityRollback {
             image.fields.finishFrozen(current::get);image.fields.publishFrozen();
             image.auras.restoreFrozen(current::get);image.auras.publishFrozen();
             image.aim.finishFrozen(current::get);image.aim.publishFrozen();
+            // Full publication covers its logins once; later offline bodies repair only their own view.
+            for(var player:restoredCases)game.cases().restored(player);
         }finally{game.server().tickRateManager().setFrozen(wasFrozen);}
     }
     private void tryRebind(){
