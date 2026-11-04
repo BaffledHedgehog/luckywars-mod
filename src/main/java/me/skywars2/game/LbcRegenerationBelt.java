@@ -14,6 +14,11 @@ import java.util.Map;
 public final class LbcRegenerationBelt {
     private static final String[] PREFIXES={"luckywars:","lws:","lucky_wars:","minecraft:"};
     private final GameController game;
+    private java.util.function.ToDoubleFunction<ServerPlayer> commandBase=p->0;
+    /** Source command-base regeneration precedes physical item SET/MULT/ADD composition. */
+    public void commandBase(java.util.function.ToDoubleFunction<ServerPlayer> contributor){
+        commandBase=java.util.Objects.requireNonNull(contributor);
+    }
     private int phase;
     private static final class Group {
         final String operation;final double value;final boolean stackable;long count;
@@ -28,8 +33,8 @@ public final class LbcRegenerationBelt {
                 &&!game.items().wands().inputTimeStopped(p)&&!game.items().timeStop().stopped(p.level());
     }
     private static CompoundTag payload(ItemStack stack){
-        if(stack.isEmpty())return null;var flags=LbcFartus.data(stack);
-        if(flags.getIntOr("heall",0)!=1)return null;
+        if(stack.isEmpty()||ItemData.intValue(stack,"heall",0)!=1)return null;
+        var flags=LbcFartus.data(stack);
         var root=flags.getCompound("PublicBukkitValues").orElse(null);if(root==null)return null;
         // Paper checks its plugin namespace, lws and lucky_wars for the nested container.
         for(int i=0;i<3;i++){var result=root.getCompound(PREFIXES[i]+"regen").orElse(null);if(result!=null)return result;}
@@ -59,6 +64,9 @@ public final class LbcRegenerationBelt {
     }
     /** Each native physical slot0..40 is read once; no cursor/craft/body/saddle aliases. */
     public double rate(ServerPlayer p){
+        return rate(p,commandBase.applyAsDouble(p));
+    }
+    public double rate(ServerPlayer p,double base){
         var nonArmor=new LinkedHashMap<String,Group>();var armor=new LinkedHashMap<String,Group>();
         int selected=p.getInventory().getSelectedSlot();
         gather(p.getInventory().getItem(selected),"mainhand",nonArmor);
@@ -66,17 +74,17 @@ public final class LbcRegenerationBelt {
         for(int slot=0;slot<36;slot++)if(slot!=selected)gather(p.getInventory().getItem(slot),"inventory",nonArmor);
         int[] slots={39,38,37,36};String[] keys={"head","chest","legs","feet"};
         for(int i=0;i<slots.length;i++)gather(p.getInventory().getItem(slots[i]),keys[i],armor);
-        return apply(apply(0,nonArmor),armor);
+        return apply(apply(base,nonArmor),armor);
     }
     private boolean taskTrigger(ServerPlayer p){
-        for(int slot=0;slot<36;slot++)if(!p.getInventory().getItem(slot).isEmpty()&&LbcFartus.data(p.getInventory().getItem(slot)).getIntOr("heall",0)==1)return true;
-        return !p.getOffhandItem().isEmpty()&&LbcFartus.data(p.getOffhandItem()).getIntOr("heall",0)==1;
+        for(int slot=0;slot<36;slot++)if(ItemData.intValue(p.getInventory().getItem(slot),"heall",0)==1)return true;
+        return ItemData.intValue(p.getOffhandItem(),"heall",0)==1;
     }
     private void collection(ServerPlayer p){
         if(!taskTrigger(p)||game.items().magic().beaconSuppressed(p.position()))return;
         var board=game.server().getScoreboard();var objective=board.getObjective("y");if(objective==null)return;
         var score=board.getPlayerScoreInfo(p,objective);if(score==null||score.value()>-100000)return;
-        int count=p.getInventory().clearOrCountMatchingItems(stack->!stack.isEmpty()&&LbcFartus.data(stack).getIntOr("heall",0)==1,true,0,p.inventoryMenu.getCraftSlots());
+        int count=p.getInventory().clearOrCountMatchingItems(stack->ItemData.intValue(stack,"heall",0)==1,true,0,p.inventoryMenu.getCraftSlots());
         if(count>=10)game.items().mana().award(p,"lbc:true_advancements/accesories/regeneration_belt");
     }
     public void tick(){

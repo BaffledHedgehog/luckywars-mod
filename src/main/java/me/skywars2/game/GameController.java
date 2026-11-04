@@ -1111,6 +1111,7 @@ public final class GameController {
 
     public void died(ServerPlayer player, DamageSource damage) {
         if(vanity.death(player))return;
+        items.rainbowAura().clear(player);items.psychblindSkill().leaveOrDeath(player);
         items.oreshek().died(player,damage);
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());

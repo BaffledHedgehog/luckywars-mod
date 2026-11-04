@@ -22,6 +22,7 @@ public abstract class IncomingArtifactCriterionMixin {
     @Inject(method="trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/damagesource/DamageSource;FFZ)V",at=@At("HEAD"))
     private void skywars2$incoming(ServerPlayer player,DamageSource source,float originalDamage,float actualDamage,boolean blocked,CallbackInfo ci){
         var game=SkyWars2.game();if(game!=null)try(var scope=game.items().spellSources().scope((me.skywars2.game.LbcSpellSource.Source)null)){
+            game.items().rainbowAura().incoming(player,source,originalDamage,actualDamage,blocked);
             game.items().reactiveTrinkets().incoming(player);
             game.items().incomingArtifacts().incoming(player,source,originalDamage,actualDamage,blocked);
             game.items().championSkill().incoming(player,source,originalDamage,actualDamage,blocked);

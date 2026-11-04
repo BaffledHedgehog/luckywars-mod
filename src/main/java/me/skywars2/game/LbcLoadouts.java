@@ -84,7 +84,7 @@ public final class LbcLoadouts {
         for (var player : game.server().getPlayerList().getPlayers()) {
             names.add(player.getDisplayName().getString());
             names.add(player.getName().getString());
-            refreshKnowledgeView(player);
+            refreshKnowledgeView(player);reconcileReactiveSkills(player);
         }
         knowledgeChatSenders = Set.copyOf(names);
     }
@@ -236,6 +236,12 @@ public final class LbcLoadouts {
     }
 
     /** Shared live skill admission; immunity checks never advance clocks or query suppressors. */
+    public void reconcileReactiveSkills(ServerPlayer player){
+        int selected=players.get(player.getUUID()).lbcSkill;
+        game.items().rainbowAura().selected(player,selected==32);
+        if(selected==36||game.items().psychblindSkill().enrolled(player))game.items().psychblindSkill().reconcile(player);
+    }
+
     public boolean hasSkill(ServerPlayer player,int skill){
         if(game.balanceLegacy()||!config.lbcSkills||players.get(player.getUUID()).lbcSkill!=skill)return false;
         var entry=byId(Kind.SKILLS,skill);
@@ -338,7 +344,7 @@ public final class LbcLoadouts {
         var profile = players.get(player.getUUID());
         switch (kind) {
             case KITS -> profile.lbcKit = entry.id;
-            case SKILLS -> { game.items().godClaw().clear(player);game.items().expansionSkill().clear(player);game.items().stoneGolemSkill().clear(player);game.items().championSkill().clear(player);game.items().symbioteSkill().clear(player);game.items().zeusSkill().clear(player);game.items().machinegunSkill().clear(player);game.items().containedSkills().clear(player);profile.lbcSkill = entry.id; refreshArtifactView(player); LbcParasite.beforeEffects(player);game.items().containedSkills().beforeEffects(player); }
+            case SKILLS -> { game.items().rainbowAura().clear(player);game.items().psychblindSkill().clear(player.getUUID());game.items().godClaw().clear(player);game.items().expansionSkill().clear(player);game.items().stoneGolemSkill().clear(player);game.items().championSkill().clear(player);game.items().symbioteSkill().clear(player);game.items().zeusSkill().clear(player);game.items().machinegunSkill().clear(player);game.items().containedSkills().clear(player);profile.lbcSkill = entry.id; refreshArtifactView(player); LbcParasite.beforeEffects(player);game.items().containedSkills().beforeEffects(player); }
             case TRINKETS -> {
                 int limit = Math.max(1, config.lbcTrinketLimit);
                 int slotIndex = Math.floorMod(profile.lbcTrinketSlot, limit);
@@ -354,7 +360,7 @@ public final class LbcLoadouts {
             }
         }
         players.save();
-        if(kind==Kind.SKILLS)inventoryChanged(player);
+        if(kind==Kind.SKILLS){inventoryChanged(player);reconcileReactiveSkills(player);}
         return true;
     }
 
@@ -404,7 +410,7 @@ public final class LbcLoadouts {
             resistanceOwners.put(player.getUUID(),player);
         }
         game.items().govnomancer().effectsChanged(player);LbcParasite.beforeEffects(player);game.items().containedSkills().beforeEffects(player);
-        inventoryChanged(player);player.setHealth(player.getMaxHealth());
+        inventoryChanged(player);reconcileReactiveSkills(player);player.setHealth(player.getMaxHealth());
     }
 
     private void apply(ServerPlayer player, boolean grantTrinkets, boolean grantKits) {
@@ -450,7 +456,7 @@ public final class LbcLoadouts {
         game.items().govnomancer().effectsChanged(player);
         LbcParasite.beforeEffects(player);
         game.items().containedSkills().beforeEffects(player);
-        inventoryChanged(player);
+        inventoryChanged(player);reconcileReactiveSkills(player);
         player.setHealth(player.getMaxHealth());
     }
 

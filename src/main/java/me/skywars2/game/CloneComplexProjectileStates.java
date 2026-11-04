@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 public final class CloneComplexProjectileStates {
     private CloneComplexProjectileStates() { }
     public static boolean recognizes(Entity e) {
-        return e instanceof LbcPozdmanBot.Coin||e.entityTags().contains("akyla_devid")||LbcBalance.managedRain(e)||LbcBalance.managedTnt(e)||LbcShulkerBow.cloneRecognizes(e)||LbcMadokaBow.cloneRecognizes(e)||LbcTrinketArrows.cloneRecognizes(e)||LbcClouds.cloneRecognizes(e)||e instanceof LbcExasperato.Charge
+        return LbcPsychblindSkill.cloneRecognizes(e)||e instanceof LbcPozdmanBot.Coin||e.entityTags().contains("akyla_devid")||LbcBalance.managedRain(e)||LbcBalance.managedTnt(e)||LbcShulkerBow.cloneRecognizes(e)||LbcMadokaBow.cloneRecognizes(e)||LbcTrinketArrows.cloneRecognizes(e)||LbcClouds.cloneRecognizes(e)||e instanceof LbcExasperato.Charge
                 ||LbcExoperso.cloneRecognizes(e)||LbcSpecialFireballs.cloneRecognizes(e)
                 ||LbcHalloweenWind.cloneRecognizes(e)||LbcGovnomet.cloneRecognizes(e)
                 ||e instanceof LbcPrism.Charge||LbcSyringe.cloneRecognizes(e)||LbcNeutral.managed(e);
@@ -25,6 +25,7 @@ public final class CloneComplexProjectileStates {
     }
     /** Returns null for protected trial authority and unsupported managed body variants. */
     public static LbcCloneSkills.ActorImage capture(GameController game,Entity e) {
+        if(LbcPsychblindSkill.cloneRecognizes(e))return game.items().psychblindSkill().cloneImage(e);
         if(game.items().pozdmanBot().cloneRecognizes(e))return game.items().pozdmanBot().cloneImage(e);
         if(LbcBalance.managedRain(e))return game.items().balance().cloneRain(e);
         if(LbcBalance.managedTnt(e))return game.items().balance().cloneTnt(e);

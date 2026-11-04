@@ -1,3 +1,19 @@
+## Rainbow Aura32 / Psychblind36 - QUALIFIED, INSTALLED (4 November 2026)
+
+[Native owners, source defaults and exact evidence](agent_notes/AURA_PSYCHBLIND_PORT_2026_11_04.md).
+Complete seven-color aura and global nondamaging Doppel gathering/orbit/ordinary
+Psycho terminal. Native criteria, shared healing/work/TimeStop/clone owners and
+typed whole-coordinator replay. Event-selected ownership, no new idle NBT scans.
+Questions16/17 retain provisional source suppression/Blue arithmetic defaults.
+Test63ec0859 /productiona230c969:12groups/12actual matches pass exact JAR
+(10mode1,2mode3);15freshJavafamilies/1resource,9986otherinputs/272authorpaths
+unchanged, every archive entry verified. Old Belt fixture failure reproduced on
+unchanged51f98ac3; native-stasis fixture repair preserves original assertions.
+Both build/libs/main updated with51f98ac3 rollback,restarted:false. No main
+stop/start, RP edits, physical-client/audio or peakTPS claim. TMT LAST;
+modes2/4,skill2 and broad public rewind gates unchanged. Night questions:23.
+Evidence:build/verification/aura-psychblind-2026-11-04/.
+
 # Overnight native transfer — 4 November 2026
 
 Author instruction: continue while absent; collect questions in

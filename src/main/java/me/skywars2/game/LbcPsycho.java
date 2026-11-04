@@ -283,6 +283,21 @@ public final class LbcPsycho {
         LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.7f,0,0);
         LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.7f,1,0);
     }
+    /** Skill36 terminal: one ordinary visible charge; shared flight/status/audio ownership follows. */
+    boolean emitDoppel(ServerPlayer owner,Vec3 origin,Vec3 direction){
+        if(!valid(owner)||paused(owner)||!Double.isFinite(direction.x)||!Double.isFinite(direction.y)
+                ||!Double.isFinite(direction.z)||direction.lengthSqr()<1.0e-12)return false;
+        int before=charges.size();
+        spawn(owner,origin,direction.normalize().scale(2),false,false,100);
+        if(charges.size()==before)return false;
+        LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.5f,.5f,0);
+        LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.5f,1.5f,0);
+        return true;
+    }
+    /** Keep final launch selection on the same target policy as native Psycho collision. */
+    boolean doppelTarget(ServerPlayer owner,Entity entity){
+        return projectileTarget(owner,entity)&&game.items().lifetimes().target(owner,entity);
+    }
     void psycho(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         int roll=mode==0?owner.getRandom().nextInt(6)+1:mode==1?1:mode+2;
         boolean trial=false;

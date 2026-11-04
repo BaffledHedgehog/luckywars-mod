@@ -362,6 +362,20 @@
       "slot": 6,
       "gate": "lbc:true_advancements/legends/academy/stone",
       "lockedKey": "lbc.adv.upgraded_tuntija.stone.lore"
+    },
+    {
+      "id": 32,
+      "page": 10100,
+      "slot": 4,
+      "gate": "lbc:true_advancements/legends/academy/gaycaster",
+      "lockedKey": "lbc.adv.upgraded_staff.gaycaster.lore"
+    },
+    {
+      "id": 36,
+      "page": 10100,
+      "slot": 8,
+      "gate": "lbc:true_advancements/legends/academy/psychoblind",
+      "lockedKey": "lbc.adv.upgraded_tuntija.psychoblind.lore"
     }
   ],
   "levelups": [
