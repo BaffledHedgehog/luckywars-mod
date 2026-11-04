@@ -27,6 +27,11 @@ dependencies {
 }
 
 processResources {
+    // Source throwable utilities reference their one canonical definition.
+    include 'data/lbc/loot_table/item_defs/lbc/ruchka__bf1f679a17b1.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/honey_block__e4ec8e496182.json'
+    include 'data/lbc/loot_table/item_defs/lbc/metal_pipe__b63902a52716.json'
+    include 'data/lbc/loot_table/ported/ruchka.json', 'data/lbc/loot_table/ported/honew.json', 'data/lbc/loot_table/ported/throwable_metal_pipe.json'
     // Finite native utilities retain one authored item definition per item.
     include 'data/lbc/loot_table/item_defs/lbc/teleporter__aeae257af80d.json'
     include 'data/lbc/loot_table/item_defs/minecraft/coarse_dirt__1374abee7412.json'

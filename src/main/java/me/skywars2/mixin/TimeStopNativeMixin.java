@@ -42,9 +42,12 @@ public abstract class TimeStopNativeMixin {
     @Inject(method = "tickNonPassenger", at = @At("HEAD"), cancellable = true)
     private void skywars2$freezeEntity(Entity entity, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game == null || !game.items().timeStop().frozen(entity)) return;
-        game.items().timeStop().prepareFrozen(entity);
-        ci.cancel();
+        if (game == null) return;
+        if (game.items().timeStop().frozen(entity)) {
+            game.items().timeStop().prepareFrozen(entity);ci.cancel();return;
+        }
+        game.items().thrownUtilities().beforeTick(entity);
+        if(entity.isRemoved())ci.cancel();
     }
 
     @Inject(method = "tickPassenger", at = @At("HEAD"), cancellable = true)

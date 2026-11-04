@@ -96,7 +96,7 @@ final class MatchSpellCheckpoint {
         game.items().familyDrops().reindexAfterRestore();
         var nativeBodies=MatchActorCheckpoint.currentBodies(game).values();
         game.items().communism().reindexOwnership(nativeBodies);
-        game.items().trinketArrows().reindexRestored(nativeBodies);game.items().madokaBow().reindexRestored(nativeBodies);game.items().shulkerBow().reindexRestored(nativeBodies);
+        game.items().thrownUtilities().reindexRestored(nativeBodies);game.items().trinketArrows().reindexRestored(nativeBodies);game.items().madokaBow().reindexRestored(nativeBodies);game.items().shulkerBow().reindexRestored(nativeBodies);
         return Set.of();
     }
     /** Client presentation waits for the outer canonical body/authority/status publication phase. */

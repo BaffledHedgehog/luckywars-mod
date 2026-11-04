@@ -1,3 +1,21 @@
+## Ruchka, Honew and throwable Metal Pipe - QUALIFIED, INSTALLED (4 November 2026)
+
+[Author rules, source contracts and evidence](agent_notes/THROWN_UTILITIES_2026_11_04.md).
+Three ready native Polymer items preserve authored counts, tiers and components.
+Ruchka binds actual melee and native flight to shared Twitching; sourceTECH20.
+Honew ejects41 exact stacks, honors ProtectedInventory and MAG caster/flight/target
+protection. Throwable Pipe delegates to the existing physical landing25 engine
+and remains unjammed. Vanilla Snowball attachments retain author/epoch/claim;
+native tick, TimeStop, canonical x2*x4 and whole coordinator replay checked.
+
+Test02284b2a /production9c3d1941:10groups/10isolated matches (6mode1,4mode3)
+pass exact archive.10freshJavafamilies/6resources,10060otherinputs/275authorpaths
+guarded; all ZIP entries and retained3184class references checked. Both
+build/libs/main updated with368d1b4c rollback; no main stop/start or push.
+Ready ported leaves enabled; full IMBA root, TMT-last/modes2,4/skill2/broad rewind
+gates unchanged. RP unchanged; no physical-client/audio/peakTPS/restart-persistence
+claim. Evidence: build/verification/thrown-utilities-2026-11-04/qualification.json.
+
 ## Native IMBA utilities and God Dice - QUALIFIED, INSTALLED (4 November 2026)
 
 [Author rules, source contracts and evidence](agent_notes/IMBA_UTILITIES_2026_11_04.md).

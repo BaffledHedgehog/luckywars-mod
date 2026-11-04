@@ -76,6 +76,8 @@ public final class LbcPsycho {
     }
     private final Set<PsychoVex> vexes=new LinkedHashSet<>();
     private int ticks;
+    private boolean statusRestoring;
+    private int statusCallbacks;
 
     public static final class Charge extends Projectile implements PolymerEntity {
         int age,lifetime=100;
@@ -368,7 +370,10 @@ public final class LbcPsycho {
         if(entity instanceof PsychoVex vex) vexes.remove(vex);
     }
     public void tick() {
-        ticks++; tickCharges(); tickEffects(); tickRays();
+        if(statusRestoring)return;
+        ticks++; tickCharges();
+        statusCallbacks++;try{tickEffects();}finally{statusCallbacks--;}
+        tickRays();
         tickBeamAudio();
         for(var vex:List.copyOf(vexes)) if(vex.isRemoved() || !game.items().currentEpoch(vex)) {
             vexes.remove(vex); vex.discard();
@@ -442,6 +447,8 @@ public final class LbcPsycho {
     private void tickEffects() {
         for(var entry:List.copyOf(effects.entrySet())) {
             var entity=entry.getKey(); var effect=entry.getValue();
+            // Canonical replay can retain a disconnected body until the same player is republished.
+            if(MatchOfflinePlayers.retained(entity)||effect.owner!=null&&MatchOfflinePlayers.retained(effect.owner))continue;
             if(game.items().polymorph().masked(entity))continue;
             if(!entity.isAlive() || entity.isRemoved() || !game.items().currentEpoch(effect.epoch)
                     || entity.level()!=game.maps().level()&&!effect.persistentPiss || entity instanceof ServerPlayer player && game.items().magic().cleansesCustomEffects(player) || LbcParasite.active(entity)
@@ -649,11 +656,52 @@ public final class LbcPsycho {
         for(var vex:List.copyOf(vexes)) if(vex.caster==owner) { vexes.remove(vex); vex.discard(); }
     }
     public void stop() {
+        statusRestoring=false;
         silenceBeamAudio();
         for(var charge:List.copyOf(charges)) remove(charge);
         for(var vex:List.copyOf(vexes)) vex.discard(); vexes.clear();
         for(var entity:List.copyOf(effects.keySet())) removeEffect(entity);
         rays.clear(); ticks=0;
+    }
+
+    void checkpointBoundary(){if(statusCallbacks!=0)throw new IllegalStateException("Finish native Psycho status callbacks before checkpointing");}
+    /** Canonical owners restore effects, attributes, inventory and item use; only detach private future counters. */
+    void prepareFrozen(){checkpointBoundary();statusRestoring=true;effects.clear();}
+    void publishFrozen(){checkpointBoundary();statusRestoring=false;}
+    void cancelFrozen(){checkpointBoundary();statusRestoring=false;}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    final class Checkpoint {
+        private record Status(MatchDamageSources.Ref target,MatchDamageSources.Ref owner,
+                int scared,int lookback,int twitching,int piss,boolean persistentPiss,String epoch,
+                Double previousFollowRange,MatchItemStackLinks.Ref forcedItem,InteractionHand forcedHand,
+                int forcedTicks,int lastUseTicks){}
+        private final List<Status> statuses=new ArrayList<>();
+        private final int phase=ticks;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            for(var entry:effects.entrySet()){
+                var target=entry.getKey();var effect=entry.getValue();
+                if(links.omitted(target))continue;
+                statuses.add(new Status(links.key(target),links.key(effect.owner),effect.scared,effect.lookback,
+                        effect.twitching,effect.piss,effect.persistentPiss,effect.epoch,effect.previousFollowRange,
+                        effect.forcedItem==null?null:links.stack(game,effect.forcedItem),effect.forcedHand,
+                        effect.forcedTicks,effect.lastUseTicks));
+            }
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            checkpointBoundary();var next=new IdentityHashMap<LivingEntity,Affliction>();
+            // Build independent images and validate all canonical aliases before any service installs its map.
+            for(var saved:statuses){
+                var target=(LivingEntity)links.get(saved.target);var owner=(ServerPlayer)links.get(saved.owner);
+                var effect=new Affliction();effect.owner=owner;effect.epoch=saved.epoch;
+                effect.scared=saved.scared;effect.lookback=saved.lookback;effect.twitching=saved.twitching;
+                effect.piss=saved.piss;effect.persistentPiss=saved.persistentPiss;
+                effect.previousFollowRange=saved.previousFollowRange;effect.forcedHand=saved.forcedHand;
+                effect.forcedItem=saved.forcedItem==null?null:saved.forcedItem.get(links);
+                effect.forcedTicks=saved.forcedTicks;effect.lastUseTicks=saved.lastUseTicks;
+                if(next.put(target,effect)!=null)throw new IllegalStateException("Duplicate restored Psycho status body");
+            }
+            return ()->{statusRestoring=true;effects.clear();effects.putAll(next);ticks=phase;};
+        }
     }
 
     static boolean cloneVex(Entity actor){return actor instanceof LbcPsycho.PsychoVex;}
