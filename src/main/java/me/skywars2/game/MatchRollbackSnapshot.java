@@ -38,6 +38,7 @@ final class MatchRollbackSnapshot {
     final MatchEncounterCheckpoint encounters;
     MatchAimCheckpoint aim;
     final MatchResidentItemCheckpoint residents;
+    LbcResolvedLevelups.Checkpoint levelups;
     MatchPolymorphCheckpoint polymorph;
     final long captureNanos;
     final VanityCheckpointSchedule.State vanitySchedule;
@@ -64,6 +65,7 @@ final class MatchRollbackSnapshot {
         chefs=new MatchChefCheckpoint(game,sources);hedgehogs=new MatchHedgehogCheckpoint(game,sources);
         encounters=new MatchEncounterCheckpoint(game,sources);aim=game.items().rifleZoom().checkpoint(sources);
         residents=new MatchResidentItemCheckpoint(game,sources);
+        levelups=game.lbc().resolvedLevelups().checkpoint();
         bedwarsStorage=game.bedwars().auxiliaries().storageImage();
         core=new MatchCoreCheckpoint(game);world=new MatchWorldCheckpoint(game);
         for(var player:game.server().getPlayerList().getPlayers())players.put(player.getUUID(),new MatchPlayerCheckpoint(game,player));
@@ -81,6 +83,7 @@ final class MatchRollbackSnapshot {
     }
 
     void prepareFrozen(GameController game){
+        levelups.prepareFrozen();
         // Detach discarded future hits silently before any teardown can trigger an end-of-stop replay.
         timeStop.prepareFrozen();game.items().stonekivi().cancelQueuedForRollback();
         fpv.prepareFrozen();queued.prepareFrozen();blasts.prepareFrozen();

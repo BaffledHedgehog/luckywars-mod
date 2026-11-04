@@ -126,16 +126,12 @@ public final class LbcMachinegunSkill {
                 component(direction.z,q,random.nextInt(spread*2+1)-spread));
         var arrow=((ArrowItem)ammo.getItem()).createArrow(p.level(),ammo,p,fired);double damage=2;
         arrow.setPos(p.getEyePosition());arrow.entityTags().add(TAG);arrow.entityTags().add("killedarrow");
-        if(game.config().lbcLevelups){
-            var tags=p.entityTags();
-            if(tags.contains("fast_charge"))motion=accelerated(motion);
-            if(tags.contains("strong_charge"))damage=2.5;
-            if(tags.contains("strong_charge_1"))damage+=.5;
-            if(tags.contains("gravitas"))arrow.setNoGravity(true);
-        }
-        arrow.setBaseDamage(damage);arrow.setDeltaMovement(motion);LbcShooters.orient(arrow);game.items().markCurrentItemEpoch(arrow);
+        arrow.setBaseDamage(damage);arrow.setDeltaMovement(motion);
+        game.items().projectileLevelups().beforePublish(p,arrow,LbcProjectileLevelups.Launch.MACHINEGUN);
+        LbcShooters.orient(arrow);game.items().markCurrentItemEpoch(arrow);
+        game.items().timeStop().prepareFrozen(arrow);
         if(!p.level().addFreshEntity(arrow))return false;
-        game.items().lifetimes().track(arrow);game.items().timeStop().prepareFrozen(arrow);
+        game.items().lifetimes().track(arrow);
         if(random.nextBoolean()){ammo.shrink(1);p.getInventory().setChanged();}
         boolean traitsRolled=false;
         if(ItemData.intValue(fired,"explosive",0)==1){
@@ -151,13 +147,6 @@ public final class LbcMachinegunSkill {
         game.items().madokaBow().augment(p,fired,family);
         if(!traitsRolled)game.items().trinkets().shot(p,family);
         return true;
-    }
-    static Vec3 accelerated(Vec3 motion){
-        long x=(long)Math.floor(motion.x*130000),y=(long)Math.floor(motion.y*130000),z=(long)Math.floor(motion.z*130000);
-        while(Math.abs(x)>1000000||Math.abs(y)>1000000||Math.abs(z)>1000000){
-            x=Math.floorDiv(x,10)*9;y=Math.floorDiv(y,10)*9;z=Math.floorDiv(z,10)*9;
-        }
-        return new Vec3(x*.00001,y*.00001,z*.00001);
     }
     public static boolean managed(Entity actor){return actor!=null&&actor.entityTags().contains(TAG);}
     public boolean loaded(Entity actor){

@@ -220,6 +220,7 @@ public final class LbcItems {
     private final LbcReactiveTrinkets reactiveTrinkets;
     private final LbcRainbowAura rainbowAura;
     private final LbcPsychblindSkill psychblindSkill;
+    private final LbcProjectileLevelups projectileLevelups;
     private final LbcTrinketArrows trinketArrows;
     private final LbcShulkerBow shulkerBow;
     private final LbcMadokaBow madokaBow;
@@ -1022,6 +1023,10 @@ public final class LbcItems {
         this.touhouCollectibles=new LbcTouhouCollectibles(game,touhouAdmission);
         var auraMobs=net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
         this.rainbowAura=new LbcRainbowAura(game,p->true,(p,t)->t.getType().builtInRegistryHolder().is(auraMobs)&&wands.target(p,t));
+        this.projectileLevelups=new LbcProjectileLevelups(game,new LbcProjectileLevelups.Policy(){
+            public boolean hasLevelup(ServerPlayer p,int id){return game.lbc().hasLevelup(p,id);}
+            public boolean auraTarget(ServerPlayer p,Entity e){return wands.validRoleTarget(e,false)&&!cloneSkills.protectedFamilyActor(e);}
+        });
         this.psychblindSkill=new LbcPsychblindSkill(game,new LbcPsychblindSkill.Policy(){
             public boolean selected(ServerPlayer p){return game.lbc().hasSkill(p,36);}
             public boolean acquirable(ServerPlayer p,LivingEntity target){return target!=p&&wands.validRoleTarget(target,false);}
@@ -1133,6 +1138,7 @@ public final class LbcItems {
     public LbcReactiveTrinkets reactiveTrinkets(){return reactiveTrinkets;}
     public LbcRainbowAura rainbowAura(){return rainbowAura;}
     public LbcPsychblindSkill psychblindSkill(){return psychblindSkill;}
+    public LbcProjectileLevelups projectileLevelups(){return projectileLevelups;}
     public LbcTrinketArrows trinketArrows() { return trinketArrows; }
     public LbcShulkerBow shulkerBow(){return shulkerBow;}
     public LbcMadokaBow madokaBow(){return madokaBow;}
@@ -1977,7 +1983,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
-        reactiveTrinkets.tick();rainbowAura.tick(game.matchTicks(),Math.floorMod(game.matchTicks(),100));psychblindSkill.tick();
+        reactiveTrinkets.tick();rainbowAura.tick(game.matchTicks(),Math.floorMod(game.matchTicks(),100));psychblindSkill.tick();projectileLevelups.tick();
         for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);
         containedSkills.tick();fallingHedgehogs.tick();godClaw.tick();stoneGolemSkill.tick();expansionSkill.tick();hakureiSkill.tick();touhouCollectibles.tick();
         combatRewards.tick();machinegunSkill.tick();zeusSkill.tick();symbioteSkill.tick();cloneSkills.tick();
@@ -2191,7 +2197,7 @@ public final class LbcItems {
     // A connection unload is not source purify: keep authoritative Nanobots scoreboard state.
     private void clear(ServerPlayer player,boolean resetNanobots) { steampunkHook.clear(player);steampunkGlove.clear(player);legacyEffects.clear(player); if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); clearTurnCurse(player); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
-        rainbowAura.clear(player);psychblindSkill.leaveOrDeath(player);
+        rainbowAura.clear(player);psychblindSkill.leaveOrDeath(player);projectileLevelups.clear(player.getUUID());
         cursedPumpkin.forget(player);pozdmanBot.forget(player);
         nexusCompass.forget(player);
         machinegunSkill.clear(player);zeusSkill.clear(player);symbioteSkill.clear(player);
@@ -2286,7 +2292,7 @@ public final class LbcItems {
     }
     private void lightsabersLoaded(Entity entity){if(entity instanceof ServerPlayer p)lightsabers.sourceScoreChanged(p);}
     public void stop() {
-        rainbowAura.stop();psychblindSkill.stop();
+        rainbowAura.stop();psychblindSkill.stop();projectileLevelups.stop();
         lightsabers.clear();pozdmanBot.stop();cursedPumpkin.clear();
         combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();symbioteSkill.stop();cloneSkills.stop();
         containedSkills.stop();fallingHedgehogs.stop();godClaw.stop();stoneGolemSkill.stop();championSkill.stop();expansionSkill.stop();hakureiSkill.stop();touhouCollectibles.stop();

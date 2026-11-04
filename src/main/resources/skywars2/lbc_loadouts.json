@@ -992,6 +992,46 @@
           "operation": "add_value"
         }
       ]
+    },
+    {
+      "id": 14,
+      "page": 8000,
+      "slot": 13,
+      "gate": "lbc:true_advancements/armor/chaos",
+      "lockedKey": "lbc.adv.armor.chaos.lore",
+      "modifiers": []
+    },
+    {
+      "id": 25,
+      "page": 8000,
+      "slot": 24,
+      "gate": "lbc:true_advancements/bows/railgun",
+      "lockedKey": "lbc.adv.bow.railgun.lore",
+      "modifiers": []
+    },
+    {
+      "id": 28,
+      "page": 8100,
+      "slot": 0,
+      "gate": "lbc:true_advancements/bows/railshish",
+      "lockedKey": "lbc.adv.bow.railshish.lore",
+      "modifiers": []
+    },
+    {
+      "id": 29,
+      "page": 8100,
+      "slot": 1,
+      "gate": "lbc:true_advancements/bows/randchanted",
+      "lockedKey": "lbc.adv.bow.randchanted.lore",
+      "modifiers": []
+    },
+    {
+      "id": 30,
+      "page": 8100,
+      "slot": 2,
+      "gate": "lbc:true_advancements/bows/shulker",
+      "lockedKey": "lbc.adv.bow.shulker.lore",
+      "modifiers": []
     }
   ],
   "trinkets": [

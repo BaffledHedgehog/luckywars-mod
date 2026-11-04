@@ -1,3 +1,22 @@
+## Remaining selectable levelups - QUALIFIED, INSTALLED (4 November 2026)
+
+[Source, native owners and exact proof](agent_notes/REMAINING_LEVELUPS_PORT_2026_11_04.md).
+All41 source selectable levelups now complete:14Tatam/25speed/28coefficient/
+29additive/30Gravitas. One canonical actual-shot operation, uncapped1.3speed,
+actual coefficient ordered floors, noGravity; source finite neutral aura via
+shared fair work. Persistent match Tatam/RandomStat choices, full typed RNG and
+whole coordinator/offline login; ordinary/BedWars reapplication reuses attributes
+and mana owners, Nulla last. Canonical paused physics survives special conversion.
+Questions22/23 retain source defaults; night backlog currently27. No RP edits.
+Test785d6195 /production31828d3f:18groups/17actual matches pass exact JAR
+(15groups/14mode1matches +3mode3).16freshJavafamilies/2resources,9988otherinputs/
+272authorpaths unchanged, every ZIP entry verified. Exact normal fixture cleanup.
+Both build/libs/main updated with63ec0859rollback,restarted:false; no main stop/
+start. No physical-client/peakTPS/new death-replacement fixture claim. TMT LAST;
+modes2/4,skill2 and broad public rewind gates unchanged. Cases/cosmetics audited,
+material questions24-27 backlog; not released by this batch.
+Evidence:build/verification/remaining-levelups-2026-11-04/.
+
 ## Rainbow Aura32 / Psychblind36 - QUALIFIED, INSTALLED (4 November 2026)
 
 [Native owners, source defaults and exact evidence](agent_notes/AURA_PSYCHBLIND_PORT_2026_11_04.md).

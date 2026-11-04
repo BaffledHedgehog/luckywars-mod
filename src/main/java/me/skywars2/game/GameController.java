@@ -455,6 +455,7 @@ public final class GameController {
     }
 
     private void resetBalancePlayer(ServerPlayer player) {
+        lbc.resolvedLevelups().forget(player.getUUID());
         int level=player.experienceLevel,total=player.totalExperience;float progress=player.experienceProgress;
         resetPlayer(player,20,true);
         // The source clears inventory/perks, but never debits existing XP.
@@ -472,7 +473,7 @@ public final class GameController {
             var intent=balanceMap;
             holdSupernovaPlayers();
             // This is the explicit full old-mode boundary, distinct from same-match Supernova.
-            vanity.stop();events.stop();zoneBarrier.stop();luckyModifiers.endMatch();attributeHud.stop();
+            vanity.stop();lbc.resetLevelupMatch();events.stop();zoneBarrier.stop();luckyModifiers.endMatch();attributeHud.stop();
             items.stop();
             balanceMap=intent.phase(RenewalPhase.LOADING);
             balanceLegacy(false);
@@ -1033,6 +1034,7 @@ public final class GameController {
     private void startPlaying() {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < (developerMode() ? 1 : 2)) { restoreLobby(); return; }
+        lbc.resetLevelupMatch();
         LbcPhdCrafting.matchStarted(this);
         luckyModifiers.startMatch();
         if(!bedwars.mode()){maps.cages(false); maps.captureRespawnIslands(); maps.fillChests(false);}
@@ -1111,6 +1113,7 @@ public final class GameController {
 
     public void died(ServerPlayer player, DamageSource damage) {
         if(vanity.death(player))return;
+        items.projectileLevelups().clear(player.getUUID());
         items.rainbowAura().clear(player);items.psychblindSkill().leaveOrDeath(player);
         items.oreshek().died(player,damage);
         if (!playing()) return;
@@ -1294,6 +1297,7 @@ public final class GameController {
         balanceLegacy(false);balanceMap=null;balancePendingReset.clear();balancePendingRewards.clear();
         vanity.stop();
         luckyModifiers.endMatch();
+        lbc.resetLevelupMatch();
         items.stop();
         events.stop(); if(!bedwarsResult)maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
         List<ServerPlayer> alive = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
@@ -1340,6 +1344,8 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        vanity.stop();
+        lbc.resetLevelupMatch();
         bedwars.stop();
         runeRestartPending=false;
         supernovaMap=null;
@@ -1594,6 +1600,7 @@ public final class GameController {
         bedwars.stop();
         developerTools.close();
         vanity.stop();
+        lbc.resetLevelupMatch();
         visualTracking.stop();
         teamColors.stop();
         luckyModifiers.endMatch();

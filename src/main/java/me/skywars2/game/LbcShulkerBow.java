@@ -74,7 +74,7 @@ public final class LbcShulkerBow {
             snapshot.pickup=arrow.pickup;
             var bullet=new ShulkerBullet(EntityTypes.SHULKER_BULLET,owner.level());
             bullet.setOwner(owner);bullet.snapTo(arrow.getX(),arrow.getY(),arrow.getZ(),arrow.getYRot(),arrow.getXRot());
-            bullet.setDeltaMovement(arrow.getDeltaMovement());bullet.setNoGravity(arrow.isNoGravity());bullet.setSilent(arrow.isSilent());
+            bullet.setDeltaMovement(game.items().timeStop().persistedVelocity(arrow,arrow.getDeltaMovement()));bullet.setNoGravity(game.items().timeStop().persistedNoGravity(arrow,arrow.isNoGravity()));bullet.setSilent(arrow.isSilent());
             bullet.entityTags().addAll(arrow.entityTags());install(bullet,snapshot);game.items().timeStop().prepareFrozen(bullet);
             if(owner.level().addFreshEntity(bullet)){arrow.discard();result.add(bullet);}else {actors.remove(bullet);result.add(arrow);}
         }

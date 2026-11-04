@@ -35,7 +35,16 @@ public abstract class TrinketBowMixin {
     private Projectile skywars2$spawned(Projectile projectile, ServerLevel level, ItemStack ammo,
                                        Consumer<Projectile> configure, Operation<Projectile> original,
                                        @Share("spawned") LocalRef<List<Projectile>> spawned) {
-        var result = original.call(projectile, level, ammo, configure);
+        Consumer<Projectile> modified=body->{
+            configure.accept(body);
+            var game=SkyWars2.game();
+            if(game!=null&&body.getOwner() instanceof ServerPlayer owner){
+                if((Object)this instanceof BowItem)game.items().projectileLevelups().beforePublish(owner,body,me.skywars2.game.LbcProjectileLevelups.Launch.BOW);
+                else if((Object)this instanceof CrossbowItem)game.items().projectileLevelups().beforePublish(owner,body,me.skywars2.game.LbcProjectileLevelups.Launch.CROSSBOW);
+                game.items().timeStop().prepareFrozen(body);
+            }
+        };
+        var result = original.call(projectile, level, ammo, modified);
         if(result!=null&&level.getEntity(result.getUUID())==result){
             if(spawned.get()==null)spawned.set(new java.util.ArrayList<>());spawned.get().add(result);
         }

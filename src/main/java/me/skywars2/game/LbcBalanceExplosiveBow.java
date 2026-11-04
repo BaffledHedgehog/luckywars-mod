@@ -57,13 +57,16 @@ final class LbcBalanceExplosiveBow {
     }
     private void shells(Family family,int variant,AbstractArrow arrow,Vec3 origin,Vec3 forward,Vec3 left,Vec3 up,LbcBalanceTntShells.Shell[] shells){
         for(var shell:shells){var at=origin.add(left.scale(shell.x())).add(up.scale(shell.y())).add(forward.scale(shell.z()));
-            var body=spawn(family,(ServerLevel)arrow.level(),at,arrow.getDeltaMovement(),shell.fuse(),variant,true);
-            if(body!=null){body.setRemainingFireTicks(arrow.getRemainingFireTicks());body.setNoGravity(variant==303);body.setGlowingTag(variant==103||variant==304);}
+            var body=spawn(family,(ServerLevel)arrow.level(),at,game.items().timeStop().persistedVelocity(arrow,arrow.getDeltaMovement()),shell.fuse(),variant,true,game.items().timeStop().persistedNoGravity(arrow,arrow.isNoGravity())||variant==303);
+            if(body!=null){body.setRemainingFireTicks(arrow.getRemainingFireTicks());body.setGlowingTag(variant==103||variant==304);}
         }
     }
     private PrimedTnt spawn(Family family,ServerLevel level,Vec3 at,Vec3 motion,int fuse,int variant,boolean ground){
+        return spawn(family,level,at,motion,fuse,variant,ground,false);
+    }
+    private PrimedTnt spawn(Family family,ServerLevel level,Vec3 at,Vec3 motion,int fuse,int variant,boolean ground,boolean noGravity){
         if(!level.hasChunkAt(BlockPos.containing(at)))return null;
-        var body=new PrimedTnt(level,at.x,at.y,at.z,family.author);body.setFuse(fuse);body.setDeltaMovement(motion);body.entityTags().add(TAG);if(ground)body.entityTags().add("groundbam");
+        var body=new PrimedTnt(level,at.x,at.y,at.z,family.author);body.setFuse(fuse);body.setDeltaMovement(motion);body.setNoGravity(noGravity);body.entityTags().add(TAG);if(ground)body.entityTags().add("groundbam");
         game.items().spellSources().bind(body,new LbcSpellSource.Source(body.getUUID(),family.cause.player(),family.epoch,family.cause,Set.of(),true));
         game.items().markCurrentItemEpoch(body);game.items().summons().track(family.author,body);game.items().timeStop().prepareFrozen(body);actors.put(body,new State(family,variant));
         if(!level.addFreshEntity(body)){actors.remove(body);body.discard();return null;}return body;

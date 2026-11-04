@@ -1,3 +1,5 @@
+Update: trinkets and skills32/36 are qualified; all41 selectable levelups are now qualified. The gap counts below are historical planning facts. See REMAINING_LEVELUPS_PORT_2026_11_04.md. Cases/cosmetics source closure is in their dedicated NIGHT notes; questions24-27 are pending.
+
 # Remaining coherent native chains - 2026-11-04
 
 Bounded read-only planning during ordinary BedWars qualification. Only this note written; production compile inputs, resources, RP, question file and server untouched. This is a catalog/source comparison, not runtime qualification or an exhaustive completion claim. TMT LAST. Existing 45 completed families and the subsequent qualified seasonal/advanced/overnight batches are excluded from recommendations.

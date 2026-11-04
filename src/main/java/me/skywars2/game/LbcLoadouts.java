@@ -39,6 +39,7 @@ public final class LbcLoadouts {
     private final GameController game;
     private final GameConfig config;
     private final PlayerStore players;
+    private final LbcResolvedLevelups resolvedLevelups;
     private final java.util.Map<java.util.UUID, ServerPlayer> resistanceOwners = new java.util.HashMap<>();
     private int skillTickCounter;
     private final Set<java.util.UUID> inventorySkillsChanging=new java.util.HashSet<>();
@@ -50,6 +51,7 @@ public final class LbcLoadouts {
 
     public LbcLoadouts(GameController game, GameConfig config, PlayerStore players) {
         this.game = game; this.config = config; this.players = players;
+        resolvedLevelups = new LbcResolvedLevelups(game);
     }
 
     /** Резервная сверка косметического доступа после команд/внешних правок профиля, без изменения предметов. */
@@ -128,6 +130,7 @@ public final class LbcLoadouts {
     }
 
     public void left(ServerPlayer player) {
+        if (!resolvedLevelups.rebuilding()) resolvedLevelups.forget(player.getUUID());
         pendingInventorySkills.remove(player.getUUID());
         knowledgeViews.remove(player.getUUID());
         artifactReaders.remove(player.getUUID());
@@ -237,6 +240,7 @@ public final class LbcLoadouts {
 
     /** Shared live skill admission; immunity checks never advance clocks or query suppressors. */
     public void reconcileReactiveSkills(ServerPlayer player){
+        game.items().projectileLevelups().reconcile(player);
         int selected=players.get(player.getUUID()).lbcSkill;
         game.items().rainbowAura().selected(player,selected==32);
         if(selected==36||game.items().psychblindSkill().enrolled(player))game.items().psychblindSkill().reconcile(player);
@@ -396,14 +400,16 @@ public final class LbcLoadouts {
         } else apply(player, false, false);
     }
 
-    /** Historical BedWars life: kit/skill/trinkets only; startup upgrades and challenges are not reissued. */
+    /** New native life reattaches the same match upgrades; choices and startup challenges do not reroll. */
     public void applyBedwarsRespawn(ServerPlayer player) {
+        if (resolvedLevelups.rebuilding() || MatchPlayerCheckpoint.restoring(player)) return;
         clear(player);
         var profile=players.get(player.getUUID());
         if(config.lbcKits){var kit=byId(Kind.KITS,profile.lbcKit);if(kit!=null&&allowed(player,kit))grant(player,kit);}
         for(int n=0;n<Math.min(config.lbcTrinketLimit,profile.trinkets.length);n++){
             var trinket=byId(Kind.TRINKETS,profile.trinkets[n]);if(trinket!=null&&allowed(player,trinket))grant(player,trinket);
         }
+        applyLevelups(player, profile);
         var skill=byId(Kind.SKILLS,profile.lbcSkill);
         if(config.lbcSkills&&skill!=null&&skill.id==5&&allowed(player,skill)){
             for(int amplifier=0;amplifier<4;amplifier++)player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,(50-amplifier*10)*20,amplifier));
@@ -414,6 +420,7 @@ public final class LbcLoadouts {
     }
 
     private void apply(ServerPlayer player, boolean grantTrinkets, boolean grantKits) {
+        if (resolvedLevelups.rebuilding() || MatchPlayerCheckpoint.restoring(player)) return;
         // При старте и возрождении сначала снимаются старые бонусы, затем выдаются комплект и выбранные улучшения.
         clear(player);
         var profile = players.get(player.getUUID());
@@ -430,21 +437,7 @@ public final class LbcLoadouts {
             Entry trinket = byId(Kind.TRINKETS, profile.trinkets[index]);
             if (trinket != null && allowed(player, trinket)) grant(player, trinket);
         }
-        boolean randomStat=false;var resourceLevelups=new java.util.HashSet<Integer>();
-        if (config.lbcLevelups) for (int index = 0; index < Math.min(config.lbcLevelupLimit, profile.levelups.length); index++) {
-            Entry levelup = byId(Kind.LEVELUPS, profile.levelups[index]);
-            if (levelup == null || !allowed(player, levelup)) continue;
-            if(levelup.id==1)randomStat=true;resourceLevelups.add(levelup.id);
-            for (Modifier modifier : levelup.modifiers) {
-                var attribute = player.getAttribute(modifier.attribute);
-                if (attribute == null) continue;
-                // Same source modifier ID means duplicates do not multiply the bonus.
-                attribute.removeModifier(modifier.value.id());
-                attribute.addTransientModifier(modifier.value);
-            }
-        }
-        LbcManaLevelups.apply(game,player,resourceLevelups);
-        if(randomStat)LbcRandomStatLevelup.apply(player);
+        applyLevelups(player, profile);
         Entry skill = byId(Kind.SKILLS, profile.lbcSkill);
         if (config.lbcSkills && skill != null && skill.id == 5 && allowed(player, skill)) {
             // Native hidden-effect chain reproduces I -> II -> III -> IV application order.
@@ -458,6 +451,31 @@ public final class LbcLoadouts {
         game.items().containedSkills().beforeEffects(player);
         inventoryChanged(player);reconcileReactiveSkills(player);
         player.setHealth(player.getMaxHealth());
+    }
+
+    /** Reattach owned effects to the current body without repeating match choices. */
+    private void applyLevelups(ServerPlayer player, PlayerStore.Profile profile) {
+        long effective = resolvedLevelups.resolve(player, profile.levelups, config.lbcLevelupLimit,
+                config.lbcLevelups, id -> {
+                    var entry = byId(Kind.LEVELUPS, id);
+                    return entry != null && allowed(player, entry);
+                });
+        for (int id = 1; id <= 44; id++) {
+            if (!LbcResolvedLevelups.contains(effective, id)) continue;
+            Entry levelup = byId(Kind.LEVELUPS, id);
+            // Every real random outcome shares the native catalog owner without its selection gate.
+            if (levelup == null) throw new IllegalStateException("Missing native levelup outcome " + id);
+            for (Modifier modifier : levelup.modifiers) {
+                var attribute = player.getAttribute(modifier.attribute);
+                if (attribute == null) continue;
+                // Same source modifier ID means duplicates do not multiply the bonus.
+                attribute.removeModifier(modifier.value.id());
+                attribute.addTransientModifier(modifier.value);
+            }
+        }
+        resolvedLevelups.applyRandomStats(player);
+        LbcManaLevelups.apply(game, player, LbcResolvedLevelups.ids(effective));
+        game.items().projectileLevelups().reconcile(player);
     }
 
     private void grant(ServerPlayer player, Entry entry) {
@@ -488,8 +506,21 @@ public final class LbcLoadouts {
         return table.getRandomItems(params);
     }
 
+    /** Gameplay consumers use active resolved effects; selection/menu/persistence retain raw IDs. */
+    public boolean hasLevelup(ServerPlayer player, int id) {
+        return config.lbcLevelups && !game.balanceLegacy() && resolvedLevelups.has(player, id);
+    }
+    public long effectiveLevelupMask(ServerPlayer player) {
+        return config.lbcLevelups && !game.balanceLegacy() ? resolvedLevelups.mask(player) : 0;
+    }
+    LbcResolvedLevelups resolvedLevelups() { return resolvedLevelups; }
+    void resetLevelupMatch() { resolvedLevelups.resetMatch(); }
+
     /** Remove only this catalog's modifiers, including old persistent copies after a restart. */
     public void clear(ServerPlayer player) {
+        if (resolvedLevelups.rebuilding() || MatchPlayerCheckpoint.restoring(player)) return;
+        game.items().projectileLevelups().clear(player.getUUID());
+        resolvedLevelups.deactivate(player);
         LbcManaLevelups.clear(game,player);
         pendingInventorySkills.remove(player.getUUID());
         LbcRandomStatLevelup.clear(player);

@@ -140,6 +140,7 @@ public final class LbcVanityRollback {
         }
         var candidate=privateData(()->new MatchRollbackSnapshot(game,captureFrom));
         pendingPlayers.forEach(candidate.players::putIfAbsent);
+        if(captureFrom!=null)candidate.levelups=candidate.levelups.withPending(captureFrom.levelups,pendingPlayers.keySet());
         image=candidate;captureFrom=null;image.terrain.retain(game);restoreSchedule(image.vanitySchedule);
         restoringLogins.clear();requested=null;claim=false;granted=false;waitReason="";phase=Phase.IDLE;
         game.items().duplicating().endCheckpointDrain();
@@ -162,6 +163,7 @@ public final class LbcVanityRollback {
     }
     private <T>T privateData(Supplier<T> action){return MatchOfflinePlayers.using(game,retainedBodies,action);}
     private void restoreBodies(){
+        image.levelups.restoreFrozen();
         image.core.restoreFrozen(image.players);image.actors.restoreBodiesFrozen(image.omitted);
         image.restoreOnlinePlayers(game,pendingPlayers);
         var absent=offline();game.reconcileRollbackParticipants(absent,image.players.keySet());
@@ -208,7 +210,8 @@ public final class LbcVanityRollback {
         complete(privateData(image.statuses::publishFrozen),"custom status publication");image.academy.publishFrozen();
         complete(privateData(image.chefs::publishFrozen),"Chef publication");complete(privateData(image.hedgehogs::publishFrozen),"Hedgehog publication");
         complete(privateData(image.residents::publishFrozen),"resident item publication");
-        image.spells.publishFrozen();image.auras.publishFrozen();image.fields.publishFrozen();image.polymorph.publishFrozen();image.aim.publishFrozen();image.random.restoreFrozen();
+        image.spells.publishFrozen();image.auras.publishFrozen();image.fields.publishFrozen();image.polymorph.publishFrozen();image.aim.publishFrozen();
+        image.levelups.publishFrozen();image.random.restoreFrozen();
         for(var player:game.server().getPlayerList().getPlayers())
             if(!game.isObserver(player)&&player.getCamera() instanceof LbcFpvDrone.Drone&&!game.items().fpvDrone().controlling(player))player.setCamera(player);
         game.items().duplicating().endCheckpointDrain();game.players().save();game.config().save();
@@ -245,6 +248,7 @@ public final class LbcVanityRollback {
                 var player=game.server().getPlayerList().getPlayer(id);
                 if(player==null){restoringLogins.remove(id);continue;}
                 var data=pendingPlayers.get(id);
+                image.levelups.restorePlayerFrozen(id);
                 player=privateData(data::restoreFrozen);game.rejoinRollbackParticipant(player,data.observer());
                 image.actors.damageSources().rebindPlayers(Map.of(id,player));
                 image.attribution.restorePlayerFrozen(player);
@@ -279,6 +283,7 @@ public final class LbcVanityRollback {
         rebind=candidate;phase=Phase.REBINDING;privateData(()->{rebind.prepareFrozen();return null;});
     }
     void stop(){
+        if(image!=null)image.levelups.cancelFrozen();
         if(busy()&&image!=null&&game.playing()&&!game.maps().busy()&&game.items().currentEpoch(image.epoch)){
             game.server().tickRateManager().setFrozen(true);
             // An interrupted publication must not leave private owners staged into the next match.
