@@ -217,6 +217,7 @@ public final class LbcIndirectKills {
         var controller=me.skywars2.SkyWars2.game();
         if(controller!=null && controller.items().communism().owner(source) instanceof ServerPlayer player)return player;
         var game=me.skywars2.SkyWars2.game();
+        if(source!=null&&game!=null&&game.bedwars()!=null&&game.bedwars().auxiliaries().owner(source) instanceof ServerPlayer player)return player;
         if(game!=null && game.items().spellSources().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().chaosTrapActors().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().magicBean().owner(source) instanceof ServerPlayer player) return player;
@@ -281,9 +282,12 @@ public final class LbcIndirectKills {
 
     /** Only harmful potion/cloud effects use projectile allegiance; beneficial effects retain vanilla behavior. */
     public boolean allowProjectileEffect(LivingEntity target,MobEffectInstance effect,Entity source) {
+        if(!LbcBedwarsHarm.effectAllowed(target,effect,source))return false;
         return allowProjectileEffect(target,effect.getEffect(),source);
     }
     public boolean allowProjectileEffect(LivingEntity target,Holder<MobEffect> effect,Entity source) {
+        if(LbcBedwarsHarm.active()&&effect.value().isInstantaneous())return !LbcBedwarsRoleGuards.shop(target);
+        if(!LbcBedwarsHarm.effectAllowed(target,effect,0,source,null))return false;
         if(LbcSpecialFireballs.managed(source))return game.items().specialFireballs().canAffect(source,target);
         if(source instanceof net.minecraft.world.entity.monster.warden.Warden && LbcCreatureDrops.managed(source)
                 && effect.value().getCategory()==net.minecraft.world.effect.MobEffectCategory.HARMFUL)
@@ -739,6 +743,27 @@ public final class LbcIndirectKills {
         if(fall!=null && fall.levitation) falls.remove(target);
     }
 
+    /** Existing accepted policy only: unlike attribution capture, this query never allocates an order. */
+    Owner policyCause(Entity target,DamageSource source){
+        if(causeTarget==target&&activeCause!=null)return activeCause;
+        if(source instanceof CapturedDamage captured)return captured.cause;
+        if(source instanceof TransferredDamage transferred)return policyCause(target,transferred.original);
+        if(source instanceof InheritedKill inherited)return inherited.cause;
+        if(source instanceof LbcBabylonEffects.OwnerDamageSource owned)return owned.cause;
+        var actor=source.getDirectEntity();
+        var event=game.items().apocalypseEvents().cause(actor);if(event!=null)return event;
+        var shish=game.items().shishEncounter().cause(actor);if(shish!=null)return shish;
+        var food=game.items().foodLifecycle().cause(actor);if(food!=null)return food;
+        var nut=game.items().oreshek().cause(actor);if(nut!=null)return nut;
+        var nuclear=game.items().nukeEvent().cause(actor);if(nuclear!=null)return nuclear;
+        var edible=game.items().edibleSpells().cause(actor);if(edible!=null)return edible;
+        var spell=game.items().spellSources().source(actor);if(spell!=null)return spell.cause();
+        var carried=game.items().inventoryHazards().cause(actor);if(carried!=null)return carried;
+        var trial=SauvojenMeditation.cause(actor);if(trial!=null)return trial;
+        var quiver=game.items().quiver().cause(actor);if(quiver!=null)return quiver;
+        var boss=game.items().godHedgehog().cause(actor);if(boss!=null)return boss;
+        return game.items().babylonEffects().cause(actor);
+    }
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
         if(LbcSpecialFireballs.managed(source.getDirectEntity())&&game.items().specialFireballs().owner(source.getDirectEntity()) instanceof ServerPlayer player)return wildCause(player);

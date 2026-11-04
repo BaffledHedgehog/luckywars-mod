@@ -871,6 +871,7 @@ public final class LbcWands {
     }
     /** Общий native spawn для Fire и Blaze: owner, guards, эпоха и cleanup одинаковы. */
     void launchFire(ServerLevel level,SmallFireball projectile,Vec3 position,Vec3 velocity,LbcSpellSource.Source source){
+        if(!LbcBedwarsRoleGuards.canEmit(source,level))return;
         try(var scope=game.items().spellSources().scope(source,level)){
             projectile.setPos(position);projectile.setDeltaMovement(velocity);LbcShooters.orient(projectile);
             projectile.setOwner(level.getEntity(source.emitter()));
@@ -1100,21 +1101,25 @@ public final class LbcWands {
     public int electroCount() { return electroTraces.size(); }
     /** NPC electricity shares collision, conductivity and reflection; its original cause survives launch. */
     void mechanismElectro(LivingEntity source,Vec3 origin,Vec3 direction) {
+        if(!LbcBedwarsRoleGuards.canEmitFrom(source))return;
         electroTraces.add(new ElectroTrace(source,origin,direction,game.items().epoch()));
     }
     /** Boss emitters reuse the same arc geometry; their causal player is not the emitter. */
     void hostileSauvojenElectro(ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
+        if(!LbcBedwarsRoleGuards.canEmit(source,level))return;
         for(int i=0;i<4;i++){var trace=new ElectroTrace(level,origin,direction,source,20);
             trace.owner=game.server().getPlayerList().getPlayer(source.author());electroTraces.add(trace);}
         LbcOverload.sound(level,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0,0);
     }
     void cyborgElectro(LivingEntity emitter,LbcSpellSource.Source source){
+        if(!LbcBedwarsRoleGuards.canEmitFrom(emitter)||!LbcBedwarsRoleGuards.canEmit(source,(ServerLevel)emitter.level()))return;
         var direction=emitter.getLookAngle();var level=(ServerLevel)emitter.level();var at=emitter.getEyePosition();
         for(int i=0;i<4;i++){var trace=new ElectroTrace(level,at.subtract(direction.scale(i*.01)),direction,source,30+i*5);
             trace.owner=game.server().getPlayerList().getPlayer(source.author());electroTraces.add(trace);}
         LbcOverload.sound(level,at,"minecraft:entity.firework_rocket.twinkle",1,1,0,0);
     }
     void hostileSauvojenElectro(ServerPlayer author,Vec3 origin,Vec3 direction,LbcSpellSource.Source source) {
+        if(!LbcBedwarsRoleGuards.canEmit(source,author.level()))return;
         for(int i=0;i<4;i++){
             var trace=new ElectroTrace(author,origin,game.items().epoch(),20);
             trace.sourcePolicy=source;trace.cause=source.cause();trace.hostileSauvojen=true;
@@ -1158,6 +1163,7 @@ public final class LbcWands {
     }
     /** Source Raid Omen124 emits three upward, ten-tick WILD arcs per chained contact. */
     void chainStatusElectro(LivingEntity emitter,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner cause){
+        if(!LbcBedwarsRoleGuards.canEmitFrom(emitter))return;
         for(int i=0;i<3;i++)electroTraces.add(new ElectroTrace(emitter,owner,at,game.items().epoch(),cause));
     }
     /** Виртуальные разряды участвуют в том же отражении, что нативные снаряды. Возраст сохраняется. */
@@ -1300,7 +1306,7 @@ public final class LbcWands {
         });
     }
 
-    void higherElectro(ElectroTrace trace){electroTraces.add(trace);}
+    void higherElectro(ElectroTrace trace){if(LbcBedwarsRoleGuards.canEmitFrom(trace.npcSource)&&LbcBedwarsRoleGuards.canEmitFrom(trace.explicitEmitter)&&LbcBedwarsRoleGuards.canEmit(trace.sourcePolicy,trace.level))electroTraces.add(trace);}
     java.util.List<ElectroTrace> electroSnapshot() { return java.util.List.copyOf(electroTraces); }
     /** Danmaku clears moving electrical traces as well as their entity-backed counterparts. */
     int clearDanmakuRays(ServerPlayer caster,Vec3 center,double radius) {
@@ -1341,6 +1347,7 @@ public final class LbcWands {
         try {
             for(var trace:electroBatch) {
                 if(!electroTraces.contains(trace)) continue;
+                if(!LbcBedwarsRoleGuards.canEmitFrom(trace.npcSource)||!LbcBedwarsRoleGuards.canEmitFrom(trace.explicitEmitter)||!LbcBedwarsRoleGuards.canEmit(trace.sourcePolicy,trace.level)){electroTraces.remove(trace);continue;}
                 var owner=trace.owner;
                 boolean accepted=trace.sourcePolicy!=null&&trace.sourcePolicy.persistent();
                 if(trace.age>=trace.lifetime || !game.items().currentEpoch(trace.epoch) || !accepted&&trace.level!=game.maps().level()
@@ -1602,11 +1609,12 @@ public final class LbcWands {
                 || projectile instanceof net.minecraft.world.entity.projectile.ShulkerBullet;
     }
     public boolean physicalProjectileTarget(Entity projectile,Entity target) {
-        return physicalProjectile(projectile) && validTarget(target);
+        return physicalProjectile(projectile) && validTarget(target)&&LbcBedwarsHarm.projectileAllowed(projectile,target);
     }
     /** Accepted lethal hits still trigger their sword; role/team exclusions remain authoritative. */
     boolean projectileTarget(ServerPlayer player,Entity entity,boolean allowDying) {
         var policy=game.items().spellSources().target(player,entity);if(policy!=null)return policy;
+        if(LbcBedwarsHarm.active()&&player!=entity&&player.isAlliedTo(entity))return false;
         return entity!=player && !LbcGreed.active(entity) && validTarget(entity,allowDying)
                 && (!(entity instanceof ServerPlayer) || !player.isAlliedTo(entity));
     }
@@ -1627,6 +1635,7 @@ public final class LbcWands {
         return validRoleTarget(entity,allowDying,false);
     }
     boolean validRoleTarget(Entity entity,boolean allowDying,boolean allowSauvojen) {
+        if(LbcBedwarsRoleGuards.shop(entity))return false;
         return (allowDying || entity.isAlive()) && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
                 && !entity.entityTags().contains("rcdenyalways") && (allowSauvojen||!entity.entityTags().contains("sauvojen_tuntija"))
                 && !entity.entityTags().contains("strict_map_object")
@@ -1643,6 +1652,7 @@ public final class LbcWands {
                 && game.items().electro().canHit(projectile,target);
     }
     public boolean canHit(Projectile projectile,Entity target) {
+        if(!LbcBedwarsHarm.projectileAllowed(projectile,target))return false;
         if(LbcSpecialFireballs.managed(projectile))return LbcGreed.active(target)&&validRoleTarget(target,false)||game.items().specialFireballs().canAffect(projectile,target);
         if(!game.items().chaosTrapActors().canAffect(projectile,target))return false;
         var source=game.items().spellSources().source(projectile);
@@ -1679,6 +1689,7 @@ public final class LbcWands {
     }
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
+        if(!LbcBedwarsHarm.damageAllowed(victim,source))return false;
         if(LbcRasengan.blast(source))return validRoleTarget(victim,false)&&!LbcGreed.active(victim);
         if(LbcGreed.active(victim)) return false;
         if(LbcSpecialFireballs.managed(source.getDirectEntity()))return game.items().specialFireballs().canAffect(source.getDirectEntity(),victim);

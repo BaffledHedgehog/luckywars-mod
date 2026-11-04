@@ -37,6 +37,7 @@ import net.minecraft.world.BossEvent;
 /** One owner of the match. All methods are called on the server thread. */
 public final class GameController {
     public static final int MENU_COMPASS_SLOT = 4;
+    private static final boolean BEDWARS_READY = true; // Ordinary native chain; Lucky modes retain their separate gate.
     public enum Stage { LOBBY, LOADING, COUNTDOWN, PLAYING, PHASE_ONE, PHASE_TWO, ENDING }
 
     private static final class Participant {
@@ -63,6 +64,7 @@ public final class GameController {
     static final class Checkpoint {
         private final GameController owner;
         private final String epoch;
+        private final LbcBedwars.Checkpoint bedwars;
         private final SupernovaMap renewal;
         private final BalanceMap balanceRenewal;
         private final boolean legacy;
@@ -86,7 +88,7 @@ public final class GameController {
         private final List<UUID> barMembers;
 
         private Checkpoint(GameController g) {
-            owner=g;epoch=g.items.epoch();
+            owner=g;epoch=g.items.epoch();bedwars=g.bedwars.checkpoint();
             renewal=g.supernovaMap;
             balanceRenewal=g.balanceMap;legacy=g.balanceLegacy;balanceResets=Set.copyOf(g.balancePendingReset);
             balanceRewards=Map.copyOf(g.balancePendingRewards);
@@ -141,6 +143,7 @@ public final class GameController {
         lobbyReady=image.lobbyReady;stopped=image.stopped;fallEnabled=image.fallEnabled;readyBroken=image.readyBroken;
         preparingSelection=image.preparingSelection;startAfterSelection=image.startAfterSelection;
         mapFailure=image.mapFailure.copy();readyMap=image.readyMap;selectionVersion=image.selectionVersion;
+        bedwars.restore(image.bedwars);
         var ops=server.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
         bar.removeAllPlayers();bar.setName(net.minecraft.network.chat.ComponentSerialization.CODEC.parse(ops,image.barName.copy()).getOrThrow());
         bar.setColor(image.color);bar.setOverlay(image.overlay);bar.setProgress(image.progress);bar.setVisible(image.visible);
@@ -155,6 +158,7 @@ public final class GameController {
     private final MatchEvents events;
     private final LbcLoadouts lbc;
     private final LbcItems items;
+    private final LbcBedwars bedwars;
     private final LbcVanityRollback vanity=new LbcVanityRollback(this);
     public LbcVanityRollback vanity(){return vanity;}
     void reconcileRollbackParticipants(Set<UUID> absent,Set<UUID> captured){
@@ -219,6 +223,7 @@ public final class GameController {
         this.events = new MatchEvents(this, maps, config, players);
         this.lbc = new LbcLoadouts(this, config, players);
         this.items = new LbcItems(this);
+        this.bedwars = new LbcBedwars(this);
         this.luckyModifiers = new GameLuckyModifiers(this);
         this.lbc.syncRanked();
         this.spectators = new Spectators(this);
@@ -287,6 +292,7 @@ public final class GameController {
     }
 
     private int renewalCapacity() {
+        if(bedwars.mode())return Math.max(1,(int)activeMembersForBedwars().stream().map(server.getPlayerList()::getPlayer).filter(java.util.Objects::nonNull).map(bedwars::team).filter(t->t>0).distinct().count());
         return Math.max(1,(int)participants.values().stream().filter(p->p.lives>0&&!p.disconnected).count());
     }
     public boolean canBeginSupernova(ServerLevel level, UUID owner) {
@@ -384,10 +390,25 @@ public final class GameController {
     private void completeSupernovaMap() {
         var intent=supernovaMap;
         var retained=participants.entrySet().stream().filter(e->e.getValue().lives>0&&!e.getValue().disconnected).toList();
-        var spawns=new ArrayList<>(maps.spawns()); Collections.shuffle(spawns);
-        if (spawns.size()<retained.size()) { failSupernovaMap(Component.literal("Replacement map has insufficient spawns")); return; }
+        boolean bedwarsRenewal=bedwars.mode();
+        Map<UUID,MapManager.Spawn> teamSpawns=Map.of();
+        var spawns=new ArrayList<>(maps.spawns());
+        if(bedwarsRenewal){
+            try{
+                teamSpawns=bedwars.prepareRenewal(retained.stream().map(Map.Entry::getKey).toList());
+                bedwars.tick();
+                if(!bedwars.startReady())return;
+            }catch(RuntimeException error){
+                SkyWars2.LOGGER.error("BedWars replacement setup rejected",error);
+                failSupernovaMap(Component.translatable("skywars2.map.error.spawns_missing",intent.map()));return;
+            }
+        }else{
+            Collections.shuffle(spawns);
+            if (spawns.size()<retained.size()) { failSupernovaMap(Component.literal("Replacement map has insufficient spawns")); return; }
+        }
         for (int i=0;i<retained.size();i++) {
-            var entry=retained.get(i); var member=entry.getValue(); member.spawn=spawns.get(i);
+            var entry=retained.get(i); var member=entry.getValue();
+            member.spawn=bedwarsRenewal?teamSpawns.get(entry.getKey()):spawns.get(i);
             var player=server.getPlayerList().getPlayer(entry.getKey());
             if (player==null || !renewalPlayer(player)) continue;
             player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
@@ -408,7 +429,7 @@ public final class GameController {
         }
         config.mapId=intent.map(); config.broken=intent.broken();
         readyMap=intent.map();readyBroken=intent.broken();mapFailure=Component.empty();
-        maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);
+        if(!bedwars.mode()){maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);}
         // Restart only stage scheduling. Skill state, inventory, resources and lives retain their owners.
         zoneBarrier.stop(); events.cancelPendingHitReactions();events.restoreTimeline(new MatchEvents.Timeline(true,-1,-1));
         transition(Stage.PLAYING);gameTicks=0;lastAliveTicks=5;fallEnabled=false;
@@ -422,6 +443,7 @@ public final class GameController {
             player.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("end_respawn")));
             if(!player.isSpectator())items.mana().award(player,"lbc:true_advancements/legends/supernova");
         }
+        if(bedwarsRenewal)bedwars.renewalCommitted();
         items.supernova().completed(intent.event(),true);
         for (var entry:participants.entrySet()) {
             var member=entry.getValue();
@@ -519,7 +541,7 @@ public final class GameController {
             if(player.isAlive()&&(member==null||member.lives<=0||member.disconnected||isObserver(player)))teleport(player,maps.look(),0,0);
         }
         balanceLegacy(true);balanceMap=null;readyMap=null;mapFailure=Component.empty();
-        maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);
+        if(!bedwars.mode()){maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);}
         gameTicks=0;lastAliveTicks=5;fallEnabled=false;transition(Stage.PLAYING);
         events.restoreTimeline(new MatchEvents.Timeline(true,-1,-1));
         maps.level().getGameRules().set(GameRules.FALL_DAMAGE,false,server);
@@ -550,6 +572,7 @@ public final class GameController {
     public GameMenus menus() { return menus; }
     public LbcLoadouts lbc() { return lbc; }
     public LbcItems items() { return items; }
+    public LbcBedwars bedwars() { return bedwars; }
     public GameLuckyModifiers luckyModifiers() { return luckyModifiers; }
     MatchEvents events() { return events; }
     public AttributeHud attributeHud() { return attributeHud; }
@@ -629,7 +652,7 @@ public final class GameController {
     public boolean canStart(ServerPlayer player) {
         if (startFailure(player) != null || !selectedMapReady()) return false;
         MapManager.MapInfo map = maps.info(config.mapId);
-        return map != null && map.available() && map.playerCapacity() >= online().size();
+        return mapCapacity(map,online().size());
     }
 
     /** The legacy admin tag reserves shared controls only while its holder is online; OP is unrelated. */
@@ -651,7 +674,8 @@ public final class GameController {
     private Component startFailure(ServerPlayer player) {
         if (stopped || !inLobby() || developerTools.authoring().busy() || maps.busy() && !preparingSelection) return text("game.start_unavailable");
         if (!mayControlMatch(player)) return text("game.admin_only");
-        if (config.gameMode != 1) return Component.translatable("skywars2.game.mode_unavailable", config.gameMode);
+        if (config.gameMode != 1 && !(config.gameMode == 3 && BEDWARS_READY))
+            return Component.translatable("skywars2.game.mode_unavailable", config.gameMode);
         if (online().size() < (developerMode() ? 1 : 2)) return text("game.start_requirements");
         return null;
     }
@@ -790,12 +814,17 @@ public final class GameController {
         return summary.append(text("settings.help"));
     }
 
+    boolean mapCapacity(MapManager.MapInfo map,int playersCount) {
+        if(map==null||!map.available()||maps.bedwars(map.id())!=(config.gameMode>=3))return false;
+        return map.playerCapacity()>=(config.gameMode>=3?(developerMode()?1:2):playersCount);
+    }
+
     public void requestStart(ServerPlayer player, boolean quick) {
         Component failure = startFailure(player);
         if (failure != null) { tell(player, failure); return; }
         if (quick) {
             int count = online().size();
-            List<MapManager.MapInfo> available = maps.quickStartCandidates(count, config.broken);
+            List<MapManager.MapInfo> available = maps.quickStartCandidates(config.gameMode>=3?(developerMode()?1:2):count,config.broken,config.gameMode>=3);
             if (available.isEmpty()) { tell(player, text("game.quick_missing", count)); return; }
             String chosen = available.get(ThreadLocalRandom.current().nextInt(available.size())).id();
             if (!chosen.equals(readyMap) || readyBroken != config.broken) {
@@ -803,7 +832,7 @@ public final class GameController {
             }
         }
         MapManager.MapInfo map = maps.info(config.mapId);
-        if (map == null || !map.available() || map.playerCapacity() < online().size()) {
+        if (!mapCapacity(map,online().size())) {
             tell(player, text("game.start_requirements")); return;
         }
         if (!selectedMapReady()) {
@@ -833,7 +862,7 @@ public final class GameController {
                 mapFailure = result.message(); announce(text("game.load_failed", result.message())); restoreLobby(); return;
             }
             List<ServerPlayer> ready = enrolled.stream().map(id -> server.getPlayerList().getPlayer(id)).filter(p -> p != null).toList();
-            if (ready.size() < (developerMode() ? 1 : 2) || maps.spawns().size() < ready.size()) {
+            if (ready.size() < (developerMode() ? 1 : 2) || !bedwars.mode() && maps.spawns().size() < ready.size()) {
                 announce(text("game.cancelled_players")); restoreLobby(); return;
             }
             participants.clear();
@@ -842,11 +871,22 @@ public final class GameController {
                 if (!ready.contains(player)) spectators.enter(player);
             }
             List<MapManager.Spawn> spawns = new ArrayList<>(maps.spawns());
-            Collections.shuffle(spawns);
+            Map<UUID,MapManager.Spawn> teamSpawns=Map.of();
+            if(bedwars.mode()){
+                try{
+                    if(!maps.bedwars(config.mapId))throw new IllegalStateException("BedWars requires its map family");
+                    teamSpawns=bedwars.prepare(ready);
+                    if(!teamSpawns.keySet().containsAll(ready.stream().map(ServerPlayer::getUUID).toList()))
+                        throw new IllegalStateException("Incomplete BedWars spawn assignment");
+                }catch(RuntimeException error){
+                    SkyWars2.LOGGER.error("BedWars start topology rejected",error);
+                    announce(text("game.cancelled_players"));restoreLobby();return;
+                }
+            }else Collections.shuffle(spawns);
             if (config.gameMode == 1) teamColors.begin(ready);
             for (int i = 0; i < ready.size(); i++) {
                 ServerPlayer player = ready.get(i);
-                Participant member = new Participant(spawns.get(i), Math.max(1, config.lives));
+                Participant member = new Participant(bedwars.mode()?teamSpawns.get(player.getUUID()):spawns.get(i), Math.max(1, config.lives));
                 participants.put(player.getUUID(), member);
                 player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
                         maps.level().dimension(), net.minecraft.core.BlockPos.containing(member.spawn.position()),
@@ -859,8 +899,8 @@ public final class GameController {
                 var profile = players.get(player.getUUID()); profile.games++; profile.coins += 10;
                 player.sendSystemMessage(rewardText("swrg.reward.start_game"));
             }
-            players.save(); maps.cages(true);
-            countdownTicks = Math.max(1, config.countdownSeconds) * 20;
+            players.save(); if(!bedwars.mode())maps.cages(true);
+            countdownTicks = bedwars.mode()?60:Math.max(1, config.countdownSeconds) * 20;
             gameTicks = 0; lastAliveTicks = 5; fallEnabled = false;
             maps.level().getGameRules().set(GameRules.FALL_DAMAGE, false, server);
             maps.level().getGameRules().set(GameRules.BLOCK_DROPS, false, server);
@@ -917,6 +957,12 @@ public final class GameController {
                 }
             }
         } else if (stage == Stage.COUNTDOWN) {
+            if(bedwars.mode()){
+                if(items.timeStop().stopped(maps.level()))return;
+                bedwars.tick();
+                if(bedwars.startReady()&&--countdownTicks<=0)startPlaying();
+                return;
+            }
             for (ServerPlayer player : alivePlayers()) {
                 Participant p = participants.get(player.getUUID());
                 if (player.position().distanceToSqr(p.spawn.position()) > 4) teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
@@ -928,16 +974,17 @@ public final class GameController {
             }
             if (--countdownTicks <= 0) startPlaying();
         } else if (playing()) {
+            if(bedwars.mode()&&items.timeStop().stopped(maps.level())){items.tick();return;}
             gameTicks++;
             if (!fallEnabled && gameTicks >= 100) {
                 fallEnabled = true; maps.level().getGameRules().set(GameRules.FALL_DAMAGE, true, server);
             }
-            if (stage == Stage.PLAYING && gameTicks >= Math.max(1, config.stageOneSeconds) * 20) {
+            if (!bedwars.mode() && stage == Stage.PLAYING && gameTicks >= Math.max(1, config.stageOneSeconds) * 20) {
                 transition(Stage.PHASE_ONE);
                 if (config.stageOneEvent != 0) rewardAlive(20, "swrg.reward.stage1");
                 events.stageOne(config.stageOneEvent); bar.setColor(BossEvent.BossBarColor.RED);
             }
-            if ((stage == Stage.PLAYING || stage == Stage.PHASE_ONE) && config.stageTwoEvent != 0
+            if (!bedwars.mode() && (stage == Stage.PLAYING || stage == Stage.PHASE_ONE) && config.stageTwoEvent != 0
                     && gameTicks >= Math.max(config.stageOneSeconds + 1, config.stageTwoSeconds) * 20) {
                 transition(Stage.PHASE_TWO); rewardAlive(40, "swrg.reward.stage2"); events.stageTwo(config.stageTwoEvent);
             }
@@ -957,6 +1004,14 @@ public final class GameController {
                         player.hurtServer(player.level(), player.damageSources().generic(), Math.max(1, amount));
                     }
                 }
+            }
+            if(bedwars.mode()){
+                if(!items.timeStop().stopped(maps.level()))bedwars.tick();
+                int team=bedwars.winnerTeam();
+                if(developerMode()||team<0||items.timeStop().stopped(maps.level()))lastAliveTicks=5;
+                else if(--lastAliveTicks<=0)finish();
+                if(lifetimeTicks%600==0)players.save();
+                return;
             }
             // A player awaiting vanilla respawn still owns remaining lives.
             long eligible = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
@@ -980,7 +1035,7 @@ public final class GameController {
         if (alivePlayers().size() < (developerMode() ? 1 : 2)) { restoreLobby(); return; }
         LbcPhdCrafting.matchStarted(this);
         luckyModifiers.startMatch();
-        maps.cages(false); maps.captureRespawnIslands(); maps.fillChests(false);
+        if(!bedwars.mode()){maps.cages(false); maps.captureRespawnIslands(); maps.fillChests(false);}
         transition(Stage.PLAYING); gameTicks = 0;
         events.start();
         for (ServerPlayer player : alivePlayers()) {
@@ -998,6 +1053,48 @@ public final class GameController {
             player.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(" ")));
         }
         updateBar();
+    }
+
+    /** Match membership, including real pending vanilla/BedWars respawns; no second lives registry. */
+    List<UUID> activeMembersForBedwars(){
+        return participants.entrySet().stream().filter(e->e.getValue().lives>0&&!e.getValue().disconnected)
+                .map(Map.Entry::getKey).toList();
+    }
+    /** Called by the BedWars clock only after the replacement native player body actually exists. */
+    boolean bedwarsRespawnReady(UUID id){
+        var member=participants.get(id);var player=server.getPlayerList().getPlayer(id);
+        if(!bedwars.mode()||!bedwars.active()||!playing()||member==null||member.disconnected||member.lives<=0
+                ||!member.awaitingRespawn||player==null||!player.isAlive()||!bedwars.hasBed(player))return false;
+        int level=player.experienceLevel,total=player.totalExperience;float progress=player.experienceProgress;
+        spectators.remove(player);member.awaitingRespawn=false;
+        resetPlayer(player,config.health,false);
+        player.experienceLevel=level;player.totalExperience=total;player.experienceProgress=progress;
+        player.setCamera(player);player.setInvisible(false);player.noPhysics=false;player.setNoGravity(false);
+        player.setGameMode(GameType.SURVIVAL);teamColors.rejoin(player);
+        player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
+                maps.level().dimension(),net.minecraft.core.BlockPos.containing(member.spawn.position()),
+                member.spawn.yaw(),member.spawn.pitch()),true),false);
+        teleport(player,member.spawn.position(),member.spawn.yaw(),member.spawn.pitch());
+        player.giveExperienceLevels(30);lbc.applyBedwarsRespawn(player);
+        player.connection.send(new ClientboundSetTitleTextPacket(Component.empty()));
+        player.connection.send(new ClientboundSetSubtitleTextPacket(Component.empty()));
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetExperiencePacket(
+                player.experienceProgress,player.totalExperience,player.experienceLevel));
+        bar.addPlayer(player);player.inventoryMenu.sendAllDataToRemote();return true;
+    }
+    /** Bed loss during the pending spectator interval cancels only this registered participant. */
+    void bedwarsCancelRespawn(UUID id){
+        var member=participants.get(id);if(member==null||member.disconnected)return;
+        member.awaitingRespawn=false;var player=server.getPlayerList().getPlayer(id);
+        if(developerMode()){
+            member.lives=Math.max(1,member.lives);
+            if(player!=null&&player.isAlive())respawned(player);
+            return;
+        }
+        member.lives=0;
+        if(player!=null&&player.isAlive()){
+            teamColors.leave(player);spectators.enter(player);teleport(player,maps.look(),0,0);
+        }
     }
 
     public List<ServerPlayer> alivePlayers() {
@@ -1027,9 +1124,11 @@ public final class GameController {
         events.removePlayerSkill(player);
         items.stand().died(player);
         items.mobgun().forget(player);
+        boolean bedDeath=bedwars.mode()&&bedwars.active()&&bedwars.hasBed(player)&&!vipRespawn&&!developerMode();
         if (developerMode()) p.lives = Math.max(1, p.lives);
-        else if(!vipRespawn&&!items.indolenceFingers().prepareDeath(player))p.lives--;
+        else if(!bedDeath&&!vipRespawn&&!items.indolenceFingers().prepareDeath(player))p.lives--;
         p.awaitingRespawn = true;
+        if(bedDeath)bedwars.death(player);
         attributeHud.clear(player);
         items.resetRocket(player);
         items.electro().reset(player);
@@ -1066,6 +1165,10 @@ public final class GameController {
         attributeHud.clear(player);
         Participant p = participants.get(player.getUUID());
         if (playing() && p != null && !p.disconnected && p.lives > 0) {
+            if(bedwars.mode()&&bedwars.pending(player)){
+                player.setGameMode(GameType.SPECTATOR);player.setCamera(player);
+                teleport(player,p.spawn.position(),p.spawn.yaw(),p.spawn.pitch());return;
+            }
             if(balanceLegacy){
                 p.awaitingRespawn=false;balancePendingReset.remove(player.getUUID());resetBalancePlayer(player);
                 player.setGameMode(GameType.SURVIVAL);maps.restoreRespawnIsland(p.spawn);
@@ -1074,7 +1177,7 @@ public final class GameController {
             // Полная нормализация относится к границам матча; новую жизнь готовим по прежним правилам.
             p.awaitingRespawn = false; resetPlayer(player, config.health, false);
             boolean fingerSpawn=items.indolenceFingers().fingerSpawn(player);
-            if(!fingerSpawn)maps.restoreRespawnIsland(p.spawn);
+            if(!fingerSpawn&&!bedwars.mode())maps.restoreRespawnIsland(p.spawn);
             player.setGameMode(GameType.SURVIVAL); if(!fingerSpawn)teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
             if (config.vanillaKits) events.giveKit(player);
             if (config.vanillaSkills) events.giveSkill(player);
@@ -1090,6 +1193,7 @@ public final class GameController {
     public boolean returnFromGameModeCommand(ServerPlayer player, GameType requested) {
         if (stopped || !playing() || requested == GameType.SPECTATOR || !player.isAlive()) return false;
         Participant member = participants.get(player.getUUID());
+        if(bedwars.mode()&&(member==null||bedwars.team(player)<1||bedwars.pending(player)))return false;
         if (!isObserver(player) && member != null && member.lives > 0
                 && !member.disconnected && !member.awaitingRespawn) return false;
         if (member == null) {
@@ -1169,15 +1273,33 @@ public final class GameController {
     public void queueEntityUnload(Entity entity) { if(!stopped) nativeEntityUnloads.add(entity); }
     public void cancelQueuedEntityUnload(Entity entity) { nativeEntityUnloads.remove(entity); }
 
+    private Component bedwarsTeamName(int team){
+        String key=switch(team){
+            case 1->"team_aqua";case 2->"team_black";case 3->"team_blue";case 4->"team_dark_aqua";
+            case 5->"team_dark_blue";case 6->"team_dark_gray";case 7->"team_dark_green";case 8->"team_dark_purple";
+            case 9->"team_dark_red";case 10->"team_gold";case 11->"team_gray";
+            case 12->"team_green";case 13->"team_light_purple";case 14->"team_red";case 15->"team_white";
+            case 16->"team_yellow";default->throw new IllegalArgumentException("Invalid source BedWars team");
+        };
+        return Component.translatable(key).withStyle(style->style.withColor(ChatFormatting.WHITE).withBold(true));
+    }
+
     private void finish() {
+        boolean bedwarsResult=bedwars.mode();
+        int bedwarsWinner=bedwarsResult?bedwars.winnerTeam():-1;
+        List<ServerPlayer> bedwarsLiving=bedwarsResult?alivePlayers().stream()
+                .filter(player->player.isAlive()&&!player.isSpectator()&&bedwars.team(player)==bedwarsWinner).toList():List.of();
+        bedwars.stop();
         balanceLegacy(false);balanceMap=null;balancePendingReset.clear();balancePendingRewards.clear();
         vanity.stop();
         luckyModifiers.endMatch();
         items.stop();
-        events.stop(); maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
+        events.stop(); if(!bedwarsResult)maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
         List<ServerPlayer> alive = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
                 && !e.getValue().disconnected).map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null && !isObserver(p)).toList();
-        ServerPlayer winner = alive.size() == 1 ? alive.getFirst() : null;
+        ServerPlayer winner = bedwarsResult?bedwarsLiving.stream()
+                .min(java.util.Comparator.comparingDouble(player->player.position().distanceToSqr(Vec3.ZERO))).orElse(null)
+                :alive.size() == 1 ? alive.getFirst() : null;
         victoryWinner = winner == null ? null : winner.getUUID();
         if (winner != null) {
             var profile = players.get(winner.getUUID()); profile.coins += 100; profile.wins++;
@@ -1190,13 +1312,20 @@ public final class GameController {
                     .append(Component.literal(" "))
                     .append(Component.translatable("swrg.title.player_win2")));
             winner.sendSystemMessage(rewardText("swrg.reward.win"));
+            if(bedwarsResult)for(var teammate:bedwarsLiving)if(teammate!=winner)
+                teammate.sendSystemMessage(rewardText("swrg.reward.win"));
+        } else if(bedwarsResult&&bedwarsWinner>0){
+            // A bed-entitled team can win while every member is waiting for its actual native body.
+            announce(Component.translatable("swrg.title.player_win").withStyle(ChatFormatting.DARK_GREEN)
+                    .append(Component.literal(" ")).append(bedwarsTeamName(bedwarsWinner))
+                    .append(Component.literal(" ")).append(Component.translatable("swrg.title.player_win2")));
         } else announce(Component.translatable("swrg.title.draw")
                 .withStyle(style -> style.withColor(ChatFormatting.GREEN)));
         for (ServerPlayer player : online()) {
             player.closeContainer(); lbc.clear(player);
             player.getInventory().clearContent(); player.removeAllEffects();
             resetAttributeValues(player);
-            if (player == winner) player.setGameMode(GameType.CREATIVE);
+            if (player == winner || bedwarsResult&&bedwarsLiving.contains(player)) player.setGameMode(GameType.CREATIVE);
             else spectators.enter(player);
             teleport(player, maps.look(), 0, 0);
         }
@@ -1210,6 +1339,7 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        bedwars.stop();
         runeRestartPending=false;
         supernovaMap=null;
         balanceMap=null;balanceLegacy(false);balancePendingReset.clear();balancePendingRewards.clear();
@@ -1400,6 +1530,7 @@ public final class GameController {
     }
 
     private void updateBar() {
+        if(bedwars.mode()){bar.setVisible(false);return;}
         int stageOneAt = Math.max(1, config.stageOneSeconds);
         int stageTwoAt = Math.max(config.stageOneSeconds + 1, config.stageTwoSeconds);
         boolean hasStageOne = config.stageOneEvent != 0;
@@ -1459,6 +1590,7 @@ public final class GameController {
     }
 
     public void shutdown() {
+        bedwars.stop();
         developerTools.close();
         vanity.stop();
         visualTracking.stop();

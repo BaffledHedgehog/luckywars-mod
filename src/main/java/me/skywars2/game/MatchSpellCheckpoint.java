@@ -56,12 +56,14 @@ final class MatchSpellCheckpoint {
     private final LbcCommunism.Checkpoint controls;
     private final LbcSummons.Checkpoint summons;
     private final LbcDanmaku.Checkpoint danmaku;
+    private final LbcBedwarsAuxiliaries.Checkpoint bedwars;
     private final CloneFinalAbilityStates.Checkpoint logicalActors;
     private boolean installed,published;
     MatchSpellCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);links=new Links(sources);
         policies=game.items().spellSources().checkpoint(links);controls=game.items().communism().checkpoint(links);
         summons=game.items().summons().checkpoint(links);danmaku=game.items().danmaku().checkpoint(links);
+        bedwars=game.bedwars().auxiliaries().checkpoint(links);
         logicalActors=new CloneFinalAbilityStates.Checkpoint(game,links);
     }
     private void stable(boolean frozen){
@@ -75,8 +77,8 @@ final class MatchSpellCheckpoint {
     Set<UUID> restoreFrozen(Function<UUID,Entity> lookup,boolean rewind){
         stable(true);var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
         var policy=policies.prepare(links);var control=controls.prepare(links);var summon=summons.prepare(links);
-        var actors=logicalActors.prepare(links);var danmakuState=danmaku.prepare(links);
-        policy.run();control.run();summon.run();actors.run();danmakuState.run();
+        var actors=logicalActors.prepare(links);var danmakuState=danmaku.prepare(links);var bedwarsState=bedwars.prepare(links);
+        policy.run();control.run();summon.run();actors.run();danmakuState.run();bedwarsState.run();
         installed=true;published=false;
         // User permits cancellation of short pending operations at rewind. No stale charge may commit.
         game.items().teleportGadgets().stop();

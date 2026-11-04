@@ -184,6 +184,7 @@ public final class LbcDamage {
                 || source.is(CONSUMING) || source.is(YELLOW_BOLT) || source.is(LbcKfcRewards.CULTUS_ARROW);
     }
     public static boolean allowDamage(LivingEntity victim, DamageSource source) {
+        if(!LbcBedwarsRoleGuards.affectable(victim)||!LbcBedwarsHarm.damageAllowed(victim,source))return false;
         if(LbcGreed.active(victim)) return false;
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().defensiveArcanums().blocksDamage(victim,source)) return false;

@@ -73,6 +73,10 @@ final class MatchItemStackLinks {
                         if(be==null||be.isRemoved()||be.getClass()!=kind)throw new IllegalStateException("Restore canonical native container before stack alias: "+pos);return (Container)be;});
                 }
         }
+        // Shared team inventory is a canonical root even with no open viewer. Its stable
+        // native container is restored once before windows/private stack references.
+        for(var team:game.bedwars().auxiliaries().containers())container(team,l->{
+            if(!team.current())throw new IllegalStateException("Restore canonical BedWars team storage before stack aliases");return team;});
         // Open-window local buffers come after physical roots; identical backing containers are indexed once.
         for(var player:game.server().getPlayerList().getPlayers())if(player.containerMenu!=player.inventoryMenu){
             var key=links.key(player);var kind=player.containerMenu.getClass();

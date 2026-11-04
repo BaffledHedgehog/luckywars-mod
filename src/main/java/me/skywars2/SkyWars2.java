@@ -40,6 +40,14 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         return Component.translatable(MOD_ID + "." + key, args);
     }
 
+    private static InteractionResult bedwarsUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand,net.minecraft.world.phys.BlockHitResult hit){
+        if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.PASS;
+        var auxiliary=game.bedwars().auxiliaries();
+        if(hit!=null&&auxiliary.open(owner,hand,owner.level(),hit.getBlockPos()))return InteractionResult.SUCCESS;
+        if(auxiliary.useZombie(owner,hand,hit==null?null:hit.getBlockPos(),hit==null?null:hit.getDirection()))return InteractionResult.SUCCESS;
+        if(me.skywars2.game.LbcBedwarsAuxiliaries.chestItem(owner.getItemInHand(hand))&&!game.bedwars().canUse(owner))return InteractionResult.FAIL;
+        return InteractionResult.PASS;
+    }
     private static InteractionResult seasonalUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
         if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.PASS;
         var stack=owner.getItemInHand(hand);
@@ -230,6 +238,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
             var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
@@ -383,6 +392,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            var bw=bedwarsUse(player,hand,hit);if(bw!=InteractionResult.PASS)return bw;
             var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
@@ -407,6 +417,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if(me.skywars2.game.LbcBedwars.shopRole(entity))return game!=null&&player instanceof ServerPlayer owner&&hand==net.minecraft.world.InteractionHand.MAIN_HAND&&game.bedwars().shop().open(owner,entity)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
             if(game!=null&&player instanceof ServerPlayer owner){var result=game.items().nexusAcquisition().use(owner,hand,entity);if(result!=InteractionResult.PASS)return result;}
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useEntity(owner, entity)) return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;

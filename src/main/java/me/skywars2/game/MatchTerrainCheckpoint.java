@@ -160,6 +160,13 @@ final class MatchTerrainCheckpoint {
 
         /** Budget counts examined cells, including unchanged cells; no unbounded scan. */
         boolean step(int cellBudget) {
+            var arena=game.bedwars().arena();
+            if(!arena.active())return stepNative(cellBudget);
+            boolean[] result={false};
+            arena.lifecycle(LbcBedwarsArena.Lifecycle.COORDINATOR_REPLAY,game.maps().level(),arena.topology().bounds(),()->result[0]=stepNative(cellBudget));
+            return result[0];
+        }
+        private boolean stepNative(int cellBudget) {
             thread();
             if (closed) throw new IllegalStateException("Closed terrain restore");
             if (cellBudget <= 0) throw new IllegalArgumentException("Positive cell budget required");

@@ -1,3 +1,24 @@
+## Ordinary native BedWars3 - QUALIFIED, INSTALLED (4 November 2026)
+
+[Source, native owners, retained failures and exact qualification](agent_notes/BEDWARS_NATIVE_PORT_2026_11_04.md).
+Ordinary mode3 now supports shared team spawns/source60tick start, protected
+original terrain and enemy beds, source100active-tick real respawn/+30XPlevels,
+complete77-action physical-currency shop, five generator cadences, canonical
+shared54slot team chests/zombies/beacons, team victory and sameepoch Supernova
+replacement. Native ordinary ally/shop role admission preserves explicit WILD.
+Existing core lives, typed whole-coordinator/storage/views and fair work owners
+reused; no arbitrary functions, second life/storage engine or tick NBT polling.
+Source7b paddedAIR height and saved-map startup-ID validation fixed; no map/RP
+resource change. Questions6-9 retain source defaults pending author answers.
+
+Testdc033ee7 /production29deedff:18groups/17actual matches pass on exact JAR,
+including10mode3 scopes and shared mode1 regressions.47freshJavafamilies/1mixinJSON,
+9947otherinputs/272authorpaths guarded; every ZIP entry verified, authoring absent
+production. Fixture normal/exact/no locks. Both build/libs/main JAR updated with
+223c424b rollback,restarted:false. No main stop/start, RP edits, physical-client
+or peakTPS claim. Modes2/4,skill2/TMT-last and broad rewind gates unchanged.
+Evidence:build/verification/bedwars-native-2026-11-04/.
+
 ## Eight reward consumers - NATIVE BATCH, NOT RELEASED (31 October 2026)
 
 [Source behavior and native proof](agent_notes/REWARD_UTILITIES_2026_10_31.md).
@@ -574,7 +595,7 @@ Tiny Acid создаёт шесть снарядов на уже готовой 
 Поддержаны наборы LBC 1/2/4/5/7/9/10/15/17/22/23, навык 5 и 30 улучшений. Динамит, наноловушки и ракетные ботинки используют существующий `LbcItems`; облака BrBad — его компонент `LbcClouds`. Ракетные ботинки и четыре зелья BrBad имеют отдельные серверные типы Polymer с прежним ванильным видом. Импортированы 357 `lbc:true_advancements/**`; 122 прежних уведомления отправляются после успешной выдачи достижения. Пять уведомлений acidman требуют все десять исходных достижений. Сохранены прежние ключи, модели и lore; дополнения ресурспака не нужны. Живые проверки описаны в [SERVER_TESTS.md](SERVER_TESTS.md).
 
 Выбор работает через исходный GUI; выдача — при старте и респауне, очистка — при смерти, выходе и завершении матча. Профиль содержит 12 слотов улучшений, активный лимит по умолчанию 4 (настраивается от 1 до 12). Закрытые элементы проверяют исходные advancement ID; оператор может перенести доступ командой `/sw lbc-unlock <player> <lbc:true_advancements/...>` в лобби. Достижимость всех 357 критериев зависит от переноса связанных механик.
-Остальные предметы LBC, BedWars, кейсы и косметика требуют дальнейшей работы; режимы 2–4 пока не запускаются. Обычные навыки 2/4/13 используют нативные события.
+Остальные предметы LBC, кейсы и косметика требуют дальнейшей работы; обычный BedWars (режим 3) перенесён, режимы 2/4 пока закрыты до завершения TMT. Обычные навыки 2/4/13 используют нативные события.
 
 Навык 12 добавляет воздушный импульс и синхронизирует скорость с клиентом. Наблюдатели хранятся в реестре: клиент видит Adventure вне просмотра, сервер считает игрока spectator; просмотр переключает на настоящую spectator-камеру. `/sw inventory` открывает инвентарь цели только для просмотра, `/sw detach` возвращает инструменты наблюдателя. Копии инвентаря и эффектов для HUD не активируют эффекты на сервере; действия, inventory ticks и awards наблюдателя отменяются. Модовые цели проверяют `game.isObserver`, поскольку vanilla `@a` может включать spectator. У Vex есть владелец, защищённый от его атак; призывы очищаются вместе
 с состоянием игрока/матча. Параметры и отличия от старого lifecycle описаны в
@@ -607,7 +628,7 @@ Tiny Acid создаёт шесть снарядов на уже готовой 
    и сброс состояния матча. Источники и порядок интеграции —
    [INTEGRATION_REVIEW.md](agent_notes/INTEGRATION_REVIEW.md) и
    [COMMAND_IMPLEMENTATIONS.md](agent_notes/COMMAND_IMPLEMENTATIONS.md).
-   Кейсы, косметика и BedWars остаются отдельными этапами.
+   Кейсы и косметика остаются отдельными этапами; обычный BedWars перенесён 4 ноября 2026 года.
 
 Подготовку данных и файловый ввод-вывод можно разгружать в фоновые потоки;
 изменения мира, сущностей и инвентарей остаются в серверном потоке. Принципы

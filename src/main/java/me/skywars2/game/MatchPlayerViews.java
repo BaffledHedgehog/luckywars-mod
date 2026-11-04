@@ -57,6 +57,9 @@ public final class MatchPlayerViews {
             return container;
         }
     }
+    private record TeamBinding(LbcBedwarsAuxiliaries.SharedContainer container) implements Binding {
+        @Override public Container resolve(ServerPlayer player){container.validate(player,true);return container;}
+    }
     private record BlockBinding(ServerLevel level,BlockPos pos,BlockEntityType<?> type,Class<?> kind,int size) implements Binding {
         @Override public Container resolve(ServerPlayer player) {
             if(!level.hasChunkAt(pos))throw new IllegalStateException("Storage destination is not resident");
@@ -133,6 +136,8 @@ public final class MatchPlayerViews {
     }
     private static Binding binding(ServerPlayer player,Container container) {return binding(player,container,true);}
     private static Binding binding(ServerPlayer player,Container container,boolean current) {
+        if(container instanceof LbcBedwarsAuxiliaries.SharedContainer team){team.validate(player,current);return new TeamBinding(team);}
+
         if(container instanceof net.minecraft.world.entity.vehicle.ContainerEntity vehicle&&container instanceof Entity entity){
             if(!(entity.level() instanceof ServerLevel level)||(current&&(entity.isRemoved()||level.getEntity(entity.getUUID())!=entity||vehicle.getContainerLootTable()!=null)))
                 throw new IllegalStateException("Storage vehicle is not current native unpacked inventory");

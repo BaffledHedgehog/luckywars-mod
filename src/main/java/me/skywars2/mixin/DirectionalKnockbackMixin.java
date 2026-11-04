@@ -37,6 +37,13 @@ public abstract class DirectionalKnockbackMixin {
     private void skywars2$lookDirectedMelee(double power, double x, double z,
                                                DamageSource source, float damage, boolean fromEffect,
                                                CallbackInfo ci) {
+        var target = (LivingEntity)(Object)this;
+        // This replacement can write motion and cancel before other HEAD admissions run.
+        if (!me.skywars2.game.LbcBedwarsRoleGuards.affectable(target)
+                || !me.skywars2.game.LbcBedwarsHarm.damageAllowed(target, source)) {
+            ci.cancel();
+            return;
+        }
         // Run inside the native implementation, so immune mobs' overrides still win.
         if (source.getEntity() instanceof LivingEntity attacker
                 && source.getDirectEntity() == attacker && (fromEffect || DirectionalKnockback.melee(source))

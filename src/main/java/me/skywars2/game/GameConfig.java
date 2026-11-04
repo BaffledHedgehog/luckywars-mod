@@ -208,10 +208,10 @@ public final class GameConfig {
     private static int clamp(int value, int min, int max) { return Math.max(min, Math.min(max, value)); }
 
     private static boolean validMapId(String id) {
-        if (id == null || !id.matches("[0-9]{1,2}b?")) return false;
-        boolean brokenVariant = id.endsWith("b");
-        int number = Integer.parseInt(brokenVariant ? id.substring(0, id.length() - 1) : id);
-        return number >= 1 && number <= (brokenVariant ? 25 : 64);
+        // Saved maps extend the bundled catalog; their format is validated here, availability by MapManager.
+        if (id == null || !id.matches("[1-9][0-9]{0,9}b?")) return false;
+        try { return Integer.parseInt(id.endsWith("b") ? id.substring(0,id.length()-1) : id)>0; }
+        catch (NumberFormatException outsideNativeIds) { return false; }
     }
 
     private static void backupCorruptFile() {

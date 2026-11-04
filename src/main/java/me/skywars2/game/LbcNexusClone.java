@@ -167,8 +167,11 @@ final class LbcNexusClone {
                 game.items().indirectKills().capturedWorldChanges(destination, cause, () -> {
                     while (copied < end) {
                         var from = sourceCell(copied);
+                        var arena=game.bedwars().arena();
+                        if(!arena.allowsRemoval(source.level,from)){copied++;continue;}
                         // One server-thread MOVE: inventory is never usable in both worlds between ticks.
                         var cell = game.maps().snapshot(source.level, from);
+                        if(!arena.allowsType(destination,targetCell(copied),cell.state())){copied++;continue;}
                         game.maps().restoreSnapshot(destination, targetCell(copied), cell, FLAGS);
                         game.items().indirectKills().capturedWorldChanges(source.level, cause, () ->
                                 game.maps().restoreSnapshot(source.level, from, MapManager.BlockSnapshot.air(), FLAGS));
@@ -188,7 +191,7 @@ final class LbcNexusClone {
                     source.chunk.getMinBlockX() + 16, source.level.getMinY() + source.level.getHeight(), source.chunk.getMinBlockZ() + 16);
             // Position membership matches a source chunk; a large bounding box crossing its edge does not.
             var entities = List.copyOf(source.level.getEntities((Entity) null, box,
-                    e -> !(e instanceof Player) && !(e instanceof Marker) && box.contains(e.position())));
+                    e -> !(e instanceof Player) && !(e instanceof Marker) && !LbcBedwars.shopRole(e) && box.contains(e.position())));
             record Transit(UUID id,Vec3 position,Vec3 motion,float yaw,float pitch){}
             var transits=entities.stream().map(e->new Transit(e.getUUID(),e.position(),e.getDeltaMovement(),e.getYRot(),e.getXRot())).toList();
             for (var entity : entities) {

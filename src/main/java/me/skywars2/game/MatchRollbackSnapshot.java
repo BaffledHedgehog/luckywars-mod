@@ -14,6 +14,7 @@ final class MatchRollbackSnapshot {
     final MatchTerrainCheckpoint terrain;
     final MatchCoreCheckpoint core;
     final MatchWorldCheckpoint world;
+    final LbcBedwarsAuxiliaries.StorageImage bedwarsStorage;
     final MatchWorldRandomCheckpoint random;
     final MatchActorCheckpoint actors;
     final Map<UUID,MatchPlayerCheckpoint> players=new LinkedHashMap<>();
@@ -63,6 +64,7 @@ final class MatchRollbackSnapshot {
         chefs=new MatchChefCheckpoint(game,sources);hedgehogs=new MatchHedgehogCheckpoint(game,sources);
         encounters=new MatchEncounterCheckpoint(game,sources);aim=game.items().rifleZoom().checkpoint(sources);
         residents=new MatchResidentItemCheckpoint(game,sources);
+        bedwarsStorage=game.bedwars().auxiliaries().storageImage();
         core=new MatchCoreCheckpoint(game);world=new MatchWorldCheckpoint(game);
         for(var player:game.server().getPlayerList().getPlayers())players.put(player.getUUID(),new MatchPlayerCheckpoint(game,player));
         terrain=MatchTerrainCheckpoint.captureLoaded(game);random=new MatchWorldRandomCheckpoint(game);

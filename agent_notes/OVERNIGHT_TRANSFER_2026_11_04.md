@@ -103,3 +103,8 @@ unrelated old resident fixture passed or change its production mechanics.
 concrete Neko→TMT downstream gate; source table closure alone does not qualify
 behavior. Mode3's full native lifecycle/shop/map dependency audit is separate.
 Homing30 and Phoenix31 remain unpublished pending the recorded author decisions.
+
+
+## Second night batch: ordinary native BedWars3 qualified and installed
+
+See BEDWARS_NATIVE_PORT_2026_11_04.md. Testdc033ee7/production29deedff;18groups/17actual matches,47freshfamilies/1mixinJSON,9947otherinputs/272authorpaths guarded. Main and both build/libs updated,223c424b rollback,restarted:false. Mode3 admitted;2/4,TMT-last,skill2 and broad rewind gates unchanged. Source defaults Q6-9 remain unanswered. Continue independent chains from NIGHT_REMAINING_CHAINS_2026_11_04.md while author sleeps.

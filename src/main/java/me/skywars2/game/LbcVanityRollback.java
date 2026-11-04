@@ -72,7 +72,7 @@ public final class LbcVanityRollback {
     }
     private boolean independentTerrainReady(){
         var items=game.items();
-        return !game.maps().busy()&&SignedEnvironmentalEffects.queuedTerrain()==0
+        return !game.maps().busy()&&game.bedwars().startReady()&&SignedEnvironmentalEffects.queuedTerrain()==0
                 &&items.blaze().terrainCount()==0&&items.kiuas().queuedBlockCount()==0
                 &&items.tanner().queuedBlockCount()==0&&items.portalDrops().idle()
                 &&MatchEventActorCheckpoint.captureReady(game)&&MatchFieldCheckpoint.captureReady(game)
@@ -166,6 +166,7 @@ public final class LbcVanityRollback {
         image.restoreOnlinePlayers(game,pendingPlayers);
         var absent=offline();game.reconcileRollbackParticipants(absent,image.players.keySet());
         prepareOfflineData(absent);
+        image.bedwarsStorage.restoreStorageFrozen();
         complete(image.actors.restoreLinksFrozen(absent),"native relationships");
         privateData(()->{var pending=new LinkedHashSet<UUID>();image.actors.damageSources().restore(image.actors::resolve,pending);complete(pending,"accepted sources");return null;});
         complete(privateData(()->image.spells.restoreFrozen(image.actors::resolve)),"spell owners");

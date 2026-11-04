@@ -87,6 +87,8 @@ public abstract class WandProjectileMixin {
         }
         @Inject(method="setTarget",at=@At("HEAD"),cancellable=true)
         private void skywars2$blazeTarget(net.minecraft.world.entity.LivingEntity target,CallbackInfo ci) {
+            if(me.skywars2.game.LbcBedwarsRoleGuards.shop(target)||!me.skywars2.game.LbcBedwarsRoleGuards.canEmitFrom((Entity)(Object)this)){ci.cancel();return;}
+            var ownerGame=SkyWars2.game();if(target!=null&&ownerGame!=null&&ownerGame.bedwars()!=null&&!ownerGame.bedwars().auxiliaries().canAttack((Entity)(Object)this,target)){ci.cancel();return;}
             var game=SkyWars2.game();
             if(game!=null && !game.items().consuming().canTrialTarget((Entity)(Object)this,target)) { ci.cancel(); return; }
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.monster.Blaze blaze

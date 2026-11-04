@@ -352,6 +352,11 @@ public final class MapManager {
                 && (!broken || brokenAvailable(map.id()))).toList();
     }
 
+    public List<MapInfo> quickStartCandidates(int capacity,boolean broken,boolean bedwars) {
+        if(!bedwars)return quickStartCandidates(capacity,broken);
+        return catalog(true).stream().filter(map->map.available()&&map.playerCapacity()>=capacity&&(!broken||brokenAvailable(map.id()))).toList();
+    }
+
     /** Same-match replacements use the current mode's entire catalog, including saved local maps. */
     public List<MapInfo> renewalCandidates(int players, boolean broken, boolean bedwars) {
         if (players < 1) return List.of();
@@ -439,7 +444,7 @@ public final class MapManager {
                 if (System.nanoTime() >= deadline || !chunksReady(next.bounds)) return;
                 work.remove();
                 applyingMapWork = true;
-                try { next.action.accept(level); }
+                try { applyNativeMapWork(next); }
                 finally { applyingMapWork = false; }
                 completedSlices++;
                 if (work.isEmpty()) {
@@ -585,6 +590,8 @@ public final class MapManager {
             return;
         }
 
+        var bedwarsGame=me.skywars2.SkyWars2.game();
+        if(bedwarsGame!=null&&bedwarsGame.maps()==this)bedwarsGame.bedwars().loading(level,targetBounds,bedwars(id));
         pendingMap = id;
         residentMapIds.add(id);
         pendingBounds = targetBounds;
@@ -1232,6 +1239,19 @@ public final class MapManager {
         if (closed) throw new java.util.concurrent.CancellationException("Map loader stopped");
         CompoundTag full = template.save(new CompoundTag());
         Vec3i size = template.getSize();
+        // Union every palette variant once: any possible material at a source cell must fit.
+        var palettes = new ArrayList<ListTag>();
+        if (full.contains("palettes")) {
+            for (var palette : full.getListOrEmpty("palettes")) palettes.add((ListTag) palette);
+        } else palettes.add(full.getListOrEmpty("palette"));
+        int paletteSize = 0;
+        for (var palette : palettes) paletteSize = Math.max(paletteSize, palette.size());
+        boolean[] materialStates = new boolean[paletteSize];
+        for (var palette : palettes) for (int stateIndex = 0; stateIndex < palette.size(); stateIndex++) {
+            var state = NbtUtils.readBlockState(blocks, (CompoundTag) palette.get(stateIndex));
+            if (!state.isAir() && !state.is(Blocks.STRUCTURE_VOID)) materialStates[stateIndex] = true;
+        }
+        int materialMinY = Integer.MAX_VALUE, materialMaxY = Integer.MIN_VALUE;
         Map<BlockPos, CompoundTag> tiles = new TreeMap<>(Comparator.<BlockPos>comparingInt(BlockPos::getY)
                 .thenComparingInt(BlockPos::getX).thenComparingInt(BlockPos::getZ));
         for (String kind : List.of("blocks", "entities")) {
@@ -1253,6 +1273,15 @@ public final class MapManager {
                 int x = pos.getIntOr(0, 0), y = pos.getIntOr(1, 0), z = pos.getIntOr(2, 0);
                 // These entities were also outside all bounding boxes in the previous loader.
                 if (x < 0 || y < 0 || z < 0 || x >= size.getX() || y >= size.getY() || z >= size.getZ()) continue;
+                if (kind.equals("blocks")) {
+                    int stateIndex = entry.getIntOr("state", 0);
+                    if (stateIndex < 0 || stateIndex >= materialStates.length)
+                        throw new IllegalArgumentException("Invalid structure palette state " + stateIndex);
+                    if (materialStates[stateIndex]) {
+                        materialMinY = Math.min(materialMinY, y);
+                        materialMaxY = Math.max(materialMaxY, y);
+                    }
+                }
                 BlockPos tile = new BlockPos(x / TILE_XZ * TILE_XZ, y / TILE_Y * TILE_Y, z / TILE_XZ * TILE_XZ);
                 CompoundTag partial = tiles.computeIfAbsent(tile, ignored -> {
                     CompoundTag part = new CompoundTag();
@@ -1278,7 +1307,7 @@ public final class MapManager {
             part.load(blocks, entry.getValue());
             slices.add(new TemplateSlice(part, bounds));
         }
-        return new PreparedTemplate(size, List.copyOf(slices));
+        return new PreparedTemplate(size, List.copyOf(slices), materialMinY, materialMaxY);
     }
 
     private void addClearWork(List<BoundingBox> boxes) { addClearWork(boxes, false); }
@@ -1542,6 +1571,15 @@ public final class MapManager {
         }
     }
 
+    private void applyNativeMapWork(Work next) {
+        var game=me.skywars2.SkyWars2.game();
+        var arena=game==null||game.maps()!=this?null:game.bedwars().arena();
+        if(arena==null||!arena.active()){next.action.accept(level);return;}
+        var b=next.bounds;
+        var reason=pendingMap==null?LbcBedwarsArena.Lifecycle.MAP_RESET:game.supernovaMapTransition()?LbcBedwarsArena.Lifecycle.MAP_RENEWAL:LbcBedwarsArena.Lifecycle.MAP_PLACEMENT;
+        arena.lifecycle(reason,level,List.of(new LbcBedwarsArena.Bounds(b.minX(),b.minY(),b.minZ(),b.maxX(),b.maxY(),b.maxZ())),()->next.action.accept(level));
+    }
+
     private void finishPlacement() {
         sealMapLighting();
         if(!pendingMapLighting.isEmpty())return;
@@ -1607,6 +1645,7 @@ public final class MapManager {
         } else if (!writeBoundsJournal(activeBoxes)) {
             LOGGER.error("Could not compact arena bounds journal after placement; retaining the recovery envelope.");
         }
+        if(pendingMap!=null&&bedwars(pendingMap)){var game=me.skywars2.SkyWars2.game();if(game!=null&&game.maps()==this)game.bedwars().mapReady(entities);}
         pendingBounds = List.of();
         complete(new Result(true, pendingMap == null
                 ? Component.translatable("skywars2.map.ready.lobby")
@@ -1768,6 +1807,10 @@ public final class MapManager {
 
     /** Bulk spell writes may defer shape/on-place callbacks while retaining native lighting and client updates. */
     void restoreSnapshot(ServerLevel target,BlockPos pos,BlockSnapshot snapshot,int flags) {
+        if(!LbcBedwarsRoleGuards.publication(target))return;
+        var arena=LbcBedwarsArena.at(target);
+        if(arena!=null&&!arena.allowsType(target,pos,snapshot.state))return;
+        if(arena!=null)arena.captureUnchanged(target,pos,snapshot.state);
         if(snapshot.entity==null && target.getBlockState(pos)==snapshot.state && target.getBlockEntity(pos)==null) return;
         if(target.getBlockEntity(pos) instanceof net.minecraft.world.Clearable previous) previous.clearContent();
         target.setBlock(pos, snapshot.state, flags);
@@ -1833,8 +1876,10 @@ public final class MapManager {
         for (Placement placement : placements) {
             PreparedTemplate template = template(placement.template);
             if (template == null) continue;
-            int minY = placement.origin.getY();
-            int maxY = minY + template.size.getY() - 1;
+            // Raw size still owns coordinates, slices, entities and journals; only material limits admission.
+            if (template.materialMinY > template.materialMaxY) continue;
+            long minY = (long) placement.origin.getY() + template.materialMinY;
+            long maxY = (long) placement.origin.getY() + template.materialMaxY;
             if (minY < level.getMinY() || maxY >= level.getMaxY()) {
                 return Component.translatable("skywars2.map.error.height", placement.template,
                         minY, maxY, level.getMinY(), level.getMaxY() - 1);
@@ -1848,6 +1893,9 @@ public final class MapManager {
     }
 
     private void fail(Component message) {
+        if (message.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents translated)
+            LOGGER.warn("Map operation rejected key={} args={}", translated.getKey(), java.util.Arrays.deepToString(translated.getArgs()));
+        else LOGGER.warn("Map operation rejected reason={}", message.getString());
         complete(new Result(false, message));
     }
 
@@ -1942,7 +1990,7 @@ public final class MapManager {
 
     record TemplateSlice(StructureTemplate template, BoundingBox bounds) { }
 
-    private record PreparedTemplate(Vec3i size, List<TemplateSlice> slices) { }
+    private record PreparedTemplate(Vec3i size, List<TemplateSlice> slices, int materialMinY, int materialMaxY) { }
 
     private record Placement(String template, BlockPos origin, float integrity, long seed) { }
 

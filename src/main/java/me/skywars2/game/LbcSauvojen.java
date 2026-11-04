@@ -203,6 +203,7 @@ public final class LbcSauvojen {
     }
     /** Explicit source level survives causal author's death, disconnect or dimension change. */
     void emitHostile(ServerLevel level,Kind kind,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
+        if(!LbcBedwarsRoleGuards.canEmit(source,level))return;
         if(source==null||!game.items().currentEpoch(source.epoch())||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(origin)))return;
         var author=game.server().getPlayerList().getPlayer(source.author());

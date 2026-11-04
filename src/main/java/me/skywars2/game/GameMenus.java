@@ -113,7 +113,7 @@ public final class GameMenus {
                     renderLbc(gui, player, profile);
             case COSMETICS -> renderCosmetics(gui, player, profile);
             case CASES -> renderCases(gui, player, profile);
-            case BEDWARS -> renderUnsupported(gui, "bedwars.title", "bedwars.boundary");
+            case BEDWARS -> renderBedwarsTeams(gui,player);
         }
         // Render before changing the live menu. Keep its container ID during navigation,
         // so rapid clicks and client close packets cannot target a half-open replacement.
@@ -239,7 +239,7 @@ public final class GameMenus {
                 if (current == null || !current.available()) {
                     player.sendSystemMessage(current == null ? t("maps.now_unavailable") : current.unavailableReason()); return;
                 }
-                if (current.playerCapacity() > 0 && server.getPlayerList().getPlayers().size() > current.playerCapacity()) {
+                if (!controller.mapCapacity(current,server.getPlayerList().getPlayers().size())) {
                     player.sendSystemMessage(t("maps.capacity")); return;
                 }
                 if (controller.selectMap(player, map.id(), config.broken)) open(player, Page.MAPS);
@@ -455,6 +455,19 @@ public final class GameMenus {
                     null, List.of(), null);
         }
         originalTable(gui, player, 18, "swrg:gui/back", null, List.of(), () -> open(player, Page.HUB));
+    }
+
+    private void renderBedwarsTeams(Menu gui,ServerPlayer player) {
+        var available=controller.bedwars().availableTeams();
+        for(int number=1;number<=16;number++){
+            if(!available.contains(number))continue;
+            int team=number;
+            var item=net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.parse("minecraft:"+LbcBedwars.colorName(team)+"_bed"));
+            boolean selected=player.getTeam()!=null&&player.getTeam().getName().equals(Integer.toString(team));
+            original(gui,player,team-1,new ItemStack(item),null,List.of(),()->{if(controller.bedwars().selectTeam(player,team))open(player,Page.BEDWARS);},selected);
+        }
+        original(gui,player,16,new ItemStack(Items.BARRIER),null,List.of(),()->{if(controller.bedwars().selectTeam(player,0))open(player,Page.BEDWARS);},player.getTeam()==null);
+        originalTable(gui,player,18,"swrg:gui/back",null,List.of(),()->open(player,Page.HUB));
     }
 
     private void renderUnsupported(Menu gui, String title, String explanation) {

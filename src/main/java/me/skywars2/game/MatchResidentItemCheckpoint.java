@@ -26,6 +26,7 @@ final class MatchResidentItemCheckpoint {
     private final LbcGodClawSkill.Checkpoint godClaw;
     private final LbcStoneGolemSkill.Checkpoint golem;
     private final LbcExpansionSkill.Checkpoint expansion;
+    private final LbcBedwarsArena.Checkpoint bedwarsArena;
     private final LbcHakureiSkill.Checkpoint hakurei;
     private final LbcTouhouCollectibles.Checkpoint touhou;
     private final LbcNovemberLightsabers.Checkpoint lightsabers;
@@ -33,6 +34,7 @@ final class MatchResidentItemCheckpoint {
     private boolean prepared,installed,published;
     MatchResidentItemCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);links=new MatchSpellCheckpoint.Links(sources);
+        bedwarsArena=game.bedwars().arena().checkpoint();
         godClaw=game.items().godClaw().checkpoint();golem=game.items().stoneGolemSkill().checkpoint();
         expansion=game.items().expansionSkill().checkpoint();hakurei=game.items().hakureiSkill().checkpoint();touhou=game.items().touhouCollectibles().checkpoint();
         pumpkins=game.items().cursedPumpkin().checkpoint();lightsabers=game.items().lightsabers().checkpoint();
@@ -45,13 +47,14 @@ final class MatchResidentItemCheckpoint {
                 ||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore resident item state on the stable frozen match thread");
     }
     void prepareFrozen(){
-        stable(true);game.items().expansionSkill().prepareFrozen();game.items().hakureiSkill().prepareFrozen();game.items().touhouCollectibles().prepareFrozen();game.items().godClaw().prepareFrozen();game.items().stoneGolemSkill().prepareFrozen();game.items().cursedPumpkin().prepareFrozen();game.items().lightsabers().prepareFrozen();game.items().prepareResidentFrozen();game.items().armorSets().techno().flight().prepareResidentFrozen();
+        stable(true);game.bedwars().arena().prepareFrozen();game.bedwars().auxiliaries().prepareFrozen();game.items().expansionSkill().prepareFrozen();game.items().hakureiSkill().prepareFrozen();game.items().touhouCollectibles().prepareFrozen();game.items().godClaw().prepareFrozen();game.items().stoneGolemSkill().prepareFrozen();game.items().cursedPumpkin().prepareFrozen();game.items().lightsabers().prepareFrozen();game.items().prepareResidentFrozen();game.items().armorSets().techno().flight().prepareResidentFrozen();
         game.items().kfcFood().prepareResidentFrozen();game.items().babylonEffects().prepareResidentFrozen();game.items().stand().prepareResidentFrozen();
         game.items().eternalWealth().prepareFrozen();game.items().nexusWires().prepareFrozen();game.items().nexusTools().prepareFrozen();game.items().nexusCombat().prepareFrozen();game.items().nexusAcquisition().prepareFrozen();game.items().supernova().prepareFrozen();
         prepared=true;installed=false;published=false;
     }
     Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){
         stable(true);if(!prepared)prepareFrozen();var missing=links.resolve(lookup);if(!missing.isEmpty())return missing;
+        var bedwarsState=bedwarsArena.prepare(lookup);if(!bedwarsState.pending().isEmpty())return bedwarsState.pending();
         var estate=wealth.prepare(lookup);if(!estate.pending().isEmpty())return estate.pending();
         var wireState=wires.prepare(lookup);if(!wireState.pending().isEmpty())return wireState.pending();
         var nx=nexus.prepare(lookup);if(!nx.pending().isEmpty())return nx.pending();
@@ -66,10 +69,10 @@ final class MatchResidentItemCheckpoint {
         var lightState=lightsabers.prepare(lookup);
         var nova=supernova.prepare(lookup);if(!nova.pending().isEmpty())return nova.pending();
         var i=items.prepare(links);var f=flight.prepare(links);var k=food.prepare(links);var b=babylon.prepare(links);var s=stand.prepare(links);
-        i.run();f.run();k.run();b.run();s.run();estate.install().run();wireState.install().run();nx.install().run();pulse.install().run();acquired.install().run();nova.install().run();craft.install().run();pumpkinState.install().run();clawState.install().run();golemState.install().run();expansionState.install().run();hakureiState.install().run();touhouState.install().run();lightState.install().run();game.items().nexusCompass().restoreDestinations(compassDestinations);installed=true;published=false;return Set.of();
+        i.run();f.run();k.run();b.run();s.run();bedwarsState.install().run();estate.install().run();wireState.install().run();nx.install().run();pulse.install().run();acquired.install().run();nova.install().run();craft.install().run();pumpkinState.install().run();clawState.install().run();golemState.install().run();expansionState.install().run();hakureiState.install().run();touhouState.install().run();lightState.install().run();game.items().nexusCompass().restoreDestinations(compassDestinations);installed=true;published=false;return Set.of();
     }
     Set<UUID> publishFrozen(){
         stable(true);if(published)return Set.of();if(!installed)throw new IllegalStateException("Install resident item state before publication");
-        game.items().publishResidentFrozen();game.items().eternalWealth().publishFrozen();game.items().nexusWires().publishFrozen();game.items().nexusTools().publishFrozen();game.items().nexusCompass().publishFrozen();game.items().nexusCombat().publishFrozen();game.items().nexusAcquisition().publishFrozen();game.items().supernova().publishFrozen();game.items().cursedPumpkin().publishFrozen();game.items().godClaw().publishFrozen();game.items().stoneGolemSkill().publishFrozen();game.items().expansionSkill().publishFrozen();game.items().hakureiSkill().publishFrozen();game.items().touhouCollectibles().publishFrozen();game.items().lightsabers().publishFrozen();published=true;prepared=false;return Set.of();
+        game.bedwars().arena().publishFrozen();game.bedwars().auxiliaries().publishFrozen();game.items().publishResidentFrozen();game.items().eternalWealth().publishFrozen();game.items().nexusWires().publishFrozen();game.items().nexusTools().publishFrozen();game.items().nexusCompass().publishFrozen();game.items().nexusCombat().publishFrozen();game.items().nexusAcquisition().publishFrozen();game.items().supernova().publishFrozen();game.items().cursedPumpkin().publishFrozen();game.items().godClaw().publishFrozen();game.items().stoneGolemSkill().publishFrozen();game.items().expansionSkill().publishFrozen();game.items().hakureiSkill().publishFrozen();game.items().touhouCollectibles().publishFrozen();game.items().lightsabers().publishFrozen();published=true;prepared=false;return Set.of();
     }
 }

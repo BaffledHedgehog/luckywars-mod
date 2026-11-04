@@ -919,6 +919,17 @@ public final class GameChecks {
                                 case "lightsabers" -> { LightsaberChecks.run(game,game.items().lightsabers()); return; }
                                 case "pozdman-bot" -> { PozdmanChecks.run(game); return; }
                                 case "cursed-pumpkin" -> { CursedPumpkinChecks.run(game); return; }
+                                case "bedwars-menu" -> { BedwarsChecks.lobby(game); return; }
+                                case "bedwars-basic" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-source" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-shop" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-auxiliary" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-shop-role" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-protection" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-lifecycle" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-victory" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-allies" -> { BedwarsChecks.run(game,suite); return; }
+                                case "bedwars-renewal" -> { BedwarsRenewalChecks.start(game); return; }
                                 case "zaika-passive" -> { ZaikaPassiveChecks.run(game); return; }
                                 case "expansion-skill" -> { ExpansionSkillChecks.start(game); return; }
                                 case "hakurei-skill" -> { HakureiSkillChecks.start(game); return; }
@@ -1521,6 +1532,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            BedwarsChecks.tick(game);BedwarsShopChecks.tick(game);BedwarsAuxiliaryChecks.tick(game);BedwarsRenewalChecks.tick(game);
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
             ContainedSkillChecks.tick(game);

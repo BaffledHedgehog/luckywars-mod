@@ -118,6 +118,7 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().quiver().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().babylonEffects().canAffect(source,entity));
                 var savedDamage=((ServerExplosion)(Object)this).getDamageSource();
+                if(savedDamage!=null)entities.removeIf(entity->!me.skywars2.game.LbcBedwarsHarm.damageAllowed(entity,savedDamage));
                 if(savedDamage!=null && (game.items().indirectKills().babylonCause(savedDamage)!=null
                         || game.items().ultraponos().isExplosion(savedDamage)))
                     entities.removeIf(entity->!game.items().wands().allowDamage(entity,savedDamage));

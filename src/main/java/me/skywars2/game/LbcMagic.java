@@ -551,8 +551,9 @@ public final class LbcMagic {
         if (entity instanceof ServerPlayer player) clear(player);
     }
     /** Shared magical/summoned classification used by suppression and armor pulses. */
-    public boolean magicalMob(Entity entity){return entity.getType().builtInRegistryHolder().is(MAGIC_MOBS)||magical(entity);}
+    public boolean magicalMob(Entity entity){return !LbcBedwarsRoleGuards.shop(entity)&&(entity.getType().builtInRegistryHolder().is(MAGIC_MOBS)||magical(entity));}
     public boolean magical(Entity entity) {
+        if(LbcBedwarsRoleGuards.shop(entity))return false;
         // (user) Indolence fingers are physical bodies; neither they nor rebirth are suppressed.
         if(entity.entityTags().contains("indolence_finger"))return false;
         return !entity.entityTags().contains("spectator") && (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
@@ -1033,6 +1034,7 @@ public final class LbcMagic {
         }
     }
     private boolean mechanical(Entity entity) {
+        if(LbcBedwarsRoleGuards.shop(entity))return false;
         var tags=entity.entityTags();
         // (user) Pozdman coins remain physical and unjammable, including legacy mecha tags.
         return !(entity instanceof ServerPlayer) && !(entity instanceof LbcPozdmanBot.Coin) && !entity.isSpectator() && !tags.contains("spectator")

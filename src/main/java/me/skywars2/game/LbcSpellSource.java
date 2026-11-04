@@ -69,13 +69,17 @@ public final class LbcSpellSource {
     }
     /** Accepted emitter policy does not depend on the causal author remaining online. */
     public boolean target(Source source,Entity target){
+        if(!LbcBedwarsHarm.sourceAllowed(source,target))return false;
+        if(LbcBedwarsRoleGuards.shop(target)||!LbcBedwarsRoleGuards.canEmit(source,target!=null&&target.level() instanceof ServerLevel level?level:null))return false;
         return source!=null&&game.items().currentEpoch(source.epoch())&&target!=null
                 &&!target.getUUID().equals(source.emitter())&&!LbcGreed.active(target)
                 &&game.items().wands().validRoleTarget(target,false)
                 &&source.excluded().stream().noneMatch(target.entityTags()::contains);
     }
     public boolean canAffect(Entity emitter,Entity target){
+        if(!LbcBedwarsRoleGuards.canEmitFrom(emitter)||LbcBedwarsRoleGuards.shop(target))return false;
         var source=source(emitter);
+        if(!LbcBedwarsHarm.sourceAllowed(source,target))return false;
         // Native arrows/bullets retain muzzle immunity in Projectile.canHitEntity, then may return.
         // Spell rays still exclude their emitter; captured kill credit must not change physics.
         if(source!=null&&LbcWands.physicalProjectile(emitter)&&!ProjectileLifetimes.protectedWandProjectile(emitter))return game.items().currentEpoch(source.epoch())

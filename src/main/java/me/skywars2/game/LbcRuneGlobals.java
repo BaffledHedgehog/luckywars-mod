@@ -43,7 +43,7 @@ final class LbcRuneGlobals implements LbcImbaRunes.GlobalActions {
         // The source repeats native cleanup for passengers/drops and keeps only its lobby whitelist.
         for(int pass=0;pass<6;pass++){
             var entities=new java.util.ArrayList<Entity>();level.getAllEntities().forEach(entities::add);
-            for(var entity:entities){var tags=entity.entityTags();
+            for(var entity:entities){if(LbcBedwarsRoleGuards.shop(entity))continue;var tags=entity.entityTags();
                 boolean maploader=tags.stream().anyMatch(Set.of("swrg.clear","swrg.look","swrg.spawn","swrg.center","swrg.midle","swrg.default","map_object")::contains);
                 boolean lobby=entity instanceof ServerPlayer||tags.stream().anyMatch(Set.of("swrg.quickstart","swrg.look","swrg.spawn","swrg.center","swrg.midle","swrg.default","map_object","strict_map_object")::contains)
                         ||entity instanceof AreaEffectCloud&&(tags.contains("swrg.delete")||tags.contains("swrg.lobby"));

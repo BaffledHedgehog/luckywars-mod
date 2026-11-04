@@ -390,6 +390,23 @@ public final class LbcLoadouts {
         } else apply(player, false, false);
     }
 
+    /** Historical BedWars life: kit/skill/trinkets only; startup upgrades and challenges are not reissued. */
+    public void applyBedwarsRespawn(ServerPlayer player) {
+        clear(player);
+        var profile=players.get(player.getUUID());
+        if(config.lbcKits){var kit=byId(Kind.KITS,profile.lbcKit);if(kit!=null&&allowed(player,kit))grant(player,kit);}
+        for(int n=0;n<Math.min(config.lbcTrinketLimit,profile.trinkets.length);n++){
+            var trinket=byId(Kind.TRINKETS,profile.trinkets[n]);if(trinket!=null&&allowed(player,trinket))grant(player,trinket);
+        }
+        var skill=byId(Kind.SKILLS,profile.lbcSkill);
+        if(config.lbcSkills&&skill!=null&&skill.id==5&&allowed(player,skill)){
+            for(int amplifier=0;amplifier<4;amplifier++)player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,(50-amplifier*10)*20,amplifier));
+            resistanceOwners.put(player.getUUID(),player);
+        }
+        game.items().govnomancer().effectsChanged(player);LbcParasite.beforeEffects(player);game.items().containedSkills().beforeEffects(player);
+        inventoryChanged(player);player.setHealth(player.getMaxHealth());
+    }
+
     private void apply(ServerPlayer player, boolean grantTrinkets, boolean grantKits) {
         // При старте и возрождении сначала снимаются старые бонусы, затем выдаются комплект и выбранные улучшения.
         clear(player);

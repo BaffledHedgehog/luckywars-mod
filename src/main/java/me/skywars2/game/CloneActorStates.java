@@ -15,7 +15,8 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
     CloneActorStates(GameController game){this.game=game;}
     public boolean completeCoverage(){return true;}
     public boolean protectedActor(Entity e){
-        return game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.protectedActor(e)||CloneComplexProjectileStates.protectedActor(e)
+        return LbcBedwars.shopRole(e)||e.entityTags().contains("skywars2.bedwars.chest_visual")
+                ||game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.protectedActor(e)||CloneComplexProjectileStates.protectedActor(e)
                 ||CloneMobStates.protectedActor(e)||CloneOtherActorStates.protectedActor(e)
                 ||CloneEncounterStates.protectedActor(e)||CloneVirtualAbilityStates.protectedActor(e)
                 ||CloneRemainingStatusStates.protectedActor(e)||CloneExtraAbilityStates.protectedActor(e)

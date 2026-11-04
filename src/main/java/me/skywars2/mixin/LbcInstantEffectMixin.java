@@ -18,6 +18,7 @@ public abstract class LbcInstantEffectMixin {
     @Inject(method = "applyInstantaneousEffect", at = @At("HEAD"), cancellable = true)
     private void skywars2$artifactInstantEffect(ServerLevel level, Entity source, Entity owner,
             LivingEntity target, int amplifier, double scale, CallbackInfo ci) {
+        if(!me.skywars2.game.LbcBedwarsHarm.effectAllowed(target,BuiltInRegistries.MOB_EFFECT.wrapAsHolder((MobEffect)(Object)this),amplifier,source,owner)){ci.cancel();return;}
         if(me.skywars2.game.LbcGreed.active(target) && owner!=target && source!=target) { ci.cancel(); return; }
         var game = SkyWars2.game();
         if(game!=null && !game.items().indirectKills().allowProjectileEffect(target,

@@ -1372,6 +1372,7 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
+        if(game.bedwars()!=null)game.bedwars().auxiliaries().loaded(entity);
         communism.loaded(entity);
         trinketArrows.loaded(entity);shulkerBow.loaded(entity);madokaBow.loaded(entity);
         if(machinegunSkill.loaded(entity)&&entity.isRemoved())return;
@@ -1521,6 +1522,7 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        if(game.bedwars()!=null)game.bedwars().auxiliaries().unloaded(entity);
         fallingHedgehogs.unloaded(entity);
         looseRewards.unloaded(entity);specialFireballs.unloaded(entity);rasengan.unloaded(entity);
         if(entity instanceof ServerPlayer player)armorSets.phantom().forget(player);

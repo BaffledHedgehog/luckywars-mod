@@ -1,3 +1,24 @@
+## Ordinary native BedWars3 - QUALIFIED, INSTALLED (4 November 2026)
+
+[Source, native owners, retained failures and exact qualification](agent_notes/BEDWARS_NATIVE_PORT_2026_11_04.md).
+Ordinary mode3 now supports shared team spawns/source60tick start, protected
+original terrain and enemy beds, source100active-tick real respawn/+30XPlevels,
+complete77-action physical-currency shop, five generator cadences, canonical
+shared54slot team chests/zombies/beacons, team victory and sameepoch Supernova
+replacement. Native ordinary ally/shop role admission preserves explicit WILD.
+Existing core lives, typed whole-coordinator/storage/views and fair work owners
+reused; no arbitrary functions, second life/storage engine or tick NBT polling.
+Source7b paddedAIR height and saved-map startup-ID validation fixed; no map/RP
+resource change. Questions6-9 retain source defaults pending author answers.
+
+Testdc033ee7 /production29deedff:18groups/17actual matches pass on exact JAR,
+including10mode3 scopes and shared mode1 regressions.47freshJavafamilies/1mixinJSON,
+9947otherinputs/272authorpaths guarded; every ZIP entry verified, authoring absent
+production. Fixture normal/exact/no locks. Both build/libs/main JAR updated with
+223c424b rollback,restarted:false. No main stop/start, RP edits, physical-client
+or peakTPS claim. Modes2/4,skill2/TMT-last and broad rewind gates unchanged.
+Evidence:build/verification/bedwars-native-2026-11-04/.
+
 ## Overnight Zaika / Expansion / Hakurei - QUALIFIED, INSTALLED (4 November 2026)
 
 [Source, failures, exact qualification and follow-up](agent_notes/OVERNIGHT_TRANSFER_2026_11_04.md).

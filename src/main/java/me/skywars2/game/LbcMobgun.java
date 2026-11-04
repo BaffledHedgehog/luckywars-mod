@@ -227,6 +227,7 @@ public final class LbcMobgun {
     }
     /** Lifecycle disposal must not split a cube already in its native death animation. */
     public void dispose(Entity entity) {
+        if(!LbcBedwarsRoleGuards.affectable(entity))return;
         if(game.items().wtf().erase(entity))return;
         if(entity instanceof net.minecraft.world.entity.monster.cubemob.AbstractCubeMob)
             entity.setRemoved(Entity.RemovalReason.DISCARDED);
