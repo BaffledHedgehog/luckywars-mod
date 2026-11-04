@@ -1,3 +1,25 @@
+## Individual overhead suffixes - QUALIFIED, INSTALLED (4 November 2026)
+
+[Author rule, implementation and exact evidence](agent_notes/INDIVIDUAL_SUFFIXES_2026_11_04.md).
+All29 source suffixes now appear on the same overhead line through recipient
+client teams. Canonical gameplay teams, formatting, relation-dependent name
+visibility/collision, native non-player entries and FPV self hiding are preserved.
+Friendly invisible ally visibility is expendable by explicit author answer.
+Event snapshots replace live scoreboard/profile/NBT reads on the packet path;
+ordinary packets pass unchanged. Selection, connection replacement and actual
+whole-coordinator replay checked. No RP changes or new nameplate entities.
+
+Testa47f6a1e /production5ce7d4f0:12groups/12isolated matches (9mode1,3mode3)
+pass exact archive.9freshJavafamilies/1mixinresource,10045otherinputs/275author
+paths guarded, all ZIP entries and retained3178class references checked.
+Both build/libs/main updated with0e57163a rollback; no main stop/start or push.
+Disabled native time-sprint experiment proves20real all-server ticks in116.5972ms
+in one small scene (74packets/40connectionticks); public fragments stay OFF.
+No physical-client/peakTPS/true-late-join/new-fixture-respawn claim. Existing
+core/BedWars lifecycle regressions pass separately. TMT-last/modes2,4/skill2/
+broad public rewind gates unchanged. Evidence:
+build/verification/individual-suffixes-2026-11-04/qualification.json.
+
 ## Shared note-block palette - QUALIFIED, INSTALLED (4 November 2026)
 
 [Implementation, assets and exact proof](agent_notes/NOTE_BLOCK_PALETTE_2026_11_04.md).

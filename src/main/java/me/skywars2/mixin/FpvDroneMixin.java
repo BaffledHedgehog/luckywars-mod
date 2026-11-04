@@ -35,7 +35,10 @@ public final class FpvDroneMixin {
     public abstract static class Presentation {
         @org.spongepowered.asm.mixin.injection.ModifyVariable(method="send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V",at=@At("HEAD"),argsOnly=true)
         private net.minecraft.network.protocol.Packet<?> fpvPresentation(net.minecraft.network.protocol.Packet<?> packet){
-            if((Object)this instanceof ServerGamePacketListenerImpl connection){var game=SkyWars2.game();if(game!=null)return game.items().fpvDrone().presentation(connection.player,packet);}return packet;
+            if((Object)this instanceof ServerGamePacketListenerImpl connection){var game=SkyWars2.game();if(game!=null){
+                packet=game.items().fpvDrone().presentation(connection.player,packet);
+                return game.items().cosmetics().nameplates().project(connection.player,packet);
+            }}return packet;
         }
     }
     /** Move the existing native player ticket/view, without moving the real player entity. */

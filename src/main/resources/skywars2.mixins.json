@@ -4,6 +4,9 @@
   "mixins": [
     "CosmeticNameMixin$Player",
     "CosmeticNameMixin$Tab",
+    "IndividualNameplateMixin$PacketAccess",
+    "IndividualNameplateMixin$Teams",
+    "IndividualNameplateMixin$Membership",
     "ProjectileLevelupSpawnMixin",
     "ProjectileLevelupSpawnMixin$Spawn",
     "BedwarsProtectionMixin$Destruction",

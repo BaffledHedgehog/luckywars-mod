@@ -284,6 +284,7 @@ public final class GameController {
     public boolean playing() { return stage == Stage.PLAYING || stage == Stage.PHASE_ONE || stage == Stage.PHASE_TWO; }
     public int matchTicks() { return gameTicks; }
     public boolean supernovaMapTransition() { return supernovaMap != null || balanceMap != null; }
+    boolean cunnyRestartPending() { return cunnyRestart != null; }
     public boolean balanceLegacy() { return balanceLegacy; }
     private void balanceLegacy(boolean active){
         balanceLegacy=active;
@@ -638,6 +639,7 @@ public final class GameController {
     }
 
     public void leave(ServerPlayer player) {
+        items.cosmetics().nameplates().forget(player);
         cases.onLeave(player);
         vanity.leaving(player);
         if(vanity.busy())return;

@@ -51,10 +51,11 @@ public final class LbcCosmetics {
     private static final double[][] SWORD_ORIGINS={{-3,0},{-2,1},{-1,2},{-.25,2.5},{.25,2.5},{1,2},{2,1},{3,0}};
     private static final String HAMMER="{view_range:10f,teleport_duration:1,item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:banhammer3d'}},transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[2f,2f,2f]}}";
     private static final String SWORD="{interpolation_duration:1,shadow_radius:0f,shadow_strength:0f,teleport_duration:1,item_display:'fixed',transformation:[0f,0f,2.5f,0f,1.7678f,-1.7678f,0f,0f,1.7678f,1.7678f,0f,0f,0f,0f,0f,3f],item:{id:'minecraft:golden_sword',count:1}}";
-    private final GameController game;private final Policy policy;private final LbcMidas midas;
+    private final GameController game;private final Policy policy;private final LbcMidas midas;private final LbcNameplates nameplates;
     private Set<Job> jobs=new LinkedHashSet<>();private Map<UUID,Entity> nativeActors=new LinkedHashMap<>();
     private boolean restoring;private int callbacks;
-    public LbcCosmetics(GameController game,Policy policy){this.game=game;this.policy=Objects.requireNonNull(policy);midas=new LbcMidas(game,policy);}
+    public LbcCosmetics(GameController game,Policy policy){this.game=game;this.policy=Objects.requireNonNull(policy);midas=new LbcMidas(game,policy);nameplates=new LbcNameplates(game);}
+    public LbcNameplates nameplates(){return nameplates;}
     public boolean unlocked(ServerPlayer player,Kind kind,int id){
         if(id==0)return true;if(id<0)return false;
         String key=switch(kind){
@@ -65,7 +66,7 @@ public final class LbcCosmetics {
             case KILL -> id==1?"lbc:true_advancements/event/soulcorrupt_wand_upgraded":id==2?"lbc:true_advancements/event/soulhunter_mace":id==3?"swrg:rewards/turnir/killer":null;
         };return key!=null&&policy.has(player,key);
     }
-    private int choice(ServerPlayer p,Kind kind){
+    int choice(ServerPlayer p,Kind kind){
         var profile=game.players().get(p.getUUID());int id=switch(kind){case SOUND->profile.killSound;case CAGE->profile.cage;case SUFFIX->profile.suffix;case WIN->profile.winEffect;case KILL->profile.killEffect;};
         return unlocked(p,kind,id)?id:0;
     }
@@ -91,6 +92,7 @@ public final class LbcCosmetics {
     /** Native TAB entries cache their component, so publish after selection, join and rewind. */
     public void refreshSuffixes(Collection<ServerPlayer> players){
         if(players.isEmpty())return;
+        nameplates.refresh(players);
         var packet=new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),players);
         game.server().getPlayerList().broadcastAll(packet);
     }

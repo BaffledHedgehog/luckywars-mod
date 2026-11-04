@@ -1281,6 +1281,9 @@ public final class GameChecks {
                                 case "bridge-builder-bedwars" -> {BridgeBuilderChecks.runBedwars(game);return;}
                                 case "cases-native" -> {CaseCosmeticChecks.runCases(game);return;}
                                 case "cosmetics-native" -> {CaseCosmeticChecks.runCosmetics(game);return;}
+                                case "nameplates-native" -> {IndividualNameplateChecks.run(game);return;}
+                                case "nameplates-rewind" -> {IndividualNameplateChecks.runRewind(game);return;}
+                                case "time-fragment-native" -> {TimeFragmentSprintChecks.run(game);return;}
                                 case "cases-cosmetics-rewind" -> {CaseCosmeticChecks.runRewind(game);return;}
                                 case "badapple-imba" -> {BadAppleChecks.run(game);return;}
                                 case "badapple-rewind" -> {BadAppleChecks.runRewind(game);return;}
@@ -1616,6 +1619,7 @@ public final class GameChecks {
             MapLightingChecks.tick(game);
             MapStreamingChecks.tick(game);
             ImbaAxeChecks.tick(game);PhoenixSkillChecks.tick(game);
+            IndividualNameplateChecks.tick(game);TimeFragmentSprintChecks.tick(game);
             CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

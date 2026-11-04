@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Server name/chat and native TAB components. Vanilla overhead names remain team-formatted on clients. */
+/** Server chat/TAB components; LbcNameplates projects individual overhead client teams. */
 public final class CosmeticNameMixin {
     private CosmeticNameMixin() {}
 
