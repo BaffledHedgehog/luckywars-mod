@@ -4,11 +4,10 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
-          "functions": [
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_b",
                 "minecraft:item_model": "lbc:anal_whip",
@@ -28,10 +27,10 @@
                     "operation": "add_value"
                   }
                 ]
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_name",
               "entity": "this",
               "name": [
                 {
@@ -40,10 +39,10 @@
                   "color": "green",
                   "italic": false
                 }
-              ]
+              ],
+              "type": "minecraft:set_name"
             },
             {
-              "function": "minecraft:set_lore",
               "mode": "replace_all",
               "lore": [
                 [
@@ -68,11 +67,12 @@
                   "color": "white",
                   "italic": false
                 }
-              ]
+              ],
+              "type": "minecraft:set_lore"
             },
             {
-              "function": "minecraft:set_custom_data",
-              "tag": "{transformable:1,sword:1,anal_whip:1,magicwand:1}"
+              "tag": "{transformable:1,sword:1,anal_whip:1,magicwand:1}",
+              "type": "minecraft:set_custom_data"
             }
           ]
         }

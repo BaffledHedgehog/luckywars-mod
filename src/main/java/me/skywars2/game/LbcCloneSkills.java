@@ -82,6 +82,11 @@ public final class LbcCloneSkills {
     public void stop(){checkpointBoundary();ownerCursor=0;epoch=null;}
     public void clearPending(){checkpointBoundary();}
     public void checkpointBoundary(){if(cloning)throw new IllegalStateException("Finish cloning before checkpoint publication");}
+    /** The canonical scanner owns its fairness cursor and counters, including virtual bodies. */
+    MatchQueuedWorkCheckpoint.Image checkpoint(){
+        checkpointBoundary();int cursor=ownerCursor;String scope=epoch;long seen=scanned,ops=operations,made=bodies,unavailable=unsupported,errors=failed;
+        return links->{checkpointBoundary();return ()->{ownerCursor=cursor;epoch=scope;scanned=seen;operations=ops;bodies=made;unsupported=unavailable;failed=errors;};};
+    }
 
     private boolean admitted(ServerPlayer player,int skill){
         return game.lbc().hasSkill(player,skill)&&!game.items().wands().inputTimeStopped(player)
@@ -103,13 +108,17 @@ public final class LbcCloneSkills {
         owner.level().getEntities(EntityTypeTest.forClass(Entity.class),new AABB(owner.position(),owner.position()).inflate(radius+1.0e-6),
                 actor->baseEligible(actor)&&!actor.entityTags().contains(marker)&&actor.position().distanceToSqr(owner.position())<=radius*radius
                         &&(projectile(actor)||skill==17&&mob(actor)),candidates,SCAN_BUDGET);
-        int remaining=BODY_BUDGET;long start=System.nanoTime();
+        int remaining=BODY_BUDGET,visited=0;long start=System.nanoTime();
         for(var actor:candidates){
             if(remaining<(skill==15?1:3))break;
-            scanned++;long before=bodies;
+            scanned++;visited++;long before=bodies;
             if(baseEligible(actor)&&!actor.entityTags().contains(marker)&&actor.position().distanceToSqr(owner.position())<=radius*radius
                     &&cloneActor(actor,skill,skill==17&&mob(actor),remaining))remaining-=(int)(bodies-before);
             if(System.nanoTime()-start>=SOFT_NANOS)break;
+        }
+        if(visited<SCAN_BUDGET&&remaining>=(skill==15?1:3)&&System.nanoTime()-start<SOFT_NANOS){
+            var result=game.items().cunnyTerrain().cloneNearby(owner,skill,SCAN_BUDGET-visited,remaining,start+SOFT_NANOS);
+            scanned+=result.scanned();operations+=result.operations();bodies+=result.bodies();remaining-=result.bodies();
         }
         if(remaining>0&&System.nanoTime()-start<SOFT_NANOS){
             int count=CloneVirtualAbilityStates.duplicateNear(game,owner,skill,remaining,start+SOFT_NANOS);

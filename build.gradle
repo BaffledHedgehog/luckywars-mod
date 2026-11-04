@@ -27,6 +27,14 @@ dependencies {
 }
 
 processResources {
+    // Exact closed native Cunny family and source data; no dynamic functions.
+    include 'skywars2/cunny_items.json'
+    include 'data/lbc/cunny/*.json'
+    include 'data/lbc/loot_table/imba/cunny_slabs.json', 'data/lbc/loot_table/imba/nahida_dakimakura.json'
+    include 'data/lbc/loot_table/anal_whip_named.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/jungle_slab__1da05219a901.json'
+    include 'data/lbc/loot_table/ported/cunny.json', 'data/lbc/loot_table/ported/cunny_nahida.json', 'data/lbc/loot_table/ported/cunny_jungle.json'
+    include 'data/lbc/structure/sob.nbt', 'data/lbc/structure/angry.nbt', 'data/lbc/structure/splurt.nbt', 'data/lbc/structure/sweat.nbt'
     // Exact source Mellstroy mask, native recipe and authored bootstrap prototype.
     include 'data/lbc/loot_table/mellstroy_mask.json'
     include 'data/lbc/loot_table/item_defs/lbc/mellstroy_mask__fc2cbe716754.json'

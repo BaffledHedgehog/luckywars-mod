@@ -193,7 +193,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcConsumedBlock.register();LbcImbaAxeItem.register();LbcMellstroyMaskItem.register();LbcOreshnik.registerTicket();LbcBridgeBuilderItem.register();LbcBadAppleItem.register();LbcPsychblindSkill.register(); LbcExpansionSkill.register();LbcGodClawSkill.register();EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcIceWand.register(); LbcVoidArcanum.register(); LbcDefensiveArcanums.register(); LbcBabylon.register(); LbcFartus.register(); LbcHalloweenWind.register(); LbcSoulhunter.register(); LbcSoulless.register(); LbcDanmaku.register(); LbcElementalGrimoires.register(); LbcLibrarySpells.register(); LbcUniwand.register(); LbcMechanicalItems.register(); LbcClassicMelee.register(); LbcGadgetItems.register(); LbcKitUtilityItems.register(); LbcClownItems.register(); LbcPursuitItems.register(); LbcPills.register(); LbcLuckyBlocks.register(); LbcEternalWealthItems.register(); LbcNexusWireItems.register(); LbcNexusToolItems.register(); LbcNexusTools.register(); LbcNexusPulsar.register(); LbcNexusEcology.register(); LbcNexusClone.register(); LbcSupernova.register(); LbcNukeEvent.registerLegacyTicket(); LbcChargedBowItems.register(); LbcBalanceItems.register(); LbcNovemberLightsaberItems.register();LbcPozdmanBot.register();LbcCursedPumpkinItems.register(); LbcNexusAcquisition.register(); LbcNexusWires.register(); LbcFamilyDropItems.register(); LbcBouncingPoop.register(); LbcSteampunkHook.register(); LbcGrimoireBoss.register(); LbcGrimoireRooms.register(); LbcSummonerItems.register(); LbcSyringe.register(); LbcCommunism.register(); LbcSpecialTools.register(); LbcSheep.register(); LbcHedgehogItems.register(); LbcWtf.register(); LbcIceMaterials.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcFpvDrone.register(); LbcMobgun.register(); LbcTerra.register(); LbcFevgaleaStar.register(); LbcChargedSwords.register(); LbcKaraSlabs.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcOreshek.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcConsumedBlock.register();LbcImbaAxeItem.register();LbcMellstroyMaskItem.register();LbcCunnyItems.register();LbcCunnyTerrain.register();LbcOreshnik.registerTicket();LbcBridgeBuilderItem.register();LbcBadAppleItem.register();LbcPsychblindSkill.register(); LbcExpansionSkill.register();LbcGodClawSkill.register();EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcIceWand.register(); LbcVoidArcanum.register(); LbcDefensiveArcanums.register(); LbcBabylon.register(); LbcFartus.register(); LbcHalloweenWind.register(); LbcSoulhunter.register(); LbcSoulless.register(); LbcDanmaku.register(); LbcElementalGrimoires.register(); LbcLibrarySpells.register(); LbcUniwand.register(); LbcMechanicalItems.register(); LbcClassicMelee.register(); LbcGadgetItems.register(); LbcKitUtilityItems.register(); LbcClownItems.register(); LbcPursuitItems.register(); LbcPills.register(); LbcLuckyBlocks.register(); LbcEternalWealthItems.register(); LbcNexusWireItems.register(); LbcNexusToolItems.register(); LbcNexusTools.register(); LbcNexusPulsar.register(); LbcNexusEcology.register(); LbcNexusClone.register(); LbcSupernova.register(); LbcNukeEvent.registerLegacyTicket(); LbcChargedBowItems.register(); LbcBalanceItems.register(); LbcNovemberLightsaberItems.register();LbcPozdmanBot.register();LbcCursedPumpkinItems.register(); LbcNexusAcquisition.register(); LbcNexusWires.register(); LbcFamilyDropItems.register(); LbcBouncingPoop.register(); LbcSteampunkHook.register(); LbcGrimoireBoss.register(); LbcGrimoireRooms.register(); LbcSummonerItems.register(); LbcSyringe.register(); LbcCommunism.register(); LbcSpecialTools.register(); LbcSheep.register(); LbcHedgehogItems.register(); LbcWtf.register(); LbcIceMaterials.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcFpvDrone.register(); LbcMobgun.register(); LbcTerra.register(); LbcFevgaleaStar.register(); LbcChargedSwords.register(); LbcKaraSlabs.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcOreshek.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -225,6 +225,8 @@ public final class LbcItems {
     private final LbcImbaAxe imbaAxe;
     private final LbcMellstroy mellstroy;
     private final LbcMellstroyCrafting mellstroyCrafting;
+    private final LbcCunny cunny;
+    private final LbcCunnyTerrain cunnyTerrain;
     private final LbcAbsoluteCinema cinema;
     private final LbcPhoenixSkill phoenix;
     private final LbcCosmetics cosmetics;
@@ -1043,7 +1045,8 @@ public final class LbcItems {
             public boolean explosion(ServerPlayer p,ServerLevel level,Vec3 at){return game.stage()==GameController.Stage.ENDING&&level==game.maps().level()&&!game.maps().busy()&&LbcBedwarsRoleGuards.publication(level);}
             public void cageWrite(ServerLevel level,net.minecraft.core.BlockPos at,net.minecraft.world.level.block.state.BlockState state){game.maps().cageBlock(level,at,state);}
         });
-        this.mellstroy=new LbcMellstroy(game);this.mellstroyCrafting=new LbcMellstroyCrafting(game);this.imbaAxe=new LbcImbaAxe(game);this.cinema=new LbcAbsoluteCinema(game);this.phoenix=new LbcPhoenixSkill(game);
+        this.mellstroy=new LbcMellstroy(game);this.mellstroyCrafting=new LbcMellstroyCrafting(game);this.cunnyTerrain=new LbcCunnyTerrain(game);this.cunny=new LbcCunny(game);
+        this.cunny.policy(LbcCunny.Part.ACTIVATION,LbcCunny.Suppression.MAGIC);this.cunny.policy(LbcCunny.Part.PAIR,LbcCunny.Suppression.MAGIC);this.imbaAxe=new LbcImbaAxe(game);this.cinema=new LbcAbsoluteCinema(game);this.phoenix=new LbcPhoenixSkill(game);
         this.bridgeBuilder=new LbcBridgeBuilder(game,new LbcBridgeBuilder.Policy(){
             public boolean launch(LivingEntity author,ServerLevel level,Vec3 at){
                 if(!game.playing()||game.stage()==GameController.Stage.ENDING||game.maps().busy()
@@ -1172,7 +1175,7 @@ public final class LbcItems {
         this.homing = new LbcHoming(game);
         this.bolts = new LbcBolts(game);
         this.lightningAcquisition = new LbcLightningAcquisition(game);
-        this.bridgeBuilder.prepare();
+        this.bridgeBuilder.prepare();this.cunnyTerrain.prepare();
         this.summons.prepare();
         this.nukeEvent.prepare();apocalypseEvents.prepare();
     }
@@ -1197,12 +1200,18 @@ public final class LbcItems {
     public LbcImbaAxe imbaAxe(){return imbaAxe;}
     LbcMellstroy mellstroy(){return mellstroy;}
     LbcMellstroyCrafting mellstroyCrafting(){return mellstroyCrafting;}
+    LbcCunny cunny(){return cunny;}
+    public LbcCunnyTerrain cunnyTerrain(){return cunnyTerrain;}
+    public boolean useCunny(ServerPlayer p,InteractionHand hand){
+        if(LbcCunnyItems.slab(p.getItemInHand(hand)))return cunny.use(p,hand);
+        return !actionsBlocked(p)&&!magic.suppressed(p)&&!magic.suppressedAt(p.level(),p.getEyePosition())&&cunnyTerrain.castJungle(p,hand);
+    }
     public boolean useMellstroy(ServerPlayer player,InteractionHand hand){return mellstroy.use(player,hand);}
     public LbcAbsoluteCinema cinema(){return cinema;}
     public LbcPhoenixSkill phoenix(){return phoenix;}
     public LbcCosmetics cosmetics(){return cosmetics;}
     /** Shared admitted terrain write for the existing native paint/cosmetic producers. */
-    private boolean writeOwnedTerrain(ServerLevel level,net.minecraft.core.BlockPos pos,net.minecraft.world.level.block.state.BlockState wanted,LbcIndirectKills.Owner cause){
+    boolean writeOwnedTerrain(ServerLevel level,net.minecraft.core.BlockPos pos,net.minecraft.world.level.block.state.BlockState wanted,LbcIndirectKills.Owner cause){
         if(!level.hasChunkAt(pos)||!level.isInValidBounds(pos)||!LbcBedwarsRoleGuards.publication(level))return false;
         var arena=LbcBedwarsArena.at(level);if(arena!=null&&!arena.allowsType(level,pos,wanted))return false;
         indirectKills.capturedWorldChanges(level,cause,()->{
@@ -2058,7 +2067,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
-        reactiveTrinkets.tick();rainbowAura.tick(game.matchTicks(),Math.floorMod(game.matchTicks(),100));psychblindSkill.tick();projectileLevelups.tick();badApple.tick();bridgeBuilder.tick();cinema.tick();mellstroy.tick();mellstroyCrafting.tick();
+        reactiveTrinkets.tick();rainbowAura.tick(game.matchTicks(),Math.floorMod(game.matchTicks(),100));psychblindSkill.tick();projectileLevelups.tick();badApple.tick();bridgeBuilder.tick();cinema.tick();mellstroy.tick();mellstroyCrafting.tick();cunny.tick();
         for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);
         containedSkills.tick();fallingHedgehogs.tick();godClaw.tick();stoneGolemSkill.tick();expansionSkill.tick();hakureiSkill.tick();touhouCollectibles.tick();
         combatRewards.tick();machinegunSkill.tick();zeusSkill.tick();symbioteSkill.tick();cloneSkills.tick();
@@ -2273,7 +2282,7 @@ public final class LbcItems {
     private void clear(ServerPlayer player,boolean resetNanobots) { steampunkHook.clear(player);steampunkGlove.clear(player);legacyEffects.clear(player); if(resetNanobots){armorSets.nanobots().reset(player);armorSets.techno().purify(player);} moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); clearTurnCurse(player); kfcFood.clear(player); foodStatuses.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         rainbowAura.clear(player);psychblindSkill.leaveOrDeath(player);projectileLevelups.clear(player.getUUID());
-        mellstroy.forget(player);cursedPumpkin.forget(player);pozdmanBot.forget(player);
+        cunny.forget(player);mellstroy.forget(player);cursedPumpkin.forget(player);pozdmanBot.forget(player);
         nexusCompass.forget(player);
         machinegunSkill.clear(player);zeusSkill.clear(player);symbioteSkill.clear(player);
         containedSkills.clear(player);godClaw.clear(player);stoneGolemSkill.clear(player);championSkill.clear(player);expansionSkill.clear(player);hakureiSkill.forget(player);touhouCollectibles.forget(player);reactiveTrinkets.forget(player);
@@ -2367,7 +2376,7 @@ public final class LbcItems {
     }
     private void lightsabersLoaded(Entity entity){if(entity instanceof ServerPlayer p)lightsabers.sourceScoreChanged(p);}
     public void stop() {
-        mellstroy.stop();mellstroyCrafting.stop();bridgeBuilder.stop();imbaAxe.stop();cinema.stop();phoenix.stop();cosmetics.stop();badApple.stop();rainbowAura.stop();psychblindSkill.stop();projectileLevelups.stop();
+        cunny.stop();cunnyTerrain.stop();mellstroy.stop();mellstroyCrafting.stop();bridgeBuilder.stop();imbaAxe.stop();cinema.stop();phoenix.stop();cosmetics.stop();badApple.stop();rainbowAura.stop();psychblindSkill.stop();projectileLevelups.stop();
         lightsabers.clear();pozdmanBot.stop();cursedPumpkin.clear();
         combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();symbioteSkill.stop();cloneSkills.stop();
         containedSkills.stop();fallingHedgehogs.stop();godClaw.stop();stoneGolemSkill.stop();championSkill.stop();expansionSkill.stop();hakureiSkill.stop();touhouCollectibles.stop();

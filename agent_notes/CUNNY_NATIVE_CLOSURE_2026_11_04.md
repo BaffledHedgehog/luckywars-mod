@@ -1,5 +1,7 @@
 # Cunny native closure audit - 4 November 2026
 
+Current implementation and qualification status: [CUNNY_NATIVE_PORT_2026_11_04.md](CUNNY_NATIVE_PORT_2026_11_04.md). The audit below records the earlier source investigation; its statements about missing consumers and unresolved runtime boundaries are historical.
+
 Read-only bounded audit in E:/servers_mew/skywars2_last/luckywars-mod; only this new note written. Legacy E:/servers_mew/cringe1_21_4_skywars is read-only. No Java, resources, tests, builds, server, git or RP changes. Root retains release qualification. Read AGENTS, agent_notes/AGENTS, Serena initial instructions, NIGHT_REMAINING_AFTER_ANSWERS and NIGHT_REMAINING_IMBA_SOURCE. This is source evidence, not runtime proof.
 
 Author ruling33 is binding: Cunny permanently destroys Chef. Preserve all other Chef rules and indirect-kill attribution. TMT LAST. No arbitrary mcfunction interpreter. Earlier unanswered-question wording is historical and does not revoke the author ruling.

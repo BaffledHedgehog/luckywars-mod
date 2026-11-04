@@ -129,6 +129,7 @@ public final class GameController {
         validateCheckpoint(image);
         // Unsupported short restart intent is cancelled by rewind, as other transient actions are.
         runeRestartPending=false;
+        cunnyRestart=null;
         supernovaMap=image.renewal;
         balanceMap=image.balanceRenewal;balanceLegacy(image.legacy);
         balancePendingReset.clear();balancePendingReset.addAll(image.balanceResets);
@@ -205,6 +206,8 @@ public final class GameController {
     private Component mapFailure = Component.empty();
     private String readyMap;
     private boolean runeRestartPending;
+    private enum CunnyRestartPhase { DRAINING, PREPARING }
+    private CunnyRestartPhase cunnyRestart;
     private SupernovaMap supernovaMap;
     private boolean supernovaNativeTick;
     private BalanceMap balanceMap;
@@ -287,7 +290,7 @@ public final class GameController {
         items.mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("legacy"),"lbc.math").set(active?1:0);
     }
     public void activateBalance(ServerPlayer player) {
-        if (!playing() || stopped || supernovaMapTransition() || maps.busy()
+        if (!playing() || stopped || cunnyRestart != null || supernovaMapTransition() || maps.busy()
                 || vanity.busy() || vanity.capturePreparing() || items.supernova().phase()!=LbcSupernova.Phase.IDLE
                 || !canUseGameplayItems(player)) return;
         balanceMap=new BalanceMap(UUID.randomUUID(),RenewalPhase.SETTLING);
@@ -299,7 +302,7 @@ public final class GameController {
         return Math.max(1,(int)participants.values().stream().filter(p->p.lives>0&&!p.disconnected).count());
     }
     public boolean canBeginSupernova(ServerLevel level, UUID owner) {
-        return server.isSameThread() && level == maps.level() && playing() && !stopped && !maps.busy()
+        return server.isSameThread() && level == maps.level() && playing() && !stopped && cunnyRestart == null && !maps.busy()
                 && !supernovaMapTransition() && !vanity.busy() && !vanity.capturePreparing()
                 && !maps.renewalCandidates(renewalCapacity(),config.broken,maps.bedwars(config.mapId)).isEmpty();
     }
@@ -944,6 +947,7 @@ public final class GameController {
         spectators.tick();
         attributeHud.tick();
         lbc.tick();
+        if (cunnyRestart != null) { tickCunnyRestart(); return; }
         if (supernovaMapTransition()) {
             // The item owner advances TimeStop, accepted construction and the Supernova delay.
             // Match stages, win detection and the border remain paused throughout replacement.
@@ -1005,7 +1009,7 @@ public final class GameController {
             events.tick();
             supernovaNativeTick=true;
             try { items.tick(); } finally { supernovaNativeTick=false; }
-            if (supernovaMapTransition()) return;
+            if (supernovaMapTransition() || cunnyRestart != null) return;
             if (gameTicks % 20 == 0) {
                 updateBar();
                 updateTrackers();
@@ -1261,9 +1265,51 @@ public final class GameController {
         return true;
     }
 
+    /** Accept once; the caller debits the old used stack before the next shared tick boundary. */
+    public boolean restartForCunny(ServerPlayer owner) {
+        if (!server.isSameThread() || owner == null || cunnyRestart != null || stopped || !playing()
+                || supernovaMapTransition() || maps.busy() || developerTools.authoring().busy()
+                || vanity.busy() || vanity.capturePreparing()
+                || items.supernova().phase() != LbcSupernova.Phase.IDLE
+                || config.gameMode != 1 && !(config.gameMode == 3 && BEDWARS_READY)
+                || !allowDamage(owner) || !items.wands().validRoleTarget(owner, false)
+                || !LbcDimensionItems.ordinary(owner.level())
+                || online().size() < (developerMode() ? 1 : 2)
+                || !mapCapacity(maps.info(config.mapId), online().size())) return false;
+        cunnyRestart = CunnyRestartPhase.DRAINING;
+        return true;
+    }
+
+    private void tickCunnyRestart() {
+        if (cunnyRestart == CunnyRestartPhase.DRAINING) {
+            // Producer admission changes and teardown both happen outside item/entity callbacks.
+            items.duplicating().beginCheckpointDrain();
+            items.cunnyTerrain().prepareRestart();
+            items.tick();
+            if (supernovaPaused() || !supernovaTerrainSettled() || !items.cunnyTerrain().restartSettled()) return;
+            restoreLobby();
+            cunnyRestart = CunnyRestartPhase.PREPARING;
+            return;
+        }
+        if (!inLobby() || maps.busy() || preparingSelection) return;
+        // This is an already accepted item action, so lobby admin ownership cannot revoke it.
+        if (config.gameMode != 1 && !(config.gameMode == 3 && BEDWARS_READY)
+                || online().size() < (developerMode() ? 1 : 2)
+                || !mapCapacity(maps.info(config.mapId), online().size())) {
+            cunnyRestart = null; announce(text("game.cancelled_players")); return;
+        }
+        if (!selectedMapReady()) {
+            if (!mapFailure.getString().isEmpty()) { cunnyRestart = null; return; }
+            prepareSelectedMap(); return;
+        }
+        cunnyRestart = null;
+        // begin owns the sole durable +10 start award and the normal teams/lives/loadout lifecycle.
+        begin();
+    }
+
     /** Nautiz replaces the round through the same map-ready/lobby/new-match transitions as normal play. */
     void restartFromRune(ServerPlayer author){
-        if(!playing()||maps.busy()||stopped)return;
+        if(!playing()||maps.busy()||stopped||cunnyRestart!=null)return;
         stopMatch();runeRestartPending=true;
     }
     void addRuneLives(ServerPlayer author,int amount){
@@ -1381,6 +1427,7 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        cunnyRestart=null;
         vanity.stop();
         lbc.resetLevelupMatch();
         bedwars.stop();

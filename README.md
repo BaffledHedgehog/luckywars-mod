@@ -1,3 +1,24 @@
+## Cunny family - QUALIFIED, INSTALLED (4 November 2026)
+
+[Source, author rules and exact evidence](agent_notes/CUNNY_NATIVE_PORT_2026_11_04.md).
+Complete22 native Polymer consumables (source11..20 remain inert), original
+main-hand jungle slab and sustained Nahida; canonical fresh-match restart,
+six exact cultist presets, permanent bonuses, WILD results and Chef erase.
+MAG activation/pair target protection, unjammed growth/Nahida; native TimeStop.
+Virtual grass/jungle, native tree planning, four exact templates and400 exact
+sign strings share terrain work/tickets; same-tick future polling removed.
+Canonical x2*x4 retains author; typed partial whole-coordinator replay.
+
+Testb6757ac2 /productionc5a6dfd2:15groups in14 isolated match scenarios
+(10mode1groups/9scenarios,5mode3); restart cases also prove actual fresh epochs.
+13freshJavafamilies/14resources,10022otherinputs/275authorpaths guarded;
+all ZIP bytes verified, retained3115class references checked. Both build/libs
+updated; main updated with5b16c4e0 rollback, no main stop/start.
+RP unchanged; no physical-client/audio/peakTPS/extreme-range teleport claim.
+Disabled time fragments/individual overhead suffixes pending; TMT LAST.
+Modes2/4,skill2/full rewind release gates unchanged. Exact evidence:
+build/verification/cunny-2026-11-04/qualification.json.
+
 ## Mellstroy mask - QUALIFIED, INSTALLED (4 November 2026)
 
 [Source chain, native behavior and exact proof](agent_notes/MELLSTROY_NATIVE_PORT_2026_11_04.md).

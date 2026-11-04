@@ -105,6 +105,13 @@ public final class LbcSummons {
                 result.put(entry.getKey(),SourceKnockbackBalance.entity((CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),version,
                         SharedConstants.getCurrentVersion().dataVersion().version()).getValue()));
             }
+            var cunny=LbcCunnyItems.SOURCE;
+            for(var entry:cunny.getAsJsonObject("presets").entrySet()){
+                var tag=TagParser.parseCompoundFully(entry.getValue().getAsString());
+                if(!tag.contains("id"))throw new IllegalStateException("Missing Cunny source entity identity: "+entry.getKey());
+                result.put("cunny_"+entry.getKey(),SourceKnockbackBalance.entity((CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),
+                        cunny.get("originalDataVersion").getAsInt(),SharedConstants.getCurrentVersion().dataVersion().version()).getValue()));
+            }
             var ordinary=LbcSummonerItems.SOURCE;
             for(var entry:ordinary.getAsJsonObject("presets").entrySet()){
                 var tag=TagParser.parseCompoundFully(entry.getValue().getAsString());
@@ -292,6 +299,18 @@ public final class LbcSummons {
         if(owner.getTeam()!=null) owner.level().getScoreboard().addPlayerToTeam(mob.getStringUUID(),owner.getTeam());
         if(!owner.level().addFreshEntity(mob)) { remove(mob); return null; }
         return mob;
+    }
+    /** Six exact authored Loli bodies share the released cultist AI and causal owner graph. */
+    Mob cunnyCultist(ServerPlayer owner,Vec3 at,int choice){
+        if(choice<1||choice>6||!ready())return null;
+        String kind=CULTISTS[choice-1];
+        Mob mob=switch(kind){case "strangeness"->new CultWither(owner.level());case "hypocrisy"->new CultZombie(owner.level());default->new CultSkeleton(owner.level());};
+        mob.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),presets.get("cunny_"+kind).copy()));
+        mob.entityTags().add("summactivated");mob.setPos(at);game.items().markCurrentItemEpoch(mob);
+        mobs.put(mob,new Summon(owner.getUUID(),game.items().epoch(),kind));orders.attach(mob);
+        if(owner.getTeam()!=null)owner.level().getScoreboard().addPlayerToTeam(mob.getStringUUID(),owner.getTeam());
+        if(!owner.level().addFreshEntity(mob)){remove(mob);return null;}
+        game.items().trinkets().summoned(owner);return mob;
     }
     LivingEntity attackTarget(Mob mob,ServerPlayer owner,Vec3 origin,double radius){
         var selected=orders.assigned(mob);

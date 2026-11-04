@@ -5,48 +5,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
-          "modifier": [
+          "name": "skywars2:cunny_jungle_slab",
+          "functions": [
             {
-              "type": "minecraft:set_count",
+              "function": "minecraft:set_count",
               "count": 1
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "just_a_jungle_slab_imba",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_lore",
-              "mode": "replace_all",
-              "lore": [
-                {
-                  "translate": "just_a_jungle_slab_imba.lore",
-                  "italic": false,
-                  "color": "yellow"
-                },
-                {
-                  "translate": "imba_version",
-                  "italic": false,
-                  "color": "dark_purple"
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "minecraft:jungle_slab",
-                "!minecraft:max_damage": {},
-                "minecraft:max_damage": 64
-              }
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{magicwand:1,raycastspell:1,cunny_slab:1}"
             }
           ]
         }

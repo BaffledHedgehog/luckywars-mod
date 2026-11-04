@@ -1269,6 +1269,9 @@ public final class GameChecks {
                                     createBot(game,"TestGamma");
                                     SkyWars2.LOGGER.info("[check] PASS three-player-menu");return;
                                 }
+                                case "cunny-native" -> {CunnyChecks.run(game);return;}
+                                case "cunny-rewind" -> {CunnyChecks.runRewind(game);return;}
+                                case "cunny-restart" -> {CunnyRestartChecks.run(game);return;}
                                 case "mellstroy-native" -> {MellstroyChecks.run(game);return;}
                                 case "mellstroy-rewind" -> {MellstroyChecks.runRewind(game);return;}
                                 case "cinema-native" -> {AbsoluteCinemaChecks.run(game);return;}
@@ -1612,7 +1615,7 @@ public final class GameChecks {
             MapLightingChecks.tick(game);
             MapStreamingChecks.tick(game);
             ImbaAxeChecks.tick(game);PhoenixSkillChecks.tick(game);
-            MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
+            CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);
             SheepChecks.tick(game);
