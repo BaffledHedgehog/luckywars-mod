@@ -36,7 +36,8 @@ public final class EternalWealthChecks {
             for(var item:List.of(LbcEternalWealthItems.DROP,LbcEternalWealthItems.IMBA_DROP,LbcEternalWealthItems.STONE))
                 require(item instanceof eu.pb4.polymer.core.api.item.PolymerItem,"one native Polymer identity per variant");
             var projection=((eu.pb4.polymer.core.api.block.PolymerBlock)LbcEternalWealthItems.CURSED_BLOCK).getPolymerBlockState(LbcEternalWealthItems.CURSED_BLOCK.defaultBlockState(),null);
-            require(projection.is(Blocks.RED_MUSHROOM_BLOCK)&&!projection.getValue(HugeMushroomBlock.UP),"native block projects source carrier without changing raw map mushrooms");
+            require(projection.is(Blocks.NOTE_BLOCK),"native cursed block uses the common full-cube palette without aliasing raw map mushrooms");
+            require(projection.getCollisionShape(base.owner.level(),base.owner.blockPosition()).bounds().equals(new AABB(0,0,0,1,1,1)),"cursed client projection keeps full-cube collision");
             var token=new ItemEntity(base.owner.level(),base.at.x,base.at.y,base.at.z,new ItemStack(LbcEternalWealthItems.DROP));
             game.items().markCurrentItemEpoch(token);base.owner.level().addFreshEntity(token);
             require(game.items().specialDrops().spawn(token),"actual source dispatcher activates the airborne normal drop");
@@ -87,6 +88,7 @@ public final class EternalWealthChecks {
                 require(wait>=150,"curse does not skip its nine-second source age");
                 require(level.getBlockState(curseCenter.offset(0,4,0)).is(Blocks.GOLD_BLOCK)&&level.getBlockState(curseCenter.offset(0,-4,0)).is(Blocks.GOLD_BLOCK),"both formerly omitted fluid layers convert");
                 require(level.getBlockState(curseCenter.below()).is(LbcEternalWealthItems.CURSED_BLOCK),"solid source cells use own server block");
+                require(eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment.get(level,curseCenter.below())==null,"cursed native block model has no virtual holder");
                 unjam();p.entityTags().remove("greed_cursed");
                 for(var marker:wealth.snapshot())if(marker.entityTags().contains(LbcEternalWealth.TAG+".kind.SEED"))marker.discard();
                 hurt=base.cow(Vec3.atBottomCenterOf(curseCenter.offset(4,0,0)));raw=base.cow(Vec3.atBottomCenterOf(curseCenter.offset(5,0,0)));

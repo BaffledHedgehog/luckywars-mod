@@ -1,6 +1,6 @@
 package me.skywars2.game;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import java.util.List;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
@@ -37,10 +37,16 @@ public final class LbcEternalWealthItems {
             .setValue(HugeMushroomBlock.NORTH, false).setValue(HugeMushroomBlock.SOUTH, false)
             .setValue(HugeMushroomBlock.EAST, false).setValue(HugeMushroomBlock.WEST, false)
             .setValue(HugeMushroomBlock.UP, false).setValue(HugeMushroomBlock.DOWN, false);
+    private static final BlockState CLIENT_CURSED_STATE = cursedClientState();
     public static final Block CURSED_BLOCK = cursedBlock();
 
     private LbcEternalWealthItems() { }
     public static void register() { }
+    private static BlockState cursedClientState(){
+        var model=Identifier.parse("skywars2:block/greedstone_cursed_block");
+        LbcBlockModels.model(model,"{\"parent\":\"minecraft:block/cube_all\",\"textures\":{\"all\":\"minecraft:block/mushroom_block_inside\"}}");
+        return LbcBlockModels.fullCube(Identifier.parse("skywars2:greedstone_cursed_block"),model);
+    }
     private static CompoundTag trigger(String key,boolean drop){var tag=new CompoundTag();tag.putInt(key,1);if(drop)tag.putInt("drop",1);return tag;}
 
     private static Item.Properties properties(String model) {
@@ -97,10 +103,10 @@ public final class LbcEternalWealthItems {
                 BlockBehaviour.Properties.ofFullCopy(Blocks.RED_MUSHROOM_BLOCK).setId(key)));
     }
 
-    private static final class CursedBlock extends Block implements PolymerBlock {
+    private static final class CursedBlock extends Block implements PolymerTexturedBlock {
         CursedBlock(Properties properties) { super(properties); }
         @Override public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-            return LEGACY_CURSED_STATE;
+            return CLIENT_CURSED_STATE;
         }
         @Override protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
             return LEGACY_CURSED_STATE.getDrops(params);

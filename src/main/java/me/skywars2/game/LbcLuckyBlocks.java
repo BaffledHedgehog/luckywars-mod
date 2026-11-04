@@ -1,6 +1,6 @@
 package me.skywars2.game;
 
-import eu.pb4.polymer.core.api.block.PolymerBlock;
+import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import java.util.List;
 import me.skywars2.SkyWars2;
@@ -39,12 +39,15 @@ public final class LbcLuckyBlocks {
     private static final Block[] BLOCKS=new Block[3];
     private static final Item[] ITEMS=new Item[3];
     private static final BlockState[] LEGACY_STATES=new BlockState[3];
+    private static final BlockState[] CLIENT_STATES=new BlockState[3];
     static {
         for(var kind:Kind.values()) {
             var raw=carrierBlock(kind).defaultBlockState();
             for(var property:List.of(HugeMushroomBlock.DOWN,HugeMushroomBlock.UP,HugeMushroomBlock.NORTH,HugeMushroomBlock.SOUTH,HugeMushroomBlock.EAST,HugeMushroomBlock.WEST))raw=raw.setValue(property,false);
             LEGACY_STATES[kind.ordinal()]=raw;
             var id=Identifier.parse("skywars2:"+suffix(kind));
+            var model=Identifier.parse(switch(kind){case NORMAL->"minecraft:block/lucky_block";case NEKO->"minecraft:block/neko_lucky_block";case LOLI->"minecraft:block/lucky_block_loli";});
+            CLIENT_STATES[kind.ordinal()]=LbcBlockModels.fullCube(id,model);
             var blockKey=ResourceKey.create(Registries.BLOCK,id);
             var block=Registry.register(BuiltInRegistries.BLOCK,blockKey,new LuckyBlock(
                     BlockBehaviour.Properties.ofFullCopy(carrierBlock(kind)).setId(blockKey),kind));
@@ -128,23 +131,10 @@ public final class LbcLuckyBlocks {
         return breaker instanceof ServerPlayer player
                 ?game.items().spellSources().scope(game.items().spellSources().hostile(player,player,java.util.Set.of()),player.level()):null;
     }
-    private static final class LuckyBlock extends Block implements PolymerBlock, eu.pb4.polymer.virtualentity.api.BlockWithElementHolder {
+    private static final class LuckyBlock extends Block implements PolymerTexturedBlock {
         private final Kind kind;
         LuckyBlock(Properties properties,Kind kind){super(properties);this.kind=kind;}
-        @Override public BlockState getPolymerBlockState(BlockState state,PacketContext context){return Blocks.BARRIER.defaultBlockState();}
-        @Override public eu.pb4.polymer.virtualentity.api.ElementHolder createElementHolder(
-                net.minecraft.server.level.ServerLevel level,BlockPos pos,BlockState state){
-            // Polymer owns the single position-bound holder, tracking, movement and chunk lifecycle.
-            // NONE renders the authored block model at full scale without its GUI/held transforms.
-            var stack=new ItemStack(Items.PAPER);
-            stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:"+suffix(kind)));
-            var display=new eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement(stack);
-            display.setItemDisplayContext(net.minecraft.world.item.ItemDisplayContext.NONE);
-            display.setDisplaySize(1,1);
-            var holder=new eu.pb4.polymer.virtualentity.api.ElementHolder();
-            holder.addElement(display);
-            return holder;
-        }
+        @Override public BlockState getPolymerBlockState(BlockState state,PacketContext context){return CLIENT_STATES[kind.ordinal()];}
         @Override protected List<ItemStack> getDrops(BlockState state,LootParams.Builder params){return drops(kind,params);}
         @Override protected ItemStack getCloneItemStack(LevelReader level,BlockPos pos,BlockState state,boolean includeData){
             var game=SkyWars2.game();

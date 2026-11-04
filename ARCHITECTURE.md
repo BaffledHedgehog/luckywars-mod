@@ -1,3 +1,23 @@
+## Shared note-block palette - QUALIFIED, INSTALLED (4 November 2026)
+
+[Implementation, assets and exact proof](agent_notes/NOTE_BLOCK_PALETTE_2026_11_04.md).
+All five opaque custom cubes use one NOTE-only Polymer palette: three lucky
+blocks, consumed territory and Greedstone soil. Textured marker preserves actual
+packet mappings; lucky-block virtual holders removed. Original server identities,
+physics/loot/Silk preserved; thin beacon geometry remains lightning rods.
+Source lucky models reused; generated black/inside models and shared allocation
+metadata, author RP/deleted templates untouched. Native/default mappers tested
+across1350vanilla notes/192mushrooms; final5variant overlay merges with vanilla
+client base (all1350model resolutions,0missing). No FPS/peakTPS/physical-client
+claim; reserved-note particle colour may use fallback, sounds/gameplay preserved.
+
+Test0e57163a /production30dae208:8groups/8isolated matches (6mode1,2mode3)
+pass exact archive.8freshJavafamilies/0resource edits,10043otherinputs/275author
+paths guarded, all ZIP entries and retained3151class references checked. Both
+build/libs/main updated withb6757ac2rollback; no main stop/start or push.
+TMT-last/modes2,4/skill2/broad rewind gates unchanged. Evidence:
+build/verification/block-palette-2026-11-04/qualification.json.
+
 ## Cunny family - QUALIFIED, INSTALLED (4 November 2026)
 
 [Source, author rules and exact evidence](agent_notes/CUNNY_NATIVE_PORT_2026_11_04.md).

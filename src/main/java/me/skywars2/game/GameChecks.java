@@ -807,6 +807,7 @@ public final class GameChecks {
                                 case "family-drop-source" -> { FamilyDropChecks.source(game); return; }
                                 case "family-drops-stop-probe" -> { FamilyDropChecks.stopProbe(game); return; }
                                 case "family-drops-cleanup" -> { FamilyDropChecks.cleanup(game); return; }
+                                case "block-palette" -> { BlockPaletteChecks.run(game); return; }
                                 case "lucky-blocks" -> { LuckyBlockChecks.run(game); return; }
                                 case "lucky-block-rules" -> { LuckyBlockChecks.rules(game); return; }
                                 case "shooter-pools-menu" -> ShooterPoolChecks.menu(game);
