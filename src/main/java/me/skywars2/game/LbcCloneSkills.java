@@ -117,6 +117,8 @@ public final class LbcCloneSkills {
             if(remaining>0&&System.nanoTime()-start<SOFT_NANOS)bodies+=CloneFinalAbilityStates.duplicateNear(game,owner,skill,remaining,start+SOFT_NANOS);
         }
     }
+    /** Bound helper actors share their canonical gameplay family; never target their visual alone. */
+    public boolean protectedFamilyActor(Entity actor){return adapter.protectedActor(actor);}
     private boolean mob(Entity actor){return actor.getType().builtInRegistryHolder().is(MOBS)||adapter.combatBody(actor);}
     private boolean baseEligible(Entity actor){
         return !(actor instanceof ServerPlayer)&&!actor.isRemoved()&&actor.level() instanceof ServerLevel level

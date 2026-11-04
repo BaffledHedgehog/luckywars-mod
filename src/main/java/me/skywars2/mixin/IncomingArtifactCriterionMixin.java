@@ -23,6 +23,8 @@ public abstract class IncomingArtifactCriterionMixin {
     private void skywars2$incoming(ServerPlayer player,DamageSource source,float originalDamage,float actualDamage,boolean blocked,CallbackInfo ci){
         var game=SkyWars2.game();if(game!=null)try(var scope=game.items().spellSources().scope((me.skywars2.game.LbcSpellSource.Source)null)){
             game.items().incomingArtifacts().incoming(player,source,originalDamage,actualDamage,blocked);
+            game.items().championSkill().incoming(player,source,originalDamage,actualDamage,blocked);
+            game.items().stoneGolemSkill().incoming(player,source,originalDamage,actualDamage,blocked);
             game.items().shulkerArmor().incoming(player);
             game.items().armorSets().glass().incoming(player,source);
             game.items().armorSets().nanobots().incoming(player);

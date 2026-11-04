@@ -127,6 +127,7 @@ public final class LbcMagic {
     private static final TagKey<EntityType<?>> MECHANISM_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mecha"));
     private static final TagKey<Block> MAGIC_BLOCKS = TagKey.create(Registries.BLOCK, Identifier.parse("minecraft:magic"));
     private static final TagKey<EntityType<?>> MAGIC_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:magic_entities"));
+    private static final TagKey<EntityType<?>> MAGIC_MOBS = TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:magic_mobs"));
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mobs"));
     private static final int STRICT_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_SUPPRESS_DROPS
             | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS | Block.UPDATE_SKIP_ON_PLACE;
@@ -550,6 +551,7 @@ public final class LbcMagic {
         if (entity instanceof ServerPlayer player) clear(player);
     }
     /** Shared magical/summoned classification used by suppression and armor pulses. */
+    public boolean magicalMob(Entity entity){return entity.getType().builtInRegistryHolder().is(MAGIC_MOBS)||magical(entity);}
     public boolean magical(Entity entity) {
         // (user) Indolence fingers are physical bodies; neither they nor rebirth are suppressed.
         if(entity.entityTags().contains("indolence_finger"))return false;

@@ -49,8 +49,9 @@ public final class LbcWitchStatistics {
     public static void awarded(ServerPlayer player,Stat<?> stat,int count){
         // DAMAGE_DEALT also has non-melee producers, and its attack total includes item side effects.
         // The combat tracker below owns this one objective; vanilla statistics stay untouched.
-        if(stat==Stats.CUSTOM.get(Stats.DAMAGE_DEALT))return;
         var game=SkyWars2.game();
+        if(game!=null)game.items().stoneGolemSkill().statistic(player,stat,count);
+        if(stat==Stats.CUSTOM.get(Stats.DAMAGE_DEALT))return;
         if(game!=null){
             // Old saves bind these objectives to the old vanilla carrier statistic. Cancel only
             // that native automatic increment: a real mushroom is no longer a Lucky Block.

@@ -322,6 +322,32 @@
       "slot": 19,
       "gate": "lbc:true_advancements/legends/academy/acidacid",
       "lockedKey": "lbc.adv.upgraded_tuntija.acidacid.lore"
+    },
+    {
+      "id": 23,
+      "page": 10000,
+      "slot": 23,
+      "gate": "lbc:true_advancements/legends/academy/consuming",
+      "lockedKey": "lbc.adv.upgraded_tuntija.consuming.lore"
+    },
+    {
+      "id": 29,
+      "page": 10100,
+      "slot": 1,
+      "gate": "lbc:true_advancements/bows/madoka_bow",
+      "lockedKey": "lbc.adv.bow.madoka_bow.lore"
+    },
+    {
+      "id": 33,
+      "page": 10100,
+      "slot": 5
+    },
+    {
+      "id": 34,
+      "page": 10100,
+      "slot": 6,
+      "gate": "lbc:true_advancements/legends/academy/stone",
+      "lockedKey": "lbc.adv.upgraded_tuntija.stone.lore"
     }
   ],
   "levelups": [

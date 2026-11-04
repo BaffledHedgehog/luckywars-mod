@@ -23,11 +23,14 @@ final class MatchResidentItemCheckpoint {
     private final LbcSupernova.Checkpoint supernova;
     private final LbcChargedBowCrafting.Checkpoint chargedCrafting;
     private final LbcCursedPumpkin.Checkpoint pumpkins;
+    private final LbcGodClawSkill.Checkpoint godClaw;
+    private final LbcStoneGolemSkill.Checkpoint golem;
     private final LbcNovemberLightsabers.Checkpoint lightsabers;
     private final java.util.List<net.minecraft.world.phys.Vec3> compassDestinations;
     private boolean prepared,installed,published;
     MatchResidentItemCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);links=new MatchSpellCheckpoint.Links(sources);
+        godClaw=game.items().godClaw().checkpoint();golem=game.items().stoneGolemSkill().checkpoint();
         pumpkins=game.items().cursedPumpkin().checkpoint();lightsabers=game.items().lightsabers().checkpoint();
         items=game.items().residentCheckpoint(links);flight=game.items().armorSets().techno().flight().residentCheckpoint(links);
         food=game.items().kfcFood().residentCheckpoint(links);babylon=game.items().babylonEffects().residentCheckpoint(links);stand=game.items().stand().residentCheckpoint(links);
@@ -38,7 +41,7 @@ final class MatchResidentItemCheckpoint {
                 ||frozen&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Restore resident item state on the stable frozen match thread");
     }
     void prepareFrozen(){
-        stable(true);game.items().cursedPumpkin().prepareFrozen();game.items().lightsabers().prepareFrozen();game.items().prepareResidentFrozen();game.items().armorSets().techno().flight().prepareResidentFrozen();
+        stable(true);game.items().godClaw().prepareFrozen();game.items().stoneGolemSkill().prepareFrozen();game.items().cursedPumpkin().prepareFrozen();game.items().lightsabers().prepareFrozen();game.items().prepareResidentFrozen();game.items().armorSets().techno().flight().prepareResidentFrozen();
         game.items().kfcFood().prepareResidentFrozen();game.items().babylonEffects().prepareResidentFrozen();game.items().stand().prepareResidentFrozen();
         game.items().eternalWealth().prepareFrozen();game.items().nexusWires().prepareFrozen();game.items().nexusTools().prepareFrozen();game.items().nexusCombat().prepareFrozen();game.items().nexusAcquisition().prepareFrozen();game.items().supernova().prepareFrozen();
         prepared=true;installed=false;published=false;
@@ -51,14 +54,15 @@ final class MatchResidentItemCheckpoint {
         var pulse=pulsar.prepare(lookup);if(!pulse.pending().isEmpty())return pulse.pending();
         var acquired=acquisition.prepare(lookup);if(!acquired.pending().isEmpty())return acquired.pending();
         var craft=chargedCrafting.prepare(lookup);if(!craft.pending().isEmpty())return craft.pending();
+        var clawState=godClaw.prepare(lookup);var golemState=golem.prepare(lookup);
         var pumpkinState=pumpkins.prepare(lookup);if(!pumpkinState.pending().isEmpty())return pumpkinState.pending();
         var lightState=lightsabers.prepare(lookup);
         var nova=supernova.prepare(lookup);if(!nova.pending().isEmpty())return nova.pending();
         var i=items.prepare(links);var f=flight.prepare(links);var k=food.prepare(links);var b=babylon.prepare(links);var s=stand.prepare(links);
-        i.run();f.run();k.run();b.run();s.run();estate.install().run();wireState.install().run();nx.install().run();pulse.install().run();acquired.install().run();nova.install().run();craft.install().run();pumpkinState.install().run();lightState.install().run();game.items().nexusCompass().restoreDestinations(compassDestinations);installed=true;published=false;return Set.of();
+        i.run();f.run();k.run();b.run();s.run();estate.install().run();wireState.install().run();nx.install().run();pulse.install().run();acquired.install().run();nova.install().run();craft.install().run();pumpkinState.install().run();clawState.install().run();golemState.install().run();lightState.install().run();game.items().nexusCompass().restoreDestinations(compassDestinations);installed=true;published=false;return Set.of();
     }
     Set<UUID> publishFrozen(){
         stable(true);if(published)return Set.of();if(!installed)throw new IllegalStateException("Install resident item state before publication");
-        game.items().publishResidentFrozen();game.items().eternalWealth().publishFrozen();game.items().nexusWires().publishFrozen();game.items().nexusTools().publishFrozen();game.items().nexusCompass().publishFrozen();game.items().nexusCombat().publishFrozen();game.items().nexusAcquisition().publishFrozen();game.items().supernova().publishFrozen();game.items().cursedPumpkin().publishFrozen();game.items().lightsabers().publishFrozen();published=true;prepared=false;return Set.of();
+        game.items().publishResidentFrozen();game.items().eternalWealth().publishFrozen();game.items().nexusWires().publishFrozen();game.items().nexusTools().publishFrozen();game.items().nexusCompass().publishFrozen();game.items().nexusCombat().publishFrozen();game.items().nexusAcquisition().publishFrozen();game.items().supernova().publishFrozen();game.items().cursedPumpkin().publishFrozen();game.items().godClaw().publishFrozen();game.items().stoneGolemSkill().publishFrozen();game.items().lightsabers().publishFrozen();published=true;prepared=false;return Set.of();
     }
 }

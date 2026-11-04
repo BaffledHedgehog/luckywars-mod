@@ -399,6 +399,20 @@ public final class LbcConsuming {
 
         }finally{callbackDepth--;}
     }
+    /** Exact body preset; persistent native spell authorship leaves converted mobs alive after caster death. */
+    boolean summonVoidMan(ServerPlayer owner,Vec3 position){
+        callbackDepth++;try{
+            if(!valid(owner)||!ready()||prepared.spawns.isEmpty()||!owner.level().hasChunkAt(BlockPos.containing(position)))return false;
+            var mob=new Skeleton(net.minecraft.world.entity.EntityTypes.SKELETON,owner.level());
+            mob.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),prepared.spawns.getFirst().data.copy()));
+            mob.setPos(position);game.items().markCurrentItemEpoch(mob);mob.entityTags().add("skywars2.godclaw.voidman");
+            var source=game.items().spellSources().hostile(mob,owner,java.util.Set.of());
+            if(owner.level().addFreshEntity(mob)){
+                game.items().spellSources().bind(mob,new LbcSpellSource.Source(source.emitter(),source.author(),source.epoch(),source.cause(),source.excluded(),true));return true;
+            }
+            mob.discard();return false;
+        }finally{callbackDepth--;}
+    }
     public void trial(ServerPlayer owner) {
         callbackDepth++;try{
         if(!valid(owner) || !ready()) return;

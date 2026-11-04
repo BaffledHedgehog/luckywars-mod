@@ -21,7 +21,6 @@ public final class LbcNyauwuArmor {
     static final Identifier SPEED=Identifier.parse("minecraft:916c89e6-ae62-4b11-91d7-10e7e57c726d");
     private static final AttributeModifier SPEED_MODIFIER=new AttributeModifier(SPEED,1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
-    private static final TagKey<EntityType<?>> MAGIC_MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:magic_mobs"));
     private static final TagKey<EntityType<?>> UNHOLY=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:unholy_monsters"));
     private static final TagKey<Block> WATER=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:water"));
     private static final EquipmentSlot[] SLOTS={EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET};
@@ -89,7 +88,7 @@ public final class LbcNyauwuArmor {
         var damage=player.damageSources().source(DamageTypes.ARROW,player,player);
         // Type membership is specific to Nyauwu's pulse; shared purge classification stays actor-based.
         for(var target:targets)if(!friendly(player,target)&&targetAllowed(target)
-                &&(target.getType().builtInRegistryHolder().is(MAGIC_MOBS)||game.items().magic().magical(target)))
+                &&game.items().magic().magicalMob(target))
             target.hurtServer(player.level(),damage,25);
     }
     /** The chest bonus belongs only to an accepted real melee hit, never attributed pet damage. */

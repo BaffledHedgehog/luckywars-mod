@@ -340,6 +340,7 @@
     "PendingSwordAttackMixin",
     "ShishInteractionMixin",
     "IncomingArtifactCriterionMixin",
+    "OutgoingSkillCriterionMixin",
     "IncomingArtifactCriterionMixin$HurtAttempt",
     "IncomingArtifactCriterionMixin$SandPhysics",
     "IncomingArtifactCriterionMixin$WolfTarget",

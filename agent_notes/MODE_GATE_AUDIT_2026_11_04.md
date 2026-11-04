@@ -1,5 +1,7 @@
 # Remaining mode / kit gate audit — 4 November 2026
 
+Follow-up: skills23/29/33/34 now have native implementations and qualification work recorded in [ADVANCED_SKILLS_PORT_2026_11_04.md](ADVANCED_SKILLS_PORT_2026_11_04.md). The HEAD-f804e140 catalog audit below is historical.
+
 Read-only audit of HEAD f804e140. Only this unique note was written. No Java,
 resources, builds, server, RP or protected author WIP changed. AGENTS and Serena
 manual read; Serena symbol lookup returned a cross-drive C:/E: ValueError, so

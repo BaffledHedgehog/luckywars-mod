@@ -1,3 +1,34 @@
+## God Claw / Mana Vampirism / Champion / Stone Golem - QUALIFIED, INSTALLED (4 November 2026)
+
+[Author rulings, source closure and exact evidence](agent_notes/ADVANCED_SKILLS_PORT_2026_11_04.md).
+AUTHOR: GodClaw23/ManaVampire29/StoneGolem34 MAG; Champion33 UNJAMMABLE.
+GodClaw permanently removes/transforms Chef; Vampire actual victim only;
+Golem source second-layer2HP retained (both code and lore). Source icons/gates/
+menu pages10000/10100/status glyphs retained;4new ready catalog entries, no RP edits.
+
+Virtual owned GodClaw6+20frontier/40percent/source26attribute gains, bounded fair
+work/tickets/no per-cell entities or global scans. Logical generations can extend
+under load; no dropped accepted cells. Canonical whole-stack->ONE immune Liquid
+Abyss, shared40HP10attack VoidMan preset with persistent native source ownership,
+protected roles/helpers, native Chef family erasure. Typed RNG/cursors/frontier
+join whole coordinator; native bodies/source maps own outputs, no private rewind.
+
+Native outgoing/incoming criteria include source fatal/resisted/shield events;
+Vamp acceptable arrows/player attacks,15magic attempt/source hurt cooldown,
+1000mana/debit,pre-check max+5000/native one-tick HealI/int bounds. Shared raw
+magic-mob list reused by Nyauwu, purge unchanged. Champion exact owned modifiers
++20armor/+5toughness or+6attack; source nonarrow trigger. Golem real10seconds/layer,
+cap5/hidden resistance, native attempt-local taken/resisted stats (not shield),
+no stale/global2tick reset. TimeStop/scalar phase/RNG/nonempty full rewind covered.
+
+Testea9d5066 / production7b262c21:15groups/15actual mode1matches passed exact JAR,
+19freshJavafamilies/2resources,9937otherinputs/272authorpaths guarded. Every ZIP
+entry verified, authoring absent production. Fixture normal/exact/no locks.
+Both build/libs/main JAR updated with b9e191a9rollback,restarted:false. No main
+stop/start, physical-client/audio or peakTPS claim. Other mode/skill2/TMT/fullrewind
+gates unchanged; TMT LAST. admin_zaika active ability still unported (status checked).
+Evidence:build/verification/advanced-skills-2026-11-04/.
+
 ## November lightsabers / Pozdman / Cursed Pumpkin - QUALIFIED, INSTALLED (4 November 2026)
 
 [Author decisions, source closure and exact evidence](agent_notes/SEASONAL_NOVELTY_PORT_2026_11_04.md).
