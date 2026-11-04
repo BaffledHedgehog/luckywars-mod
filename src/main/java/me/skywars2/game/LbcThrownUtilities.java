@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -16,7 +17,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
@@ -26,9 +29,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/** Three source utilities using vanilla transport and the shared Psycho, inventory and pipe owners. */
+/** Source utilities using vanilla transport and the shared Psycho, inventory and pipe owners. */
 public final class LbcThrownUtilities {
-    public enum Kind { RUCHKA, HONEW, THROWABLE_METAL_PIPE }
+    public enum Kind { RUCHKA, HONEW, THROWABLE_METAL_PIPE, BUCKET }
     /** Author decisions can change suppression without changing native launch/debit ownership. */
     public interface Policy {
         default boolean allowsLaunch(Kind kind,ServerPlayer owner){return true;}
@@ -51,10 +54,10 @@ public final class LbcThrownUtilities {
     public void policy(Policy policy){this.policy=java.util.Objects.requireNonNull(policy);}
     public static Kind kind(ItemStack stack){
         if(stack.isEmpty())return null;
-        var data=LbcFartus.data(stack);
-        if(data.getIntOr("ruchka",0)==1)return Kind.RUCHKA;
-        if(data.getIntOr("honew",0)==1)return Kind.HONEW;
-        if(data.getIntOr("throwable_metal_pipe",0)==1)return Kind.THROWABLE_METAL_PIPE;
+        if(ItemData.intValue(stack,"ruchka",0)==1)return Kind.RUCHKA;
+        if(ItemData.intValue(stack,"honew",0)==1)return Kind.HONEW;
+        if(ItemData.intValue(stack,"throwable_metal_pipe",0)==1)return Kind.THROWABLE_METAL_PIPE;
+        if(ItemData.intValue(stack,"bucket",0)==1)return Kind.BUCKET;
         return null;
     }
     public static boolean matches(ItemStack stack){return kind(stack)!=null;}
@@ -128,8 +131,9 @@ public final class LbcThrownUtilities {
         if(nearest==null||!policy.allowsPayload(state.kind(),owner,nearest))return;
         // Persist the claim before any effect/inventory callback can synchronously re-enter this dispatcher.
         write(shot,new Flight(state.kind(),state.author(),state.epoch(),true));unloaded(shot);
-        try{if(state.kind()==Kind.RUCHKA){ruchka(owner,nearest);burst((ServerLevel)shot.level(),shot.position(),Kind.RUCHKA);}
-            else{honey(owner,nearest);burst((ServerLevel)shot.level(),shot.position(),Kind.HONEW);}}
+        try{if(state.kind()==Kind.RUCHKA){ruchka(owner,nearest);burst((ServerLevel)shot.level(),nearest.position(),Kind.RUCHKA);}
+            else if(state.kind()==Kind.BUCKET){bucket(shot,owner,nearest);}
+            else{honey(owner,nearest);burst((ServerLevel)shot.level(),nearest.position(),Kind.HONEW);}}
         finally{shot.discard();}
     }
     /** Optional native onHit HEAD seam ensures a final proximity attempt at a collision point. */
@@ -156,6 +160,33 @@ public final class LbcThrownUtilities {
             if(level.addFreshEntity(item))target.getInventory().setItem(slot,ItemStack.EMPTY);
         }
         target.getInventory().setChanged();game.items().magic().inventoryChanged(target);target.containerMenu.broadcastChanges();
+    }
+    private void bucket(Snowball shot,ServerPlayer owner,ServerPlayer target){
+        var level=target.level();
+        if(!game.items().inventoryHazards().protectedInventory(target)){
+            // Resolve the authored equipment before publishing or removing the exact occupied head slot.
+            var output=game.lbc().rollTable(level,target.position(),target,"lbc:imba/bucket_head");
+            if(output.size()==1&&output.getFirst().is(Items.LEATHER_HELMET)
+                    &&output.getFirst().getCount()==1&&ItemData.intValue(output.getFirst(),"bucket_head",0)==1){
+                var previous=target.getItemBySlot(EquipmentSlot.HEAD);boolean published=previous.isEmpty();
+                if(!previous.isEmpty()){
+                    // Copy all nested components and existing producer provenance; this is an ejection, not new loot.
+                    var at=target.position();var item=new ItemEntity(level,at.x,at.y,at.z,previous.copy());
+                    item.setPickUpDelay(0);game.items().markCurrentItemEpoch(item);
+                    published=level.addFreshEntity(item);
+                }
+                if(published){
+                    target.setItemSlot(EquipmentSlot.HEAD,output.getFirst());
+                    target.getInventory().setChanged();game.items().magic().inventoryChanged(target);
+                    target.containerMenu.broadcastChanges();
+                }
+            }
+        }
+        // A real projectile source retains caster attribution without becoming an accepted melee hit.
+        var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.GENERIC),shot,owner);
+        target.hurtServer(level,damage,5);
+        for(int i=0;i<10;i++)LbcOverload.sound(level,target.position(),"minecraft:lbcsounds.bell",10,1,5,0);
     }
     private static void burst(ServerLevel level,Vec3 at,Kind kind){
         String sound=kind==Kind.RUCHKA?"minecraft:entity.slime.jump_small":"minecraft:entity.slime.jump";

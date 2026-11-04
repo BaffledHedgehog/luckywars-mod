@@ -27,6 +27,26 @@ dependencies {
 }
 
 processResources {
+    // Closed source wool palette and native Bucket payload; canonical definitions stay shared.
+    include 'data/lbc/loot_table/imba/bucket_head.json', 'data/lbc/loot_table/imba/bucket_rofl.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/black_wool__4898c4b96d84.json', 'data/lbc/loot_table/item_defs/minecraft/blue_wool__2f69975e54fb.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/brown_wool__b312558e87df.json', 'data/lbc/loot_table/item_defs/minecraft/cyan_wool__d444874dfbc9.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/gray_wool__525ad041fe91.json', 'data/lbc/loot_table/item_defs/minecraft/green_wool__6837829ec4e6.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/light_blue_wool__2ed8106a9a81.json', 'data/lbc/loot_table/item_defs/minecraft/light_gray_wool__a607ec8f7b68.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/lime_wool__2639d7aef821.json', 'data/lbc/loot_table/item_defs/minecraft/magenta_wool__d1ff0658727e.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/orange_wool__d118bf645c65.json', 'data/lbc/loot_table/item_defs/minecraft/pink_wool__0fff039b00a5.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/purple_wool__ca3dfb15d6dd.json', 'data/lbc/loot_table/item_defs/minecraft/red_wool__6c9af4cd123f.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/white_wool__1377810d0ecb.json', 'data/lbc/loot_table/item_defs/minecraft/yellow_wool__51a5d679e394.json'
+    include 'data/lbc/loot_table/ported/bucket_head.json', 'data/lbc/loot_table/ported/bucket_projectile.json'
+    include 'data/lbc/loot_table/ported/wool_trail_black.json', 'data/lbc/loot_table/ported/wool_trail_blue.json'
+    include 'data/lbc/loot_table/ported/wool_trail_brown.json', 'data/lbc/loot_table/ported/wool_trail_cyan.json'
+    include 'data/lbc/loot_table/ported/wool_trail_gray.json', 'data/lbc/loot_table/ported/wool_trail_green.json'
+    include 'data/lbc/loot_table/ported/wool_trail_light_blue.json', 'data/lbc/loot_table/ported/wool_trail_light_gray.json'
+    include 'data/lbc/loot_table/ported/wool_trail_lime.json', 'data/lbc/loot_table/ported/wool_trail_magenta.json'
+    include 'data/lbc/loot_table/ported/wool_trail_orange.json', 'data/lbc/loot_table/ported/wool_trail_pink.json'
+    include 'data/lbc/loot_table/ported/wool_trail_purple.json', 'data/lbc/loot_table/ported/wool_trail_red.json'
+    include 'data/lbc/loot_table/ported/wool_trail_white.json', 'data/lbc/loot_table/ported/wool_trail_yellow.json'
+    include 'data/lbc/loot_table/ported/wool_trails.json'
     // Source throwable utilities reference their one canonical definition.
     include 'data/lbc/loot_table/item_defs/lbc/ruchka__bf1f679a17b1.json'
     include 'data/lbc/loot_table/item_defs/minecraft/honey_block__e4ec8e496182.json'

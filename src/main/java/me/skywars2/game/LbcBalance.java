@@ -21,6 +21,10 @@ import net.minecraft.world.phys.Vec3;
 
 /** Balance is a controller-owned mode overlay. This service owns only its old equipment clocks. */
 public final class LbcBalance {
+    public interface WoolPolicy {
+        default boolean allowsLaunch(ServerPlayer owner,InteractionHand hand){return true;}
+        default boolean allowsField(ServerLevel level,Vec3 position){return true;}
+    }
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private final GameController game;
     private final Consumer<ServerPlayer> activate;
@@ -59,6 +63,11 @@ public final class LbcBalance {
     public static boolean isDrop(ItemStack stack){return LbcBalanceExtras.isDrop(stack);}
     public boolean drop(net.minecraft.world.entity.item.ItemEntity token){return extras.drop(token);}
     public void damaged(ServerPlayer owner){extras.damaged(owner);}
+    public void woolPolicy(WoolPolicy policy){extras.woolPolicy(policy);}
+    public boolean woolAllowed(ServerPlayer owner,InteractionHand hand){return extras.woolAllowed(owner,hand);}
+    public List<net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball> trailActors(){return extras.trailActors();}
+    public net.minecraft.world.item.DyeColor trailColor(Entity actor){return extras.trailColor(actor);}
+    public LbcIndirectKills.Owner trailCause(Entity actor){return extras.trailCause(actor);}
     public boolean explosiveBow(ServerPlayer owner,ItemStack weapon,List<net.minecraft.world.entity.projectile.Projectile> family){return explosive.convert(owner,weapon,family);}
     public boolean beforeTnt(net.minecraft.world.entity.item.PrimedTnt body){return explosive.beforeTick(body);}
     public void exploding(net.minecraft.world.entity.item.PrimedTnt body){explosive.exploding(body);}

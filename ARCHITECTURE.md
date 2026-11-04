@@ -1,3 +1,24 @@
+## Sixteen wool trails and Bucket - QUALIFIED, INSTALLED (5 November 2026)
+
+[Source rules, implementation and proof](agent_notes/WOOL_BUCKET_2026_11_05.md).
+Sixteen native wool colors share the existing Most engine: AIR-only four-cell
+resident writes, cached color/creator and shared terrain/BedWars protection.
+Native Bucket preserves exact helmet/drop, ProtectedInventory, generic5 damage
+and target-centered ten bells. Source helmet's four old loot modifier keys now
+use native codec names with every value preserved. Ruchka/Honew secondary FX
+origins corrected to target feet. Native TimeStop/x2*x4/partial whole replay pass.
+Colors now use authorTECH20; Bucket stays unjammed and its old helmet is dropped
+with native immediate pickup. MostTECH20 stays. Source group remains64 rolls
+of16. Original models/RP remain unchanged.
+
+Testa4d09eb0 /production638e6859:10groups/10isolated matches (6mode1,4mode3)
+pass exact archive.9freshJavafamilies/37resources,10051otherinputs/275authorpaths
+guarded; all ZIP entries and retained3201class references checked. Both
+build/libs/main updated with02284b2a rollback; no main stop/start or push.
+Ready ported leaves enabled; full IMBA root/TMT-last/modes2,4/skill2/broad rewind
+gates unchanged. No physical-client/audio/peakTPS/disk-restart claim. Evidence:
+build/verification/wool-bucket-2026-11-05/qualification.json.
+
 ## Ruchka, Honew and throwable Metal Pipe - QUALIFIED, INSTALLED (4 November 2026)
 
 [Author rules, source contracts and evidence](agent_notes/THROWN_UTILITIES_2026_11_04.md).

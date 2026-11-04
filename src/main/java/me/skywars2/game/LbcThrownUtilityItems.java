@@ -20,6 +20,7 @@ public final class LbcThrownUtilityItems {
     public static final Item RUCHKA=token("ruchka","/data/lbc/loot_table/item_defs/lbc/ruchka__bf1f679a17b1.json");
     public static final Item HONEW=token("honew","/data/lbc/loot_table/item_defs/minecraft/honey_block__e4ec8e496182.json");
     public static final Item THROWABLE_METAL_PIPE=token("throwable_metal_pipe","/data/lbc/loot_table/item_defs/lbc/metal_pipe__b63902a52716.json");
+    public static final Item BUCKET_PROJECTILE=token("bucket_projectile","/data/lbc/loot_table/imba/bucket_rofl.json");
     private LbcThrownUtilityItems(){}
     public static void register(){}
     private static Item token(String id,String resource){

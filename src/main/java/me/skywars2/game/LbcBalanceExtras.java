@@ -1,6 +1,12 @@
 package me.skywars2.game;
 
 import java.util.*;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.*;
@@ -21,11 +27,23 @@ import net.minecraft.world.phys.Vec3;
 /** The four additional old-pool leaves have concrete event intake, native bodies and source geometry. */
 final class LbcBalanceExtras {
     private final GameController game;
-    private final Set<Snowball> bridges=Collections.newSetFromMap(new IdentityHashMap<>());
+    private record Trail(boolean most,DyeColor color,LbcIndirectKills.Owner cause){}
+    private static final List<DyeColor> SOURCE_COLORS=Arrays.stream(DyeColor.values())
+            .sorted(Comparator.comparing(color->color.name().toLowerCase(Locale.ROOT))).toList();
+    private static final AttachmentType<CompoundTag> TRAIL_CAUSE=AttachmentRegistry.create(
+            Identifier.parse("skywars2:wool_trail_cause"),builder->builder.persistent(CompoundTag.CODEC));
+    private final Map<Snowball,Trail> bridges=new IdentityHashMap<>();
+    private LbcBalance.WoolPolicy woolPolicy=new LbcBalance.WoolPolicy(){};
     private final Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Entity> luckyMarkers=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<ServerLevel,Integer> phases=new IdentityHashMap<>();
     LbcBalanceExtras(GameController game){this.game=game;}
+    static void register(){}
+    void woolPolicy(LbcBalance.WoolPolicy policy){woolPolicy=Objects.requireNonNull(policy);}
+    boolean woolAllowed(ServerPlayer owner,InteractionHand hand){return woolPolicy.allowsLaunch(owner,hand);}
+    List<Snowball> trailActors(){return List.copyOf(bridges.keySet());}
+    DyeColor trailColor(Entity actor){var state=bridges.get(actor);return state==null?null:state.color;}
+    LbcIndirectKills.Owner trailCause(Entity actor){var state=bridges.get(actor);return state==null?null:state.cause;}
     static boolean isDrop(ItemStack stack){return LbcBalanceItems.flag(stack,"drop")&&LbcBalanceItems.flag(stack,"luckyspawner_old");}
     void damaged(ServerPlayer owner){
         if(!game.playing()||!game.canUseGameplayItems(owner)||game.isObserver(owner)||!game.items().wands().validRoleTarget(owner,true)
@@ -63,17 +81,43 @@ final class LbcBalanceExtras {
     }
     private void insert(ServerPlayer owner,Entity body){game.items().summons().track(owner,body);game.items().timeStop().prepareFrozen(body);actors.add(body);if(!owner.level().addFreshEntity(body)){actors.remove(body);body.discard();}}
     void loaded(Entity body){
-        if(body instanceof Snowball snowball&&LbcBalanceItems.flag(snowball.getItem(),"projegadget")&&LbcBalanceItems.flag(snowball.getItem(),"most")){game.items().markCurrentItemEpoch(body);bridges.add(snowball);}
+        if(body instanceof Snowball snowball&&!bridges.containsKey(snowball)){
+            var data=LbcFartus.data(snowball.getItem());
+            if(data.getIntOr("projegadget",0)==1){
+                boolean most=data.getIntOr("most",0)==1;DyeColor color=null;
+                if(data.getIntOr("wool",0)==1)for(var candidate:SOURCE_COLORS)
+                    if(data.getIntOr(candidate.name().toLowerCase(Locale.ROOT),0)==1){color=candidate;break;}
+                if(most||color!=null){
+                    LbcIndirectKills.Owner cause=null;var saved=snowball.getAttached(TRAIL_CAUSE);
+                    if(saved!=null){try{cause=game.items().indirectKills().restoreColdCause(UUID.fromString(saved.getStringOr("author","")),saved.getLongOr("order",0),true);}catch(IllegalArgumentException invalid){return;}}
+                    else if(snowball.getOwner() instanceof ServerPlayer owner){
+                        cause=game.items().indirectKills().coldCause(owner,true);var tag=new CompoundTag();
+                        tag.putString("author",cause.player().toString());tag.putLong("order",cause.order());snowball.setAttached(TRAIL_CAUSE,tag);
+                    }
+                    if(!game.items().currentEpoch(body)&&game.items().hasStaleItemEpoch(body))return;
+                    game.items().markCurrentItemEpoch(body);bridges.put(snowball,new Trail(most,color,cause));
+                }
+            }
+        }
         if(body.entityTags().contains("skywars2.balance.lucky_marker"))luckyMarkers.add(body);
     }
     void unloaded(Entity body){bridges.remove(body);luckyMarkers.remove(body);}
     void tick(){
         actors.removeIf(Entity::isRemoved);
-        for(var ball:List.copyOf(bridges)){
+        for(var ball:List.copyOf(bridges.keySet())){
             if(ball.isRemoved()||!game.items().currentEpoch(ball)){bridges.remove(ball);continue;}
-            var level=(ServerLevel)ball.level();if(game.items().timeStop().stopped(level)||game.items().timeStop().frozen(ball)||ball.entityTags().contains("time_stopped")||game.items().magic().mechanismSuppressedAt(level,ball.position()))continue;
+            var level=(ServerLevel)ball.level();if(!game.playing()||game.stage()==GameController.Stage.ENDING||game.maps().busy()
+                    ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen()
+                    ||level!=game.maps().level()||!LbcDimensionItems.ordinary(level)||!LbcBedwarsRoleGuards.publication(level)
+                    ||game.items().timeStop().stopped(level)||game.items().timeStop().frozen(ball)||ball.entityTags().contains("time_stopped"))continue;
+            var trail=bridges.get(ball);
+            // Source runs Most first; later color fills can only occupy cells which are still actual AIR.
+            var color=trail.most&&!game.items().magic().mechanismSuppressedAt(level,ball.position(),20)?DyeColor.LIME
+                    :trail.color!=null&&woolPolicy.allowsField(level,ball.position())?trail.color:null;
+            if(color==null)continue;
             var min=BlockPos.containing(ball.position().add(-.5,-2.5,-.5));var max=BlockPos.containing(ball.position().add(.5,-2.5,.5));
-            for(var pos:BlockPos.betweenClosed(min,max))if(level.hasChunkAt(pos)&&level.getBlockState(pos).is(Blocks.AIR))level.setBlock(pos,Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.LIME).defaultBlockState(),2|16|32);
+            for(var pos:BlockPos.betweenClosed(min,max))if(level.hasChunkAt(pos)&&level.getBlockState(pos).is(Blocks.AIR))
+                game.items().writeOwnedTerrain(level,pos.immutable(),Blocks.WOOL.pick(color).defaultBlockState(),trail.cause);
         }
         var worlds=Collections.newSetFromMap(new IdentityHashMap<ServerLevel,Boolean>());
         for(var marker:List.copyOf(luckyMarkers)){
@@ -86,9 +130,9 @@ final class LbcBalanceExtras {
         }
         for(var level:worlds)phases.put(level,phases.getOrDefault(level,0)+1);
     }
-    void stop(){var bodies=new ArrayList<Entity>(actors);bodies.addAll(bridges);bodies.addAll(luckyMarkers);actors.clear();bridges.clear();luckyMarkers.clear();phases.clear();bodies.forEach(Entity::discard);}
+    void stop(){var bodies=new ArrayList<Entity>(actors);bodies.addAll(bridges.keySet());bodies.addAll(luckyMarkers);actors.clear();bridges.clear();luckyMarkers.clear();phases.clear();bodies.forEach(Entity::discard);}
     MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
-        var savedActors=actors.stream().map(links::key).toList();var savedBridges=bridges.stream().map(links::key).toList();var savedMarkers=luckyMarkers.stream().map(links::key).toList();var savedPhases=new IdentityHashMap<>(phases);
-        return current->{var bodies=savedActors.stream().map(current::get).toList();var balls=savedBridges.stream().map(r->(Snowball)current.get(r)).toList();var markers=savedMarkers.stream().map(current::get).toList();return ()->{actors.clear();actors.addAll(bodies);bridges.clear();bridges.addAll(balls);luckyMarkers.clear();luckyMarkers.addAll(markers);phases.clear();phases.putAll(savedPhases);};};
+        var savedActors=actors.stream().map(links::key).toList();var savedBridges=new LinkedHashMap<MatchDamageSources.Ref,Trail>();bridges.forEach((ball,trail)->savedBridges.put(links.key(ball),trail));var savedMarkers=luckyMarkers.stream().map(links::key).toList();var savedPhases=new IdentityHashMap<>(phases);
+        return current->{var bodies=savedActors.stream().map(current::get).toList();var balls=new IdentityHashMap<Snowball,Trail>();savedBridges.forEach((ref,trail)->balls.put((Snowball)current.get(ref),trail));var markers=savedMarkers.stream().map(current::get).toList();return ()->{actors.clear();actors.addAll(bodies);bridges.clear();bridges.putAll(balls);luckyMarkers.clear();luckyMarkers.addAll(markers);phases.clear();phases.putAll(savedPhases);};};
     }
 }
