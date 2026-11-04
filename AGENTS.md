@@ -1,3 +1,22 @@
+## Mellstroy mask - QUALIFIED, INSTALLED (4 November 2026)
+
+[Source chain, native behavior and exact proof](agent_notes/MELLSTROY_NATIVE_PORT_2026_11_04.md).
+Exact Polymer source mask and native 2x2/3x3/ground recipe, source equipment/music,
+MAG owner buffs and target-protected hostile aura; TECH shared queued342-block
+precise eye-ray stops at first wall. Canonical atomic70/30 casino, corrected
+independent memcoin delta, typed partial ray/music/RNG/profile whole replay.
+Existing HQ10000 conditional native lucky branch verified without generating
+unready rewards; no reweighting, function interpreter or new economy/ray engine.
+
+Test5b16c4e0 /production359a1d08:11groups/11actual matches (8mode1,3mode3)
+pass exact archive.11freshJavafamilies/4resources,10022otherinputs/275authorpaths
+guarded, all ZIP entries verified, retained3122class references checked. Both
+build/libs/main updated,e0e4a4ee rollback,restarted:false; no main stop/start.
+RP unchanged; no physical-client/audio/peakTPS/crash-kill claim. Music restarts at0
+on rewind. Cunny, disabled time fragments and individual overhead suffixes pending;
+TMT LAST, modes2/4,skill2/full rewind gates unchanged. Exact evidence:
+build/verification/mellstroy-2026-11-04/qualification.json.
+
 ## Night answers / Imba Axe, Phoenix and Cinema - QUALIFIED, INSTALLED (4 November 2026)
 
 [Author decisions, current behavior, commands and remaining work](agent_notes/NIGHT_ANSWERS_IMPLEMENTATION_2026_11_04.md).

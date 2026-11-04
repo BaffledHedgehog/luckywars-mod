@@ -297,7 +297,7 @@ public final class LbcMagic {
 
     public void inventoryChanged(ServerPlayer player) {
         dirtyInventories.add(player.getUUID()); pendingCleansing.add(player.getUUID());
-        game.items().mana().inventoryChanged(player);
+        game.items().mellstroy().inventoryChanged(player);game.items().mana().inventoryChanged(player);
         game.items().shulkerArmor().inventoryChanged(player);
         game.items().armorSets().inventoryChanged(player);game.items().shishEncounter().inventoryChanged(player);
     }

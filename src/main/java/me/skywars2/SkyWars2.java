@@ -241,6 +241,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.ItemData.intValue(owner.getItemInHand(hand),"mellstroy_mask",0)==1){
+                if(game.vanity().blocked(owner))return InteractionResult.FAIL;
+                return game.items().useMellstroy(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            }
             if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
                 return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
@@ -395,6 +399,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
             var seasonal=seasonalUse(player,hand);if(seasonal!=InteractionResult.PASS)return seasonal;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.ItemData.intValue(owner.getItemInHand(hand),"mellstroy_mask",0)==1){
+                if(game.vanity().blocked(owner))return InteractionResult.FAIL;
+                return game.items().useMellstroy(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            }
             if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
                 return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useBlock(owner, hand, hit)) return InteractionResult.SUCCESS;

@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 /** Общий native shapeless-контейнер: matches/preview не расходуют предметы и не запускают эффекты. */
 public final class LbcCraftingRecipe extends CustomRecipe {
     public enum Kind {
+        MELLSTROY("mellstroy_mask",null),
         INFINITE_SHULKER("infinite_shulker_upgrade",null),
         LUCKY_SHULKER("lucky_shulker_upgrade",null),
         PHD("phd",null),
@@ -106,6 +107,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(kind==Kind.TINY_REFORGE) return craftingKind(input)==kind ? LbcTinyReforge.placeholder() : ItemStack.EMPTY;
         if(kind==Kind.REROLL_MACHINE) return craftingKind(input)==kind ? LbcRerollCrafting.placeholder() : ItemStack.EMPTY;
         if(craftingKind(input)!=kind) return ItemStack.EMPTY;
+        if(kind==Kind.MELLSTROY)return LbcMellstroyCrafting.result(game);
         if(LbcNyauwuCrafting.kind(input)==kind)return LbcNyauwuCrafting.assemble(game,input);
         if(LbcNyauwuCrafting.mk2Kind(input)==kind)return LbcNyauwuCrafting.assembleMk2(game,input);
         if(kind==Kind.FLYING_BOOTS)return LbcNyauwuCrafting.assembleFlyingBoots(game,input);
@@ -137,6 +139,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
 
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
+        if(LbcMellstroyCrafting.matches(input))return Kind.MELLSTROY;
         if(LbcPhdCrafting.matches(input))return Kind.PHD;
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
         var shulker=LbcInfiniteShulker.recipeKind(input);if(shulker!=null)return shulker;
@@ -376,6 +379,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** (user) 60% сохранения донора: случайность только при настоящем расходе, не при preview. */
     @Override
     public net.minecraft.core.NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+        if(kind==Kind.MELLSTROY)return net.minecraft.core.NonNullList.withSize(input.size(),ItemStack.EMPTY);
         if(kind==Kind.PHD)return LbcPhdCrafting.remaining(input);
         if((kind==Kind.FEVGALEA||LbcNyauwuCrafting.kind(input)==kind||LbcNyauwuCrafting.mk2Kind(input)==kind||kind==Kind.FLYING_BOOTS)&&craftingKind(input)==kind)
             return net.minecraft.core.NonNullList.withSize(input.size(),ItemStack.EMPTY);
@@ -412,6 +416,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null||kind==Kind.PHD) return;
+        if(kind==Kind.MELLSTROY){LbcMellstroyCrafting.crafted(game,player.level(),player.position(),player);return;}
         if(kind==Kind.INFINITE_SHULKER||kind==Kind.LUCKY_SHULKER){LbcInfiniteShulker.crafted(player.level(),player.position(),kind);return;}
         if(LbcNyauwuCrafting.kind(input)==kind){LbcNyauwuCrafting.crafted(player.level(),player.position());return;}
         if(LbcNyauwuCrafting.mk2Kind(input)==kind){LbcNyauwuCrafting.craftedMk2(player.level(),player.position());return;}

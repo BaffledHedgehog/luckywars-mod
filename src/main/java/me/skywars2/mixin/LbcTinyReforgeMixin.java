@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class LbcTinyReforgeMixin {
     @Inject(method="clicked",at=@At("HEAD"),cancellable=true)
     private void skywars2$tinyReforge(int slot,int button,ContainerInput action,Player player,CallbackInfo ci) {
-        if(player instanceof ServerPlayer serverPlayer && (me.skywars2.game.LbcInfiniteShulker.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || me.skywars2.game.LbcPhdCrafting.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || LbcReforgeCrafting.handleClick(
+        if(player instanceof ServerPlayer serverPlayer && (me.skywars2.game.LbcInfiniteShulker.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || me.skywars2.game.LbcPhdCrafting.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || me.skywars2.game.LbcMellstroyCrafting.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || LbcReforgeCrafting.handleClick(
                 (AbstractContainerMenu)(Object)this,slot,button,action,serverPlayer))) ci.cancel();
     }
     /** Direct calls must never enter vanilla's placeholder-based transfer/repeat path. */
@@ -26,7 +26,7 @@ public abstract class LbcTinyReforgeMixin {
     public abstract static class QuickMove {
         @Inject(method="quickMoveStack",at=@At("HEAD"),cancellable=true)
         private void skywars2$tinyQuickMove(Player player,int slot,CallbackInfoReturnable<ItemStack> cir) {
-            if(player instanceof ServerPlayer serverPlayer && (me.skywars2.game.LbcInfiniteShulker.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || me.skywars2.game.LbcPhdCrafting.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || LbcReforgeCrafting.handleClick(
+            if(player instanceof ServerPlayer serverPlayer && (me.skywars2.game.LbcInfiniteShulker.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || me.skywars2.game.LbcPhdCrafting.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || me.skywars2.game.LbcMellstroyCrafting.blockTake((AbstractContainerMenu)(Object)this,slot,serverPlayer) || LbcReforgeCrafting.handleClick(
                     (AbstractContainerMenu)(Object)this,slot,0,ContainerInput.QUICK_MOVE,serverPlayer)))
                 cir.setReturnValue(ItemStack.EMPTY);
         }

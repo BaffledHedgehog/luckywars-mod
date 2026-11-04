@@ -27,6 +27,11 @@ dependencies {
 }
 
 processResources {
+    // Exact source Mellstroy mask, native recipe and authored bootstrap prototype.
+    include 'data/lbc/loot_table/mellstroy_mask.json'
+    include 'data/lbc/loot_table/item_defs/lbc/mellstroy_mask__fc2cbe716754.json'
+    include 'data/lbc/loot_table/ported/mellstroy_mask.json'
+    include 'data/skywars2/recipe/mellstroy_mask.json'
     include 'data/lbc/loot_table/stalin_ak_finite.json'
     include 'data/lbc/loot_table/ported/imba_axe.json'
     include 'data/minecraft/tags/block/mineable/axe.json'
