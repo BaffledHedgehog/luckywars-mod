@@ -85,7 +85,7 @@ final class MatchSpellCheckpoint {
         prismPlan.run();defensePlan.run();policy.run();control.run();summon.run();actors.run();danmakuState.run();bedwarsState.run();
         installed=true;published=false;
         // User permits cancellation of short pending operations at rewind. No stale charge may commit.
-        game.items().teleportGadgets().stop();
+        game.items().teleportGadgets().cancelChargesForRewind();
         // These stop methods touch only short moving electrical traces and detached star
         // actors (40/100/25 ticks), never the restored Sphere/Drone/Hammer producers.
         if(rewind){game.items().wands().stop();game.items().sauvojen().stars().stop();}

@@ -1,0 +1,44 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:white_arrow",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:whitearrow",
+                "minecraft:tooltip_style": "lbc:tier_x"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": {
+                "translate": "white_arrow",
+                "italic": false
+              }
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "white_arrow.lore",
+                  "italic": false,
+                  "color": "aqua"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{whitearrow:1,raycastspell:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

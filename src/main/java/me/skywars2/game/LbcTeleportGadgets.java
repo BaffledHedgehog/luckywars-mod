@@ -1,6 +1,13 @@
 package me.skywars2.game;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.UUID;
+import java.util.Objects;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Blocks;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -21,13 +28,34 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-/** Native map/player state stays authoritative; only a short, cancellable charge lives here. */
+/** Native teleport charges and accepted IMBA continuations share the existing map/work/checkpoint owners. */
 public final class LbcTeleportGadgets {
     static final Identifier CHARGE_SOUND=Identifier.parse("minecraft:lbcsounds.swap_charge");
     static final Identifier SUCCESS_SOUND=Identifier.parse("minecraft:lbcsounds.swap_go");
     static final String FAILURE_KEY="lbc.swapper.charge_failed";
     private final GameController game;
     private final Map<ServerPlayer,Charge> charges=new IdentityHashMap<>();
+    /** Unconfigured means disabled. Root supplies the author's admission and canonical terrain policy. */
+    public interface ImbaPolicy {
+        boolean launch(ServerPlayer player);
+        boolean write(ServerPlayer author,ServerLevel level,BlockPos at,MapManager.BlockSnapshot value,LbcIndirectKills.Owner cause);
+    }
+    private ImbaPolicy imbaPolicy;
+    public void configureImba(ImbaPolicy policy){imbaPolicy=Objects.requireNonNull(policy);}
+    public record ImbaDelay(UUID owner,ServerLevel level,String epoch,int remaining,int createdTick,LbcIndirectKills.Owner cause){}
+    public record ImbaPad(UUID owner,ServerLevel level,BlockPos origin,int cursor,long writes){}
+    public record Frozen(List<ImbaDelay> delays){public Frozen{delays=List.copyOf(delays);}}
+    private final Map<UUID,ImbaDelay> imbaDelays=new LinkedHashMap<>();
+    private final List<PadWork> pads=new ArrayList<>();
+    private boolean restoring,advancing;private int callbacks;
+    public int pendingImba(){return imbaDelays.size();}
+    public List<ImbaDelay> imbaDelays(){return List.copyOf(imbaDelays.values());}
+    public List<ImbaPad> imbaPads(){return pads.stream().map(p->new ImbaPad(p.author.getUUID(),p.level,p.origin,p.cursor,p.writes)).toList();}
+    public Frozen frozen(){checkpointBoundary();return new Frozen(List.copyOf(imbaDelays.values()));}
+    public void restoreFrozen(Frozen image){checkpointBoundary();imbaDelays.clear();for(var value:image.delays)imbaDelays.put(value.owner,value);}
+    public static BlockPos imbaPadOrigin(Vec3 current){int y=net.minecraft.util.Mth.floor(current.y);if(y<=1||y>=321)y=320;
+        return new BlockPos(net.minecraft.util.Mth.floor(current.x)-2,y-2,net.minecraft.util.Mth.floor(current.z)-2);}
+
     private static final class Charge {
         final InteractionHand hand;final ItemStack stack;final Vec3 origin;final ServerLevel level;final String epoch;
         final int createdTick;int remaining=10;
@@ -38,6 +66,7 @@ public final class LbcTeleportGadgets {
         if(stack.isEmpty())return 0;
         if(ItemData.intValue(stack,"teleport1",0)==1&&ItemData.intValue(stack,"gadget",0)==1)return 3;
         var data=LbcFartus.data(stack);
+        if(data.getIntOr("teleport1_imba",0)==1&&data.getIntOr("gadget",0)==1)return 4;
         return data.getIntOr("islandtp",0)==1?1:data.getIntOr("randtp",0)==1?2:0;
     }
     public static boolean matches(ItemStack stack){return kind(stack)!=0;}
@@ -58,7 +87,8 @@ public final class LbcTeleportGadgets {
     }
     public boolean use(ServerPlayer player,InteractionHand hand){
         var stack=player.getItemInHand(hand);int kind=kind(stack);
-        if(kind==0||!eligible(player)||game.items().actionsBlocked(player)||paused(player))return false;
+        if(restoring||kind==0||!eligible(player)||game.items().actionsBlocked(player)||paused(player))return false;
+        if(kind==4)return imba(player,stack);
         if(kind==3){
             var from=player.position();if(game.items().magic().mechanismSuppressedAt(player.level(),from,24))return false;
             var destination=from.add(player.getLookAngle().scale(5));
@@ -91,6 +121,8 @@ public final class LbcTeleportGadgets {
         return true;
     }
     public void tick(){
+        if(restoring)return;
+        tickImba();
         for(var entry:new ArrayList<>(charges.entrySet())){
             var player=entry.getKey();var charge=entry.getValue();
             if(!eligible(player)||player.level()!=charge.level||!game.items().currentEpoch(charge.epoch)
@@ -131,9 +163,68 @@ public final class LbcTeleportGadgets {
     private static void sound(ServerPlayer player,Identifier id){player.connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvent.createVariableRangeEvent(id)),SoundSource.MASTER,player.getX(),player.getY(),player.getZ(),1,1,player.getRandom().nextLong()));}
     private static void failure(ServerPlayer player){player.sendSystemMessage(Component.translatable(FAILURE_KEY).withStyle(ChatFormatting.RED));}
     private void cancel(ServerPlayer player,boolean report){if(charges.remove(player)!=null){stopSound(player);if(report&&player.isAlive()&&!player.hasDisconnected()){player.containerMenu.broadcastFullState();failure(player);}}}
-    public void forget(ServerPlayer player){cancel(player,false);}
+    public void forget(ServerPlayer player){cancel(player,false);if(restoring||MatchPlayerCheckpoint.restoring(player))return;
+        imbaDelays.remove(player.getUUID());player.entityTags().remove("syn_shlyhi");}
     /** Native packet completion catches moving away and back between two item-service ticks. */
     public void moved(ServerPlayer player){var charge=charges.get(player);if(charge!=null&&player.position().distanceToSqr(charge.origin)>1e-4)cancel(player,true);}
-    public void stop(){for(var player:new ArrayList<>(charges.keySet()))cancel(player,false);}
+    /** Existing ten-tick swap charges retain the authorized short-operation cancellation at rewind. */
+    public void cancelChargesForRewind(){for(var player:new ArrayList<>(charges.keySet()))cancel(player,false);}
+    public void stop(){cancelChargesForRewind();for(var id:List.copyOf(imbaDelays.keySet())){var player=game.server().getPlayerList().getPlayer(id);if(player!=null)player.entityTags().remove("syn_shlyhi");}
+        imbaDelays.clear();for(var pad:List.copyOf(pads))pad.cancel();pads.clear();}
+
+    private boolean imba(ServerPlayer player,ItemStack stack){
+        if(imbaPolicy==null||!imbaPolicy.launch(player))return false;
+        callbacks++;try{var from=player.position();var destination=from.add(player.getLookAngle().scale(1488));
+            player.level().sendParticles(ParticleTypes.REVERSE_PORTAL,from.x,from.y+1,from.z,200,.2,.4,.2,.3);
+            game.items().mana().score(player,"void_resistance").add(30);
+            player.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,600,0),player);
+            LbcOverload.sound(player,from,"minecraft:entity.enderman.teleport",3,1,0);
+            // Source continues to its tag/schedule even when the native teleport command cannot move.
+            move(player,destination,player.getYRot(),player.getXRot());
+            player.entityTags().add("syn_shlyhi");imbaDelays.put(player.getUUID(),new ImbaDelay(player.getUUID(),player.level(),game.items().epoch(),20,game.server().getTickCount(),game.items().indirectKills().coldCause(player,false)));
+            debit(player,stack);return true;
+        }finally{callbacks--;}
+    }
+    private void tickImba(){advancing=true;try{for(var delay:List.copyOf(imbaDelays.values())){
+        var player=game.server().getPlayerList().getPlayer(delay.owner);
+        if(player==null||!eligible(player)||player.level()!=delay.level||!game.items().currentEpoch(delay.epoch)){
+            imbaDelays.remove(delay.owner);if(player!=null)player.entityTags().remove("syn_shlyhi");continue;}
+        if(paused(player)||game.server().getTickCount()==delay.createdTick)continue;
+        if(delay.remaining>1){imbaDelays.put(delay.owner,new ImbaDelay(delay.owner,delay.level,delay.epoch,delay.remaining-1,delay.createdTick,delay.cause));continue;}
+        imbaDelays.remove(delay.owner);player.entityTags().remove("syn_shlyhi");
+        var pad=new PadWork(player,delay.level,delay.epoch,imbaPadOrigin(player.position()),delay.cause);
+        pads.add(pad);game.items().stonekivi().queuedWork(pad);
+    }}finally{advancing=false;}}
+    private final class PadWork implements LbcStonekivi.Work {
+        ServerPlayer author;final ServerLevel level;final String epoch;final BlockPos origin;final LbcIndirectKills.Owner cause;
+        int cursor;long writes;boolean closed;
+        PadWork(ServerPlayer author,ServerLevel level,String epoch,BlockPos origin,LbcIndirectKills.Owner cause){this.author=author;this.level=level;this.epoch=epoch;this.origin=origin;this.cause=cause;}
+        public boolean ready(){return !restoring&&(closed||!game.items().timeStop().stopped(level)&&!game.items().timeStop().frozen(author)&&!game.items().wands().timeStopped());}
+        public boolean snapshotIdle(){return true;}
+        public boolean postgame(){return true;}
+        public boolean step(){if(restoring)return false;callbacks++;game.items().stonekivi().beginNativeWork();try{
+            if(closed)return true;if(!game.items().currentEpoch(epoch)){cancel();return true;}if(!ready())return false;
+            long deadline=Math.min(EffectTerrain.deadlineNanos(),System.nanoTime()+350_000);
+            while(cursor<25&&System.nanoTime()<deadline){var at=origin.offset(cursor/5,0,cursor%5);
+                if(!level.isInValidBounds(at)){cursor++;continue;}
+                if(!level.hasChunkAt(at)){game.maps().prepareChunk(level,new ChunkPos(at.getX()>>4,at.getZ()>>4));return false;}
+                if(imbaPolicy==null)return false;
+                var value=new MapManager.BlockSnapshot(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE).defaultBlockState(),null);
+                if(imbaPolicy.write(author,level,at,value,cause))writes++;cursor++;
+            }
+            if(cursor<25)return false;closed=true;pads.remove(this);return true;
+        }finally{game.items().stonekivi().endNativeWork();callbacks--;}}
+        public void cancel(){closed=true;pads.remove(this);}
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            var owner=graph.links.key(author);int savedCursor=cursor;long savedWrites=writes;boolean savedClosed=closed;
+            return links->{var restored=(ServerPlayer)links.get(owner);return ()->{author=restored;cursor=savedCursor;writes=savedWrites;closed=savedClosed;};};
+        }
+    }
+    public void checkpointBoundary(){if(advancing||callbacks!=0)throw new IllegalStateException("Finish teleport gadget callbacks before checkpoint");}
+    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){checkpointBoundary();var saved=frozen();var accepted=List.copyOf(pads);accepted.forEach(graph::capture);
+        return links->()->{restoreFrozen(saved);pads.clear();pads.addAll(accepted);};}
+    public void prepareFrozen(){checkpointBoundary();restoring=true;cancelChargesForRewind();imbaDelays.clear();pads.clear();}
+    public void cancelFrozen(){checkpointBoundary();restoring=false;}
+    public void publishFrozen(){checkpointBoundary();restoring=false;for(var id:imbaDelays.keySet()){var player=game.server().getPlayerList().getPlayer(id);if(player!=null)player.entityTags().add("syn_shlyhi");}}
     public int chargingCount(){return charges.size();}
 }

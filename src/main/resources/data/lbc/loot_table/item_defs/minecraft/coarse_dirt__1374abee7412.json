@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:coarse_dirt",
+          "name": "skywars2:dirter",
           "modifier": [
             {
               "count": 64,

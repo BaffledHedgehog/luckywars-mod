@@ -27,6 +27,14 @@ dependencies {
 }
 
 processResources {
+    // Finite native utilities retain one authored item definition per item.
+    include 'data/lbc/loot_table/item_defs/lbc/teleporter__aeae257af80d.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/coarse_dirt__1374abee7412.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/bedrock__d62764262deb.json'
+    include 'data/lbc/loot_table/god_dice.json', 'data/lbc/loot_table/white_arrow.json'
+    include 'data/lbc/loot_table/ported/teleporter_imba.json', 'data/lbc/loot_table/ported/dirter.json'
+    include 'data/lbc/loot_table/ported/bedrock_bastion.json', 'data/lbc/loot_table/ported/god_dice.json', 'data/lbc/loot_table/ported/white_arrow.json'
+    include 'data/lbc/structure/bedrock_bastion.nbt', 'data/lbc/structure/white_concrete_pad_5x1x5.nbt'
     // Exact closed native Cunny family and source data; no dynamic functions.
     include 'skywars2/cunny_items.json'
     include 'data/lbc/cunny/*.json'

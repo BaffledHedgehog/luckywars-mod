@@ -120,6 +120,14 @@ public final class LbcCloneSkills {
             var result=game.items().cunnyTerrain().cloneNearby(owner,skill,SCAN_BUDGET-visited,remaining,start+SOFT_NANOS);
             scanned+=result.scanned();operations+=result.operations();bodies+=result.bodies();remaining-=result.bodies();
         }
+        if(visited<SCAN_BUDGET&&remaining>=(skill==15?1:3)&&System.nanoTime()-start<SOFT_NANOS){
+            var result=game.items().imbaTerrainUtilities().cloneNearby(owner,skill,SCAN_BUDGET-visited,remaining,start+SOFT_NANOS);
+            scanned+=result.scanned();visited+=result.scanned();operations+=result.operations();bodies+=result.bodies();remaining-=result.bodies();
+        }
+        if(remaining>0&&System.nanoTime()-start<SOFT_NANOS){
+            var arrows=game.items().whiteArrows().cloneNearby(owner,skill,SCAN_BUDGET-visited,remaining,start+SOFT_NANOS);
+            scanned+=arrows.scanned();visited+=arrows.scanned();operations+=arrows.operations();bodies+=arrows.bodies();remaining-=arrows.bodies();
+        }
         if(remaining>0&&System.nanoTime()-start<SOFT_NANOS){
             int count=CloneVirtualAbilityStates.duplicateNear(game,owner,skill,remaining,start+SOFT_NANOS);
             remaining-=count;bodies+=count;

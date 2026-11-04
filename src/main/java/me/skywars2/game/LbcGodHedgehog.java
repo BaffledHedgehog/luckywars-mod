@@ -295,17 +295,9 @@ public final class LbcGodHedgehog {
     private void rayTick(Actor a){
         if(!resident(a.encounter.level,a.point)){remove(a);return;}
         var level=a.encounter.level;
-        var from=a.point;var to=from.add(a.direction.scale(2.5));
-        // A flat broadphase needs a numerical margin; only the native hitbox determines a hit.
-        for(var entity:level.getEntities((Entity)null,new AABB(from,to).inflate(1e-7),v->target(v,true)))
-            if(entity instanceof LivingEntity living&&LbcBeamGeometry.intersects(living.getBoundingBox(),from,to))
-                game.items().indirectKills().inheritedExecution(living,a.encounter.cause);
-        for(int n=0;n<=20;n++){
-            var p=a.point.add(a.direction.scale(n*.125));if(!resident(level,p))continue;
-            level.sendParticles(ParticleTypes.END_ROD,true,false,p.x,p.y,p.z,1,.01,.01,.01,0);
-            sound(level,p,"minecraft:block.beacon.deactivate",.02f,2,0);
-        }
-        a.point=to;a.marker.setPos(a.point);if(++a.age>=20)remove(a);
+        a.point=LbcWhiteArrows.traceStep(level,a.point,a.direction,v->target(v,true),
+                living->game.items().indirectKills().inheritedExecution(living,a.encounter.cause),p->resident(level,p));
+        a.marker.setPos(a.point);if(++a.age>=20)remove(a);
     }
     private void blastTick(){
         long deadline=System.nanoTime()+2_000_000;int turns=lasers.size();

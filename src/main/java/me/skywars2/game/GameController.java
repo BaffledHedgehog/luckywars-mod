@@ -349,7 +349,7 @@ public final class GameController {
                 && MatchTransientSpells.captureReady(this) && MatchAcademyCheckpoint.captureReady(this)
                 && MatchEncounterCheckpoint.captureReady(this) && items.sauvojen().meditation().count()==0
                 && items.duplicating().pendingCheckpointWrites()==0 && items.stonekivi().captureSettled()
-                && items.eternalWealth().captureReady() && items.nexusWires().captureReady();
+                && items.eternalWealth().captureReady() && items.nexusWires().captureReady() && items.imbaTerrainUtilities().restartSettled();
     }
     private boolean renewalPlayer(ServerPlayer player) {
         return balanceMap!=null || !player.level().dimension().equals(LbcHedgehogDimensions.IMPRINTED);

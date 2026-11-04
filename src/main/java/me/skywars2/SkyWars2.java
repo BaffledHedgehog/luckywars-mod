@@ -255,7 +255,12 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(game!=null&&player instanceof ServerPlayer owner&&LbcBalanceItems.matches(owner.getItemInHand(hand)))
                 return game.items().balance().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&game.vanity().blocked(owner))return InteractionResult.FAIL;
+            if(game!=null){var utility=me.skywars2.game.LbcImbaTerrainUtilityItems.legacyAir(level,player,hand);if(utility!=InteractionResult.PASS)return utility;}
             if (game != null && player instanceof ServerPlayer owner && game.developerTools().useItem(owner, hand)) return InteractionResult.SUCCESS;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcGodDice.matches(player.getItemInHand(hand)))
+                return me.skywars2.game.LbcGodDice.use(game,owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcWhiteArrows.matches(player.getItemInHand(hand)))
+                return game.items().whiteArrows().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTeleportGadgets.matches(player.getItemInHand(hand)))
                 return game.items().teleportGadgets().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcBouncingPoop.matches(player.getItemInHand(hand)))
@@ -423,6 +428,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
+            if(game!=null){var utility=me.skywars2.game.LbcImbaTerrainUtilityItems.legacyBlock(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(utility!=InteractionResult.PASS)return utility;}
             if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){
                 var pos=hit.getBlockPos();if(!level.getBlockState(pos).getCollisionShape(level,pos).isEmpty())pos=pos.relative(hit.getDirection());
                 return game.items().shishEncounter().useBeacon(owner,hand,net.minecraft.world.phys.Vec3.atBottomCenterOf(pos))?InteractionResult.SUCCESS:InteractionResult.FAIL;

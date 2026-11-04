@@ -1,3 +1,23 @@
+## Native IMBA utilities and God Dice - QUALIFIED, INSTALLED (4 November 2026)
+
+[Author rules, source contracts and evidence](agent_notes/IMBA_UTILITIES_2026_11_04.md).
+Five ready native items: IMBA teleporter, Dirter, Bedrock Bastion, God Dice and
+reusable White Arrow. Source hand/count/tier and all six dice outcomes retained;
+White Arrow shares God Hedgehog tracing, costs500 current/maximum mana, checks
+MAG and permanently erases Chef. Teleporter retains TECH24 and source delayed
+current-position pad/void return. Other three utilities remain unjammed.
+Exact4913-cell Bastion and Dirter strata use shared bounded terrain work;
+accepted structures, delays and rays pause with TimeStop and replay through the
+whole coordinator. Existing short swap-charge cancellation remains unchanged.
+
+Test368d1b4c /productiona26c4aad:12groups/12isolated matches (8mode1,4mode3)
+pass exact archive.18freshJavafamilies/13resources,10039otherinputs/275authorpaths
+guarded; all ZIP entries and retained3168class references checked. Both build/libs
+and main updated witha47f6a1e rollback; no main stop/start or push. Ready ported
+leaves enabled; full IMBA root, TMT-last/modes2,4/skill2/broad rewind gates unchanged.
+RP unchanged; no physical-client/audio/peakTPS claim. Evidence:
+build/verification/imba-utility-2026-11-04/qualification.json.
+
 ## Individual overhead suffixes - QUALIFIED, INSTALLED (4 November 2026)
 
 [Author rule, implementation and exact evidence](agent_notes/INDIVIDUAL_SUFFIXES_2026_11_04.md).
