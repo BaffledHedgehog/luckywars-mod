@@ -1260,6 +1260,8 @@ public final class GameChecks {
                                 case "lightning-acquisition-cleanup" -> LightningAcquisitionChecks.cleanup(game);
                                 case "lightning-rules" -> LightningRulesChecks.run(game);
                                 case "lightning-rules-chain" -> LightningRulesChecks.chain(game);
+                                case "badapple-imba" -> {BadAppleChecks.run(game);return;}
+                                case "badapple-rewind" -> {BadAppleChecks.runRewind(game);return;}
                                 case "random-levelups" -> {RemainingLevelupChecks.runRandom(game);return;}
                                 case "projectile-levelups" -> {RemainingLevelupChecks.runProjectile(game);return;}
                                 case "remaining-levelups-rewind" -> {RemainingLevelupChecks.runRewind(game);return;}
@@ -1544,7 +1546,7 @@ public final class GameChecks {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
             ContainedSkillChecks.tick(game);
-            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);RemainingLevelupChecks.tick(game);AuraPsychblindChecks.tick(game);ReactiveTrinketChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
+            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);BadAppleChecks.tick(game);RemainingLevelupChecks.tick(game);AuraPsychblindChecks.tick(game);ReactiveTrinketChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
             ArmorZeusSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);

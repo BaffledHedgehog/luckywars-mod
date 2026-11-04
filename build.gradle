@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/bad_apple_imba.json'
     // Closed overnight batch: source Touhou pool (all eleven entries), bomb and ready singleton leaves.
     include 'data/lbc/loot_table/touhou_item.json', 'data/lbc/loot_table/bomb_item.json'
     include 'data/lbc/loot_table/ported/admin_zaika.json'

@@ -1,0 +1,19 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:bad_apple_imba",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

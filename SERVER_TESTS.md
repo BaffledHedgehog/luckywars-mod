@@ -1,3 +1,20 @@
+## Bad Apple IMBA - QUALIFIED, INSTALLED (4 November 2026)
+
+[Native source chain, bounded work and exact proof](agent_notes/BADAPPLE_IMBA_PORT_2026_11_04.md).
+Distinct exact native Polymer token/ready leaf; source dropage10/60/display,
+singleton BAF2 terrain projection, four fresh floors, persistent paint. Immutable
+source10.7MB once; bounded shared native work/chunk tickets, no pixel entities/
+runtime IO/NBT scan. Accepted writes drain; unaccepted visuals may coalesce.
+TimeStop and typed partial-frame/actor/whole-coordinator replay. Question28 source
+default no extra jammer/persistent paint; canonical BedWars/role guards retained.
+Test0998bbb0 /productioneacae9a6:10groups/10actual matches (8mode1,2mode3)
+pass exact archive;8freshJavafamilies/2resources/1exactGradleinclude,10002otherinputs/
+272authorpaths unchanged, all ZIP bytes verified. Fixture normal/exact/no locks.
+Both build/libs/main updated,785d6195rollback,restarted:false; no main stop/start.
+RP unchanged. Audio restart at0 on restore, no vanilla seek/full-clip client/TPS
+claim. Full unresolved IMBA pool not exposed. TMT LAST; existing release gates
+unchanged. Night questions now33. Evidence:build/verification/badapple-native-2026-11-04/.
+
 ## Remaining selectable levelups - QUALIFIED, INSTALLED (4 November 2026)
 
 [Source, native owners and exact proof](agent_notes/REMAINING_LEVELUPS_PORT_2026_11_04.md).
