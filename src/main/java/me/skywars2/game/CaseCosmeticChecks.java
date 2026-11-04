@@ -10,6 +10,7 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.Identifier;
@@ -35,11 +36,37 @@ public final class CaseCosmeticChecks {
     private static Object get(Object object,String name){try{return field(object,name).get(object);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static void set(Object object,String name,Object value){try{field(object,name).set(object,value);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static Object invoke(Object target,String name,Class<?>[] types,Object... args){try{var method=target.getClass().getDeclaredMethod(name,types);method.setAccessible(true);return method.invoke(target,args);}catch(ReflectiveOperationException e){throw new IllegalStateException("Native fixture call "+name,e instanceof InvocationTargetException i?i.getCause():e);}}
-    public static void runCases(GameController game){start(game,0);}
+    public static void runCases(GameController game){checkDropRequests();start(game,0);}
+    public static void checkDropRequests(){
+        var profile=new PlayerStore.Profile();
+        require(LbcDropRequests.pending(profile).isEmpty(),"unearned manual requests excluded");
+        profile.legacyUnlocks.add(LbcDropRequests.fulfilledKey(2));
+        require(LbcDropRequests.pending(profile).isEmpty(),"completion alone never fabricates earned requests");
+        for(int id=1;id<=3;id++){
+            require(LbcSourceUnlocks.valid(LbcDropRequests.earnedKey(id))&&LbcSourceUnlocks.valid(LbcDropRequests.fulfilledKey(id)),"finite original request flags "+id);
+            profile.legacyUnlocks.add(LbcDropRequests.earnedKey(id));
+        }
+        require(LbcDropRequests.pending(profile).equals(List.of(1,3)),"per-ID earned and unfulfilled manual requests");
+        profile.legacyUnlocks.remove(LbcDropRequests.fulfilledKey(2));
+        require(LbcDropRequests.pending(profile).equals(List.of(1,2,3)),"unmade preserves earned ownership and restores only its request");
+        profile.dropRequestOverrides.add("2");var image=new MatchValueSnapshot(profile);
+        profile.dropRequestOverrides.clear();profile.legacyUnlocks.add(LbcDropRequests.fulfilledKey(2));image.restore();
+        require(profile.dropRequestOverrides.equals(Set.of("2"))&&LbcDropRequests.pending(profile).equals(List.of(1,2,3)),"canonical whole-profile replay includes explicit unmade authority and original flags");
+        require(!LbcSourceUnlocks.valid("swrg:rewards/drop_4")&&!LbcSourceUnlocks.valid("swrg:rewards/drop_4_requested"),"unknown request flags rejected");
+        UUID id=UUID.randomUUID();profile.username="KnownPlayer";var profiles=new LinkedHashMap<UUID,PlayerStore.Profile>();profiles.put(id,profile);
+        require(LbcDropRequests.resolve(profiles,"knownplayer").equals(id),"offline canonical name resolution");
+        for(String name:List.of("UnknownPlayer","@a","../players","")){
+            boolean rejected=false;try{LbcDropRequests.resolve(profiles,name);}catch(IllegalArgumentException expected){rejected=true;}
+            require(rejected&&profiles.size()==1,"unknown/unchecked names never create profiles");
+        }
+        var collision=new PlayerStore.Profile();collision.username="KNOWNPLAYER";profiles.put(UUID.randomUUID(),collision);
+        boolean rejected=false;try{LbcDropRequests.resolve(profiles,"KnownPlayer");}catch(IllegalArgumentException expected){rejected=true;}
+        require(rejected,"ambiguous stored names cannot administer another player's prize");
+    }
     public static void runCosmetics(GameController game){start(game,1);}
     public static void runRewind(GameController game){start(game,2);}
     private static void start(GameController game,int kind){require(running==null,"exclusive native fixture");var f=new Fixture(game,kind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{require(f.game==game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.kind==0?"actual keys/source27 cards/Slot2/one debit/payout/paid resume and native source ownership":f.kind==1?"actual cosmetic GUI gates, tracked cages/team suffix, causal death bodies and source postgame work":"nonempty native profiles/strip/private cosmetic work/RNG whole coordinator replay");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
+    public static void tick(GameController game){if(running==null)return;var f=running;try{require(f.game==game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.kind==0?"actual keys/source27 cards/Slot2/one debit/payout/paid resume and native source ownership":f.kind==1?"actual cosmetic GUI gates, tracked cages/individual TAB and chat suffixes with shared teams preserved, causal death bodies and source postgame work":"nonempty native profiles/strip/private cosmetic work/RNG whole coordinator replay");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
 
     private static final class Fixture implements AutoCloseable {
         final GameController game;final int kind;final ServerPlayer owner;ServerPlayer other;
@@ -127,6 +154,8 @@ public final class CaseCosmeticChecks {
         void beginCase(int k){
             caseKind=k;clearOwnership(owner);if(k>0)ownAll(k);profile().keys[k]=2;coinsBefore=profile().coins;memBefore=profile().memcoins;keyBefore=2;menu(GameMenus.Page.CASES);var stale=gui();click(k);
             require(profile().keys[k]==1&&cases.hasPending(owner),"actual case GUI accepts one matching debit "+k);accepted=pending();require(accepted.kind()==k&&accepted.phase()==3&&accepted.timer()==0&&accepted.strip().size()==27&&!accepted.paid(),"source accepted phase3 finite27 strip");
+            require(accepted.version()==2&&accepted.payout()!=null,"accepted result and key debit share the durable transaction");
+            if(k==0)for(var token:accepted.strip()){String unlock=LbcCases.unlock(token);if(!unlock.isEmpty())grant(owner,unlock);}
             if(k>0)require(accepted.strip().stream().allMatch(t->t.family().equals("rewardcoin")),"all-owned native same-rarity compensation, no unowned redraw "+k);
             startingStrip=accepted.strip();stale.click(k,ClickType.MOUSE_LEFT,ContainerInput.PICKUP);gui().click(k,ClickType.MOUSE_DOUBLE_CLICK,ContainerInput.PICKUP_ALL);require(profile().keys[k]==1&&pending().equals(accepted),"stale/double click cannot debit or reroll accepted session");
             var state=MatchRandomState.capture(level.getRandom());long expected=level.getRandom().nextLong();state.restore(level.getRandom());for(int i=0;i<8;i++){var view=cases.renderView(owner);require(view.strip().size()==9&&view.winnerSlot()==2&&view.page()==5100+100*k,"native source nine-card frame/Slot2 mapping");}require(level.getRandom().nextLong()==expected,"render consumes no gameplay RNG");state.restore(level.getRandom());
@@ -140,10 +169,11 @@ public final class CaseCosmeticChecks {
                 if(caseKind<4){beginCase(caseKind+1);return false;}manualClaim();next(2);return false;
             }
             var current=pending();
+            require(current.payout().equals(accepted.payout()),"future ownership changes cannot replace the accepted outcome");
             if(!checkedOffline&&caseKind==0&&current.phase()>=7&&current.phase()<15){
                 accepted=current;pendingImage=profile().casePending;checkedOffline=true;cases.onLeave(owner);require(game.server().getPlayerList().getPlayersByUUID().remove(owner.getUUID(),owner),"scoped actual native online resolver removal");offline=true;next(1);return false;
             }
-            if(current.payout()!=null&&normalized==null){
+            if(current.payout()!=null&&current.phase()>=21&&normalized==null){
                 normalized=current;require(current.strip().get(2).equals(startingStrip.get(20)),"nineteen source shifts select initial Slot21 at backing Slot2");
                 var token=current.strip().get(2);if(caseKind>0){int expected=new int[]{0,20,50,100,1000}[token.value()];require(current.payout().coins()==(caseKind==4?0:expected)&&current.payout().memcoins()==(caseKind==4?expected:0),"same-rarity compensation exact canonical currency");}
             }
@@ -198,12 +228,17 @@ public final class CaseCosmeticChecks {
         }
         void suffixes(){
             var team=owner.getTeam();require(team!=null,"actual assigned scoreboard team");var previousOther=other.getTeam();var previousSuffix=team.getPlayerSuffix().copy();String name=team.getName();var color=team.getColor();
-            game.server().getScoreboard().addPlayerToTeam(other.getScoreboardName(),team);grant(owner,"swrg:rewards/suffix_17");grant(other,"swrg:rewards/turnir/trophy3");profile().suffix=17;otherProfile().suffix=29;
+            game.server().getScoreboard().addPlayerToTeam(other.getScoreboardName(),team);grant(owner,"swrg:rewards/suffix_17");grant(other,"swrg:rewards/turnir/trophy3");profile().suffix=17;otherProfile().suffix=29;team.setPlayerSuffix(LbcCosmetics.suffix(29));
             cosmetics.startSuffixes(List.of(owner,other),0);require(owner.getTeam()==team&&other.getTeam()==team&&team.getName().equals(name)&&team.getColor().equals(color),"suffix retains actual shared team identity, membership and color");
-            require(team.getPlayerSuffix().getString().equals(" \uE209")&&team.getPlayerSuffix().getStyle().getColor().getValue()==0x4E5C24&&!team.getPlayerSuffix().getStyle().isBold(),"source shuffled last-member TEAM suffix29/glyph/color");
+            require(team.getPlayerSuffix().getString().isEmpty(),"old shared source suffix cleared without replacing gameplay teams");
+            require(owner.getDisplayName().getString().endsWith(" \uE186")&&other.getDisplayName().getString().endsWith(" \uE209"),"individual server chat names retain different suffixes in the same team");
+            require(owner.getTabListDisplayName().getString().endsWith(" \uE186")&&other.getTabListDisplayName().getString().endsWith(" \uE209"),"individual native TAB names retain canonical selections");
+            var published=packets(client).stream().filter(ClientboundPlayerInfoUpdatePacket.class::isInstance).map(ClientboundPlayerInfoUpdatePacket.class::cast).filter(p->p.actions().contains(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME)).anyMatch(p->p.entries().stream().anyMatch(e->e.profileId().equals(owner.getUUID())&&e.displayName()!=null&&e.displayName().getString().endsWith(" \uE186"))&&p.entries().stream().anyMatch(e->e.profileId().equals(other.getUUID())&&e.displayName()!=null&&e.displayName().getString().endsWith(" \uE209")));
+            require(published,"native per-player TAB update packet publishes both individual names");
             String[] expected={"★","۞","♛","♔","♠","♣","♥","♦","♪","☉","20㎝","☠","卍","✟","❤","🤩","\uE186","\uE187","\uE188","\uE189","\uE190","\uE191","\uE192","\uE193","\uE194","\uE195","\uE207","\uE208","\uE209"};
             for(int id=1;id<=29;id++)require(LbcCosmetics.suffix(id).getString().equals(" "+expected[id-1]),"all29 exact authored suffix glyphs "+id);
-            otherProfile().suffix=0;cosmetics.startSuffixes(List.of(other),1);require(team.getPlayerSuffix().getString().isEmpty(),"source zero clears existing team suffix");
+            otherProfile().suffix=0;cosmetics.startSuffixes(List.of(other),1);require(team.getPlayerSuffix().getString().isEmpty()&&!other.getDisplayName().getString().endsWith(" \uE209")&&owner.getDisplayName().getString().endsWith(" \uE186"),"zero resets only that player's personal suffix");
+            team.setPlayerSuffix(Component.literal(" [team]"));cosmetics.startSuffixes(List.of(owner,other),2);require(team.getPlayerSuffix().getString().equals(" [team]")&&owner.getDisplayName().getString().endsWith(" [team] \uE186"),"unrelated native team formatting survives individual cosmetics");
             // Restore teams before testing hostile native death admission.
             if(previousOther==null)game.server().getScoreboard().removePlayerFromTeam(other.getScoreboardName(),team);else game.server().getScoreboard().addPlayerToTeam(other.getScoreboardName(),previousOther);team.setPlayerSuffix(previousSuffix);
         }
@@ -335,7 +370,13 @@ public final class CaseCosmeticChecks {
                     ()->{if(offline){game.server().getPlayerList().getPlayersByUUID().put(owner.getUUID(),owner);offline=false;}},
                     ()->{if(kind==2)game.vanity().stop();},()->{cosmetics.stop();if(stopped){game.items().timeStop().end(level);stopped=false;}},
                     ()->{if(retired!=null&&!other.isAlive())respawn();},
-                    ()->{owner.closeContainer();other.closeContainer();for(var e:level.getAllEntities())if(!original.contains(e.getUUID())&&!(e instanceof ServerPlayer)){if(e instanceof LivingEntity living)game.items().indirectKills().clear(living);e.discard();}},
+                    ()->{
+                        owner.closeContainer();other.closeContainer();
+                        // getAllEntities() is a live EntityLookup view; discard mutates that view.
+                        var cleanup=new ArrayList<Entity>();
+                        for(var e:level.getAllEntities())if(e!=null&&!original.contains(e.getUUID())&&!(e instanceof ServerPlayer))cleanup.add(e);
+                        for(var e:cleanup){if(e instanceof LivingEntity living)game.items().indirectKills().clear(living);e.discard();}
+                    },
                     ()->{game.maps().cages(false);for(var entry:terrain.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue(),818);},
                     ()->{
                         game.server().tickRateManager().setFrozen(true);

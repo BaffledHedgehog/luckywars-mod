@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -56,8 +57,9 @@ public final class BadAppleChecks {
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final Set<UUID> before=new HashSet<>();
         final LbcBadApple service;final LbcBadApple.Policy originalPolicy;
         final Vec3 origin;final int started;boolean closed,stopped,restoring;int stage,when;
-        ItemEntity token;UUID display;LbcBadApple.View captured;Object capturedPlayback;int capturedSound;boolean skills;Map<BlockPos,BlockState> capturedTerrain;
-        LbcBadApple supporting;BlockPos testTop;long firstWrites;int peerProgress,supportStage;Object previousPlayback;
+        ItemEntity token;UUID display;LbcBadApple.View captured;Object capturedPlayback;int capturedSound,capturedVisual;boolean skills;Map<BlockPos,BlockState> capturedTerrain;
+        Map<Long,MapManager.BlockSnapshot> capturedOriginals;
+        LbcBadApple supporting;BlockPos testTop;long firstWrites;int peerProgress,supportStage,visualWait;Object previousPlayback;
         Fixture(GameController game,boolean rewind){
             this.game=game;this.rewind=rewind;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));level=owner.level();
             require(game.playing()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two real active participants");
@@ -76,6 +78,7 @@ public final class BadAppleChecks {
                 public boolean admittedLaunch(ServerPlayer p,ServerLevel l,Vec3 at){return originalPolicy.admittedLaunch(p,l,at);}
                 public boolean admittedCell(ServerPlayer p,ServerLevel l,BlockPos at){return originalPolicy.admittedCell(p,l,at);}
                 public boolean write(ServerPlayer p,ServerLevel l,BlockPos at,BlockState state,LbcIndirectKills.Owner cause){require(l==level,"fixture projects into original world");blocks.putIfAbsent(at.immutable(),game.maps().snapshot(l,at));return originalPolicy.write(p,l,at,state,cause);}
+                public boolean restore(ServerPlayer p,ServerLevel l,BlockPos at,MapManager.BlockSnapshot original,LbcIndirectKills.Owner cause){return originalPolicy.restore(p,l,at,original,cause);}
             });
             var loot=game.lbc().rollTable(level,origin,owner,"lbc:ported/bad_apple_imba");require(loot.size()==1&&loot.getFirst().getCount()==1&&LbcBadApple.recognized(loot.getFirst()),"actual canonical ready typed IMBA loot");
             require(loot.getFirst().is(LbcBadAppleItem.TOKEN),"actual native typed item singleton");
@@ -101,9 +104,22 @@ public final class BadAppleChecks {
                     if(!service.view().running()){require(elapsed<8,"display starts installed singleton");return false;}
                     require(level.getEntity(display)==null&&service.count()==0,"display consumed once by playback owner");
                     require(service.view().soundStarted()&&service.view().writes()==0&&soundCount()==1,"source baseline latches exactly one song without invented initial paint");
-                    var work=seek(service,100);for(int n=0;n<32&&(service.view().acceptedFrame()<0||service.view().columnCursor()==0);n++)work.step();
+                    // A nonzero bitmap cursor can visit only unchanged/empty columns. Seed one
+                    // real source-white column so world/visual replay owns an actual admitted write.
+                    var playback=get(service,"current");var media=LbcBadAppleMedia.instance();var image=media.newFrame(100);int white=0;
+                    while(white<media.pixelCount()&&!media.white(image,white))white++;require(white<media.pixelCount(),"source100 has white pixels");
+                    var support=new BlockPos((int)get(playback,"minX")+white%media.width(),(int)origin.y-1,(int)get(playback,"minZ")+white/media.width());
+                    level.getChunk(support);set(support,Blocks.STONE.defaultBlockState());
+                    var work=seek(service,100);for(int n=0;n<512&&service.view().writes()==0;n++)work.step();
+                    require(service.view().writes()>0,"actual movie admits seeded source-white terrain write");
                     require(service.view().acceptedFrame()==100&&service.view().columnCursor()>0&&service.view().columnCursor()<38988,"actual full-media accepted pending column cursor");
+                    if(rewind){
+                        @SuppressWarnings("unchecked") var paint=(Map<Long,BlockState>)get(get(service,"current"),"painted");require(!paint.isEmpty(),"actual movie has owned painted footing");var floor=BlockPos.of(paint.keySet().iterator().next());
+                        require(owner.teleportTo(level,floor.getX()+.5,floor.getY()+1,floor.getZ()+.5,Set.of(),0,0,true),"real participant enters saved movie visual");client.acknowledge();owner.setOnGround(true);service.tickVisuals();
+                        @SuppressWarnings("unchecked") var views=(Map<UUID,?>)get(service,"visuals");require(views.containsKey(owner.getUUID()),"actual saved movie visual exists");capturedVisual=(int)get(views.get(owner.getUUID()),"elapsed");
+                    }
                     pause();captured=service.view();capturedPlayback=get(service,"current");capturedTerrain=new LinkedHashMap<>();for(var p:blocks.keySet())capturedTerrain.put(p,level.getBlockState(p));capturedSound=soundCount();
+                    @SuppressWarnings("unchecked") var journal=(Map<Long,MapManager.BlockSnapshot>)get(capturedPlayback,"originals");capturedOriginals=new LinkedHashMap<>(journal);
                     if(rewind){require(game.vanity().requestCapture(owner,false),"whole coordinator accepts actual nonempty movie/cursor");next(10);}else next(3);
                 }
                 case 3->{require(service.view().equals(captured),"real TimeStop freezes movie clock and pending accepted writes");if(elapsed<4)return false;thaw();service.stop();support();next(20);}
@@ -111,6 +127,8 @@ public final class BadAppleChecks {
                 case 11->{if(service.view().columnCursor()==captured.columnCursor()){require(elapsed<10,"future native accepted work advances");return false;}pause();require(game.vanity().requestRestoreForCheck(),"whole coordinator restores actual pending movie");restoring=true;next(12);}
                 case 12->{
                     if(game.vanity().busy())return false;require(service.view().equals(captured)&&get(service,"current")==capturedPlayback,"typed coordinator restores private logical/frame/cursor/latch and owner identity");
+                    require(get(capturedPlayback,"originals").equals(capturedOriginals),"whole coordinator restores exact original-before-first-paint journal");
+                    @SuppressWarnings("unchecked") var views=(Map<UUID,?>)get(service,"visuals");require(views.containsKey(owner.getUUID())&&(int)get(views.get(owner.getUUID()),"elapsed")==capturedVisual,"whole coordinator restores active half-second presentation clock");
                     for(var e:capturedTerrain.entrySet())require(level.getBlockState(e.getKey()).equals(e.getValue()),"actual pre-capture painted terrain restored");
                     for(var e:blocks.entrySet())if(!capturedTerrain.containsKey(e.getKey()))require(level.getBlockState(e.getKey()).equals(e.getValue().state()),"whole coordinator removes future-only terrain writes");
                     require(game.items().timeStop().stopped(level),"whole coordinator retains source pause");require(soundCount()==capturedSound+1,"restore publication restarts one native song packet from zero (no seek-offset claim)");capturedSound=soundCount();game.vanity().stop();thaw();next(13);
@@ -125,10 +143,13 @@ public final class BadAppleChecks {
             // A separate real-media kernel uses a narrow policy; it does not replace the actual item path above.
             testTop=new BlockPos(113,(int)origin.y,-9);require(level.hasChunkAt(testTop),"resident independent source frame14 column");
             for(int dy=0;dy<=12;dy++)set(testTop.below(dy),dy%3==0?Blocks.STONE.defaultBlockState():Blocks.AIR.defaultBlockState());
+            set(testTop,Blocks.CHEST.defaultBlockState());var chest=(net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(testTop);
+            chest.setItem(0,new ItemStack(Items.DIAMOND,7));chest.setChanged();
             supporting=new LbcBadApple(game,new LbcBadApple.Policy(){
                 public boolean admittedLaunch(ServerPlayer p,ServerLevel l,Vec3 at){return true;}
                 public boolean admittedCell(ServerPlayer p,ServerLevel l,BlockPos at){return at.getX()==testTop.getX()&&at.getZ()==testTop.getZ()&&at.getY()>=testTop.getY()-12;}
                 public boolean write(ServerPlayer p,ServerLevel l,BlockPos at,BlockState state,LbcIndirectKills.Owner cause){set(at,state);return true;}
+                public boolean restore(ServerPlayer p,ServerLevel l,BlockPos at,MapManager.BlockSnapshot original,LbcIndirectKills.Owner cause){game.maps().restoreSnapshot(l,at,original,818);return true;}
             });
             require(supporting.start(owner,level,new Vec3(0,origin.y,0),game.items().indirectKills().wildCause(owner)),"supporting source-centered movie start");supporting.tick();
             require(supporting.view().soundStarted()&&supporting.view().writes()==0,"supporting baseline publishes no terrain");
@@ -136,13 +157,25 @@ public final class BadAppleChecks {
             require(supporting.view().acceptedFrame()==14&&supporting.view().writes()==4,"first known nonzero source frame paints exactly four floors");
             for(int dy:List.of(0,3,6,9))require(level.getBlockState(testTop.below(dy)).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE)),"source four separated surfaces white "+dy);
             require(level.getBlockState(testTop.below(12)).is(Blocks.STONE),"fifth surface excluded");
+            require(owner.teleportTo(level,testTop.getX()+.5,testTop.getY()+1,testTop.getZ()+.5,Set.of(),0,0,true),"real participant on movie-owned white floor");client.acknowledge();owner.setOnGround(true);supporting.tickVisuals();
+            require(owner.getPostEffects().contains(Identifier.parse("lbc:badapple/movie"))&&owner.getPostEffects().contains(Identifier.parse("lbc:badapple/control_1"))&&!owner.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION),"white projects actual client lightmap without granting authoritative nightvision");
+            var removeVision=new net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket(owner.getId(),net.minecraft.world.effect.MobEffects.NIGHT_VISION);
+            require(SignedEffectVisuals.projectPacket(owner,removeVision) instanceof net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket effect&&effect.getEffectDurationTicks()==-1,"native self nightvision removal cannot overwrite movie cosmetic projection");
+            set(testTop.east(),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE).defaultBlockState());
+            require(owner.teleportTo(level,testTop.getX()+1.5,testTop.getY()+1,testTop.getZ()+.5,Set.of(),0,0,true),"participant on unrelated white concrete");client.acknowledge();owner.setOnGround(true);supporting.tickVisuals();
+            require(SignedEffectVisuals.projectPacket(owner,removeVision)==removeVision&&owner.getPostEffects().contains(Identifier.parse("lbc:badapple/movie")),"unowned concrete releases native lighting but keeps exit blend alive");
             previousPlayback=get(supporting,"current");require(supporting.start(owner,level,new Vec3(0,origin.y,0),game.items().indirectKills().wildCause(owner)),"singleton restart accepts successor");
             require(!supporting.view().soundStarted(),"successor awaits accepted predecessor writes");supportStage=0;
         }
         boolean supportStep(int elapsed){
+            supporting.tickVisuals();
             require(elapsed<150,"bounded supporting finite-media stages "+supportStage);
             if(supportStage==0){
-                if(!(boolean)get(previousPlayback,"closed"))return false;supporting.tick();require(supporting.view().soundStarted()&&supporting.view().logicalTicks()==0,"singleton drains prior accepted frame before fresh baseline");
+                if(elapsed<12)return false;
+                require(owner.getPostEffects().stream().noneMatch(id->id.getNamespace().equals("lbc")&&id.getPath().startsWith("badapple/")),"exit chain retires after ten active ticks");
+                if(!(boolean)get(previousPlayback,"closed"))return false;
+                require(level.getBlockEntity(testTop) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest&&chest.getItem(0).is(Items.DIAMOND)&&chest.getItem(0).getCount()==7,"predecessor restores original block-entity inventory before successor begins");
+                supporting.tick();require(supporting.view().soundStarted()&&supporting.view().logicalTicks()==0,"singleton drains prior accepted frame before fresh baseline");
                 seek(supporting,14);supportStage=1;return false;
             }
             if(supportStage==1){
@@ -155,11 +188,19 @@ public final class BadAppleChecks {
                 if(supporting.view().appliedFrame()!=116)return false;
                 require(level.getBlockState(testTop).isAir(),"changed native top remains removed");
                 for(int dy:List.of(3,6,9,12))require(level.getBlockState(testTop.below(dy)).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLACK)),"same-playback fresh changed-column scan finds new four floors "+dy);
-                supporting.requestStop();supportStage=2;return false;
+                var black=testTop.below(3);require(owner.teleportTo(level,black.getX()+.5,black.getY()+1,black.getZ()+.5,Set.of(),0,0,true),"real participant on movie-owned black floor");client.acknowledge();owner.setOnGround(true);supporting.tickVisuals();
+                require(owner.getPostEffects().contains(Identifier.parse("lbc:badapple/control_2")),"black selects lightmap plus inversion target");
+                pause();visualWait=game.server().getTickCount();supportStage=5;return false;
+            }
+            if(supportStage==5){
+                @SuppressWarnings("unchecked") var views=(Map<UUID,?>)get(supporting,"visuals");var visual=views.get(owner.getUUID());
+                require(visual!=null&&(int)get(visual,"elapsed")==0&&owner.getPostEffects().contains(Identifier.parse("lbc:badapple/control_2_paused")),"TimeStop holds the half-second visual clock and control state");
+                if(game.server().getTickCount()-visualWait<3)return false;thaw();owner.setOnGround(false);supporting.requestStop();supportStage=2;return false;
             }
             if(supportStage==2){
                 if(supporting.view().running()||get(supporting,"current")!=null)return false;
-                require(level.getBlockState(testTop.below(12)).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLACK)),"ordinary stop preserves completed terrain paint");
+                require(level.getBlockEntity(testTop) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest&&chest.getItem(0).getCount()==7,"ordinary stop restores original chest metadata");
+                for(int dy:List.of(3,6,9,12))require(level.getBlockState(testTop.below(dy)).is(Blocks.STONE),"ordinary stop restores original movie cells "+dy);
                 int chunkX=60000;while(level.getChunkSource().getChunkNow(chunkX,60000)!=null)chunkX+=128;
                 var launch=new Vec3(chunkX*16+114,origin.y,60000*16+85);require(supporting.start(owner,level,launch,game.items().indirectKills().wildCause(owner)),"unresident supporting movie accepts native preparation");supporting.tick();var work=seek(supporting,14);
                 for(int n=0;n<60&&supporting.view().acceptedFrame()<0;n++)work.step();

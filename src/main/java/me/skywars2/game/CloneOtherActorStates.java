@@ -11,18 +11,22 @@ final class CloneOtherActorStates {
     private CloneOtherActorStates() { }
     static boolean recognizes(Entity actor) {
         var game=SkyWars2.game();
-        return LbcBadApple.managed(actor)||actor instanceof LbcWtf.Chef || actor instanceof LbcFpvDrone.Drone
+        return LbcOreshnik.managed(actor)||LbcBridgeBuilder.managed(actor)||LbcBadApple.managed(actor)||actor instanceof LbcWtf.Chef || actor instanceof LbcFpvDrone.Drone
                 || LbcTransformator.managed(actor) || LbcChaosTrapActors.managed(actor)
                 || LbcAntDrops.managed(actor) || LbcDroneDrops.managed(actor)
                 || game!=null&&game.items().libraryRandom().cloneManaged(actor);
     }
     static boolean protectedActor(Entity actor) {
+        var game=SkyWars2.game();
+        if(game!=null&&game.items().bridgeBuilder().protectedCloneActor(actor))return true;
         return LbcBadApple.managed(actor)&&actor instanceof net.minecraft.world.entity.Display||LbcFpvDrone.cloneProtected(actor)||LbcTransformator.cloneProtected(actor)
                 ||actor.entityTags().contains("skywars2.label_chef_display");
     }
     static LbcCloneSkills.ActorImage capture(GameController game,Entity actor) {
         if(protectedActor(actor))return null;
         var images=new ArrayList<LbcCloneSkills.ActorImage>();
+        if(LbcOreshnik.managed(actor)){var image=game.items().cinema().rockets().cloneImage(actor);if(image==null)return null;images.add(image);}
+        if(game.items().bridgeBuilder().cloneRecognizes(actor)){var image=game.items().bridgeBuilder().cloneImage(actor);if(image==null)return null;images.add(image);}
         if(game.items().badApple().cloneRecognizes(actor)){var image=game.items().badApple().cloneImage(actor);if(image==null)return null;images.add(image);}
         if(actor instanceof LbcWtf.Chef chef){var image=game.items().wtf().cloneImage(chef);if(image==null)return null;images.add(image);}
         if(actor instanceof LbcFpvDrone.Drone drone){var image=game.items().fpvDrone().cloneImage(drone);if(image==null)return null;images.add(image);}

@@ -30,6 +30,7 @@ public final class SkyWarsFeedbackCommands {
     private static void add(Map<String,Status> map,int cadence,boolean harmful,String... ids){for(String id:ids)map.put(id,new Status(cadence,harmful));}
     public static Set<String> effectIds(){return STATUSES.keySet();}
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
+        LbcDropRequests.register(dispatcher);
         dispatcher.register(Commands.literal("skywars")
             .then(Commands.literal("reloadconfig").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(ctx->{
                 var game=SkyWars2.game();if(game==null)return 0;

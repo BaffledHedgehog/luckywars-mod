@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Skill24: native, directional source markers on the shared fair terrain queue. */
 public final class LbcExpansionSkill {
-    /** The source kills MAG/artifact-suppressed frontier markers; it does not suppress owner input. */
+    /** MAG suppresses charging as well as frontier cells; TECH does not. */
     public interface Policy { boolean cell(ServerPlayer owner,ServerLevel level,BlockPos position); }
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs_only"));
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
@@ -88,7 +88,7 @@ public final class LbcExpansionSkill {
                 if(s.current.isEmpty())end(s);
                 p.level().sendParticles(ParticleTypes.REVERSE_PORTAL,p.getX(),p.getY()+1,p.getZ(),30,.1,.3,.1,1);
                 if(s.score>=80&&s.random(5)==0)end(s);
-            }else if(!s.cooling&&++s.score==60){
+            }else if(!s.cooling&&!game.items().magic().suppressed(p)&&++s.score==60){
                 s.active=s.cooling=true;s.initial=true;
                 var origin=BlockPos.containing(p.getX(),p.getY()-.5,p.getZ());
                 // A special constant-size initial transaction runs through the same queue.

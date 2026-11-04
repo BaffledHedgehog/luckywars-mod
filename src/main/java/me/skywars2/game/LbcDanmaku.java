@@ -187,6 +187,7 @@ public final class LbcDanmaku {
     private void tick(Card c){
         if(!valid(c.owner,c.display)){remove(c);return;}if(game.items().timeStop().frozen(c.display)||c.display.entityTags().contains("time_stopped"))return;
         if(++c.age>60){remove(c);return;}
+        c.direction=game.items().homing().skillDirection(c.owner,(ServerLevel)c.display.level(),c.display.position(),c.direction);orient(c);
         for(int i=0;i<3;i++){
             if(c.homing){
                 var candidates=targets.computeIfAbsent(c.owner,p->{var out=new ArrayList<LivingEntity>();for(var e:((ServerLevel)p.level()).getAllEntities())if(e instanceof LivingEntity living&&game.items().wands().target(p,e))out.add(living);return out;});

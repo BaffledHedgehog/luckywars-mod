@@ -7,6 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
 import net.minecraft.sounds.*;
@@ -82,10 +83,24 @@ public final class LbcCosmetics {
         if(id<=0||id>=SUFFIX.length)return Component.empty();var result=Component.literal(" "+SUFFIX[id]).withStyle(s->s.withBold(false));
         return id>=17?result.withStyle(s->s.withColor(0x4E5C24)):result;
     }
-    /** Q26 source default: random player order, last player sets the EXISTING actual team suffix. */
+    /** Q26: each server-rendered name uses its own canonical selection. Gameplay teams stay shared. */
+    public Component displayName(ServerPlayer player,Component original){
+        int id=choice(player,Kind.SUFFIX);
+        return id==0?original:original.copy().append(suffix(id));
+    }
+    /** Native TAB entries cache their component, so publish after selection, join and rewind. */
+    public void refreshSuffixes(Collection<ServerPlayer> players){
+        if(players.isEmpty())return;
+        var packet=new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),players);
+        game.server().getPlayerList().broadcastAll(packet);
+    }
+    /** Remove only the old source cosmetic projection; preserve unrelated team formatting. */
     public void startSuffixes(Collection<ServerPlayer> participants,long seed){
-        var shuffled=new ArrayList<>(participants);var random=new Random(seed);Collections.shuffle(shuffled,random);
-        for(var player:shuffled){var team=player.getTeam();if(team!=null)team.setPlayerSuffix(suffix(choice(player,Kind.SUFFIX)));}
+        var teams=new HashSet<net.minecraft.world.scores.PlayerTeam>();
+        for(var player:participants){var team=player.getTeam();if(team!=null&&teams.add(team)){
+            for(int id=1;id<SUFFIX.length;id++)if(team.getPlayerSuffix().equals(suffix(id))){team.setPlayerSuffix(Component.empty());break;}
+        }}
+        refreshSuffixes(participants);
     }
     /** Caller has built canonical glass; zero/bedwars3/4 do nothing. Every write is tracked by MapManager. */
     public void cage(ServerPlayer player,ServerLevel level,BlockPos feet,int mode){
@@ -360,7 +375,7 @@ public final class LbcCosmetics {
     public void stop(){boundary();for(var job:List.copyOf(jobs))job.cancel();for(var entity:List.copyOf(nativeActors.values()))entity.discard();nativeActors.clear();midas.stop();}
     void boundary(){if(callbacks!=0)throw new IllegalStateException("Finish cosmetic native quantum before capture/replay");}
     void prepareFrozen(){boundary();restoring=true;jobs=new LinkedHashSet<>();nativeActors=new LinkedHashMap<>();midas.prepareFrozen();}
-    void publishFrozen(){boundary();restoring=false;midas.publishFrozen();}
+    void publishFrozen(){boundary();restoring=false;midas.publishFrozen();refreshSuffixes(game.server().getPlayerList().getPlayers());}
     void cancelFrozen(){boundary();stop();restoring=false;midas.publishFrozen();}
     Checkpoint checkpoint(MatchQueuedWorkCheckpoint.Graph graph){boundary();return new Checkpoint(graph);}
     final class Checkpoint {

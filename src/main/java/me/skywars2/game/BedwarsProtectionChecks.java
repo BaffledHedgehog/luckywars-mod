@@ -42,6 +42,14 @@ public final class BedwarsProtectionChecks {
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException expected){return 0;}
     }
     public static void runNative(GameController game,ServerPlayer player,Cells cells){
+        var own=game.bedwars().arena().topology().beds().stream().filter(b->b.team()==game.bedwars().team(player)).findFirst().orElseThrow();
+        var ownState=player.level().getBlockState(own.head());boolean directOnly=game.config().bedwarsDirectBedBreaking;
+        try{
+            require(player.level().setBlock(own.head(),ownState.setValue(net.minecraft.world.level.block.BedBlock.OCCUPIED,!ownState.getValue(net.minecraft.world.level.block.BedBlock.OCCUPIED)),2)
+                    &&game.bedwars().hasBed(player),"native bed occupancy change retains its team's respawn right");
+            game.config().bedwarsDirectBedBreaking=true;require(!game.bedwars().arena().allowsRemoval(player.level(),own.head()),"direct-only setting rejects indirect bed removal");
+            game.config().bedwarsDirectBedBreaking=false;require(game.bedwars().arena().allowsRemoval(player.level(),own.head()),"permissive setting admits indirect removal through the common terrain boundary");
+        }finally{game.config().bedwarsDirectBedBreaking=directOnly;player.level().setBlock(own.head(),ownState,2);}
         var arena=game.bedwars().arena();var level=player.level();require(game.config().gameMode==3&&game.playing()&&arena.active(),"actual initialized ordinary BedWars3 owner");
         require(arena.topology().level()==level,"same actual arena realm");
         for(var pos:List.of(cells.stone,cells.chest,cells.sand,cells.tnt))require(arena.originalTypeAt(level,pos)==level.getBlockState(pos).getBlock(),"fixture original type was captured at actual map placement "+pos);

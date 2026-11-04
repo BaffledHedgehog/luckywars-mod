@@ -44,7 +44,7 @@ public final class LbcSpecialFireballs {
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(TAG);}
     private boolean resident(ServerLevel level,Vec3 at){var pos=BlockPos.containing(at);return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
     private boolean active(Entity e){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&e.level()==game.maps().level()&&game.items().currentEpoch(e);}
-    private boolean frozen(Entity e){return !game.server().tickRateManager().runsNormally()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
+    private boolean frozen(Entity e){return game.items().polymorph().suspended(e)||!game.server().tickRateManager().runsNormally()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
     public void loaded(Entity entity){
         if(managed(entity)){if(active(entity)){actors.add(entity);game.items().timeStop().prepareFrozen(entity);}else entity.discard();return;}
         if(entity instanceof Snowball ball&&variant(ball.getItem())!=0&&ball.getOwner() instanceof ServerPlayer p

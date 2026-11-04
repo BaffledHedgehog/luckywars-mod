@@ -217,26 +217,21 @@ public final class LbcSheep {
         }finally{callbackDepth--;}
     }
 
-    /** Source gem shares permanent sheep construction, without the Academy gender branch. */
+    /** Author: ten-second reversible gem, including Chef/vehicles/projectiles, excluding items/players. */
     boolean trinket(ServerPlayer p){
-        if(rewinding||!validOwner(p)||frozen(p))return false;
+        if(rewinding||!validOwner(p)||frozen(p)||suppressed(p.level(),p.position()))return false;
         var at=p.getEyePosition();
         var targets=p.level().getEntities(p,new AABB(at,at).inflate(24),e->
-                !(e instanceof Player||e instanceof Marker||e instanceof Display||e instanceof Interaction)
-                &&!managed(e)&&!LbcWtf.managed(e)&&!e.entityTags().contains("magicalsheep")
+                game.items().polymorph().gemEligible(e)
                 &&e.position().distanceToSqr(at)<=576&&game.items().wands().validTarget(e)
                 &&game.items().wands().projectileTarget(p,e)&&!frozen(e)
                 &&resident(p.level(),e.position())&&!suppressed(p.level(),e.position()));
         if(targets.isEmpty())return false;
         var original=targets.get(p.getRandom().nextInt(targets.size()));
         callbackDepth++;try{
-            if(original instanceof ItemEntity item&&potion(item.getItem())){
-                if(spawnHole(p,original.position())==null)return false;
-                clearItems(p.level(),original.position());return true;
-            }
             if(original instanceof LivingEntity living&&living.getHealth()>=1000)
                 game.items().mana().award(p,"lbc:true_advancements/staffs/polymorph");
-            return permanent(p,original)!=null;
+            return game.items().polymorph().transformGem(original,game.items().indirectKills().coldCause(p,false))!=null;
         }finally{callbackDepth--;}
     }
 

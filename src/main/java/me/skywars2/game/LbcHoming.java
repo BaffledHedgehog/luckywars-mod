@@ -334,6 +334,10 @@ public final class LbcHoming {
 
         }finally{--inProgress;}
     }
+    /** Cloud/projectile adapters may consume ENTITY_LOAD before late family registration. */
+    public void nativeLoaded(Entity entity){
+        if(entity.level()==game.maps().level()&&entity instanceof Projectile)projectiles.add(entity);
+    }
     public void unloaded(Entity entity) {
         ++inProgress;try {
             projectiles.remove(entity);
@@ -404,9 +408,63 @@ public final class LbcHoming {
             ++ticks;
             tickEffects(rains,true); tickEffects(destinies,false);
             tickFourier();
+            tickSkillProjectiles();
             tickCurses();
 
         }finally{--inProgress;}
+    }
+    /** Shared skill30 rotation for virtual native adapters. The author is the actual current
+     * projectile owner; selection elsewhere never grants control over foreign bodies. */
+    Vec3 skillDirection(ServerPlayer owner,ServerLevel level,Vec3 from,Vec3 direction){
+        if(!skillOwner(owner,level)||!owner.getRandom().nextBoolean()
+                ||nearPlayer(level,from,20))return direction;
+        var aimed=skillTarget(owner,from);
+        level.sendParticles(new DustParticleOptions(0xff0000,2),true,false,from.x,from.y,from.z,3,.1,.1,.1,0);
+        return aimed==null?direction:direction.normalize().add(aimed.getEyePosition().subtract(from).normalize().scale(.1)).normalize();
+    }
+    private boolean skillOwner(ServerPlayer owner,ServerLevel level){
+        return owner!=null&&owner.level()==level&&game.playing()&&!game.maps().busy()
+                &&game.canUseGameplayItems(owner)&&!game.isObserver(owner)&&!game.balanceLegacy()
+                &&game.lbc().hasSkill(owner,30)&&!game.items().wands().inputTimeStopped(owner)
+                &&!game.items().timeStop().stopped(level)&&!game.items().magic().suppressed(owner);
+    }
+    private boolean nearPlayer(ServerLevel level,Vec3 from,double distance){
+        return level.players().stream().anyMatch(player->!player.isSpectator()
+                &&player.position().distanceToSqr(from)<=distance*distance);
+    }
+    private LivingEntity skillTarget(ServerPlayer owner,Vec3 from){
+        LivingEntity aimed=null;double best=10000;
+        for(var candidate:game.items().lifetimes().loadedTargets())
+            if(candidate.getType().builtInRegistryHolder().is(FOURIER_MOBS)&&target(owner,candidate)){
+                double squared=candidate.position().distanceToSqr(from);
+                if(squared<=best){best=squared;aimed=candidate;}
+            }
+        return aimed;
+    }
+    private void tickSkillProjectiles(){
+        for(var body:List.copyOf(projectiles)){
+            if(body.isRemoved()){projectiles.remove(body);continue;}
+            if(!(body instanceof Projectile projectile)||game.items().polymorph().suspended(body)||body.entityTags().contains("cant_be_homing")
+                    ||game.items().timeStop().frozen(body)||body.entityTags().contains("time_stopped")
+                    ||!(game.items().projectileLevelups().projectileOwner(body) instanceof ServerPlayer owner)
+                    ||!skillOwner(owner,(ServerLevel)body.level()))continue;
+            Vec3 motion=body.getDeltaMovement();if(motion.lengthSqr()<1e-12)continue;
+            Vec3 next;
+            if(projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow){
+                if(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()
+                        ||owner.getRandom().nextFloat()>=.7f||nearPlayer(owner.level(),body.position(),15))continue;
+                var aimed=skillTarget(owner,body.position());
+                if(aimed==null)continue;
+                next=motion.add(aimed.getEyePosition().subtract(body.position()).normalize().scale(.5));
+                owner.level().sendParticles(new DustParticleOptions(0xff0000,2),true,false,
+                        body.getX(),body.getY(),body.getZ(),3,.1,.1,.1,0);
+            }else {
+                Vec3 direction=motion.normalize();var steered=skillDirection(owner,owner.level(),body.position(),direction);
+                if(steered==direction)continue;next=steered.scale(motion.length());
+            }
+            if(next.equals(motion))continue;
+            body.setDeltaMovement(next);body.needsSync=true;LbcShooters.orient(projectile);
+        }
     }
     private void tickFourier() {
         for(var effect:List.copyOf(fouriers)) {

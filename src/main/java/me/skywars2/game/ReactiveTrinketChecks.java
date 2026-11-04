@@ -30,7 +30,7 @@ public final class ReactiveTrinketChecks {
     private static void start(GameController game,boolean rewind){require(running==null,"exclusive fixture");var next=new Fixture(game,rewind);running=next;try{next.begin();}catch(Throwable e){running=null;try{next.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}throw e;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.rewind?"reactive-trinkets-rewind":"reactive-trinkets",f.rewind?"nonempty actual coordinator native Prism/horse/spike/soul state replay":"nine source/default/recipient roundtrips; actual accepted/blocked/rejected/arrow damage, physical count provenance; permanent gem, sequential Prism and real banana/horse/spike outputs");}
+        try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.rewind?"reactive-trinkets-rewind":"reactive-trinkets",f.rewind?"nonempty actual coordinator native Prism/horse/spike/soul state replay":"nine source/default/recipient roundtrips; actual accepted/blocked/rejected/arrow damage, physical count provenance; temporary gem/Chef/projectile/vehicle identity, sequential Prism and fixed-duration horse/gravity spike outputs");}
         catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+(f.rewind?"reactive-trinkets-rewind":"reactive-trinkets"),e);}
     }
     /** Observes the actual native blocking primitive; preserves all vanilla behavior. */
@@ -48,7 +48,8 @@ public final class ReactiveTrinketChecks {
         final List<Entity> bodies=new ArrayList<>();final Set<UUID> original=new HashSet<>();
         final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
         final Map<UUID,Integer> savedSteps=new LinkedHashMap<>(),savedRemaining=new LinkedHashMap<>();
-        List<LbcReactiveOffense.Visual> savedSouls;Set<UUID> savedRays;Cow target,nearby;ShieldWitness shield;
+        List<LbcReactiveOffense.Visual> savedSouls;Set<UUID> savedRays;Cow target,nearby,gemOriginal;LivingEntity gemBody;ShieldWitness shield;
+        boolean gemRemovalReported;
         int phase,when,started;boolean stopped,closed,restoring;int expectedHue;UUID sheep;
         Fixture(GameController game,boolean rewind){
             this.game=game;this.rewind=rewind;owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
@@ -126,8 +127,25 @@ public final class ReactiveTrinketChecks {
             target.discard();nearby.discard();game.items().clouds().stop();game.items().reactiveTrinkets().offense().stop();empty();move(origin);
         }
         void beginGem(){
-            target=cow(origin.add(0,-2,0),true);
-            // No wand is needed; permanent gem must not enter any Academy gender branch.
+            var service=game.items().polymorph();
+            require(!service.gemEligible(owner),"gem excludes player source");
+            var dropped=new net.minecraft.world.entity.item.ItemEntity(level,origin.x,origin.y,origin.z,new ItemStack(Items.DIAMOND));
+            require(!service.gemEligible(dropped),"gem excludes dropped-item source");dropped.discard();
+            for(var type:List.of(EntityTypes.ARROW,EntityTypes.OAK_BOAT)){
+                var source=type.create(level,EntitySpawnReason.COMMAND);require(source!=null,"native gem source construction");
+                source.setPos(origin);source.setNoGravity(true);var motion=new Vec3(.3,.2,.1);source.setDeltaMovement(motion);
+                require(level.addFreshEntity(source),"native gem source publication");bodies.add(source);
+                var form=service.transformGem(source,game.items().indirectKills().coldCause(owner,false));
+                require(form!=null&&service.suspended(source)&&service.remaining(source)==200&&!source.isRemoved(),"gem suspends projectile/vehicle for200ticks");
+                service.forgetAuthor(owner.getUUID());
+                require(!service.active(source)&&!source.isRemoved()&&!source.isInvisible()&&source.isNoGravity()&&source.getDeltaMovement().equals(motion),"gem restoration preserves nonliving identity/gravity/trajectory");source.discard();
+            }
+            target=cow(origin.add(0,-2,0),true);gemOriginal=target;
+            var chef=game.items().wtf().spawn(owner,target);
+            require(chef!=null,"native Chef source for temporary gem");bodies.add(chef);
+            require(service.transformGem(chef,game.items().indirectKills().coldCause(owner,false))!=null&&service.suspended(chef),"gem includes Chef in reversible form");
+            service.forgetAuthor(owner.getUUID());require(!chef.isRemoved()&&!service.active(chef),"temporary gem restores Chef without permanent erasure");chef.discard();
+            // No wand is needed; the temporary gem must not enter Academy's gender branch.
             for(int slot=9;slot<20;slot++)owner.getInventory().setItem(slot,new ItemStack(LbcTrinkets.POLY_GEM,99));game.items().reactiveTrinkets().inventoryChanged(owner);
             phase=1;when=game.server().getTickCount();
         }
@@ -171,20 +189,31 @@ public final class ReactiveTrinketChecks {
         }
         boolean step(){
             client.acknowledge();require(game.server().getTickCount()-started<500,"bounded normal server fixture");int elapsed=game.server().getTickCount()-when;
+            if(gemBody!=null&&!gemRemovalReported&&(!gemBody.isAlive()||gemBody.isRemoved())){gemRemovalReported=true;SkyWars2.LOGGER.info("[check] reactive-trinkets gem retirement {}",gemDiagnostic());}
             if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
             switch(phase){
                 case 0->{if(elapsed<8)return false;actualOffense();beginGem();}
                 case 1->{
-                    if(!target.isRemoved()){require(elapsed<30,"guaranteed legal eleven99-stack gem enrollment");return false;}
+                    if(!game.items().polymorph().active(target)){require(elapsed<30,"guaranteed legal eleven99-stack gem enrollment");return false;}
                     sheep=game.items().sheep().sheepViews().stream().filter(v->v.owner().equals(owner.getUUID())&&!original.contains(v.entity())).map(LbcSheep.SheepView::entity).findFirst().orElseThrow();
-                    require(level.getEntity(sheep)!=null&&level.getEntity(sheep).entityTags().contains("magicalsheep"),"gem produced actual permanent sheep");empty();beginPrism();
+                    gemBody=(LivingEntity)level.getEntity(sheep);
+                    require(level.getEntity(sheep)!=null&&game.items().polymorph().body(level.getEntity(sheep))&&!target.isRemoved()
+                            &&game.items().polymorph().remaining(target)<=200,"gem keeps actual original suspended behind ten-second native sheep");
+                    // Restoration is conditional on the sheep surviving. This timer witness shares
+                    // the scene with a7HP Prism and4HP spike; isolate its survival, not production damage.
+                    gemBody.setNoGravity(true);gemBody.setDeltaMovement(Vec3.ZERO);gemBody.setPermanentlyInvulnerable(true);
+                    require(gemBody.isAlive()&&game.items().polymorph().remaining(gemOriginal)>0,"living timed restoration witness isolated from unrelated combat and falling");empty();beginPrism();
                 }
                 case 2->{
                     if(game.items().prism().pendingRays()>0){require(elapsed<60,"bounded source Prism completion");return false;}
                     require(game.items().mana().score(owner,"h").get()==expectedHue,"first complete ray precedes conditional upward hue+20 continuation");
-                    require(level.getEntity(sheep)!=null&&!level.getEntity(sheep).isRemoved(),"gem sheep persists without ordinary restoration timer");beginDefense();
+                    require(level.getEntity(sheep)!=null&&!level.getEntity(sheep).isRemoved()&&game.items().polymorph().remaining(gemOriginal)>0,"gem sheep remains until timed restoration");beginDefense();
                 }
-                case 3->{if(elapsed<4)return false;var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();require(horse.remaining()<100&&horse.remaining()>90,"normal native scheduler advances source two-tick horse visits");return true;}
+                case 3->{if(elapsed<4)return false;var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();require(horse.remaining()<100&&horse.remaining()>90,"fixed active two-tick horse clock");owner.stopRiding();horse.body().setDeltaMovement(Vec3.ZERO);phase=4;when=game.server().getTickCount();}
+                case 4->{if(elapsed<205)return false;
+                    require(!game.items().polymorph().active(gemOriginal)&&!gemOriginal.isRemoved()&&!gemOriginal.isInvisible()&&level.getEntity(sheep)==null,"gem restores original identity after ten active seconds: "+gemDiagnostic());
+                    var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();
+                    require(horse.remaining()==0&&!horse.body().isRemoved(),"unridden horse boost expires after ten seconds while horse remains");return true;}
                 case 10->{
                     if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;
                     var rays=game.items().prism().snapshot().stream().filter(c->c.trinket&&!c.isRemoved()).toList();require(!rays.isEmpty(),"captured nonempty typed Prism bodies");
@@ -204,9 +233,14 @@ public final class ReactiveTrinketChecks {
             }
             return false;
         }
+        String gemDiagnostic(){return "active="+game.items().polymorph().active(gemOriginal)+" remaining="+game.items().polymorph().remaining(gemOriginal)
+                +" originalRemoved="+gemOriginal.isRemoved()+" originalInvisible="+gemOriginal.isInvisible()+" originalPos="+gemOriginal.position()
+                +" sheepAlive="+(gemBody!=null&&gemBody.isAlive())+" sheepRemoved="+(gemBody!=null&&gemBody.isRemoved())
+                +" sheepHP="+(gemBody==null?null:gemBody.getHealth())+" sheepPos="+(gemBody==null?null:gemBody.position())
+                +" sheepReason="+(gemBody==null?null:gemBody.getRemovalReason())+" sheepLastDamage="+(gemBody==null?null:gemBody.getLastDamageSource());}
         @Override public void close(){
             if(closed)return;closed=true;Throwable failure=null;
-            for(Runnable action:List.<Runnable>of(()->{if(rewind)game.vanity().stop();},()->{if(stopped)game.items().timeStop().end(level);},()->{owner.stopRiding();game.items().reactiveTrinkets().stop();game.items().prism().stop();game.items().clouds().stop();},()->{var remove=new ArrayList<Entity>();for(var entity:level.getAllEntities())if(!original.contains(entity.getUUID())&&(bodies.contains(entity)||entity instanceof LbcPrism.Charge||LbcReactiveDefense.managed(entity)||entity.entityTags().contains("magicalsheep")))remove.add(entity);remove.forEach(Entity::discard);},()->terrain.forEach((pos,state)->game.maps().restoreSnapshot(level,pos,state,2)),()->{game.config().lbcTrinketLimit=limit;saved.restoreAttributes();saved.restore(game);saved.restoreUse();game.items().reactiveTrinkets().inventoryChanged(owner);},client::close,attribution::close))try{action.run();}catch(Throwable e){if(failure==null)failure=e;else failure.addSuppressed(e);}
+            for(Runnable action:List.<Runnable>of(()->{if(rewind)game.vanity().stop();},()->{if(stopped)game.items().timeStop().end(level);},()->{owner.stopRiding();game.items().polymorph().forgetAuthor(owner.getUUID());game.items().reactiveTrinkets().stop();game.items().prism().stop();game.items().clouds().stop();},()->{var remove=new ArrayList<Entity>();for(var entity:level.getAllEntities())if(!original.contains(entity.getUUID())&&(bodies.contains(entity)||entity instanceof LbcPrism.Charge||LbcReactiveDefense.managed(entity)||entity.entityTags().contains("magicalsheep")))remove.add(entity);remove.forEach(Entity::discard);},()->terrain.forEach((pos,state)->game.maps().restoreSnapshot(level,pos,state,2)),()->{game.config().lbcTrinketLimit=limit;saved.restoreAttributes();saved.restore(game);saved.restoreUse();game.items().reactiveTrinkets().inventoryChanged(owner);},client::close,attribution::close))try{action.run();}catch(Throwable e){if(failure==null)failure=e;else failure.addSuppressed(e);}
             if(failure!=null)throw new IllegalStateException("Reactive fixture cleanup",failure);
         }
     }

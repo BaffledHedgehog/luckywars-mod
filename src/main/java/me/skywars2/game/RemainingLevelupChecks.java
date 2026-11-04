@@ -36,7 +36,7 @@ public final class RemainingLevelupChecks {
     private static void start(GameController game,int kind){require(running==null,"exclusive fixture");var f=new Fixture(game,kind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.kind==0?"real gates, all44 installed source outcomes/noops, retained random pairs and ordinary/BedWars reapplication":f.kind==1?"actual bow/multishot/firework/snowball/egg/pearl/machinegun inputs, source scalars and neutral scheduled Gravitas":"actual nonempty coordinator random/RNG/projectile clone/freeze replay");}
+        try{require(game==f.game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.kind==0?"real gates, all40 real distinct Tatam outcomes, duplicate exclusion, retained random pairs and ordinary/BedWars reapplication":f.kind==1?"actual bow/multishot/firework/snowball/egg/pearl/machinegun inputs, source scalars, owned/foreign Homing30 and owner-only Gravitas":"actual nonempty coordinator random/RNG/projectile clone/freeze replay");}
         catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}
     }
     /** Only used while resolving supporting finite source sequences; never installed during coordinator capture. */
@@ -55,9 +55,11 @@ public final class RemainingLevelupChecks {
         final Field randomField;final RandomSource originalRandom;final MatchRandomState originalRandomState;
         final boolean levelups,skills,ranked;final int limit;final Vec3 origin;final int started;
         final Set<UUID> originalBodies=new HashSet<>();final Set<UUID> ownedIds=new LinkedHashSet<>();
-        final Map<UUID,Ballistic> replayBodies=new LinkedHashMap<>();final List<Entity> auraBodies=new ArrayList<>();
+        final Map<UUID,Ballistic> replayBodies=new LinkedHashMap<>();final List<Entity> auraBodies=new ArrayList<>(),foreignBodies=new ArrayList<>();
         int stage,when;boolean closed,stopped,restoring;ItemStack automaticBow;LbcResolvedLevelups.Image chosen,replayChoice;long expectedNextRandom;
         Entity outside,protectedBody,frozenBody;Vec3 outsideMotion;int automaticStart;
+        final List<Projectile> homingOwned=new ArrayList<>(),homingForeign=new ArrayList<>();
+        net.minecraft.world.entity.animal.cow.Cow homingTarget;
         @SuppressWarnings("unchecked") Fixture(GameController game,int kind){
             this.game=game;this.kind=kind;owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(game.playing()&&owner!=null&&other!=null&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two actual active participants");level=owner.level();
@@ -85,7 +87,7 @@ public final class RemainingLevelupChecks {
             }
             move(owner,origin);move(other,origin.add(30,0,0));game.items().magic().flushCleansing();
             if(kind==0){randomCases();next(0);}
-            else {projectilePicks(kind==2);if(kind==1){nativeLaunches();beginAutomatic();}else beginReplay();}
+            else {projectilePicks(kind==2);if(kind==1){nativeLaunches();beginHoming();}else beginReplay();}
         }
         void move(ServerPlayer p,Vec3 at){require(p.teleportTo(level,at.x,at.y,at.z,Set.of(),0,0,true),"native participant teleport");p.setDeltaMovement(Vec3.ZERO);p.setYHeadRot(0);p.setYBodyRot(0);if(p==owner)client.acknowledge();else audience.acknowledge();}
         String gate(int id){return "lbc:true_advancements/"+switch(id){case 1->"accesories/infinite_quiver";case 3->"accesories/regeneration_belt";case 14->"armor/chaos";case 25->"bows/railgun";case 28->"bows/railshish";case 29->"bows/randchanted";case 30->"bows/shulker";default->throw new IllegalArgumentException("fixture gate "+id);};}
@@ -101,38 +103,47 @@ public final class RemainingLevelupChecks {
         void apply(){game.lbc().apply(owner,false);}
         void fresh(){game.lbc().clear(owner);resolved.forget(owner.getUUID());game.items().mana().resetResources(owner);}
         void values(int mana,int max,int regen,String why){var m=game.items().mana();require(m.get(owner)==mana&&m.maximum(owner)==max&&m.baseRegen(owner)==regen,why+" actual="+m.get(owner)+"/"+m.maximum(owner)+"/"+m.baseRegen(owner));}
+        int choiceIndex(int wanted,int... excluded){
+            int index=0;
+            for(int id=1;id<=44;id++){
+                if(id==14||id==19||id==26||id==27)continue;
+                boolean omit=false;for(int blocked:excluded)if(id==blocked)omit=true;
+                if(omit)continue;if(id==wanted)return index;index++;
+            }
+            throw new IllegalArgumentException("Not a real available Tatam result "+wanted);
+        }
         void randomCases(){
             revoke(gate(14));require(!menuPick(LbcLoadouts.Kind.LEVELUPS,8000,13),"locked Tatam source selector rejects actual input");pick(14);
             revoke(gate(25));require(!menuPick(LbcLoadouts.Kind.LEVELUPS,8000,24),"direct locked result25 is rejected independently");
             try{
                 for(int result=1;result<=44;result++){
-                    fresh();raw(14,14);Sequence seq=result==14?new Sequence(13,13,13,13,13,13,13,13,13,13):result==1?new Sequence(0,0,20):new Sequence(result-1);random(seq);apply();seq.complete(result==14?10:result==1?3:1);
-                    var image=resolved.image(owner.getUUID());boolean noop=result==14||result==19||result==26||result==27;long expected=noop?0:1L<<result;
+                    if(result==14||result==19||result==26||result==27)continue;
+                    fresh();raw(14,14);Sequence seq=result==1?new Sequence(0,0,20):new Sequence(choiceIndex(result));random(seq);apply();seq.complete(result==1?3:1);
+                    var image=resolved.image(owner.getUUID());long expected=1L<<result;
                     require(image.randomOutcome()==result&&image.effectiveMask()==expected&&game.lbc().effectiveLevelupMask(owner)==expected,"actual installed random source outcome "+result);
                     require(profile().levelups[0]==14&&profile().levelups[1]==14&&game.lbc().selected(profile(),LbcLoadouts.Kind.LEVELUPS,8000,13),"raw Tatam/menu highlight retained after outcome "+result);
                     if(result==25)require(game.lbc().hasLevelup(owner,25)&&!owner.getAdvancements().getOrStartProgress(game.server().getAdvancements().get(Identifier.parse(gate(25)))).isDone(),"chosen25 bypasses its locked result gate only");
-                    if(noop)values(5000,5000,10,"source no-op retains ordinary resources "+result);
                     if(result==2)values(5000,5000,15,"random2 reaches existing native mana owner");
                     if(result==11)values(2500,2500,30,"random11 reaches existing native mana owner");
                     if(result==17)values(5000,6500,14,"random17 reaches existing native mana owner");
                     if(result==31)values(5000,10000,30,"random31 reaches existing native mana owner");
                     if(result==32)values(0,0,0,"random32 reaches existing native Nulla owner");
-                    apply();seq.complete(result==14?10:result==1?3:1);require(resolved.image(owner.getUUID()).equals(image),"ordinary reapplication never rerolls outcome "+result);
+                    apply();seq.complete(result==1?3:1);require(resolved.image(owner.getUUID()).equals(image),"ordinary reapplication never rerolls outcome "+result);
                 }
                 fresh();raw(14,14);var pair=new Sequence(0,0,20);random(pair);apply();pair.complete(3);chosen=resolved.image(owner.getUUID());require(chosen.firstStat()==0&&chosen.secondStat()==20,"independent stored random-stat pair");
                 var armor=owner.getAttribute(Attributes.ARMOR);require(armor.getModifier(Identifier.parse("minecraft:levelup_random_statup_1"))!=null,"first actual source random-stat modifier installed");
                 raw();apply();require(resolved.image(owner.getUUID()).randomOutcome()==1&&resolved.image(owner.getUUID()).firstStat()==0,"removing Tatam retains dormant match choice");raw(14,14);apply();require(resolved.image(owner.getUUID()).equals(chosen),"debug remove/reselect cannot fish a new outcome");pair.complete(3);
-                award(gate(1));raw(1,14,14);apply();require(resolved.image(owner.getUUID()).firstStat()==0&&resolved.image(owner.getUUID()).secondStat()==20,"direct1 and chosen1 share one pair");pair.complete(3);
+                award(gate(1));raw(1,14,14);apply();require(resolved.image(owner.getUUID()).effectiveMask()==(1L<<1),"later direct duplicate of persisted Tatam result remains one effect without reroll");require(resolved.image(owner.getUUID()).firstStat()==0&&resolved.image(owner.getUUID()).secondStat()==20,"direct1 and chosen1 share one pair");pair.complete(3);
                 var stable=resolved.image(owner.getUUID());game.lbc().clear(owner);apply();require(resolved.image(owner.getUUID()).equals(stable),"ordinary clear/body-reapply choice stability");game.lbc().applyBedwarsRespawn(owner);require(resolved.image(owner.getUUID()).equals(stable)&&armor.getModifier(Identifier.parse("minecraft:levelup_random_statup_1"))!=null,"actual BedWars reapplication restores retained pair and effects");pair.complete(3);
                 fresh();raw(14);var equal=new Sequence(0,11,11);random(equal);apply();equal.complete(3);near(owner.getMaxHealth(),1800,"two equal independent max-health draws keep distinct source modifier IDs");
-                fresh();award(gate(3));raw(14,3,3);var health=new Sequence(2);random(health);owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(40);apply();health.complete(1);near(owner.getMaxHealth(),46,"chosen/direct duplicate3 applies once over current configured base40");owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(80);apply();near(owner.getMaxHealth(),92,"owned multiplier follows current native base without reroll");health.complete(1);
-                fresh();raw(14,31);var nulla=new Sequence(31);random(nulla);apply();nulla.complete(1);values(0,0,0,"resolved Nulla clears resources after explicit Sanguis");
+                fresh();award(gate(3));raw(14,3,3);var health=new Sequence(2);random(health);owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(40);apply();health.complete(1);near(owner.getMaxHealth(),46,"duplicate direct3 applies once while Tatam excludes already selected3");owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(80);apply();near(owner.getMaxHealth(),92,"owned multiplier follows current native base without reroll");health.complete(1);
+                fresh();raw(14,31);var nulla=new Sequence(choiceIndex(32,31));random(nulla);apply();nulla.complete(1);values(0,0,0,"resolved Nulla clears resources after explicit Sanguis");
                 fresh();raw(14,14);var finalPair=new Sequence(0,0,20);random(finalPair);apply();finalPair.complete(3);chosen=resolved.image(owner.getUUID());
             }finally{nativeRandom();}
         }
         void projectilePicks(boolean randomSpeed){
             raw();profile().lbcLevelupSlot=0;
-            if(randomSpeed){pick(14);var seq=new Sequence(24);random(seq);try{apply();seq.complete(1);}finally{nativeRandom();}}
+            if(randomSpeed){pick(14);var seq=new Sequence(choiceIndex(25));random(seq);try{apply();seq.complete(1);}finally{nativeRandom();}}
             else pick(25);
             pick(28);pick(29);pick(30);apply();
             for(int id:new int[]{25,28,29,30})require(game.lbc().hasLevelup(owner,id),"canonical effective physical perk "+id);
@@ -154,20 +165,61 @@ public final class RemainingLevelupChecks {
             var family=cross(new ItemStack(Items.SPECTRAL_ARROW),true);require(family.size()==3,"actual multishot has three native siblings");for(var p:family){require(p instanceof SpectralArrow,"actual multishot spectral carrier");finalized(p,"actual multishot sibling");}
             var fireworks=cross(new ItemStack(Items.FIREWORK_ROCKET),true);require(fireworks.size()==3,"actual fireworks multishot publishes three native rockets");for(var p:fireworks){require(!(p instanceof AbstractArrow),"firework retains native damage owner");finalized(p,"actual firework sibling");}
             var snow=thrown(Items.SNOWBALL);require(snow instanceof Snowball,"actual snowball native carrier");finalized(snow,"actual SnowballItem route");require(snow.getDeltaMovement().length()>1.8&&snow.getDeltaMovement().length()<2.1,"real snowball receives speed trait");
-            for(var item:List.of(Items.EGG,Items.ENDER_PEARL)){var p=thrown(item);require(!p.entityTags().contains(LbcProjectileLevelups.FINALIZED)&&!p.isNoGravity()&&p.getDeltaMovement().length()<1.7,"ordinary egg/pearl has no unsupported direct perk route "+item);p.discard();}
+            for(var item:List.of(Items.EGG,Items.ENDER_PEARL)){var p=thrown(item);require(!p.entityTags().contains(LbcProjectileLevelups.FINALIZED)&&p.isNoGravity()&&p.getDeltaMovement().length()<1.7,"ordinary egg/pearl gets owned gravity without unsupported speed/damage "+item);p.discard();}
             // Supporting scalar contract on a native arrow; native admission is proved by the real inputs above.
             var custom=new Arrow(EntityTypes.ARROW,level);custom.setOwner(owner);custom.setBaseDamage(2.137);custom.setDeltaMovement(12,-.0000007,3);game.items().projectileLevelups().beforePublish(owner,custom,LbcProjectileLevelups.Launch.BOW);near(coefficient(custom),3.17,"floor multiply precedes additive .5 over actual custom coefficient2.137");near(custom.getDeltaMovement().x,15.6,"speed trait has no former10 component cap");near(custom.getDeltaMovement().y,-.00000091,"cap-free1.3 retains tiny signed motion");game.items().projectileLevelups().beforePublish(owner,custom,LbcProjectileLevelups.Launch.BOW);near(coefficient(custom),3.17,"finalized body cannot receive a second coefficient mutation");near(custom.getDeltaMovement().x,15.6,"finalized body cannot receive a second speed mutation");custom.discard();discardOwned();
         }
+        void beginHoming(){
+            game.config().lbcSkills=true;award("lbc:true_advancements/legends/academy/exahoming");
+            require(menuPick(LbcLoadouts.Kind.SKILLS,10100,2)&&game.lbc().hasSkill(owner,30),"actual Homing30 source selector");
+            move(other,origin.add(-30,0,0));var from=origin.add(0,1.6,35);
+            homingTarget=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);
+            homingTarget.setPos(from.add(0,0,25));homingTarget.setNoAi(true);homingTarget.setNoGravity(true);publish(homingTarget);
+            for(var author:List.of(owner,other))for(int family=0;family<3;family++){
+                Projectile shot;
+                if(family==2){
+                    shot=game.items().clouds().trinketAcid(author,from.add(1,0,0),-90,0);ownedIds.add(shot.getUUID());
+                    require(!shot.isRemoved()&&LbcClouds.sourceAcidManaged(shot)&&shot.getOwner()==null
+                            &&game.items().projectileLevelups().projectileOwner(shot)==author,"real trinket acid retains empty native owner and canonical source author");
+                    // Collision mode is independent of directional control. Exercise that flag
+                    // on a real producer-owned body, without replacing its native source policy.
+                    shot.noPhysics=true;
+                }else{
+                    shot=family==0?new Arrow(EntityTypes.ARROW,level):new Snowball(EntityTypes.SNOWBALL,level);
+                    shot.setOwner(author);shot.setPos(from.add(family*.5,0,0));shot.setDeltaMovement(.15,0,0);shot.setNoGravity(true);game.items().markCurrentItemEpoch(shot);publish(shot);
+                }
+                (author==owner?homingOwned:homingForeign).add(shot);
+            }
+            next(5);
+        }
         void beginAutomatic(){game.config().lbcSkills=true;award("lbc:true_advancements/bows/minigun");require(menuPick(LbcLoadouts.Kind.SKILLS,10000,13)&&game.lbc().hasSkill(owner,14),"actual Machinegun skill selector");owner.getInventory().clearContent();automaticBow=new ItemStack(Items.BOW);owner.setItemInHand(InteractionHand.MAIN_HAND,automaticBow);owner.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(Items.ARROW,64));require(owner.gameMode.useItem(owner,level,automaticBow,InteractionHand.MAIN_HAND).consumesAction()&&owner.isUsingItem(),"actual native held Bow starts Machinegun input");automaticStart=client.updates();next(10);}
+        void homingTrace(int elapsed){
+            SkyWars2.LOGGER.info("[check] Homing30 frame={} skill={} suppressed={} inputStopped={} worldStopped={} target={} targetPos={} targetAlive={} targetHealth={} targetLoaded={} targetEligible={}",
+                    elapsed,game.lbc().hasSkill(owner,30),game.items().magic().suppressed(owner),game.items().wands().inputTimeStopped(owner),game.items().timeStop().stopped(level),
+                    homingTarget.getUUID(),homingTarget.position(),homingTarget.isAlive(),homingTarget.getHealth(),game.items().lifetimes().loadedTargets().contains(homingTarget),game.items().wands().target(owner,homingTarget));
+            for(var expected:List.of(owner,other))for(var body:expected==owner?homingOwned:homingForeign){
+                boolean indexed;
+                try{indexed=((Set<?>)field(game.items().homing(),"projectiles").get(game.items().homing())).contains(body);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+                var actual=body.getOwner();var shared=game.items().projectileLevelups().projectileOwner(body);
+                SkyWars2.LOGGER.info("[check] Homing30 body={} uuid={} type={} class={} expectedOwner={} nativeOwner={} sharedOwner={} pos={} motion={} removed={} noPhysics={} noGravity={} frozen={} suspended={} indexed={} cantHome={} nearbyPlayers={}",
+                        body.getId(),body.getUUID(),body.getType(),body.getClass().getSimpleName(),expected.getUUID(),actual==null?null:actual.getUUID(),shared==null?null:shared.getUUID(),
+                        body.position(),body.getDeltaMovement(),body.isRemoved(),body.noPhysics,body.isNoGravity(),game.items().timeStop().frozen(body),game.items().polymorph().suspended(body),indexed,body.entityTags().contains("cant_be_homing"),
+                        level.players().stream().filter(p->!p.isSpectator()).map(p->p.getScoreboardName()+":"+p.position().distanceTo(body.position())).toList());
+            }
+        }
         <T extends Entity>T publish(T e){ownedIds.add(e.getUUID());require(level.addFreshEntity(e),"actual native fixture actor publication "+e.getType());return e;}
-        Projectile gravityProjectile(EntityType<? extends Projectile> type,ServerPlayer author,Vec3 at){var p=type.create(level,EntitySpawnReason.COMMAND);require(p!=null,"native aura projectile factory");p.setOwner(author);p.setPos(at);p.setDeltaMovement(Vec3.ZERO);publish(p);return p;}
+        Projectile gravityProjectile(EntityType<? extends Projectile> type,ServerPlayer author,Vec3 at){var p=type.create(level,EntitySpawnReason.COMMAND);require(p!=null,"native aura projectile factory");p.setOwner(author);p.setPos(at);p.setDeltaMovement(Vec3.ZERO);publish(p);require(p.isNoGravity()==(author==owner),"common native admission applies Gravitas only to actual owner at any distance");p.setNoGravity(false);return p;}
         void beginAura(){
             owner.stopUsingItem();game.items().machinegunSkill().clear(owner);discardOwned();var eye=owner.getEyePosition();
-            auraBodies.add(gravityProjectile(EntityTypes.EGG,owner,eye.add(2,0,0)));auraBodies.add(gravityProjectile(EntityTypes.EGG,other,eye.add(-2,0,0)));auraBodies.add(gravityProjectile(EntityTypes.ENDER_PEARL,other,eye.add(0,0,2)));
-            var tnt=new PrimedTnt(level,eye.x,eye.y,eye.z-2,other);tnt.setFuse(400);tnt.setDeltaMovement(Vec3.ZERO);publish(tnt);auraBodies.add(tnt);
-            outside=gravityProjectile(EntityTypes.EGG,other,eye.add(0,0,4));outsideMotion=outside.getDeltaMovement();
-            protectedBody=gravityProjectile(EntityTypes.EGG,other,eye.add(1.8,0,1.8));LbcBedwarsRoleGuards.markShop(protectedBody);
-            frozenBody=gravityProjectile(EntityTypes.EGG,other,eye.add(-1.8,0,1.8));frozenBody.entityTags().add("time_stopped");
+            auraBodies.add(gravityProjectile(EntityTypes.EGG,owner,eye.add(2,0,0)));foreignBodies.add(gravityProjectile(EntityTypes.EGG,other,eye.add(-2,0,0)));foreignBodies.add(gravityProjectile(EntityTypes.ENDER_PEARL,other,eye.add(0,0,2)));
+            var tnt=new PrimedTnt(level,eye.x,eye.y,eye.z-2,owner);tnt.setFuse(400);tnt.setDeltaMovement(Vec3.ZERO);publish(tnt);require(tnt.isNoGravity(),"common loaded admission gives owned TNT gravity independent of shot flags");tnt.setNoGravity(false);auraBodies.add(tnt);
+            outside=gravityProjectile(EntityTypes.EGG,owner,eye.add(0,0,4));outsideMotion=outside.getDeltaMovement();
+            protectedBody=gravityProjectile(EntityTypes.EGG,owner,eye.add(1.8,0,1.8));LbcBedwarsRoleGuards.markShop(protectedBody);
+            frozenBody=gravityProjectile(EntityTypes.EGG,owner,eye.add(-1.8,0,1.8));frozenBody.entityTags().add("time_stopped");
+            var magic=new LbcClouds.AcidProjectile(LbcClouds.ACID_PROJECTILE,level);magic.setOwner(owner);magic.setPos(eye.add(0,1,-1));magic.setDeltaMovement(Vec3.ZERO);game.items().markCurrentItemEpoch(magic);publish(magic);require(magic.isNoGravity(),"real acid native type receives owned gravity at common admission");magic.setNoGravity(false);auraBodies.add(magic);
+            var falling=EntityTypes.FALLING_BLOCK.create(level,EntitySpawnReason.COMMAND);require(falling!=null,"native neutral falling block factory");falling.setPos(eye);game.items().projectileLevelups().beforeNativeSpawn(falling);require(!falling.isNoGravity(),"common admission never treats a neutral falling block as an owned projectile");falling.discard();
+            var foreignTnt=new PrimedTnt(level,eye.x-1,eye.y,eye.z,other);foreignTnt.setFuse(400);foreignTnt.setDeltaMovement(Vec3.ZERO);publish(foreignTnt);foreignBodies.add(foreignTnt);
+            var neutralTnt=new PrimedTnt(level,eye.x+1,eye.y,eye.z,null);neutralTnt.setFuse(400);neutralTnt.setDeltaMovement(Vec3.ZERO);publish(neutralTnt);foreignBodies.add(neutralTnt);
             game.items().timeStop().begin(level,1000);stopped=true;next(12);
         }
         void beginReplay(){
@@ -185,15 +237,27 @@ public final class RemainingLevelupChecks {
             if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
             switch(stage){
                 case 0->{if(elapsed<2)return false;require(resolved.image(owner.getUUID()).equals(chosen),"real server ticks retain final random choice");return true;}
+                case 5->{
+                    if(elapsed==1||elapsed==5||elapsed==10||elapsed>=19)homingTrace(elapsed);
+                    for(var expected:List.of(owner,other))for(var body:expected==owner?homingOwned:homingForeign){
+                        require(game.items().projectileLevelups().projectileOwner(body)==expected,"Homing30 retains each actual canonical projectile author");
+                        if(LbcClouds.sourceAcidManaged(body))require(body.getOwner()==null&&body.noPhysics,"real source acid keeps native owner empty and collision mode while native steering runs");
+                    }
+                    for(var foreign:homingForeign)require(!foreign.isRemoved()&&game.items().projectileLevelups().projectileOwner(foreign)==other&&Math.abs(foreign.getDeltaMovement().z)<.00001,"Homing30 never steers nearby foreign arrow/throwable/magic or steals authorship");
+                    if(homingOwned.stream().anyMatch(p->p.getDeltaMovement().z<=.001)){require(elapsed<20,"bounded actual native Homing30 steers all three own projectile families");return false;}
+                    for(var own:homingOwned)require(!own.isRemoved()&&game.items().projectileLevelups().projectileOwner(own)==owner,"Homing30 preserves own canonical projectile authorship and native representation");
+                    discardOwned();move(other,origin.add(30,0,0));beginAutomatic();
+                }
                 case 10->{if(client.updates()-automaticStart<2)return false;require(owner.isUsingItem()&&game.items().machinegunSkill().charge(owner)>0,"actual native using-item ticks advance automatic charge");game.items().mana().score(owner,"bow_charge").set(2398);next(11);}
                 case 11->{
                     var shots=new ArrayList<AbstractArrow>();for(var e:level.getAllEntities())if(e instanceof AbstractArrow a&&a.getOwner()==owner&&a.entityTags().contains(LbcMachinegunSkill.TAG)&&!originalBodies.contains(a.getUUID())){ownedIds.add(a.getUUID());shots.add(a);}
                     if(shots.isEmpty()){require(elapsed<8,"real high-charge native Machinegun publication");return false;}for(var a:shots){finalized(a,"actual Machinegun");require(a.getDeltaMovement().length()>10,"actual Machinegun source velocity remains above10 after1.3 trait");}require(automaticBow.getDamageValue()==0,"automatic pulse preserves final-release durability economy");beginAura();
                 }
-                case 12->{for(var e:auraBodies)require(!e.isNoGravity()||game.items().timeStop().frozen(e),"source TimeStop holds neutral aura mutation");if(elapsed<4)return false;game.items().timeStop().end(level);stopped=false;for(var e:auraBodies)require(!e.isNoGravity(),"thaw reveals neutral bodies had no aura mutation during pause");frozenBody.entityTags().add("time_stopped");next(13);}
+                case 12->{for(var e:auraBodies)require(!e.isNoGravity()||game.items().timeStop().frozen(e),"source TimeStop holds owned aura mutation");if(elapsed<4)return false;game.items().timeStop().end(level);stopped=false;for(var e:auraBodies)require(!e.isNoGravity(),"thaw reveals owned bodies had no aura mutation during pause");frozenBody.entityTags().add("time_stopped");next(13);}
                 case 13->{
                     if(auraBodies.stream().anyMatch(e->!e.isNoGravity())){require(elapsed<20,"bounded fair native aura serves each nearby mutable body");return false;}
-                    require(!outside.isNoGravity()&&!protectedBody.isNoGravity()&&!frozenBody.isNoGravity(),"aura excludes outside3, canonical protected shop role and individually frozen body");for(var e:auraBodies)require(!(e instanceof Projectile p)||!p.entityTags().contains(LbcProjectileLevelups.FINALIZED),"neutral aura grants gravity only, never direct speed/damage finalization");
+                    for(var foreign:foreignBodies)require(!foreign.isNoGravity(),"Gravitas never adopts foreign/neutral nearby ammo or TNT");
+                    require(!outside.isNoGravity()&&!protectedBody.isNoGravity()&&!frozenBody.isNoGravity(),"aura excludes outside3, canonical protected shop role and individually frozen body");for(var e:auraBodies)require(!(e instanceof Projectile p)||!p.entityTags().contains(LbcProjectileLevelups.FINALIZED),"owned aura grants gravity only, never direct speed/damage finalization");
                     game.lbc().clear(owner);move(owner,origin.add(8,0,0));next(14);
                 }
                 case 14->{if(elapsed<2)return false;for(var e:auraBodies)require(e.isNoGravity(),"source Gravitas persists after owner departure and selection clear");return true;}

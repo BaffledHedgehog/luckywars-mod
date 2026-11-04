@@ -220,15 +220,7 @@ public final class LbcPendingCombat {
         var display=copy.display;var level=copy.owner.level();var from=display.position();var cell=BlockPos.containing(from);
         if(!resident(level,cell)||game.items().magic().suppressedAt(level,from)){remove(copy);return;}
         // Shared source skill30 rotates first, before Chaos applies its own ordinary steering.
-        var profile=game.players().get(copy.owner.getUUID());
-        if(game.config().lbcSkills&&profile!=null&&profile.lbcSkill==30&&copy.owner.getRandom().nextBoolean()
-            &&level.players().stream().noneMatch(player->!player.isSpectator()&&player.position().distanceToSqr(from)<=400)){
-            LivingEntity aimed=null;double best=10000;
-            for(var candidate:candidates)if(target(copy,candidate)&&!candidate.entityTags().contains("strict_map_object")){
-                double squared=candidate.position().distanceToSqr(from);if(squared<=best){best=squared;aimed=candidate;}}
-            if(aimed!=null)copy.direction=copy.direction.add(aimed.getEyePosition().subtract(from).normalize().scale(.1)).normalize();
-            level.sendParticles(new net.minecraft.core.particles.DustParticleOptions(0xff0000,2),true,false,from.x,from.y,from.z,3,.1,.1,.1,0);
-        }
+        copy.direction=game.items().homing().skillDirection(copy.owner,level,from,copy.direction);
         if(copy.grounded){var ahead=BlockPos.containing(from.add(copy.direction.scale(.5)));
             if(!resident(level,ahead)){remove(copy);return;}
             if(level.getBlockState(ahead).isAir()||copy.owner.getRandom().nextInt(100)==0)broken(copy);return;}

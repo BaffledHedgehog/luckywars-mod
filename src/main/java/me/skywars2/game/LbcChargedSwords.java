@@ -353,6 +353,8 @@ public final class LbcChargedSwords {
             var owner=sword.getOwner() instanceof ServerPlayer player?player:null;
             if(sword.isRemoved()||!hostile&&(!valid(owner)||owner.level()!=sword.level())
                     ||!game.items().currentEpoch(sword)){remove(sword);continue;}
+            if(game.items().polymorph().suspended(sword)){sword.destroy();continue;}
+            if(sword.holder==null)sword.attach();
             if((hostile?game.items().timeStop().stopped((ServerLevel)sword.level()):paused(owner))||game.items().timeStop().frozen(sword)||sword.entityTags().contains("time_stopped")){sword.sync(sword.position());continue;}
             if(!hostile&&suppressed(owner)){remove(sword);continue;}step(sword,hostile?null:owner);
         }

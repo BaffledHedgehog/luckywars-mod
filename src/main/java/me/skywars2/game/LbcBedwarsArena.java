@@ -113,7 +113,9 @@ public final class LbcBedwarsArena {
     private boolean originalAllows(ServerLevel level,BlockPos pos,BlockState wanted){
         if(!active()||topology.level!=level)return true;
         for(var next=permit;next!=null;next=next.previous)if(next.lifecycle!=null&&next.level==level&&next.includes(pos,wanted.getBlock()))return true;
-        var saved=unlocked.contains(pos.asLong())?null:original.get(pos.asLong());return saved==null||saved==wanted.getBlock()||exempt(saved)||exempt(wanted.getBlock());
+        var saved=unlocked.contains(pos.asLong())?null:original.get(pos.asLong());
+        if(!game.config().bedwarsDirectBedBreaking&&bedCells.containsKey(pos.asLong()))return true;
+        return saved==null||saved==wanted.getBlock()||exempt(saved)||exempt(wanted.getBlock());
     }
     public boolean allowsRemoval(Object level,BlockPos pos){return allowsType(level,pos,Blocks.AIR.defaultBlockState());}
     /** Only actual successful native writes notify team authority; lifecycle publication is silent. */
@@ -121,7 +123,23 @@ public final class LbcBedwarsArena {
         if(capturingAt(level,pos))captureCell(pos,level.getBlockState(pos));
         if(!active()||topology.level!=level||restoring||breaking)return;
         for(var next=permit;next!=null;next=next.previous)if(next.lifecycle!=null)return;
-        var bed=bedCells.get(pos.asLong());if(bed!=null){if(transactions>0)deferredBeds.add(bed);else policy.bedChanged(bed);}
+        var bed=bedCells.get(pos.asLong());if(bed!=null){if(transactions>0)deferredBeds.add(bed);else changedBed(bed);}
+    }
+
+    private boolean intact(Bed bed){
+        var foot=topology.level.getBlockState(bed.foot);var head=topology.level.getBlockState(bed.head);
+        return foot.getBlock() instanceof net.minecraft.world.level.block.BedBlock&&head.getBlock()==foot.getBlock()
+                &&foot.getValue(net.minecraft.world.level.block.BedBlock.PART)==net.minecraft.world.level.block.state.properties.BedPart.FOOT
+                &&head.getValue(net.minecraft.world.level.block.BedBlock.PART)==net.minecraft.world.level.block.state.properties.BedPart.HEAD
+                &&foot.getValue(net.minecraft.world.level.block.BedBlock.FACING)==head.getValue(net.minecraft.world.level.block.BedBlock.FACING)
+                &&bed.foot.relative(foot.getValue(net.minecraft.world.level.block.BedBlock.FACING)).equals(bed.head);
+    }
+    private void changedBed(Bed bed){
+        if(intact(bed))return; // Occupancy and other non-destructive state changes retain the team's bed.
+        var removed=new LongOpenHashSet(unlocked);removed.add(bed.foot.asLong());removed.add(bed.head.asLong());
+        var beacon=bed.spawn.below(2);removed.add(beacon.asLong());unlocked=LongSets.unmodifiable(removed);
+        if(topology.level.getBlockState(beacon).is(Blocks.BEACON))topology.level.setBlock(beacon,Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS);
+        policy.bedChanged(bed);
     }
     public void lifecycle(Lifecycle reason,ServerLevel level,List<Bounds> exactBounds,Runnable action){
         thread();if(!policy.lifecycleAllowed(reason))throw new IllegalStateException("Arena lifecycle permission rejected: "+reason);
@@ -133,7 +151,7 @@ public final class LbcBedwarsArena {
         private final Permit previous=permit;private boolean closed;
         private Transaction(){thread();transactions++;}
         public void close(){if(!closed){permit=previous;transactions--;closed=true;
-            if(transactions==0&&!deferredBeds.isEmpty()){var changed=List.copyOf(deferredBeds);deferredBeds.clear();if(active()&&!restoring)changed.forEach(policy::bedChanged);}
+            if(transactions==0&&!deferredBeds.isEmpty()){var changed=List.copyOf(deferredBeds);deferredBeds.clear();if(active()&&!restoring)changed.forEach(LbcBedwarsArena.this::changedBed);}
         }}
     }
     public Transaction nativeTransaction(){return new Transaction();}

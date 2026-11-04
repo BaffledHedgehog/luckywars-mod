@@ -98,12 +98,12 @@ public final class LbcRainbowAura {
         Color color=Color.RED;
         long random,ticker;
         int phase;
-        boolean incoming,seeded;
+        boolean incoming,seeded,applied;
         final ArrayList<Walker> walkers=new ArrayList<>();
         final ArrayList<Gram> grams=new ArrayList<>();
         Frame frame;
         State(ServerPlayer p,String epoch){owner=p.getUUID();level=p.level();this.epoch=epoch;random=p.getRandom().nextLong();}
-        State(State s){owner=s.owner;level=s.level;epoch=s.epoch;color=s.color;random=s.random;ticker=s.ticker;phase=s.phase;seeded=s.seeded;
+        State(State s){owner=s.owner;level=s.level;epoch=s.epoch;color=s.color;random=s.random;ticker=s.ticker;phase=s.phase;seeded=s.seeded;applied=s.applied;
             s.walkers.forEach(w->walkers.add(w==null?null:new Walker(w)));s.grams.forEach(g->grams.add(g==null?null:new Gram(g)));
             frame=s.frame==null?null:new Frame(s.frame);}
         int random(int bound){long u,r;do{random+=0x9e3779b97f4a7c15L;long z=random;
@@ -127,10 +127,11 @@ public final class LbcRainbowAura {
         var previous=owners.get(p.getUUID());
         if(previous!=null&&previous.level==p.level()&&game.items().currentEpoch(previous.epoch))return;
         if(previous!=null)clear(p);
-        var state=new State(p,game.items().epoch());owners.put(p.getUUID(),state);enter(p,Color.RED,true);
+        var state=new State(p,game.items().epoch());owners.put(p.getUUID(),state);
+        state.applied=!game.items().magic().suppressed(p);if(state.applied)enter(p,Color.RED,true);
     }
     /** Criterion admission is captured before hurt, so fatal accepted events retain their source selection. */
-    public boolean captureIncoming(ServerPlayer p){return !restoring&&owners.containsKey(p.getUUID())&&selected(p)&&!paused(p);}
+    public boolean captureIncoming(ServerPlayer p){return !restoring&&owners.containsKey(p.getUUID())&&selected(p)&&!paused(p)&&!game.items().magic().suppressed(p);}
     public boolean withIncomingAttempt(ServerPlayer p,java.util.function.BooleanSupplier action){
         if(!owners.containsKey(p.getUUID()))return action.getAsBoolean();
         var stack=incomingAttempts.computeIfAbsent(p.getUUID(),id->new ArrayDeque<>());
@@ -141,7 +142,8 @@ public final class LbcRainbowAura {
         if(!admittedBeforeHurt||restoring)return;
         var s=owners.get(p.getUUID());if(s==null||s.incoming||s.level!=p.level()||!game.items().currentEpoch(s.epoch))return;
         s.incoming=true;
-        try{leave(p,s.color);s.color=Color.values()[(s.color.ordinal()+1)%7];enter(p,s.color,true);}
+        try{if(s.applied)leave(p,s.color);s.color=Color.values()[(s.color.ordinal()+1)%7];
+            s.applied=!game.items().magic().suppressed(p);if(s.applied)enter(p,s.color,true);}
         finally{s.incoming=false;}
     }
     /** Convenience only for criterion callbacks whose caller preserves pre-hurt selection separately. */
@@ -178,7 +180,7 @@ public final class LbcRainbowAura {
     }
     /** Shared regeneration starts from this command-base contribution before item SET/MULT/ADD. */
     public double regenerationBase(ServerPlayer p){var s=owners.get(p.getUUID());return !restoring&&s!=null&&s.color==Color.LIME
-            &&s.level==p.level()&&game.items().currentEpoch(s.epoch)&&selected(p)&&!paused(p)?.025:0;}
+            &&s.level==p.level()&&game.items().currentEpoch(s.epoch)&&selected(p)&&!paused(p)&&!game.items().magic().suppressed(p)?.025:0;}
     public Color color(ServerPlayer p){var s=owners.get(p.getUUID());return s==null?null:s.color;}
     /** Parent passes the existing source ticker and shared 0..99 cadence; no second clock. */
     public void tick(long sourceTicker,int sourcePhase){
@@ -190,7 +192,11 @@ public final class LbcRainbowAura {
             // Real disconnect must call clear(player) before native player removal, to reverse aqua.
             if(p==null){retire(s);owners.remove(id);continue;}
             if(!selected(p)||!p.isAlive()||s.level!=p.level()||!game.items().currentEpoch(s.epoch)){clear(p);continue;}
-            if(paused(p)||s.frame!=null)continue;
+            boolean enabled=!game.items().magic().suppressed(p);
+            if(s.applied!=enabled){if(enabled)enter(p,s.color,false);else leave(p,s.color);s.applied=enabled;}
+            // No new copy is admitted in MAG. Finish only the bounded copy already partly written.
+            if(!enabled&&s.frame!=null&&s.frame.color==Color.PURPLE&&s.frame.stage==0&&s.frame.copy!=null&&s.frame.index<=1)s.frame=null;
+            if(!enabled||paused(p)||s.frame!=null)continue;
             // Sample support only once after target-independent owner admission. Never clears it.
             MapManager.BlockSnapshot copy=null;
             var support=BlockPos.containing(p.getX(),p.getY()-.5,p.getZ());
@@ -209,7 +215,7 @@ public final class LbcRainbowAura {
         boolean cancelled,stepping;
         private boolean empty(){return owners.values().stream().noneMatch(s->s.frame!=null);}
         @Override public boolean ready(){return !restoring&&(cancelled||empty()||owners.values().stream().anyMatch(s->{
-            var p=game.server().getPlayerList().getPlayer(s.owner);return s.frame!=null&&p!=null&&!paused(p);}));}
+            var p=game.server().getPlayerList().getPlayer(s.owner);return s.frame!=null&&p!=null&&!paused(p)&&(!game.items().magic().suppressed(p)||drainingCopy(s));}));}
         /** Typed cosmetic/control cursors can rewind; accepted permanent block copies must drain. */
         @Override public boolean snapshotIdle(){return !stepping&&owners.values().stream().noneMatch(s->
                 s.frame!=null&&s.frame.color==Color.PURPLE&&s.frame.stage==0&&s.frame.copy!=null);}
@@ -220,7 +226,7 @@ public final class LbcRainbowAura {
                 var states=new ArrayList<>(owners.values());
                 for(int i=0;i<states.size();i++){
                     var s=states.get(Math.floorMod(turn++,states.size()));var p=game.server().getPlayerList().getPlayer(s.owner);
-                    if(s.frame==null||p==null||paused(p))continue;
+                    if(s.frame==null||p==null||paused(p)||game.items().magic().suppressed(p)&&!drainingCopy(s))continue;
                     if(!selected(p)||s.level!=p.level()||!game.items().currentEpoch(s.epoch)){clear(p);break;}
                     stepFrame(p,s);break;
                 }
@@ -232,6 +238,7 @@ public final class LbcRainbowAura {
             boolean saved=cancelled;return links->()->{cancelled=saved;if(!cancelled)queued=this;};
         }
     }
+    private static boolean drainingCopy(State s){return s.frame!=null&&s.frame.color==Color.PURPLE&&s.frame.stage==0&&s.frame.copy!=null&&s.frame.index>1;}
     private void stepFrame(ServerPlayer p,State s){
         var f=s.frame;
         if(f.stage==0){if(payload(p,s,f)){f.stage=1;f.index=0;}return;}
@@ -294,7 +301,7 @@ public final class LbcRainbowAura {
             }return true;}
             case BLUE->{if(f.phase%20==0){
                 var score=game.items().mana().score(p,"nanobots_tier");int value=score.get();
-                if(value<=217)value+=3;if(value>=118&&value<=219)value=120;score.set(value);
+                if(game.items().armorSets().nanobots().chargeAllowed(p)&&value<120)score.set(Math.min(120,value+3));
                 for(int i:new int[]{0,2,3,4,5})s.walkers.add(new Walker(true,f.position.add(0,.8,0),AXES[i]));
             }return true;}
             case PURPLE->{
@@ -372,11 +379,11 @@ public final class LbcRainbowAura {
     private void retire(State s){for(var gram:s.grams)if(gram!=null){var e=s.level.getEntity(gram.actor);if(e!=null)e.discard();}s.frame=null;s.walkers.clear();s.grams.clear();}
     public void clear(ServerPlayer p){
         if(restoring||MatchPlayerCheckpoint.restoring(p))return;
-        var s=owners.remove(p.getUUID());if(s==null)return;leave(p,s.color);retire(s);
+        var s=owners.remove(p.getUUID());if(s==null)return;if(s.applied)leave(p,s.color);retire(s);
     }
     public void stop(){
         if(queued!=null)queued.cancel();
-        for(var s:List.copyOf(owners.values())){var p=game.server().getPlayerList().getPlayer(s.owner);if(p!=null)leave(p,s.color);retire(s);}
+        for(var s:List.copyOf(owners.values())){var p=game.server().getPlayerList().getPlayer(s.owner);if(p!=null&&s.applied)leave(p,s.color);retire(s);}
         owners.clear();turn=0;lastTick=Integer.MIN_VALUE;restoring=false;
     }
     /** No resource subtraction or native body disposal here: whole coordinator owns those images. */

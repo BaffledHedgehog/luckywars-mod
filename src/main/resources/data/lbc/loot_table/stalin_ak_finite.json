@@ -6,15 +6,15 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
+              "type": "minecraft:set_components",
               "components": {
                 "minecraft:item_model": "lbc:ak47"
               }
             },
             {
-              "function": "minecraft:set_name",
+              "type": "minecraft:set_name",
               "name": [
                 {
                   "text": "AK-47",
@@ -24,7 +24,7 @@
               ]
             },
             {
-              "function": "minecraft:set_lore",
+              "type": "minecraft:set_lore",
               "mode": "replace_all",
               "lore": [
                 [
@@ -52,7 +52,7 @@
               ]
             },
             {
-              "function": "minecraft:set_custom_data",
+              "type": "minecraft:set_custom_data",
               "tag": "{transformable:1,shooter:1,magicwand:1,ak47:1,finite:1}"
             }
           ]

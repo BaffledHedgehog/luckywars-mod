@@ -11,7 +11,7 @@ import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.phys.AABB;
 
-/** Native launch scalars and neutral Gravitas proximity work; no damage/flight engine. */
+/** Native launch scalars and owner-only Gravitas proximity work; no damage/flight engine. */
 public final class LbcProjectileLevelups {
     public static final String FINALIZED="skywars2.projectile_levelups.finalized";
     public static final String SNOWBALL_PENDING="skywars2.projectile_levelups.snowball_pending";
@@ -19,7 +19,7 @@ public final class LbcProjectileLevelups {
     public interface Policy {
         /** Supplied by the canonical match-resolved loadout owner, including Random14. */
         boolean hasLevelup(ServerPlayer owner,int id);
-        /** Role/helper protection only; neutral physical aura includes hostile/ally ammo. */
+        /** Role/helper protection in addition to canonical projectile ownership. */
         boolean auraTarget(ServerPlayer owner,Entity body);
     }
     private final GameController game;
@@ -58,15 +58,19 @@ public final class LbcProjectileLevelups {
     public static <T extends Projectile> T pendingSnowball(T body){
         body.entityTags().add(SNOWBALL_PENDING);return body;
     }
-    public void beforeNativeSpawn(Projectile body){
-        if(body.entityTags().remove(SNOWBALL_PENDING)&&body.getOwner() instanceof ServerPlayer p){
-            beforePublish(p,body,Launch.SNOWBALL);
+    /** Common native admission hook: gravity applies to every owned family, independently of
+     * the launch-scalar marker. Invoke before prepareFrozen/publication, including TNT. */
+    public void beforeNativeSpawn(Entity body){
+        applyOwnedGravity(body);
+        if(body instanceof Projectile projectile&&body.entityTags().remove(SNOWBALL_PENDING)&&projectile.getOwner() instanceof ServerPlayer p){
+            beforePublish(p,projectile,Launch.SNOWBALL);
             game.items().timeStop().prepareFrozen(body);
         }
     }
-    /** Exact finite source #minecraft:projectiles body types. Native special bows/fireballs,
-     * cloned ammo and OwnedDirt use these same actual types. Bare custom Projectile helper
-     * classes (soul gatherers, wand markers, virtual charges) are not source projectile types. */
+    /** Keep the existing native spawn bridge binary-compatible with previously qualified callers. */
+    public void beforeNativeSpawn(Projectile body){beforeNativeSpawn((Entity)body);}
+    /** Native gravity bodies plus all real native Projectile implementations, including magic
+     * and source acid. Non-projectile types still require explicit current ownership. */
     private static final Set<EntityType<?>> GRAVITY_TYPES=Set.of(
             EntityTypes.ARROW,EntityTypes.SPECTRAL_ARROW,EntityTypes.DRAGON_FIREBALL,
             EntityTypes.EGG,EntityTypes.WITHER_SKULL,EntityTypes.ENDER_PEARL,
@@ -75,7 +79,26 @@ public final class LbcProjectileLevelups {
             EntityTypes.LINGERING_POTION,EntityTypes.SHULKER_BULLET,EntityTypes.SMALL_FIREBALL,
             EntityTypes.SNOWBALL,EntityTypes.TRIDENT,EntityTypes.TNT,
             EntityTypes.WIND_CHARGE,EntityTypes.BREEZE_WIND_CHARGE);
-    public static boolean gravityBody(Entity e){return GRAVITY_TYPES.contains(e.getType());}
+    public static boolean gravityBody(Entity e){return e instanceof Projectile || GRAVITY_TYPES.contains(e.getType());}
+    /** Use the same current author as native reflection and source-acid damage. Never infer
+     * ownership from proximity: neutral falling blocks and foreign TNT remain untouched. */
+    Entity projectileOwner(Entity e){
+        var reflected=game.items().electro().reflectedOwner(e);
+        if(reflected!=null)return reflected;
+        var shared=LbcIndirectKills.playerSource(e);
+        if(shared!=null)return shared;
+        if(LbcClouds.sourceAcidManaged(e))return game.items().clouds().sourceAcidOwner(e);
+        if(e instanceof Projectile projectile)return projectile.getOwner();
+        if(e instanceof net.minecraft.world.entity.item.PrimedTnt tnt)return tnt.getOwner();
+        return null;
+    }
+    /** Loaded admission also covers direct addFreshEntity producers and late native ownership. */
+    public void loaded(Entity body){applyOwnedGravity(body);}
+    private void applyOwnedGravity(Entity body){
+        if(!restoring&&gravityBody(body)&&projectileOwner(body) instanceof ServerPlayer owner
+                &&admitted(owner)&&body.level()==owner.level()&&!body.isRemoved()
+                &&policy.hasLevelup(owner,30)&&policy.auraTarget(owner,body))body.setNoGravity(true);
+    }
     public void reconcile(ServerPlayer p){
         if(admitted(p)&&policy.hasLevelup(p,30))owners.add(p.getUUID());else clear(p.getUUID());
     }
@@ -88,7 +111,7 @@ public final class LbcProjectileLevelups {
         if(queued==null&&!owners.isEmpty()){queued=new Dispatcher();game.items().stonekivi().queuedWork(queued);}
     }
     private boolean auraOwner(ServerPlayer p){return admitted(p)&&policy.hasLevelup(p,30)&&owners.contains(p.getUUID());}
-    private boolean target(ServerPlayer p,Entity e){return gravityBody(e)&&!e.isRemoved()&&!e.isNoGravity()
+    private boolean target(ServerPlayer p,Entity e){return gravityBody(e)&&projectileOwner(e)==p&&!e.isRemoved()&&!e.isNoGravity()
             &&e.level()==p.level()&&!game.items().timeStop().frozen(e)&&!e.entityTags().contains("time_stopped")
             &&e.position().distanceToSqr(p.getEyePosition())<=9&&policy.auraTarget(p,e);}
     private void aura(ServerPlayer p){

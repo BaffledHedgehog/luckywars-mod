@@ -157,7 +157,7 @@ public final class LbcGovnomet {
                 if(!charges.contains(charge)) continue;
                 if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner) || !validOwner(owner)
                         || owner.level()!=charge.level() || !game.items().currentEpoch(charge)) { remove(charge); continue; }
-                if(game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) continue;
+                if(game.items().polymorph().suspended(charge)||game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")) continue;
                 if(!step(charge,owner) || ++charge.age>=50) remove(charge);
             }
         } finally { batch.clear(); }

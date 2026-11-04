@@ -23,7 +23,7 @@ public final class ExpansionSkillChecks {
     }
     public static void tick(GameController game){
         if(running==null)return;var r=running;
-        try{if(r.step()){running=null;r.close();SkyWars2.LOGGER.info("[check] PASS expansion-skill (real60tick charge/release; source80+20percent end; directional/downward air-only copies; cleared container metadata; source1106 slots/current vanilla palette; three native Lucky Block normalizations; MAG/artifact frontier-only rules and TECH control; TimeStop and nonempty whole-coordinator replay; cooldown and skill cleanup)");}}
+        try{if(r.step()){running=null;r.close();SkyWars2.LOGGER.info("[check] PASS expansion-skill (real60tick charge/release; source80+20percent end; directional/downward air-only copies; cleared container metadata; source1106 slots/current vanilla palette; three native Lucky Block normalizations; MAG charge/frontier suppression, artifact frontier suppression and TECH control; TimeStop and nonempty whole-coordinator replay; cooldown and skill cleanup)");}}
         catch(RuntimeException|Error failure){running=null;try{r.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL expansion-skill",failure);}
     }
     private static final class Run implements AutoCloseable {
@@ -86,7 +86,7 @@ public final class ExpansionSkillChecks {
             require(elapsed<1800,"bounded scheduled stage "+stage);protect();
             if(stage==0){
                 require(!skill.active(f.owner),"partial charge never activates");if(elapsed<20)return false;
-                require(skill.score(f.owner)>=19&&skill.score(f.owner)<=21,"MAG does not invent an owner charge pause");
+                require(skill.score(f.owner)==0,"MAG blocks owner charging without activating the territory");
                 f.owner.setShiftKeyDown(false);f.block(beacon,Blocks.AIR);stage=1;at=game.server().getTickCount();return false;
             }
             if(stage==1){

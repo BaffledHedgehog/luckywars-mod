@@ -179,14 +179,31 @@ public final class LbcTerra {
     void sourceCharges(ServerPlayer player,int value) { if(value==0)swordCharges.remove(player.getUUID());else swordCharges.put(player.getUUID(),value); }
     void resetCharges() { swordCharges.clear(); }
     /** (user) Только melee мечом или собственный заряд этого меча; прочий приписанный урон не подходит. */
-    void damaged(ServerPlayer owner, DamageSource source) {
+    public void damaged(ServerPlayer owner, DamageSource source) {
+        if (!admitted(owner)) return;
         var held = owner.getMainHandItem();
         boolean melee = LbcDamage.isMeleeAttack(source, owner);
         Kind charge = source.getDirectEntity() instanceof TerraProjectile projectile && projectile.getOwner() == owner
                 ? projectile.kind : null;
-        if (matches(held, SWORD, SWORD_FLAG) && (melee || charge == Kind.SWORD))
+        if (charge == Kind.SWORD || melee && matches(held, SWORD, SWORD_FLAG))
             swordCharges.put(owner.getUUID(), Math.min(4, charges(owner) + 1));
-        if (matches(held, TRUE_SWORD, TRUE_SWORD_FLAG) && (melee || charge == Kind.TRUE_CHARGE)) cast(owner, Kind.TRUE_BEAM);
+        if (charge == Kind.TRUE_CHARGE || melee && matches(held, TRUE_SWORD, TRUE_SWORD_FLAG)) cast(owner, Kind.TRUE_BEAM);
+    }
+
+    private boolean admitted(ServerPlayer owner) {
+        return owner != null && owner.isAlive() && !owner.isRemoved()
+                && owner.level() == game.maps().level() && !game.isObserver(owner)
+                && game.canUseGameplayItems(owner) && !game.items().magic().suppressed(owner);
+    }
+
+    /** The shared native death owner calls this once; hit and kill are separate charge rewards. */
+    void killed(ServerPlayer owner, DamageSource source) {
+        if (!admitted(owner)) return;
+        boolean melee = LbcDamage.isMeleeAttack(source, owner)
+                && matches(owner.getMainHandItem(), SWORD, SWORD_FLAG);
+        boolean shot = source.getDirectEntity() instanceof TerraProjectile projectile
+                && projectile.getOwner() == owner && projectile.kind == Kind.SWORD;
+        if (melee || shot) swordCharges.put(owner.getUUID(), Math.min(4, charges(owner) + 1));
     }
     int hudCharges(ServerPlayer player) {
         return matches(player.getMainHandItem(), SWORD, SWORD_FLAG)
@@ -364,10 +381,12 @@ public final class LbcTerra {
             for (var projectile : batch) {
                 try(var sourceScope=game.items().spellSources().scope(projectile)){
                 if (!projectiles.contains(projectile)) continue;
+                if (game.items().polymorph().suspended(projectile)) {projectile.destroyModel();continue;}
                 var owner=game.items().spellSources().author(projectile);
                 if(!liveSourceCharge(projectile,owner)) {
                     remove(projectile); continue;
                 }
+                if(projectile.holder==null&&!projectile.emitterStyle)projectile.attachModel();
                 if (game.items().timeStop().stopped((ServerLevel)projectile.level()) || (game.items().spellSources().current()!=null?projectile:owner).entityTags().contains("time_stopped")) {
                     if (!projectile.modelPaused) projectile.syncModel(projectile.position());
                     projectile.modelPaused = true;

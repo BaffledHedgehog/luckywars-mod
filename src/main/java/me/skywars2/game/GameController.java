@@ -631,6 +631,7 @@ public final class GameController {
         items.stand().joined(player);
         givePendingBalanceRewards(player);
         cases.onJoin(player);
+        items.cosmetics().refreshSuffixes(List.of(player));
     }
 
     public void leave(ServerPlayer player) {
@@ -642,6 +643,7 @@ public final class GameController {
         attributeHud.clear(player);
         teamColors.leave(player);
         items.forget(player);
+        items.cinema().forget(player);
         lbc.clear(player);
         lbc.left(player);
         events.removePlayerSkill(player);
@@ -1058,6 +1060,9 @@ public final class GameController {
             if (config.vanillaSkills) events.giveSkill(player);
             items.magic().colors().resetResources(player);
             lbc.apply(player);
+            var member=participants.get(player.getUUID());
+            member.lives=items.phoenix().start(player,member.lives);player.setHealth(player.getMaxHealth());
+            items.cinema().start(player,maps.centerPositions());
             items.stand().matchStarted(player);
         }
         maps.level().getGameRules().set(GameRules.BLOCK_DROPS, true, server);
@@ -1090,6 +1095,8 @@ public final class GameController {
                 member.spawn.yaw(),member.spawn.pitch()),true),false);
         teleport(player,member.spawn.position(),member.spawn.yaw(),member.spawn.pitch());
         player.giveExperienceLevels(30);lbc.applyBedwarsRespawn(player);
+        items.cinema().bodyReady(player);
+        items.phoenix().bodyReady(player);
         player.connection.send(new ClientboundSetTitleTextPacket(Component.empty()));
         player.connection.send(new ClientboundSetSubtitleTextPacket(Component.empty()));
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetExperiencePacket(
@@ -1141,8 +1148,12 @@ public final class GameController {
         items.stand().died(player);
         items.mobgun().forget(player);
         boolean bedDeath=bedwars.mode()&&bedwars.active()&&bedwars.hasBed(player)&&!vipRespawn&&!developerMode();
+        boolean phoenixSelected=items.phoenix().active(player.getUUID());
+        boolean phoenixRespawn=phoenixSelected&&items.phoenix().beforeDeath(player);
+        if(phoenixSelected&&!phoenixRespawn){bedDeath=false;p.lives=Math.min(p.lives,1);}
+        if(!bedDeath&&!vipRespawn&&!developerMode()&&items.cinema().beforeLastLifeLost(player,p.lives,false))p.lives++;
         if (developerMode()) p.lives = Math.max(1, p.lives);
-        else if(!bedDeath&&!vipRespawn&&!items.indolenceFingers().prepareDeath(player))p.lives--;
+        else if(!bedDeath&&!vipRespawn&&!phoenixRespawn&&!items.indolenceFingers().prepareDeath(player))p.lives--;
         p.awaitingRespawn = true;
         if(bedDeath)bedwars.death(player);
         attributeHud.clear(player);
@@ -1198,6 +1209,8 @@ public final class GameController {
             if (config.vanillaKits) events.giveKit(player);
             if (config.vanillaSkills) events.giveSkill(player);
             lbc.apply(player, false);
+            items.cinema().bodyReady(player);
+            items.phoenix().bodyReady(player);
             items.stand().respawned(player);
             items.indolenceFingers().respawned(player);
         } else if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
@@ -1240,6 +1253,7 @@ public final class GameController {
         if (config.vanillaKits) events.giveKit(player);
         if (config.vanillaSkills) events.giveSkill(player);
         lbc.apply(player, false);
+        items.phoenix().bodyReady(player);items.cinema().bodyReady(player);
         items.stand().respawned(player);
         bar.addPlayer(player);
         lastAliveTicks = 5;
@@ -1254,8 +1268,16 @@ public final class GameController {
     }
     void addRuneLives(ServerPlayer author,int amount){
         var member=participants.get(author.getUUID());if(member==null)return;
+        if(amount>0&&items.phoenix().convertLives(author,amount)==amount)return;
         member.lives=(int)Math.clamp((long)member.lives+amount,0L,Integer.MAX_VALUE);
         if(playing())updateBar();
+    }
+
+    void selectedSkillChanged(ServerPlayer player){
+        var member=participants.get(player.getUUID());
+        if(!playing()||member==null||member.lives<=0||!player.isAlive()||!canUseGameplayItems(player))return;
+        member.lives=items.phoenix().start(player,member.lives);
+        items.cinema().start(player,maps.centerPositions());
     }
     void rotateMapSpawns(net.minecraft.core.BlockPos origin){
         for(var member:participants.values())if(member.spawn!=null)member.spawn=MapManager.rotatedSpawn(member.spawn,origin);
@@ -1305,6 +1327,8 @@ public final class GameController {
         int bedwarsWinner=bedwarsResult?bedwars.winnerTeam():-1;
         List<ServerPlayer> bedwarsLiving=bedwarsResult?alivePlayers().stream()
                 .filter(player->player.isAlive()&&!player.isSpectator()&&bedwars.team(player)==bedwarsWinner).toList():List.of();
+        List<UUID> bedwarsRewarded=bedwarsResult&&bedwarsWinner>0?participants.keySet().stream()
+                .filter(id->bedwars.assignedTeam(id)==bedwarsWinner).toList():List.of();
         bedwars.stop();
         balanceLegacy(false);balanceMap=null;balancePendingReset.clear();balancePendingRewards.clear();
         vanity.stop();
@@ -1318,9 +1342,13 @@ public final class GameController {
                 .min(java.util.Comparator.comparingDouble(player->player.position().distanceToSqr(Vec3.ZERO))).orElse(null)
                 :alive.size() == 1 ? alive.getFirst() : null;
         victoryWinner = winner == null ? null : winner.getUUID();
-        if (winner != null) {
-            var profile = players.get(winner.getUUID()); profile.coins += 100; profile.wins++;
+        // Team victory belongs to every enrolled teammate, including dead/offline teammates.
+        List<UUID> rewarded=bedwarsResult?bedwarsRewarded:winner==null?List.of():List.of(winner.getUUID());
+        for(UUID id:rewarded){var profile=players.get(id);profile.coins+=100;profile.wins++;
             profile.keys[ThreadLocalRandom.current().nextInt(4)]++;
+            var onlineWinner=server.getPlayerList().getPlayer(id);
+            if(onlineWinner!=null)onlineWinner.sendSystemMessage(rewardText("swrg.reward.win"));}
+        if (winner != null) {
             announce(Component.translatable("swrg.title.player_win")
                     .withStyle(ChatFormatting.DARK_GREEN)
                     .append(Component.literal(" "))
@@ -1328,9 +1356,6 @@ public final class GameController {
                             .withColor(ChatFormatting.WHITE).withBold(true)))
                     .append(Component.literal(" "))
                     .append(Component.translatable("swrg.title.player_win2")));
-            winner.sendSystemMessage(rewardText("swrg.reward.win"));
-            if(bedwarsResult)for(var teammate:bedwarsLiving)if(teammate!=winner)
-                teammate.sendSystemMessage(rewardText("swrg.reward.win"));
         } else if(bedwarsResult&&bedwarsWinner>0){
             // A bed-entitled team can win while every member is waiting for its actual native body.
             announce(Component.translatable("swrg.title.player_win").withStyle(ChatFormatting.DARK_GREEN)

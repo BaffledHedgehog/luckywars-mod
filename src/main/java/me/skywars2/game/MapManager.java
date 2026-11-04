@@ -1713,6 +1713,12 @@ public final class MapManager {
         return entities;
     }
 
+    /** Stable activation-time positions of actual map center markers, distinct from player spawns. */
+    public List<Vec3> centerPositions() {
+        return allArenaEntities().stream().filter(entity -> entity instanceof Marker
+                && entity.entityTags().contains("swrg.center")).map(Entity::position).toList();
+    }
+
     private List<Entity> entitiesWithin(List<BoundingBox> bounds) {
         if (level == null || bounds.isEmpty()) return List.of();
         return allArenaEntities().stream().filter(entity -> {

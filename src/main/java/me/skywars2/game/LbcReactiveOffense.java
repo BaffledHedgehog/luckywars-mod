@@ -41,7 +41,7 @@ public final class LbcReactiveOffense {
         // A parent spell's WILD scope must not turn a newly emitted ordinary trinket into WILD.
         try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)){
             if(roll(attacker,acidCount,150,70,14))acid(attacker);
-            if(roll(attacker,bassCount,150,50,14))game.items().evokerBass().trinketCast(attacker);
+            if(!game.items().magic().suppressed(attacker)&&roll(attacker,bassCount,150,50,0))game.items().evokerBass().trinketCast(attacker);
             if(existing!=null)existing.run();
             if(roll(attacker,soulCount,40,10,0))soul(attacker,victim);
         }finally{callbacks--;reacting.remove(attacker.getUUID());}

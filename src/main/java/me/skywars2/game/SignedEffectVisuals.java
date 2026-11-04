@@ -7,6 +7,11 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -28,6 +33,7 @@ public final class SignedEffectVisuals {
     private record Presentation(long invisibility, boolean spectator, List<ParticleOptions> particles) { }
     private static final ConcurrentHashMap<Integer, Presentation> PRESENTATIONS = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<UUID, Long> REVEAL = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID,Integer> MOVIE_NIGHT_VISION=new ConcurrentHashMap<>();
     // Entity references are accessed only from the server thread, never by the packet encoder.
     private static final Map<Integer, LivingEntity> ENTITIES = new HashMap<>();
     private SignedEffectVisuals() { }
@@ -91,6 +97,7 @@ public final class SignedEffectVisuals {
         player.sendPostEffects();
     }
     public static void clear(ServerPlayer player) {
+        movieNightVision(player,false);
         SignedGlowVisuals.forget(player);
         for (var id : List.copyOf(player.getPostEffects())) if (owned(id)) player.removePostEffect(id);
         REVEAL.remove(player.getUUID());
@@ -101,12 +108,40 @@ public final class SignedEffectVisuals {
         SignedGlowVisuals.stop();
     }
     public static void removed(Entity entity) {
+        if(entity instanceof ServerPlayer player)MOVIE_NIGHT_VISION.remove(player.getUUID());
         PRESENTATIONS.remove(entity.getId()); ENTITIES.remove(entity.getId());
         if (entity instanceof LivingEntity living) SignedGlowVisuals.removed(living);
         if (entity instanceof ServerPlayer player) REVEAL.remove(player.getUUID());
     }
     public static boolean owned(Identifier id) {
         return id.equals(NEXUS) || id.equals(SKILL_ISSUE) || id.getNamespace().equals("lbc") && id.getPath().startsWith(PREFIX);
+    }
+    /** Self-only cosmetic lightmap projection. Never grants or removes an authoritative effect. */
+    public static void movieNightVision(ServerPlayer player,boolean enabled){
+        if(enabled){
+            var old=MOVIE_NIGHT_VISION.put(player.getUUID(),player.getId());
+            if(old==null||old!=player.getId())player.connection.send(movieNightVisionPacket(player.getId()));
+        }else if(MOVIE_NIGHT_VISION.remove(player.getUUID())!=null){
+            var real=player.getEffect(MobEffects.NIGHT_VISION);
+            player.connection.send(real==null?new ClientboundRemoveMobEffectPacket(player.getId(),MobEffects.NIGHT_VISION)
+                    :new ClientboundUpdateMobEffectPacket(player.getId(),real,false));
+        }
+    }
+    private static ClientboundUpdateMobEffectPacket movieNightVisionPacket(int entity){
+        return new ClientboundUpdateMobEffectPacket(entity,new MobEffectInstance(MobEffects.NIGHT_VISION,-1,0,false,false,false),false);
+    }
+    /** Keep real effect updates/removals from overwriting the temporary self presentation. */
+    @SuppressWarnings("unchecked")
+    public static Packet<?> projectPacket(ServerPlayer player,Packet<?> packet){
+        var entity=MOVIE_NIGHT_VISION.get(player.getUUID());if(entity==null)return packet;
+        if(packet instanceof ClientboundUpdateMobEffectPacket effect&&effect.getEntityId()==entity&&effect.getEffect().is(MobEffects.NIGHT_VISION)
+                ||packet instanceof ClientboundRemoveMobEffectPacket remove&&remove.entityId()==entity&&remove.effect().is(MobEffects.NIGHT_VISION))return movieNightVisionPacket(entity);
+        if(packet instanceof ClientboundBundlePacket bundle){
+            var children=new ArrayList<Packet<? super ClientGamePacketListener>>();boolean changed=false;
+            for(var child:bundle.subPackets()){var projected=projectPacket(player,child);changed|=projected!=child;children.add((Packet<? super ClientGamePacketListener>)projected);}
+            if(changed)return new ClientboundBundlePacket(children);
+        }
+        return packet;
     }
     /** Visual response saturates at display limits; signed values never saturate server-side. */
     public static int visualTier(long level) {

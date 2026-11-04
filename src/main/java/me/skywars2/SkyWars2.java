@@ -519,7 +519,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     .then(Commands.argument("parameter", StringArgumentType.word())
                             .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(List.of(
                                     "lives", "health", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
-                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "luckyModifier", "cfg_lucky_modifier", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcKits", "lbcSkills", "lbcLevelups", "lbcLevelupLimit", "lbcTrinketLimit", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "gameMode", "map", "broken"), builder))
+                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "luckyModifier", "cfg_lucky_modifier", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcKits", "lbcSkills", "lbcLevelups", "lbcLevelupLimit", "lbcTrinketLimit", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "gameMode", "bedwarsDirectBedBreaking", "map", "broken"), builder))
                             .then(Commands.argument("value", StringArgumentType.word())
                                     .suggests((ctx, builder) -> settingValueSuggestions(
                                             StringArgumentType.getString(ctx, "parameter"), builder))
@@ -553,7 +553,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             String parameter, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
         if (game == null) return builder.buildFuture();
         String key = parameter.toLowerCase(java.util.Locale.ROOT);
-        if (List.of("ranked", "vanillakits", "vanillaskills", "lbckits", "lbcskills", "lbclevelups", "lbcchallenges", "offhandwands", "lefthandwands", "noborders", "broken").contains(key))
+        if (List.of("ranked", "vanillakits", "vanillaskills", "lbckits", "lbcskills", "lbclevelups", "lbcchallenges", "offhandwands", "lefthandwands", "noborders", "bedwarsdirectbedbreaking", "broken").contains(key))
             return SharedSuggestionProvider.suggest(List.of("true", "false"), builder);
         if (key.equals("map") || key.equals("mapid"))
             return SharedSuggestionProvider.suggest(game.maps().catalog().stream().filter(MapManager.MapInfo::available)

@@ -97,6 +97,7 @@ public final class LbcReactiveTrinkets {
             if(p==null){periodic.remove(id);continue;}if(value==null||!admission(p)||paused(p))continue;
             long y=scaledY(p),delta=y-value.y;int phase=(value.phase+1)%20;
             periodic.put(id,new Periodic(value.horse,value.poly,value.prism,y,phase));
+            if(game.items().magic().suppressed(p))continue;
             if(phase==0&&value.horse>0&&!p.onGround())defense.fall(p,value.horse,(int)Math.clamp(delta,Integer.MIN_VALUE,Integer.MAX_VALUE));
             if(value.poly>0&&p.getRandom().nextFloat()<(.001+.001*value.poly))game.items().sheep().trinket(p);
             if(value.prism>0&&p.getRandom().nextFloat()<(.0004+.0001*value.prism))game.items().prism().trinket(p);

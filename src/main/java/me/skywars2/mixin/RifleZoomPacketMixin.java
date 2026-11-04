@@ -16,6 +16,6 @@ public abstract class RifleZoomPacketMixin {
     private Packet<?> skywars2$rifleProjection(Packet<?> packet) {
         if (!((Object) this instanceof ServerGamePacketListenerImpl connection)) return packet;
         var game = SkyWars2.game();
-        return game == null ? packet : game.items().rifleZoom().projectPacket(connection.player, packet);
+        return game == null ? packet : me.skywars2.game.SignedEffectVisuals.projectPacket(connection.player,game.items().rifleZoom().projectPacket(connection.player, packet));
     }
 }

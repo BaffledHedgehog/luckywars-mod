@@ -1,3 +1,26 @@
+## Night answers / Imba Axe, Phoenix and Cinema - QUALIFIED, INSTALLED (4 November 2026)
+
+[Author decisions, current behavior, commands and remaining work](agent_notes/NIGHT_ANSWERS_IMPLEMENTATION_2026_11_04.md).
+Native owned Homing30, Phoenix31 and complete Cinema35 now admitted. Reworked
+Imba Axe scans copied loaded-section palettes asynchronously, caches clean sections,
+uses bounded native destruction/real container loot and owner delivery. Consumed
+territory is skywars2:consumed_block with Polymer palette rendering; natural map
+mushrooms remain vanilla. Exact ready Axe/Bridge leaves; full IMBA pool stays gated.
+Terra actual projectile hits and melee/projectile kills recharge. Author jammer,
+Touhou, reactive/gem/aura, unique Tatam/Gravitas and BedWars reward/protection rules
+applied. Accepted case result fixed; three offline-safe manual drop requests.
+Individual suffixes in TAB/chat only: overhead names still pending. Bad Apple
+restores native terrain and uses owned movie shading; author applied RP additions,
+removed templates preserved. Mellstroy/Cunny/disabled time fragments remain pending.
+
+Teste0e4a4ee /production452e1b38:33groups/33actual matches (28mode1,5mode3)
+pass exact archive.74freshJavafamilies/16resources,9940otherinputs/275authorpaths
+guarded; all ZIP bytes verified, retained2752class references audited. Both
+build/libs/main updated,db4914ab rollback,restarted:false; no main stop/start.
+No physical-client/peakTPS/crash-kill/full162-Oreshnik claim. TMT LAST; modes2/4,
+skill2 and broad public rewind gates unchanged. Exact evidence:
+build/verification/night-answers-2026-11-04/qualification.json.
+
 ## Cases and cosmetics - QUALIFIED, INSTALLED (4 November 2026)
 
 [Source, defaults, native ownership and exact proof](agent_notes/CASES_COSMETICS_PORT_2026_11_04.md).

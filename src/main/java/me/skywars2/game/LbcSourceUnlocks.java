@@ -21,11 +21,12 @@ public final class LbcSourceUnlocks {
                 case "swrg.sound" -> 13; default -> 20; };
             for (int n = 1; n <= max; n++) if (key.equals(prefix + n)) return true;
         }
-        return key.matches("swrg:rewards/(?:suffix_(?:[1-9]|1[0-9]|2[0-6])|drop_[1-3]|turnir/(?:trophy[1-3]|killer))");
+        return key.matches("swrg:rewards/(?:suffix_(?:[1-9]|1[0-9]|2[0-6])|drop_[1-3](?:_requested)?|turnir/(?:trophy[1-3]|killer))");
     }
 
     static boolean has(ServerPlayer player, PlayerStore.Profile profile, String key) {
         if (profile != null && (profile.legacyUnlocks.contains(key) || profile.lbcUnlocks.contains(key))) return true;
+        if (player == null) return false;
         if (!key.contains(":")) return player.entityTags().contains(key);
         var advancement = player.level().getServer().getAdvancements().get(Identifier.parse(key));
         return advancement != null && player.getAdvancements().getOrStartProgress(advancement).isDone();
@@ -34,12 +35,23 @@ public final class LbcSourceUnlocks {
     /** Call on join and before accepting an opening, then persist in its same transaction. */
     static boolean importLegacy(ServerPlayer player, PlayerStore.Profile profile) {
         boolean changed = false;
-        for (String key : universe()) if (has(player, profile, key)) changed |= profile.legacyUnlocks.add(key);
+        for (String key : universe()) {
+            if (key.matches("swrg:rewards/drop_[1-3]_requested")
+                    && profile.dropRequestOverrides.contains(key.substring("swrg:rewards/drop_".length(), "swrg:rewards/drop_".length()+1))) continue;
+            if (has(player, profile, key)) changed |= profile.legacyUnlocks.add(key);
+        }
         return changed;
     }
 
     /** Projections are repaired after durable commit/rejoin, never used as the payout journal. */
     static void publish(ServerPlayer player, PlayerStore.Profile profile) {
+        for (String id : profile.dropRequestOverrides) {
+            String key = LbcDropRequests.fulfilledKey(Integer.parseInt(id));
+            if (profile.legacyUnlocks.contains(key)) continue;
+            var advancement = player.level().getServer().getAdvancements().get(Identifier.parse(key));
+            if (advancement != null) for (String criterion : advancement.value().criteria().keySet())
+                player.getAdvancements().revoke(advancement, criterion);
+        }
         for (String key : profile.legacyUnlocks) {
             if (!valid(key)) throw new IllegalStateException("Invalid source unlock " + key);
             if (!key.contains(":")) player.entityTags().add(key);
@@ -58,7 +70,7 @@ public final class LbcSourceUnlocks {
         for (int n=1;n<=11;n++) keys.add("swrg.skill"+n);
         for (int n=1;n<=13;n++) keys.add("swrg.sound"+n);
         for (int n=1;n<=26;n++) keys.add("swrg:rewards/suffix_"+n);
-        for (int n=1;n<=3;n++) { keys.add("swrg:rewards/drop_"+n); keys.add("swrg:rewards/turnir/trophy"+n); }
+        for (int n=1;n<=3;n++) { keys.add("swrg:rewards/drop_"+n); keys.add("swrg:rewards/drop_"+n+"_requested"); keys.add("swrg:rewards/turnir/trophy"+n); }
         keys.add("swrg:rewards/turnir/killer");
         return keys;
     }

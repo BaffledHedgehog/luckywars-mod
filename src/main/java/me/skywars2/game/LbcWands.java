@@ -1360,6 +1360,13 @@ public final class LbcWands {
                 if(game.items().magic().mechanismSuppressedAt(trace.level,trace.position)){electroTraces.remove(trace);continue;}
                 // (user) Мана/антимагия проверяются при использовании жезла; выпущенная дуга немагическая.
                 try(var scope=game.items().spellSources().scope(trace.sourcePolicy,trace.level)){
+                    var author=trace.cause==null?LbcIndirectKills.playerSource(trace.source()):game.server().getPlayerList().getPlayer(trace.cause.player());
+                    var original=Vec3.directionFromRotation(trace.pitch,trace.yaw);
+                    var direction=game.items().homing().skillDirection(author,trace.level,trace.position,original);
+                    if(direction!=original){
+                        trace.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+                        trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+                    }
                     if(!trace.level.hasChunkAt(BlockPos.containing(trace.position))
                             || (trace.erecto!=null ? !game.items().erecto().step(trace) : trace.teslaChain&&trace.age%5!=0 ? false : !electroStep(trace)) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
                 }

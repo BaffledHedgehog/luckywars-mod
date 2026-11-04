@@ -177,6 +177,27 @@
   ],
   "skills": [
     {
+      "id": 31,
+      "page": 10100,
+      "slot": 3,
+      "gate": "lbc:true_advancements/legends/academy/fire",
+      "lockedKey": "lbc.adv.upgraded_tuntija.fire.lore"
+    },
+    {
+      "id": 35,
+      "page": 10100,
+      "slot": 7,
+      "gate": "lbc:true_advancements/legends/academy/omega_flag",
+      "lockedKey": "lbc.adv.upgraded_tuntija.omega_flag.lore"
+    },
+    {
+      "id": 30,
+      "page": 10100,
+      "slot": 2,
+      "gate": "lbc:true_advancements/legends/academy/exahoming",
+      "lockedKey": "lbc.adv.upgraded_tuntija.exahoming.lore"
+    },
+    {
       "id": 20,
       "page": 10000,
       "slot": 20,

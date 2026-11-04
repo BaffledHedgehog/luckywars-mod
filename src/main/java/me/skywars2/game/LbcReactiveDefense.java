@@ -25,6 +25,7 @@ import net.minecraft.world.entity.Display.BlockDisplay;
 import net.minecraft.world.entity.animal.equine.Horse;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -62,13 +63,13 @@ public final class LbcReactiveDefense {
     /** Root passes the actual pre-hit native unit counts; this method never reads inventory. */
     public void received(ServerPlayer p,int bananaCount,int spikeCount){
         if(restoring||!eligible(p))return;Vec3 feet=p.position(),eyes=p.getEyePosition();
-        if(roll(p,bananaCount,.05,.025))accept(p,Kind.BANANA,eyes);
+        if(!game.items().magic().suppressed(p)&&roll(p,bananaCount,.05,.025))accept(p,Kind.BANANA,eyes);
         if(roll(p,spikeCount,.10,.02))accept(p,Kind.SPIKE,feet);
         drain();
     }
     /** Once per existing source1second phase; deltaY is floor(PosY*100)-previous floor(PosY*100). */
     public void fall(ServerPlayer p,int copies,int deltaY){
-        if(restoring||!eligible(p)||p.onGround()||deltaY>-150)return;
+        if(restoring||!eligible(p)||game.items().magic().suppressed(p)||p.onGround()||deltaY>-150)return;
         if(roll(p,copies,.05,.02))accept(p,Kind.HORSE,p.getEyePosition());drain();
     }
     private void accept(ServerPlayer p,Kind kind,Vec3 at){pending.addLast(new Proc(kind,p.getUUID(),game.items().epoch(),p.level(),at,UUID.randomUUID(),team(p),game.items().indirectKills().coldCause(p,kind==Kind.SPIKE)));}
@@ -135,17 +136,21 @@ public final class LbcReactiveDefense {
                 var level=(ServerLevel)a.body.level();long clock=clocks.computeIfAbsent(level,ignored->0L);
                 if(paused(level)||game.items().timeStop().frozen(a.body)||!resident(level,a.body.position())){work.addLast(a);continue;}
                 if(a.kind==Kind.HORSE&&game.items().magic().suppressedAt(level,a.body.position())){retire(a);continue;}
-                if(clock>=a.due){a.due+=a.kind==Kind.HORSE?2:1;if(a.kind==Kind.HORSE)horse(a);else spike(a);}
+                if(clock>=a.due){
+                    if(a.kind==Kind.HORSE){int elapsed=(int)Math.min(Integer.MAX_VALUE,1+(clock-a.due)/2);a.due+=2L*elapsed;horse(a,elapsed);}
+                    else{a.due++;spike(a);}
+                }
                 if(actors.get(a.body)==a)work.addLast(a);
             }
         }finally{ticking=false;}
     }
-    private void horse(Actor a){
+    private void horse(Actor a,int elapsed){
         if(a.remaining<=0)return;var level=(ServerLevel)a.body.level();
-        for(var visitor:level.getEntitiesOfClass(ServerPlayer.class,a.body.getBoundingBox().inflate(2),p->!game.isObserver(p)&&!p.isSpectator()&&p.isAlive()&&game.canUseGameplayItems(p)&&p.position().distanceToSqr(a.body.position())<=4)){
-            if(a.remaining<=0)break;a.remaining--;mirror(a);
-            var direction=visitor.getLookAngle();a.body.setDeltaMovement(new Vec3(quantized(direction.x),quantized(direction.y),quantized(direction.z)));
-            if(visitor.getRandom().nextFloat()<.1f)LbcOverload.sound(level,a.body.position(),"minecraft:entity.ender_dragon.flap",SoundSource.NEUTRAL,1,1.5f,0,0);
+        a.remaining=Math.max(0,a.remaining-elapsed);mirror(a);
+        if(a.remaining==0)return;
+        if(a.body.getFirstPassenger() instanceof ServerPlayer rider&&!game.isObserver(rider)&&rider.isAlive()&&game.canUseGameplayItems(rider)){
+            var direction=rider.getLookAngle();a.body.setDeltaMovement(new Vec3(quantized(direction.x),quantized(direction.y),quantized(direction.z)));
+            if(rider.getRandom().nextFloat()<.1f)LbcOverload.sound(level,a.body.position(),"minecraft:entity.ender_dragon.flap",SoundSource.NEUTRAL,1,1.5f,0,0);
         }
     }
     private static double quantized(double value){return Math.floor(value*10000)*.0001;}
@@ -164,7 +169,10 @@ public final class LbcReactiveDefense {
             finally{level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DRIPSTONE_BLOCK.defaultBlockState()),at.x,at.y+.5,at.z,10,.1,.3,.1,0);LbcOverload.sound(level,at,"minecraft:entity.zombie.break_wooden_door",SoundSource.BLOCKS,1,1,0,0);retire(a);}
             return;
         }
-        if(level.getBlockState(BlockPos.containing(at.add(0,-.5,0))).is(AIRS))body.setPos(at.x,level.getHeight(Heightmap.Types.MOTION_BLOCKING,Mth.floor(at.x),Mth.floor(at.z)),at.z);
+        double falling=(body.getDeltaMovement().y-.08)*.98;
+        var hit=level.clip(new ClipContext(at.add(0,.001,0),at.add(0,falling,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,body));
+        if(hit.getType()==HitResult.Type.BLOCK){body.setPos(hit.getLocation());body.setDeltaMovement(Vec3.ZERO);}
+        else{body.setPos(at.add(0,falling,0));body.setDeltaMovement(0,falling,0);}
     }
     private void retire(Actor a){actors.remove(a.body);work.remove(a);if(!a.body.isRemoved())a.body.discard();}
     public ServerPlayer owner(Entity body){var a=actors.get(body);return a==null?null:game.server().getPlayerList().getPlayer(a.owner);}

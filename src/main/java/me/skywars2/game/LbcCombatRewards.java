@@ -68,6 +68,8 @@ public final class LbcCombatRewards {
                 ||!LbcDimensionItems.ordinary(victim.level()))return;
         var owner=attacker(victim,source);
         if(owner==null||owner==victim)return;
+        game.items().terra().killed(owner,source);
+        if(victim instanceof ServerPlayer player)game.items().cinema().playerKilled(owner,player,source);
         boolean soul=game.lbc().hasSkill(owner,16),loot=game.lbc().hasSkill(owner,18);
         var death=new Death(owner.getUUID(),game.items().epoch(),soul,loot,game.items().hakureiSkill().eligible(owner),game.items().cosmetics().acceptKill(owner,victim));deaths.put(victim,death);
         if(soul) {

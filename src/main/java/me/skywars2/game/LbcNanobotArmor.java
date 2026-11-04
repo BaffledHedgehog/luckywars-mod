@@ -69,7 +69,7 @@ public final class LbcNanobotArmor {
     public void incoming(ServerPlayer player){
         var attempt=attempts.peek();
         boolean allowed=attempt!=null&&attempt.player()==player?attempt.admitted():admitted(player);
-        if(!allowed||tier(player)<1)return;
+        if(!allowed||!resistanceAllowed(player)||tier(player)<1)return;
         var tier=game.items().mana().score(player,TIER);
         if(tier.get()<=4)tier.set(0);else tier.add(-5);
         if(cooldown(player)<=20)game.items().mana().score(player,COOLDOWN).add(5);

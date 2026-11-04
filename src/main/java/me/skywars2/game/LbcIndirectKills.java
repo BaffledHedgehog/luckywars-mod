@@ -219,6 +219,7 @@ public final class LbcIndirectKills {
         var game=me.skywars2.SkyWars2.game();
         if(source!=null&&game!=null&&game.bedwars()!=null&&game.bedwars().auxiliaries().owner(source) instanceof ServerPlayer player)return player;
         if(game!=null && game.items().cosmetics().owner(source) instanceof ServerPlayer player)return player;
+        if(game!=null && game.items().bridgeBuilder().owner(source) instanceof ServerPlayer player)return player;
         if(game!=null && game.items().spellSources().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().chaosTrapActors().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().magicBean().owner(source) instanceof ServerPlayer player) return player;

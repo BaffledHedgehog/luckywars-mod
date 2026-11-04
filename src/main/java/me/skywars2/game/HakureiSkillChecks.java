@@ -102,6 +102,12 @@ public final class HakureiSkillChecks {
                 if(elapsed<2)return false;
                 require(intake.counters(f.other).equals(new LbcTouhouCollectibles.Counters(150,75,95,90)),"99-unit large stacks convert each threshold ONCE under source unjammed intake");require(inventoryFlag("time_stopper")==1&&inventoryFlag("bomb_item")==1&&game.lives(f.other.getUUID())==lifeBase+2,"one output each, counters retain overflow");
                 if(elapsed<5)return false;require(intake.counters(f.other).bombFragments()==95,"no autonomous repeated conversion after drain");
+                var held=f.other.getMainHandItem().copy();
+                for(String table:List.of("bomb_item","time_stopper")){
+                    f.other.setItemInHand(InteractionHand.MAIN_HAND,game.lbc().rollTable(f.other.level(),f.other.position(),f.other,"lbc:"+table).getFirst());
+                    require(!intake.use(f.other,InteractionHand.MAIN_HAND)&&f.other.getMainHandItem().getCount()==1,"MAG blocks "+table+" launch without consuming it");
+                }
+                f.other.setItemInHand(InteractionHand.MAIN_HAND,held);
                 f.block(f.center.offset(4,0,4),Blocks.AIR);f.move(f.other,f.at.add(8,0,0));audience.acknowledge();
                 for(int slot=0;slot<36;slot++)f.other.getInventory().setItem(slot,new ItemStack(Items.STONE,64));
                 fullPickup=new ItemEntity(f.other.level(),f.other.getX(),f.other.getY(),f.other.getZ(),source(1,1));fullPickup.setNoPickUpDelay();fullPickup.setNoGravity(true);fullPickup.setDeltaMovement(Vec3.ZERO);require(f.other.level().addFreshEntity(fullPickup),"real full-inventory pickup candidate");touched.add(fullPickup);fullPickup.playerTouch(f.other);require(!fullPickup.isRemoved()&&fullPickup.getItem().getCount()==1,"full inventory leaves actual collectible intact");stage=10;at=game.server().getTickCount();return false;
@@ -132,7 +138,10 @@ public final class HakureiSkillChecks {
             if(stage==6){
                 if(elapsed<4)return false;var clock=game.lbc().rollTable(f.other.level(),f.other.position(),f.other,"lbc:time_stopper").getFirst();f.other.setItemInHand(InteractionHand.MAIN_HAND,clock.copyWithCount(2));
                 require(intake.use(f.other,InteractionHand.MAIN_HAND)&&f.other.getMainHandItem().getCount()==1&&game.items().timeStop().stopped(f.other.level()),"real source clock input enters shared stop with one debit");
-                require(!game.items().timeStop().frozen(f.other),"caster exemption survives consumable debit");stage=7;at=game.server().getTickCount();return false;
+                require(!game.items().timeStop().frozen(f.other),"caster exemption survives consumable debit");
+                require(intake.use(f.other,InteractionHand.MAIN_HAND)&&f.other.getMainHandItem().isEmpty()
+                        &&game.items().timeStop().remaining(f.other.level())==440,"second clock adds11seconds to same stop with one further debit");
+                stage=7;at=game.server().getTickCount();return false;
             }
             if(elapsed<3)return false;require(game.items().timeStop().stopped(f.other.level())&&!game.items().timeStop().frozen(f.other),"caster remains immune on later clock ticks");return true;
         }

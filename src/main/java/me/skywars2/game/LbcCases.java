@@ -59,10 +59,13 @@ final class LbcCases {
             var strip = new ArrayList<Token>(27);
             for (int n = 0; n < 27; n++) strip.add(draw(player, "swrg:gui/roll/" + ROOTS[kind]).getFirst());
             compensate(player, profile, strip, kind);
+            // Q24: both source ownership filters and their native compensation draws
+            // belong to acceptance. Future unlock changes cannot alter this opening.
+            compensate(player, profile, strip, kind);
             // Source phase1 falls through phase2, shifts once, increments to3, then timer1->0.
             shift(strip);
             profile.keys[kind]--;
-            writePending(player,new Pending(1, kind, strip, 3, 0, null, false));
+            writePending(player,new Pending(2, kind, strip, 3, 0, normalize(strip.get(20), kind), false));
             game.players().saveAtomic();
         } catch (IOException | RuntimeException failure) {
             before.restore(); icons.remove(player.getUUID()); decoded.remove(player.getUUID());
@@ -94,7 +97,7 @@ final class LbcCases {
         Pending next;
         try {
             if (old.timer() > 0) {
-                next = new Pending(1,old.kind(),old.strip(),old.phase(),old.timer()-1,old.payout(),old.paid());
+                next = new Pending(old.version(),old.kind(),old.strip(),old.phase(),old.timer()-1,old.payout(),old.paid());
             } else {
                 int phase = old.phase();
                 var strip = new ArrayList<>(old.strip());
@@ -103,8 +106,11 @@ final class LbcCases {
                 int filter = old.kind()==1 || old.kind()==2 ? 20 : 22;
                 Payout payout = old.payout();
                 if (phase == filter) {
-                    compensate(player, profile, strip, old.kind());
-                    payout = normalize(strip.get(2), old.kind());
+                    // Resume pre-Q24 journals with their original delayed filter.
+                    if (old.version()==1) {
+                        compensate(player, profile, strip, old.kind());
+                        payout = normalize(strip.get(2), old.kind());
+                    }
                     normalized = true;
                 }
                 int timer = phase<=14 ? 1 : phase<=18 ? 2 : phase==19 ? 3 : phase==20 ? 4 : 0;
@@ -118,7 +124,7 @@ final class LbcCases {
                     paid = true;
                     award = true;
                 }
-                next = new Pending(1,old.kind(),strip,phase,timer,payout,paid);
+                next = new Pending(old.version(),old.kind(),strip,phase,timer,payout,paid);
                 complete = phase == 30;
             }
             writePending(player,complete ? null : next);
@@ -199,9 +205,9 @@ final class LbcCases {
         // invalidates this derived decode automatically, without JSON parsing every frame.
         if(cached!=null && cached.serialized()==serialized)return cached.pending();
         Pending pending = JSON.fromJson(serialized,Pending.class);
-        if (pending==null || pending.version()!=1 || pending.kind()<0 || pending.kind()>4
+        if (pending==null || (pending.version()!=1 && pending.version()!=2) || pending.kind()<0 || pending.kind()>4
                 || pending.strip().size()!=27 || pending.phase()<3 || pending.phase()>29
-                || pending.timer()<0 || pending.timer()>3 || (pending.paid() && pending.payout()==null))
+                || pending.timer()<0 || pending.timer()>3 || ((pending.paid() || pending.version()==2) && pending.payout()==null))
             throw new IllegalStateException("Malformed committed case; retain profile for repair, never reroll/refund");
         decoded.put(player.getUUID(),new Decoded(serialized,pending));
         return pending;
@@ -301,7 +307,7 @@ final class LbcCases {
         };
     }
     private static int range(int n,int max,int tier) { if(n<1||n>max)throw new IllegalStateException("Out-of-range case token");return tier; }
-    private static String unlock(Token token) {
+    static String unlock(Token token) {
         return switch(token.family()) {
             case "rewardkit" -> "swrg.kit"+token.value();
             case "rewardskill" -> "swrg.skill"+token.value();

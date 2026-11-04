@@ -38,10 +38,7 @@ public final class LbcGodClawSkill {
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     public static void register(){net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:god_claw"),TICKET);}
-    static final BlockState CONSUMED=Blocks.RED_MUSHROOM_BLOCK.defaultBlockState()
-            .setValue(HugeMushroomBlock.DOWN,false).setValue(HugeMushroomBlock.EAST,false)
-            .setValue(HugeMushroomBlock.NORTH,false).setValue(HugeMushroomBlock.SOUTH,false)
-            .setValue(HugeMushroomBlock.UP,true).setValue(HugeMushroomBlock.WEST,false);
+    static final BlockState CONSUMED=LbcConsumedBlock.BLOCK.defaultBlockState();
     private static final List<Holder<Attribute>> ATTRIBUTES=List.of(Attributes.ARMOR,Attributes.ARMOR_TOUGHNESS,
             Attributes.ATTACK_DAMAGE,Attributes.ATTACK_KNOCKBACK,Attributes.ATTACK_SPEED,Attributes.BURNING_TIME,
             Attributes.EXPLOSION_KNOCKBACK_RESISTANCE,Attributes.FALL_DAMAGE_MULTIPLIER,Attributes.JUMP_STRENGTH,

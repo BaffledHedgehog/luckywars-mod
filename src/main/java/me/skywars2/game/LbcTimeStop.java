@@ -123,18 +123,18 @@ public final class LbcTimeStop {
                 || game.items().actionsBlocked(player)
                 || game.items().magic().suppressedAt(player.level(),player.getEyePosition())) return false;
         cooldowns.put(player.getUUID(),new Cooldown(player.level()));
-        begin(player.level(),STOP_TICKS);
+        begin(player.level(),(int)Math.min(Integer.MAX_VALUE,(long)remaining(player.level())+STOP_TICKS));
         LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",1,1,0,.5f);
         return true;
     }
 
-    /** Source consumable replaces the common stop's remaining duration with eleven seconds. */
+    /** Touhou adds eleven seconds to the same stop without replacing its frozen state. */
     public boolean useTouhouClock(ServerPlayer player){
         if(rewinding!=null||!game.canUseGameplayItems(player)||!player.isAlive()||player.isRemoved()
                 ||game.stage()==GameController.Stage.ENDING||game.items().actionsBlocked(player)
-                ||frozen(player)||game.items().wands().inputTimeStopped(player))return false;
+                ||frozen(player)||game.items().wands().inputTimeStopped(player)||game.items().magic().suppressed(player))return false;
         touhouCasters.computeIfAbsent(player.level(),key->new HashSet<>()).add(player.getUUID());
-        begin(player.level(),220);
+        begin(player.level(),(int)Math.min(Integer.MAX_VALUE,(long)remaining(player.level())+220));
         LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",.5f,1,0,.5f);
         return true;
     }

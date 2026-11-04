@@ -73,15 +73,15 @@ public final class BedwarsChecks {
     }
     private static void move(ServerPlayer p,Vec3 at){p.teleportTo(p.level(),at.x,at.y,at.z,Set.of(),0,0,true);p.setNoGravity(true);p.setDeltaMovement(Vec3.ZERO);}
     public static void tick(GameController game){
-        if(win!=null)try{if(win.step()){win=null;pass("bedwars-victory","actual two-team final elimination, sole source winner100coins/key, living teammates creative and all match-owned auxiliaries retired");}}catch(Throwable error){win=null;SkyWars2.LOGGER.error("[check] FAIL bedwars-victory",error);}
+        if(win!=null)try{if(win.step()){win=null;pass("bedwars-victory","actual two-team final elimination, every winning teammate100coins/key/win, living teammates creative and all match-owned auxiliaries retired");}}catch(Throwable error){win=null;SkyWars2.LOGGER.error("[check] FAIL bedwars-victory",error);}
         if(role!=null)try{if(role.finish()){role.close();role=null;}}catch(Throwable error){try{role.close();}finally{role=null;}SkyWars2.LOGGER.error("[check] FAIL bedwars-shop-role",error);}
         if(life!=null)try{if(life.step()){life.close();life=null;pass("bedwars-lifecycle","native death/body replacement/100 active ticks/+30 XP levels/TimeStop, pending bed-loss cancellation and nonempty whole-world team/bed/player rewind");}}catch(Throwable error){try{life.close();}finally{life=null;}SkyWars2.LOGGER.error("[check] FAIL bedwars-lifecycle",error);}
     }
     private static final class Win {
-        final GameController game;final UUID owner,teammate;final int coins,wins,keys,teamCoins,teamWins;final int started;
+        final GameController game;final UUID owner,teammate;final int coins,wins,keys,teamCoins,teamWins,teamKeys;final int started;
         Win(GameController game,ServerPlayer a,ServerPlayer b){
             this.game=game;owner=a.getUUID();var c=player(game,"TestGamma");teammate=c.getUUID();
-            var profile=game.players().get(owner);coins=profile.coins;wins=profile.wins;keys=Arrays.stream(profile.keys).sum();var other=game.players().get(teammate);teamCoins=other.coins;teamWins=other.wins;
+            var profile=game.players().get(owner);coins=profile.coins;wins=profile.wins;keys=Arrays.stream(profile.keys).sum();var other=game.players().get(teammate);teamCoins=other.coins;teamWins=other.wins;teamKeys=Arrays.stream(other.keys).sum();
             move(a,new Vec3(0,82,0));move(c,new Vec3(20,82,20));
             var bed=game.bedwars().arena().topology().beds().stream().filter(x->x.team()==game.bedwars().team(b)).findFirst().orElseThrow();BedwarsProtectionChecks.enemyBed(game,a,bed);
             for(var p:List.of(b,player(game,"TestDelta"))){
@@ -98,7 +98,7 @@ public final class BedwarsChecks {
             require(game.server().getTickCount()-started<20,"winner resolved by next core tick");if(game.playing())return false;
             require(game.stage()==GameController.Stage.ENDING,"real team winner enters native ending");var a=game.server().getPlayerList().getPlayer(owner);var c=game.server().getPlayerList().getPlayer(teammate);var profile=game.players().get(owner);var other=game.players().get(teammate);
             require(profile.coins==coins+200&&profile.wins==wins+1&&Arrays.stream(profile.keys).sum()==keys+1,"two50coin kills plus sole100coin/key/win source recipient");
-            require(other.coins==teamCoins&&other.wins==teamWins&&a.gameMode.getGameModeForPlayer()==GameType.CREATIVE&&c.gameMode.getGameModeForPlayer()==GameType.CREATIVE,"source reward not silently multiplied across team while living winners retain creative");
+            require(other.coins==teamCoins+100&&other.wins==teamWins+1&&Arrays.stream(other.keys).sum()==teamKeys+1&&a.gameMode.getGameModeForPlayer()==GameType.CREATIVE&&c.gameMode.getGameModeForPlayer()==GameType.CREATIVE,"every winning teammate receives100coins/key/win while living winners retain creative");
             require(!game.bedwars().active()&&!game.bedwars().arena().active()&&game.bedwars().auxiliaries().containers().isEmpty(),"complete native match teardown");return true;
         }
     }

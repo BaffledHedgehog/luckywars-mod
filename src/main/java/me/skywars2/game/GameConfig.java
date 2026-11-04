@@ -32,6 +32,8 @@ public final class GameConfig {
     public int tntProtection = 4;
     /** 1 normal SkyWars, 2 LuckyWars, 3 BedWars, 4 LuckyBedWars (last three await mechanics). */
     public int gameMode = 1;
+    /** True: enemy beds require a direct player break; false: native terrain effects may break beds. */
+    public boolean bedwarsDirectBedBreaking = true;
     /** Source LuckyWars category: 0 random, 1 disabled, 2..12 fixed match variants. */
     public int luckyModifier = 0;
     public int day = 1;
@@ -151,6 +153,7 @@ public final class GameConfig {
             case "pvpmode", "pvp" -> { configured = pvpMode = integer(key, value, 1, 2); canonical = "pvpMode"; }
             case "tntprotection" -> { configured = tntProtection = integer(key, value, 0, 5); canonical = "tntProtection"; }
             case "gamemode" -> { configured = gameMode = integer(key, value, 1, 4); canonical = "gameMode"; }
+            case "bedwarsdirectbedbreaking" -> { configured = bedwarsDirectBedBreaking = bool(key, value); canonical = "bedwarsDirectBedBreaking"; }
             case "luckymodifier", "cfg_lucky_modifier" -> { configured = luckyModifier = integer(key, value, 0, 12); canonical = "luckyModifier"; }
             case "day" -> { configured = day = integer(key, value, 1, 3); canonical = "day"; }
             case "ranked" -> { configured = ranked = bool(key, value); canonical = "ranked"; }

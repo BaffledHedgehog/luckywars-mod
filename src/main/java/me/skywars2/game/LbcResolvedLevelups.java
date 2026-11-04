@@ -11,10 +11,11 @@ import net.minecraft.util.RandomSource;
 
 /** Match choices and their active effects. Profile/menu IDs remain the player's original picks. */
 final class LbcResolvedLevelups {
-    /** Zero means not rolled; a rolled14/19/26/27 is deliberately a persistent no-op. */
+    /** Zero means not rolled; every nonzero outcome is a real, installed upgrade. */
     record Image(int randomOutcome, int firstStat, int secondStat, long effectiveMask) {
         Image {
-            if (randomOutcome < 0 || randomOutcome > 44 || firstStat < -1 || firstStat >= 21
+            if (randomOutcome < 0 || randomOutcome > 44 || randomOutcome != 0 && !contains(REAL_MASK, randomOutcome)
+                    || firstStat < -1 || firstStat >= 21
                     || secondStat < -1 || secondStat >= 21 || (firstStat == -1) != (secondStat == -1)
                     || (effectiveMask & ~REAL_MASK) != 0)
                 throw new IllegalArgumentException("Invalid resolved source levelup image");
@@ -60,12 +61,20 @@ final class LbcResolvedLevelups {
             else effective |= 1L << pick & REAL_MASK;
         }
         if (selectedRandom) {
-            // One expansion TOTAL, including duplicate14 slots, with ten conditional source draws.
+            // One uniform draw over distinct installed upgrades, independent of unlock gates.
+            // A retained result never rerolls on respawn, removal/reselection or a later duplicate pick.
             if (outcome == 0) {
-                outcome = 14;
-                for (int attempt = 0; attempt < 10 && outcome == 14; attempt++) outcome = random.nextInt(44) + 1;
+                long candidates = REAL_MASK & ~effective;
+                int count = Long.bitCount(candidates);
+                if (count != 0) {
+                    int selected = random.nextInt(count);
+                    for (int candidate = 1; candidate <= 44; candidate++) {
+                        if (!contains(candidates, candidate)) continue;
+                        if (selected-- == 0) { outcome = candidate; break; }
+                    }
+                }
             }
-            effective |= 1L << outcome & REAL_MASK;
+            if (outcome != 0) effective |= 1L << outcome;
         }
         if (contains(effective, 1) && first == -1) {
             first = random.nextInt(21);

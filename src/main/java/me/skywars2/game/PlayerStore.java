@@ -67,6 +67,11 @@ public final class PlayerStore {
         return profiles.computeIfAbsent(uuid, ignored -> new Profile());
     }
 
+    /** Enumerate already known players without creating profiles for command input. */
+    Map<UUID, Profile> knownProfiles() {
+        return java.util.Collections.unmodifiableMap(profiles);
+    }
+
     Map<UUID, MatchValueSnapshot> checkpointProfiles() {
         var result = new LinkedHashMap<UUID, MatchValueSnapshot>();
         profiles.forEach((id, profile) -> result.put(id, new MatchValueSnapshot(profile)));
@@ -153,6 +158,8 @@ public final class PlayerStore {
         public int killEffect;
         // Exact SWRG tags/advancements, separate from LBC achievement unlocks.
         public Set<String> legacyUnlocks = new HashSet<>();
+        // Explicit administrator decisions override stale offline advancement files on login.
+        public Set<String> dropRequestOverrides = new HashSet<>();
         // Immutable typed LbcCases.Pending serialized as one scalar. MatchValueSnapshot
         // already captures Strings exactly, including offline profiles; no ItemStack/NBT here.
         public String casePending = "";
@@ -192,6 +199,10 @@ public final class PlayerStore {
             if (legacyUnlocks != null) for (String unlock : legacyUnlocks)
                 if (LbcSourceUnlocks.valid(unlock)) normalizedLegacy.add(unlock);
             legacyUnlocks = normalizedLegacy;
+            Set<String> normalizedRequests = new HashSet<>();
+            if (dropRequestOverrides != null) for (String id : dropRequestOverrides)
+                if (id != null && id.matches("[1-3]")) normalizedRequests.add(id);
+            dropRequestOverrides = normalizedRequests;
             lbcKit = Math.max(0, lbcKit);
             lbcSkill = Math.max(0, lbcSkill);
             lbcTrinket = Math.max(0, lbcTrinket);
@@ -201,6 +212,9 @@ public final class PlayerStore {
             standOverheavenMatches = Math.max(-1, standOverheavenMatches);
             keys = normalizeArray(keys, 5);
             levelups = normalizeArray(levelups, 12);
+            Set<Integer> uniqueLevelups = new HashSet<>();
+            for (int i = 0; i < levelups.length; i++)
+                if (levelups[i] != 0 && !uniqueLevelups.add(levelups[i])) levelups[i] = 0;
             trinkets = normalizeArray(trinkets, 12);
             lbcTrinketSlot = Math.floorMod(lbcTrinketSlot, 12);
             lbcLevelupSlot = Math.floorMod(lbcLevelupSlot, 12);

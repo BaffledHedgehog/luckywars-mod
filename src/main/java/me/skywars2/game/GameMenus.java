@@ -520,6 +520,7 @@ public final class GameMenus {
                     default -> p.killEffect = value;
                 }
                 players.save();
+                if(page==7300||page==7310)controller.items().cosmetics().refreshSuffixes(List.of(player));
                 open(player, gui.page);
             };
             if (slot == 18) click = () -> open(player, page == 7310 ? Page.COSMETIC_SUFFIXES : Page.COSMETICS);
@@ -684,6 +685,7 @@ public final class GameMenus {
         to.pvpMode = from.pvpMode;
         to.tntProtection = from.tntProtection;
         to.gameMode = from.gameMode;
+        to.bedwarsDirectBedBreaking = from.bedwarsDirectBedBreaking;
         to.luckyModifier = from.luckyModifier;
         to.day = from.day;
         // A public lobby reset only resets match options, never OP-only service flags.

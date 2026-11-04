@@ -149,8 +149,8 @@ public final class AuraPsychblindChecks {
                     require(color()==LbcRainbowAura.Color.AQUA&&game.items().mana().baseRegen(owner)==manaRegen+5&&game.items().mana().get(owner)==10000,"visual removal preserves active aqua color and resource ownership");
                     hit();near(game.items().mana().baseRegen(owner),manaRegen,"blue reverses source5");game.items().mana().score(owner,"nanobots_tier").set(217);next(4);
                 }
-                case 4->{if(game.items().mana().score(owner,"nanobots_tier").get()==217){require(elapsed<40,"blue source20 cadence");return false;}require(game.items().mana().score(owner,"nanobots_tier").get()==220,"source217 becomes220");game.items().mana().score(owner,"nanobots_tier").set(218);next(5);}
-                case 5->{if(game.items().mana().score(owner,"nanobots_tier").get()==218){require(elapsed<40,"second blue source20 cadence");return false;}require(game.items().mana().score(owner,"nanobots_tier").get()==120,"source218 becomes120");hit();support=BlockPos.containing(origin).below();block(support,Blocks.CHEST.defaultBlockState());((ChestBlockEntity)level.getBlockEntity(support)).setItem(0,new ItemStack(Items.DIAMOND,3));for(var d:List.of(support.north(),support.south(),support.east(),support.west()))block(d,Blocks.AIR.defaultBlockState());move(owner,Vec3.atBottomCenterOf(support.above()));owner.setOnGround(true);next(6);}
+                case 4->{if(elapsed<25)return false;require(game.items().mana().score(owner,"nanobots_tier").get()==217,"blue preserves charge already above120");game.items().mana().score(owner,"nanobots_tier").set(118);next(5);}
+                case 5->{if(game.items().mana().score(owner,"nanobots_tier").get()==118){require(elapsed<40,"second blue source20 cadence");return false;}require(game.items().mana().score(owner,"nanobots_tier").get()==120,"blue118 saturates at120");hit();support=BlockPos.containing(origin).below();block(support,Blocks.CHEST.defaultBlockState());((ChestBlockEntity)level.getBlockEntity(support)).setItem(0,new ItemStack(Items.DIAMOND,3));for(var d:List.of(support.north(),support.south(),support.east(),support.west()))block(d,Blocks.AIR.defaultBlockState());move(owner,Vec3.atBottomCenterOf(support.above()));owner.setOnGround(true);next(6);}
                 case 6->{
                     var neighbors=List.of(support.north(),support.south(),support.east(),support.west());if(neighbors.stream().anyMatch(p->!level.getBlockState(p).is(Blocks.CHEST))){require(elapsed<20,"purple native support copy finishes");owner.setOnGround(true);return false;}
                     require(((ChestBlockEntity)level.getBlockEntity(support)).getItem(0).is(Items.DIAMOND)&&((ChestBlockEntity)level.getBlockEntity(support)).getItem(0).getCount()==3,"purple preserves original container inventory");for(var p:neighbors)require(((ChestBlockEntity)level.getBlockEntity(p)).isEmpty(),"only copied container Items stripped");
@@ -160,6 +160,17 @@ public final class AuraPsychblindChecks {
                     if(!level.getBlockState(support.south()).is(Blocks.RED_MUSHROOM_BLOCK)){require(elapsed<20,"purple mushroom copy finishes");owner.setOnGround(true);return false;}
                     var copied=level.getBlockState(support.south());for(var property:List.of(net.minecraft.world.level.block.HugeMushroomBlock.UP,net.minecraft.world.level.block.HugeMushroomBlock.DOWN,net.minecraft.world.level.block.HugeMushroomBlock.NORTH,net.minecraft.world.level.block.HugeMushroomBlock.SOUTH,net.minecraft.world.level.block.HugeMushroomBlock.EAST,net.minecraft.world.level.block.HugeMushroomBlock.WEST))require(copied.getValue(property),"copied source mushroom normalizes all six faces");require(level.getBlockState(support.north()).is(Blocks.OBSIDIAN),"purple admission preserves nonair neighbor");
                     owner.setOnGround(false);hit();require(color()==LbcRainbowAura.Color.RED,"complete seven-state source cycle");near(owner.getAttributeValue(Attributes.ATTACK_DAMAGE),attack+5,"red reentry is single owned delta");
+                    block(BlockPos.containing(owner.position()).offset(2,0,0),LbcMagic.MAGIC_BEACON_BLOCK.defaultBlockState());next(90);
+                }
+                case 90->{
+                    if(elapsed<3)return false;require(game.items().magic().suppressed(owner),"MAG aura positive control");
+                    near(owner.getAttributeValue(Attributes.ATTACK_DAMAGE),attack,"MAG withdraws active red bonus");
+                    resetHit();owner.hurtServer(level,owner.damageSources().generic(),1);require(color()==LbcRainbowAura.Color.RED,"MAG prevents aura color transition");
+                    block(BlockPos.containing(owner.position()).offset(2,0,0),Blocks.AIR.defaultBlockState());next(91);
+                }
+                case 91->{
+                    if(elapsed<3)return false;require(!game.items().magic().suppressed(owner),"MAG aura removed");
+                    near(owner.getAttributeValue(Attributes.ATTACK_DAMAGE),attack+5,"red resumes with one owned bonus");
                     select(owner,36);require(color()==null,"real selection loss clears aura");near(owner.getAttributeValue(Attributes.ATTACK_DAMAGE),attack,"selection loss removes red only");return true;
                 }
                 case 20->{

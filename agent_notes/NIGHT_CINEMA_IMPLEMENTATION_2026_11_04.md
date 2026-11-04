@@ -1,6 +1,6 @@
 # Absolute Cinema35 native implementation design — 2026-11-04
 
-DESIGN ONLY. Builds on `NIGHT_ABSOLUTE_CINEMA_2026_11_04.md` (70 exact source records/17 finite function edges). Current source inspected at root's35cfe0b baseline plus frozen cases/cosmetics working tree; no source/RP/question/build/server edits. No implementation or runtime closure claim. Questions18–21 remain unanswered. TMT LAST.
+HISTORICAL DESIGN. Builds on `NIGHT_ABSOLUTE_CINEMA_2026_11_04.md` (70 exact source records/17 finite function edges), inspected at root's35cfe0b baseline. This file records the design before implementation. Questions18–21 have since been answered in [the author decisions](NIGHT_ANSWERS_2026_11_04.md); actual implementation and qualification status are in [the current report](NIGHT_ANSWERS_IMPLEMENTATION_2026_11_04.md). The future-tense seams below are not a current release/status claim. TMT LAST.
 
 Implement one `LbcAbsoluteCinema` owned by LbcItems, with a narrow map-start entry and persistent per-match role image. Do not use LbcLoadouts.apply as the initial-roll trigger: it runs again on respawn/debug refresh. Catalog35/page10100/slot7/omega_flag remains absent until every admitted branch passes qualification and Questions18–21 are resolved.
 

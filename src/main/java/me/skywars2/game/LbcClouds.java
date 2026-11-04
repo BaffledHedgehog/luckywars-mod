@@ -501,6 +501,17 @@ public final class LbcClouds {
         return sourceAcid(level,origin,yaw,pitch,lifetime,shield,author,false);
     }
     /** Normal offensive trinket acid keeps source ID/team immunity and shared acid physics. */
+    AcidProjectile cinemaAcid(ServerPlayer author,Vec3 origin,float yaw,float pitch){
+        var policy=new LbcSpellSource.Source(author.getUUID(),author.getUUID(),game.items().epoch(),
+                game.items().indirectKills().coldCause(author,true),java.util.Set.of());
+        try(var scope=game.items().spellSources().scope(policy,author.level())){
+            var projectile=sourceAcid(author.level(),origin,yaw,pitch,500,false,author);
+            projectile.entityTags().add("skywars2.cinema_acid");
+            return projectile;
+        }
+    }
+
+    /** Normal offensive trinket acid keeps source ID/team immunity and shared acid physics. */
     AcidProjectile trinketAcid(ServerPlayer author,Vec3 origin,float yaw,float pitch){
         var policy=new LbcSpellSource.Source(author.getUUID(),author.getUUID(),game.items().epoch(),
                 game.items().indirectKills().coldCause(author,true),java.util.Set.of());
@@ -538,7 +549,7 @@ public final class LbcClouds {
             && (entity.level()==game.maps().level()||game.items().spellSources().persistent(entity)) && game.items().currentEpoch(entity);}
     public boolean sourceAcidCanAffect(Entity source,Entity target){
         if(!sourceAcidManaged(source))return true; // Acid policy must not re-filter unrelated captured arrows or melee.
-        if(source.entityTags().contains("skywars2.trinket_acid")){
+        if(source.entityTags().contains("skywars2.trinket_acid")||source.entityTags().contains("skywars2.cinema_acid")){
             var author=sourceAcidOwner(source);
             if(author!=null&&target!=null&&(target==author||author.isAlliedTo(target)))return false;
         }
@@ -551,6 +562,7 @@ public final class LbcClouds {
     }
     public boolean sourceAcidWild(Entity source){return sourceAcidManaged(source)
             && !source.entityTags().contains("skywars2.trinket_acid")
+            && !source.entityTags().contains("skywars2.cinema_acid")
             && (!source.entityTags().contains("skywars2.ant_acid") || game.items().antDrops().acidWild(source));}
     public void sourceSound(ServerLevel level,Vec3 origin,net.minecraft.sounds.SoundEvent event,float volume,float pitch){
         sound(level,origin,event,volume,pitch,Double.POSITIVE_INFINITY,0);
@@ -561,6 +573,7 @@ public final class LbcClouds {
 
     private void tickAcid(AcidState state) {
         var projectile = state.projectile;
+        if(game.items().polymorph().suspended(projectile))return;
         var level = (ServerLevel) projectile.level();
         if(sourceAcidManaged(projectile)){
             if(!sourceAcidActive(projectile)){projectile.discard();return;}

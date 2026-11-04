@@ -211,7 +211,7 @@ public final class LbcTrinkets {
 
     /** Общий on_summon: 50% для первой копии Nether Plug, затем +10% за каждую. */
     public void summoned(ServerPlayer player) {
-        if(!game.canUseGameplayItems(player) || player.level()!=game.maps().level() || game.config().lbcTrinketLimit==0) return;
+        if(!game.canUseGameplayItems(player) || player.level()!=game.maps().level() || game.config().lbcTrinketLimit==0 || game.items().magic().suppressed(player)) return;
         int copies=count(player,Items.AIR,NETHER_PLUG_DATA);
         if(copies>0 && player.getRandom().nextFloat()<.5f+.1f*(copies-1)) game.items().blaze().summonFriend(player);
     }

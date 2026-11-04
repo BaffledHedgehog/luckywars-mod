@@ -1260,6 +1260,19 @@ public final class GameChecks {
                                 case "lightning-acquisition-cleanup" -> LightningAcquisitionChecks.cleanup(game);
                                 case "lightning-rules" -> LightningRulesChecks.run(game);
                                 case "lightning-rules-chain" -> LightningRulesChecks.chain(game);
+                                case "bridge-builder-imba" -> {BridgeBuilderChecks.run(game);return;}
+                                case "imba-axe" -> {ImbaAxeChecks.run(game);return;}
+                                case "imba-axe-rewind" -> {ImbaAxeChecks.runRewind(game);return;}
+                                case "phoenix-native" -> {PhoenixSkillChecks.run(game);return;}
+                                case "three-player-menu" -> {
+                                    require(game.inLobby()&&game.selectedMapReady(),"real ready lobby before enrolling the third native participant");
+                                    createBot(game,"TestGamma");
+                                    SkyWars2.LOGGER.info("[check] PASS three-player-menu");return;
+                                }
+                                case "cinema-native" -> {AbsoluteCinemaChecks.run(game);return;}
+                                case "cinema-rewind" -> {AbsoluteCinemaChecks.runRewind(game);return;}
+                                case "bridge-builder-rewind" -> {BridgeBuilderChecks.runRewind(game);return;}
+                                case "bridge-builder-bedwars" -> {BridgeBuilderChecks.runBedwars(game);return;}
                                 case "cases-native" -> {CaseCosmeticChecks.runCases(game);return;}
                                 case "cosmetics-native" -> {CaseCosmeticChecks.runCosmetics(game);return;}
                                 case "cases-cosmetics-rewind" -> {CaseCosmeticChecks.runRewind(game);return;}
@@ -1549,7 +1562,7 @@ public final class GameChecks {
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
             ContainedSkillChecks.tick(game);
-            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);CaseCosmeticChecks.tick(game);BadAppleChecks.tick(game);RemainingLevelupChecks.tick(game);AuraPsychblindChecks.tick(game);ReactiveTrinketChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
+            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);BridgeBuilderChecks.tick(game);CaseCosmeticChecks.tick(game);BadAppleChecks.tick(game);RemainingLevelupChecks.tick(game);AuraPsychblindChecks.tick(game);ReactiveTrinketChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
             ArmorZeusSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
@@ -1596,6 +1609,8 @@ public final class GameChecks {
             FragmentKnowledgeChecks.tick(game);
             MapLightingChecks.tick(game);
             MapStreamingChecks.tick(game);
+            ImbaAxeChecks.tick(game);PhoenixSkillChecks.tick(game);
+            AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);
             SheepChecks.tick(game);
@@ -25132,6 +25147,30 @@ public final class GameChecks {
                                         && swordChargeHit.getLastDamageSource().getEntity() == player
                                         && terra.charges(player) == beforeCactusCharge + 1,
                                         "A real own sword projectile hit retains owner attribution and restores one charge");
+                        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                        regular.setPos(player.getX(), 300.5, 53.5);
+                        var secondSwordHit = regularTerraCow(level, mobs, player.getX(), 300.4, 54.5);
+                        float secondHealth = secondSwordHit.getHealth();
+                        terra.tick();
+                        require(secondSwordHit.getHealth() < secondHealth
+                                        && terra.charges(player) == beforeCactusCharge + 2,
+                                        "The same piercing sword charges again on another target even after switching the held item");
+                        terra.sourceCharges(player, 0);
+                        var swordKill = regularTerraCow(level, mobs, player.getX() + 5, 300.4, 54.5);
+                        swordKill.setHealth(1);
+                        require(swordKill.hurtServer(level, new net.minecraft.world.damagesource.DamageSource(
+                                        level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE)
+                                                .getOrThrow(net.minecraft.world.damagesource.DamageTypes.CACTUS), regular, player), 100)
+                                        && !swordKill.isAlive() && terra.charges(player) == 2,
+                                        "A lethal sword projectile contact grants both its hit charge and its kill charge");
+                        terra.sourceCharges(player, 0);
+                        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, sword.copy());
+                        var meleeKill = regularTerraCow(level, mobs, player.getX() + 6, 300.4, 54.5);
+                        meleeKill.setHealth(1);
+                        require(meleeKill.hurtServer(level, meleeKill.damageSources().playerAttack(player), 100)
+                                        && !meleeKill.isAlive() && terra.charges(player) == 2,
+                                        "A lethal real melee sword contact also grants hit and kill charges exactly once");
+                        terra.sourceCharges(player, beforeCactusCharge + 1);
                         var wandCharge = castTerraFixture(game, player, LbcTerra.Kind.REGULAR,
                                         new Vec3(player.getX(), 300.5, 60.5));
                         wandCharge.setDeltaMovement(0, 0, 1.8);
