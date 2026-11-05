@@ -1,3 +1,15 @@
+## RAM pressure and idle analysis processes - 5 November 2026 (user)
+
+The user reported insufficient desktop RAM. Seven Serena JDT processes had
+accumulated for the same project/index; six idle duplicates and the idle Gradle
+daemon were stopped. One working root Serena and the VS Code Java server remain.
+Keep analysis workers bounded: prefer the existing root Serena; after delegated
+work, clean up only confirmed idle helper MCP/JDT processes with validated
+ancestry. Do not accumulate a Java indexer per finished helper. Stop idle Gradle
+after the final build when another build is not imminent. Preserve the active
+root MCP, editor Java server and Minecraft processes; no global java.exe kills.
+Do not change unrelated IDE settings or server heaps to recover tool RAM.
+
 ## Funny and Delta TNT - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source, author decisions, shared owners and proof](agent_notes/IMBA_RECURSION_TNT_2026_11_05.md).
