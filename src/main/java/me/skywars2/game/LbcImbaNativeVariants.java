@@ -15,5 +15,6 @@ public final class LbcImbaNativeVariants {
         DispenserBlock.registerProjectileBehavior(LbcImbaNativeItems.INFINITE_ARROW);
         DispenserBlock.registerProjectileBehavior(LbcImbaNativeItems.HOMING_ARROW);
         DispenserBlock.registerProjectileBehavior(LbcImbaNativeItems.FIREWORK);
+        for(var arrow:LbcImbaNativeItems.specialArrows())DispenserBlock.registerProjectileBehavior(arrow);
     }
 }

@@ -81,25 +81,36 @@ public final class LbcChainLightningStatus {
         var candidates=game.items().lifetimes().loadedTargets().stream().filter(this::role).filter(target->target.getType().builtInRegistryHolder().is(MOBS))
                 .filter(target->!LbcGreed.active(target)&&!target.entityTags().contains("nomagic_active")
                         &&!game.items().magic().suppressedAt(level,target.position())).toList();
+        propagate(level,emitter.position(),emitter,owner,cause,candidates,null);
+
+        }finally{callbackDepth--;}
+    }
+    /** Source IMBA projectile chain excludes its caster/team at acquisition; its three child arcs remain WILD. */
+    void arrowPulse(ServerPlayer owner,Entity projectile,Vec3 point,LbcIndirectKills.Owner accepted){
+        callbackDepth++;try{
+        var level=(ServerLevel)projectile.level();
+        var candidates=game.items().lifetimes().loadedTargets().stream().filter(this::role)
+                .filter(target->target.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,target)).toList();
+        propagate(level,point,owner,owner,accepted,candidates,projectile);
+        }finally{callbackDepth--;}
+    }
+    private void propagate(ServerLevel level,Vec3 start,LivingEntity emitter,ServerPlayer owner,LbcIndirectKills.Owner cause,List<LivingEntity> candidates,Entity projectile){
         var visited=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());visited.add(emitter);
-        var frontier=new ArrayDeque<LivingEntity>();frontier.add(emitter);
+        var frontier=new ArrayDeque<Vec3>();frontier.add(start);
         while(!frontier.isEmpty()){
             var from=frontier.removeFirst();
-            // Source limit10 becomes a finite nearest-next walk; no recursive command or zero-length self ray.
-            var next=candidates.stream().filter(target->!visited.contains(target)&&target.position().distanceToSqr(from.position())<=10000)
-                    .sorted(Comparator.comparingDouble(target->target.position().distanceToSqr(from.position()))).limit(10).toList();
+            var next=candidates.stream().filter(target->!visited.contains(target)&&target.position().distanceToSqr(from)<=10000)
+                    .sorted(Comparator.comparingDouble(target->target.position().distanceToSqr(from))).limit(10).toList();
             for(var target:next){
-                if(!visited.add(target))continue;frontier.addLast(target);sparks(level,from.position(),target.position());
+                if(!visited.add(target))continue;frontier.addLast(target.position());sparks(level,from,target.position());
                 if(game.items().fpvDrone().tryShortCircuit(target))continue;
                 var damage=game.items().indirectKills().captureDamage(new DamageSource(level.registryAccess()
                         .lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),owner),cause);
                 game.items().indirectKills().withCause(target,cause,()->target.hurtServer(level,damage,16));
                 level.sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xff0000ff),target.getX(),target.getY(),target.getZ(),1,0,0,0,0);
-                game.items().wands().chainStatusElectro(emitter,owner,target.position(),cause);
+                if(projectile==null)game.items().wands().chainStatusElectro(emitter,owner,target.position(),cause);else game.items().wands().arrowChainElectro(projectile,owner,target.position(),cause);
             }
         }
-
-        }finally{callbackDepth--;}
     }
     private static void sparks(ServerLevel level,Vec3 from,Vec3 to){
         double length=from.distanceTo(to);if(length<1e-6)return;var direction=to.subtract(from).scale(1/length);

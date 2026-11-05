@@ -36,6 +36,7 @@ public final class LbcChargedBows {
     /** The shared final-family transaction supplies all ammo effects and already rolled traits. */
     public interface BeamPayload {
         int variant();
+        default void blockContact(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){}
         void sample(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun);
         MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links);
     }
@@ -137,6 +138,7 @@ public final class LbcChargedBows {
             }
             // Capture terrain contacts before the native blast changes its block. All traits
             // retain the same accepted family and cannot become extra ordinary-arrow attacks.
+            if(!level.getBlockState(BlockPos.containing(point)).is(AIRS))payload.blockContact(level,point,cause);
             payload.sample(level,point,cause,railgun);
             if(railgun){
                 if(payload.variant()==101&&level.getRandom().nextFloat()<.35f)enqueue(new BeamWork(level,point,cause,1,2));

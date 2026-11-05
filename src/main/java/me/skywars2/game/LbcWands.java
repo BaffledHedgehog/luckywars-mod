@@ -348,7 +348,10 @@ public final class LbcWands {
             pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
         }
         ElectroTrace(LivingEntity emitter,ServerPlayer owner,Vec3 position,String epoch,LbcIndirectKills.Owner cause){
-            npcSource=emitter;this.owner=owner;level=(ServerLevel)emitter.level();this.position=position;this.epoch=epoch;
+            this((ServerLevel)emitter.level(),emitter,owner,position,epoch,cause);
+        }
+        ElectroTrace(ServerLevel level,LivingEntity emitter,ServerPlayer owner,Vec3 position,String epoch,LbcIndirectKills.Owner cause){
+            npcSource=emitter;this.owner=owner;this.level=level;this.position=position;this.epoch=epoch;
             lifetime=10;meditation=false;statusWild=true;this.cause=cause;yaw=0;pitch=-90;
         }
         ElectroTrace(ServerLevel level,Vec3 position,Vec3 direction,LbcSpellSource.Source source,int lifetime){
@@ -1166,6 +1169,12 @@ public final class LbcWands {
     void chainStatusElectro(LivingEntity emitter,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner cause){
         if(!LbcBedwarsRoleGuards.canEmitFrom(emitter))return;
         for(int i=0;i<3;i++)electroTraces.add(new ElectroTrace(emitter,owner,at,game.items().epoch(),cause));
+    }
+    /** Accepted projectile consequences retain the same ten-tick WILD arcs after their caster leaves. */
+    void arrowChainElectro(Entity projectile,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner accepted){
+        var wild=new LbcIndirectKills.Owner(accepted.player(),accepted.order(),true,true);
+        var source=new LbcSpellSource.Source(projectile.getUUID(),accepted.player(),game.items().epoch(),wild,java.util.Set.of(),true);
+        for(int i=0;i<3;i++){var trace=new ElectroTrace((ServerLevel)projectile.level(),owner,owner,at,source.epoch(),wild);trace.sourcePolicy=source;trace.explicitEmitter=projectile;electroTraces.add(trace);}
     }
     /** Виртуальные разряды участвуют в том же отражении, что нативные снаряды. Возраст сохраняется. */
     void reflectElectro(ServerPlayer player) {

@@ -1699,6 +1699,7 @@ public final class LbcItems {
     /** Массовые заклинания затрагивают и лёгкие снаряды, у которых нет отдельной native entity. */
     void transformSpellOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
         kapusta.transformOrigins(level,transform);pumpkinator.transformOrigins(level,transform);
+        danmaku.transformOrigins(level,transform);consuming.transformOrigins(level,transform);
         wands.transformOrigins(level,transform);
         sauvojen.transformOrigins(level,transform);
         electro.transformOrigins(level,transform);

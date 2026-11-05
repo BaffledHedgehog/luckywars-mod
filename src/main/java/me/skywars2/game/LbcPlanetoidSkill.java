@@ -79,7 +79,7 @@ public final class LbcPlanetoidSkill {
                 &&!e.entityTags().contains("magic_academy")
                 &&!game.items().polymorph().concealed(e)&&!familyChild(e);
     }
-    private static boolean familyChild(Entity e){
+    static boolean familyChild(Entity e){
         return LbcStand.cloneRecognizes(e)||LbcGodHedgehog.cloneActorRecognizes(e)
                 ||e.entityTags().contains("skywars2.pending_chaos")||LbcDanmaku.managed(e)
                 ||e.entityTags().contains("skywars2.gaycaster.trial")

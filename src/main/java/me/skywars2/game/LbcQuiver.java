@@ -44,10 +44,10 @@ public final class LbcQuiver {
     public static Arrow effectArrow(){return EFFECT_ARROW.get();}
     public static Arrow beginEffects(Arrow arrow){var previous=EFFECT_ARROW.get();EFFECT_ARROW.set(arrow);return previous;}
     public static void endEffects(Arrow previous){if(previous==null)EFFECT_ARROW.remove();else EFFECT_ARROW.set(previous);}
-    public static boolean isEffect(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&Set.of(101,102,103,112,113).contains(effect.getAmplifier());}
+    public static boolean isEffect(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&Set.of(101,102,103,112,113,120,121,122,123).contains(effect.getAmplifier());}
     private static int amp(Arrow arrow){for(var effect:arrow.getPickupItemStackOrigin().getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).getAllEffects())if(effect.is(MobEffects.RAID_OMEN))return effect.getAmplifier();return -1;}
     private static int color(Arrow arrow){return arrow.getPickupItemStackOrigin().getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).customColor().orElse(-1);}
-    public static boolean custom(Arrow arrow){return !LbcBabylon.managed(arrow)&&(Set.of(6710881,6710882,6710883,2883328,65493).contains(color(arrow))||LbcStand.isArrow(arrow.getPickupItemStackOrigin())||Set.of(101,102,103,111,112,113).contains(amp(arrow)));}
+    public static boolean custom(Arrow arrow){return !LbcBabylon.managed(arrow)&&(Set.of(6710881,6710882,6710883,6710884,6710886,2883328,65493).contains(color(arrow))||LbcStand.isArrow(arrow.getPickupItemStackOrigin())||Set.of(101,102,103,111,112,113,120,121,122,123,124).contains(amp(arrow)));}
     private static boolean disabled(Level level){return !LbcDimensionItems.ordinary(level);}
     private boolean runtime(Entity e){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&e.level()==game.maps().level()&&!disabled(e.level());}
     private boolean frozen(Entity e){return game.items().timeStop().stopped((ServerLevel)e.level())||game.items().timeStop().frozen(e)||e instanceof LivingEntity living&&game.items().frost().isFrozen(living)||e.entityTags().contains("time_stopped");}
@@ -65,10 +65,12 @@ public final class LbcQuiver {
     }
     private void drop(ServerPlayer owner,ItemStack stack,boolean award){var at=owner.position();var entity=new ItemEntity(owner.level(),at.x,at.y,at.z,stack.copy());entity.setDefaultPickUpDelay();if(owner.level().addFreshEntity(entity)&&award&&LbcStand.isArrow(entity.getItem()))game.items().mana().award(owner,"lbc:true_advancements/accesories/infinite_quiver");}
     public boolean validEffectArrow(Arrow arrow,int amplifier){return arrow!=null&&custom(arrow)&&amp(arrow)==amplifier&&runtime(arrow)&&game.items().currentEpoch(arrow)&&arrow.getOwner() instanceof ServerPlayer;}
+    private static void configureArrow(Arrow arrow){int color=color(arrow);if(color==6710881)arrow.setBaseDamage(5);else if(color==6710882)arrow.setBaseDamage(1);else if(color==6710883)arrow.setNoGravity(true);else if(color==6710884)arrow.setBaseDamage(1e20);}
     private Shot shot(Arrow arrow){
+        if(arrow.isRemoved()){shots.remove(arrow);return null;}
         var current=shots.get(arrow);if(current!=null)return current;
         if(!custom(arrow)||!runtime(arrow)||!(arrow.getOwner() instanceof ServerPlayer owner))return null;
-        int color=color(arrow);if(color==6710881)arrow.setBaseDamage(5);else if(color==6710882)arrow.setBaseDamage(1);else if(color==6710883)arrow.setNoGravity(true);
+        configureArrow(arrow);
         arrow.entityTags().add(SHOT);game.items().markCurrentItemEpoch(arrow);current=new Shot(owner,amp(arrow),game.items().indirectKills().coldCause(owner,true),game.items().epoch());var saved=arrow.getAttached(SHOT_DATA);if(saved!=null&&game.items().currentEpoch(saved.getStringOr("epoch","")))current.age=saved.getIntOr("age",0);shots.put(arrow,current);return current;
     }
     /** Native Arrow HEAD: configure once before physics, then preserve native swept collisions. */
@@ -77,6 +79,7 @@ public final class LbcQuiver {
         if(!runtime(arrow)||!game.items().currentEpoch(state.epoch)){arrow.discard();shots.remove(arrow);return false;}
         if(frozen(arrow))return false;
         if(arrow.getOwner() instanceof ServerPlayer current&&current!=state.owner){state.owner=current;state.cause=game.items().indirectKills().coldCause(current,true);}
+        reactive(state.owner,(ServerLevel)arrow.level(),arrow.position(),arrow.getPickupItemStackOrigin(),state.cause);
         if(state.amp>=101){var saved=new CompoundTag();saved.putString("epoch",state.epoch);saved.putInt("age",++state.age);arrow.setAttached(SHOT_DATA,saved);if(state.age>=300){arrow.discard();shots.remove(arrow);return false;}
             if(!game.items().magic().beaconSuppressed(arrow.position()))switch(state.amp){case 111->game.items().kiuas().arrowTerrain(state.owner,arrow.position(),false);case 112,113->trail(state.owner.level(),arrow.position(),state.amp,new Authority(state.cause,state.epoch));default->{}}
             if(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())ground(arrow);
@@ -89,9 +92,34 @@ public final class LbcQuiver {
             case 102->{if(!game.items().magic().beaconSuppressed(at))evoker(state.owner.level(),at,authority,true);}
             case 103->{if(!game.items().magic().mechanismSuppressedAt(state.owner.level(),at))shock(state.owner.level(),at,authority);}
             case 111->{if(!game.items().magic().beaconSuppressed(at))game.items().kiuas().arrowTerrain(state.owner,at,true);}
+            case 121,122,124->groundCarrier(arrow,state.owner,(ServerLevel)arrow.level(),at,arrow.getYRot(),arrow.getXRot(),arrow.getPickupItemStackOrigin(),state.cause);
             case 119->{for(var stack:game.lbc().rollTable(state.owner.level(),at,state.owner,"lbc:stand_arrow")){var item=new ItemEntity(state.owner.level(),at.x,at.y,at.z,stack);item.setDefaultPickUpDelay();state.owner.level().addFreshEntity(item);}}
             default->{}
         }arrow.discard();shots.remove(arrow);
+    }
+    /** Same accepted ammo marker for physical arrows, shulker bullets and detached beam carriers. */
+    static int carrierAmp(ItemStack ammo){for(var e:ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).getAllEffects())if(e.is(MobEffects.RAID_OMEN))return e.getAmplifier();return 0;}
+    static int carrierColor(ItemStack ammo){return ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).customColor().orElse(-1);}
+    /** Reactive source emits one native zero-fuse TNT per active carrier tick, three blocks behind its aimed point. */
+    boolean reactive(ServerPlayer owner,ServerLevel level,Vec3 point,ItemStack ammo,LbcIndirectKills.Owner accepted){
+        if(carrierColor(ammo)!=6710886||accepted==null||!game.playing()||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(point)))return false;
+        for(var p:level.players())if(p.position().distanceToSqr(point)<=196&&(p.getUUID().equals(accepted.player())||owner.isAlliedTo(p)))return false;
+        var target=game.items().lifetimes().nearestBeamTarget(level,point,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e));
+        if(target==null)return false;var direction=target.getEyePosition().subtract(point);if(direction.lengthSqr()<1e-12)return false;
+        var at=point.subtract(direction.normalize().scale(3));if(!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
+        var body=new PrimedTnt(level,at.x,at.y,at.z,owner);body.setDeltaMovement(Vec3.ZERO);body.setFuse(0);
+        var wild=new LbcIndirectKills.Owner(accepted.player(),accepted.order(),true,true);child(body,new Authority(wild,game.items().epoch()));return !body.isRemoved()&&level.getEntity(body.getUUID())==body;
+    }
+    /** Terminal is called once by the actual carrier's block-hit owner. */
+    void groundCarrier(Entity carrier,ServerPlayer owner,ServerLevel level,Vec3 point,float yaw,float pitch,ItemStack ammo,LbcIndirectKills.Owner accepted){
+        if(owner==null||accepted==null||!game.playing()||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(point))||game.items().timeStop().stopped(level)
+                ||game.items().magic().mechanismSuppressedAt(level,point))return;
+        switch(carrierAmp(ammo)){
+            case 121->game.items().nukeEvent().pointBurst(owner,level,point);
+            case 122->game.items().legacyEffects().vacuumAt(level,point,yaw,pitch,accepted);
+            case 124->game.items().bolts().arrowChain(owner,carrier,point,accepted);
+            default->{}
+        }
     }
     private static int index(int amplifier){for(int i=0;i<AMPS.length;i++)if(AMPS[i]==amplifier)return i;return -1;}
     private boolean skillImmune(LivingEntity target){return LbcParasite.active(target);}
@@ -100,9 +128,12 @@ public final class LbcQuiver {
         if(effect.getAmplifier()==101)return game.items().babylonEffects().acceptQuiver101(target,effect,arrow);
         if(!runtime(target)||!game.items().wands().validTarget(target)||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         if(skillImmune(target)){clear(target);return true;}int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
-        var owner=(ServerPlayer)arrow.getOwner();var state=shot(arrow);var queues=pending.computeIfAbsent(target,k->queues());queues.get(index(effect.getAmplifier())).addLast(new Contribution(duration,new Authority(state.cause,state.epoch)));sync(target);return true;
+        var owner=(ServerPlayer)arrow.getOwner();var state=shot(arrow);if(effect.getAmplifier()>=120)return acceptCarrier(target,effect,owner,state.cause);var queues=pending.computeIfAbsent(target,k->queues());queues.get(index(effect.getAmplifier())).addLast(new Contribution(duration,new Authority(state.cause,state.epoch)));sync(target);return true;
     }
     /** Shared native ammo payload delivery for the Shulker bow's real projectile. */
+    public boolean acceptCarrier(LivingEntity target,MobEffectInstance effect,ServerPlayer owner){
+        return acceptCarrier(target,effect,owner,game.items().indirectKills().wildCause(owner));
+    }
     public boolean acceptCarrier(LivingEntity target,MobEffectInstance effect,ServerPlayer owner,LbcIndirectKills.Owner cause){
         if(!isEffect(effect))return false;
         if(effect.getAmplifier()==101){game.items().babylonEffects().acceptCarrier101(target,effect,cause);return true;}
@@ -110,6 +141,20 @@ public final class LbcQuiver {
                 ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return true;
         if(skillImmune(target)){clear(target);return true;}
         int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
+        // The authored IMBA payloads carry20 native ticks: tipped-arrow scaling and source2->1
+        // normalization make them one activation. Deliver it inside this contact, before the next tick.
+        if(effect.getAmplifier()==120){game.items().acidCorruption().arrowDeath(target,duration,cause);return true;}
+        if(effect.getAmplifier()>=121){
+            var level=(ServerLevel)target.level();
+            if(!game.items().magic().mechanismSuppressedAt(level,target.position()))switch(effect.getAmplifier()){
+                case 121->game.items().nukeEvent().pointStatusBurst(target,cause);
+                case 122->game.items().legacyEffects().vacuumAt(level,target.position(),target.getYRot(),target.getXRot(),cause);
+                case 123->{if(target instanceof ServerPlayer player)game.items().legacyEffects().personalStasis().start(player,LbcPersonalStasis.DEFAULT_DURATION_TICKS);
+                    else game.items().legacyEffects().personalStasis().startMob(target);}
+                default->{}
+            }
+            return true;
+        }
         pending.computeIfAbsent(target,k->queues()).get(index(effect.getAmplifier())).addLast(new Contribution(duration,new Authority(cause,game.items().epoch())));
         sync(target);return true;
     }
@@ -198,7 +243,7 @@ public final class LbcQuiver {
     private void tickEffects(){for(var target:List.copyOf(pending.keySet())){if(game.items().polymorph().masked(target))continue;if(target.entityTags().contains("sin_greed_active"))continue;if(!runtime(target)||!game.items().wands().validTarget(target)||skillImmune(target)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p)){clear(target);continue;}if(frozen(target)||target.entityTags().contains("sin_greed_active"))continue;var all=pending.get(target);for(int i=0;i<AMPS.length;i++){var next=all.get(i).peekFirst();if(next==null)continue;if(!game.items().currentEpoch(next.authority.epoch)){all.get(i).removeFirst();continue;}var level=(ServerLevel)target.level();var at=target.position();int amp=AMPS[i];switch(amp){case 102->evoker(level,at,next.authority,false);case 103->{if(!game.items().magic().mechanismSuppressedAt(level,at))shock(level,at,next.authority);}case 112,113->{if(!game.items().magic().beaconSuppressed(at)&&level.getRandom().nextFloat()<(amp==112?.25f:.35f))trail(level,at,amp,next.authority);}default->{}}if(--next.remaining<=0)all.get(i).removeFirst();}sync(target);if(all.stream().allMatch(Deque::isEmpty)){pending.remove(target);target.removeAttached(DATA);}}}
     public void tick(){if(game.maps().level()==null)return;if(!game.items().timeStop().stopped(game.maps().level())&&++clock%300==0)for(var player:game.server().getPlayerList().getPlayers())pulse(player);tickEffects();tickTrails();for(var entity:List.copyOf(children.keySet()))if(entity.isRemoved())children.remove(entity);else if(!runtime(entity)||!game.items().currentEpoch(children.get(entity).epoch)){children.remove(entity);entity.discard();}}
     public void clear(LivingEntity target){pending.remove(target);target.removeAttached(DATA);for(var score:SCORES)if(game.items().mana().hudValue(target,score)!=0)game.items().mana().score(target,score).set(0);}
-    public void loaded(Entity entity){if(entity instanceof Arrow arrow){if(arrow.entityTags().contains(SHOT)&&!game.items().currentEpoch(arrow)){arrow.discard();return;}shot(arrow);}if(entity.entityTags().contains(TRAIL)&&!trails.containsKey(entity)||entity.entityTags().contains(CHILD)&&!children.containsKey(entity)){entity.discard();return;}if(entity instanceof LivingEntity target){if(pending.containsKey(target))return;if(LbcParasite.active(target)){clear(target);return;}var data=target.getAttached(DATA);if(data==null)return;if(!game.items().currentEpoch(data.getStringOr("epoch",""))){clear(target);return;}var all=queues();for(var entry:data.getListOrEmpty("entries")){if(!(entry instanceof CompoundTag tag))continue;int index=index(tag.getIntOr("amp",0)),remaining=tag.getIntOr("remaining",0);if(index<0||remaining<=0)continue;try{var cause=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("owner","")),tag.getLongOr("order",0),true);all.get(index).addLast(new Contribution(remaining,new Authority(new LbcIndirectKills.Owner(cause.player(),cause.order(),cause.projectile(),tag.getBooleanOr("wild",false)),game.items().epoch())));}catch(IllegalArgumentException ignored){}}pending.put(target,all);sync(target);}}
+    public void loaded(Entity entity){if(entity instanceof Arrow arrow){if(!(arrow.getOwner() instanceof ServerPlayer)&&custom(arrow))configureArrow(arrow);if(arrow.entityTags().contains(SHOT)&&!game.items().currentEpoch(arrow)){arrow.discard();return;}shot(arrow);}if(entity.entityTags().contains(TRAIL)&&!trails.containsKey(entity)||entity.entityTags().contains(CHILD)&&!children.containsKey(entity)){entity.discard();return;}if(entity instanceof LivingEntity target){if(pending.containsKey(target))return;if(LbcParasite.active(target)){clear(target);return;}var data=target.getAttached(DATA);if(data==null)return;if(!game.items().currentEpoch(data.getStringOr("epoch",""))){clear(target);return;}var all=queues();for(var entry:data.getListOrEmpty("entries")){if(!(entry instanceof CompoundTag tag))continue;int index=index(tag.getIntOr("amp",0)),remaining=tag.getIntOr("remaining",0);if(index<0||remaining<=0)continue;try{var cause=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("owner","")),tag.getLongOr("order",0),true);all.get(index).addLast(new Contribution(remaining,new Authority(new LbcIndirectKills.Owner(cause.player(),cause.order(),cause.projectile(),tag.getBooleanOr("wild",false)),game.items().epoch())));}catch(IllegalArgumentException ignored){}}pending.put(target,all);sync(target);}}
     public void unloaded(Entity entity){if(entity instanceof Arrow arrow)shots.remove(arrow);if(entity instanceof net.minecraft.world.entity.Marker marker&&trails.containsKey(marker))removeTrail(marker);if(!(entity instanceof PrimedTnt&&entity.isRemoved())&&children.remove(entity)!=null&&!entity.isRemoved())entity.discard();if(entity instanceof LivingEntity living)pending.remove(living);}
     public void forget(ServerPlayer owner){clear(owner);for(var entry:List.copyOf(shots.entrySet()))if(entry.getValue().owner==owner){entry.getKey().discard();shots.remove(entry.getKey());}for(var entry:List.copyOf(trails.entrySet()))if(entry.getValue().authority.cause.player().equals(owner.getUUID()))removeTrail(entry.getKey());for(var entry:List.copyOf(children.entrySet()))if(entry.getValue().cause.player().equals(owner.getUUID())){entry.getKey().discard();children.remove(entry.getKey());}}
     public void stop(){for(var arrow:List.copyOf(shots.keySet()))arrow.discard();shots.clear();for(var marker:List.copyOf(trails.keySet()))removeTrail(marker);for(var entity:List.copyOf(children.keySet()))entity.discard();children.clear();for(var target:List.copyOf(pending.keySet()))clear(target);clock=0;EFFECT_ARROW.remove();}

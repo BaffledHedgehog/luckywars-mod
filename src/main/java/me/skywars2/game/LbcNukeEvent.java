@@ -72,7 +72,7 @@ public final class LbcNukeEvent {
     private final Map<UUID,SavedChild> unloadedChildren=new HashMap<>();
     private final List<Visual> visuals=new ArrayList<>();
     private final Set<Job> jobs=Collections.newSetFromMap(new IdentityHashMap<>());
-    private final IdentityHashMap<ServerPlayer,Job> statusBursts=new IdentityHashMap<>();
+    private final IdentityHashMap<LivingEntity,Job> statusBursts=new IdentityHashMap<>();
     private volatile List<MapManager.TemplateSlice> air=List.of();
     private int generation,lastTick=Integer.MIN_VALUE,pending=-1;
     private int callbackDepth,cadenceOffset,preparationToken;private boolean rewinding;private volatile boolean preparing;
@@ -261,6 +261,15 @@ public final class LbcNukeEvent {
         return pointBurst(author,level,at,true);
     }
     public boolean pendingStatusBurst(ServerPlayer author){return statusBursts.containsKey(author);}
+    /** A projectile credits its true shooter while coalescing repeated pulses by the actual victim body. */
+    public boolean pointStatusBurst(LivingEntity body,LbcIndirectKills.Owner accepted){
+        var level=(ServerLevel)body.level();
+        if(accepted==null||statusBursts.containsKey(body)||!body.isAlive()||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
+                ||!level.hasChunkAt(BlockPos.containing(body.position()))||LbcExplosionSuppression.suppressed(game,level,body.position()))return false;
+        if(generation==0)prepare();
+        pointBurst(new Site(level,body.position(),body.getYRot(),new Cause(accepted.player(),accepted,game.items().epoch())),body);return true;
+    }
+
     private boolean pointBurst(ServerPlayer author,ServerLevel level,Vec3 at,boolean status){
         if(author==null||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
                 ||!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
@@ -287,7 +296,7 @@ public final class LbcNukeEvent {
         job.operations.add(killOperation(site));job.submit();return true;
     }
     private void pointBurst(Site site){pointBurst(site,null);}
-    private void pointBurst(Site site,ServerPlayer statusBody){
+    private void pointBurst(Site site,LivingEntity statusBody){
         if(LbcExplosionSuppression.suppressed(game,site.level,site.at))return;
         var level=site.level;var at=site.at;var job=new Job(site.cause.epoch);var center=BlockPos.containing(at);
         visual(site);
@@ -398,7 +407,7 @@ public final class LbcNukeEvent {
         LegacyClear legacyClear;
         final String epoch;final ArrayDeque<Operation> operations=new ArrayDeque<>();final ArrayDeque<Burst> bursts=new ArrayDeque<>();
         final ArrayDeque<Terrain> terrain=new ArrayDeque<>();boolean cancelled;
-        ServerPlayer statusBody;
+        LivingEntity statusBody;
         Job(String epoch){this.epoch=epoch;}
         void add(ServerLevel level,BlockPos from,BlockPos to,Cause cause,Runnable action){operations.add(new Operation(level,from,to,cause,action));}
         void submit(){jobs.add(this);game.items().stonekivi().queuedWork(this);}

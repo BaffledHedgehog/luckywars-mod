@@ -229,6 +229,7 @@ final class LbcErecto {
             }
             if(!trace.level.getBlockState(pos).is(AIRS)){
                 if(trace.erecto.kind==CROSSBOW){
+                    if(trace.erecto.ammunition!=null)trace.erecto.ammunition.blockContact(trace.level,point,trace.cause);
                     var cause=trace.cause;var damage=game.items().indirectKills().captureDamage(trace.level.damageSources().explosion(null,trace.owner),cause);
                     game.items().indirectKills().trapChanges(trace.level,cause,()->trace.level.explode(null,damage,null,point,20,false,net.minecraft.world.level.Level.ExplosionInteraction.MOB));
                     continue;

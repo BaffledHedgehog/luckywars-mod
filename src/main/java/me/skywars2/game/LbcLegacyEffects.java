@@ -109,16 +109,21 @@ public final class LbcLegacyEffects {
     private void consume(ServerPlayer p,String objective,Runnable action){if(read(p,objective)<=0)return;
         action.run();drain(p,objective);actions++;
     }
-    private void vacuum(ServerPlayer p){
-        var origin=p.position();
-        var bounds=new net.minecraft.world.phys.AABB(origin.x-100,origin.y-100,origin.z-100,origin.x+100,origin.y+100,origin.z+100);
-        for(var entity:List.copyOf(p.level().getEntities((net.minecraft.world.entity.Entity)null,bounds,
-                e->!(e instanceof net.minecraft.world.entity.player.Player)&&!e.isRemoved()
-                        &&!e.entityTags().contains("strict_map_object")&&e.position().distanceToSqr(origin)<=10000))){
-            if(entity.teleportTo(p.level(),origin.x,origin.y,origin.z,java.util.Set.of(),p.getYRot(),p.getXRot(),true)
+    private void vacuum(ServerPlayer p){vacuumAt(p.level(),p.position(),p.getYRot(),p.getXRot(),game.items().indirectKills().wildCause(p));}
+    /** Shared WILD non-player pull; visual children remain with their canonical ability owner. */
+    void vacuumAt(net.minecraft.server.level.ServerLevel level,net.minecraft.world.phys.Vec3 origin,float yaw,float pitch,LbcIndirectKills.Owner cause){
+        if(!level.hasChunkAt(net.minecraft.core.BlockPos.containing(origin)))return;
+        var displacedCause=new LbcIndirectKills.Owner(cause.player(),cause.order(),true,cause.projectile());
+        var transform=(java.util.function.UnaryOperator<net.minecraft.world.phys.Vec3>)(point->point.distanceToSqr(origin)<=10000?origin:point);
+        var bounds=new net.minecraft.world.phys.AABB(origin,origin).inflate(100);
+        for(var entity:List.copyOf(level.getEntities((net.minecraft.world.entity.Entity)null,bounds,
+                e->!(e instanceof net.minecraft.world.entity.player.Player)&&game.items().wands().validRoleTarget(e,true)
+                        &&!LbcPlanetoidSkill.familyChild(e)&&e.position().distanceToSqr(origin)<=10000))){
+            if(entity.teleportTo(level,origin.x,origin.y,origin.z,java.util.Set.of(),yaw,pitch,true)
                     &&entity instanceof net.minecraft.world.entity.LivingEntity living)
-                game.items().indirectKills().teleported(living,p,true);
+                game.items().indirectKills().displaced(living,displacedCause);
         }
+        game.items().transformSpellOrigins(level,transform);
     }
     private boolean magicBeacon(ServerPlayer p){return p.level()==game.maps().level()&&game.items().magic().beaconSuppressed(p.position());}
     private boolean explosionSuppressed(ServerPlayer p){

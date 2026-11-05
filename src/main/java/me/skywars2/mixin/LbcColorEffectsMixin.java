@@ -82,6 +82,11 @@ public abstract class LbcColorEffectsMixin {
             if(quiverArrow!=null && me.skywars2.game.LbcQuiver.isEffect(effect)) {
                 ci.setReturnValue(game.items().quiver().accept(target,effect,quiverArrow));return;
             }
+            if(effect.is(net.minecraft.world.effect.MobEffects.RAID_OMEN)&&effect.getAmplifier()==120){
+                var author=me.skywars2.game.LbcIndirectKills.playerSource(source);
+                if(author==null&&target instanceof ServerPlayer player)author=player;
+                if(author!=null){ci.setReturnValue(game.items().quiver().acceptCarrier(target,effect,author));return;}
+            }
             if(!game.items().indirectKills().allowProjectileEffect(target,effect,source)) { ci.setReturnValue(false); return; }
             if(target instanceof ServerPlayer player&&game.items().containedSkills().acceptSlowness(player,effect,source)){
                 ci.setReturnValue(true);return;

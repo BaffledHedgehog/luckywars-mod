@@ -2,6 +2,15 @@
   "replace": false,
   "values": [
     "skywars2:infinite_arrow",
-    "skywars2:imba_homing_arrow"
+    "skywars2:imba_homing_arrow",
+    "skywars2:imba_strong_arrow",
+    "skywars2:imba_weak_arrow",
+    "skywars2:imba_poison_arrow",
+    "skywars2:imba_reactive_arrow",
+    "skywars2:imba_explosive_arrow",
+    "skywars2:imba_evoker_arrow",
+    "skywars2:imba_paralyzing_arrow",
+    "skywars2:imba_electric_arrow",
+    "skywars2:stand_arrow"
   ]
 }

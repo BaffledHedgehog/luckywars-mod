@@ -47,7 +47,8 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         final int spectral,fire,variant;
         Arrow context;
         final Set<UUID> contacts=new LinkedHashSet<>();
-        boolean traitsActive=true;
+        boolean traitsActive=true,terminal;
+        int lastReactiveTick=Integer.MIN_VALUE;
         Carrier(ItemStack ammo,ItemStack weapon,int spectral,int fire,int variant,Arrow context){
             this.ammo=ammo.copy();this.weapon=weapon.copy();this.spectral=spectral;this.fire=fire;this.variant=variant;this.context=context;this.level=(ServerLevel)context.level();
         }
@@ -91,7 +92,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)context).skywars2$setPierceLevel(old.getPierceLevel());
             context.setRemainingFireTicks(old.getRemainingFireTicks());context.setNoGravity(true);
             var c=new Carrier(carrier.ammo,carrier.weapon,carrier.spectral,carrier.fire,carrier.variant,context);
-            c.contacts.addAll(carrier.contacts);c.traitsActive=carrier.traitsActive;copied.add(c);
+            c.contacts.addAll(carrier.contacts);c.traitsActive=carrier.traitsActive;c.terminal=carrier.terminal;c.lastReactiveTick=carrier.lastReactiveTick;copied.add(c);
         }
         var result=new LbcBeamAmmo(game,owner,weapon,copied);result.previous=previous;result.worldVariants=worldVariants;result.precise=precise;return result;
     }
@@ -103,6 +104,11 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         return 0;
     }
     @Override public int variant(){return variant;}
+    @Override public void blockContact(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){
+        if(!worldVariants||cause==null||!game.items().currentEpoch(epoch))return;
+        for(var c:carriers)if(!c.terminal){c.terminal=true;game.items().quiver().groundCarrier(c.context,owner,level,point,c.context.getYRot(),c.context.getXRot(),c.ammo,cause);}
+    }
+
     @Override public void sample(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun){
         if(owner==null||worldVariants&&owner.level()!=level||!game.items().currentEpoch(epoch))return;
         // One spatial query per sample is shared by every ammo member of this accepted family.
@@ -130,6 +136,8 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             var context=carrier.context;context.setDeltaMovement(direction);
             context.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
             context.setXRot((float)-Math.toDegrees(Math.asin(Math.clamp(direction.y,-1,1))));
+            int tick=game.server().getTickCount();
+            if(worldVariants&&carrier.lastReactiveTick!=tick&&game.items().quiver().reactive(owner,level,point,carrier.ammo,cause))carrier.lastReactiveTick=tick;
             // Source custom children share the accepted cause and existing native services.
             if(worldVariants)game.items().quiver().beamSample(owner,level,point,cause,carrier.variant);
             if(railgun&&carrier.variant==111)for(var target:targets)game.items().indirectKills().withCause(target,cause,
@@ -142,6 +150,11 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     }
     private void contact(ServerLevel level,Carrier carrier,LivingEntity target,LbcIndirectKills.Owner cause){
         game.items().indirectKills().withCause(target,cause,()->{
+            if(LbcQuiver.carrierColor(carrier.ammo)==6710884){
+                var hit=new net.minecraft.world.damagesource.DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),carrier.context,owner);
+                target.hurtServer(level,game.items().indirectKills().captureDamage(hit,cause),1e20f);
+            }
+
             if(carrier.fire>0){target.igniteForSeconds(5);game.items().indirectKills().projectileIgnited(target,owner,true);}
             if(carrier.spectral>0)target.addEffect(new MobEffectInstance(MobEffects.GLOWING,carrier.spectral),owner);
             if(shulker)target.addEffect(new MobEffectInstance(MobEffects.LEVITATION,200),owner);
@@ -154,12 +167,12 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         });
     }
     /** No Arrow entity is part of the saved graph; only typed native values and owner links are retained. */
-    private record Image(Carrier carrier,Set<String> tags,Set<UUID> contacts,boolean traitsActive,
+    private record Image(Carrier carrier,Set<String> tags,Set<UUID> contacts,boolean traitsActive,boolean terminal,boolean reactiveThisTick,
                          Vec3 point,Vec3 velocity,float yaw,float pitch,boolean critical,byte pierce,
                          double damage,int fire,UUID id) { }
     @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
         var author=links.key(owner);var savedPrevious=previous;
-        var images=carriers.stream().map(c->new Image(c,Set.copyOf(c.context.entityTags()),Set.copyOf(c.contacts),c.traitsActive,
+        var images=carriers.stream().map(c->new Image(c,Set.copyOf(c.context.entityTags()),Set.copyOf(c.contacts),c.traitsActive,c.terminal,c.lastReactiveTick==game.server().getTickCount(),
                 c.context.position(),c.context.getDeltaMovement(),c.context.getYRot(),c.context.getXRot(),c.context.isCritArrow(),
                 c.context.getPierceLevel(),((ShulkerBowMixin.ArrowAccess)c.context).skywars2$baseDamage(),c.context.getRemainingFireTicks(),c.context.getUUID())).toList();
         return rebound->{
@@ -172,7 +185,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
                 contexts.add(context);
             }
             return ()->{owner=restored;previous=savedPrevious;for(int i=0;i<images.size();i++){
-                var image=images.get(i);var c=image.carrier;c.context=contexts.get(i);c.contacts.clear();c.contacts.addAll(image.contacts);c.traitsActive=image.traitsActive;
+                var image=images.get(i);var c=image.carrier;c.context=contexts.get(i);c.contacts.clear();c.contacts.addAll(image.contacts);c.traitsActive=image.traitsActive;c.terminal=image.terminal;c.lastReactiveTick=image.reactiveThisTick?game.server().getTickCount():Integer.MIN_VALUE;
             }};
         };
     }

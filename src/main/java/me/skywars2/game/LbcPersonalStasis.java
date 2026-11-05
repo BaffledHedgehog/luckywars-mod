@@ -31,6 +31,12 @@ public final class LbcPersonalStasis {
         // The source initial application clears effects before its first recurring frame.
         p.removeAllEffects();
     }
+    /** Source non-player stasis uses native saved flags, preserving causal/service tags. */
+    void startMob(net.minecraft.world.entity.LivingEntity target){
+        if(!target.isAlive()||target.isRemoved())return;
+        if(target instanceof net.minecraft.world.entity.Mob mob)mob.setNoAi(true);
+        target.setPermanentlyInvulnerable(true);target.setNoGravity(true);target.setSilent(true);target.removeAllEffects();
+    }
     public void clear(ServerPlayer p){p.removeAttached(DATA);p.entityTags().remove(TAG);}
     public void tick(ServerPlayer p){
         var data=p.getAttached(DATA);if(data==null)return;

@@ -368,6 +368,10 @@ public final class LbcConsuming {
 
         }finally{callbackDepth--;}
     }
+    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        for(var partition:partitions)if(partition.level==level)partition.point=transform.apply(partition.point);
+        for(var area:areas)if(area.level==level)area.point=transform.apply(area.point);
+    }
     private void avarice(ServerPlayer owner) {
         avarice(owner,owner.getEyePosition(),owner.getLookAngle().normalize());
     }

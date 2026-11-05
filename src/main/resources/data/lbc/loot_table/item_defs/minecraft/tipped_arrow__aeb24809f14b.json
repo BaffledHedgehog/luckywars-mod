@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:tipped_arrow",
+          "name": "skywars2:imba_poison_arrow",
           "modifier": [
             {
               "count": {

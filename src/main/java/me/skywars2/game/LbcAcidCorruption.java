@@ -195,14 +195,19 @@ final class LbcAcidCorruption {
     }
     int deathRemaining(LivingEntity target){return Math.max(0,game.items().mana().hudValue(target,"delayed_death"));}
     void applyDeath(ServerPlayer owner,LivingEntity target,int seconds){
-        if(seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return;
-        game.items().mana().score(target,"delayed_death").set((int)Math.min(Integer.MAX_VALUE,(long)deathRemaining(target)+seconds));
-        deaths.put(target,game.items().indirectKills().wildCause(owner));
+        if(!recordDeath(target,seconds,game.items().indirectKills().wildCause(owner),false))return;
         target.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,20,0),owner);
         if(target instanceof ServerPlayer p)for(int i=0;i<4;i++)p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
                 net.minecraft.sounds.SoundEvents.AMBIENT_CAVE,net.minecraft.sounds.SoundSource.MASTER,
                 p.getX(),p.getY(),p.getZ(),1,1,p.getRandom().nextLong()));
         var at=target.position();((ServerLevel)target.level()).sendParticles(new DustParticleOptions(0x2a4957,1),true,false,at.x,at.y+4,at.z,100,.3,4,.3,0);
+    }
+    /** Source poison arrow assigns its scaled marker duration to the existing seconds counter. */
+    void arrowDeath(LivingEntity target,int seconds,LbcIndirectKills.Owner cause){recordDeath(target,seconds,cause,true);}
+    private boolean recordDeath(LivingEntity target,int seconds,LbcIndirectKills.Owner cause,boolean replace){
+        if(cause==null||seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
+        game.items().mana().score(target,"delayed_death").set(replace?seconds:(int)Math.min(Integer.MAX_VALUE,(long)deathRemaining(target)+seconds));
+        deaths.put(target,cause);return true;
     }
     void tick(){
         for(var entry:List.copyOf(deaths.entrySet())){

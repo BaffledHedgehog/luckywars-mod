@@ -27,6 +27,15 @@ dependencies {
 }
 
 processResources {
+    // Native IMBA special ammunition; canonical definitions already share the common include.
+    include 'data/lbc/loot_table/ported/imba_strong_arrow.json'
+    include 'data/lbc/loot_table/ported/imba_weak_arrow.json'
+    include 'data/lbc/loot_table/ported/imba_poison_arrow.json'
+    include 'data/lbc/loot_table/ported/imba_reactive_arrow.json'
+    include 'data/lbc/loot_table/ported/imba_explosive_arrow.json'
+    include 'data/lbc/loot_table/ported/imba_evoker_arrow.json'
+    include 'data/lbc/loot_table/ported/imba_paralyzing_arrow.json'
+    include 'data/lbc/loot_table/ported/imba_electric_arrow.json'
     // Qualified native leaves and source container wrappers; keep normal builds complete.
     include 'data/lbc/loot_table/27_acessories.json'
     include 'data/lbc/loot_table/27_bows.json'

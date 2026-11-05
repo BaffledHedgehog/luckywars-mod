@@ -310,6 +310,13 @@ public final class LbcDanmaku {
 {new Pattern(0.407037,0.366498,0.0,true,0.0f,0.0f,false),new Pattern(0.520915,-0.169256,0.0,true,0.0f,0.0f,false),new Pattern(0.113878,-0.535754,0.0,true,0.0f,0.0f,false),new Pattern(-0.407037,-0.366498,0.0,true,0.0f,0.0f,false),new Pattern(-0.520915,0.169256,0.0,true,0.0f,0.0f,false),new Pattern(-0.113878,0.535754,0.0,true,0.0f,0.0f,false)},
 {new Pattern(0.443117,0.321943,0.0,true,0.0f,0.0f,false),new Pattern(0.500369,-0.222779,0.0,true,0.0f,0.0f,false),new Pattern(0.057253,-0.544722,0.0,true,0.0f,0.0f,false),new Pattern(-0.443117,-0.321943,0.0,true,0.0f,0.0f,false),new Pattern(-0.500369,0.222779,0.0,true,0.0f,0.0f,false),new Pattern(-0.057253,0.544722,0.0,true,0.0f,0.0f,false)}}};
 
+    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        for(var card:cards)if(card.display.level()==level&&!card.display.isRemoved())card.display.setPos(transform.apply(card.display.position()));
+        for(var bomb:bombs)if(bomb.positive.level()==level&&!bomb.positive.isRemoved()){
+            var old=bomb.positive.position();var next=transform.apply(old);var delta=next.subtract(old);
+            bomb.positive.setPos(next);if(!bomb.negative.isRemoved())bomb.negative.setPos(bomb.negative.position().add(delta));
+        }
+    }
     void planetoid(ServerPlayer holder) {
         for(var card:cards)if(!card.display.isRemoved()&&game.items().currentEpoch(card.display)
                 &&!game.items().timeStop().frozen(card.display)&&!card.display.entityTags().contains("time_stopped")

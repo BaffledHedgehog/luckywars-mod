@@ -1,3 +1,14 @@
+## Eight native IMBA arrows - QUALIFIED, INSTALLED (6 November 2026)
+
+[Source, shared owners and exact proof](agent_notes/NATIVE_IMBA_ARROWS_2026_11_06.md).
+Eight ready leaves; source1..10 counts/components/styles retained; native ammo tags.
+Strong/weak, delayed death, reactive TNT, nuclear/vacuum/paralysis/electric payloads.
+Evo retains author-confirmed WILD100-block nonplayer pull; canonical visuals follow.
+Shared physical/Shulker4HP/beam/trinket owners; TimeStop/TECH; no duplicate engines.
+Testee25e74d/production2d654998:12 isolated native matches;21 families/17 resources.
+Main/both libs installed without restart;282 author paths/RP preserved.
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## Throwable pumpkin / vanilla pool / structure loot - QUALIFIED, INSTALLED (6 November 2026)
 
 [Contract and limits](agent_notes/THROWABLE_PUMPKIN_2026_11_05.md).

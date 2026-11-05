@@ -183,6 +183,9 @@ public final class LbcBolts {
         callbackDepth++;try{chainStatus.observe(target);
         }finally{callbackDepth--;}
     }
+    void arrowChain(ServerPlayer owner,Entity projectile,Vec3 point,LbcIndirectKills.Owner cause){
+        callbackDepth++;try{chainStatus.arrowPulse(owner,projectile,point,cause);}finally{callbackDepth--;}
+    }
     int statusCount(LivingEntity target){return chainStatus.queued(target);}
     public void clearChainStatus(LivingEntity target){
         callbackDepth++;try{chainStatus.clear(target);
