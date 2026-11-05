@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:elytra",
+          "name": "skywars2:imba_elytra",
           "modifier": [
             {
               "components": {

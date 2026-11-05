@@ -70,7 +70,7 @@ public final class LbcShooters {
     private static final double[] PHANTOM_ORIGINS = {.2,.1,0,-.1,-.2};
     private static final double[] PHANTOM_OFFSETS = {.3,.15,0,-.15,-.3};
     private static final int[] STAND_FAN = {-10,-5,5,10}, OVERHEAVEN_FAN = {-15,-11,-7,-3,3,7,11,15};
-    private static final CompoundTag PINE_FLAG = new CompoundTag(), SLR_FLAG = new CompoundTag(), INFINITE_ARROW = new CompoundTag();
+    private static final CompoundTag PINE_FLAG = new CompoundTag(), SLR_FLAG = new CompoundTag();
     private static final TagKey<Block> BREAKABLE_SLR = TagKey.create(Registries.BLOCK, Identifier.parse("minecraft:breakable_slr"));
     private static final TagKey<Item> AMMO = TagKey.create(Registries.ITEM, Identifier.parse("minecraft:razor_ammo"));
     private static final TagKey<Item> BEST_AMMO = TagKey.create(Registries.ITEM, Identifier.parse("minecraft:razor_ammo_best"));
@@ -85,7 +85,7 @@ public final class LbcShooters {
     private static final CompoundTag KFC_FLAG = new CompoundTag();
     static { KFC_FLAG.putInt("kfcgun",1); WOODIFICATOR_FLAG.putInt("woodificator",1); }
     static { PHANTOM_FLAG.putInt("phantomknifes",1); HELICOPTER_FLAG.putInt("attack_helicopter",1); BOSS_HELICOPTER_FLAG.putInt("boss_helicopter",1); }
-    static { PINE_FLAG.putInt("razorpine", 1); SLR_FLAG.putInt("slr",1); INFINITE_ARROW.putInt("infinite_arrow",1); }
+    static { PINE_FLAG.putInt("razorpine", 1); SLR_FLAG.putInt("slr",1); }
 
     private final GameController game;
     private final Map<Block,BlockState> woodificatorPalette;
@@ -629,12 +629,11 @@ public final class LbcShooters {
             }));
             return true;
         }
-        if(cooldownRemaining(player)>0 || player.getInventory().clearOrCountMatchingItems(
-                ammo->ammo.is(Items.ARROW),true,0,player.inventoryMenu.getCraftSlots())==0) return false;
-        boolean infinite=player.getInventory().clearOrCountMatchingItems(ammo->{
-            var data=ammo.get(DataComponents.CUSTOM_DATA); return data!=null && data.matchedBy(INFINITE_ARROW);
-        },true,0,player.inventoryMenu.getCraftSlots())>0;
-        if(!infinite) player.getInventory().clearOrCountMatchingItems(ammo->ammo.is(Items.ARROW),false,1,player.inventoryMenu.getCraftSlots());
+        if(cooldownRemaining(player)>0)return false;
+        var selectedAmmo=LbcInfiniteAmmo.selectedPlainArrow(player);if(selectedAmmo.isEmpty())return false;
+        if(!LbcInfiniteAmmo.conserves(selectedAmmo)){
+            selectedAmmo.shrink(1);if(selectedAmmo.isEmpty())player.getInventory().removeItem(selectedAmmo);
+        }
         slrCooldowns.put(player.getUUID(),15);
         // Source local offset ^-.2 ^-.2 ^, before recoil changes the player's look.
         var forward=player.getLookAngle();

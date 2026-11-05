@@ -4,33 +4,33 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/arrow__8cd9f1e9f1ea/variant_4f53cda18c2b",
-          "functions": [
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "skywars2:infinite_arrow",
+          "modifier": [
             {
-              "function": "minecraft:set_count",
-              "count": 1
+              "count": 1,
+              "type": "minecraft:set_count"
             },
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_c",
                 "minecraft:enchantments": {
                   "minecraft:infinity": 1
                 }
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_name",
               "name": [
                 {
                   "translate": "infinite_arrow",
                   "italic": false
                 }
-              ]
+              ],
+              "type": "minecraft:set_name"
             },
             {
-              "function": "minecraft:set_lore",
               "mode": "replace_all",
               "lore": [
                 {
@@ -38,14 +38,14 @@
                   "color": "dark_purple",
                   "italic": false
                 }
-              ]
+              ],
+              "type": "minecraft:set_lore"
             },
             {
-              "function": "minecraft:set_custom_data",
-              "tag": "{infinite_arrow:1,imba:1}"
+              "tag": "{infinite_arrow:1,imba:1}",
+              "type": "minecraft:set_custom_data"
             }
-          ],
-          "weight": 1
+          ]
         }
       ]
     }

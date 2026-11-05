@@ -21,6 +21,8 @@ public abstract class WandProjectileMixin {
         void skywars2$setPierceLevel(byte level);
         @org.spongepowered.asm.mixin.gen.Invoker("isInGround")
         boolean skywars2$isInGround();
+        @org.spongepowered.asm.mixin.gen.Invoker("setInGround")
+        void skywars2$setInGround(boolean value);
     }
 
     /** Splash status effects normally pass the shooter as source, so check allegiance at their native call site. */
@@ -103,7 +105,7 @@ public abstract class WandProjectileMixin {
             var game=SkyWars2.game();
             if(game!=null && !game.items().madokaBow().beforeProjectile((Projectile)(Object)this)){ci.cancel();return;}
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow actual
-                    && actual.level() instanceof net.minecraft.server.level.ServerLevel && !game.items().trinketArrows().beforeArrow(actual)){ci.cancel();return;}
+                    && actual.level() instanceof net.minecraft.server.level.ServerLevel && (!game.items().homingArrows().beforeArrow(actual)||!game.items().trinketArrows().beforeArrow(actual))){ci.cancel();return;}
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.projectile.arrow.Arrow arrow
                     && arrow.entityTags().contains(me.skywars2.game.LbcTeleport.CLOUD)
                     && !game.items().teleport().beforeCloudTick(arrow)) ci.cancel();

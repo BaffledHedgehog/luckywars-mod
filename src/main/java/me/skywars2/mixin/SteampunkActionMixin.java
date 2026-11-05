@@ -7,6 +7,7 @@ import me.skywars2.game.LbcSteampunkBreaker;
 import me.skywars2.game.LbcImbaAxe;
 import me.skywars2.game.LbcImbaShovel;
 import me.skywars2.game.LbcImbaHoe;
+import me.skywars2.game.LbcImbaPickaxe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -37,10 +38,10 @@ public abstract class SteampunkActionMixin {
         @WrapMethod(method="destroyBlock")
         private boolean skywars2$breakerBlock(BlockPos pos,Operation<Boolean> original){
             var game=SkyWars2.game();var held=player.getMainHandItem();
-            if(game==null||!LbcSteampunkBreaker.matches(held)&&!LbcImbaAxe.recognized(held)&&!LbcImbaShovel.matches(held)&&!LbcImbaHoe.matches(held)||player.level().getBlockState(pos).isAir())return original.call(pos);
+            if(game==null||!LbcSteampunkBreaker.matches(held)&&!LbcImbaAxe.recognized(held)&&!LbcImbaShovel.matches(held)&&!LbcImbaHoe.matches(held)&&!LbcImbaPickaxe.matches(held)||player.level().getBlockState(pos).isAir())return original.call(pos);
             // The last legitimate use can consume the tool; retain the accepted source stack.
-            var tool=held.copy();boolean broken=original.call(pos);
-            if(broken){game.items().imbaShovel().used(player,tool);game.items().imbaHoe().used(player,tool);game.items().steampunkBreaker().used(player,tool);
+            var tool=held.copy();var before=player.level().getBlockState(pos);boolean broken=original.call(pos);
+            if(broken){game.items().imbaPickaxe().mined(player,tool,pos,before);game.items().imbaShovel().used(player,tool);game.items().imbaHoe().used(player,tool);game.items().steampunkBreaker().used(player,tool);
                 game.items().imbaAxe().activate(player,tool,LbcImbaAxe.Trigger.BLOCK_BREAK);}
             return broken;
         }

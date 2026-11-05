@@ -7,16 +7,16 @@ import net.minecraft.world.entity.Entity;
 public final class CloneFinalAbilityStates {
     private CloneFinalAbilityStates() { }
     public static boolean recognizes(Entity e) {
-        return LbcKapusta.cloneRecognizes(e)||LbcBouncingPoop.cloneRecognizes(e)||LbcSauvojen.cloneProtected(e)
+        return LbcHomingArrows.cloneRecognizes(e)||LbcKapusta.cloneRecognizes(e)||LbcBouncingPoop.cloneRecognizes(e)||LbcSauvojen.cloneProtected(e)
                 ||e.entityTags().contains(SauvojenMeditation.TAG)||e.entityTags().contains("banhammer3d");
     }
     /** Modern attachment/native bodies need not retain the old datapack slowraycast spelling. */
-    public static boolean recognizesGameplay(Entity e){return LbcKapusta.cloneRecognizes(e)||LbcBouncingPoop.cloneRecognizes(e);}
+    public static boolean recognizesGameplay(Entity e){return LbcHomingArrows.cloneRecognizes(e)||LbcKapusta.cloneRecognizes(e)||LbcBouncingPoop.cloneRecognizes(e);}
     public static boolean protectedActor(Entity e) {
         return LbcSauvojen.cloneProtected(e)||e.entityTags().contains(SauvojenMeditation.TAG);
     }
     public static LbcCloneSkills.ActorImage captureNative(GameController game,Entity e) {
-        return LbcKapusta.cloneRecognizes(e)?game.items().kapusta().cloneImage(e):LbcBouncingPoop.cloneRecognizes(e)?game.items().bouncingPoop().cloneImage(e):null;
+        return LbcHomingArrows.cloneRecognizes(e)?game.items().homingArrows().cloneImage(e):LbcKapusta.cloneRecognizes(e)?game.items().kapusta().cloneImage(e):LbcBouncingPoop.cloneRecognizes(e)?game.items().bouncingPoop().cloneImage(e):null;
     }
     public static int duplicateNear(GameController game,ServerPlayer holder,int skill,int budget,long deadlineNanos) {
         if(skill!=15&&skill!=17||budget<CloneVirtualAbilityStates.count(skill))return 0;
@@ -28,21 +28,22 @@ public final class CloneFinalAbilityStates {
     }
     /** Root composes this narrow long-actor checkpoint into its existing canonical Links graph. */
     static final class Checkpoint {
+        private final LbcHomingArrows.Checkpoint homingArrows;
         private final LbcKapusta.Checkpoint kapusta;
         private final MatchQueuedWorkCheckpoint.Image pumpkinator;
         private final LbcErecto.SphereCheckpoint spheres;
         private final LbcSauvojen.DroneCheckpoint drones;
         private final LbcSpecialTools.HammerCheckpoint hammers;
         Checkpoint(GameController game,MatchSpellCheckpoint.Links links) {
-            kapusta=game.items().kapusta().checkpoint(links);pumpkinator=game.items().pumpkinator().checkpoint(links);
+            homingArrows=game.items().homingArrows().checkpoint(links);kapusta=game.items().kapusta().checkpoint(links);pumpkinator=game.items().pumpkinator().checkpoint(links);
             spheres=game.items().erecto().checkpointSpheres(links);
             drones=game.items().sauvojen().checkpointDrones(links);
             hammers=game.items().specialTools().checkpointHammers(links);
         }
         Runnable prepare(MatchSpellCheckpoint.Links links) {
             var sphere=spheres.prepare(links);var drone=drones.prepare(links);var hammer=hammers.prepare(links);
-            var cabbage=kapusta.prepare(links);var pumpkin=pumpkinator.prepare(links);
-            return ()->{sphere.run();drone.run();hammer.run();cabbage.run();pumpkin.run();};
+            var arrows=homingArrows.prepare(links);var cabbage=kapusta.prepare(links);var pumpkin=pumpkinator.prepare(links);
+            return ()->{arrows.run();sphere.run();drone.run();hammer.run();cabbage.run();pumpkin.run();};
         }
     }
     static void publishCheckpoint(GameController game) {

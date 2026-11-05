@@ -21,6 +21,9 @@ final class LbcUtilityItemPrototypes {
     }
     /** Registry-bound components are applied by the canonical loot table after world registries load. */
     static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents){
+        return properties(nativeId,resource,carrier,maximum,lootComponents,false);
+    }
+    static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents,boolean nativeDefaults){
         try(var input=LbcUtilityItemPrototypes.class.getResourceAsStream(resource)){
             if(input==null)throw new IllegalStateException("Missing utility prototype "+resource);
             var entry=JsonParser.parseReader(new InputStreamReader(input,StandardCharsets.UTF_8)).getAsJsonObject()
@@ -32,6 +35,7 @@ final class LbcUtilityItemPrototypes {
                     sourceModel=Identifier.parse(row.getAsJsonObject("components").get("minecraft:item_model").getAsString());}
             final var model=sourceModel;var key=ResourceKey.create(Registries.ITEM,Identifier.parse(nativeId));
             var result=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}.setId(key).stacksTo(maximum);
+            if(nativeDefaults)vanillaVariant(result,carrier);
             for(var value:rows){var row=value.getAsJsonObject();String type=(row.has("type")?row.get("type"):row.get("function")).getAsString();
                 switch(type){
                     case "minecraft:set_count" -> {} // Loot owns count; it is not an item property.
@@ -53,5 +57,15 @@ final class LbcUtilityItemPrototypes {
     private static <T> void component(Item.Properties properties,DataComponentType<T> type,JsonElement source){
         if(type.codec()==null)throw new IllegalStateException("Utility component has no persistent codec");
         properties.component(type,type.codec().parse(JsonOps.INSTANCE,source).getOrThrow());
+    }
+    /** Vanilla holder components bind after item registration in 26.3; use its native property builders here. */
+    private static void vanillaVariant(Item.Properties p,Item carrier){
+        p.overrideDescription("item.minecraft."+BuiltInRegistries.ITEM.getKey(carrier).getPath());
+        if(carrier==Items.ELYTRA)p.durability(432).rarity(Rarity.EPIC).component(DataComponents.GLIDER,net.minecraft.util.Unit.INSTANCE)
+                .component(DataComponents.EQUIPPABLE,net.minecraft.world.item.equipment.Equippable.builder(net.minecraft.world.entity.EquipmentSlot.CHEST)
+                        .setEquipSound(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_ELYTRA).setAsset(net.minecraft.world.item.equipment.EquipmentAssets.ELYTRA).setDamageOnHurt(false).build())
+                .repairable(Items.PHANTOM_MEMBRANE);
+        else if(carrier==Items.TIPPED_ARROW)p.component(DataComponents.POTION_CONTENTS,net.minecraft.world.item.alchemy.PotionContents.EMPTY).component(DataComponents.POTION_DURATION_SCALE,.125f);
+        else if(carrier==Items.FIREWORK_ROCKET)p.component(DataComponents.FIREWORKS,new Fireworks(1,java.util.List.of()));
     }
 }

@@ -1,3 +1,13 @@
+## Connected IMBA mining and native ammunition - QUALIFIED, INSTALLED (5 November 2026)
+
+[Author rules, native implementation and proof](agent_notes/IMBA_MINING_AMMO_2026_11_05.md).
+Five ready leaves: connected pickaxe, Infinite Arrow, homing arrows, Elytra and Firework.
+Pickaxe shares Axe harvest/Stonekivi work; selected-only free ammo shares native draw.
+Homing retains source physical steering/bounce, TECH only, TimeStop and x2/x4/replay.
+Test 8dde95bb / production 1c4a874f: 14 isolated native matches pass (10 mode1,4 mode3), including related bows/tools.
+Both JARs/main updated without main stop/start; source/RP/275 author paths preserved.
+Existing full IMBA/TMT-last/mode/broad-rewind release gates unchanged.
+
 ## IMBA tools and shared TECH explosion protection - QUALIFIED, INSTALLED (5 November 2026)
 
 [Author rules, native implementation and proof](agent_notes/IMBA_TOOLS_TECH_EXPLOSIONS_2026_11_05.md).

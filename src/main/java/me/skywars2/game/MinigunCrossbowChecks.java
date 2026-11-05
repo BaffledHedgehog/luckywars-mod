@@ -80,7 +80,11 @@ public final class MinigunCrossbowChecks {
         void charged(ItemStack weapon,ItemStack ammo,int count) {
             var charged=weapon.getOrDefault(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.EMPTY).itemCopies().toList();
             require(charged.size()==count,"native reload count="+count);
-            for(var member:charged)require(ItemStack.matches(member,ammo.copyWithCount(1)),"exact selected ammo components in every charged member");
+            for(int i=0;i<charged.size();i++){
+                var expected=ammo.copyWithCount(1);
+                if(i>0||LbcInfiniteAmmo.conserves(ammo)||base.owner.hasInfiniteMaterials())expected.set(DataComponents.INTANGIBLE_PROJECTILE,net.minecraft.util.Unit.INSTANCE);
+                require(ItemStack.matches(charged.get(i),expected),"exact selected ammo components and native intangible policy in every charged member");
+            }
         }
         void cases() {
             base.initialize();game.items().mana().score(base.owner,"adv_game_minigun_shooted").set(0);
@@ -110,26 +114,39 @@ public final class MinigunCrossbowChecks {
             charged(weapon,lastAmmo,count);
             shoot(InteractionHand.MAIN_HAND,weapon,count);charged(weapon,lastAmmo,0);
 
-            ammo=flagged(Items.ARROW,1,"infinite_ammo");weapon=weapon("fast",InteractionHand.OFF_HAND,ammo,false);
+            ammo=flagged(Items.ARROW,3,"infinite_ammo");weapon=weapon("fast",InteractionHand.OFF_HAND,ammo,false);
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,ammo);
             base.owner.inventoryMenu.getCraftSlots().setItem(0,flagged(Items.PAPER,1,"infinite_arrow"));
-            shoot(InteractionHand.OFF_HAND,weapon,1);require(ammo.getCount()==1,"craft holder grants source infinite ammo");charged(weapon,ammo,1);
+            shoot(InteractionHand.OFF_HAND,weapon,1);require(ammo.getCount()==2,"craft holder cannot conserve unflagged selected ammo");charged(weapon,ammo,1);
             base.owner.inventoryMenu.getCraftSlots().clearContent();
             base.owner.getInventory().setItem(9,flagged(Items.PAPER,1,"infinite_arrow"));
-            shoot(InteractionHand.OFF_HAND,weapon,1);require(ammo.getCount()==1,"inventory holder grants source infinite ammo");
+            shoot(InteractionHand.OFF_HAND,weapon,1);require(ammo.getCount()==1,"inventory holder cannot conserve unflagged selected ammo");charged(weapon,ammo,1);
 
             ammo=flagged(Items.ARROW,2,"old_ammo");weapon=weapon("fast_old",InteractionHand.MAIN_HAND,ammo,false);
             base.owner.getInventory().setItem(9,ammo);base.owner.getInventory().setItem(10,flagged(Items.PAPER,1,"infinite_arrow"));
             int prior=game.items().mana().score(base.owner,"adv_game_minigun_shooted").get();
-            shoot(InteractionHand.MAIN_HAND,weapon,1);require(ammo.getCount()==1,"source fast_old retains unconditional single debit");charged(weapon,ammo,1);
+            shoot(InteractionHand.MAIN_HAND,weapon,1);require(ammo.getCount()==1,"fast_old spends unflagged selected ammo despite another inventory flag");charged(weapon,ammo,1);
             require(game.items().mana().score(base.owner,"adv_game_minigun_shooted").get()==prior,"source fast_old has no achievement counter");
 
-            ammo=flagged(Items.FIREWORK_ROCKET,2,"custom_firework");weapon=weapon("fast",InteractionHand.MAIN_HAND,ammo,false);
+            for(var flag:List.of("fast","fast_old")){
+                ammo=flagged(Items.SPECTRAL_ARROW,2,"infinite_arrow");weapon=weapon(flag,InteractionHand.MAIN_HAND,ammo,true);
+                base.owner.setItemInHand(InteractionHand.OFF_HAND,ammo);
+                count=EnchantmentHelper.processProjectileCount(base.owner.level(),weapon,base.owner,1);
+                shoot(InteractionHand.MAIN_HAND,weapon,1);require(ammo.getCount()==2,"selected flagged arrow conserved for "+flag);charged(weapon,ammo,count);
+                var family=shoot(InteractionHand.MAIN_HAND,weapon,count);require(ammo.getCount()==2,"repeated selected flagged arrow conserved for "+flag);charged(weapon,ammo,count);
+                for(var projectile:family){
+                    require(projectile instanceof AbstractArrow arrow&&arrow.pickup==AbstractArrow.Pickup.CREATIVE_ONLY,"free native volley cannot duplicate pickups");
+                    var payload=((AbstractArrow)projectile).getPickupItemStackOrigin().copyWithCount(1);payload.remove(DataComponents.INTANGIBLE_PROJECTILE);
+                    require(ItemStack.matches(payload,ammo.copyWithCount(1)),"free native volley preserves selected payload with native intangible marker");
+                }
+            }
+
+            ammo=flagged(Items.FIREWORK_ROCKET,2,"infinite_arrow");weapon=weapon("fast",InteractionHand.MAIN_HAND,ammo,false);
             base.owner.setItemInHand(InteractionHand.OFF_HAND,ammo);
             // Firework native durability is three per successful projectile.
             var before=weapon.copy();base.owner.gameMode.useItem(base.owner,base.owner.level(),weapon,InteractionHand.MAIN_HAND);
             for(var actor:base.owner.level().getAllEntities())if(!base.before.contains(actor)&&!owned.contains(actor))owned.add(actor);
-            require(weapon.getDamageValue()==before.getDamageValue()+3&&ammo.getCount()==1,"native held firework reload and durability");charged(weapon,ammo,1);
+            require(weapon.getDamageValue()==before.getDamageValue()+3&&ammo.getCount()==1,"native held flagged firework still spends ammo and native durability");charged(weapon,ammo,1);
 
             weapon=weapon("fast",InteractionHand.MAIN_HAND,new ItemStack(Items.ARROW),false);
             game.items().mana().score(base.owner,"adv_game_minigun_shooted").set(319);
@@ -156,6 +173,6 @@ public final class MinigunCrossbowChecks {
     }
     public static void run(GameController game) {
         try(var fixture=new Fixture(game)){fixture.cases();}
-        SkyWars2.LOGGER.info("[check] PASS minigun-crossbow (native real use, exact custom/tipped/spectral ammo, offhand, multishot, infinite holder, firework, no ammo, TECH, source counter/advancement and weapon conservation)");
+        SkyWars2.LOGGER.info("[check] PASS minigun-crossbow (native real use, exact custom/tipped/spectral ammo, offhand, multishot, selected-only infinite ammo, paid firework, no ammo, TECH, source counter/advancement and weapon conservation)");
     }
 }

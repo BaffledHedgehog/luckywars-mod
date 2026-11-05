@@ -276,7 +276,16 @@ public final class LbcImbaAxe {
     }
     /** Null means no mutation/output was accepted. Empty loot is still a successful removal. */
     List<ItemStack> harvest(ServerPlayer author,ServerLevel level,BlockPos at,BlockState expected,ItemStack tool,LbcIndirectKills.Owner cause){
-        thread();if(!level.isInValidBounds(at)||!LbcBedwarsRoleGuards.publication(level)||!effective(expected)
+        return harvest(author,level,at,expected,tool,cause,this::effective,false);
+    }
+    /** Other native mining owners supply eligibility while sharing the exact native removal/loot transaction. */
+    List<ItemStack> harvest(ServerPlayer author,ServerLevel level,BlockPos at,BlockState expected,ItemStack tool,
+            LbcIndirectKills.Owner cause,java.util.function.Predicate<BlockState> eligible){
+        return harvest(author,level,at,expected,tool,cause,eligible,true);
+    }
+    private List<ItemStack> harvest(ServerPlayer author,ServerLevel level,BlockPos at,BlockState expected,ItemStack tool,
+            LbcIndirectKills.Owner cause,java.util.function.Predicate<BlockState> eligible,boolean correctToolDrops){
+        thread();if(!level.isInValidBounds(at)||!LbcBedwarsRoleGuards.publication(level)||!eligible.test(expected)
                 ||level.getChunkSource().getChunkNow(at.getX()>>4,at.getZ()>>4)==null||level.getBlockState(at)!=expected)return null;
         var arena=LbcBedwarsArena.at(level);if(arena!=null&&!arena.allowsRemoval(level,at))return null;
         // Capture the original native payload BEFORE opening or clearing a container.
@@ -284,7 +293,8 @@ public final class LbcImbaAxe {
         game.maps().noteMapBlockWrite(level,at);game.items().indirectKills().beforeBlockChange(level,at,Blocks.AIR.defaultBlockState());
         var entity=level.getBlockEntity(at);
         if(entity instanceof RandomizableContainer randomizable)randomizable.unpackLootTable(author);
-        var loot=new ArrayList<>(Block.getDrops(expected,level,at,entity,author,tool.copy()));
+        boolean mayDrop=!correctToolDrops||!expected.requiresCorrectToolForDrops()||tool.isCorrectToolForDrops(expected);
+        var loot=mayDrop?new ArrayList<>(Block.getDrops(expected,level,at,entity,author,tool.copy())):new ArrayList<ItemStack>();
         if(!level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS))loot.clear();
         boolean[] changed={false};
         var previous=DROP_CAPTURE.get();DROP_CAPTURE.set(new Capture(level,loot));
@@ -297,7 +307,7 @@ public final class LbcImbaAxe {
                 if(changed[0]){
                     if(level==game.maps().level())game.maps().recordBlockChange(at);
                     game.items().indirectKills().supportRemoved(level,cause,at);
-                    expected.spawnAfterBreak(level,at,tool,true);
+                    expected.spawnAfterBreak(level,at,tool,mayDrop);
                 }
             });
         }finally{if(previous==null)DROP_CAPTURE.remove();else DROP_CAPTURE.set(previous);}

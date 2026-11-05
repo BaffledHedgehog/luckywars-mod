@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:firework_rocket",
+          "name": "skywars2:imba_firework",
           "modifier": [
             {
               "components": {
