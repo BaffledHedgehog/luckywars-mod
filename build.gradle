@@ -52,6 +52,10 @@ processResources {
     include 'data/lbc/loot_table/ported/midas_block.json'
     include 'data/lbc/loot_table/ported/super_ghast_funny.json'
     include 'data/lbc/structure/swastika.nbt'
+    include 'data/lbc/loot_table/item_defs/lbc/omegatnt__ff0a27b525da.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/tnt__8255b57c8090.json'
+    include 'data/lbc/loot_table/ported/delta_tnt.json'
+    include 'data/lbc/loot_table/ported/funny_tnt.json'
     include 'data/lbc/loot_table/ported/imba_hoe.json'
     include 'data/lbc/loot_table/ported/imba_shovel.json'
     // Closed native produce gadgets, preserving canonical source components.

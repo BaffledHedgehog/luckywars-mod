@@ -1,3 +1,15 @@
+## Funny and Delta TNT - QUALIFIED, INSTALLED (5 November 2026)
+
+[Source, author decisions, shared owners and proof](agent_notes/IMBA_RECURSION_TNT_2026_11_05.md).
+Complete native Funny/Delta TNT ready leaves; TECH placement, uncapped source behavior.
+Funny retains global 10% same-dimension marker stop, including foreign markers.
+Delta retains 33 centers, 1000 active ticks, all 20 independent 1% branches and foreign-fireball terminal steering.
+Shared full landing variants and Exoperso flight/nuclear payload; actual Delta creator retained.
+Native TimeStop, x2/x4 and whole replay; unloaded actors remain pending.
+Test a1afc8cb / production 797d3958: 8 isolated native matches pass (6 mode1,2 mode3).
+Both JARs/main updated without main stop/start; RP/275 author paths preserved.
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## Gallery startup deadlock - QUALIFIED, INSTALLED (5 November 2026)
 
 [Diagnosis, standalone RP and native proof](agent_notes/POLYMER_STARTUP_2026_11_05.md).

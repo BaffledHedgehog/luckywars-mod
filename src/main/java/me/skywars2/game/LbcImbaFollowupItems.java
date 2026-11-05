@@ -25,7 +25,7 @@ public final class LbcImbaFollowupItems {
     private static Item register(String name,Item item){return Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+name),item);}
     static boolean midas(ItemStack stack){var data=stack.get(net.minecraft.core.component.DataComponents.ENTITY_DATA);return data!=null&&data.type()==net.minecraft.world.entity.EntityTypes.MARKER&&data.getUnsafe().getListOrEmpty("Tags").contains(net.minecraft.nbt.StringTag.valueOf("midas_block"));}
     /** Saved legacy carriers enter these same native input owners without replacing user components. */
-    static Item legacyTarget(ItemStack stack){return ItemData.intValue(stack,"debriser",0)==1?DEBRIS:LbcDiamondifier.matches(stack)?DIAMONDIFIER:midas(stack)?MIDAS_BLOCK:null;}
+    static Item legacyTarget(ItemStack stack){return ItemData.intValue(stack,"debriser",0)==1?DEBRIS:LbcDiamondifier.matches(stack)?DIAMONDIFIER:midas(stack)?MIDAS_BLOCK:LbcImbaRecursionItems.legacyTarget(stack);}
     private static Item.Properties properties(String name,String source,Item carrier){return LbcUtilityItemPrototypes.properties("skywars2:"+name,"/data/lbc/loot_table/"+source+".json",carrier,64);}
     private static final class Debris extends BlockItem implements PolymerItem {
         Debris(Properties properties){super(Blocks.ANCIENT_DEBRIS,properties);}

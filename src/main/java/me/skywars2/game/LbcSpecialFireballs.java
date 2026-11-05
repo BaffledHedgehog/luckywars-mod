@@ -28,11 +28,14 @@ import java.util.*;
 /** Raw specials.mcfunction fireballs. Native bodies own flight, hits, clouds and fuse clocks. */
 public final class LbcSpecialFireballs {
     private static final String TAG="skywars2.special_fireball", CHILD="skywars2.special_fireball.child";
+    private static final String DELTA="skywars2.delta_payload";
     private static final String OWNER="skywars2.special_fireball.owner.";
     private static final String[] FLAGS={"smallfireball","fireball","dragfireball","smallfireball_imba","fireball_imba","dragfireball_imba"};
     private final GameController game;
     private final Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Snowball> pending=new LinkedHashSet<>();
+    private final Set<FireFill> fires=Collections.newSetFromMap(new IdentityHashMap<>());
+    private boolean restoring;
     public LbcSpecialFireballs(GameController game){this.game=game;}
     public static int variant(ItemStack stack){
         if(!stack.is(Items.SNOWBALL))return 0;
@@ -42,10 +45,14 @@ public final class LbcSpecialFireballs {
         return 0;
     }
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(TAG);}
+    private static boolean horizontal(BlockPos pos){return pos.getX()>=-30000000&&pos.getX()<30000000&&pos.getZ()>=-30000000&&pos.getZ()<30000000;}
     private boolean resident(ServerLevel level,Vec3 at){var pos=BlockPos.containing(at);return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
-    private boolean active(Entity e){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&e.level()==game.maps().level()&&game.items().currentEpoch(e);}
+    private boolean active(Entity e){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&e.level()==game.maps().level()&&(game.items().currentEpoch(e)||e.entityTags().contains(DELTA)&&game.items().spellSources().source(e)!=null);}
     private boolean frozen(Entity e){return game.items().polymorph().suspended(e)||!game.server().tickRateManager().runsNormally()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
     public void loaded(Entity entity){
+        if(restoring||MatchActorCheckpoint.restoring(entity))return;
+        // Epoch-less native TNT must regain its existing authority before the registry admission check.
+        if(managed(entity)&&entity.entityTags().contains(DELTA))game.items().spellSources().loaded(entity);
         if(managed(entity)){if(active(entity)){actors.add(entity);game.items().timeStop().prepareFrozen(entity);}else entity.discard();return;}
         if(entity instanceof Snowball ball&&variant(ball.getItem())!=0&&ball.getOwner() instanceof ServerPlayer p
                 &&game.playing()&&game.stage()!=GameController.Stage.ENDING&&p.isAlive()&&!game.isObserver(p)
@@ -55,10 +62,29 @@ public final class LbcSpecialFireballs {
     }
     private <T extends Entity>T insert(ServerPlayer p,T actor,Vec3 at,Vec3 velocity,boolean child){
         actor.setPos(at);actor.setDeltaMovement(velocity);actor.entityTags().add(TAG);if(p!=null)actor.entityTags().add(OWNER+p.getUUID());
-        if(child)actor.entityTags().add(CHILD);game.items().markCurrentItemEpoch(actor);
+        if(child)actor.entityTags().add(CHILD);if(!(actor instanceof PrimedTnt&&actor.entityTags().contains(DELTA)))game.items().markCurrentItemEpoch(actor);
         if(actor instanceof Projectile projectile){projectile.setOwner(p);LbcShooters.orient(projectile);}
         actors.add(actor);game.items().timeStop().prepareFrozen(actor);
         if(!actor.level().addFreshEntity(actor)||actor.isRemoved()){actors.remove(actor);actor.discard();return null;}return actor;
+    }
+    /** Exact source branches 0..18; native bodies retain all fuse and flight clocks. */
+    public Entity spawnDelta(LbcSpellSource.Source source,ServerLevel level,Vec3 at,int branch){
+        if(source==null||!game.items().currentEpoch(source.epoch())||!resident(level,at)||!horizontal(BlockPos.containing(at)))return null;
+        var p=game.server().getPlayerList().getPlayer(source.author());Entity actor;
+        if(branch==2){var bolt=new LightningBolt(EntityTypes.LIGHTNING_BOLT,level);bolt.setCause(p);actor=bolt;}
+        else if(branch>=3&&branch<=7)actor=new LargeFireball(level,p,Vec3.ZERO,new int[]{1,5,10,15,20}[branch-3]);
+        else {
+            var tnt=new PrimedTnt(level,at.x,at.y,at.z,p);tnt.setFuse(branch==8?0:branch==9||branch>=15?1000:100);
+            tnt.setNoGravity(branch==1||branch>=10&&branch<=14);
+            if(branch>=9)tnt.entityTags().add("groundbam");
+            if(branch>=11){int kind=(branch-11)%4;tnt.entityTags().add(new String[]{"evoker","fire","electro","strong"}[kind]);}
+            actor=tnt;
+        }
+        actor.entityTags().add(DELTA);game.items().spellSources().bind(actor,source);
+        // No epoch tag on TNT: the generic thrown-dynamite hook keys on that tag.
+        try(var ignored=game.items().spellSources().scope((LbcSpellSource.Source)null,level)){
+            return insert(p,actor,at,Vec3.ZERO,false);
+        }
     }
     private static double scaled(double value,double read,double write){return Math.floor(value*read)*write;}
     private static Vec3 scaled(Vec3 v,double read,double write){return new Vec3(scaled(v.x,read,write),scaled(v.y,read,write),scaled(v.z,read,write));}
@@ -106,6 +132,7 @@ public final class LbcSpecialFireballs {
         game.items().markCurrentItemEpoch(child);
     }
     public void tick(){
+        if(restoring)return;
         for(var ball:List.copyOf(pending)){
             if(ball.isRemoved()||!active(ball)){pending.remove(ball);if(!ball.isRemoved())ball.discard();continue;}
             if(frozen(ball))continue;pending.remove(ball);convert(ball);
@@ -114,31 +141,42 @@ public final class LbcSpecialFireballs {
             if(actor.isRemoved()){actors.remove(actor);continue;}if(!active(actor)){actors.remove(actor);actor.discard();continue;}
             if(frozen(actor)||!resident((ServerLevel)actor.level(),actor.position()))continue;
             if(actor instanceof PrimedTnt tnt&&tnt.onGround()&&tnt.entityTags().remove("groundbam")){
-                tnt.setFuse(2);if(tnt.entityTags().contains(CHILD))landing(tnt);
+                tnt.setFuse(2);if(tnt.entityTags().contains(CHILD)||tnt.entityTags().contains(DELTA))landing(tnt);
             }
         }
     }
     private <T extends Entity>T carried(Entity parent,T child){
         child.entityTags().add(TAG);
+        if(parent.entityTags().contains(DELTA)){child.entityTags().add(DELTA);game.items().spellSources().bind(child,game.items().spellSources().source(parent));}
         for(var tag:parent.entityTags())if(tag.startsWith(OWNER))child.entityTags().add(tag);
         return child;
     }
     private void landing(PrimedTnt tnt){
         var p=owner(tnt) instanceof ServerPlayer player?player:null;var level=(ServerLevel)tnt.level();var at=tnt.position();
-        for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(10),e->canAffect(tnt,e)))if(target.distanceToSqr(at)<=100)
+        if(tnt.entityTags().contains("evoker"))for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(10),e->canAffect(tnt,e)))if(target.distanceToSqr(at)<=100)
             for(int x=-1;x<=1;x++)for(int z=-1;z<=1;z++)insert(p,carried(tnt,new EvokerFangs(level,target.getX()+x,target.getY(),target.getZ()+z,0,0,null)),new Vec3(target.getX()+x,target.getY(),target.getZ()+z),Vec3.ZERO,true);
-        game.items().indirectKills().worldChanges(level,tnt,true,()->{
+        if(tnt.entityTags().contains("fire")&&tnt.entityTags().contains(DELTA)){
+            var source=game.items().spellSources().source(tnt);if(source!=null){var fill=new FireFill(level,at,source);fires.add(fill);game.items().stonekivi().queuedWork(fill);}
+        }else if(tnt.entityTags().contains("fire"))game.items().indirectKills().worldChanges(level,tnt,true,()->{
             var center=BlockPos.containing(at);for(var pos:BlockPos.betweenClosed(center.offset(-5,-5,-5),center.offset(5,5,5)))
-                if(resident(level,Vec3.atCenterOf(pos))&&level.getBlockState(pos).is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK,net.minecraft.resources.Identifier.withDefaultNamespace("airs"))))level.setBlock(pos,Blocks.FIRE.defaultBlockState(),3);
+                if(resident(level,Vec3.atCenterOf(pos))&&level.isInValidBounds(pos)&&level.getBlockState(pos).is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK,net.minecraft.resources.Identifier.withDefaultNamespace("airs")))){
+                    var authority=game.items().spellSources().source(tnt);
+                    if(tnt.entityTags().contains(DELTA)&&authority!=null)game.items().writeOwnedTerrain(level,pos,Blocks.FIRE.defaultBlockState(),authority.cause());
+                    else level.setBlock(pos,Blocks.FIRE.defaultBlockState(),3);
+                }
         });
         // The real carrier keeps its two-tick fuse; strong adds a separate immediate explosion.
-        var bolt=new LightningBolt(EntityTypes.LIGHTNING_BOLT,level);bolt.setCause(p);insert(p,carried(tnt,bolt),at,Vec3.ZERO,true);
-        game.items().exasperato().encounterBlast(p,level,at,4,blast->carried(tnt,blast));
+        if(tnt.entityTags().contains("electro")){var bolt=new LightningBolt(EntityTypes.LIGHTNING_BOLT,level);bolt.setCause(p);insert(p,carried(tnt,bolt),at,Vec3.ZERO,true);}
+        if(tnt.entityTags().contains("strong")){
+            var authority=game.items().spellSources().source(tnt);
+            if(authority!=null&&tnt.entityTags().contains(DELTA))spawnDelta(authority,level,at,8);
+            else game.items().exasperato().encounterBlast(p,level,at,4,blast->carried(tnt,blast));
+        }
     }
     public void unloaded(Entity e){actors.remove(e);pending.remove(e);}
     /** Released native actors retain their own clocks and owner UUID when their thrower leaves. */
     public void forget(ServerPlayer p){}
-    public void stop(){var old=new ArrayList<Entity>(actors);old.addAll(pending);actors.clear();pending.clear();old.forEach(Entity::discard);}
+    public void stop(){for(var fill:List.copyOf(fires))fill.cancel();restoring=false;var old=new ArrayList<Entity>(actors);old.addAll(pending);actors.clear();pending.clear();old.forEach(Entity::discard);}
     public int pendingCount(){return pending.size();}
     public int trackedCount(){return actors.size();}
     public List<Entity> snapshot(){return List.copyOf(actors);}
@@ -150,6 +188,35 @@ public final class LbcSpecialFireballs {
         // CHILD marks damaging released siblings too; it is not a visual/protected role tag.
         return CloneComplexProjectileStates.image(e->{if(actor)actors.add(e);if(waiting)pending.add((Snowball)e);},
                 e->{actors.remove(e);pending.remove(e);});
+    }
+
+    /** Accepted source fill survives its carrier's two-tick fuse and uses the shared terrain queue. */
+    private final class FireFill implements LbcStonekivi.Work {
+        final ServerLevel level;final BlockPos min;final LbcSpellSource.Source source;int cursor;boolean closed;
+        FireFill(ServerLevel level,Vec3 origin,LbcSpellSource.Source source){this.level=level;min=BlockPos.containing(origin).offset(-5,-5,-5);this.source=source;}
+        public boolean ready(){return closed||!restoring&&game.server().tickRateManager().runsNormally()&&!game.items().wands().timeStopped()&&!game.items().timeStop().stopped(level);}
+        public boolean snapshotIdle(){return true;}
+        public boolean step(){
+            if(closed)return true;if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(source.epoch())){cancel();return true;}
+            if(!ready())return false;game.items().stonekivi().beginNativeWork();try{
+                long deadline=Math.min(EffectTerrain.deadlineNanos(),System.nanoTime()+350_000);
+                while(cursor<1331&&System.nanoTime()<deadline){var pos=min.offset(cursor%11,cursor/121,cursor/11%11);
+                    if(level.isInValidBounds(pos)&&!level.hasChunkAt(pos)){game.maps().prepareChunk(level,new net.minecraft.world.level.ChunkPos(pos.getX()>>4,pos.getZ()>>4));return false;}
+                    cursor++;if(level.isInValidBounds(pos)&&level.getBlockState(pos).is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.BLOCK,net.minecraft.resources.Identifier.withDefaultNamespace("airs"))))game.items().writeOwnedTerrain(level,pos,Blocks.FIRE.defaultBlockState(),source.cause());
+                }
+                if(cursor==1331)cancel();return closed;
+            }finally{game.items().stonekivi().endNativeWork();}
+        }
+        public void cancel(){closed=true;fires.remove(this);}
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){int saved=cursor;boolean ended=closed;return links->{MatchAuthorityCheckpoint.world(game,level);return ()->{cursor=saved;closed=ended;};};}
+    }
+    public void checkpointBoundary(){}
+    public void prepareFrozen(){restoring=true;actors.clear();pending.clear();fires.clear();}
+    public void publishFrozen(){restoring=false;}
+    public void cancelFrozen(){stop();}
+    MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+        var bodies=actors.stream().map(graph.links::key).toList();var waiting=pending.stream().map(graph.links::key).toList();var fills=List.copyOf(fires);fills.forEach(graph::capture);
+        return links->{var restored=bodies.stream().map(links::get).toList();var queued=waiting.stream().map(ref->(Snowball)links.get(ref)).toList();return ()->{actors.clear();actors.addAll(restored);pending.clear();pending.addAll(queued);fires.clear();fires.addAll(fills);};};
     }
 
 }

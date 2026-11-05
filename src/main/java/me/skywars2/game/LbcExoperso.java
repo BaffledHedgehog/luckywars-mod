@@ -60,6 +60,7 @@ public final class LbcExoperso {
     public static final class Charge extends Projectile implements PolymerEntity {
         int age;
         int flightAge;
+        int releasedRemaining;
         boolean upgraded;
         Vec3 aim;
         Charge(EntityType<? extends Charge> type, Level level) { super(type, level); }
@@ -94,7 +95,7 @@ public final class LbcExoperso {
             return;
         }
         charges.add(charge);
-        if (charge.age >= windup(charge) + 1) game.items().lifetimes().track(charge, true);
+        if (charge.releasedRemaining==0&&charge.age >= windup(charge) + 1) game.items().lifetimes().track(charge, true);
     }
 
     void unloaded(Entity entity) {
@@ -128,6 +129,35 @@ public final class LbcExoperso {
         return true;
     }
 
+    /** Delta enters the same native charge owner directly at source Lifetime321. */
+    public boolean releaseAt(LbcSpellSource.Source source,net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction){
+        if(source==null||!game.items().currentEpoch(source.epoch())||rewinding)return false;
+        var owner=game.server().getPlayerList().getPlayer(source.author());
+        if(!validOwner(owner)||owner.level()!=level||paused(owner)||game.items().timeStop().stopped(level)
+                ||!level.hasChunkAt(net.minecraft.core.BlockPos.containing(origin))||game.items().magic().suppressedAt(level,origin))return false;
+        var aim=direction.lengthSqr()==0?new Vec3(1,0,0):direction.normalize();
+        var charge=new Charge(TYPE,level);charge.setOwner(owner);charge.setPos(origin);charge.setNoGravity(true);
+        charge.age=321;charge.releasedRemaining=379;charge.aim=aim;charge.setDeltaMovement(aim.scale(2));
+        game.items().markCurrentItemEpoch(charge);game.items().spellSources().bind(charge,source);
+        try(var ignored=game.items().spellSources().scope((LbcSpellSource.Source)null,level)){
+            if(!level.addFreshEntity(charge)){charge.discard();return false;}
+        }
+        charges.add(charge);return true;
+    }
+
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block> AIRS=net.minecraft.tags.TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
+    /** Source Exoperso4 checks five half-block positions and never collides with entities. */
+    private void releasedFlight(ServerPlayer owner,Charge charge){
+        var level=(net.minecraft.server.level.ServerLevel)charge.level();var from=charge.position();var step=charge.getDeltaMovement().scale(.25);var end=from;
+        for(int sample=0;sample<5;sample++){
+            end=from.add(step.scale(sample));var at=net.minecraft.core.BlockPos.containing(end);
+            if(!level.hasChunkAt(at)||game.items().magic().suppressedAt(level,end)){remove(charge);return;}
+            if(!level.getBlockState(at).is(AIRS)){emitFlight(owner,from,end);remove(charge);impact(owner,end);return;}
+        }
+        emitFlight(owner,from,end);charge.setPos(end);charge.flightAge++;
+        if(--charge.releasedRemaining==0)remove(charge);
+    }
+
     private int windup(Charge charge) { return charge.upgraded ? 160 : 319; }
 
     void tick() {if(rewinding)return;if(advancing)throw new IllegalStateException("Reentrant Exoperso advance");advancing=true;try{
@@ -154,6 +184,7 @@ public final class LbcExoperso {
 
                 int captureAge = windup(charge);
                 int age = ++charge.age;
+                if(charge.releasedRemaining>0){releasedFlight(owner,charge);continue;}
                 if (age < captureAge) {
                     charge.setPos(owner.getEyePosition().add(owner.getLookAngle().scale(2)));
                     charge.setYRot(owner.getYRot());
@@ -288,10 +319,10 @@ public final class LbcExoperso {
     void cancelCheckpoint(){rewinding=false;}
     Checkpoint checkpoint(MatchBlastCheckpoint.Graph graph){return new Checkpoint(graph);}
     final class Checkpoint {
-        private record Actor(MatchDamageSources.Ref key,int age,int flight,boolean upgraded,Vec3 aim){}
+        private record Actor(MatchDamageSources.Ref key,int age,int flight,boolean upgraded,Vec3 aim,int released){}
         private final List<Actor> actors;private final MatchSpellCheckpoint.IdentityImage<Entity,Series> series;
-        Checkpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.flightAge,c.upgraded,c.aim)).toList();blastSources.values().forEach(v->v.checkpoint(graph));series=new MatchSpellCheckpoint.IdentityImage<>(blastSources,graph.links);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exoperso charges first");bodies.add(c);}var ledger=series.restore(links);return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.flightAge=a.flight;c.upgraded=a.upgraded;c.aim=a.aim;}blastSources=ledger;rewinding=false;};}
+        Checkpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.flightAge,c.upgraded,c.aim,c.releasedRemaining)).toList();blastSources.values().forEach(v->v.checkpoint(graph));series=new MatchSpellCheckpoint.IdentityImage<>(blastSources,graph.links);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exoperso charges first");bodies.add(c);}var ledger=series.restore(links);return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.flightAge=a.flight;c.upgraded=a.upgraded;c.aim=a.aim;c.releasedRemaining=a.released;}blastSources=ledger;rewinding=false;};}
     }
 
     static boolean cloneRecognizes(Entity e){return e instanceof Charge||e.entityTags().contains(EXPLOSIVE);}
@@ -305,9 +336,9 @@ public final class LbcExoperso {
             },e->blastSources.remove(e));
         }
         if(!(source instanceof Charge c))return null;
-        int age=c.age,flight=c.flightAge;boolean upgraded=c.upgraded;Vec3 aim=c.aim;
+        int age=c.age,flight=c.flightAge,released=c.releasedRemaining;boolean upgraded=c.upgraded;Vec3 aim=c.aim;
         return CloneComplexProjectileStates.image(e->{var n=(Charge)e;n.age=age;n.flightAge=flight;
-            n.upgraded=upgraded;n.aim=aim;charges.add(n);},e->charges.remove(e));
+            n.upgraded=upgraded;n.aim=aim;n.releasedRemaining=released;charges.add(n);},e->charges.remove(e));
     }
 
 }

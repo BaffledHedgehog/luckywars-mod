@@ -3,8 +3,8 @@
 The author confirmed MAG suppression for Diamondifier, Midas Block and Funny
 Debris, and permanent Chef erasure by both territory conversions. These decisions
 include the amplified artifact through the existing common MAG queries. The
-observer/body-fill oddity was asked separately; the implementation currently
-retains the common role guard excluding spectators and service actors.
+author also confirmed that spectators must not participate in Midas conversion.
+The common role guard excludes spectators and service actors entirely.
 
 Source audit: [NEXT_IMBA_SOURCE_2026_11_05.md](NEXT_IMBA_SOURCE_2026_11_05.md).
 Legacy sources remain read-only under
