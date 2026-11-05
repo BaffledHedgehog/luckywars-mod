@@ -703,6 +703,7 @@ public final class GameChecks {
                                 case "symbiote-skills" -> { SymbioteSkillChecks.run(game); return; }
                                 case "armor-zeus-skills" -> { ArmorZeusSkillChecks.run(game); return; }
                                 case "bow-trinket-actors" -> { BowTrinketChecks.runActors(game); return; }
+                                case "imba-crossbows" -> {ImbaCrossbowChecks.run(game);return;}
                                 case "minigun-crossbow" -> { MinigunCrossbowChecks.run(game); return; }
                                 case "special-bows" -> { SpecialBowChecks.run(game); return; }
                                 case "madoka-bow" -> { SpecialBowChecks.runMadoka(game); return; }

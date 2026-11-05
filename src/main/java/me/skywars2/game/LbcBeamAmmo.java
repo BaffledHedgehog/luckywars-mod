@@ -39,6 +39,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     private final boolean shulker,madoka;
     private Vec3 previous;
     private boolean worldVariants=true;
+    boolean precise;
 
     private static final class Carrier {
         final ItemStack ammo,weapon;
@@ -80,6 +81,20 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         shulker=magical&&ItemData.intValue(weapon,"shulker_new",0)==1;
         madoka=magical&&LbcMadokaBow.matches(weapon);
     }
+    LbcBeamAmmo copy(){
+        var copied=new ArrayList<Carrier>();
+        for(var carrier:carriers){
+            var old=carrier.context;var context=new Arrow(carrier.level,owner,carrier.ammo.copy(),carrier.weapon.copy());
+            context.setUUID(old.getUUID());context.entityTags().addAll(old.entityTags());context.setPos(old.position());
+            context.setDeltaMovement(old.getDeltaMovement());context.setYRot(old.getYRot());context.setXRot(old.getXRot());
+            context.setBaseDamage(((ShulkerBowMixin.ArrowAccess)old).skywars2$baseDamage());context.setCritArrow(old.isCritArrow());
+            ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)context).skywars2$setPierceLevel(old.getPierceLevel());
+            context.setRemainingFireTicks(old.getRemainingFireTicks());context.setNoGravity(true);
+            var c=new Carrier(carrier.ammo,carrier.weapon,carrier.spectral,carrier.fire,carrier.variant,context);
+            c.contacts.addAll(carrier.contacts);c.traitsActive=carrier.traitsActive;copied.add(c);
+        }
+        var result=new LbcBeamAmmo(game,owner,weapon,copied);result.previous=previous;result.worldVariants=worldVariants;result.precise=precise;return result;
+    }
     private static int variant(ItemStack ammo){
         var contents=ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY);
         int color=contents.customColor().orElse(-1);
@@ -90,12 +105,27 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     @Override public int variant(){return variant;}
     @Override public void sample(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun){
         if(owner==null||worldVariants&&owner.level()!=level||!game.items().currentEpoch(epoch))return;
-        var direction=previous==null?carriers.getFirst().context.getDeltaMovement().normalize():point.subtract(previous).normalize();previous=point;
         // One spatial query per sample is shared by every ammo member of this accepted family.
         var targets=level.getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(3),target->
                 target!=owner&&target.isAlive()&&!target.isSpectator()&&!(target instanceof Creeper)
                         &&target.position().distanceToSqr(point)<=9&&target.getType().builtInRegistryHolder().is(MOBS)
                         &&game.items().wands().validRoleTarget(target,false)&&game.items().wands().validTarget(target));
+        sampleTargets(level,point,cause,railgun,targets);
+    }
+    /** Mechanical sniper: one exact segment query per tick, shared by every source sample/carrier. */
+    void lineSegment(ServerLevel level,Vec3 from,Vec3 to,LbcIndirectKills.Owner cause){
+        if(owner==null||!game.items().currentEpoch(epoch))return;
+        var targets=level.getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(1),target->
+                target!=owner&&target.isAlive()&&!target.isSpectator()&&!(target instanceof Creeper)
+                &&target.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validRoleTarget(target,false)
+                &&game.items().wands().validTarget(target)&&(target.getBoundingBox().contains(from)||target.getBoundingBox().clip(from,to).isPresent()));
+        previous=from;
+        int samples=Math.max(1,(int)Math.round(from.distanceTo(to)/.3));
+        for(int i=0;i<=samples;i++)sampleTargets(level,from.lerp(to,(double)i/samples),cause,false,targets);
+    }
+    private void sampleTargets(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun,List<LivingEntity> targets){
+        var start=previous==null?carriers.getFirst().context.position():previous;
+        var direction=previous==null?carriers.getFirst().context.getDeltaMovement().normalize():point.subtract(previous).normalize();previous=point;
         for(var carrier:carriers){
             var context=carrier.context;context.setDeltaMovement(direction);
             context.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
@@ -107,7 +137,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             if(shulker)game.items().shulkerBow().beamSample(owner,weapon,context,point,cause);
             if(carrier.traitsActive){game.items().trinketArrows().beamSample(context,point);carrier.traitsActive=!context.isRemoved();}
             else context.setPos(point);
-            for(var target:targets)if(carrier.contacts.add(target.getUUID()))contact(level,carrier,target,cause);
+            for(var target:targets)if((!precise||target.getBoundingBox().contains(point)||target.getBoundingBox().clip(start,point).isPresent())&&carrier.contacts.add(target.getUUID()))contact(level,carrier,target,cause);
         }
     }
     private void contact(ServerLevel level,Carrier carrier,LivingEntity target,LbcIndirectKills.Owner cause){

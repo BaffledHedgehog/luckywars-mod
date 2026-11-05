@@ -27,6 +27,19 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/item_defs/minecraft/crossbow__d33ed6f281fa.json'
+    include 'data/lbc/loot_table/ported/imba_quick_crossbow.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/crossbow__9edfe7cdf94b.json'
+    include 'data/lbc/loot_table/ported/imba_fast_crossbow.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/crossbow__5a9a22e48f9c.json'
+    include 'data/lbc/loot_table/ported/imba_shotgun.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/crossbow__1e5550f8a752.json'
+    include 'data/lbc/loot_table/ported/imba_sniper_crossbow.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/crossbow__9ba94abb5b06.json'
+    include 'data/lbc/loot_table/ported/imba_super_shotgun.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/crossbow__e3ca7ba5ed19.json'
+    include 'data/lbc/loot_table/ported/imba_gatlingator.json'
+
     // Native source IMBA tools retain their shared canonical loot definitions.
     include 'data/lbc/loot_table/item_defs/minecraft/golden_hoe__0454f6dc573b.json'
     include 'data/lbc/loot_table/item_defs/minecraft/golden_shovel__48f876d02a40.json'

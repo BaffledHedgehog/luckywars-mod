@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:crossbow",
+          "name": "skywars2:imba_sniper_crossbow",
           "modifier": [
             {
               "count": 1,
@@ -32,11 +32,6 @@
             {
               "mode": "replace_all",
               "lore": [
-                {
-                  "translate": "special_arrows_cannot_use",
-                  "color": "red",
-                  "italic": false
-                },
                 {
                   "translate": "imba_version",
                   "color": "dark_purple",

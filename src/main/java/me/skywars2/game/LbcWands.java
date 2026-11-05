@@ -367,6 +367,7 @@ public final class LbcWands {
             if(old.erecto!=null){var path=old.erecto;
                 erecto=new LbcErecto.Path(path.kind,path.origin,path.focus,path.focusSteps,path.side,path.caster,path.hand,path.stack.copy());
                 erecto.terrainCause=path.terrainCause;
+                erecto.ammunition=path.ammunition==null?null:path.ammunition.copy();
             }
         }
         LivingEntity source() { return owner==null?npcSource:owner; }

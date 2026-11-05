@@ -48,7 +48,7 @@ public final class LbcMinigunCrossbow {
     }
 
     /** Native held-first selection, without Player.getProjectile's creative generic-arrow fallback. */
-    private static ItemStack selectedAmmo(ServerPlayer player, ProjectileWeaponItem weapon) {
+    static ItemStack selectedAmmo(ServerPlayer player, ProjectileWeaponItem weapon) {
         var held=ProjectileWeaponItem.getHeldProjectile(player,weapon.getSupportedHeldProjectiles());
         if (!held.isEmpty()) return held;
         for (int slot=0;slot<player.getInventory().getContainerSize();slot++) {

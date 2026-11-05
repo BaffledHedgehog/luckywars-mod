@@ -92,8 +92,17 @@ public final class LbcDamage {
             java.util.function.Predicate<net.minecraft.world.entity.Entity> target, boolean includeOwner,
             java.util.function.Consumer<net.minecraft.world.entity.Entity> sampledHit,
             java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
+        hurtSegment(level,damage,from,to,padding,spacing,amount,targetLimit,target,includeOwner,isElectric(damage),sampledHit,acceptedHit);
+    }
+    /** Exact line admission with source unit-cell multiplicity, independent of the native damage type. */
+    static void hurtSegment(net.minecraft.server.level.ServerLevel level,DamageSource damage,
+            net.minecraft.world.phys.Vec3 from,net.minecraft.world.phys.Vec3 to,
+            net.minecraft.world.phys.Vec3 padding,double spacing,float amount,int targetLimit,
+            java.util.function.Predicate<net.minecraft.world.entity.Entity> target,boolean includeOwner,boolean sourceCells,
+            java.util.function.Consumer<net.minecraft.world.entity.Entity> sampledHit,
+            java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
         double length=from.distanceTo(to);
-        boolean electrical=isElectric(damage);
+        boolean electrical=sourceCells;
         boolean shortCircuit=isElectricalContact(damage);
         java.util.function.Predicate<net.minecraft.world.entity.Entity> admitted=shortCircuit
                 ?entity->entity instanceof LbcFpvDrone.Drone||target.test(entity):target;

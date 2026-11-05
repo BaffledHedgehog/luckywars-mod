@@ -67,7 +67,13 @@ public abstract class TrinketBowMixin {
                 var nativeFamily=List.copyOf(spawned.get());if(!traitsRolled)game.items().trinkets().shot(player,nativeFamily);traitsRolled=true;
                 game.items().chargedBows().release(player,fired,player.getTicksUsingItem(),nativeFamily);return;
             }
-            var oldFamily=game.items().balance().augment(player,fired,List.copyOf(spawned.get()));
+            var imbaFamily=me.skywars2.game.LbcImbaCrossbows.augment(game,player,fired,List.copyOf(spawned.get()));
+            if(imbaFamily.isEmpty())return;
+            if(me.skywars2.game.LbcImbaCrossbows.isBeam(fired)){
+                game.items().trinkets().shot(player,imbaFamily);
+                me.skywars2.game.LbcImbaCrossbows.release(game,player,fired,imbaFamily);return;
+            }
+            var oldFamily=game.items().balance().augment(player,fired,imbaFamily);
             var family=game.items().shulkerBow().augment(player,fired,oldFamily);
             game.items().madokaBow().augment(player,fired,family);
             if(!traitsRolled)game.items().trinkets().shot(player,family);

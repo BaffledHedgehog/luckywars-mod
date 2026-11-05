@@ -1,3 +1,14 @@
+## Native IMBA crossbows - QUALIFIED, INSTALLED (5 November 2026)
+
+[Source, author policy and exact proof](agent_notes/IMBA_CROSSBOWS_2026_11_05.md).
+Six ready native crossbows; five special variants TECH/strong artifact, not MAG.
+Fast/shotgun physical volleys and source1/32/4 mechanical beams share native ammo,
+trinkets and Erecto; source arrow20 bypass/unit-cell counts and native blasts retained.
+Selected-only infinite draw, exact256 pellets, native firework preservation, TimeStop.
+Test7aad4511/productiona9320ff6:6 isolated native matches pass(5mode1,1mode3).
+Both JARs/main updated without main stop/start;11 families/12 resources;275 author paths preserved.
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## Native portal/tree/crystal placeables - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source, author rules and exact proof](agent_notes/IMBA_PLACEABLES_2026_11_05.md).

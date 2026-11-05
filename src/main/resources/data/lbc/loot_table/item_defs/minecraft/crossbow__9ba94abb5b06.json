@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:crossbow",
+          "name": "skywars2:imba_super_shotgun",
           "modifier": [
             {
               "count": 1,
@@ -33,11 +33,6 @@
             {
               "mode": "replace_all",
               "lore": [
-                {
-                  "translate": "special_arrows_cannot_use",
-                  "color": "red",
-                  "italic": false
-                },
                 {
                   "translate": "imba_version",
                   "color": "dark_purple",

@@ -30,15 +30,16 @@ import java.util.*;
 
 /** Higher electricity shares Electro traces; this owner stores only the source ray counter and spheres. */
 final class LbcErecto {
-    static final int CENTRAL=0,SIDE=1,PHANTOM=2,SNIPER=3;
+    static final int CENTRAL=0,SIDE=1,PHANTOM=2,SNIPER=3,CROSSBOW=4;
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<Block> CONDUCTIVE=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:electroprovod"));
     private static final TagKey<net.minecraft.world.entity.EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final DustColorTransitionOptions DUST=new DustColorTransitionOptions(0x00ccff,0x003333,.8f);
     private static final DustColorTransitionOptions SNIPER_DUST=new DustColorTransitionOptions(0x00ccff,0xe5e5ff,.8f);
+    private static final DustColorTransitionOptions CROSSBOW_DUST=new DustColorTransitionOptions(0xffccff,0xccccff,.9f);
     static final class Path {
         final int kind,focusSteps;final Vec3 origin;final ServerPlayer caster;final InteractionHand hand;final ItemStack stack;
-        Vec3 focus;int side;LbcIndirectKills.Owner terrainCause;
+        Vec3 focus;int side;LbcIndirectKills.Owner terrainCause;LbcBeamAmmo ammunition;
         Path(int kind,Vec3 origin,Vec3 focus,int focusSteps,int side,ServerPlayer caster,InteractionHand hand,ItemStack stack){
             this.kind=kind;this.origin=origin;this.focus=focus;this.focusSteps=focusSteps;this.side=side;this.caster=caster;this.hand=hand;this.stack=stack;
         }
@@ -144,8 +145,25 @@ final class LbcErecto {
     private void add(ServerPlayer owner,Vec3 at,float yaw,float pitch,int lifetime,Path path){
         var trace=new LbcWands.ElectroTrace(owner,at,game.items().epoch(),lifetime);trace.yaw=yaw;trace.pitch=pitch;trace.erecto=path;game.items().wands().higherElectro(trace);
     }
+    /** The source mechanical sniper has its own impact payload; wand sniper behavior stays shared above. */
+    void crossbow(ServerPlayer owner,ItemStack weapon,List<net.minecraft.world.entity.projectile.Projectile> family,LbcImbaCrossbows.Kind kind){
+        int count=kind==LbcImbaCrossbows.Kind.SUPER?32:kind==LbcImbaCrossbows.Kind.GATLING?4:1;
+        var origin=kind==LbcImbaCrossbows.Kind.GATLING?owner.getEyePosition().add(owner.getLookAngle()):owner.position();
+        for(int i=0;i<count;i++){
+            float yaw=owner.getYRot(),pitch=owner.getXRot();
+            if(count>1){yaw+=(owner.getRandom().nextInt(6001)-3000)*.01f;pitch+=(owner.getRandom().nextInt(kind==LbcImbaCrossbows.Kind.GATLING?1001:6001)-(kind==LbcImbaCrossbows.Kind.GATLING?500:3000))*.01f;}
+            var path=new Path(CROSSBOW,origin,null,0,0,owner,InteractionHand.MAIN_HAND,weapon.copy());
+            path.ammunition=(LbcBeamAmmo)LbcBeamAmmo.capture(game,owner,weapon,family);if(path.ammunition!=null)path.ammunition.precise=true;
+            var trace=new LbcWands.ElectroTrace(owner,origin,game.items().epoch(),count==1?200:count==32?50:(i+1)*10);
+            trace.yaw=yaw;trace.pitch=pitch;trace.erecto=path;trace.cause=game.items().indirectKills().coldCause(owner,true);
+            game.items().wands().higherElectro(trace);
+        }
+        LbcOverload.sound(owner,owner.position(),"minecraft:item.trident.return",3,1.3f,0);
+        owner.level().sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xff00ffff),true,false,origin.x,origin.y,origin.z,1,0,0,0,0);
+        if(kind==LbcImbaCrossbows.Kind.SNIPER)rotate(owner,owner.getLookAngle(),-15);
+    }
     boolean step(LbcWands.ElectroTrace trace){
-        Path p=trace.erecto;if(p.kind==SNIPER)return sniper(trace);
+        Path p=trace.erecto;if(p.kind==SNIPER||p.kind==CROSSBOW)return sniper(trace);
         double spacing=p.kind==SIDE?.25:p.kind==PHANTOM?.2:.5;int samples=p.kind==SIDE?9:p.kind==PHANTOM?10:4;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean clear=true;
         var shield=p.kind==PHANTOM?game.items().wands().shieldHit(trace.owner,from,from.add(direction.scale(samples*spacing))):null;
@@ -176,7 +194,7 @@ final class LbcErecto {
         return true;
     }
     private void particles(LbcWands.ElectroTrace t,Vec3 at,float volume,boolean sniper){
-        t.level.sendParticles(sniper?SNIPER_DUST:DUST,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
+        t.level.sendParticles(sniper?(t.erecto.kind==CROSSBOW?CROSSBOW_DUST:SNIPER_DUST):DUST,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
         if(!sniper)t.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,at.x,at.y,at.z,1,.1,.1,.1,1);
         if(volume>0)LbcOverload.sound(t.owner,at,sniper?"minecraft:item.trident.riptide_3":"minecraft:entity.firework_rocket.twinkle",volume,2,0);
     }
@@ -210,6 +228,11 @@ final class LbcErecto {
                 for(int sign:new int[]{-1,1}){var at=point.add(right.scale(sign));trace.level.sendParticles(ParticleTypes.SCULK_SOUL,true,false,at.x,at.y,at.z,3,.1,.1,.1,0);}
             }
             if(!trace.level.getBlockState(pos).is(AIRS)){
+                if(trace.erecto.kind==CROSSBOW){
+                    var cause=trace.cause;var damage=game.items().indirectKills().captureDamage(trace.level.damageSources().explosion(null,trace.owner),cause);
+                    game.items().indirectKills().trapChanges(trace.level,cause,()->trace.level.explode(null,damage,null,point,20,false,net.minecraft.world.level.Level.ExplosionInteraction.MOB));
+                    continue;
+                }
                 impact(trace,point);var p=trace.erecto;
                 if(p.terrainCause==null||!p.terrainCause.player().equals(trace.owner.getUUID()))p.terrainCause=game.items().indirectKills().coldCause(trace.owner,true);
                 game.items().indirectKills().trapChanges(trace.level,p.terrainCause,()->{
@@ -219,7 +242,11 @@ final class LbcErecto {
                 if(trace.level.getRandom().nextFloat()<.2f){alive=false;break;}
             }
         }
-        if(emitted)hurt(trace,from,end,.3,20,2);trace.position=end;return alive;
+        if(emitted&&trace.erecto.kind==CROSSBOW){
+            if(trace.erecto.ammunition!=null)trace.erecto.ammunition.lineSegment(trace.level,from,end,trace.cause);
+            var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),trace.owner);
+            LbcDamage.hurtSegment(trace.level,damage,from,end,Vec3.ZERO,.3,20,2,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(trace.owner,e)&&!e.entityTags().contains("transformator"),false,true,null,null);
+        }else if(emitted)hurt(trace,from,end,.3,20,2);trace.position=end;return alive;
     }
     int rayPending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"ray"));}
     void addPlayerCounter(ServerPlayer owner){game.items().mana().score(owner,"ray").add(1);rays.put(owner,game.items().epoch());}

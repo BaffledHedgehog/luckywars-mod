@@ -15,7 +15,7 @@ public final class LbcImbaRecursionItems {
     public static final Item DELTA_TNT=register("delta_tnt","lbc/omegatnt__ff0a27b525da",true);
     private LbcImbaRecursionItems(){}
     public static void register(){}
-    static Item legacyTarget(ItemStack stack){return LbcFunnyTnt.matches(stack)?FUNNY_TNT:LbcDeltaTnt.matches(stack)?DELTA_TNT:LbcImbaPlaceableItems.legacyTarget(stack);}
+    static Item legacyTarget(ItemStack stack){var crossbow=LbcImbaCrossbows.legacyTarget(stack);return crossbow!=null?crossbow:LbcFunnyTnt.matches(stack)?FUNNY_TNT:LbcDeltaTnt.matches(stack)?DELTA_TNT:LbcImbaPlaceableItems.legacyTarget(stack);}
     private static Item register(String name,String definition,boolean delta){
         var properties=LbcUtilityItemPrototypes.properties("skywars2:"+name,"/data/lbc/loot_table/item_defs/"+definition+".json",Items.PANDA_SPAWN_EGG,64);
         return Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+name),new Token(properties,delta));
