@@ -31,7 +31,10 @@ abstract class LbcMarkerEggItem extends SimplePolymerItem {
         var hit=getPlayerPOVHitResult(level,player,ClipContext.Fluid.SOURCE_ONLY);
         if(hit.getType()!=HitResult.Type.BLOCK||!(level.getBlockState(hit.getBlockPos()).getBlock() instanceof LiquidBlock))return InteractionResult.PASS;
         var at=hit.getBlockPos();if(!level.mayInteract(player,at)||!player.mayUseItemAt(at,hit.getDirection(),player.getItemInHand(hand)))return InteractionResult.FAIL;
-        return activate(owner,hand,new Vec3(at.getX()+.5,at.getY(),at.getZ()+.5),at);
+        var result=activate(owner,hand,new Vec3(at.getX()+.5,at.getY(),at.getZ()+.5),at);
+        // ItemStack.useOn records block use itself; vanilla spawn eggs record fluid use here.
+        if(result==InteractionResult.SUCCESS)owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(this));
+        return result;
     }
     protected abstract InteractionResult activate(ServerPlayer player,InteractionHand hand,Vec3 origin,BlockPos at);
 }

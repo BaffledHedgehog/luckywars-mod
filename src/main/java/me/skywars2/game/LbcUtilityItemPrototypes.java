@@ -78,6 +78,8 @@ final class LbcUtilityItemPrototypes {
                 .component(DataComponents.EQUIPPABLE,net.minecraft.world.item.equipment.Equippable.builder(net.minecraft.world.entity.EquipmentSlot.CHEST)
                         .setEquipSound(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_ELYTRA).setAsset(net.minecraft.world.item.equipment.EquipmentAssets.ELYTRA).setDamageOnHurt(false).build())
                 .repairable(Items.PHANTOM_MEMBRANE);
+        else if(carrier==Items.REPEATING_COMMAND_BLOCK)p.rarity(Rarity.EPIC);
+        else if(carrier==Items.CARROT_ON_A_STICK)p.durability(25);
         else if(carrier==Items.TIPPED_ARROW)p.component(DataComponents.POTION_CONTENTS,net.minecraft.world.item.alchemy.PotionContents.EMPTY).component(DataComponents.POTION_DURATION_SCALE,.125f);
         else if(carrier==Items.FIREWORK_ROCKET)p.component(DataComponents.FIREWORKS,new Fireworks(1,java.util.List.of()));
         else if(carrier==Items.GOLDEN_APPLE)p.food(net.minecraft.world.food.Foods.GOLDEN_APPLE,Consumables.GOLDEN_APPLE);

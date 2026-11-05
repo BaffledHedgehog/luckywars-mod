@@ -21,12 +21,19 @@ public final class RewardToolChecks {
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Reward tools: "+why);}
     private static ItemStack tool(String flag){var s=new ItemStack(Items.CARROT_ON_A_STICK);var d=new CompoundTag();d.putInt("raycastspell",1);d.putInt(flag,1);s.set(DataComponents.CUSTOM_DATA,CustomData.of(d));return s;}
     private static final class Fixture implements AutoCloseable {
-        final GameController game;final AllGrimoireChecks.Fixture base;final List<Entity> owned=new ArrayList<>();
+        final GameController game;final boolean nativeItems;final AllGrimoireChecks.Fixture base;final List<Entity> owned=new ArrayList<>();
         final net.minecraft.server.level.ServerPlayer p;final BlockPos block;final MapManager.BlockSnapshot original;
         Cow cow;int stage,at;ItemStack glove;long bolts;boolean closed;
-        Fixture(GameController game){this.game=game;base=new AllGrimoireChecks.Fixture(game);p=base.base.owner;
+        Fixture(GameController game,boolean nativeItems){this.game=game;this.nativeItems=nativeItems;base=new AllGrimoireChecks.Fixture(game);p=base.base.owner;
             base.beta.setPos(p.position().add(10,0,0));base.beta.setNoGravity(true);p.getInventory().clearContent();p.setYRot(0);p.setXRot(0);
             block=BlockPos.containing(p.getEyePosition().add(0,0,6));original=game.maps().snapshot(p.level(),block);at=game.server().getTickCount();
+        }
+        ItemStack tool(String flag){
+            if(!nativeItems)return RewardToolChecks.tool(flag);
+            return switch(flag){case "krazha"->new ItemStack(LbcRewardToolItems.Kind.SHADOW_GLOVE.item);
+                case "shetka"->new ItemStack(LbcRewardToolItems.Kind.TOOTHBRUSH.item);
+                case "lightning_bolt"->new ItemStack(LbcRewardToolItems.Kind.LIGHTNING.item);
+                default->throw new IllegalArgumentException(flag);};
         }
         void ack(){
             ClientboundPlayerPositionPacket last=null;for(var packet:base.base.recording.packets)if(packet instanceof ClientboundPlayerPositionPacket pos)last=pos;
@@ -76,7 +83,10 @@ public final class RewardToolChecks {
         public void close(){if(closed)return;closed=true;try{for(var e:owned){game.items().entityUnloaded(e);e.discard();}game.maps().restoreSnapshot(p.level(),block,original);}finally{base.close();}}
     }
     private static Fixture running;
-    public static void start(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);SkyWars2.LOGGER.info("[check] START reward-tools");}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.tick())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS reward-tools (native both-hand input/common queued exact hits, mob mainhand/offhand/inventory priorities, allied/empty players, failure retention, bedrock brush, singular native lightning)");}
-        catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL reward-tools",error);}}
+    public static void start(GameController game){start(game,false);}
+    public static void startNative(GameController game){start(game,true);}
+    private static void start(GameController game,boolean nativeItems){require(running==null,"exclusive fixture");running=new Fixture(game,nativeItems);SkyWars2.LOGGER.info("[check] START {}",nativeItems?"reward-tools-native":"reward-tools");}
+    public static void tick(GameController game){if(running==null)return;var suite=running.nativeItems?"reward-tools-native":"reward-tools";
+        try{if(!running.tick())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS {} (native both-hand input/common queued exact hits, mob mainhand/offhand/inventory priorities, allied/empty players, failure retention, bedrock brush, singular native lightning)",suite);}
+        catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL "+suite,error);}}
 }

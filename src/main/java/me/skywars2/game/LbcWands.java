@@ -393,13 +393,17 @@ public final class LbcWands {
             @Override public Identifier effectiveModel() { return Identifier.parse(model); }
         }.setId(key).overrideDescription(name);
         if(durability>0) properties.durability(durability);
-        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(properties,Items.CARROT_ON_A_STICK,true) {
-            @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
+        return Registry.register(BuiltInRegistries.ITEM,key,nativeTool(properties,Items.CARROT_ON_A_STICK));
+    }
+    /** Native authored tools share the same admission and ray input as existing wands. */
+    static Item nativeTool(Item.Properties properties,Item proxy){
+        return new SimplePolymerItem(properties,proxy,true){
+            @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
                 var game=SkyWars2.game();
-                return game!=null && player instanceof ServerPlayer p && game.items().wands().use(p,hand)
-                        ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+                return game!=null&&player instanceof ServerPlayer owner&&game.items().wands().use(owner,hand)
+                        ?InteractionResult.SUCCESS:InteractionResult.FAIL;
             }
-        });
+        };
     }
     /** The donor keeps native egg placement and consumption; only its client representation is Polymer. */
     private static final class LightningEgg extends net.minecraft.world.item.SpawnEggItem implements eu.pb4.polymer.core.api.item.PolymerItem {

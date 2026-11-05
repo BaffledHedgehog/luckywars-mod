@@ -27,6 +27,12 @@ dependencies {
 }
 
 processResources {
+    // Native utility inputs; each ready leaf refers to its canonical source definition.
+    include 'data/lbc/loot_table/ported/shadow_glove.json'
+    include 'data/lbc/loot_table/ported/toothbrush.json'
+    include 'data/lbc/loot_table/ported/imba_lightning_bolt.json'
+    include 'data/lbc/loot_table/ported/imba_nuclear_bomb.json'
+    include 'data/lbc/loot_table/shadowglove.json'
     // Native IMBA special ammunition; canonical definitions already share the common include.
     include 'data/lbc/loot_table/ported/imba_strong_arrow.json'
     include 'data/lbc/loot_table/ported/imba_weak_arrow.json'

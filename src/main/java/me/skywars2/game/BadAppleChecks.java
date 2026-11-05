@@ -217,7 +217,7 @@ public final class BadAppleChecks {
         @Override public void close(){
             if(closed)return;closed=true;Throwable failure=null;
             for(Runnable action:List.<Runnable>of(()->{if(rewind)game.vanity().stop();},()->{service.stop();if(supporting!=null)supporting.stop();put(service,"policy",originalPolicy);},()->{if(stopped)game.items().timeStop().end(level);},
-                    ()->{for(var e:level.getAllEntities())if(!before.contains(e.getUUID())&&e instanceof ItemEntity)e.discard();},
+                    ()->{var actors=new ArrayList<Entity>();for(var e:level.getAllEntities())if(e!=null)actors.add(e);for(var e:actors)if(!before.contains(e.getUUID())&&e instanceof ItemEntity)e.discard();},
                     ()->{for(var entry:blocks.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue(),818);},
                     ()->{game.config().lbcSkills=skills;saved.restoreAttributes();otherSaved.restoreAttributes();saved.restore(game);otherSaved.restore(game);saved.restoreUse();otherSaved.restoreUse();},client::close,audience::close))
                 try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}

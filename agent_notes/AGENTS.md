@@ -1,3 +1,14 @@
+## Native utility inputs - QUALIFIED, INSTALLED (6 November 2026)
+
+[Source, shared factories and exact proof](NATIVE_UTILITY_INPUTS_2026_11_06.md).
+Four ready inputs: Shadow Glove, Toothbrush, IMBA Lightning spell and nuclear bomb.
+Six canonical definitions retain all original functions/counts; Bridge/BadApple leaves share them.
+Common wand use/reward rays and native marker/nuclear owners; no duplicate ability engines.
+Removed duplicate prototype parsers; restored BadApple EPIC and correct block/fluid use stats.
+Testdb689c9c/production1d5452ef:12 isolated mode1/mode3 matches pass.
+12 families/12 resources;282 author paths/RP preserved; main/both libs installed without restart.
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## Eight native IMBA arrows - QUALIFIED, INSTALLED (6 November 2026)
 
 [Source, shared owners and exact proof](NATIVE_IMBA_ARROWS_2026_11_06.md).

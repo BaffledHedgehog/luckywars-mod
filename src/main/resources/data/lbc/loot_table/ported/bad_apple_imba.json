@@ -4,14 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "skywars2:bad_apple_imba",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            }
-          ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/badapple1__53d62d9b2e05"
         }
       ]
     }

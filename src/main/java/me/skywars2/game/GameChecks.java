@@ -891,6 +891,8 @@ public final class GameChecks {
                                 case "fpv-drone" -> { FpvDroneChecks.start(game); return; }
                                 case "fpv-respawn" -> { DeveloperSoloChecks.runFpv(game); return; }
                                 case "reward-tools" -> { RewardToolChecks.start(game); return; }
+                                case "reward-tools-native" -> { RewardToolChecks.startNative(game); return; }
+                                case "native-utility-inputs" -> NativeUtilityInputChecks.run(game);
                                 case "loose-rewards" -> { LooseRewardChecks.start(game); return; }
                                 case "canonical-loot" -> { LootDefinitionChecks.run(game); return; }
                                 case "feedback-regressions" -> { FeedbackRegressionChecks.run(game); return; }
