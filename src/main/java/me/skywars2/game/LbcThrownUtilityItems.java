@@ -21,11 +21,15 @@ public final class LbcThrownUtilityItems {
     public static final Item HONEW=token("honew","/data/lbc/loot_table/item_defs/minecraft/honey_block__e4ec8e496182.json");
     public static final Item THROWABLE_METAL_PIPE=token("throwable_metal_pipe","/data/lbc/loot_table/item_defs/lbc/metal_pipe__b63902a52716.json");
     public static final Item BUCKET_PROJECTILE=token("bucket_projectile","/data/lbc/loot_table/imba/bucket_rofl.json");
+    public static final Item THROWABLE_PUMPKIN=token("throwable_pumpkin","/data/lbc/loot_table/item_defs/minecraft/jack_o_lantern__33966c7d363a.json",true);
     private LbcThrownUtilityItems(){}
     public static void register(){}
     private static Item token(String id,String resource){
+        return token(id,resource,false);
+    }
+    private static Item token(String id,String resource,boolean nativeDefaults){
         return Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+id),
-                new NativeSnowball(LbcUtilityItemPrototypes.properties("skywars2:"+id,resource,Items.SNOWBALL,16)));
+                new NativeSnowball(LbcUtilityItemPrototypes.properties("skywars2:"+id,resource,Items.SNOWBALL,16,java.util.Set.of(),nativeDefaults)));
     }
     private static final class NativeSnowball extends SnowballItem implements PolymerItem {
         NativeSnowball(Properties properties){super(properties);}

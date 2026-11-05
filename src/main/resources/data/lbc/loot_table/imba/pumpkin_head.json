@@ -6,9 +6,8 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:item_defs/minecraft/carved_pumpkin__6b4e107e0698/variant_4f53cda18c2b",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_ff",
                 "minecraft:enchantments": {
@@ -16,20 +15,20 @@
                 },
                 "equippable": {
                   "slot": "head",
-                  "camera_overlay": "minecraft:misc/loli_hentai"
+                  "camera_overlay": "minecraft:misc/pumpkinblur"
                 }
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_name",
               "name": {
                 "translate": "tikva",
                 "color": "white",
                 "italic": false
-              }
+              },
+              "type": "minecraft:set_name"
             },
             {
-              "function": "minecraft:set_lore",
               "mode": "replace_all",
               "lore": [
                 [
@@ -49,11 +48,12 @@
                   "color": "dark_purple",
                   "italic": false
                 }
-              ]
+              ],
+              "type": "minecraft:set_lore"
             },
             {
-              "function": "minecraft:set_custom_data",
-              "tag": "{transformable:1,helmet:1,imba:1}"
+              "tag": "{transformable:1,helmet:1,imba:1}",
+              "type": "minecraft:set_custom_data"
             }
           ]
         }

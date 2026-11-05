@@ -1,19 +1,17 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 27,
+      "entries": [
         {
-            "rolls": 27,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:spells_library",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 99
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:spells_library",
+          "modifier": {
+            "count": 99,
+            "type": "minecraft:set_count"
+          }
         }
-    ]
+      ]
+    }
+  ]
 }

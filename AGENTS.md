@@ -1,3 +1,36 @@
+## Throwable pumpkin / vanilla pool / structure loot - QUALIFIED, INSTALLED (6 November 2026)
+
+[Contract and limits](agent_notes/THROWABLE_PUMPKIN_2026_11_05.md).
+Ready lbc:ported/throwable_pumpkin; shared native utility/head replacement.
+Unjammed; Protected Inventory; exact old helmet pickup0; source cactus5/owner.
+Safe vanilla overlay replaces excluded legacy sexualized child overlay; RP untouched.
+Vanilla1657 equal identity slots retain1970 source profiles and26 rolls.
+Restored16 source wrappers;795 native container links; no structure/map edits.
+Pool-role/TMT-one-slot contract recorded; custom/mixed/type and bucks still pending.
+Test17c91a85/production56edd6f1:8 isolated native matches pass(6mode1,2mode3).
+Main/both libs installed without restart;7 families/20 resources;282 author paths preserved.
+All broad release gates unchanged. Memory pause below is historical; this batch is now qualified.
+
+## Desktop memory budget after BSOD - user, 5 November 2026
+
+The user exhausted 32GB RAM + 32GB pagefile and reported a BSOD. Economize
+agent tools. Project Gradle:1GiB heap, one worker, no parallel execution and no
+persistent daemon. Serena next launch:768MiB heap/64MiB initial; do not create
+additional JDTs for this project. Two duplicate Serena JDTs and Gradle were
+stopped; unrelated Minecraft, Velocity, editor and user processes were preserved.
+Use rg/file reads while memory is tight. Run at most ONE heavy job at a time;
+stop build tooling before any isolated native test server. Check system memory
+headroom before heavy work; with only about3GiB RAM available, defer test JVMs.
+Avoid holding both decompressed artifact archives in memory during packaging.
+Do not change user server/client heaps or pagefile settings.
+
+Pending source batch:throwable pumpkin, uniform vanilla item identities and
+restored structure loot wrappers. It is NOT qualified or installed:the build
+was interrupted. Resume proof in build/verification/throwable-pumpkin-2026-11-05/,
+MEMORY_PAUSE.json. Re-freeze inputs, account for gradle.properties/.serena/project.yml,
+and run actual checks before installation. Existing installed pearl build stays.
+Pool contract:agent_notes/ALL_ITEM_POOLS_CONTRACT_2026_11_05.md.
+
 ## Native IMBA pearl - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source, native ledger and exact proof](agent_notes/IMBA_PEARL_2026_11_05.md).

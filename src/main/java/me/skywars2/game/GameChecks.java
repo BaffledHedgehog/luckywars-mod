@@ -1301,6 +1301,8 @@ public final class GameChecks {
                                 case "imba-tools-rewind" -> {ImbaToolChecks.runRewind(game);return;}
                                 case "produce-gadgets" -> {ProduceGadgetChecks.run(game);return;}
                                 case "produce-gadgets-rewind" -> {ProduceGadgetChecks.runRewind(game);return;}
+                                case "throwable-pumpkin" -> {ThrownPumpkinChecks.run(game);return;}
+                                case "structure-container-loot" -> {StructureContainerLootChecks.run(game);return;}
                                 case "wool-bucket" -> {WoolBucketChecks.run(game);return;}
                                 case "wool-bucket-rewind" -> {WoolBucketChecks.runRewind(game);return;}
                                 case "thrown-utilities" -> {ThrownUtilityChecks.run(game);return;}

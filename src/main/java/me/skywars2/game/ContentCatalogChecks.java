@@ -39,6 +39,21 @@ public final class ContentCatalogChecks {
         var result=new TreeSet<String>(); for(var row:rows) require(result.add(row.getAsString()),"unique expected ID "+row);
         return result;
     }
+    /** Resolve one source entry's carrier identities; inline variant groups keep their original leaf functions. */
+    private static Set<String> sourceItems(JsonElement value,Map<String,Set<String>> cache){
+        var result=new TreeSet<String>();
+        if(value.isJsonObject()){
+            var object=value.getAsJsonObject();var type=object.has("type")?object.get("type").getAsString():"";
+            if(type.equals("minecraft:item"))return Set.of(object.get("name").getAsString());
+            if(type.equals("minecraft:loot_table")&&object.has("value")&&object.get("value").isJsonPrimitive()){
+                var ref=object.get("value").getAsString();var cached=cache.get(ref);if(cached!=null)return cached;
+                require(ref.startsWith("lbc:"),"authored vanilla profile reference "+ref);
+                var resolved=sourceItems(json("/data/lbc/loot_table/"+ref.substring(4)+".json"),cache);cache.put(ref,resolved);return resolved;
+            }
+            for(var field:object.entrySet())result.addAll(sourceItems(field.getValue(),cache));
+        }else if(value.isJsonArray())for(var child:value.getAsJsonArray())result.addAll(sourceItems(child,cache));
+        return result;
+    }
     public static void run(GameController game) {
         require(game.playing(),"requires an actual match");
         var p=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
@@ -55,7 +70,15 @@ public final class ContentCatalogChecks {
         var pools=parent.getAsJsonArray("pools"); require(pools.size()==1,"one author infinity pool");
         var pool=pools.get(0).getAsJsonObject(); require(pool.get("rolls").getAsInt()==26,"author26 rolls retained");
         var entries=pool.getAsJsonArray("entries"); var additions=metadata.getAsJsonArray("addedItems");
-        require(entries.size()==metadata.get("originalPoolEntryCount").getAsInt()+additions.size(),"original pool cardinality plus exact additions");
+        require(entries.size()==expected.size(),"one outer source entry per vanilla registry item");
+        var byItem=new HashMap<String,JsonObject>();var cache=new HashMap<String,Set<String>>();
+        for(var raw:entries){
+            var entry=raw.getAsJsonObject();require((!entry.has("weight")||entry.get("weight").getAsInt()==1)
+                    &&(!entry.has("quality")||entry.get("quality").getAsInt()==0)&&!entry.has("condition")&&!entry.has("conditions"),"uniform unconditional outer weight");
+            var types=sourceItems(entry,cache);require(types.size()==1,"source variants share exactly one vanilla identity");
+            require(byItem.put(types.iterator().next(),entry)==null,"source count/variant duplicates never add outer weight");
+        }
+        require(byItem.keySet().equals(expected),"all current vanilla items reachable exactly once, no custom spill");
         var params=new LootParams.Builder(p.level()).withParameter(LootContextParams.ORIGIN,p.position())
                 .withParameter(LootContextParams.THIS_ENTITY,p).create(LootContextParamSets.CHEST);
         var addedIds=new HashSet<String>();
@@ -63,7 +86,7 @@ public final class ContentCatalogChecks {
         for(int index=0;index<additions.size();index++) {
             String item=additions.get(index).getAsJsonObject().get("item").getAsString();
             require(expected.contains(item)&&addedIds.add(item),"new distinct vanilla item "+item);
-            var entry=entries.get(metadata.get("originalPoolEntryCount").getAsInt()+index).getAsJsonObject();
+            var entry=byItem.get(item);
             var shape=new JsonObject();shape.addProperty("type","minecraft:item");shape.addProperty("name",item);shape.addProperty("weight",1);
             require(entry.equals(shape),"exact direct item entry in existing pool "+item);
             var singleEntries=new JsonArray();singleEntries.add(entry.deepCopy());
@@ -78,6 +101,11 @@ public final class ContentCatalogChecks {
         }
         var observedNew=new HashSet<String>();
         var actualParent=game.server().reloadableRegistries().getLootTable(key("lbc:infinity_no_shulker"));
+        var nativePools=(List<?>)WoolBucketChecks.read(actualParent,"pools");require(nativePools.size()==1,"one native registry pool");
+        var expanded=new ArrayList<net.minecraft.world.level.storage.loot.entries.LootPoolEntry>();
+        var context=new LootContext.Builder(params).withOptionalRandomSeed(17).create(Optional.empty());
+        for(var source:((LootPool)nativePools.getFirst()).entries)source.expand(context,expanded::add);
+        require(expanded.size()==expected.size()&&expanded.stream().allMatch(entry->entry.getWeight(0)==1&&entry.getWeight(1000000)==1),"native expansion has one equal weight per registry identity, independent of luck");
         for(long seed=1;seed<=64;seed++)for(var stack:actualParent.getRandomItems(params,seed)){
             var id=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();if(addedIds.contains(id))observedNew.add(id);
         }

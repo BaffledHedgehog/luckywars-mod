@@ -31,7 +31,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Source utilities using vanilla transport and the shared Psycho, inventory and pipe owners. */
 public final class LbcThrownUtilities {
-    public enum Kind { RUCHKA, HONEW, THROWABLE_METAL_PIPE, BUCKET }
+    public enum Kind { RUCHKA, HONEW, THROWABLE_METAL_PIPE, BUCKET, PUMPKIN }
     /** Author decisions can change suppression without changing native launch/debit ownership. */
     public interface Policy {
         default boolean allowsLaunch(Kind kind,ServerPlayer owner){return true;}
@@ -58,6 +58,7 @@ public final class LbcThrownUtilities {
         if(ItemData.intValue(stack,"honew",0)==1)return Kind.HONEW;
         if(ItemData.intValue(stack,"throwable_metal_pipe",0)==1)return Kind.THROWABLE_METAL_PIPE;
         if(ItemData.intValue(stack,"bucket",0)==1)return Kind.BUCKET;
+        if(ItemData.intValue(stack,"tikva",0)==1)return Kind.PUMPKIN;
         return null;
     }
     public static boolean matches(ItemStack stack){return kind(stack)!=null;}
@@ -133,6 +134,7 @@ public final class LbcThrownUtilities {
         write(shot,new Flight(state.kind(),state.author(),state.epoch(),true));unloaded(shot);
         try{if(state.kind()==Kind.RUCHKA){ruchka(owner,nearest);burst((ServerLevel)shot.level(),nearest.position(),Kind.RUCHKA);}
             else if(state.kind()==Kind.BUCKET){bucket(shot,owner,nearest);}
+            else if(state.kind()==Kind.PUMPKIN){pumpkin(shot,owner,nearest);}
             else{honey(owner,nearest);burst((ServerLevel)shot.level(),nearest.position(),Kind.HONEW);}}
         finally{shot.discard();}
     }
@@ -163,30 +165,38 @@ public final class LbcThrownUtilities {
     }
     private void bucket(Snowball shot,ServerPlayer owner,ServerPlayer target){
         var level=target.level();
-        if(!game.items().inventoryHazards().protectedInventory(target)){
-            // Resolve the authored equipment before publishing or removing the exact occupied head slot.
-            var output=game.lbc().rollTable(level,target.position(),target,"lbc:imba/bucket_head");
-            if(output.size()==1&&output.getFirst().is(Items.LEATHER_HELMET)
-                    &&output.getFirst().getCount()==1&&ItemData.intValue(output.getFirst(),"bucket_head",0)==1){
-                var previous=target.getItemBySlot(EquipmentSlot.HEAD);boolean published=previous.isEmpty();
-                if(!previous.isEmpty()){
-                    // Copy all nested components and existing producer provenance; this is an ejection, not new loot.
-                    var at=target.position();var item=new ItemEntity(level,at.x,at.y,at.z,previous.copy());
-                    item.setPickUpDelay(0);game.items().markCurrentItemEpoch(item);
-                    published=level.addFreshEntity(item);
-                }
-                if(published){
-                    target.setItemSlot(EquipmentSlot.HEAD,output.getFirst());
-                    target.getInventory().setChanged();game.items().magic().inventoryChanged(target);
-                    target.containerMenu.broadcastChanges();
-                }
-            }
-        }
+        equipHead(target,"lbc:imba/bucket_head",Items.LEATHER_HELMET,"bucket_head");
         // A real projectile source retains caster attribution without becoming an accepted melee hit.
         var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(DamageTypes.GENERIC),shot,owner);
         target.hurtServer(level,damage,5);
         for(int i=0;i<10;i++)LbcOverload.sound(level,target.position(),"minecraft:lbcsounds.bell",10,1,5,0);
+    }
+    /** Publish the exact previous helmet before replacing it; share protection and provenance with the bucket. */
+    private boolean equipHead(ServerPlayer target,String table,net.minecraft.world.item.Item expected,String flag){
+        if(game.items().inventoryHazards().protectedInventory(target))return false;
+        var level=target.level();var output=game.lbc().rollTable(level,target.position(),target,table);
+        if(output.size()!=1||!output.getFirst().is(expected)||output.getFirst().getCount()!=1
+                ||flag!=null&&ItemData.intValue(output.getFirst(),flag,0)!=1)return false;
+        var previous=target.getItemBySlot(EquipmentSlot.HEAD);
+        if(!previous.isEmpty()){
+            var at=target.position();var item=new ItemEntity(level,at.x,at.y,at.z,previous.copy());
+            item.setPickUpDelay(0);game.items().markCurrentItemEpoch(item);
+            if(!level.addFreshEntity(item))return false;
+        }
+        target.setItemSlot(EquipmentSlot.HEAD,output.getFirst());
+        target.getInventory().setChanged();game.items().magic().inventoryChanged(target);target.containerMenu.broadcastChanges();return true;
+    }
+    private void pumpkin(Snowball shot,ServerPlayer owner,ServerPlayer target){
+        var level=target.level();var at=target.position();
+        for(float pitch:new float[]{1,0,2})LbcOverload.sound(level,at,"minecraft:lbcsounds.yametekudasai",1,pitch,0,0);
+        if(equipHead(target,"lbc:imba/pumpkin_head",Items.CARVED_PUMPKIN,"helmet"))
+            target.sendSystemMessage(Component.translatable("tikva_equip").withStyle(net.minecraft.ChatFormatting.YELLOW));
+        var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),shot,owner);
+        target.hurtServer(level,damage,5);
+        for(float pitch:new float[]{1,2})LbcOverload.sound(level,at,"minecraft:block.decorated_pot.insert",1,pitch,0,0);
+        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,ItemStackTemplate.fromNonEmptyStack(new ItemStack(Items.SNOWBALL))),
+                at.x,at.y+1,at.z,40,.3,.6,.3,0);
     }
     private static void burst(ServerLevel level,Vec3 at,Kind kind){
         String sound=kind==Kind.RUCHKA?"minecraft:entity.slime.jump_small":"minecraft:entity.slime.jump";

@@ -28,8 +28,8 @@ ls_specific_settings:
     gradle_import_enabled: true
     autobuild_enabled: false
     update_build_configuration: disabled
-    jdtls_xmx: 1536m
-    jdtls_xms: 128m
+    jdtls_xmx: 768m
+    jdtls_xms: 64m
 initial_prompt: Use Java symbol definitions and references for repository navigation.
   Read only the relevant symbols, not whole large classes. Code changes use the normal
   repository editing tools. Use ripgrep for legacy datapack functions, JSON, and exact
