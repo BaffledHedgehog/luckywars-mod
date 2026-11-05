@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tropical_fish_bucket__5ece3402f2a4"
+        }
+      ]
+    }
+  ]
+}

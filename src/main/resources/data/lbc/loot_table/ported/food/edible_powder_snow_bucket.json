@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/powder_snow_bucket__6a2aa6be0ca7"
+        }
+      ]
+    }
+  ]
+}

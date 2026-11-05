@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:chorus_fruit",
+          "name": "skywars2:food/imba_chorus_fruit",
           "modifier": [
             {
               "count": 64,

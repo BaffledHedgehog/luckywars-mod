@@ -117,8 +117,8 @@ public final class FoodLifecycleChecks {
         }
         void synchronous(){
             require(SOURCE.size()==41&&new HashSet<>(SOURCE).size()==41&&LbcFoodLifecycle.sourceFoodCount()==41,"exact original41 membership");
-            var namedAliases=LbcNamedFoodItems.entries().stream().filter(entry->entry.carrier()==Items.GOLDEN_APPLE).map(LbcNamedFoodItems.Entry::item).collect(java.util.stream.Collectors.toSet());
-            require(namedAliases.size()==39,"exact39 explicit golden-apple aliases; banana retains stick membership");
+            var namedAliases=LbcNamedFoodItems.entries().stream().filter(entry->SOURCE.contains(entry.carrier())).map(LbcNamedFoodItems.Entry::item).collect(java.util.stream.Collectors.toSet());
+            require(namedAliases.size()==51,"exact51 explicit source-food aliases; banana retains stick membership");
             for(var item:net.minecraft.core.registries.BuiltInRegistries.ITEM)require(LbcFoodLifecycle.countsAsFood(new ItemStack(item))==(SOURCE.contains(item)||namedAliases.contains(item)||item==LbcKfcFood.KFC_CHICK||item==LbcKfcFood.GOVNO_EATEN),"no inferred generic FOOD membership "+item);
             int count=score("food_count");for(var item:SOURCE){reset();var held=new ItemStack(item,2);owner.setItemInHand(InteractionHand.MAIN_HAND,held);require(held.has(DataComponents.CONSUMABLE),"native source food consumable "+item);held.finishUsingItem(level,owner);require(held.getCount()==1,"one native debit for source food "+item);require(score("food_count")==++count,"single callback food_count "+item);}
             reset();aliases();count+=2;require(score("food_count")==count,"native KFC/cookie aliases count exactly once without duplicate wrapper debit");

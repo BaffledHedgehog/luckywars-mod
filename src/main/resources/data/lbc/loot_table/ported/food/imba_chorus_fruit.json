@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/chorus_fruit__6faf7bd035b3/variant_642a7838865d"
+        }
+      ]
+    }
+  ]
+}

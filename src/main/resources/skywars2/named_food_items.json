@@ -238,5 +238,77 @@
     "flag": "transdimensional_fish",
     "definition": "data/lbc/loot_table/item_defs/lbc/food/transdimensional_fish__abd9fd5d38ec.json",
     "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "edible_axolotl_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/axolotl_bucket__868e9792a070.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_cod_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/cod_bucket__776275471db1.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_lava_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/lava_bucket__1770c2946cb2.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_milk_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/milk_bucket__68bd44afb3ed.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_powder_snow_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/powder_snow_bucket__6a2aa6be0ca7.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_pufferfish_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/pufferfish_bucket__3f00005ef5ff.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_salmon_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/salmon_bucket__2f231d1a6d6a.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_tadpole_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/tadpole_bucket__f681aa6a92ec.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_tropical_fish_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/tropical_fish_bucket__5ece3402f2a4.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "edible_water_bucket",
+    "flag": "gain_bucket",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/water_bucket__5dd991dbab47.json",
+    "carrier": "minecraft:salmon"
+  },
+  {
+    "id": "imba_chorus_fruit",
+    "flag": "eat_teleport2",
+    "definition": "data/lbc/loot_table/item_defs/minecraft/chorus_fruit__6faf7bd035b3/variant_642a7838865d.json",
+    "carrier": "minecraft:chorus_fruit"
+  },
+  {
+    "id": "yellow_lightnings_bottle",
+    "flag": "yellow_lightings_bottle",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/yellow_lightnings_bottle__d07e597e4e38.json",
+    "carrier": "minecraft:golden_apple"
   }
 ]

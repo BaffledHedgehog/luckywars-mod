@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/tadpole_bucket__f681aa6a92ec"
+        }
+      ]
+    }
+  ]
+}

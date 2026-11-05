@@ -54,6 +54,7 @@ public final class EdibleSpellChecks {
         State(GameController game,ServerPlayer p){player=p;require(!p.isUsingItem(),"fixture starts with idle hands");state=new GameChecks.WandThirdPlayerState(p,game.items().mana());ground=p.onGround();sprint=p.isSprinting();shift=p.isShiftKeyDown();known=p.getKnownMovement();pose=p.getPose();camera=p.getCamera();
             for(var h:net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.listElements().toList()){var a=p.getAttribute(h);if(a!=null)attributes.getInstance(h).replaceFrom(a);}
             for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var s=Stats.CUSTOM.get(id);stats.put(s,p.getStats().getValue(s));}for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN))for(var item:List.of(Items.GOLDEN_APPLE,Items.SALMON,Items.SHIELD,Items.LEATHER_BOOTS,Items.LEATHER_LEGGINGS,Items.LEATHER_CHESTPLATE,Items.LEATHER_HELMET)){var s=type.get(item);stats.put(s,p.getStats().getValue(s));}
+            for(var entry:LbcNamedFoodItems.entries()){var s=Stats.ITEM_USED.get(entry.item());stats.put(s,p.getStats().getValue(s));}
             for(var objective:game.server().getScoreboard().getObjectives()){var score=game.server().getScoreboard().getPlayerScoreInfo(p,objective);if(score!=null)scores.put(objective,score.value());}
             for(var a:game.server().getAdvancements().getAllAdvancements()){var done=new HashSet<String>();p.getAdvancements().getOrStartProgress(a).getCompletedCriteria().forEach(done::add);advancements.put(a,done);}
             for(var name:List.of("attackStrengthTicker","itemSwapTicker","xxa","yya","zza","jumping","yHeadRot","yHeadRotO","hurtTime","hurtDuration","lastHurt","lastDamageStamp","lastDamageSource","lastRecordedFoodLevel","lastSentFood","lastFoodSaturationZero","lastSentHealth","lastRecordedHealthAndAbsorption"))values.put(field(p,name),read(p,name));
@@ -152,6 +153,7 @@ public final class EdibleSpellChecks {
         }
         void synchronous(){
             protectedSlabInventories();
+            canonicalBuckets();
             reset();consume("eat_damage");require(owner.getHealth()==485,"actual native eat_damage callback WILD self-arrow15 despite no-friendly-fire team");require(owner.getLastDamageSource()!=null&&owner.getLastDamageSource().is(DamageTypes.ARROW),"retains native arrow damage type");
             reset();consume("eat_poison");effect(MobEffects.POISON,200,4,true);
             // Shared independent layers retain hidden food Regen VI above visible native golden-apple Regen II.
@@ -173,6 +175,22 @@ public final class EdibleSpellChecks {
             for(var e:created())require(e.getType()!=EntityTypes.CREEPER&&!(e instanceof PrimedTnt),"no native-world creeper or fuse0 TNT carrier remains");
             game.items().edibleSpells().forget(owner);require(rocket.isRemoved()&&game.items().edibleSpells().snapshot().isEmpty(),"owned native child cleanup before any delayed rocket/lightning tick");
             reset();
+        }
+        void canonicalBuckets(){
+            int tested=0;
+            for(var entry:LbcNamedFoodItems.entries())if(entry.id().startsWith("edible_")&&entry.carrier()==Items.SALMON){
+                reset();var rolled=game.lbc().rollTable(level,origin,owner,"lbc:ported/food/"+entry.id());
+                require(rolled.size()==1&&rolled.getFirst().is(entry.item()),"canonical native bucket "+entry.id());
+                var held=rolled.getFirst().copyWithCount(2);owner.setItemInHand(InteractionHand.MAIN_HAND,held);
+                var result=held.finishUsingItem(level,owner);
+                require(result==held&&held.getCount()==1,"one native consumed bucket without vanilla bucket remainder "+entry.id());
+                var outputs=game.items().edibleSpells().snapshot();
+                require(outputs.size()==1&&outputs.getFirst() instanceof net.minecraft.world.entity.item.ItemEntity,"one shared gain_bucket output "+entry.id());
+                var bucket=(net.minecraft.world.entity.item.ItemEntity)outputs.getFirst();
+                require(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(bucket.getItem().getItem()).equals(Identifier.parse("skywars2:bucket_projectile"))&&bucket.getItem().getCount()==1&&game.items().edibleSpells().owner(bucket)==owner,"returned throwing bucket has exact item/count/author "+entry.id());
+                game.items().edibleSpells().forget(owner);require(bucket.isRemoved(),"owned returned bucket cleanup");tested++;
+            }
+            require(tested==10,"all ten native edible buckets finish through the same consumer");reset();
         }
         List<Entity> created(){var out=new ArrayList<Entity>();level.getAllEntities().forEach(e->{if(!before.contains(e)&&e!=owner&&e!=beta)out.add(e);});return out;}
         void prepareFang(){reset();consume("eat_evoker");fang=(EvokerFangs)game.items().edibleSpells().snapshot().stream().filter(EvokerFangs.class::isInstance).findFirst().orElseThrow();require(fang.getOwner()==owner&&game.items().currentEpoch(fang),"real native edible fang causal owner/epoch");owner.removeAllEffects();owner.setAbsorptionAmount(0);owner.setHealth(500);beta.setHealth(500);game.items().timeStop().begin(level,100);stopOwned=true;require(game.items().timeStop().frozen(fang),"actual native TimeStop captures delayed fang");}

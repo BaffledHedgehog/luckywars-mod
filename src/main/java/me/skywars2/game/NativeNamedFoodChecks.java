@@ -30,7 +30,7 @@ public final class NativeNamedFoodChecks {
             var ops=game.server().reloadableRegistries().lookup().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
             var provider=(net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)(Object)player.connection;
             var unique=Collections.newSetFromMap(new IdentityHashMap<Item,Boolean>());
-            require(LbcNamedFoodItems.entries().size()==40,"complete source profile family");
+            require(LbcNamedFoodItems.entries().size()==52,"complete named and edible-spell source profile families");
             for(var entry:LbcNamedFoodItems.entries()){
                 var items=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/food/"+entry.id());
                 require(items.size()==1,"one canonical public item "+entry.id());var actual=items.getFirst();
@@ -53,8 +53,12 @@ public final class NativeNamedFoodChecks {
                     player.stopUsingItem();require(held.getCount()==2,"cancelled use does not consume "+entry.id());
                 }catch(java.io.IOException error){throw new IllegalStateException(entry.id(),error);}
             }
-            require(unique.size()==40,"all native types registered");
+            var chorus=LbcNamedFoodItems.entries().stream().filter(entry->entry.id().equals("imba_chorus_fruit")).findFirst().orElseThrow();
+            var stackVariant=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/food/imba_chorus_fruit_stack");
+            require(stackVariant.size()==1&&stackVariant.getFirst().is(chorus.item())&&stackVariant.getFirst().getCount()==64
+                    &&stackVariant.getFirst().getComponents().equals(chorus.item().getDefaultInstance().getComponents()),"one and64 source chorus variants share the same item and properties");
+            require(unique.size()==52,"all native types registered");
         }
-        SkyWars2.LOGGER.info("[check] PASS native-named-food (40 distinct canonical native foods, original-carrier all-component codec oracle, loot/give equality, actual held use/cancel/duration and Polymer roundtrip; effects stay on the existing named-food owner)");
+        SkyWars2.LOGGER.info("[check] PASS native-named-food (52 distinct canonical native foods, original-carrier all-component codec oracle, shared one/64-count chorus identity, loot/give equality, actual held use/cancel/duration and Polymer roundtrip; effects stay on the existing shared food owners)");
     }
 }

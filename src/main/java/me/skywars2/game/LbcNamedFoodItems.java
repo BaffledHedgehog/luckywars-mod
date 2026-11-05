@@ -10,7 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.*;
 
-/** Food identity/presentation only; native consumption and LbcNamedFoods retain every existing effect. */
+/** Food identity/presentation only; native consumption and the shared food consumers retain every existing effect. */
 public final class LbcNamedFoodItems {
     record Entry(String id,String flag,String definition,Item carrier,Item item){}
     private static final List<Entry> ENTRIES=load();
@@ -29,13 +29,13 @@ public final class LbcNamedFoodItems {
                 var row=value.getAsJsonObject();var id=row.get("id").getAsString();
                 if(!names.add(id))throw new IllegalStateException("Duplicate named food "+id);
                 var carrier=BuiltInRegistries.ITEM.getValue(Identifier.parse(row.get("carrier").getAsString()));
-                if(carrier!=Items.GOLDEN_APPLE&&carrier!=Items.STICK)throw new IllegalStateException("Unexpected named food carrier "+id);
+                if(carrier!=Items.GOLDEN_APPLE&&carrier!=Items.STICK&&carrier!=Items.SALMON&&carrier!=Items.CHORUS_FRUIT)throw new IllegalStateException("Unexpected named food carrier "+id);
                 var definition=row.get("definition").getAsString();
                 var properties=LbcUtilityItemPrototypes.deferredProperties("skywars2:food/"+id,"/"+definition,carrier,64);
                 var item=Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:food/"+id),new SimplePolymerItem(properties,carrier,true));
                 entries.add(new Entry(id,row.get("flag").getAsString(),definition,carrier,item));
             }
-            if(entries.size()!=40)throw new IllegalStateException("Incomplete named food manifest");
+            if(entries.size()!=52)throw new IllegalStateException("Incomplete named food manifest");
             return List.copyOf(entries);
         }catch(java.io.IOException e){throw new IllegalStateException("Invalid named food manifest",e);}
     }

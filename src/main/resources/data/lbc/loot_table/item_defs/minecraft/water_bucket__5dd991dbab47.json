@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:salmon",
+          "name": "skywars2:food/edible_water_bucket",
           "modifier": [
             {
               "type": "minecraft:set_components",

@@ -81,5 +81,7 @@ final class LbcUtilityItemPrototypes {
         else if(carrier==Items.TIPPED_ARROW)p.component(DataComponents.POTION_CONTENTS,net.minecraft.world.item.alchemy.PotionContents.EMPTY).component(DataComponents.POTION_DURATION_SCALE,.125f);
         else if(carrier==Items.FIREWORK_ROCKET)p.component(DataComponents.FIREWORKS,new Fireworks(1,java.util.List.of()));
         else if(carrier==Items.GOLDEN_APPLE)p.food(net.minecraft.world.food.Foods.GOLDEN_APPLE,Consumables.GOLDEN_APPLE);
+        else if(carrier==Items.SALMON)p.food(net.minecraft.world.food.Foods.SALMON);
+        else if(carrier==Items.CHORUS_FRUIT)p.food(net.minecraft.world.food.Foods.CHORUS_FRUIT,Consumables.CHORUS_FRUIT).useCooldown(1);
     }
 }

@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/pufferfish_bucket__3f00005ef5ff"
+        }
+      ]
+    }
+  ]
+}

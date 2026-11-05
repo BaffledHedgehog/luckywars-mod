@@ -1,3 +1,14 @@
+## Native edible-spell items - QUALIFIED, INSTALLED (5 November 2026)
+
+[Source, native identities and exact proof](agent_notes/NATIVE_EDIBLE_SPELL_ITEMS_2026_11_05.md).
+Twelve items/thirteen source leaves:10 edible buckets, one shared1/64-count IMBA
+chorus identity and yellow-lightnings bottle; existing finite food manifest now52.
+Shared native food/prototype/Polymer/EdibleSpells owners; source components/counts
+and41-carrier food-count category retained; no new tick task or generic FOOD inference.
+Test3f29b808/production43dd7b7a:6 isolated matches pass(4mode1,2mode3).
+Main/both libs updated without stop/start;5 families/27 resources;282 author paths preserved.
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## Native throwable fireball items - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source, immediate input and exact proof](agent_notes/NATIVE_FIREBALL_ITEMS_2026_11_05.md).

@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/salmon_bucket__2f231d1a6d6a"
+        }
+      ]
+    }
+  ]
+}
