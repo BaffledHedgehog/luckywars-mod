@@ -115,6 +115,48 @@ public final class ContentGalleryChecks {
             require(!service.ownsChest(level,layout.chest()),"suspended gallery no longer intercepts its chest");
             service.tick();
             require(!foreign.isRemoved(),"suspended tick cannot regenerate display placements or remove foreign frames");
+
+            // Invoke the real callback with pending ownership, as Fabric does before publishing a chunk.
+            service.writeFixtureCell(level,chest,net.minecraft.world.level.block.Blocks.STONE_BRICKS);
+            service.writeFixtureCell(level,foreignCell,net.minecraft.world.level.block.Blocks.STONE_BRICKS);
+            service.retireTerrain();
+            service.roundTripJournalForChecks();
+            for(var pos:List.of(chest,foreignCell)) {
+                var chunk=level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4);
+                require(chunk!=null,"cleanup fixture chunk is resident");
+                service.chunkLoaded(level,chunk);
+            }
+            require(level.getBlockState(chest).is(net.minecraft.world.level.block.Blocks.STONE_BRICKS),
+                    "CHUNK_LOAD leaves matching pending cells untouched until a normal resident drain");
+            level.setBlock(foreignCell,net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState(),18);
+            service.tick();
+            restored=game.maps().snapshot(level,chest);
+            require(restored.state()==before.state() && Objects.equals(restored.entity(),before.entity()),
+                    "resident tick restores pending exact container baseline after CHUNK_LOAD");
+            require(level.getBlockState(foreignCell).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK),
+                    "foreign replacement between CHUNK_LOAD and resident drain survives");
+
+            service.writeFixtureCell(level,foreignCell,net.minecraft.world.level.block.Blocks.STONE_BRICKS);
+            service.retireTerrain();
+            level.setBlock(foreignCell,net.minecraft.world.level.block.Blocks.DIRT.defaultBlockState(),18);
+            var chunk=level.getChunkSource().getChunkNow(foreignCell.getX()>>4,foreignCell.getZ()>>4);
+            service.chunkLoaded(level,chunk);
+            level.setBlock(foreignCell,net.minecraft.world.level.block.Blocks.STONE_BRICKS.defaultBlockState(),18);
+            service.tick();
+            require(level.getBlockState(foreignCell).is(net.minecraft.world.level.block.Blocks.STONE_BRICKS),
+                    "foreign cell observed at CHUNK_LOAD retires cleanup even if later replaced with gallery material");
+
+            level.setBlock(foreignCell,net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState(),18);
+            service.writeFixtureCell(level,foreignCell,net.minecraft.world.level.block.Blocks.STONE_BRICKS);
+            service.retireTerrain();
+            service.chunkLoaded(level,chunk);
+            // MapManager's native map-write hook fires even for identical-state imported writes.
+            service.mapBlockWritten(level,foreignCell);
+            level.setBlock(foreignCell,net.minecraft.world.level.block.Blocks.STONE_BRICKS.defaultBlockState(),18);
+            service.roundTripJournalForChecks();
+            service.tick();
+            require(level.getBlockState(foreignCell).is(net.minecraft.world.level.block.Blocks.STONE_BRICKS),
+                    "same-material imported map write takes ownership before deferred gallery cleanup");
         } finally {
             terrain.forEach((pos,snapshot)->game.maps().restoreSnapshot(level,pos,snapshot));
             for (var frame : frames) { frame.discard(); require(frame.isRemoved(), "only fixture-owned entities cleaned up"); }

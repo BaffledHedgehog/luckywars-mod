@@ -1,0 +1,12 @@
+{
+  "sourceZipSha256": "ccd553fca1ae94d4b5a977053f84b0e5dc74a3581fe09afcc154a5722c436c45",
+  "allocations": 5,
+  "files": {
+    "assets/lbc/models/block/consumed_block.json": "2000a277881376334e370c11c05391fe0d92a66ac3ace52e423e911038aaad46",
+    "assets/lbc/textures/block/consumed_block.png": "c47dd9465c00e9a0c8b85e9ea58d3034a0d23b9cf926113602f3460752a4eb96",
+    "assets/minecraft/blockstates/note_block.json": "e0631f040af1ac9f179cf9389b62293a578ac050406aa600c7f539109809ff4a",
+    "assets/skywars2/models/block/greedstone_cursed_block.json": "094026f2cf9e2c25aae026695a7588caf21f843ce7fc3db44b36c908fcff7433",
+    "skywars2/block_palette_allocations.json": "691a9e587af8df8f0e2662c77188eee36cc336e9062fdb229c1301f386655beb"
+  },
+  "referencePackModified": false
+}

@@ -1,3 +1,13 @@
+## Gallery startup deadlock - QUALIFIED, INSTALLED (5 November 2026)
+
+[Diagnosis, standalone RP and native proof](agent_notes/POLYMER_STARTUP_2026_11_05.md).
+The reported Polymer wait was gallery CHUNK_LOAD reentrancy; generated ZIP was already10KB.
+Callback now inspects supplied chunks only; resident tick/flags18 restore exact containers.
+Imported map writes invalidate pending ownership, including identical materials; empty fast path.
+Standalone note palette supplement/export tool prepared; author RP/autohost config unchanged.
+Test88b9ab74 /production2372f3b1: focused native gallery scenario passes; normal child shutdown and exact file restoration.
+Only3Java families overlaid; TNT/author WIP excluded. Main installed without stop/start.
+
 ## Native IMBA territory and egg variants - QUALIFIED, INSTALLED (5 November 2026)
 
 [Author rules, shared owners and native proof](agent_notes/IMBA_TERRITORY_EGGS_2026_11_05.md).

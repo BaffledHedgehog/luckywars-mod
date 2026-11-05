@@ -975,6 +975,8 @@ public final class MapManager {
     /** Called before native writes: hold chunk sends during map work and preserve the lobby overlay. */
     public void noteMapBlockWrite(Level source, BlockPos pos) {
         if(source==level&&applyingMapWork) {
+            var game=SkyWars2.game();
+            if(game!=null&&game.maps()==this)game.developerTools().gallery().mapBlockWritten(level,pos);
             if(mapLighting==null)mapLighting=new MapLighting.Update(level);
             mapLighting.changed(pos);
             streamingChangedChunks.add(ChunkPos.pack(pos.getX()>>4,pos.getZ()>>4));

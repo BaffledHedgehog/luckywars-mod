@@ -18,6 +18,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.*;
 import net.minecraft.world.level.storage.loot.*;
@@ -40,6 +41,7 @@ public final class ContentGallery {
     private final LinkedHashMap<CellKey, Cell> restoring = new LinkedHashMap<>();
     private final List<LegacyFootprint> legacy = new ArrayList<>();
     private boolean legacyLayout;
+    private boolean restorationDirty;
     record CellKey(String dimension, BlockPos pos) { }
     record Cell(MapManager.BlockSnapshot before, net.minecraft.world.level.block.state.BlockState built) { }
     static final class LegacyFootprint {
@@ -257,7 +259,7 @@ public final class ContentGallery {
     private void paint(ServerLevel level,BlockPos pos,net.minecraft.world.level.block.Block block) {
         // Capture happened before this write. Clear native container contents before replacement
         // so restoring its exact baseline cannot duplicate items dropped by onRemove.
-        game.maps().restoreSnapshot(level,pos,new MapManager.BlockSnapshot(block.defaultBlockState(),null),2);
+        game.maps().restoreSnapshot(level,pos,new MapManager.BlockSnapshot(block.defaultBlockState(),null),Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
     }
     void writeFixtureCell(ServerLevel level,BlockPos pos,net.minecraft.world.level.block.Block block) {
         remember(level,pos,block);save();paint(level,pos,block);
@@ -277,7 +279,7 @@ public final class ContentGallery {
         baseline.put(key,new Cell(prior==null?game.maps().snapshot(level,pos):prior.before,block.defaultBlockState()));
     }
 
-    private void retireTerrain() {
+    void retireTerrain() {
         restoring.putAll(baseline); baseline.clear();
         if (legacyLayout && layout!=null) {
             var old=new LegacyFootprint(layout,0); legacy.add(old); expandLegacy(old,1);
@@ -316,35 +318,42 @@ public final class ContentGallery {
 
     /** Restore only recorded writes still bearing the gallery material. Never force a chunk load. */
     private void restoreLoaded(int budget) {
-        boolean changed=false;
+        boolean changed=restorationDirty;
+        restorationDirty=false;
         int attempts=Math.min(budget,restoring.size());
-        while(attempts-->0) {
+        while(attempts-->0 && !restoring.isEmpty()) {
             var iterator=restoring.entrySet().iterator();var entry=iterator.next();iterator.remove();
             var key=entry.getKey();var cell=entry.getValue();
             var world=game.server().getLevel(ResourceKey.create(Registries.DIMENSION,Identifier.parse(key.dimension)));
-            if(world==null || !world.hasChunkAt(key.pos)) { restoring.put(key,cell);continue; }
-            if(!baseline.containsKey(key) && (world.getBlockState(key.pos)==cell.built
-                    || cell.built.is(Blocks.ENDER_CHEST) && world.getBlockState(key.pos).is(Blocks.STONE_BRICKS)))
-                game.maps().restoreSnapshot(world,key.pos,cell.before);
+            var chunk=world==null?null:world.getChunkSource().getChunkNow(key.pos.getX()>>4,key.pos.getZ()>>4);
+            if(chunk==null) { restoring.put(key,cell);continue; }
+            var actual=chunk.getBlockState(key.pos);
+            if(!baseline.containsKey(key) && (actual==cell.built
+                    || cell.built.is(Blocks.ENDER_CHEST) && actual.is(Blocks.STONE_BRICKS)))
+                game.maps().restoreSnapshot(world,key.pos,cell.before,Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
             changed=true;
         }
         if(changed)save();
     }
 
-    /** Call from Fabric CHUNK_LOAD before an imported map can replace queued old gallery cells. */
+    /** CHUNK_LOAD runs before full publication: inspect only the supplied chunk, never read/write via the world. */
     public void chunkLoaded(ServerLevel world,net.minecraft.world.level.chunk.LevelChunk chunk) {
         String dimension=world.dimension().identifier().toString();
-        boolean changed=false;
         var iterator=restoring.entrySet().iterator();
         while(iterator.hasNext()) {
             var entry=iterator.next();var key=entry.getKey();var cell=entry.getValue();
             if(!key.dimension.equals(dimension) || (key.pos.getX()>>4)!=chunk.getPos().x() || (key.pos.getZ()>>4)!=chunk.getPos().z())continue;
             var actual=chunk.getBlockState(key.pos);
-            if(!baseline.containsKey(key) && (actual==cell.built || cell.built.is(Blocks.ENDER_CHEST)&&actual.is(Blocks.STONE_BRICKS)))
-                game.maps().restoreSnapshot(world,key.pos,cell.before);
-            iterator.remove();changed=true;
+            if(!baseline.containsKey(key) && (actual==cell.built || cell.built.is(Blocks.ENDER_CHEST)&&actual.is(Blocks.STONE_BRICKS)))continue;
+            iterator.remove();restorationDirty=true;
         }
-        if(changed)save();
+        // Matching cells remain pending until a normal tick observes a fully published resident chunk.
+    }
+
+    /** Imported map writes take ownership even when their material equals the old gallery material. */
+    void mapBlockWritten(ServerLevel world,BlockPos pos) {
+        if(restoring.isEmpty())return;
+        if(restoring.remove(new CellKey(world.dimension().identifier().toString(),pos))!=null)restorationDirty=true;
     }
 
     private void readCells(JsonObject data) throws IOException {
