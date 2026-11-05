@@ -899,6 +899,7 @@ public final class GameChecks {
                                 case "attribute-food" -> { AttributeFoodChecks.start(game); return; }
                                 case "edible-spells" -> { EdibleSpellChecks.run(game); return; }
                                 case "nuke-event" -> { NukeEventChecks.run(game); return; }
+                                case "native-named-food" -> {NativeNamedFoodChecks.run(game);return;}
                                 case "named-food" -> { NamedFoodChecks.run(game); return; }
                                 case "food-lifecycle" -> { FoodLifecycleChecks.run(game); return; }
                                 case "oreshek" -> { OreshekChecks.run(game); return; }

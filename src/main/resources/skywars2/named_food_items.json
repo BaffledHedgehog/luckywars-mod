@@ -1,0 +1,242 @@
+[
+  {
+    "id": "banana",
+    "flag": "eat_banana",
+    "definition": "data/lbc/loot_table/item_defs/lbc/banana__1c3cf5f05f24.json",
+    "carrier": "minecraft:stick"
+  },
+  {
+    "id": "bedrock_apple",
+    "flag": "bedrock_apple",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/bedrock_apple__00b0f2aa5bd9.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_apple",
+    "flag": "diamond_apple",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_apple__3e870873ffab.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_beef",
+    "flag": "diamond_beef",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_beef__524815190dae.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_berries",
+    "flag": "diamond_berries",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_berries__88f686f0a0f9.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_carrot",
+    "flag": "diamond_carrot",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_carrot__4b93de92ab9e.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_chicken",
+    "flag": "diamond_chicken",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_chicken__c6b6d0c35b57.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_fish",
+    "flag": "diamond_fish",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_fish__6a220e4ec2f7.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_mutton",
+    "flag": "diamond_mutton",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_mutton__b82fa724a70b.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_porkchop",
+    "flag": "diamond_porkchop",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_porkchop__afc5dbcac072.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_potato",
+    "flag": "diamond_potato",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_potato__aa3df42fc102.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_rabbit",
+    "flag": "diamond_rabbit",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_rabbit__04730ab68358.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "diamond_stew",
+    "flag": "diamond_stew",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/diamond_stew__6284ad92066a.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_beef",
+    "flag": "golden_beef",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_beef__31d93d573a52.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_beetroot",
+    "flag": "golden_beetroot",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_beetroot__cdf56b8a975b.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_berries",
+    "flag": "golden_berries",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_berries__aa560673a412.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_bread",
+    "flag": "golden_bread",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_bread__19921cde8a2f.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_cake",
+    "flag": "golden_cake",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_cake__6184b7fa2972.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_chicken",
+    "flag": "golden_chicken",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_chicken__c7c52a322539.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_chorus",
+    "flag": "golden_chorus",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_chorus__10b96ac0a817.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_cookie",
+    "flag": "golden_cookie",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_cookie__9f4ab9bcddd8.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_fish",
+    "flag": "golden_fish",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_fish__92da2a3f4991.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_kelp",
+    "flag": "golden_kelp",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_kelp__ccd5cffe9f74.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_melon",
+    "flag": "golden_melon",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_melon__6dc8e49a651e.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_mutton",
+    "flag": "golden_mutton",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_mutton__df4dd944484a.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_pie",
+    "flag": "golden_pie",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_pie__b159fd4776f1.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_porkchop",
+    "flag": "golden_porkchop",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_porkchop__7d268bb71eee.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_potato",
+    "flag": "golden_potato",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_potato__929220edfb52.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_rabbit",
+    "flag": "golden_rabbit",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_rabbit__3e867886af09.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "golden_stew",
+    "flag": "golden_stew",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/golden_stew__d2d4043b4d1b.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "human_eye",
+    "flag": "human_eye",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/human_eye__bf39fcdc6052.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "human_flesh",
+    "flag": "human_flesh",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/human_flesh__f189a099a4ae.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "multiverse_fish",
+    "flag": "multiverse_fish",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/multiverse_fish__b31a2267c830.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "netherite_apple",
+    "flag": "netherite_apple",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/netherite_apple__a5220a3cd86c.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "netherite_carrot",
+    "flag": "netherite_carrot",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/netherite_carrot__527cad75ffe9.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "netherite_fish",
+    "flag": "netherite_fish",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/netherite_fish__9e3f812c2210.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "netherite_potato",
+    "flag": "netherite_potato",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/netherite_potato__e06f2c4185b7.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "netherite_stew",
+    "flag": "netherite_stew",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/netherite_stew__8051d37532b5.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "netherstar_fish",
+    "flag": "netherstar_fish",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/netherstar_fish__e900f3148e00.json",
+    "carrier": "minecraft:golden_apple"
+  },
+  {
+    "id": "transdimensional_fish",
+    "flag": "transdimensional_fish",
+    "definition": "data/lbc/loot_table/item_defs/lbc/food/transdimensional_fish__abd9fd5d38ec.json",
+    "carrier": "minecraft:golden_apple"
+  }
+]

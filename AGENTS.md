@@ -1,3 +1,15 @@
+## Canonical native named foods - QUALIFIED, INSTALLED (5 November 2026)
+
+[Source, native identity and exact proof](agent_notes/NATIVE_NAMED_FOODS_2026_11_05.md).
+40 native food identities share canonical definitions and the existing named-food consumer.
+39 golden-apple aliases + source stick banana; all nutrition/consumable/components retained.
+Deferred shared prototype loader preserves fish enchants/attributes and banana0.3s.
+Exact41 food-count category recognizes only39 added aliases; no generic FOOD inference.
+Ready `lbc:ported/food/<name>`; no new RP assets, tick tasks, NBT scans or effect engines.
+Testfa731743/production0c0968dd:6 isolated native matches pass(4mode1,2mode3).
+Both JARs/main updated without main stop/start;7 families/81 resources;282 author paths preserved.
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## Native IMBA crossbows - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source, author policy and exact proof](agent_notes/IMBA_CROSSBOWS_2026_11_05.md).

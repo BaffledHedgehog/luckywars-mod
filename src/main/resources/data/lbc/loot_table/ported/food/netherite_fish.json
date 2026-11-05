@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/lbc/food/netherite_fish__9e3f812c2210"
+        }
+      ]
+    }
+  ]
+}

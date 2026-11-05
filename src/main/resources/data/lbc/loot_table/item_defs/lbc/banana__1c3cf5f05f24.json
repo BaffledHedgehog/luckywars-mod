@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:stick",
+          "name": "skywars2:food/banana",
           "modifier": [
             {
               "type": "minecraft:set_components",

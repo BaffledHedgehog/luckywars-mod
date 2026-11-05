@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:golden_apple",
+          "name": "skywars2:food/diamond_berries",
           "modifier": [
             {
               "type": "minecraft:set_count",

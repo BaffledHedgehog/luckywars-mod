@@ -69,8 +69,8 @@ public final class LbcFoodLifecycle {
     private Accepted executing;private ServerLevel executingLevel;
     public LbcFoodLifecycle(GameController game){this.game=game;}
 
-    /** Exact source tag membership, including only the two existing registered source-carrier aliases. */
-    public static boolean countsAsFood(ItemStack stack){return !stack.isEmpty()&&(ALL_FOOD.contains(stack.getItem())
+    /** Exact source membership through native carrier aliases; a stick-based banana remains outside this tag. */
+    public static boolean countsAsFood(ItemStack stack){return !stack.isEmpty()&&(ALL_FOOD.contains(LbcNamedFoodItems.carrier(stack))
             ||stack.is(LbcKfcFood.KFC_CHICK)||stack.is(LbcKfcFood.GOVNO_EATEN));}
     public static int sourceFoodCount(){return ALL_FOOD.size();}
     public static boolean matches(ItemStack stack){if(countsAsFood(stack))return true;var d=LbcFartus.data(stack);return !stack.isEmpty()

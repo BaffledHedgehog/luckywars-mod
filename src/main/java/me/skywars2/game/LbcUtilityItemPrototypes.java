@@ -24,6 +24,13 @@ final class LbcUtilityItemPrototypes {
         return properties(nativeId,resource,carrier,maximum,lootComponents,false);
     }
     static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents,boolean nativeDefaults){
+        return properties(nativeId,resource,carrier,maximum,lootComponents,nativeDefaults,false);
+    }
+    /** Same canonical reader; holder-dependent food/enchantment components bind after registries are ready. */
+    static Item.Properties deferredProperties(String nativeId,String resource,Item carrier,int maximum){
+        return properties(nativeId,resource,carrier,maximum,java.util.Set.of(),true,true);
+    }
+    private static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents,boolean nativeDefaults,boolean deferred){
         try(var input=LbcUtilityItemPrototypes.class.getResourceAsStream(resource)){
             if(input==null)throw new IllegalStateException("Missing utility prototype "+resource);
             var entry=JsonParser.parseReader(new InputStreamReader(input,StandardCharsets.UTF_8)).getAsJsonObject()
@@ -43,7 +50,8 @@ final class LbcUtilityItemPrototypes {
                         if(lootComponents.contains(component.getKey()))continue;
                         var componentType=BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(component.getKey()));
                         if(componentType==null)throw new IllegalStateException("Unknown utility component "+component.getKey());
-                        component(result,componentType,component.getValue());}}
+                        if(deferred)deferredComponent(result,componentType,component.getValue());
+                        else component(result,componentType,component.getValue());}}
                     case "minecraft:set_name" -> result.component(DataComponents.CUSTOM_NAME,ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,row.get("name")).getOrThrow());
                     case "minecraft:set_lore" -> {if(!row.get("mode").getAsString().equals("replace_all"))throw new IllegalStateException("Unexpected utility lore operation");
                         var lines=new ArrayList<Component>();for(var line:row.getAsJsonArray("lore"))lines.add(ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,line).getOrThrow());
@@ -58,6 +66,11 @@ final class LbcUtilityItemPrototypes {
         if(type.codec()==null)throw new IllegalStateException("Utility component has no persistent codec");
         properties.component(type,type.codec().parse(JsonOps.INSTANCE,source).getOrThrow());
     }
+    private static <T> void deferredComponent(Item.Properties properties,DataComponentType<T> type,JsonElement source){
+        if(type.codec()==null)throw new IllegalStateException("Utility component has no persistent codec");
+        var frozen=source.deepCopy();
+        properties.delayedComponent(type,lookup->type.codec().parse(lookup.createSerializationContext(JsonOps.INSTANCE),frozen).getOrThrow());
+    }
     /** Vanilla holder components bind after item registration in 26.3; use its native property builders here. */
     private static void vanillaVariant(Item.Properties p,Item carrier){
         p.overrideDescription("item.minecraft."+BuiltInRegistries.ITEM.getKey(carrier).getPath());
@@ -67,5 +80,6 @@ final class LbcUtilityItemPrototypes {
                 .repairable(Items.PHANTOM_MEMBRANE);
         else if(carrier==Items.TIPPED_ARROW)p.component(DataComponents.POTION_CONTENTS,net.minecraft.world.item.alchemy.PotionContents.EMPTY).component(DataComponents.POTION_DURATION_SCALE,.125f);
         else if(carrier==Items.FIREWORK_ROCKET)p.component(DataComponents.FIREWORKS,new Fireworks(1,java.util.List.of()));
+        else if(carrier==Items.GOLDEN_APPLE)p.food(net.minecraft.world.food.Foods.GOLDEN_APPLE,Consumables.GOLDEN_APPLE);
     }
 }
