@@ -18,13 +18,13 @@ import net.minecraft.world.phys.Vec3;
 
 /** Finite source Dirter fills and instant Bastion share the native fair terrain queue. */
 public final class LbcImbaTerrainUtilities {
-    public enum Kind { DIRTER, BASTION, DEBRIS }
+    public enum Kind { DIRTER, BASTION, DEBRIS, END_PORTAL, NETHER_PORTAL }
     @FunctionalInterface public interface Policy {boolean activation(ServerPlayer author,Kind kind,Vec3 origin);}
-    private static final Identifier BASTION=Identifier.parse("lbc:bedrock_bastion"),DEBRIS=Identifier.parse("lbc:swastika");
+    private static final Identifier BASTION=Identifier.parse("lbc:bedrock_bastion"),DEBRIS=Identifier.parse("lbc:swastika"),END_PORTAL=Identifier.parse("lbc:end_portal"),NETHER_PORTAL=Identifier.parse("lbc:nether_portal");
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private final GameController game;private final Policy policy;
     private final NavigableMap<Long,Job> jobs=new TreeMap<>();
-    private volatile List<Cell> bastion=List.of(),debris=List.of();private CompletableFuture<?> preparation;
+    private volatile List<Cell> bastion=List.of(),debris=List.of(),endPortal=List.of(),netherPortal=List.of();private CompletableFuture<?> preparation;
     private long sequence,cloneCursor,completedVisits,completedWrites,completedJobs;private boolean restoring;
     private record Cell(BlockPos offset,MapManager.BlockSnapshot snapshot){}
     private record Fill(BlockPos min,int width,int height,int depth,Block block){long count(){return (long)width*height*depth;}}
@@ -32,8 +32,8 @@ public final class LbcImbaTerrainUtilities {
     public static void register(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:imba_terrain_utilities"),TICKET);LbcImbaTerrainUtilityItems.register();}
     public void prepare(){
         if(preparation!=null)return;var blocks=game.server().registryAccess().lookupOrThrow(Registries.BLOCK);
-        preparation=game.maps().prepareSpellTemplates(List.of(BASTION,DEBRIS)).thenAccept(parts->{
-            for(var id:List.of(BASTION,DEBRIS)){
+        preparation=game.maps().prepareSpellTemplates(List.of(BASTION,DEBRIS,END_PORTAL,NETHER_PORTAL)).thenAccept(parts->{
+            for(var id:List.of(BASTION,DEBRIS,END_PORTAL,NETHER_PORTAL)){
                 var cells=new ArrayList<Cell>();for(var part:parts.getOrDefault(id,List.of())){
                     var tag=part.template().save(new CompoundTag());
                     if(!tag.getListOrEmpty("entities").isEmpty()||!tag.getListOrEmpty("palettes").isEmpty())throw new IllegalStateException("Source terrain template needs a reviewed entity/palette adapter: "+id);
@@ -44,11 +44,11 @@ public final class LbcImbaTerrainUtilities {
                     }
                 }
                 if(cells.isEmpty())throw new IllegalStateException("Missing exact source terrain template "+id);
-                if(id.equals(BASTION))bastion=List.copyOf(cells);else debris=List.copyOf(cells);
+                if(id.equals(BASTION))bastion=List.copyOf(cells);else if(id.equals(DEBRIS))debris=List.copyOf(cells);else if(id.equals(END_PORTAL))endPortal=List.copyOf(cells);else netherPortal=List.copyOf(cells);
             }
         });
     }
-    public boolean ready(){return !bastion.isEmpty()&&!debris.isEmpty();}
+    public boolean ready(){return !bastion.isEmpty()&&!debris.isEmpty()&&!endPortal.isEmpty()&&!netherPortal.isEmpty();}
     public static boolean dirter(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"dirter",0)==1;}
     public static boolean bastion(ItemStack stack){
         if(stack.isEmpty())return false;var data=stack.get(DataComponents.ENTITY_DATA);if(data==null||data.type()!=EntityTypes.MARKER)return false;
@@ -66,10 +66,13 @@ public final class LbcImbaTerrainUtilities {
         if(!dirter(original)||restoring)return false;enqueue(p,Kind.DIRTER,playerOrigin);return true;
     }
     /** Called only after the custom native egg has resolved the ordinary spawn-egg target position. */
-    public boolean useBastion(ServerPlayer p,InteractionHand hand,Vec3 origin){
-        var stack=p.getItemInHand(hand);if(!bastion(stack)||!canActivate(p,Kind.BASTION,origin))return false;
-        enqueue(p,Kind.BASTION,origin);stack.consume(1,p);p.inventoryMenu.broadcastChanges();return true;
+    public boolean useBastion(ServerPlayer p,InteractionHand hand,Vec3 origin){return useTemplate(p,hand,origin,Kind.BASTION);}
+    public boolean useTemplate(ServerPlayer p,InteractionHand hand,Vec3 origin,Kind kind){
+        var stack=p.getItemInHand(hand);boolean matches=kind==Kind.BASTION?bastion(stack):LbcImbaPlaceableItems.templateKind(stack)==kind;
+        if(!matches||!canActivate(p,kind,origin))return false;
+        enqueue(p,kind,origin);stack.consume(1,p);p.inventoryMenu.broadcastChanges();return true;
     }
+    private static boolean templateActor(Kind kind){return kind==Kind.BASTION||kind==Kind.END_PORTAL||kind==Kind.NETHER_PORTAL;}
     private static Fill fill(BlockPos a,BlockPos b,Block block){return new Fill(new BlockPos(Math.min(a.getX(),b.getX()),Math.min(a.getY(),b.getY()),Math.min(a.getZ(),b.getZ())),Math.abs(a.getX()-b.getX())+1,Math.abs(a.getY()-b.getY())+1,Math.abs(a.getZ()-b.getZ())+1,block);}
     private static List<Fill> dirterFills(Vec3 origin){var center=BlockPos.containing(origin);int x=center.getX(),y=center.getY(),z=center.getZ();return List.of(
             fill(new BlockPos(x+4,y-1,z+4),new BlockPos(x-4,y-1,z-4),Blocks.GRASS_BLOCK),
@@ -82,7 +85,7 @@ public final class LbcImbaTerrainUtilities {
         final long id;ServerPlayer author;final ServerLevel level;final String epoch;final Kind kind;final Vec3 origin;final LbcIndirectKills.Owner cause;final List<Fill> fills;
         final Map<ChunkPos,CompletableFuture<?>> tickets=new LinkedHashMap<>();
         int phase,mask;long cursor,visits,writes;boolean closed,actorLive,waiting;
-        Job(long id,ServerPlayer author,Kind kind,Vec3 origin,LbcIndirectKills.Owner cause){this.id=id;this.author=author;level=author.level();epoch=game.items().epoch();this.kind=kind;this.origin=origin;this.cause=cause;fills=kind==Kind.DIRTER?boundedFills(origin,level):List.of();actorLive=kind==Kind.BASTION;}
+        Job(long id,ServerPlayer author,Kind kind,Vec3 origin,LbcIndirectKills.Owner cause){this.id=id;this.author=author;level=author.level();epoch=game.items().epoch();this.kind=kind;this.origin=origin;this.cause=cause;fills=kind==Kind.DIRTER?boundedFills(origin,level):List.of();actorLive=templateActor(kind);}
         public boolean ready(){return closed||!restoring&&!game.items().timeStop().stopped(level)&&!game.items().timeStop().frozen(author);}
         public boolean snapshotIdle(){return true;}
         public boolean postgame(){return true;} // Admission was already charged; finite terrain must drain.
@@ -118,13 +121,13 @@ public final class LbcImbaTerrainUtilities {
             if(write(fill.min.offset(x,y,z),new MapManager.BlockSnapshot(fill.block.defaultBlockState(),null)))cursor++;
         }
         void advanceTemplate(){
-            var template=kind==Kind.DEBRIS?debris:bastion;
+            var template=switch(kind){case DEBRIS->debris;case END_PORTAL->endPortal;case NETHER_PORTAL->netherPortal;default->bastion;};
             if(cursor>=template.size()){finish();return;}var cell=template.get((int)cursor);
-            if(write(BlockPos.containing(kind==Kind.DEBRIS?origin.add(-5,-1,-5):origin.add(-8,-1,-8)).offset(cell.offset),cell.snapshot))cursor++;
+            if(write(BlockPos.containing(switch(kind){case DEBRIS->origin.add(-5,-1,-5);case END_PORTAL->origin.add(-2,0,-2);case NETHER_PORTAL->origin.add(-1.5,-1,0);default->origin.add(-8,-1,-8);}).offset(cell.offset),cell.snapshot))cursor++;
         }
         void finish(){
             if(kind==Kind.DIRTER||kind==Kind.DEBRIS)LbcOverload.sound(level,origin,"minecraft:block.stone.place",4,1,0,0);
-            else {LbcOverload.sound(level,origin,"minecraft:block.stone.break",4,1,0,0);level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.STONE.defaultBlockState()),origin.x,origin.y+4,origin.z,1000,7,7,7,0);}
+            else if(kind==Kind.BASTION){LbcOverload.sound(level,origin,"minecraft:block.stone.break",4,1,0,0);level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.STONE.defaultBlockState()),origin.x,origin.y+4,origin.z,1000,7,7,7,0);}
             closed=true;actorLive=false;completedVisits+=visits;completedWrites+=writes;completedJobs++;release();jobs.remove(id,this);
         }
         public void cancel(){closed=true;actorLive=false;release();jobs.remove(id,this);}
@@ -148,9 +151,9 @@ public final class LbcImbaTerrainUtilities {
         int available=Math.min(scanBudget,jobs.size());long last=sequence;
         while(seen<available&&bodyBudget-made>=count&&System.nanoTime()<deadline&&!jobs.isEmpty()){
             var entry=jobs.higherEntry(cloneCursor);if(entry==null||entry.getKey()>last)entry=jobs.firstEntry();cloneCursor=entry.getKey();seen++;
-            var source=entry.getValue();if(!source.actorLive||source.closed||source.kind!=Kind.BASTION||!game.items().currentEpoch(source.epoch)||game.items().timeStop().frozen(source.author)||!CloneVirtualAbilityStates.near(game,holder,source.level,source.origin,source.mask,skill))continue;
+            var source=entry.getValue();if(!source.actorLive||source.closed||!templateActor(source.kind)||!game.items().currentEpoch(source.epoch)||game.items().timeStop().frozen(source.author)||!CloneVirtualAbilityStates.near(game,holder,source.level,source.origin,source.mask,skill))continue;
             var positions=CloneVirtualAbilityStates.positions(holder,source.level,source.origin,skill);if(positions==null)continue;int flags=source.mask|CloneVirtualAbilityStates.bit(skill);
-            for(var origin:positions){var job=new Job(++sequence,source.author,Kind.BASTION,origin,source.cause);job.mask=flags;jobs.put(job.id,job);game.items().stonekivi().queuedWork(job);}source.mask=flags;made+=count;operations++;
+            for(var origin:positions){var job=new Job(++sequence,source.author,source.kind,origin,source.cause);job.mask=flags;jobs.put(job.id,job);game.items().stonekivi().queuedWork(job);}source.mask=flags;made+=count;operations++;
         }return new CloneResult(seen,operations,made);
     }
     public void prepareRestart(){} // Every admitted operation is finite and must drain unchanged.

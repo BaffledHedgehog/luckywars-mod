@@ -1,3 +1,15 @@
+## Native portal/tree/crystal placeables - QUALIFIED, INSTALLED (5 November 2026)
+
+[Source, author rules and exact proof](agent_notes/IMBA_PLACEABLES_2026_11_05.md).
+Four ready leaves: End portal, Nether portal, Mystical Tree, free End Crystal.
+All unjammed by explicit author answer; native explosions retain common TECH.
+Portal21/20 exact cells reuse finite templates; crystal shares native spawn-egg input.
+Tree retains six-axis1..10 walk/1% stop, crown, exact lazy reward and full native creeper.
+Typed RNG/cursors, resident work, TimeStop, x2*x4 and same-body pending whole replay.
+Testb65f2053 /production7ed5ca0c:8isolated matches pass(6mode1,2mode3).
+Main/both JARs updated without stop/start; RP/275author paths preserved.
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## RAM pressure and idle analysis processes - 5 November 2026 (user)
 
 The user reported insufficient desktop RAM. Seven Serena JDT processes had

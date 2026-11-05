@@ -150,7 +150,7 @@ public final class LbcSpecialEggs {
 
     /** Called after the native ENTITY_DATA processor, while the actor is still outside the world. */
     public static void adopt(GameController game,Entity entity,LivingEntity user,ItemStack stack) {
-        if(game!=null){game.items().balance().adoptEgg(entity,user);LbcImbaFollowup.adopt(game,entity,user,stack);}
+        if(game!=null){game.items().balance().adoptEgg(entity,user);LbcImbaFollowup.adopt(game,entity,user,stack);LbcImbaPlaceableItems.adopt(game,entity,user instanceof ServerPlayer player?player:null,stack);}
         var kind=kind(stack);
         if(game==null || kind==null) return;
         var author=user instanceof ServerPlayer player ? player : null;
