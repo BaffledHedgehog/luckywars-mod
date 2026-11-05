@@ -27,6 +27,11 @@ dependencies {
 }
 
 processResources {
+    // Native source IMBA tools retain their shared canonical loot definitions.
+    include 'data/lbc/loot_table/item_defs/minecraft/golden_hoe__0454f6dc573b.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/golden_shovel__48f876d02a40.json'
+    include 'data/lbc/loot_table/ported/imba_hoe.json'
+    include 'data/lbc/loot_table/ported/imba_shovel.json'
     // Closed native produce gadgets, preserving canonical source components.
     include 'data/lbc/loot_table/item_defs/lbc/kapusta__e3a9b9e791f5.json'
     include 'data/lbc/loot_table/item_defs/minecraft/pumpkin__eed30a39b1a0.json'

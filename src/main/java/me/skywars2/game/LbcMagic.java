@@ -480,6 +480,16 @@ public final class LbcMagic {
     public boolean mechanismSuppressedAt(ServerLevel level, Vec3 position) {
         return level == game.maps().level() && beaconSuppressed(position,true);
     }
+    /** Scalar snapshot for one native explosion; never discovers chunks or serializes entities. */
+    record MechanismFields(int radius,List<Vec3> centers){MechanismFields{centers=List.copyOf(centers);}}
+    private static final MechanismFields NO_MECHANISM_FIELDS=new MechanismFields(RADIUS,List.of());
+    MechanismFields mechanismFields(ServerLevel level){
+        if(level!=game.maps().level()||loadedBeacons.isEmpty()&&legacyMarkers.isEmpty())return NO_MECHANISM_FIELDS;
+        var centers=new ArrayList<Vec3>();
+        for(var beacon:loadedBeacons)if(beacon.mechanism)centers.add(beacon.center);
+        for(var marker:legacyMarkers)if(!marker.isRemoved()&&marker.level()==level&&marker.entityTags().contains("stopper"))centers.add(marker.position());
+        return new MechanismFields(RADIUS,centers);
+    }
     /** Exact source radii reuse the same loaded suppressor index. */
     public boolean mechanismSuppressedAt(ServerLevel level,Vec3 position,double radius){
         if(level!=game.maps().level())return false;double distance=radius*radius;

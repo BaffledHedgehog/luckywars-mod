@@ -1284,6 +1284,8 @@ public final class GameChecks {
                                 case "nameplates-native" -> {IndividualNameplateChecks.run(game);return;}
                                 case "nameplates-rewind" -> {IndividualNameplateChecks.runRewind(game);return;}
                                 case "time-fragment-native" -> {TimeFragmentSprintChecks.run(game);return;}
+                                case "imba-tools" -> {ImbaToolChecks.run(game);return;}
+                                case "imba-tools-rewind" -> {ImbaToolChecks.runRewind(game);return;}
                                 case "produce-gadgets" -> {ProduceGadgetChecks.run(game);return;}
                                 case "produce-gadgets-rewind" -> {ProduceGadgetChecks.runRewind(game);return;}
                                 case "wool-bucket" -> {WoolBucketChecks.run(game);return;}
@@ -1628,7 +1630,7 @@ public final class GameChecks {
             MapStreamingChecks.tick(game);
             ImbaAxeChecks.tick(game);PhoenixSkillChecks.tick(game);
             IndividualNameplateChecks.tick(game);TimeFragmentSprintChecks.tick(game);
-            ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
+            ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
             CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

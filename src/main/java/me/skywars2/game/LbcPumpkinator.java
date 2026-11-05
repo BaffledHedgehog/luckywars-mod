@@ -100,24 +100,29 @@ public final class LbcPumpkinator {
         actor.point=wander(actor.point,random(actor,5)-2,random(actor,5)-2);
     }
     private void fill(Actor actor,BlockPos first,BlockPos last,BlockState wanted){
+        fill(actor,first,last,wanted,null);
+    }
+    private void fill(Actor actor,BlockPos first,BlockPos last,BlockState wanted,LbcExplosionSuppression.Coverage coverage){
         for(var pos:BlockPos.betweenClosed(first,last))
-            if(game.items().writeOwnedTerrain(actor.level,pos,wanted,actor.cause))actor.writes++;
+            if((coverage==null||!coverage.blocks(pos))&&game.items().writeOwnedTerrain(actor.level,pos,wanted,actor.cause))actor.writes++;
     }
     private void explode(Actor actor,Vec3 origin,BlockPos center){
+        var coverage=LbcExplosionSuppression.coverage(game,actor.level);if(coverage.contains(origin))return;
         actor.explosions++;
         var targets=actor.level.getEntitiesOfClass(LivingEntity.class,new AABB(origin,origin).inflate(5),
                 target->target.getType().builtInRegistryHolder().is(MOBS)&&target.position().distanceToSqr(origin)<=25
                         &&game.items().wands().validRoleTarget(target,false)&&!game.items().polymorph().concealed(target)
-                        &&!suppressed(actor.level,target.position()));
+                        &&!suppressed(actor.level,target.position())&&!coverage.targets(target));
         for(var target:targets){
             var source=game.items().indirectKills().captureDamage(new DamageSource(actor.level.damageSources().cactus().typeHolder(),origin),actor.cause);
             target.hurtServer(actor.level,source,10);
         }
         actor.level.sendParticles(ParticleTypes.LAVA,origin.x,origin.y+2,origin.z,50,.5,2,.5,1);
         actor.level.playSound(null,origin.x,origin.y,origin.z,SoundEvents.GENERIC_EXPLODE.value(),SoundSource.MASTER,1,1.5f);
-        fill(actor,center.offset(-1,2,0),center.offset(1,2,0),Blocks.PUMPKIN.defaultBlockState());
-        fill(actor,center.offset(0,3,0),center.offset(0,6,0),Blocks.PUMPKIN.defaultBlockState());
-        fill(actor,center.offset(0,7,0),center.offset(0,7,0),Blocks.CARVED_PUMPKIN.defaultBlockState());
+        var terrainCoverage=LbcExplosionSuppression.coverage(game,actor.level);if(terrainCoverage.contains(origin))return;
+        fill(actor,center.offset(-1,2,0),center.offset(1,2,0),Blocks.PUMPKIN.defaultBlockState(),terrainCoverage);
+        fill(actor,center.offset(0,3,0),center.offset(0,6,0),Blocks.PUMPKIN.defaultBlockState(),terrainCoverage);
+        fill(actor,center.offset(0,7,0),center.offset(0,7,0),Blocks.CARVED_PUMPKIN.defaultBlockState(),terrainCoverage);
     }
     public record ActorView(long id,UUID author,LbcIndirectKills.Owner cause,ServerLevel level,Vec3 position,int mask,long pulses,long explosions,long rngState,Vec3 aim,long writes){}
     public int count(){return actors.size();}

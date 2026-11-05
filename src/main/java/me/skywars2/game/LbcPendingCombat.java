@@ -146,9 +146,17 @@ public final class LbcPendingCombat {
     }
     /** One forward pass over the digital path; never loads chunks, caps chain length or delays a shift. */
     boolean shift(ServerPlayer owner,BlockPos first,Vec3 direction){return shift(owner,first,direction,null);}
+    /** Accepted terrain work keeps its original world and cause after a player lifecycle transition. */
+    boolean shift(ServerLevel level,LbcIndirectKills.Owner cause,BlockPos first,Vec3 direction){
+        return shift(level,first,direction,null,writes->game.items().indirectKills().trapChanges(level,cause,writes));
+    }
     // A writer boundary also permits native verification of a rejected write after preceding cells changed.
     boolean shift(ServerPlayer owner,BlockPos first,Vec3 direction,java.util.function.BiConsumer<BlockPos,MapManager.BlockSnapshot> writer){
-        var level=owner.level();var positions=new ArrayList<BlockPos>();var before=new ArrayList<MapManager.BlockSnapshot>();
+        return shift(owner.level(),first,direction,writer,writes->game.items().indirectKills().trapChanges(owner,writes));
+    }
+    private boolean shift(ServerLevel level,BlockPos first,Vec3 direction,
+            java.util.function.BiConsumer<BlockPos,MapManager.BlockSnapshot> writer,java.util.function.Consumer<Runnable> attributed){
+        var positions=new ArrayList<BlockPos>();var before=new ArrayList<MapManager.BlockSnapshot>();
         var current=first;
         while(true){
             if(!resident(level,current))return false;
@@ -162,7 +170,7 @@ public final class LbcPendingCombat {
         int flags=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE|Block.UPDATE_SUPPRESS_DROPS;
         boolean[] success={true};
         var provenance=game.items().indirectKills().captureTerrain(level,positions);
-        game.items().indirectKills().trapChanges(owner,()->{
+        attributed.accept(()->{
             try{
                 for(int i=positions.size()-1;i>=0;i--){var expected=i==0?MapManager.BlockSnapshot.air():before.get(i-1);
                     pistonWrites++;if(writer==null)game.maps().restoreSnapshot(level,positions.get(i),expected,flags);else writer.accept(positions.get(i),expected);

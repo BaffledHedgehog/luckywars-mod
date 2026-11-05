@@ -1,3 +1,13 @@
+## IMBA tools and shared TECH explosion protection - QUALIFIED, INSTALLED (5 November 2026)
+
+[Author rules, native implementation and proof](IMBA_TOOLS_TECH_EXPLOSIONS_2026_11_05.md).
+Native shovel retains420 sequential piston rays; hoe retains native TNT/70% removal.
+Actual tool break/melee inputs replace durability proxy; source presentation/EF255 stay.
+TECH cancels protected explosion origins and shields blocks/entities from outside blasts,
+including native fireworks and manual nuclear/produce payloads. No new tick scans/NBT.
+Test 4982ad59 / production 29de5a7a: 12 groups/12 isolated matches pass (8 mode1,4 mode3); source/RP/author WIP preserved.
+JARs updated without main stop/start; existing IMBA/TMT-last/mode/rewind gates unchanged.
+
 ## Kapusta and Pumpkinator - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source rules, implementation and proof](PRODUCE_GADGETS_2026_11_05.md).

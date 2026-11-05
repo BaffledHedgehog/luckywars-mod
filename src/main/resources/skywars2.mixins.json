@@ -2,6 +2,9 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "TechExplosionMixin$LevelExplosion",
+    "TechExplosionMixin$Blast",
+    "TechExplosionMixin$Firework",
     "CosmeticNameMixin$Player",
     "CosmeticNameMixin$Tab",
     "IndividualNameplateMixin$PacketAccess",

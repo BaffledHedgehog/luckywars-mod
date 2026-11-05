@@ -17,6 +17,10 @@ import net.minecraft.world.item.component.*;
 final class LbcUtilityItemPrototypes {
     private LbcUtilityItemPrototypes(){}
     static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum){
+        return properties(nativeId,resource,carrier,maximum,java.util.Set.of());
+    }
+    /** Registry-bound components are applied by the canonical loot table after world registries load. */
+    static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents){
         try(var input=LbcUtilityItemPrototypes.class.getResourceAsStream(resource)){
             if(input==null)throw new IllegalStateException("Missing utility prototype "+resource);
             var entry=JsonParser.parseReader(new InputStreamReader(input,StandardCharsets.UTF_8)).getAsJsonObject()
@@ -32,6 +36,7 @@ final class LbcUtilityItemPrototypes {
                 switch(type){
                     case "minecraft:set_count" -> {} // Loot owns count; it is not an item property.
                     case "minecraft:set_components" -> {for(var component:row.getAsJsonObject("components").entrySet()){
+                        if(lootComponents.contains(component.getKey()))continue;
                         var componentType=BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(component.getKey()));
                         if(componentType==null)throw new IllegalStateException("Unknown utility component "+component.getKey());
                         component(result,componentType,component.getValue());}}

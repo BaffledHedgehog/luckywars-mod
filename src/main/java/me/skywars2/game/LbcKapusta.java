@@ -157,6 +157,7 @@ public final class LbcKapusta {
     }
     private void explode(BlockDisplay body,Flight state,Vec3 at){
         var level=(ServerLevel)body.level();retire(body); // Claim first: damage callbacks cannot explode this source twice.
+        var coverage=LbcExplosionSuppression.coverage(game,level);if(coverage.contains(at))return;
         firework(level,at,state);
         var owner=game.server().getPlayerList().getPlayer(state.author());
         var type=owner!=null&&owner.level()==level?DamageTypes.ARROW:DamageTypes.GENERIC;
@@ -166,7 +167,7 @@ public final class LbcKapusta {
         for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(3.5),
                 e->e.isAlive()&&!e.isSpectator()&&e.getType().builtInRegistryHolder().is(MOBS)
                         &&e.position().distanceToSqr(at)<=3.5*3.5&&game.items().wands().validRoleTarget(e,false)
-                        &&!game.items().timeStop().frozen(e)))target.hurtServer(level,captured,6);
+                        &&!game.items().timeStop().frozen(e)&&!coverage.targets(e)))target.hurtServer(level,captured,6);
         var random=new Rolls(state.rng());
         if(state.primary())for(int i=0;i<8;i++)child(level,at,body.getEyePosition(),state,random);
         for(int i=0;i<5;i++)if(random.integer(100)<20)child(level,at,body.getEyePosition(),state,random);

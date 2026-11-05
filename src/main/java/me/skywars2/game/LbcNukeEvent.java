@@ -227,10 +227,12 @@ public final class LbcNukeEvent {
         job.submit();
     }
     private void appendMarker(Job job,Site marker){
+        if(LbcExplosionSuppression.suppressed(game,marker.level,marker.at))return;
         var selected=select(RANDOM,marker);var sites=new ArrayList<Site>();
         for(var entity:selected)sites.add(new Site((ServerLevel)entity.level(),entity.position(),entity.getYRot(),marker.cause));
         var additions=new ArrayDeque<Operation>();
         for(var site:sites){
+            if(LbcExplosionSuppression.suppressed(game,site.level,site.at))continue;
             centers++;
             job.terrain.add(new Terrain(site,NuclearTerrain.point(site.at)));
             additions.add(new Operation(site.level,BlockPos.containing(site.at),BlockPos.containing(site.at),site.cause,()->wither(site)));
@@ -261,20 +263,21 @@ public final class LbcNukeEvent {
     public boolean pendingStatusBurst(ServerPlayer author){return statusBursts.containsKey(author);}
     private boolean pointBurst(ServerPlayer author,ServerLevel level,Vec3 at,boolean status){
         if(author==null||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
-                ||!level.hasChunkAt(BlockPos.containing(at)))return false;
+                ||!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
         if(generation==0)prepare();
         var site=new Site(level,at,author.getYRot(),new Cause(author.getUUID(),game.items().indirectKills().wildCause(author),game.items().epoch()));
         pointBurst(site,status?author:null);return true;
     }
     /** Original old-mode nuclear payload, using this same native damage/job owner. */
     public boolean legacyBurst(ServerLevel level,Vec3 at,LbcIndirectKills.Owner accepted){
-        if(accepted==null||!live(game.items().epoch())||paused(level))return false;
+        if(accepted==null||!live(game.items().epoch())||paused(level)||LbcExplosionSuppression.suppressed(game,level,at))return false;
         if(generation==0)prepare();
         var cause=new Cause(accepted.player(),accepted,game.items().epoch());var site=new Site(level,at,0,cause);
         var center=BlockPos.containing(at);var job=new Job(cause.epoch);job.legacyClear=new LegacyClear(site);
         job.add(level,center,center,cause,()->{
+            var coverage=LbcExplosionSuppression.coverage(game,level);if(coverage.contains(at))return;
             for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(45),e->e.position().distanceToSqr(at)<=2025
-                    &&game.items().wands().validRoleTarget(e,false)))
+                    &&game.items().wands().validRoleTarget(e,false)&&!coverage.targets(e)))
                 game.items().indirectKills().wildEffect(target,ItemEffectLevels.create(MobEffects.WITHER,400,30,false,false),accepted);
         });
         for(var offset:List.of(new Vec3(10,0,0),new Vec3(-10,0,0),new Vec3(0,0,10),new Vec3(0,0,-10),new Vec3(0,10,0),new Vec3(-10,-15,0),new Vec3(10,-15,0),new Vec3(0,-15,-10),new Vec3(0,-15,10))){
@@ -285,6 +288,7 @@ public final class LbcNukeEvent {
     }
     private void pointBurst(Site site){pointBurst(site,null);}
     private void pointBurst(Site site,ServerPlayer statusBody){
+        if(LbcExplosionSuppression.suppressed(game,site.level,site.at))return;
         var level=site.level;var at=site.at;var job=new Job(site.cause.epoch);var center=BlockPos.containing(at);
         visual(site);
         job.terrain.add(new Terrain(site,NuclearTerrain.point(at)));
@@ -300,18 +304,21 @@ public final class LbcNukeEvent {
         blast(site,at,25);
     }
     private void wither(Site site){
+        var coverage=LbcExplosionSuppression.coverage(game,site.level);if(coverage.contains(site.at))return;
         for(var entity:site.level.getEntities((Entity)null,new AABB(site.at,site.at).inflate(45),
-                e->e.isAlive()&&!e.entityTags().contains("spectator")&&e.position().distanceToSqr(site.at)<=2025))
+                e->e.isAlive()&&!e.entityTags().contains("spectator")&&e.position().distanceToSqr(site.at)<=2025&&!coverage.targets(e)))
             if(entity instanceof LivingEntity living)game.items().indirectKills().wildEffect(living,ItemEffectLevels.create(MobEffects.WITHER,400,30,false,false,false),site.cause.accepted);
     }
     private Operation killOperation(Site site){return new Operation(site.level,BlockPos.containing(site.at),BlockPos.containing(site.at),site.cause,()->{
+        var coverage=LbcExplosionSuppression.coverage(game,site.level);if(coverage.contains(site.at))return;
         for(var entity:List.copyOf(site.level.getEntities((Entity)null,new AABB(site.at,site.at).inflate(14),e->e.isAlive()&&e.getType()!=EntityTypes.CREEPER
                 &&e.getType()!=EntityTypes.PLAYER&&!e.entityTags().contains("slowparticlesexplode_2")&&!e.entityTags().contains("strict_map_object")
-                &&e.position().distanceToSqr(site.at)<=196))){
+                &&e.position().distanceToSqr(site.at)<=196&&!coverage.targets(e)))){
             if(entity instanceof LivingEntity living)game.items().indirectKills().inheritedKill(living,site.cause.accepted);else entity.kill(site.level);
         }
     });}
     private void visual(Site site){
+        if(LbcExplosionSuppression.suppressed(game,site.level,site.at))return;
         var marker=EntityTypes.MARKER.create(site.level,net.minecraft.world.entity.EntitySpawnReason.COMMAND);if(marker==null)return;
         marker.setPos(site.at);marker.entityTags().addAll(List.of(CHILD,"slowraycast","slowparticlesexplode_2","player","magic"));
         game.items().markCurrentItemEpoch(marker);sources.put(marker,site.cause);
@@ -330,6 +337,7 @@ public final class LbcNukeEvent {
     }
     private void blast(Site site,Vec3 at,float power){blast(site,at,power,true);}
     private void blast(Site site,Vec3 at,float power,boolean damageOnly){
+        if(LbcExplosionSuppression.suppressed(game,site.level,at))return;
         callbackDepth++;try{
         var direct=new BlastSource(site.level,site.cause);
         direct.setPos(at);direct.entityTags().add(CHILD);direct.setCustomName(Component.translatable("killed_by_nuke"));game.items().markCurrentItemEpoch(direct);
@@ -372,6 +380,7 @@ public final class LbcNukeEvent {
         }
         boolean step(){
             var level=site.level;
+            var coverage=LbcExplosionSuppression.coverage(game,level);if(coverage.contains(site.at)){done=true;return true;}
             for(int budget=4096;budget>0&&band<bands.length;){
                 var range=bands[band];int low=center.getY()+range[0],high=center.getY()+range[1];
                 if(level.isOutsideBuildHeight(low)||level.isOutsideBuildHeight(high)||29791>level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MAX_BLOCK_MODIFICATIONS)){band++;cursor=0;continue;}
@@ -379,7 +388,7 @@ public final class LbcNukeEvent {
                 var pos=center.offset(cursor%31-15,range[0]+cursor/(31*31),cursor/31%31-15);
                 if(!resident(pos,pos))return false;
                 cursor++;budget--;
-                if(!level.getBlockState(pos).isAir())game.items().indirectKills().capturedWorldChanges(level,site.cause.accepted,()->LbcDropBlocks.setBlock(level,pos,Blocks.AIR.defaultBlockState(),true));
+                if(!coverage.blocks(pos)&&!level.getBlockState(pos).isAir())game.items().indirectKills().capturedWorldChanges(level,site.cause.accepted,()->LbcDropBlocks.setBlock(level,pos,Blocks.AIR.defaultBlockState(),true));
             }
             done=band>=bands.length;return done;
         }

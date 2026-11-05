@@ -23,21 +23,24 @@ public final class NuclearTerrain {
                 ||blast.getDirectSourceEntity()==null&&expected==blast.getDamageSource().getDirectEntity());
     }
     static Shape point(Vec3 at){return new Shape(at,84,65);}
-    static Shape wand(Vec3 at){return new Shape(at.add(0,2.5,0),40,45);}
+    static Shape wand(Vec3 at){return new Shape(at,at.add(0,2.5,0),40,45);}
     /** Source point cube-ring outer reach60+24; wand32-offset native envelope about40x45. */
     static final class Shape {
-        final Vec3 center;final double horizontal,vertical;final long seed;
+        final Vec3 origin,center;final double horizontal,vertical;final long seed;
         final int lowX,highX,lowY,highY,lowZ,highZ;
         int chunkX,chunkZ,sectionY,cell,visited;boolean done;
         net.minecraft.world.level.ServerExplosion nativeApplication;
         Shape(Vec3 center,double horizontal,double vertical){
-            this.center=center;this.horizontal=horizontal;this.vertical=vertical;seed=BlockPos.containing(center).asLong();
+            this(center,center,horizontal,vertical);
+        }
+        private Shape(Vec3 origin,Vec3 center,double horizontal,double vertical){
+            this.origin=origin;this.center=center;this.horizontal=horizontal;this.vertical=vertical;seed=BlockPos.containing(center).asLong();
             lowX=(int)Math.floor(center.x-horizontal*1.12);highX=(int)Math.ceil(center.x+horizontal*1.12);
             lowY=(int)Math.floor(center.y-vertical*1.12);highY=(int)Math.ceil(center.y+vertical*1.12);
             lowZ=(int)Math.floor(center.z-horizontal*1.12);highZ=(int)Math.ceil(center.z+horizontal*1.12);
             chunkX=lowX>>4;chunkZ=lowZ>>4;sectionY=lowY>>4;
         }
-        Shape copy(){var next=new Shape(center,horizontal,vertical);next.chunkX=chunkX;next.chunkZ=chunkZ;
+        Shape copy(){var next=new Shape(origin,center,horizontal,vertical);next.chunkX=chunkX;next.chunkZ=chunkZ;
             next.sectionY=sectionY;next.cell=cell;next.visited=visited;next.done=done;return next;}
         /** No tickets, no forced chunks, no block snapshots/NBT, one read/write per admitted cell. */
         boolean step(GameController game,ServerLevel level,LbcIndirectKills.Owner cause){
@@ -47,18 +50,25 @@ public final class NuclearTerrain {
         boolean step(GameController game,ServerLevel level,LbcIndirectKills.Owner cause,
                 java.util.function.Supplier<net.minecraft.world.level.ServerExplosion> factory,
                 java.util.function.Consumer<Runnable> sourceContext){
+            var coverage=LbcExplosionSuppression.coverage(game,level);
+            if(coverage.contains(origin)){done=true;return true;}
             if(factory!=null&&nativeApplication==null)nativeApplication=factory.get();
             if(nativeApplication!=null&&nativeApplication.getBlockInteraction()==net.minecraft.world.level.Explosion.BlockInteraction.KEEP){done=true;return true;}
             boolean[] complete={done};
             sourceContext.accept(()->game.items().indirectKills().withSupportCandidates(level,new net.minecraft.world.phys.AABB(lowX,lowY,lowZ,highX+1,highY+1,highZ+1),
                     ()->game.items().indirectKills().trapChanges(level,cause,()->{
                         java.util.List<BlockPos> admitted=nativeApplication==null?null:new java.util.ArrayList<>();
-                        complete[0]=stepBlocks(level,admitted);
-                        if(admitted!=null&&!admitted.isEmpty())((BlockEffects)nativeApplication).skywars2$applyNuclearBlocks(admitted);
+                        complete[0]=stepBlocks(level,admitted,coverage);
+                        if(admitted!=null&&!admitted.isEmpty()){
+                            // Native application can trigger callbacks. Re-snapshot current TECH fields at its actual boundary.
+                            var application=LbcExplosionSuppression.coverage(game,level);
+                            if(application.contains(origin)){done=true;complete[0]=true;}
+                            else{admitted.removeIf(application::blocks);if(!admitted.isEmpty())((BlockEffects)nativeApplication).skywars2$applyNuclearBlocks(admitted);}
+                        }
                     })));
             return complete[0];
         }
-        private boolean stepBlocks(ServerLevel level,java.util.List<BlockPos> admitted){
+        private boolean stepBlocks(ServerLevel level,java.util.List<BlockPos> admitted,LbcExplosionSuppression.Coverage coverage){
             if(done)return true;
             var probe=new BlockPos.MutableBlockPos();int budget=CELLS_PER_STEP;visited=0;
             while(budget>0&&!done){
@@ -74,7 +84,7 @@ public final class NuclearTerrain {
                     double dx=(x+.5-center.x)/horizontal,dy=(by+.5-center.y)/vertical,dz=(z+.5-center.z)/horizontal;
                     double radius=Math.sqrt(dx*dx+dy*dy+dz*dz);
                     if(!contains(seed,dx,dy,dz,radius))continue;
-                    probe.set(x,by,z);if(state.getDestroySpeed(level,probe)<0)continue;
+                    probe.set(x,by,z);if(coverage.blocks(probe)||state.getDestroySpeed(level,probe)<0)continue;
                     float resistance=Math.max(state.getBlock().getExplosionResistance(),state.getFluidState().getExplosionResistance());
                     if(unit(seed^probe.asLong())>=breakChance(resistance,radius))continue;
                     if(admitted==null)LbcDropBlocks.setBlock(level,probe,Blocks.AIR.defaultBlockState(),true);
