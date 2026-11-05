@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:imba_ender_pearl",
           "modifier": [
             {
               "type": "minecraft:set_components",

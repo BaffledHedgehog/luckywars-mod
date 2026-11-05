@@ -66,12 +66,12 @@ public final class NativeFireballItemChecks {
                 int stat=f.owner.getStats().getValue(Stats.ITEM_USED.get(entry.item()));int tick=game.server().getTickCount();
                 require(f.owner.gameMode.useItem(f.owner,f.owner.level(),stack,hand).consumesAction(),"actual native use "+entry.id()+" "+hand);
                 var actors=f.service.snapshot();
-                require(game.server().getTickCount()==tick&&f.service.pendingCount()==0&&actors.size()==(kind==3?33:kind==5?17:1),"all final actors published synchronously, no pending conversion "+entry.id());
+                require(game.server().getTickCount()==tick&&f.service.pendingCount()==0&&actors.size()==(kind==3?33:kind==5||kind==6?17:1),"all final actors published synchronously, no pending conversion "+entry.id());
                 for(var e:f.owner.level().getAllEntities())require(f.before.contains(e)||!(e instanceof Snowball)||e.isRemoved(),"no intermediate snowball enters the world");
                 require(stack.getCount()==1&&f.owner.getItemInHand(other).is(Items.STICK)&&f.owner.getItemInHand(other).getCount()==7
                         &&f.owner.getStats().getValue(Stats.ITEM_USED.get(entry.item()))==stat+1,"one real used-hand debit/stat "+entry.id());
                 require(actors.stream().allMatch(e->f.service.owner(e)==f.owner&&game.items().currentEpoch(e)&&e.tickCount==0),"actual creator/epoch before first actor tick "+entry.id());
-                require(actors.stream().allMatch(e->kind==0?e instanceof SmallFireball:kind==3?e instanceof PrimedTnt:kind==1||kind==4?e instanceof LargeFireball:e instanceof DragonFireball),"exact native body family "+entry.id());
+                require(actors.stream().allMatch(e->kind==0?e instanceof SmallFireball:kind==3?e instanceof PrimedTnt:kind==1||kind==4?e instanceof LargeFireball:kind==6?e instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl:e instanceof DragonFireball),"exact native body family "+entry.id());
                 if(kind==3)require(actors.stream().allMatch(e->((PrimedTnt)e).getFuse()==100),"source TNT fuse starts at100 before any tick");
             }
             f.clear();var held=new ItemStack(entry.item(),2);f.owner.setItemInHand(InteractionHand.MAIN_HAND,held);
@@ -86,6 +86,7 @@ public final class NativeFireballItemChecks {
             game.config().lbcLevelups=false;f.initialize();for(var entry:LbcSpecialFireballItems.entries())stats.put(entry.item(),f.owner.getStats().getValue(Stats.ITEM_USED.get(entry.item())));
             try{presentation(game,f);launches(game,f);}finally{for(var entry:stats.entrySet())f.owner.getStats().setValue(f.owner,Stats.ITEM_USED.get(entry.getKey()),entry.getValue());}
         }finally{game.config().lbcLevelups=levelups;}
-        SkyWars2.LOGGER.info("[check] PASS native-fireball-items (six canonical native prototypes, seeded source counts/all components, ready wrappers/Polymer, both actual hands, immediate1/33/17 final bodies/no snowball or pending tick, creator/epoch/fuse, sole debit/stat, frozen and creative input)");
+        ImbaPearlChecks.run(game);
+        SkyWars2.LOGGER.info("[check] PASS native-fireball-items (seven canonical native prototypes, seeded source counts/all components, ready wrappers/Polymer, both actual hands, immediate1/33/17 final bodies/no snowball or pending tick, creator/epoch/fuse/pearl ledger, sole debit/stat, frozen and creative input)");
     }
 }

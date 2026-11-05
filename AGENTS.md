@@ -1,3 +1,16 @@
+## Native IMBA pearl - QUALIFIED, INSTALLED (5 November 2026)
+
+[Source, native ledger and exact proof](agent_notes/IMBA_PEARL_2026_11_05.md).
+Ready lbc:ported/imba_ender_pearl; canonical source keeps every component/count.
+Shared special-projectile factory now7 variants; immediate17 native pearls,
+source motion/spread, actual owner/ledger, native contact/teleport/damage.
+No new tick engine/NBT polling; existing MAG body classification/source throw retained.
+Dedicated native x2*x4/private-links/TimeStop/cleanup checks; six old variants unchanged.
+Testeae198e5/production5fe89096:6 isolated matches pass(4mode1,2mode3).
+Main/both libs installed without stop/start;4 families/2 resources;282 author paths preserved.
+Pumpkin and bucks deferred (suppression question; bucks needs TMT-last).
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## Native edible-spell items - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source, native identities and exact proof](agent_notes/NATIVE_EDIBLE_SPELL_ITEMS_2026_11_05.md).

@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 
-/** Canonical throwable identities delegate their final native payload to the existing six-way factory. */
+/** Canonical throwable identities delegate their final native payload to the shared special-projectile factory. */
 public final class LbcSpecialFireballItems {
     record Entry(String id,String definition,Item item){}
     private static final List<Entry> ENTRIES=List.of(
@@ -21,12 +21,16 @@ public final class LbcSpecialFireballItems {
             entry("throwable_dragon_fireball","dragfireball__9640597422c4"),
             entry("imba_throwable_small_fireball","smallfireball__dff5ed11dc93"),
             entry("imba_throwable_large_fireball","bigfireball__0f6adc3f0b43"),
-            entry("imba_throwable_dragon_fireball","dragfireball__409f7dfdb4f7"));
+            entry("imba_throwable_dragon_fireball","dragfireball__409f7dfdb4f7"),
+            entry("imba_ender_pearl","minecraft","ender_pearl__db2c64fce6b9"));
     private LbcSpecialFireballItems(){}
     public static void register(){for(var entry:ENTRIES)net.minecraft.world.level.block.DispenserBlock.registerProjectileBehavior(entry.item());}
     static List<Entry> entries(){return ENTRIES;}
     private static Entry entry(String id,String definition){
-        var resource="data/lbc/loot_table/item_defs/lbc/"+definition+".json";
+        return entry(id,"lbc",definition);
+    }
+    private static Entry entry(String id,String folder,String definition){
+        var resource="data/lbc/loot_table/item_defs/"+folder+"/"+definition+".json";
         var properties=LbcUtilityItemPrototypes.deferredProperties("skywars2:"+id,"/"+resource,Items.SNOWBALL,16);
         var item=Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+id),new NativeSnowball(properties));
         return new Entry(id,resource,item);
