@@ -27,6 +27,11 @@ dependencies {
 }
 
 processResources {
+    // Closed native produce gadgets, preserving canonical source components.
+    include 'data/lbc/loot_table/item_defs/lbc/kapusta__e3a9b9e791f5.json'
+    include 'data/lbc/loot_table/item_defs/minecraft/pumpkin__eed30a39b1a0.json'
+    include 'data/lbc/loot_table/ported/kapusta.json'
+    include 'data/lbc/loot_table/ported/pumpkinator.json'
     // Closed source wool palette and native Bucket payload; canonical definitions stay shared.
     include 'data/lbc/loot_table/imba/bucket_head.json', 'data/lbc/loot_table/imba/bucket_rofl.json'
     include 'data/lbc/loot_table/item_defs/minecraft/black_wool__4898c4b96d84.json', 'data/lbc/loot_table/item_defs/minecraft/blue_wool__2f69975e54fb.json'

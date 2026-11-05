@@ -1,3 +1,12 @@
+## Kapusta and Pumpkinator - QUALIFIED, INSTALLED (5 November 2026)
+
+[Source rules, implementation and proof](agent_notes/PRODUCE_GADGETS_2026_11_05.md).
+Native source Kapusta preserves branching, WILD damage and fireworks; no jammer.
+Pumpkinator preserves wandering/growth and is denied/terminated by MAG/artifact.
+Typed state, resident-only work, TimeStop, x2/x4 and whole-coordinator replay.
+Test 116c76e2 / production 9a01e057: 8 groups/8 isolated matches pass (4 mode1,4 mode3); no main stop/start or RP edits.
+TMT-last, full IMBA pool and existing mode/rewind release gates unchanged.
+
 ## Sixteen wool trails and Bucket - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source rules, implementation and proof](agent_notes/WOOL_BUCKET_2026_11_05.md).

@@ -214,6 +214,8 @@ public final class LbcIndirectKills {
     /** Нативное зелье передаёт source как игрока, снаряд или облако — разворачиваем владельца. */
     public static ServerPlayer playerSource(Entity source) {
         var original=source;
+        var produceGame=me.skywars2.SkyWars2.game();
+        if(produceGame!=null&&LbcKapusta.isManaged(source)){var cause=produceGame.items().kapusta().cause(source);if(cause!=null){var author=produceGame.server().getPlayerList().getPlayer(cause.player());if(author!=null)return author;}}
         var controller=me.skywars2.SkyWars2.game();
         if(controller!=null && controller.items().communism().owner(source) instanceof ServerPlayer player)return player;
         var game=me.skywars2.SkyWars2.game();
@@ -768,6 +770,7 @@ public final class LbcIndirectKills {
     }
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
+        var cabbageCause=game.items().kapusta().cause(source.getDirectEntity());if(cabbageCause!=null)return cabbageCause;
         var cosmeticCause=game.items().cosmetics().cause(source.getDirectEntity());if(cosmeticCause!=null)return cosmeticCause;
         if(LbcSpecialFireballs.managed(source.getDirectEntity())&&game.items().specialFireballs().owner(source.getDirectEntity()) instanceof ServerPlayer player)return wildCause(player);
         var event=game.items().apocalypseEvents().cause(source.getDirectEntity());if(event!=null)return event;

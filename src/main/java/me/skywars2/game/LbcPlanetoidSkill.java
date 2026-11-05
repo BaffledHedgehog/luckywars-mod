@@ -62,7 +62,7 @@ public final class LbcPlanetoidSkill {
                 game.items().voidArcanum()::planetoid,game.items().specialTools()::planetoid,
                 game.items().danmaku()::planetoid,game.items().pendingCombat()::planetoid,
                 game.items().consuming()::planetoid,game.items().sauvojenBoss()::planetoid,
-                game.items().sauvojen().meditation()::planetoid,game.items().gaycasterAcademy()::planetoid);
+                game.items().sauvojen().meditation()::planetoid,game.items().gaycasterAcademy()::planetoid,game.items().pumpkinator()::planetoid);
         for(var service:owners)service.redirect(owner);
     }
 
