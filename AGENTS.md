@@ -1,4 +1,4 @@
-## Native throwable fireball items - QUALIFIED, QUEUED UNTIL NORMAL SHUTDOWN (5 November 2026)
+## Native throwable fireball items - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source, immediate input and exact proof](agent_notes/NATIVE_FIREBALL_ITEMS_2026_11_05.md).
 Six ready native throwing items share canonical definitions and LbcSpecialFireballs.
@@ -8,7 +8,7 @@ Original count ranges incl zero, models/styles/lore and native dispenser setup r
 Raw aliases, existing MAG body/TECH explosion rules, source landing/ownership stay shared.
 Test82246c4e/production765939ed:6 isolated native matches pass(4mode1,2mode3).
 Both build/libs verified;6 families/12 resources;282 author paths preserved.
-Main is running the previous fa731743 archive; the qualified replacement is queued by the shared installer until normal shutdown. Do not start a competing installer; reconcile this pending receipt before the next main release.
+Main SkyWars is stopped; the qualified 82246c4e archive is installed (receipt verified). The previous wait was a false positive: TerraFirmaGreg owns port8125. The installer now uses the target world session.lock, preserving the live-world guard without treating unrelated listeners as SkyWars.
 Receipt: build/verification/native-fireball-items-2026-11-05/main-install.json.
 Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
 

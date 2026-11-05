@@ -4,7 +4,6 @@ import argparse
 import hashlib
 import json
 import os
-import socket
 import time
 
 
@@ -38,7 +37,6 @@ def install(qualification):
     world = (MAIN / props.get("level-name", "world")).resolve(strict=True)
     world.relative_to(MAIN)
     lock_path = world / "session.lock"
-    port = int(props.get("server-port", "25565"))
 
     def record(status, **extra):
         receipt.write_text(json.dumps(dict(status=status, artifact=str(artifact),
@@ -84,10 +82,9 @@ def install(qualification):
                 with lock_path.open("r+b") as world_lock:
                     msvcrt.locking(world_lock.fileno(), msvcrt.LK_NBLCK, 1)
                     try:
-                        with socket.socket() as probe:
-                            probe.settimeout(.25)
-                            if probe.connect_ex(("127.0.0.1", port)) == 0:
-                                raise BlockingIOError("Server still accepts connections")
+                        # Minecraft holds this world's session.lock for its entire
+                        # lifetime. A listener on the configured port can belong to
+                        # another server and says nothing about this world.
                         if digest(artifact) != expected or digest(installed) != baseline:
                             raise RuntimeError("Artifact or main JAR changed while waiting")
                         backups = sorted((PROJECT / "build/verification").glob(f"*-{baseline[:8]}.jar"))

@@ -77,6 +77,6 @@ All archive entries and retained binary references are verified. Children exit
 normally, exact fixture snapshots are restored and temporary BedWars maps removed.
 Evidence: `build/verification/native-fireball-items-2026-11-05/qualification.json`.
 
-Both build/libs are the exact qualified archives. Main is running the previous fa731743 archive; the qualified replacement is queued by the shared installer until normal shutdown. Do not start a competing installer; reconcile this pending receipt before the next main release.
+Both build/libs are the exact qualified archives. Main SkyWars is stopped; the qualified 82246c4e archive is installed (receipt verified). The previous wait was a false positive: TerraFirmaGreg owns port8125. The installer now uses the target world session.lock, preserving the live-world guard without treating unrelated listeners as SkyWars.
 No main stop/start, RP edit, extra indexer or push. Full IMBA/TMT-last/mode/skill2/broad-rewind gates
 remain unchanged. No physical-client render, peak-TPS or disk-restart claim.
