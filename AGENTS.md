@@ -1,3 +1,17 @@
+## Native throwable fireball items - QUALIFIED, QUEUED UNTIL NORMAL SHUTDOWN (5 November 2026)
+
+[Source, immediate input and exact proof](agent_notes/NATIVE_FIREBALL_ITEMS_2026_11_05.md).
+Six ready native throwing items share canonical definitions and LbcSpecialFireballs.
+Actual input publishes final1/33/17 bodies immediately; no world snowball/pending tick.
+Native throw/upgrades, used-hand debit/stat, vanilla NEUTRAL sound, frozen/creative guards.
+Original count ranges incl zero, models/styles/lore and native dispenser setup retained.
+Raw aliases, existing MAG body/TECH explosion rules, source landing/ownership stay shared.
+Test82246c4e/production765939ed:6 isolated native matches pass(4mode1,2mode3).
+Both build/libs verified;6 families/12 resources;282 author paths preserved.
+Main is running the previous fa731743 archive; the qualified replacement is queued by the shared installer until normal shutdown. Do not start a competing installer; reconcile this pending receipt before the next main release.
+Receipt: build/verification/native-fireball-items-2026-11-05/main-install.json.
+Full IMBA/TMT-last/mode/skill2/broad-rewind gates unchanged.
+
 ## Canonical native named foods - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source, native identity and exact proof](agent_notes/NATIVE_NAMED_FOODS_2026_11_05.md).

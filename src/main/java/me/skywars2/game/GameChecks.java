@@ -894,6 +894,7 @@ public final class GameChecks {
                                 case "loose-rewards" -> { LooseRewardChecks.start(game); return; }
                                 case "canonical-loot" -> { LootDefinitionChecks.run(game); return; }
                                 case "feedback-regressions" -> { FeedbackRegressionChecks.run(game); return; }
+                                case "native-fireball-items" -> {NativeFireballItemChecks.run(game);return;}
                                 case "special-fireballs" -> { SpecialFireballChecks.run(game); return; }
                                 case "magic-bean" -> { MagicBeanChecks.run(game); return; }
                                 case "attribute-food" -> { AttributeFoodChecks.start(game); return; }

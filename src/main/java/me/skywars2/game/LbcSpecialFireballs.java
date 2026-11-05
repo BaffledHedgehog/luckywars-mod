@@ -38,10 +38,8 @@ public final class LbcSpecialFireballs {
     private boolean restoring;
     public LbcSpecialFireballs(GameController game){this.game=game;}
     public static int variant(ItemStack stack){
-        if(!stack.is(Items.SNOWBALL))return 0;
-        var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(data.getIntOr("special",0)!=1)return 0;
-        for(int i=0;i<FLAGS.length;i++)if(data.getIntOr(FLAGS[i],0)==1)return i+1;
+        if(!(stack.getItem() instanceof net.minecraft.world.item.SnowballItem)||ItemData.intValue(stack,"special",0)!=1)return 0;
+        for(int i=0;i<FLAGS.length;i++)if(ItemData.intValue(stack,FLAGS[i],0)==1)return i+1;
         return 0;
     }
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(TAG);}
@@ -49,6 +47,26 @@ public final class LbcSpecialFireballs {
     private boolean resident(ServerLevel level,Vec3 at){var pos=BlockPos.containing(at);return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
     private boolean active(Entity e){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&e.level()==game.maps().level()&&(game.items().currentEpoch(e)||e.entityTags().contains(DELTA)&&game.items().spellSources().source(e)!=null);}
     private boolean frozen(Entity e){return game.items().polymorph().suspended(e)||!game.server().tickRateManager().runsNormally()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped");}
+    /** Native input configures vanilla throw motion once; only final actors enter the world. */
+    public boolean use(ServerPlayer owner,net.minecraft.world.InteractionHand hand){
+        var stack=owner.getItemInHand(hand);
+        if(variant(stack)==0||!game.playing()||game.stage()==GameController.Stage.ENDING||game.maps().busy()
+                ||owner.level()!=game.maps().level()||!LbcDimensionItems.ordinary(owner)||!owner.isAlive()||owner.isRemoved()
+                ||!game.canUseGameplayItems(owner)||game.isObserver(owner)||game.awaitingRespawn(owner.getUUID())
+                ||!game.items().wands().validRoleTarget(owner,false)||game.items().actionsBlocked(owner)
+                ||game.items().wands().inputTimeStopped(owner))return false;
+        var carrier=new Snowball(owner.level(),owner,stack);
+        carrier.shootFromRotation(owner,owner.getXRot(),owner.getYRot(),0,1.5f,1);
+        game.items().projectileLevelups().beforePublish(owner,carrier,LbcProjectileLevelups.Launch.SNOWBALL);
+        carrier.entityTags().add(game.items().epoch()); // Geometry only: never index this unpublished carrier.
+        if(convert(carrier).isEmpty()){carrier.discard();return false;}
+        carrier.discard();
+        owner.level().playSound(null,owner.getX(),owner.getY(),owner.getZ(),net.minecraft.sounds.SoundEvents.SNOWBALL_THROW,
+                net.minecraft.sounds.SoundSource.NEUTRAL,.5f,.4f/(owner.getRandom().nextFloat()*.4f+.8f));
+        owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem()));
+        owner.gameEvent(net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT);
+        stack.consume(1,owner);return true;
+    }
     public void loaded(Entity entity){
         if(restoring||MatchActorCheckpoint.restoring(entity))return;
         // Epoch-less native TNT must regain its existing authority before the registry admission check.
@@ -109,7 +127,7 @@ public final class LbcSpecialFireballs {
             default->{}
         }
         result.removeIf(Objects::isNull);
-        if(!result.isEmpty()&&ball.getItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("tmt_item",0)!=1)ball.discard();
+        if(!result.isEmpty()&&ItemData.intValue(ball.getItem(),"tmt_item",0)!=1)ball.discard();
         return List.copyOf(result);
     }
     public LivingEntity owner(Entity e){

@@ -34,7 +34,7 @@ public final class SpecialFireballChecks {
     private static void require(boolean condition,String why){if(!condition)throw new IllegalStateException("Special fireballs: "+why);}
     private static final String[] FLAGS={"smallfireball","fireball","dragfireball","smallfireball_imba","fireball_imba","dragfireball_imba"};
     static ItemStack token(int index,int count){var stack=new ItemStack(Items.SNOWBALL,count);var data=new CompoundTag();data.putInt("special",1);data.putInt(FLAGS[index],1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));return stack;}
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         final GameController game;final LbcSpecialFireballs service;final ServerPlayer owner,other;final HedgehogChecks.Saved saved,otherSaved;final SauvojenMeditationChecks.Attribution attribution;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final Set<Long> forced=new HashSet<>();final Vec3 at;
         Fixture(GameController game){this.game=game;service=game.items().specialFireballs();owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));

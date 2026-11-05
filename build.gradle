@@ -27,6 +27,19 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/item_defs/lbc/smallfireball__5403050a24bc.json'
+    include 'data/lbc/loot_table/ported/throwable_small_fireball.json'
+    include 'data/lbc/loot_table/item_defs/lbc/bigfireball__58955493346d.json'
+    include 'data/lbc/loot_table/ported/throwable_large_fireball.json'
+    include 'data/lbc/loot_table/item_defs/lbc/dragfireball__9640597422c4.json'
+    include 'data/lbc/loot_table/ported/throwable_dragon_fireball.json'
+    include 'data/lbc/loot_table/item_defs/lbc/smallfireball__dff5ed11dc93.json'
+    include 'data/lbc/loot_table/ported/imba_throwable_small_fireball.json'
+    include 'data/lbc/loot_table/item_defs/lbc/bigfireball__0f6adc3f0b43.json'
+    include 'data/lbc/loot_table/ported/imba_throwable_large_fireball.json'
+    include 'data/lbc/loot_table/item_defs/lbc/dragfireball__409f7dfdb4f7.json'
+    include 'data/lbc/loot_table/ported/imba_throwable_dragon_fireball.json'
+
     include 'skywars2/named_food_items.json'
     include 'data/lbc/loot_table/item_defs/lbc/banana__1c3cf5f05f24.json'
     include 'data/lbc/loot_table/ported/food/banana.json'
