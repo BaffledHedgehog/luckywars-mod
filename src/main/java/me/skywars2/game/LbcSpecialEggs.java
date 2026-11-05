@@ -124,7 +124,7 @@ public final class LbcSpecialEggs {
                 && !game.isObserver(player) && player.level()==game.maps().level()
                 && !game.items().actionsBlocked(player) && !game.items().timeStop().stopped(player.level());
     }
-    private static final class Egg extends SpawnEggItem implements PolymerItem {
+    static final class Egg extends SpawnEggItem implements PolymerItem {
         private final Item proxy;
         Egg(Item.Properties properties,Item proxy) { super(properties); this.proxy=proxy; }
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context) { return proxy; }
@@ -150,7 +150,7 @@ public final class LbcSpecialEggs {
 
     /** Called after the native ENTITY_DATA processor, while the actor is still outside the world. */
     public static void adopt(GameController game,Entity entity,LivingEntity user,ItemStack stack) {
-        if(game!=null)game.items().balance().adoptEgg(entity,user);
+        if(game!=null){game.items().balance().adoptEgg(entity,user);LbcImbaFollowup.adopt(game,entity,user,stack);}
         var kind=kind(stack);
         if(game==null || kind==null) return;
         var author=user instanceof ServerPlayer player ? player : null;

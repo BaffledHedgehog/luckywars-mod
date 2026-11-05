@@ -374,6 +374,7 @@ public final class LbcCosmetics {
         return owner==null||order<=0?null:new LbcIndirectKills.Owner(owner,order,true,false);
     }
     public ServerPlayer owner(Entity entity){var cause=cause(entity);return cause==null?null:game.server().getPlayerList().getPlayer(cause.player());}
+    public LbcMidas midas(){return midas;}
     public void stop(){boundary();for(var job:List.copyOf(jobs))job.cancel();for(var entity:List.copyOf(nativeActors.values()))entity.discard();nativeActors.clear();midas.stop();}
     void boundary(){if(callbacks!=0)throw new IllegalStateException("Finish cosmetic native quantum before capture/replay");}
     void prepareFrozen(){boundary();restoring=true;jobs=new LinkedHashSet<>();nativeActors=new LinkedHashMap<>();midas.prepareFrozen();}

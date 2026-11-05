@@ -35,26 +35,9 @@ public final class LbcImbaTerrainUtilityItems {
             if(result.consumesAction())service.dirterPlaced(player,context.getHand(),source,origin);return result;
         }
     }
-    private static final class Bastion extends SimplePolymerItem {
-        Bastion(Properties properties){super(properties,Items.PANDA_SPAWN_EGG,true);}
-        @Override public InteractionResult useOn(UseOnContext context){
-            if(!(context.getPlayer() instanceof ServerPlayer player))return InteractionResult.FAIL;var level=player.level();var clicked=context.getClickedPos();
-            if(!level.hasChunkAt(clicked)||!level.mayInteract(player,clicked)||!player.mayUseItemAt(clicked,context.getClickedFace(),context.getItemInHand()))return InteractionResult.FAIL;
-            var at=level.getBlockState(clicked).getCollisionShape(level,clicked).isEmpty()?clicked:clicked.relative(context.getClickedFace());
-            if(!level.hasChunkAt(at))return InteractionResult.FAIL;
-            // Same collision-offset calculation as EntityType.getYOffset for the zero-size marker.
-            var box=new AABB(at);boolean movedUp=!clicked.equals(at)&&context.getClickedFace()==Direction.UP;if(movedUp)box=box.expandTowards(0,-1,0);
-            var markerBox=new AABB(at.getX()+.5,at.getY()+1,at.getZ()+.5,at.getX()+.5,at.getY()+1,at.getZ()+.5);
-            double y=at.getY()+1+Shapes.collide(Direction.Axis.Y,markerBox,level.getCollisions(null,box),movedUp?-2:-1);
-            return activate(player,context.getHand(),new Vec3(at.getX()+.5,y,at.getZ()+.5),at);
-        }
-        @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
-            if(!(player instanceof ServerPlayer owner))return InteractionResult.FAIL;var hit=getPlayerPOVHitResult(level,player,ClipContext.Fluid.SOURCE_ONLY);
-            if(hit.getType()!=HitResult.Type.BLOCK||!(level.getBlockState(hit.getBlockPos()).getBlock() instanceof LiquidBlock))return InteractionResult.PASS;
-            var at=hit.getBlockPos();if(!level.mayInteract(player,at)||!player.mayUseItemAt(at,hit.getDirection(),player.getItemInHand(hand)))return InteractionResult.FAIL;
-            return activate(owner,hand,new Vec3(at.getX()+.5,at.getY(),at.getZ()+.5),at);
-        }
-        private InteractionResult activate(ServerPlayer player,InteractionHand hand,Vec3 origin,BlockPos at){var service=service();if(service==null||!service.useBastion(player,hand,origin))return InteractionResult.FAIL;player.level().gameEvent(player,net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE,at);return InteractionResult.SUCCESS;}
+    private static final class Bastion extends LbcMarkerEggItem {
+        Bastion(Properties properties){super(properties);}
+        protected InteractionResult activate(ServerPlayer player,InteractionHand hand,Vec3 origin,BlockPos at){var service=service();if(service==null||!service.useBastion(player,hand,origin))return InteractionResult.FAIL;player.level().gameEvent(player,net.minecraft.world.level.gameevent.GameEvent.ENTITY_PLACE,at);return InteractionResult.SUCCESS;}
     }
     public static ItemStack normalize(ItemStack source){
         Item target=LbcImbaTerrainUtilities.dirter(source)?DIRTER:LbcImbaTerrainUtilities.bastion(source)?BASTION:null;
@@ -63,12 +46,14 @@ public final class LbcImbaTerrainUtilityItems {
     /** Old saved vanilla carriers enter the same item implementation at the actual input boundary. */
     public static InteractionResult legacyBlock(UseOnContext context){
         var item=context.getItemInHand();
+        var followup=LbcImbaFollowupItems.legacyTarget(item);if(followup!=null&&!item.is(followup))return followup.useOn(context);
         if(!item.is(DIRTER)&&LbcImbaTerrainUtilities.dirter(item))return DIRTER.useOn(context);
         if(!item.is(BASTION)&&LbcImbaTerrainUtilities.bastion(item))return BASTION.useOn(context);
         return InteractionResult.PASS;
     }
     public static InteractionResult legacyAir(Level level,Player player,InteractionHand hand){
         var item=player.getItemInHand(hand);
+        var followup=LbcImbaFollowupItems.legacyTarget(item);if(followup!=null&&!item.is(followup))return followup.use(level,player,hand);
         return !item.is(BASTION)&&LbcImbaTerrainUtilities.bastion(item)?BASTION.use(level,player,hand):InteractionResult.PASS;
     }
 }

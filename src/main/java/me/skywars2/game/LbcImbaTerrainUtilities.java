@@ -18,13 +18,13 @@ import net.minecraft.world.phys.Vec3;
 
 /** Finite source Dirter fills and instant Bastion share the native fair terrain queue. */
 public final class LbcImbaTerrainUtilities {
-    public enum Kind { DIRTER, BASTION }
+    public enum Kind { DIRTER, BASTION, DEBRIS }
     @FunctionalInterface public interface Policy {boolean activation(ServerPlayer author,Kind kind,Vec3 origin);}
-    private static final Identifier BASTION=Identifier.parse("lbc:bedrock_bastion");
+    private static final Identifier BASTION=Identifier.parse("lbc:bedrock_bastion"),DEBRIS=Identifier.parse("lbc:swastika");
     private static final TicketType TICKET=new TicketType(0,TicketType.FLAG_LOADING|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
     private final GameController game;private final Policy policy;
     private final NavigableMap<Long,Job> jobs=new TreeMap<>();
-    private volatile List<Cell> bastion=List.of();private CompletableFuture<?> preparation;
+    private volatile List<Cell> bastion=List.of(),debris=List.of();private CompletableFuture<?> preparation;
     private long sequence,cloneCursor,completedVisits,completedWrites,completedJobs;private boolean restoring;
     private record Cell(BlockPos offset,MapManager.BlockSnapshot snapshot){}
     private record Fill(BlockPos min,int width,int height,int depth,Block block){long count(){return (long)width*height*depth;}}
@@ -32,19 +32,23 @@ public final class LbcImbaTerrainUtilities {
     public static void register(){Registry.register(BuiltInRegistries.TICKET_TYPE,Identifier.parse("skywars2:imba_terrain_utilities"),TICKET);LbcImbaTerrainUtilityItems.register();}
     public void prepare(){
         if(preparation!=null)return;var blocks=game.server().registryAccess().lookupOrThrow(Registries.BLOCK);
-        preparation=game.maps().prepareSpellTemplates(List.of(BASTION)).thenAccept(parts->{
-            var cells=new ArrayList<Cell>();for(var part:parts.getOrDefault(BASTION,List.of())){
-                var tag=part.template().save(new CompoundTag());
-                if(!tag.getListOrEmpty("entities").isEmpty()||!tag.getListOrEmpty("palettes").isEmpty())throw new IllegalStateException("Bastion source template needs a reviewed native entity/palette adapter");
-                var palette=tag.getListOrEmpty("palette");for(var raw:tag.getListOrEmpty("blocks")){
-                    var row=(CompoundTag)raw;var pos=row.getListOrEmpty("pos");var state=NbtUtils.readBlockState(blocks,(CompoundTag)palette.get(row.getIntOr("state",0)));
-                    if(state.is(Blocks.STRUCTURE_VOID))continue;
-                    cells.add(new Cell(new BlockPos(pos.getIntOr(0,0),pos.getIntOr(1,0),pos.getIntOr(2,0)),new MapManager.BlockSnapshot(state,row.getCompound("nbt").map(CompoundTag::copy).orElse(null))));
+        preparation=game.maps().prepareSpellTemplates(List.of(BASTION,DEBRIS)).thenAccept(parts->{
+            for(var id:List.of(BASTION,DEBRIS)){
+                var cells=new ArrayList<Cell>();for(var part:parts.getOrDefault(id,List.of())){
+                    var tag=part.template().save(new CompoundTag());
+                    if(!tag.getListOrEmpty("entities").isEmpty()||!tag.getListOrEmpty("palettes").isEmpty())throw new IllegalStateException("Source terrain template needs a reviewed entity/palette adapter: "+id);
+                    var palette=tag.getListOrEmpty("palette");for(var raw:tag.getListOrEmpty("blocks")){
+                        var row=(CompoundTag)raw;var pos=row.getListOrEmpty("pos");var state=NbtUtils.readBlockState(blocks,(CompoundTag)palette.get(row.getIntOr("state",0)));
+                        if(state.is(Blocks.STRUCTURE_VOID))continue;
+                        cells.add(new Cell(new BlockPos(pos.getIntOr(0,0),pos.getIntOr(1,0),pos.getIntOr(2,0)),new MapManager.BlockSnapshot(state,row.getCompound("nbt").map(CompoundTag::copy).orElse(null))));
+                    }
                 }
-            }if(cells.isEmpty())throw new IllegalStateException("Missing exact bedrock_bastion template");bastion=List.copyOf(cells);
+                if(cells.isEmpty())throw new IllegalStateException("Missing exact source terrain template "+id);
+                if(id.equals(BASTION))bastion=List.copyOf(cells);else debris=List.copyOf(cells);
+            }
         });
     }
-    public boolean ready(){return !bastion.isEmpty();}
+    public boolean ready(){return !bastion.isEmpty()&&!debris.isEmpty();}
     public static boolean dirter(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"dirter",0)==1;}
     public static boolean bastion(ItemStack stack){
         if(stack.isEmpty())return false;var data=stack.get(DataComponents.ENTITY_DATA);if(data==null||data.type()!=EntityTypes.MARKER)return false;
@@ -53,8 +57,9 @@ public final class LbcImbaTerrainUtilities {
     public boolean canActivate(ServerPlayer p,Kind kind,Vec3 at){
         return !restoring&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&!game.maps().busy()&&p.isAlive()&&!p.isRemoved()&&!p.isSpectator()&&!game.isObserver(p)&&game.canUseGameplayItems(p)
                 &&LbcDimensionItems.ordinary(p.level())&&LbcBedwarsRoleGuards.publication(p.level())&&!game.items().actionsBlocked(p)&&!game.items().wands().inputTimeStopped(p)
-                &&(kind!=Kind.BASTION||ready())&&policy.activation(p,kind,at);
+                &&(kind==Kind.DIRTER||ready())&&policy.activation(p,kind,at);
     }
+    public boolean debrisPlaced(ServerPlayer player,Vec3 origin){if(!canActivate(player,Kind.DEBRIS,origin))return false;enqueue(player,Kind.DEBRIS,origin);return true;}
     private Job enqueue(ServerPlayer p,Kind kind,Vec3 origin){var job=new Job(++sequence,p,kind,origin,game.items().indirectKills().wildCause(p));jobs.put(job.id,job);game.items().stonekivi().queuedWork(job);return job;}
     /** Native BlockItem.place already accepted the physical placement and owns its sole used-hand debit. */
     public boolean dirterPlaced(ServerPlayer p,InteractionHand hand,ItemStack original,Vec3 playerOrigin){
@@ -113,11 +118,12 @@ public final class LbcImbaTerrainUtilities {
             if(write(fill.min.offset(x,y,z),new MapManager.BlockSnapshot(fill.block.defaultBlockState(),null)))cursor++;
         }
         void advanceTemplate(){
-            if(cursor>=bastion.size()){finish();return;}var cell=bastion.get((int)cursor);
-            if(write(BlockPos.containing(origin.add(-8,-1,-8)).offset(cell.offset),cell.snapshot))cursor++;
+            var template=kind==Kind.DEBRIS?debris:bastion;
+            if(cursor>=template.size()){finish();return;}var cell=template.get((int)cursor);
+            if(write(BlockPos.containing(kind==Kind.DEBRIS?origin.add(-5,-1,-5):origin.add(-8,-1,-8)).offset(cell.offset),cell.snapshot))cursor++;
         }
         void finish(){
-            if(kind==Kind.DIRTER)LbcOverload.sound(level,origin,"minecraft:block.stone.place",4,1,0,0);
+            if(kind==Kind.DIRTER||kind==Kind.DEBRIS)LbcOverload.sound(level,origin,"minecraft:block.stone.place",4,1,0,0);
             else {LbcOverload.sound(level,origin,"minecraft:block.stone.break",4,1,0,0);level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.STONE.defaultBlockState()),origin.x,origin.y+4,origin.z,1000,7,7,7,0);}
             closed=true;actorLive=false;completedVisits+=visits;completedWrites+=writes;completedJobs++;release();jobs.remove(id,this);
         }

@@ -1,3 +1,13 @@
+## Native IMBA territory and egg variants - QUALIFIED, INSTALLED (5 November 2026)
+
+[Author rules, shared owners and native proof](agent_notes/IMBA_TERRITORY_EGGS_2026_11_05.md).
+Five ready leaves: Diamondifier, unlimited Midas Block, Funny Debris, Fused TNT, Super Ghast.
+Three terrain inputs use MAG; Diamondifier/Midas erase Chef with inherited author.
+Midas shares its existing cosmetic engine; Debris shares finite template work; eggs use native actors.
+Test faeb5614 / production ddb3e484: 10 isolated native matches pass (8 mode1,2 mode3), including partial Midas/diamond/template replay.
+Both JARs/main updated without main stop/start; source/RP/275 author paths preserved.
+Full IMBA/TMT-last/mode/broad-rewind release gates unchanged.
+
 ## Connected IMBA mining and native ammunition - QUALIFIED, INSTALLED (5 November 2026)
 
 [Author rules, native implementation and proof](agent_notes/IMBA_MINING_AMMO_2026_11_05.md).

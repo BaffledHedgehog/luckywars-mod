@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:panda_spawn_egg",
+          "name": "skywars2:midas_block",
           "modifier": [
             {
               "count": 5,

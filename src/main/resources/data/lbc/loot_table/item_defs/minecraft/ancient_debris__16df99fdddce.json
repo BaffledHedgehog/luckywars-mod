@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:ancient_debris",
+          "name": "skywars2:funny_debris",
           "modifier": [
             {
               "count": 4,

@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:ghast_spawn_egg",
+          "name": "skywars2:super_ghast_funny",
           "modifier": [
             {
               "count": 1,
