@@ -1,3 +1,16 @@
+## Login entity protocol hotfix - QUALIFIED, INSTALLED (6 November2026)
+
+[Exact client failure, native wire reproduction and REQUIRED TMT carry-forward](agent_notes/ENTITY_PROTOCOL_2026_11_06.md).
+Vanilla area_effect_cloud incorrectly marked server-only shifted raw entity IDs;
+text_display became tadpole and scale metadata disconnected the client on login.
+Use per-instance Polymer constructor registration only; preserve native/chemical visuals.
+Old-code witness reproduces exact error; final83b0ea27/b90ffea1 passes3 native matches,
+all161 vanilla IDs and three display spawn/metadata packets;10306 inputs/282 author paths preserved.
+Both libs and stopped main updated with rollback; no main launch/restart and no RP changes.
+Physical client reconnect remains unverified. Full TMT remains unreleased.
+Older032c8fba/1783ca96 internal TMT archives contain the bug: future TMT candidates
+MUST carry this fix/check/oracle plus all committed TMT families/resource, not git status only.
+
 ## TMT private property state and common wands - COMPONENT VERIFIED, NOT INSTALLED (6 November2026)
 
 [Author choice, source/owner reuse and REQUIRED carry-forward](agent_notes/TMT_WANDS_2026_11_06.md).

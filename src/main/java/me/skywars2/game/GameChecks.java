@@ -1367,6 +1367,7 @@ public final class GameChecks {
                                 case "match-mode-start" -> { MatchStartChecks.run(game); return; }
                                 case "tmt-properties" -> { TmtPropertyChecks.run(game); return; }
                                 case "tmt-wands" -> { TmtWandChecks.run(game); return; }
+                                case "entity-protocol" -> { EntityProtocolChecks.run(game); return; }
                                 case "lucky-chests" -> { LuckyChestChecks.run(game); return; }
                                 case "native-utility-tail" -> { NativeUtilityTailChecks.run(game); return; }
                                 case "native-projectile-weapons" -> { NativeProjectileWeaponChecks.run(game); return; }
