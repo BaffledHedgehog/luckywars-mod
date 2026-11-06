@@ -38,8 +38,9 @@ final class LbcUtilityItemPrototypes {
             var rows=entry.has("modifier")?entry.getAsJsonArray("modifier"):entry.getAsJsonArray("functions");
             Identifier sourceModel=BuiltInRegistries.ITEM.getKey(carrier);
             for(var value:rows){var row=value.getAsJsonObject();var type=row.has("type")?row.get("type"):row.get("function");
-                if(type.getAsString().equals("minecraft:set_components")&&row.getAsJsonObject("components").has("minecraft:item_model"))
-                    sourceModel=Identifier.parse(row.getAsJsonObject("components").get("minecraft:item_model").getAsString());}
+                if(type.getAsString().equals("minecraft:set_components"))for(var component:row.getAsJsonObject("components").entrySet())
+                    if(!component.getKey().startsWith("!")&&Identifier.parse(component.getKey()).equals(Identifier.parse("minecraft:item_model")))
+                        sourceModel=Identifier.parse(component.getValue().getAsString());}
             final var model=sourceModel;var key=ResourceKey.create(Registries.ITEM,Identifier.parse(nativeId));
             var result=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}.setId(key).stacksTo(maximum);
             if(nativeDefaults)vanillaVariant(result,carrier);
@@ -100,6 +101,9 @@ final class LbcUtilityItemPrototypes {
                         new BlocksAttacks.ItemDamageFunction(3,1,1),java.util.Optional.of(lookup.getOrThrow(net.minecraft.tags.DamageTypeTags.BYPASSES_SHIELD)),
                         java.util.Optional.of(net.minecraft.sounds.SoundEvents.SHIELD_BLOCK),java.util.Optional.of(net.minecraft.sounds.SoundEvents.SHIELD_BREAK)))
                 .component(DataComponents.BREAK_SOUND,net.minecraft.sounds.SoundEvents.SHIELD_BREAK);
+        else if(carrier==Items.TOTEM_OF_UNDYING)p.stacksTo(1).rarity(Rarity.UNCOMMON)
+                .component(DataComponents.DEATH_PROTECTION,DeathProtection.TOTEM_OF_UNDYING);
+        else if(carrier==Items.RECOVERY_COMPASS)p.rarity(Rarity.UNCOMMON);
         else if(carrier==Items.REPEATING_COMMAND_BLOCK)p.rarity(Rarity.EPIC);
         else if(carrier==Items.CARROT_ON_A_STICK)p.durability(25);
         else if(carrier==Items.TIPPED_ARROW)p.component(DataComponents.POTION_CONTENTS,net.minecraft.world.item.alchemy.PotionContents.EMPTY).component(DataComponents.POTION_DURATION_SCALE,.125f);

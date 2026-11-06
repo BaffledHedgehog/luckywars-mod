@@ -1,3 +1,14 @@
+## Six native special artifacts - QUALIFIED, INSTALLED (6 November 2026)
+
+[Canonical items, native totems and shared owners](NATIVE_SPECIAL_ARTIFACTS_2026_11_06.md).
+Zaika, Indolence Claw, Death Compass, Devil/Infinite Totems and Canned Food.
+Six ID-only definitions; complete source models/styles/counts/functions preserved.
+Shared model-key normalization, vanilla protection/rarity and3 carrier tag overlays.
+Existing wand/passive/compass/Totems owners; no new tick/NBT or damage engine.
+Test986e56fd/productionc5d5b14e:11 isolated mode1/mode3 matches pass.
+10 families/9 resources;10261 source guards/282 author paths/RP preserved.
+Main/both libs installed without restart; memory and broad release gates retained.
+
 ## Twelve native Hakurei/Touhou items - QUALIFIED, INSTALLED (6 November 2026)
 
 [Canonical identities, weighted reward graph and exact proof](NATIVE_TOUHOU_ITEMS_2026_11_06.md).

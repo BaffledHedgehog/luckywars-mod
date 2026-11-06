@@ -58,7 +58,9 @@ public final class WitchIndolenceChecks {
                 if(spread>0){require(e.getYRot()>=-spread&&e.getYRot()<=spread&&e.getXRot()>=-spread&&e.getXRot()<=spread,"source integer angular spread");}
             }
         }
-        boolean callback(InteractionHand hand){return net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(base.owner,base.owner.level(),hand).consumesAction();}
+        boolean callback(InteractionHand hand){return hand==InteractionHand.OFF_HAND
+                ?base.owner.gameMode.useItem(base.owner,base.owner.level(),base.owner.getItemInHand(hand),hand).consumesAction()
+                :net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(base.owner,base.owner.level(),hand).consumesAction();}
         static long particles(ShishEncounterChecks.Client client){try{Object wire=client.wire;var f=wire.getClass().getDeclaredField("packets");f.setAccessible(true);return ((List<?>)f.get(wire)).stream().filter(p->p instanceof ClientboundLevelParticlesPacket packet&&packet.particle() instanceof DustParticleOptions).count();}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
         long ownerParticles,otherParticles;
         boolean fingersVisible(){try{var selector=new net.minecraft.commands.arguments.selector.EntitySelectorParser(new com.mojang.brigadier.StringReader("@e[type=minecraft:skeleton,tag=indolence_finger]"),true).parse();return selector.findEntities(game.server().createCommandSourceStack().withLevel(base.owner.level())).size()==fingers.size();}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}}

@@ -1,15 +1,15 @@
 # Остаток переноса — проверено 6 ноября 2026
 
-Это текущий срез квалифицированного JAR `b4840bdf` после инструментов,
+Это текущий срез квалифицированного JAR `986e56fd` после инструментов,
 а не перечень старых TODO. Исходные исторические аудиты часто содержат уже
 закрытые задачи; их нельзя складывать как актуальный остаток.
 
 ## Готовые предметы и техническая нативизация
 
 В проверенном срезе 776 верхнеуровневых готовых `lbc:ported/`
-таблиц первый разрешаемый исход у 761 использует
-зарегистрированный `skywars2:` предмет. У 15
-он пока ванильный. Эта пачка перевела ещё 12 таких исходов.
+таблиц первый разрешаемый исход у 767 использует
+зарегистрированный `skywars2:` предмет. У 9
+он пока ванильный. Эта пачка перевела ещё 6 таких исходов.
 
 Это НЕ процент готовности мода и НЕ число уникальных предметов/неперенесённых
 способностей. Несколько таблиц могут описывать варианты одного предмета; обычный
@@ -20,7 +20,7 @@
 `loot_table` с неявным minecraft: учитываются одинаково.
 
 Метод и точные списки/хеши:
-`build/verification/native-touhou-items-2026-11-06/remaining-catalog-proof.json`.
+`build/verification/native-special-artifacts-2026-11-06/remaining-catalog-proof.json`.
 
 ## Крупные оставшиеся ветки
 
@@ -62,14 +62,8 @@ TimeFragmentSprintChecks прямо помечен OFF-only; проверки у
 
 Это список для следующего аудита; он не объявляет способности отсутствующими.
 
-- `lbc:ported/admin_zaika` — `minecraft:carrot_on_a_stick`
 - `lbc:ported/bucket_head` — `minecraft:leather_helmet`
-- `lbc:ported/canned_food` — `minecraft:repeating_command_block`
-- `lbc:ported/death_compass` — `minecraft:recovery_compass`
-- `lbc:ported/devil_totem` — `minecraft:totem_of_undying`
 - `lbc:ported/harpoon` — `minecraft:trident`
-- `lbc:ported/indolence_claw` — `minecraft:carrot_on_a_stick`
-- `lbc:ported/infinite_totem` — `minecraft:totem_of_undying`
 - `lbc:ported/malevich` — `minecraft:repeating_command_block`
 - `lbc:ported/minigun_crossbow` — `minecraft:crossbow`
 - `lbc:ported/minigun_crossbow_old` — `minecraft:crossbow`

@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:totem_of_undying",
+          "name": "skywars2:devil_totem",
           "modifier": [
             {
               "count": 1,

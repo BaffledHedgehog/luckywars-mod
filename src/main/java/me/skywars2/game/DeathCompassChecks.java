@@ -112,7 +112,7 @@ public final class DeathCompassChecks {
             client=shared("ScheduledClient",game,owner);
             var loot=game.lbc().rollTable(level,origin,owner,"lbc:ported/death_compass");
             require(loot.size()==1,"one scoped original staging leaf");compass=loot.getFirst();
-            require(compass.is(Items.RECOVERY_COMPASS)&&compass.getCount()==1&&flag(compass,"death_compass"),"original vanilla carrier/count/flag");
+            require(compass.is(LbcSpecialArtifactItems.Kind.DEATH_COMPASS.item)&&compass.getCount()==1&&flag(compass,"death_compass"),"original vanilla carrier/count/flag");
             require(!flag(compass,"transformable")&&!flag(compass,"accessory")&&!flag(compass,"gadget"),"no invented source flags");
             require(compass.has(DataComponents.CUSTOM_NAME)&&compass.has(DataComponents.LORE)
                     &&compass.get(DataComponents.TOOLTIP_STYLE).equals(Identifier.parse("lbc:tier_q")),"original name/lore/tier presentation");

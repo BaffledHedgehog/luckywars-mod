@@ -95,7 +95,7 @@ public final class ZaikaPassiveChecks {
         boolean contains(int[] indices,int index){for(int n:indices)if(n==index)return true;return false;}
         void presentation(){
             zaika=one("ported/admin_zaika");require(ItemStack.matches(zaika,one("item_defs/lbc/zaika__e7f523430e71")),"ready references exact canonical item");
-            require(zaika.is(Items.CARROT_ON_A_STICK),"source carrier");
+            require(zaika.is(LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item),"source carrier");
             require(Identifier.parse("lbc:zaika").equals(zaika.get(DataComponents.ITEM_MODEL))&&Identifier.parse("lbc:tier_s").equals(zaika.get(DataComponents.TOOLTIP_STYLE)),"source model/tier");
             require(LbcFartus.data(zaika).getIntOr("zaika",0)==1&&LbcFartus.data(zaika).getIntOr("magicwand",0)==1&&LbcFartus.data(zaika).size()==2,"only original flags, no invented activation flags");
             require(Objects.equals(zaika.get(DataComponents.CUSTOM_NAME),text("[{\"translate\":\"admin_zaika\",\"italic\":false}]")),"exact untranslated name components/style");

@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:recovery_compass",
+          "name": "skywars2:death_compass",
           "modifier": [
             {
               "components": {

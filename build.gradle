@@ -27,6 +27,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/minecraft/tags/item/compasses.json'
+
     include 'data/minecraft/tags/item/happy_ghast_food.json'
     // Native utility inputs; each ready leaf refers to its canonical source definition.
     include 'data/lbc/loot_table/ported/shadow_glove.json'
