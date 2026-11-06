@@ -103,6 +103,7 @@ public final class MapManager {
     }
 
     private final MinecraftServer server;
+    private final java.util.function.IntSupplier chestGameMode;
     private MapRotation rotation;
     private long rotationVisits,rotationWrites;
 
@@ -297,7 +298,12 @@ public final class MapManager {
     private int ticksSinceBoundsFlush;
 
     public MapManager(MinecraftServer server) {
+        this(server,()->1);
+    }
+
+    public MapManager(MinecraftServer server,java.util.function.IntSupplier chestGameMode) {
         this.server = Objects.requireNonNull(server, "server");
+        this.chestGameMode=Objects.requireNonNull(chestGameMode,"chestGameMode");
         this.level = server.overworld();
         // The old dimensionless arena journal belongs to a different world. Never
         // replay its cleanup coordinates against an existing legacy overworld.
@@ -737,13 +743,34 @@ public final class MapManager {
         }
     }
 
-    /** Assigns ordinary SkyWars loot, or the center pool for the later upgrade phase. */
+    /** All arena refills, including island/Madoka restoration, select the current solo-mode family. */
     public void fillChests(boolean upgrade) {
         fillChests(upgrade,null,0);
     }
 
+    public void fillChests(boolean upgrade,boolean moveToCenter) {
+        fillChests(upgrade,null,0,moveToCenter);
+    }
+
+    static ResourceKey<LootTable> chestLootTable(int mode,String category,boolean upgrade) {
+        // BedWars uses its own physical economy; it must never inherit SkyWars chest events.
+        if(mode!=1&&mode!=2)return null;
+        return lootKey(switch(upgrade?"center":category){
+            case "default" -> mode==2?"swrg:chests/default_lb":"swrg:chests/default_0";
+            case "midle" -> mode==2?"swrg:chests/midle_lb":"swrg:chests/midle_0";
+            case "center" -> mode==2?"swrg:chests/center_lb":"swrg:chests/center_0";
+            default -> throw new IllegalArgumentException("Unknown arena chest category "+category);
+        });
+    }
+
     private void fillChests(boolean upgrade,Vec3 center,double radius) {
+        fillChests(upgrade,center,radius,false);
+    }
+
+    private void fillChests(boolean upgrade,Vec3 center,double radius,boolean moveToCenter) {
         if (level == null) return;
+        int mode=chestGameMode.getAsInt();
+        if(mode!=1&&mode!=2)return;
         int generatedChests = 0;
         int encodedCounts = 0;
         int multiCounts = 0;
@@ -751,6 +778,8 @@ public final class MapManager {
             // Метки swrg.center/swrg.chest есть и у вагонеток АирДропа: они не являются точками блоков карты.
             if (!(marker instanceof Marker)) continue;
             if (center != null && marker.position().distanceToSqr(center) > radius*radius) continue;
+            if(moveToCenter&&(marker.entityTags().contains("swrg.default")||marker.entityTags().contains("swrg.midle")))
+                marker.entityTags().add("swrg.center");
             String table = null;
             if (marker.entityTags().contains("swrg.center")) table = "center";
             else if (marker.entityTags().contains("swrg.midle")) table = "midle";
@@ -764,9 +793,8 @@ public final class MapManager {
             }
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof RandomizableContainerBlockEntity container) {
-                String lootCategory = upgrade ? "center" : table;
-                String lootId = "swrg:chests/" + lootCategory + "_0";
-                ResourceKey<LootTable> loot = lootKey(lootId);
+                ResourceKey<LootTable> loot = chestLootTable(mode,table,upgrade);
+                String lootId=loot.identifier().toString();
                 // The original SWRG refill first removes Items, then assigns a
                 // new lazy loot table. Do the same so opened chests never retain
                 // old-round contents alongside a newly selected table.

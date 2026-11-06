@@ -10,11 +10,9 @@
             {
               "entity": "this",
               "name": {
-                "nbt": "item.compass",
-                "storage": "swrg:lang",
-                "interpret": true,
-                "source": "storage",
-                "type": "nbt"
+                "translate": "swrg.item.compass",
+                "color": "yellow",
+                "italic": false
               },
               "type": "minecraft:set_name"
             }

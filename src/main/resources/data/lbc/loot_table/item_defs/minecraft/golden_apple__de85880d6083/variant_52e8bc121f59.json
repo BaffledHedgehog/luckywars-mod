@@ -10,7 +10,7 @@
             {
               "modifiers": [
                 {
-                  "id": "minecraft:cvcb",
+                  "id": "minecraft:count",
                   "attribute": "minecraft:spawn_reinforcements",
                   "amount": {
                     "min": 1,

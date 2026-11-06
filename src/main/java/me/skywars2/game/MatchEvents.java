@@ -554,14 +554,8 @@ public final class MatchEvents {
     }
 
     private void refillChests(boolean upgrade, boolean moveToCenter) {
-        for (String tag : new String[] {"swrg.default", "swrg.midle", "swrg.center"}) {
-            String selector = "@e[type=minecraft:marker,tag=" + tag + "]";
-            if (moveToCenter && !tag.equals("swrg.center")) {
-                controller.command("tag " + selector + " add swrg.center");
-            }
-            controller.command("execute as " + selector + " at @s run data remove block ~ ~ ~ Items");
-        }
-        maps.fillChests(upgrade);
+        // MapManager owns replacement and category promotion in one pass; no duplicate command/NBT clear.
+        maps.fillChests(upgrade,moveToCenter);
     }
 
     private void summonAbovePlayers(String entity, int height) {

@@ -1,4 +1,9 @@
-﻿# Overnight mode source audit — 4 November 2026
+Current update,6 November2026: Lucky chest routing and its62-table acquisition
+closure are now qualified separately in [LUCKY_CHEST_ACQUISITION_2026_11_06.md](LUCKY_CHEST_ACQUISITION_2026_11_06.md).
+The historical hardcoded _0 gap below is closed for initial/refill/island/Madoka
+paths; this does not admit mode2/4 or complete their reward/startup contract.
+
+# Overnight mode source audit — 4 November 2026
 
 Registration correction: see NIGHT_BEDWARS_SOURCE_2026_11_04.md. SwrgNativeService is conditional on legacy.enabled=true; both retained configurations say false. Embedded installation supplies data and skips function executables/tags. Historical functions below establish authored semantics, not runtime enablement in this snapshot. Always-registered BedWars listeners/shop do not establish a complete running match lifecycle.
 

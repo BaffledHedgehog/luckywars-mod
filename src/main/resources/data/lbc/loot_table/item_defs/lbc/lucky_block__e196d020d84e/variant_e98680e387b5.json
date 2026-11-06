@@ -5,12 +5,12 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:red_mushroom_block",
+          "name": "skywars2:lucky_block",
           "modifier": [
             {
               "modifiers": [
                 {
-                  "id": "minecraft:dsgasdxscdfwgasdfafdsaa",
+                  "id": "minecraft:count",
                   "attribute": "minecraft:spawn_reinforcements",
                   "amount": 4,
                   "operation": "add_value",

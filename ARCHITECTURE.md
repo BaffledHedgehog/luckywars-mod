@@ -1,3 +1,16 @@
+## Lucky chest acquisition - QUALIFIED INFRASTRUCTURE, INSTALLED (6 November 2026)
+
+[Source closure, shared owner and exact evidence](agent_notes/LUCKY_CHEST_ACQUISITION_2026_11_06.md).
+One mode/category/upgrade selector:1 _0,2 _lb,3/4 no arena fill; live config supplier.
+MatchEvents delegates native clear/promotion to the existing MapManager pass.
+62 source tables;23 exact count providers recognized by shared post-fill normalization.
+Three existing native Lucky-block profiles; source localized Locator, no RP changes.
+Test5d18fc89/productionf5a2420c:7 isolated actual mode1/mode3 matches pass.
+6 families/24 resources;10272 unchanged inputs/282 author paths preserved.
+Actual events/refills/island/Madoka, counts/placement/codec and BedWars isolation checked.
+Main/both libs installed without restart; Gradle512MiB/one worker, fixture2GiB sequentially.
+Mode2/4 release, full TMT-last/pools/skill2/Academy/general rewind gates unchanged.
+
 ## Sixteen wool trails and Bucket - QUALIFIED, INSTALLED (5 November 2026)
 
 [Source rules, implementation and proof](agent_notes/WOOL_BUCKET_2026_11_05.md).

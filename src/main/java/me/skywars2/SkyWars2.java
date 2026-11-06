@@ -95,7 +95,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             var config = GameConfig.load();
             var players = PlayerStore.load();
-            var maps = new MapManager(server);
+            var maps = new MapManager(server,()->config.gameMode);
             game = new GameController(server, config, players, maps);
             game.menus(new GameMenus(server, game, config, players, maps));
             game.startServer();

@@ -57,6 +57,10 @@ public final class LbcLuckyBlocks {
                     .component(DataComponents.ITEM_MODEL,Identifier.parse("lbc:"+suffix(kind)))
                     .component(DataComponents.CUSTOM_NAME,name(kind))
                     .component(DataComponents.LORE,new net.minecraft.world.item.component.ItemLore(lore(kind)));
+            // Keep the original mushroom carriers' native composting component on all issued profiles.
+            properties.compostable(kind==Kind.LOLI
+                    ?net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COMPOSTABLE_MEDIUM
+                    :net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COMPOSTABLE_MEDIUM_HIGH);
             ITEMS[kind.ordinal()]=Registry.register(BuiltInRegistries.ITEM,itemKey,
                     new PolymerBlockItem(block,properties,carrierItem(kind),true){
                         @Override public InteractionResult useOn(UseOnContext context){
