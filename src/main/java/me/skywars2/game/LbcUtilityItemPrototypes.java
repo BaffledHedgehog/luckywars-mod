@@ -81,6 +81,12 @@ final class LbcUtilityItemPrototypes {
                 .component(DataComponents.EQUIPPABLE,net.minecraft.world.item.equipment.Equippable.builder(net.minecraft.world.entity.EquipmentSlot.CHEST)
                         .setEquipSound(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_ELYTRA).setAsset(net.minecraft.world.item.equipment.EquipmentAssets.ELYTRA).setDamageOnHurt(false).build())
                 .repairable(Items.PHANTOM_MEMBRANE);
+        else if(carrier==Items.BOW)p.durability(384).enchantable(1)
+                .cookingFuel(net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COOKING_TIME_WOOD_ITEMS_SMALL);
+        else if(carrier==Items.CROSSBOW)p.durability(465).enchantable(1).component(DataComponents.CHARGED_PROJECTILES,ChargedProjectiles.EMPTY)
+                .cookingFuel(net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COOKING_TIME_WOOD_ITEMS_SMALL);
+        else if(carrier==Items.TRIDENT)p.durability(250).rarity(Rarity.RARE).enchantable(1).attributes(TridentItem.createAttributes())
+                .component(DataComponents.TOOL,TridentItem.createToolProperties()).component(DataComponents.WEAPON,new Weapon(1));
         else if(carrier==Items.IRON_AXE)p.axe(ToolMaterial.IRON,6,-3.1f);
         else if(carrier==Items.GOLDEN_AXE)p.axe(ToolMaterial.GOLD,6,-3);
         else if(carrier==Items.NETHERITE_AXE)p.axe(ToolMaterial.NETHERITE,5,-3).fireResistant();

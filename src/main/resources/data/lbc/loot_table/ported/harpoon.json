@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:trident",
+          "name": "skywars2:harpoon",
           "modifier": [
             {
               "count": 1,

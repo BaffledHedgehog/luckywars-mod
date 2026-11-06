@@ -27,6 +27,20 @@ dependencies {
 }
 
 processResources {
+    include 'data/c/tags/item/tools/bow.json'
+    include 'data/c/tags/item/tools/crossbow.json'
+    include 'data/c/tags/item/tools/ranged_weapon.json'
+    include 'data/c/tags/item/tools/trident.json'
+    include 'data/minecraft/tags/item/breaks_decorated_pots.json'
+    include 'data/minecraft/tags/item/drowned_preferred_weapons.json'
+    include 'data/minecraft/tags/item/enchantable/bow.json'
+    include 'data/minecraft/tags/item/enchantable/crossbow.json'
+    include 'data/minecraft/tags/item/enchantable/trident.json'
+    include 'data/minecraft/tags/item/piglin_preferred_weapons.json'
+    include 'data/minecraft/tags/item/pillager_preferred_weapons.json'
+    include 'data/minecraft/tags/item/skeleton_preferred_weapons.json'
+    include 'data/minecraft/tags/item/wither_skeleton_disliked_weapons.json'
+
     include 'data/minecraft/tags/item/compasses.json'
 
     include 'data/minecraft/tags/item/happy_ghast_food.json'

@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:trident",
+          "name": "skywars2:sea_legend",
           "modifier": [
             {
               "count": 1,

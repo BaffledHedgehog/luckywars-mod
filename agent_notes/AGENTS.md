@@ -1,3 +1,14 @@
+## Native projectile weapons and shared factories - QUALIFIED, INSTALLED (6 November 2026)
+
+[Canonical weapons, shared source prototypes and exact checks](NATIVE_PROJECTILE_WEAPONS_2026_11_06.md).
+Harpoon/Sea Legend, Shulker Bow and both miniguns now use5 native identities.
+All13 current bow/crossbow/trident profiles share canonical property/subtype factories.
+Five ID-only definitions;16 complete carrier-tag overlays; source functions retained.
+Existing vanilla/Minigun/Shulker/charged/IMBA owners; no new tick/NBT or damage engine.
+Test7ea22e68/production2bfef5b0:13 isolated mode1/mode3 matches pass.
+11 families/21 resources;10263 source guards/282 author paths/RP preserved.
+Main/both libs installed without restart; memory and broad release gates retained.
+
 ## Six native special artifacts - QUALIFIED, INSTALLED (6 November 2026)
 
 [Canonical items, native totems and shared owners](NATIVE_SPECIAL_ARTIFACTS_2026_11_06.md).

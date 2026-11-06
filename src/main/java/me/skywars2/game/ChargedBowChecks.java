@@ -136,8 +136,20 @@ public final class ChargedBowChecks {
                     if(elapsed<24)return false;
                     require(base.owner.isUsingItem()&&base.owner.getTicksUsingItem()>=24,"registered native ticks charged bow past source threshold");
                     base.owner.releaseUsingItem();require(!base.owner.isUsingItem()&&nativeBow.getDamageValue()==1,"real native release has one durability debit");
-                    require(nativeAmmo.getCount()==7&&arrows()==0,"real native ammo debit once and no ballistic residue");
-                    require(game.items().exasperato().pendingSearches()>0,"real native shoot callback dispatched charged beam");next(7);
+                    require(nativeAmmo.getCount()==8&&arrows()==0,"source Shishgun Infinity conserves ordinary ammo with no ballistic residue");
+                    require(game.items().exasperato().pendingSearches()>0,"real native shoot callback dispatched charged beam");next(60);
+                }
+                case 60->{
+                    if(!idle())return false;
+                    nativeBow.set(DataComponents.ENCHANTMENTS,net.minecraft.world.item.enchantment.ItemEnchantments.EMPTY);
+                    require(base.owner.gameMode.useItem(base.owner,level,nativeBow,InteractionHand.MAIN_HAND).consumesAction()&&base.owner.isUsingItem(),"modified native bow without Infinity starts a second real charge");next(61);
+                }
+                case 61->{
+                    if(elapsed<24)return false;
+                    require(base.owner.isUsingItem()&&base.owner.getTicksUsingItem()>=24,"second registered native charge passes source threshold");
+                    base.owner.releaseUsingItem();
+                    require(!base.owner.isUsingItem()&&nativeBow.getDamageValue()==2&&nativeAmmo.getCount()==7&&arrows()==0,"removing Infinity restores exactly one paid ammo debit and native durability");
+                    require(game.items().exasperato().pendingSearches()>0,"paid native release still dispatches the same charged beam");next(7);
                 }
                 case 7->{
                     if(!idle())return false;

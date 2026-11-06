@@ -53,7 +53,8 @@ public final class MinigunCrossbowChecks {
             base.owner.inventoryMenu.getCraftSlots().clearContent();base.owner.inventoryMenu.setCarried(ItemStack.EMPTY);
         }
         ItemStack weapon(String flag,InteractionHand hand,ItemStack initial,boolean multi) {
-            clear();var result=flagged(Items.CROSSBOW,1,flag);
+            clear();var result=(flag.equals("fast")?LbcProjectileWeaponItems.Kind.MINIGUN_CROSSBOW:LbcProjectileWeaponItems.Kind.MINIGUN_CROSSBOW_OLD).item.getDefaultInstance();
+            var data=LbcFartus.data(result).copy();data.putString("fixture_payload","exact_component_witness");result.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             result.set(DataComponents.CUSTOM_NAME,Component.literal("Preserve minigun witness"));
             result.set(DataComponents.DAMAGE,7);
             if(multi)result.enchant(base.owner.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.MULTISHOT),1);
@@ -172,7 +173,7 @@ public final class MinigunCrossbowChecks {
         }
     }
     public static void run(GameController game) {
-        try(var fixture=new Fixture(game)){fixture.cases();}
+        try(var stats=new NativeMeleeChecks.NativeStats(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")),LbcProjectileWeaponItems.items());var fixture=new Fixture(game)){fixture.cases();}
         SkyWars2.LOGGER.info("[check] PASS minigun-crossbow (native real use, exact custom/tipped/spectral ammo, offhand, multishot, selected-only infinite ammo, paid firework, no ammo, TECH, source counter/advancement and weapon conservation)");
     }
 }

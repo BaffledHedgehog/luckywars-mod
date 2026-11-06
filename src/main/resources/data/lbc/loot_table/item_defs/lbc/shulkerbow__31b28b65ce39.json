@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:bow",
+          "name": "skywars2:shulker_bow",
           "modifier": [
             {
               "count": 1,

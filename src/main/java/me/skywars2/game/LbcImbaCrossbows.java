@@ -48,24 +48,13 @@ public final class LbcImbaCrossbows {
             &&!game.items().wands().inputTimeStopped(player)&&!game.items().magic().mechanismSuppressed(player)
             &&!game.items().magic().artifactSuppressedAt(player.level(),player.position());}
     private static Item register(Kind kind){
-        var p=LbcUtilityItemPrototypes.properties("skywars2:"+kind.id,kind.definition,Items.CROSSBOW,1,Set.of("minecraft:enchantments"))
-                .durability(465).enchantable(1);
-        try(var stream=LbcImbaCrossbows.class.getResourceAsStream(kind.definition)){
-            var entry=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(Objects.requireNonNull(stream),java.nio.charset.StandardCharsets.UTF_8))
-                    .getAsJsonObject().getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject();
-            for(var row:entry.getAsJsonArray("modifier")){
-                var object=row.getAsJsonObject();if(!object.has("components"))continue;
-                var components=object.getAsJsonObject("components");if(!components.has("minecraft:enchantments"))continue;
-                var enchants=components.get("minecraft:enchantments").deepCopy();
-                p.delayedComponent(DataComponents.ENCHANTMENTS,lookup->ItemEnchantments.CODEC.parse(lookup.createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),enchants).getOrThrow());
-            }
-        }catch(java.io.IOException e){throw new IllegalStateException(kind.id,e);}
-        return Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+kind.id),new NativeCrossbow(p,kind));
+        var properties=LbcUtilityItemPrototypes.deferredProperties("skywars2:"+kind.id,kind.definition,Items.CROSSBOW,1);
+        return Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+kind.id),new NativeCrossbow(properties,kind));
     }
-    private static final class NativeCrossbow extends CrossbowItem implements PolymerItem {
+    private static final class NativeCrossbow extends LbcProjectileWeaponItems.NativeCrossbow {
         final Kind kind;
         NativeCrossbow(Properties properties,Kind kind){super(properties);this.kind=kind;}
-        public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.CROSSBOW;}
+
         @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
             if(kind!=Kind.QUICK&&player instanceof ServerPlayer owner){var game=SkyWars2.game();if(game==null||!allowed(game,owner))return InteractionResult.FAIL;}
             if(!kind.continuous())return super.use(level,player,hand);

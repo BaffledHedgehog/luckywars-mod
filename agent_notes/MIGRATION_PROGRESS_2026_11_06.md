@@ -1,15 +1,15 @@
 # Остаток переноса — проверено 6 ноября 2026
 
-Это текущий срез квалифицированного JAR `986e56fd` после инструментов,
+Это текущий срез квалифицированного JAR `7ea22e68` после инструментов,
 а не перечень старых TODO. Исходные исторические аудиты часто содержат уже
 закрытые задачи; их нельзя складывать как актуальный остаток.
 
 ## Готовые предметы и техническая нативизация
 
 В проверенном срезе 776 верхнеуровневых готовых `lbc:ported/`
-таблиц первый разрешаемый исход у 767 использует
-зарегистрированный `skywars2:` предмет. У 9
-он пока ванильный. Эта пачка перевела ещё 6 таких исходов.
+таблиц первый разрешаемый исход у 772 использует
+зарегистрированный `skywars2:` предмет. У 4
+он пока ванильный. Эта пачка перевела ещё 5 таких исходов.
 
 Это НЕ процент готовности мода и НЕ число уникальных предметов/неперенесённых
 способностей. Несколько таблиц могут описывать варианты одного предмета; обычный
@@ -20,7 +20,7 @@
 `loot_table` с неявным minecraft: учитываются одинаково.
 
 Метод и точные списки/хеши:
-`build/verification/native-special-artifacts-2026-11-06/remaining-catalog-proof.json`.
+`build/verification/native-projectile-weapons-2026-11-06/remaining-catalog-proof.json`.
 
 ## Крупные оставшиеся ветки
 
@@ -63,11 +63,6 @@ TimeFragmentSprintChecks прямо помечен OFF-only; проверки у
 Это список для следующего аудита; он не объявляет способности отсутствующими.
 
 - `lbc:ported/bucket_head` — `minecraft:leather_helmet`
-- `lbc:ported/harpoon` — `minecraft:trident`
 - `lbc:ported/malevich` — `minecraft:repeating_command_block`
-- `lbc:ported/minigun_crossbow` — `minecraft:crossbow`
-- `lbc:ported/minigun_crossbow_old` — `minecraft:crossbow`
 - `lbc:ported/moisei_boots` — `minecraft:leather_boots`
 - `lbc:ported/op_hoe` — `minecraft:netherite_hoe`
-- `lbc:ported/sea_legend` — `minecraft:trident`
-- `lbc:ported/shulker_bow` — `minecraft:bow`

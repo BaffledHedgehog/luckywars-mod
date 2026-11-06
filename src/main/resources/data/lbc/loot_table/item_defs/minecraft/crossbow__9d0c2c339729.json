@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:crossbow",
+          "name": "skywars2:minigun_crossbow",
           "modifier": [
             {
               "count": 1,
