@@ -1,4 +1,7 @@
 {
   "replace": false,
-  "values": ["skywars2:rocket_boots"]
+  "values": [
+    "skywars2:rocket_boots",
+    "skywars2:moisei_boots"
+  ]
 }

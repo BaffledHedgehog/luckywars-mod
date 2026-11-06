@@ -1,3 +1,15 @@
+## Final ready-catalog native identities - QUALIFIED, INSTALLED (6 November 2026)
+
+[Source, shared machinery and exact proof](agent_notes/NATIVE_CATALOG_TAIL_2026_11_06.md).
+Native Bucket Head, Moisei Boots, ordinary OP hoe and Malevich; source functions unchanged.
+Common leather/Netherite machinery, all carrier tags; actual per-output Malevich RNG retained.
+Existing helmet drop/pickup, sprint/TNT and inventory owners reused; no duplicate engines.
+Testdb8dc925/productione1e72d33:12 isolated mode1/mode3 matches pass.
+12 families/11 resources;10278 unchanged inputs/282 author paths/RP preserved.
+Bounded ready roots776 native/0 vanilla; NOT a full-mod completion percentage.
+Main/both libs installed without restart; Gradle512MiB/one worker, fixture2GiB sequentially.
+Full TMT-last/pools/modes2/4/skill2/Academy/general rewind release gates unchanged.
+
 ## Native projectile weapons and shared factories - QUALIFIED, INSTALLED (6 November 2026)
 
 [Canonical weapons, shared source prototypes and exact checks](agent_notes/NATIVE_PROJECTILE_WEAPONS_2026_11_06.md).

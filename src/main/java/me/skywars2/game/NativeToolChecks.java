@@ -40,10 +40,11 @@ public final class NativeToolChecks {
         input(f,LbcNativeToolItems.Kind.HAMMER,pos,Blocks.OAK_LOG.defaultBlockState());require(f.level.getBlockState(pos).is(Blocks.STRIPPED_OAK_LOG),"native axe retains actual stripping interaction");
         input(f,LbcNativeToolItems.Kind.EFFICIENT_SHOVEL,pos,Blocks.DIRT.defaultBlockState());require(f.level.getBlockState(pos).is(Blocks.DIRT_PATH),"native shovel retains actual path interaction");
         input(f,LbcNativeToolItems.Kind.SICKLE,pos,Blocks.DIRT.defaultBlockState());require(f.level.getBlockState(pos).is(Blocks.FARMLAND),"native hoe retains actual till interaction");
+        input(f,LbcNativeToolItems.Kind.OP_HOE,pos,Blocks.DIRT.defaultBlockState());require(f.level.getBlockState(pos).is(Blocks.FARMLAND),"native OP hoe retains actual till interaction");
         var flint=input(f,LbcNativeToolItems.Kind.ENHANCED_FLINT,pos,Blocks.STONE.defaultBlockState());require(flint.getItem() instanceof FlintAndSteelItem&&f.level.getBlockState(pos.above()).is(Blocks.FIRE),"real native FlintAndSteelItem ignites fire");
         f.set(pos.above(),Blocks.AIR.defaultBlockState());f.set(pos,Blocks.STONE.defaultBlockState());f.owner.setItemInHand(InteractionHand.MAIN_HAND,LbcNativeToolItems.Kind.SILK_PICKAXE.item.getDefaultInstance());
         var mined=Stats.BLOCK_MINED.get(Blocks.STONE);stats.before.put(mined,f.owner.getStats().getValue(mined));var before=new HashSet<UUID>();for(var e:f.level.getAllEntities())before.add(e.getUUID());
         require(f.owner.gameMode.destroyBlock(pos)&&f.level.getBlockState(pos).isAir(),"real native player block mining");
         var drops=f.level.getEntitiesOfClass(ItemEntity.class,new AABB(pos).inflate(2),item->!before.contains(item.getUUID()));for(var drop:drops)f.own(drop);require(drops.stream().anyMatch(item->item.getItem().is(Items.STONE)),"native Silk TouchX and correct-tool data produce real stone loot");
-    }SkyWars2.LOGGER.info("[check] PASS native-tools (11 source prototypes/all carrier components and tags; seeded stochastic enchants, Polymer/server-codec persistence, genuine axe/shovel/hoe/fire inputs and SilkX block mining/drop)");}
+    }SkyWars2.LOGGER.info("[check] PASS native-tools (12 source prototypes/all carrier components and tags; seeded stochastic enchants, Polymer/server-codec persistence, genuine axe/shovel/hoe/fire inputs and SilkX block mining/drop)");}
 }

@@ -4,8 +4,8 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/leather_helmet__d64e3d36b2a2",
+          "type": "minecraft:item",
+          "name": "skywars2:bucket_head",
           "modifier": [
             {
               "components": {

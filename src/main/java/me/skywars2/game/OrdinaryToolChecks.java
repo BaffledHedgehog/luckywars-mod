@@ -32,7 +32,7 @@ public final class OrdinaryToolChecks {
             require(s.get(DataComponents.TOOL)!=null&&s.getMaxDamage()>0,"native mining tool/durability "+row);
         }
         var silk=loot(f,"silk_pickaxe");require(silk.is(LbcNativeToolItems.Kind.SILK_PICKAXE.item)&&enchant(f,silk,Enchantments.SILK_TOUCH)==10,"source diamond SilkX");
-        var op=loot(f,"op_hoe");require(op.is(Items.NETHERITE_HOE)&&enchant(f,op,Enchantments.EFFICIENCY)==255&&enchant(f,op,Enchantments.FORTUNE)==25,"source OP hoe enchantments unchanged");
+        var op=loot(f,"op_hoe");require(op.is(LbcNativeToolItems.Kind.OP_HOE.item)&&enchant(f,op,Enchantments.EFFICIENCY)==255&&enchant(f,op,Enchantments.FORTUNE)==25,"source OP hoe enchantments unchanged");
         var random=loot(f,"random_enchanted_pickaxe");require(random.is(LbcNativeToolItems.Kind.RANDOM_ENCHANTED_PICKAXE.item)&&!random.getEnchantments().isEmpty(),"native enchant-with-levels still rolls actual enchants");
         for(String pool:List.of("axe","hoe","pickaxe"))for(int n=0;n<100;n++){
             var out=f.base.game.lbc().rollTable(f.level,f.at,f.base.owner,"lbc:transformables_"+pool);require(out.size()==1&&LbcFartus.data(out.getFirst()).getIntOr(pool,0)==1,"complete weighted "+pool);

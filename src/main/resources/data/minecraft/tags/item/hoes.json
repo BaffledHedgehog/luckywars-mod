@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "skywars2:sickle"
+    "skywars2:sickle",
+    "skywars2:op_hoe"
   ]
 }

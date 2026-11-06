@@ -165,7 +165,7 @@ public final class LbcThrownUtilities {
     }
     private void bucket(Snowball shot,ServerPlayer owner,ServerPlayer target){
         var level=target.level();
-        equipHead(target,"lbc:imba/bucket_head",Items.LEATHER_HELMET,"bucket_head");
+        equipHead(target,"lbc:imba/bucket_head",LbcUtilityItems.Kind.BUCKET_HEAD.item,"bucket_head");
         // A real projectile source retains caster attribution without becoming an accepted melee hit.
         var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(DamageTypes.GENERIC),shot,owner);

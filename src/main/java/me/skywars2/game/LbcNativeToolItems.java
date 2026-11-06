@@ -17,6 +17,7 @@ public final class LbcNativeToolItems {
         HAMMER("hammer","ported/hammer",Items.IRON_AXE),
         MORTIS("mortis","ported/mortis",Items.NETHERITE_SHOVEL),
         POLEAXE("poleaxe","ported/poleaxe",Items.NETHERITE_AXE),
+        OP_HOE("op_hoe","op_hoe",Items.NETHERITE_HOE),
         SICKLE("sickle","ported/sickle",Items.IRON_HOE),
         SILK_PICKAXE("silk_pickaxe","item_defs/minecraft/diamond_pickaxe__b730b9a4a36b",Items.DIAMOND_PICKAXE),
         TOMAHAWK("tomahawk","ported/tomahawk",Items.GOLDEN_AXE);

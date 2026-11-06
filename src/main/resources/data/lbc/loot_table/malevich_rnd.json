@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:repeating_command_block",
+          "name": "skywars2:malevich",
           "modifier": [
             {
               "count": 1,

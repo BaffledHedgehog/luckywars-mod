@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:leather_boots",
+          "name": "skywars2:moisei_boots",
           "modifier": [
             {
               "type": "minecraft:set_components",

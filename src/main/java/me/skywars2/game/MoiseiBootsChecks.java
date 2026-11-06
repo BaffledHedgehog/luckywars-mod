@@ -68,7 +68,7 @@ public final class MoiseiBootsChecks {
         void hold(){owner.setNoGravity(true);owner.setDeltaMovement(Vec3.ZERO);owner.setKnownMovement(Vec3.ZERO);owner.setOnGround(true);owner.getFoodData().setFoodLevel(20);owner.getFoodData().setSaturation(5);owner.setSprinting(true);}
         ItemStack loot(String table){var result=game.lbc().rollTable(owner.level(),at,owner,table);require(result.size()==1,"native singleton leaf "+table);return result.getFirst();}
         void presentation(){
-            require(boots.is(Items.LEATHER_BOOTS)&&boots.getMaxDamage()==600&&LbcFartus.data(boots).getIntOr("moisei",0)==1&&LbcFartus.data(boots).size()==3,"source vanilla boots durability/flags");
+            require(boots.is(LbcUtilityItems.Kind.MOISEI_BOOTS.item)&&boots.getMaxDamage()==600&&LbcFartus.data(boots).getIntOr("moisei",0)==1&&LbcFartus.data(boots).size()==3,"source vanilla boots durability/flags");
             require(Identifier.parse("lbc:armors/moisei_boots").equals(boots.get(DataComponents.ITEM_MODEL))&&Identifier.parse("lbc:tier_ss").equals(boots.get(DataComponents.TOOLTIP_STYLE)),"source exact item model/tier");
             var equipment=boots.get(DataComponents.EQUIPPABLE);require(equipment!=null&&equipment.slot()==EquipmentSlot.FEET&&equipment.assetId().orElseThrow().identifier().equals(Identifier.parse("lbc:moisei")),"source equipment asset");
             var attrs=boots.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers();require(attrs.size()==1&&attrs.getFirst().attribute().equals(Attributes.ARMOR)&&attrs.getFirst().modifier().amount()==2&&attrs.getFirst().modifier().id().equals(Identifier.parse("minecraft:gehrththc55yyyyyharmor")),"source only armor2 native component");

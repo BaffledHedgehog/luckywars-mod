@@ -75,7 +75,7 @@ public final class MalevichChecks {
             reset();start=game.server().getTickCount();
         }
         void presentation(ItemStack stack){
-            require(LbcMalevich.matches(stack)&&stack.is(Items.REPEATING_COMMAND_BLOCK)&&stack.getCount()==1,"original carrier/count/PDC");
+            require(LbcMalevich.matches(stack)&&stack.is(LbcUtilityItems.Kind.MALEVICH.item)&&stack.getCount()==1,"original carrier/count/PDC");
             require(Identifier.parse("lbc:malevich").equals(stack.get(DataComponents.ITEM_MODEL))&&Identifier.parse("lbc:tier_ff").equals(stack.get(DataComponents.TOOLTIP_STYLE))&&stack.has(DataComponents.CUSTOM_NAME)&&stack.has(DataComponents.LORE),"original model/tier/name/lore");
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();require(data.getIntOr("instantitem",0)==1&&data.getIntOr("malevich",0)==1,"original raw presentation flags retained");
             var attributes=stack.get(DataComponents.ATTRIBUTE_MODIFIERS);require(attributes!=null&&attributes.modifiers().size()==1,"one original random attribute");

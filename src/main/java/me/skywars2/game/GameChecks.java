@@ -1361,6 +1361,7 @@ public final class GameChecks {
                                 case "antigravity-support" -> { AntigravitySupportChecks.run(game);return; }
                                 case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
                                 case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
+                                case "native-utility-tail" -> { NativeUtilityTailChecks.run(game); return; }
                                 case "native-projectile-weapons" -> { NativeProjectileWeaponChecks.run(game); return; }
                                 case "native-special-artifacts" -> { NativeSpecialArtifactChecks.run(game); return; }
                                 case "native-touhou" -> { NativeTouhouChecks.run(game); return; }

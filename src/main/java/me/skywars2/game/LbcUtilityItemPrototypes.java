@@ -28,7 +28,10 @@ final class LbcUtilityItemPrototypes {
     }
     /** Same canonical reader; holder-dependent food/enchantment components bind after registries are ready. */
     static Item.Properties deferredProperties(String nativeId,String resource,Item carrier,int maximum){
-        return properties(nativeId,resource,carrier,maximum,java.util.Set.of(),true,true);
+        return deferredProperties(nativeId,resource,carrier,maximum,java.util.Set.of());
+    }
+    static Item.Properties deferredProperties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents){
+        return properties(nativeId,resource,carrier,maximum,lootComponents,true,true);
     }
     private static Item.Properties properties(String nativeId,String resource,Item carrier,int maximum,java.util.Set<String> lootComponents,boolean nativeDefaults,boolean deferred){
         try(var input=LbcUtilityItemPrototypes.class.getResourceAsStream(resource)){
@@ -44,6 +47,7 @@ final class LbcUtilityItemPrototypes {
             final var model=sourceModel;var key=ResourceKey.create(Registries.ITEM,Identifier.parse(nativeId));
             var result=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}.setId(key).stacksTo(maximum);
             if(nativeDefaults)vanillaVariant(result,carrier);
+            var tooltip=TooltipDisplay.DEFAULT;
             for(var value:rows){var row=value.getAsJsonObject();String type=(row.has("type")?row.get("type"):row.get("function")).getAsString();
                 switch(type){
                     case "minecraft:set_count", "minecraft:enchant_with_levels" -> {} // Count and stochastic enchantments belong to each loot roll.
@@ -52,6 +56,7 @@ final class LbcUtilityItemPrototypes {
                         boolean remove=component.getKey().startsWith("!");
                         var componentType=BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(remove?component.getKey().substring(1):component.getKey()));
                         if(componentType==null)throw new IllegalStateException("Unknown utility component "+component.getKey());
+                        if(componentType==DataComponents.TOOLTIP_DISPLAY)tooltip=remove?TooltipDisplay.DEFAULT:TooltipDisplay.CODEC.parse(JsonOps.INSTANCE,component.getValue()).getOrThrow();
                         if(remove)result.component(componentType,null);
                         else if(deferred)deferredComponent(result,componentType,component.getValue());
                         else component(result,componentType,component.getValue());}}
@@ -60,6 +65,15 @@ final class LbcUtilityItemPrototypes {
                         var lines=new ArrayList<Component>();for(var line:row.getAsJsonArray("lore"))lines.add(ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,line).getOrThrow());
                         result.component(DataComponents.LORE,new ItemLore(lines));}
                     case "minecraft:set_custom_data" -> result.component(DataComponents.CUSTOM_DATA,CustomData.of(TagParser.parseCompoundFully(row.get("tag").getAsString())));
+                    case "minecraft:set_attributes" -> {if(!lootComponents.contains("minecraft:attribute_modifiers"))throw new IllegalStateException("Stochastic attributes must remain owned by the canonical loot function");}
+                    case "minecraft:toggle_tooltips" -> {
+                        for(var toggle:row.getAsJsonObject("toggles").entrySet()){
+                            var componentType=BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(toggle.getKey()));
+                            if(componentType==null)throw new IllegalStateException("Unknown tooltip component "+toggle.getKey());
+                            tooltip=tooltip.withHidden(componentType,!toggle.getValue().getAsBoolean());
+                        }
+                        result.component(DataComponents.TOOLTIP_DISPLAY,tooltip);
+                    }
                     default -> throw new IllegalStateException("Unsupported utility prototype operation "+type);
                 }}
             return result;
@@ -95,6 +109,9 @@ final class LbcUtilityItemPrototypes {
         else if(carrier==Items.IRON_PICKAXE)p.pickaxe(ToolMaterial.IRON,1,-2.8f);
         else if(carrier==Items.DIAMOND_PICKAXE)p.pickaxe(ToolMaterial.DIAMOND,1,-2.8f);
         else if(carrier==Items.IRON_HOE)p.hoe(ToolMaterial.IRON,-2,-1);
+        else if(carrier==Items.NETHERITE_HOE)p.hoe(ToolMaterial.NETHERITE,-4,0).fireResistant();
+        else if(carrier==Items.LEATHER_HELMET)p.humanoidArmor(net.minecraft.world.item.equipment.ArmorMaterials.LEATHER,net.minecraft.world.item.equipment.ArmorType.HELMET);
+        else if(carrier==Items.LEATHER_BOOTS)p.humanoidArmor(net.minecraft.world.item.equipment.ArmorMaterials.LEATHER,net.minecraft.world.item.equipment.ArmorType.BOOTS);
         else if(carrier==Items.FLINT_AND_STEEL)p.durability(64);
         else if(carrier==Items.WOODEN_SWORD)p.sword(ToolMaterial.WOOD,3,-2.4f).cookingFuel(net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
         else if(carrier==Items.IRON_SWORD)p.sword(ToolMaterial.IRON,3,-2.4f);
