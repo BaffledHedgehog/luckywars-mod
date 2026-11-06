@@ -1,3 +1,12 @@
+## TMT property isolation (user,6 November2026)
+
+The user chose individual version/mode for every TMT ability; Tiny abilities remain
+active beside upgraded properties. Shared `upgraded`/`mode` semantics below describe
+legacy source, not the new target. [Private state/common-wand component](TMT_WANDS_2026_11_06.md)
+is internally verified and uninstalled; the full sampler/event/carrier/shader chain
+is still pending. Existing ordinary item rules and creation/ability suppression
+decisions are unchanged. Preserve one logical TMT item in all-item pools.
+
 ## TMT texture decision (user,1 November2026)
 
 Future procedural TMT textures may use ONLY the existing ITEM atlas. The author

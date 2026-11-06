@@ -1,3 +1,13 @@
+## TMT private property state and common wands - COMPONENT VERIFIED, NOT INSTALLED (6 November2026)
+
+[Author choice, source/owner reuse and REQUIRED carry-forward](agent_notes/TMT_WANDS_2026_11_06.md).
+User: each ability owns version/mode; Tiny stays active.103 profiles/58 common-wand families.
+Seven-draw private slots, actual held-stack scopes, source order; native cast body reused byte-exact.
+Internal032c8fba/1783ca96:6 mode1+1 mode3 matches pass; native saved-copy/reentry and producer state.
+6 families/0 resources;10302 other inputs/282 author paths unchanged. Main/libs remain b8d1066e/256dc67b.
+Next overlays use latest internal archive or full TMT carry-forward, not only git status.
+Other events/carriers/full sampler/procedural shader and all broad release gates remain pending.
+
 ## TMT property kernel - COMPONENT VERIFIED, NOT INSTALLED (6 November2026)
 
 [Scope, native evidence and REQUIRED carry-forward inputs](agent_notes/TMT_PROPERTIES_2026_11_06.md).

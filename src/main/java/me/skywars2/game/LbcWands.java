@@ -269,11 +269,12 @@ public final class LbcWands {
         ACADEMY_SAUVOJEN(LbcWands.ACADEMY_SAUVOJEN,"sauvojen_wand","sauvojen_wand_mana_use",2500),
         EXASPERATO(LbcWands.EXASPERATO,"exasperato_wand","exasperato_wand_mana_use",1500);
         final Item item;
+        final String family;
         final CompoundTag flag;
         final ScoreHolder cost;
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
-            this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            this.item=item; this.family=flag; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
             if(item==LbcWands.ACADEMY_ICE||item==LbcWands.ACADEMY_CORRUPTION||item==LbcWands.ACADEMY_ACID_CORRUPTION||item==LbcWands.ACADEMY_ERECTO||item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ACID_WAND) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CAUSTIC || item==LbcWands.ACADEMY_OMEGA) this.flag.putInt("upgraded",1);
@@ -295,6 +296,16 @@ public final class LbcWands {
         }
     }
     private static final Spell[] SPELLS=Spell.values();
+    // Literal legacy order: raycast, ordinary spell dispatch, then summoned souls.
+    private static final java.util.List<String> TMT_ORDER=java.util.List.of(
+            "wall","advancedteleport","fallingstars","truefallingstars","prisma","lightningwand","acidwand",
+            "lightning_bolts","consuming_wand","exahoming_wand","acidcorrupt_wand","boltbolt_wand","infbolt_wand",
+            "stonekivi_wand","evocator","bassboost","enderwand","corrupter","lifestealer","foxusing","bloodmagic",
+            "badwiki","psychowand","omegaflag","neutralmage","exoperso","struby","stterra","stelectro","stair",
+            "stacid","stteleport","ststone","stfire","stblind","dublicating_wand","true_terra","erecto_wand",
+            "exasperato_wand","acidacid_wand","fireblaze_wand","psychoblind_wand","gaycaster","ice_wand","snow_wand",
+            "bedrock_wand","struby_tiny","stterra_tiny","stelectro_tiny","stair_tiny","stacid_tiny","stteleport_tiny",
+            "ststone_tiny","stfire_tiny","stblind_tiny","sauvojen_wand","summonervexes","psychovex_wand");
     private static final ScoreHolder MAGE_BONUS=ScoreHolder.forNameOnly("mage_set_bonus");
     private static final ScoreHolder TIME_STOPPED=ScoreHolder.forNameOnly("time_stopped");
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
@@ -468,6 +479,56 @@ public final class LbcWands {
             applied=cast(player,InteractionHand.OFF_HAND) || applied;
         return applied;
     }
+    record WandAbility(Identifier nativeItem,String family,CustomData flags) {
+        LbcTmtAbilities.Ability inMode(int mode) {
+            var data=flags.copyTag();data.putInt("mode",mode);
+            return new LbcTmtAbilities.Ability("wand/"+family,CustomData.of(data));
+        }
+    }
+
+    /** Actual common-wand properties, for the final meaningful TMT catalog. No item roll or registration. */
+    static java.util.List<WandAbility> tmtAbilities() {
+        return java.util.Arrays.stream(SPELLS).map(LbcWands::ability).toList();
+    }
+    private static WandAbility ability(Spell spell) {
+        return new WandAbility(BuiltInRegistries.ITEM.getKey(spell.item),spell.family,CustomData.of(spell.flag));
+    }
+    static java.util.List<WandAbility> tmtPlan(ItemStack stack) {
+        return tmtSpells(stack).stream().map(call->ability(call.spell)).toList();
+    }
+    private record TmtSpell(String slot,Spell spell) {}
+    private static java.util.List<TmtSpell> tmtSpells(ItemStack stack) {
+        var selected=new java.util.ArrayList<TmtSpell>();
+        for(var slot:LbcTmtAbilities.read(stack)) {
+            if(!slot.id().startsWith("wand/"))continue;
+            String family=slot.id().substring(5);Spell chosen=null;
+            for(var spell:SPELLS) {
+                if(!spell.family.equals(family)||!slot.data().matchedBy(spell.flag))continue;
+                // A property's Academy and regular masks overlap. Select just its most specific match.
+                if(chosen==null||spell.flag.size()>chosen.flag.size())chosen=spell;
+            }
+            if(chosen!=null)selected.add(new TmtSpell(slot.id(),chosen));
+        }
+        selected.sort(java.util.Comparator.comparingInt(call->{
+            int index=TMT_ORDER.indexOf(call.spell.family);return index<0?Integer.MAX_VALUE:index;
+        }));
+        return java.util.List.copyOf(selected);
+    }
+
+    /** Exact used-hand continuation for the future TMT event owner; ordinary use keeps its existing policy. */
+    int castTmtSpells(ServerPlayer player,InteractionHand hand) {
+        if(hand==null||player==null||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return 0;
+        var stack=player.getItemInHand(hand);
+        if(ItemData.intValue(stack,"tmt_item",0)!=1||LbcTmtAbilities.active(stack))return 0;
+        int completed=0;
+        for(var call:tmtSpells(stack)) {
+            if(player.getItemInHand(hand)!=stack||stack.isEmpty()||!mana.visible(player)||game.isObserver(player)
+                    ||game.items().actionsBlocked(player)||inputTimeStopped(player))break;
+            if(LbcTmtAbilities.invoke(stack,call.slot,()->castSpell(player,hand,stack,call.spell)))completed++;
+        }
+        return completed;
+    }
+
     private boolean cast(ServerPlayer player,InteractionHand hand) {
         if(!LbcDimensionItems.ordinary(player))return false;
         if(game.items().actionsBlocked(player)) return false;
@@ -535,7 +596,9 @@ public final class LbcWands {
             return game.items().consuming().useScroll(player,hand,stack,false);
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
-        if(spell==null) return false;
+        return spell!=null && castSpell(player,hand,stack,spell);
+    }
+    private boolean castSpell(ServerPlayer player,InteractionHand hand,ItemStack stack,Spell spell) {
         // Detached producers and the trial share ordinary admission/payment, once per real hand.
         if(spell==Spell.SAUVOJEN || spell==Spell.ACADEMY_SAUVOJEN) {
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();

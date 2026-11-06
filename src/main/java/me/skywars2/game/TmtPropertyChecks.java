@@ -51,8 +51,8 @@ public final class TmtPropertyChecks {
         amount(new int[]{151,2000000001,1401,501},new int[]{0,0,1400,500},new float[]{0,0,0},4);
         amount(new int[]{151,1401},new int[]{150,0},new float[]{.9F,0,.9F},-2);
 
-        var writes=new ArrayList<CompoundTag>();
-        for(int i=0;i<7;i++){var data=new CompoundTag();data.putInt("property_sequence",i);data.putInt("property_"+i,1);writes.add(data);}
+        var writes=new ArrayList<LbcTmtAbilities.Ability>();
+        for(int i=0;i<7;i++){var data=new CompoundTag();data.putInt("property_sequence",i);data.putInt("property_"+i,1);writes.add(new LbcTmtAbilities.Ability("test/"+i,CustomData.of(data)));}
         var prototype=new ItemStack(Items.BOW,64);prototype.set(DataComponents.CUSTOM_NAME,Component.literal("old name"));
         var nativeData=new CompoundTag();nativeData.putInt("native_default",9);prototype.set(DataComponents.CUSTOM_DATA,CustomData.of(nativeData));
         var prototypeBefore=prototype.copy();var allMin=new Endpoints(false,1);
@@ -62,7 +62,7 @@ public final class TmtPropertyChecks {
         var pdc=full.get(DataComponents.CUSTOM_DATA).copyTag();
         require(pdc.getIntOr("native_default",0)==9&&pdc.getIntOr("tmt_item",0)==1&&pdc.getIntOr("property_sequence",-1)==6,"base flags, native metadata and ordered duplicate writes");
         for(int i=0;i<7;i++)require(pdc.getIntOr("property_"+i,0)==1,"all seven behavior writes retained");
-        writes.getFirst().putInt("property_0",99);
+        writes.getFirst().data().copyTag().putInt("property_0",99);
         require(full.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("property_0",0)==1,"later mutation cannot alter generated data");
         require(full.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers().size()==29,"all source attribute opportunities succeed");
         require(allMin.enchantmentWide==21&&allMin.enchantmentLast==21,"all 21 source enchantment opportunities independently execute both overwrites");

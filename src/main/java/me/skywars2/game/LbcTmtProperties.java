@@ -79,15 +79,15 @@ final class LbcTmtProperties {
 
     Domains domains(){return domains;}
 
-    /** Seven meaningful, already-resolved ability writes are provided by the composition owner. */
-    ItemStack generate(RandomSource random, IntFunction<ItemStack> carrier, List<CompoundTag> abilities) {
+    /** Seven meaningful ability draws are provided by the composition owner; each retains its parameters. */
+    ItemStack generate(RandomSource random, IntFunction<ItemStack> carrier, List<LbcTmtAbilities.Ability> abilities) {
         if(abilities.size()!=7)throw new IllegalArgumentException("TMT requires seven ability draws");
         int base=random.nextInt(5);
         var stack=carrier.apply(base).copyWithCount(1);
         if(stack.isEmpty())throw new IllegalArgumentException("Missing TMT carrier");
         var data=SOURCE.flags.copy();
         var nativeData=stack.get(DataComponents.CUSTOM_DATA);if(nativeData!=null)data.merge(nativeData.copyTag());
-        for(var ability:abilities)data.merge(ability);
+        LbcTmtAbilities.write(data,abilities);
         data.putInt("tmt_texture_seed",random.nextInt(Integer.MAX_VALUE));
         stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
         if(base==4){

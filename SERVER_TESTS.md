@@ -1,3 +1,11 @@
+## Internal TMT private properties/common wands - COMPONENT VERIFIED,6 November2026
+
+[Scope and exact evidence](agent_notes/TMT_WANDS_2026_11_06.md).
+Internal032c8fba:6 actual mode1 matches plus1 mode3 match; all pass, exact restoration/normal exit.
+`sw check tmt-wands` verifies103 profiles/58 families, private modes/versions and native owner composition.
+Updated `tmt-properties` covers typed persistent slots. Ordinary Fire/Ice/Tiny/Electro regressions pass.
+No full TMT/native-carrier/renderer release; main and both libs remain b8d1066e/256dc67b.
+
 ## Internal TMT property generation - COMPONENT VERIFIED,6 November2026
 
 [Exact scope and carry-forward](agent_notes/TMT_PROPERTIES_2026_11_06.md).

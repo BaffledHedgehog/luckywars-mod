@@ -1,5 +1,10 @@
 # TMT property kernel — component verified, 6 November 2026
 
+Current continuation: [private property state/common wands](TMT_WANDS_2026_11_06.md)
+supersedes the flat-write API and carry-forward candidate below. The user chose
+separate version/mode per ability. This note retains the original kernel evidence;
+the current internal archives are032c8fba/1783ca96, still not installed.
+
 This is the first completed component of the final TMT work, not a released TMT
 item. Creation, meaningful ability selection/composition, current native carrier
 registration and the procedural item-atlas renderer remain gated. No token,
