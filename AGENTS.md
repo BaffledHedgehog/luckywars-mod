@@ -1,3 +1,16 @@
+## TMT native inputs/composition - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Behavior, exact native evidence and REQUIRED carry-forward](agent_notes/TMT_RUNTIME_2026_11_07.md).
+Five native Polymer carriers; private direct-use/melee/consume/inventory/ranged composition.
+419 direct-use families/487 variants; not the complete sampler or a completion percentage.
+Shared native owners, actual ammo/debit, one food count, deferred accepted-shot continuation.
+Internal f41ff0bf/24314d13 retains full57d1d0c7 base and login protocol hotfix.
+13 mode1 + 3 mode3 matches pass; final delta only adds a real melee check.
+35 explicit Java families/3 resources;10285 other source inputs/282 author paths preserved.
+Concurrent HUD work preserved in worktree, excluded from compile/commit. Main/libs unchanged.
+Carry this internal archive or all35 families/3 resources, plus the atlas template.
+Full sampler, all-event/producer/rewind audit, acquisition and final TMT release remain pending.
+
 ## TMT self/jump composition - COMPONENT VERIFIED, NOT INSTALLED (6 November2026)
 
 [Source boundaries, native evidence and REQUIRED carry-forward](agent_notes/TMT_SELF_2026_11_06.md).

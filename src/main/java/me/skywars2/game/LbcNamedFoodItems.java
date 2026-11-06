@@ -18,7 +18,7 @@ public final class LbcNamedFoodItems {
     private LbcNamedFoodItems(){}
     public static void register(){}
     static List<Entry> entries(){return ENTRIES;}
-    public static Item carrier(ItemStack stack){return CARRIERS.getOrDefault(stack.getItem(),stack.getItem());}
+    public static Item carrier(ItemStack stack){return CARRIERS.getOrDefault(stack.getItem(),LbcTmtItems.vanillaCarrier(stack));}
     private static Map<Item,Item> carriers(){var map=new IdentityHashMap<Item,Item>();for(var entry:ENTRIES)map.put(entry.item(),entry.carrier());return Collections.unmodifiableMap(map);}
     private static List<Entry> load(){
         try(var stream=LbcNamedFoodItems.class.getResourceAsStream("/skywars2/named_food_items.json")){

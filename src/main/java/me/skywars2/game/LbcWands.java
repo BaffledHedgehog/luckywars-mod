@@ -389,6 +389,7 @@ public final class LbcWands {
     }
     private final GameController game;
     private final LbcMana mana;
+    private final java.util.List<NativeUse> nativeUses;
     private final java.util.Set<ElectroTrace> electroTraces=new java.util.LinkedHashSet<>();
     private final java.util.ArrayList<ElectroTrace> electroBatch=new java.util.ArrayList<>();
 
@@ -466,7 +467,7 @@ public final class LbcWands {
         } catch(Exception failure) { throw new IllegalStateException("Invalid Tiny Air rocket preset",failure); }
     }
     LbcWands(GameController game,LbcMana mana) {
-        this.game=game; this.mana=mana;
+        this.game=game; this.mana=mana;this.nativeUses=nativeUses();
         for(var spell:SPELLS) mana.score(spell.cost,"lbc.math").set(spell.defaultCost);
         mana.score(MAGE_BONUS,"lbc.math").set(150);
     }
@@ -529,71 +530,84 @@ public final class LbcWands {
         return completed;
     }
 
-    private boolean cast(ServerPlayer player,InteractionHand hand) {
+    private interface NativeAction { boolean use(ServerPlayer player,InteractionHand hand,ItemStack stack); }
+    private record NativeUse(java.util.function.Predicate<ItemStack> matches,NativeAction action) {}
+    private java.util.List<NativeUse> nativeUses(){
+        return java.util.List.of(
+                new NativeUse(stack->LbcDeus.matches(stack), (player,hand,stack)->game.items().deus().use(player,hand)),
+                new NativeUse(stack->LbcKitUtilities.matches(stack), (player,hand,stack)->LbcKitUtilities.use(game,player,hand)),
+                new NativeUse(stack->LbcSteampunkHook.matches(stack), (player,hand,stack)->game.items().steampunkHook().use(player,hand)),
+                new NativeUse(stack->LbcWitchLust.matches(stack), (player,hand,stack)->game.items().witchLust().use(player,hand)),
+                new NativeUse(stack->LbcWitchClaims.matches(stack), (player,hand,stack)->game.items().witchClaims().use(player,hand)),
+                new NativeUse(stack->LbcWitchGluttony.matches(stack), (player,hand,stack)->game.items().witchGluttony().use(player,hand)),
+                new NativeUse(stack->LbcWitchIndolence.matches(stack), (player,hand,stack)->game.items().witchIndolence().use(player,hand)),
+                new NativeUse(stack->LbcShishEncounter.matches(stack), (player,hand,stack)->game.items().shishEncounter().use(player,hand)),
+                new NativeUse(stack->LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack), (player,hand,stack)->game.items().specialTools().use(player,hand)),
+                new NativeUse(stack->LbcFpvDrone.matches(stack), (player,hand,stack)->game.items().fpvDrone().use(player,hand)),
+                new NativeUse(stack->LbcUniwand.matches(stack), (player,hand,stack)->LbcUniwand.use(game,player,hand)),
+                new NativeUse(stack->LbcBoba.matches(stack), (player,hand,stack)->game.items().boba().use(player,hand)),
+                new NativeUse(stack->LbcBigBob.matches(stack), (player,hand,stack)->LbcBigBob.use(game,player,hand)),
+                new NativeUse(stack->LbcImbaRunes.matches(stack), (player,hand,stack)->game.items().imbaRunes().use(player,hand)),
+                new NativeUse(stack->LbcChaosRewardItems.matches(stack), (player,hand,stack)->LbcChaosRewardItems.use(game,player,hand)),
+                new NativeUse(stack->LbcRewardTools.matches(stack), (player,hand,stack)->LbcRewardTools.use(game,player,hand)),
+                new NativeUse(stack->LbcLooseRewards.luckyWand(stack), (player,hand,stack)->game.items().looseRewards().useLucky(player,hand)),
+                new NativeUse(stack->LbcCommunism.matches(stack), (player,hand,stack)->game.items().communism().use(player,hand)),
+                new NativeUse(stack->LbcPopit.matches(stack), (player,hand,stack)->game.items().popit().use(player,hand)),
+                new NativeUse(stack->LbcPendingCombat.isPiston(stack), (player,hand,stack)->game.items().pendingCombat().use(player,hand)),
+                new NativeUse(stack->LbcSoulhunter.isMace(stack), (player,hand,stack)->game.items().soulhunter().use(player,hand)),
+                new NativeUse(stack->LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0, (player,hand,stack)->game.items().soulless().use(player,hand)),
+                new NativeUse(stack->LbcDanmaku.isGrimoire(stack), (player,hand,stack)->game.items().danmaku().useGrimoire(player,hand)),
+                new NativeUse(stack->LbcElementalGrimoires.kind(stack)!=null, (player,hand,stack)->LbcElementalGrimoires.use(game,player,hand)),
+                new NativeUse(stack->LbcLibrarySpells.kind(stack)!=null, (player,hand,stack)->LbcLibrarySpells.use(game,player,hand)),
+                new NativeUse(stack->LbcLibrarySpells.matchesRawRaycast(stack), (player,hand,stack)->LbcLibrarySpells.useRawRaycast(game,player,hand)),
+                new NativeUse(stack->LbcSummonerItems.kind(stack)!=null, (player,hand,stack)->game.items().summons().useOrdinary(player,hand,LbcSummonerItems.kind(stack))),
+                new NativeUse(stack->LbcDanmaku.isItem(stack), (player,hand,stack)->game.items().danmaku().use(player,hand)),
+                new NativeUse(stack->LbcSheep.isWand(stack), (player,hand,stack)->game.items().sheep().use(player,hand)),
+                new NativeUse(stack->LbcHedgehogItems.isWand(stack), (player,hand,stack)->game.items().hedgehog().use(player,hand)),
+                new NativeUse(stack->LbcHedgehogItems.spike(stack)!=null, (player,hand,stack)->game.items().hedgehogSpikes().use(player,hand)),
+                new NativeUse(stack->LbcHalloweenWind.isWind(stack), (player,hand,stack)->game.items().halloweenWind().use(player,hand)),
+                new NativeUse(stack->LbcFartus.isFartus(stack), (player,hand,stack)->game.items().fartus().use(player,hand)),
+                new NativeUse(stack->stack.is(FEATHER_GREED)||ItemData.intValue(stack,"feather_greed",0)==1, (player,hand,stack)->game.items().neutral().feather(player)),
+                new NativeUse(stack->LbcHomeItems.isMirror(stack), (player,hand,stack)->game.items().homes().use(player, hand)),
+                new NativeUse(stack->LbcShooters.isPine(stack) || LbcShooters.isSlr(stack) || LbcShooters.isKfcGun(stack)
+                || LbcShooters.isBossHelicopter(stack) || LbcShooters.isPhantomKnives(stack) || LbcShooters.isWoodificator(stack) || LbcShooters.isHelicopter(stack), (player,hand,stack)->game.items().shooters().use(player, hand)),
+                new NativeUse(stack->LbcGovnomet.isGovnomet(stack), (player,hand,stack)->game.items().govnomet().use(player,hand)),
+                new NativeUse(stack->LbcMagnum.isMagnum(stack), (player,hand,stack)->game.items().magnum().use(player,hand)),
+                new NativeUse(stack->LbcAk47.isAk47(stack), (player,hand,stack)->game.items().ak47().use(player,hand)),
+                new NativeUse(stack->LbcLaserMinigun.isMinigun(stack), (player,hand,stack)->game.items().laserMinigun().use(player,hand)),
+                new NativeUse(stack->LbcHohlopitek.isItem(stack), (player,hand,stack)->game.items().hohlopitek().use(player,hand)),
+                new NativeUse(stack->LbcStand.isOraora(stack) || LbcStand.isClocks(stack) || LbcStand.isHomingLightning(stack), (player,hand,stack)->game.items().stand().use(player,hand)),
+                new NativeUse(stack->LbcMobgun.isMobgun(stack), (player,hand,stack)->game.items().mobgun().use(player,hand)),
+                new NativeUse(stack->LbcReactiveItems.isReactive(stack) || LbcReactiveItems.isWall(stack), (player,hand,stack)->game.items().reactive().use(player,hand)),
+                new NativeUse(stack->LbcKfcRewards.isCultus(stack), (player,hand,stack)->game.items().kfcRewards().useCultus(player)),
+                new NativeUse(stack->LbcElectro.isAnyKatana(stack), (player,hand,stack)->game.items().electro().use(player,hand)),
+                new NativeUse(stack->LbcVexSword.isSword(stack), (player,hand,stack)->game.items().vexSword().use(player,hand)),
+                new NativeUse(stack->LbcFevgaleaStar.isSword(stack), (player,hand,stack)->game.items().fevgaleaStar().use(player,hand)),
+                new NativeUse(stack->LbcChargedSwords.matches(stack), (player,hand,stack)->game.items().chargedSwords().use(player,hand)),
+                new NativeUse(stack->LbcMetalPipe.divider(stack), (player,hand,stack)->game.items().metalPipe().use(player,hand)),
+                new NativeUse(stack->isDivider(stack), (player,hand,stack)->game.items().duplicating().useDivider(player,hand,stack)),
+                new NativeUse(stack->stack.is(DESTROYER_SPELL) || ItemData.intValue(stack,"trap2",0)==1, (player,hand,stack)->game.items().consuming().useScroll(player,hand,stack,true)),
+                new NativeUse(stack->stack.is(CREEPER_ARMY_SPELL) || ItemData.intValue(stack,"creeperz",0)==1, (player,hand,stack)->game.items().consuming().useScroll(player,hand,stack,false)));
+    }
+    boolean tmtNativeUseCandidate(ItemStack stack){
+        return !stack.isEmpty()&&nativeUses.stream().anyMatch(route->route.matches.test(stack));
+    }
+    int tmtNativeUseOrder(ItemStack stack){
+        for(int i=0;i<nativeUses.size();i++)if(nativeUses.get(i).matches.test(stack))return i;
+        return nativeUses.size();
+    }
+    /** Same native dispatch and same real hand; only this property's own data/classifier is projected. */
+    boolean castTmtNative(ServerPlayer player,InteractionHand hand,String slot){
+        if(player==null||hand==null||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands||!game.items().tmt().admitted(player))return false;
+        var stack=player.getItemInHand(hand);
+        return LbcTmtAbilities.invoke(stack,slot,()->cast(player,hand));
+    }
+
+    boolean cast(ServerPlayer player,InteractionHand hand) {
         if(!LbcDimensionItems.ordinary(player))return false;
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
-        if(LbcDeus.matches(stack))return game.items().deus().use(player,hand);
-        if(LbcKitUtilities.matches(stack))return LbcKitUtilities.use(game,player,hand);
-        if(LbcSteampunkHook.matches(stack))return game.items().steampunkHook().use(player,hand);
-        if(LbcWitchLust.matches(stack))return game.items().witchLust().use(player,hand);
-        if(LbcWitchClaims.matches(stack))return game.items().witchClaims().use(player,hand);
-        if(LbcWitchGluttony.matches(stack))return game.items().witchGluttony().use(player,hand);
-        if(LbcWitchIndolence.matches(stack))return game.items().witchIndolence().use(player,hand);
-        if(LbcShishEncounter.matches(stack))return game.items().shishEncounter().use(player,hand);
-        if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
-        if(LbcFpvDrone.matches(stack))return game.items().fpvDrone().use(player,hand);
-        if(LbcUniwand.matches(stack))return LbcUniwand.use(game,player,hand);
-        if(LbcBoba.matches(stack))return game.items().boba().use(player,hand);
-        if(LbcBigBob.matches(stack))return LbcBigBob.use(game,player,hand);
-        if(LbcImbaRunes.matches(stack))return game.items().imbaRunes().use(player,hand);
-        if(LbcChaosRewardItems.matches(stack))return LbcChaosRewardItems.use(game,player,hand);
-        if(LbcRewardTools.matches(stack))return LbcRewardTools.use(game,player,hand);
-        if(LbcLooseRewards.luckyWand(stack))return game.items().looseRewards().useLucky(player,hand);
-        if(LbcCommunism.matches(stack))return game.items().communism().use(player,hand);
-        if(LbcPopit.matches(stack))return game.items().popit().use(player,hand);
-        if(LbcPendingCombat.isPiston(stack))return game.items().pendingCombat().use(player,hand);
-        if(LbcSoulhunter.isMace(stack))return game.items().soulhunter().use(player,hand);
-        if(LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0)return game.items().soulless().use(player,hand);
-        if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
-        if(LbcElementalGrimoires.kind(stack)!=null)return LbcElementalGrimoires.use(game,player,hand);
-        if(LbcLibrarySpells.kind(stack)!=null)return LbcLibrarySpells.use(game,player,hand);
-        if(LbcLibrarySpells.matchesRawRaycast(stack))return LbcLibrarySpells.useRawRaycast(game,player,hand);
-        var ordinarySummon=LbcSummonerItems.kind(stack);
-        if(ordinarySummon!=null)return game.items().summons().useOrdinary(player,hand,ordinarySummon);
-        if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
-        if(LbcSheep.isWand(stack))return game.items().sheep().use(player,hand);
-        if(LbcHedgehogItems.isWand(stack))return game.items().hedgehog().use(player,hand);
-        if(LbcHedgehogItems.spike(stack)!=null)return game.items().hedgehogSpikes().use(player,hand);
-        if(LbcHalloweenWind.isWind(stack))return game.items().halloweenWind().use(player,hand);
-        if(LbcFartus.isFartus(stack))return game.items().fartus().use(player,hand);
-        if(stack.is(FEATHER_GREED)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("feather_greed",0)==1) return game.items().neutral().feather(player);
-        if (LbcHomeItems.isMirror(stack)) return game.items().homes().use(player, hand);
-        // Общий dispatch двух рук: хвоемёт платит боеприпасами и не проходит проверку маны жезлов.
-        if (LbcShooters.isPine(stack) || LbcShooters.isSlr(stack) || LbcShooters.isKfcGun(stack)
-                || LbcShooters.isBossHelicopter(stack) || LbcShooters.isPhantomKnives(stack) || LbcShooters.isWoodificator(stack) || LbcShooters.isHelicopter(stack))
-            return game.items().shooters().use(player, hand);
-        if (LbcGovnomet.isGovnomet(stack)) return game.items().govnomet().use(player,hand);
-        if (LbcMagnum.isMagnum(stack)) return game.items().magnum().use(player,hand);
-        if (LbcAk47.isAk47(stack)) return game.items().ak47().use(player,hand);
-        if (LbcLaserMinigun.isMinigun(stack)) return game.items().laserMinigun().use(player,hand);
-        if (LbcHohlopitek.isItem(stack)) return game.items().hohlopitek().use(player,hand);
-        if (LbcStand.isOraora(stack) || LbcStand.isClocks(stack) || LbcStand.isHomingLightning(stack))
-            return game.items().stand().use(player,hand);
-        if (LbcMobgun.isMobgun(stack)) return game.items().mobgun().use(player,hand);
-        if(LbcReactiveItems.isReactive(stack) || LbcReactiveItems.isWall(stack)) return game.items().reactive().use(player,hand);
-        if (LbcKfcRewards.isCultus(stack)) return game.items().kfcRewards().useCultus(player);
-        if (LbcElectro.isAnyKatana(stack)) return game.items().electro().use(player,hand);
-        if (LbcVexSword.isSword(stack)) return game.items().vexSword().use(player,hand);
-        if (LbcFevgaleaStar.isSword(stack)) return game.items().fevgaleaStar().use(player,hand);
-        if (LbcChargedSwords.matches(stack)) return game.items().chargedSwords().use(player,hand);
-        var scrollData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(LbcMetalPipe.divider(stack))return game.items().metalPipe().use(player,hand);
-        if(isDivider(stack)) return game.items().duplicating().useDivider(player,hand,stack);
-        if(stack.is(DESTROYER_SPELL) || scrollData.getIntOr("trap2",0)==1)
-            return game.items().consuming().useScroll(player,hand,stack,true);
-        if(stack.is(CREEPER_ARMY_SPELL) || scrollData.getIntOr("creeperz",0)==1)
-            return game.items().consuming().useScroll(player,hand,stack,false);
+        for(var route:nativeUses)if(route.matches.test(stack))return route.action.use(player,hand,stack);
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         return spell!=null && castSpell(player,hand,stack,spell);

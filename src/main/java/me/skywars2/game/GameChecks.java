@@ -1368,6 +1368,9 @@ public final class GameChecks {
                                 case "tmt-properties" -> { TmtPropertyChecks.run(game); return; }
                                 case "tmt-wands" -> { TmtWandChecks.run(game); return; }
                                 case "tmt-self" -> { TmtSelfChecks.run(game); return; }
+                                case "tmt-ranged" -> { TmtRangedChecks.run(game); return; }
+                                case "tmt-carriers" -> { TmtCarrierChecks.run(game); return; }
+                                case "tmt-native-use" -> { TmtNativeUseChecks.run(game); return; }
                                 case "entity-protocol" -> { EntityProtocolChecks.run(game); return; }
                                 case "lucky-chests" -> { LuckyChestChecks.run(game); return; }
                                 case "native-utility-tail" -> { NativeUtilityTailChecks.run(game); return; }

@@ -137,7 +137,7 @@ public final class LbcTrinkets {
         // Как /clear ... 0: инвентарь, личная сетка крафта и предмет на курсоре, без изменения стаков.
         return player.getInventory().clearOrCountMatchingItems(stack -> {
             var data = stack.get(DataComponents.CUSTOM_DATA);
-            return stack.is(item) || data != null && data.matchedBy(identity);
+            return stack.is(item) || data != null && data.matchedBy(identity)||LbcTmtItems.matches(stack)&&LbcTmtInventory.matches(stack,identity);
         }, true, 0, player.inventoryMenu.getCraftSlots());
     }
 
@@ -146,7 +146,8 @@ public final class LbcTrinkets {
         var counts=new int[SHOT_ITEMS.length];if(!LbcDimensionItems.ordinary(player))return counts;
         player.getInventory().clearOrCountMatchingItems(stack->{
             var identity=ItemData.stringValue(stack,"trinket","");
-            for(int i=0;i<SHOT_ITEMS.length;i++)if(stack.is(SHOT_ITEMS[i])||identity.equals(SHOT_IDENTITIES[i]))
+            var identities=LbcTmtItems.matches(stack)?LbcTmtInventory.strings(stack,"trinket"):java.util.Set.<String>of();
+            for(int i=0;i<SHOT_ITEMS.length;i++)if(stack.is(SHOT_ITEMS[i])||identity.equals(SHOT_IDENTITIES[i])||identities.contains(SHOT_IDENTITIES[i]))
                 counts[i]=(int)Math.min(Integer.MAX_VALUE,(long)counts[i]+stack.getCount());
             return false; // Native count-only traversal; no debit or item mutation.
         },true,0,player.inventoryMenu.getCraftSlots());

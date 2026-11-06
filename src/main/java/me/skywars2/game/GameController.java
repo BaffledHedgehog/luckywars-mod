@@ -1375,13 +1375,16 @@ public final class GameController {
 
     public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
     public void consumed(ServerPlayer player, ItemStack stack) {
+        items.tmt().withConsumedTraits(player,stack,()->consumedProperties(player,stack));
+        events.onConsumed(player, stack);
+    }
+    private void consumedProperties(ServerPlayer player,ItemStack stack){
         items.foodLifecycle().consumed(player,stack);
         items.kfcFood().consumed(player,stack);
         items.aimbobRewards().consumed(player,stack);
         items.attributeFood().consumed(player,stack);items.pills().consumed(player,stack);
         items.edibleSpells().consumed(player,stack);
         items.namedFoods().consumed(player,stack);items.oreshek().consumed(player,stack);
-        events.onConsumed(player, stack);
     }
     public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
     public void entityUnloaded(Entity entity) { events.entityUnloaded(entity); items.entityUnloaded(entity); }

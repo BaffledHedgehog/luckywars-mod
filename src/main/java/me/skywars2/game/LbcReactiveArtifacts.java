@@ -49,7 +49,7 @@ public final class LbcReactiveArtifacts {
         if(producing||!(source.getEntity() instanceof ServerPlayer owner)||!admitted(owner)||source.is(ARROWS)||!game.items().wands().projectileTarget(owner,victim,true))return;
         var dimension=owner.level().dimension().identifier();if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
         int current=0,old=0;
-        for(int slot=0;slot<=40;slot++){var stack=owner.getInventory().getItem(slot);if(stack.isEmpty())continue;var data=LbcFartus.data(stack);int type=data.getIntOr("type",0);if(type<1||type>6)continue;if(data.getIntOr("mystical",0)==2)current|=1<<type;if(data.getIntOr("mystical_old",0)==2)old|=1<<type;}
+        for(int slot=0;slot<=40;slot++){var stack=owner.getInventory().getItem(slot);if(stack.isEmpty())continue;var data=LbcFartus.data(stack);if(data.getIntOr("tmt_item",0)==1){int masks=LbcTmtInventory.mysticalTypes(data,2);current|=masks&0x7e;old|=(masks>>>16)&0x7e;}else{int type=data.getIntOr("type",0);if(type<1||type>6)continue;if(data.getIntOr("mystical",0)==2)current|=1<<type;if(data.getIntOr("mystical_old",0)==2)old|=1<<type;}}
         int currentFlags=currentMagic(owner)?current:0,oldFlags=old;
         // Replay each accepted event in source type order after native sweep collection.
         // This also keeps old4 movement before the following old5/6 area queries.

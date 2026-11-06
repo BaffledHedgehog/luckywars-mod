@@ -117,6 +117,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resources, success) -> {
             if (success && game != null) {
                 game.items().nexusCompass().reload();game.items().nexusCombat().reload();
+                game.items().tmt().reload();
                 game.items().magic().refreshEntityIndexes();
                 game.items().academy().prepare();
                 game.items().stone().prepare();
@@ -199,19 +200,19 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.items().academy().damaged(entity, damage);
             if (game != null) game.items().grimoireRooms().damaged(entity);
             if (game != null) game.items().vexSword().damaged(entity, damage, 1);
-            if (game != null) game.items().fevgaleaStar().damaged(entity, damage);
-            if (game != null) game.items().chargedSwords().damaged(entity, damage);
-            if (game != null) game.items().karaSlabs().damaged(entity, damage);
-            if (game != null) game.items().classicMelee().damaged(entity, damage);
-            if (game != null) game.items().metalPipe().damaged(entity, damage);
-            if (game != null) game.items().devilSword().damaged(entity, damage);
-            if (game != null) game.items().pendingCombat().damaged(entity, damage);
-            if (game != null) game.items().pendingSwords().damaged(entity, damage);
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().fevgaleaStar().damaged(entity, damage));
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().chargedSwords().damaged(entity, damage));
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().karaSlabs().damaged(entity, damage));
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().classicMelee().damaged(entity, damage));
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().metalPipe().damaged(entity, damage));
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().devilSword().damaged(entity, damage));
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().pendingCombat().damaged(entity, damage));
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().pendingSwords().damaged(entity, damage));
             if (game != null) game.items().incomingArtifacts().damaged(entity, damage);
             if (game != null) game.items().reactiveArtifacts().damaged(entity, damage);
-            if (game != null && damage.getEntity() instanceof ServerPlayer owner) game.items().fartus().melee(owner,entity,damage);
-            if (game != null) game.items().wtf().melee(entity,damage);
-            if (game != null) { game.items().specialTools().melee(entity,damage); game.items().specialTools().died(entity,damage); }
+            if (game != null && damage.getEntity() instanceof ServerPlayer owner) game.items().tmt().withHeldTraits(damage,()->game.items().fartus().melee(owner,entity,damage));
+            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().wtf().melee(entity,damage));
+            if (game != null) { game.items().tmt().withHeldTraits(damage,()->game.items().specialTools().melee(entity,damage)); game.items().specialTools().died(entity,damage); }
             if (game != null) game.items().exoperso().died(entity, damage);
             if (game != null) game.items().helicopterEncounter().died(entity, damage);
             if (game != null && entity instanceof ServerPlayer player) game.items().witchWrath().died(player);
@@ -224,8 +225,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && !blocked && damage > 0) game.items().indirectKills().damaged(entity, source);
             if (game != null && !blocked && damage > 0) game.items().damaged(entity, source);
             if (game != null && !blocked && damage > 0) game.items().vexSword().damaged(entity, source, damage);
-            if (game != null && !blocked && damage > 0 && source.getEntity() instanceof ServerPlayer owner) game.items().fartus().melee(owner,entity,source);
-            if (game != null && !blocked && damage > 0) game.items().wtf().melee(entity,source);
+            if (game != null && !blocked && damage > 0 && source.getEntity() instanceof ServerPlayer owner) game.items().tmt().withHeldTraits(source,()->game.items().fartus().melee(owner,entity,source));
+            if (game != null && !blocked && damage > 0) game.items().tmt().withHeldTraits(source,()->game.items().wtf().melee(entity,source));
             if (game != null && !blocked && entity instanceof ServerPlayer player) game.hurtForSkill(player);
             if (game != null && !blocked && damage > 0 && entity instanceof ServerPlayer player)
                 { game.items().ak47().receivedDamage(player,damage); game.damaged(player, source, damage); }
@@ -237,6 +238,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTmtItems.matches(owner.getItemInHand(hand))&&!me.skywars2.game.LbcTmtItems.active(owner.getItemInHand(hand)))
+                return game.vanity().blocked(owner)||!game.items().tmt().admitted(owner)?InteractionResult.FAIL:InteractionResult.PASS;
             var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
             var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;

@@ -59,6 +59,9 @@ public abstract class TrinketBowMixin {
         if (spawned.get()!=null&&!spawned.get().isEmpty() && game != null && ((Object) this instanceof BowItem || (Object) this instanceof CrossbowItem)
                 && shooter instanceof ServerPlayer player){
             var fired=firedWeapon.get();boolean traitsRolled=false;
+            if(me.skywars2.game.LbcTmtRanged.onShot(game,player,hand,weapon,fired,List.copyOf(spawned.get()))){
+                return;
+            }
             if(me.skywars2.game.ItemData.intValue(fired,"explosive",0)==1){
                 var nativeFamily=List.copyOf(spawned.get());if(!traitsRolled)game.items().trinkets().shot(player,nativeFamily);traitsRolled=true;
                 if(game.items().balance().explosiveBow(player,fired,nativeFamily))return;

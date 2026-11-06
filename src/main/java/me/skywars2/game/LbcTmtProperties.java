@@ -101,10 +101,11 @@ final class LbcTmtProperties {
         var lore=new ArrayList<Component>(6);for(int i=0;i<6;i++)lore.add(text(random));
         stack.set(DataComponents.LORE,new ItemLore(List.copyOf(lore)));
         var slot=ARMOR[random.nextInt(ARMOR.length)];
-        // Existing authored assets remain the visual oracle until the procedural atlas renderer is qualified.
+        // Equipment keeps its independent authored asset range; item sprites use the shared atlas shader.
         stack.set(DataComponents.EQUIPPABLE,Equippable.builder(slot).setAsset(ResourceKey.create(
                 EquipmentAssets.ROOT_ID,Identifier.parse("lbc:tmt/tmt_"+between(random,1,707)))).build());
-        stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:tmt/tmt_"+between(random,1,12758)));
+        between(random,1,12758); // Retain the source RNG position of the old item-model roll.
+        LbcTmtRuntime.visual(stack);
         var attributes=new ArrayList<ItemAttributeModifiers.Entry>();
         for(int attempt=0;attempt<29;attempt++){
             float chance=attempt==0?1:attempt<=4?.2F:attempt<=12?.1F:.05F;

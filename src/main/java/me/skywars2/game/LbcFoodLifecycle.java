@@ -60,7 +60,7 @@ public final class LbcFoodLifecycle {
     private final Map<UUID,Accepted> unloaded=new HashMap<>();
     private final Set<Entity> publishing=Collections.newSetFromMap(new IdentityHashMap<>());
     private static final class Finishing {
-        final ServerPlayer player;final ItemStack stack;final String epoch;boolean oldStew;
+        final ServerPlayer player;final ItemStack stack;final String epoch;boolean oldStew,retainTmt;ItemStack replacement;
         Finishing(ServerPlayer player,ItemStack stack,String epoch){this.player=player;this.stack=stack;this.epoch=epoch;}
     }
     private final Deque<Finishing> finishing=new ArrayDeque<>();
@@ -85,22 +85,35 @@ public final class LbcFoodLifecycle {
     public void consumed(ServerPlayer p,ItemStack stack){
         if(stack.isEmpty()||!admitted(p)||!matches(stack))return;
         var data=LbcFartus.data(stack);
-        if(countsAsFood(stack))game.items().mana().score(p,"food_count").add(1);
+        if(countsAsFood(stack)&&!LbcTmtAbilities.active(stack))game.items().mana().score(p,"food_count").add(1);
         var hand=p.getUsedItemHand();
-        if(data.getIntOr("inf",0)==1)p.setItemInHand(hand,infiniteSteak());
+        boolean tmt=LbcTmtItems.matches(stack);
+        if(tmt&&(data.getIntOr("inf",0)==1||data.getIntOr("inf_old",0)==1)){
+            var frame=finishing.peek();if(frame!=null&&frame.player==p&&frame.stack==stack)frame.retainTmt=true;
+        }
+        if(!tmt&&data.getIntOr("inf",0)==1)p.setItemInHand(hand,infiniteSteak());
         if(data.getIntOr("inf_old",0)==1){
-            var frame=finishing.peek();if(frame!=null&&frame.player==p&&frame.stack==stack)frame.oldStew=true;
+            var frame=finishing.peek();if(!tmt&&frame!=null&&frame.player==p&&frame.stack==stack)frame.oldStew=true;
             p.entityTags().remove("scheduled_eating");
         }
         if(data.getIntOr("halloween_food",0)==1)halloween(p);
         if(data.getIntOr("halloween_chorus",0)==1)chorus(p);
         if(data.getIntOr("bad_apple",0)==1)badApple(p);
     }
+    void countTmtFood(ServerPlayer player,ItemStack stack){
+        if(admitted(player)&&countsAsFood(stack))game.items().mana().score(player,"food_count").add(1);
+    }
+    /** Capture after every private callback restored its counters, before the sole native debit. */
+    void finishTmtTraits(ServerPlayer player,ItemStack stack){
+        var frame=finishing.peek();
+        if(frame!=null&&frame.player==player&&frame.stack==stack&&frame.retainTmt)frame.replacement=stack.copy();
+    }
     /** Return the source replacement after native debit AND bowl handling, in the same use call. */
     public ItemStack finishUsingItem(ServerPlayer player,ItemStack stack,java.util.function.Supplier<ItemStack> nativeFinish){
         var frame=new Finishing(player,stack,game.items().epoch());finishing.push(frame);
         try{
             var result=nativeFinish.get();
+            if(frame.replacement!=null&&game.items().currentEpoch(frame.epoch)&&admitted(player))return frame.replacement;
             return frame.oldStew&&game.items().currentEpoch(frame.epoch)&&admitted(player)?oldInfiniteStew():result;
         }finally{finishing.pop();}
     }

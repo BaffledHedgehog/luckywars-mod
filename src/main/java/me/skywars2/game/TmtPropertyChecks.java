@@ -82,7 +82,8 @@ public final class TmtPropertyChecks {
             require(result.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("tmt_texture_seed",-1)==(high?Integer.MAX_VALUE-1:0),"persisted visual seed full domain");
             var attrs=result.get(DataComponents.ATTRIBUTE_MODIFIERS);
             require(attrs.modifiers().size()==(high?1:29),"guaranteed attribute with independent optional tails");
-            require(result.get(DataComponents.ITEM_MODEL).toString().equals(high?"lbc:tmt/tmt_12758":"lbc:tmt/tmt_1"),"authored visual endpoints remain intact");
+            require(result.get(DataComponents.ITEM_MODEL).toString().equals("lbc:tmt/procedural"),"one procedural item-atlas model replaces numbered item sprites");
+            require(result.get(DataComponents.CUSTOM_MODEL_DATA).colors().getFirst()==(0xFA0000|((high?Integer.MAX_VALUE-1:0)&0xffff)),"explicit atlas carrier tint retains stable seed endpoints");
             var itemName=result.get(DataComponents.ITEM_NAME);
             require((itemName.getContents() instanceof TranslatableContents)==high,"literal/translate branches and both text endpoints");
             require(itemName.getStyle().getColor().getValue()==(high?0xFFFFFF:0),"six independent color digits");

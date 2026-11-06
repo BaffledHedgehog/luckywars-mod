@@ -98,7 +98,7 @@ public final class LbcFartus {
     static CompoundTag data(ItemStack stack){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
     public static boolean isFartus(ItemStack stack){return !stack.isEmpty()&&(stack.is(ITEM)||stack.is(ACADEMY)||data(stack).getIntOr("fartus_nadristailo",0)==1);}
     public static boolean isMaterial(ItemStack stack){return !stack.isEmpty()&&(stack.is(MATERIAL)||data(stack).getIntOr("wtf_item",0)==1);}
-    public static boolean academy(ItemStack stack){return isFartus(stack)&&(stack.is(ACADEMY)||data(stack).getIntOr("upgraded",0)==1);}
+    public static boolean academy(ItemStack stack){return isFartus(stack)&&(stack.is(ACADEMY)||data(stack).getIntOr("upgraded",0)==1||!LbcTmtAbilities.active(stack)&&LbcTmtInventory.upgraded(stack,"fartus_nadristailo"));}
     public static boolean magic(Entity entity){return entity instanceof Shot shot&&shot.kind!=Kind.BANANA;}
     public static final class Shot extends Projectile implements PolymerEntity {
         Kind kind=Kind.BANANA;int age;float launchYaw,launchPitch;Display.ItemDisplay display;LbcFartus service;

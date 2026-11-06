@@ -391,6 +391,7 @@ public final class LbcMagic {
     private static int artifact(ItemStack stack) {
         var data = stack.get(DataComponents.CUSTOM_DATA);
         if (data == null) return 0;
+        if(LbcTmtItems.matches(stack))return LbcTmtInventory.mysticalTypes(data.copyTag(),1)&0x1fe;
         if (data.matchedBy(ARTIFACT_DATA)) return ANTIMAGIC;
         if (data.matchedBy(EXPLOSIONS_DATA)) return NO_EXPLOSIONS;
         if (data.matchedBy(LIQUIDS_DATA)) return NO_LIQUIDS;
@@ -471,7 +472,7 @@ public final class LbcMagic {
             if(distance<=400&&!player.isSpectator()&&player.entityTags().contains("nomagic_active"))return true;
             if(distance<=144)for(int slot=0;slot<=40;slot++){
                 var data=LbcFartus.data(player.getInventory().getItem(slot));
-                if(data.getIntOr("mystical",0)==1&&data.getIntOr("type",0)==2)return true;
+                if(data.getIntOr("tmt_item",0)==1?(LbcTmtInventory.mysticalTypes(data,1)&NO_EXPLOSIONS)!=0:data.getIntOr("mystical",0)==1&&data.getIntOr("type",0)==2)return true;
             }
         }
         return false;

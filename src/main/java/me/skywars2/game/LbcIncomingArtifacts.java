@@ -66,7 +66,13 @@ public final class LbcIncomingArtifacts {
         int current=0,old=0;boolean container=false;
         for(int i=0;i<=40;i++){
             var stack=owner.getInventory().getItem(i);if(stack.isEmpty())continue;
-            var d=LbcFartus.data(stack);int type=d.getIntOr("type",0);
+            var d=LbcFartus.data(stack);
+            if(d.getIntOr("tmt_item",0)==1){
+                int masks=LbcTmtInventory.mysticalTypes(d,4);current|=masks&0x7e;old|=(masks>>>16)&0x7e;
+                if(i<36&&(masks&0x7e)!=0)container=true;
+                continue;
+            }
+            int type=d.getIntOr("type",0);
             if(d.getIntOr("mystical",0)==4){if(i<36)container=true;if(type>=1&&type<=6)current|=1<<type;}
             if(d.getIntOr("mystical_old",0)==4&&type>=1&&type<=6)old|=1<<type;
         }

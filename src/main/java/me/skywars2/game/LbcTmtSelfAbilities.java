@@ -43,17 +43,27 @@ final class LbcTmtSelfAbilities {
         if(!admitted(game,owner))return 0;
         var stack=owner.getMainHandItem();if(LbcTmtAbilities.active(stack))return 0;
         var slots=LbcTmtAbilities.read(stack);int dispatched=0;
-        for(var profile:PROFILES){
-            if(profile.group==Group.JUMP)continue;
+        var ordered=new ArrayList<>(slots);
+        ordered.sort(java.util.Comparator.comparingInt(LbcTmtSelfAbilities::order));
+        for(var slot:ordered){
+            boolean classic=false,charged=false;
+            for(var profile:PROFILES)if(slot.data().matchedBy(profile.flags.copyTag())){
+                classic|=profile.group==Group.CLASSIC;charged|=profile.group==Group.CHARGED;
+            }
+            if(!classic&&!charged)continue;
             if(owner.getMainHandItem()!=stack||stack.isEmpty()||!admitted(game,owner))break;
-            if(slots.stream().noneMatch(slot->slot.id().equals(profile.id)&&slot.data().matchedBy(profile.flags.copyTag())))continue;
-            if(LbcTmtAbilities.invoke(stack,profile.id,()->{
-                if(profile.group==Group.CLASSIC)game.items().classicMelee().sourceSelf(owner);
-                else game.items().chargedSwords().sourceSelf(owner);
+            final boolean runClassic=classic,runCharged=charged;
+            if(LbcTmtAbilities.invoke(stack,slot.id(),()->{
+                if(runClassic)game.items().classicMelee().sourceSelf(owner);
+                if(runCharged)game.items().chargedSwords().sourceSelf(owner);
                 return true;
             }))dispatched++;
         }
         return dispatched;
+    }
+    private static int order(LbcTmtAbilities.Ability slot){
+        for(int i=0;i<PROFILES.size();i++)if(PROFILES.get(i).group!=Group.JUMP&&slot.data().matchedBy(PROFILES.get(i).flags.copyTag()))return i;
+        return PROFILES.size();
     }
 
     /** Called once per source armor group. Each ordinary owner retains equipment and jammer checks. */
@@ -72,15 +82,7 @@ final class LbcTmtSelfAbilities {
     /** Add private TMT types to the existing inventory union; repeated items never replay a jump. */
     static int jumpMasks(CompoundTag root){
         if(root.getIntOr("tmt_item",0)!=1)return 0;
-        int result=0;
-        for(var slot:LbcTmtAbilities.read(root)){
-            if(!slot.id().equals("jump/mystical")&&!slot.id().equals("jump/mystical_old"))continue;
-            for(var profile:PROFILES){
-                if(profile.group!=Group.JUMP||!profile.id.equals(slot.id())||!slot.data().matchedBy(profile.flags.copyTag()))continue;
-                int bit=1<<profile.flags.copyTag().getIntOr("type",0);
-                result|=profile.id.equals("jump/mystical_old")?bit<<4:bit;
-            }
-        }
-        return result;
+        int masks=LbcTmtInventory.mysticalTypes(root,3);
+        return (masks&14)|((masks>>>16)&14)<<4;
     }
 }
