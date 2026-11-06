@@ -53,7 +53,7 @@ final class LbcTmtUseProfiles {
     /** Call after holder-bound item defaults finalize; retain this instance until the registry generation changes. */
     LbcTmtUseProfiles(GameController game,Predicate<ItemStack> nativeCandidate) {
         this.game=java.util.Objects.requireNonNull(game);java.util.Objects.requireNonNull(nativeCandidate);
-        Predicate<ItemStack> supported=nativeCandidate.or(LbcTmtUseProfiles::additionalCandidate);
+        Predicate<ItemStack> supported=nativeCandidate.or(LbcTmtUseProfiles::additionalCandidate).or(LbcTmtExtraUses::candidate);
         var collected=new TreeMap<String,LinkedHashMap<String,LbcTmtAbilities.Ability>>();
         var rejected=new java.util.TreeSet<String>();var existing=new java.util.TreeSet<String>();
         var missing=new java.util.TreeSet<String>();var gaps=new ArrayList<String>();int registered=0,canonical=0,admitted=0;
@@ -90,7 +90,7 @@ final class LbcTmtUseProfiles {
                 var data=variant.data().copyTag();var nativeId=Identifier.parse(data.getStringOr(NATIVE_ITEM,"minecraft:air"));
                 var prototype=BuiltInRegistries.ITEM.getValue(nativeId).getDefaultInstance().copyWithCount(1);
                 prototype.set(DataComponents.CUSTOM_DATA,variant.data());
-                index=Math.min(index,game.items().wands().tmtNativeUseOrder(prototype));
+                index=Math.min(index,inputOrder(prototype));
             }
             order.put(family.id,index);
         }
@@ -120,8 +120,11 @@ final class LbcTmtUseProfiles {
             // Reject a forged/unresolved family ID; native owner performs the actual input admission.
             if(!familyIds.contains(slot.id()))continue;
             boolean used=LbcTmtAbilities.invoke(stack,slot.id(),()->{
+                int extra=LbcTmtExtraUses.order(stack);
+                if(extra<additionalOrder(stack))return LbcTmtExtraUses.use(game,player,hand);
                 if(additionalCandidate(stack))return net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker()
                         .interact(player,player.level(),hand).consumesAction();
+                if(extra!=Integer.MAX_VALUE)return LbcTmtExtraUses.use(game,player,hand);
                 return game.items().wands().cast(player,hand);
             });
             if(used)completed++;
@@ -131,11 +134,24 @@ final class LbcTmtUseProfiles {
 
     /** Existing ordinary input callbacks own these abilities before the wand dispatcher. */
     private static boolean additionalCandidate(ItemStack stack){
-        return LbcCunnyItems.slab(stack)||ItemData.intValue(stack,"cunny_slab",0)==1
-                ||ItemData.intValue(stack,"mellstroy_mask",0)==1
-                ||LbcThrownUtilities.matches(stack)||LbcGodDice.matches(stack)||LbcWhiteArrows.matches(stack)
-                ||LbcTeleportGadgets.matches(stack)||LbcBouncingPoop.matches(stack)||LbcClownKit.matches(stack)
-                ||LbcHedgehogSpikes.legacyThrow(stack)!=0;
+        return additionalOrder(stack)!=Integer.MAX_VALUE;
+    }
+    private static int additionalOrder(ItemStack stack){
+        if(LbcCunnyItems.slab(stack)||ItemData.intValue(stack,"cunny_slab",0)==1)return 30;
+        if(ItemData.intValue(stack,"mellstroy_mask",0)==1)return 31;
+        if(LbcThrownUtilities.matches(stack))return 60;
+        if(LbcGodDice.matches(stack))return 61;
+        if(LbcWhiteArrows.matches(stack))return 62;
+        if(LbcTeleportGadgets.matches(stack))return 63;
+        if(LbcBouncingPoop.matches(stack))return 64;
+        if(LbcClownKit.matches(stack))return 65;
+        if(LbcHedgehogSpikes.legacyThrow(stack)!=0)return 110;
+        return Integer.MAX_VALUE;
+    }
+    private int inputOrder(ItemStack stack){
+        int callbacks=Math.min(additionalOrder(stack),LbcTmtExtraUses.order(stack));
+        if(callbacks!=Integer.MAX_VALUE)return callbacks;
+        return 1000+game.items().wands().tmtNativeUseOrder(stack);
     }
 
     private static boolean add(ItemStack stack,Predicate<ItemStack> candidate,

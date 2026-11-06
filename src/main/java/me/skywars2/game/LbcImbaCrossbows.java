@@ -97,6 +97,7 @@ public final class LbcImbaCrossbows {
                     var ammo=arrow.getPickupItemStackOrigin();var item=ammo.getItem() instanceof ArrowItem a?a:(ArrowItem)Items.ARROW;
                     shot=item.createArrow(owner.level(),ammo,owner,weapon);
                     shot.setPos(arrow.position());shot.entityTags().addAll(arrow.entityTags());shot.setBaseDamage(((me.skywars2.mixin.ShulkerBowMixin.ArrowAccess)arrow).skywars2$baseDamage());
+                    LbcTmtAmmoPayloads.copyPayloads(arrow,shot);
                     shot.setCritArrow(arrow.isCritArrow());shot.setRemainingFireTicks(arrow.getRemainingFireTicks());shot.setNoGravity(arrow.isNoGravity());
                     ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)shot).skywars2$setPierceLevel(arrow.getPierceLevel());
                     shot.pickup=arrow.pickup;

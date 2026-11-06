@@ -40,20 +40,21 @@ public final class LbcHomingArrows {
     public static void register(){} // Forces persistent attachment registration before native entity load.
     public static boolean matches(ItemStack stack){var contents=stack.get(DataComponents.POTION_CONTENTS);
         return contents!=null&&contents.customColor().filter(c->c==SOURCE_COLOR||c==ACTIVE_COLOR).isPresent();}
-    public static boolean matches(Entity entity){return entity instanceof Arrow arrow&&matches(arrow.getPickupItemStackOrigin());}
-    public static boolean isManaged(Entity entity){return entity instanceof Arrow&&entity.getAttached(DATA)!=null;}
+    public static boolean matches(Entity entity){return entity instanceof AbstractArrow arrow
+            &&(arrow instanceof Arrow&&matches(arrow.getPickupItemStackOrigin())||LbcTmtAmmoPayloads.hasVariant(arrow,300));}
+    public static boolean isManaged(Entity entity){return entity instanceof AbstractArrow&&entity.getAttached(DATA)!=null;}
     public Flight state(Entity entity){return flights.get(entity);}
     public int count(){return flights.size();}
     public List<AbstractArrow> actors(){return List.copyOf(flights.keySet());}
     private void install(AbstractArrow arrow,Flight state){arrow.setAttached(DATA,state);flights.put(arrow,state);}
     public void loaded(Entity entity){
-        if(!(entity instanceof Arrow arrow))return;
+        if(!(entity instanceof AbstractArrow arrow))return;
         var state=arrow.getAttached(DATA);
         if(state!=null){flights.put(arrow,state);return;}
         if(!matches(arrow))return;
         var stack=arrow.getPickupItemStackOrigin().copy();
         var old=stack.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY);
-        if(old.customColor().orElse(-1)==SOURCE_COLOR){
+        if(arrow instanceof Arrow&&old.customColor().orElse(-1)==SOURCE_COLOR){
             stack.set(DataComponents.POTION_CONTENTS,new PotionContents(old.potion(),Optional.of(ACTIVE_COLOR),old.customEffects(),old.customName()));
             arrow.getSlot(0).set(stack);
         }

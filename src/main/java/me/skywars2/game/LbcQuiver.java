@@ -66,13 +66,107 @@ public final class LbcQuiver {
     private void drop(ServerPlayer owner,ItemStack stack,boolean award){var at=owner.position();var entity=new ItemEntity(owner.level(),at.x,at.y,at.z,stack.copy());entity.setDefaultPickUpDelay();if(owner.level().addFreshEntity(entity)&&award&&LbcStand.isArrow(entity.getItem()))game.items().mana().award(owner,"lbc:true_advancements/accesories/infinite_quiver");}
     public boolean validEffectArrow(Arrow arrow,int amplifier){return arrow!=null&&custom(arrow)&&amp(arrow)==amplifier&&runtime(arrow)&&game.items().currentEpoch(arrow);}
     private static void configureArrow(Arrow arrow){int color=color(arrow);if(color==6710881)arrow.setBaseDamage(5);else if(color==6710882)arrow.setBaseDamage(1);else if(color==6710883)arrow.setNoGravity(true);else if(color==6710884)arrow.setBaseDamage(1e20);}
+    /** Native accepted arrows keep their actual pickup stack; extra properties only alter the admitted body. */
+    public void configurePayloads(net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow){
+        var state=LbcTmtAmmoPayloads.state(arrow);if(state==null)return;
+        for(var entry:state.entries)switch(entry.payload.color){
+            case 6710881->arrow.setBaseDamage(5);case 6710882->arrow.setBaseDamage(1);
+            case 6710883->arrow.setNoGravity(true);case 6710884->arrow.setBaseDamage(1e20);default->{}
+        }
+    }
+    public void capturePayloads(net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow){
+        configurePayloads(arrow);if(arrow instanceof Arrow physical){var accepted=shot(physical);var payloads=LbcTmtAmmoPayloads.state(arrow);if(accepted!=null&&payloads!=null)payloads.cause=accepted.cause;}
+        else {var payloads=LbcTmtAmmoPayloads.state(arrow);if(payloads!=null)payloadCause(arrow,payloads);}
+    }
+    private LbcIndirectKills.Owner payloadCause(net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow,LbcTmtAmmoPayloads.State payloads){
+        var owner=LbcIndirectKills.playerSource(arrow);
+        if(owner==null)payloads.cause=null;else if(payloads.cause==null||!payloads.cause.player().equals(owner.getUUID()))payloads.cause=game.items().indirectKills().coldCause(owner,true);
+        return payloads.cause;
+    }
+    /** Spectral/native AbstractArrow transports share extra mechanics without changing their item or collision class. */
+    public boolean beforePayloadCarrier(net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow){
+        if(arrow instanceof Arrow)return true;var state=LbcTmtAmmoPayloads.state(arrow);if(state==null)return true;
+        return payloadTick(arrow,state,LbcIndirectKills.playerSource(arrow),payloadCause(arrow,state));
+    }
+    /** Shared extra payload tick, called by real physical/shulker owners. No native movement is fabricated. */
+    boolean payloadTick(Entity actor,LbcTmtAmmoPayloads.State state,ServerPlayer owner,LbcIndirectKills.Owner cause){
+        if(state==null)return true;
+        if(!runtime(actor)||!game.items().currentEpoch(actor)){actor.discard();return false;}
+        if(frozen(actor))return false;
+        state.rebase(game.server().getTickCount());
+        var level=(ServerLevel)actor.level();var at=actor.position();
+        for(var entry:state.entries){if(entry.terminal)continue;
+            if(entry.expired()||entry.lastAgeTick==game.server().getTickCount())continue;
+            entry.advance(game.server().getTickCount());if(entry.expired())continue;
+            payloadReactive(entry,owner,level,at,cause);
+            int amp=entry.payload.amp;
+            if(!game.items().magic().beaconSuppressed(at))switch(amp){
+                case 111->game.items().kiuas().arrowTerrain(level,owner,at,false,cause);
+                case 112->{if(actor instanceof net.minecraft.world.entity.projectile.ShulkerBullet)shulkerLightTrail(level,at,cause);else trail(level,at,amp,new Authority(cause,game.items().epoch()));}
+                case 113->{if(!(actor instanceof net.minecraft.world.entity.projectile.ShulkerBullet))trail(level,at,amp,new Authority(cause,game.items().epoch()));}default->{}
+            }
+        }
+        return true;
+    }
+    void payloadReactive(LbcTmtAmmoPayloads.Entry entry,ServerPlayer owner,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
+        int now=game.server().getTickCount();if(entry.expired()||entry.lastReactiveTick==now)return;
+        if(reactive(owner,level,at,entry.payload.color,cause))entry.lastReactiveTick=now;
+    }
+    /** All sibling terminals finish before the real carrier owner retires its body. */
+    void payloadGround(Entity actor,LbcTmtAmmoPayloads.State state,ServerPlayer owner,ServerLevel level,Vec3 at,float yaw,float pitch,LbcIndirectKills.Owner cause){
+        if(state==null||!runtime(actor)||!game.items().currentEpoch(actor)||game.items().timeStop().stopped(level))return;
+        for(var entry:state.entries){if(entry.terminal||entry.expired())continue;entry.terminal=true;
+            groundVariant(actor,owner,level,at,yaw,pitch,entry.payload.variant,cause);
+        }
+    }
+    private void groundVariant(Entity actor,ServerPlayer owner,ServerLevel level,Vec3 at,float yaw,float pitch,int amp,LbcIndirectKills.Owner cause){
+        var authority=new Authority(cause,game.items().epoch());switch(amp){
+            case 101->{if(!game.items().magic().luckyEffectWarded(level,at)&&!game.items().magic().mechanismSuppressedAt(level,at))explode(level,at,authority);}
+            case 102->{if(!game.items().magic().beaconSuppressed(at))evoker(level,at,authority,true);}
+            case 103->{if(!game.items().magic().mechanismSuppressedAt(level,at))shock(level,at,authority);}
+            case 111->{if(!game.items().magic().beaconSuppressed(at))game.items().kiuas().arrowTerrain(level,owner,at,true,cause);}
+            case 119->{for(var stack:game.lbc().rollTable(level,at,owner,"lbc:stand_arrow")){var item=new ItemEntity(level,at.x,at.y,at.z,stack);item.setDefaultPickUpDelay();level.addFreshEntity(item);}}
+            default->groundCarrier(actor,owner,level,at,yaw,pitch,amp,cause);
+        }
+    }
+    void payloadContact(Entity actor,LbcTmtAmmoPayloads.State state,LivingEntity target,ServerPlayer owner,LbcIndirectKills.Owner cause){
+        if(state==null)return;
+        for(var entry:state.entries)if(!entry.expired()){
+            if(entry.payload.variant==119)game.items().stand().payloadAccepted(target,owner);
+            for(var prototype:entry.payload.effects){
+            var effect=new MobEffectInstance(prototype);
+            if(LbcStand.isArrowMarker(effect))continue;
+            if(acceptCarrier(target,effect,owner,cause))continue;
+            game.items().indirectKills().withCause(target,cause,()->{
+                if(effect.getEffect().value().isInstantaneous())effect.getEffect().value().applyInstantaneousEffect((ServerLevel)target.level(),actor,owner,target,effect.getAmplifier(),1);
+                else target.addEffect(effect,owner==null?actor:owner);
+            });
+            }
+        }
+    }
+    public void payloadContact(Arrow arrow,LivingEntity target){
+        var state=LbcTmtAmmoPayloads.state(arrow);if(state==null||!runtime(arrow)||frozen(arrow)||!game.items().currentEpoch(arrow))return;
+        var accepted=shot(arrow);if(accepted!=null)payloadContact(arrow,state,target,accepted.owner,accepted.cause);
+    }
+    public void payloadContact(net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow,LivingEntity target){
+        if(arrow instanceof Arrow physical){payloadContact(physical,target);return;}
+        var state=LbcTmtAmmoPayloads.state(arrow);if(state==null||!runtime(arrow)||frozen(arrow)||!game.items().currentEpoch(arrow))return;
+        payloadContact(arrow,state,target,LbcIndirectKills.playerSource(arrow),payloadCause(arrow,state));
+    }
+    public void ground(net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow){
+        if(arrow instanceof Arrow physical){ground(physical);return;}
+        var state=LbcTmtAmmoPayloads.state(arrow);if(state==null||frozen(arrow))return;
+        payloadGround(arrow,state,LbcIndirectKills.playerSource(arrow),(ServerLevel)arrow.level(),arrow.position(),arrow.getYRot(),arrow.getXRot(),payloadCause(arrow,state));
+    }
     private Shot shot(Arrow arrow){
         if(arrow.isRemoved()){shots.remove(arrow);return null;}
         var current=shots.get(arrow);if(current!=null)return current;
-        if(!custom(arrow)||!runtime(arrow))return null;
+        if(!custom(arrow)&&LbcTmtAmmoPayloads.state(arrow)==null||!runtime(arrow))return null;
         var owner=LbcIndirectKills.playerSource(arrow);
-        configureArrow(arrow);
-        arrow.entityTags().add(SHOT);game.items().markCurrentItemEpoch(arrow);current=new Shot(owner,amp(arrow),owner==null?null:game.items().indirectKills().coldCause(owner,true),game.items().epoch());var saved=arrow.getAttached(SHOT_DATA);if(saved!=null&&game.items().currentEpoch(saved.getStringOr("epoch","")))current.age=saved.getIntOr("age",0);shots.put(arrow,current);return current;
+        if(custom(arrow)){configureArrow(arrow);configurePayloads(arrow);}
+        var extra=LbcTmtAmmoPayloads.state(arrow);var accepted=extra==null?null:extra.cause;
+        if(owner==null)accepted=null;else if(accepted==null||!accepted.player().equals(owner.getUUID()))accepted=game.items().indirectKills().coldCause(owner,true);
+        arrow.entityTags().add(SHOT);game.items().markCurrentItemEpoch(arrow);current=new Shot(owner,amp(arrow),accepted,game.items().epoch());var saved=arrow.getAttached(SHOT_DATA);if(saved!=null&&game.items().currentEpoch(saved.getStringOr("epoch","")))current.age=saved.getIntOr("age",0);shots.put(arrow,current);if(extra!=null)extra.cause=accepted;return current;
     }
     /** Native Arrow HEAD: configure once before physics, then preserve native swept collisions. */
     public boolean beforeArrow(Arrow arrow){
@@ -80,6 +174,7 @@ public final class LbcQuiver {
         if(!runtime(arrow)||!game.items().currentEpoch(state.epoch)){arrow.discard();shots.remove(arrow);return false;}
         if(frozen(arrow))return false;
         var current=LbcIndirectKills.playerSource(arrow);if(current!=state.owner){state.owner=current;state.cause=current==null?null:game.items().indirectKills().coldCause(current,true);}
+        var extra=LbcTmtAmmoPayloads.state(arrow);if(extra!=null){extra.cause=state.cause;if(!payloadTick(arrow,extra,state.owner,state.cause))return false;}
         reactive(state.owner,(ServerLevel)arrow.level(),arrow.position(),arrow.getPickupItemStackOrigin(),state.cause);
         if(state.amp>=101){var saved=new CompoundTag();saved.putString("epoch",state.epoch);saved.putInt("age",++state.age);arrow.setAttached(SHOT_DATA,saved);if(state.age>=300){arrow.discard();shots.remove(arrow);return false;}
             if(!game.items().magic().beaconSuppressed(arrow.position()))switch(state.amp){case 111->game.items().kiuas().arrowTerrain((ServerLevel)arrow.level(),state.owner,arrow.position(),false,state.cause);case 112,113->trail((ServerLevel)arrow.level(),arrow.position(),state.amp,new Authority(state.cause,state.epoch));default->{}}
@@ -87,23 +182,18 @@ public final class LbcQuiver {
         }
         return !arrow.isRemoved();
     }
-    public void ground(Arrow arrow){var state=shot(arrow);if(state==null||state.ground||state.amp<101||frozen(arrow))return;state.ground=true;
-        var at=arrow.position();var level=(ServerLevel)arrow.level();var authority=new Authority(state.cause,state.epoch);switch(state.amp){
-            case 101->{if(!game.items().magic().luckyEffectWarded(level,at)&&!game.items().magic().mechanismSuppressedAt(level,at))explode(level,at,authority);}
-            case 102->{if(!game.items().magic().beaconSuppressed(at))evoker(level,at,authority,true);}
-            case 103->{if(!game.items().magic().mechanismSuppressedAt(level,at))shock(level,at,authority);}
-            case 111->{if(!game.items().magic().beaconSuppressed(at))game.items().kiuas().arrowTerrain(level,state.owner,at,true,state.cause);}
-            case 121,122,124->groundCarrier(arrow,state.owner,(ServerLevel)arrow.level(),at,arrow.getYRot(),arrow.getXRot(),arrow.getPickupItemStackOrigin(),state.cause);
-            case 119->{for(var stack:game.lbc().rollTable(level,at,state.owner,"lbc:stand_arrow")){var item=new ItemEntity(level,at.x,at.y,at.z,stack);item.setDefaultPickUpDelay();level.addFreshEntity(item);}}
-            default->{}
-        }arrow.discard();shots.remove(arrow);
+    public void ground(Arrow arrow){var state=shot(arrow);if(state==null||frozen(arrow))return;var extra=LbcTmtAmmoPayloads.state(arrow);if(extra!=null)payloadGround(arrow,extra,state.owner,(ServerLevel)arrow.level(),arrow.position(),arrow.getYRot(),arrow.getXRot(),state.cause);if(state.ground||state.amp<101)return;state.ground=true;
+        groundVariant(arrow,state.owner,(ServerLevel)arrow.level(),arrow.position(),arrow.getYRot(),arrow.getXRot(),state.amp,state.cause);arrow.discard();shots.remove(arrow);
     }
     /** Same accepted ammo marker for physical arrows, shulker bullets and detached beam carriers. */
     static int carrierAmp(ItemStack ammo){for(var e:ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).getAllEffects())if(e.is(MobEffects.RAID_OMEN))return e.getAmplifier();return 0;}
     static int carrierColor(ItemStack ammo){return ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).customColor().orElse(-1);}
     /** Reactive source emits one native zero-fuse TNT per active carrier tick, three blocks behind its aimed point. */
     boolean reactive(ServerPlayer owner,ServerLevel level,Vec3 point,ItemStack ammo,LbcIndirectKills.Owner accepted){
-        if(carrierColor(ammo)!=6710886||!game.playing()||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(point)))return false;
+        return reactive(owner,level,point,carrierColor(ammo),accepted);
+    }
+    boolean reactive(ServerPlayer owner,ServerLevel level,Vec3 point,int color,LbcIndirectKills.Owner accepted){
+        if(color!=6710886||!game.playing()||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(point)))return false;
         for(var p:level.players())if(p.position().distanceToSqr(point)<=196&&(accepted!=null&&p.getUUID().equals(accepted.player())||owner!=null&&owner.isAlliedTo(p)))return false;
         var target=game.items().lifetimes().nearestBeamTarget(level,point,e->e.getType().builtInRegistryHolder().is(MOBS)&&(owner==null?game.items().wands().validTarget(e)&&!LbcGreed.active(e):game.items().wands().projectileTarget(owner,e)));
         if(target==null)return false;var direction=target.getEyePosition().subtract(point);if(direction.lengthSqr()<1e-12)return false;
@@ -113,9 +203,12 @@ public final class LbcQuiver {
     }
     /** Terminal is called once by the actual carrier's block-hit owner. */
     void groundCarrier(Entity carrier,ServerPlayer owner,ServerLevel level,Vec3 point,float yaw,float pitch,ItemStack ammo,LbcIndirectKills.Owner accepted){
+        groundCarrier(carrier,owner,level,point,yaw,pitch,carrierAmp(ammo),accepted);
+    }
+    void groundCarrier(Entity carrier,ServerPlayer owner,ServerLevel level,Vec3 point,float yaw,float pitch,int amp,LbcIndirectKills.Owner accepted){
         if(!game.playing()||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(point))||game.items().timeStop().stopped(level)
                 ||game.items().magic().mechanismSuppressedAt(level,point))return;
-        switch(carrierAmp(ammo)){
+        switch(amp){
             case 121->game.items().nukeEvent().arrowBurst(level,point,yaw,accepted);
             case 122->game.items().legacyEffects().vacuumAt(level,point,yaw,pitch,accepted);
             case 124->game.items().bolts().arrowChain(owner,carrier,point,accepted);
@@ -136,6 +229,7 @@ public final class LbcQuiver {
         return acceptCarrier(target,effect,owner,game.items().indirectKills().wildCause(owner));
     }
     public boolean acceptCarrier(LivingEntity target,MobEffectInstance effect,ServerPlayer owner,LbcIndirectKills.Owner cause){
+        if(LbcStand.isArrowMarker(effect)){game.items().stand().payloadAccepted(target,owner);return true;}
         if(!isEffect(effect))return false;
         if(effect.getAmplifier()==101){game.items().babylonEffects().acceptCarrier101(target,effect,cause);return true;}
         if(!runtime(target)||!game.items().wands().validTarget(target)||!target.canBeAffected(effect)
@@ -250,24 +344,26 @@ public final class LbcQuiver {
     public void stop(){for(var arrow:List.copyOf(shots.keySet()))arrow.discard();shots.clear();for(var marker:List.copyOf(trails.keySet()))removeTrail(marker);for(var entity:List.copyOf(children.keySet()))entity.discard();children.clear();for(var target:List.copyOf(pending.keySet()))clear(target);clock=0;EFFECT_ARROW.remove();}
     List<Arrow> arrows(){return List.copyOf(shots.keySet());}List<net.minecraft.world.entity.Marker> trails(){return List.copyOf(trails.keySet());}List<Entity> children(){return List.copyOf(children.keySet());}
     LbcCloneSkills.ActorImage cloneImage(Entity source){
+        var payloads=LbcTmtAmmoPayloads.state(source);var payloadImage=payloads==null?null:payloads.copy();
         var shot=source instanceof Arrow arrow?shots.get(arrow):null;var trail=trails.get(source);var child=children.get(source);
         var queues=source instanceof LivingEntity living?pending.get(living):null;
-        if(shot==null&&trail==null&&child==null&&queues==null)return null;
+        if(shot==null&&trail==null&&child==null&&queues==null&&payloadImage==null)return null;
         var image=queues==null?null:queues.stream().map(q->q.stream().map(c->new Contribution(c.remaining,c.authority)).toList()).toList();
         var owner=shot==null?null:shot.owner;var cause=shot==null?null:shot.cause;var epoch=shot==null?null:shot.epoch;
         int amp=shot==null?0:shot.amp,age=shot==null?0:shot.age;boolean ground=shot!=null&&shot.ground;
         int trailAmp=trail==null?0:trail.amp,trailAge=trail==null?0:trail.age;var authority=trail==null?null:trail.authority;
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){
+                if(payloadImage!=null)LbcTmtAmmoPayloads.restore(clone,payloadImage);
                 if(shot!=null){var s=new Shot(owner,amp,cause,epoch);s.age=age;s.ground=ground;shots.put((Arrow)clone,s);}
                 if(authority!=null){var t=new Trail(trailAmp,authority);t.age=trailAge;trails.put((net.minecraft.world.entity.Marker)clone,t);}
                 if(child!=null)children.put(clone,child);
                 if(image!=null){var q=queues();for(int i=0;i<q.size();i++)for(var c:image.get(i))q.get(i).addLast(new Contribution(c.remaining,c.authority));pending.put((LivingEntity)clone,q);sync((LivingEntity)clone);}
             }
-            public void rollback(Entity clone){shots.remove(clone);trails.remove(clone);children.remove(clone);pending.remove(clone);}
+            public void rollback(Entity clone){shots.remove(clone);trails.remove(clone);children.remove(clone);pending.remove(clone);if(payloadImage!=null)LbcTmtAmmoPayloads.restore(clone,null);}
         };
     }
 
-    static boolean cloneRecognizes(Entity source){return source.entityTags().contains(SHOT)||source.entityTags().contains(TRAIL)||source.entityTags().contains(CHILD);}
+    static boolean cloneRecognizes(Entity source){return source.entityTags().contains(SHOT)||source.entityTags().contains(TRAIL)||source.entityTags().contains(CHILD)||LbcTmtAmmoPayloads.state(source)!=null;}
 
 }

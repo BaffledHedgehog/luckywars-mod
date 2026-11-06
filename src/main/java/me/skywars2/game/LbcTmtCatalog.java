@@ -189,9 +189,17 @@ final class LbcTmtCatalog {
         }
         boolean nativeAmmo=LbcImbaNativeItems.specialArrows().contains(stack.getItem())
                 ||LbcImbaNativeItems.quiverArrows().contains(stack.getItem())
-                ||stack.is(LbcImbaNativeItems.INFINITE_ARROW)||stack.is(LbcImbaNativeItems.HOMING_ARROW);
-        if(nativeAmmo)finding(findings,nativeId.toString(),source,Disposition.PENDING_COMPONENT_ADAPTER,
-                "Native arrow domain: LbcQuiver/LbcHomingArrows/LbcInfiniteAmmo consume actual accepted ammo, potion contents/color and arrow tags. A weapon flag is not an ammo payload adapter");
+                ||stack.is(LbcImbaNativeItems.INFINITE_ARROW)||stack.is(LbcImbaNativeItems.HOMING_ARROW)||LbcStand.isArrow(stack);
+        if(nativeAmmo){
+            if(LbcTmtAmmoPayloads.supports(stack)){
+                var canonical=LbcStand.isArrow(stack)?LbcStand.ARROW.getDefaultInstance():stack;
+                var ammoId=BuiltInRegistries.ITEM.getKey(canonical.getItem());String family="ammo/"+ammoId.getPath(),id="native/"+family;
+                add(all,id,family,ability(id,ammoId,canonical.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag()),
+                        new Rule(family,"LbcTmtAmmoPayloads/LbcQuiver/LbcBeamAmmo",Set.of(Event.SHOT,Event.AMMO),Set.of(Location.USED_HAND)));
+            }else finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
+                    "Infinite-arrow economy belongs only to the actual selected ammunition; a weapon property must not grant free shots");
+            return;
+        }
         if(commonItems.contains(nativeId))return;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         // Several registered trinkets intentionally have no default custom data;

@@ -165,7 +165,8 @@ public final class LbcTerra {
                     : game.items().wands().use(player,InteractionHand.OFF_HAND)) || applied;
         return applied;
     }
-    private boolean castRazor(ServerPlayer player,InteractionHand hand) {
+    /** One native hand; ordinary useRazor owns its separate offhand continuation. */
+    boolean castRazor(ServerPlayer player,InteractionHand hand) {
         if(!isRazor(player.getItemInHand(hand)) || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
                 || !game.canUseGameplayItems(player) || !player.isAlive() || player.isRemoved()
                 || player.level()!=game.maps().level() || game.items().frost().isFrozen(player)
@@ -218,13 +219,25 @@ public final class LbcTerra {
         var stack = player.getItemInHand(hand);
         if (matches(stack, TRUE_SWORD, TRUE_SWORD_FLAG)) return game.items().wands().use(player, hand);
         if (hand != InteractionHand.MAIN_HAND || !matches(stack, SWORD, SWORD_FLAG)) return false;
+        boolean applied = releaseSwordCharge(player);
+        // Старый items/spells обслуживал разрешённый offhand-жезл даже при пустом заряде основного меча.
+        return game.items().wands().use(player, InteractionHand.OFF_HAND) || applied;
+    }
+    /** Existing ordinary charged-sword body, without an additional offhand cast. */
+    boolean castSword(ServerPlayer player,InteractionHand hand){
+        if (!game.canUseGameplayItems(player) || !player.isAlive() || player.isRemoved()
+                || player.level() != game.maps().level() || game.items().frost().isFrozen(player)
+                || player.entityTags().contains("time_stopped") || game.items().magic().suppressed(player)
+                || hand!=InteractionHand.MAIN_HAND || !matches(player.getItemInHand(hand),SWORD,SWORD_FLAG))return false;
+        return releaseSwordCharge(player);
+    }
+    private boolean releaseSwordCharge(ServerPlayer player){
         boolean applied = charges(player) > 0;
         if (applied) {
             swordCharges.put(player.getUUID(), charges(player) - 1);
             cast(player, Kind.SWORD);
         }
-        // Старый items/spells обслуживал разрешённый offhand-жезл даже при пустом заряде основного меча.
-        return game.items().wands().use(player, InteractionHand.OFF_HAND) || applied;
+        return applied;
     }
     private static EntityType<TerraProjectile> registerType() {
         var key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.parse("skywars2:terra_projectile"));

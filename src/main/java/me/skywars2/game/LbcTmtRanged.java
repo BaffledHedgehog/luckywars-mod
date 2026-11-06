@@ -64,6 +64,7 @@ public final class LbcTmtRanged {
             ItemStack weapon,ItemStack fired,List<Projectile> nativeFamily){
         if(ItemData.intValue(fired,"tmt_item",0)!=1)return false;
         if(LbcTmtAbilities.active(weapon)||LbcTmtAbilities.active(fired))return true;
+        LbcTmtAmmoPayloads.install(game,owner,fired,nativeFamily);
         var abilities=new ArrayList<>(LbcTmtAbilities.read(fired));
         // Source owner order, independent of random draw/serialization order.
         abilities.sort(java.util.Comparator.comparingInt(LbcTmtRanged::order));
@@ -81,6 +82,8 @@ public final class LbcTmtRanged {
             family=result.get();
         }
         if(family.isEmpty())return true;
+        for(var projectile:family)if(LbcTmtAmmoPayloads.hasVariant(projectile,300)&&!LbcHomingArrows.isManaged(projectile))
+            game.items().homingArrows().loaded(projectile);
         game.items().trinkets().shot(owner,family);
 
         // Each destructive owner gets its own codec image of the very same rolled

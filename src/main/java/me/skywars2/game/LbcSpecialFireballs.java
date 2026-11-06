@@ -38,7 +38,9 @@ public final class LbcSpecialFireballs {
     private boolean restoring;
     public LbcSpecialFireballs(GameController game){this.game=game;}
     public static int variant(ItemStack stack){
-        if(!(stack.getItem() instanceof net.minecraft.world.item.SnowballItem)||ItemData.intValue(stack,"special",0)!=1)return 0;
+        var selected=LbcTmtAbilities.nativePredicatesActive()?LbcTmtAbilities.nativePredicateItem(stack):null;
+        var nativeItem=selected==null?stack.getItem():selected;
+        if(!(nativeItem instanceof net.minecraft.world.item.SnowballItem)||ItemData.intValue(stack,"special",0)!=1)return 0;
         for(int i=0;i<FLAGS.length;i++)if(ItemData.intValue(stack,FLAGS[i],0)==1)return i+1;
         return 0;
     }

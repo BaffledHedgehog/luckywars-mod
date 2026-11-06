@@ -72,7 +72,7 @@ final class LbcBalanceExtras {
                 var duplicate=arrow.getType().create(owner.level(),EntitySpawnReason.TRIGGERED);if(!(duplicate instanceof AbstractArrow copy))continue;
                 var output=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,owner.registryAccess());arrow.saveWithoutId(output);var tag=output.buildResult();tag.remove("UUID");
                 copy.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),tag));copy.setOwner(owner);copy.setPos(owner.getEyePosition().add(left.scale(side)).add(owner.getLookAngle().scale(.3)));copy.setDeltaMovement(game.items().timeStop().persistedVelocity(arrow,arrow.getDeltaMovement()));copy.setNoGravity(game.items().timeStop().persistedNoGravity(arrow,arrow.isNoGravity()));copy.setYRot(arrow.getYRot());copy.setXRot(arrow.getXRot());
-                copy.entityTags().add("doubel");copy.entityTags().add("active");insert(owner,copy);result.add(copy);
+                LbcTmtAmmoPayloads.copyPayloads(arrow,copy);copy.entityTags().add("doubel");copy.entityTags().add("active");insert(owner,copy);result.add(copy);
             }arrow.discard();}
             else result.add(arrow);
         }

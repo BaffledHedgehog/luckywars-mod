@@ -36,6 +36,7 @@ public final class LbcChargedBows {
     /** The shared final-family transaction supplies all ammo effects and already rolled traits. */
     public interface BeamPayload {
         int variant();
+        default boolean hasVariant(int value){return variant()==value;}
         default void blockContact(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){}
         void sample(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun);
         MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links);
@@ -141,10 +142,10 @@ public final class LbcChargedBows {
             if(!level.getBlockState(BlockPos.containing(point)).is(AIRS))payload.blockContact(level,point,cause);
             payload.sample(level,point,cause,railgun);
             if(railgun){
-                if(payload.variant()==101&&level.getRandom().nextFloat()<.35f)enqueue(new BeamWork(level,point,cause,1,2));
-                if(payload.variant()==111)enqueue(new BeamWork(level,point,cause,0,1));
-                if(payload.variant()!=302)blast(level,point,cause,1,false);
-                if(payload.variant()==301)blast(level,point,cause,1,false);
+                if(payload.hasVariant(101)&&level.getRandom().nextFloat()<.35f)enqueue(new BeamWork(level,point,cause,1,2));
+                if(payload.hasVariant(111))enqueue(new BeamWork(level,point,cause,0,1));
+                if(!payload.hasVariant(302))blast(level,point,cause,1,false);
+                if(payload.hasVariant(301))blast(level,point,cause,1,false);
                 particles(level,ParticleTypes.EXPLOSION,point,1,1.5);particles(level,CYAN,point,5,.1);
             }else{
                 blast(level,point,cause,4,true);enqueue(new BeamWork(level,point,cause,3,0));
@@ -156,7 +157,7 @@ public final class LbcChargedBows {
         public boolean sampleContinues(Vec3 point){
             if(!railgun)return true;
             var next=point.add(direction);
-            return !homingLost&&!jammed(level,next,false)&&(payload.variant()!=300||nearest(next)!=null);
+            return !homingLost&&!jammed(level,next,false)&&(!payload.hasVariant(300)||nearest(next)!=null);
         }
         private net.minecraft.world.entity.LivingEntity nearest(Vec3 point){
             return game.items().lifetimes().nearestBeamTarget(level,point,e->!e.getUUID().equals(author)
@@ -164,7 +165,7 @@ public final class LbcChargedBows {
                     &&!(e instanceof net.minecraft.world.entity.monster.Creeper)&&e.getType().builtInRegistryHolder().is(MOBS));
         }
         public Vec3 directionAt(Vec3 point,Vec3 previous){
-            if(!firstSample&&!preview&&railgun&&payload.variant()==300){
+            if(!firstSample&&!preview&&railgun&&payload.hasVariant(300)){
                 var target=nearest(point);homingLost=target==null;
                 if(target!=null){var delta=target.position().subtract(point);if(delta.lengthSqr()>1e-12)direction=delta.normalize();}
             }

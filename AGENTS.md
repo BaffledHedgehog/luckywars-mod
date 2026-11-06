@@ -1,3 +1,14 @@
+## TMT native ammo composition - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Native boundaries, exact evidence and carry-forward](agent_notes/TMT_AMMO_RUNTIME_2026_11_07.md).
+Bounded typed extra ammo properties; actual selected ammo/debit unchanged.
+Native expansion/old-double/Shulker/beam/explosive owners retain all properties.
+Canonical clones, persistent codec and whole-world partial-age rewind verified.
+Additional Nexus/Balance/Touhou/Terra/fireball native use routes; ordinary spell isolation retained.
+Internal0cbe1880/9c6b6213 on complete57b18387 parent;12 suites in11 real mode1 matches pass.
+25 Java families/0 resources;10308 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Full TMT held/block/drop/intake reconciliation and release remain pending.
+
 ## Unified TMT sampler/native totems - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Native domain/effect evidence and carry-forward](agent_notes/TMT_CATALOG_RUNTIME_2026_11_07.md).

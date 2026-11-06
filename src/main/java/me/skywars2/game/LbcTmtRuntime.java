@@ -24,8 +24,8 @@ public final class LbcTmtRuntime {
     LbcTmtRuntime(GameController game){this.game=game;}
 
     public boolean admitted(ServerPlayer player){
-        return player!=null&&player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()
-                &&LbcDimensionItems.ordinary(player)&&game.canUseGameplayItems(player)&&!game.isObserver(player)
+        return player!=null&&player.isAlive()&&!player.isRemoved()
+                &&game.canUseGameplayItems(player)&&!game.isObserver(player)
                 &&game.stage()!=GameController.Stage.ENDING&&!game.items().actionsBlocked(player)
                 &&!game.items().wands().inputTimeStopped(player);
     }
@@ -42,6 +42,7 @@ public final class LbcTmtRuntime {
         LbcTmtSelfAbilities.armor(game,player);
     }
     private void charging(ServerPlayer player){
+        if(!LbcDimensionItems.ordinary(player))return;
         // The obsolete source infinite-arrow item injection is deliberately replaced by native ammo selection.
         game.items().mana().score(player,"crossbow_charge").add(1);
     }
@@ -52,6 +53,10 @@ public final class LbcTmtRuntime {
     /** Native accepted bow/crossbow event; ammo/trinkets were already handled once by the shot owner. */
     public void bowShot(ServerPlayer player,InteractionHand hand,ItemStack weapon,ItemStack fired,List<Projectile> family){
         if(family.isEmpty()||!LbcTmtItems.matches(fired)||!enter(player))return;
+        if(!LbcDimensionItems.ordinary(player)){
+            if(player.getItemInHand(hand)==weapon&&!weapon.isEmpty())spells(player,hand);
+            return;
+        }
         selfGroups(player);
         if(fired.getItem() instanceof CrossbowItem){
             game.items().mana().score(player,"bow").set(0);

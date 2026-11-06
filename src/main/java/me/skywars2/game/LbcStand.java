@@ -323,7 +323,7 @@ public final class LbcStand {
         state.resistanceOwned=false;
     }
     boolean isStandProjectile(Projectile projectile) {
-        return projectile instanceof AbstractArrow arrow && isArrow(arrow.getPickupItemStackOrigin());
+        return projectile instanceof AbstractArrow arrow && (isArrow(arrow.getPickupItemStackOrigin())||LbcTmtAmmoPayloads.hasVariant(arrow,119));
     }
     /** Return through the existing projectile target hook, including intentional self acquisition. */
     boolean canHit(Projectile projectile,Entity target) {
@@ -335,16 +335,19 @@ public final class LbcStand {
         var owner=LbcIndirectKills.playerSource(source.getEntity());
         if(owner==null) owner=LbcIndirectKills.playerSource(source.getDirectEntity());
         if(owner==null) return;
-        boolean projectile=source.getDirectEntity() instanceof Projectile shot && isStandProjectile(shot);
+        boolean projectile=source.getDirectEntity() instanceof AbstractArrow shot && isArrow(shot.getPickupItemStackOrigin());
         boolean melee=source.is(DamageTypes.PLAYER_ATTACK) && source.getDirectEntity()==owner && isArrow(owner.getMainHandItem());
-        if(projectile || melee) {
+        if(projectile || melee) acceptedArrowHit(target,owner,projectile);
+    }
+    /** The shared carrier adapter calls this only after its real native hit was accepted. */
+    void payloadAccepted(LivingEntity target,ServerPlayer owner){if(owner!=null)acceptedArrowHit(target,owner,true);}
+    private void acceptedArrowHit(LivingEntity target,ServerPlayer owner,boolean projectile){
             // Принятый смертельный удар уже не может дать Stand погибшему, но
             // возврат стрелы всё равно происходит ровно один раз в этом событии.
             if(!target.isAlive()) {
                 if(!target.isRemoved() && target.level()==owner.level() && !game.isObserver(owner)
                         && !game.items().magic().suppressedAt(owner.level(),target.getEyePosition())) returnArrow(target,owner);
             } else resolveArrowHit(target,owner,owner.getRandom().nextInt(100)+1,true,projectile);
-        }
     }
     /** The roll/drop decision is explicit so the approved policy can be tested independently. */
     boolean resolveArrowHit(LivingEntity target,ServerPlayer owner,int roll,boolean returnsOneArrow) {

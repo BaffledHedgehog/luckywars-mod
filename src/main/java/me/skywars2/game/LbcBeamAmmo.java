@@ -36,6 +36,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     private final String epoch;
     private final List<Carrier> carriers;
     private final int variant;
+    private final Set<Integer> variants;
     private final boolean shulker,madoka;
     private Vec3 previous;
     private boolean worldVariants=true;
@@ -49,6 +50,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         final Set<UUID> contacts=new LinkedHashSet<>();
         boolean traitsActive=true,terminal;
         int lastReactiveTick=Integer.MIN_VALUE;
+        LbcTmtAmmoPayloads.State payloads;
         Carrier(ItemStack ammo,ItemStack weapon,int spectral,int fire,int variant,Arrow context){
             this.ammo=ammo.copy();this.weapon=weapon.copy();this.spectral=spectral;this.fire=fire;this.variant=variant;this.context=context;this.level=(ServerLevel)context.level();
         }
@@ -68,7 +70,9 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             context.setBaseDamage(((ShulkerBowMixin.ArrowAccess)arrow).skywars2$baseDamage());
             context.setCritArrow(arrow.isCritArrow());((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)context).skywars2$setPierceLevel(arrow.getPierceLevel());
             int spectral=arrow instanceof SpectralArrow s?((ShulkerBowMixin.SpectralAccess)s).skywars2$duration():0;
-            carriers.add(new Carrier(ammo,accepted,spectral,arrow.getRemainingFireTicks(),variant(ammo),context));
+            var carrier=new Carrier(ammo,accepted,spectral,arrow.getRemainingFireTicks(),variant(ammo),context);
+            var extra=LbcTmtAmmoPayloads.state(arrow);carrier.payloads=extra==null?null:extra.copy();
+            carriers.add(carrier);
         }
         return carriers.isEmpty()?null:new LbcBeamAmmo(game,owner,weapon,carriers);
     }
@@ -78,6 +82,9 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     private LbcBeamAmmo(GameController game,ServerPlayer owner,ItemStack weapon,List<Carrier> carriers){
         this.game=game;this.owner=owner;this.weapon=weapon.copy();this.carriers=List.copyOf(carriers);epoch=game.items().epoch();
         variant=carriers.getFirst().variant;
+        var values=new LinkedHashSet<Integer>();values.add(variant);
+        for(var carrier:carriers)if(carrier.payloads!=null)for(var entry:carrier.payloads.entries)values.add(entry.payload.variant);
+        variants=Set.copyOf(values);
         boolean magical=!game.items().magic().suppressed(owner);
         shulker=magical&&ItemData.intValue(weapon,"shulker_new",0)==1;
         madoka=magical&&LbcMadokaBow.matches(weapon);
@@ -92,6 +99,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)context).skywars2$setPierceLevel(old.getPierceLevel());
             context.setRemainingFireTicks(old.getRemainingFireTicks());context.setNoGravity(true);
             var c=new Carrier(carrier.ammo,carrier.weapon,carrier.spectral,carrier.fire,carrier.variant,context);
+            c.payloads=carrier.payloads==null?null:carrier.payloads.copy();
             c.contacts.addAll(carrier.contacts);c.traitsActive=carrier.traitsActive;c.terminal=carrier.terminal;c.lastReactiveTick=carrier.lastReactiveTick;copied.add(c);
         }
         var result=new LbcBeamAmmo(game,owner,weapon,copied);result.previous=previous;result.worldVariants=worldVariants;result.precise=precise;return result;
@@ -104,9 +112,13 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
         return 0;
     }
     @Override public int variant(){return variant;}
+    /** Intrinsic ammunition and all extra properties participate without replacing their source snapshots. */
+    public boolean hasVariant(int value){return variants.contains(value);}
+    public Set<Integer> variants(){return variants;}
     @Override public void blockContact(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){
         if(!worldVariants||cause==null||!game.items().currentEpoch(epoch))return;
-        for(var c:carriers)if(!c.terminal){c.terminal=true;game.items().quiver().groundCarrier(c.context,owner,level,point,c.context.getYRot(),c.context.getXRot(),c.ammo,cause);}
+        for(var c:carriers)if(!c.terminal){c.terminal=true;game.items().quiver().groundCarrier(c.context,owner,level,point,c.context.getYRot(),c.context.getXRot(),c.ammo,cause);
+            game.items().quiver().payloadGround(c.context,c.payloads,owner,level,point,c.context.getYRot(),c.context.getXRot(),cause);}
     }
 
     @Override public void sample(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun){
@@ -137,12 +149,21 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             context.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
             context.setXRot((float)-Math.toDegrees(Math.asin(Math.clamp(direction.y,-1,1))));
             int tick=game.server().getTickCount();
+            if(carrier.payloads!=null)carrier.payloads.rebase(tick);
             if(worldVariants&&carrier.lastReactiveTick!=tick&&game.items().quiver().reactive(owner,level,point,carrier.ammo,cause))carrier.lastReactiveTick=tick;
             // Source custom children share the accepted cause and existing native services.
             if(worldVariants)game.items().quiver().beamSample(owner,level,point,cause,carrier.variant);
+            if(worldVariants&&carrier.payloads!=null)for(var entry:carrier.payloads.entries){entry.advance(tick);if(entry.expired())continue;
+                game.items().quiver().payloadReactive(entry,owner,level,point,cause);
+                game.items().quiver().beamSample(owner,level,point,cause,entry.payload.variant);
+                if(railgun&&entry.payload.variant==111)for(var target:targets)game.items().indirectKills().withCause(target,cause,
+                        ()->target.addEffect(new MobEffectInstance(MobEffects.RAID_OMEN,200,111),owner));
+            }
             if(railgun&&carrier.variant==111)for(var target:targets)game.items().indirectKills().withCause(target,cause,
                     ()->target.addEffect(new MobEffectInstance(MobEffects.RAID_OMEN,200,111),owner));
             if(shulker)game.items().shulkerBow().beamSample(owner,weapon,context,point,cause);
+            if(shulker&&carrier.variant!=113&&carrier.payloads!=null&&carrier.payloads.entries.stream().anyMatch(e->!e.expired()&&e.payload.variant==113))
+                game.items().shulkerBow().beamSample(owner,weapon,context,point,cause,true);
             if(carrier.traitsActive){game.items().trinketArrows().beamSample(context,point);carrier.traitsActive=!context.isRemoved();}
             else context.setPos(point);
             for(var target:targets)if((!precise||target.getBoundingBox().contains(point)||target.getBoundingBox().clip(start,point).isPresent())&&carrier.contacts.add(target.getUUID()))contact(level,carrier,target,cause);
@@ -150,7 +171,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     }
     private void contact(ServerLevel level,Carrier carrier,LivingEntity target,LbcIndirectKills.Owner cause){
         game.items().indirectKills().withCause(target,cause,()->{
-            if(LbcQuiver.carrierColor(carrier.ammo)==6710884){
+            if(LbcQuiver.carrierColor(carrier.ammo)==6710884||carrier.payloads!=null&&carrier.payloads.entries.stream().anyMatch(e->e.payload.color==6710884)){
                 var hit=new net.minecraft.world.damagesource.DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),carrier.context,owner);
                 target.hurtServer(level,game.items().indirectKills().captureDamage(hit,cause),1e20f);
             }
@@ -163,18 +184,19 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
                 if(effect.getEffect().value().isInstantaneous())effect.getEffect().value().applyInstantaneousEffect(level,carrier.context,owner,target,effect.getAmplifier(),1);
                 else target.addEffect(effect,owner);
             },carrier.ammo.getOrDefault(DataComponents.POTION_DURATION_SCALE,1f));
+            game.items().quiver().payloadContact(carrier.context,carrier.payloads,target,owner,cause);
             if(madoka)game.items().madokaBow().beamContact(owner,weapon,carrier.context,target);
         });
     }
     /** No Arrow entity is part of the saved graph; only typed native values and owner links are retained. */
     private record Image(Carrier carrier,Set<String> tags,Set<UUID> contacts,boolean traitsActive,boolean terminal,boolean reactiveThisTick,
                          Vec3 point,Vec3 velocity,float yaw,float pitch,boolean critical,byte pierce,
-                         double damage,int fire,UUID id) { }
+                         double damage,int fire,UUID id,LbcTmtAmmoPayloads.State payloads) { }
     @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
-        var author=links.key(owner);var savedPrevious=previous;
+        var author=links.key(owner);var savedPrevious=previous;int payloadFrame=game.server().getTickCount();
         var images=carriers.stream().map(c->new Image(c,Set.copyOf(c.context.entityTags()),Set.copyOf(c.contacts),c.traitsActive,c.terminal,c.lastReactiveTick==game.server().getTickCount(),
                 c.context.position(),c.context.getDeltaMovement(),c.context.getYRot(),c.context.getXRot(),c.context.isCritArrow(),
-                c.context.getPierceLevel(),((ShulkerBowMixin.ArrowAccess)c.context).skywars2$baseDamage(),c.context.getRemainingFireTicks(),c.context.getUUID())).toList();
+                c.context.getPierceLevel(),((ShulkerBowMixin.ArrowAccess)c.context).skywars2$baseDamage(),c.context.getRemainingFireTicks(),c.context.getUUID(),c.payloads==null?null:c.payloads.copy())).toList();
         return rebound->{
             var restored=(ServerPlayer)rebound.get(author);var contexts=new ArrayList<Arrow>(images.size());
             for(var image:images){
@@ -185,7 +207,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
                 contexts.add(context);
             }
             return ()->{owner=restored;previous=savedPrevious;for(int i=0;i<images.size();i++){
-                var image=images.get(i);var c=image.carrier;c.context=contexts.get(i);c.contacts.clear();c.contacts.addAll(image.contacts);c.traitsActive=image.traitsActive;c.terminal=image.terminal;c.lastReactiveTick=image.reactiveThisTick?game.server().getTickCount():Integer.MIN_VALUE;
+                var image=images.get(i);var c=image.carrier;c.context=contexts.get(i);c.contacts.clear();c.contacts.addAll(image.contacts);c.traitsActive=image.traitsActive;c.terminal=image.terminal;c.lastReactiveTick=image.reactiveThisTick?game.server().getTickCount():Integer.MIN_VALUE;c.payloads=image.payloads==null?null:image.payloads.copy();if(c.payloads!=null)c.payloads.rebase(payloadFrame,game.server().getTickCount());
             }};
         };
     }

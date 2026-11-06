@@ -42,15 +42,18 @@ public final class LbcShulkerBow {
         public final Set<UUID> contacts=new LinkedHashSet<>();
         public int age;
         public boolean terminal;
+        LbcTmtAmmoPayloads.State payloads;
         State(ItemStack ammo,ItemStack weapon,double baseDamage,boolean critical,int pierce,int spectral,int trail,int fire,
               LbcIndirectKills.Owner cause,String epoch,String team,boolean primary){
             this.ammo=ammo.copy();this.weapon=weapon.copy();this.baseDamage=baseDamage;this.critical=critical;this.pierce=pierce;
             this.spectral=spectral;this.trail=trail;this.fire=fire;this.cause=cause;this.epoch=epoch;this.team=team;this.primary=primary;
         }
-        State copy(){var s=new State(ammo,weapon,baseDamage,critical,pierce,spectral,trail,fire,cause,epoch,team,primary);s.age=age;s.terminal=terminal;s.pickup=pickup;s.contacts.addAll(contacts);return s;}
+        State copy(){var s=new State(ammo,weapon,baseDamage,critical,pierce,spectral,trail,fire,cause,epoch,team,primary);s.age=age;s.terminal=terminal;s.pickup=pickup;s.contacts.addAll(contacts);s.payloads=payloads==null?null:payloads.copy();return s;}
     }
     public static boolean managed(Entity actor){return actor instanceof ShulkerBullet&&actor instanceof Carrier carrier&&carrier.skywars2$shulkerState()!=null;}
     private static State state(Entity actor){return actor instanceof Carrier c?c.skywars2$shulkerState():null;}
+    static LbcTmtAmmoPayloads.State payloadState(Entity actor){var state=state(actor);return state==null?null:state.payloads;}
+    static boolean restorePayloadState(Entity actor,LbcTmtAmmoPayloads.State payloads){var state=state(actor);if(state==null)return false;state.payloads=payloads;return true;}
     private void install(ShulkerBullet bullet,State state){((Carrier)bullet).skywars2$shulkerState(state);actors.add(bullet);bullet.entityTags().add(state.primary?SHOT:CHILD);game.items().markCurrentItemEpoch(bullet);}
     /** Real ownership transfers update authority without replacing accepted ammo or native flight state. */
     public void ownerChanged(Entity actor,ServerPlayer owner){
@@ -73,6 +76,7 @@ public final class LbcShulkerBow {
                     arrow.isCritArrow(),Byte.toUnsignedInt(arrow.getPierceLevel()),arrow instanceof SpectralArrow spectral?((ShulkerBowMixin.SpectralAccess)spectral).skywars2$duration():0,
                     trail,arrow.getRemainingFireTicks(),physicalCause(owner),game.items().epoch(),owner.getTeam()==null?"":owner.getTeam().getName(),true);
             snapshot.pickup=arrow.pickup;
+            var extra=LbcTmtAmmoPayloads.state(arrow);snapshot.payloads=extra==null?null:extra.copy();
             var bullet=new ShulkerBullet(EntityTypes.SHULKER_BULLET,owner.level());
             bullet.setOwner(owner);bullet.snapTo(arrow.getX(),arrow.getY(),arrow.getZ(),arrow.getYRot(),arrow.getXRot());
             bullet.setDeltaMovement(game.items().timeStop().persistedVelocity(arrow,arrow.getDeltaMovement()));bullet.setNoGravity(game.items().timeStop().persistedNoGravity(arrow,arrow.isNoGravity()));bullet.setSilent(arrow.isSilent());
@@ -111,9 +115,11 @@ public final class LbcShulkerBow {
         if(game.items().magic().mechanismSuppressedAt(level,bullet.position())
                 ||Double.isFinite(game.items().magic().mechanismSuppressionFraction(level,bullet.position(),bullet.position().add(bullet.getDeltaMovement())))){retire(bullet);return false;}
         s.age++;
+        if(!game.items().quiver().payloadTick(bullet,s.payloads,bullet.getOwner() instanceof ServerPlayer player?player:null,s.cause))return false;
         if(bullet.getOwner() instanceof ServerPlayer owner)game.items().quiver().reactive(owner,level,bullet.position(),s.ammo,s.cause);
         if(s.trail==112)game.items().quiver().shulkerLightTrail(level,bullet.position(),s.cause);
         if(s.trail==113)child(bullet,s);
+        if(s.payloads!=null)for(var entry:s.payloads.entries)if(!entry.terminal&&!entry.expired()&&entry.payload.variant==113&&s.trail!=113)child(bullet,s);
         return true;
     }
     private boolean target(State s,Entity victim){return victim instanceof LivingEntity&&victim.getType().builtInRegistryHolder().is(MOBS)
@@ -125,7 +131,10 @@ public final class LbcShulkerBow {
         boolean trapper=false;
         for(var effect:context.getPickupItemStackOrigin().getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).getAllEffects())
             if(effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==113)trapper=true;
-        if(!trapper)return;
+        beamSample(owner,weapon,context,at,cause,trapper);
+    }
+    void beamSample(ServerPlayer owner,ItemStack weapon,net.minecraft.world.entity.projectile.arrow.Arrow context,Vec3 at,LbcIndirectKills.Owner cause,boolean trapper){
+        if(!trapper||ItemData.intValue(weapon,"shulker_new",0)!=1||game.items().magic().mechanismSuppressedAt(owner.level(),at))return;
         var parent=new ShulkerBullet(EntityTypes.SHULKER_BULLET,owner.level());parent.setOwner(owner);parent.setPos(at);
         child(parent,new State(ItemStack.EMPTY,weapon.copy(),2,false,0,0,113,0,cause,game.items().epoch(),owner.getTeam()==null?"":owner.getTeam().getName(),true));
     }
@@ -158,6 +167,7 @@ public final class LbcShulkerBow {
                     s.ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).forEachEffect(effect->{
                         if(!game.items().quiver().acceptCarrier(living,effect,owner instanceof ServerPlayer player?player:null,s.cause))living.addEffect(effect,owner==null?bullet:owner);
                     },s.ammo.getOrDefault(DataComponents.POTION_DURATION_SCALE,1f));
+                    game.items().quiver().payloadContact(bullet,s.payloads,living,owner instanceof ServerPlayer player?player:null,s.cause);
                 });
                 double knockback=s.weapon.isEmpty()?0:EnchantmentHelper.modifyKnockback(level,s.weapon,living,source,0);
                 if(knockback>0){var move=bullet.getDeltaMovement().multiply(1,0,1).normalize().scale(knockback*.6*Math.max(0,1-living.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));if(move.lengthSqr()>0)living.push(move.x,.1,move.z);}
@@ -168,8 +178,9 @@ public final class LbcShulkerBow {
     }
     public boolean keepAfterContact(ShulkerBullet bullet,HitResult hit){var s=state(bullet);return s!=null&&hit instanceof EntityHitResult&&s.primary&&s.contacts.size()<=s.pierce;}
     public void blockHit(ShulkerBullet bullet,BlockHitResult hit){var s=state(bullet);if(s==null)return;
-        if(!s.terminal){s.terminal=true;if(bullet.getOwner() instanceof ServerPlayer owner)
-            game.items().quiver().groundCarrier(bullet,owner,(ServerLevel)bullet.level(),hit.getLocation(),bullet.getYRot(),bullet.getXRot(),s.ammo,s.cause);}
+        if(!s.terminal){s.terminal=true;var owner=bullet.getOwner() instanceof ServerPlayer player?player:null;
+            if(owner!=null)game.items().quiver().groundCarrier(bullet,owner,(ServerLevel)bullet.level(),hit.getLocation(),bullet.getYRot(),bullet.getXRot(),s.ammo,s.cause);
+            game.items().quiver().payloadGround(bullet,s.payloads,owner,(ServerLevel)bullet.level(),hit.getLocation(),bullet.getYRot(),bullet.getXRot(),s.cause);}
 
         if(s.primary&&s.pickup==AbstractArrow.Pickup.ALLOWED&&!s.ammo.isEmpty())bullet.spawnAtLocation((ServerLevel)bullet.level(),s.ammo.copy(),.1f);
         if(s.weapon.isEmpty())return;
@@ -193,11 +204,12 @@ public final class LbcShulkerBow {
         out.putBoolean("terminal",s.terminal);out.putDouble("damage",s.baseDamage);out.putBoolean("critical",s.critical);out.putBoolean("primary",s.primary);out.putInt("pierce",s.pierce);out.putInt("spectral",s.spectral);out.putInt("trail",s.trail);out.putInt("fire",s.fire);out.putInt("age",s.age);
         out.store("pickup",AbstractArrow.Pickup.LEGACY_CODEC,s.pickup);out.putBoolean("friendly",s.cause.friendlyFire());out.putString("owner",s.cause.player().toString());out.putLong("order",s.cause.order());out.putString("epoch",s.epoch);out.putString("team",s.team);
         out.store("contacts",net.minecraft.core.UUIDUtil.CODEC.listOf(),List.copyOf(s.contacts));
+        if(s.payloads!=null)out.store("payloads",LbcTmtAmmoPayloads.CODEC,s.payloads);
     }
     public static State load(ValueInput input){var child=input.child(KEY);if(child.isEmpty())return null;var in=child.get();try{
         var s=new State(in.read("ammo",ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY),in.read("weapon",ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY),in.getDoubleOr("damage",2),in.getBooleanOr("critical",false),
                 in.getIntOr("pierce",0),in.getIntOr("spectral",0),in.getIntOr("trail",0),in.getIntOr("fire",0),new LbcIndirectKills.Owner(UUID.fromString(in.getStringOr("owner","")),in.getLongOr("order",0),in.getBooleanOr("friendly",false),true),in.getStringOr("epoch",""),in.getStringOr("team",""),in.getBooleanOr("primary",false));
-        s.pickup=in.read("pickup",AbstractArrow.Pickup.LEGACY_CODEC).orElse(AbstractArrow.Pickup.DISALLOWED);s.age=in.getIntOr("age",0);s.terminal=in.getBooleanOr("terminal",false);s.contacts.addAll(in.read("contacts",net.minecraft.core.UUIDUtil.CODEC.listOf()).orElse(List.of()));return s;
+        s.pickup=in.read("pickup",AbstractArrow.Pickup.LEGACY_CODEC).orElse(AbstractArrow.Pickup.DISALLOWED);s.age=in.getIntOr("age",0);s.terminal=in.getBooleanOr("terminal",false);s.contacts.addAll(in.read("contacts",net.minecraft.core.UUIDUtil.CODEC.listOf()).orElse(List.of()));s.payloads=in.read("payloads",LbcTmtAmmoPayloads.CODEC).orElse(null);return s;
     }catch(IllegalArgumentException invalid){return null;}}
 }
 

@@ -86,9 +86,7 @@ public final class LbcKfcRewards {
         @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
             var controller=me.skywars2.SkyWars2.game();
             if(!(player instanceof ServerPlayer owner) || controller==null
-                    || !controller.items().kfcRewards().useWin(owner)) return InteractionResult.FAIL;
-            // Snowball throwing was only the datapack consumption trigger.
-            owner.getItemInHand(hand).consume(1,owner);
+                    || !controller.items().kfcRewards().useWin(owner,hand)) return InteractionResult.FAIL;
             return InteractionResult.SUCCESS;
         }
     }
@@ -115,6 +113,13 @@ public final class LbcKfcRewards {
         return active(owner) && !game.items().actionsBlocked(owner) && !game.items().wands().timeStopped()
                 && !owner.entityTags().contains("time_stopped") && !game.items().magic().suppressed(owner)
                 && !game.items().magic().suppressedAt(owner.level(),owner.getEyePosition());
+    }
+    static boolean winButton(ItemStack stack){return !stack.isEmpty()&&(stack.is(WIN_BUTTON)||ItemData.intValue(stack,"win_button",0)==1);}
+    /** Same native action and sole real-hand debit for both Item.use and TMT. */
+    boolean useWin(ServerPlayer owner,InteractionHand hand){
+        if(!useWin(owner))return false;
+        // Snowball throwing was only the datapack consumption trigger.
+        owner.getItemInHand(hand).consume(1,owner);return true;
     }
     public boolean useWin(ServerPlayer owner) {
         if(!mayUse(owner)) return false;

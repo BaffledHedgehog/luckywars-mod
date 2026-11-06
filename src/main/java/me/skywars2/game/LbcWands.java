@@ -518,7 +518,7 @@ public final class LbcWands {
 
     /** Exact used-hand continuation for the future TMT event owner; ordinary use keeps its existing policy. */
     int castTmtSpells(ServerPlayer player,InteractionHand hand) {
-        if(hand==null||player==null||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return 0;
+        if(hand==null||player==null||!LbcDimensionItems.ordinary(player)||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return 0;
         var stack=player.getItemInHand(hand);
         if(ItemData.intValue(stack,"tmt_item",0)!=1||LbcTmtAbilities.active(stack))return 0;
         int completed=0;
