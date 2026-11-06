@@ -20,6 +20,7 @@ public final class LbcTmtRuntime {
     private String epoch;
     private LbcTmtProperties generator;
     private LbcTmtUseProfiles useProfiles;
+    private LbcTmtCatalog catalog;
     LbcTmtRuntime(GameController game){this.game=game;}
 
     public boolean admitted(ServerPlayer player){
@@ -109,8 +110,10 @@ public final class LbcTmtRuntime {
     }
     ItemStack generate(RandomSource random,List<LbcTmtAbilities.Ability> draws){
         if(generator==null)generator=new LbcTmtProperties(game.maps().level());
-        return generator.generate(random,LbcTmtItems::prototype,draws);
+        var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtTotems.apply(result);return result;
     }
+    public ItemStack generate(RandomSource random){return generate(random,catalog().drawSeven(random));}
+    LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(useProfiles());return catalog;}
     static void visual(ItemStack stack){
         int seed=ItemData.intValue(stack,"tmt_texture_seed",0);
         var current=stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA,CustomModelData.EMPTY);
@@ -123,7 +126,7 @@ public final class LbcTmtRuntime {
         if(useProfiles==null)useProfiles=new LbcTmtUseProfiles(game,game.items().wands()::tmtNativeUseCandidate);
         return useProfiles;
     }
-    public void reload(){generator=null;useProfiles=null;}
+    public void reload(){generator=null;useProfiles=null;catalog=null;}
     void forget(ServerPlayer player){triggered.remove(player);}
     void stop(){triggered.clear();epoch=null;tick=Integer.MIN_VALUE;}
 }

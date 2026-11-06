@@ -54,7 +54,11 @@ public final class LbcTotems {
     private boolean running(ServerPlayer p){return participant(p)&&p.isAlive()&&!game.items().timeStop().stopped(p.level())&&!p.entityTags().contains("time_stopped");}
     private static boolean entityResident(ServerLevel level,BlockPos pos){return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
     private static boolean resident(ServerLevel level,BlockPos pos){return !level.isOutsideBuildHeight(pos)&&entityResident(level,pos);}
-    int infinity(ItemStack stack,ServerLevel level){return stack.getEnchantments().getLevel(level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.INFINITY));}
+    int infinity(ItemStack stack,ServerLevel level){
+        var infinity=level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.INFINITY);
+        int own=stack.getEnchantments().getLevel(infinity);
+        return LbcTmtTotems.selectedInfinite(stack)?Math.max(own,LbcSpecialArtifactItems.Kind.INFINITE_TOTEM.item.getDefaultInstance().getEnchantments().getLevel(infinity)):own;
+    }
     boolean refundable(ItemStack stack,ServerLevel level){var data=LbcFartus.data(stack);return data.getIntOr("transformable",0)==1&&data.getIntOr("totem",0)==1&&infinity(stack,level)>0;}
     /** Runs from the actual used_totem criterion, before native health/effect restoration, exactly as the source reward. */
     public void used(ServerPlayer p,ItemStack consumed){
@@ -62,7 +66,8 @@ public final class LbcTotems {
         callbackDepth++;try{
         if(!participant(p))return;
         if(refundable(consumed,p.level())){
-            refunds.addLast(new Refund(p.level(),p.position(),consumed.copyWithCount(1),infinity(consumed,p.level()),game.items().epoch()));
+            var refunded=LbcTmtAbilities.outerCopy(consumed);refunded.setCount(1);
+            refunds.addLast(new Refund(p.level(),p.position(),refunded,infinity(consumed,p.level()),game.items().epoch()));
             refundsTick();
         }
         if(devil(consumed))burst(p);

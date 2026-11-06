@@ -40,6 +40,27 @@ public final class TotemChecks {
         require(f.base.game.items().totems().infinity(loot(f,"infinite_totem"),f.level)==1,"source InfinityI");var seen=new HashSet<String>();
         for(int n=0;n<256;n++){var out=f.base.game.lbc().rollTable(f.level,f.at,f.base.owner,"lbc:transformables_totem");require(out.size()==1&&out.getFirst().has(DataComponents.DEATH_PROTECTION),"closed complete weighted totem pool");seen.add(out.getFirst().get(DataComponents.ITEM_MODEL).toString());}require(seen.equals(Set.of("lbc:infinite_totem","lbc:deviltotem")),"both exact pool outcomes observed");
     }
+    private static void tmt(AllGrimoireChecks.Fixture f){
+        reset(f);var game=f.base.game;var catalog=game.items().tmt().catalog();var properties=new ArrayList<LbcTmtAbilities.Ability>();
+        for(var id:List.of("native/infinite_totem","native/deviltotem","native/broken_totem","native/feeding"))
+            properties.add(catalog.families().stream().filter(row->row.id().equals(id)).findFirst().orElseThrow().variants().getFirst());
+        var stack=LbcTmtItems.prototype(0);var root=stack.get(DataComponents.CUSTOM_DATA).copyTag();LbcTmtAbilities.write(root,properties);
+        stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(root));
+        LbcTmtRuntime.visual(stack);LbcTmtTotems.apply(stack);var expected=stack.copy();
+        var usedStat=net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem());int usedBefore=f.base.owner.getStats().getValue(usedStat);
+        try{
+            pop(f,stack,InteractionHand.OFF_HAND);
+            var returned=new ArrayList<ItemEntity>();
+            for(var body:f.level.getAllEntities())if(!f.base.before.contains(body)&&!body.isRemoved()&&body instanceof ItemEntity item&&LbcTmtItems.matches(item.getItem()))returned.add(item);
+            require(returned.size()==1&&ItemStack.matches(returned.getFirst().getItem(),expected),"Infinite property refunds the whole exact TMT after real vanilla selection/debit");
+            require(!returned.getFirst().getItem().get(DataComponents.CUSTOM_DATA).copyTag().contains(LbcTmtAbilities.ACTIVE)
+                    &&LbcTmtAbilities.read(returned.getFirst().getItem()).size()==4,"refund has all four private properties and no transient selected context");
+            require(game.items().totems().pendingDeaths()==1&&game.items().curseTicks(f.base.owner)>0,"Devil and Broken properties both run from the same native protection criterion");
+            require(!LbcTmtAbilities.nativePredicatesActive(),"criterion composition restores native predicate state");
+        }finally{
+            f.base.owner.getStats().setValue(f.base.owner,usedStat,usedBefore);game.items().clear(f.base.owner);reset(f);
+        }
+    }
     private static void infinity(AllGrimoireChecks.Fixture f){
         for(var hand:InteractionHand.values()){reset(f);var s=loot(f,"infinite_totem");pop(f,s,hand);var p=f.base.owner;var returned=drops(f);require(returned.size()==1&&returned.getFirst().getItem().getCount()==1&&returned.getFirst().position().distanceToSqr(f.at)<1e-8,"one fresh totem returned on the ground for "+hand);require(returned.getFirst().getItem().getComponents().equals(loot(f,"infinite_totem").getComponents()),"refund comes from actual source loot table");require(p.hasEffect(MobEffects.REGENERATION)&&p.hasEffect(MobEffects.FIRE_RESISTANCE)&&p.hasEffect(MobEffects.ABSORPTION),"native death protection effects remain");
             var advancement=f.base.game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/totems/infinite"));require(advancement!=null&&p.getAdvancements().getOrStartProgress(advancement).isDone(),"real source used_totem advancement");}
@@ -91,7 +112,7 @@ public final class TotemChecks {
         }finally{p.entityTags().remove("sin_greed_active");board.removePlayerFromTeam(p.getScoreboardName());board.removePlayerFromTeam(f.beta.getScoreboardName());board.removePlayerTeam(team);if(old!=null)board.addPlayerToTeam(p.getScoreboardName(),old);if(other!=null)board.addPlayerToTeam(f.beta.getScoreboardName(),other);reset(f);}
         var broken=new ItemStack(Items.TOTEM_OF_UNDYING);var flag=new net.minecraft.nbt.CompoundTag();flag.putInt("broken_totem",1);broken.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(flag));pop(f,broken,InteractionHand.OFF_HAND);require(g.items().curseTicks(p)>0,"existing broken-totem callback still runs from real native death protection");g.items().clear(p);reset(f);
     }
-    public static void run(GameController g){net.minecraft.server.level.ServerPlayer previous=null;try(var f=new AllGrimoireChecks.Fixture(g);var nativeStats=new NativeMeleeChecks.NativeStats(f.base.owner,LbcSpecialArtifactItems.items())){expand(f);try{presentation(f);infinity(f);outsideBuildHeight(f);copies(f);passive(f);burst(f);wildAndBroken(f);fatal(f);previous=f.base.owner;}finally{g.items().timeStop().end(f.level);g.items().totems().stop();f.restoreWorld=true;}}
+    public static void run(GameController g){net.minecraft.server.level.ServerPlayer previous=null;try(var f=new AllGrimoireChecks.Fixture(g);var nativeStats=new NativeMeleeChecks.NativeStats(f.base.owner,LbcSpecialArtifactItems.items())){expand(f);try{presentation(f);tmt(f);infinity(f);outsideBuildHeight(f);copies(f);passive(f);burst(f);wildAndBroken(f);fatal(f);previous=f.base.owner;}finally{g.items().timeStop().end(f.level);g.items().totems().stop();f.restoreWorld=true;}}
         if(previous!=null){var fresh=g.server().getPlayerList().respawn(previous,false,Entity.RemovalReason.KILLED);fresh.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());require(fresh!=previous&&fresh.connection.player==fresh&&fresh.isAlive()&&g.canUseGameplayItems(fresh),"real native replacement player and respawn callback restore gameplay after death");var at=fresh.position();var moved=at.add(.25,0,.25);require(fresh.teleportTo(fresh.level(),moved.x,moved.y,moved.z,Set.of(),fresh.getYRot(),fresh.getXRot(),true)&&fresh.position().distanceToSqr(moved)<1e-8,"post-respawn native teleport moves replacement player rather than retired body");fresh.teleportTo(fresh.level(),at.x,at.y,at.z,Set.of(),fresh.getYRot(),fresh.getXRot(),true);}
         SkyWars2.LOGGER.info("[check] PASS totems");}
     private static AllGrimoireChecks.Fixture retained;private static List<WitherSkeleton> retainedActors;

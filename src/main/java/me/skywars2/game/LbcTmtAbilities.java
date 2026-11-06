@@ -19,11 +19,17 @@ public final class LbcTmtAbilities {
     private static final List<String> PARAMETERS=List.of("upgraded","mode","type");
     private static final List<String> IDENTITY=List.of(SLOTS,ACTIVE,"tmt_item","tmt_texture_seed");
     // Captured source stacks retain ACTIVE as context. Runtime reentry is never a serialized lock.
-    private static final ThreadLocal<java.util.Set<ItemStack>> SCOPES=new ThreadLocal<>();
+    private static final ThreadLocal<java.util.Map<ItemStack,CompoundTag>> SCOPES=new ThreadLocal<>();
     private static final ThreadLocal<java.util.ArrayDeque<Runnable>> AFTER_SCOPES=new ThreadLocal<>();
     private static final ThreadLocal<java.util.Map<ItemStack,net.minecraft.world.item.Item>> NATIVE_SCOPES=new ThreadLocal<>();
     private static final java.util.concurrent.atomic.AtomicInteger NATIVE_DEPTH=new java.util.concurrent.atomic.AtomicInteger();
-    static boolean active(ItemStack stack){var scopes=SCOPES.get();return scopes!=null&&scopes.contains(stack);}
+    static boolean active(ItemStack stack){var scopes=SCOPES.get();return scopes!=null&&scopes.containsKey(stack);}
+    /** Inventory refunds preserve the full item; projectile captures deliberately use ordinary copy(). */
+    static ItemStack outerCopy(ItemStack stack){
+        var result=stack.copy();var scopes=SCOPES.get();var original=scopes==null?null:scopes.get(stack);
+        if(original!=null)result.set(DataComponents.CUSTOM_DATA,CustomData.of(original));
+        return result;
+    }
     /** Native shots accepted inside a property finish after the outer held state is restored. */
     static void afterScopes(Runnable action){
         var scopes=SCOPES.get();
@@ -118,8 +124,8 @@ public final class LbcTmtAbilities {
             nativeScopes.put(stack,nativeItem);NATIVE_DEPTH.incrementAndGet();
         }
         var scopes=SCOPES.get();
-        if(scopes==null){scopes=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());SCOPES.set(scopes);}
-        scopes.add(stack);
+        if(scopes==null){scopes=new java.util.IdentityHashMap<>();SCOPES.set(scopes);}
+        scopes.put(stack,original);
         try{stack.set(DataComponents.CUSTOM_DATA,CustomData.of(effective));return action.getAsBoolean();}
         finally{
             try{

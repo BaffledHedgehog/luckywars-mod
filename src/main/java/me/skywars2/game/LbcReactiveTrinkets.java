@@ -43,14 +43,15 @@ public final class LbcReactiveTrinkets {
         return player.getInventory().clearOrCountMatchingItems(s->matches(s,item,identity),true,0,player.inventoryMenu.getCraftSlots());
     }
     private static boolean matches(ItemStack s,Item item,String identity){
-        return !s.isEmpty()&&(s.is(item)||ItemData.stringValue(s,"trinket","").equals(identity));
+        return !s.isEmpty()&&(s.is(item)||LbcTmtInventory.string(s,"trinket",identity));
     }
     private static int[] counts(ServerPlayer p,Item[] types,String[] ids){
         int[] result=new int[types.length];
         p.getInventory().clearOrCountMatchingItems(s->{
             if(s.isEmpty())return false;
             String id=ItemData.stringValue(s,"trinket","");
-            for(int i=0;i<types.length;i++)if(s.is(types[i])||id.equals(ids[i]))result[i]=add(result[i],s.getCount());
+            var privateIds=LbcTmtItems.matches(s)?LbcTmtInventory.strings(s,"trinket"):null;
+            for(int i=0;i<types.length;i++)if(s.is(types[i])||id.equals(ids[i])||privateIds!=null&&privateIds.contains(ids[i]))result[i]=add(result[i],s.getCount());
             return false;
         },true,0,p.inventoryMenu.getCraftSlots());
         return result;

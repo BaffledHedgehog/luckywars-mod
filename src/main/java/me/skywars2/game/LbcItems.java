@@ -2033,6 +2033,7 @@ public final class LbcItems {
 
     /** Native used_totem runs before vanilla death-protection effects clear all potions. */
     public void usedTotem(ServerPlayer player, ItemStack used) {
+        if(LbcTmtTotems.used(game,player,used))return;
         totems.used(player,used);
         var data = used.get(DataComponents.CUSTOM_DATA);
         if (data == null || !data.matchedBy(BROKEN_TOTEM) || !active(player)) return;

@@ -1,3 +1,15 @@
+## Unified TMT sampler/native totems - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Native domain/effect evidence and carry-forward](agent_notes/TMT_CATALOG_RUNTIME_2026_11_07.md).
+643 families/1246 variants, typed145 pills/44 artifacts/34 Fragment outcomes; not full coverage.
+Seven replacement draws, private variants; pending native/custom component findings retained.
+Actual native death protection; shared Devil/Broken rewards; Infinite full-item refund.
+Reactive trinkets combine private string identities. No arbitrary function interpreter.
+Internal57b18387/c342b20f on complete b17b3e5b parent;5 actual mode1 matches pass.
+10 Java families/0 resources;10318 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Carry this sealed internal base, not git status only.
+Ammo/held/event reconciliation, acquisition and final full TMT release still pending.
+
 ## TMT native tool actions - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Real action boundaries, exact native evidence and carry-forward](agent_notes/TMT_TOOLS_2026_11_07.md).
