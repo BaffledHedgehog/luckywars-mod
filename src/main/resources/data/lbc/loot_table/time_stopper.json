@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:touhou_time_stopper",
           "modifier": [
             {
               "count": 1,

@@ -5,158 +5,27 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_d",
-                "minecraft:item_model": "lbc:power_item"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "power_item",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:1}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_1",
           "weight": 800
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:big_power_item"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "big_power_item",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:2}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_2",
           "weight": 100
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:full_power_item"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "full_power_item",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:3}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_3",
           "weight": 3
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:score_item"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "score_item",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:4}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_4",
           "weight": 1000
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:life_item"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "life_item",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:5}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_5",
           "weight": 1
         },
         {
@@ -166,157 +35,27 @@
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:time_orb"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "time_orb",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:6}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_6",
           "weight": 200
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:bomb_item_fragment"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "bomb_item_fragment",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:7}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_7",
           "weight": 100
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:life_item_fragment"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "life_item_fragment",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:8}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_8",
           "weight": 10
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:faith_item"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "faith_item",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:9}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_9",
           "weight": 10
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": 1
-            },
-            {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:item_model": "lbc:money_item"
-              }
-            },
-            {
-              "type": "minecraft:set_name",
-              "name": [
-                {
-                  "translate": "money_item",
-                  "color": "white",
-                  "italic": false
-                }
-              ]
-            },
-            {
-              "type": "minecraft:set_custom_data",
-              "tag": "{instantitem:1,touhou_item:10}"
-            }
-          ],
+          "value": "lbc:ported/touhou_collectible_10",
           "weight": 1000
         }
       ]

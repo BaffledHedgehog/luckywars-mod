@@ -1,3 +1,14 @@
+## Twelve native Hakurei/Touhou items - QUALIFIED, INSTALLED (6 November 2026)
+
+[Canonical identities, weighted reward graph and exact proof](NATIVE_TOUHOU_ITEMS_2026_11_06.md).
+Ten collectibles, bomb and clock retain full original source/default properties.
+All11 reward branches/3234 total weight now share singleton definitions.
+Shared deferred component-removal support and native snowball tag inheritance.
+Existing inventory/Hakurei/Danmaku/TimeStop owners; no extra tick/NBT engine.
+Testb4840bdf/productione187372a:8 actual isolated mode1/mode3 matches pass.
+6 families/15 resources;10256 source guards/282 author paths/RP preserved.
+Main/both libs installed without restart; memory and broad release gates retained.
+
 ## Eleven native ordinary tools - QUALIFIED, INSTALLED (6 November 2026)
 
 [Canonical tools, common vanilla/Fabric tags and exact proof](NATIVE_ORDINARY_TOOLS_2026_11_06.md).

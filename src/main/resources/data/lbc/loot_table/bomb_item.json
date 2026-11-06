@@ -4,8 +4,7 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/snowball__0a07907b8b8e",
+          "type": "minecraft:item",
           "modifier": [
             {
               "type": "minecraft:set_count",
@@ -35,7 +34,8 @@
               "type": "minecraft:set_custom_data",
               "tag": "{gadget:1,bomb_item:1}"
             }
-          ]
+          ],
+          "name": "skywars2:touhou_bomb_item"
         }
       ]
     }

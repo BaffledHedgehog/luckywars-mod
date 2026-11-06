@@ -695,6 +695,8 @@
     "skywars2:devil_sword",
     "skywars2:feeding_sword",
     "skywars2:metal_pipe_divider",
-    "skywars2:piston_sword"
+    "skywars2:piston_sword",
+    "skywars2:touhou_bomb_item",
+    "skywars2:touhou_time_stopper"
   ]
 }

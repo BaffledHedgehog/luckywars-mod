@@ -48,9 +48,11 @@ final class LbcUtilityItemPrototypes {
                     case "minecraft:set_count", "minecraft:enchant_with_levels" -> {} // Count and stochastic enchantments belong to each loot roll.
                     case "minecraft:set_components" -> {for(var component:row.getAsJsonObject("components").entrySet()){
                         if(lootComponents.contains(component.getKey()))continue;
-                        var componentType=BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(component.getKey()));
+                        boolean remove=component.getKey().startsWith("!");
+                        var componentType=BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(remove?component.getKey().substring(1):component.getKey()));
                         if(componentType==null)throw new IllegalStateException("Unknown utility component "+component.getKey());
-                        if(deferred)deferredComponent(result,componentType,component.getValue());
+                        if(remove)result.component(componentType,null);
+                        else if(deferred)deferredComponent(result,componentType,component.getValue());
                         else component(result,componentType,component.getValue());}}
                     case "minecraft:set_name" -> result.component(DataComponents.CUSTOM_NAME,ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,row.get("name")).getOrThrow());
                     case "minecraft:set_lore" -> {if(!row.get("mode").getAsString().equals("replace_all"))throw new IllegalStateException("Unexpected utility lore operation");
@@ -73,7 +75,7 @@ final class LbcUtilityItemPrototypes {
     }
     /** Vanilla holder components bind after item registration in 26.3; use its native property builders here. */
     private static void vanillaVariant(Item.Properties p,Item carrier){
-        p.overrideDescription("item.minecraft."+BuiltInRegistries.ITEM.getKey(carrier).getPath());
+        p.overrideDescription(carrier.getDescriptionId());
         if(carrier==Items.ELYTRA)p.durability(432).rarity(Rarity.EPIC).component(DataComponents.GLIDER,net.minecraft.util.Unit.INSTANCE)
                 .component(DataComponents.EQUIPPABLE,net.minecraft.world.item.equipment.Equippable.builder(net.minecraft.world.entity.EquipmentSlot.CHEST)
                         .setEquipSound(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_ELYTRA).setAsset(net.minecraft.world.item.equipment.EquipmentAssets.ELYTRA).setDamageOnHurt(false).build())

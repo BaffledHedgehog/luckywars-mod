@@ -4,8 +4,7 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
+          "type": "minecraft:item",
           "modifier": [
             {
               "type": "minecraft:set_count",
@@ -31,7 +30,8 @@
               "type": "minecraft:set_custom_data",
               "tag": "{instantitem:1,touhou_item:3}"
             }
-          ]
+          ],
+          "name": "skywars2:touhou_collectible_3"
         }
       ]
     }

@@ -42,7 +42,7 @@ public final class HakureiSkillChecks {
         }
         void presentation(){
             String[] models={"power_item","big_power_item","full_power_item","score_item","life_item","time_orb","bomb_item_fragment","life_item_fragment","faith_item","money_item"};
-            for(int id=1;id<=10;id++){var stack=source(id,1);require(stack.is(Items.REPEATING_COMMAND_BLOCK)&&Identifier.parse("lbc:"+models[id-1]).equals(stack.get(DataComponents.ITEM_MODEL)),"authored carrier/model "+id);require(stack.get(DataComponents.CUSTOM_NAME)!=null&&LbcFartus.data(stack).getIntOr("instantitem",0)==1,"authored translatable payload "+id);}
+            for(int id=1;id<=10;id++){var stack=source(id,1);require(stack.is(LbcTouhouItems.Kind.values()[id-1].item)&&Identifier.parse("lbc:"+models[id-1]).equals(stack.get(DataComponents.ITEM_MODEL)),"authored carrier/model "+id);require(stack.get(DataComponents.CUSTOM_NAME)!=null&&LbcFartus.data(stack).getIntOr("instantitem",0)==1,"authored translatable payload "+id);}
             try(var input=HakureiSkillChecks.class.getResourceAsStream("/data/lbc/loot_table/touhou_item.json")){
                 require(input!=null,"canonical original weighted table");var entries=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
                 int[] expected={800,100,3,1000,1,10,200,100,10,10,1000};int total=0;require(entries.size()==11,"all source outcomes including nested bomb");for(int n=0;n<expected.length;n++){int weight=entries.get(n).getAsJsonObject().get("weight").getAsInt();require(weight==expected[n],"source exact weight "+n);total+=weight;}require(total==3234,"source total3234");
@@ -105,7 +105,7 @@ public final class HakureiSkillChecks {
                 var held=f.other.getMainHandItem().copy();
                 for(String table:List.of("bomb_item","time_stopper")){
                     f.other.setItemInHand(InteractionHand.MAIN_HAND,game.lbc().rollTable(f.other.level(),f.other.position(),f.other,"lbc:"+table).getFirst());
-                    require(!intake.use(f.other,InteractionHand.MAIN_HAND)&&f.other.getMainHandItem().getCount()==1,"MAG blocks "+table+" launch without consuming it");
+                    require(!f.other.gameMode.useItem(f.other,f.other.level(),f.other.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction()&&f.other.getMainHandItem().getCount()==1,"MAG blocks "+table+" launch without consuming it");
                 }
                 f.other.setItemInHand(InteractionHand.MAIN_HAND,held);
                 f.block(f.center.offset(4,0,4),Blocks.AIR);f.move(f.other,f.at.add(8,0,0));audience.acknowledge();
@@ -132,14 +132,14 @@ public final class HakureiSkillChecks {
                 if(skill.pendingCount()!=0)return false;
                 require(f.owner.level().getEntity(unrelated) instanceof ItemEntity item&&item.getItem().getCount()==17,"unrelated newborn not selected by reward");
                 f.other.getInventory().clearContent();var bomb=game.lbc().rollTable(f.other.level(),f.other.position(),f.other,"lbc:bomb_item").getFirst();f.other.setItemInHand(InteractionHand.MAIN_HAND,bomb.copyWithCount(2));
-                require(intake.use(f.other,InteractionHand.MAIN_HAND)&&f.other.getMainHandItem().getCount()==1,"any picker actual bomb input debits exactly one");
+                require(f.other.gameMode.useItem(f.other,f.other.level(),f.other.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction()&&f.other.getMainHandItem().getCount()==1,"any picker actual bomb input debits exactly one");
                 require(game.items().danmaku().bombs().stream().anyMatch(b->b.owner==f.other),"native shared fast bomb owned by actual picker");stage=6;at=game.server().getTickCount();return false;
             }
             if(stage==6){
                 if(elapsed<4)return false;var clock=game.lbc().rollTable(f.other.level(),f.other.position(),f.other,"lbc:time_stopper").getFirst();f.other.setItemInHand(InteractionHand.MAIN_HAND,clock.copyWithCount(2));
-                require(intake.use(f.other,InteractionHand.MAIN_HAND)&&f.other.getMainHandItem().getCount()==1&&game.items().timeStop().stopped(f.other.level()),"real source clock input enters shared stop with one debit");
+                require(f.other.gameMode.useItem(f.other,f.other.level(),f.other.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction()&&f.other.getMainHandItem().getCount()==1&&game.items().timeStop().stopped(f.other.level()),"real source clock input enters shared stop with one debit");
                 require(!game.items().timeStop().frozen(f.other),"caster exemption survives consumable debit");
-                require(intake.use(f.other,InteractionHand.MAIN_HAND)&&f.other.getMainHandItem().isEmpty()
+                require(f.other.gameMode.useItem(f.other,f.other.level(),f.other.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction()&&f.other.getMainHandItem().isEmpty()
                         &&game.items().timeStop().remaining(f.other.level())==440,"second clock adds11seconds to same stop with one further debit");
                 stage=7;at=game.server().getTickCount();return false;
             }

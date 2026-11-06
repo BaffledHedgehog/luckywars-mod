@@ -1,15 +1,15 @@
 # Остаток переноса — проверено 6 ноября 2026
 
-Это текущий срез квалифицированного JAR `0e7d6a47` после инструментов,
+Это текущий срез квалифицированного JAR `b4840bdf` после инструментов,
 а не перечень старых TODO. Исходные исторические аудиты часто содержат уже
 закрытые задачи; их нельзя складывать как актуальный остаток.
 
 ## Готовые предметы и техническая нативизация
 
 В проверенном срезе 776 верхнеуровневых готовых `lbc:ported/`
-таблиц первый разрешаемый исход у 749 использует
-зарегистрированный `skywars2:` предмет. У 27
-он пока ванильный. Эта пачка перевела ещё 11 таких исходов.
+таблиц первый разрешаемый исход у 761 использует
+зарегистрированный `skywars2:` предмет. У 15
+он пока ванильный. Эта пачка перевела ещё 12 таких исходов.
 
 Это НЕ процент готовности мода и НЕ число уникальных предметов/неперенесённых
 способностей. Несколько таблиц могут описывать варианты одного предмета; обычный
@@ -20,7 +20,7 @@
 `loot_table` с неявным minecraft: учитываются одинаково.
 
 Метод и точные списки/хеши:
-`build/verification/native-ordinary-tools-2026-11-06/remaining-catalog-proof.json`.
+`build/verification/native-touhou-items-2026-11-06/remaining-catalog-proof.json`.
 
 ## Крупные оставшиеся ветки
 
@@ -77,15 +77,3 @@ TimeFragmentSprintChecks прямо помечен OFF-only; проверки у
 - `lbc:ported/op_hoe` — `minecraft:netherite_hoe`
 - `lbc:ported/sea_legend` — `minecraft:trident`
 - `lbc:ported/shulker_bow` — `minecraft:bow`
-- `lbc:ported/touhou_bomb_item` — `minecraft:snowball`
-- `lbc:ported/touhou_collectible_1` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_10` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_2` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_3` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_4` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_5` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_6` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_7` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_8` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_collectible_9` — `minecraft:repeating_command_block`
-- `lbc:ported/touhou_time_stopper` — `minecraft:snowball`
