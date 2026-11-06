@@ -7,7 +7,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 0,
-          "name": "minecraft:repeating_command_block",
+          "name": "skywars2:magnet",
           "modifier": [
             {
               "count": 1,

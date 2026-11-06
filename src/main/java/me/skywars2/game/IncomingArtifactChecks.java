@@ -138,7 +138,7 @@ public final class IncomingArtifactChecks {
                 require(stack.get(DataComponents.ITEM_MODEL).equals(Identifier.parse("lbc:mysticalartifact"))&&stack.get(DataComponents.LORE).lines().size()==(old?1:2),"exact source model/lore shape");
                 require(data.getIntOr("transformable",0)==(old?0:1)&&data.getIntOr("accessory",0)==(old?0:1),"source current/old acquisition flags");
             }
-            for(boolean old:new boolean[]{false,true}){var stack=loot((old?"legacy_":"")+"sand_amulet");require(stack.is(Items.REPEATING_COMMAND_BLOCK)&&LbcFartus.data(stack).getIntOr(old?"gaara_old":"gaara",0)==1&&stack.get(DataComponents.ITEM_MODEL).equals(Identifier.parse("lbc:gaara")),"exact current/old amulet payload");}
+            for(boolean old:new boolean[]{false,true}){var stack=loot((old?"legacy_":"")+"sand_amulet");require(stack.is(old?Items.REPEATING_COMMAND_BLOCK:LbcAccessoryItems.Kind.SAND_AMULET.item)&&LbcFartus.data(stack).getIntOr(old?"gaara_old":"gaara",0)==1&&stack.get(DataComponents.ITEM_MODEL).equals(Identifier.parse("lbc:gaara")),"exact current/old amulet payload");}
         }
         void reset(){owner.stopUsingItem();owner.getInventory().clearContent();owner.removeAllEffects();owner.setHealth(500);owner.setAbsorptionAmount(0);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;owner.hurtTime=0;owner.setDeltaMovement(Vec3.ZERO);}
         void environmental(float amount){owner.hurtServer(level,owner.damageSources().generic(),amount);}

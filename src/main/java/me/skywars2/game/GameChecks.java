@@ -27176,7 +27176,8 @@ public final class GameChecks {
                                         manaFixture(Items.LEATHER_LEGGINGS, "mage"));
                         player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET,
                                         manaFixture(Items.LEATHER_BOOTS, "mage"));
-                        var belts = manaFixture(Items.STICK, "manabelt").copyWithCount(2);
+                        var belts = game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/mana_belt").getFirst().copyWithCount(2);
+                        require(belts.is(LbcAccessoryItems.Kind.MANA_BELT.item), "Mana engine uses the actual native Belt");
                         player.getInventory().setItem(9, belts);
                         triggerNativeInventoryChange(player, belts);
                         mana.set(player, 100);
@@ -27371,8 +27372,14 @@ public final class GameChecks {
                 deferredTicks = 2;
                 deferredCheck = () -> {
                         var respawned = game.server().getPlayerList().getPlayer(player.getUUID());
-                        require(respawned != null && respawned != player && game.allowDamage(respawned),
-                                        "Mana owner respawns as a fresh live player");
+                        require(respawned != null && respawned != player && respawned.isAlive()
+                                        && (game.allowDamage(respawned) || game.bedwars().active()
+                                        && game.bedwars().pending(respawned) && game.awaitingRespawn(respawned.getUUID())),
+                                        "Mana owner has a fresh live body, retaining the native BedWars respawn countdown");
+                        if (game.bedwars().active())
+                                require(respawned.isSpectator() && game.awaitingRespawn(respawned.getUUID())
+                                                && game.bedwars().pending(respawned),
+                                                "BedWars keeps its normal five-second waiting phase after native body replacement");
                         require(mana.get(respawned) == 321 && mana.maximum(respawned) == 3487
                                         && mana.baseRegen(respawned) == 0,
                                         "Mana, maximum and base regeneration survive death");

@@ -1,3 +1,15 @@
+## Seven native passive accessories - QUALIFIED, INSTALLED (6 November 2026)
+
+[Canonical source items, existing authorities and exact proof](agent_notes/NATIVE_PASSIVE_ACCESSORIES_2026_11_06.md).
+Sand Amulet, Save Platform, both Belts, Magnet, Devil Stomach and Infinite Quiver.
+Seven ID-only definitions/eight resources; common deferred Polymer prototype factory.
+Existing incoming/Mana/ordinary/Belt/Quiver owners; no extra tick task or NBT polling.
+Original counts/weights/styles/PDC and Balance aliases retained; Mana Belt ready leaf.
+Test7644e266/production73392944:8 isolated mode1/mode3 matches pass.
+7 families;10243 unchanged inputs/282 author paths/RP preserved.
+Main/both libs installed without restart; one heavy job and explicit RAM headroom.
+Full IMBA/TMT-last/mode/skill2/broad rewind gates unchanged.
+
 ## Eleven native Quiver arrows - QUALIFIED, INSTALLED (6 November 2026)
 
 [Canonical identities, nullable owners and exact proof](agent_notes/NATIVE_QUIVER_ARROWS_2026_11_06.md).
