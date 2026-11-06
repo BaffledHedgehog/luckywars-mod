@@ -131,7 +131,7 @@ public final class LbcLegacyEffects {
         // The source queries raw type2 inventory even when an artifact's own active behavior is suppressed.
         for(var holder:p.level().players())if(holder.position().distanceToSqr(p.position())<=144)
             for(int slot=0;slot<=40;slot++){var data=LbcFartus.data(holder.getInventory().getItem(slot));
-                if(data.getIntOr("mystical",0)==1&&data.getIntOr("type",0)==2)return true;}
+                if((LbcTmtInventory.mysticalTypes(data,1)&(1<<2))!=0)return true;}
         return false;
     }
     void resetWitch(net.minecraft.world.entity.LivingEntity p){game.items().mana().score(p,"dmg_dealt").set(1);

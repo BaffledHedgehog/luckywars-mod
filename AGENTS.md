@@ -1,3 +1,14 @@
+## TMT native tool actions - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Real action boundaries, exact native evidence and carry-forward](agent_notes/TMT_TOOLS_2026_11_07.md).
+Shared Pickaxe/Shovel/Hoe/Breaker/Axe owners through private real break/contact scopes.
+Pre-wear source capture; one native destruction; air/no-change actions cannot create work.
+Raw current/old passive artifact selectors read private masks; legacy admission retained.
+Internal b17b3e5b/b344890c on full f41ff0bf parent;3 actual mode1 matches pass.
+6 Java families/0 resources;10319 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Carry this sealed internal base for the next TMT component.
+Full sampler, custom component/ammo/death adapters, acquisition and final release still pending.
+
 ## TMT native inputs/composition - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Behavior, exact native evidence and REQUIRED carry-forward](agent_notes/TMT_RUNTIME_2026_11_07.md).

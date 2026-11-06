@@ -23,6 +23,11 @@ final class LbcBalancePassive {
     void changed(ServerPlayer p){
         boolean belt=false,healing=false;int mystical=0;
         for(int slot=0;slot<=40;slot++){var stack=p.getInventory().getItem(slot);if(stack.isEmpty())continue;
+            if(LbcTmtItems.matches(stack)){
+                belt|=LbcBalanceItems.flag(stack,"manabelt_old");healing|=LbcBalanceItems.flag(stack,"heall_old");
+                mystical|=(LbcTmtInventory.mysticalTypes(LbcFartus.data(stack),1)>>>16)&0x7e;
+                continue;
+            }
             if(!stack.is(Items.REPEATING_COMMAND_BLOCK))continue;
             belt|=LbcBalanceItems.flag(stack,"manabelt_old");healing|=LbcBalanceItems.flag(stack,"heall_old");
             if(LbcBalanceItems.flag(stack,"mystical_old")){int type=LbcFartus.data(stack).getIntOr("type",0);if(type>=1&&type<=6)mystical|=1<<type;}
