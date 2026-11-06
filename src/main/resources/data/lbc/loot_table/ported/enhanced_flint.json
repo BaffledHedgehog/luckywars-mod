@@ -7,7 +7,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 0,
-          "name": "minecraft:flint_and_steel",
+          "name": "skywars2:enhanced_flint",
           "modifier": [
             {
               "count": 1,

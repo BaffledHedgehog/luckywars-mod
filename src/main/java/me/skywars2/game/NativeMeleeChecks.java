@@ -23,28 +23,32 @@ public final class NativeMeleeChecks {
     static final class NativeStats implements AutoCloseable {
         final ServerPlayer player;final Map<Stat<?>,Integer> before=new LinkedHashMap<>();
         NativeStats(ServerPlayer player){this.player=player;captureStats(player,before);}
+        NativeStats(ServerPlayer player,Collection<Item> items){this.player=player;for(var item:items)for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN,Stats.ITEM_CRAFTED)){var stat=type.get(item);before.put(stat,player.getStats().getValue(stat));}}
         public void close(){before.forEach((stat,value)->player.getStats().setValue(player,stat,value));}
     }
     private static JsonObject source(String resource){try(var input=NativeMeleeChecks.class.getResourceAsStream(resource)){
         return JsonParser.parseReader(new InputStreamReader(Objects.requireNonNull(input,resource),StandardCharsets.UTF_8)).getAsJsonObject();
     }catch(java.io.IOException e){throw new IllegalStateException(e);}}
     private static ItemStack compare(GameController game,WoolBucketChecks.Fixture f,LbcMeleeItems.Kind kind,String resource){
+        return sourceOutcome(game,f,kind.item,kind.carrier,resource,17);
+    }
+    static ItemStack sourceOutcome(GameController game,WoolBucketChecks.Fixture f,Item item,Item carrier,String resource,long seed){
         var raw=source(resource);var params=new LootParams.Builder(f.level).withParameter(LootContextParams.ORIGIN,f.owner.position()).withOptionalParameter(LootContextParams.THIS_ENTITY,f.owner).create(LootContextParamSets.CHEST);
         var ops=game.server().reloadableRegistries().lookup().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
-        var actual=LootTable.DIRECT_CODEC.parse(ops,raw).getOrThrow().getRandomItems(params,17);require(actual.size()==1&&actual.getFirst().is(kind.item),"actual native source identity "+resource);
-        raw.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().addProperty("name",net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(kind.carrier).toString());
-        var original=LootTable.DIRECT_CODEC.parse(ops,raw).getOrThrow().getRandomItems(params,17);require(original.size()==1,"independent original source outcome "+resource);
+        var actual=LootTable.DIRECT_CODEC.parse(ops,raw).getOrThrow().getRandomItems(params,seed);require(actual.size()==1&&actual.getFirst().is(item),"actual native source identity "+resource);
+        raw.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().addProperty("name",net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(carrier).toString());
+        var original=LootTable.DIRECT_CODEC.parse(ops,raw).getOrThrow().getRandomItems(params,seed);require(original.size()==1,"independent original source outcome "+resource);
         var stack=actual.getFirst();var expected=original.getFirst();require(stack.getCount()==expected.getCount()&&stack.getComponents().keySet().equals(expected.getComponents().keySet()),"all original component keys/count "+resource);
         for(var c:expected.getComponents())require(Objects.equals(c.value(),stack.get(c.type())),"original carrier machinery and authored component "+c.type()+" "+resource);
         var provider=(net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)f.owner.connection;
         var view=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(stack,TooltipFlag.NORMAL,provider.getPacketContext(),f.owner.registryAccess());
-        require(view.is(kind.carrier)&&ItemStack.matches(stack,eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(view,provider.getPacketContext(),f.owner.registryAccess())),"Polymer carrier and authoritative roundtrip "+resource);
+        require(view.is(carrier)&&ItemStack.matches(stack,eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(view,provider.getPacketContext(),f.owner.registryAccess())),"Polymer carrier and authoritative roundtrip "+resource);
         var nbt=f.owner.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);var saved=ItemStack.CODEC.encodeStart(nbt,stack).getOrThrow();require(ItemStack.matches(stack,ItemStack.CODEC.parse(nbt,saved).getOrThrow()),"all native components persist "+resource);
         return stack;
     }
     public static void run(GameController game){try(var f=new WoolBucketChecks.Fixture(game,false);var stats=new NativeStats(f.owner)){
         for(var kind:LbcMeleeItems.Kind.values()){
-            var stack=compare(game,f,kind,kind.definition);require(ItemStack.matches(stack,kind.item.getDefaultInstance()),"native /give default equals canonical authored source "+kind.id);
+            var stack=compare(game,f,kind,kind.definition);for(var tag:kind.carrier.builtInRegistryHolder().tags().toList())require(stack.is(tag),"complete vanilla/Fabric carrier tag graph "+kind.id+" "+tag);require(ItemStack.matches(stack,kind.item.getDefaultInstance()),"native /give default equals canonical authored source "+kind.id);
             var leaf=f.leaf(kind.id);
             if(kind==LbcMeleeItems.Kind.FRAGMENT_SWORD){var data=LbcFartus.data(leaf).copy();int type=data.getIntOr("cooltype",-1);require(leaf.is(kind.item)&&type>=0&&type<=16,"public Fragment table selects one of the 17 native states");data.putInt("cooltype",0);leaf=leaf.copy();leaf.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));}
             require(ItemStack.matches(stack,leaf),"ready leaf preserves every canonical component beyond its declared random Fragment state "+kind.id);

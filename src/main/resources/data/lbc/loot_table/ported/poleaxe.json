@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:netherite_axe",
+          "name": "skywars2:poleaxe",
           "modifier": [
             {
               "count": 1,

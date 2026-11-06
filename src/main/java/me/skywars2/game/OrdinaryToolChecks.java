@@ -31,9 +31,9 @@ public final class OrdinaryToolChecks {
             require(LbcFartus.data(s).getIntOr("transformable",0)==1,"Reforge flag "+row);
             require(s.get(DataComponents.TOOL)!=null&&s.getMaxDamage()>0,"native mining tool/durability "+row);
         }
-        var silk=loot(f,"silk_pickaxe");require(silk.is(Items.DIAMOND_PICKAXE)&&enchant(f,silk,Enchantments.SILK_TOUCH)==10,"source diamond SilkX");
+        var silk=loot(f,"silk_pickaxe");require(silk.is(LbcNativeToolItems.Kind.SILK_PICKAXE.item)&&enchant(f,silk,Enchantments.SILK_TOUCH)==10,"source diamond SilkX");
         var op=loot(f,"op_hoe");require(op.is(Items.NETHERITE_HOE)&&enchant(f,op,Enchantments.EFFICIENCY)==255&&enchant(f,op,Enchantments.FORTUNE)==25,"source OP hoe enchantments unchanged");
-        var random=loot(f,"random_enchanted_pickaxe");require(random.is(Items.IRON_PICKAXE)&&!random.getEnchantments().isEmpty(),"native enchant-with-levels still rolls actual enchants");
+        var random=loot(f,"random_enchanted_pickaxe");require(random.is(LbcNativeToolItems.Kind.RANDOM_ENCHANTED_PICKAXE.item)&&!random.getEnchantments().isEmpty(),"native enchant-with-levels still rolls actual enchants");
         for(String pool:List.of("axe","hoe","pickaxe"))for(int n=0;n<100;n++){
             var out=f.base.game.lbc().rollTable(f.level,f.at,f.base.owner,"lbc:transformables_"+pool);require(out.size()==1&&LbcFartus.data(out.getFirst()).getIntOr(pool,0)==1,"complete weighted "+pool);
         }
@@ -78,5 +78,5 @@ public final class OrdinaryToolChecks {
             require(!summons.snapshot().contains(converted),"owner change never invents summon state");
         }finally{g.items().summons().stop();g.items().communism().stop();for(var e:affected){board.removePlayerFromTeam(e.getScoreboardName());e.discard();}board.removePlayerFromTeam(p.getScoreboardName());board.removePlayerFromTeam(f.beta.getScoreboardName());board.removePlayerTeam(a);board.removePlayerTeam(b);if(oldA!=null)board.addPlayerToTeam(p.getScoreboardName(),oldA);if(oldB!=null)board.addPlayerToTeam(f.beta.getScoreboardName(),oldB);}
     }
-    public static void run(GameController g){try(var f=new AllGrimoireChecks.Fixture(g)){try{presentation(f);recipes(f);f.reset();allegiance(f);}finally{g.items().communism().stop();}}SkyWars2.LOGGER.info("[check] PASS ordinary-tools");}
+    public static void run(GameController g){try(var nativeStats=new NativeMeleeChecks.NativeStats(g.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")),LbcNativeToolItems.items());var f=new AllGrimoireChecks.Fixture(g)){try{presentation(f);recipes(f);f.reset();allegiance(f);}finally{g.items().communism().stop();}}SkyWars2.LOGGER.info("[check] PASS ordinary-tools");}
 }

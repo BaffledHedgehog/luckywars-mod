@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:iron_pickaxe",
+          "name": "skywars2:random_enchanted_pickaxe",
           "modifier": [
             {
               "entity": "this",

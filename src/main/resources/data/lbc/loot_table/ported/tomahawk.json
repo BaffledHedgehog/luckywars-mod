@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:golden_axe",
+          "name": "skywars2:tomahawk",
           "modifier": [
             {
               "count": 1,

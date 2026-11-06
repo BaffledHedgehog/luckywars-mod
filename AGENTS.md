@@ -1,3 +1,16 @@
+## Eleven native ordinary tools - QUALIFIED, INSTALLED (6 November 2026)
+
+[Canonical tools, common vanilla/Fabric tags and exact proof](agent_notes/NATIVE_ORDINARY_TOOLS_2026_11_06.md).
+11 source identities retain full attributes/styles/functions and actual native interactions.
+Three random tools retain per-issue1..30 vanilla enchantment rolls and fixed defaults.
+Shared prototype/vanilla-source oracle;8 vanilla and4 Fabric convention tag overlays.
+Related15 melee aliases inherit the complete convention graph; no extra tick engine.
+Real strip/path/till/ignite/mining/SilkX drops, crafts and existing ability checks.
+Test0e7d6a47/production7b222d22:7 isolated mode1/mode3 matches pass.
+8 families/24 resources;10242 guarded source inputs/282 author paths/RP preserved.
+Main/both libs installed without restart; memory limits and all broad release gates retained.
+[Current remaining work](agent_notes/MIGRATION_PROGRESS_2026_11_06.md).
+
 ## Fifteen native melee items - QUALIFIED, INSTALLED (6 November 2026)
 
 [Canonical source profiles, native machinery and exact proof](agent_notes/NATIVE_MELEE_ITEMS_2026_11_06.md).

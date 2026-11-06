@@ -47,7 +47,7 @@ public final class LbcSpecialTools {
     private final Set<Erase> erasures=new LinkedHashSet<>();
     private final Set<Hammer> hammers=new LinkedHashSet<>();
     LbcSpecialTools(GameController game){this.game=game;}
-    public static void register(){}
+    public static void register(){LbcNativeToolItems.register();}
     private static Item createScythe(){
         var id=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:death_scythe"));
         var properties=new Item.Properties(){@Override public Identifier effectiveModel(){return Identifier.parse("lbc:death_skythe");}}

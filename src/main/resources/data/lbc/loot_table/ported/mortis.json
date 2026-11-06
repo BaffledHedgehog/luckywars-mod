@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:netherite_shovel",
+          "name": "skywars2:mortis",
           "modifier": [
             {
               "count": 1,

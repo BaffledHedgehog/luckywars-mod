@@ -45,7 +45,7 @@ final class LbcUtilityItemPrototypes {
             if(nativeDefaults)vanillaVariant(result,carrier);
             for(var value:rows){var row=value.getAsJsonObject();String type=(row.has("type")?row.get("type"):row.get("function")).getAsString();
                 switch(type){
-                    case "minecraft:set_count" -> {} // Loot owns count; it is not an item property.
+                    case "minecraft:set_count", "minecraft:enchant_with_levels" -> {} // Count and stochastic enchantments belong to each loot roll.
                     case "minecraft:set_components" -> {for(var component:row.getAsJsonObject("components").entrySet()){
                         if(lootComponents.contains(component.getKey()))continue;
                         var componentType=BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(component.getKey()));
@@ -78,6 +78,15 @@ final class LbcUtilityItemPrototypes {
                 .component(DataComponents.EQUIPPABLE,net.minecraft.world.item.equipment.Equippable.builder(net.minecraft.world.entity.EquipmentSlot.CHEST)
                         .setEquipSound(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_ELYTRA).setAsset(net.minecraft.world.item.equipment.EquipmentAssets.ELYTRA).setDamageOnHurt(false).build())
                 .repairable(Items.PHANTOM_MEMBRANE);
+        else if(carrier==Items.IRON_AXE)p.axe(ToolMaterial.IRON,6,-3.1f);
+        else if(carrier==Items.GOLDEN_AXE)p.axe(ToolMaterial.GOLD,6,-3);
+        else if(carrier==Items.NETHERITE_AXE)p.axe(ToolMaterial.NETHERITE,5,-3).fireResistant();
+        else if(carrier==Items.IRON_SHOVEL)p.shovel(ToolMaterial.IRON,1.5f,-3);
+        else if(carrier==Items.NETHERITE_SHOVEL)p.shovel(ToolMaterial.NETHERITE,1.5f,-3).fireResistant();
+        else if(carrier==Items.IRON_PICKAXE)p.pickaxe(ToolMaterial.IRON,1,-2.8f);
+        else if(carrier==Items.DIAMOND_PICKAXE)p.pickaxe(ToolMaterial.DIAMOND,1,-2.8f);
+        else if(carrier==Items.IRON_HOE)p.hoe(ToolMaterial.IRON,-2,-1);
+        else if(carrier==Items.FLINT_AND_STEEL)p.durability(64);
         else if(carrier==Items.WOODEN_SWORD)p.sword(ToolMaterial.WOOD,3,-2.4f).cookingFuel(net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
         else if(carrier==Items.IRON_SWORD)p.sword(ToolMaterial.IRON,3,-2.4f);
         else if(carrier==Items.GOLDEN_SWORD)p.sword(ToolMaterial.GOLD,3,-2.4f);

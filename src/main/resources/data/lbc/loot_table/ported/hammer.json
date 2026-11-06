@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:iron_axe",
+          "name": "skywars2:hammer",
           "modifier": [
             {
               "count": 1,

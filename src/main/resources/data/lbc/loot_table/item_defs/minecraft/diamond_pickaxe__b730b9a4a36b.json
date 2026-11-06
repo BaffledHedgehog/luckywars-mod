@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:diamond_pickaxe",
+          "name": "skywars2:silk_pickaxe",
           "modifier": [
             {
               "count": 1,

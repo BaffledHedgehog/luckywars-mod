@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "skywars2:antimagic_sword",
+    "skywars2:chaos_sword",
+    "skywars2:devil_sword",
+    "skywars2:ender_sword",
+    "skywars2:epic_sword",
+    "skywars2:feeding_sword",
+    "skywars2:fragment_sword",
+    "skywars2:gravity_sword",
+    "skywars2:guardian_sword",
+    "skywars2:hylian_sword",
+    "skywars2:vampire_fang",
+    "skywars2:random_enchanted_axe",
+    "skywars2:hammer",
+    "skywars2:poleaxe",
+    "skywars2:tomahawk"
+  ]
+}

@@ -1361,6 +1361,7 @@ public final class GameChecks {
                                 case "antigravity-support" -> { AntigravitySupportChecks.run(game);return; }
                                 case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
                                 case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
+                                case "native-tools" -> { NativeToolChecks.run(game); return; }
                                 case "ordinary-tools" -> { OrdinaryToolChecks.run(game); return; }
                                 case "syringe" -> { SyringeChecks.run(game); return; }
                                 case "syringe-stop-probe" -> { SyringeChecks.stopProbe(game); return; }

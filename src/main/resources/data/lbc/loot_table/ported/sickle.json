@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:iron_hoe",
+          "name": "skywars2:sickle",
           "modifier": [
             {
               "count": 1,

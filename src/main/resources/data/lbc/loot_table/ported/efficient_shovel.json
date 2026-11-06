@@ -7,7 +7,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 0,
-          "name": "minecraft:iron_shovel",
+          "name": "skywars2:efficient_shovel",
           "modifier": [
             {
               "count": 1,

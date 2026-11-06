@@ -30,19 +30,19 @@ public final class SpecialToolChecks {
             var s=loot(f,name);require(s.getCount()==1&&s.get(DataComponents.TOOLTIP_STYLE)!=null&&s.get(DataComponents.LORE)!=null&&LbcFartus.data(s).getIntOr("transformable",0)==1,"source presentation "+name);
             if(!name.equals("death_scythe"))require(s.get(DataComponents.TOOL)!=null&&s.getMaxDamage()>0,"real native mining shovel "+name);
         }
-        require(loot(f,"mortis").is(Items.NETHERITE_SHOVEL)&&loot(f,"random_enchanted_shovel").is(Items.IRON_SHOVEL),"source vanilla tools preserved");
+        require(loot(f,"mortis").is(LbcNativeToolItems.Kind.MORTIS.item)&&loot(f,"random_enchanted_shovel").is(LbcNativeToolItems.Kind.RANDOM_ENCHANTED_SHOVEL.item),"source vanilla tools preserved");
         var book=loot(f,"death_scythe");require(book.is(LbcSpecialTools.SCYTHE)&&Identifier.parse("lbc:death_skythe").equals(book.get(DataComponents.ITEM_MODEL)),"native scythe and source model spelling");
         var seen=new HashSet<String>();
         for(int n=0;n<256;n++){
             for(var pool:List.of("transformables_shovel","transformables_shovel_all","transformables_hoe_all")){
                 var out=f.base.game.lbc().rollTable(f.level,f.at,f.base.owner,"lbc:"+pool);require(out.size()==1&&out.getFirst().getCount()==1,"closed native weighted pool "+pool);
                 var s=out.getFirst();if(pool.equals("transformables_shovel_all")){
-                    require(s.is(Items.IRON_SHOVEL)||s.is(Items.NETHERITE_SHOVEL)||s.is(LbcHalloweenWind.MACE)||s.is(LbcSoulhunter.MACE),"all expanded shovel branches native");
+                    require(s.is(LbcNativeToolItems.Kind.EFFICIENT_SHOVEL.item)||s.is(LbcNativeToolItems.Kind.RANDOM_ENCHANTED_SHOVEL.item)||s.is(LbcNativeToolItems.Kind.MORTIS.item)||s.is(LbcHalloweenWind.MACE)||s.is(LbcSoulhunter.MACE),"all expanded shovel branches native");
                     seen.add(s.getItem().toString());
                 }else require(LbcFartus.data(s).getIntOr(pool.contains("hoe")?"hoe":"shovel",0)==1,"source family flag "+pool);
             }
         }
-        require(seen.size()==4,"all ordinary and both native mace outcomes observed");
+        require(seen.size()==5,"all three distinct native shovels and both native mace outcomes observed");
     }
     private static void mortis(AllGrimoireChecks.Fixture f){reset(f);var p=f.base.owner;var g=f.base.game;var s=g.items().specialTools();
         p.setItemInHand(InteractionHand.MAIN_HAND,loot(f,"mortis"));var victim=cow(f,f.at.add(0,0,3),100);
@@ -150,7 +150,7 @@ public final class SpecialToolChecks {
             board.removePlayerFromTeam(p.getScoreboardName());board.removePlayerFromTeam(f.beta.getScoreboardName());board.removePlayerTeam(team);if(originalTeam!=null)board.addPlayerToTeam(p.getScoreboardName(),originalTeam);if(betaTeam!=null)board.addPlayerToTeam(f.beta.getScoreboardName(),betaTeam);service.stop();reset(f);
         }
     }
-    public static void run(GameController g){try(var f=new AllGrimoireChecks.Fixture(g)){try{presentation(f);mortis(f);charge(f);for(var hand:InteractionHand.values())beam(f,hand);terrain(f);hammer(f);}finally{g.items().specialTools().stop();}}SkyWars2.LOGGER.info("[check] PASS special-tools");}
+    public static void run(GameController g){try(var nativeStats=new NativeMeleeChecks.NativeStats(g.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")),LbcNativeToolItems.items());var f=new AllGrimoireChecks.Fixture(g)){try{presentation(f);mortis(f);charge(f);for(var hand:InteractionHand.values())beam(f,hand);terrain(f);hammer(f);}finally{g.items().specialTools().stop();}}SkyWars2.LOGGER.info("[check] PASS special-tools");}
     private static AllGrimoireChecks.Fixture retained;
     public static void stopProbe(GameController g){require(retained==null,"exclusive stop fixture");var f=new AllGrimoireChecks.Fixture(g,true);try{reset(f);var p=f.base.owner;var center=BlockPos.containing(f.at.add(0,p.getEyeHeight(),12));
         for(var pos:BlockPos.betweenClosed(center.offset(-5,-5,-8),center.offset(5,5,8)))f.level.setBlock(pos,Blocks.STONE.defaultBlockState(),2|16|32);
