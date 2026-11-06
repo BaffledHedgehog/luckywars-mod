@@ -41,7 +41,7 @@ public final class LbcBoba {
                 ||game.items().magic().suppressed(owner))return false;
         // /clear scans the inventory, not just the clicked hand, and precedes engine admission.
         owner.getInventory().clearOrCountMatchingItems(LbcBoba::debitMatches,false,1,owner.inventoryMenu.getCraftSlots());
-        if(game.config().gameMode>=3){
+        if(game.gameMode()>=3){
             for(var target:List.copyOf(owner.level().players()))
                 if(target.distanceToSqr(owner)>=.0001&&game.items().wands().target(owner,target))bedwars(owner,target);
         }else game.maps().rotateMap(owner,origin(owner.position()));

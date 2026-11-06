@@ -77,7 +77,7 @@ public final class LbcBedwars {
     public LbcBedwarsArena arena(){return arena;}
     public LbcBedwarsAuxiliaries auxiliaries(){return auxiliaries;}
     public LbcBedwarsShop shop(){return shop;}
-    public boolean mode(){return game.config().gameMode==3&&!game.balanceLegacy();}
+    public boolean mode(){return (game.gameMode()==3||game.gameMode()==4)&&!game.balanceLegacy();}
     public boolean active(){return running&&mode()&&game.items().currentEpoch(epoch);}
     public boolean canUse(ServerPlayer p){return active()&&activated&&game.canUseGameplayItems(p)&&p.isAlive()&&!p.isRemoved()&&!p.isSpectator()&&!game.items().actionsBlocked(p)&&team(p)>0;}
     public static boolean shopRole(Entity e){return LbcBedwarsRoleGuards.shop(e);}

@@ -1,3 +1,15 @@
+## Latched match mode and source startup - QUALIFIED, INSTALLED (6 November2026)
+
+[Author decision, startup policy and exact native evidence](agent_notes/MATCH_MODE_START_2026_11_06.md).
+Gamemode edits select NEXT match; active mode latched before countdown, cleared after stop.
+Typed core replay and runtime chest/Lucky/BedWars/Boba/glyph/Wrath readers share owner.
+Source solo teams1/2, mode2 initial20XP before kits; configured lives retained.
+Requested map-family selection/preparation/readiness guarded; RU/EN merge-only key/fallback.
+Testb8d1066e/production256dc67b:12 isolated mode1/mode3 matches and actual stop handoffs pass.
+13 families/0 resources;10290 unchanged inputs/282 author paths preserved.
+Main/both libs installed without restart; Gradle512MiB/one worker, fixture2GiB sequentially.
+Public2/4 and full TMT-last/pools/skill2/Academy/general rewind release gates unchanged.
+
 ## Lucky chest acquisition - QUALIFIED INFRASTRUCTURE, INSTALLED (6 November 2026)
 
 [Source closure, shared owner and exact evidence](agent_notes/LUCKY_CHEST_ACQUISITION_2026_11_06.md).

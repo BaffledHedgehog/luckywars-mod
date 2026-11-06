@@ -33,8 +33,12 @@ public final class GameLuckyModifiers {
 
     /** Only LuckyWars resolves this selector. Other modes retain it without consuming randomness. */
     public int startMatch() {
+        return startMatch(game.gameMode());
+    }
+    /** Explicit startup context also permits isolated source-policy checks without opening a mode. */
+    int startMatch(int mode) {
         if (committed) return current;
-        if (game.config().gameMode == 2) return commit(game.config().luckyModifier);
+        if (mode == 2) return commit(game.config().luckyModifier);
         committed = true;
         return current;
     }

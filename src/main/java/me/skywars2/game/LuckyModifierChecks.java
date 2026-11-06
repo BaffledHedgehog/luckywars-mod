@@ -120,24 +120,24 @@ public final class LuckyModifierChecks {
             require(scoped.current() == 1 && active.get() == 1 && configScore.get() == 7,
                     "startup normalizes absent/invalid result to1 without resolving configured7");
             game.config().gameMode = 2;
-            require(scoped.startMatch() == 7 && scoped.current() == 7 && active.get() == 7,
+            require(scoped.startMatch(game.config().gameMode) == 7 && scoped.current() == 7 && active.get() == 7,
                     "simulated eligible LuckyWars start commits configured7");
             game.config().luckyModifier = 12; scoped.syncConfig();
-            require(scoped.startMatch() == 7 && active.get() == 7 && configScore.get() == 12,
+            require(scoped.startMatch(game.config().gameMode) == 7 && active.get() == 7 && configScore.get() == 12,
                     "repeated LuckyWars start retains committed7 while next-match setting stays12");
             scoped.endMatch(); scoped.endMatch();
             require(scoped.current() == 7 && active.get() == 7 && game.config().luckyModifier == 12
                     && configScore.get() == 12, "end releases commit without resetting result or configured setting");
             game.config().gameMode = 1;
-            require(scoped.startMatch() == 7 && active.get() == 7 && configScore.get() == 12,
+            require(scoped.startMatch(game.config().gameMode) == 7 && active.get() == 7 && configScore.get() == 12,
                     "ordinary configured12 start retains prior LuckyWars7");
             game.config().gameMode = 2; game.config().luckyModifier = 6; scoped.syncConfig();
-            require(scoped.startMatch() == 7 && active.get() == 7,
+            require(scoped.startMatch(game.config().gameMode) == 7 && active.get() == 7,
                     "ordinary committed match cannot resolve a changed mode/config midmatch");
             scoped.endMatch();
             require(scoped.current() == 7 && active.get() == 7 && configScore.get() == 6,
                     "ordinary end preserves result and next configured6");
-            require(scoped.startMatch() == 6 && scoped.current() == 6 && active.get() == 6,
+            require(scoped.startMatch(game.config().gameMode) == 6 && scoped.current() == 6 && active.get() == 6,
                     "next simulated LuckyWars committed start resolves configured6");
             scoped.endMatch();
             require(game.config().luckyModifier == 6 && configScore.get() == 6 && active.get() == 6,

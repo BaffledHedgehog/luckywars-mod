@@ -166,7 +166,7 @@ public final class LbcCorruptedGlyphs {
                     if(!candidates.isEmpty())belialAttack(glyph,target,candidates.get(level.getRandom().nextInt(candidates.size())));
                 }
             }
-            if(game.config().gameMode!=3&&game.config().gameMode!=4)
+            if(game.gameMode()!=3&&game.gameMode()!=4)
                 for(var target:targets)if(target instanceof ServerPlayer&&affect(glyph,target))leaveTeam(target);
         }else if(glyph.kind==Kind.AHRIMAN){
             for(int i=0;i<6;i++)ahrimanCube(glyph,at.add(level.getRandom().nextInt(51)-25,level.getRandom().nextInt(51)-25,level.getRandom().nextInt(51)-25));

@@ -152,14 +152,14 @@ public final class BobaChecks {
         require(!game.maps().rotationBusy(),"Bedwars fixture starts without terrain work");
         var savedBeta=new GameChecks.WandThirdPlayerState(beta,game.items().mana());
         var board=game.server().getScoreboard();var oldTeam=beta.getTeam();
-        int mode=game.config().gameMode;boolean offhand=game.config().offhandWands;
+        int mode=game.config().gameMode,activeMode=game.gameMode();boolean offhand=game.config().offhandWands;
         try{
             if(oldTeam!=null)board.removePlayerFromTeam(beta.getScoreboardName(),oldTeam);
             beta.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
             require(!owner.isAlliedTo(beta)&&game.items().wands().target(owner,beta),"native enemy/shared-role admission for TestBeta");
             game.config().offhandWands=true;
             for(int sourceMode:new int[]{3,4}){
-                game.config().gameMode=sourceMode;
+                game.config().gameMode=sourceMode;game.beginMatchMode(sourceMode);
                 for(var hand:InteractionHand.values()){
                     owner.getInventory().clearContent();owner.getInventory().setSelectedSlot(5);
                     var donor=token(2);owner.getInventory().setItem(0,donor);var clicked=token(3);owner.setItemInHand(hand,clicked);
@@ -187,7 +187,7 @@ public final class BobaChecks {
                 }
             }
         }finally{
-            game.config().gameMode=mode;game.config().offhandWands=offhand;
+            game.config().gameMode=mode;game.beginMatchMode(activeMode);game.config().offhandWands=offhand;
             if(beta.getTeam()!=null)board.removePlayerFromTeam(beta.getScoreboardName(),beta.getTeam());
             if(oldTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldTeam);
             savedBeta.restore(game);

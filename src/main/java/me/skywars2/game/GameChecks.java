@@ -1361,6 +1361,10 @@ public final class GameChecks {
                                 case "antigravity-support" -> { AntigravitySupportChecks.run(game);return; }
                                 case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
                                 case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
+                                case "match-mode-menu" -> { MatchStartChecks.menu(game); return; }
+                                case "match-mode-stop-probe" -> { MatchStartChecks.stopProbe(game); return; }
+                                case "match-mode-cleanup" -> { MatchStartChecks.cleanup(game); return; }
+                                case "match-mode-start" -> { MatchStartChecks.run(game); return; }
                                 case "lucky-chests" -> { LuckyChestChecks.run(game); return; }
                                 case "native-utility-tail" -> { NativeUtilityTailChecks.run(game); return; }
                                 case "native-projectile-weapons" -> { NativeProjectileWeaponChecks.run(game); return; }

@@ -155,7 +155,7 @@ public final class CorruptedGlyphChecks {
     }
     private static void dependent(GameController game,ServerPlayer owner,ServerPlayer other,LbcCorruptedGlyphs service,
                                   BlockPos origin,Vec3 at,Map<BlockPos,MapManager.BlockSnapshot> blocks,List<Cow> mobs,Cow friend,Cow role){
-        var board=game.server().getScoreboard();var oldOwnerTeam=owner.getTeam();var oldOtherTeam=other.getTeam();int oldMode=game.config().gameMode;
+        var board=game.server().getScoreboard();var oldOwnerTeam=owner.getTeam();var oldOtherTeam=other.getTeam();int oldMode=game.config().gameMode,activeMode=game.gameMode();
         var allied=board.addPlayerTeam("glyph_allied");var enemy=board.addPlayerTeam("glyph_enemy");
         try{
             board.addPlayerToTeam(owner.getScoreboardName(),allied);board.addPlayerToTeam(other.getScoreboardName(),allied);
@@ -166,7 +166,7 @@ public final class CorruptedGlyphChecks {
             owner.removeEffect(MobEffects.WITHER);other.removeEffect(MobEffects.WITHER);
             owner.teleportTo(owner.level(),at.x+4,at.y,at.z,java.util.Set.of(),0,0,true);other.teleportTo(owner.level(),at.x+5,at.y,at.z,java.util.Set.of(),0,0,true);
             for(int mode:new int[]{1,2,3,4}){
-                game.config().gameMode=mode;board.addPlayerToTeam(friend.getScoreboardName(),allied);board.addPlayerToTeam(role.getScoreboardName(),allied);board.addPlayerToTeam(other.getScoreboardName(),enemy);
+                game.config().gameMode=mode;game.beginMatchMode(mode);board.addPlayerToTeam(friend.getScoreboardName(),allied);board.addPlayerToTeam(role.getScoreboardName(),allied);board.addPlayerToTeam(other.getScoreboardName(),enemy);
                 glyph=service.spawn(owner,at,LbcCorruptedGlyphs.Kind.BELIAL);service.pulse(glyph);
                 require(friend.getTeam()==null&&role.getTeam()==allied&&owner.getTeam()==allied,"Belial removes friendly mob team and protects caster/technical role");
                 require(mode<3?other.getTeam()==null:other.getTeam()==enemy,"Belial foreign player team leave only in source modes1/2");service.forget(owner);
@@ -219,7 +219,7 @@ public final class CorruptedGlyphChecks {
             }
             require(changed>0&&role.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).getBaseValue()==roleHealth,"Ahriman independent permanent base reductions and technical role guard: changed="+changed+" unchanged="+unchanged+" health="+friend.getHealth()+" distance="+friend.position().distanceTo(glyph.display.position())+" removed="+friend.isRemoved()+" eligible="+game.items().wands().validTarget(friend)+" glyphRemoved="+glyph.display.isRemoved()+" roleBefore="+roleHealth+" roleAfter="+role.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).getBaseValue());
         }finally{
-            game.config().gameMode=oldMode;board.removePlayerTeam(allied);board.removePlayerTeam(enemy);
+            game.config().gameMode=oldMode;game.beginMatchMode(activeMode);board.removePlayerTeam(allied);board.removePlayerTeam(enemy);
             if(oldOwnerTeam!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldOwnerTeam);if(oldOtherTeam!=null)board.addPlayerToTeam(other.getScoreboardName(),oldOtherTeam);
         }
     }

@@ -81,7 +81,7 @@ public final class LuckyChestChecks {
         require(blocks==(lucky?1:0),"exactly one lucky profile only in Lucky family");
     }
     public static void run(GameController game){try(var f=new WoolBucketChecks.Fixture(game,false);var stats=new NativeMeleeChecks.NativeStats(f.owner,List.of(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NORMAL)))){
-        int savedMode=game.config().gameMode;var markerTags=new HashMap<Entity,Set<String>>();try{
+        int savedMode=game.config().gameMode,activeMode=game.gameMode();var markerTags=new HashMap<Entity,Set<String>>();try{
             for(var kind:LbcLuckyBlocks.Kind.values()){var carrier=switch(kind){case NORMAL->Items.RED_MUSHROOM_BLOCK;case NEKO->Items.BROWN_MUSHROOM_BLOCK;case LOLI->Items.MUSHROOM_STEM;};require(Objects.equals(LbcLuckyBlocks.item(kind).getDefaultInstance().get(DataComponents.COMPOSTABLE),carrier.getDefaultInstance().get(DataComponents.COMPOSTABLE)),"exact original composting component "+kind);}
             profiles(game,f);f.prepareParticipants();
             // Snapshot every real map chest touched by the shared all-arena refill, not just test anchors.
@@ -90,23 +90,23 @@ public final class LuckyChestChecks {
             for(int i=0;i<3;i++){var at=origin.offset(i*3,0,0);positions.add(at);f.set(at,Blocks.BARREL.defaultBlockState());marker(f,at,CATEGORIES.get(i));}
             var control=origin.offset(0,0,24);f.set(control,Blocks.BARREL.defaultBlockState());marker(f,control,"default");
             var fakeAt=origin.offset(0,0,5);f.set(fakeAt,Blocks.AIR.defaultBlockState());var fake=new ItemEntity(f.level,fakeAt.getX()+.5,fakeAt.getY(),fakeAt.getZ()+.5,new ItemStack(Items.COPPER_INGOT));fake.entityTags().add("swrg.center");f.own(fake);require(f.level.addFreshEntity(fake),"tagged non-marker witness");
-            for(int mode:new int[]{1,2,2}){game.config().gameMode=mode;for(boolean upgrade:new boolean[]{false,true}){
+            for(int mode:new int[]{1,2,2}){game.config().gameMode=mode;game.beginMatchMode(game.config().gameMode);for(boolean upgrade:new boolean[]{false,true}){
                 for(var at:positions)chest(f,at).setItem(0,sentinel());game.maps().fillChests(upgrade);
                 for(int i=0;i<3;i++)content(f,positions.get(i),i,upgrade,mode==2);
                 require(f.level.getBlockState(fakeAt).isAir()&&!fake.isRemoved(),"tagged transport never becomes a block chest");
             }}
-            game.config().gameMode=2;game.events().stageOne(4);for(int i=0;i<3;i++)content(f,positions.get(i),i,false,true);
-            game.config().gameMode=2;chest(f,control).clearContent();chest(f,control).setItem(0,sentinel());for(var at:positions){chest(f,at).clearContent();chest(f,at).setItem(0,sentinel());}
+            game.config().gameMode=2;game.beginMatchMode(game.config().gameMode);game.events().stageOne(4);for(int i=0;i<3;i++)content(f,positions.get(i),i,false,true);
+            game.config().gameMode=2;game.beginMatchMode(game.config().gameMode);chest(f,control).clearContent();chest(f,control).setItem(0,sentinel());for(var at:positions){chest(f,at).clearContent();chest(f,at).setItem(0,sentinel());}
             game.maps().restoreRespawnIsland(new MapManager.Spawn(Vec3.atCenterOf(origin),0,0));for(int i=0;i<3;i++)content(f,positions.get(i),i,false,true);require(ItemStack.matches(chest(f,control).getItem(0),sentinel()),"island radius leaves distant chest unchanged");
             for(var pos:BlockPos.betweenClosed(origin.offset(-5,-5,-5),origin.offset(5,5,5)))f.remember(pos.immutable());
             require(game.maps().restoreMadokaRegion(f.level,Vec3.atCenterOf(origin)),"actual shared Madoka region restore");for(int i=0;i<3;i++)content(f,positions.get(i),i,false,true);require(ItemStack.matches(chest(f,control).getItem(0),sentinel()),"Madoka radius leaves distant chest unchanged");
             game.events().stageOne(7);for(int i=0;i<3;i++)content(f,positions.get(i),i,true,true);game.maps().fillChests(false);for(int i=0;i<3;i++)content(f,positions.get(i),i,true,true);
-            for(int mode:new int[]{3,4}){game.config().gameMode=mode;for(var at:positions){chest(f,at).clearContent();chest(f,at).setItem(0,sentinel());}game.maps().fillChests(true);for(var at:positions)require(ItemStack.matches(chest(f,at).getItem(0),sentinel()),"BedWars never receives SkyWars refill");}
-            game.config().gameMode=2;var base=origin.offset(0,-4,-4);for(var profile:List.of("variant_e98680e387b5","variant_e5d5f79f4617","variant_cebd527e2a9c")){
+            for(int mode:new int[]{3,4}){game.config().gameMode=mode;game.beginMatchMode(game.config().gameMode);for(var at:positions){chest(f,at).clearContent();chest(f,at).setItem(0,sentinel());}game.maps().fillChests(true);for(var at:positions)require(ItemStack.matches(chest(f,at).getItem(0),sentinel()),"BedWars never receives SkyWars refill");}
+            game.config().gameMode=2;game.beginMatchMode(game.config().gameMode);var base=origin.offset(0,-4,-4);for(var profile:List.of("variant_e98680e387b5","variant_e5d5f79f4617","variant_cebd527e2a9c")){
                 f.set(base,Blocks.STONE.defaultBlockState());f.set(base.above(),Blocks.AIR.defaultBlockState());var stack=roll(game,f,"lbc:item_defs/lbc/lucky_block__e196d020d84e/"+profile,17);var box=new SimpleContainer(stack);MapManager.normalizeLootCounts(box);int count=stack.getCount();f.owner.setItemInHand(InteractionHand.MAIN_HAND,stack);
                 require(f.owner.gameMode.useItemOn(f.owner,f.level,stack,InteractionHand.MAIN_HAND,new BlockHitResult(Vec3.atCenterOf(base).add(0,.5,0),Direction.UP,base,false)).consumesAction(),"actual profile placement input");require(f.level.getBlockState(base.above()).is(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL))&&stack.getCount()==count-1,"real native Lucky block placement and exact one-item debit");
             }
             require(MapManager.chestLootTable(1,"default",false).identifier().toString().equals("swrg:chests/default_0")&&MapManager.chestLootTable(2,"default",false).identifier().toString().equals("swrg:chests/default_lb")&&MapManager.chestLootTable(2,"default",true).identifier().toString().equals("swrg:chests/center_lb")&&MapManager.chestLootTable(3,"center",true)==null&&MapManager.chestLootTable(4,"center",false)==null,"explicit authored mode/category/upgrade policy");
-        }finally{game.config().gameMode=savedMode;markerTags.forEach((entity,tags)->{entity.entityTags().clear();entity.entityTags().addAll(tags);});}
+        }finally{game.config().gameMode=savedMode;game.beginMatchMode(activeMode);markerTags.forEach((entity,tags)->{entity.entityTags().clear();entity.entityTags().addAll(tags);});}
     }SkyWars2.LOGGER.info("[check] PASS lucky-chests (62 real loaded dependencies;23 seeded quantity profiles, three native/Polymer/codec/placement profiles, localized locator; actual initial/repeated/upgrade/island/Madoka routes, BedWars isolation and native scoped restoration)");}
 }

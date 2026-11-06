@@ -79,6 +79,7 @@ public final class GameController {
         private final boolean lobbyReady,stopped,fallEnabled,readyBroken,preparingSelection,startAfterSelection;
         private final Component mapFailure;
         private final String readyMap;
+        private final int activeGameMode;
         private final long selectionVersion;
         private final net.minecraft.nbt.Tag barName;
         private final BossEvent.BossBarColor color;
@@ -95,6 +96,7 @@ public final class GameController {
             g.participants.forEach((id,p)->members.put(id,copy(p)));
             pending=Set.copyOf(g.pendingLobby);unloads=List.copyOf(g.nativeEntityUnloads);
             stage=g.stage;host=g.host;pendingStarter=g.pendingStarter;victoryWinner=g.victoryWinner;
+            activeGameMode=g.activeGameMode;
             countdownTicks=g.countdownTicks;gameTicks=g.gameTicks;finishTicks=g.finishTicks;lastAliveTicks=g.lastAliveTicks;
             lifetimeTicks=g.lifetimeTicks;lastCountdownTitleSeconds=g.lastCountdownTitleSeconds;
             lobbyReady=g.lobbyReady;stopped=g.stopped;fallEnabled=g.fallEnabled;readyBroken=g.readyBroken;
@@ -130,6 +132,7 @@ public final class GameController {
         // Unsupported short restart intent is cancelled by rewind, as other transient actions are.
         runeRestartPending=false;
         cunnyRestart=null;
+        activeGameMode=image.activeGameMode;
         supernovaMap=image.renewal;
         balanceMap=image.balanceRenewal;balanceLegacy(image.legacy);
         balancePendingReset.clear();balancePendingReset.addAll(image.balanceResets);
@@ -193,6 +196,7 @@ public final class GameController {
             BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
     private GameMenus menus;
     private Stage stage = Stage.LOADING;
+    private int activeGameMode;
     private UUID host;
     private int countdownTicks;
     private int gameTicks;
@@ -280,7 +284,27 @@ public final class GameController {
                 && (allowDamage(player) || retained || isDeveloper(player) && !stopped
                 && (inLobby() || stage == Stage.LOADING));
     }
-    public boolean selectedMapReady() { return readyMap != null && readyMap.equals(config.mapId) && readyBroken == config.broken && !maps.busy(); }
+    public boolean selectedMapReady() { return readyMap != null && readyMap.equals(config.mapId) && readyBroken == config.broken && !maps.busy() && mapMatchesMode(config.mapId); }
+
+    /** Configuration selects the next match; every current gameplay owner reads this latched value. */
+    public int gameMode() { return activeGameMode==0?config.gameMode:activeGameMode; }
+    void beginMatchMode(int mode) {
+        if(mode<1||mode>4)throw new IllegalArgumentException("Match mode must be1..4");
+        activeGameMode=mode;
+    }
+    void prepareSoloTeams(List<ServerPlayer> ready) {
+        if(gameMode()==1||gameMode()==2)teamColors.begin(ready);
+    }
+    void grantStartExperience(ServerPlayer player) {
+        // Source lbc:start grants20 levels before kits, only in Lucky SkyWars; Stand still requires entitlement.
+        if(gameMode()==2)player.giveExperienceLevels(20);
+    }
+    boolean mapMatchesMode(String id) {
+        return config.gameMode>=1&&config.gameMode<=4&&maps.info(id)!=null&&maps.bedwars(id)==(config.gameMode>=3);
+    }
+    private Component mapModeMismatch() {
+        return Component.translatableWithFallback("skywars2.game.map_mode_mismatch","Карта не подходит для режима %s.",config.gameMode);
+    }
     public boolean playing() { return stage == Stage.PLAYING || stage == Stage.PHASE_ONE || stage == Stage.PHASE_TWO; }
     public int matchTicks() { return gameTicks; }
     public boolean supernovaMapTransition() { return supernovaMap != null || balanceMap != null; }
@@ -704,6 +728,7 @@ public final class GameController {
         if (map == null || !map.available()) {
             tell(player, map == null ? text("game.map_unknown", id) : map.unavailableReason()); return false;
         }
+        if(!mapMatchesMode(id)){tell(player,mapModeMismatch());return false;}
         if (broken && !maps.brokenAvailable(id)) {
             tell(player, text("game.no_broken", map.displayName())); return false;
         }
@@ -722,6 +747,7 @@ public final class GameController {
     private void prepareSelectedMap() {
         if (stopped || !inLobby() || maps.busy() || developerTools.authoring().busy()) return;
         String id = config.mapId;
+        if(!mapMatchesMode(id)){readyMap=null;startAfterSelection=false;pendingStarter=null;mapFailure=mapModeMismatch();return;}
         boolean broken = config.broken;
         long version = selectionVersion;
         preparingSelection = true;
@@ -781,6 +807,7 @@ public final class GameController {
 
     /** During a match, changing selection must not paste over the active arena. */
     private boolean configureSelectedMap(ServerPlayer player, String id, boolean broken) {
+        if(!mapMatchesMode(id))return false;
         if (inLobby()) return selectMapAuthorized(player, id, broken);
         if (broken && !maps.brokenAvailable(id)) return false;
         config.mapId = id;
@@ -861,6 +888,7 @@ public final class GameController {
     }
 
     private void begin() {
+        beginMatchMode(config.gameMode);
         developerTools.gallery().clearForMatchStart();
         maps.removeLobbyOverlay();
         items.terra().resetCharges();
@@ -896,7 +924,7 @@ public final class GameController {
                     announce(text("game.cancelled_players"));restoreLobby();return;
                 }
             }else Collections.shuffle(spawns);
-            if (config.gameMode == 1) teamColors.begin(ready);
+            prepareSoloTeams(ready);
             for (int i = 0; i < ready.size(); i++) {
                 ServerPlayer player = ready.get(i);
                 Participant member = new Participant(bedwars.mode()?teamSpawns.get(player.getUUID()):spawns.get(i), Math.max(1, config.lives));
@@ -905,6 +933,7 @@ public final class GameController {
                         maps.level().dimension(), net.minecraft.core.BlockPos.containing(member.spawn.position()),
                         member.spawn.yaw(), member.spawn.pitch()), true), false);
                 resetPlayer(player, config.health, true);
+                grantStartExperience(player);
                 player.setGameMode(GameType.ADVENTURE);
                 GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
                 player.onUpdateAbilities();
@@ -914,7 +943,7 @@ public final class GameController {
             }
             players.save(); if(!bedwars.mode()){
                 maps.cages(true);
-                for(var player:ready){var member=participants.get(player.getUUID());items.cosmetics().cage(player,maps.level(),net.minecraft.core.BlockPos.containing(member.spawn.position()),config.gameMode);}
+                for(var player:ready){var member=participants.get(player.getUUID());items.cosmetics().cage(player,maps.level(),net.minecraft.core.BlockPos.containing(member.spawn.position()),gameMode());}
             }
             items.cosmetics().startSuffixes(ready,maps.level().getRandom().nextLong());
             countdownTicks = bedwars.mode()?60:Math.max(1, config.countdownSeconds) * 20;
@@ -1450,6 +1479,7 @@ public final class GameController {
         victoryWinner = null;
         for (ServerPlayer player : online()) lbc.clear(player);
         events.stop(); participants.clear(); gameTicks = 0; lastAliveTicks = 5;
+        activeGameMode=0;
         lobbyReady = false; bar.setVisible(false); bar.removeAllPlayers(); transition(Stage.LOADING);
         for (ServerPlayer player : online()) {
             loadingPlayer(player);
