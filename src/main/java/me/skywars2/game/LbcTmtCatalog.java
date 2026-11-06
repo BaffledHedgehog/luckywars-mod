@@ -30,7 +30,7 @@ import net.minecraft.world.item.component.CustomData;
  * Unknown inputs and native component requirements are deliberately reported.
  */
 final class LbcTmtCatalog {
-    enum Event { USE, USING, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON }
+    enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON }
     enum Location { USED_HAND, MAIN_HAND, INVENTORY, EQUIPPED, AMMUNITION, LOOSE_ITEM }
     enum Disposition { EXCLUDED_SERVICE, PENDING_NATIVE_DOMAIN, PENDING_COMPONENT_ADAPTER, MISSING_NATIVE_ITEM, LEGACY_OWNER_GAP }
 
@@ -266,10 +266,6 @@ final class LbcTmtCatalog {
         }
         if(selected!=null){
             // A flag alone cannot preserve these native component/class contracts.
-            if(selected.family().equals("holyshield")){
-                finding(findings,nativeId.toString(),source,Disposition.PENDING_COMPONENT_ADAPTER,
-                        selected.owner()+" requires native death protection/blocking; retain prerequisite components, enchantments and real used/equipped location");return;
-            }
             if(selected.events().contains(Event.DEATH)&&!selected.family().equals("broken_totem")){
                 // The native source requires these flags together. Infinite's
                 // minimum Infinity comes from its real per-property native item.
@@ -374,6 +370,13 @@ final class LbcTmtCatalog {
         flags(result,"LbcTotems/LbcTmtTotems",Event.DEATH,Location.USED_HAND,"deviltotem","broken_totem");
         result.put("totem",rule("infinite_totem","LbcTotems/LbcTmtTotems",Event.DEATH,Location.USED_HAND));
         flags(result,"LbcHolyShield",Event.USING,Location.USED_HAND,"holyshield");
+        flags(result,"LbcCunny",Event.USING,Location.USED_HAND,"nahida_dakimakura");
+        flags(result,"LbcDefensiveArcanums",Event.HELD,Location.USED_HAND,"healing_arcanum","barrier_arcanum");
+        flags(result,"LbcTanner",Event.HELD,Location.USED_HAND,"tannerkivi");
+        flags(result,"LbcBabylon",Event.HELD,Location.USED_HAND,"gate_of_babylon");
+        flags(result,"LbcSyringe",Event.HELD,Location.USED_HAND,"siggewinne_syringe");
+        flags(result,"LbcVoidArcanum",Event.HELD,Location.USED_HAND,"void_curse");
+        flags(result,"LbcKiuas",Event.HELD,Location.USED_HAND,"kiuaskivi","sun_arcanum");
         flags(result,"LbcMoiseiBoots",Event.EQUIPMENT,Location.EQUIPPED,"moisei");
         flags(result,"LbcArmorSets",Event.EQUIPMENT,Location.EQUIPPED,"assasin","erosion","gownoleggings","paladin");
         flags(result,"LbcShulkerArmor",Event.EQUIPMENT,Location.EQUIPPED,"shulkshell");

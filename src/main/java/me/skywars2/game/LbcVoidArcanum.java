@@ -65,7 +65,7 @@ public final class LbcVoidArcanum {
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,Items.REPEATING_COMMAND_BLOCK,true));
     }
     public static void register(){}
-    public static boolean isArcanum(ItemStack stack){return stack.is(ITEM);}
+    public static boolean isArcanum(ItemStack stack){return stack.is(ITEM)||LbcTmtItems.matches(stack)&&ItemData.intValue(stack,"void_curse",0)==1;}
     private final GameController game;
     private final List<Hole> holes=new ArrayList<>();
     private final Map<UUID,Hands> hands=new HashMap<>();

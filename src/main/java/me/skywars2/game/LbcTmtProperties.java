@@ -102,7 +102,7 @@ final class LbcTmtProperties {
         stack.set(DataComponents.LORE,new ItemLore(List.copyOf(lore)));
         var slot=ARMOR[random.nextInt(ARMOR.length)];
         // Equipment keeps its independent authored asset range; item sprites use the shared atlas shader.
-        stack.set(DataComponents.EQUIPPABLE,Equippable.builder(slot).setAsset(ResourceKey.create(
+        stack.set(DataComponents.EQUIPPABLE,Equippable.builder(slot).setSwappable(!LbcTmtContinuous.sustained(stack)).setAsset(ResourceKey.create(
                 EquipmentAssets.ROOT_ID,Identifier.parse("lbc:tmt/tmt_"+between(random,1,707)))).build());
         between(random,1,12758); // Retain the source RNG position of the old item-model roll.
         LbcTmtRuntime.visual(stack);

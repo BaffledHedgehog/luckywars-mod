@@ -55,8 +55,8 @@ public final class LbcTmtAbilities {
         return item==net.minecraft.world.item.Items.AIR?null:item;
     }
 
-    record Ability(String id,CustomData data) {
-        Ability {
+    public record Ability(String id,CustomData data) {
+        public Ability {
             if(id==null||id.isBlank()||id.length()>128||data==null)throw new IllegalArgumentException("Invalid TMT ability");
             var payload=data.copyTag();
             for(var key:IDENTITY)payload.remove(key);
@@ -64,6 +64,10 @@ public final class LbcTmtAbilities {
             data=CustomData.of(payload);
         }
     }
+
+    /** Owned by the immutable CustomData component; no global item/NBT cache retains old stacks. */
+    public interface CachedSlots { List<Ability> skywars2$tmtSlots(); }
+    public static List<Ability> parseSlots(CustomData data){return read(data.copyTag());}
 
     /** Last occurrence wins without giving repeat draws a second execution slot. */
     static void write(CompoundTag root,List<Ability> rolls) {
@@ -84,7 +88,7 @@ public final class LbcTmtAbilities {
     }
     static List<Ability> read(ItemStack stack) {
         if(stack.isEmpty()||ItemData.intValue(stack,"tmt_item",0)!=1)return List.of();
-        return read(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag());
+        return ((CachedSlots)(Object)stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)).skywars2$tmtSlots();
     }
     static List<Ability> read(CompoundTag root) {
         var list=root.getListOrEmpty(SLOTS);if(list.size()>7)return List.of();

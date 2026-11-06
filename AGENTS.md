@@ -1,3 +1,13 @@
+## TMT held/sustained owners - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Contracts, exact native evidence and carry-forward](agent_notes/TMT_HELD_RUNTIME_2026_11_07.md).
+Native held Healing/Barrier/Tanner/Babylon/Syringe/Void/Kiuas/Sun; correct held location.
+Independent Kiuas/Sun latches and whole coordinator replay; Holy/Nahida real using paths.
+All five carriers verified. Immutable CustomData-owned slot cache; no global retained NBT map.
+Internal4e71e440/970e74af on full0cbe1880 parent;8 actual mode1 matches pass.
+11 Java families/0 resources;10324 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Native block/drop/intake reconciliation and final TMT release pending.
+
 ## TMT native ammo composition - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Native boundaries, exact evidence and carry-forward](agent_notes/TMT_AMMO_RUNTIME_2026_11_07.md).

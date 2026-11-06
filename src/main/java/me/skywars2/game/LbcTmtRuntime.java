@@ -47,6 +47,7 @@ public final class LbcTmtRuntime {
         game.items().mana().score(player,"crossbow_charge").add(1);
     }
     public void usingItem(ServerPlayer player,InteractionHand hand,ItemStack used){
+        if(player.getUseItem()==used&&LbcTmtItems.matches(used)&&!LbcTmtAbilities.active(used))LbcTmtContinuous.using(game,player,used);
         if(player.getUseItem()!=used||!LbcTmtItems.matches(used)||LbcTmtAbilities.active(used)||!enter(player))return;
         selfGroups(player);charging(player);
     }
@@ -115,7 +116,7 @@ public final class LbcTmtRuntime {
     }
     ItemStack generate(RandomSource random,List<LbcTmtAbilities.Ability> draws){
         if(generator==null)generator=new LbcTmtProperties(game.maps().level());
-        var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtTotems.apply(result);return result;
+        var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);return result;
     }
     public ItemStack generate(RandomSource random){return generate(random,catalog().drawSeven(random));}
     LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(useProfiles());return catalog;}

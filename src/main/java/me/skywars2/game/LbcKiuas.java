@@ -163,12 +163,13 @@ public final class LbcKiuas {
     public static void register() { }
     private static int kind(ItemStack stack) {
         if(stack.isEmpty()) return 0;
+        if(LbcTmtItems.matches(stack))return (ItemData.intValue(stack,"kiuaskivi",0)==1?1:0)|(ItemData.intValue(stack,"sun_arcanum",0)==1?2:0);
         if(stack.is(SUN)) return 2;
         if(stack.is(KIUASKIVI)) return 1;
         var data=stack.get(DataComponents.CUSTOM_DATA);
         return data==null?0:data.matchedBy(SUN_FLAG)?2:data.matchedBy(KIUAS_FLAG)?1:0;
     }
-    public static boolean isKiuaskivi(ItemStack stack) { return kind(stack)==1; }
+    public static boolean isKiuaskivi(ItemStack stack) { return (kind(stack)&1)!=0; }
     LbcKiuas(GameController game,LbcMana mana) {
         this.game=game;
         for(var value:Map.of("kiuaskivi_mana_activate",1000,"kiuaskivi_mana_tick",10,"kiuaskivi_mana_tick_sec",200,
@@ -201,6 +202,8 @@ public final class LbcKiuas {
         return new PreparedSunPattern(pattern,Map.copyOf(shifts));
     }
     public int count() { return auras.size(); }
+    int activeKinds(ServerPlayer player){var aura=auras.get(player.getUUID());if(aura==null)return 0;
+        return (aura.mainActive||aura.offActive?1:0)|(aura.mainSunActive||aura.offSunActive?2:0);}
     int queuedBlockCount() { return auras.values().stream().mapToInt(a->a.small.queuedBlockCount()+a.large.queuedBlockCount()+a.sun.queuedBlockCount()+a.sunChanged.size()).sum(); }
 
     public void tick() {
@@ -218,19 +221,20 @@ public final class LbcKiuas {
                 if(aura==null && main==0 && off==0) continue;
                 if(aura==null) { aura=new Aura(player); auras.put(player.getUUID(),aura); }
                 aura.owner=player;
-                if(aura.mainKind!=main) { aura.mainKind=main; aura.mainActive=false; aura.mainSunThroughTick=-1; }
-                if(aura.offKind!=off) { aura.offKind=off; aura.offActive=false; aura.offSunThroughTick=-1; }
-                if(main!=2 && off!=2) aura.sunChanged.clear();
+                if(aura.mainKind!=main) { aura.mainKind=main;if((main&1)==0)aura.mainActive=false;if((main&2)==0){aura.mainSunActive=false;aura.mainSunThroughTick=-1;} }
+                if(aura.offKind!=off) { aura.offKind=off;if((off&1)==0)aura.offActive=false;if((off&2)==0){aura.offSunActive=false;aura.offSunThroughTick=-1;} }
+                if((main&2)==0 && (off&2)==0) aura.sunChanged.clear();
                 aura.paused=game.items().wands().timeStopped() || player.entityTags().contains("time_stopped")
                         || game.items().magic().suppressed(player) || game.items().frost().isFrozen(player);
                 if(aura.paused) { aura.sunMaintaining=false; reindex(aura); continue; }
-                boolean mainPulse=advance(aura,true,main,sunPass),offPulse=advance(aura,false,off,sunPass);
+                boolean mainKiu=advance(aura,true,main&1,sunPass),mainSun=advance(aura,true,main&2,sunPass);
+                boolean offKiu=advance(aura,false,off&1,sunPass),offSun=advance(aura,false,off&2,sunPass);
                 // Mana branches stay independent, but identical terrain writes are coalesced.
-                int kiuPulses=(mainPulse && main==1?1:0)+(offPulse && off==1?1:0);
-                int sunPulses=(mainPulse && main==2?1:0)+(offPulse && off==2?1:0);
-                if(kiuPulses>0) kiuPulse(aura,kiuPulses,main==1 && off==1);
-                if(sunPulses>0) sunPulse(aura,sunPulses,main==2 && off==2);
-                serviceSun(aura,(main==2 && ticks<=aura.mainSunThroughTick) || (off==2 && ticks<=aura.offSunThroughTick));
+                int kiuPulses=(mainKiu?1:0)+(offKiu?1:0);
+                int sunPulses=(mainSun?1:0)+(offSun?1:0);
+                if(kiuPulses>0) kiuPulse(aura,kiuPulses,(main&1)!=0 && (off&1)!=0);
+                if(sunPulses>0) sunPulse(aura,sunPulses,(main&2)!=0 && (off&2)!=0);
+                serviceSun(aura,((main&2)!=0 && ticks<=aura.mainSunThroughTick) || ((off&2)!=0 && ticks<=aura.offSunThroughTick));
                 reindex(aura);
                 if(main==0 && off==0 && !aura.hasWork()) remove(aura);
                 else schedule(aura);
@@ -258,7 +262,7 @@ public final class LbcKiuas {
     /** The original wrappers charge activation, then test upkeep; unlike Tanner no author exception was requested. */
     private boolean advance(Aura aura,boolean main,int type,boolean sunPass) {
         if(type==0 || type==2 && (!sunPass || !ready())) return false;
-        boolean active=main?aura.mainActive:aura.offActive;
+        boolean active=type==1?(main?aura.mainActive:aura.offActive):(main?aura.mainSunActive:aura.offSunActive);
         if(!active && game.items().mana().trySpend(aura.owner,type==1?1000:1500)) {
             active=true;
             LbcOverload.sound(aura.owner,"minecraft:item.firecharge.use",type==1?1:4,0,0);
@@ -269,7 +273,8 @@ public final class LbcKiuas {
             if(main) aura.mainSunThroughTick=ticks+4; else aura.offSunThroughTick=ticks+4;
         }
         boolean remains=pulse && game.items().mana().get(aura.owner)>=(type==1?10:100);
-        if(main) aura.mainActive=remains; else aura.offActive=remains;
+        if(type==1){if(main)aura.mainActive=remains;else aura.offActive=remains;}
+        else {if(main)aura.mainSunActive=remains;else aura.offSunActive=remains;}
         return pulse;
     }
 
@@ -372,7 +377,7 @@ public final class LbcKiuas {
     static boolean kiuEligible(BlockState state) { return !kiuResult(state).equals(state); }
 
     private void reindex(Aura aura) {
-        boolean nextKiuas=aura.mainActive && aura.mainKind==1 || aura.offActive && aura.offKind==1;
+        boolean nextKiuas=aura.mainActive && (aura.mainKind&1)!=0 || aura.offActive && (aura.offKind&1)!=0;
         boolean nextSun=aura.sunMaintaining;
         var nextSmallBounds=nextKiuas?aura.smallBounds:null;
         var nextSunBounds=nextSun?aura.sunBounds:null;
@@ -415,7 +420,7 @@ public final class LbcKiuas {
         if(holders==null) return;
         for(var aura:holders) {
             if(aura.smallBounds!=null && aura.smallBounds.contains(pos) && kiuEligible(state)
-                    && (aura.mainActive && aura.mainKind==1 || aura.offActive && aura.offKind==1)) aura.small.add(pos);
+                    && (aura.mainActive && (aura.mainKind&1)!=0 || aura.offActive && (aura.offKind&1)!=0)) aura.small.add(pos);
             if(aura.sunBounds!=null && aura.sunBounds.contains(pos) && aura.sunMaintaining) {
                 var expected=aura.sunState(pos);
                 if(expected!=null && !expected.equals(state)) aura.sunChanged.add(pos.immutable());
@@ -464,7 +469,7 @@ public final class LbcKiuas {
         return new Checkpoint(links);
     }
     final class Checkpoint {
-        private record AuraImage(Aura original,UUID owner,ServerLevel ownerLevel,int mainKind,int offKind,boolean mainActive,boolean offActive,
+        private record AuraImage(Aura original,UUID owner,ServerLevel ownerLevel,int mainKind,int offKind,boolean mainActive,boolean offActive,boolean mainSunActive,boolean offSunActive,
                 boolean paused,boolean maintaining,int mainRemaining,int offRemaining,BlockAreaWork.Bounds small,BlockAreaWork.Bounds large,
                 BlockAreaWork.Bounds sun,BlockPos origin) { }
         private record CurseImage(UUID player,MatchDamageSources.Ref body,ServerLevel level,LbcIndirectKills.Owner cause) { }
@@ -473,7 +478,7 @@ public final class LbcKiuas {
         private final Set<UUID> installed=new HashSet<>(),cursePlayers=new HashSet<>();private boolean baseInstalled;
         private final int cadence=ticks;private final PreparedSunPattern pattern=sunPattern;
         Checkpoint(MatchSpellCheckpoint.Links links){
-            saved=auras.values().stream().map(a->new AuraImage(a,a.owner.getUUID(),a.owner.level(),a.mainKind,a.offKind,a.mainActive,a.offActive,a.paused,
+            saved=auras.values().stream().map(a->new AuraImage(a,a.owner.getUUID(),a.owner.level(),a.mainKind,a.offKind,a.mainActive,a.offActive,a.mainSunActive,a.offSunActive,a.paused,
                     a.sunMaintaining,a.mainSunThroughTick<0?Integer.MIN_VALUE:a.mainSunThroughTick-ticks,
                     a.offSunThroughTick<0?Integer.MIN_VALUE:a.offSunThroughTick-ticks,a.smallBounds,a.largeBounds,a.sunBounds,
                     a.sunOrigin==null?null:a.sunOrigin.immutable())).toList();
@@ -501,7 +506,7 @@ public final class LbcKiuas {
             for(var image:saved){if(installed.contains(image.owner))continue;var current=MatchAuraCheckpoint.current(game,image.owner,image.ownerLevel);if(current==null)continue;
                 MatchAuthorityCheckpoint.world(game,image.original.level);
                 plans.add(()->{var a=image.original;a.owner=current;a.mainKind=image.mainKind;a.offKind=image.offKind;
-                    a.mainActive=image.mainActive;a.offActive=image.offActive;a.paused=image.paused;a.sunMaintaining=image.maintaining;
+                    a.mainActive=image.mainActive;a.offActive=image.offActive;a.mainSunActive=image.mainSunActive;a.offSunActive=image.offSunActive;a.paused=image.paused;a.sunMaintaining=image.maintaining;
                     a.mainSunThroughTick=image.mainRemaining==Integer.MIN_VALUE?-1:ticks+image.mainRemaining;
                     a.offSunThroughTick=image.offRemaining==Integer.MIN_VALUE?-1:ticks+image.offRemaining;
                     a.smallBounds=image.small;a.largeBounds=image.large;a.sunBounds=image.sun;a.sunOrigin=image.origin;a.cursor=0;
@@ -514,7 +519,7 @@ public final class LbcKiuas {
 
     private final class Aura {
         ServerPlayer owner; final ServerLevel level;
-        int mainKind,offKind,cursor,mainSunThroughTick=-1,offSunThroughTick=-1; boolean mainActive,offActive,paused,kiuasIndexed,sunIndexed,sunMaintaining;
+        int mainKind,offKind,cursor,mainSunThroughTick=-1,offSunThroughTick=-1; boolean mainActive,offActive,mainSunActive,offSunActive,paused,kiuasIndexed,sunIndexed,sunMaintaining;
         BlockAreaWork.Bounds smallBounds,largeBounds,sunBounds;
         BlockAreaWork.Bounds indexedSmallBounds,indexedSunBounds;
         BlockPos sunOrigin;
