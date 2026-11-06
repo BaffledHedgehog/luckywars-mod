@@ -205,9 +205,9 @@ public final class LbcMagic {
     }
     private static Item registerArtifact() {
         var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:mystical_artifact"));
-        return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(new Item.Properties().setId(key)
-                .overrideDescription("mystical_artifact").component(DataComponents.CUSTOM_DATA, CustomData.of(ARTIFACT_DATA))
-                .component(DataComponents.ITEM_MODEL, Identifier.parse("lbc:mysticalartifact")), Items.REPEATING_COMMAND_BLOCK, true) {
+        var properties=LbcUtilityItemPrototypes.deferredProperties("skywars2:mystical_artifact",
+                "/data/lbc/loot_table/item_defs/lbc/mysticalartifact__7718177c27d7.json",Items.REPEATING_COMMAND_BLOCK,64);
+        return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(properties, Items.REPEATING_COMMAND_BLOCK, true) {
             @Override public void modifyClientTooltip(List<net.minecraft.network.chat.Component> tooltip, ItemStack stack, PacketContext context) {
                 LbcSkills.artifactTooltip(tooltip, stack, context);
             }

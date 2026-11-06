@@ -85,7 +85,7 @@ public final class IncomingArtifactChecks {
             var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,player.registryAccess());player.getFoodData().addAdditionalSaveData(output);food=output.buildResult();try{for(var f:player.getFoodData().getClass().getDeclaredFields())if(!java.lang.reflect.Modifier.isStatic(f.getModifiers())){f.setAccessible(true);foodFields.put(f,f.get(player.getFoodData()));}}catch(IllegalAccessException e){throw new IllegalStateException(e);}
             for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var stat=Stats.CUSTOM.get(id);stats.put(stat,player.getStats().getValue(stat));}
             for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN))for(var item:List.of(Items.WOODEN_SWORD,Items.BOW,Items.CARROT_ON_A_STICK,Items.LEATHER_HELMET,Items.LEATHER_CHESTPLATE,Items.LEATHER_LEGGINGS,Items.LEATHER_BOOTS)){var stat=type.get(item);stats.put(stat,player.getStats().getValue(stat));}
-            var picked=Stats.ITEM_PICKED_UP.get(Items.REPEATING_COMMAND_BLOCK);stats.put(picked,player.getStats().getValue(picked));for(var type:List.of(EntityTypes.COW,EntityTypes.SKELETON)){var killed=Stats.ENTITY_KILLED.get(type);stats.put(killed,player.getStats().getValue(killed));}
+            for(var item:List.of(Items.REPEATING_COMMAND_BLOCK,LbcMagic.MYSTICAL_ARTIFACT)){var picked=Stats.ITEM_PICKED_UP.get(item);stats.put(picked,player.getStats().getValue(picked));}for(var type:List.of(EntityTypes.COW,EntityTypes.SKELETON)){var killed=Stats.ENTITY_KILLED.get(type);stats.put(killed,player.getStats().getValue(killed));}
             for(var a:game.server().getAdvancements().getAllAdvancements()){var done=new HashSet<String>();player.getAdvancements().getOrStartProgress(a).getCompletedCriteria().forEach(done::add);advancements.put(a,done);}
             try{var p=game.players().get(player.getUUID());for(var f:p.getClass().getFields())if(!java.lang.reflect.Modifier.isStatic(f.getModifiers())){var v=f.get(p);profile.put(f,v instanceof int[] a?a.clone():v instanceof Set<?> set?new HashSet<>(set):v);}}
             catch(IllegalAccessException error){throw new IllegalStateException(error);}
@@ -134,7 +134,7 @@ public final class IncomingArtifactChecks {
         void payloads(){
             for(boolean old:new boolean[]{false,true})for(int type=1;type<=6;type++){
                 var stack=loot((old?"legacy_":"")+"incoming_artifact_"+type);var data=LbcFartus.data(stack);
-                require(stack.is(Items.REPEATING_COMMAND_BLOCK)&&stack.getCount()==1&&data.getIntOr(old?"mystical_old":"mystical",0)==4&&data.getIntOr("type",0)==type,"exact vanilla family4/type flags");
+                require(stack.is(old?Items.REPEATING_COMMAND_BLOCK:LbcMagic.MYSTICAL_ARTIFACT)&&stack.getCount()==1&&data.getIntOr(old?"mystical_old":"mystical",0)==4&&data.getIntOr("type",0)==type,"exact vanilla family4/type flags");
                 require(stack.get(DataComponents.ITEM_MODEL).equals(Identifier.parse("lbc:mysticalartifact"))&&stack.get(DataComponents.LORE).lines().size()==(old?1:2),"exact source model/lore shape");
                 require(data.getIntOr("transformable",0)==(old?0:1)&&data.getIntOr("accessory",0)==(old?0:1),"source current/old acquisition flags");
             }

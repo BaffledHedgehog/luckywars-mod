@@ -1,3 +1,16 @@
+## Fifteen native mystical artifact variants - QUALIFIED, INSTALLED (6 November 2026)
+
+[Canonical aliases, shared authority and exact proof](agent_notes/NATIVE_MYSTICAL_ARTIFACTS_2026_11_06.md).
+Reactive6/jump3/incoming6 source aliases now use existing native mystical artifact.
+All23 current outcomes share one item and per-viewer Looper; Balance aliases retained.
+Fifteen ID-only definitions; original23-entry weights/qualities/conditions preserved.
+Common deferred source prototype restores exact native defaults and EPIC rarity.
+No new item class, ability engine, tick task or NBT polling; author RP unchanged.
+Testa212eae9/productionc624b01c:7 isolated mode1/mode3 matches pass.
+4 families/15 resources;10239 guarded source inputs/282 author paths preserved.
+Main/both libs installed without restart; one heavy job and RAM headroom gate.
+Full IMBA/TMT-last/mode/skill2/broad rewind gates unchanged.
+
 ## Seven native passive accessories - QUALIFIED, INSTALLED (6 November 2026)
 
 [Canonical source items, existing authorities and exact proof](agent_notes/NATIVE_PASSIVE_ACCESSORIES_2026_11_06.md).
