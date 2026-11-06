@@ -1,3 +1,15 @@
+## TMT self/jump composition - COMPONENT VERIFIED, NOT INSTALLED (6 November2026)
+
+[Source boundaries, native evidence and REQUIRED carry-forward](agent_notes/TMT_SELF_2026_11_06.md).
+Twelve self/jump profiles; sibling classifiers hidden inside each private scope.
+Native ClassicMelee/ChargedSwords bodies reused byte-exact; existing7 armor owners,
+private inventory artifact masks; no invented damage, projectile shot or jump impulse.
+Internal57d1d0c7/f8c38689 retains login protocol hotfix byte-exact;7 mode1+2 mode3 matches pass.
+11 explicit families/1 carried resource;10300 other inputs/282 author paths preserved.
+Main/both libs remain83b0ea27/b90ffea1. Use this internal base or full11-family
+carry-forward; do not infer committed unreleased work from git status.
+Full sampler/native event+carrier routing/all-event composition/atlas shader and release gates remain pending.
+
 ## Login entity protocol hotfix - QUALIFIED, INSTALLED (6 November2026)
 
 [Exact client failure, native wire reproduction and REQUIRED TMT carry-forward](agent_notes/ENTITY_PROTOCOL_2026_11_06.md).

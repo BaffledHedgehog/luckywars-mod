@@ -33,7 +33,12 @@ public final class LbcJumpArtifacts {
         // Native26 inventory also exposes body/saddle slots41/42; source inventory scope ends at offhand40.
         for(int slot=0;slot<=40;slot++){
             var stack=owner.getInventory().getItem(slot);if(stack.isEmpty())continue;
-            var data=LbcFartus.data(stack);int type=data.getIntOr("type",0);if(type<1||type>3)continue;
+            var data=LbcFartus.data(stack);
+            if(data.getIntOr("tmt_item",0)==1){
+                int masks=LbcTmtSelfAbilities.jumpMasks(data);current|=masks&15;old|=(masks>>>4)&15;
+                continue;
+            }
+            int type=data.getIntOr("type",0);if(type<1||type>3)continue;
             int bit=1<<type;
             if(data.getIntOr("mystical",0)==3)current|=bit;
             if(data.getIntOr("mystical_old",0)==3)old|=bit;

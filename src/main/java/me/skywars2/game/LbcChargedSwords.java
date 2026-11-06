@@ -124,11 +124,20 @@ public final class LbcChargedSwords {
                 ||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
+        chargeHeld(owner);
+        }finally{callbackDepth--;}
+    }
+    /** Source TMT self charge uses the accepted-hit counter owner without fabricating damage. */
+    void sourceSelf(ServerPlayer owner){
+        callbackDepth++;try{
+            if(!admitted(owner)||!LbcDimensionItems.ordinary(owner))return;
+            chargeHeld(owner);
+        }finally{callbackDepth--;}
+    }
+    private void chargeHeld(ServerPlayer owner){
         var held=owner.getMainHandItem();
         if(isTriple(held)&&tripleCharges(owner)<=5)game.items().mana().score(owner,TRIPLE_CHARGE).add(1);
         if(isBlaze(held))game.items().mana().score(owner,BLAZE_CHARGE).set((int)Math.min(Integer.MAX_VALUE,(long)blazeCharges(owner)+1));
-
-        }finally{callbackDepth--;}
     }
     public boolean use(ServerPlayer owner,InteractionHand hand){
         callbackDepth++;try{

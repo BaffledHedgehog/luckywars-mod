@@ -43,6 +43,14 @@ public final class LbcClassicMelee {
                 ||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
+        selfEffects(owner);
+    }
+    /** Source TMT swords-group self branches; no invented victim or accepted-damage notification. */
+    void sourceSelf(ServerPlayer owner){
+        if(!admitted(owner)||!LbcDimensionItems.ordinary(owner))return;
+        selfEffects(owner);
+    }
+    private void selfEffects(ServerPlayer owner){
         var data=LbcFartus.data(owner.getMainHandItem());
         if(LbcEvolutionSwordItem.matches(owner.getMainHandItem())&&!game.items().magic().mechanismSuppressed(owner))
             LbcEvolutionSwordItem.grow(owner.getMainHandItem());

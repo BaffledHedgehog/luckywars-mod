@@ -50,7 +50,7 @@ final class LbcTmtAbilities {
         if(stack.isEmpty()||ItemData.intValue(stack,"tmt_item",0)!=1)return List.of();
         return read(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag());
     }
-    private static List<Ability> read(CompoundTag root) {
+    static List<Ability> read(CompoundTag root) {
         var list=root.getListOrEmpty(SLOTS);if(list.size()>7)return List.of();
         var unique=new LinkedHashMap<String,Ability>();
         for(int i=0;i<list.size();i++){
@@ -70,6 +70,10 @@ final class LbcTmtAbilities {
         for(var ability:slots)if(ability.id.equals(id)){selected=ability;break;}
         if(selected==null)return false;
         var payload=selected.data.copyTag();var effective=original.copy();
+        // The aggregate flags classify the outer item, but cannot impersonate a sibling
+        // inside a native owner's first-match dispatch or self-effect branch.
+        for(var ability:slots)for(var key:ability.data.copyTag().keySet())
+            if(!IDENTITY.contains(key))effective.remove(key);
         for(var key:PARAMETERS)effective.remove(key);
         effective.merge(payload);effective.putString(ACTIVE,id);
         var before=effective.copy();
