@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 1,
-          "name": "minecraft:iron_sword",
+          "name": "skywars2:antimagic_sword",
           "modifier": [
             {
               "count": 1,

@@ -24,7 +24,7 @@ public final class LbcClassicMelee {
     private final GameController game;
     private int phase;
     public LbcClassicMelee(GameController game){this.game=game;}
-    public static void register(){LbcEvolutionSwordItem.register();LbcOnePunchGloveItem.register();}
+    public static void register(){LbcMeleeItems.register();LbcEvolutionSwordItem.register();LbcOnePunchGloveItem.register();}
 
     private boolean admitted(ServerPlayer owner){
         return owner!=null&&owner.isAlive()&&!owner.isRemoved()&&owner.level()==game.maps().level()

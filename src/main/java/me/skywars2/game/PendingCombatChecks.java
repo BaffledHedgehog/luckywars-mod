@@ -48,9 +48,9 @@ public final class PendingCombatChecks {
         void hit(Cow cow,net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
             require(cow.hurtServer(base.owner.level(),new DamageSource(base.owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),base.owner),1),"actual accepted native damage");}
         void identity(){var piston=leaf("piston_sword");var gravity=leaf("gravity_sword");var chaos=leaf("chaos_sword");
-            require(piston.is(Items.CARROT_ON_A_STICK)&&LbcPendingCombat.isPiston(piston)&&Identifier.parse("lbc:piston_sword").equals(piston.get(DataComponents.ITEM_MODEL)),"Piston native source identity/model");
-            require(gravity.is(Items.IRON_SWORD)&&LbcFartus.data(gravity).getIntOr("gravitationsword",0)==1&&Identifier.parse("lbc:gravitysword").equals(gravity.get(DataComponents.ITEM_MODEL)),"Gravity vanilla sword/model/flag");
-            require(chaos.is(Items.GOLDEN_SWORD)&&LbcFartus.data(chaos).getIntOr("chaos_swo",0)==1&&chaos.has(DataComponents.UNBREAKABLE)&&Objects.equals(chaos.get(DataComponents.ITEM_MODEL),Items.GOLDEN_SWORD.getDefaultInstance().get(DataComponents.ITEM_MODEL)),"Chaos original vanilla golden sword/unbreakable/model omission");
+            require(piston.is(LbcMeleeItems.Kind.PISTON_SWORD.item)&&LbcPendingCombat.isPiston(piston)&&Identifier.parse("lbc:piston_sword").equals(piston.get(DataComponents.ITEM_MODEL)),"Piston native source identity/model");
+            require(gravity.is(LbcMeleeItems.Kind.GRAVITY_SWORD.item)&&LbcFartus.data(gravity).getIntOr("gravitationsword",0)==1&&Identifier.parse("lbc:gravitysword").equals(gravity.get(DataComponents.ITEM_MODEL)),"Gravity vanilla sword/model/flag");
+            require(chaos.is(LbcMeleeItems.Kind.CHAOS_SWORD.item)&&LbcFartus.data(chaos).getIntOr("chaos_swo",0)==1&&chaos.has(DataComponents.UNBREAKABLE)&&Objects.equals(chaos.get(DataComponents.ITEM_MODEL),Items.GOLDEN_SWORD.getDefaultInstance().get(DataComponents.ITEM_MODEL)),"Chaos original vanilla golden sword/unbreakable/model omission");
         }
         void piston(){var level=base.owner.level();var first=BlockPos.containing(base.owner.getEyePosition()).offset(0,0,2);
             // This exceeds vanilla's twelve-block piston limit and keeps every changed native cell for restoration.
@@ -85,7 +85,7 @@ public final class PendingCombatChecks {
                 require(service.pistonWrites()==writesBefore,"first complete boundary preflight cancels with zero native writer calls");
                 int cell=0;for(var pos:terrain.keySet())require(game.maps().snapshot(level,pos).equals(snapshots.get(cell++)),"border cancellation preserves entire source chain");
             }finally{border.setCenter(centerX,centerZ);border.setSize(size);}
-            require(service.use(base.owner,InteractionHand.MAIN_HAND),"ordinary Piston input admitted");
+            require(base.owner.gameMode.useItem(base.owner,level,base.owner.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction(),"native Piston item input admitted");
             require(level.getBlockState(first).is(Blocks.AIR)&&level.getBlockState(first.offset(0,0,25)).is(Blocks.MAGMA_BLOCK),"ordinary input synchronously shifts twenty-five blocks");
             var moved=(net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(first.offset(0,0,13));
             require(moved!=null&&moved.getItem(7).is(Items.DIAMOND)&&moved.getItem(7).getCount()==13,"native block entity payload travels with the chain");

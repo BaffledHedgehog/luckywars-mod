@@ -87,7 +87,7 @@ public final class ClassicMeleeChecks {
             var beta=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));var gamma=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));require(beta!=null&&gamma!=null&&gamma==fixtureGamma&&!game.isObserver(gamma)&&game.canUseGameplayItems(gamma),"three real native participants admitted at match start; run classic-melee-menu in lobby first");
             enemy=new Audience(game,beta);ally=new Audience(game,gamma);attribution=new SauvojenMeditationChecks.Attribution(game,List.of(base.owner,beta,gamma));
             food=base.mana.score(base.owner,"food_count").get();drops=base.owner.level().getGameRules().get(GameRules.MOB_DROPS);
-            for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var stat=Stats.CUSTOM.get(id);stats.put(stat,base.owner.getStats().getValue(stat));}
+            for(var id:net.minecraft.core.registries.BuiltInRegistries.CUSTOM_STAT){var stat=Stats.CUSTOM.get(id);stats.put(stat,base.owner.getStats().getValue(stat));}NativeMeleeChecks.captureStats(base.owner,stats);
             for(var item:List.of(Items.WOODEN_SWORD,Items.IRON_SWORD))for(var type:List.of(Stats.ITEM_USED,Stats.ITEM_BROKEN)){var stat=type.get(item);stats.put(stat,base.owner.getStats().getValue(stat));}
             for(var type:List.of(EntityTypes.COW,EntityTypes.SKELETON)){var killed=Stats.ENTITY_KILLED.get(type);stats.put(killed,base.owner.getStats().getValue(killed));}
             for(var advancement:game.server().getAdvancements().getAllAdvancements()){var completed=new HashSet<String>();base.owner.getAdvancements().getOrStartProgress(advancement).getCompletedCriteria().forEach(completed::add);advancements.put(advancement,completed);}
@@ -122,7 +122,7 @@ public final class ClassicMeleeChecks {
         void sourcePresentation(){
             for(var leaf:List.of("feeding_sword","legacy_feeding_sword","vampire_fang","legacy_vampire_fang","guardian_sword")){
                 boolean feeding=leaf.contains("feeding"),vampire=leaf.contains("vampire"),legacy=leaf.startsWith("legacy_");var stack=loot(leaf);var vanilla=new ItemStack(feeding?Items.WOODEN_SWORD:Items.IRON_SWORD);
-                require(stack.is(vanilla.getItem())&&stack.getMaxDamage()==vanilla.getMaxDamage(),"source ordinary vanilla item/default durability "+leaf);
+                require(stack.is(legacy?vanilla.getItem():feeding?LbcMeleeItems.Kind.FEEDING_SWORD.item:vampire?LbcMeleeItems.Kind.VAMPIRE_FANG.item:LbcMeleeItems.Kind.GUARDIAN_SWORD.item)&&stack.getMaxDamage()==vanilla.getMaxDamage(),"source ordinary vanilla item/default durability "+leaf);
                 var flag=feeding?"feeding":vampire?"vampire":"seaguardian";var data=LbcFartus.data(stack);require(data.getIntOr(flag,0)==1&&data.getIntOr("transformable",0)==(legacy?0:1)&&data.getIntOr("sword",0)==(legacy?0:1),"exact legacy/current source flags "+leaf);
                 require(Identifier.parse("lbc:"+(feeding?"steaksword":vampire?"vampiresword":"guardiansword")).equals(stack.get(DataComponents.ITEM_MODEL)),"source authored model "+leaf);
                 require(legacy?stack.get(DataComponents.TOOLTIP_STYLE)==null:Identifier.parse("lbc:"+(feeding?"tier_d":vampire?"tier_c":"tier_b")).equals(stack.get(DataComponents.TOOLTIP_STYLE)),"source tooltip presence/style "+leaf);

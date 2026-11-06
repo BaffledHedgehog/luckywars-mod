@@ -1345,6 +1345,7 @@ public final class GameChecks {
                                 case "summon-orders" -> { SummonOrderChecks.run(game); return; }
                                 case "summon-orders-stop-probe" -> { SummonOrderChecks.stopProbe(game); return; }
                                 case "summon-orders-cleanup" -> { SummonOrderChecks.cleanup(game); return; }
+                                case "native-melee" -> { NativeMeleeChecks.run(game); return; }
                                 case "native-gear" -> { NativeGearChecks.run(game); return; }
                                 case "native-gear-stop-probe" -> { NativeGearChecks.stopProbe(game); return; }
                                 case "native-gear-cleanup" -> { NativeGearChecks.cleanup(game); return; }

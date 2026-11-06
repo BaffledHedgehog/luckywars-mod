@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:shield",
+          "name": "skywars2:holy_shield",
           "modifier": [
             {
               "count": 1,

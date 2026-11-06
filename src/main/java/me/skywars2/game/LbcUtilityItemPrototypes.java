@@ -78,6 +78,17 @@ final class LbcUtilityItemPrototypes {
                 .component(DataComponents.EQUIPPABLE,net.minecraft.world.item.equipment.Equippable.builder(net.minecraft.world.entity.EquipmentSlot.CHEST)
                         .setEquipSound(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_ELYTRA).setAsset(net.minecraft.world.item.equipment.EquipmentAssets.ELYTRA).setDamageOnHurt(false).build())
                 .repairable(Items.PHANTOM_MEMBRANE);
+        else if(carrier==Items.WOODEN_SWORD)p.sword(ToolMaterial.WOOD,3,-2.4f).cookingFuel(net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE);
+        else if(carrier==Items.IRON_SWORD)p.sword(ToolMaterial.IRON,3,-2.4f);
+        else if(carrier==Items.GOLDEN_SWORD)p.sword(ToolMaterial.GOLD,3,-2.4f);
+        else if(carrier==Items.NETHERITE_SWORD)p.sword(ToolMaterial.NETHERITE,3,-2.4f).fireResistant();
+        else if(carrier==Items.SHIELD)p.durability(336).component(DataComponents.BANNER_PATTERNS,net.minecraft.world.level.block.entity.BannerPatternLayers.EMPTY)
+                .repairable(net.minecraft.tags.ItemTags.WOODEN_TOOL_MATERIALS).equippableUnswappable(net.minecraft.world.entity.EquipmentSlot.OFFHAND)
+                .delayedComponent(DataComponents.BLOCKS_ATTACKS,lookup->new BlocksAttacks(.25f,1,
+                        java.util.List.of(new BlocksAttacks.DamageReduction(90,java.util.Optional.empty(),0,1)),
+                        new BlocksAttacks.ItemDamageFunction(3,1,1),java.util.Optional.of(lookup.getOrThrow(net.minecraft.tags.DamageTypeTags.BYPASSES_SHIELD)),
+                        java.util.Optional.of(net.minecraft.sounds.SoundEvents.SHIELD_BLOCK),java.util.Optional.of(net.minecraft.sounds.SoundEvents.SHIELD_BREAK)))
+                .component(DataComponents.BREAK_SOUND,net.minecraft.sounds.SoundEvents.SHIELD_BREAK);
         else if(carrier==Items.REPEATING_COMMAND_BLOCK)p.rarity(Rarity.EPIC);
         else if(carrier==Items.CARROT_ON_A_STICK)p.durability(25);
         else if(carrier==Items.TIPPED_ARROW)p.component(DataComponents.POTION_CONTENTS,net.minecraft.world.item.alchemy.PotionContents.EMPTY).component(DataComponents.POTION_DURATION_SCALE,.125f);

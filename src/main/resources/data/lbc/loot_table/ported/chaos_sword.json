@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 1,
-          "name": "minecraft:golden_sword",
+          "name": "skywars2:chaos_sword",
           "modifier": [
             {
               "type": "minecraft:set_count",

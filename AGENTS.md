@@ -1,3 +1,16 @@
+## Fifteen native melee items - QUALIFIED, INSTALLED (6 November 2026)
+
+[Canonical source profiles, native machinery and exact proof](agent_notes/NATIVE_MELEE_ITEMS_2026_11_06.md).
+11 swords,2 shields, Piston and Metal Pipe Divider;31 profiles/all17 Fragment states.
+Existing combat/HolyShield/MetalPipe/Wands owners; common deferred prototype factory.
+Exact vanilla sword/mining/durability/repair/enchant/fuel/fire-resistance and shield blocking.
+Three additive native tag overlays; source counts/styles/attributes/conditions retained.
+Actual native inputs and all31 independent original-carrier component oracles.
+Testb1b42b54/productionf4f01ae2:12 isolated mode1/mode3 matches pass.
+12 families/34 resources;10216 source guards/282 author paths/RP preserved.
+Main/both libs installed without restart; one heavy task and explicit memory gate.
+Full IMBA/TMT-last/mode/skill2/broad rewind gates unchanged.
+
 ## Fifteen native mystical artifact variants - QUALIFIED, INSTALLED (6 November 2026)
 
 [Canonical aliases, shared authority and exact proof](agent_notes/NATIVE_MYSTICAL_ARTIFACTS_2026_11_06.md).

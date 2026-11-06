@@ -1145,6 +1145,8 @@ processResources {
             'data/minecraft/tags/damage_type/bypasses_shield.json',
             'data/minecraft/tags/item/foot_armor.json',
             'data/minecraft/tags/item/swords.json',
+            'data/minecraft/tags/item/piglin_loved.json',
+            'data/minecraft/tags/item/enchantable/durability.json',
             'data/minecraft/tags/item/razor_ammo.json',
             'data/minecraft/tags/item/razor_ammo_best.json',
             'data/minecraft/tags/entity_type/no_blood.json',
