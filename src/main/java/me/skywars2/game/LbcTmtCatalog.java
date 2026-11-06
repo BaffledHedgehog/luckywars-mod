@@ -73,7 +73,7 @@ final class LbcTmtCatalog {
     private final List<Family> families;
     private final Domains domains;
 
-    LbcTmtCatalog(LbcTmtUseProfiles useProfiles){
+    LbcTmtCatalog(GameController game,LbcTmtUseProfiles useProfiles){
         java.util.Objects.requireNonNull(useProfiles);
         var all=new TreeMap<String,Collected>();
         var knownInputs=new java.util.HashSet<String>();
@@ -92,6 +92,7 @@ final class LbcTmtCatalog {
                 all.get(family.id()).events.add(Event.BLOCK);all.get(family.id()).events.add(Event.MELEE);
                 all.get(family.id()).owners.add("LbcImbaAxe/LbcTmtTools");
             }
+            if(LbcTmtBlockUses.supports(LbcTmtComponents.nativeItem(ability.data()))){all.get(family.id()).events.add(Event.BLOCK);all.get(family.id()).owners.add("LbcTmtBlockUses/native factory");}
             knownInputs.add(canonical(ability.data().copyTag()));
         }
         for(var profile:LbcWands.tmtAbilities()){
@@ -104,7 +105,7 @@ final class LbcTmtCatalog {
         int registered=0,canonical=0;
         for(var id:BuiltInRegistries.ITEM.keySet().stream().filter(id->id.getNamespace().equals("skywars2")).sorted().toList()){
             registered++;
-            collect(BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1),"native default",all,knownInputs,commonItems,findings);
+            collect(game,BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1),"native default",all,knownInputs,commonItems,findings);
         }
         try(var input=LbcTmtCatalog.class.getResourceAsStream("/skywars2/tmt_use_profiles.json")){
             if(input==null)throw new IllegalStateException("Missing canonical TMT prototypes");
@@ -121,7 +122,7 @@ final class LbcTmtCatalog {
                 for(var raw:row.getAsJsonArray("data"))if(!raw.isJsonNull())
                     data.merge(TagParser.parseCompoundFully(raw.isJsonPrimitive()?raw.getAsString():raw.toString()));
                 stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
-                collect(stack,origin,all,knownInputs,commonItems,findings);
+                collect(game,stack,origin,all,knownInputs,commonItems,findings);
             }
             for(var value:source.getAsJsonArray("knownLegacyOwnerGaps")){
                 var row=value.getAsJsonObject();finding(findings,row.get("key").getAsString(),"legacy reconciliation",
@@ -134,7 +135,7 @@ final class LbcTmtCatalog {
         for(var definition:LbcPills.definitions()){
             var stack=new ItemStack(LbcPills.PILL);var data=new CompoundTag();data.putInt("pill",definition.id());
             stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
-            collect(stack,"LbcPills.definitions",all,knownInputs,commonItems,findings);
+            collect(game,stack,"LbcPills.definitions",all,knownInputs,commonItems,findings);
         }
         // The native bit consumers explicitly support these complete parameter ranges.
         // Current passive types1..8; legacy passive1..6; both reactive1..6,
@@ -147,7 +148,7 @@ final class LbcTmtCatalog {
                 data.remove("mystical");data.remove("mystical_old");
                 data.putInt(old?"mystical_old":"mystical",group);data.putInt("type",type);data.putInt("accessory",1);
                 stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
-                collect(stack,"native mystical bit consumers",all,knownInputs,commonItems,findings);
+                collect(game,stack,"native mystical bit consumers",all,knownInputs,commonItems,findings);
             }
         }
         // Both Fragment versions index the native17-entry branch table by cooltype.
@@ -157,7 +158,7 @@ final class LbcTmtCatalog {
             data.remove("fragmentsword");data.remove("fragmentsword_old");
             data.putInt(old?"fragmentsword_old":"fragmentsword",1);data.putInt("cooltype",type);
             stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
-            collect(stack,"LbcPendingSwords branch domain",all,knownInputs,commonItems,findings);
+            collect(game,stack,"LbcPendingSwords branch domain",all,knownInputs,commonItems,findings);
         }
         families=all.values().stream().map(Collected::freeze).toList();
         domains=new Domains(registered,canonical,families.size(),families.stream().mapToInt(family->family.variants().size()).sum(),List.copyOf(findings.values()));
@@ -178,7 +179,7 @@ final class LbcTmtCatalog {
         return List.copyOf(result);
     }
 
-    private static void collect(ItemStack stack,String source,Map<String,Collected> all,Set<String> knownInputs,
+    private static void collect(GameController game,ItemStack stack,String source,Map<String,Collected> all,Set<String> knownInputs,
                                 Set<Identifier> commonItems,Map<String,Finding> findings){
         if(stack.isEmpty())return;
         var nativeId=BuiltInRegistries.ITEM.getKey(stack.getItem());
@@ -194,7 +195,8 @@ final class LbcTmtCatalog {
             if(LbcTmtAmmoPayloads.supports(stack)){
                 var canonical=LbcStand.isArrow(stack)?LbcStand.ARROW.getDefaultInstance():stack;
                 var ammoId=BuiltInRegistries.ITEM.getKey(canonical.getItem());String family="ammo/"+ammoId.getPath(),id="native/"+family;
-                add(all,id,family,ability(id,ammoId,canonical.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag()),
+                var ammoData=canonical.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();LbcTmtComponents.capture(game,canonical,ammoData);
+                add(all,id,family,ability(id,ammoId,ammoData),
                         new Rule(family,"LbcTmtAmmoPayloads/LbcQuiver/LbcBeamAmmo",Set.of(Event.SHOT,Event.AMMO),Set.of(Location.USED_HAND)));
             }else finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
                     "Infinite-arrow economy belongs only to the actual selected ammunition; a weapon property must not grant free shots");
@@ -206,8 +208,13 @@ final class LbcTmtCatalog {
         // their real native identity and authored STRING identity are equivalent.
         var nativeTrinket=TRINKETS.get(stack.getItem());
         if(nativeTrinket!=null&&!data.contains("trinket"))data.putString("trinket",nativeTrinket.identity());
+        var blockItem=LbcTmtBlockUses.canonical(stack);
+        if(blockItem!=null)nativeId=BuiltInRegistries.ITEM.getKey(blockItem);
+        LbcTmtComponents.capture(game,stack,blockItem==null?stack.getItem():blockItem,data);
         var probe=ability("probe",nativeId,data);
         if(knownInputs.contains(canonical(probe.data().copyTag())))return;
+        if(blockItem!=null){String id="native/block/"+nativeId.getPath();add(all,id,"block/"+nativeId.getPath(),ability(id,nativeId,data),
+                rule("","LbcTmtBlockUses/native factory",Event.BLOCK,Location.USED_HAND));return;}
         if(LbcTmtItems.output(stack.getItem())||stack.is(LbcTmtItems.TOKEN)){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"TMT transport/acquisition is not a recursively sampled property");return;
         }

@@ -53,13 +53,13 @@ final class LbcTmtUseProfiles {
     /** Call after holder-bound item defaults finalize; retain this instance until the registry generation changes. */
     LbcTmtUseProfiles(GameController game,Predicate<ItemStack> nativeCandidate) {
         this.game=java.util.Objects.requireNonNull(game);java.util.Objects.requireNonNull(nativeCandidate);
-        Predicate<ItemStack> supported=nativeCandidate.or(LbcTmtUseProfiles::additionalCandidate).or(LbcTmtExtraUses::candidate);
+        Predicate<ItemStack> supported=nativeCandidate.or(LbcTmtUseProfiles::additionalCandidate).or(LbcTmtExtraUses::candidate).or(LbcTmtBlockUses::airCandidate);
         var collected=new TreeMap<String,LinkedHashMap<String,LbcTmtAbilities.Ability>>();
         var rejected=new java.util.TreeSet<String>();var existing=new java.util.TreeSet<String>();
         var missing=new java.util.TreeSet<String>();var gaps=new ArrayList<String>();int registered=0,canonical=0,admitted=0;
         for(var id:BuiltInRegistries.ITEM.keySet().stream().filter(id->id.getNamespace().equals("skywars2")).sorted().toList()) {
             registered++;var stack=BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1);
-            if(add(stack,supported,collected,rejected,existing))admitted++;
+            if(add(game,stack,supported,collected,rejected,existing))admitted++;
         }
         try(var input=LbcTmtUseProfiles.class.getResourceAsStream("/skywars2/tmt_use_profiles.json")) {
             if(input==null)throw new IllegalStateException("Missing native TMT use prototypes");
@@ -74,7 +74,7 @@ final class LbcTmtUseProfiles {
                 for(var raw:row.getAsJsonArray("data"))if(!raw.isJsonNull())
                     data.merge(TagParser.parseCompoundFully(raw.isJsonPrimitive()?raw.getAsString():raw.toString()));
                 stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
-                if(add(stack,supported,collected,rejected,existing))admitted++;
+                if(add(game,stack,supported,collected,rejected,existing))admitted++;
             }
             for(var value:source.getAsJsonArray("knownLegacyOwnerGaps")) {
                 var row=value.getAsJsonObject();gaps.add(row.get("key").getAsString()+": "+row.get("status").getAsString());
@@ -125,6 +125,7 @@ final class LbcTmtUseProfiles {
                 if(additionalCandidate(stack))return net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker()
                         .interact(player,player.level(),hand).consumesAction();
                 if(extra!=Integer.MAX_VALUE)return LbcTmtExtraUses.use(game,player,hand);
+                if(LbcTmtBlockUses.airCandidate(stack))return LbcTmtBlockUses.air(game,player,hand);
                 return game.items().wands().cast(player,hand);
             });
             if(used)completed++;
@@ -149,20 +150,23 @@ final class LbcTmtUseProfiles {
         return Integer.MAX_VALUE;
     }
     private int inputOrder(ItemStack stack){
+        if(LbcTmtBlockUses.airCandidate(stack))return 3000;
         int callbacks=Math.min(additionalOrder(stack),LbcTmtExtraUses.order(stack));
         if(callbacks!=Integer.MAX_VALUE)return callbacks;
         return 1000+game.items().wands().tmtNativeUseOrder(stack);
     }
 
-    private static boolean add(ItemStack stack,Predicate<ItemStack> candidate,
+    private static boolean add(GameController game,ItemStack stack,Predicate<ItemStack> candidate,
             Map<String,LinkedHashMap<String,LbcTmtAbilities.Ability>> collected,Set<String> rejected,Set<String> existing) {
         if(stack.isEmpty())return false;
+        var source=stack;var block=LbcTmtBlockUses.canonical(stack);if(block!=null&&block!=stack.getItem())stack=stack.transmuteCopy(block);
         String nativeId=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         if(existing(stack)){existing.add(nativeId);return false;}
         // Classification only: never invoke Item.use or an owner with a synthetic player/stack here.
         if(!candidate.test(stack)){rejected.add(nativeId);return false;}
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         data.remove(LbcTmtAbilities.SLOTS);data.remove(LbcTmtAbilities.ACTIVE);data.remove("tmt_item");data.remove("tmt_texture_seed");
+        LbcTmtComponents.capture(game,source,stack.getItem(),data);
         String family=family(nativeId,data),id=PREFIX+digest(family);data.putString(NATIVE_ITEM,nativeId);
         var ability=new LbcTmtAbilities.Ability(id,CustomData.of(data));
         // Full typed payload and native identity determine variants; acquisition count/style never enters this key.

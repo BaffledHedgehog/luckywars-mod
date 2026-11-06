@@ -28,6 +28,7 @@ public final class LbcTmtAbilities {
     static ItemStack outerCopy(ItemStack stack){
         var result=stack.copy();var scopes=SCOPES.get();var original=scopes==null?null:scopes.get(stack);
         if(original!=null)result.set(DataComponents.CUSTOM_DATA,CustomData.of(original));
+        LbcTmtComponents.restoreOuterCopy(stack,result);
         return result;
     }
     /** Native shots accepted inside a property finish after the outer held state is restored. */
@@ -79,6 +80,7 @@ public final class LbcTmtAbilities {
             var payload=ability.data.copyTag();var merged=payload.copy();
             for(var key:PARAMETERS)merged.remove(key);
             merged.remove(NATIVE);
+            merged.remove(LbcTmtComponents.KEY);
             root.merge(merged);
             list.add(entry(ability.id,payload));
         }
@@ -130,7 +132,8 @@ public final class LbcTmtAbilities {
         var scopes=SCOPES.get();
         if(scopes==null){scopes=new java.util.IdentityHashMap<>();SCOPES.set(scopes);}
         scopes.put(stack,original);
-        try{stack.set(DataComponents.CUSTOM_DATA,CustomData.of(effective));return action.getAsBoolean();}
+        LbcTmtComponents.Scope components=null;
+        try{stack.set(DataComponents.CUSTOM_DATA,CustomData.of(effective));components=LbcTmtComponents.project(me.skywars2.SkyWars2.game(),stack,selected.data);return action.getAsBoolean();}
         finally{
             try{
             if(!stack.isEmpty()){
@@ -140,6 +143,7 @@ public final class LbcTmtAbilities {
                         &&(payload.contains(key)||!Objects.equals(before.get(key),after.get(key))))
                     payload.put(key,after.get(key).copy());
                 for(var key:new ArrayList<>(payload.keySet()))if(!after.contains(key))payload.remove(key);
+                if(components!=null)components.remember(payload);
                 var list=new ListTag();
                 for(var ability:slots)list.add(entry(ability.id,ability.id.equals(id)?payload:ability.data.copyTag()));
                 original.put(SLOTS,list);original.remove(ACTIVE);
@@ -147,11 +151,13 @@ public final class LbcTmtAbilities {
                 stack.set(DataComponents.CUSTOM_DATA,CustomData.of(original));
             }
             }finally{
+                try{if(components!=null)components.close();}finally{
                 scopes.remove(stack);if(scopes.isEmpty())SCOPES.remove();
                 if(nativeScopes!=null){nativeScopes.remove(stack);NATIVE_DEPTH.decrementAndGet();if(nativeScopes.isEmpty())NATIVE_SCOPES.remove();}
                 if(scopes.isEmpty()){
                     var pending=AFTER_SCOPES.get();AFTER_SCOPES.remove();
                     if(pending!=null)while(!pending.isEmpty())pending.removeFirst().run();
+                }
                 }
             }
         }

@@ -68,6 +68,7 @@ public final class LbcTmtItems {
     private static void using(LivingEntity entity,ItemStack stack){var runtime=runtime();if(runtime!=null&&entity instanceof net.minecraft.server.level.ServerPlayer owner)runtime.usingItem(owner,owner.getUsedItemHand(),stack);}
     private static final class NativeCarrot extends FoodOnAStickItem<Pig> implements PolymerItem {
         NativeCarrot(Properties properties){super(EntityTypes.PIG,7,properties);}
+        @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){return LbcTmtBlockUses.input(context);}
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return LbcTmtContinuous.clientCarrier(stack,Items.CARROT_ON_A_STICK);}
         @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){super.onUseTick(level,entity,stack,remaining);using(entity,stack);}
         @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
@@ -83,16 +84,19 @@ public final class LbcTmtItems {
     }
     private static final class NativeBow extends BowItem implements PolymerItem {
         NativeBow(Properties properties){super(properties);}
+        @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){return LbcTmtBlockUses.input(context);}
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.BOW;}
         @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){super.onUseTick(level,entity,stack,remaining);using(entity,stack);}
     }
     private static final class NativeCrossbow extends CrossbowItem implements PolymerItem {
         NativeCrossbow(Properties properties){super(properties);}
+        @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){return LbcTmtBlockUses.input(context);}
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.CROSSBOW;}
         @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){super.onUseTick(level,entity,stack,remaining);using(entity,stack);}
     }
     private static final class NativeSnowball extends SnowballItem implements PolymerItem {
         NativeSnowball(Properties properties){super(properties);}
+        @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){return LbcTmtBlockUses.input(context);}
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return LbcTmtContinuous.clientCarrier(stack,Items.SNOWBALL);}
         @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){super.onUseTick(level,entity,stack,remaining);using(entity,stack);}
         @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
@@ -107,6 +111,7 @@ public final class LbcTmtItems {
     }
     private static final class NativeApple extends Item implements PolymerItem {
         NativeApple(Properties properties){super(properties);}
+        @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){return LbcTmtBlockUses.input(context);}
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.GOLDEN_APPLE;}
         @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){super.onUseTick(level,entity,stack,remaining);using(entity,stack);}
     }

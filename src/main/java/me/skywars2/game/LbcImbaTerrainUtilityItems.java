@@ -46,6 +46,7 @@ public final class LbcImbaTerrainUtilityItems {
     /** Old saved vanilla carriers enter the same item implementation at the actual input boundary. */
     public static InteractionResult legacyBlock(UseOnContext context){
         var item=context.getItemInHand();
+        if(LbcTmtItems.matches(item))return InteractionResult.PASS;
         var followup=LbcImbaFollowupItems.legacyTarget(item);if(followup!=null&&!item.is(followup))return followup.useOn(context);
         if(!item.is(DIRTER)&&LbcImbaTerrainUtilities.dirter(item))return DIRTER.useOn(context);
         if(!item.is(BASTION)&&LbcImbaTerrainUtilities.bastion(item))return BASTION.useOn(context);
@@ -53,6 +54,7 @@ public final class LbcImbaTerrainUtilityItems {
     }
     public static InteractionResult legacyAir(Level level,Player player,InteractionHand hand){
         var item=player.getItemInHand(hand);
+        if(LbcTmtItems.matches(item))return InteractionResult.PASS;
         var followup=LbcImbaFollowupItems.legacyTarget(item);if(followup!=null&&!item.is(followup))return followup.use(level,player,hand);
         return !item.is(BASTION)&&LbcImbaTerrainUtilities.bastion(item)?BASTION.use(level,player,hand):InteractionResult.PASS;
     }

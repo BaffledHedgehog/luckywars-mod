@@ -1375,6 +1375,7 @@ public final class GameChecks {
                                 case "tmt-catalog" -> { TmtCatalogChecks.run(game); return; }
                                 case "tmt-ammo" -> { TmtAmmoChecks.run(game); return; }
                                 case "tmt-held" -> { TmtHeldChecks.run(game); return; }
+                                case "tmt-block-use" -> { TmtBlockUseChecks.run(game); return; }
                                 case "tmt-ammo-rewind" -> { TmtAmmoRewindChecks.run(game); return; }
                                 case "tmt-extra-use" -> { TmtExtraUseChecks.run(game); return; }
                                 case "entity-protocol" -> { EntityProtocolChecks.run(game); return; }

@@ -87,6 +87,12 @@ public final class LbcTmtRuntime {
         if(!LbcTmtItems.matches(stack)||LbcTmtAbilities.active(stack)||!enter(player))return false;
         selfGroups(player);charging(player);return spells(player,hand)>0;
     }
+    net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){
+        if(!(context.getPlayer() instanceof ServerPlayer owner)||!LbcTmtItems.matches(context.getItemInHand())||LbcTmtAbilities.active(context.getItemInHand())||!enter(owner))return net.minecraft.world.InteractionResult.PASS;
+        int count=LbcTmtBlockUses.use(game,context);
+        if(count==0){triggered.remove(owner);return net.minecraft.world.InteractionResult.PASS;}
+        return net.minecraft.world.InteractionResult.SUCCESS;
+    }
     /** Source damaged continuation only owns the once-per-tick guard. It never fabricates a self activation. */
     void damaged(ServerPlayer player){
         if(!admitted(player))return;
@@ -119,7 +125,7 @@ public final class LbcTmtRuntime {
         var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);return result;
     }
     public ItemStack generate(RandomSource random){return generate(random,catalog().drawSeven(random));}
-    LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(useProfiles());return catalog;}
+    LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(game,useProfiles());return catalog;}
     static void visual(ItemStack stack){
         int seed=ItemData.intValue(stack,"tmt_texture_seed",0);
         var current=stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA,CustomModelData.EMPTY);

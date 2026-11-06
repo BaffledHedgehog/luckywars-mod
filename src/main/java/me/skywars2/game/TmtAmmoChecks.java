@@ -85,7 +85,7 @@ public final class TmtAmmoChecks {
             }finally{
                 if(victim!=null)game.items().quiver().clear(victim);
                 game.items().shulkerBow().stop();game.items().homingArrows().stop();game.items().chargedBows().stop();game.items().exasperato().stop();
-                for(var e:f.level.getAllEntities())if(!before.contains(e.getUUID())){f.own(e);game.items().entityUnloaded(e);e.discard();}
+                for(var e:com.google.common.collect.Lists.newArrayList(f.level.getAllEntities()))if(!before.contains(e.getUUID())){f.own(e);game.items().entityUnloaded(e);e.discard();}
             }
         }
         me.skywars2.SkyWars2.LOGGER.info("[check] PASS tmt-ammo (real256-arrow native volley, unchanged actual ammo/debit, three extra payloads/homing, canonical x2, entity codec and beam copies, accepted physical and4HP shulker contacts with two independent native statuses)");

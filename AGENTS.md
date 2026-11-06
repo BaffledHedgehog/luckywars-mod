@@ -1,3 +1,13 @@
+## TMT native payload/use-on - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Contracts, exact evidence and carry-forward](agent_notes/TMT_BLOCK_RUNTIME_2026_11_07.md).
+Real native use-on/fluid factories; same hand, placement permissions, suppression and debit.
+Private native payload components, original item/refund/exception restoration; no function executor.
+Generic source factories reused; legacy TMT shortcuts defer to one coordinator.
+Internalfb24be1e/e99d79ed on complete4e71e440 parent;9 actual mode1 matches pass.
+13 Java families/0 resources;10325 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Dropped/intake/native-domain reconciliation and final TMT release pending.
+
 ## TMT held/sustained owners - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Contracts, exact native evidence and carry-forward](agent_notes/TMT_HELD_RUNTIME_2026_11_07.md).

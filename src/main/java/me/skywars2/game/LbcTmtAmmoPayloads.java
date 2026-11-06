@@ -117,7 +117,7 @@ public final class LbcTmtAmmoPayloads {
         for(var ability:LbcTmtAbilities.read(fired)){
             var data=(ItemData.IntReader)(Object)ability.data();var id=Identifier.tryParse(data.skywars2$readString(LbcTmtAbilities.NATIVE,""));
             if(id==null)continue;var item=BuiltInRegistries.ITEM.getValue(id);if(!(item instanceof ArrowItem))continue;
-            var source=item.getDefaultInstance().copyWithCount(1);source.set(DataComponents.CUSTOM_DATA,CustomData.of(ability.data().copyTag()));
+            var source=LbcTmtComponents.source(game,ability);
             if(supported(source))payloads.add(new Payload(ability.id(),source));
         }
         if(payloads.isEmpty())return;

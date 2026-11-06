@@ -65,7 +65,7 @@ public final class TmtHeldChecks {
                 require(game.items().tanner().count()==1&&game.items().voidArcanum().count()>0&&game.items().syringe().buffed(summon)
                         &&game.items().kiuas().activeKinds(f.owner)==1,"all seven native held owners actually activated: tanner="+game.items().tanner().count()+", babylon="+game.items().babylon().count()+", void="+game.items().voidArcanum().count()+", syringe="+game.items().syringe().buffed(summon)+", kiuas="+game.items().kiuas().activeKinds(f.owner)+", mana="+game.items().mana().get(f.owner));
                 f.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);f.owner.getInventory().setItem(9,current);next(1);return false;}
-            if(phase==1){if(elapsed<3)return false;
+            if(phase==1){if(elapsed<6)return false;
                 require(game.items().defensiveArcanums().activeHands(f.owner)==0&&game.items().tanner().count()==0&&game.items().voidArcanum().count()==0
                         &&!game.items().syringe().buffed(summon)&&game.items().kiuas().activeKinds(f.owner)==0,"inventory-only item cannot impersonate either held hand");
                 equip(item("gate_of_babylon"));funded();next(10);return false;}
@@ -90,7 +90,7 @@ public final class TmtHeldChecks {
         }
         public void close(){if(closed)return;closed=true;try{game.vanity().stop();f.owner.stopUsingItem();game.items().cunny().forget(f.owner);if(f.stopped)f.thaw();
                 game.items().syringe().stop();game.items().babylon().stop();game.items().defensiveArcanums().stop();game.items().voidArcanum().stop();game.items().tanner().stop();game.items().kiuas().stop();
-                for(var e:f.level.getAllEntities())if(!initial.contains(e.getUUID())){f.own(e);game.items().entityUnloaded(e);e.discard();}
+                for(var e:com.google.common.collect.Lists.newArrayList(f.level.getAllEntities()))if(!initial.contains(e.getUUID())){f.own(e);game.items().entityUnloaded(e);e.discard();}
             }finally{f.close();}}
     }
 }
