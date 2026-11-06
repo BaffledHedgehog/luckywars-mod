@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.animal.cow.Cow;
@@ -161,7 +162,7 @@ public final class BabylonChecks {
         }
         List<net.minecraft.world.entity.LightningBolt> bolts(){var result=new ArrayList<net.minecraft.world.entity.LightningBolt>();for(var e:owner.level().getAllEntities())if(e instanceof net.minecraft.world.entity.LightningBolt bolt&&!before.contains(e)&&!e.isRemoved())result.add(bolt);return result;}
         void clearBolts(){for(var bolt:bolts()){game.items().babylonEffects().unloaded(bolt);bolt.discard();}}
-        void enqueue(Cow target,ServerPlayer author,int amp,int duration){var shot=service.emit(author,3,amp==101?1:amp==109?2:3);require(game.items().babylonEffects().accept(target,shot,new MobEffectInstance(MobEffects.RAID_OMEN,duration,amp)),"accepted native transport boundary");service.unloaded(shot);}
+        void enqueue(LivingEntity target,ServerPlayer author,int amp,int duration){var shot=service.emit(author,3,amp==101?1:amp==109?2:3);require(game.items().babylonEffects().accept(target,shot,new MobEffectInstance(MobEffects.RAID_OMEN,duration,amp)),"accepted native transport boundary");service.unloaded(shot);}
         void nativeArrowEffects(){
             hands(false,false);var effects=game.items().babylonEffects();int[] amps={101,109,110};
             for(int kind=1;kind<=3;kind++){
@@ -177,8 +178,14 @@ public final class BabylonChecks {
             enqueue(target,owner,109,2);effects.tickTarget(target);require(effects.queued(target,109)==0&&bolts().isEmpty(),"nearby anyone inventory ward consumes counter without action");owner.getInventory().setItem(9,ItemStack.EMPTY);game.items().magic().inventoryChanged(owner);game.items().magic().flushCleansing();
             var stopper=new Marker(EntityTypes.MARKER,owner.level());stopper.setPos(target.position());stopper.entityTags().add("stopper");owner.level().addFreshEntity(stopper);game.items().magic().loaded(stopper);
             try{enqueue(target,owner,101,2);enqueue(target,owner,109,2);float hp=target.getHealth();effects.tickTarget(target);require(target.getHealth()==hp&&effects.queued(target,101)==0&&bolts().size()==1,"mechanism stopper consumes101 while109 uses magic stopper");}finally{game.items().magic().unloaded(stopper);stopper.discard();clearBolts();effects.clear(target);}
-            int globalSkills=mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#lbcskill"),"swrg.math").get();
-            try{mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#lbcskill"),"swrg.math").set(1);enqueue(target,owner,109,2);mana.score(target,"lbc.skill").set(19);effects.tickTarget(target);require(effects.queued(target,109)==0&&bolts().isEmpty(),"skill19 clears existing deferred counter under source global gate");enqueue(target,owner,109,2);require(effects.queued(target,109)==0,"skill19 consumes incoming marker without counter");}finally{mana.score(target,"lbc.skill").set(0);mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#lbcskill"),"swrg.math").set(globalSkills);}
+            boolean skillsEnabled=game.config().lbcSkills;int selectedSkill=game.players().get(other.getUUID()).lbcSkill;
+            String parasiteUnlock="lbc:true_advancements/legends/academy/acidacid";boolean hadUnlock=game.players().get(other.getUUID()).lbcUnlocks.contains(parasiteUnlock);
+            try{
+                enqueue(other,owner,109,2);game.config().lbcSkills=true;game.players().get(other.getUUID()).lbcSkill=19;game.players().get(other.getUUID()).lbcUnlocks.add(parasiteUnlock);
+                require(LbcParasite.active(other),"actual native player Parasite admission");effects.tickTarget(other);
+                require(effects.queued(other,109)==0&&bolts().isEmpty(),"actual player Parasite clears an existing deferred counter");
+                var rejected=service.emit(owner,3,2);try{require(!other.addEffect(new MobEffectInstance(MobEffects.RAID_OMEN,2,109),rejected)&&effects.queued(other,109)==0,"Parasite rejects native incoming transport before its first pulse");}finally{service.unloaded(rejected);}
+            }finally{effects.clear(other);game.players().get(other.getUUID()).lbcSkill=selectedSkill;game.config().lbcSkills=skillsEnabled;if(!hadUnlock)game.players().get(other.getUUID()).lbcUnlocks.remove(parasiteUnlock);}
             // Real vanilla lightning remains WILD and its old cause cannot supersede a later accepted player hit.
             enqueue(target,owner,109,2);effects.tickTarget(target);var bolt=bolts().getFirst();
             game.server().getScoreboard().addPlayerToTeam(owner.getScoreboardName(),team);game.server().getScoreboard().addPlayerToTeam(other.getScoreboardName(),team);move(other,target.position().add(1,0,0));other.setHealth(20);other.setInvulnerableTime(0);other.damageCooldownTime=0;target.setInvulnerableTime(0);target.damageCooldownTime=0;

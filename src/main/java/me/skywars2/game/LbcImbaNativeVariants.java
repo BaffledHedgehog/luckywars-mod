@@ -16,5 +16,6 @@ public final class LbcImbaNativeVariants {
         DispenserBlock.registerProjectileBehavior(LbcImbaNativeItems.HOMING_ARROW);
         DispenserBlock.registerProjectileBehavior(LbcImbaNativeItems.FIREWORK);
         for(var arrow:LbcImbaNativeItems.specialArrows())DispenserBlock.registerProjectileBehavior(arrow);
+        for(var arrow:LbcImbaNativeItems.quiverArrows())DispenserBlock.registerProjectileBehavior(arrow);
     }
 }

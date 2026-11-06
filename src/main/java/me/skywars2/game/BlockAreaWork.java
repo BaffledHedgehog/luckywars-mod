@@ -170,7 +170,7 @@ final class BlockAreaWork {
                 }
             }
         };
-        if(cause==null)game.items().indirectKills().trapChanges(owner,writes);
+        if(cause==null)game.items().indirectKills().trapChanges(level,owner,writes);
         else game.items().indirectKills().trapChanges(level,cause,writes);
         if (scan.positions.isEmpty()) scans.remove(entry.getKey());
         else scans.putLast(entry.getKey(), scan);

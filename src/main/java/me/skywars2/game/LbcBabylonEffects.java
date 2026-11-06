@@ -60,11 +60,11 @@ public final class LbcBabylonEffects {
     /** Both ordinary Quiver and Babylon 101 feed the same source counter, retaining their own policy. */
     public boolean acceptQuiver101(LivingEntity target,MobEffectInstance effect,net.minecraft.world.entity.projectile.arrow.Arrow arrow){
         if(!game.items().quiver().validEffectArrow(arrow,101))return false;
-        var owner=LbcIndirectKills.playerSource(arrow);return owner!=null&&acceptCarrier101(target,effect,game.items().indirectKills().coldCause(owner,true));
+        var owner=LbcIndirectKills.playerSource(arrow);return acceptCarrier101(target,effect,owner==null?null:game.items().indirectKills().coldCause(owner,true));
     }
     /** Arrow-equivalent carriers feed the same accepted counter, without a synthetic world arrow. */
     public boolean acceptCarrier101(LivingEntity target,MobEffectInstance effect,LbcIndirectKills.Owner cause){
-        if(cause==null||effect.getAmplifier()!=101||!isEffect(effect)||target.entityTags().contains("sin_greed_active")
+        if(effect.getAmplifier()!=101||!isEffect(effect)||target.entityTags().contains("sin_greed_active")
                 ||!valid(target)||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         if(skillImmune(target)){clear(target);return true;}
         int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
@@ -124,8 +124,8 @@ public final class LbcBabylonEffects {
         }
     }
     private void actAt(ServerLevel level,Vec3 at,int kind,LbcIndirectKills.Owner cause){
-        var owner=game.server().getPlayerList().getPlayer(cause.player());
-        if(owner==null&&!cause.friendlyFire())return;
+        var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
+        if(cause!=null&&owner==null&&!cause.friendlyFire())return;
         if(kind==0){
             var damage=new OwnerDamageSource(level,null,owner,cause,game.items().epoch());
             game.items().indirectKills().trapChanges(level,cause,()->level.explode(null,damage,null,at,1,false,Level.ExplosionInteraction.MOB));
@@ -143,45 +143,45 @@ public final class LbcBabylonEffects {
         }));
     }
     public LbcIndirectKills.Owner cause(Entity entity){
-        var saved=secondary.get(entity);if(saved==null)return null;
+        var saved=secondary.get(entity);if(!secondary.containsKey(entity))return null;
         var author=owner(entity);
-        if(author!=null&&!author.getUUID().equals(saved.player())){
-            var changed=game.items().indirectKills().coldCause(author,saved.projectile());
-            saved=new LbcIndirectKills.Owner(changed.player(),changed.order(),saved.friendlyFire(),changed.projectile());secondary.put(entity,saved);
+        if(author!=null&&(saved==null||!author.getUUID().equals(saved.player()))){
+            var changed=game.items().indirectKills().coldCause(author,saved==null||saved.projectile());
+            saved=new LbcIndirectKills.Owner(changed.player(),changed.order(),saved==null||saved.friendlyFire(),changed.projectile());secondary.put(entity,saved);
         }return saved;
     }
     public ServerPlayer owner(Entity entity){
-        var saved=secondary.get(entity);if(saved==null)return null;
+        var saved=secondary.get(entity);if(!secondary.containsKey(entity))return null;
         if(game.items().electro().reflectedOwner(entity) instanceof ServerPlayer player)return player;
-        if(entity.isRemoved())return game.server().getPlayerList().getPlayer(saved.player());
+        if(entity.isRemoved())return saved==null?null:game.server().getPlayerList().getPlayer(saved.player());
         if(entity instanceof net.minecraft.world.entity.item.PrimedTnt tnt&&tnt.getOwner() instanceof ServerPlayer player)return player;
-        return game.server().getPlayerList().getPlayer(saved.player());
+        return saved==null?null:game.server().getPlayerList().getPlayer(saved.player());
     }
     public boolean canAffect(Entity source,Entity victim){
-        var saved=cause(source);if(saved==null)return true;
+        var saved=cause(source);if(saved==null)return !secondary.containsKey(source)||game.items().wands().validTarget(victim);
         var author=owner(source);
         return game.items().wands().validTarget(victim)&&(saved.friendlyFire()
                 ||author!=null&&(victim==author||game.items().wands().projectileTarget(author,victim)));
     }
-    public void inheritChild(Entity source,Entity child){inheritChild(cause(source),child);}
+    public void inheritChild(Entity source,Entity child){if(secondary.containsKey(source))inheritChild(cause(source),child);}
     public void inheritExplosionChild(DamageSource source,Entity child){
         if(source instanceof OwnerDamageSource)inheritChild(game.items().indirectKills().babylonCause(source),child);
     }
     private void inheritChild(LbcIndirectKills.Owner cause,Entity child){
-        if(cause==null||!(child instanceof net.minecraft.world.entity.item.PrimedTnt))return;
+        if(!(child instanceof net.minecraft.world.entity.item.PrimedTnt))return;
         secondary.put(child,cause);child.entityTags().add("skywars2.babylon.effect");game.items().markCurrentItemEpoch(child);
         game.items().timeStop().prepareFrozen(child);
     }
     public boolean managedSecondary(Entity entity){return secondary.containsKey(entity);}
     public boolean currentSource(DamageSource source){return source instanceof OwnerDamageSource owned&&game.items().currentEpoch(owned.epoch);}
-    public ServerPlayer explicitOwner(DamageSource source){return source instanceof OwnerDamageSource owned
+    public ServerPlayer explicitOwner(DamageSource source){return source instanceof OwnerDamageSource owned&&owned.cause!=null
             ?game.server().getPlayerList().getPlayer(owned.cause.player()):null;}
     public int queued(LivingEntity target,int amp){var all=pending.get(target);int kind=index(amp);return all==null||kind<0?0:all.get(kind).stream().mapToInt(c->c.remaining).sum();}
     public int pendingCount(){return pending.size();}
     private void sync(LivingEntity target){
         var tag=new CompoundTag();tag.putString("epoch",game.items().epoch());var entries=new ListTag();
         for(int i=0;i<3;i++){mana.score(target,COUNTERS[i]).set(queued(target,AMPS[i]));for(var c:pending.get(target).get(i)){
-            var entry=new CompoundTag();entry.putInt("amp",AMPS[i]);entry.putInt("ticks",c.remaining);entry.putString("owner",c.cause.player().toString());entry.putLong("order",c.cause.order());entry.putBoolean("wild",c.cause.friendlyFire());entry.putBoolean("projectile",c.cause.projectile());entries.add(entry);
+            var entry=new CompoundTag();entry.putInt("amp",AMPS[i]);entry.putInt("ticks",c.remaining);if(c.cause!=null){entry.putString("owner",c.cause.player().toString());entry.putLong("order",c.cause.order());entry.putBoolean("wild",c.cause.friendlyFire());entry.putBoolean("projectile",c.cause.projectile());}entries.add(entry);
         }}tag.put("entries",entries);target.setAttached(DATA,tag);
     }
     public void clear(LivingEntity target){retainedTargets.remove(target);pending.remove(target);target.removeAttached(DATA);for(var name:COUNTERS)mana.score(target,name).set(0);}
@@ -191,8 +191,10 @@ public final class LbcBabylonEffects {
         if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clear(target);return;}
         var all=queues();for(var value:tag.getListOrEmpty("entries"))if(value instanceof CompoundTag entry)try{
             int kind=index(entry.getIntOr("amp",0)),ticks=entry.getIntOr("ticks",0);if(kind<0||ticks<=0)continue;
-            var restored=game.items().indirectKills().restoreColdCause(UUID.fromString(entry.getStringOr("owner","")),entry.getLongOr("order",0),entry.getBooleanOr("projectile",true));
-            all.get(kind).add(new Contribution(ticks,new LbcIndirectKills.Owner(restored.player(),restored.order(),entry.getBooleanOr("wild",true),restored.projectile())));
+            LbcIndirectKills.Owner cause=null;
+            if(entry.contains("owner")){var restored=game.items().indirectKills().restoreColdCause(UUID.fromString(entry.getStringOr("owner","")),entry.getLongOr("order",0),entry.getBooleanOr("projectile",true));
+                cause=new LbcIndirectKills.Owner(restored.player(),restored.order(),entry.getBooleanOr("wild",true),restored.projectile());}
+            all.get(kind).add(new Contribution(ticks,cause));
         }catch(IllegalArgumentException ignored){}
         if(all.stream().allMatch(Deque::isEmpty)){clear(target);return;}pending.put(target,all);sync(target);
     }
@@ -235,11 +237,11 @@ public final class LbcBabylonEffects {
 
     LbcCloneSkills.ActorImage cloneImage(Entity source){
         var original=source instanceof LivingEntity living?pending.get(living):null;var cause=secondary.get(source);
-        if(original==null&&cause==null)return null;
+        boolean child=secondary.containsKey(source);if(original==null&&!child)return null;
         var image=original==null?null:original.stream().map(q->q.stream().map(c->new Contribution(c.remaining,c.cause)).toList()).toList();
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){
-                if(cause!=null)secondary.put(clone,cause);
+                if(child)secondary.put(clone,cause);
                 if(image!=null){var queues=queues();for(int i=0;i<3;i++)for(var c:image.get(i))queues.get(i).addLast(new Contribution(c.remaining,c.cause));pending.put((LivingEntity)clone,queues);sync((LivingEntity)clone);}
             }
             public void rollback(Entity clone){secondary.remove(clone);pending.remove(clone);retainedTargets.remove(clone);}

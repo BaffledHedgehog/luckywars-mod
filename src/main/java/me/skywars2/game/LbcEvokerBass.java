@@ -136,13 +136,15 @@ public final class LbcEvokerBass {
             return;
         }
         if(fang.entityTags().contains("skywars2.quiver.fang")){
-            if(!(fang.getOwner() instanceof ServerPlayer owner)||!game.items().currentEpoch(fang)
+            var owner=fang.getOwner() instanceof ServerPlayer player?player:null;
+            if(!game.items().currentEpoch(fang)
                     ||!game.items().wands().validTarget(victim)||victim.isInvulnerable()
                     ||(game.items().quiver().managedSecondary(fang)?!game.items().quiver().canAffect(fang,victim)
-                        :victim!=owner&&!game.items().wands().projectileTarget(owner,victim))
+                        :owner==null||victim!=owner&&!game.items().wands().projectileTarget(owner,victim))
                     ||game.items().magic().beaconSuppressed(fang.position()))return;
-            var source=game.items().indirectKills().captureDamage(owner.damageSources().indirectMagic(fang,owner),game.items().quiver().cause(fang));
-            if(victim.hurtServer((net.minecraft.server.level.ServerLevel)victim.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
+            var level=(net.minecraft.server.level.ServerLevel)fang.level();
+            var source=game.items().indirectKills().captureDamage(level.damageSources().indirectMagic(fang,owner),game.items().quiver().cause(fang));
+            if(victim.hurtServer(level,source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(level,victim,source);
             return;
         }
         if(!(fang.getOwner() instanceof ServerPlayer owner)||!game.items().currentEpoch(fang)

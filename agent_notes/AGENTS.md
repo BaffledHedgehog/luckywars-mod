@@ -1,3 +1,15 @@
+## Eleven native Quiver arrows - QUALIFIED, INSTALLED (6 November 2026)
+
+[Canonical identities, nullable owners and exact proof](NATIVE_QUIVER_ARROWS_2026_11_06.md).
+11 ready native arrows/19 source count profiles, common TypedArrow/Polymer/dispenser factory.
+Remaining ordinary ownerless101/102/103/111/112/113 and Stand ground return share existing owners.
+Nullable attachments/children/clones; actual carrier world; separate WILD/projectile reload flags.
+Original29-entry/281-weight Quiver pool and authored counts/styles preserved.
+Test4f897dd6/production8c24ee85:10 isolated mode1/mode3 matches pass.
+12 families/31 resources;10213 unchanged inputs/282 author paths/RP preserved.
+Main/both libs installed without restart; Gradle512MiB/one worker, fixture2GiB only after RAM recovered.
+Full IMBA/TMT-last/mode/skill2/broad rewind gates unchanged.
+
 ## Eight ownerless IMBA arrows - QUALIFIED, INSTALLED (6 November 2026)
 
 [Shared native authorities and exact proof](OWNERLESS_IMBA_ARROWS_2026_11_06.md).

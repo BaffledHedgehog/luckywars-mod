@@ -29,6 +29,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -66,9 +67,11 @@ public final class LbcKiuas {
     public static boolean isCurse(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==111;}
     /** Ordinary Kiuas arrows reuse the ordered source tag conversion without a held-arcanum mana charge. */
     void arrowTerrain(ServerPlayer owner,net.minecraft.world.phys.Vec3 point,boolean ground) {
+        arrowTerrain(owner.level(),owner,point,ground,game.items().indirectKills().coldCause(owner,true));
+    }
+    void arrowTerrain(ServerLevel level,ServerPlayer owner,Vec3 point,boolean ground,LbcIndirectKills.Owner cause){
         checkpointCallbacks++;try {
-            var level=owner.level();var center=BlockPos.containing(point);int radius=ground?15:1;
-            var cause=game.items().indirectKills().coldCause(owner,true);
+            var center=BlockPos.containing(point);int radius=ground?15:1;
             var area=new BlockAreaWork(level,LbcKiuas::kiuEligible,(pos,state)->kiuResult(level,pos,state),FLAGS,false,true);
             area.include(new BlockAreaWork.Bounds(center.getX()-radius,center.getY()-(ground?radius:0),center.getZ()-radius,
                     center.getX()+radius,center.getY()+(ground?radius:1),center.getZ()+radius));

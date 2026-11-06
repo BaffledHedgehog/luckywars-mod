@@ -22,6 +22,18 @@ public final class OwnerlessImbaArrowChecks {
     private static Scene running;
     private OwnerlessImbaArrowChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Ownerless IMBA arrows: "+why);}
+    /** Shared real dispenser input for native arrow qualification; no synthetic projectile constructor. */
+    static Arrow dispense(WoolBucketChecks.Fixture f,BlockPos dispenser,ItemStack ammo,Vec3 at){
+        var before=new HashSet<UUID>();for(var e:f.level.getAllEntities())before.add(e.getUUID());
+        var container=(DispenserBlockEntity)f.level.getBlockEntity(dispenser);require(container!=null,"actual dispenser block entity");
+        container.clearContent();container.setItem(0,ammo.copyWithCount(2));
+        var state=f.level.getBlockState(dispenser);state.tick(f.level,dispenser,f.level.getRandom());
+        var published=new ArrayList<Arrow>();for(var e:f.level.getAllEntities())if(e instanceof Arrow a&&!before.contains(a.getUUID()))published.add(a);
+        require(published.size()==1&&container.getItem(0).getCount()==1,"native dispenser publishes/debits exactly one arrow: "+ammo.getItem()+" published="+published.size()+" remaining="+container.getItem(0).getCount());
+        var a=published.getFirst();require(a.getOwner()==null&&ItemStack.isSameItemSameComponents(a.getPickupItemStackOrigin(),ammo),"true unowned source ammo ");
+        f.own(a);a.setPos(at);a.setNoGravity(true);a.setDeltaMovement(Vec3.ZERO);
+        return a;
+    }
     public static void run(GameController game){
         require(running==null,"exclusive scene");var s=new Scene(game);running=s;
         try{s.begin();}catch(Throwable error){running=null;try{s.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}
@@ -51,17 +63,7 @@ public final class OwnerlessImbaArrowChecks {
             for(int i=0;i<ammo.size();i++){var a=dispense(i,high.add(0,i*20,0));shots.add(a);}
             direct();reactive();vacuum();nuclear();lifecycle();electrical();when=game.server().getTickCount();
         }
-        Arrow dispense(int kind,Vec3 at){
-            var before=new HashSet<UUID>();for(var e:f.level.getAllEntities())before.add(e.getUUID());
-            var container=(DispenserBlockEntity)f.level.getBlockEntity(dispenser);require(container!=null,"actual dispenser block entity");
-            container.clearContent();container.setItem(0,ammo.get(kind).copyWithCount(2));
-            var state=f.level.getBlockState(dispenser);state.tick(f.level,dispenser,f.level.getRandom());
-            var published=new ArrayList<Arrow>();for(var e:f.level.getAllEntities())if(e instanceof Arrow a&&!before.contains(a.getUUID()))published.add(a);
-            require(published.size()==1&&container.getItem(0).getCount()==1,"native dispenser publishes/debits exactly one arrow "+kind);
-            var a=published.getFirst();require(a.getOwner()==null&&ItemStack.isSameItemSameComponents(a.getPickupItemStackOrigin(),ammo.get(kind)),"true unowned source ammo "+kind);
-            f.own(a);a.setPos(at);a.setNoGravity(true);a.setDeltaMovement(Vec3.ZERO);
-            require(game.items().quiver().arrows().contains(a),"native load registers ownerless IMBA state "+kind);return a;
-        }
+        Arrow dispense(int kind,Vec3 at){var a=OwnerlessImbaArrowChecks.dispense(f,dispenser,ammo.get(kind),at);require(game.items().quiver().arrows().contains(a),"native load registers ownerless IMBA state "+kind);return a;}
         Cow cow(Vec3 at){var c=EntityTypes.COW.create(f.level,EntitySpawnReason.COMMAND);require(c!=null,"native cow");c.setPos(at);c.setNoGravity(true);c.setNoAi(true);c.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);c.setHealth(1000);require(f.level.addFreshEntity(c),"native target");f.own(c);return c;}
         void strike(Arrow a,Cow c){a.setPos(c.position().add(0,.5,-2));a.setDeltaMovement(0,0,4);a.tick();}
         void direct(){

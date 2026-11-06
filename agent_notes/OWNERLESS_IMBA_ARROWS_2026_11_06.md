@@ -56,3 +56,5 @@ This closes the previously recorded dispenser gap for these eight IMBA arrows.
 Other ordinary ownerless Quiver variants remain a separate migration; the full IMBA
 pool, TMT-last/custom+mixed+typed catalogs/Bucks, new modes, skill2 and broad rewind
 release gates remain unchanged.
+
+Follow-up (6 November): [eleven native ordinary Quiver arrows and their ownerless payloads are now qualified](NATIVE_QUIVER_ARROWS_2026_11_06.md), closing the ordinary-family gap recorded above.

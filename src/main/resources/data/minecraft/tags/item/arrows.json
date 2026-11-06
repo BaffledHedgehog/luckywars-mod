@@ -11,6 +11,17 @@
     "skywars2:imba_evoker_arrow",
     "skywars2:imba_paralyzing_arrow",
     "skywars2:imba_electric_arrow",
-    "skywars2:stand_arrow"
+    "skywars2:stand_arrow",
+    "skywars2:strong_arrow",
+    "skywars2:weak_arrow",
+    "skywars2:poison_arrow",
+    "skywars2:reactive_arrow",
+    "skywars2:explosive_arrow",
+    "skywars2:evoker_arrow",
+    "skywars2:paralyzing_arrow",
+    "skywars2:electric_arrow",
+    "skywars2:lightshoot_arrow",
+    "skywars2:kiuaskivi_arrow",
+    "skywars2:trapping_arrow"
   ]
 }

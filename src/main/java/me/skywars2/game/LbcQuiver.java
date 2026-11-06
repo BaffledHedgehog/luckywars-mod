@@ -64,14 +64,12 @@ public final class LbcQuiver {
         LbcOverload.sound(owner,"minecraft:entity.zombie.infect",1,2,0);
     }
     private void drop(ServerPlayer owner,ItemStack stack,boolean award){var at=owner.position();var entity=new ItemEntity(owner.level(),at.x,at.y,at.z,stack.copy());entity.setDefaultPickUpDelay();if(owner.level().addFreshEntity(entity)&&award&&LbcStand.isArrow(entity.getItem()))game.items().mana().award(owner,"lbc:true_advancements/accesories/infinite_quiver");}
-    public boolean validEffectArrow(Arrow arrow,int amplifier){return arrow!=null&&custom(arrow)&&amp(arrow)==amplifier&&runtime(arrow)&&game.items().currentEpoch(arrow)&&(arrow.getOwner() instanceof ServerPlayer||imba(arrow));}
-    /** These eight source identities have native dispenser input as well as player input. */
-    private static boolean imba(Arrow arrow){return Set.of(120,121,122,123,124).contains(amp(arrow))||Set.of(6710882,6710884,6710886).contains(color(arrow));}
+    public boolean validEffectArrow(Arrow arrow,int amplifier){return arrow!=null&&custom(arrow)&&amp(arrow)==amplifier&&runtime(arrow)&&game.items().currentEpoch(arrow);}
     private static void configureArrow(Arrow arrow){int color=color(arrow);if(color==6710881)arrow.setBaseDamage(5);else if(color==6710882)arrow.setBaseDamage(1);else if(color==6710883)arrow.setNoGravity(true);else if(color==6710884)arrow.setBaseDamage(1e20);}
     private Shot shot(Arrow arrow){
         if(arrow.isRemoved()){shots.remove(arrow);return null;}
         var current=shots.get(arrow);if(current!=null)return current;
-        if(!custom(arrow)||!runtime(arrow)||!(arrow.getOwner() instanceof ServerPlayer)&&!imba(arrow))return null;
+        if(!custom(arrow)||!runtime(arrow))return null;
         var owner=LbcIndirectKills.playerSource(arrow);
         configureArrow(arrow);
         arrow.entityTags().add(SHOT);game.items().markCurrentItemEpoch(arrow);current=new Shot(owner,amp(arrow),owner==null?null:game.items().indirectKills().coldCause(owner,true),game.items().epoch());var saved=arrow.getAttached(SHOT_DATA);if(saved!=null&&game.items().currentEpoch(saved.getStringOr("epoch","")))current.age=saved.getIntOr("age",0);shots.put(arrow,current);return current;
@@ -84,19 +82,19 @@ public final class LbcQuiver {
         var current=LbcIndirectKills.playerSource(arrow);if(current!=state.owner){state.owner=current;state.cause=current==null?null:game.items().indirectKills().coldCause(current,true);}
         reactive(state.owner,(ServerLevel)arrow.level(),arrow.position(),arrow.getPickupItemStackOrigin(),state.cause);
         if(state.amp>=101){var saved=new CompoundTag();saved.putString("epoch",state.epoch);saved.putInt("age",++state.age);arrow.setAttached(SHOT_DATA,saved);if(state.age>=300){arrow.discard();shots.remove(arrow);return false;}
-            if(!game.items().magic().beaconSuppressed(arrow.position()))switch(state.amp){case 111->game.items().kiuas().arrowTerrain(state.owner,arrow.position(),false);case 112,113->trail(state.owner.level(),arrow.position(),state.amp,new Authority(state.cause,state.epoch));default->{}}
+            if(!game.items().magic().beaconSuppressed(arrow.position()))switch(state.amp){case 111->game.items().kiuas().arrowTerrain((ServerLevel)arrow.level(),state.owner,arrow.position(),false,state.cause);case 112,113->trail((ServerLevel)arrow.level(),arrow.position(),state.amp,new Authority(state.cause,state.epoch));default->{}}
             if(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())ground(arrow);
         }
         return !arrow.isRemoved();
     }
     public void ground(Arrow arrow){var state=shot(arrow);if(state==null||state.ground||state.amp<101||frozen(arrow))return;state.ground=true;
-        var at=arrow.position();var authority=new Authority(state.cause,state.epoch);switch(state.amp){
-            case 101->{if(!game.items().magic().luckyEffectWarded(state.owner.level(),at)&&!game.items().magic().mechanismSuppressedAt(state.owner.level(),at))explode(state.owner.level(),at,authority);}
-            case 102->{if(!game.items().magic().beaconSuppressed(at))evoker(state.owner.level(),at,authority,true);}
-            case 103->{if(!game.items().magic().mechanismSuppressedAt(state.owner.level(),at))shock(state.owner.level(),at,authority);}
-            case 111->{if(!game.items().magic().beaconSuppressed(at))game.items().kiuas().arrowTerrain(state.owner,at,true);}
+        var at=arrow.position();var level=(ServerLevel)arrow.level();var authority=new Authority(state.cause,state.epoch);switch(state.amp){
+            case 101->{if(!game.items().magic().luckyEffectWarded(level,at)&&!game.items().magic().mechanismSuppressedAt(level,at))explode(level,at,authority);}
+            case 102->{if(!game.items().magic().beaconSuppressed(at))evoker(level,at,authority,true);}
+            case 103->{if(!game.items().magic().mechanismSuppressedAt(level,at))shock(level,at,authority);}
+            case 111->{if(!game.items().magic().beaconSuppressed(at))game.items().kiuas().arrowTerrain(level,state.owner,at,true,state.cause);}
             case 121,122,124->groundCarrier(arrow,state.owner,(ServerLevel)arrow.level(),at,arrow.getYRot(),arrow.getXRot(),arrow.getPickupItemStackOrigin(),state.cause);
-            case 119->{for(var stack:game.lbc().rollTable(state.owner.level(),at,state.owner,"lbc:stand_arrow")){var item=new ItemEntity(state.owner.level(),at.x,at.y,at.z,stack);item.setDefaultPickUpDelay();state.owner.level().addFreshEntity(item);}}
+            case 119->{for(var stack:game.lbc().rollTable(level,at,state.owner,"lbc:stand_arrow")){var item=new ItemEntity(level,at.x,at.y,at.z,stack);item.setDefaultPickUpDelay();level.addFreshEntity(item);}}
             default->{}
         }arrow.discard();shots.remove(arrow);
     }
@@ -140,7 +138,6 @@ public final class LbcQuiver {
     public boolean acceptCarrier(LivingEntity target,MobEffectInstance effect,ServerPlayer owner,LbcIndirectKills.Owner cause){
         if(!isEffect(effect))return false;
         if(effect.getAmplifier()==101){game.items().babylonEffects().acceptCarrier101(target,effect,cause);return true;}
-        if(cause==null&&effect.getAmplifier()<120)return true;
         if(!runtime(target)||!game.items().wands().validTarget(target)||!target.canBeAffected(effect)
                 ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return true;
         if(skillImmune(target)){clear(target);return true;}
@@ -181,7 +178,7 @@ public final class LbcQuiver {
                         &&e.position().distanceToSqr(at)>=.0001&&e.position().distanceToSqr(at)<=64
                         &&e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e))){
                     if(!level.getEntitiesOfClass(net.minecraft.world.entity.projectile.EvokerFangs.class,victim.getBoundingBox().inflate(1),e->e.position().distanceToSqr(victim.position())<=1).isEmpty())continue;
-                    for(int[] offset:new int[][]{{0,0},{1,1},{-1,-1},{1,-1},{-1,1},{1,0},{-1,0},{0,1},{0,-1}})fang(victim.position().add(offset[0],0,offset[1]),authority);
+                    for(int[] offset:new int[][]{{0,0},{1,1},{-1,-1},{1,-1},{-1,1},{1,0},{-1,0},{0,1},{0,-1}})fang(level,victim.position().add(offset[0],0,offset[1]),authority);
                 }
             }}
             case 103->{if(!game.items().magic().mechanismSuppressedAt(level,at)&&level.getRandom().nextFloat()<.1f)game.items().erecto().phantomBurst(owner,at,cause);}
@@ -199,7 +196,7 @@ public final class LbcQuiver {
     }
     private void effect(ServerPlayer owner,LbcIndirectKills.Owner cause,LivingEntity target,net.minecraft.core.Holder<MobEffect> kind,int duration,int amp){game.items().indirectKills().withCause(target,cause,()->target.addEffect(ItemEffectLevels.create(kind,duration,amp,false,false),owner));}
     private void shock(ServerLevel level,Vec3 at,Authority authority){
-        var owner=owner(authority);if(owner==null)return;
+        var owner=owner(authority);if(owner==null&&authority.cause!=null)return;
         var players=level.players().stream().filter(p->p.position().distanceToSqr(at)<=25&&target(authority,p)).toList();
         var entities=level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(5),e->e.position().distanceToSqr(at)<=25&&target(authority,e));
         for(var player:players)effect(owner,authority.cause,player,MobEffects.NAUSEA,60,1);
@@ -208,30 +205,30 @@ public final class LbcQuiver {
         for(var entity:entities)effect(owner,authority.cause,entity,MobEffects.WITHER,60,10);
     }
     private void evoker(ServerLevel level,Vec3 at,Authority authority,boolean ground){
-        var owner=owner(authority);if(owner==null)return;
+        var owner=owner(authority);if(owner==null&&authority.cause!=null)return;
         var entities=new ArrayList<Entity>();
         if(ground){entities.addAll(level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(8),e->!(e instanceof ServerPlayer)&&e.position().distanceToSqr(at)<=64&&target(authority,e)));entities.addAll(level.players().stream().filter(p->p.position().distanceToSqr(at)<=64&&target(authority,p)).toList());}
         else entities.addAll(level.getEntities((Entity)null,new AABB(at,at).inflate(8),e->!(e instanceof net.minecraft.world.entity.projectile.EvokerFangs)&&e.position().distanceToSqr(at)<=64&&target(authority,e)));
-        for(var entity:entities)for(int[] offset:new int[][]{{0,0},{1,1},{-1,-1},{1,-1},{-1,1},{1,0},{-1,0},{0,1},{0,-1}})fang(entity.position().add(offset[0],0,offset[1]),authority);
+        for(var entity:entities)for(int[] offset:new int[][]{{0,0},{1,1},{-1,-1},{1,-1},{-1,1},{1,0},{-1,0},{0,1},{0,-1}})fang(level,entity.position().add(offset[0],0,offset[1]),authority);
     }
-    private void fang(Vec3 at,Authority authority){
-        var author=owner(authority);if(author==null)return;
-        var fang=game.items().evokerBass().spawnQuiverOwned(author,at);if(fang==null)return;
+    private void fang(ServerLevel level,Vec3 at,Authority authority){
+        var author=owner(authority);if(author==null&&authority.cause!=null)return;
+        var fang=game.items().evokerBass().spawnQuiverOwned(level,author,at);if(fang==null)return;
         children.put(fang,authority);fang.entityTags().add(CHILD);game.items().markCurrentItemEpoch(fang);
     }
-    private void explode(ServerLevel level,Vec3 at,Authority authority){if(owner(authority)!=null&&level.hasChunkAt(BlockPos.containing(at)))game.items().babylonEffects().quiverExplosionAt(level,at,authority.cause);}
+    private void explode(ServerLevel level,Vec3 at,Authority authority){if((authority.cause==null||owner(authority)!=null)&&level.hasChunkAt(BlockPos.containing(at)))game.items().babylonEffects().quiverExplosionAt(level,at,authority.cause);}
     private void trail(ServerLevel level,Vec3 at,int amp,Authority authority){if(!level.hasChunkAt(BlockPos.containing(at)))return;var marker=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,level);marker.setPos(at);marker.entityTags().addAll(List.of(TRAIL,"slowraycast","magic","other",amp==112?"lightarrowtrail":"trappertrail"));game.items().markCurrentItemEpoch(marker);trails.put(marker,new Trail(amp,authority));if(!level.addFreshEntity(marker))trails.remove(marker);}
     private void tickTrails(){for(var marker:List.copyOf(trails.keySet())){var trail=trails.get(marker);if(marker.isRemoved()||!runtime(marker)||!game.items().currentEpoch(trail.authority.epoch)){trails.remove(marker);marker.discard();continue;}if(frozen(marker))continue;var level=(ServerLevel)marker.level();var at=marker.position();int age=++trail.age;
         if(trail.amp==112){level.sendParticles(ParticleTypes.END_ROD,at.x,at.y,at.z,1,0,0,0,0);if(age==50||age==100||age==150){int from=age==50?0xffffff:age==100?0xffff00:0xff0000;int to=age==50?0xffff00:age==100?0xff0000:0x000000;level.sendParticles(new DustColorTransitionOptions(from,to,4),true,false,at.x,at.y+.5,at.z,10,1,.5,1,.05);}if(age==199)column(level,at,trail.authority);if(age>=200)removeTrail(marker);}
         else {if(age>=120&&level.getRandom().nextFloat()<.25f&&level.players().stream().anyMatch(p->p.position().distanceToSqr(at)<=6400))trapper(marker,trail);if(age>=400)removeTrail(marker);}
     }}
-    private void trapper(net.minecraft.world.entity.Marker marker,Trail trail){var level=(ServerLevel)marker.level();final var center=marker.position();var at=center;var owner=owner(trail.authority);if(owner==null)return;var nearby=level.getEntitiesOfClass(LivingEntity.class,new AABB(center,center).inflate(15),e->e.getType().builtInRegistryHolder().is(MOBS)&&e.position().distanceToSqr(center)<=225&&target(trail.authority,e));if(nearby.stream().anyMatch(e->e.position().distanceToSqr(center)<=25))fang(at,trail.authority);
+    private void trapper(net.minecraft.world.entity.Marker marker,Trail trail){var level=(ServerLevel)marker.level();final var center=marker.position();var at=center;var owner=owner(trail.authority);if(owner==null&&trail.authority.cause!=null)return;var nearby=level.getEntitiesOfClass(LivingEntity.class,new AABB(center,center).inflate(15),e->e.getType().builtInRegistryHolder().is(MOBS)&&e.position().distanceToSqr(center)<=225&&target(trail.authority,e));if(nearby.stream().anyMatch(e->e.position().distanceToSqr(center)<=25))fang(level,at,trail.authority);
         if(nearby.stream().noneMatch(e->e.position().distanceToSqr(center)<=2.25)&&level.getRandom().nextFloat()<.5f){var nearest=nearby.stream().min(Comparator.comparingDouble(e->e.position().distanceToSqr(center))).orElse(null);if(nearest!=null){var delta=nearest.position().subtract(at);if(delta.lengthSqr()>1e-12)at=at.add(delta.normalize());}}
         at=new Vec3(Math.floor(at.x)+level.getRandom().nextInt(3)-1,Math.floor(at.y)+level.getRandom().nextInt(3)-1,Math.floor(at.z)+level.getRandom().nextInt(3)-1);if(level.hasChunkAt(BlockPos.containing(at)))marker.setPos(at);if(trail.age>=390)removeTrail(marker);
     }
     private static final int[] TNT_Y={0,3,-1,-2,-3,-4,-5,-7,-9,-11,-13,-15,-17,-19,-21,-23,-25,-27,-29,-31,-33,-35,-37,-39,-41,-43,-45};
     private static final int[] BOLT_Y={0,3,-1,-2,-3,-4,-5,-6,-7,-9,-13,-17,-21,-25,-33,-45};
-    private void column(ServerLevel level,Vec3 at,Authority authority){var owner=owner(authority);if(owner==null)return;for(int y:TNT_Y){var pos=at.add(0,y,0);if(!level.hasChunkAt(BlockPos.containing(pos)))continue;var tnt=new PrimedTnt(EntityTypes.TNT,level);tnt.setPos(pos);tnt.setDeltaMovement(Vec3.ZERO);tnt.setFuse(0);child(tnt,authority);}for(int y:BOLT_Y){var pos=at.add(0,y,0);if(!level.hasChunkAt(BlockPos.containing(pos)))continue;var bolt=new LightningBolt(EntityTypes.LIGHTNING_BOLT,level);bolt.setPos(pos);bolt.setCause(owner);var original=authority.cause;child(bolt,new Authority(new LbcIndirectKills.Owner(original.player(),original.order(),true,true),authority.epoch));}}
+    private void column(ServerLevel level,Vec3 at,Authority authority){var owner=owner(authority);if(owner==null&&authority.cause!=null)return;for(int y:TNT_Y){var pos=at.add(0,y,0);if(!level.hasChunkAt(BlockPos.containing(pos)))continue;var tnt=new PrimedTnt(EntityTypes.TNT,level);tnt.setPos(pos);tnt.setDeltaMovement(Vec3.ZERO);tnt.setFuse(0);child(tnt,authority);}for(int y:BOLT_Y){var pos=at.add(0,y,0);if(!level.hasChunkAt(BlockPos.containing(pos)))continue;var bolt=new LightningBolt(EntityTypes.LIGHTNING_BOLT,level);bolt.setPos(pos);bolt.setCause(owner);var original=authority.cause;child(bolt,new Authority(original==null?null:new LbcIndirectKills.Owner(original.player(),original.order(),true,true),authority.epoch));}}
     private void child(Entity entity,Authority authority){children.put(entity,authority);entity.entityTags().add(CHILD);game.items().markCurrentItemEpoch(entity);if(!((ServerLevel)entity.level()).addFreshEntity(entity))children.remove(entity);}
     private void removeTrail(net.minecraft.world.entity.Marker marker){trails.remove(marker);if(!marker.isRemoved())marker.discard();}
     public LbcIndirectKills.Owner cause(Entity entity){var state=children.get(entity);return state==null?null:state.cause;}
@@ -243,13 +240,13 @@ public final class LbcQuiver {
     public boolean allowDamage(LivingEntity victim,DamageSource source){return !children.containsKey(source.getDirectEntity())||canAffect(source.getDirectEntity(),victim);}
     public void inheritChild(Entity source,Entity child){var authority=children.get(source);if(authority!=null&&child instanceof PrimedTnt){children.put(child,authority);child.entityTags().add(CHILD);game.items().markCurrentItemEpoch(child);}}
     public int queued(LivingEntity target,int amp){var all=pending.get(target);int index=index(amp);return all==null||index<0?0:all.get(index).stream().mapToInt(c->c.remaining).sum();}
-    private void sync(LivingEntity target){var data=new CompoundTag();data.putString("epoch",game.items().epoch());var entries=new ListTag();var all=pending.get(target);for(int i=0;i<AMPS.length;i++){game.items().mana().score(target,SCORES[i]).set(queued(target,AMPS[i]));if(all!=null)for(var c:all.get(i)){var tag=new CompoundTag();tag.putInt("amp",AMPS[i]);tag.putInt("remaining",c.remaining);tag.putString("owner",c.authority.cause.player().toString());tag.putLong("order",c.authority.cause.order());tag.putBoolean("wild",c.authority.cause.friendlyFire());entries.add(tag);}}data.put("entries",entries);target.setAttached(DATA,data);}
+    private void sync(LivingEntity target){var data=new CompoundTag();data.putString("epoch",game.items().epoch());var entries=new ListTag();var all=pending.get(target);for(int i=0;i<AMPS.length;i++){game.items().mana().score(target,SCORES[i]).set(queued(target,AMPS[i]));if(all!=null)for(var c:all.get(i)){var tag=new CompoundTag();tag.putInt("amp",AMPS[i]);tag.putInt("remaining",c.remaining);if(c.authority.cause!=null){tag.putString("owner",c.authority.cause.player().toString());tag.putLong("order",c.authority.cause.order());tag.putBoolean("wild",c.authority.cause.friendlyFire());tag.putBoolean("projectile",c.authority.cause.projectile());}entries.add(tag);}}data.put("entries",entries);target.setAttached(DATA,data);}
     private void tickEffects(){for(var target:List.copyOf(pending.keySet())){if(game.items().polymorph().masked(target))continue;if(target.entityTags().contains("sin_greed_active"))continue;if(!runtime(target)||!game.items().wands().validTarget(target)||skillImmune(target)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p)){clear(target);continue;}if(frozen(target)||target.entityTags().contains("sin_greed_active"))continue;var all=pending.get(target);for(int i=0;i<AMPS.length;i++){var next=all.get(i).peekFirst();if(next==null)continue;if(!game.items().currentEpoch(next.authority.epoch)){all.get(i).removeFirst();continue;}var level=(ServerLevel)target.level();var at=target.position();int amp=AMPS[i];switch(amp){case 102->evoker(level,at,next.authority,false);case 103->{if(!game.items().magic().mechanismSuppressedAt(level,at))shock(level,at,next.authority);}case 112,113->{if(!game.items().magic().beaconSuppressed(at)&&level.getRandom().nextFloat()<(amp==112?.25f:.35f))trail(level,at,amp,next.authority);}default->{}}if(--next.remaining<=0)all.get(i).removeFirst();}sync(target);if(all.stream().allMatch(Deque::isEmpty)){pending.remove(target);target.removeAttached(DATA);}}}
     public void tick(){if(game.maps().level()==null)return;if(!game.items().timeStop().stopped(game.maps().level())&&++clock%300==0)for(var player:game.server().getPlayerList().getPlayers())pulse(player);tickEffects();tickTrails();for(var entity:List.copyOf(children.keySet()))if(entity.isRemoved())children.remove(entity);else if(!runtime(entity)||!game.items().currentEpoch(children.get(entity).epoch)){children.remove(entity);entity.discard();}}
     public void clear(LivingEntity target){pending.remove(target);target.removeAttached(DATA);for(var score:SCORES)if(game.items().mana().hudValue(target,score)!=0)game.items().mana().score(target,score).set(0);}
-    public void loaded(Entity entity){if(entity instanceof Arrow arrow){if(!(arrow.getOwner() instanceof ServerPlayer)&&custom(arrow))configureArrow(arrow);if(arrow.entityTags().contains(SHOT)&&!game.items().currentEpoch(arrow)){arrow.discard();return;}shot(arrow);}if(entity.entityTags().contains(TRAIL)&&!trails.containsKey(entity)||entity.entityTags().contains(CHILD)&&!children.containsKey(entity)){entity.discard();return;}if(entity instanceof LivingEntity target){if(pending.containsKey(target))return;if(LbcParasite.active(target)){clear(target);return;}var data=target.getAttached(DATA);if(data==null)return;if(!game.items().currentEpoch(data.getStringOr("epoch",""))){clear(target);return;}var all=queues();for(var entry:data.getListOrEmpty("entries")){if(!(entry instanceof CompoundTag tag))continue;int index=index(tag.getIntOr("amp",0)),remaining=tag.getIntOr("remaining",0);if(index<0||remaining<=0)continue;try{var cause=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("owner","")),tag.getLongOr("order",0),true);all.get(index).addLast(new Contribution(remaining,new Authority(new LbcIndirectKills.Owner(cause.player(),cause.order(),cause.projectile(),tag.getBooleanOr("wild",false)),game.items().epoch())));}catch(IllegalArgumentException ignored){}}pending.put(target,all);sync(target);}}
+    public void loaded(Entity entity){if(entity instanceof Arrow arrow){if(!(arrow.getOwner() instanceof ServerPlayer)&&custom(arrow))configureArrow(arrow);if(arrow.entityTags().contains(SHOT)&&!game.items().currentEpoch(arrow)){arrow.discard();return;}shot(arrow);}if(entity.entityTags().contains(TRAIL)&&!trails.containsKey(entity)||entity.entityTags().contains(CHILD)&&!children.containsKey(entity)){entity.discard();return;}if(entity instanceof LivingEntity target){if(pending.containsKey(target))return;if(LbcParasite.active(target)){clear(target);return;}var data=target.getAttached(DATA);if(data==null)return;if(!game.items().currentEpoch(data.getStringOr("epoch",""))){clear(target);return;}var all=queues();for(var entry:data.getListOrEmpty("entries")){if(!(entry instanceof CompoundTag tag))continue;int index=index(tag.getIntOr("amp",0)),remaining=tag.getIntOr("remaining",0);if(index<0||remaining<=0)continue;try{LbcIndirectKills.Owner accepted=null;if(tag.contains("owner")){var cause=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("owner","")),tag.getLongOr("order",0),tag.getBooleanOr("projectile",true));accepted=new LbcIndirectKills.Owner(cause.player(),cause.order(),tag.getBooleanOr("wild",false),cause.projectile());}all.get(index).addLast(new Contribution(remaining,new Authority(accepted,game.items().epoch())));}catch(IllegalArgumentException ignored){}}pending.put(target,all);sync(target);}}
     public void unloaded(Entity entity){if(entity instanceof Arrow arrow)shots.remove(arrow);if(entity instanceof net.minecraft.world.entity.Marker marker&&trails.containsKey(marker))removeTrail(marker);if(!(entity instanceof PrimedTnt&&entity.isRemoved())&&children.remove(entity)!=null&&!entity.isRemoved())entity.discard();if(entity instanceof LivingEntity living)pending.remove(living);}
-    public void forget(ServerPlayer owner){clear(owner);for(var entry:List.copyOf(shots.entrySet()))if(entry.getValue().owner==owner){entry.getKey().discard();shots.remove(entry.getKey());}for(var entry:List.copyOf(trails.entrySet()))if(entry.getValue().authority.cause.player().equals(owner.getUUID()))removeTrail(entry.getKey());for(var entry:List.copyOf(children.entrySet()))if(entry.getValue().cause!=null&&entry.getValue().cause.player().equals(owner.getUUID())){entry.getKey().discard();children.remove(entry.getKey());}}
+    public void forget(ServerPlayer owner){clear(owner);for(var entry:List.copyOf(shots.entrySet()))if(entry.getValue().owner==owner){entry.getKey().discard();shots.remove(entry.getKey());}for(var entry:List.copyOf(trails.entrySet()))if(entry.getValue().authority.cause!=null&&entry.getValue().authority.cause.player().equals(owner.getUUID()))removeTrail(entry.getKey());for(var entry:List.copyOf(children.entrySet()))if(entry.getValue().cause!=null&&entry.getValue().cause.player().equals(owner.getUUID())){entry.getKey().discard();children.remove(entry.getKey());}}
     public void stop(){for(var arrow:List.copyOf(shots.keySet()))arrow.discard();shots.clear();for(var marker:List.copyOf(trails.keySet()))removeTrail(marker);for(var entity:List.copyOf(children.keySet()))entity.discard();children.clear();for(var target:List.copyOf(pending.keySet()))clear(target);clock=0;EFFECT_ARROW.remove();}
     List<Arrow> arrows(){return List.copyOf(shots.keySet());}List<net.minecraft.world.entity.Marker> trails(){return List.copyOf(trails.keySet());}List<Entity> children(){return List.copyOf(children.keySet());}
     LbcCloneSkills.ActorImage cloneImage(Entity source){
