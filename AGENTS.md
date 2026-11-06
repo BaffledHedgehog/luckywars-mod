@@ -1,3 +1,14 @@
+## TMT property kernel - COMPONENT VERIFIED, NOT INSTALLED (6 November2026)
+
+[Scope, native evidence and REQUIRED carry-forward inputs](agent_notes/TMT_PROPERTIES_2026_11_06.md).
+Internal b6468008/880b1cc2: generation-only native match passes;3 families/1 resource.
+Current40 attributes/43 enchants; all source non-ability property families, current domains.
+No token/native-carrier/ability-selection/fanout/procedural-shader or pool release.
+Main/both libs remain b8d1066e/256dc67b.282 author paths and10302 other inputs preserved.
+Next TMT overlays MUST include the committed kernel/check families and resource;
+use the sealed internal candidate or explicit carry-forward, not only git status.
+Gradle512MiB and fixture2GiB sequential; source server/author RP read-only.
+
 ## Latched match mode and source startup - QUALIFIED, INSTALLED (6 November2026)
 
 [Author decision, startup policy and exact native evidence](agent_notes/MATCH_MODE_START_2026_11_06.md).

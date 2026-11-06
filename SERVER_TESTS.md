@@ -1,3 +1,11 @@
+## Internal TMT property generation - COMPONENT VERIFIED,6 November2026
+
+[Exact scope and carry-forward](agent_notes/TMT_PROPERTIES_2026_11_06.md).
+Internal candidate b6468008 only: `sw check tmt-properties`, one actual mode1 match,
+native codecs and deterministic property branches/domains; normal exit/exact restoration.
+No TMT acquisition/dispatch/shader release; main/both libs remain b8d1066e/256dc67b.
+Evidence: build/verification/tmt-properties-2026-11-06/component-verification.json.
+
 ## Latched match mode and source startup - QUALIFIED, INSTALLED (6 November2026)
 
 [Author decision, startup policy and exact native evidence](agent_notes/MATCH_MODE_START_2026_11_06.md).
