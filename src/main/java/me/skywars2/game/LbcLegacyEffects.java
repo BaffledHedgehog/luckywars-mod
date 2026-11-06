@@ -113,7 +113,7 @@ public final class LbcLegacyEffects {
     /** Shared WILD non-player pull; visual children remain with their canonical ability owner. */
     void vacuumAt(net.minecraft.server.level.ServerLevel level,net.minecraft.world.phys.Vec3 origin,float yaw,float pitch,LbcIndirectKills.Owner cause){
         if(!level.hasChunkAt(net.minecraft.core.BlockPos.containing(origin)))return;
-        var displacedCause=new LbcIndirectKills.Owner(cause.player(),cause.order(),true,cause.projectile());
+        var displacedCause=cause==null?null:new LbcIndirectKills.Owner(cause.player(),cause.order(),true,cause.projectile());
         var transform=(java.util.function.UnaryOperator<net.minecraft.world.phys.Vec3>)(point->point.distanceToSqr(origin)<=10000?origin:point);
         var bounds=new net.minecraft.world.phys.AABB(origin,origin).inflate(100);
         for(var entity:List.copyOf(level.getEntities((net.minecraft.world.entity.Entity)null,bounds,

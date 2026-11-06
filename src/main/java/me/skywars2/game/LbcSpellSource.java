@@ -35,7 +35,7 @@ public final class LbcSpellSource {
     public Scope scope(Source source,ServerLevel level){return new Scope(source,level);}
     public Scope scope(Entity entity){return new Scope(source(entity),entity!=null&&entity.level() instanceof ServerLevel level?level:null);}
     public ServerLevel level(ServerPlayer fallback){return currentLevel!=null?currentLevel:fallback==null?null:fallback.level();}
-    public ServerPlayer author(Entity entity){var policy=source(entity);return policy!=null?game.server().getPlayerList().getPlayer(policy.author())
+    public ServerPlayer author(Entity entity){var policy=source(entity);return policy!=null?policy.author()==null?null:game.server().getPlayerList().getPlayer(policy.author())
             :entity instanceof Projectile shot&&shot.getOwner() instanceof ServerPlayer player?player:entity instanceof ServerPlayer player?player:null;}
     public boolean persistent(){return current!=null&&current.persistent()&&game.items().currentEpoch(current.epoch());}
     public Source current(){return current;}
@@ -47,7 +47,7 @@ public final class LbcSpellSource {
     public void bind(Entity entity,Source source){if(source!=null)sources.put(entity,source);}
     /** New attacks belong to the new controller; already inherited child policies remain immutable. */
     void controllerChanged(Entity emitter,ServerPlayer controller){
-        var previous=source(emitter);if(previous==null||previous.author().equals(controller.getUUID()))return;
+        var previous=source(emitter);if(previous==null||controller.getUUID().equals(previous.author()))return;
         var next=game.items().indirectKills().wildCause(controller);var old=previous.cause();
         var cause=old==null?next:new LbcIndirectKills.Owner(next.player(),next.order(),old.friendlyFire(),old.projectile());
         sources.put(emitter,new Source(emitter.getUUID(),controller.getUUID(),previous.epoch(),cause,previous.excluded(),previous.persistent()));
@@ -61,7 +61,7 @@ public final class LbcSpellSource {
     }
     public void reflected(Entity entity){sources.remove(entity);unloaded.remove(entity.getUUID());}
     public boolean wild(Entity entity){return source(entity)!=null;}
-    public ServerPlayer owner(Entity entity){var source=source(entity);return source==null?null:game.server().getPlayerList().getPlayer(source.author());}
+    public ServerPlayer owner(Entity entity){var source=source(entity);return source==null||source.author()==null?null:game.server().getPlayerList().getPlayer(source.author());}
     /** Null means the existing engine owns policy; false remains a protected role or source exclusion. */
     public Boolean target(ServerPlayer author,Entity target){
         if(current==null||author!=null&&!author.getUUID().equals(current.author()))return null;
@@ -115,10 +115,10 @@ public final class LbcSpellSource {
         unloaded.values().removeIf(s->!game.items().currentEpoch(s.epoch()));
     }
     public void forget(ServerPlayer author){
-        for(var entity:List.copyOf(sources.keySet()))if(sources.get(entity)!=null&&!sources.get(entity).persistent()&&sources.get(entity).author().equals(author.getUUID())){
+        for(var entity:List.copyOf(sources.keySet()))if(sources.get(entity)!=null&&!sources.get(entity).persistent()&&author.getUUID().equals(sources.get(entity).author())){
             sources.remove(entity);if(entity instanceof Projectile)entity.discard();
         }
-        unloaded.values().removeIf(s->!s.persistent()&&s.author().equals(author.getUUID()));
+        unloaded.values().removeIf(s->!s.persistent()&&author.getUUID().equals(s.author()));
     }
     public void stop(){var actors=List.copyOf(sources.keySet());sources.clear();unloaded.clear();current=null;currentLevel=null;for(var actor:actors)if(actor instanceof Projectile)actor.discard();}
     void checkpointBoundary(){if(scopes!=0||current!=null||currentLevel!=null)throw new IllegalStateException("Finish spell scopes before checkpointing");}

@@ -55,3 +55,5 @@ release gates remain unchanged. Player-owned weapon paths are qualified here; ac
 dispenser terminal payloads still need a separate shared-Quiver authority migration and contact
 checks before the broad ammunition gate can be lifted. Existing typed carrier copy/checkpoint fields retain the
 new terminal/reactive scheduling state; this is not a new full-rewind qualification.
+
+Follow-up (6 November): [the eight native dispenser paths are now qualified](OWNERLESS_IMBA_ARROWS_2026_11_06.md). The ownerless gap above describes this earlier batch; ordinary non-IMBA Quiver variants remain separate.

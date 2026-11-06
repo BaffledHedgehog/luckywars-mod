@@ -90,7 +90,7 @@ public final class LbcChainLightningStatus {
         callbackDepth++;try{
         var level=(ServerLevel)projectile.level();
         var candidates=game.items().lifetimes().loadedTargets().stream().filter(this::role)
-                .filter(target->target.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,target)).toList();
+                .filter(target->target.getType().builtInRegistryHolder().is(MOBS)&&(owner==null?!LbcGreed.active(target):game.items().wands().projectileTarget(owner,target))).toList();
         propagate(level,point,owner,owner,accepted,candidates,projectile);
         }finally{callbackDepth--;}
     }

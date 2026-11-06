@@ -1,3 +1,14 @@
+## Eight ownerless IMBA arrows - QUALIFIED, INSTALLED (6 November 2026)
+
+[Shared native authorities and exact proof](OWNERLESS_IMBA_ARROWS_2026_11_06.md).
+Existing eight native IMBA arrows retain full payloads from true native dispensers.
+Nullable provenance shares Quiver/TNT/nuclear/vacuum/death/electrical owners; no fake player.
+Clone age/terminal state, actual owner transfer and raw pending-death adoption retained.
+Test08972332/production6670ffe1:8 isolated mode1/mode3 matches pass.
+9 families/0 resources;10235 unchanged inputs/282 author paths/RP preserved.
+Main/both libs installed without restart; full IMBA/TMT-last/mode/skill2/rewind gates unchanged.
+Other ordinary ownerless Quiver variants remain separate.
+
 ## Native utility inputs - QUALIFIED, INSTALLED (6 November 2026)
 
 [Source, shared factories and exact proof](NATIVE_UTILITY_INPUTS_2026_11_06.md).

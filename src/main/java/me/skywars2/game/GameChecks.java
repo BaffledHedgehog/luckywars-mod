@@ -1304,6 +1304,7 @@ public final class GameChecks {
                                 case "produce-gadgets" -> {ProduceGadgetChecks.run(game);return;}
                                 case "produce-gadgets-rewind" -> {ProduceGadgetChecks.runRewind(game);return;}
                                 case "native-imba-arrows" -> {ImbaArrowChecks.run(game);return;}
+                                case "ownerless-imba-arrows" -> {OwnerlessImbaArrowChecks.run(game);return;}
             case "throwable-pumpkin" -> {ThrownPumpkinChecks.run(game);return;}
                                 case "structure-container-loot" -> {StructureContainerLootChecks.run(game);return;}
                                 case "wool-bucket" -> {WoolBucketChecks.run(game);return;}
@@ -1639,7 +1640,7 @@ public final class GameChecks {
             IncomingArtifactChecks.tick(game);
             MoiseiBootsChecks.tick(game);
             RegenerationBeltChecks.tick(game);
-            QuiverChecks.tick(game);ImbaArrowChecks.tick(game);
+            QuiverChecks.tick(game);ImbaArrowChecks.tick(game);OwnerlessImbaArrowChecks.tick(game);
             DimensionItemChecks.tick(game);
             SharedArrowExplosionChecks.tick(game);
             ReactiveArtifactChecks.tick(game);

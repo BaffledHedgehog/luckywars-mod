@@ -1176,8 +1176,8 @@ public final class LbcWands {
     }
     /** Accepted projectile consequences retain the same ten-tick WILD arcs after their caster leaves. */
     void arrowChainElectro(Entity projectile,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner accepted){
-        var wild=new LbcIndirectKills.Owner(accepted.player(),accepted.order(),true,true);
-        var source=new LbcSpellSource.Source(projectile.getUUID(),accepted.player(),game.items().epoch(),wild,java.util.Set.of(),true);
+        var wild=accepted==null?null:new LbcIndirectKills.Owner(accepted.player(),accepted.order(),true,true);
+        var source=new LbcSpellSource.Source(projectile.getUUID(),accepted==null?null:accepted.player(),game.items().epoch(),wild,java.util.Set.of(),true);
         for(int i=0;i<3;i++){var trace=new ElectroTrace((ServerLevel)projectile.level(),owner,owner,at,source.epoch(),wild);trace.sourcePolicy=source;trace.explicitEmitter=projectile;electroTraces.add(trace);}
     }
     /** Виртуальные разряды участвуют в том же отражении, что нативные снаряды. Возраст сохраняется. */

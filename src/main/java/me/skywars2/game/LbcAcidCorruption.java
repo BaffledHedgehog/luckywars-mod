@@ -190,8 +190,8 @@ final class LbcAcidCorruption {
     private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e);}
     void debuff(ServerPlayer owner,LivingEntity target,int index){target.addEffect(ItemEffectLevels.create(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]),owner);}
     void adoptRawFoodStatuses(ServerPlayer player){
-        if(deathRemaining(player)>0&&!game.items().magic().rejectCustomDebuff(player))
-            deaths.computeIfAbsent(player,p->game.items().indirectKills().wildCause(player));
+        if(deathRemaining(player)>0&&!deaths.containsKey(player)&&!game.items().magic().rejectCustomDebuff(player))
+            deaths.put(player,game.items().indirectKills().wildCause(player));
     }
     int deathRemaining(LivingEntity target){return Math.max(0,game.items().mana().hudValue(target,"delayed_death"));}
     void applyDeath(ServerPlayer owner,LivingEntity target,int seconds){
@@ -205,7 +205,7 @@ final class LbcAcidCorruption {
     /** Source poison arrow assigns its scaled marker duration to the existing seconds counter. */
     void arrowDeath(LivingEntity target,int seconds,LbcIndirectKills.Owner cause){recordDeath(target,seconds,cause,true);}
     private boolean recordDeath(LivingEntity target,int seconds,LbcIndirectKills.Owner cause,boolean replace){
-        if(cause==null||seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
+        if(seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         game.items().mana().score(target,"delayed_death").set(replace?seconds:(int)Math.min(Integer.MAX_VALUE,(long)deathRemaining(target)+seconds));
         deaths.put(target,cause);return true;
     }

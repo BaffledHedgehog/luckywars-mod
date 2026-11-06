@@ -95,7 +95,7 @@ public final class LbcNukeEvent {
     public static boolean managed(Entity entity){return entity!=null&&(entity.entityTags().contains(TAG)||entity.entityTags().contains(CHILD));}
     public static boolean wild(Entity entity){return managed(entity);}
     private Cause lineage(Entity entity){return entity instanceof BlastSource blast?blast.cause:sources.get(entity);}
-    public ServerPlayer owner(Entity entity){var cause=lineage(entity);return cause==null?null:game.server().getPlayerList().getPlayer(cause.author);}
+    public ServerPlayer owner(Entity entity){var cause=lineage(entity);return cause==null||cause.author==null?null:game.server().getPlayerList().getPlayer(cause.author);}
     public LbcIndirectKills.Owner cause(Entity entity){var cause=lineage(entity);return cause==null?null:cause.accepted;}
     public boolean canAffect(Entity source,Entity target){var cause=lineage(source);return cause!=null&&live(cause.epoch)
             &&game.items().wands().validRoleTarget(target,false)&&!LbcGreed.active(target);}
@@ -264,12 +264,21 @@ public final class LbcNukeEvent {
     /** A projectile credits its true shooter while coalescing repeated pulses by the actual victim body. */
     public boolean pointStatusBurst(LivingEntity body,LbcIndirectKills.Owner accepted){
         var level=(ServerLevel)body.level();
-        if(accepted==null||statusBursts.containsKey(body)||!body.isAlive()||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
+        if(statusBursts.containsKey(body)||!body.isAlive()||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
                 ||!level.hasChunkAt(BlockPos.containing(body.position()))||LbcExplosionSuppression.suppressed(game,level,body.position()))return false;
         if(generation==0)prepare();
-        pointBurst(new Site(level,body.position(),body.getYRot(),new Cause(accepted.player(),accepted,game.items().epoch())),body);return true;
+        pointBurst(new Site(level,body.position(),body.getYRot(),new Cause(accepted==null?null:accepted.player(),accepted,game.items().epoch())),body);return true;
     }
 
+    /** Native ammo already owns admission and may legitimately have no player author. */
+    boolean arrowBurst(ServerLevel level,Vec3 at,float yaw,LbcIndirectKills.Owner accepted){
+        if(!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
+                ||!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
+        if(generation==0)prepare();
+        var wild=accepted==null?null:new LbcIndirectKills.Owner(accepted.player(),accepted.order(),true,true);
+        var cause=new Cause(accepted==null?null:accepted.player(),wild,game.items().epoch());
+        pointBurst(new Site(level,at,yaw,cause));return true;
+    }
     private boolean pointBurst(ServerPlayer author,ServerLevel level,Vec3 at,boolean status){
         if(author==null||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
                 ||!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
@@ -353,7 +362,7 @@ public final class LbcNukeEvent {
         var previousCause=executingCause;var previousLevel=executingLevel;var previousEmitter=executingEmitter;
         executingCause=site.cause;executingLevel=site.level;executingEmitter=direct;
         try{
-            var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
+            var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,site.cause.author==null?null:game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
             Runnable action=()->game.items().indirectKills().trapChanges(site.level,site.cause.accepted,
                     ()->site.level.explode(direct,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB));
             if(damageOnly||at.y-power*2>site.level.getMaxY()||at.y+power*2<site.level.getMinY())NuclearTerrain.damageWave(direct,action);else action.run();blasts++;
