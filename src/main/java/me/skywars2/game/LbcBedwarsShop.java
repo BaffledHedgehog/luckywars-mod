@@ -40,10 +40,12 @@ public final class LbcBedwarsShop {
         int team(ServerPlayer player);
         ItemStack teamChest(ServerPlayer player);
         ItemStack teamZombie(ServerPlayer player);
+        default boolean lucky() { return false; }
+        default ItemStack luckyBlock(ServerPlayer player,LbcLuckyBlocks.Kind kind) { return ItemStack.EMPTY; }
         void beacon(ServerPlayer player,Beacon buff,int seconds);
     }
-    enum Category { ARMOR,WEAPONS,TOOLS,FOOD,BLOCKS,SPECIAL,ENCHANTS,BEACONS }
-    private enum Kind { ITEM,TEAM_CHEST,ARMOR,WEAPONS,TOOLS,BOWS,KNOCKBACK,BEACON }
+    enum Category { ARMOR,WEAPONS,TOOLS,FOOD,BLOCKS,SPECIAL,ENCHANTS,BEACONS,LUCKY }
+    private enum Kind { ITEM,TEAM_CHEST,ARMOR,WEAPONS,TOOLS,BOWS,KNOCKBACK,BEACON,LUCKY_BLOCK }
     record Price(int copper,int iron,int gold,int diamond,int star) {
         int at(int i){return switch(i){case 0->copper;case 1->iron;case 2->gold;case 3->diamond;default->star;};}
     }
@@ -75,6 +77,17 @@ public final class LbcBedwarsShop {
     List<Offer> offers(ServerPlayer player,Category category){
         var out=new ArrayList<Offer>();var dye=TEAM_COLORS[policy.team(player)-1];
         switch(category){
+            case LUCKY -> {
+                if(policy.lucky()){
+                    var kinds=LbcLuckyBlocks.Kind.values();
+                    Price[] prices={p(16,4,0,0,0),p(0,4,8,0,0),p(0,0,4,8,0)};
+                    int[] slots={29,31,33};
+                    for(int n=0;n<kinds.length;n++){
+                        var block=policy.luckyBlock(player,kinds[n]);
+                        if(!block.isEmpty())out.add(new Offer(slots[n],block,prices[n],block.getCount(),Kind.LUCKY_BLOCK,null,0));
+                    }
+                }
+            }
             case ARMOR -> {
                 Item[] leather={Items.LEATHER_HELMET,Items.LEATHER_CHESTPLATE,Items.LEATHER_LEGGINGS,Items.LEATHER_BOOTS};
                 String[] keys={"leather_helm_p1","leather_chest_p1","leather_legs_p1","leather_boots_p1"};
@@ -141,7 +154,7 @@ public final class LbcBedwarsShop {
         return lines;
     }
     private boolean buy(Menu menu,Offer offer,boolean shift){
-        if(!menu.valid()||offer.item.isEmpty())return false;
+        if(!menu.valid()||offer.item.isEmpty()||offer.kind==Kind.LUCKY_BLOCK&&!policy.lucky())return false;
         var player=menu.getPlayer();var inventory=player.getInventory();var before=new ArrayList<ItemStack>();
         for(int n=0;n<inventory.getContainerSize();n++)before.add(inventory.getItem(n).copy());var work=new ArrayList<ItemStack>();for(var stack:before)work.add(stack.copy());
         boolean ordinary=offer.kind==Kind.ITEM;int repeats=ordinary&&shift?(offer.item.getMaxStackSize()+offer.gives-1)/offer.gives:1;
@@ -149,7 +162,7 @@ public final class LbcBedwarsShop {
         if(repeats<=0)return false;
         for(int c=0;c<5;c++){int remaining=offer.price.at(c)*repeats;for(int n=0;n<work.size()&&remaining>0;n++){var stack=work.get(n);if(!stack.is(CURRENCY[c]))continue;int take=Math.min(remaining,stack.getCount());stack.shrink(take);remaining-=take;}}
         ItemStack overflow=ItemStack.EMPTY;
-        if(ordinary||offer.kind==Kind.TEAM_CHEST){
+        if(ordinary||offer.kind==Kind.TEAM_CHEST||offer.kind==Kind.LUCKY_BLOCK){
             var output=offer.item.copyWithCount(Math.min(offer.item.getMaxStackSize(),repeats*offer.gives));int armorSlot=armorSlot(output);
             if(armorSlot>=0&&armorSlot<work.size()&&work.get(armorSlot).isEmpty()){work.set(armorSlot,output.copyWithCount(1));output.shrink(1);}
             for(int n=0;n<36&&!output.isEmpty();n++){var at=work.get(n);if(!at.isEmpty()&&ItemStack.isSameItemSameComponents(at,output)){int amount=Math.min(output.getCount(),at.getMaxStackSize()-at.getCount());if(amount>0){at.grow(amount);output.shrink(amount);}}}
@@ -202,6 +215,7 @@ public final class LbcBedwarsShop {
             actions.clear();for(int n=0;n<54;n++)clearSlot(n);
             Item[] icons={Items.LEATHER_CHESTPLATE,Items.GOLDEN_SWORD,Items.IRON_PICKAXE,Items.COOKED_BEEF,Items.SANDSTONE,Items.TNT,Items.ENCHANTING_TABLE,Items.BEACON};String[] keys={"category_armor","category_weapons","category_tools","category_food","category_blocks","special_items","category_enchantments","category_beacons"};
             for(int n=0;n<8;n++)setSlot(n<6?n:n+1,new GuiElementBuilder(named(item(icons[n]),keys[n])).build());
+            if(policy.lucky())setSlot(6,new GuiElementBuilder(named(item(LbcLuckyBlocks.item(LbcLuckyBlocks.Kind.NORMAL)),"category_lucky_blocks")).build());
             var separator=item(Items.PALE_HANGING_MOSS);separator.set(DataComponents.ITEM_NAME,Component.empty());separator.set(DataComponents.TOOLTIP_DISPLAY,new TooltipDisplay(true,new LinkedHashSet<>()));
             for(int n=9;n<18;n++)setSlot(n,new GuiElementBuilder(separator).build());
             for(var offer:offers(getPlayer(),category)){actions.put(offer.slot,offer);var shown=offer.item.copy();shown.setCount(offer.gives==2&&offer.item.is(Items.LEATHER_CHESTPLATE)?1:offer.gives);shown.set(DataComponents.LORE,new ItemLore(priceLore(offer)));setSlot(offer.slot,new GuiElementBuilder(shown).build());}
@@ -214,7 +228,7 @@ public final class LbcBedwarsShop {
         @Override public boolean click(int slot,ClickType type,ContainerInput action){
             if(!isOpen()||!valid()){close();return true;}
             boolean purchase=(action==ContainerInput.PICKUP||action==ContainerInput.QUICK_MOVE)&&!type.numKey&&!type.isDragging&&type!=ClickType.MOUSE_DOUBLE_CLICK;
-            if(slot>=0&&slot<9&&slot!=6&&purchase){category=Category.values()[slot<6?slot:slot-1];getPlayer().playSound(SoundEvents.UI_BUTTON_CLICK.value(),1f,1.2f);render();}
+            if(slot>=0&&slot<9&&(slot!=6||policy.lucky())&&purchase){category=slot==6?Category.LUCKY:Category.values()[slot<6?slot:slot-1];getPlayer().playSound(SoundEvents.UI_BUTTON_CLICK.value(),1f,1.2f);render();}
             else if(slot>=18&&slot<54&&purchase){var offer=actions.get(slot);if(offer!=null){boolean ok=buy(this,offer,type.shift);getPlayer().playSound(ok?SoundEvents.PLAYER_LEVELUP:SoundEvents.VILLAGER_NO,1f,1f);getPlayer().playSound(ok?SoundEvents.PLAYER_LEVELUP:SoundEvents.VILLAGER_NO,1f,1f);if(valid())render();}}
             getPlayer().containerMenu.sendAllDataToRemote();return true;
         }

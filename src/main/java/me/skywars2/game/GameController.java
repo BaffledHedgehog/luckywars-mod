@@ -713,11 +713,16 @@ public final class GameController {
         return false;
     }
 
+    /** Current Lucky reward graphs share their native SkyWars/BedWars family owners. */
+    boolean modeReady(int mode) {
+        return mode >= 1 && mode <= 4 && (mode < 3 || BEDWARS_READY);
+    }
+
     /** Separate unsupported modes from map preparation, so their rejection is actionable. */
     private Component startFailure(ServerPlayer player) {
         if (stopped || !inLobby() || developerTools.authoring().busy() || maps.busy() && !preparingSelection) return text("game.start_unavailable");
         if (!mayControlMatch(player)) return text("game.admin_only");
-        if (config.gameMode != 1 && !(config.gameMode == 3 && BEDWARS_READY))
+        if (!modeReady(config.gameMode))
             return Component.translatable("skywars2.game.mode_unavailable", config.gameMode);
         if (online().size() < (developerMode() ? 1 : 2)) return text("game.start_requirements");
         return null;
@@ -1316,7 +1321,7 @@ public final class GameController {
                 || supernovaMapTransition() || maps.busy() || developerTools.authoring().busy()
                 || vanity.busy() || vanity.capturePreparing()
                 || items.supernova().phase() != LbcSupernova.Phase.IDLE
-                || config.gameMode != 1 && !(config.gameMode == 3 && BEDWARS_READY)
+                || !modeReady(config.gameMode)
                 || !allowDamage(owner) || !items.wands().validRoleTarget(owner, false)
                 || !LbcDimensionItems.ordinary(owner.level())
                 || online().size() < (developerMode() ? 1 : 2)
@@ -1338,7 +1343,7 @@ public final class GameController {
         }
         if (!inLobby() || maps.busy() || preparingSelection) return;
         // This is an already accepted item action, so lobby admin ownership cannot revoke it.
-        if (config.gameMode != 1 && !(config.gameMode == 3 && BEDWARS_READY)
+        if (!modeReady(config.gameMode)
                 || online().size() < (developerMode() ? 1 : 2)
                 || !mapCapacity(maps.info(config.mapId), online().size())) {
             cunnyRestart = null; announce(text("game.cancelled_players")); return;

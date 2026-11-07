@@ -1380,6 +1380,8 @@ public final class GameChecks {
                                 case "antigravity-support" -> { AntigravitySupportChecks.run(game);return; }
                                 case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
                                 case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
+                                case "lucky-loadouts-menu" -> { LuckyLoadoutChecks.menu(game); return; }
+                                case "lucky-loadouts" -> { LuckyLoadoutChecks.run(game); return; }
                                 case "match-mode-menu" -> { MatchStartChecks.menu(game); return; }
                                 case "match-mode-stop-probe" -> { MatchStartChecks.stopProbe(game); return; }
                                 case "match-mode-cleanup" -> { MatchStartChecks.cleanup(game); return; }
@@ -1736,7 +1738,7 @@ public final class GameChecks {
             TmtInventoryTraitChecks.tick(game);
             ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);TmtDropChecks.tick(game);TmtSharedDropChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
             TmtCriterionTraitChecks.tick(game);
-            TmtGadgetChecks.tick(game);TmtElectroTraitChecks.tick(game);TmtCurrentContentChecks.tick(game);
+            TmtGadgetChecks.tick(game);TmtElectroTraitChecks.tick(game);TmtCurrentContentChecks.tick(game);LuckyLoadoutChecks.tick(game);
             TmtMagnumAmmoChecks.tick(game);TmtLooseRewardChecks.tick(game);ClockFragmentChecks.tick(game);KillButtonChecks.tick(game);TmtPassiveQueryChecks.tick(game);TmtGlyphChecks.tick(game);LegacySlabChecks.tick(game);BucksTraderChecks.tick(game);TmtNativeIdentityChecks.tick(game);TmtManaPotionChecks.tick(game);TmtShieldChecks.tick(game);LegacyRangedChecks.tick(game);TmtInventoryMutationChecks.tick(game);NativeTestReportCombatChecks.tick(game);CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

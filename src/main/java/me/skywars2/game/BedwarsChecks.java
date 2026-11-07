@@ -25,7 +25,7 @@ public final class BedwarsChecks {
                 .map(m->game.maps().level().getEntity(m.id())).filter(Villager.class::isInstance).map(Villager.class::cast).findFirst().orElseThrow();
     }
     public static void lobby(GameController game){
-        require(game.inLobby()&&game.config().gameMode==3&&game.selectedMapReady(),"real ready mode3 lobby");
+        require(game.inLobby()&&game.bedwars().mode()&&game.selectedMapReady(),"real ready BedWars3/4 lobby");
         var observed=new ArrayList<String>();for(var entity:game.maps().level().getAllEntities())if(entity.entityTags().contains("bedwars_bed"))observed.add(entity.blockPosition()+"="+game.maps().level().getBlockState(entity.blockPosition())+" removed="+entity.isRemoved());
         SkyWars2.LOGGER.info("[check] bedwars placed map={} spawns={} teams={} bedCells={}",game.config().mapId,game.maps().spawns().size(),game.bedwars().availableTeams(),observed);
         var teams=game.bedwars().availableTeams().stream().sorted().toList();require(teams.size()>=2,"placed source bed identities");
@@ -37,10 +37,10 @@ public final class BedwarsChecks {
             require(game.bedwars().selectTeam(p,teams.get(n/2)),"native lobby numeric team selection");p.setNoGravity(true);
         }
         require(game.canStart(null),"four native players can share two actual bed spawns");
-        pass("bedwars-menu","actual mode3/four native participants/two selected teams/shared-spawn capacity");
+        pass("bedwars-menu","actual mode"+game.gameMode()+"/four native participants/two selected teams/shared-spawn capacity");
     }
     public static void run(GameController game,String suite){
-        require(game.playing()&&game.config().gameMode==3&&game.bedwars().active()&&game.bedwars().arena().active(),"admitted real BedWars match");
+        require(game.playing()&&game.bedwars().mode()&&game.bedwars().active()&&game.bedwars().arena().active(),"admitted real BedWars match");
         var a=player(game,"TestAlpha");var b=player(game,"TestBeta");
         switch(suite){
             case "bedwars-basic", "bedwars-source"->{
@@ -49,7 +49,7 @@ public final class BedwarsChecks {
                 require(a.position().distanceToSqr(c.position())<1&&b.position().distanceToSqr(d.position())<1,"same-team native shared spawns");
                 require(game.bedwars().arena().topology().beds().size()==2&&game.bedwars().hasBed(a)&&game.bedwars().hasBed(b)&&game.bedwars().winnerTeam()==-1,"two owned physical beds prevent solo winner logic");
                 require(!game.bedwars().auxiliaries().generators().isEmpty()&&LbcBedwars.shopRole(merchant(game)),"real marker topology/generators/protected merchant");
-                pass(suite,"actual mode3/shared spawns/two team beds/generators/merchant and team victory admission");
+                pass(suite,"actual mode"+game.gameMode()+"/shared spawns/two team beds/generators/merchant and team victory admission");
             }
             case "bedwars-shop"->{var npc=merchant(game);move(a,npc.position().add(0,0,2));BedwarsShopChecks.start(game,game.bedwars().shop(),npc);}
             case "bedwars-auxiliary"->BedwarsAuxiliaryChecks.start(game);

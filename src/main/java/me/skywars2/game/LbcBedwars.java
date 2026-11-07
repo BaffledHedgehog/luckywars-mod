@@ -66,6 +66,12 @@ public final class LbcBedwars {
         });
         shop=new LbcBedwarsShop(new LbcBedwarsShop.Policy(){
             public String epoch(){return game.items().epoch();}
+            public boolean lucky(){return game.gameMode()==4;}
+            public net.minecraft.world.item.ItemStack luckyBlock(ServerPlayer p,LbcLuckyBlocks.Kind kind){
+                String table=switch(kind){case NORMAL->"lbc:luckyblock_block_only";case NEKO->"lbc:luckyblock_neko_block";case LOLI->"lbc:luckyblock_loli_block";};
+                var result=game.lbc().rollTable(p.level(),p.position(),p,table);
+                return result.size()==1?result.getFirst():net.minecraft.world.item.ItemStack.EMPTY;
+            }
             public boolean canTrade(ServerPlayer p,Entity merchant){return canUse(p)&&shopRole(merchant)&&merchant.isAlive()&&!merchant.isRemoved()&&merchant.level()==p.level()&&p.distanceToSqr(merchant)<=64;}
             public int team(ServerPlayer p){return LbcBedwars.this.team(p);}
             public net.minecraft.world.item.ItemStack teamChest(ServerPlayer p){return auxiliaries.teamChest(p);}

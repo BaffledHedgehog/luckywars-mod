@@ -1,6 +1,14 @@
 {
   "kits": [
     {
+      "id": 6,
+      "page": 9000,
+      "slot": 5,
+      "table": "lbc:kit/lucky_baffled",
+      "gate": "lbc:true_advancements/armor/chaos_full",
+      "lockedKey": "lbc.adv.armor.chaos_full.lore"
+    },
+    {
       "id": 1,
       "page": 9000,
       "slot": 0,
@@ -176,6 +184,13 @@
     }
   ],
   "skills": [
+    {
+      "id": 2,
+      "page": 10000,
+      "slot": 1,
+      "gate": "lbc:true_advancements/accesories/magnet",
+      "lockedKey": "lbc.adv.accessories.magnet.lore"
+    },
     {
       "id": 31,
       "page": 10100,

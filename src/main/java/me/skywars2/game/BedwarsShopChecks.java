@@ -31,7 +31,7 @@ public final class BedwarsShopChecks {
     }
     public static void tick(GameController game){
         if(running==null)return;var run=running;require(run.game==game,"same running controller");
-        try{if(!run.finish())return;running=null;run.close();SkyWars2.LOGGER.info("[check] PASS bedwars-shop (actual77-action mode3 SGui catalog, real packet atomic physical currency/shift/equipment/overflow, confirmed source double equipment enchant visits/int saturation/no-op debit, protected transfers/roles/stale menu, positive MAG/TECH and actual TimeStop)");}
+        try{if(!run.finish())return;running=null;run.close();SkyWars2.LOGGER.info("[check] PASS bedwars-shop (actual mode{} source SGui catalog; all77 ordinary actions plus3 Lucky offers in mode4, native click/Shift exact source debit/full loot components and next-mode isolation; atomic currency/equipment/overflow, double enchant visits/int saturation/no-op debit, protected transfers/roles/stale menu, positive MAG/TECH and TimeStop)",game.gameMode());}
         catch(Throwable error){running=null;try{run.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL bedwars-shop",error);}
     }
     private static final class Run implements AutoCloseable {
@@ -40,7 +40,7 @@ public final class BedwarsShopChecks {
         final Set<UUID> originalDrops=new HashSet<>();final List<Marker> jammers=new ArrayList<>();boolean stopped,closed;int at;SimpleGui stoppedMenu;
         Run(GameController game,LbcBedwarsShop shop,Entity npc){
             this.game=game;this.shop=shop;this.npc=npc;player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
-            require(game.playing()&&game.config().gameMode==3&&player!=null&&game.canUseGameplayItems(player),"actual active mode3 TestAlpha");
+            require(game.playing()&&game.bedwars().mode()&&player!=null&&game.canUseGameplayItems(player),"actual active BedWars3/4 TestAlpha");
             require(npc!=null&&npc.entityTags().contains("bedwars_shop")&&!npc.isRemoved(),"actual indexed shop NPC");
             require(!game.items().timeStop().stopped(player.level()),"exclusive TimeStop fixture");
             saved=new GameChecks.WandThirdPlayerState(player,game.items().mana());client=new RegenerationBeltChecks.ScheduledClient(game,player);
@@ -55,12 +55,43 @@ public final class BedwarsShopChecks {
         void click(int slot){packet(slot,(byte)0,ContainerInput.PICKUP);}
         void category(int top){click(top);}
         int power(ItemStack stack){return stack.getOrDefault(DataComponents.ENCHANTMENTS,ItemEnchantments.EMPTY).getLevel(player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.POWER));}
+        void luckyOffers(){
+            boolean lucky=game.gameMode()==4;int next=game.config().gameMode;
+            try{
+                game.config().gameMode=lucky?3:4;
+                require((open().getGuiElement(6)!=null)==lucky,"future configuration cannot change the active shop family");
+                var offers=shop.offers(player,LbcBedwarsShop.Category.LUCKY);
+                require(offers.size()==(lucky?3:0),"three source Lucky offers only in active mode4");
+                if(!lucky)return;
+                var currencies=new Item[]{Items.COPPER_INGOT,Items.IRON_INGOT,Items.GOLD_INGOT,Items.DIAMOND,Items.NETHER_STAR};
+                var kinds=LbcLuckyBlocks.Kind.values();
+                int[][] prices={{16,4,0,0,0},{0,4,8,0,0},{0,0,4,8,0}};
+                for(int n=0;n<offers.size();n++){
+                    clear();category(6);var offer=offers.get(n);var block=LbcLuckyBlocks.item(kinds[n]);
+                    require(offer.item().is(block),"source loot table resolves native block kind "+n);
+                    click(offer.slot());require(count(block)==0,"unaffordable source block produces nothing");
+                    for(var currency:currencies)coins(currency,64);
+                    click(offer.slot());require(count(block)==1,"actual native packet purchases one source block");
+                    packet(offer.slot(),(byte)0,ContainerInput.QUICK_MOVE);
+                    require(count(block)==2,"source Shift purchase remains one block/one payment");
+                    for(int c=0;c<currencies.length;c++)require(offer.price().at(c)==prices[n][c]
+                            &&count(currencies[c])==64-2*prices[n][c],"exact source mixed price "+n+"/"+c);
+                    for(int slot=0;slot<player.getInventory().getContainerSize();slot++){
+                        var stack=player.getInventory().getItem(slot);
+                        if(stack.is(block))require(ItemStack.isSameItemSameComponents(stack,offer.item()),
+                                "full authored reward components retained without preview price lore");
+                    }
+                }
+            }finally{game.config().gameMode=next;clear();open();}
+        }
         void begin(){
             require(player.position().distanceToSqr(npc.position())<=64,"root places enrolled player within shop reach");
-            int[] expected={16,15,7,5,8,14,5,7};int total=0;
-            for(int n=0;n<8;n++){var offers=shop.offers(player,LbcBedwarsShop.Category.values()[n]);require(offers.size()==expected[n],"source finite category count "+n);total+=offers.size();var slots=new HashSet<Integer>();for(var offer:offers)require(offer.slot()>=18&&offer.slot()<54&&slots.add(offer.slot())&&!offer.item().isEmpty(),"unique stocked source slot");}
-            require(total==77,"complete mode3 finite graph");clear();var menu=open();require(menu.getGuiElement(6)==null,"no Lucky/TMT tab");
+            boolean lucky=game.gameMode()==4;
+            int[] expected={16,15,7,5,8,14,5,7,lucky?3:0};int total=0;
+            for(int n=0;n<expected.length;n++){var offers=shop.offers(player,LbcBedwarsShop.Category.values()[n]);require(offers.size()==expected[n],"source finite category count "+n);total+=offers.size();var slots=new HashSet<Integer>();for(var offer:offers)require(offer.slot()>=18&&offer.slot()<54&&slots.add(offer.slot())&&!offer.item().isEmpty(),"unique stocked source slot");}
+            require(total==(lucky?80:77),"complete source finite graph");clear();var menu=open();require((menu.getGuiElement(6)!=null)==lucky,"Lucky tab appears only in the active Lucky BedWars match");
             require(menu.getGuiElement(9).getItemStack().is(Items.PALE_HANGING_MOSS)&&menu.getGuiElement(9).getItemStack().get(DataComponents.TOOLTIP_DISPLAY).hideTooltip(),"actual source separator differs from stale VINE comment");
+            luckyOffers();
             // Mixed currency rejection must leave BOTH currencies, output and cursor untouched.
             coins(Items.IRON_INGOT,5);category(1);click(23);require(count(Items.IRON_INGOT)==5&&count(Items.IRON_SWORD)==0&&player.containerMenu.getCarried().isEmpty(),"missing gold cannot partially debit iron");
             coins(Items.GOLD_INGOT,3);click(23);require(count(Items.IRON_INGOT)==0&&count(Items.GOLD_INGOT)==0&&count(Items.IRON_SWORD)==1,"exact real multicurrency purchase");

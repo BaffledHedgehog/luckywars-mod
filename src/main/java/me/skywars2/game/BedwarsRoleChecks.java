@@ -71,7 +71,7 @@ public final class BedwarsRoleChecks {
         final List<Entity> actors=new ArrayList<>();Cow friend,target;Zombie attacker;AreaEffectCloud cloud;int began;boolean closed;
         Probe(GameController game,ServerPlayer owner,ServerPlayer enemy,Villager shop){
             this.game=game;this.owner=owner;this.enemy=enemy;this.shop=shop;
-            require(game.config().gameMode==3&&game.playing()&&game.bedwars().arena().active()&&!game.items().timeStop().stopped((ServerLevel)shop.level()),"real active ordinary mode3 world");
+            require(game.bedwars().mode()&&game.playing()&&game.bedwars().arena().active()&&!game.items().timeStop().stopped((ServerLevel)shop.level()),"real active BedWars3/4 world");
             require(owner.getTeam()!=null&&enemy.getTeam()!=null&&owner.getTeam()!=enemy.getTeam(),"two actual native participant teams");
             require(game.bedwars().arena().topology().markers().stream().anyMatch(m->m.kind()==LbcBedwarsArena.MarkerKind.SHOP&&m.id().equals(shop.getUUID())),"actual placed shop UUID in canonical topology");
             require(LbcBedwars.shopRole(shop)&&!shop.hasEffect(MobEffects.REGENERATION)&&!shop.hasEffect(MobEffects.POISON),"clean protected source shop");

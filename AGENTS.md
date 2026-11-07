@@ -1,3 +1,24 @@
+## Lucky modes/loadouts - FULL SOURCE QUALIFIED, stable build requested (7 November2026)
+
+[Source, final artifacts and native proof](agent_notes/LUCKY_MODES_LOADOUTS_2026_11_07.md).
+Supersedes old public2/4/kit6/skill2 gates after complete TMT qualification.
+Test118d4d0d/production299e61e8 are ordinary full-source JARs, published build/libs;
+17 real matches across all four actual modes pass on the SAME final test artifact.
+Mode4 adds original three Lucky shop offers through existing shared shop/loot owner;
+77 normal actions unchanged, original prices and single Shift purchase retained.
+Mode1/3 regressions, native menu/start16/1/1, selected skill2/intake, actual mode2
+Cunny restart, mode4 beds/respawn/teams/generators/TimeStop/core replay all pass.
+All start/restart admission uses shared modeReady; current-vs-next mode retained.
+10498 inputs/281 author paths/three WIP exact. No RP edits; no physical client or
+peak performance claim. Gradle768MiB/one worker then fixture1280MiB sequentially.
+User explicitly requested server build for tests: qualified normal-stop installer
+request now targets118d4d0d, superseding TMT9641d266, with preserved rollback;
+do not stop/restart Main. Check lucky-modes-2026-11-07/main-install.json for live
+installation stage; running old Main stays untouched until normal shutdown.
+Kits14/16/protected author work and unrelated remaining migration are still separate.
+Do not overwrite these full archives with an older component. Native TMT and login
+protocol owners retained byte-exact; author deletions/HUD/RP/Java WIP remain intact.
+
 ## TMT FULL SOURCE QUALIFIED - ready for author tests (7 November2026)
 
 TMT goal is implemented and qualified, superseding the older intermediate

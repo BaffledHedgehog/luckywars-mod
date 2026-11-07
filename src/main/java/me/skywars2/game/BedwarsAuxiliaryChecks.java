@@ -27,7 +27,7 @@ public final class BedwarsAuxiliaryChecks {
     }
     public static void tick(GameController game){
         if(running==null)return;var r=running;
-        try{if(r.step()){running=null;r.close();SkyWars2.LOGGER.info("[check] PASS bedwars-auxiliary (actual mode3/native five cadences/duplicates/overflow, shared54-slot native packets, zombie/team/owner, TimeStop/nonempty whole-coordinator replay)");}}
+        try{if(r.step()){running=null;r.close();SkyWars2.LOGGER.info("[check] PASS bedwars-auxiliary (actual mode{}/native five cadences/duplicates/overflow, shared54-slot native packets, zombie/team/owner, TimeStop/nonempty whole-coordinator replay)",game.gameMode());}}
         catch(RuntimeException|Error error){running=null;try{r.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL bedwars-auxiliary",error);}
     }
     private static final class Run implements AutoCloseable {
@@ -37,7 +37,7 @@ public final class BedwarsAuxiliaryChecks {
         RegenerationBeltChecks.ScheduledClient client,audience,teammateClient;net.minecraft.server.level.ServerPlayer teammate,enemy;int stage,when,sequence,team,beacon;boolean closed;
         BlockPos chest;Zombie zombie;LbcBedwarsAuxiliaries.SharedContainer root;int queue;UUID zombieId;
         Run(GameController game){
-            this.game=game;require(game.config().gameMode==3&&game.playing(),"run in genuine admitted mode3 match");aux=game.bedwars().auxiliaries();
+            this.game=game;require(game.bedwars().mode()&&game.playing(),"run in genuine admitted BedWars3/4 match");aux=game.bedwars().auxiliaries();
             oldLinks=new MatchSpellCheckpoint.Links(new MatchDamageSources(game,List.of()));original=aux.checkpoint(oldLinks);oldStorage=aux.storageImage();
             require(original.bodies.isEmpty()&&original.queued.isEmpty()&&original.buffs.isEmpty()&&aux.containers().isEmpty(),"fresh auxiliary scene with no unrelated owned bodies/storage/rewards");f=new ChefChecks.Fixture(game);
         }

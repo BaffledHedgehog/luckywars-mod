@@ -28,11 +28,12 @@ public final class MatchStartChecks {
                 require(!game.mapMatchesMode(wrong.id()),"source map family rejected "+mode);
                 require(!game.selectMap(null,wrong.id(),false)&&game.config().mapId.equals(map)&&!game.maps().busy(),"wrong-family selection cannot mutate/paste "+mode);
                 require(game.selectedMapReady()==(game.maps().bedwars(map)==bed),"cached readiness follows requested map family "+mode);
-                if(mode==2||mode==4){game.requestStart(null,false);require(game.inLobby()&&game.gameMode()==mode,"unsupported Lucky mode stays gated with no captured live mode");}
+                require(game.modeReady(mode),"ready complete source mode family "+mode);
             }
         }finally{game.config().gameMode=old;}
         require(game.selectedMapReady()&&game.config().mapId.equals(map)&&Arrays.equals(saved,bytes()),"exact lobby selection/configuration retained");
-        SkyWars2.LOGGER.info("[check] PASS match-mode-menu (four source map families, stale readiness/wrong selection rejection, no paste/config mutation; public2/4 gates preserved)");
+        require(!game.modeReady(0)&&!game.modeReady(5),"invalid source modes remain rejected");
+        SkyWars2.LOGGER.info("[check] PASS match-mode-menu (four ready source modes, stale readiness/wrong selection rejection, no paste/config mutation)");
     }
     public static void run(GameController game){byte[] saved=bytes();int original=game.gameMode();
         try(var f=new WoolBucketChecks.Fixture(game,false)){

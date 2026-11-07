@@ -1156,6 +1156,7 @@ processResources {
             'data/swrg/loot_table/gui/**',
             'data/swrg/tags/item/food.json',
             'data/lbc/loot_table/kit/broken_totem.json', 'data/lbc/loot_table/kit/3_purify_potion.json',
+            'data/lbc/loot_table/kit/lucky_baffled.json',
             'data/lbc/loot_table/purifypotion_1.json',
             'data/lbc/advancement/true_advancements/**',
             'data/minecraft/tags/damage_type/cactus_only.json',
