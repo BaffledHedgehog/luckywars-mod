@@ -171,6 +171,17 @@ public final class SpeedFovTransitionChecks {
             close(attr.getValue(),0,"real dual minigun lock");wire=send(player,recording,false,"dual minigun zero-speed fallback");
             player.getInventory().clearContent();equipment(player);close(attr.getValue(),.1,"native equipment removal restores baseline");
             wire=send(player,recording,false,"all equipment removed");
+            recording.packets.clear();player.onUpdateAbilities();float walkingBeforeSprint=onlyAbilities(recording).getWalkingSpeed();
+            double predictedSprint=wire*1.3;
+            player.setSprinting(true);recording.packets.clear();var sprintPacket=movement(player);player.connection.send(sprintPacket);
+            var sprintChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())sprintChildren.add(child);
+            var sprintAbilities=(ClientboundPlayerAbilitiesPacket)sprintChildren.getLast();
+            close(sprintAbilities.getWalkingSpeed(),walkingBeforeSprint,"sprint acknowledgment leaves client FOV denominator stable");
+            close((clientSpeed(player,sprintPacket)/sprintAbilities.getWalkingSpeed()+1)/2,
+                    (predictedSprint/walkingBeforeSprint+1)/2,"local sprint prediction and acknowledged FOV agree");
+            player.setSprinting(false);recording.packets.clear();player.connection.send(movement(player));
+            var stopChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())stopChildren.add(child);
+            close(((ClientboundPlayerAbilitiesPacket)stopChildren.getLast()).getWalkingSpeed(),walkingBeforeSprint,"stop sprint acknowledgment leaves denominator stable");
             var boost=new AttributeModifier(Identifier.parse("skywars2:check_fov_transition"),.3,AttributeModifier.Operation.ADD_VALUE);
             attr.addTransientModifier(boost);wire=send(player,recording,false,"real moderate movement modifier");close(wire,.4,"moderate modifier is authoritative");
             attr.removeModifier(boost.id());resend(player,recording,wire,false,"ability resend ignores unsent modifier removal");
@@ -181,6 +192,9 @@ public final class SpeedFovTransitionChecks {
             resend(player,recording,wire,false,"abilities match last stale wire snapshot instead of live baseline");
             wire=send(player,recording,false,"fresh snapshot after stale publication");
             // Native bundle input: movement gains one abilities sibling; an existing raw abilities child is projected once.
+            // This recording connection is new to the individual-nameplate owner. Publish
+            // its initial canonical team deltas before asserting a movement-only bundle.
+            player.connection.send(new ClientboundBundlePacket(List.of()));recording.packets.clear();
             attr.addTransientModifier(boost);var movement=movement(player);var source=new ClientboundPlayerAbilitiesPacket(abilities);
             var other=new ClientboundUpdateAttributesPacket(player.getId()+100000,List.of(attr));
             var health=new ClientboundUpdateAttributesPacket(player.getId(),List.of(player.getAttribute(Attributes.MAX_HEALTH)));

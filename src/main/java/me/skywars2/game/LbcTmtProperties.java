@@ -101,9 +101,14 @@ final class LbcTmtProperties {
         var lore=new ArrayList<Component>(6);for(int i=0;i<6;i++)lore.add(text(random));
         stack.set(DataComponents.LORE,new ItemLore(List.copyOf(lore)));
         var slot=ARMOR[random.nextInt(ARMOR.length)];
-        // Equipment keeps its independent authored asset range; item sprites use the shared atlas shader.
+        // Retain the old independent draw/RNG position, but transport an armor seed to one asset.
+        int armorRoll=between(random,1,707);
+        data.putInt("tmt_armor_seed",Integer.rotateLeft(data.getIntOr("tmt_texture_seed",0),9)^armorRoll*0x9e3779b9);
+        stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
         stack.set(DataComponents.EQUIPPABLE,Equippable.builder(slot).setSwappable(!LbcTmtContinuous.sustained(stack)).setAsset(ResourceKey.create(
-                EquipmentAssets.ROOT_ID,Identifier.parse("lbc:tmt/tmt_"+between(random,1,707)))).build());
+                EquipmentAssets.ROOT_ID,Identifier.parse("lbc:tmt/procedural"))).build());
+        stack.set(DataComponents.DYED_COLOR,new net.minecraft.world.item.component.DyedItemColor(0xFA0000|(data.getIntOr("tmt_armor_seed",0)&0xffff)));
+        stack.set(DataComponents.TOOLTIP_DISPLAY,stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY,net.minecraft.world.item.component.TooltipDisplay.DEFAULT).withHidden(DataComponents.DYED_COLOR,true));
         between(random,1,12758); // Retain the source RNG position of the old item-model roll.
         LbcTmtRuntime.visual(stack);
         var attributes=new ArrayList<ItemAttributeModifiers.Entry>();

@@ -1,3 +1,31 @@
+## Test feedback: mining/settings/FOV/TMT armor/Imprinted - QUALIFIED, STAGED ONLY (7 November2026)
+
+[Scope, delivery, source settings and native/GPU evidence](agent_notes/TEST_FEEDBACK_2026_11_07.md).
+Full-source testc993bde7/production84c4150f staged in
+build/verification/test-feedback-2026-11-07; 11 actual matches/13 requested suites
+pass on the SAME final test archive, including real Supernova->Balance->stop.
+TpsMiningMixin must not cancel Polymer's server-mining RETURN completion; all3
+Lucky cubes and consumed cube retain mushroom hand rate and native5tick delay.
+HP display0..3 / source IMBA chance0..6 / prefix modes0..4 now persist and drive
+the original GUI/publication; source4 remains the old cosmetic-prefix WIP.
+Locator retains one owner and now updates target name/dimension, excludes BedWars
+allies. /tps and /skywars tps report1/5/15m TPS+MSPT through existing tick hook.
+Unscoped FOV denominator ignores native sprint modifier; scope/full gameplay
+attributes unchanged. lbc:imprinted uses existing exact-world post-effect owner.
+New TMT equipment uses independent seed and lbc:tmt/procedural equipment asset;
+RNG draw order preserved, transport dye hidden in tooltip. Separate6asset RP patch
+tmt-equipment-pack.zip is qualified on GPU11variants/24 ordinary comparisons;
+author RP remains READ-ONLY. Needs manual pack merge, no physical MC render claim.
+Old707 equipment assets remain for saved stacks; source sheet1878 unique item
+sprites,1024square,438361bytes PNG per humanoid layer, no pregenerated outputs.
+All5932 literal loot tables/10505 inputs/282 author paths exact. Initial diagnostic
+failures retained: Polymer inter-block delay, WILD fixture team removal, stale
+nameplate setup (also fails on parent), TPS fixture uses allowed port25576.
+No gameplay workaround for those fixture failures; existing safety guard unchanged.
+Gradle768MiB/one worker then fixture1280MiB sequential; normal exits/exact restore.
+Main production299e61e8 and build/libs untouched. NO installer/restart queued.
+Do not overwrite the full artifacts with an older component; preserve author WIP.
+
 ## True legacy / Lost Balance - QUALIFIED, STAGED ONLY (7 November2026)
 
 [Scope, source and final evidence](agent_notes/TRUE_LEGACY_RULES_2026_11_07.md).

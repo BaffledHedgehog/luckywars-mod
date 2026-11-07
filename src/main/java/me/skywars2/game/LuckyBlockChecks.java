@@ -211,6 +211,30 @@ public final class LuckyBlockChecks {
             if(failure!=null)throw new IllegalStateException("Lucky blocks scoped restore",failure);
         }
     }
+    public static void mining(GameController game){
+        try(var f=new Fixture(game)){
+            f.world.level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS,false,game.server());
+            f.p.setPos(f.pos.getX()+.5,f.pos.getY(),f.pos.getZ()+2.5);f.p.setOnGround(true);
+            f.p.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+            var states=new ArrayList<BlockState>();for(var kind:LbcLuckyBlocks.Kind.values())states.add(LbcLuckyBlocks.block(kind).defaultBlockState());
+            states.add(LbcConsumedBlock.BLOCK.defaultBlockState());
+            boolean previousBlock=false;
+            for(var state:states){
+                f.world.level.setBlock(f.pos,state,3);float rate=state.getDestroyProgress(f.p,f.world.level,f.pos);
+                float oldRate=Blocks.RED_MUSHROOM_BLOCK.defaultBlockState().getDestroyProgress(f.p,f.world.level,f.pos);
+                require(rate>0&&Math.abs(rate-oldRate)<.000001,"exact mushroom hand mining rate "+state);
+                f.p.gameMode.handleBlockBreakAction(f.pos,net.minecraft.network.protocol.game.ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,Direction.NORTH,f.world.level.getMaxY(),0);
+                int ticks=0;while(!f.world.level.getBlockState(f.pos).isAir()&&ticks<16){f.p.gameMode.tick();ticks++;}
+                // Polymer supplies the vanilla client's five-tick delay for consecutive
+                // server-controlled breaks, and consumes it only while mining progresses.
+                int delay=previousBlock?5:0;
+                require(f.world.level.getBlockState(f.pos).isAir()&&ticks<=Math.ceil(1/rate)+delay+1,"actual START plus native ticks complete Polymer mining, without client STOP: "+state+" ticks="+ticks);
+                f.p.gameMode.handleBlockBreakAction(f.pos,net.minecraft.network.protocol.game.ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,Direction.NORTH,f.world.level.getMaxY(),0);
+                previousBlock=true;
+            }
+        }
+        SkyWars2.LOGGER.info("[check] PASS custom-block-mining (native survival START/ticks completes all3 Lucky cubes and consumed cube at exact mushroom hand speed; no synthetic destroyBlock or client STOP)");
+    }
     public static void run(GameController game){try(var f=new Fixture(game)){f.placement();}SkyWars2.LOGGER.info("[check] PASS lucky-blocks (three canonical native leaves/Polymer roundtrip, both actual placement hands/exact debit, full collision/stable proxy/neighbor identity, actual placed-block gameMode destruction/physical root rewards)");}
     public static void rules(GameController game){try(var f=new Fixture(game)){f.lootRules();f.nekoBranches();f.policies();}SkyWars2.LOGGER.info("[check] PASS lucky-block-rules (actual native BLOCK / vanilla mushroom contexts, zero/negative/positive/missing-score/no-actor, Silk physical native returns and exact advancement token, Fortune/per-stack99, ordinary mushroom exclusion, legacy plus Silk pools, Neko real inventory/offhand/armor zaika and mainhand luck_key predicates, separate vanilla/native mined counters, Creative/developer/observer/input/world TimeStop)");}
 }

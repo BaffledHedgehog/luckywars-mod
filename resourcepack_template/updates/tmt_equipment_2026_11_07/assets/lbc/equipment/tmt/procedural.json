@@ -1,0 +1,20 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "lbc:tmt/procedural",
+        "dyeable": {
+          "color_when_undyed": 16384000
+        }
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "lbc:tmt/procedural",
+        "dyeable": {
+          "color_when_undyed": 16384000
+        }
+      }
+    ]
+  }
+}

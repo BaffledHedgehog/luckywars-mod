@@ -14,6 +14,7 @@ public final class TpsCompensation {
     private static boolean running;
 
     public static void beginTick(MinecraftServer current) {
+        ServerTickMetrics.tick(current);
         boolean enabled = !current.tickRateManager().isFrozen()
                 && current.tickRateManager().tickrate() == 20;
         if (server != current || enabled != running) generation++;

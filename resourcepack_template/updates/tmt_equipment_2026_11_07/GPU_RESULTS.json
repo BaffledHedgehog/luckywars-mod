@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "entityPipelineVariants": 11,
+  "ordinaryRenderComparisons": 24,
+  "repeatSeedIdentical": true,
+  "distinctSeedVaries": true,
+  "nativeArmorUvsNotVertexIndex": true,
+  "seedEndpointsFinite": true,
+  "gpu": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "authorPackReadOnly": true,
+  "physicalMinecraftRenderingTested": false,
+  "assets": {
+    "assets/minecraft/shaders/core/entity.fsh": "6333db2b7fd4fb63d8096e1280b42790b06c1c9cc11ff8ebb26ef5f89d756ae8",
+    "assets/minecraft/shaders/core/entity.vsh": "3e2209d5060d6cfbfdd479abab70274b16e28bb161482bf21081b1b01a8662a6",
+    "assets/lbc/textures/entity/equipment/humanoid_leggings/tmt/procedural.png": "83abb29f39901f4a4668198abebc50d35f53dd47741dd13f318d1b3c1a555b50",
+    "assets/lbc/textures/entity/equipment/humanoid/tmt/procedural.png": "83abb29f39901f4a4668198abebc50d35f53dd47741dd13f318d1b3c1a555b50",
+    "assets/lbc/shaders/include/tmt_equipment.glsl": "231405b022ce31c902ab73be531d71f363423813202b4232524ec054b8958130",
+    "assets/lbc/equipment/tmt/procedural.json": "b0ef1c08bfbaad905707a6db1b000fcd33692414fa027cf542de193738856c26"
+  }
+}

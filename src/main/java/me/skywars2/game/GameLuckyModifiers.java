@@ -48,6 +48,7 @@ public final class GameLuckyModifiers {
 
     /** Configuration publication never rerolls an active category. Called only on actual edits. */
     public void syncConfig() {
+        MatchSettings.sync(game);
         var score = game.items().mana().score(ScoreHolder.forNameOnly("cfg_lucky_modifier"), "swrg.math");
         if (score.get() != game.config().luckyModifier) score.set(game.config().luckyModifier);
     }

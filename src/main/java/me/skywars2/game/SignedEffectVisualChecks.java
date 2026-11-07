@@ -85,6 +85,10 @@ public final class SignedEffectVisualChecks {
             pig.removeAllEffects();
             var nexus=Identifier.parse("lbc:nexus");
             require(SignedEffectVisuals.desired(pig,"minecraft:nexus").equals(List.of(nexus)),"exact Nexus dimension owns original Nexus chain");
+            var imprinted=Identifier.parse("lbc:imprinted");
+            require(SignedEffectVisuals.desired(pig,"minecraft:imprinted").equals(List.of(imprinted)),"exact Imprinted dimension owns its chain");
+            require(!SignedEffectVisuals.desired(pig,"minecraft:overworld").contains(imprinted)
+                    &&!SignedEffectVisuals.desired(pig,"minecraft:nexus").contains(imprinted),"Imprinted chain absent in other worlds");
             for(var dimension:List.of("minecraft:overworld","minecraft:the_nether","minecraft:the_end","minecraft:imprinted","lbc:nexus"))
                 require(!SignedEffectVisuals.desired(pig,dimension).contains(nexus),"dimension mismatch removes Nexus chain: "+dimension);
         } finally { pig.removeAllEffects(); SignedEffectVisuals.removed(pig); }

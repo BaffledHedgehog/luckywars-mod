@@ -46,7 +46,9 @@ public final class LbcRifleZoom {
     private final Map<UUID,State> states=new HashMap<>();
     // Outbound packets may originate outside the simulation thread. Publish only immutable FOV inputs.
     private final Map<UUID,Float> scopedMovement=new ConcurrentHashMap<>();
-    private record MovementView(float speed,float base) {}
+    private record MovementView(float speed,float base,float withoutSprint) {
+        float forProjection(boolean scoped){return scoped?speed:withoutSprint;}
+    }
     private final Map<UUID,MovementView> movementViews=new ConcurrentHashMap<>();
     private final Map<UUID,ClientboundPlayerAbilitiesPacket> abilityViews=new ConcurrentHashMap<>();
     private final Map<UUID,Scope> modelViews=new ConcurrentHashMap<>();
@@ -195,13 +197,17 @@ public final class LbcRifleZoom {
 
     /** Reproduce the unmodified client's synchronized movement value, including packet modifiers. */
     static float packetMovement(ClientboundUpdateAttributesPacket.AttributeSnapshot snapshot) {
+        return packetMovement(snapshot,false);
+    }
+    static float packetMovement(ClientboundUpdateAttributesPacket.AttributeSnapshot snapshot,boolean excludeSprint) {
         double base=snapshot.base();
         for(var modifier:snapshot.modifiers())if(modifier.operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE)
             base+=modifier.amount();
         double result=base;
         for(var modifier:snapshot.modifiers())if(modifier.operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
             result+=base*modifier.amount();
-        for(var modifier:snapshot.modifiers())if(modifier.operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+        for(var modifier:snapshot.modifiers())if(modifier.operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+                &&(!excludeSprint||!modifier.id().equals(Identifier.withDefaultNamespace("sprinting"))))
             result*=1+modifier.amount();
         return Double.isNaN(result)?0:(float)Math.clamp(result,0,1024);
     }
@@ -222,7 +228,8 @@ public final class LbcRifleZoom {
     public ClientboundPlayerAbilitiesPacket projectAbilities(ServerPlayer player,ClientboundPlayerAbilitiesPacket packet) {
         abilityViews.put(player.getUUID(),packet);
         var movement=movementViews.get(player.getUUID());
-        return movement==null?packet:project(packet,movement.speed(),scopeView(player));
+        boolean scoped=scopeView(player);
+        return movement==null?packet:project(packet,movement.forProjection(scoped),scoped);
     }
     public ClientboundPlayerAbilitiesPacket projectAbilities(UUID id,ClientboundPlayerAbilitiesPacket packet) {
         if(game.server().isSameThread()) {
@@ -231,7 +238,8 @@ public final class LbcRifleZoom {
         }
         abilityViews.put(id,packet);
         var movement=movementViews.get(id);
-        return movement==null?packet:project(packet,movement.speed(),scopedMovement.containsKey(id));
+        boolean scoped=scopedMovement.containsKey(id);
+        return movement==null?packet:project(packet,movement.forProjection(scoped),scoped);
     }
     /** Bundle movement snapshots with their denominator so a rendered frame never sees only one half. */
     @SuppressWarnings("unchecked")
@@ -245,7 +253,10 @@ public final class LbcRifleZoom {
                     &&((net.minecraft.network.protocol.game.ClientboundRespawnPacket)packet).shouldKeep(
                             net.minecraft.network.protocol.game.ClientboundRespawnPacket.KEEP_ATTRIBUTE_MODIFIERS)
                     ?previous.speed():base;
-            movementViews.put(player.getUUID(),new MovementView(speed,base));
+            boolean keep=!login&&previous!=null&&((net.minecraft.network.protocol.game.ClientboundRespawnPacket)packet)
+                    .shouldKeep(net.minecraft.network.protocol.game.ClientboundRespawnPacket.KEEP_ATTRIBUTE_MODIFIERS);
+            var view=new MovementView(speed,base,keep?previous.withoutSprint():base);
+            movementViews.put(player.getUUID(),view);
             // Native respawn sends this before connection.player is rebound. Follow the client's
             // actual base/modifier copy flags instead of injecting the removed player's attributes.
             var source=login?null:abilityViews.get(player.getUUID());
@@ -253,7 +264,7 @@ public final class LbcRifleZoom {
             if(source==null)return packet;
             abilityViews.put(player.getUUID(),source);
             return new ClientboundBundlePacket(java.util.List.of(
-                    (Packet<? super ClientGamePacketListener>)packet,project(source,speed,scopeView(player))));
+                    (Packet<? super ClientGamePacketListener>)packet,project(source,view.forProjection(scopeView(player)),scopeView(player))));
         }
         if(packet instanceof ClientboundPlayerAbilitiesPacket abilities)return projectAbilities(player,abilities);
         if(packet instanceof ClientboundBundlePacket bundle) {
@@ -270,11 +281,14 @@ public final class LbcRifleZoom {
         for(var snapshot:attributes.getValues())if(snapshot.attribute().equals(Attributes.MOVEMENT_SPEED)) {
             float speed=packetMovement(snapshot);
             float base=Double.isNaN(snapshot.base())?0:(float)Math.clamp(snapshot.base(),0,1024);
-            movementViews.put(player.getUUID(),new MovementView(speed,base));
+            var view=new MovementView(speed,base,packetMovement(snapshot,true));
+            movementViews.put(player.getUUID(),view);
             var source=game.server().isSameThread()?new ClientboundPlayerAbilitiesPacket(player.getAbilities()):abilityViews.get(player.getUUID());
             if(source==null)return packet;
             abilityViews.put(player.getUUID(),source);
-            return new ClientboundBundlePacket(java.util.List.of(attributes,project(source,speed,scopeView(player))));
+            // The client predicts sprint before this packet arrives. Keep its denominator
+            // independent of sprint so the acknowledgment cannot undo that local FOV change.
+            return new ClientboundBundlePacket(java.util.List.of(attributes,project(source,view.forProjection(scopeView(player)),scopeView(player))));
         }
         return packet;
     }
@@ -431,7 +445,9 @@ public final class LbcRifleZoom {
             // Global stack-root discovery would add unrelated offline-player dependencies to this one view row.
             if(!ItemStack.matches(value,gun)||Scope.of(gun)!=state.scope)throw new IllegalStateException("Restore canonical native scope hand values before private view state");
             var view=movementViews.get(id);if(view==null)view=movement;
-            if(view==null){var attribute=real.getAttribute(Attributes.MOVEMENT_SPEED);float base=attribute==null?.1f:(float)Math.clamp(attribute.getBaseValue(),0,1024);view=new MovementView(LbcRifleZoom.movement(real),base);}
+            if(view==null){var attribute=real.getAttribute(Attributes.MOVEMENT_SPEED);float base=attribute==null?.1f:(float)Math.clamp(attribute.getBaseValue(),0,1024);
+                float nominal=attribute==null?base:packetMovement(new ClientboundUpdateAttributesPacket.AttributeSnapshot(Attributes.MOVEMENT_SPEED,attribute.getBaseValue(),attribute.getModifiers()),true);
+                view=new MovementView(LbcRifleZoom.movement(real),base,nominal);}
             var currentView=view;
             return ()->{state.player=real;state.gun=gun;state.active=active;int now=game.server().getTickCount();state.lastPunch=now-punchAge;state.exitUntil=exitTicks==0?0:now+exitTicks;
                 states.put(id,state);movementViews.put(id,currentView);abilityViews.put(id,new ClientboundPlayerAbilitiesPacket(real.getAbilities()));

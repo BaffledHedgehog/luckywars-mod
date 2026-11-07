@@ -84,6 +84,8 @@ public final class TmtPropertyChecks {
             require(attrs.modifiers().size()==(high?1:29),"guaranteed attribute with independent optional tails");
             require(result.get(DataComponents.ITEM_MODEL).toString().equals("lbc:tmt/procedural"),"one procedural item-atlas model replaces numbered item sprites");
             require(result.get(DataComponents.CUSTOM_MODEL_DATA).colors().getFirst()==(0xFA0000|((high?Integer.MAX_VALUE-1:0)&0xffff)),"explicit atlas carrier tint retains stable seed endpoints");
+            require(result.get(DataComponents.EQUIPPABLE).assetId().orElseThrow().identifier().toString().equals("lbc:tmt/procedural"),"one procedural asset for both native humanoid armor layers");
+            require(result.get(DataComponents.DYED_COLOR).rgb()==(0xFA0000|(ItemData.intValue(result,"tmt_armor_seed",0)&0xffff)),"independent persisted armor seed survives native equipment/color codec");
             var itemName=result.get(DataComponents.ITEM_NAME);
             require((itemName.getContents() instanceof TranslatableContents)==high,"literal/translate branches and both text endpoints");
             require(itemName.getStyle().getColor().getValue()==(high?0xFFFFFF:0),"six independent color digits");

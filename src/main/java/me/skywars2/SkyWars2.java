@@ -557,7 +557,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                                             }))))
                     .then(Commands.argument("parameter", StringArgumentType.word())
                             .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(List.of(
-                                    "lives", "health", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
+                                    "lives", "health", "healthDisplay", "hp", "imbaDropChance", "imbadrop_chance", "prefixes", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
                                     "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "luckyModifier", "cfg_lucky_modifier", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcKits", "lbcSkills", "lbcLevelups", "lbcLevelupLimit", "lbcTrinketLimit", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "gameMode", "bedwarsDirectBedBreaking", "map", "broken"), builder))
                             .then(Commands.argument("value", StringArgumentType.word())
                                     .suggests((ctx, builder) -> settingValueSuggestions(
@@ -584,6 +584,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                         .executes(target.getCommand()).redirect(target).build());
             }
             me.skywars2.game.SkyWarsFeedbackCommands.register(dispatcher);
+            me.skywars2.game.ServerTickMetrics.register(dispatcher);
         });
         LOGGER.info("SkyWars game cycle registered");
     }

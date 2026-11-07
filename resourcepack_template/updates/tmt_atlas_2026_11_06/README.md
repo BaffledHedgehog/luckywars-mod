@@ -10,7 +10,9 @@ Prepared overlay only. The author resource pack is read-only and has NOT been mo
   Preserve unrelated custom-model-data fields and unused color entries.
 - Default color is decimal `16384000` (seed 0). It is an intentional deterministic fallback.
 - This replaces the old random `lbc:tmt/tmt_1..12758` ITEM_MODEL selection.
-  The independent equipment asset selection `lbc:tmt/tmt_1..707` is unchanged.
+  Equipped armor is a separate render path. The later
+  [procedural equipment patch](../tmt_equipment_2026_11_07/README.md) replaces
+  numbered equipment selection for newly generated items; old saved references remain valid.
 
 The dedicated opaque carrier sprite has exact RGBA `(31,197,83,255)`.
 Only this texel AND raw tint prefix 250 activate the shader. Prefix 250 avoids

@@ -37,6 +37,12 @@ public final class GameConfig {
     /** Source LuckyWars category: 0 random, 1 disabled, 2..12 fixed match variants. */
     public int luckyModifier = 0;
     public int day = 1;
+    /** Source settings: 0 hidden, 1 below name, 2 TAB, 3 both. */
+    public int healthDisplay = 1;
+    /** Source index, not a percentage: 0 / .001 / .01 / .1 / .4 / 1 / 10 percent. */
+    public int imbaDropChance = 4;
+    /** 0 SFW, 1 NSFW, 2 mixed, 3 none, 4 source cosmetic-prefix placeholder. */
+    public int prefixes = 3;
     public boolean ranked = false;
     public boolean eventHalloween = false;
     public boolean eventNovember = false;
@@ -121,6 +127,9 @@ public final class GameConfig {
         gameMode = clamp(gameMode, 1, 4);
         luckyModifier = clamp(luckyModifier, 0, 12);
         day = clamp(day, 1, 3);
+        healthDisplay = clamp(healthDisplay,0,3);
+        imbaDropChance = clamp(imbaDropChance,0,6);
+        prefixes = clamp(prefixes,0,4);
         lbcLevelupLimit = clampLimit(lbcLevelupLimit);
         lbcTrinketLimit = Math.clamp(lbcTrinketLimit, 0, 12);
         gamesPlayed = Math.max(0, gamesPlayed);
@@ -156,6 +165,9 @@ public final class GameConfig {
             case "bedwarsdirectbedbreaking" -> { configured = bedwarsDirectBedBreaking = bool(key, value); canonical = "bedwarsDirectBedBreaking"; }
             case "luckymodifier", "cfg_lucky_modifier" -> { configured = luckyModifier = integer(key, value, 0, 12); canonical = "luckyModifier"; }
             case "day" -> { configured = day = integer(key, value, 1, 3); canonical = "day"; }
+            case "hp", "healthdisplay" -> { configured = healthDisplay = integer(key,value,0,3); canonical="healthDisplay"; }
+            case "imbadropchance", "imbadrop_chance" -> { configured = imbaDropChance = integer(key,value,0,6); canonical="imbaDropChance"; }
+            case "prefixes" -> { configured = prefixes = integer(key,value,0,4); canonical="prefixes"; }
             case "ranked" -> { configured = ranked = bool(key, value); canonical = "ranked"; }
             case "vanillakits" -> { configured = vanillaKits = bool(key, value); canonical = "vanillaKits"; }
             case "vanillaskills" -> { configured = vanillaSkills = bool(key, value); canonical = "vanillaSkills"; }

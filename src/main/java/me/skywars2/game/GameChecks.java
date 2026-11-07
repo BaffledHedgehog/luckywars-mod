@@ -810,6 +810,8 @@ public final class GameChecks {
                                 case "family-drops-cleanup" -> { FamilyDropChecks.cleanup(game); return; }
                                 case "block-palette" -> { BlockPaletteChecks.run(game); return; }
                                 case "lucky-blocks" -> { LuckyBlockChecks.run(game); return; }
+                                case "custom-block-mining" -> { LuckyBlockChecks.mining(game); return; }
+                                case "feedback-patch" -> { FeedbackPatchChecks.run(game); return; }
                                 case "lucky-block-rules" -> { LuckyBlockChecks.rules(game); return; }
                                 case "shooter-pools-menu" -> ShooterPoolChecks.menu(game);
                                 case "shooter-pools" -> ShooterPoolChecks.run(game);

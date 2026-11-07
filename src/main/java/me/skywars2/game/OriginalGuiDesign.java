@@ -680,6 +680,9 @@ final class OriginalGuiDesign {
             case 4 -> setting = values.config.vanillaSkills ? 1 : 0;
             case 5 -> setting = values.config.stageOneEvent;
             case 6 -> setting = values.config.stageTwoEvent;
+            case 7 -> setting = values.config.healthDisplay;
+            case 19 -> setting = values.config.prefixes;
+            case 23 -> setting = values.config.imbaDropChance;
             case 12 -> setting = values.config.tntProtection;
             case 13 -> setting = values.config.lbcKits ? 1 : 0;
             case 14 -> setting = values.config.lbcSkills ? 1 : 0;

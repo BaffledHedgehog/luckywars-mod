@@ -177,6 +177,9 @@ public final class GameMenus {
                 case 4 -> () -> change(p, () -> config.vanillaSkills = !config.vanillaSkills);
                 case 5 -> () -> change(p, () -> config.stageOneEvent = cycle(config.stageOneEvent, 0, 9));
                 case 6 -> () -> change(p, () -> config.stageTwoEvent = cycle(config.stageTwoEvent, 0, 8));
+                case 7 -> () -> change(p, () -> config.healthDisplay = cycle(config.healthDisplay,0,3));
+                case 19 -> () -> change(p, () -> config.prefixes = cycle(config.prefixes,0,4));
+                case 23 -> () -> change(p, () -> config.imbaDropChance = cycle(config.imbaDropChance,0,6));
                 case 8 -> () -> change(p, () -> config.offhandWands = !config.offhandWands);
                 case 11 -> () -> change(p, () -> config.luckyModifier = cycle(config.luckyModifier, 0, 12));
                 case 12 -> () -> change(p, () -> config.tntProtection = cycle(config.tntProtection, 0, 5));
@@ -688,6 +691,7 @@ public final class GameMenus {
         to.bedwarsDirectBedBreaking = from.bedwarsDirectBedBreaking;
         to.luckyModifier = from.luckyModifier;
         to.day = from.day;
+        to.healthDisplay=from.healthDisplay;to.imbaDropChance=from.imbaDropChance;to.prefixes=from.prefixes;
         // A public lobby reset only resets match options, never OP-only service flags.
         to.vanillaKits = from.vanillaKits;
         to.vanillaSkills = from.vanillaSkills;

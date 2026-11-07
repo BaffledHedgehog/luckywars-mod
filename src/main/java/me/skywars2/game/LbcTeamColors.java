@@ -57,6 +57,7 @@ final class LbcTeamColors {
             }
             assignments.put(name,new Assignment(original,team));board.addPlayerToTeam(name,team);
         }
+        prefixes();
     }
     /** Real BedWars participants may share the same source numeric team; lobby choices remain restorable. */
     void beginBedwars(List<ServerPlayer> participants,Map<java.util.UUID,Integer> selected){
@@ -66,6 +67,11 @@ final class LbcTeamColors {
         for(var player:participants){String name=player.getScoreboardName();var original=board.getPlayersTeam(name);
             var team=board.getPlayerTeam(Integer.toString(selected.get(player.getUUID())));
             assignments.put(name,new Assignment(original,team));board.addPlayerToTeam(name,team);}
+        prefixes();
+    }
+    private void prefixes(){
+        var game=me.skywars2.SkyWars2.game();
+        if(game!=null)MatchSettings.prefixes(game,assignments.values().stream().map(Assignment::temporary).toList());
     }
     PlayerTeam assigned(ServerPlayer player){var assignment=assignments.get(player.getScoreboardName());return assignment==null?null:assignment.temporary();}
     PlayerTeam original(ServerPlayer player){var assignment=assignments.get(player.getScoreboardName());return assignment==null?null:assignment.original();}

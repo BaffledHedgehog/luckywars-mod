@@ -68,10 +68,15 @@ public final class ImprintedHudChecks {
         void begin(){
             f.prepareParticipants();var event=game.items().trollBox().view();require(!event.darkness()&&!event.hunter()&&!event.powerfall()&&!event.abyss(),"no borrowed Troll Box event");
             require(game.items().hedgehogDimensions().teleport(f.owner,f.owner,4),"real shared shifting destination4");
-            ack();require(inside(f.owner)&&left(f.owner)==900,"world-change callback installs full 45 seconds");next(0);
+            ack();require(inside(f.owner)&&left(f.owner)==900,"world-change callback installs full 45 seconds");
+            require(f.owner.getPostEffects().contains(net.minecraft.resources.Identifier.parse("lbc:imprinted")),"native dimension entry adds Imprinted post effect");
+            require(!f.other.getPostEffects().contains(net.minecraft.resources.Identifier.parse("lbc:imprinted")),"outside player has no Imprinted post effect");next(0);
         }
         boolean step(){
             ack();int age=game.server().getTickCount()-when;
+            var shader=net.minecraft.resources.Identifier.parse("lbc:imprinted");
+            require(f.owner.getPostEffects().contains(shader)==inside(f.owner),"owner effect follows actual dimension through full return/reentry");
+            require(f.other.getPostEffects().contains(shader)==inside(f.other),"independent visitor effect follows actual dimension");
             switch(phase){
                 case 0->{require(left(f.owner)==899||left(f.owner)==900,"initial native tick boundary");next(1);}
                 case 1->{

@@ -858,6 +858,7 @@ public final class GameController {
                 {"stageTwoEvent", config.stageTwoEvent},
                 {"pvpMode", config.pvpMode},
                 {"day", config.day},
+                {"healthDisplay",config.healthDisplay},{"imbaDropChance",config.imbaDropChance},{"prefixes",config.prefixes},
                 {"ranked", config.ranked},
                 {"vanillaKits", config.vanillaKits},
                 {"vanillaSkills", config.vanillaSkills},
@@ -865,7 +866,13 @@ public final class GameController {
                 {"map", config.mapId}, {"broken", config.broken}
         }) {
             Object value = row[1] instanceof Boolean enabled ? text(enabled ? "common.enabled" : "common.disabled") : row[1];
-            summary.append(text("settings.line", text("settings.label." + row[0]), value));
+            var label=switch(row[0].toString()){
+                case "healthDisplay"->Component.translatableWithFallback("skywars2.settings.label.healthDisplay","Health display");
+                case "imbaDropChance"->Component.translatableWithFallback("skywars2.settings.label.imbaDropChance","IMBA drop chance index");
+                case "prefixes"->Component.translatableWithFallback("skywars2.settings.label.prefixes","Team prefixes");
+                default->text("settings.label."+row[0]);
+            };
+            summary.append(text("settings.line", label, value));
         }
         for (Object[] event : new Object[][] {{"halloween", config.eventHalloween},
                 {"november", config.eventNovember}, {"tournament", config.eventTournament}}) {
@@ -1732,17 +1739,26 @@ public final class GameController {
         }
     }
 
-    private void updateTrackers() {
+    void updateTrackers() {
         List<ServerPlayer> alive = alivePlayers();
         for (ServerPlayer player : alive) {
-            ServerPlayer target = alive.stream().filter(other -> other != player)
+            ServerPlayer target = alive.stream().filter(other -> other != player && other.level()==player.level()
+                    && (!bedwars.mode() || !player.isAlliedTo(other)))
                     .min(java.util.Comparator.comparingDouble(other -> other.distanceToSqr(player))).orElse(null);
             for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
                 ItemStack compass = player.getInventory().getItem(slot);
                 if (!compass.is(Items.COMPASS)) continue;
-                if (target == null) compass.remove(DataComponents.LODESTONE_TRACKER);
-                else compass.set(DataComponents.LODESTONE_TRACKER, new net.minecraft.world.item.component.LodestoneTracker(
-                        java.util.Optional.of(net.minecraft.core.GlobalPos.of(maps.level().dimension(), target.blockPosition())), false));
+                if (target == null) {
+                    compass.remove(DataComponents.LODESTONE_TRACKER);
+                    compass.set(DataComponents.CUSTOM_NAME,Component.translatable("swrg.item.compass")
+                            .withStyle(ChatFormatting.YELLOW).withStyle(s->s.withItalic(false)));
+                } else {
+                    var pointer=new net.minecraft.world.item.component.LodestoneTracker(
+                            java.util.Optional.of(net.minecraft.core.GlobalPos.of(target.level().dimension(), target.blockPosition())), false);
+                    if(!pointer.equals(compass.get(DataComponents.LODESTONE_TRACKER)))compass.set(DataComponents.LODESTONE_TRACKER,pointer);
+                    var name=target.getName().copy().withStyle(s->s.withItalic(false));
+                    if(!name.equals(compass.get(DataComponents.CUSTOM_NAME)))compass.set(DataComponents.CUSTOM_NAME,name);
+                }
             }
         }
     }
