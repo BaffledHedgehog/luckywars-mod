@@ -45,6 +45,7 @@ public final class RegenerationBeltChecks {
         @Override public void flushChannel(){}
     }
     static final class ScheduledClient implements AutoCloseable {
+        List<net.minecraft.network.protocol.Packet<?>> packets(){return connection.packets;}
         final GameController game;final ServerPlayer player;final net.minecraft.server.network.ServerGamePacketListenerImpl previous,listener;
         final ScheduledConnection connection=new ScheduledConnection();final java.lang.reflect.Field updates;
         ScheduledClient(GameController game,ServerPlayer player){this.game=game;this.player=player;previous=player.connection;

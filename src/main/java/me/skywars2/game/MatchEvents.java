@@ -229,7 +229,7 @@ public final class MatchEvents {
     private void giveKit(ServerPlayer player, boolean debug) {
         if (!config.vanillaKits && !debug) return;
         PlayerStore.Profile profile = players.get(player.getUUID());
-        if (profile == null || profile.kit <= 0
+        if (profile == null || profile.kit <= 0 || controller.balanceLegacy()&&!TrueLegacyRules.kit(profile.kit)
                 || !OriginalGuiDesign.unlocked(player, "swrg", 3000, profile.kit - 1, profile, config)) return;
         for (String item : KIT_COMMANDS.getOrDefault(profile.kit, List.of())) {
             try {
@@ -280,9 +280,9 @@ public final class MatchEvents {
     }
 
     /** Current selection is checked against its source GUI gate on every use; profile IDs remain untouched. */
-    private int selectedSkill(ServerPlayer player) {
+    int selectedSkill(ServerPlayer player) {
         PlayerStore.Profile profile = players.get(player.getUUID());
-        if (profile == null || profile.skill <= 0) return 0;
+        if (profile == null || profile.skill <= 0 || controller.balanceLegacy()&&!TrueLegacyRules.skill(profile.skill)) return 0;
         return OriginalGuiDesign.unlocked(player, "swrg", 4000, profile.skill - 1, profile, config)
                 ? profile.skill : 0;
     }
@@ -355,7 +355,7 @@ public final class MatchEvents {
     /** Uses the source spreadplayers layout and emits the default win effect once per ending second. */
     public void victoryTick(ServerPlayer winner, int endingTicksRemaining) {
         if (winner == null || endingTicksRemaining < 0 || endingTicksRemaining % TICKS_PER_SECOND != 0
-                || players.get(winner.getUUID()).winEffect != 0) return;
+                || !controller.balanceLegacy()&&players.get(winner.getUUID()).winEffect != 0) return;
         ensureVictoryMarkers(winner);
         if (victoryMarkers.size() != 4) return;
         controller.command("spreadplayers 0 0 20 192 false @e[type=minecraft:marker,tag="

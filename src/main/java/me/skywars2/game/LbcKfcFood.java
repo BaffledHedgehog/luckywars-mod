@@ -106,7 +106,7 @@ public final class LbcKfcFood {
             }
             for(float pitch:new float[]{0,1,2}) sound(player,"minecraft:lbcsounds.vomiting",1,pitch);
             sound(player,"minecraft:lbcsounds.shitting_1",1,1);
-            if(game.config().lbcSkills && game.players().get(player.getUUID()).lbcSkill==9) {
+            if(game.lbc().skillsEnabled() && game.players().get(player.getUUID()).lbcSkill==9) {
                 effect(player,MobEffects.REGENERATION,10,2,false);
                 effect(player,MobEffects.INSTANT_HEALTH,1,0,false);
             }
@@ -147,7 +147,7 @@ public final class LbcKfcFood {
             case 12 -> effect(p,MobEffects.SATURATION,1,100,false);
             case 13 -> {
                 sound(p,"minecraft:lbcsounds.shitting_1",1,1); effect(p,MobEffects.HUNGER,10,255,true);
-                if(game.config().lbcSkills && game.players().get(p.getUUID()).lbcSkill==9) mega(p);
+                if(game.lbc().skillsEnabled() && game.players().get(p.getUUID()).lbcSkill==9) mega(p);
                 drop(p,"lbc:govno_lot");
             }
             case 14 -> {

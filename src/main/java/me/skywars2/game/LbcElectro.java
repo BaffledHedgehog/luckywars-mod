@@ -244,7 +244,7 @@ public final class LbcElectro {
 
     private void yellowHit(ServerPlayer owner) {
         var state=yellowCharges.computeIfAbsent(owner.getUUID(),ignored->new Charge());
-        boolean skill=game.config().lbcSkills && game.players().get(owner.getUUID()).lbcSkill==9;
+        boolean skill=game.lbc().skillsEnabled() && game.players().get(owner.getUUID()).lbcSkill==9;
         for(int pass=0;pass<(skill ? 2 : 1);pass++) {
             if(++state.hits>=7) { state.hits=0; state.charges++; }
             int count=pass==0 ? 7 : 4;

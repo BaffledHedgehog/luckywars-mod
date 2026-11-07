@@ -13,7 +13,7 @@ public final class LbcGovnomancer {
     private final Set<UUID> cleansing=new HashSet<>();
     public LbcGovnomancer(GameController game){this.game=game;}
     public void effectsChanged(ServerPlayer player){
-        if(cleansing.contains(player.getUUID())||!game.config().lbcSkills
+        if(cleansing.contains(player.getUUID())||!game.lbc().skillsEnabled()
                 ||game.players().get(player.getUUID()).lbcSkill!=9
                 ||!game.playing()||game.stage()==GameController.Stage.ENDING||!player.isAlive()||player.isRemoved()
                 ||player.level()!=game.maps().level()||!game.canUseGameplayItems(player)||game.isObserver(player)

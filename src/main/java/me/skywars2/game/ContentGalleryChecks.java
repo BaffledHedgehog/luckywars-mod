@@ -28,6 +28,8 @@ public final class ContentGalleryChecks {
         int batches = 0;
         while (!catalog.step(24)) require(++batches < 100000, "finite public-definition traversal");
         var contents = catalog.finish();
+        var barriers=contents.stream().filter(stack->net.minecraft.resources.Identifier.withDefaultNamespace("barrier").equals(stack.get(DataComponents.ITEM_MODEL))).map(stack->BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()).distinct().sorted().toList();
+        me.skywars2.SkyWars2.LOGGER.info("[check] gallery authored barrier models={} nativeIds={}",barriers.size(),barriers);
         require(contents.stream().filter(stack->stack.is(LbcKfcFood.GOVNO_EATEN)).allMatch(stack->stack.has(DataComponents.TOOLTIP_STYLE)),"gallery fallback uses authored edible-govno style");
         require(catalog.errorCount() == 0, "all public definitions decode successfully");
         require(!contents.isEmpty(), "live public catalog is populated");

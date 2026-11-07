@@ -398,6 +398,7 @@ public final class LbcMana {
             for(String criterion:advancement.value().criteria().keySet()) p.getAdvancements().award(advancement,criterion);
     }
     void tick() {
+        if(game.balanceLegacy())return;
         for(var p:game.server().getPlayerList().getPlayers()) {
             tickPlayer(p);
             if(game.server().getTickCount()%20==0) secondPlayer(p);

@@ -317,8 +317,17 @@ public final class GameController {
     boolean cunnyRestartPending() { return cunnyRestart != null; }
     public boolean balanceLegacy() { return balanceLegacy; }
     private void balanceLegacy(boolean active){
+        if(active)TrueLegacyRules.warmup();
+        boolean changed=balanceLegacy!=active;
         balanceLegacy=active;
         items.mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("legacy"),"lbc.math").set(active?1:0);
+        if(!changed)return;
+        attributeHud.stop();
+        for(var player:online()) {
+            lbc.refreshArtifactView(player);lbc.refreshKnowledgeView(player);
+            if(active)player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket(Component.empty()));
+        }
+        items.cosmetics().refreshSuffixes(online());
     }
     public void activateBalance(ServerPlayer player) {
         if (!playing() || stopped || cunnyRestart != null || supernovaMapTransition() || maps.busy()
@@ -588,6 +597,7 @@ public final class GameController {
         maps.level().getGameRules().set(GameRules.MOB_DROPS,true,server);
         items.balance().begin();
         for(var player:online()){
+            if(canUseGameplayItems(player)) { events.giveKit(player);events.giveSkill(player); }
             player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE,100,4,false,false),player);
             net.minecraft.world.effect.MobEffects.INSTANT_HEALTH.value().applyInstantaneousEffect(player.level(),player,player,player,4,1);
             net.minecraft.world.effect.MobEffects.SATURATION.value().applyInstantaneousEffect(player.level(),player,player,player,40,1);
@@ -1253,7 +1263,7 @@ public final class GameController {
             if(balanceLegacy){
                 p.awaitingRespawn=false;balancePendingReset.remove(player.getUUID());resetBalancePlayer(player);
                 player.setGameMode(GameType.SURVIVAL);maps.restoreRespawnIsland(p.spawn);
-                teleport(player,p.spawn.position(),p.spawn.yaw(),p.spawn.pitch());return;
+                teleport(player,p.spawn.position(),p.spawn.yaw(),p.spawn.pitch());events.giveKit(player);events.giveSkill(player);return;
             }
             // Полная нормализация относится к границам матча; новую жизнь готовим по прежним правилам.
             p.awaitingRespawn = false; resetPlayer(player, config.health, false);

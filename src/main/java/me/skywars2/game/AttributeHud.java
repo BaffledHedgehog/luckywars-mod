@@ -66,7 +66,7 @@ public final class AttributeHud {
     /** Вызывать раз за серверный тик: позиция каждого игрока сверяется с предыдущим сэмплом. */
     public void tick() {
         for (ServerPlayer player : game.server().getPlayerList().getPlayers()) {
-            if (!player.isAlive() || game.lbc().hidesKnowledge(player)) {
+            if (game.balanceLegacy() || !player.isAlive() || game.lbc().hidesKnowledge(player)) {
                 clear(player);
                 continue;
             }

@@ -60,7 +60,7 @@ public final class LbcIceMaterials {
     void pulseShard(ServerPlayer player){
         if(!active(player))return;
         boolean mainShard=isRunicIceShard(player.getMainHandItem()),offShard=isRunicIceShard(player.getOffhandItem());
-        boolean handsOnly=game.config().lbcSkills&&game.players().get(player.getUUID()).lbcSkill==2;
+        boolean handsOnly=game.lbc().skillsEnabled()&&game.players().get(player.getUUID()).lbcSkill==2;
         boolean containerShard=false;
         if(!handsOnly||mainShard||offShard){
             for(var stack:player.getInventory().getNonEquipmentItems()){

@@ -102,7 +102,7 @@ public final class LbcGovnomet {
                 || game.items().magic().suppressed(owner)
                 || game.items().magic().mechanismSuppressedAt(owner.level(),owner.position())) return false;
         var charge=new Charge(TYPE,owner.level());
-        charge.mega=game.config().lbcSkills && game.players().get(owner.getUUID()).lbcSkill==9;
+        charge.mega=game.lbc().skillsEnabled() && game.players().get(owner.getUUID()).lbcSkill==9;
         float yaw=owner.getYRot(),pitch=owner.getXRot();
         if(!charge.mega) { yaw+=owner.level().getRandom().nextInt(41)-20; pitch+=owner.level().getRandom().nextInt(21)-10; }
         charge.setOwner(owner);

@@ -68,7 +68,7 @@ public final class LbcPisaDrops {
             double candidate=player.position().distanceToSqr(origin);
             if(candidate<distance) { nearest=player; distance=candidate; }
         }
-        boolean upgraded=nearest!=null && game.config().lbcSkills && game.players().get(nearest.getUUID()).lbcSkill==9;
+        boolean upgraded=nearest!=null && game.lbc().skillsEnabled() && game.players().get(nearest.getUUID()).lbcSkill==9;
         var reward=game.lbc().rollTable(level,origin,nearest,"lbc:"+(upgraded?"pisa_relic_upgraded":"pisa_relic"));
         level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.OAK_PLANKS.defaultBlockState()),
                 origin.x,origin.y-10,origin.z,100,.5,8,.5,0);

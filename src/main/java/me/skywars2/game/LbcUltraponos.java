@@ -85,7 +85,7 @@ public final class LbcUltraponos {
             double candidate=player.position().distanceToSqr(token.position());
             if(candidate<distance) { nearest=player; distance=candidate; }
         }
-        boolean mega=nearest!=null && game.config().lbcSkills && game.players().get(nearest.getUUID()).lbcSkill==9;
+        boolean mega=nearest!=null && game.lbc().skillsEnabled() && game.players().get(nearest.getUUID()).lbcSkill==9;
         scheduleBlasts(level,center,owner,mega);
         emitters.add(new Emitter(level,center,game.items().epoch(),author));
         LbcOverload.sound(level,token.position(),"minecraft:lbcsounds.ponos",1,1,0,0);

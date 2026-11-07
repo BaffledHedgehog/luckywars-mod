@@ -67,6 +67,7 @@ public final class LbcCosmetics {
         };return key!=null&&policy.has(player,key);
     }
     int choice(ServerPlayer p,Kind kind){
+        if(game.balanceLegacy()&&(kind==Kind.SUFFIX||kind==Kind.WIN||kind==Kind.KILL))return 0;
         var profile=game.players().get(p.getUUID());int id=switch(kind){case SOUND->profile.killSound;case CAGE->profile.cage;case SUFFIX->profile.suffix;case WIN->profile.winEffect;case KILL->profile.killEffect;};
         return unlocked(p,kind,id)?id:0;
     }
@@ -86,6 +87,9 @@ public final class LbcCosmetics {
     }
     /** Q26: each server-rendered name uses its own canonical selection. Gameplay teams stay shared. */
     public Component displayName(ServerPlayer player,Component original){
+        if(game.balanceLegacy()) {
+            return player.getName().copy().setStyle(original.getStyle());
+        }
         int id=choice(player,Kind.SUFFIX);
         return id==0?original:original.copy().append(suffix(id));
     }

@@ -1,3 +1,24 @@
+## True legacy / Lost Balance - QUALIFIED, STAGED ONLY (7 November2026)
+
+[Scope, source and final evidence](agent_notes/TRUE_LEGACY_RULES_2026_11_07.md).
+User confirmed gallery barriers are intended; no appearance/filter change.
+Full-source test4966406c/production121f21c3 are staged in
+build/verification/true-legacy-2026-11-07; 8 actual matches/10 suites pass on
+the SAME final test artifact, including real Supernova->Balance and stop exit.
+Ordinary kits through Half Slabs21; skills exclude Vampire11/Phasmatic13,
+retain Heavyweight12. Supers/challenges/trinkets/decorations/both HUDs/mana
+inactive in true legacy; actual selected old kit/skill reapplied at start/respawn.
+Immutable vanilla26.3 damage tags/definitions project per-source only while
+legacy is active; native arrow hurt cooldown/armor/weakness/resistance restored.
+No global registry reload; ordinary damage/cosmetics/HUD/loadouts regressions pass.
+All5932 literal loot tables and existing old runtime owners retained byte-exact.
+10501 source inputs/281 author paths exact. One768MiB Gradle then1280MiB fixture;
+normal shutdown/exact restore, no author-RP edit or physical-client/TPS claim.
+Main is CURRENTLY production299e61e8 (not test118d4d0d); author apparently selected
+that flavor after the prior installer completed. Main and build/libs untouched
+by this task. NO installer/restart queued; keep all fixes for next stable patch.
+Do not replace current Main with an older component or assume test flavor.
+
 ## Lucky modes/loadouts - FULL SOURCE QUALIFIED, stable build requested (7 November2026)
 
 [Source, final artifacts and native proof](agent_notes/LUCKY_MODES_LOADOUTS_2026_11_07.md).

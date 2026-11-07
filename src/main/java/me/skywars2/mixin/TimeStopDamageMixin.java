@@ -50,8 +50,20 @@ public final class TimeStopDamageMixin {
         @Inject(method="is(Lnet/minecraft/tags/TagKey;)Z",at=@At("HEAD"),cancellable=true)
         private void skywars2$queuedHitCooldown(TagKey<DamageType> tag,CallbackInfoReturnable<Boolean> ci) {
             var game=SkyWars2.game();
+            if(game!=null&&game.balanceLegacy()&&tag.location().getNamespace().equals("minecraft")) {
+                ci.setReturnValue(me.skywars2.game.TrueLegacyRules.vanillaTag((DamageSource)(Object)this,tag));
+                return;
+            }
             if(tag==DamageTypeTags.BYPASSES_COOLDOWN && game!=null
                     && game.items().timeStop().replaying((DamageSource)(Object)this)) ci.setReturnValue(true);
+        }
+        @Inject(method="type",at=@At("RETURN"),cancellable=true)
+        private void skywars2$legacyDamageDefinition(CallbackInfoReturnable<DamageType> ci) {
+            var game=SkyWars2.game();
+            if(game!=null&&game.balanceLegacy()) {
+                var type=me.skywars2.game.TrueLegacyRules.vanillaType((DamageSource)(Object)this);
+                if(type!=null)ci.setReturnValue(type);
+            }
         }
     }
 }

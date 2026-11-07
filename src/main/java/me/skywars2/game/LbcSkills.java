@@ -128,7 +128,7 @@ public final class LbcSkills {
                 ||game.items().timeStop().stopped(level)||game.items().timeStop().frozen(item)
                 ||game.items().wands().timeStopped())return;
         item.entityTags().add(once);
-        if(ItemData.intValue(item.getItem(),"imba",0)!=1||!game.config().lbcSkills)return;
+        if(ItemData.intValue(item.getItem(),"imba",0)!=1||!game.lbc().skillsEnabled())return;
         var particle=new net.minecraft.core.particles.DustParticleOptions(0xf6d4ff,4);
         for(var viewer:level.players()){
             if(!canReadArtifacts(viewer))continue;

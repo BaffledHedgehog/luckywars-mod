@@ -1381,6 +1381,8 @@ public final class GameChecks {
                                 case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
                                 case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
                                 case "lucky-loadouts-menu" -> { LuckyLoadoutChecks.menu(game); return; }
+                                case "true-legacy-rules" -> { TrueLegacyChecks.run(game); return; }
+                                case "true-legacy-exit" -> { TrueLegacyChecks.exit(game); return; }
                                 case "lucky-loadouts" -> { LuckyLoadoutChecks.run(game); return; }
                                 case "match-mode-menu" -> { MatchStartChecks.menu(game); return; }
                                 case "match-mode-stop-probe" -> { MatchStartChecks.stopProbe(game); return; }

@@ -76,7 +76,7 @@ public final class LbcLoadouts {
 
     /** Netty/Polymer читают только опубликованные флаги, без профилей, scoreboard и мира. */
     public boolean hidesKnowledge(ServerPlayer player) {
-        return player != null && knowledgeViews.getOrDefault(player.getUUID(), false);
+        return !game.balanceLegacy() && player != null && knowledgeViews.getOrDefault(player.getUUID(), false);
     }
 
     public boolean isKnowledgeChatSender(Component name) { return knowledgeChatSenders.contains(name.getString()); }
@@ -92,8 +92,8 @@ public final class LbcLoadouts {
     }
 
     public void refreshKnowledgeView(ServerPlayer player) {
-        boolean hidden = players.get(player.getUUID()).lbcChallenge == 1;
-        boolean wasHidden = hidesKnowledge(player);
+        boolean hidden = !game.balanceLegacy() && players.get(player.getUUID()).lbcChallenge == 1;
+        boolean wasHidden = knowledgeViews.getOrDefault(player.getUUID(), false);
         if (hidden == wasHidden) return;
         if (hidden) {
             // Очищаем ранее показанный UI до включения фильтра, иначе клиент сохранит его старые строки.
@@ -140,7 +140,7 @@ public final class LbcLoadouts {
         for (ServerPlayer player : game.server().getPlayerList().getPlayers()) refreshArtifactView(player);
     }
     public void refreshArtifactView(ServerPlayer player) {
-        boolean enabled = config.lbcSkills && players.get(player.getUUID()).lbcSkill == 3;
+        boolean enabled = skillsEnabled() && players.get(player.getUUID()).lbcSkill == 3;
         var previous = artifactReaders.put(player.getUUID(), enabled);
         if (enabled != Boolean.TRUE.equals(previous)) LbcSkills.refreshViewer(player);
     }
@@ -239,6 +239,7 @@ public final class LbcLoadouts {
     }
 
     /** Shared live skill admission; immunity checks never advance clocks or query suppressors. */
+    public boolean skillsEnabled(){return config.lbcSkills&&!game.balanceLegacy();}
     public void reconcileReactiveSkills(ServerPlayer player){
         game.items().projectileLevelups().reconcile(player);
         int selected=players.get(player.getUUID()).lbcSkill;
@@ -247,7 +248,7 @@ public final class LbcLoadouts {
     }
 
     public boolean hasSkill(ServerPlayer player,int skill){
-        if(game.balanceLegacy()||!config.lbcSkills||players.get(player.getUUID()).lbcSkill!=skill)return false;
+        if(game.balanceLegacy()||!skillsEnabled()||players.get(player.getUUID()).lbcSkill!=skill)return false;
         var entry=byId(Kind.SKILLS,skill);
         return entry!=null&&allowed(player,entry)&&game.playing()&&game.stage()!=GameController.Stage.ENDING
                 &&player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()
@@ -262,7 +263,7 @@ public final class LbcLoadouts {
         var id=player.getUUID();if(inventorySkillsChanging.contains(id))return;
         var profile=players.get(id);int skill=profile.lbcSkill;
         var entry=byId(Kind.SKILLS,skill);
-        if(!config.lbcSkills||(skill!=4&&skill!=8&&skill!=11)||entry==null||!allowed(player,entry)
+        if(!skillsEnabled()||(skill!=4&&skill!=8&&skill!=11)||entry==null||!allowed(player,entry)
                 ||!game.playing()||game.stage()==GameController.Stage.ENDING||!player.isAlive()||player.isRemoved()
                 ||player.level()!=game.maps().level()||!game.canUseGameplayItems(player)||game.isObserver(player)
                 ||!LbcDimensionItems.ordinary(player)||!game.items().wands().validRoleTarget(player,false)){
@@ -313,6 +314,7 @@ public final class LbcLoadouts {
     }
 
     public boolean challengeSelected(ServerPlayer player) {
+        if(game.balanceLegacy())return false;
         var profile = players.get(player.getUUID());
         return challengeRewardAvailable(player) ? profile.lbcChallengeKit == 1
                 : profile.lbcChallenge == 1 && hasUnlock(player, "lbc:true_advancements/legends/academy/root");
@@ -389,7 +391,7 @@ public final class LbcLoadouts {
         var kit = byId(Kind.KITS, profile.lbcKit);
         if (config.lbcKits && kit != null && allowed(player, kit)) choices.put("kit", List.of(kit.id));
         var skill = byId(Kind.SKILLS, profile.lbcSkill);
-        if (config.lbcSkills && skill != null && allowed(player, skill)) choices.put("skill", List.of(skill.id));
+        if (skillsEnabled() && skill != null && allowed(player, skill)) choices.put("skill", List.of(skill.id));
         var trinkets = new ArrayList<Integer>();
         for (int n = 0; n < Math.min(config.lbcTrinketLimit, profile.trinkets.length); n++) {
             var entry = byId(Kind.TRINKETS, profile.trinkets[n]);
@@ -425,7 +427,7 @@ public final class LbcLoadouts {
 
     /** Debug selection updates native bonuses immediately without reissuing an unrelated kit. */
     void refreshDebugSelection(ServerPlayer player, Kind kind) {
-        if (!game.debugPerks(player)) return;
+        if (game.balanceLegacy() || !game.debugPerks(player)) return;
         var profile = players.get(player.getUUID());
         if (kind == Kind.KITS || kind == Kind.TRINKETS) {
             var entry = byId(kind, kind == Kind.KITS ? profile.lbcKit : profile.lbcTrinket);
@@ -444,7 +446,7 @@ public final class LbcLoadouts {
         }
         applyLevelups(player, profile);
         var skill=byId(Kind.SKILLS,profile.lbcSkill);
-        if(config.lbcSkills&&skill!=null&&skill.id==5&&allowed(player,skill)){
+        if(skillsEnabled()&&skill!=null&&skill.id==5&&allowed(player,skill)){
             for(int amplifier=0;amplifier<4;amplifier++)player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,(50-amplifier*10)*20,amplifier));
             resistanceOwners.put(player.getUUID(),player);
         }
@@ -453,7 +455,7 @@ public final class LbcLoadouts {
     }
 
     private void apply(ServerPlayer player, boolean grantTrinkets, boolean grantKits) {
-        if (resolvedLevelups.rebuilding() || MatchPlayerCheckpoint.restoring(player)) return;
+        if (game.balanceLegacy() || resolvedLevelups.rebuilding() || MatchPlayerCheckpoint.restoring(player)) return;
         // При старте и возрождении сначала снимаются старые бонусы, затем выдаются комплект и выбранные улучшения.
         clear(player);
         var profile = players.get(player.getUUID());
@@ -472,7 +474,7 @@ public final class LbcLoadouts {
         }
         applyLevelups(player, profile);
         Entry skill = byId(Kind.SKILLS, profile.lbcSkill);
-        if (config.lbcSkills && skill != null && skill.id == 5 && allowed(player, skill)) {
+        if (skillsEnabled() && skill != null && skill.id == 5 && allowed(player, skill)) {
             // Native hidden-effect chain reproduces I -> II -> III -> IV application order.
             for (int amplifier = 0; amplifier < 4; amplifier++) {
                 player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, (50 - amplifier * 10) * 20, amplifier));

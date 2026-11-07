@@ -274,7 +274,7 @@ public final class LbcKfcRewards {
             boolean room=target.getInventory().getFreeSlot()>=0 || target.getInventory().contains(stack->
                     ItemStack.isSameItemSameComponents(stack,getItem()) && stack.getCount()<stack.getMaxStackSize());
             if(!room)return;
-            boolean armored=game.config().lbcSkills&&game.players().get(target.getUUID()).lbcSkill==2;
+            boolean armored=game.lbc().skillsEnabled()&&game.players().get(target.getUUID()).lbcSkill==2;
             if(!armored&&activate(this,target))return;
             // The source player route is native pickup followed by inventory dispatch. Keep successful contact intact.
             if(!game.canUseGameplayItems(target)||target.level()!=game.maps().level()

@@ -114,7 +114,7 @@ public final class LbcArmorSets {
             player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,60,3),player);
         // Author: the biological smell is never suppressed by either jammer.
         int amount=count(stacks,"gownoleggings");
-        if(game.config().lbcSkills&&game.players().get(player.getUUID()).lbcSkill==9)amount*=2;
+        if(game.lbc().skillsEnabled()&&game.players().get(player.getUUID()).lbcSkill==9)amount*=2;
         if(amount==0)return;
         double radius=10*amount,witherRadius=amount>=4?4*(amount-3):0;
         for(var target:player.level().getEntitiesOfClass(LivingEntity.class,player.getBoundingBox().inflate(radius),

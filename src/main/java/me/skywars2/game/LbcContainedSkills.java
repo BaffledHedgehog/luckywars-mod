@@ -92,7 +92,7 @@ public final class LbcContainedSkills {
     public boolean protectsDeath(ServerPlayer player,DamageSource source){
         var receipt=damage.remove(player);
         if(receipt==null||receipt.tick!=game.server().getTickCount()||receipt.amount<player.getMaxHealth()
-                ||!game.config().lbcSkills||game.players().get(player.getUUID()).lbcSkill!=12
+                ||!game.lbc().skillsEnabled()||game.players().get(player.getUUID()).lbcSkill!=12
                 ||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||player.level()!=game.maps().level()||!LbcDimensionItems.ordinary(player))return false;
         var owner=attacker(player,source);return owner!=null&&!owner.equals(player.getUUID());

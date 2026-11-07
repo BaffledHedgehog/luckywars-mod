@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public abstract class SignedResistanceMixin {
     @ModifyVariable(method="getDamageAfterMagicAbsorb",at=@At("HEAD"),argsOnly=true)
     private float skywars2$signedResistance(float damage,DamageSource source) {
+        var game=me.skywars2.SkyWars2.game();if(game!=null&&game.balanceLegacy())return damage;
         var entity=(LivingEntity)(Object)this;
         if(source.is(DamageTypeTags.BYPASSES_EFFECTS)||source.is(DamageTypeTags.BYPASSES_RESISTANCE))return damage;
         long level=SignedEffectMath.level(entity,MobEffects.RESISTANCE);
@@ -38,6 +39,7 @@ public abstract class SignedResistanceMixin {
     }
     @WrapOperation(method="getDamageAfterMagicAbsorb",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/LivingEntity;hasEffect(Lnet/minecraft/core/Holder;)Z"))
     private boolean skywars2$skipOverflowingNativeResistance(LivingEntity entity,Holder<MobEffect> effect,Operation<Boolean> original) {
+        var game=me.skywars2.SkyWars2.game();if(game!=null&&game.balanceLegacy())return original.call(entity,effect);
         return effect.is(MobEffects.RESISTANCE)?false:original.call(entity,effect);
     }
 }

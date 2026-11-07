@@ -15,7 +15,7 @@ public final class LbcNameplates {
     private static final String PREFIX="sw2np:";
     private record TeamImage(String name,ClientboundSetPlayerTeamPacket.Parameters parameters,Set<String> members){}
     private record Person(UUID uuid,String name,String team,int suffix,int group,int order){}
-    private record Image(long generation,Map<String,TeamImage> teams,Map<String,Person> people){}
+    private record Image(long generation,Map<String,TeamImage> teams,Map<String,Person> people,boolean legacy){}
     private static final class View {
         final Object connection;
         final Map<String,String> ids=new HashMap<>();
@@ -30,7 +30,7 @@ public final class LbcNameplates {
     private final Map<UUID,View> views=new ConcurrentHashMap<>();
     private final Set<UUID> departing=new HashSet<>();
     private final ThreadLocal<Boolean> emitting=ThreadLocal.withInitial(()->false);
-    private volatile Image image=new Image(0,Map.of(),Map.of());
+    private volatile Image image=new Image(0,Map.of(),Map.of(),false);
     private long generation;
     public LbcNameplates(GameController game){this.game=game;}
 
@@ -52,7 +52,7 @@ public final class LbcNameplates {
         var present=new HashSet<UUID>();for(var player:online)present.add(player.getUUID());departing.retainAll(present);
         var people=new LinkedHashMap<String,Person>();int ordinal=0;
         for(var p:online){if(departing.contains(p.getUUID()))continue;var team=p.getTeam();String name=p.getScoreboardName();people.put(name,new Person(p.getUUID(),name,team==null?null:team.getName(),game.items().cosmetics().choice(p,LbcCosmetics.Kind.SUFFIX),team==null?0:ranks.getOrDefault(team.getName(),0),ordinal++));}
-        image=new Image(++generation,Map.copyOf(teams),Map.copyOf(people));
+        image=new Image(++generation,Map.copyOf(teams),Map.copyOf(people),game.balanceLegacy());
     }
     /** Every viewer may depend on the changed owner's real relation, so deltas go to all viewers.
      * Packets are sent individually through the ordinary FPV and nameplate presentation hooks. */
@@ -102,6 +102,9 @@ public final class LbcNameplates {
         return new ClientboundSetPlayerTeamPacket.Parameters(source.displayName(),source.playerPrefix(),suffix,visibility,self||collide(actual,viewer)?Team.CollisionRule.ALWAYS:Team.CollisionRule.NEVER,source.color(),source.options());
     }
     private static ClientboundSetPlayerTeamPacket.Parameters empty(){return new ClientboundSetPlayerTeamPacket.Parameters(Component.empty(),Component.empty(),Component.empty(),Team.Visibility.ALWAYS,Team.CollisionRule.ALWAYS,Optional.empty(),(byte)3);}
+    private static ClientboundSetPlayerTeamPacket.Parameters presentation(ClientboundSetPlayerTeamPacket.Parameters p,boolean legacy){
+        return !legacy||p==null?p:new ClientboundSetPlayerTeamPacket.Parameters(p.displayName(),Component.empty(),Component.empty(),p.nameTagVisibility(),p.collisionRule(),p.color(),p.options());
+    }
     private String id(View view,Image snapshot,Person person,Set<String> allocated){
         // 26.3's team packet uses unrestricted readUtf(), not the old command's 16-character UI.
         // Keep vanilla TAB's team-name/name grouping without changing player profiles or list order.
@@ -124,7 +127,7 @@ public final class LbcNameplates {
         // Canonical teams retain non-player entries and original client group identity for those entries.
         for(var name:List.copyOf(view.canonical)){
             var team=snapshot.teams.get(name);if(team==null)continue;
-            var parameters=projectParameters(team.parameters,team,viewerTeam,false,null);
+            var parameters=presentation(projectParameters(team.parameters,team,viewerTeam,false,null),snapshot.legacy);
             if(!parameters.equals(view.parameters.get(name))){result.add(packet(name,2,parameters,List.of()));view.parameters.put(name,parameters);}
             var wanted=new HashSet<>(team.members);wanted.removeAll(snapshot.people.keySet());var previous=view.members.getOrDefault(name,Set.of());
             for(var member:previous)if(!wanted.contains(member))result.add(membership(name,member,false));
@@ -132,7 +135,7 @@ public final class LbcNameplates {
             view.members.put(name,Set.copyOf(wanted));
         }
         for(var person:sorted){String id=desired.get(person.name);var team=realTeam(snapshot,person);var source=team==null?empty():team.parameters;
-            var parameters=projectParameters(source,team,viewerTeam,person.uuid.equals(viewerId),LbcCosmetics.suffix(person.suffix));
+            var parameters=presentation(projectParameters(source,team,viewerTeam,person.uuid.equals(viewerId),LbcCosmetics.suffix(person.suffix)),snapshot.legacy);
             if(!view.ids.containsKey(person.name)){result.add(packet(id,0,parameters,List.of(person.name)));view.ids.put(person.name,id);}
             else if(!parameters.equals(view.parameters.get(id)))result.add(packet(id,2,parameters,List.of()));
             view.parameters.put(id,parameters);view.members.put(id,Set.of(person.name));
@@ -180,7 +183,7 @@ public final class LbcNameplates {
         if(mode==0)view.canonical.add(name);
         if(mode==1){view.canonical.remove(name);view.parameters.remove(name);view.members.remove(name);output.add(original);return;}
         var real=snapshot.teams.get(name);var viewerTeam=realTeam(snapshot,recipient);
-        var parameters=team.getParameters().map(p->projectParameters(p,real,viewerTeam,false,null)).orElse(null);
+        var parameters=team.getParameters().map(p->presentation(projectParameters(p,real,viewerTeam,false,null),snapshot.legacy)).orElse(null);
         if(parameters!=null)view.parameters.put(name,parameters);
         var previous=view.members.getOrDefault(name,Set.of());
         var names=team.getPlayers().stream().filter(member->!snapshot.people.containsKey(member))

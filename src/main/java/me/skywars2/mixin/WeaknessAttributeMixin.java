@@ -15,6 +15,7 @@ public abstract class WeaknessAttributeMixin {
     private static final Identifier WEAKNESS=Identifier.withDefaultNamespace("effect.weakness");
     @Inject(method="calculateValue",at=@At("HEAD"),cancellable=true)
     private void skywars2$weaknessPenalty(CallbackInfoReturnable<Double> cir){
+        var game=me.skywars2.SkyWars2.game();if(game!=null&&game.balanceLegacy())return;
         var attribute=(AttributeInstance)(Object)this;
         if(!attribute.getAttribute().equals(Attributes.ATTACK_DAMAGE))return;
         var weakness=attribute.getModifier(WEAKNESS);

@@ -62,7 +62,7 @@ public final class LbcBouncingPoop {
         actor.setTransformation(new Transformation(new Vector3f(),new Quaternionf(),new Vector3f(2),new Quaternionf()));
         var d=new CompoundTag();d.putString("author",owner.getStringUUID());d.putString("epoch",game.items().epoch());
         d.putLong("order",game.items().indirectKills().coldCause(owner,true).order());d.putInt("age",0);
-        d.putBoolean("mega",game.config().lbcSkills&&game.players().get(owner.getUUID()).lbcSkill==9);
+        d.putBoolean("mega",game.lbc().skillsEnabled()&&game.players().get(owner.getUUID()).lbcSkill==9);
         if(owner.getTeam()!=null)d.putString("team",owner.getTeam().getName());
         actor.setAttached(DATA,d);actor.entityTags().add(TAG);game.items().markCurrentItemEpoch(actor);
         if(!owner.level().hasChunkAt(actor.blockPosition())||!owner.level().addFreshEntity(actor)){actor.discard();return false;}

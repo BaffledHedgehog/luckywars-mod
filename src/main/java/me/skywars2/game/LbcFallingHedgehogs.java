@@ -43,7 +43,7 @@ public final class LbcFallingHedgehogs {
         return cause==null?null:new LbcSpellSource.Source(actor.getUUID(),cause.player(),game.items().epoch(),cause,Set.of(),true);
     }
     private boolean live(Entity actor){return !actor.isRemoved()&&game.playing()&&game.stage()!=GameController.Stage.ENDING
-            &&game.config().lbcSkills&&game.items().currentEpoch(actor)&&LbcDimensionItems.ordinary(actor.level());}
+            &&game.lbc().skillsEnabled()&&game.items().currentEpoch(actor)&&LbcDimensionItems.ordinary(actor.level());}
     private boolean suppressed(ServerLevel level,Vec3 at){return game.items().magic().suppressedAt(level,at)
             ||game.items().magic().mechanismSuppressedAt(level,at);}
     private boolean resident(ServerLevel level,Vec3 at){var pos=BlockPos.containing(at);
@@ -69,7 +69,7 @@ public final class LbcFallingHedgehogs {
             if(suppressed(level,actor.position())){retire(actor);continue;}
             if(actor.onGround())impact(actor);
         }
-        if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.config().lbcSkills
+        if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.lbc().skillsEnabled()
                 ||game.items().timeStop().stopped(game.maps().level()))return;
         var clock=game.items().mana().score(CLOCK,"lbc.math");int next=Math.floorMod(clock.get(),100)+1;
         clock.set(next==100?0:next);

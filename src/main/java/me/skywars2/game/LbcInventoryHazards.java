@@ -87,7 +87,7 @@ public final class LbcInventoryHazards {
     private static boolean hands(ServerPlayer player,CompoundTag predicate){return matches(player.getMainHandItem(),predicate)||matches(player.getOffhandItem(),predicate);}
     private static boolean inventory(ServerPlayer player,CompoundTag predicate){for(int i=0;i<=40;i++)if(matches(player.getInventory().getItem(i),predicate))return true;return false;}
     public boolean protectedInventory(ServerPlayer player){return armored(player);}
-    private boolean armored(ServerPlayer player){return game.config().lbcSkills&&game.players().get(player.getUUID()).lbcSkill==2;}
+    private boolean armored(ServerPlayer player){return game.lbc().skillsEnabled()&&game.players().get(player.getUUID()).lbcSkill==2;}
     /** Only read the source mode score when both objective and entry already exist; never create/reset global mode. */
     private boolean legacy(){var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");if(objective==null)return false;var value=board.getPlayerScoreInfo(net.minecraft.world.scores.ScoreHolder.forNameOnly("legacy"),objective);return value!=null&&value.value()==1;}
     public void tick(){

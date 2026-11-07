@@ -27,6 +27,7 @@ dependencies {
 }
 
 processResources {
+    include 'skywars2/vanilla_damage_26_3.json'
     include 'data/c/tags/item/dyeable/dynamic.json'
     include 'data/minecraft/tags/item/cauldron_can_remove_dye.json'
     include 'data/minecraft/tags/item/freeze_immune_wearables.json'
