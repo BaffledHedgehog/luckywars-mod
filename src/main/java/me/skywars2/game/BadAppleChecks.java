@@ -4,11 +4,17 @@ import java.security.MessageDigest;
 import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -18,15 +24,19 @@ public final class BadAppleChecks {
     private BadAppleChecks() { }
     private static Fixture running;
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Bad Apple: "+why);}
-    public static void run(GameController game){start(game,false);}
-    public static void runRewind(GameController game){start(game,true);}
-    private static void start(GameController game,boolean rewind){
-        require(running==null,"exclusive scheduled fixture");media();var fixture=new Fixture(game,rewind);running=fixture;
+    public static void run(GameController game){start(game,false,false);}
+    public static void runRewind(GameController game){start(game,true,false);}
+    public static void runTmt(GameController game){start(game,false,true);}
+    public static void runTmtRewind(GameController game){start(game,true,true);}
+    private static void start(GameController game,boolean rewind,boolean tmt){
+        require(running==null,"exclusive scheduled fixture");media();var fixture=new Fixture(game,rewind,tmt);running=fixture;
         try{fixture.begin();}catch(Throwable error){running=null;try{fixture.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}
     }
     public static void tick(GameController game){
         if(running==null)return;var fixture=running;
-        try{require(game==fixture.game,"same fixture controller");if(!fixture.step())return;running=null;fixture.close();SkyWars2.LOGGER.info("[check] PASS {} (source BAF independent hashes/bits, real typed loot and scheduled drop/display; native queue and typed coordinator checks)",fixture.name());}
+        try{require(game==fixture.game,"same fixture controller");if(!fixture.step())return;running=null;fixture.close();
+            if(fixture.tmt)SkyWars2.LOGGER.info("[check] PASS {} (all5 actual private-source ENTITY_LOAD admissions/rootflag0/unchanged whole bodies; mixed snowball count3/full sibling components through native age60 display/movie; source BAF, terrain/TimeStop/restoration and native queue; playback coordinator rewind only when requested, entry-body rewind not exercised)",fixture.name());
+            else SkyWars2.LOGGER.info("[check] PASS {} (source BAF independent hashes/bits, real typed loot and scheduled drop/display; native queue and typed coordinator checks)",fixture.name());}
         catch(Throwable error){running=null;try{fixture.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+fixture.name(),error);}
     }
     /** Expected values came from a separate Python decoder of the read-only legacy file. */
@@ -52,23 +62,23 @@ public final class BadAppleChecks {
     private static LbcStonekivi.Work seek(LbcBadApple service,int frame){var current=get(service,"current");require(current!=null,"native playback exists before logical seek");put(current,"logical",frame*2);put(current,"nextDesired",frame);return (LbcStonekivi.Work)current;}
 
     private static final class Fixture implements AutoCloseable {
-        final GameController game;final boolean rewind;final ServerPlayer owner,other;final ServerLevel level;
+        final GameController game;final boolean rewind,tmt;final ServerPlayer owner,other;final ServerLevel level;
         final RegenerationBeltChecks.Snapshot saved,otherSaved;final RegenerationBeltChecks.ScheduledClient client,audience;
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final Set<UUID> before=new HashSet<>();
         final LbcBadApple service;final LbcBadApple.Policy originalPolicy;
         final Vec3 origin;final int started;boolean closed,stopped,restoring;int stage,when;
-        ItemEntity token;UUID display;LbcBadApple.View captured;Object capturedPlayback;int capturedSound,capturedVisual;boolean skills;Map<BlockPos,BlockState> capturedTerrain;
+        ItemEntity token;ItemStack bodySource;LbcTmtAbilities.Ability privateApple,sibling;UUID display;LbcBadApple.View captured;Object capturedPlayback;int capturedSound,capturedVisual;boolean skills;Map<BlockPos,BlockState> capturedTerrain;
         Map<Long,MapManager.BlockSnapshot> capturedOriginals;
         LbcBadApple supporting;BlockPos testTop;long firstWrites;int peerProgress,supportStage,visualWait;Object previousPlayback;
-        Fixture(GameController game,boolean rewind){
-            this.game=game;this.rewind=rewind;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));level=owner.level();
+        Fixture(GameController game,boolean rewind,boolean tmt){
+            this.game=game;this.rewind=rewind;this.tmt=tmt;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));level=owner.level();
             require(game.playing()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two real active participants");
             require(!game.vanity().busy()&&!game.vanity().hasSnapshot()&&!game.items().timeStop().stopped(level),"exclusive whole coordinator and source clock");
             service=game.items().badApple();require(service.count()==0&&!service.view().running(),"no unrelated Bad Apple owner");originalPolicy=(LbcBadApple.Policy)get(service,"policy");
             saved=new RegenerationBeltChecks.Snapshot(game,owner);otherSaved=new RegenerationBeltChecks.Snapshot(game,other);client=new RegenerationBeltChecks.ScheduledClient(game,owner);audience=new RegenerationBeltChecks.ScheduledClient(game,other);
             level.getAllEntities().forEach(e->before.add(e.getUUID()));origin=new Vec3(owner.getX(),Math.min(240,level.getMaxY()-40),owner.getZ());started=game.server().getTickCount();
         }
-        String name(){return rewind?"badapple-rewind":"badapple-imba";}
+        String name(){return tmt?(rewind?"tmt-badapple-rewind":"tmt-badapple"):(rewind?"badapple-rewind":"badapple-imba");}
         void begin(){
             skills=game.config().lbcSkills;game.config().lbcSkills=false;
             for(var p:List.of(owner,other)){game.lbc().clear(p);p.closeContainer();p.getInventory().clearContent();p.removeAllEffects();p.setNoGravity(true);p.setDeltaMovement(Vec3.ZERO);p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);p.setHealth(1000);}
@@ -84,7 +94,36 @@ public final class BadAppleChecks {
             require(loot.getFirst().is(LbcBadAppleItem.TOKEN),"actual native typed item singleton");
             require(net.minecraft.resources.Identifier.parse("lbc:badapple1").equals(loot.getFirst().get(net.minecraft.core.component.DataComponents.ITEM_MODEL))&&net.minecraft.resources.Identifier.parse("lbc:tier_k").equals(loot.getFirst().get(net.minecraft.core.component.DataComponents.TOOLTIP_STYLE)),"actual source model and tier survive typed acquisition");
             require(!LbcBadApple.recognized(new ItemStack(Items.APPLE)),"ordinary edible apple is separate");
-            token=new ItemEntity(level,origin.x+2,origin.y,origin.z,loot.getFirst());token.setNoGravity(true);token.setDeltaMovement(Vec3.ZERO);token.setPickUpDelay(32767);token.setThrower(owner);require(level.addFreshEntity(token),"actual dropped source publication");next(0);
+            if(tmt)tmtAdmissions();
+            var source=tmt?mixed(2):loot.getFirst();bodySource=source.copy();token=drop(source,2);next(0);
+        }
+        ItemEntity drop(ItemStack source,double offset){var item=new ItemEntity(level,origin.x+offset,origin.y,origin.z,source);item.setNoGravity(true);item.setDeltaMovement(Vec3.ZERO);item.setPickUpDelay(32767);item.setThrower(owner);require(level.addFreshEntity(item),"actual dropped source publication");return item;}
+        ItemStack mixed(int carrier){
+            var stack=LbcTmtItems.prototype(carrier);stack.setCount(carrier==2||carrier==4?3:1);
+            var data=stack.get(DataComponents.CUSTOM_DATA).copyTag();LbcTmtAbilities.write(data,List.of(sibling,privateApple));data.putInt("bad_apple_imba",0);data.putString("badapple_outer_only","complete physical source");stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+            stack.set(DataComponents.CUSTOM_NAME,Component.literal("whole mixed Bad Apple source "+carrier));stack.set(DataComponents.LORE,new ItemLore(List.of(Component.literal("retained procedural source lore"))));
+            var nested=new ItemStack(Items.PAPER,7);nested.set(DataComponents.CUSTOM_NAME,Component.literal("independent retained container"));stack.set(DataComponents.CONTAINER,ItemContainerContents.fromItems(List.of(nested)));
+            return stack;
+        }
+        void whole(ItemEntity item,ItemStack expected){
+            require(ItemStack.matches(item.getItem(),expected),"whole native claimed source retains exact physical count/components/private sibling until replacement");
+            require(!LbcTmtAbilities.active(item.getItem())&&!ItemData.contains(item.getItem(),LbcTmtAbilities.ACTIVE)&&!LbcTmtAbilities.nativePredicatesActive(),"readonly producer admission leaves no active/projection data or native identity scope");
+        }
+        void tmtAdmissions(){
+            var family=game.items().tmt().catalog().families().stream().filter(row->row.id().equals("native/drop/badapple")).findFirst().orElseThrow();
+            require(family.events().equals(Set.of(LbcTmtCatalog.Event.DROP))&&family.locations().equals(Set.of(LbcTmtCatalog.Location.LOOSE_ITEM)),"actual catalog admits Bad Apple as a native loose whole-body producer");
+            privateApple=family.variants().stream().filter(property->((ItemData.IntReader)(Object)property.data()).skywars2$readInt("bad_apple_imba",0)==1).findFirst().orElseThrow();
+            sibling=game.items().tmt().catalog().families().stream().flatMap(row->row.variants().stream()).filter(property->((ItemData.IntReader)(Object)property.data()).skywars2$readInt("zaika",0)==1).findFirst().orElseThrow();
+            var probes=new ArrayList<ItemEntity>();int sound=soundCount();require(blocks.isEmpty(),"admission probe starts before any terrain writes");
+            for(int carrier=0;carrier<5;carrier++){
+                var stack=mixed(carrier);var expected=stack.copy();require(ItemData.intValue(stack,"bad_apple_imba",-1)==0&&LbcBadApple.recognized(stack),"private source alone admits carrier "+carrier+" despite rootflag0");
+                var item=drop(stack,4+carrier*2);probes.add(item);require(LbcBadApple.managed(item)&&service.count()==carrier+1&&service.owner(item)==owner,"genuine synchronous ENTITY_LOAD claims exact actual native body/owner "+carrier);whole(item,expected);
+            }
+            // No private Bad Apple source: even a forged positive aggregate flag cannot start a producer.
+            var forged=LbcTmtItems.prototype(0);var data=new CompoundTag();data.putInt("tmt_item",1);LbcTmtAbilities.write(data,List.of(sibling));data.putInt("bad_apple_imba",1);forged.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+            var rejected=drop(forged,16);require(!LbcBadApple.recognized(forged)&&!LbcBadApple.managed(rejected)&&service.count()==5,"outer-only forgery is not a private native source");rejected.discard();
+            require(!service.view().running()&&service.view().writes()==0&&blocks.isEmpty()&&soundCount()==sound,"all five admission probes initialize no movie/terrain/song before real native aging");
+            service.stop();require(probes.stream().allMatch(Entity::isRemoved)&&service.count()==0&&!service.view().running()&&blocks.isEmpty()&&soundCount()==sound,"stop claimed probes before any age/playback; no hidden debit or terrain changes");
         }
         void next(int value){stage=value;when=game.server().getTickCount();}
         int soundCount(){@SuppressWarnings("unchecked") var packets=(List<net.minecraft.network.protocol.Packet<?>>)get(get(client,"connection"),"packets");int n=0;for(var packet:packets)if(packet instanceof net.minecraft.network.protocol.game.ClientboundSoundPacket sound&&sound.getSound().value().location().toString().equals("minecraft:lbcsounds.bad_apple"))n++;return n;}
@@ -94,9 +133,10 @@ public final class BadAppleChecks {
             client.acknowledge();audience.acknowledge();require(game.server().getTickCount()-started<800,"bounded scheduled fixture stage="+stage);int elapsed=game.server().getTickCount()-when;
             if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
             switch(stage){
-                case 0->{if(!LbcBadApple.managed(token)){require(elapsed<30,"scheduled actual drop dispatch");return false;}require(service.count()==1&&token.getItem().getCount()==1,"entry owns full original body once");next(1);}
+                case 0->{if(!LbcBadApple.managed(token)){require(elapsed<30,"scheduled actual drop dispatch");return false;}require(service.count()==1&&token.getItem().getCount()==bodySource.getCount(),"entry owns full original body once");if(tmt)whole(token,bodySource);next(1);}
                 case 1->{
                     if(token.isRemoved()){require(elapsed>=45,"source display waits for age60");var bodies=service.snapshot();require(bodies.size()==1&&bodies.getFirst() instanceof net.minecraft.world.entity.Display.ItemDisplay,"native display replaces original item");display=bodies.getFirst().getUUID();next(2);return false;}
+                    if(tmt)whole(token,bodySource);
                     if(elapsed>=12)require(token.isNoGravity()&&token.isCurrentlyGlowing(),"source age10 floating glow");
                     require(elapsed<70,"bounded source60 drop aging");
                 }

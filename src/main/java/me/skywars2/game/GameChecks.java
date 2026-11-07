@@ -1322,6 +1322,8 @@ public final class GameChecks {
                                 case "cases-cosmetics-rewind" -> {CaseCosmeticChecks.runRewind(game);return;}
                                 case "badapple-imba" -> {BadAppleChecks.run(game);return;}
                                 case "badapple-rewind" -> {BadAppleChecks.runRewind(game);return;}
+                                case "tmt-badapple" -> {BadAppleChecks.runTmt(game);return;}
+                                case "tmt-badapple-rewind" -> {BadAppleChecks.runTmtRewind(game);return;}
                                 case "random-levelups" -> {RemainingLevelupChecks.runRandom(game);return;}
                                 case "projectile-levelups" -> {RemainingLevelupChecks.runProjectile(game);return;}
                                 case "remaining-levelups-rewind" -> {RemainingLevelupChecks.runRewind(game);return;}

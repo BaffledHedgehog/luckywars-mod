@@ -1,3 +1,17 @@
+## TMT BadApple native wholebody - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Literal owner/source evidence and native proof](agent_notes/TMT_BADAPPLE_2026_11_07.md).
+Recognized is the sole itemdata reader; typedcatalog +cachedprivate admission suffice.
+No source projection/new producer/debit; existing fullbody/age60/display/movie owner retained.
+Five real carrier admissions/privateflag0/fullcomponents +mixedsnowcount3 actual media flow;
+ordinary/TMT playback rewind pass, entrybody rewind not exercised or claimed.
+Internalfc44a78b/e56f87dc on fulle588e673:9 focused suites pass.
+4families/0resources;10469otherinputs/282authorpaths/HUD/WIP/Main/libs/RP preserved.
+One512MiB compiler then one2GiB fixture; child exited/restored/no locks.
+Full TMT remains active/unreleased. Next: chemical registered prototype vs PotionItem water
+creative-default audit (newItemStack vs getDefaultInstance) and existing throw/cloud path.
+Three legacy owner policies still await the existing async answer; don't ask it again.
+
 ## TMT selected Magnum ammo - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Exact intake contract/native proof](agent_notes/TMT_MAGNUM_AMMO_2026_11_07.md).

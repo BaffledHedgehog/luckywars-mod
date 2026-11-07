@@ -232,6 +232,11 @@ final class LbcTmtCatalog {
         LbcTmtComponents.capture(game,stack,blockItem==null?stack.getItem():blockItem,data);
         var probe=ability("probe",nativeId,data);
         if(knownInputs.contains(canonical(probe.data().copyTag())))return;
+        if(LbcBadApple.recognized(stack)){
+            String id="native/drop/badapple";
+            add(all,id,"drop/badapple",ability(id,nativeId,data),
+                    rule("","LbcBadApple/native whole-body claim",Event.DROP,Location.LOOSE_ITEM));return;
+        }
         if(LbcMagnum.roundMode(stack)>=0){
             String id="native/magnum/ammunition";
             add(all,id,"magnum/ammunition",ability(id,nativeId,data),

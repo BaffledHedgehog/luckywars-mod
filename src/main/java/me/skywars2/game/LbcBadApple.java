@@ -54,7 +54,14 @@ public final class LbcBadApple {
     }
 
     public LbcBadApple(GameController game,Policy policy){this.game=game;this.policy=Objects.requireNonNull(policy);media=LbcBadAppleMedia.instance();}
-    public static boolean recognized(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"bad_apple_imba",0)==1;}
+    public static boolean recognized(ItemStack stack){
+        if(!LbcTmtItems.matches(stack)||LbcTmtAbilities.active(stack))return ItemData.intValue(stack,"bad_apple_imba",0)==1;
+        // This native actor claims the complete body once; it never rereads source parameters.
+        // Only admission needs private authority, not a projected/repeated producer or another debit.
+        for(var property:LbcTmtAbilities.read(stack))
+            if(((ItemData.IntReader)(Object)property.data()).skywars2$readInt("bad_apple_imba",0)==1)return true;
+        return false;
+    }
     public static boolean managed(Entity entity){return entity!=null&&(entity.entityTags().contains(ACTOR)||entity.entityTags().contains(DISPLAY));}
     private ServerPlayer player(LivingEntity entity){return entity instanceof ServerPlayer p?p:null;}
     public boolean ready(ItemEntity token){
