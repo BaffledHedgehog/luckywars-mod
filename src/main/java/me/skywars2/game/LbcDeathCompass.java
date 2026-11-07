@@ -28,7 +28,7 @@ public final class LbcDeathCompass {
     private final GameController game;
     private int phase;
     public LbcDeathCompass(GameController game){this.game=game;}
-    static boolean compass(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("death_compass",0)==1;}
+    static boolean compass(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"death_compass",0)==1;}
     private static boolean carried(ServerPlayer player){
         for(int slot=0;slot<36;slot++)if(compass(player.getInventory().getItem(slot)))return true;
         return compass(player.getOffhandItem());
@@ -68,7 +68,7 @@ public final class LbcDeathCompass {
                     var stack=player.getInventory().getItem(i==36?40:i);if(!compass(stack))continue;
                     var tracker=new LodestoneTracker(target,false);
                     if(!tracker.equals(stack.get(DataComponents.LODESTONE_TRACKER)))stack.set(DataComponents.LODESTONE_TRACKER,tracker);
-                    stack.set(DataComponents.ITEM_MODEL,net.minecraft.resources.Identifier.parse("lbc:death_compass"));
+                    if(!LbcTmtItems.matches(stack))stack.set(DataComponents.ITEM_MODEL,net.minecraft.resources.Identifier.parse("lbc:death_compass"));
                 }
                 if(!game.items().magic().beaconSuppressed(player.position())&&target.isPresent()
                         &&Mth.floor(player.getX())==target.get().pos().getX()&&Mth.floor(player.getZ())==target.get().pos().getZ())trigger(player);

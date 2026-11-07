@@ -26,11 +26,25 @@ public final class LbcTmtAbilities {
     static boolean active(ItemStack stack){var scopes=SCOPES.get();return scopes!=null&&scopes.containsKey(stack);}
     /** Inventory refunds preserve the full item; projectile captures deliberately use ordinary copy(). */
     static ItemStack outerCopy(ItemStack stack){
-        var result=stack.copy();var scopes=SCOPES.get();var original=scopes==null?null:scopes.get(stack);
+        return outerCopy(stack,scopeSource(stack));
+    }
+    private static ItemStack scopeSource(ItemStack stack){
+        var scopes=SCOPES.get();if(scopes==null||stack.isEmpty())return null;
+        if(scopes.containsKey(stack))return stack;
+        if(ItemData.intValue(stack,"tmt_item",0)!=1)return null;
+        // Native inventory splitting shares immutable components with its active source.
+        var data=stack.get(DataComponents.CUSTOM_DATA);
+        for(var source:scopes.keySet())if(source.getItem()==stack.getItem()&&source.get(DataComponents.CUSTOM_DATA)==data)return source;
+        return null;
+    }
+    private static ItemStack outerCopy(ItemStack stack,ItemStack source){
+        var result=stack.copy();var scopes=SCOPES.get();var original=source==null?null:scopes.get(source);
         if(original!=null)result.set(DataComponents.CUSTOM_DATA,original);
-        LbcTmtComponents.restoreOuterCopy(stack,result);
+        LbcTmtComponents.restoreOuterCopy(source==null?stack:source,result);
         return result;
     }
+    /** Physical inventory drops cannot retain a borrowed property's temporary source view. */
+    public static ItemStack physicalDrop(ItemStack stack){var source=scopeSource(stack);return source==null?stack:outerCopy(stack,source);}
     /** Native shots accepted inside a property finish after the outer held state is restored. */
     static void afterScopes(Runnable action){
         var scopes=SCOPES.get();

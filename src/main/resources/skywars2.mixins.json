@@ -4,6 +4,7 @@
   "mixins": [
     "TmtItemPredicateMixin",
     "TmtTypedPredicateMixin",
+    "TmtPhysicalDropMixin",
     "InfiniteAmmoMixin$Economy",
     "InfiniteAmmoMixin$DrawAccess",
     "ImbaNativeVariantsMixin$HeldProjectile",

@@ -1,3 +1,13 @@
+## TMT inventory traits/physical drops - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Evidence and carry-forward](agent_notes/TMT_INVENTORY_TRAITS_2026_11_07.md).
+Native Compass/Reroll/Steampunk/KFC/Oreshek domains; mixed consume and retained catalyst pass.
+Native physical split/death-inventory factory restores full source/components; producer copies stay private.
+Procedural compass model preserved; ordinary scalar recognition avoids a full NBT copy.
+Internal93c5f4a7/a1eb520f on full3f76765b parent;9 actual mode1 matches pass.
+7 Java families/1 mixin resource;10339 other inputs/282 author paths preserved.
+Protected Reroll source and Main/libs/HUD unchanged. Remaining domains/pools/full TMT release pending.
+
 ## TMT native throw factories - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Evidence and carry-forward](agent_notes/TMT_NATIVE_THROWS_2026_11_07.md).

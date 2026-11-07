@@ -206,6 +206,9 @@ final class LbcTmtCatalog {
         }
         if(LbcTmtUseProfiles.commonWand(stack))return;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        // These native consume owners accept identity as well as legacy flags.
+        if(stack.is(LbcKfcFood.KFC_CHICK))data.putInt("kfc_chick",1);
+        if(stack.is(LbcKfcFood.GOVNO_EATEN))data.putInt("eat_shit",1);
         // Several registered trinkets intentionally have no default custom data;
         // their real native identity and authored STRING identity are equivalent.
         var nativeTrinket=TRINKETS.get(stack.getItem());
@@ -373,6 +376,11 @@ final class LbcTmtCatalog {
         flags(result,"LbcRegenerationBelt",Event.INVENTORY,Location.INVENTORY,"heall");
         flags(result,"LbcBalancePassive (legacy mode)",Event.INVENTORY,Location.INVENTORY,"heall_old","manabelt_old");
         flags(result,"LbcMana",Event.INVENTORY,Location.INVENTORY,"manabelt");
+        flags(result,"LbcDeathCompass",Event.INVENTORY,Location.INVENTORY,"death_compass");
+        flags(result,"LbcRerollCrafting",Event.CRAFT,Location.CRAFT_GRID,"reroll_machine");
+        flags(result,"LbcSteampunkGlove",Event.HELD,Location.MAIN_HAND,"steampunk_sword");
+        flags(result,"LbcKfcFood",Event.CONSUME,Location.USED_HAND,"kfc_chick","eat_shit");
+        flags(result,"LbcOreshek",Event.CONSUME,Location.USED_HAND,"eat_oreshek");
         flags(result,"LbcClassicMelee",Event.HELD,Location.MAIN_HAND,"one_punch","hylian");
         flags(result,"LbcItems/LbcFrost",Event.MELEE,Location.MAIN_HAND,"icesword");
         flags(result,"LbcIceMaterials",Event.INVENTORY,Location.INVENTORY,"runic_ice_shard");

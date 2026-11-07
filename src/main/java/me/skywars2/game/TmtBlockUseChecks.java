@@ -77,7 +77,7 @@ public final class TmtBlockUseChecks {
             }finally{
                 f.owner.getStats().setValue(f.owner,used,count);
                 f.other.getStats().setValue(f.other,used,otherUsed);f.removeFields();game.items().imbaTerrainUtilities().stop();
-                for(var e:f.level.getAllEntities())if(!initial.contains(e.getUUID())){f.own(e);game.items().entityUnloaded(e);e.discard();}
+                for(var e:com.google.common.collect.Lists.newArrayList(f.level.getAllEntities()))if(!initial.contains(e.getUUID())){f.own(e);game.items().entityUnloaded(e);e.discard();}
             }
         }
         me.skywars2.SkyWars2.LOGGER.info("[check] PASS tmt-block-use (real used-hand context, two native egg outputs/debits, independent authored entity payload, original components/codec/refund/exception restoration; native BlockItem placement/shared terrain job and actual MAG rejection)");
