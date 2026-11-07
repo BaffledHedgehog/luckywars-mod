@@ -489,7 +489,10 @@ public final class LbcWands {
 
     /** Actual common-wand properties, for the final meaningful TMT catalog. No item roll or registration. */
     static java.util.List<WandAbility> tmtAbilities() {
-        return java.util.Arrays.stream(SPELLS).map(LbcWands::ability).toList();
+        return TmtAbilityDomain.VALUES;
+    }
+    private static final class TmtAbilityDomain {
+        static final java.util.List<WandAbility> VALUES=java.util.Arrays.stream(SPELLS).map(LbcWands::ability).toList();
     }
     private static WandAbility ability(Spell spell) {
         return new WandAbility(BuiltInRegistries.ITEM.getKey(spell.item),spell.family,CustomData.of(spell.flag));

@@ -161,7 +161,7 @@ final class LbcTmtUseProfiles {
         if(stack.isEmpty())return false;
         var source=stack;var block=LbcTmtBlockUses.canonical(stack);if(block!=null&&block!=stack.getItem())stack=stack.transmuteCopy(block);
         String nativeId=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-        if(existing(stack)){existing.add(nativeId);return false;}
+        if(commonWand(stack)){existing.add(nativeId);return false;}
         // Classification only: never invoke Item.use or an owner with a synthetic player/stack here.
         if(!candidate.test(stack)){rejected.add(nativeId);return false;}
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
@@ -173,7 +173,7 @@ final class LbcTmtUseProfiles {
         collected.computeIfAbsent(family,ignored->new LinkedHashMap<>()).putIfAbsent(canonical(ability.data().copyTag()),ability);
         return true;
     }
-    private static boolean existing(ItemStack stack) {
+    static boolean commonWand(ItemStack stack) {
         var id=BuiltInRegistries.ITEM.getKey(stack.getItem());var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY);
         for(var wand:LbcWands.tmtAbilities())if(id.equals(wand.nativeItem())||data.matchedBy(wand.flags().copyTag()))return true;
         // Self profiles are charge/self continuations, not the same operation as a native use.

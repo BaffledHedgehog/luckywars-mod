@@ -1,3 +1,12 @@
+## TMT common-wand alias reconciliation - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Evidence and carry-forward](agent_notes/TMT_ALIAS_RECONCILIATION_2026_11_07.md).
+Common native-use/catalog alias classifier; 57 false unresolved source rows reconciled.
+Immutable 103-profile wand domain reused; cast bodies and lottery counts unchanged.
+Internale85bb138/cbebeaa0 on full3595866c parent;2 actual mode1 matches pass.
+4 Java families/0 resources;10338 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Remaining domains/acquisition/full TMT release pending.
+
 ## TMT inventory intake/PhD - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Contracts and evidence](agent_notes/TMT_INTAKE_RUNTIME_2026_11_07.md).

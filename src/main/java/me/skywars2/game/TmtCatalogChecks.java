@@ -15,6 +15,12 @@ public final class TmtCatalogChecks {
         var runtime=game.items().tmt();var catalog=runtime.catalog();var ids=new HashSet<String>();
         for(var family:catalog.families())require(ids.add(family.id()),"one lottery entry per semantic family");
         for(var wand:LbcWands.tmtAbilities())require(ids.contains("wand/"+wand.family()),"all native common/Tiny/Academy wand families retained");
+        require(LbcWands.tmtAbilities()==LbcWands.tmtAbilities(),"immutable finalized native wand domain is reused");
+        for(var wand:LbcWands.tmtAbilities()){
+            var alias=new ItemStack(net.minecraft.world.item.Items.CARROT_ON_A_STICK);alias.set(DataComponents.CUSTOM_DATA,wand.flags());
+            require(LbcTmtUseProfiles.commonWand(alias),"legacy vanilla-carrier wand alias resolves through the native owner classifier");
+        }
+        require(!LbcTmtUseProfiles.commonWand(new ItemStack(net.minecraft.world.item.Items.CARROT_ON_A_STICK)),"ordinary vanilla carrier is not a wand ability");
         for(var input:runtime.useProfiles().families())require(ids.contains(input.id()),"existing direct-use routing IDs remain valid");
         var pills=new HashSet<Integer>();var mystical=new HashSet<String>();var fragments=new HashSet<String>();
         for(var family:catalog.families())for(var variant:family.variants()){
