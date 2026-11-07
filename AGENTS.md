@@ -7,6 +7,25 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## TMT private native firework ammunition - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL internal parent is now92762114/4db43bdd over112e2ded/3f32154c.
+Four Java families/zero resources; all4 native suites pass on SAME final artifact.
+[TMT_FIREWORK_AMMO_2026_11_07.md](agent_notes/TMT_FIREWORK_AMMO_2026_11_07.md).
+Private firework reuses ImbaNativeVariants held selection/charged query/native Crossbow
+factory/power/wear; factory receives only private payload. Actual physical carrier
+has one vanilla ammo debit. Cached immutable slots<=7; no repeated NBT copies/global
+cache/new ammo factory/copied item events/hand swaps. Held-only fireworks, inventory
+ARROW_ONLY and bow rejection retained. Three actual ammo sources charge with native
+input/ticks, charged codec and real rocket factory; exact127-flight/star private
+payload wins over conflicting empty outer FIREWORKS/sibling; speed1.6/wear3/no extra
+arrow. Suites tmt-firework-ammo/tmt-ranged/tmt-ammo/tmt-current-content all pass.
+10486 guards/281 author paths/three WIP/HUD/RP/Main exact;512MiB compiler then1280MiB
+fixture, normal exit/exact restore/no locks. No physical client run. Main83b0ea27
+unchanged; NO installer/restart/RP edit, hold ALL fixes until stable. Goal remains
+ACTIVE: meaningful class/component/service coverage and acquisition/atlas/stable chain,
+remaining protected source integration. Parent rocket/Troll/boss owners byte-exact.
+
 ## TMT native rocket unload/full Troll lifetime - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL internal parent is now112e2ded/3f32154c overf3b70523/954a85bb.

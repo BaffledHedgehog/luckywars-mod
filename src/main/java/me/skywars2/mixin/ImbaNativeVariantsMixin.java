@@ -11,6 +11,7 @@ import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /** One exact native firework variant follows vanilla held selection, factory, power and durability. */
 public final class ImbaNativeVariantsMixin {
@@ -25,6 +26,10 @@ public final class ImbaNativeVariantsMixin {
     }
     @Mixin(CrossbowItem.class)
     public abstract static class Crossbow {
+        @ModifyVariable(method="createProjectile",at=@At("HEAD"),argsOnly=true,ordinal=1)
+        private ItemStack skywars2$privateFireworkPayload(ItemStack projectile){
+            return LbcImbaNativeVariants.fireworkAmmo(projectile);
+        }
         @WrapOperation(method={"createProjectile","getDurabilityUse"},at=@At(value="INVOKE",target="Lnet/minecraft/world/item/ItemStack;is(Ljava/lang/Object;)Z"))
         private boolean skywars2$nativeFireworkFactoryAndWear(ItemStack stack,Object requested,Operation<Boolean> original){
             return original.call(stack,requested)||requested==Items.FIREWORK_ROCKET&&LbcImbaNativeVariants.firework(stack);
