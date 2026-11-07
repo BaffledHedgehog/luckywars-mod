@@ -373,6 +373,13 @@ final class LbcTmtCatalog {
         flags(result,"LbcRegenerationBelt",Event.INVENTORY,Location.INVENTORY,"heall");
         flags(result,"LbcBalancePassive (legacy mode)",Event.INVENTORY,Location.INVENTORY,"heall_old","manabelt_old");
         flags(result,"LbcMana",Event.INVENTORY,Location.INVENTORY,"manabelt");
+        flags(result,"LbcClassicMelee",Event.HELD,Location.MAIN_HAND,"one_punch","hylian");
+        flags(result,"LbcItems/LbcFrost",Event.MELEE,Location.MAIN_HAND,"icesword");
+        flags(result,"LbcIceMaterials",Event.INVENTORY,Location.INVENTORY,"runic_ice_shard");
+        flags(result,"LbcIceMaterials",Event.HELD,Location.USED_HAND,"neutral_ball");
+        flags(result,"LbcClownKit",Event.EQUIPMENT,Location.EQUIPPED,"clown_mask");
+        flags(result,"LbcMana/LbcOverload",Event.EQUIPMENT,Location.EQUIPPED,"mage","overload");
+        result.put("explosive_feets",new Rule("explosive_feets","LbcItems/RocketState",Set.of(Event.EQUIPMENT,Event.JUMP),Set.of(Location.EQUIPPED)));
         flags(result,"LbcNexusWires",Event.INVENTORY,Location.INVENTORY,"nexus_wire_red","nexus_wire_black");
         flags(result,"LbcQuiver",Event.INVENTORY,Location.INVENTORY,"arrowgenerator");
         flags(result,"LbcGaaraPot",Event.INCOMING,Location.INVENTORY,"gaara_tikva");

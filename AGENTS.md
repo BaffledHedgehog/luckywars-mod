@@ -1,3 +1,12 @@
+## TMT native passive-domain additions - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Evidence and carry-forward](agent_notes/TMT_PASSIVE_DOMAIN_2026_11_07.md).
+One Punch/Hylian/Ice, Runic Shard/Neutral Ball, Clown, Mage/Overload and Rocket flags admitted.
+Existing native held/inventory/equipment owners reused; no additional passive scheduler.
+Internalf60e4685/4673d2d8 on fulle85bb138 parent;5 actual mode1 matches pass.
+3 Java families/0 resources;10340 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Remaining domains/acquisition/full TMT release pending.
+
 ## TMT common-wand alias reconciliation - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Evidence and carry-forward](agent_notes/TMT_ALIAS_RECONCILIATION_2026_11_07.md).
