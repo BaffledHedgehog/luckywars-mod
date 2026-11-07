@@ -122,9 +122,13 @@ public final class NexusAcquisitionChecks {
                 require(!click(c,InteractionHand.MAIN_HAND).consumesAction()&&base.owner.getMainHandItem().getCount()==3,"no wire fails without debit");
                 base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcNexusWireItems.item(color%4+1),3));
                 require(!click(c,InteractionHand.MAIN_HAND).consumesAction()&&base.owner.getMainHandItem().getCount()==3,"wrong wire fails without debit");
-                base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcNexusWireItems.item(color),7));base.owner.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcNexusWireItems.item(color),2));
+                base.owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcNexusWireItems.item(color),7));
+                var mixed=LbcTmtItems.prototype(2);mixed.setCount(2);var data=mixed.get(DataComponents.CUSTOM_DATA).copyTag();
+                var traits=game.items().tmt().catalog().families().stream().filter(row->row.id().equals("native/nexus_wire_red")||row.id().equals("native/nexus_wire_blue")||row.id().equals("native/nexus_wire_black")||row.id().equals("native/nexus_wire_white")).map(row->row.variants().getFirst()).toList();
+                require(traits.size()==4,"all four current wire properties sampled");LbcTmtAbilities.write(data,traits);mixed.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));var expectedMixed=mixed.copyWithCount(1);base.owner.setItemInHand(InteractionHand.OFF_HAND,mixed);
                 int size=drops().size();require(click(c,InteractionHand.OFF_HAND).consumesAction(),"actual offhand callback accepts color="+color);
                 require(base.owner.getOffhandItem().getCount()==1&&base.owner.getMainHandItem().getCount()==7,"exactly one used-hand wire debit");
+                require(ItemStack.matches(base.owner.getOffhandItem(),expectedMixed),"mixed wire cage exchange preserves every private color and physical component");
                 var outputs=drops();require(outputs.size()==size+1&&outputs.stream().anyMatch(e->ItemStack.matches(e.getItem(),expected)),"exact complete pre-rolled reward stack");
                 require(c.body.isRemoved()&&c.reward.isRemoved()&&c.frame.isRemoved()&&!adjacent.body.isRemoved()&&!adjacent.reward.isRemoved()&&!adjacent.frame.isRemoved(),"actual clicked adjacent cage identity");
                 require(!click(c,InteractionHand.OFF_HAND).consumesAction()&&base.owner.getOffhandItem().getCount()==1&&drops().size()==size+1,"double click produces no free reward");

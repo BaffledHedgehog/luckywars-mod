@@ -29,8 +29,9 @@ public final class LbcWoolTrailItems {
     private LbcWoolTrailItems(){}
     public static void register(){LbcBalanceExtras.register();}
     public static Map<DyeColor,Item> tokens(){return TOKENS;}
+    static boolean ordinary(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"projegadget",0)==1&&ItemData.intValue(stack,"most",0)==1;}
     public static boolean matches(ItemStack stack){
-        return !stack.isEmpty()&&ItemData.intValue(stack,"wool",0)==1&&ItemData.intValue(stack,"projegadget",0)==1;
+        return !stack.isEmpty()&&(ordinary(stack)||ItemData.intValue(stack,"wool",0)==1&&ItemData.intValue(stack,"projegadget",0)==1);
     }
     /** Raw legacy snowballs pass through the same gate before their normal vanilla use callback. */
     public static boolean allowed(GameController game,ServerPlayer owner,InteractionHand hand){

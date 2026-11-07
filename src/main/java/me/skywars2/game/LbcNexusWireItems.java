@@ -27,7 +27,7 @@ public final class LbcNexusWireItems {
     public static final Item RED = wire("nexus_wire_red", "lbc:nexus_wire_red", 0xFF5555, 0xFF5555, true);
     public static final Item BLACK = wire("nexus_wire_black", "lbc:nexus_wire_onyx", 0xAAAAAA, 0xAAAAAA, true);
 
-    /** Blue is the historical identifier of the green wire. Outside reward stays deferred with TMT. */
+    /** Blue is the historical identifier of the green wire. */
     public static final Item BLUE = wire("nexus_wire_blue", "lbc:nexus_wire_green", 0x2BD893, 0x11A38D, true);
     public static final Item WHITE = wire("nexus_wire_white", "lbc:nexus_wire_white", 0xFFFFFF, 0xFFFFFF, false);
 
@@ -68,6 +68,8 @@ public final class LbcNexusWireItems {
             ||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).matchedBy(WHITE_TRIGGER));}
     /** Source cage order: red, green, black, white; zero is an unrelated item. */
     public static int kind(ItemStack stack){return isRed(stack)?1:isBlue(stack)?2:isBlack(stack)?3:isWhite(stack)?4:0;}
+    /** Cages ask for their own color; a mixed TMT wire must not stop at its first sibling. */
+    static boolean kind(ItemStack stack,int expected){return LbcTmtItems.matches(stack)?LbcTmtIntake.has(stack,switch(expected){case 1->"nexus_wire_red";case 2->"nexus_wire_blue";case 3->"nexus_wire_black";case 4->"nexus_wire_white";default->"";}):kind(stack)==expected;}
     static Item item(int kind){return switch(kind){case 1->RED;case 2->BLUE;case 3->BLACK;case 4->WHITE;default->throw new IllegalArgumentException("Wire color "+kind);};}
 
     public static boolean isRed(ItemStack stack) {

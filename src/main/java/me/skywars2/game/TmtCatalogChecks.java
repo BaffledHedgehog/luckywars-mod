@@ -32,9 +32,9 @@ public final class TmtCatalogChecks {
         var material=catalog.families().stream().filter(row->row.id().equals("native/material/govno")).findFirst().orElseThrow();
         require(material.variants().size()==1&&material.events().containsAll(Set.of(LbcTmtCatalog.Event.CRAFT,LbcTmtCatalog.Event.DROP,LbcTmtCatalog.Event.INVENTORY,LbcTmtCatalog.Event.EQUIPMENT)),"material aliases are one meaningful family/one variant, not four weighted carriers");
         for(var flag:List.of("crowbar","slimeball","aimbobapple"))require(ids.contains("native/"+flag),"actual criterion/consume property is sampled: "+flag);
-        // most is the distinct ordinary green wool trail, not the admitted most_imba builder.
-        // Its missing input route remains pending rather than borrowing the other bridge owner.
-        var resolvedFlags=List.of("gayradar","steampunk_rocket","trollge","bucks","govnoq","randomgovno","rewardtype","rewardcoin","randomselect","luck_key","crowbar","slimeball","aimbobapple","imbaxe");
+        // Ordinary most is admitted through the real wool snowball factory, separately from most_imba.
+        var resolvedFlags=List.of("gayradar","steampunk_rocket","trollge","bucks","govnoq","randomgovno","rewardtype","rewardcoin","randomselect","luck_key","crowbar","slimeball","aimbobapple","imbaxe",
+                "most","lightsaber","lightsaberrc","wtf_item","infinity_rand","liquidvoid","yellow_lightning","nexus_wire_blue","nexus_wire_white","end_of_everything","baffled_of_everything","shish_of_everything","rasengan");
         for(var finding:catalog.domains().findings())if(finding.disposition()==LbcTmtCatalog.Disposition.PENDING_NATIVE_DOMAIN)
             for(var flag:resolvedFlags)require(!finding.reason().matches(".*\\b"+flag+"\\b.*"),"audited source alias/domain no longer falsely pending: "+finding);
         var pills=new HashSet<Integer>();var mystical=new HashSet<String>();var fragments=new HashSet<String>();

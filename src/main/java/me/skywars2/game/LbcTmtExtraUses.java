@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 final class LbcTmtExtraUses {
     private LbcTmtExtraUses(){}
     private enum Input { TOUHOU, NEXUS_COMPASS, NEXUS_COMBAT, NEXUS_TOOLS, POZDMAN, BALANCE, SUPPLY,
-                         TERRA_RAZOR, TERRA_SWORD, KAPUSTA, CRUX, FIREBALL, WIN, POTION, SHIELD }
+                         TERRA_RAZOR, TERRA_SWORD, KAPUSTA, CRUX, FIREBALL, WIN, POTION, SHIELD, LIGHTSABER, APOCALYPSE, RASENGAN }
 
     private static Input input(ItemStack stack){
         if(stack.isEmpty())return null;
@@ -19,6 +19,7 @@ final class LbcTmtExtraUses {
         if(LbcNexusToolItems.isCompass(stack))return Input.NEXUS_COMPASS;
         if(LbcNexusCombat.matches(stack))return Input.NEXUS_COMBAT;
         if(LbcNexusTools.matches(stack))return Input.NEXUS_TOOLS;
+        if(LbcNovemberLightsaberItems.selector(stack))return Input.LIGHTSABER;
         if(ItemData.intValue(stack,"pozdman_bot",0)==1)return Input.POZDMAN;
         if(LbcBalanceItems.matches(stack))return Input.BALANCE;
         if(ItemData.intValue(stack,"supply_beacon",0)==1)return Input.SUPPLY;
@@ -31,6 +32,8 @@ final class LbcTmtExtraUses {
         if(LbcKfcRewards.winButton(stack))return Input.WIN;
         if(LbcTmtManaPotions.thrownCandidate(stack))return Input.POTION;
         if(LbcTmtShield.candidate(stack))return Input.SHIELD;
+        if(LbcApocalypseEvents.kind(stack)!=null)return Input.APOCALYPSE;
+        if(ItemData.intValue(stack,"gadget",0)==1&&ItemData.intValue(stack,"rasengan",0)==1)return Input.RASENGAN;
         return null;
     }
 
@@ -44,6 +47,7 @@ final class LbcTmtExtraUses {
             case NEXUS_COMBAT->11;
             case NEXUS_TOOLS->12;
             case POZDMAN->20;
+            case LIGHTSABER->19;
             case BALANCE->40;
             case SUPPLY->100;
             case TERRA_RAZOR->190;
@@ -54,6 +58,8 @@ final class LbcTmtExtraUses {
             case WIN->2003;
             case POTION->2004;
             case SHIELD->2005;
+            case APOCALYPSE->2006;
+            case RASENGAN->2007;
         };
     }
 
@@ -63,7 +69,7 @@ final class LbcTmtExtraUses {
         return switch(selected){
             // Keep source callback order, permission checks and supply fluid raycast.
             // No block context, collectible intake or held-tick action is fabricated.
-            case TOUHOU,NEXUS_COMPASS,NEXUS_COMBAT,NEXUS_TOOLS,POZDMAN,BALANCE,SUPPLY->
+            case TOUHOU,NEXUS_COMPASS,NEXUS_COMBAT,NEXUS_TOOLS,LIGHTSABER,POZDMAN,BALANCE,SUPPLY->
                     UseItemCallback.EVENT.invoker().interact(player,player.level(),hand).consumesAction();
             // Public ordinary Terra entry points also dispatch the other hand.
             // TMT's coordinator already owns that continuation; use the shared cast body.
@@ -75,6 +81,8 @@ final class LbcTmtExtraUses {
             case WIN->game.items().kfcRewards().useWin(player,hand);
             case POTION->LbcTmtManaPotions.use(game,player,hand);
             case SHIELD->LbcTmtShield.use(game,player,hand);
+            case APOCALYPSE->{var stack=player.getItemInHand(hand);boolean accepted=game.items().apocalypseEvents().thrown(player,stack);if(accepted){stack.shrink(1);player.getInventory().setChanged();}yield accepted;}
+            case RASENGAN->game.items().rasengan().use(player,hand);
         };
     }
 }

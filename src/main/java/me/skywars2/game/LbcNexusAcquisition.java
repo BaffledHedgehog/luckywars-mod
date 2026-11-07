@@ -137,7 +137,7 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
         if(cage==null||cage.body!=target||!exchanging.add(cage.id))return InteractionResult.FAIL;
         try{
             pair(cage);var held=player.getItemInHand(hand);
-            if(LbcNexusWireItems.kind(held)!=cage.color||cage.reward==null||cage.frame==null||cage.reward.isRemoved()||cage.frame.isRemoved()||paused(cage.reward)||paused(cage.frame)||cage.reward.getItemStack().isEmpty())return InteractionResult.FAIL;
+            if(!LbcNexusWireItems.kind(held,cage.color)||cage.reward==null||cage.frame==null||cage.reward.isRemoved()||cage.frame.isRemoved()||paused(cage.reward)||paused(cage.frame)||cage.reward.getItemStack().isEmpty())return InteractionResult.FAIL;
             var output=drop(cage.level,cage.position.add(0,.5,0),cage.reward.getItemStack().copy());output.setDeltaMovement(Vec3.ZERO);
             if(!cage.level.addFreshEntity(output))return InteractionResult.FAIL;
             LbcPhantomArmor.used(player,InteractionResult.SUCCESS);held.shrink(1);player.getInventory().setChanged();game.items().mana().inventoryChanged(player);remove(cage);
@@ -202,9 +202,9 @@ public final class LbcNexusAcquisition implements LbcNexusEcology.Callbacks {
     private void craft(Wire red,int tick){
         var body=red.body();if(body.isRemoved()||paused(body)||!LbcNexusWireItems.isRed(body.getItem()))return;
         var level=(ServerLevel)body.level();ItemEntity green=null,black=null;
-        for(var item:level.getEntitiesOfClass(ItemEntity.class,body.getBoundingBox().inflate(3),e->e.position().distanceToSqr(body.position())<=9&&!e.isRemoved()&&!paused(e))){
+        for(var item:level.getEntitiesOfClass(ItemEntity.class,body.getBoundingBox().inflate(3),e->e!=body&&e.position().distanceToSqr(body.position())<=9&&!e.isRemoved()&&!paused(e))){
             var indexed=wires.get(item.getUUID());if(indexed==null)continue;
-            int kind=LbcNexusWireItems.kind(item.getItem());if(kind==2&&green==null)green=item;else if(kind==3&&black==null)black=item;if(green!=null&&black!=null)break;
+            if(LbcNexusWireItems.kind(item.getItem(),2)&&green==null)green=item;else if(LbcNexusWireItems.kind(item.getItem(),3)&&black==null)black=item;if(green!=null&&black!=null)break;
         }
         if(green==null||black==null)return;
         if(!level.addFreshEntity(drop(level,body.position(),new ItemStack(LbcNexusWireItems.WHITE))))return;

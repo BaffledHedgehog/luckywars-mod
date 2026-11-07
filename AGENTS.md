@@ -7,6 +7,45 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## Large current-content TMT batch - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL internal parent is now6c24e5c5/5a872f29 over6a164293/0c16c474.
+20 explicit Java families/one manifest,8 native suites qualified; author requested
+larger batches, so keep grouping owner adapters and run focused shared checks together.
+[Source changes and proof](agent_notes/TMT_CURRENT_CONTENT_2026_11_07.md).
+Manifest now exports four component-valued capabilities as well as its ten existing
+payload types; unqualified component/custom_data keys normalize correctly. Actual
+literal Tool speed2 reaches native mining; component values deduplicate via HashSet
+without repeated NBT copies/scans of all variants during bootstrap.
+Ordinary most reuses lime native wool factory; independent from most_imba. Colored
+blade shield/faction kill properties and selector route use their real owners. TMT
+selector spends only its property, preserving carrier/siblings; source plain-token
+cleanup stays unchanged. Firework uses actual native use-on/gliding factory with
+authored FIREWORKS payload. Rasengan private input calls existing cast immediately;
+three Apocalypse inputs reuse existing accepted event owner. Chef catalyst/recipe,
+Infinity instant, Liquid Abyss and yellow passive have their genuine domains.
+Green Nexus outside reward is no longer deferred: real random_glack source table,
+same native intake/protection/debit owner. Four mixed wire colors exchange with
+the requested cage; crafting excludes its own red body and tests private colors.
+QUICK crossbow has no custom body beyond native crossbow/Quick Charge V; generator
+already owns enchants, so do not manufacture an identity-only combat ticket.
+Native grouped scene proves actual selector/blade block/most trail/firework/Chef/
+green reward/liquid/yellow/Infinity/Rasengan/End admission. Full later End phases
+are NOT re-proven here: control empty anchors for input-only proof; source owner
+unchanged. Actual mixed four-color cage exchanges and literal component checks pass.
+da7ae1af run passed6 suites; only two new test setup failures (same-tick post-damage
+RMB and absent old acquisition table). Final6c24e5c5 changes ONLY those two test
+classes, has a fresh two-suite pass and byte-exact carry-forward of6 passing suites.
+Proof build/verification/tmt-current-content-2026-11-07/component-verification.json;
+10479-input guard/282 author paths/four WIP/HUD/Main exact, normal exits/restores/no locks.
+Fresh995families/1875variants/1878prototypes are inventories, NOT completion.13 pending
+rows/8 item-reason groups remain: Academy, helicopter, Crocodildo, raw lightning,
+Halloween Jack. Keep genuine drop composition/one debit, other current native
+capability audit (including firework ammo beyond verified use/use-on), unloaded
+rocket, heavy800-active-tick Troll throughput and final acquisition/atlas/release.
+Main83b0ea27 unchanged, NO installer; hold ALL fixes until stable.512MiB compiler
+then1280MiB fixture only, author server/editor untouched. Full goal remains ACTIVE.
+
 ## TMT native aliases and actual criterion/food/material readers - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL internal parent is now6a164293/0c16c474 over a21c7f3a/01d136f9.

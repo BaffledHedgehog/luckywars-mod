@@ -22,13 +22,13 @@ final class LbcTmtShield {
         // Energy is a SimplePolymerItem using generic Item.use, not a ShieldItem.
         // Inspect only this selected source; an aggregate sibling query here would
         // incorrectly admit another private property's use as an Energy input.
-        return item==LbcElectro.SHIELD||item instanceof ShieldItem
+        return item==LbcElectro.SHIELD||item==LbcNovemberLightsaberItems.JEDI||item==LbcNovemberLightsaberItems.SITH||item instanceof ShieldItem
                 &&(item==LbcMeleeItems.Kind.HYLIAN_SHIELD.item||ItemData.intValue(stack,"hylianshield",0)==1
                     ||ItemData.intValue(stack,"energy_shield",0)==1||ItemData.intValue(stack,"energyshield",0)==1);
     }
     /** Aggregate admission is used only to attach/start the real private shield trait. */
     static boolean sustained(ItemStack stack){return LbcTmtItems.matches(stack)
-            &&(ItemData.intValue(stack,"hylianshield",0)==1||LbcElectro.isShield(stack));}
+            &&(ItemData.intValue(stack,"hylianshield",0)==1||ItemData.intValue(stack,"lightsaber",0)==1||LbcElectro.isShield(stack));}
 
     /** Run at generation/rehydration with the existing sustained-component applier. */
     static void apply(GameController game,ItemStack stack){

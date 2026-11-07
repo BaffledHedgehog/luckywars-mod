@@ -7,6 +7,11 @@ import net.minecraft.world.item.ItemStack;
 final class LbcTmtNativeIdentities {
     private LbcTmtNativeIdentities(){}
 
+    /** Blade color is presentation; the native kill owner uses the player's actual faction. */
+    static net.minecraft.world.item.Item canonical(ItemStack source){
+        return LbcNovemberLightsaberItems.blade(source)?LbcNovemberLightsaberItems.JEDI:null;
+    }
+
     /** Mutates the catalog's private copy; never the native prototype or a physical inventory item. */
     static void normalize(ItemStack source,CompoundTag privateData){
         if(source.isEmpty())return;

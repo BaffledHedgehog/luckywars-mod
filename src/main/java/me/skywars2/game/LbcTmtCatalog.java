@@ -30,7 +30,7 @@ import net.minecraft.world.item.component.CustomData;
  * Unknown inputs and native component requirements are deliberately reported.
  */
 final class LbcTmtCatalog {
-    enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON, CRAFT, KILL }
+    enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON, CRAFT, KILL, INTERACT_ENTITY }
     enum Location { USED_HAND, MAIN_HAND, INVENTORY, EQUIPPED, AMMUNITION, LOOSE_ITEM, CRAFT_GRID }
     enum Disposition { EXCLUDED_SERVICE, EXCLUDED_INERT_KEY, PENDING_NATIVE_DOMAIN, PENDING_COMPONENT_ADAPTER, MISSING_NATIVE_ITEM, LEGACY_OWNER_GAP }
 
@@ -52,6 +52,7 @@ final class LbcTmtCatalog {
     private static final class Collected {
         final String id,name;
         final Map<String,LbcTmtAbilities.Ability> variants=new TreeMap<>();
+        final Set<Tag> componentValues=new java.util.HashSet<>();
         final Set<Event> events=EnumSet.noneOf(Event.class);
         final Set<Location> locations=EnumSet.noneOf(Location.class);
         final Set<String> owners=new TreeSet<>();
@@ -204,9 +205,9 @@ final class LbcTmtCatalog {
         for(var property:LbcTmtEquipment.PROPERTIES)if(property.present(stack)){
             composedComponent=true;
             var payload=LbcTmtEquipment.capture(game,stack,property);String id=property.id();
-            var existing=all.get(id);var literal=payload.get(LbcTmtEquipment.KEY);
+            var existing=all.computeIfAbsent(id,ignored->new Collected(id,"component/"+property.name()));var literal=payload.get(LbcTmtEquipment.KEY);
             // Native identity/style/count aliases do not add lottery weight or duplicate identical values.
-            if(existing!=null&&existing.variants.values().stream().anyMatch(v->literal.equals(v.data().copyTag().get(LbcTmtEquipment.KEY))))continue;
+            if(!existing.componentValues.add(literal))continue;
             var events=property.name().equals("glider")?Set.of(Event.EQUIPMENT):property.name().equals("tool")?Set.of(Event.MINING):property.name().equals("damage_resistant")?Set.of(Event.DROP):Set.of(Event.MINING,Event.MELEE,Event.EQUIPMENT);
             var locations=property.name().equals("glider")?Set.of(Location.EQUIPPED):property.name().equals("damage_resistant")?Set.of(Location.LOOSE_ITEM):Set.of(Location.MAIN_HAND,Location.EQUIPPED);
             add(all,id,"component/"+property.name(),new LbcTmtAbilities.Ability(id,CustomData.of(payload)),new Rule("","Native stack component/"+property.name(),events,locations));
@@ -242,6 +243,7 @@ final class LbcTmtCatalog {
         if(nativeTrinket!=null&&!data.contains("trinket"))data.putString("trinket",nativeTrinket.identity());
         var blockItem=LbcTmtBlockUses.canonical(stack);
         var canonicalInput=blockItem==null?LbcTmtNativeThrows.canonical(stack):blockItem;
+        if(canonicalInput==null)canonicalInput=LbcTmtNativeIdentities.canonical(stack);
         if(canonicalInput==null&&data.getIntOr("imbaxe",0)==1)canonicalInput=LbcImbaAxeItem.TOKEN;
         if(canonicalInput!=null)nativeId=BuiltInRegistries.ITEM.getKey(canonicalInput);
         LbcTmtComponents.capture(game,stack,canonicalInput==null?stack.getItem():canonicalInput,data);
@@ -375,6 +377,10 @@ final class LbcTmtCatalog {
                             Set.of(Location.INVENTORY,Location.CRAFT_GRID,Location.LOOSE_ITEM,Location.EQUIPPED)));return;
         }
         if(nativeTool||nativeAmmo)return;
+        if(stack.is(LbcImbaCrossbows.Kind.QUICK.item)){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
+                    "QUICK has the ordinary native crossbow use/shot body and authored Quick Charge V only; actual enchantment levels belong to the independent native enchantment generator, not an invented identity-only attack");return;
+        }
         if(nativeId.toString().equals("skywars2:bucket_head")||nativeId.toString().equals("skywars2:oguzok_sword")){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
                     "Ordinary equipment/weapon components and presentation, with no independent custom item-data ability reader; physical items and the separate thrown-bucket/Chef owners remain intact, generated stats/equipment stay with LbcTmtProperties");return;
@@ -462,6 +468,11 @@ final class LbcTmtCatalog {
         flags(result,"Native using_item/lbc:true_advancements/tridents/sea_legend",Event.USING,Location.USED_HAND,"sea_legend");
         flags(result,"Native player_killed_entity/lbc:true_advancements/swords/crowbar",Event.KILL,Location.MAIN_HAND,"crowbar");
         flags(result,"Native inventory_changed/lbc:true_advancements/swords/slimeball",Event.INVENTORY,Location.INVENTORY,"slimeball");
+        flags(result,"LbcNovemberLightsabers attributed faction kill owner",Event.KILL,Location.MAIN_HAND,"lightsaber");
+        result.put("wtf_item",new Rule("wtf_item","LbcWtf/LbcFartus/LbcCraftingRecipe",Set.of(Event.MELEE,Event.CRAFT),Set.of(Location.MAIN_HAND,Location.CRAFT_GRID)));
+        flags(result,"LbcInfinity native inventory instant",Event.INVENTORY,Location.INVENTORY,"infinity_rand");
+        flags(result,"LbcInventoryHazards native carried Liquid Abyss",Event.INVENTORY,Location.INVENTORY,"liquidvoid");
+        result.put("yellow_lightning",new Rule("yellow_lightning","LbcShishEncounter native inventory/held cache",Set.of(Event.INVENTORY,Event.HELD),Set.of(Location.INVENTORY,Location.USED_HAND)));
         flags(result,"LbcMagic dirty inventory cache/LbcElectro",Event.INVENTORY,Location.INVENTORY,"electroblocker");
         result.put("halloween_mace",new Rule("halloween_mace","LbcHalloweenWind/LbcTmtSelfAbilities",
                 Set.of(Event.SELF,Event.JUMP),Set.of(Location.USED_HAND)));
@@ -509,7 +520,11 @@ final class LbcTmtCatalog {
         result.put("dynamite",rule("dynamite_chestplate","LbcBalanceExtras",Event.INCOMING,Location.EQUIPPED));
         flags(result,"LbcMana/LbcOverload",Event.EQUIPMENT,Location.EQUIPPED,"mage","overload");
         result.put("explosive_feets",new Rule("explosive_feets","LbcItems/RocketState",Set.of(Event.EQUIPMENT,Event.JUMP),Set.of(Location.EQUIPPED)));
-        flags(result,"LbcNexusWires",Event.INVENTORY,Location.INVENTORY,"nexus_wire_red","nexus_wire_black");
+        flags(result,"LbcNexusWires",Event.INVENTORY,Location.INVENTORY,"nexus_wire_red","nexus_wire_black","nexus_wire_blue");
+        for(var key:List.of("nexus_wire_red","nexus_wire_black","nexus_wire_blue","nexus_wire_white")){
+            var events=EnumSet.of(Event.INTERACT_ENTITY);if(!key.equals("nexus_wire_white"))events.addAll(Set.of(Event.INVENTORY,Event.DROP,Event.CRAFT));
+            result.put(key,new Rule(key,"LbcNexusWires/LbcNexusAcquisition",events,Set.of(Location.USED_HAND,Location.INVENTORY,Location.LOOSE_ITEM)));
+        }
         flags(result,"LbcQuiver",Event.INVENTORY,Location.INVENTORY,"arrowgenerator");
         flags(result,"LbcGaaraPot",Event.INCOMING,Location.INVENTORY,"gaara_tikva");
         flags(result,"LbcIncomingArtifacts",Event.MELEE,Location.INVENTORY,"gaara","gaara_old");

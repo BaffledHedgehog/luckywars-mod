@@ -21,6 +21,6 @@ final class LbcTmtIntake {
         return found;
     }
     static int wires(ItemStack stack){
-        return (has(stack,"nexus_wire_red")?1:0)|(has(stack,"nexus_wire_black")?2:0);
+        return (has(stack,"nexus_wire_red")?1:0)|(has(stack,"nexus_wire_black")?2:0)|(has(stack,"nexus_wire_blue")?4:0);
     }
 }

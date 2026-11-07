@@ -1933,7 +1933,9 @@
       "data": [
         "{night_vision:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "aimbob.json",
         "item_defs/minecraft/iron_helmet__ebb7b87f184c.json"
@@ -1947,7 +1949,9 @@
       "data": [
         "{slow_falling:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "aimbob.json",
         "item_defs/minecraft/trident__d7de545aa15f.json"
@@ -4048,7 +4052,9 @@
       "data": [
         "{magicwand:1,item_balance:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "balance.json",
         "item_defs/lbc/balance.json",
@@ -5953,7 +5959,9 @@
       "data": [
         "{transformable:1,sword:1,evolution:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "evolution_sword.json",
         "infinity_upgraded_luck.json",
@@ -6808,7 +6816,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:0}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__f13cc053d688.json",
@@ -6827,7 +6837,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__dc554c995f7a.json",
@@ -6846,7 +6858,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:2}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__25ab4eef33be.json",
@@ -6865,7 +6879,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:3}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__e5b0246ef186.json",
@@ -6884,7 +6900,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:4}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__9a94b3bb09ab.json",
@@ -6903,7 +6921,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:5}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__787ac0971a1a.json",
@@ -6922,7 +6942,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:6}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__a23de0c65a86.json",
@@ -6941,7 +6963,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:7}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__fead9fb69d75.json",
@@ -6960,7 +6984,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:8}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__279d75162c70.json",
@@ -6979,7 +7005,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:9}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__5372da1eb1a1.json",
@@ -6998,7 +7026,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:10}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__f6b8b095cba7.json",
@@ -7017,7 +7047,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:11}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__7a5e758924de.json",
@@ -7036,7 +7068,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:12}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__330d04e8e06f.json",
@@ -7055,7 +7089,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:13}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__c02dd5bd1710.json",
@@ -7074,7 +7110,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:14}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__7c4dc51fbf9c.json",
@@ -7093,7 +7131,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:15}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__9e9d8764db42.json",
@@ -7112,7 +7152,9 @@
       "data": [
         "{fragmentsword_old:1,cooltype:16}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "fragmentsword_old.json",
         "item_defs/lbc/fragmentsword__4ca1a1cac007.json",
@@ -7344,6 +7386,31 @@
       "aliases": []
     },
     {
+      "item": "minecraft:stick",
+      "data": [
+        "{halloween_chorus:1,halloween_food:1}"
+      ],
+      "components": {},
+      "sources": [
+        "halloween/lucky_items.json",
+        "infinity_upgraded_luck.json",
+        "infinity_upgraded_luck_noadv.json",
+        "item_defs/minecraft/stick__f04fc7949df7.json",
+        "lucky_items.json",
+        "lucky_items_1.json",
+        "luckyblock.json",
+        "luckyblock_64.json",
+        "luckyblock_without_rec.json",
+        "native_lucky/normal.json"
+      ],
+      "aliases": [
+        "lbc:item_defs/minecraft/stick__f04fc7949df7",
+        "lbc:luckyblock",
+        "lbc:lucky_items",
+        "lbc:halloween/lucky_items"
+      ]
+    },
+    {
       "item": "minecraft:snowball",
       "data": [
         "{jack_o_lantern:1,gadget:1}"
@@ -7363,6 +7430,31 @@
       ],
       "aliases": [
         "lbc:item_defs/minecraft/jack_o_lantern__cc18e55635ba",
+        "lbc:luckyblock",
+        "lbc:lucky_items",
+        "lbc:halloween/lucky_items"
+      ]
+    },
+    {
+      "item": "minecraft:stick",
+      "data": [
+        "{halloween_pie:1,halloween_food:1}"
+      ],
+      "components": {},
+      "sources": [
+        "halloween/lucky_items.json",
+        "infinity_upgraded_luck.json",
+        "infinity_upgraded_luck_noadv.json",
+        "item_defs/minecraft/stick__845586fe1fb7.json",
+        "lucky_items.json",
+        "lucky_items_1.json",
+        "luckyblock.json",
+        "luckyblock_64.json",
+        "luckyblock_without_rec.json",
+        "native_lucky/normal.json"
+      ],
+      "aliases": [
+        "lbc:item_defs/minecraft/stick__845586fe1fb7",
         "lbc:luckyblock",
         "lbc:lucky_items",
         "lbc:halloween/lucky_items"
@@ -7781,7 +7873,9 @@
       "data": [
         "{transformable:1,staff:1,magicwand:1,ice_wand:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "ice_wand.json",
         "ported/ice_wand.json",
@@ -9867,7 +9961,9 @@
       "data": [
         "{chaos_swo:1,imba:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "imba/diamondtools.json",
         "imba/lucky_items_imba.json",
@@ -10051,7 +10147,9 @@
       "data": [
         "{imba:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "imba/elytra.json",
         "imba/lucky_items_imba.json",
@@ -14548,7 +14646,9 @@
       "data": [
         "{transformable:1,bow:1,imba:1,imba_fast_crossbow:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "imba/lucky_items_imba.json",
         "imba/weapons.json",
@@ -24224,7 +24324,8 @@
               "show_icon": false
             }
           ]
-        }
+        },
+        "minecraft:potion_duration_scale": 1.0
       },
       "sources": [
         "infinity_upgraded_luck.json",
@@ -25401,7 +25502,9 @@
       "data": [
         "{hylianshield:1,transformable:1,shield:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "infinity_upgraded_luck.json",
         "infinity_upgraded_luck_noadv.json",
@@ -28727,7 +28830,9 @@
       "data": [
         "{explosive_feets:1,craftusable:1,PublicBukkitValues:{\"lws:item\":{\"lws:additionals\":[\"rocket_armor\"]}}}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:glider": {}
+      },
       "sources": [
         "item_defs/lbc/armors/rocket_boots__fd00635bef16.json",
         "kit/explosive_feets.json"
@@ -29422,7 +29527,9 @@
       "data": [
         "{transformable:1,arcanum:1,arcanumt:1,neutral_ball:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "item_defs/lbc/neutral_ball__79a8281780c8.json",
         "item_defs/lbc/neutral_ball__c5ae92c76fda.json",
@@ -30633,7 +30740,9 @@
       "data": [
         "{magichat_old:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "item_defs/minecraft/leather_helmet__4cbbe51cf2c5.json",
         "legacy_luckyblock.json",
@@ -31342,7 +31451,13 @@
       "data": [
         "{luck_key:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:tool": {
+          "damage_per_block": 1,
+          "default_mining_speed": 2,
+          "rules": []
+        }
+      },
       "sources": [
         "kit/key_luck.json"
       ],
@@ -33427,7 +33542,9 @@
       "data": [
         "{cool_old:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "legacy_luckyblock.json",
         "native_lucky/normal.json",
@@ -34101,7 +34218,9 @@
       "data": [
         "{transformable:1,staff:1,magicwand:1,ice_wand:1,upgradable:0,upgrade_available:1,upgraded:1}"
       ],
-      "components": {},
+      "components": {
+        "minecraft:unbreakable": {}
+      },
       "sources": [
         "ported/academy_ice_wand.json"
       ],

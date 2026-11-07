@@ -16,7 +16,8 @@ NATIVE_LEGACY_OWNERS = {"gayradar": "skywars2:gayradar",
                         "trollge": "skywars2:troll_box"}
 PAYLOAD_COMPONENTS = {"minecraft:" + name for name in (
     "entity_data", "bucket_entity_data", "block_entity_data", "block_state",
-    "potion_contents", "potion_duration_scale", "fireworks", "container", "container_loot", "blocks_attacks")}
+    "potion_contents", "potion_duration_scale", "fireworks", "container", "container_loot", "blocks_attacks",
+    "glider", "unbreakable", "damage_resistant", "tool")}
 
 
 def build():
@@ -56,10 +57,16 @@ def build():
                             payloads.append(row["tag"])
                         elif operation.endswith("set_components"):
                             source_components = row.get("components", {})
-                            data = source_components.get("minecraft:custom_data")
+                            data = source_components.get("minecraft:custom_data", source_components.get("custom_data"))
                             if data is not None:
                                 payloads.append(data)
                             for key, value in source_components.items():
+                                removed = key.startswith("!")
+                                key = key.removeprefix("!")
+                                if ":" not in key:
+                                    key = "minecraft:" + key
+                                if removed:
+                                    key = "!" + key
                                 if key.removeprefix("!") in PAYLOAD_COMPONENTS:
                                     components.pop(key[1:] if key.startswith("!") else "!" + key, None)
                                     components[key] = value

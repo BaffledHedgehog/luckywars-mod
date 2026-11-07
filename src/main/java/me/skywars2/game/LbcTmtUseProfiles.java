@@ -171,7 +171,7 @@ final class LbcTmtUseProfiles {
     private static boolean add(GameController game,ItemStack stack,Predicate<ItemStack> candidate,
             Map<String,LinkedHashMap<String,LbcTmtAbilities.Ability>> collected,Set<String> rejected,Set<String> existing) {
         if(stack.isEmpty())return false;
-        var source=stack;var block=LbcTmtBlockUses.canonical(stack);if(block==null)block=LbcTmtNativeThrows.canonical(stack);if(block!=null&&block!=stack.getItem())stack=stack.transmuteCopy(block);
+        var source=stack;var block=LbcTmtBlockUses.canonical(stack);if(block==null)block=LbcTmtNativeThrows.canonical(stack);if(block==null)block=LbcTmtNativeIdentities.canonical(stack);if(block!=null&&block!=stack.getItem())stack=stack.transmuteCopy(block);
         String nativeId=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         if(commonWand(stack)){existing.add(nativeId);return false;}
         // Classification only: never invoke Item.use or an owner with a synthetic player/stack here.

@@ -20,7 +20,7 @@ public final class TmtEquipmentChecks {
     public static void run(GameController game){
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var catalog=game.items().tmt().catalog();var properties=new ArrayList<LbcTmtAbilities.Ability>();
-            var ops=game.server().registryAccess().createSerializationContext(NbtOps.INSTANCE);
+            var ops=game.server().registryAccess().createSerializationContext(NbtOps.INSTANCE);var key=literal(game,"kit/key_luck.json");
             for(var property:LbcTmtEquipment.PROPERTIES){
                 var family=catalog.families().stream().filter(row->row.id().equals(property.id())).findFirst().orElseThrow();
                 var values=new HashSet<net.minecraft.nbt.Tag>();
@@ -29,9 +29,13 @@ public final class TmtEquipmentChecks {
                     if(id.getNamespace().equals("skywars2")&&!LbcTmtItems.output(item)&&property.present(source))
                         require(values.contains(LbcTmtEquipment.capture(game,source,property).get(LbcTmtEquipment.KEY)),"every current registered component value is represented: "+id+"/"+property.name());
                 }
+                // Literal source overlays enter through the manifest even if their old
+                // acquisition table is not public in the native server. Decode the actual value.
+                if(property.present(key))require(values.contains(LbcTmtEquipment.capture(game,key,property).get(LbcTmtEquipment.KEY)),"actual unqualified source tool overlay reaches the catalog: "+property.name());
                 properties.add(family.variants().getFirst());
             }
             var references=new HashMap<String,ItemStack>();
+            require(key.getDestroySpeed(Blocks.STONE.defaultBlockState())==2,"native mining consumes the actual unqualified source Tool speed2");
             for(int i=0;i<properties.size();i++){
                 var ability=properties.get(i);var reference=new ItemStack(Items.STICK);
                 reference.applyComponents(DataComponentPatch.CODEC.parse(ops,ability.data().copyTag().get(LbcTmtEquipment.KEY)).getOrThrow());
@@ -59,5 +63,15 @@ public final class TmtEquipmentChecks {
             require(LivingEntity.canGlideUsing(generated,generated.get(DataComponents.EQUIPPABLE).slot())&&LbcTmtEquipment.PROPERTIES.stream().allMatch(p->generated.has(p.type())),"real generator applies the sampled native component families");
             game.server().sendSystemMessage(Component.literal("[check] PASS tmt-native-components ("+actual+" carrier/slot combinations; every current registered native component value; dedup; native glide/mining/drop rules/item resistance/unbreakable wear; real generator and codec; physical properties preserved)"));
         }
+    }
+    private static ItemStack literal(GameController game,String source){
+        try(var input=java.util.Objects.requireNonNull(TmtEquipmentChecks.class.getResourceAsStream("/skywars2/tmt_use_profiles.json"))){
+            var rows=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("prototypes");
+            for(var value:rows){var row=value.getAsJsonObject();boolean matches=false;for(var path:row.getAsJsonArray("sources"))if(path.getAsString().equals(source))matches=true;if(!matches)continue;
+                var item=new ItemStack(BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.parse(row.get("item").getAsString())));
+                item.applyComponents(DataComponentPatch.CODEC.parse(game.server().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),row.get("components")).getOrThrow());return item;
+            }
+            throw new IllegalStateException("Missing literal source "+source);
+        }catch(java.io.IOException failure){throw new IllegalStateException(failure);}
     }
 }

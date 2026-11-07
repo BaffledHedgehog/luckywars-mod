@@ -34,6 +34,14 @@ public final class LbcRasengan {
                 &&p.level()==game.maps().level()&&game.canUseGameplayItems(p)&&!game.isObserver(p)
                 &&LbcDimensionItems.ordinary(p)&&!game.items().actionsBlocked(p);
     }
+    /** Real private TMT input reuses the cast body; it needs no disposable snowball/tick workaround. */
+    boolean use(ServerPlayer p,net.minecraft.world.InteractionHand hand){
+        var stack=p.getItemInHand(hand);
+        if(!LbcTmtAbilities.active(stack)||ItemData.intValue(stack,"rasengan",0)!=1||ItemData.intValue(stack,"gadget",0)!=1
+                ||!active(p)||game.items().wands().inputTimeStopped(p)||game.items().timeStop().frozen(p)
+                ||!game.server().tickRateManager().runsNormally()||game.items().magic().rasenganSuppressed(p.level(),p.position()))return false;
+        cast(p);stack.shrink(1);p.getInventory().setChanged();return true;
+    }
     public void loaded(Entity entity){
         if(entity instanceof Snowball ball&&matches(ball.getItem())&&ball.getOwner() instanceof ServerPlayer p&&active(p)){
             game.items().markCurrentItemEpoch(ball);pending.add(ball);

@@ -103,16 +103,27 @@ public final class LbcNovemberLightsabers {
         // /clear removes every matching token in inventory, armor, offhand, crafting and cursor.
         var inventory = player.getInventory();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++)
-            if (LbcNovemberLightsaberItems.selector(inventory.getItem(slot))) inventory.setItem(slot, ItemStack.EMPTY);
+            if (LbcNovemberLightsaberItems.selector(inventory.getItem(slot))) {if(!consumeTmtSelector(inventory.getItem(slot)))inventory.setItem(slot, ItemStack.EMPTY);}
         var crafting = player.inventoryMenu.getCraftSlots();
         for (int slot = 0; slot < crafting.getContainerSize(); slot++)
-            if (LbcNovemberLightsaberItems.selector(crafting.getItem(slot))) crafting.setItem(slot, ItemStack.EMPTY);
-        if (LbcNovemberLightsaberItems.selector(player.containerMenu.getCarried())) player.containerMenu.setCarried(ItemStack.EMPTY);
+            if (LbcNovemberLightsaberItems.selector(crafting.getItem(slot))) {if(!consumeTmtSelector(crafting.getItem(slot)))crafting.setItem(slot, ItemStack.EMPTY);}
+        if (LbcNovemberLightsaberItems.selector(player.containerMenu.getCarried())&&!consumeTmtSelector(player.containerMenu.getCarried())) player.containerMenu.setCarried(ItemStack.EMPTY);
         observe(player);
         game.items().mana().score(player, "november").set(faction.ordinal());
         player.sendSystemMessage(Component.translatable(faction == Faction.JEDI ? "selected_jedi" : "selected_sith")
                 .withStyle(faction == Faction.JEDI ? ChatFormatting.AQUA : ChatFormatting.RED));
         grant(player);
+    }
+    /** The selector property is spent; unrelated generated properties are not disposable source tokens. */
+    private static boolean consumeTmtSelector(ItemStack stack){
+        if(!LbcTmtItems.matches(stack))return false;
+        LbcTmtAbilities.afterScopes(()->{
+            if(stack.isEmpty())return;var slots=LbcTmtAbilities.read(stack);
+            var retained=slots.stream().filter(slot->((ItemData.IntReader)(Object)slot.data()).skywars2$readInt("lightsaberrc",0)!=1).toList();
+            if(retained.size()==slots.size())return;
+            var data=stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag();data.remove("lightsaberrc");
+            LbcTmtAbilities.write(data,retained);stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));
+        });return true;
     }
 
     /** Invoke only after a real accepted LuckyBlock open, once per player open. */
