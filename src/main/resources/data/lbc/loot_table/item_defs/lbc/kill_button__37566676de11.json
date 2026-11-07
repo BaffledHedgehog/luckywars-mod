@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:kill_button",
           "modifier": [
             {
               "count": 1,

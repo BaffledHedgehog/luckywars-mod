@@ -1,3 +1,19 @@
+## TMT Kill Rand native input ? COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Exact behavior, source evidence and carry-forward](agent_notes/TMT_KILL_BUTTON_2026_11_07.md).
+Immediate native seven-way lottery; TECH24/source spent debit, noMAG gate;
+choose-before-target-guards/no reroll; inherited literal kill/actual source credit.
+Full canonical native item and shared TMT source factory, no placeholder snowball.
+Native component restoration precedes lethal callbacks and complete outer drops.
+Internal232a4cce/a7e86a28 on fullbc38cc3a:7 focused suites pass, including3 real
+owned Gamma deaths/replacements, both-hand TMT inputs and shared pool regressions.
+5families/4resources;10437 other inputs/282 author paths and HUD exact.
+Concurrent clock owner/16sourceleaves+newpaths explicitly EXCLUDED from this
+qualified component; retain its preceding clock bytes until its own qualification.
+Main/libs/RP unchanged; no main start. Full TMT remains active/unreleased.
+Apple input liveness: [read-only audit](agent_notes/TMT_APPLE_INPUT_AUDIT_2026_11_07.md).
+Optional Paper broad RMB hook is disabled in actual old config; don't invent it.
+
 ## TMT typed pools/glyphs/passive queries ? COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Exact contracts, native evidence and carry-forward](agent_notes/TMT_TYPED_GLYPH_COMPONENT_2026_11_07.md).

@@ -29175,7 +29175,7 @@
       ]
     },
     {
-      "item": "minecraft:snowball",
+      "item": "skywars2:kill_button",
       "data": [
         "{gadget:1,kill_rand:1}"
       ],
@@ -29183,7 +29183,8 @@
       "sources": [
         "item_defs/lbc/kill_button__37566676de11.json",
         "loliluckyblock.json",
-        "native_lucky/loli.json"
+        "native_lucky/loli.json",
+        "ported/kill_button.json"
       ],
       "aliases": [
         "lbc:item_defs/lbc/kill_button__37566676de11",
@@ -42059,11 +42060,6 @@
     },
     {
       "key": "gayradar",
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure."
-    },
-    {
-      "key": "kill_rand",
       "status": "live_legacy_native_owner_gap",
       "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure."
     },

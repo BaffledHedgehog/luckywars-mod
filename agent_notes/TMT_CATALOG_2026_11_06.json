@@ -44555,8 +44555,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_immediate_owner",
+      "reason": "LbcKillButton native immediate input owns the exact seven-way lottery, TECH24, debit, selected-target guards and inherited literal kill; TMT uses the same private-source native factory.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -44575,9 +44575,9 @@
         "lbc",
         "lbcr"
       ],
-      "legacyEvent": "throw_impact",
+      "legacyEvent": "immediate_use_snowball_detection",
       "legacyOwner": "lbc:other/kill_rand_hihihiha",
-      "requiredParameters": "snowball Item marker; TECH gate",
+      "requiredParameters": "kill_rand:1; immediate real-hand use, source TECH24",
       "samplerExclusion": false
     },
     {
