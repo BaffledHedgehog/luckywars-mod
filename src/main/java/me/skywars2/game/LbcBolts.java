@@ -522,7 +522,7 @@ public final class LbcBolts {
         callbackDepth++;try{
         var output=new ArrayList<ItemStack>();
         for(String table:tables)
-            output.addAll(game.lbc().rollTable((ServerLevel)context.level(),origin,context,"lbc:"+table));
+            output.addAll(game.lbc().rollTable((ServerLevel)context.level(),origin,context,LbcAllItemPools.uniformTable("lbc:"+table)));
         output.removeIf(ItemStack::isEmpty);
         return output;
 

@@ -33,7 +33,7 @@ final class LbcBalancePassive {
             if(LbcBalanceItems.flag(stack,"mystical_old")){int type=LbcFartus.data(stack).getIntOr("type",0);if(type>=1&&type<=6)mystical|=1<<type;}
         }
         var head=p.getItemBySlot(EquipmentSlot.HEAD);var feet=p.getItemBySlot(EquipmentSlot.FEET);
-        gear.put(p.getUUID(),new Gear(LbcBalanceItems.flag(head,"magichat_old"),belt,feet.is(Items.IRON_BOOTS)&&LbcBalanceItems.flag(feet,"reactive_old"),LbcBalanceItems.flag(feet,"jumpboost_old"),healing,mystical));
+        gear.put(p.getUUID(),new Gear(LbcBalanceItems.flag(head,"magichat_old"),belt,LbcTmtPassiveQueries.reactiveOldFeet(feet),LbcBalanceItems.flag(feet,"jumpboost_old"),healing,mystical));
     }
     int cooldownBonus(ServerPlayer p){var g=gear.get(p.getUUID());return g==null?0:(g.hat?4:0)+(g.belt?2:0);}
     void portals(ServerPlayer p){var origin=p.blockPosition();for(var pos:BlockPos.betweenClosed(origin.offset(-5,-5,-5),origin.offset(5,5,5)))if(p.level().hasChunkAt(pos)&&p.level().getBlockState(pos).is(PORTALS))p.level().setBlock(pos,Blocks.AIR.defaultBlockState(),2|16|32);}

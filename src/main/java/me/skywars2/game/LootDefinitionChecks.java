@@ -605,7 +605,9 @@ public final class LootDefinitionChecks {
                 "check expander keeps definition prefix before caller count suffix");
         var resources = game.server().getResourceManager().listResources("loot_table/item_defs",
                 id -> id.getNamespace().equals("lbc") && id.getPath().endsWith(".json"));
-        require(resources.size() == 3623, "all 3623 packaged canonical resources, actual=" + resources.size());
+        require(resources.size() == 3627, "all 3627 packaged canonical resources, actual=" + resources.size());
+        for(var helper:java.util.List.of("bucks","academy_token","blood_anal_boom","mana_gem"))
+            require(resources.containsKey(Identifier.parse("lbc:loot_table/item_defs/skywars2/"+helper+".json")),"dedicated native helper resource "+helper);
         for (var resource : resources.keySet()) {
             String path = resource.getPath();
             String id = resource.getNamespace() + ":" + path.substring("loot_table/".length(), path.length() - 5);
@@ -635,7 +637,7 @@ public final class LootDefinitionChecks {
                 && sword.getFirst().has(DataComponents.CUSTOM_NAME)
                 && Identifier.parse("lbc:tier_s").equals(sword.getFirst().get(DataComponents.TOOLTIP_STYLE)), "existing native ported canonical leaf");
         nativeOpaqueCodec(game, player);
-        SkyWars2.LOGGER.info("[check] PASS canonical-loot (3623 canonical definitions, {} reused targets, native representative rolls and opaque codec witnesses)", REUSED.length);
+        SkyWars2.LOGGER.info("[check] PASS canonical-loot (3627 canonical definitions, {} reused targets, native representative rolls and opaque codec witnesses)", REUSED.length);
     }
 
     private static void nativeOpaqueCodec(GameController game, net.minecraft.server.level.ServerPlayer player) {

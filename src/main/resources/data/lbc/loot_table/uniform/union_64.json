@@ -1,0 +1,32 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "skywars2:uniform_item",
+          "domain": "union",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 64
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "!minecraft:max_damage": {}
+              }
+            },
+            {
+              "type": "minecraft:limit_count",
+              "limit": {
+                "max": 99
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

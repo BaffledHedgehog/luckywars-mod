@@ -32,6 +32,74 @@ DEFAULT_NATIVE = {'skywars2:oguzok_sword': {
     'skywars2:consumed_block': {
     'owner': 'LbcConsumedBlock.ITEM/LbcBlockModels.CubeItem',
     'reason': 'Real native playable block item with complete registered block/model prototype; generated-terrain use is not a service exclusion from all items.'}}
+TYPE_FLAGS = {name: name for name in ('accessory', 'axe', 'bow', 'hoe', 'pickaxe', 'potion', 'shield', 'shooter', 'shovel', 'staff', 'sword', 'totem', 'trident', 'arcanum', 'helmet', 'chestplate', 'leggings', 'boots')}
+TYPE_FLAGS.update(spells='spellitem', summons='summoner')
+ALL_TYPES = ('accessory', 'arcanum', 'axe', 'boots', 'bow', 'hoe', 'shooter', 'shovel', 'staff', 'summons', 'sword')
+SUBTYPES = {'rofl': ('lbc:rofls',), 'slab': ('lbc:slabs', 'lbc:imba/cunny_slabs'), 'grimoire': ('lbc:spells_library',)}
+HELPER_PRIMITIVES = {
+    'lbc:item_defs/skywars2/bucks': 'lbc:imba/random_bucks',
+    'lbc:item_defs/skywars2/academy_token': 'lbc:kit/academy_token',
+    'lbc:item_defs/skywars2/blood_anal_boom': 'lbc:trinket/blood_anal_boom',
+    'lbc:item_defs/skywars2/mana_gem': 'lbc:trinket/mana_gem'}
+FUNCTIONAL = {
+    '27_acessories': ('accessory_all', 'totem'), '27_bows': ('bow_all',),
+    '27_grimoires': ('grimoire',), '27_instruments': ('axe_all', 'hoe_all', 'shovel', 'pickaxe', 'trident', 'shield'),
+    '27_potions': ('potion',), '27_random_items': (), '27_rofls': ('rofl',),
+    '27_shooters': ('shooter_all',), '27_slabs': ('slab',), '27_staffs': ('staff_all',),
+    '27_summons': ('summons_all', 'arcanum_all'), '27_swords': ('sword_all',)}
+
+
+def logical_identity(entry):
+    parts = identity(entry)
+    # These dedicated native helpers are implementation primitives. Minecraft's
+    # text codec decodes [component] and component identically; retain both raw
+    # profiles but never add a second ticket for that serialization difference.
+    if parts['carrier'] in {name.removeprefix('lbc:item_defs/').replace('/', ':', 1) for name in HELPER_PRIMITIVES}:
+        name = parts.get('name')
+        if isinstance(name, list) and len(name) == 1: parts['name'] = name[0]
+    return parts
+
+
+def root_fields(value):
+    """Read only actual top-level custom-data members, never nested flag names."""
+    if isinstance(value, dict):
+        return value
+    if not isinstance(value, str) or not value.strip().startswith('{'):
+        return {}
+    text = value.strip()[1:-1]; parts = []; start = depth = 0; quote = None; escaped = False
+    for index, char in enumerate(text):
+        if quote:
+            if escaped: escaped = False
+            elif char == '\\': escaped = True
+            elif char == quote: quote = None
+        elif char in '\"\'': quote = char
+        elif char in '[{': depth += 1
+        elif char in ']}': depth -= 1
+        elif char == ',' and depth == 0: parts.append(text[start:index]); start = index + 1
+    parts.append(text[start:]); result = {}
+    for part in parts:
+        match = re.fullmatch(r'\s*([a-zA-Z0-9_]+)\s*:\s*(.*?)\s*', part, re.S)
+        if match: result[match[1]] = match[2]
+    return result
+
+
+def semantic_types(chain):
+    data = {}
+    for row in chain:
+        kind = node_kind(row)
+        if kind == 'set_custom_data': data.update(root_fields(row.get('tag')))
+        elif kind == 'set_components':
+            components = row.get('components', {})
+            if '!minecraft:custom_data' in components: data = {}
+            if 'minecraft:custom_data' in components: data = root_fields(components['minecraft:custom_data'])
+    def one(value): return value is True or value == 1 or isinstance(value, str) and re.fullmatch(r'1[bBsSlL]?', value.strip()) is not None
+    return {name for name, flag in TYPE_FLAGS.items() if one(data.get(flag))}
+
+
+def flat_leaf(entry, chain):
+    base = entry
+    while node_kind(base) == 'group': base = base['children'][0]
+    return {'type': 'minecraft:item', 'name': base['name'], 'modifier': chain}
 
 
 def service_table(name):
@@ -109,7 +177,7 @@ def build(table_root=TABLES):
             invalid.append({'table': name, 'reason': str(error)})
     selection_sources = {}
     prior = None
-    for name in ('lbc:random_item', 'lbc:random_glack_1'):
+    for name in ('lbc:random_item', 'lbc:random_glack_1', 'lbc:infinity_no_shulker'):
         doc = docs.get(name)
         if doc is not None and 'skywars2:uniform_item' in packed(doc):
             if prior is None:
@@ -120,6 +188,14 @@ def build(table_root=TABLES):
             docs[name] = deepcopy(source)
         if name in docs:
             selection_sources[name] = deepcopy(docs[name])
+    functional_sources = {}
+    for short in FUNCTIONAL:
+        name = 'lbc:' + short; doc = docs[name]
+        if 'skywars2:uniform_item' in packed(doc):
+            if prior is None: prior = json.loads(OUTPUT.read_text(encoding='utf-8'))
+            if name not in prior.get('functionalSources', {}): raise ValueError('Bridged functional selector needs its source snapshot: ' + name)
+            docs[name] = deepcopy(prior['functionalSources'][name])
+        functional_sources[name] = deepcopy(docs[name])
     memo, active = {}, set()
     blocked = []
     reverse = defaultdict(set)
@@ -266,9 +342,9 @@ def build(table_root=TABLES):
     accounting = {}
     pure_vanilla_profiles = defaultdict(set)
     source_hashes = {}
-    roots = sorted({'lbc:random_item', 'lbc:random_glack_1', 'lbc:imba/cunny_slabs'} |
+    roots = sorted({'lbc:random_item', 'lbc:random_glack_1', 'lbc:imba/cunny_slabs'} | set(HELPER_PRIMITIVES.values()) |
                    {name for name, doc in docs.items()
-                    if name not in excluded_source_roots and
+                    if name not in excluded_source_roots and name not in HELPER_PRIMITIVES and
                     (name.startswith('lbc:item_defs/') or standalone(doc) is not None)})
     for name in roots:
         source_rows = expand_table(name)
@@ -281,7 +357,7 @@ def build(table_root=TABLES):
             while node_kind(base) == 'group':
                 base = base['children'][0]
             flat = {'type': 'minecraft:item', 'name': base['name'], 'modifier': chain}
-            parts = identity(flat)
+            parts = logical_identity(flat)
             carrier = parts['carrier']
             key = packed(parts)
             record = {'source': name, 'leaf': origin, 'identity': parts}
@@ -304,15 +380,48 @@ def build(table_root=TABLES):
                 accounting[packed([name, origin, key])] = {**record, 'disposition': 'vanilla_identity'}
                 continue
             slot = slots.setdefault(key, {'id': 'custom/' + hashlib.sha256(key.encode()).hexdigest()[:20],
-                                          'identity': parts, 'profiles': {}, 'sources': set()})
+                                          'identity': parts, 'profiles': {}, 'sources': set(), 'semanticTypes': set()})
+            slot['semanticTypes'].update(semantic_types(chain))
             # Equal distinct contextual profiles inside one outer slot. Source
             # aliases and count variants never add an outer lottery ticket.
             signature = packed(entry)
             slot['profiles'].setdefault(signature, {'entry': entry, 'origins': set()})['origins'].add(packed(origin))
             slot['sources'].add(name)
             accounting[packed([name, origin, key])] = {**record, 'disposition': slot['id']}
+    typed_views = {}
+    typed_findings = []
+    typed_sources = {name: ('lbc:transformables_' + name,) for name in TYPE_FLAGS}
+    typed_sources.update({name + '_all': ('lbc:transformables_' + name + '_all',) for name in ALL_TYPES})
+    typed_sources.update(SUBTYPES)
+    for name, source_tables in typed_sources.items():
+        members = defaultdict(dict); tmt = False
+        for table in source_tables:
+            for entry, chain, origin in expand_table(table):
+                flat = flat_leaf(entry, chain); parts = logical_identity(flat); key = packed(parts)
+                if parts['carrier'] in TMT_NATIVE or any(flag in str(parts.get('custom_data', '')).replace(' ', '') for flag in ('tmt:1', 'tmt_item:1')):
+                    tmt = True; continue
+                if parts['carrier'] in EXCLUDED_NATIVE or parts['carrier'] == 'minecraft:air': continue
+                slot = slots.get(key)
+                if slot is None:
+                    if len(parts) == 1 and parts['carrier'].startswith('minecraft:'):
+                        slot_id = 'vanilla/' + parts['carrier']
+                    else:
+                        issue(table, origin['path'], 'typed logical identity absent from global catalog: ' + key); continue
+                else: slot_id = slot['id']
+                members[slot_id][packed(entry)] = entry
+        source_ids = set(members)
+        if name.endswith('_all'):
+            category = name[:-4]
+            for slot in slots.values():
+                if category in slot['semanticTypes'] and slot['id'] not in members:
+                    for profile in slot['profiles'].values(): members[slot['id']][packed(profile['entry'])] = profile['entry']
+            if category == 'sword': members['native/skywars2:oguzok_sword'] = {}
+        if tmt: members['factory/tmt'] = {}
+        typed_views[name] = {'sources': list(source_tables), 'policy': 'exact authored closure' if not name.endswith('_all') else 'original broader closure profiles take precedence; new semantic category members use their full global profiles',
+                             'members': members, 'sourceMembers': sorted(source_ids), 'tmtFactory': tmt}
     for slot in slots.values():
         slot['sources'] = sorted(slot['sources'])
+        slot['semanticTypes'] = sorted(slot['semanticTypes'])
         slot['profiles'] = [{**row, 'origins': [json.loads(x) for x in sorted(row['origins'])]}
                             for _, row in sorted(slot['profiles'].items())]
     # Intern entry trees and leaf origins; repeated caller paths must not copy
@@ -335,6 +444,15 @@ def build(table_root=TABLES):
         slot['profiles'] = [{'entry': intern(profile['entry']),
                              'origins': [origin_id(origin) for origin in profile['origins']]}
                             for profile in slot['profiles']]
+    for view in typed_views.values():
+        view['members'] = {slot: [intern(entry) for _, entry in sorted(entries.items())]
+                           for slot, entries in sorted(view['members'].items())}
+    vanilla_source_members = defaultdict(set)
+    for entry, chain, origin in expand_table('lbc:infinity_no_shulker'):
+        item = flat_leaf(entry, chain)['name']; item = item if ':' in item else 'minecraft:' + item
+        if not item.startswith('minecraft:') or item == 'minecraft:air':
+            issue('lbc:infinity_no_shulker', origin['path'], 'non-vanilla item in vanilla source selection: ' + item); continue
+        vanilla_source_members['vanilla/' + item].add(intern(entry))
     compact_accounting = sorted({(row['source'], origin_id(row['leaf']), row['disposition'])
                                  for row in accounting.values()})
     source_hashes = {name: hashlib.sha256(packed(docs[name]).encode()).hexdigest()
@@ -347,7 +465,16 @@ def build(table_root=TABLES):
               'tmt': {'id': 'factory/tmt', 'factory': 'LbcTmtRuntime.generate', 'variants': 5, 'outerSlots': 1},
               'excludedNative': EXCLUDED_NATIVE, 'tmtNative': sorted(TMT_NATIVE),
               'allowedDefaultNative': default_native, 'nativeEvidence': native_evidence,
+              'typedViews': typed_views, 'typedFindings': typed_findings,
+              'typedCombinations': [list(types) for types in sorted(set(FUNCTIONAL.values())) if types],
+              'typedLegacyTables': {**{'lbc:transformables_' + name: 'lbc:uniform/' + name for name in typed_views if name not in SUBTYPES},
+                                    'lbc:rofls': 'lbc:uniform/rofl', 'lbc:slabs': 'lbc:uniform/slab', 'lbc:spells_library': 'lbc:uniform/grimoire'},
+              'functionalLegacyTables': {'lbc:' + name: 'lbc:uniform/' + name for name in FUNCTIONAL},
+              'vanillaSourceViews': {'no_recursive_shulker': {'sources': ['lbc:infinity_no_shulker'], 'policy': 'source per-item profiles; plain vanilla empty shulker boxes remain eligible; no custom recursive container_loot factory',
+                                                            'members': {key: sorted(values) for key, values in sorted(vanilla_source_members.items())}}},
+              'functionalSources': functional_sources,
               'excludedSourceRoots': excluded_source_roots,
+              'helperPrimitives': HELPER_PRIMITIVES,
               'pureVanillaSourceProfiles': {key: [intern(json.loads(x)) for x in sorted(values)] for key, values in sorted(pure_vanilla_profiles.items())},
               'entryNodes': entry_nodes, 'origins': origins,
               'accounting': compact_accounting,
@@ -355,6 +482,34 @@ def build(table_root=TABLES):
               'selectionSources': selection_sources,
               'findings': findings, 'unparsedSourceResources': invalid}
     return result
+
+
+def selector_resources(result):
+    def entry(domain, types=()):
+        return {'type': 'skywars2:uniform_item', 'domain': domain, **({'types': list(types)} if types else {})}
+    def table(domain, types=(), modifier=None):
+        value = entry(domain, types)
+        if modifier is not None: value['modifier'] = modifier
+        return {'pools': [{'rolls': 1, 'entries': [value]}]}
+    resources = {name: table('custom', (name,)) for name in result['typedViews']}
+    for domain in ('custom', 'vanilla', 'union'):
+        resources[domain] = table(domain)
+        for count in (64, 99):
+            resources[domain + '_' + str(count)] = table(domain, modifier=[
+                {'type': 'minecraft:set_count', 'count': count},
+                {'type': 'minecraft:set_components', 'components': {'minecraft:max_stack_size': 99, '!minecraft:max_damage': {}}},
+                {'type': 'minecraft:limit_count', 'limit': {'max': 99}}])
+    resources['vanilla_no_recursive_shulker'] = table('vanilla', ('no_recursive_shulker',))
+    for short, types in FUNCTIONAL.items():
+        document = deepcopy(result['functionalSources']['lbc:' + short])
+        for pool in document['pools']:
+            original = pool['entries']
+            extras = [{key: value for key, value in row.items() if key not in {'type', 'name', 'value', 'weight', 'quality'}} for row in original]
+            if any(value != extras[0] for value in extras[1:]):
+                raise ValueError('Functional category branches have different caller wrappers: ' + short)
+            pool['entries'] = [{**entry('union' if short == '27_random_items' else 'custom', types), **extras[0]}]
+        resources[short] = document
+    return resources
 
 
 def self_test():
@@ -368,6 +523,9 @@ def self_test():
     inner = {'type': 'minecraft:set_count', 'count': 64}
     outer = {'type': 'minecraft:set_count', 'count': 99}
     assert boundary({'type': 'minecraft:item', 'name': 'minecraft:stick', 'modifier': [inner]}, {'modifier': [outer]})['modifier'] == [outer]
+    assert semantic_types([{'type': 'minecraft:set_custom_data', 'tag': '{nested:{sword:1},sword:0,spellitem:1b}'}]) == {'spells'}
+    assert semantic_types([{'type': 'minecraft:set_custom_data', 'tag': '{sword:1}'}, {'type': 'minecraft:set_components', 'components': {'minecraft:custom_data': {'axe': 1}}}]) == {'axe'}
+    assert semantic_types([{'type': 'minecraft:set_custom_data', 'tag': '{sword:1}'}, {'type': 'minecraft:set_components', 'components': {'!minecraft:custom_data': {}}}]) == set()
     print('PASS logical identity count/mode and native modifier-boundary synthetic checks')
 
 
@@ -385,5 +543,10 @@ if __name__ == '__main__':
             assert OUTPUT.read_text(encoding='utf-8') == output, 'Regenerate all_item_pools.json'
         else:
             OUTPUT.write_text(output, encoding='utf-8')
+        for name, document in selector_resources(result).items():
+            path = TABLES / 'uniform' / (name + '.json')
+            content = json.dumps(document, ensure_ascii=False, indent=2) + '\n'
+            if args.check: assert path.read_text(encoding='utf-8') == content, 'Regenerate uniform/' + name
+            else: path.parent.mkdir(parents=True, exist_ok=True); path.write_text(content, encoding='utf-8')
         print(json.dumps({'customSlots': len(result['custom']), 'accountedLeaves': len(result['accounting']),
                           'blocked': result['blocked'], 'unparsed': result['unparsedSourceResources']}, ensure_ascii=False))

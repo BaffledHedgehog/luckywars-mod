@@ -5,35 +5,34 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/repeating_command_block__6711510709f0",
-          "functions": [
+          "value": "lbc:item_defs/skywars2/bucks",
+          "modifier": [
             {
-              "function": "minecraft:set_count",
               "count": {
                 "min": 1,
                 "max": 64,
                 "type": "minecraft:uniform"
-              }
+              },
+              "type": "minecraft:set_count"
             },
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_q",
                 "minecraft:item_model": "lbc:bucks"
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_name",
               "name": [
                 {
                   "translate": "buck",
                   "color": "gold",
                   "italic": false
                 }
-              ]
+              ],
+              "type": "minecraft:set_name"
             },
             {
-              "function": "minecraft:set_lore",
               "mode": "replace_all",
               "lore": [
                 {
@@ -51,11 +50,12 @@
                   "italic": false,
                   "color": "green"
                 }
-              ]
+              ],
+              "type": "minecraft:set_lore"
             },
             {
-              "function": "minecraft:set_custom_data",
-              "tag": "{bucks:1,imba:1}"
+              "tag": "{bucks:1,imba:1}",
+              "type": "minecraft:set_custom_data"
             }
           ]
         }

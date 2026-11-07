@@ -241,6 +241,10 @@ final class LbcTmtCatalog {
         }
         if(blockItem!=null){String id="native/block/"+nativeId.getPath();add(all,id,"block/"+nativeId.getPath(),ability(id,nativeId,data),
                 rule("","LbcTmtBlockUses/native factory",Event.BLOCK,Location.USED_HAND));return;}
+        if(stack.is(LbcCorruptedGlyphs.DUST)&&LbcCorruptedGlyphs.kind(stack)==null){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
+                    "Unparameterized glyph transport; four authored glyphkind payloads are admitted by the real native use-on factory, not a blank dust ability");return;
+        }
         if(LbcTmtItems.output(stack.getItem())||stack.is(LbcTmtItems.TOKEN)){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"TMT transport/acquisition is not a recursively sampled property");return;
         }
@@ -346,6 +350,10 @@ final class LbcTmtCatalog {
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_INERT_KEY,
                     "Source-inert TMT item fields "+keys+": exhaustive lbc/lbcr item-data and dynamic-dispatch audit finds no reader; separate companion ENTITY tags do not activate from these fields (TMT_WISP_REACHABILITY_2026_11_07)");return;
         }
+        if(keys.equals(Set.of("god"))&&data.getIntOr("god",0)==1){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_INERT_KEY,
+                    "God-hedgehog trophy marker: both legacy namespaces contain only item producers/presentation and no item-data reader; the separate boss entity engine is not an item ability");return;
+        }
         // Identity-only drops, arrows, placeables and collectible outputs can have no
         // custom data. An empty payload is not proof of an inert item.
         if(keys.isEmpty()&&nativeId.getNamespace().equals("minecraft")){
@@ -405,6 +413,8 @@ final class LbcTmtCatalog {
         flags(result,"LbcRegenerationBelt",Event.INVENTORY,Location.INVENTORY,"heall");
         flags(result,"LbcBalancePassive (legacy mode)",Event.INVENTORY,Location.INVENTORY,"heall_old","manabelt_old");
         flags(result,"LbcMana",Event.INVENTORY,Location.INVENTORY,"manabelt");
+        result.put("zaika",new Rule("zaika","Native Neko/Loli loot slot predicates",Set.of(Event.INVENTORY),Set.of(Location.INVENTORY,Location.EQUIPPED)));
+        result.put("reactive_old",new Rule("reactive_old","LbcBalancePassive (legacy mode)/LbcJumpArtifacts/LbcTmtPassiveQueries",Set.of(Event.EQUIPMENT,Event.SELF,Event.JUMP),Set.of(Location.EQUIPPED)));
         flags(result,"LbcDeathCompass",Event.INVENTORY,Location.INVENTORY,"death_compass");
         result.put("pumpkin_curse",new Rule("pumpkin_curse","LbcCursedPumpkin",Set.of(Event.INVENTORY,Event.DROP),Set.of(Location.INVENTORY,Location.LOOSE_ITEM)));
         result.put("malevich",new Rule("malevich","LbcMalevich",Set.of(Event.INVENTORY,Event.DROP),Set.of(Location.INVENTORY,Location.LOOSE_ITEM)));

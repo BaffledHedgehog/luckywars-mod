@@ -1,3 +1,18 @@
+## TMT typed pools/glyphs/passive queries ? COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Exact contracts, native evidence and carry-forward](agent_notes/TMT_TYPED_GLYPH_COMPONENT_2026_11_07.md).
+Thirty-four source-aware typed views/shared native reforging and edible callers;
+12 actual27-roll tables and26-draw vanilla infinite shulker preserve wrappers.
+Generic vanilla RCB regression fixed; four dedicated full-native helper authorities.
+Four native glyph kinds/all5 carriers; exact Zaika queries, old iron-only passive
+and ANY-material FEET jump branch reuse native owners; inert God trophy excluded.
+Internalbc38cc3a/f7b5f4c2 on full62aad5ba:30 focused suites pass, including all15
+regressions covering the user's17 report items.15 families/81 resources;
+10363 other inputs/282 author paths/current HUD and protected WIP exact.
+One512MiB compiler then one2GiB fixture, sequential; all children exited/restored.
+Main/libs/RP unchanged. Full TMT owners/adapters/acquisition/release still pending.
+Do not install this partial chain or start Main. Retain all parent components.
+
 ## TMT additional domains/uniform base pools - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Evidence and required carry-forward](agent_notes/TMT_REMAINING_DOMAINS_2026_11_07.md).

@@ -1,0 +1,16 @@
+{
+  "pools": [
+    {
+      "rolls": 27,
+      "entries": [
+        {
+          "type": "skywars2:uniform_item",
+          "domain": "custom",
+          "types": [
+            "shooter_all"
+          ]
+        }
+      ]
+    }
+  ]
+}

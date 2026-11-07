@@ -29,6 +29,7 @@ public final class LbcJumpArtifacts {
         if(!admitted(owner))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;
+        LbcTmtPassiveQueries.reactiveOldJump(owner);
         int current=0,old=0;
         // Native26 inventory also exposes body/saddle slots41/42; source inventory scope ends at offhand40.
         for(int slot=0;slot<=40;slot++){

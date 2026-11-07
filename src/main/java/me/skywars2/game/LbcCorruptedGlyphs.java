@@ -60,7 +60,7 @@ public final class LbcCorruptedGlyphs {
     }
     static Kind kind(net.minecraft.world.item.ItemStack stack){
         if(!stack.is(DUST))return null;
-        var name=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getStringOr("glyphkind","");
+        var name=ItemData.stringValue(stack,"glyphkind","");
         for(var kind:Kind.values())if(kind.name().equalsIgnoreCase(name))return kind;
         return null;
     }

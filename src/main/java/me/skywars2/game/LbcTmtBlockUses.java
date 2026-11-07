@@ -14,9 +14,11 @@ import net.minecraft.world.item.context.UseOnContext;
 /** The genuine use-on context and native factory own placement geometry, permissions and the sole debit. */
 final class LbcTmtBlockUses {
     private LbcTmtBlockUses(){}
-    static boolean supports(Item item){return shulkerItem(item)||BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("skywars2")
+    static boolean supports(Item item){return item==LbcCorruptedGlyphs.DUST||shulkerItem(item)||BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("skywars2")
             &&(item instanceof BlockItem||item instanceof LbcMarkerEggItem||item instanceof LbcPumpkinatorItem||item instanceof SpawnEggItem);}
     static Item canonical(ItemStack stack){
+        // The bare registered transport has no glyph selector; only authored kinds own use-on.
+        if(stack.is(LbcCorruptedGlyphs.DUST))return LbcCorruptedGlyphs.kind(stack)!=null?LbcCorruptedGlyphs.DUST:null;
         var slab=LbcLegacySlabs.canonical(stack);if(slab!=null)return slab;
         if(shulkerItem(stack.getItem()))return authoredShulker(stack)?stack.getItem():null;
         if(supports(stack.getItem()))return stack.getItem();
@@ -42,13 +44,16 @@ final class LbcTmtBlockUses {
                 &&id.equals("lbc:infinity_upgraded_luck")&&ItemData.intValue(stack,"sigma_shulker",0)==1;
     }
     private static Item selected(ItemStack stack){var item=LbcTmtAbilities.nativePredicatesActive()?LbcTmtAbilities.nativePredicateItem(stack):null;return item==null?stack.getItem():item;}
-    static boolean airCandidate(ItemStack stack){var item=selected(stack);return supports(item)&&!(item instanceof BlockItem)||LbcTmtNativeThrows.canonical(stack)==item;}
-    static boolean air(GameController game,ServerPlayer player,InteractionHand hand){var stack=player.getItemInHand(hand);var item=selected(stack);return (supports(item)&&!(item instanceof BlockItem)||LbcTmtNativeThrows.canonical(stack)==item)&&item.use(player.level(),player,hand).consumesAction();}
+    static boolean airCandidate(ItemStack stack){var item=selected(stack);return item!=LbcCorruptedGlyphs.DUST&&(supports(item)&&!(item instanceof BlockItem)||LbcTmtNativeThrows.canonical(stack)==item);}
+    static boolean air(GameController game,ServerPlayer player,InteractionHand hand){var stack=player.getItemInHand(hand);var item=selected(stack);return item!=LbcCorruptedGlyphs.DUST&&(supports(item)&&!(item instanceof BlockItem)||LbcTmtNativeThrows.canonical(stack)==item)&&item.use(player.level(),player,hand).consumesAction();}
     static int use(GameController game,UseOnContext context){
         if(!(context.getPlayer() instanceof ServerPlayer player))return 0;var stack=context.getItemInHand();int accepted=0;
         for(var property:LbcTmtAbilities.read(stack)){
             if(stack.isEmpty()||player.getItemInHand(context.getHand())!=stack)break;
             var item=LbcTmtComponents.nativeItem(property.data());if(!supports(item))continue;
+            // Validate the private prototype, so unrelated outer/sibling selector data cannot
+            // turn a forged bare Dust property into a real source kind.
+            if(item==LbcCorruptedGlyphs.DUST&&LbcCorruptedGlyphs.kind(LbcTmtComponents.source(game,property))==null)continue;
             if(LbcTmtAbilities.invoke(stack,property.id(),()->item.useOn(context).consumesAction()))accepted++;
         }
         return accepted;

@@ -152,7 +152,7 @@ public final class LbcEdibleSpells {
     private boolean insert(ServerPlayer p,Entity entity){if(!(entity instanceof ItemEntity))entity.entityTags().add(TAG);game.items().markCurrentItemEpoch(entity);authors.put(entity,game.items().indirectKills().wildCause(p));nativeChildren.add(entity);publishing.add(entity);
         try{if(p.level().addFreshEntity(entity)&&!entity.isRemoved()){game.items().timeStop().prepareFrozen(entity);return true;}nativeChildren.remove(entity);authors.remove(entity);return false;}finally{publishing.remove(entity);}
     }
-    private void drop(ServerPlayer author,Entity target,String table){for(var stack:game.lbc().rollTable((net.minecraft.server.level.ServerLevel)target.level(),target.position(),target,table)){
+    private void drop(ServerPlayer author,Entity target,String table){for(var stack:game.lbc().rollTable((net.minecraft.server.level.ServerLevel)target.level(),target.position(),target,LbcAllItemPools.uniformTable(table))){
         var item=new ItemEntity(target.level(),target.getX(),target.getY(),target.getZ(),stack);item.setDefaultPickUpDelay();item.setThrower(author);insert(author,item);
     }}
     private ItemStack rollSlab(Entity e){var out=game.lbc().rollTable((net.minecraft.server.level.ServerLevel)e.level(),e.position(),e,"lbc:random_eatable_slab_random_count");return out.isEmpty()?ItemStack.EMPTY:out.getFirst();}

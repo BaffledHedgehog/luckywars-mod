@@ -4,8 +4,11 @@
       "rolls": 27,
       "entries": [
         {
-          "type": "minecraft:loot_table",
-          "value": "lbc:rofls",
+          "type": "skywars2:uniform_item",
+          "domain": "custom",
+          "types": [
+            "rofl"
+          ],
           "modifier": [
             {
               "components": {
