@@ -45,6 +45,12 @@ public final class ContentGalleryChecks {
             require(represented.contains(item), "every registered native mod item represented: " + BuiltInRegistries.ITEM.getKey(item));
         var params = new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN, player.position())
                 .withParameter(LootContextParams.THIS_ENTITY, player).create(LootContextParamSets.CHEST);
+        var tmt=contents.stream().filter(LbcTmtItems::matches).findFirst().orElseThrow();TmtAcquisitionChecks.generated(tmt);
+        var tmtRoll=(LootTable)((Map<?,?>)WoolBucketChecks.read(catalog,"rolls")).get(new ContentGallery.Identity(tmt));
+        require(tmtRoll!=null,"TMT frame retains its real native loot source");
+        var tmtA=tmtRoll.getRandomItems(params,11L);var tmtB=tmtRoll.getRandomItems(params,12L);
+        require(tmtA.size()==1&&tmtB.size()==1&&!ItemStack.matches(tmtA.getFirst(),tmtB.getFirst()),"TMT gallery source rerolls instead of cloning preview properties");
+        TmtAcquisitionChecks.generated(tmtA.getFirst());TmtAcquisitionChecks.generated(tmtB.getFirst());
         for (String id : List.of("lbc:ported/phd_certificate", "lbc:ported/pills/pill_0", "lbc:ported/fat_skeleton_spawn_egg",
                 "lbc:ported/helicopter_spawn_egg", "lbc:ported/muravei_spawn_egg")) {
             var nativeItems = game.server().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse(id)))

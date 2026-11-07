@@ -37,6 +37,7 @@ public final class LbcSpecialDrops {
         return LbcAcademy.recognizedDrop(stack)||LbcHelicopterEncounter.isTrigger(stack)||LbcCrocodildo.trigger(stack);
     }
     static boolean nativeRecognized(net.minecraft.world.item.ItemStack stack) {
+        if(LbcTmtItems.token(stack))return true;
         return LbcAcademy.recognizedDrop(stack)||LbcHelicopterEncounter.isTrigger(stack)||LbcCrocodildo.trigger(stack)||LbcBalance.isDrop(stack) || LbcEternalWealthItems.isDrop(stack) || LbcLuckyBlocks.silkToken(stack) || LbcFamilyDrops.matches(stack) || LbcGrimoireDungeon.matches(stack) || LbcMagicBean.recognized(stack) || LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
     }
 
@@ -137,6 +138,12 @@ public final class LbcSpecialDrops {
         if (token.isRemoved() || token.getAge() >= 5999 || stale(token) || !active(token)
                 || !(token.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return false;
         if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token).epoch())) return false;
+        if(LbcTmtItems.token(token.getItem())){
+            int now=game.server().getTickCount();if(lastAttempt.getOrDefault(token,Integer.MIN_VALUE)==now||!resident(level,token.blockPosition(),0))return false;
+            if(!perform)return true;
+            lastAttempt.put(token,now);if(!game.items().tmt().acquire(token))return false;
+            if(debit)consume(token);return true;
+        }
         boolean academy=LbcAcademy.recognizedDrop(token.getItem());
         boolean helicopter=LbcHelicopterEncounter.isTrigger(token.getItem());
         boolean crocodildo=LbcCrocodildo.trigger(token.getItem());

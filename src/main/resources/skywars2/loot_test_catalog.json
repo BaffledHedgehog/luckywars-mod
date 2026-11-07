@@ -7,6 +7,7 @@
     "lbc:ported/"
   ],
   "tables": [
+    "lbc:tmtrainer_drop",
     "lbc:neko_set_chaos/boots",
     "lbc:neko_set_chaos/leggings",
     "lbc:neko_set_chaos/chestplate",

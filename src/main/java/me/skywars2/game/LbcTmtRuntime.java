@@ -125,6 +125,15 @@ public final class LbcTmtRuntime {
         var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtEquipment.apply(game,result);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);return result;
     }
     public ItemStack generate(RandomSource random){return generate(random,catalog().drawSeven(random));}
+    /** Shared special-drop dispatcher owns admission, TimeStop and the sole token debit. */
+    boolean acquire(net.minecraft.world.entity.item.ItemEntity token){
+        if(!LbcTmtItems.token(token.getItem())||token.isRemoved()||!(token.level() instanceof net.minecraft.server.level.ServerLevel level))return false;
+        var result=new net.minecraft.world.entity.item.ItemEntity(level,token.getX(),token.getY(),token.getZ(),generate(level.getRandom()),0,0,0);
+        var author=game.items().specialDrops().owner(token);if(author!=null)result.setThrower(author);
+        game.items().markCurrentItemEpoch(result);
+        var source=game.items().spellSources().source(token);if(source!=null)game.items().spellSources().bind(result,source);
+        if(!level.addFreshEntity(result)){result.discard();return false;}return true;
+    }
     LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(game,useProfiles());return catalog;}
     static void visual(ItemStack stack){
         int seed=ItemData.intValue(stack,"tmt_texture_seed",0);

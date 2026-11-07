@@ -507,7 +507,7 @@ public final class ContentGallery {
                 var value = json.get("value");
                 if (value.isJsonPrimitive()) reference(value.getAsString(), modifiers, node.ancestry);
                 else queue.addLast(new Node(value.getAsJsonObject(), modifiers, node.ancestry));
-            } else if (type.equals("minecraft:item")) {
+            } else if (type.equals("minecraft:item")||type.equals("skywars2:tmt")) {
                 var entry = json.deepCopy(); entry.remove("condition"); entry.remove("conditions"); entry.remove("weight"); entry.remove("quality");
                 var functions = new JsonArray(); modifiers.forEach(functions::add);
                 entry.remove("modifier");
@@ -530,7 +530,7 @@ public final class ContentGallery {
             }
         }
         private void add(ItemStack item) {
-            if(!LootTestCatalog.publicNativeItem(item.getItem()))return;
+            if(!LootTestCatalog.publicNativeStack(item))return;
             if (item.isEmpty()) return;
             represented.add(item.getItem());
             var identity = new Identity(item);

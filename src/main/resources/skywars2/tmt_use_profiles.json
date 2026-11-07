@@ -33861,7 +33861,7 @@
       ]
     },
     {
-      "item": "minecraft:repeating_command_block",
+      "item": "skywars2:tmt_token",
       "data": [
         "{tmt:1,drop:1}"
       ],
@@ -33871,8 +33871,7 @@
         "tmtrainer_drop.json"
       ],
       "aliases": [
-        "lbc:tmtrainer_drop",
-        "lbc:item_defs/minecraft/repeating_command_block__6711510709f0"
+        "lbc:tmtrainer_drop"
       ]
     },
     {

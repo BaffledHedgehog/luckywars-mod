@@ -27,7 +27,8 @@ public final class LbcTmtItems {
     private LbcTmtItems(){}
     public static final Item TOKEN=token();
     private static final List<Item> OUTPUTS=outputs();
-    public static void register(){}
+    public static void register(){LbcTmtLoot.register();}
+    static boolean token(ItemStack stack){return !matches(stack)&&(stack.is(TOKEN)||ItemData.intValue(stack,"tmt",0)==1);}
     public static boolean output(Item item){return OUTPUTS.contains(item);}
     static ItemStack prototype(int index){return new ItemStack(OUTPUTS.get(index));}
     public static boolean matches(ItemStack stack){return ItemData.intValue(stack,"tmt_item",0)==1;}

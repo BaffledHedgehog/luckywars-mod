@@ -201,6 +201,9 @@ final class LbcTmtCatalog {
                                 Map<String,Finding> findings){
         if(stack.isEmpty())return;
         var nativeId=BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if(LbcTmtItems.output(stack.getItem())||LbcTmtItems.token(stack)){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"TMT transport/acquisition is not a recursively sampled property");return;
+        }
         boolean composedComponent=false;
         for(var property:LbcTmtEquipment.PROPERTIES)if(property.present(stack)){
             composedComponent=true;
@@ -281,9 +284,6 @@ final class LbcTmtCatalog {
         if(stack.is(LbcCorruptedGlyphs.DUST)&&LbcCorruptedGlyphs.kind(stack)==null){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
                     "Unparameterized glyph transport; four authored glyphkind payloads are admitted by the real native use-on factory, not a blank dust ability");return;
-        }
-        if(LbcTmtItems.output(stack.getItem())||stack.is(LbcTmtItems.TOKEN)){
-            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"TMT transport/acquisition is not a recursively sampled property");return;
         }
 
         if(LbcTmtManaPotions.delivery(stack)==LbcTmtManaPotions.Delivery.DRINK){

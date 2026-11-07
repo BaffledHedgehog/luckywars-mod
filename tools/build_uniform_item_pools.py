@@ -31,7 +31,10 @@ DEFAULT_NATIVE = {'skywars2:oguzok_sword': {
     'reason': 'Complete native wooden sword/model prototype intentionally constructed by sword(); no deferred dose, mode or payload is required.'},
     'skywars2:consumed_block': {
     'owner': 'LbcConsumedBlock.ITEM/LbcBlockModels.CubeItem',
-    'reason': 'Real native playable block item with complete registered block/model prototype; generated-terrain use is not a service exclusion from all items.'}}
+    'reason': 'Real native playable block item with complete registered block/model prototype; generated-terrain use is not a service exclusion from all items.'},
+    'skywars2:steampunk_rocket': {
+    'owner': 'LbcSteampunkRocket.TOKEN/registerItem/Token.use',
+    'reason': 'Complete native rocket prototype includes its real gadget flag, model, name and lore; native launch needs no deferred dose, mode or entity payload. The former egg transport has no authored loot leaf.'}}
 TYPE_FLAGS = {name: name for name in ('accessory', 'axe', 'bow', 'hoe', 'pickaxe', 'potion', 'shield', 'shooter', 'shovel', 'staff', 'sword', 'totem', 'trident', 'arcanum', 'helmet', 'chestplate', 'leggings', 'boots')}
 TYPE_FLAGS.update(spells='spellitem', summons='summoner')
 ALL_TYPES = ('accessory', 'arcanum', 'axe', 'boots', 'bow', 'hoe', 'shooter', 'shovel', 'staff', 'summons', 'sword')

@@ -34,9 +34,12 @@ public final class LootTestCatalog {
 
     private LootTestCatalog() { }
 
-    /** The green wire's outside reward depends on the deferred full random_glack/TMT pool. */
+    /** Bare generated-item transports are not ready gameplay prototypes. */
     public static boolean publicNativeItem(net.minecraft.world.item.Item item) {
         return item != LbcNexusWireItems.BLUE&&!LbcTmtItems.output(item);
+    }
+    public static boolean publicNativeStack(net.minecraft.world.item.ItemStack stack){
+        return publicNativeItem(stack.getItem())||LbcTmtItems.output(stack.getItem())&&!LbcTmtAbilities.read(stack).isEmpty();
     }
 
     public static boolean isSuggested(Identifier id) {

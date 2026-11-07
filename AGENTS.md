@@ -7,6 +7,30 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## TMT acquisition and real gallery factory - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL parent is now82333594/757cdfe0 over92762114/4db43bdd.
+Ten Java families/five resources; all6 suites pass on SAME final artifact.
+[TMT_ACQUISITION_2026_11_07.md](agent_notes/TMT_ACQUISITION_2026_11_07.md).
+Original tmtrainer_drop now emits native token with old wrappers intact. Shared
+special-drop scheduler creates fresh TMT in air, one token unit/native tick;
+TimeStop/source/epoch retained, no jamming. Native skywars2:tmt loot entry and
+lbc:ported/tmt direct table reuse runtime generator/uniform single factory ticket.
+Acquisition exclusion moved before drop classification to forbid recursive TMT.
+Gallery accepts populated generated output and preserves real factory loot source;
+bare output transports stay hidden. Actual token stack/TimeStop/two outputs/native
+codec/author/model and actual gallery rerolls pass. All6 suites: tmt-acquisition/
+content-gallery/tmt-catalog/uniform-item-pools/typed-uniform-item-pools/tmt-shared-drops.
+Manifest refresh updates4 stale native transports and authored nuclear egg. Rocket
+has explicit complete-default admission (full native flag/model/name/lore, no payload).
+Uniform complete=true/all native IDs accounted/one TMT ticket;34 typed views/1061
+draws/12 real27-roll callers.10489 guards/281 author paths/three WIP/HUD/RP/Main exact.
+512MiB compiler then1280MiB fixture, normal exit/exact restore/no locks. Main83b0ea27
+unchanged; NO installer/restart/author RP edits; hold ALL until stable. Goal ACTIVE.
+CONFIRMED NEXT GAP: vanilla spawn eggs with authored ENTITY_DATA (e.g. bat->Illusioner)
+are wrongly service-excluded. Reuse LbcTmtBlockUses with actual payload admission,
+not bare/category-only egg defaults. Then capability/service and stable integration.
+
 ## TMT private native firework ammunition - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL internal parent is now92762114/4db43bdd over112e2ded/3f32154c.
