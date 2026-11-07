@@ -1,3 +1,15 @@
+## TMT native ranged/container/inventory domains - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Evidence and carry-forward](agent_notes/TMT_NATIVE_DOMAINS_2026_11_07.md).
+Four real legacy ranged owners and TMT composition; selected Ghast ammo/shared trinkets.
+Three native infinite-shulker full container cycles; nine literal payload component types retained.
+Malevich private PDC fallback; native curse/sword/Greedstone domains and exact mixed survivors.
+Internal1929bf7b/179d61bf on full76e441e2 parent;11 actual mode1 matches pass.
+26 Java families/21 resources;282 author paths and original HUD preserved; Main/libs/RP unchanged.
+Full TMT pending:16 real legacy keys, other native domains, independent offline fireball load,
+procedural atlas visual, separated all-item pools/acquisition and coherent final release.
+One512MiB compiler then one2GiB fixture; both exited. Preserve VSCode Java processes.
+
 ## User test report fixes - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [All17 report items and evidence](agent_notes/TEST_REPORT_FIXES_2026_11_07.md).

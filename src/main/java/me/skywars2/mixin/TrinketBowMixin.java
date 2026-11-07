@@ -62,6 +62,7 @@ public abstract class TrinketBowMixin {
             if(me.skywars2.game.LbcTmtRanged.onShot(game,player,hand,weapon,fired,List.copyOf(spawned.get()))){
                 return;
             }
+            me.skywars2.game.LbcLegacyRanged.installRocketAmmo(game,player,fired,List.copyOf(spawned.get()));
             if(me.skywars2.game.ItemData.intValue(fired,"explosive",0)==1){
                 var nativeFamily=List.copyOf(spawned.get());if(!traitsRolled)game.items().trinkets().shot(player,nativeFamily);traitsRolled=true;
                 if(game.items().balance().explosiveBow(player,fired,nativeFamily))return;
@@ -80,7 +81,9 @@ public abstract class TrinketBowMixin {
             var family=game.items().shulkerBow().augment(player,fired,oldFamily);
             game.items().madokaBow().augment(player,fired,family);
             if(!traitsRolled)game.items().trinkets().shot(player,family);
+            me.skywars2.game.LbcLegacyRanged.convert(game,player,fired,family);
             me.skywars2.game.LbcMinigunCrossbow.afterShot(game,player,hand,weapon,family,fired);
+            me.skywars2.game.LbcLegacyRanged.afterShot(game,player,hand,weapon,family,fired);
         }
     }
 }

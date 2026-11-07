@@ -86,6 +86,14 @@ public final class LbcSpecialFireballs {
         actors.add(actor);game.items().timeStop().prepareFrozen(actor);
         if(!actor.level().addFreshEntity(actor)||actor.isRemoved()){actors.remove(actor);actor.discard();return null;}return actor;
     }
+    /** Current firegun uses the native small-fireball factory, lifecycle and hit protection. */
+    public Projectile spawnRangedFire(ServerPlayer owner,Vec3 at,Vec3 velocity,Projectile donor){
+        if(!resident(owner.level(),at))return null;
+        var fire=new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level());fire.entityTags().addAll(donor.entityTags());fire.entityTags().add("can_deleted");
+        LbcTmtAmmoPayloads.copyPayloads(donor,fire);return insert(owner,fire,at,velocity,false);
+    }
+    public void rangedContact(Projectile shot,LivingEntity target,Vec3 point){if(managed(shot))LbcLegacyRanged.contact(game,shot,target,point);}
+    public void rangedGround(Projectile shot,Vec3 point){if(managed(shot))LbcLegacyRanged.ground(game,shot,point);}
     /** Exact source branches 0..18; native bodies retain all fuse and flight clocks. */
     public Entity spawnDelta(LbcSpellSource.Source source,ServerLevel level,Vec3 at,int branch){
         if(source==null||!game.items().currentEpoch(source.epoch())||!resident(level,at)||!horizontal(BlockPos.containing(at)))return null;
@@ -149,7 +157,11 @@ public final class LbcSpecialFireballs {
         for(var tag:e.entityTags())if(tag.startsWith(OWNER))try{return game.server().getPlayerList().getPlayer(UUID.fromString(tag.substring(OWNER.length())));}catch(IllegalArgumentException ignored){}
         return null;
     }
-    public boolean canAffect(Entity source,Entity target){return !managed(source)||active(source)&&game.items().wands().validTarget(target);}
+    public boolean canAffect(Entity source,Entity target){
+        if(!managed(source))return true;
+        if(!active(source)||!game.items().wands().validTarget(target))return false;
+        var ranged=LbcLegacyRanged.canAffect(game,source,target);return ranged==null||ranged;
+    }
     public boolean explosionTarget(Entity source,Entity target){return canAffect(source,target);}
     /** Native DragonFireball constructs its cloud; retain its physical policy before the load callback. */
     public void inherit(Entity parent,Entity child){
@@ -167,6 +179,7 @@ public final class LbcSpecialFireballs {
         for(var actor:List.copyOf(actors)){
             if(actor.isRemoved()){actors.remove(actor);continue;}if(!active(actor)){actors.remove(actor);actor.discard();continue;}
             if(frozen(actor)||!resident((ServerLevel)actor.level(),actor.position()))continue;
+            LbcLegacyRanged.flight(game,actor);
             if(actor instanceof net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile){
                 // Client fireballs predict inertia and collisions; correct through the native tracker each tick.
                 // Keep the authored launch position and the real projectile's motion/impact authority.
@@ -218,7 +231,8 @@ public final class LbcSpecialFireballs {
         boolean actor=actors.contains(source),waiting=pending.contains(source);
         if(!actor&&!waiting)return null;
         // CHILD marks damaging released siblings too; it is not a visual/protected role tag.
-        return CloneComplexProjectileStates.image(e->{if(actor)actors.add(e);if(waiting)pending.add((Snowball)e);},
+        var payload=source.getAttached(LbcLegacyRanged.ammoType());var copied=payload==null?null:payload.copy();
+        return CloneComplexProjectileStates.image(e->{if(actor)actors.add(e);if(waiting)pending.add((Snowball)e);if(copied!=null)e.setAttached(LbcLegacyRanged.ammoType(),copied.copy());},
                 e->{actors.remove(e);pending.remove(e);});
     }
 

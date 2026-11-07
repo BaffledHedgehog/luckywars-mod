@@ -2,6 +2,9 @@
   "replace": false,
   "values": [
     "skywars2:minigun_crossbow",
+    "skywars2:blaze_crossbow",
+    "skywars2:ghast_crossbow",
+    "skywars2:dildomet",
     "skywars2:minigun_crossbow_old",
     "skywars2:imba_quick_crossbow",
     "skywars2:imba_fast_crossbow",

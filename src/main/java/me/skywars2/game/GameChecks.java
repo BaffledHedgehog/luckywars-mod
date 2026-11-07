@@ -1381,6 +1381,11 @@ public final class GameChecks {
                                 case "tmt-ammo" -> { TmtAmmoChecks.run(game); return; }
                                 case "tmt-held" -> { TmtHeldChecks.run(game); return; }
                                 case "tmt-block-use" -> { TmtBlockUseChecks.run(game); return; }
+                                case "tmt-shulker" -> {TmtShulkerChecks.run(game);return;}
+                                case "legacy-ranged" -> {LegacyRangedChecks.run(game);return;}
+                                case "legacy-ranged-rewind" -> {LegacyRangedChecks.runRewind(game);return;}
+                                case "tmt-legacy-ranged" -> {TmtRangedChecks.runLegacy(game);return;}
+                                case "tmt-inventory-mutations" -> {TmtInventoryMutationChecks.run(game);return;}
                                 case "tmt-drops" -> { TmtDropChecks.run(game); return; }
                                 case "tmt-intake" -> { TmtIntakeChecks.run(game); return; }
                                 case "tmt-passives" -> { TmtPassiveChecks.run(game); return; }
@@ -1690,7 +1695,7 @@ public final class GameChecks {
             TmtNativeThrowChecks.tick(game);
             TmtInventoryTraitChecks.tick(game);
             ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);TmtDropChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
-            NativeTestReportCombatChecks.tick(game);CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
+            LegacyRangedChecks.tick(game);TmtInventoryMutationChecks.tick(game);NativeTestReportCombatChecks.tick(game);CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);
             SheepChecks.tick(game);

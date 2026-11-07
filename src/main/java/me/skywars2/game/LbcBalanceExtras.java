@@ -71,14 +71,17 @@ final class LbcBalanceExtras {
         }catch(Exception error){throw new IllegalStateException("Invalid fixed old lucky spawner",error);}
     }
     List<Projectile> augment(ServerPlayer owner,ItemStack weapon,List<Projectile> family){
-        boolean doubled=LbcBalanceItems.flag(weapon,"double_old"),shulker=LbcBalanceItems.flag(weapon,"shulker")&&!game.items().magic().suppressed(owner);
+        boolean currentDouble=LbcBalanceItems.flag(weapon,"double");
+        boolean doubled=currentDouble||LbcBalanceItems.flag(weapon,"double_old"),shulker=LbcBalanceItems.flag(weapon,"shulker")&&!game.items().magic().suppressed(owner);
         if(!doubled&&!shulker)return family;var result=new ArrayList<Projectile>();
         for(var projectile:family){if(!(projectile instanceof AbstractArrow arrow)||arrow.isRemoved()||arrow.getOwner()!=owner){result.add(projectile);continue;}
             if(doubled){var left=Vec3.directionFromRotation(0,owner.getYRot()-90);for(int side:new int[]{-1,1}){
                 var duplicate=arrow.getType().create(owner.level(),EntitySpawnReason.TRIGGERED);if(!(duplicate instanceof AbstractArrow copy))continue;
                 var output=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,owner.registryAccess());arrow.saveWithoutId(output);var tag=output.buildResult();tag.remove("UUID");
-                copy.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),tag));copy.setOwner(owner);copy.setPos(owner.getEyePosition().add(left.scale(side)).add(owner.getLookAngle().scale(.3)));copy.setDeltaMovement(game.items().timeStop().persistedVelocity(arrow,arrow.getDeltaMovement()));copy.setNoGravity(game.items().timeStop().persistedNoGravity(arrow,arrow.isNoGravity()));copy.setYRot(arrow.getYRot());copy.setXRot(arrow.getXRot());
-                LbcTmtAmmoPayloads.copyPayloads(arrow,copy);copy.entityTags().add("doubel");copy.entityTags().add("active");insert(owner,copy);result.add(copy);
+                copy.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),tag));copy.setOwner(owner);copy.setPos(owner.getEyePosition().add(left.scale(side*(currentDouble?.4:1))).add(owner.getLookAngle().scale(.3)));copy.setDeltaMovement(game.items().timeStop().persistedVelocity(arrow,arrow.getDeltaMovement()));copy.setNoGravity(game.items().timeStop().persistedNoGravity(arrow,arrow.isNoGravity()));copy.setYRot(arrow.getYRot());copy.setXRot(arrow.getXRot());
+                LbcTmtAmmoPayloads.copyPayloads(arrow,copy);copy.entityTags().add("doubel");copy.entityTags().add("active");
+                if(currentDouble){copy.entityTags().add("killedarrow");copy.entityTags().add("skywars2.legacy_double");copy.pickup=AbstractArrow.Pickup.DISALLOWED;}
+                insert(owner,copy);result.add(copy);
             }arrow.discard();}
             else result.add(arrow);
         }

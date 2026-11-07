@@ -41,6 +41,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
     private Vec3 previous;
     private boolean worldVariants=true;
     boolean precise;
+    private int lastNativeTick=Integer.MIN_VALUE;
 
     private static final class Carrier {
         final ItemStack ammo,weapon;
@@ -63,7 +64,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             var ammo=arrow.getPickupItemStackOrigin().copy();var nativeWeapon=arrow.getWeaponItem();
             var accepted=nativeWeapon==null?weapon:nativeWeapon;
             var context=new Arrow(owner.level(),owner,ammo.copy(),accepted.copy());
-            context.setUUID(arrow.getUUID());context.setPos(arrow.position());context.setDeltaMovement(arrow.getDeltaMovement());
+            context.setUUID(arrow.getUUID());context.setPos(arrow.position());context.setDeltaMovement(game.items().timeStop().persistedVelocity(arrow,arrow.getDeltaMovement()));
             context.setYRot(arrow.getYRot());context.setXRot(arrow.getXRot());context.setNoGravity(true);
             context.entityTags().addAll(arrow.entityTags());game.items().markCurrentItemEpoch(context);
             context.setRemainingFireTicks(arrow.getRemainingFireTicks());
@@ -102,7 +103,57 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
             c.payloads=carrier.payloads==null?null:carrier.payloads.copy();
             c.contacts.addAll(carrier.contacts);c.traitsActive=carrier.traitsActive;c.terminal=carrier.terminal;c.lastReactiveTick=carrier.lastReactiveTick;copied.add(c);
         }
-        var result=new LbcBeamAmmo(game,owner,weapon,copied);result.previous=previous;result.worldVariants=worldVariants;result.precise=precise;return result;
+        var result=new LbcBeamAmmo(game,owner,weapon,copied);result.previous=previous;result.worldVariants=worldVariants;result.precise=precise;result.lastNativeTick=lastNativeTick;return result;
+    }
+    /** One real actor tick; native contact alone selects the damage recipient. */
+    boolean nativeTarget(Entity target){return game.items().wands().projectileTarget(owner,target);}
+    void markTraits(int mask){for(var c:carriers)game.items().trinketArrows().mark(c.context,mask);}
+    void nativeFlight(Entity actor,LbcIndirectKills.Owner cause){
+        if(lastNativeTick==game.server().getTickCount()||actor.level()!=owner.level()||!game.items().currentEpoch(epoch))return;
+        lastNativeTick=game.server().getTickCount();sampleTargets((ServerLevel)actor.level(),actor.position(),cause,false,List.of());
+    }
+    void nativeContact(Entity actor,LivingEntity target,Vec3 point,LbcIndirectKills.Owner cause){
+        if(!game.items().currentEpoch(epoch)||!game.items().wands().projectileTarget(owner,target))return;
+        nativeFlight(actor,cause);
+        for(var carrier:carriers)if(carrier.contacts.add(target.getUUID())){carrier.context.setPos(point);contact((ServerLevel)actor.level(),carrier,target,cause);}
+    }
+    void nativeGround(Entity actor,Vec3 point,LbcIndirectKills.Owner cause){
+        nativeFlight(actor,cause);blockContact((ServerLevel)actor.level(),point,cause);
+        var hit=new net.minecraft.world.phys.BlockHitResult(point,net.minecraft.core.Direction.getApproximateNearest(actor.getDeltaMovement().reverse()),net.minecraft.core.BlockPos.containing(point),false);
+        for(var carrier:carriers)if(carrier.traitsActive){game.items().trinketArrows().hit(carrier.context,hit);carrier.traitsActive=!carrier.context.isRemoved();}
+    }
+    /** Native attachment codec image; detached contexts are never published or globally indexed. */
+    net.minecraft.nbt.CompoundTag save(){
+        var tag=new net.minecraft.nbt.CompoundTag();var ops=owner.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+        tag.putString("owner",owner.getUUID().toString());tag.putString("epoch",epoch);tag.put("weapon",ItemStack.CODEC.encodeStart(ops,weapon).getOrThrow());
+        tag.putBoolean("world",worldVariants);tag.putBoolean("precise",precise);tag.putInt("frame",game.server().getTickCount());tag.putBoolean("native_this_tick",lastNativeTick==game.server().getTickCount());
+        if(previous!=null)tag.put("previous",Vec3.CODEC.encodeStart(ops,previous).getOrThrow());
+        var list=new net.minecraft.nbt.ListTag();for(var c:carriers){var row=new net.minecraft.nbt.CompoundTag();
+            var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,owner.registryAccess());c.context.saveWithoutId(output);row.put("context",output.buildResult());
+            row.put("ammo",ItemStack.CODEC.encodeStart(ops,c.ammo).getOrThrow());row.put("weapon",ItemStack.CODEC.encodeStart(ops,c.weapon).getOrThrow());
+            row.putInt("spectral",c.spectral);row.putInt("fire",c.fire);row.putInt("variant",c.variant);row.putBoolean("traits",c.traitsActive);row.putBoolean("terminal",c.terminal);row.putBoolean("reactive_this_tick",c.lastReactiveTick==game.server().getTickCount());
+            var contacts=new net.minecraft.nbt.ListTag();for(var id:c.contacts)contacts.add(net.minecraft.nbt.StringTag.valueOf(id.toString()));row.put("contacts",contacts);
+            if(c.payloads!=null)row.put("payloads",LbcTmtAmmoPayloads.CODEC.encodeStart(ops,c.payloads).getOrThrow());list.add(row);
+        }tag.put("carriers",list);return tag;
+    }
+    static LbcBeamAmmo load(GameController game,ServerLevel level,net.minecraft.nbt.CompoundTag tag){
+        var ownerId=UUID.fromString(tag.getStringOr("owner",""));var owner=game.server().getPlayerList().getPlayer(ownerId);
+        if(owner==null)owner=MatchOfflinePlayers.find(ownerId);
+        if(owner==null||!game.items().currentEpoch(tag.getStringOr("epoch","")))return null;
+        var ops=level.registryAccess().createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);var carriers=new ArrayList<Carrier>();
+        for(var value:tag.getListOrEmpty("carriers")){if(!(value instanceof net.minecraft.nbt.CompoundTag row))continue;
+            var ammo=ItemStack.CODEC.parse(ops,row.getCompoundOrEmpty("ammo")).getOrThrow();var weapon=ItemStack.CODEC.parse(ops,row.getCompoundOrEmpty("weapon")).getOrThrow();
+            var context=new Arrow(level,owner,ammo.copy(),weapon.copy());context.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),row.getCompoundOrEmpty("context")));
+            var c=new Carrier(ammo,weapon,row.getIntOr("spectral",0),row.getIntOr("fire",0),row.getIntOr("variant",0),context);
+            c.traitsActive=row.getBooleanOr("traits",true);c.terminal=row.getBooleanOr("terminal",false);c.lastReactiveTick=row.getBooleanOr("reactive_this_tick",false)?game.server().getTickCount():Integer.MIN_VALUE;
+            for(var contact:row.getListOrEmpty("contacts"))contact.asString().ifPresent(id->c.contacts.add(UUID.fromString(id)));
+            if(row.contains("payloads")){c.payloads=LbcTmtAmmoPayloads.CODEC.parse(ops,row.getCompoundOrEmpty("payloads")).getOrThrow();c.payloads.rebase(tag.getIntOr("frame",Integer.MIN_VALUE),game.server().getTickCount());}
+            carriers.add(c);
+        }
+        if(carriers.isEmpty())return null;
+        var result=new LbcBeamAmmo(game,owner,ItemStack.CODEC.parse(ops,tag.getCompoundOrEmpty("weapon")).getOrThrow(),carriers);
+        result.worldVariants=tag.getBooleanOr("world",true);result.precise=tag.getBooleanOr("precise",false);result.previous=tag.contains("previous")?Vec3.CODEC.parse(ops,tag.get("previous")).getOrThrow():null;
+        result.lastNativeTick=tag.getBooleanOr("native_this_tick",false)?game.server().getTickCount():Integer.MIN_VALUE;return result;
     }
     private static int variant(ItemStack ammo){
         var contents=ammo.getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY);
@@ -193,7 +244,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
                          Vec3 point,Vec3 velocity,float yaw,float pitch,boolean critical,byte pierce,
                          double damage,int fire,UUID id,LbcTmtAmmoPayloads.State payloads) { }
     @Override public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
-        var author=links.key(owner);var savedPrevious=previous;int payloadFrame=game.server().getTickCount();
+        var author=links.key(owner);var savedPrevious=previous;int payloadFrame=game.server().getTickCount();boolean nativeThisTick=lastNativeTick==payloadFrame;
         var images=carriers.stream().map(c->new Image(c,Set.copyOf(c.context.entityTags()),Set.copyOf(c.contacts),c.traitsActive,c.terminal,c.lastReactiveTick==game.server().getTickCount(),
                 c.context.position(),c.context.getDeltaMovement(),c.context.getYRot(),c.context.getXRot(),c.context.isCritArrow(),
                 c.context.getPierceLevel(),((ShulkerBowMixin.ArrowAccess)c.context).skywars2$baseDamage(),c.context.getRemainingFireTicks(),c.context.getUUID(),c.payloads==null?null:c.payloads.copy())).toList();
@@ -206,7 +257,7 @@ public final class LbcBeamAmmo implements LbcChargedBows.BeamPayload {
                 context.setCritArrow(image.critical);((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)context).skywars2$setPierceLevel(image.pierce);context.setBaseDamage(image.damage);context.setRemainingFireTicks(image.fire);
                 contexts.add(context);
             }
-            return ()->{owner=restored;previous=savedPrevious;for(int i=0;i<images.size();i++){
+            return ()->{owner=restored;previous=savedPrevious;lastNativeTick=nativeThisTick?game.server().getTickCount():Integer.MIN_VALUE;for(int i=0;i<images.size();i++){
                 var image=images.get(i);var c=image.carrier;c.context=contexts.get(i);c.contacts.clear();c.contacts.addAll(image.contacts);c.traitsActive=image.traitsActive;c.terminal=image.terminal;c.lastReactiveTick=image.reactiveThisTick?game.server().getTickCount():Integer.MIN_VALUE;c.payloads=image.payloads==null?null:image.payloads.copy();if(c.payloads!=null)c.payloads.rebase(payloadFrame,game.server().getTickCount());
             }};
         };

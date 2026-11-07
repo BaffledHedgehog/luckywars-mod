@@ -1,6 +1,5 @@
 package me.skywars2.game;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -21,7 +20,10 @@ import java.util.*;
 
 /** Paper Malevich: deferred live-slot filling and the whole ground conversion/overflow consequence. */
 public final class LbcMalevich {
-    private static final String[] PDC={"luckywars","lws","lucky_wars"};
+    private static final List<net.minecraft.nbt.CompoundTag> PATTERNS=List.of("luckywars","lws","lucky_wars").stream().map(namespace->{
+        var root=new net.minecraft.nbt.CompoundTag();var values=new net.minecraft.nbt.CompoundTag();var item=new net.minecraft.nbt.CompoundTag();
+        item.putString(namespace+":type","malevich");values.put(namespace+":item",item);root.put("PublicBukkitValues",values);return root;
+    }).toList();
     private static final EquipmentSlot[] ARMOR={EquipmentSlot.HEAD,EquipmentSlot.CHEST,EquipmentSlot.LEGS,EquipmentSlot.FEET};
     private static final ResourceKey<LootTable> LOOT=ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:malevich_rnd"));
     private final GameController game;
@@ -35,9 +37,8 @@ public final class LbcMalevich {
     private int phase;
     public LbcMalevich(GameController game){this.game=game;}
     public static boolean matches(ItemStack stack){
-        if(stack.isEmpty())return false;var data=stack.get(DataComponents.CUSTOM_DATA);if(data==null)return false;
-        var pdc=data.copyTag().getCompoundOrEmpty("PublicBukkitValues");
-        for(var key:PDC)if(pdc.getCompoundOrEmpty(key+":item").getStringOr(key+":type","").equals("malevich"))return true;
+        if(stack.isEmpty())return false;
+        for(var pattern:PATTERNS)if(LbcTmtInventory.matches(stack,pattern))return true;
         return false;
     }
     private ItemStack carried(ServerPlayer player){

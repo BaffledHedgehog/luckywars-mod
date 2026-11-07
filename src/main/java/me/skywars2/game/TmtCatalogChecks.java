@@ -51,6 +51,12 @@ public final class TmtCatalogChecks {
             var restored=ItemStack.CODEC.parse(ops,ItemStack.CODEC.encodeStart(ops,first).getOrThrow()).getOrThrow();
             require(ItemStack.matches(first,restored),"native item codec preserves all generated properties and procedural seed");
         }
+        var shulkerTables=new java.util.HashSet<String>();
+        for(var family:catalog.families())for(var property:family.variants()){
+            var source=LbcTmtComponents.source(game,property);
+            if(LbcTmtBlockUses.authoredShulker(source))shulkerTables.add(source.get(DataComponents.CONTAINER_LOOT).lootTable().identifier().toString());
+        }
+        require(shulkerTables.containsAll(java.util.Set.of("lbc:infinity","lbc:infinity_upgraded","lbc:infinity_upgraded_luck")),"all authored native shulker payloads survive the actual sampler manifest");
         require(catalog.domains().hasPending(),"unresolved custom/native component owners stay explicit before public release");
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var trinkets=catalog.families().stream().filter(row->row.name().startsWith("trinket/")).limit(2).toList();

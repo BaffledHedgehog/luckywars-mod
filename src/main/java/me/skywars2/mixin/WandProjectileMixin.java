@@ -107,7 +107,7 @@ public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownU
             var game=SkyWars2.game();
             if(game!=null && !game.items().madokaBow().beforeProjectile((Projectile)(Object)this)){ci.cancel();return;}
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow actual
-                    && actual.level() instanceof net.minecraft.server.level.ServerLevel && (!game.items().homingArrows().beforeArrow(actual)||!game.items().trinketArrows().beforeArrow(actual))){ci.cancel();return;}
+                    && actual.level() instanceof net.minecraft.server.level.ServerLevel && (!me.skywars2.game.LbcLegacyRanged.beforeArrow(game,actual)||!game.items().homingArrows().beforeArrow(actual)||!game.items().trinketArrows().beforeArrow(actual))){ci.cancel();return;}
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.projectile.arrow.Arrow arrow
                     && arrow.entityTags().contains(me.skywars2.game.LbcTeleport.CLOUD)
                     && !game.items().teleport().beforeCloudTick(arrow)) ci.cancel();
@@ -162,9 +162,11 @@ public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownU
                 "Lnet/minecraft/world/entity/Entity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
         private boolean skywars2$fireOwner(Entity target,net.minecraft.server.level.ServerLevel level,
                 net.minecraft.world.damagesource.DamageSource source,float amount,
-                com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original) {
+                com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original,net.minecraft.world.phys.EntityHitResult hit) {
             boolean applied=original.call(target,level,source,amount);
             var projectile=(Projectile)(Object)this; var game=SkyWars2.game();
+            if(applied&&game!=null&&target instanceof net.minecraft.world.entity.LivingEntity living)
+                game.items().specialFireballs().rangedContact(projectile,living,hit.getLocation());
             if(applied && game!=null && (game.items().wands().isFireProjectile(projectile)||me.skywars2.game.LbcSpecialFireballs.managed(projectile))
                     && projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner
                     && target instanceof net.minecraft.world.entity.LivingEntity living)
@@ -175,6 +177,7 @@ public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownU
         private void skywars2$fireBlockOwner(net.minecraft.world.phys.BlockHitResult hit,
                 com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original) {
             var projectile=(Projectile)(Object)this; var game=SkyWars2.game();
+            if(game!=null)game.items().specialFireballs().rangedGround(projectile,hit.getLocation());
             if(game!=null && (game.items().wands().isFireProjectile(projectile)||me.skywars2.game.LbcSpecialFireballs.managed(projectile))
                     && projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner)
                 game.items().indirectKills().worldChanges((net.minecraft.server.level.ServerLevel)projectile.level(),projectile,()->original.call(hit));

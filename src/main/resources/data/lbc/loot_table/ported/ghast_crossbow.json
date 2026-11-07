@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/crossbow__55f5ba9c167d"
+        }
+      ]
+    }
+  ]
+}

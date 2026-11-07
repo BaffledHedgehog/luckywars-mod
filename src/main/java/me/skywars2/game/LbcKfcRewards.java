@@ -182,18 +182,22 @@ public final class LbcKfcRewards {
     }
     /** Accepted bow proc; owns a free native inventory mine, without casting Cultus. */
     public ItemEntity launchTrinketBomb(ServerPlayer owner) {
+        if(!active(owner))return null;
+        var look=owner.getLookAngle();
+        return launchRangedBomb(owner,owner.getEyePosition(),new Vec3(Math.floor(look.x*10000)*.0002,
+                Math.floor(look.y*10000)*.0002,Math.floor(look.z*10000)*.0002),.5f);
+    }
+    /** The same native bomb body, with the successful crossbow arrow's exact launch geometry. */
+    public ItemEntity launchRangedBomb(ServerPlayer owner,Vec3 origin,Vec3 motion,float volume) {
         if(!active(owner)) return null;
         int variant=1+owner.getRandom().nextInt(6);
-        Vec3 origin=owner.getEyePosition();
         var item=new CultItem(owner.level(),origin,bombStack(variant,true));
         item.setPermanentlyInvulnerable(true);
         item.entityTags().add("penis"); item.entityTags().add("penis_bomb");
         game.items().markCurrentItemEpoch(item);
         owned.put(item,owner.getUUID());
         bombs.put(item,new Bomb(owner.getUUID(),null,game.items().epoch(),variant));
-        var look=owner.getLookAngle();
-        item.setDeltaMovement(Math.floor(look.x*10000)*.0002,Math.floor(look.y*10000)*.0002,
-                Math.floor(look.z*10000)*.0002);
+        item.setDeltaMovement(motion);
         if(!owner.level().addFreshEntity(item)) {
             bombs.remove(item); owned.remove(item); item.discard(); return null;
         }
@@ -202,7 +206,7 @@ public final class LbcKfcRewards {
             case 6->"weewee"; default->"suction";
         };
         // Author-approved correction: the sound follows the actual launch position.
-        LbcOverload.sound(owner,origin,"minecraft:lbcsounds."+sound,.5f,1,0);
+        LbcOverload.sound(owner,origin,"minecraft:lbcsounds."+sound,volume,1,0);
         return item;
     }
     private static ItemStack bombStack(int variant,boolean styled) {
@@ -300,6 +304,7 @@ public final class LbcKfcRewards {
         if(!payloadOwner(owner) || !game.items().currentEpoch(state.epoch) || !payloadTarget(owner,victim)
                 || victim.entityTags().contains("no_penis")) return false;
         // Detach before discard: the bat remains native and dies from its source wither effect.
+        LbcLegacyRanged.contact(game,item,victim,item.position());
         bombs.remove(item); owned.remove(item); item.stopRiding(); item.discard();
         effect(owner,victim,state.variant); return true;
     }
@@ -413,6 +418,8 @@ public final class LbcKfcRewards {
             var state=bombs.get(item); var owner=bombOwner(state);
             if(item.isRemoved() || !payloadOwner(owner) || !game.items().currentEpoch(state.epoch)) { remove(item); continue; }
             if(game.items().wands().timeStopped() || item.entityTags().contains("time_stopped")) continue;
+            LbcLegacyRanged.flight(game,item);
+            if(item.onGround())LbcLegacyRanged.ground(game,item,item.position());
             // Only the tracked item neighbourhood; native playerTouch handles player contact.
             var candidates=item.level().getEntitiesOfClass(LivingEntity.class,item.getBoundingBox().inflate(1.2),
                     target->!(target instanceof Player) && !target.entityTags().contains("no_penis")
@@ -453,11 +460,23 @@ public final class LbcKfcRewards {
     List<ItemEntity> bombSnapshot() { return List.copyOf(bombs.keySet()); }
     int celebrationCount() { return celebrations.size(); }
     int pendingMulticastCount() { return multicasts.size(); }
+    /** Canonical body NBT owns ammo; this image restores only the ranged bomb's native producer links. */
+    MatchQueuedWorkCheckpoint.Image checkpointRanged(MatchSpellCheckpoint.Links links){
+        record Saved(MatchDamageSources.Ref actor,Bomb bomb,MatchDamageSources.Ref hostile,UUID owned){}
+        var saved=new ArrayList<Saved>();bombs.forEach((actor,bomb)->{
+            if(actor.getAttached(LbcLegacyRanged.ammoType())!=null)saved.add(new Saved(links.key(actor),bomb,links.key(bomb.hostileOwner),owned.get(actor)));
+        });
+        return rebound->{var restored=new IdentityHashMap<CultItem,Bomb>();var authors=new IdentityHashMap<Entity,UUID>();
+            for(var row:saved){var actor=(CultItem)rebound.get(row.actor);restored.put(actor,new Bomb(row.bomb.owner,(LivingEntity)rebound.get(row.hostile),row.bomb.epoch,row.bomb.variant));if(row.owned!=null)authors.put(actor,row.owned);}
+            return ()->{bombs.keySet().removeIf(actor->actor.getAttached(LbcLegacyRanged.ammoType())!=null);owned.keySet().removeIf(actor->actor instanceof CultItem&&actor.getAttached(LbcLegacyRanged.ammoType())!=null);bombs.putAll(restored);owned.putAll(authors);};
+        };
+    }
     static boolean cloneRecognizes(Entity e){return e instanceof CultBat||e instanceof CultItem||e instanceof LooseBolt;}
     static boolean cloneProtected(Entity e){return false;}
     LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(cloneProtected(source))return null;
         var owner=owned.get(source);var hostile=looseConsequences.get(source);var bomb=source instanceof CultItem item?bombs.get(item):null;
+        var ammo=source.getAttached(LbcLegacyRanged.ammoType());var ammoCopy=ammo==null?null:ammo.copy();
         if(owner==null&&hostile==null&&bomb==null)return null;
         return new LbcCloneSkills.ActorImage(){
             public Entity create(Entity original,ServerLevel level){
@@ -470,6 +489,7 @@ public final class LbcKfcRewards {
                 if(owner!=null)owned.put(clone,owner);
                 if(hostile!=null)looseConsequences.put(clone,(LivingEntity)family.getOrDefault(hostile,hostile));
                 if(bomb!=null)bombs.put((CultItem)clone,new Bomb(bomb.owner,bomb.hostileOwner==null?null:(LivingEntity)family.getOrDefault(bomb.hostileOwner,bomb.hostileOwner),bomb.epoch,bomb.variant));
+                if(ammoCopy!=null)clone.setAttached(LbcLegacyRanged.ammoType(),ammoCopy.copy());
             }
             public void rollback(Entity clone){owned.remove(clone);looseConsequences.remove(clone);bombs.remove(clone);}
         };

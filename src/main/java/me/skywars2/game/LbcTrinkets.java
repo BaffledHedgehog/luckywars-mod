@@ -190,13 +190,15 @@ public final class LbcTrinkets {
         copies=counts[5];if(technical&&copies>0&&player.getRandom().nextFloat()<(.1f+.05f*(copies-1)))mask|=LbcTrinketArrows.COCKTAIL;
         copies=counts[6];if(magical&&copies>0&&player.getRandom().nextFloat()<(.15f+.05f*(copies-1)))game.items().homing().launchFourier(player);
         copies=counts[7];if(technical&&copies>0&&player.getRandom().nextFloat()<(.05f+.01f*(copies-1))
-                &&family.stream().anyMatch(p->p instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow||LbcShulkerBow.managed(p))
+                &&family.stream().anyMatch(p->p instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow||LbcShulkerBow.managed(p)||LbcLegacyRanged.hasAmmo(p))
                 &&game.items().mana().trySpend(player,6)){
             mask|=LbcTrinketArrows.ROCKET;
             LbcOverload.sound(player,player.getEyePosition(),"minecraft:lbcsounds.hihihiha",2,1,0);
         }
-        if(mask!=0)for(var projectile:family)if((projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow||LbcShulkerBow.managed(projectile))
-                &&projectile.getOwner()==player&&!projectile.isRemoved()&&projectile.level()==player.level())game.items().trinketArrows().mark(projectile,mask);
+        if(mask!=0)for(var projectile:family)if(projectile.getOwner()==player&&!projectile.isRemoved()&&projectile.level()==player.level()){
+            if(projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow||LbcShulkerBow.managed(projectile))game.items().trinketArrows().mark(projectile,mask);
+            else LbcLegacyRanged.markTraits(game,projectile,mask);
+        }
     }
 
     private static Vec3 aim(ServerPlayer player, int precision, double scale) {

@@ -409,7 +409,10 @@
     "ShulkerBowMixin",
     "ShulkerBowMixin$ArrowAccess",
     "ShulkerBowMixin$SpectralAccess",
-    "ShulkerBowMixin$BulletAccess"
+    "ShulkerBowMixin$BulletAccess",
+    "TmtShulkerBlockMixin",
+    "TmtShulkerDropsMixin",
+    "TmtShulkerPickMixin"
   ],
   "injectors": {
     "defaultRequire": 1

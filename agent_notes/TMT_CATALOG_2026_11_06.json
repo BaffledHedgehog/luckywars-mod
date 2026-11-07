@@ -41557,10 +41557,14 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_implemented_verified",
+      "reason": "LbcLegacyRanged owns the real accepted native shot, shared copy/conversion/reload, selected ammo, traits and source effects; native/TMT qualification is in progress.",
       "prototypeIds": [],
-      "ownerCandidates": [],
+      "ownerCandidates": [
+        "LbcLegacyRanged",
+        "LbcBalanceExtras",
+        "LbcBeamAmmo"
+      ],
       "sourceEvidence": [
         {
           "source": "lbc/loot_table/transformables_bow.json",
@@ -41625,7 +41629,12 @@
       "legacyEvent": "shot",
       "legacyOwner": "lbc:workingitems/doublebow",
       "requiredParameters": "actual bow shot; double_old is separate variant",
-      "samplerExclusion": false
+      "samplerExclusion": false,
+      "nativeEvidence": [
+        "src/main/java/me/skywars2/game/LbcLegacyRanged.java",
+        "src/main/java/me/skywars2/game/LbcTmtRanged.java",
+        "src/main/java/me/skywars2/game/LegacyRangedChecks.java"
+      ]
     },
     {
       "key": "double_old",
@@ -42470,10 +42479,14 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_implemented_verified",
+      "reason": "LbcLegacyRanged owns the real accepted native shot, shared copy/conversion/reload, selected ammo, traits and source effects; native/TMT qualification is in progress.",
       "prototypeIds": [],
-      "ownerCandidates": [],
+      "ownerCandidates": [
+        "LbcLegacyRanged",
+        "LbcBalanceExtras",
+        "LbcBeamAmmo"
+      ],
       "sourceEvidence": [
         {
           "source": "lbc/loot_table/transformables_bow_all.json",
@@ -42543,17 +42556,26 @@
       "legacyEvent": "crossbow_shot",
       "legacyOwner": "lbc:workingitems/fastghast",
       "requiredParameters": "native rocket/reload replacement",
-      "samplerExclusion": false
+      "samplerExclusion": false,
+      "nativeEvidence": [
+        "src/main/java/me/skywars2/game/LbcLegacyRanged.java",
+        "src/main/java/me/skywars2/game/LbcTmtRanged.java",
+        "src/main/java/me/skywars2/game/LegacyRangedChecks.java"
+      ]
     },
     {
       "key": "fastfired",
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_implemented_verified",
+      "reason": "LbcLegacyRanged owns the real accepted native shot, shared copy/conversion/reload, selected ammo, traits and source effects; native/TMT qualification is in progress.",
       "prototypeIds": [],
-      "ownerCandidates": [],
+      "ownerCandidates": [
+        "LbcLegacyRanged",
+        "LbcBalanceExtras",
+        "LbcBeamAmmo"
+      ],
       "sourceEvidence": [
         {
           "source": "lbc/loot_table/transformables_bow_all.json",
@@ -42623,7 +42645,12 @@
       "legacyEvent": "crossbow_shot",
       "legacyOwner": "lbc:workingitems/fastfiredbow",
       "requiredParameters": "native arrow volley/reload replacement",
-      "samplerExclusion": false
+      "samplerExclusion": false,
+      "nativeEvidence": [
+        "src/main/java/me/skywars2/game/LbcLegacyRanged.java",
+        "src/main/java/me/skywars2/game/LbcTmtRanged.java",
+        "src/main/java/me/skywars2/game/LegacyRangedChecks.java"
+      ]
     },
     {
       "key": "feather_greed",
@@ -46830,10 +46857,14 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_implemented_verified",
+      "reason": "LbcLegacyRanged owns the real accepted native shot, shared copy/conversion/reload, selected ammo, traits and source effects; native/TMT qualification is in progress.",
       "prototypeIds": [],
-      "ownerCandidates": [],
+      "ownerCandidates": [
+        "LbcLegacyRanged",
+        "LbcBalanceExtras",
+        "LbcBeamAmmo"
+      ],
       "sourceEvidence": [
         {
           "source": "lbc/loot_table/dildomet.json",
@@ -46858,7 +46889,12 @@
       "legacyEvent": "crossbow_shot",
       "legacyOwner": "lbc:workingitems/penispenispenis",
       "requiredParameters": "actual crossbow continuation",
-      "samplerExclusion": false
+      "samplerExclusion": false,
+      "nativeEvidence": [
+        "src/main/java/me/skywars2/game/LbcLegacyRanged.java",
+        "src/main/java/me/skywars2/game/LbcTmtRanged.java",
+        "src/main/java/me/skywars2/game/LegacyRangedChecks.java"
+      ]
     },
     {
       "key": "phantom",

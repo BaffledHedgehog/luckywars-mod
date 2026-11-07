@@ -9,6 +9,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TABLES = ROOT / "src/main/resources/data/lbc/loot_table"
 OUTPUT = ROOT / "src/main/resources/skywars2/tmt_use_profiles.json"
+PAYLOAD_COMPONENTS = {"minecraft:" + name for name in (
+    "entity_data", "bucket_entity_data", "block_entity_data", "block_state",
+    "potion_contents", "potion_duration_scale", "fireworks", "container", "container_loot")}
 
 
 def build():
@@ -41,18 +44,24 @@ def build():
                 item = node.get("name", "")
                 if item.startswith(("skywars2:", "minecraft:")):
                     payloads = []
+                    components = {}
                     for row in modifiers:
                         operation = row.get("type", row.get("function", ""))
                         if operation.endswith("set_custom_data"):
                             payloads.append(row["tag"])
                         elif operation.endswith("set_components"):
-                            data = row.get("components", {}).get("minecraft:custom_data")
+                            source_components = row.get("components", {})
+                            data = source_components.get("minecraft:custom_data")
                             if data is not None:
                                 payloads.append(data)
+                            for key, value in source_components.items():
+                                if key.removeprefix("!") in PAYLOAD_COMPONENTS:
+                                    components.pop(key[1:] if key.startswith("!") else "!" + key, None)
+                                    components[key] = value
                     # Several finished owners still use custom data on a vanilla
                     # carrier (Big Bob is one). Plain vanilla loot is not an ability.
                     if item.startswith("skywars2:") or payloads:
-                        yield item, payloads, references
+                        yield item, payloads, components, references
             elif kind in ("minecraft:loot_table", "loot_table"):
                 reference = node.get("value", node.get("name"))
                 if isinstance(reference, str) and reference.startswith("lbc:") and reference not in references:
@@ -69,9 +78,9 @@ def build():
     paths = sorted(TABLES.rglob("*.json"))
     for path in paths:
         relative = str(path.relative_to(TABLES)).replace("\\", "/")
-        for item, data, references in leaves(read(path)):
-            signature = json.dumps([item, data], sort_keys=True, ensure_ascii=False)
-            row = prototypes.setdefault(signature, {"item": item, "data": data, "sources": [], "aliases": []})
+        for item, data, components, references in leaves(read(path)):
+            signature = json.dumps([item, data, components], sort_keys=True, ensure_ascii=False)
+            row = prototypes.setdefault(signature, {"item": item, "data": data, "components": components, "sources": [], "aliases": []})
             if relative not in row["sources"]:
                 row["sources"].append(relative)
             for reference in references:

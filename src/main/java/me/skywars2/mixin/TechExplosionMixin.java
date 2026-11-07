@@ -98,7 +98,14 @@ public final class TechExplosionMixin {
         @WrapOperation(method="dealExplosionDamage",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/LivingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
         private boolean skywars2$techFireworkTarget(LivingEntity target,ServerLevel level,DamageSource damage,float amount,Operation<Boolean> original){
             var coverage=skywars2$techFireworkCoverage;
-            return (coverage==null||!coverage.targets(target))&&original.call(target,level,damage,amount);
+            boolean applied=(coverage==null||!coverage.targets(target))&&original.call(target,level,damage,amount);
+            var game=SkyWars2.game();if(applied&&game!=null)me.skywars2.game.LbcLegacyRanged.rocketContact(game,(Entity)(Object)this,target);return applied;
         }
+        @org.spongepowered.asm.mixin.injection.Inject(method="tick",at=@org.spongepowered.asm.mixin.injection.At("TAIL"))
+        private void skywars2$rangedFlight(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci){var game=SkyWars2.game();var rocket=(Entity)(Object)this;
+            if(game!=null&&rocket.level() instanceof ServerLevel level&&!rocket.isRemoved()&&!game.items().timeStop().stopped(level)&&!game.items().timeStop().frozen(rocket))me.skywars2.game.LbcLegacyRanged.rocketFlight(game,rocket);}
+        @org.spongepowered.asm.mixin.injection.Inject(method="onHitBlock",at=@org.spongepowered.asm.mixin.injection.At("HEAD"))
+        private void skywars2$rangedGround(net.minecraft.world.phys.BlockHitResult hit,org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci){var game=SkyWars2.game();
+            if(game!=null&&!LbcExplosionSuppression.coverage(game,(ServerLevel)((Entity)(Object)this).level()).contains(hit.getLocation()))me.skywars2.game.LbcLegacyRanged.rocketGround(game,(Entity)(Object)this,hit.getLocation());}
     }
 }

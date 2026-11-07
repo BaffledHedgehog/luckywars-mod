@@ -120,6 +120,15 @@ final class LbcTmtCatalog {
                     finding(findings,id.toString(),origin,Disposition.MISSING_NATIVE_ITEM,"Canonical item is absent from the bound native registry");continue;
                 }
                 var stack=BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1);
+                if(row.has("components")){
+                    var parsed=net.minecraft.core.component.DataComponentPatch.CODEC.parse(
+                            game.server().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),row.get("components"));
+                    if(parsed.error().isPresent()){
+                        finding(findings,id.toString(),origin,Disposition.PENDING_COMPONENT_ADAPTER,
+                                "Literal native payload component could not be decoded: "+parsed.error().get().message());continue;
+                    }
+                    stack.applyComponents(parsed.getOrThrow());
+                }
                 var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
                 for(var raw:row.getAsJsonArray("data"))if(!raw.isJsonNull())
                     data.merge(TagParser.parseCompoundFully(raw.isJsonPrimitive()?raw.getAsString():raw.toString()));
@@ -371,12 +380,17 @@ final class LbcTmtCatalog {
         flags(result,"LbcMadokaBow",Event.SHOT,Location.USED_HAND,"madoka_bow");
         flags(result,"LbcChargedBows",Event.SHOT,Location.USED_HAND,"railgun_bow","shish_gun");
         flags(result,"LbcMinigunCrossbow",Event.SHOT,Location.USED_HAND,"fast","fast_old");
+        flags(result,"LbcLegacyRanged/LbcBalanceExtras",Event.SHOT,Location.USED_HAND,"double","fastfired","fastexplode","penisgun");
         flags(result,"LbcImbaCrossbows",Event.SHOT,Location.USED_HAND,"imba_fast_crossbow","imba_shotgun","imba_sniper_crossbow","imba_super_shotgun","imba_gatlingator");
         flags(result,"LbcOrdinaryAccessories",Event.INVENTORY,Location.INVENTORY,"save","magnet","demonkishki");
         flags(result,"LbcRegenerationBelt",Event.INVENTORY,Location.INVENTORY,"heall");
         flags(result,"LbcBalancePassive (legacy mode)",Event.INVENTORY,Location.INVENTORY,"heall_old","manabelt_old");
         flags(result,"LbcMana",Event.INVENTORY,Location.INVENTORY,"manabelt");
         flags(result,"LbcDeathCompass",Event.INVENTORY,Location.INVENTORY,"death_compass");
+        result.put("pumpkin_curse",new Rule("pumpkin_curse","LbcCursedPumpkin",Set.of(Event.INVENTORY,Event.DROP),Set.of(Location.INVENTORY,Location.LOOSE_ITEM)));
+        result.put("malevich",new Rule("malevich","LbcMalevich",Set.of(Event.INVENTORY,Event.DROP),Set.of(Location.INVENTORY,Location.LOOSE_ITEM)));
+        flags(result,"LbcCursedPumpkin",Event.MELEE,Location.MAIN_HAND,"pumpkin_king");
+        flags(result,"LbcEternalWealth",Event.INVENTORY,Location.INVENTORY,"greedstone");
         flags(result,"LbcRerollCrafting",Event.CRAFT,Location.CRAFT_GRID,"reroll_machine");
         flags(result,"LbcSteampunkGlove",Event.HELD,Location.MAIN_HAND,"steampunk_sword");
         flags(result,"LbcKfcFood",Event.CONSUME,Location.USED_HAND,"kfc_chick","eat_shit");

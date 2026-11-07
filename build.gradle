@@ -392,6 +392,8 @@ processResources {
     include 'data/lbc/loot_table/ported/steampunk_pickaxe.json', 'data/lbc/loot_table/ported/steampunk_sword.json', 'data/lbc/loot_table/ported/grapping_hook.json'
     include 'data/lbc/loot_table/madoka_bow.json'
     include 'data/lbc/loot_table/ported/shulker_bow.json', 'data/lbc/loot_table/ported/minigun_crossbow.json', 'data/lbc/loot_table/ported/minigun_crossbow_old.json'
+    include 'data/lbc/loot_table/ported/double_bow.json', 'data/lbc/loot_table/ported/blaze_crossbow.json',
+            'data/lbc/loot_table/ported/ghast_crossbow.json', 'data/lbc/loot_table/ported/dildomet.json'
     // Native bow-trinket singleton definitions; selection readiness stays in the loadout catalog.
     include 'data/lbc/loot_table/trinket/penis_gun.json', 'data/lbc/loot_table/trinket/bedrcock.json', 'data/lbc/loot_table/trinket/volos.json', 'data/lbc/loot_table/trinket/cocktail.json', 'data/lbc/loot_table/trinket/fourier.json', 'data/lbc/loot_table/trinket/rocket_spell.json'
     include 'data/lbc/loot_table/trinket/drojjevoe_odealo.json', 'data/lbc/loot_table/trinket/mandoahuet.json', 'data/lbc/loot_table/trinket/nether_plug.json', 'data/lbc/loot_table/trinket/banangay.json', 'data/lbc/loot_table/trinket/twilight_sparkle.json', 'data/lbc/loot_table/trinket/hedgehog_gauntlet.json', 'data/lbc/loot_table/trinket/poly_gem.json', 'data/lbc/loot_table/trinket/glass_shard.json', 'data/lbc/loot_table/trinket/psycho_soul.json'

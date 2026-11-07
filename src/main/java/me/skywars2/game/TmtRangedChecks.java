@@ -59,6 +59,18 @@ public final class TmtRangedChecks {
             for(var body:added()){game.items().entityUnloaded(body);body.discard();}
             base.clear();base.owner.getInventory().clearContent();base.owner.setYRot(0);base.owner.setXRot(0);base.owner.setDeltaMovement(Vec3.ZERO);
         }
+        void legacy(){
+            var stack=weapon("double","fastfired","penisgun");var ammo=shoot(stack,true);
+            require(added().stream().filter(net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball.class::isInstance).count()==1,"one first-arrow fire conversion from the accepted double volley");
+            require(added().stream().filter(e->e instanceof net.minecraft.world.entity.item.ItemEntity&&e.entityTags().contains("penis_bomb")).count()==1,"independent bomb conversion uses the same finalized donor snapshot");
+            require(added().stream().filter(AbstractArrow.class::isInstance).count()==1,"partial legacy converters retain the other double arrow");
+            require(ammo.getCount()==5&&net.minecraft.world.item.CrossbowItem.isCharged(stack),"fire reload remains free after one real accepted volley");
+            require(base.owner.getMainHandItem()==stack&&LbcTmtAbilities.read(stack).size()==3,"shared native converters preserve the full physical carrier");clear();
+            stack=weapon("fastfired","penisgun","madoka_bow");shoot(stack);
+            var arrows=added().stream().filter(AbstractArrow.class::isInstance).map(AbstractArrow.class::cast).toList();
+            require(arrows.size()==1&&LbcMadokaBow.recognizes(arrows.getFirst()),"Madoka owns the physical sibling when partial converters also succeed");
+            require(added().stream().filter(net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball.class::isInstance).count()==1,"Madoka cannot hide fire conversion");clear();
+        }
         void physical(){
             var stack=weapon("imba_shotgun","double_old","madoka_bow","fast");var ammo=shoot(stack,true);
             var shots=added().stream().filter(AbstractArrow.class::isInstance).map(AbstractArrow.class::cast).toList();
@@ -101,4 +113,5 @@ public final class TmtRangedChecks {
         try(var fixture=new Fixture(game)){fixture.physical();fixture.terminals();fixture.explosive();fixture.beams();}
         SkyWars2.LOGGER.info("[check] PASS tmt-ranged (actual native accepted volleys, private flags,512 physical arrows, independent terminal owners, native codec/ammo and single reload debit)");
     }
+    public static void runLegacy(GameController game){try(var fixture=new Fixture(game)){fixture.legacy();}SkyWars2.LOGGER.info("[check] PASS tmt-legacy-ranged (native double, independent first-arrow converters, surviving multishot/Madoka, real chamber and complete carrier)");}
 }

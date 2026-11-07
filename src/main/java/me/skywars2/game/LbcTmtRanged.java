@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -23,9 +24,10 @@ public final class LbcTmtRanged {
     static boolean beamImba(LbcTmtAbilities.Ability ability){return flag(ability,"imba_sniper_crossbow")||flag(ability,"imba_super_shotgun")||flag(ability,"imba_gatlingator");}
     static boolean charged(LbcTmtAbilities.Ability ability){return flag(ability,"railgun_bow")||flag(ability,"shish_gun");}
     static boolean shulker(LbcTmtAbilities.Ability ability){return flag(ability,"shulker")||flag(ability,"shulker_new");}
+    static boolean legacyConversion(LbcTmtAbilities.Ability ability){return flag(ability,"fastfired")||flag(ability,"penisgun");}
     private static final List<String> ORDER=List.of("explosive","railgun_bow","shish_gun",
             "imba_fast_crossbow","imba_shotgun","imba_sniper_crossbow","imba_super_shotgun","imba_gatlingator",
-            "double_old","shulker","shulker_new","madoka_bow","fast","fast_old");
+            "double_old","double","shulker","shulker_new","madoka_bow","fast","fast_old","fastfired","fastexplode","penisgun");
     private static int order(LbcTmtAbilities.Ability ability){
         for(int i=0;i<ORDER.size();i++)if(flag(ability,ORDER.get(i)))return i;
         return ORDER.size();
@@ -76,7 +78,7 @@ public final class LbcTmtRanged {
             scope(weapon,fired,ability,()->{result.set(LbcImbaCrossbows.augment(game,owner,fired,input));return true;});
             family=result.get();
         }
-        for(var ability:abilities)if(flag(ability,"double_old")){
+        for(var ability:abilities)if(flag(ability,"double_old")||flag(ability,"double")){
             var input=family;var result=new java.util.concurrent.atomic.AtomicReference<>(input);
             scope(weapon,fired,ability,()->{result.set(game.items().balance().augment(owner,fired,input));return true;});
             family=result.get();
@@ -84,6 +86,7 @@ public final class LbcTmtRanged {
         if(family.isEmpty())return true;
         for(var projectile:family)if(LbcTmtAmmoPayloads.hasVariant(projectile,300)&&!LbcHomingArrows.isManaged(projectile))
             game.items().homingArrows().loaded(projectile);
+        LbcLegacyRanged.installRocketAmmo(game,owner,fired,family);
         game.items().trinkets().shot(owner,family);
 
         // Each destructive owner gets its own codec image of the very same rolled
@@ -93,14 +96,15 @@ public final class LbcTmtRanged {
         // the actual weapon). Native owner admission and suppression stay authoritative.
         var accepted=List.copyOf(family);
         var images=new ArrayList<CompoundTag>();
-        boolean hasTerminal=abilities.stream().anyMatch(ability->flag(ability,"explosive")||charged(ability)||beamImba(ability)||shulker(ability));
+        boolean hasTerminal=abilities.stream().anyMatch(ability->flag(ability,"explosive")||charged(ability)||beamImba(ability)||shulker(ability)||legacyConversion(ability));
         if(hasTerminal)for(var projectile:accepted)if(!projectile.isRemoved())images.add(image(game,projectile));
-        boolean retired=false,retireAll=false;
+        boolean retired=false,retireAll=false,retireFirstArrow=false;
         for(var ability:abilities){
-            if(!flag(ability,"explosive")&&!charged(ability)&&!beamImba(ability)&&!shulker(ability))continue;
+            if(!flag(ability,"explosive")&&!charged(ability)&&!beamImba(ability)&&!shulker(ability)&&!legacyConversion(ability))continue;
             var donors=donors(owner,images);
             if(donors.isEmpty())continue;
             boolean converted=scope(weapon,fired,ability,()->{
+                if(legacyConversion(ability))return LbcLegacyRanged.convert(game,owner,fired,donors);
                 if(flag(ability,"explosive"))return game.items().balance().explosiveBow(owner,fired,donors);
                 if(charged(ability))return game.items().chargedBows().release(owner,fired,owner.getTicksUsingItem(),donors);
                 if(beamImba(ability))return LbcImbaCrossbows.release(game,owner,fired,donors);
@@ -111,7 +115,8 @@ public final class LbcTmtRanged {
             // Shulker owners publish replacements themselves; surviving donors are
             // only capture contexts and must never survive as untracked entities.
             donors.forEach(Projectile::discard);
-            retired|=converted;retireAll|=converted&&charged(ability);
+            if(legacyConversion(ability))retireFirstArrow|=converted;
+            else {retired|=converted;retireAll|=converted&&charged(ability);}
         }
 
         // Madoka owns an independent physical output when sibling converters took
@@ -131,12 +136,19 @@ public final class LbcTmtRanged {
                 }
             }
         }
-        if(retired)for(var projectile:accepted)if(retireAll||projectile instanceof AbstractArrow)projectile.discard();
+        if(retired){for(var projectile:accepted)if(retireAll||projectile instanceof AbstractArrow)projectile.discard();}
+        else if(retireFirstArrow)for(var projectile:accepted)if(projectile instanceof Arrow){
+            // These source converters replace only the first ordinary arrow. A successful
+            // Madoka sibling owns that physical arrow as its independent output instead.
+            if(!LbcMadokaBow.recognizes(projectile))projectile.discard();break;
+        }
         // Reload acts on the actual stack/hand; the private fired copy classifies
         // even a native final shot that broke its weapon. A second property sees
         // the first native reload and cannot charge or debit the same chamber twice.
         for(var ability:abilities)if(flag(ability,"fast")||flag(ability,"fast_old"))
             scope(weapon,fired,ability,()->{LbcMinigunCrossbow.afterShot(game,owner,hand,weapon,accepted,fired);return true;});
+        for(var ability:abilities)if(legacyConversion(ability)||flag(ability,"fastexplode"))
+            scope(weapon,fired,ability,()->{LbcLegacyRanged.afterShot(game,owner,hand,weapon,accepted,fired);return true;});
         return true;
     }
 
