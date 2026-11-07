@@ -99,6 +99,7 @@ final class LbcTmtCatalog {
             if(LbcTmtShield.candidate(LbcTmtComponents.source(game,ability))){
                 all.get(family.id()).events.add(Event.USING);all.get(family.id()).events.add(Event.INCOMING);
                 all.get(family.id()).owners.add("Native BlocksAttacks/LbcTmtShield");
+                if(LbcElectro.isShield(LbcTmtComponents.source(game,ability)))all.get(family.id()).owners.add("LbcElectro.tickShields");
             }
             knownInputs.add(canonical(originalAbility.data().copyTag()));
         }
@@ -422,6 +423,9 @@ final class LbcTmtCatalog {
         // Legacy TMT rolls these achievement labels; neither flag converts its carrier to a trident.
         flags(result,"Native player_killed_entity/lbc:true_advancements/tridents/harpoon",Event.KILL,Location.MAIN_HAND,"harpoon");
         flags(result,"Native using_item/lbc:true_advancements/tridents/sea_legend",Event.USING,Location.USED_HAND,"sea_legend");
+        flags(result,"LbcMagic dirty inventory cache/LbcElectro",Event.INVENTORY,Location.INVENTORY,"electroblocker");
+        result.put("halloween_mace",new Rule("halloween_mace","LbcHalloweenWind/LbcTmtSelfAbilities",
+                Set.of(Event.SELF,Event.JUMP),Set.of(Location.USED_HAND)));
         flags(result,"LbcPendingSwords",Event.MELEE,Location.MAIN_HAND,"cool","cool_old","fragmentsword","fragmentsword_old","ender","antimagic");
         flags(result,"LbcPendingCombat",Event.MELEE,Location.MAIN_HAND,"chaos_swo","gravitationsword","piston_sword");
         flags(result,"LbcClassicMelee/LbcEvolutionSwordItem",Event.SELF,Location.MAIN_HAND,"feeding","vampire","seaguardian","evolution");

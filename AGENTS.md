@@ -1,3 +1,37 @@
+## TMT Energy/blocker/mace - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Shared native owner proof and next batch](agent_notes/TMT_ELECTRO_TRAITS_2026_11_07.md).
+Energy selected identity+BLOCKS uses nativeItem.use, one semanticfamily; privatecached
+Electro reflection/dirtyinventory and Halloween SELF/JUMP reuse actualowners. No new
+shield/motion/polling engine; Mace5sourceSECONDS, not5ticks. Native32tickApplepriority.
+Internal002901c5/731f377e on fulldb00bbe5:9 focused suites pass;8families/0resources;
+10467otherinputs/282authorpaths/Main/libs/RP/HUD/fourWIP exact. JVMs exited/restored/no locks.
+Concurrent NEW LbcGayradar/LbcSteampunkRocket/LbcTrollBox are excluded/unqualified drafts;
+next integrate together (getters/hooks/resetmetric/typedcurse/cagecontext/checkpoints/TMTloot).
+All3launchpolicies answered: GayTECH,rocketTECH,Trollnone; no pendingpolicyquestion.
+Userwantsallcurrentmeaningfulcapabilities inclcomponents/newitems, beyondlegacytagpool.
+Keepfullscope, batchremainingadapters/owner qualification; no piecemeal Main release.
+
+## Author TMT scope clarified - 7 November2026
+
+TMT must include meaningful properties/abilities of ALL CURRENT mod items, modes and
+variants, including items never added to the old datapack TMT list. Legacy generators
+are the minimum, not a whitelist. Include useful component-based capabilities using
+existing native implementations; do not exclude a working capability merely because
+it has no old custom-data reader. Exclude only duplicates, service/UI fields and
+properties with no action. Harpoon/SeaLegend source flags still carry their actual
+achievement provenance; any useful native charge/flight/projectile capability belongs
+to a separately declared native capability, not an invented meaning for those flags.
+No arbitrary function execution. User also requested larger batches and less fragmented
+micro-verification; reuse owners, batch adapter integration and relevant scenario checks.
+
+## Author launch policies answered - 7 November2026
+
+Gayradar TECH; steampunk rocket TECH; Troll Box unjammed. Already-applied Gayradar
+psychic disorder remains unjammed. This supersedes older pending-policy notes;
+do not ask again. [Recorded source/input audit](agent_notes/TMT_LEGACY_GADGET_INPUTS_2026_11_07.md).
+The three real owners still need implementation and native qualification before release.
+
 ## TMT native criterion provenance - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Literal source/native criteria proof](agent_notes/TMT_CRITERION_TRAITS_2026_11_07.md).

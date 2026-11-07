@@ -58,7 +58,7 @@ final class LbcTmtUseProfiles {
         var rejected=new java.util.TreeSet<String>();var existing=new java.util.TreeSet<String>();
         var missing=new java.util.TreeSet<String>();var gaps=new ArrayList<String>();int registered=0,canonical=0,admitted=0;
         for(var id:BuiltInRegistries.ITEM.keySet().stream().filter(id->id.getNamespace().equals("skywars2")).sorted().toList()) {
-            registered++;var stack=BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1);
+            registered++;var stack=new ItemStack(BuiltInRegistries.ITEM.getValue(id));
             if(add(game,stack,supported,collected,rejected,existing))admitted++;
         }
         try(var input=LbcTmtUseProfiles.class.getResourceAsStream("/skywars2/tmt_use_profiles.json")) {
@@ -68,7 +68,7 @@ final class LbcTmtUseProfiles {
             for(var value:source.getAsJsonArray("prototypes")) {
                 canonical++;var row=value.getAsJsonObject();var id=Identifier.parse(row.get("item").getAsString());
                 if(!Set.of("skywars2","minecraft").contains(id.getNamespace())||!BuiltInRegistries.ITEM.containsKey(id)){missing.add(id.toString());continue;}
-                var stack=BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1);
+                var stack=new ItemStack(BuiltInRegistries.ITEM.getValue(id));
                 if(row.has("components")){
                     var parsed=net.minecraft.core.component.DataComponentPatch.CODEC.parse(
                             game.server().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),row.get("components"));
@@ -173,7 +173,9 @@ final class LbcTmtUseProfiles {
         data.remove(LbcTmtAbilities.SLOTS);data.remove(LbcTmtAbilities.ACTIVE);data.remove("tmt_item");data.remove("tmt_texture_seed");
         LbcTmtComponents.capture(game,source,stack.getItem(),data);
         String potionFamily=LbcTmtManaPotions.family(stack);
-        String family=potionFamily!=null?potionFamily:LbcTmtNativeThrows.wool(stack)?"wool_trail":family(nativeId,data),id=PREFIX+digest(family);data.putString(NATIVE_ITEM,nativeId);
+        String family=LbcTmtShield.candidate(stack)&&LbcElectro.isShield(stack)?"energy_shield":
+                potionFamily!=null?potionFamily:LbcTmtNativeThrows.wool(stack)?"wool_trail":family(nativeId,data);
+        String id=PREFIX+digest(family);data.putString(NATIVE_ITEM,nativeId);
         var ability=new LbcTmtAbilities.Ability(id,CustomData.of(data));
         // Full typed payload and native identity determine variants; acquisition count/style never enters this key.
         collected.computeIfAbsent(family,ignored->new LinkedHashMap<>()).putIfAbsent(canonical(ability.data().copyTag()),ability);

@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 
-/** Hylian's real native blocking component; physical carrier use and damage remain native. */
+/** Authored native shield blocking components; physical carrier use and damage remain native. */
 final class LbcTmtShield {
     private LbcTmtShield(){}
     private static Item selected(ItemStack stack){
@@ -17,12 +17,18 @@ final class LbcTmtShield {
     }
     /** Source predicate. The sword's hylian flag is deliberately unrelated. */
     static boolean candidate(ItemStack stack){
+        if(stack.isEmpty()||!stack.has(DataComponents.BLOCKS_ATTACKS))return false;
         var item=selected(stack);
-        return !stack.isEmpty()&&item instanceof ShieldItem&&stack.has(DataComponents.BLOCKS_ATTACKS)
-                &&(item==LbcMeleeItems.Kind.HYLIAN_SHIELD.item||ItemData.intValue(stack,"hylianshield",0)==1);
+        // Energy is a SimplePolymerItem using generic Item.use, not a ShieldItem.
+        // Inspect only this selected source; an aggregate sibling query here would
+        // incorrectly admit another private property's use as an Energy input.
+        return item==LbcElectro.SHIELD||item instanceof ShieldItem
+                &&(item==LbcMeleeItems.Kind.HYLIAN_SHIELD.item||ItemData.intValue(stack,"hylianshield",0)==1
+                    ||ItemData.intValue(stack,"energy_shield",0)==1||ItemData.intValue(stack,"energyshield",0)==1);
     }
     /** Aggregate admission is used only to attach/start the real private shield trait. */
-    static boolean sustained(ItemStack stack){return LbcTmtItems.matches(stack)&&ItemData.intValue(stack,"hylianshield",0)==1;}
+    static boolean sustained(ItemStack stack){return LbcTmtItems.matches(stack)
+            &&(ItemData.intValue(stack,"hylianshield",0)==1||LbcElectro.isShield(stack));}
 
     /** Run at generation/rehydration with the existing sustained-component applier. */
     static void apply(GameController game,ItemStack stack){

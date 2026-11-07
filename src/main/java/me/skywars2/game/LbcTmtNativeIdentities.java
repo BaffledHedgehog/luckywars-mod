@@ -13,6 +13,7 @@ final class LbcTmtNativeIdentities {
         // Both native owners already accept their registered item OR this exact flag.
         if(source.is(LbcItems.ICE_SWORD))privateData.putInt("icesword",1);
         if(source.is(LbcItems.ROCKET_BOOTS))privateData.putInt("explosive_feets",1);
+        if(source.is(LbcElectro.BLOCKER))privateData.putInt("electroblocker",1);
         // Registration intentionally leaves presentation/flags to the four ported loot leaves.
         // Their source tags contain overload:1, never mage:1. The mana owner counts actual slots.
         if(source.is(LbcOverload.HELMET)||source.is(LbcOverload.CHESTPLATE)

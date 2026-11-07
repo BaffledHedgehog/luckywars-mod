@@ -60,6 +60,7 @@ public final class LbcElectro {
     private static final CompoundTag KATANA_FLAG = flag("cyberkatana");
     private static final CompoundTag YELLOW_KATANA_FLAG = flag("shit_katana");
     private static final CompoundTag SHIELD_FLAG = shieldFlags();
+    private static final CompoundTag SHIELD_USING_FLAG = flag("energyshield");
     private static final CompoundTag BLOCKER_FLAG = flag("electroblocker");
 
     private static Item registerBlocker() {
@@ -123,10 +124,15 @@ public final class LbcElectro {
     public static boolean isKatana(ItemStack stack) { return matches(stack, CYBERKATANA, KATANA_FLAG); }
     public static boolean isShitKatana(ItemStack stack) { return matches(stack, SHIT_KATANA, YELLOW_KATANA_FLAG); }
     public static boolean isAnyKatana(ItemStack stack) { return isKatana(stack) || isShitKatana(stack); }
-    public static boolean isBlocker(ItemStack stack) { return matches(stack,BLOCKER,BLOCKER_FLAG); }
+    public static boolean isBlocker(ItemStack stack) {
+        return stack.is(BLOCKER)||LbcTmtInventory.matches(stack,BLOCKER_FLAG)
+                ||LbcTmtItems.matches(stack)&&LbcTmtInventory.string(stack,LbcTmtAbilities.NATIVE,"skywars2:electroblocker");
+    }
     public static boolean isShield(ItemStack stack) {
-        var data=stack.get(DataComponents.CUSTOM_DATA);
-        return matches(stack,SHIELD,SHIELD_FLAG) || data!=null && data.copyTag().getIntOr("energyshield",0)==1;
+        return stack.is(SHIELD)||LbcTmtInventory.matches(stack,SHIELD_FLAG)
+                ||ItemData.intValue(stack,"energyshield",0)==1
+                ||LbcTmtInventory.matches(stack,SHIELD_USING_FLAG)
+                ||LbcTmtItems.matches(stack)&&LbcTmtInventory.string(stack,LbcTmtAbilities.NATIVE,"skywars2:electro_shield");
     }
     public static boolean managedLightning(LightningBolt bolt) { return bolt.entityTags().contains(SHOCK_BOLT); }
     public static boolean eggLightning(Entity entity) {

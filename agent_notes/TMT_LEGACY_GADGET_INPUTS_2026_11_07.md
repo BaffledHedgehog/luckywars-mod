@@ -2,6 +2,15 @@
 
 Read-only audit; no production code, resources, JVM, server, or compiler used. Source root below is `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data`; paths beginning `function/` or `loot_table/` are under `lbc/`. Searches of `lbcr` JSON/functions found no references to these four keys. This is an implementation plan, not a claim that these owners are ported.
 
+## Author decision — 7 November 2026
+
+The pending launch-policy question is answered: **Gayradar — TECH;
+steampunk rocket — TECH; Troll Box — no jammer**. Do not ask it again.
+Gayradar's already-applied psychic disorder stays unjammed. These are launch
+policies; existing native policies for the outcomes/projectiles/effects remain
+with their actual owners. Implement the three complete source owners and real
+native input/lifecycle paths; this answer alone does not qualify their release.
+
 ## Common real input: immediate snowball RMB detection
 
 `function/load.mcfunction:21` creates the `snowball` used-snowball objective. `players_tick.mcfunction:7` calls `items/snowballs` for a player with a use; `items/snowballs.mcfunction:4` inspects the nearest thrown snowball's `Item.components.minecraft:custom_data{gadget:1}` and calls `projectiles/eggs`. The executor remains the **player at their feet**. Dispatch there is `trollge` line21, `kill_rand` line23, `gayradar` line28, `steampunk_rocket` line34. The final cleanup kills the gadget snowball within10 blocks (except `tmt_item`); `items/snowballs` resets the use objective and assigns IDs/team to other unassigned snowballs.

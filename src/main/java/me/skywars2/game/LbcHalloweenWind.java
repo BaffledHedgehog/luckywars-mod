@@ -51,6 +51,8 @@ public final class LbcHalloweenWind {
     public static final Item WIND=registerItem("skywars2:vex_wind_wand",false,false);
     public static final Item ACADEMY_WIND=registerItem("skywars2:academy_vex_wind_wand",true,false);
     public static final Item MACE=registerItem("skywars2:halloween_mace",false,true);
+    private static final CompoundTag MACE_FLAG=maceFlag();
+    private static CompoundTag maceFlag(){var tag=new CompoundTag();tag.putInt("halloween_mace",1);return tag;}
     private final GameController game;
     private final LbcMana mana;
     private final Set<WindCharge> shots=new LinkedHashSet<>();
@@ -89,7 +91,8 @@ public final class LbcHalloweenWind {
     }
     private static CompoundTag data(ItemStack stack){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
     public static boolean isWind(ItemStack stack){return !stack.isEmpty()&&(stack.is(WIND)||stack.is(ACADEMY_WIND)||data(stack).getIntOr("vex_wand",0)==1);}
-    public static boolean isMace(ItemStack stack){return !stack.isEmpty()&&(stack.is(MACE)||data(stack).getIntOr("halloween_mace",0)==1);}
+    public static boolean isMace(ItemStack stack){return !stack.isEmpty()&&(stack.is(MACE)||ItemData.intValue(stack,"halloween_mace",0)==1||LbcTmtInventory.matches(stack,MACE_FLAG)
+            ||LbcTmtItems.matches(stack)&&LbcTmtInventory.string(stack,LbcTmtAbilities.NATIVE,"skywars2:halloween_mace"));}
     public static boolean academy(ItemStack stack){return isWind(stack)&&(stack.is(ACADEMY_WIND)||data(stack).getIntOr("upgraded",0)==1);}
     public static boolean managed(Entity entity){return entity instanceof WindCharge&&entity.entityTags().contains(PROJECTILE);}
     private boolean owner(ServerPlayer p){return game.playing()&&mana.visible(p)&&!game.isObserver(p);}
