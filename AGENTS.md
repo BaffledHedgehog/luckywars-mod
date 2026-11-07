@@ -7,6 +7,33 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## TMT native aliases and actual criterion/food/material readers - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL internal parent is now6a164293/0c16c474 over a21c7f3a/01d136f9.
+Eight explicit Java families/one manifest; all parent entries retained byte-exact otherwise.
+[Source and verification details](agent_notes/TMT_ALIAS_DOMAINS_2026_11_07.md).
+Catalog reuses existing native throw canonicalization, independently of BLOCK admission;
+raw imbaxe resolves to the actual native axe. Historical gadget gaps close only when
+the exact native identity/flag was admitted by the real use classifier, never by a label.
+Crowbar KILL and Slimeball INVENTORY criteria plus Aimbob CONSUME and one govno material
+family now sampled. Fartus/recipe scalar reads avoid per-stack NBT copies; no new engine.
+Native five-carrier criteria/negatives, actual apple consumption both hands/exact private
+siblings, actual material count/recipe, existing gadget/tools and catalog/codec suites pass.
+Five suites passed on e87a818b; its only failure was an overbroad catalog assertion for
+ordinary most (distinct from most_imba). Final6a164293 changes ONLY that test class;
+fresh catalog suite passes. Exact archive comparison carries the five passing proofs.
+Final10476-input guard/282 author paths/HUD/four WIP/Main preserved; no live child/locks.
+Proof build/verification/tmt-alias-domains-2026-11-07/component-verification.json.
+Fresh report980families/1857variants:37 pending rows/14 item IDs, no historical owner
+gap labels. These inventories are NOT full completion. pending-native-domains.json
+lists24 distinct current pending item/reason groups. Ordinary most really needs a TMT
+input route; do not map it to the different IMBA bridge builder. Also confirm current
+component-valued literal loot overlays reach the generator manifest (currently ten
+payload types) beyond registered defaults; keep current-content scope, not legacy-only.
+Heavy Troll steady-state throughput, unloaded rocket and final acquisition/atlas/release
+remain with other native domains. Main83b0ea27 unchanged; hold ALL fixes until stable.
+One512MiB compiler and one1280MiB fixture sequentially; author server/editor untouched.
+
 ## Troll Box outcomes and queued replay - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL internal parent is now a21c7f3a/01d136f9 over d990f817/c4507081.

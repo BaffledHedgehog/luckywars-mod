@@ -298,9 +298,9 @@ public final class LbcFartus {
     }
     void updateSword(ServerPlayer owner){
         if(!validOwner(owner)||!academy(owner.getMainHandItem())||game.items().wands().inputTimeStopped(owner))return;
-        long count=0;for(var stack:owner.getInventory().getNonEquipmentItems())if(data(stack).getIntOr("govnoq",0)==1)count+=stack.getCount();
+        long count=0;for(var stack:owner.getInventory().getNonEquipmentItems())if(ItemData.intValue(stack,"govnoq",0)==1)count+=stack.getCount();
         // clear @s includes offhand/equipment in the source, not just hotbar/storage.
-        for(var slot:net.minecraft.world.entity.EquipmentSlot.values())if(slot!=net.minecraft.world.entity.EquipmentSlot.MAINHAND){var stack=owner.getItemBySlot(slot);if(data(stack).getIntOr("govnoq",0)==1)count+=stack.getCount();}
+        for(var slot:net.minecraft.world.entity.EquipmentSlot.values())if(slot!=net.minecraft.world.entity.EquipmentSlot.MAINHAND){var stack=owner.getItemBySlot(slot);if(ItemData.intValue(stack,"govnoq",0)==1)count+=stack.getCount();}
         owner.getMainHandItem().set(DataComponents.ATTRIBUTE_MODIFIERS,attributes(19+10d*count));owner.getInventory().setChanged();
     }
     public MutableComponent hud(ServerPlayer owner){return academy(owner.getMainHandItem())||academy(owner.getOffhandItem())

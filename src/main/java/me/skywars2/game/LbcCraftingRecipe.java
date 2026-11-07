@@ -291,8 +291,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         int katana=0,donor=0;
         for(var stack:input.items()) if(!stack.isEmpty()) {
             if(LbcElectro.isKatana(stack) && !LbcElectro.isShitKatana(stack)) katana++;
-            else if(stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                    net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("govnoq",0)==1) donor++;
+            else if(ItemData.intValue(stack,"govnoq",0)==1) donor++;
         }
         if(katana==1 && donor==1) return Kind.SHIT_KATANA;
         int tinyElectro=0,sword=0,shield=0,electro=0,energyShield=0;

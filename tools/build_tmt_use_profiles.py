@@ -9,6 +9,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TABLES = ROOT / "src/main/resources/data/lbc/loot_table"
 OUTPUT = ROOT / "src/main/resources/skywars2/tmt_use_profiles.json"
+# Historical gaps can close only after Java admits the corresponding real native
+# input with this exact flag. Removing a factory makes the gap visible again.
+NATIVE_LEGACY_OWNERS = {"gayradar": "skywars2:gayradar",
+                        "steampunk_rocket": "skywars2:steampunk_rocket",
+                        "trollge": "skywars2:troll_box"}
 PAYLOAD_COMPONENTS = {"minecraft:" + name for name in (
     "entity_data", "bucket_entity_data", "block_entity_data", "block_state",
     "potion_contents", "potion_duration_scale", "fireworks", "container", "container_loot", "blocks_attacks")}
@@ -90,7 +95,8 @@ def build():
     result = {"schema": 1,
               "source": "All current native loot leaves/reference overlays; finalized registered native defaults augment these at bootstrap. Owner predicate admits executable direct-use profiles.",
               "prototypes": list(prototypes.values()),
-              "knownLegacyOwnerGaps": [{"key": row["key"], "status": row["status"], "reason": row["reason"]}
+              "knownLegacyOwnerGaps": [{"key": row["key"], "status": row["status"], "reason": row["reason"],
+                                        **({"nativeItem": NATIVE_LEGACY_OWNERS[row["key"]]} if row["key"] in NATIVE_LEGACY_OWNERS else {})}
                                        for row in audit["legacyReconciliation"]
                                        if row["status"] in ("live_legacy_native_owner_gap", "live_legacy_family_no_item_marker_route")],
               "unparsedSourceResources": invalid}

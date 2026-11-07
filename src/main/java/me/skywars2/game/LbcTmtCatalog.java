@@ -141,10 +141,10 @@ final class LbcTmtCatalog {
                 stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
                 collect(game,stack,origin,all,knownInputs,findings);
             }
-            for(var value:source.getAsJsonArray("knownLegacyOwnerGaps")){
-                var row=value.getAsJsonObject();finding(findings,row.get("key").getAsString(),"legacy reconciliation",
-                        Disposition.LEGACY_OWNER_GAP,row.get("reason").getAsString());
-            }
+            // The old audit is evidence of former gaps, not the current executable domain.
+            // Use-profile admission reconciles it against actual bound native inputs.
+            for(var gap:useProfiles.domains().legacyOwnerGaps())
+                finding(findings,gap,"legacy reconciliation",Disposition.LEGACY_OWNER_GAP,gap);
         }catch(Exception failure){throw new IllegalStateException("Invalid unified TMT prototypes",failure);}
 
         // All real pill outcomes, including typed zero and the native tail after129.
@@ -241,8 +241,10 @@ final class LbcTmtCatalog {
         var nativeTrinket=TRINKETS.get(stack.getItem());
         if(nativeTrinket!=null&&!data.contains("trinket"))data.putString("trinket",nativeTrinket.identity());
         var blockItem=LbcTmtBlockUses.canonical(stack);
-        if(blockItem!=null)nativeId=BuiltInRegistries.ITEM.getKey(blockItem);
-        LbcTmtComponents.capture(game,stack,blockItem==null?stack.getItem():blockItem,data);
+        var canonicalInput=blockItem==null?LbcTmtNativeThrows.canonical(stack):blockItem;
+        if(canonicalInput==null&&data.getIntOr("imbaxe",0)==1)canonicalInput=LbcImbaAxeItem.TOKEN;
+        if(canonicalInput!=null)nativeId=BuiltInRegistries.ITEM.getKey(canonicalInput);
+        LbcTmtComponents.capture(game,stack,canonicalInput==null?stack.getItem():canonicalInput,data);
         var probe=ability("probe",nativeId,data);
         if(knownInputs.contains(canonical(probe.data().copyTag())))return;
         if(LbcBadApple.recognized(stack)){
@@ -363,6 +365,15 @@ final class LbcTmtCatalog {
         if(LbcPills.certificate(stack)){
             String id="native/phd";add(all,id,"phd",ability(id,nativeId,data),rule("phd","LbcPhdCrafting",Event.CRAFT,Location.CRAFT_GRID));return;
         }
+        if(data.getIntOr("govnoq",0)==1){
+            // Material identity has no carrier-specific branch. Food/use abilities above
+            // retain their own companion flag; plain material aliases give one ticket.
+            var material=new CompoundTag();material.putInt("govnoq",1);String id="native/material/govno";
+            add(all,id,"material/govno",ability(id,Identifier.parse("minecraft:dirt"),material),
+                    new Rule("material/govno","LbcFartus/LbcCraftingRecipe/LbcUltraponos/LbcDamage",
+                            Set.of(Event.INVENTORY,Event.CRAFT,Event.DROP,Event.EQUIPMENT),
+                            Set.of(Location.INVENTORY,Location.CRAFT_GRID,Location.LOOSE_ITEM,Location.EQUIPPED)));return;
+        }
         if(nativeTool||nativeAmmo)return;
         if(nativeId.toString().equals("skywars2:bucket_head")||nativeId.toString().equals("skywars2:oguzok_sword")){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
@@ -383,6 +394,20 @@ final class LbcTmtCatalog {
                     "LbcAcademy owns a real loose-item structure placement/acquisition operation; it requires its DROP/LOOSE_ITEM event and is not an inert service token or a held-use ability");return;
         }
         var keys=new TreeSet<String>(data.keySet());keys.removeAll(SERVICE);keys.removeIf(key->key.startsWith("tmt_"));
+        if((keys.equals(Set.of("reward","rewardtype"))&&data.getStringOr("rewardtype","").equals("suffix"))
+                ||(keys.equals(Set.of("rewardtype"))&&data.getStringOr("rewardtype","").equals("drop"))
+                ||(keys.equals(Set.of("HideFlags","rewardcoin"))&&data.getIntOr("rewardcoin",0)>=1&&data.getIntOr("rewardcoin",0)<=4)){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
+                    "LbcCases private payout descriptor: the case owner materializes account rewards/unlocks; holding its preview icon is not a redeem/use operation");return;
+        }
+        if(keys.equals(Set.of("randomselect"))){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
+                    "Legacy get_random temporary result carrier, immediately read and deleted; native RandomSource replaces that helper, not a player item ability");return;
+        }
+        if(keys.equals(Set.of("luck_key"))){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
+                    "Legacy key durability cleanup marker; its luck/tool/durability values belong to generated native components, not a second delayed inventory-clearing ability");return;
+        }
         if(!keys.isEmpty()&&Set.of("wisp_air","wisp_fire","wisp_light","wisp_nature","wisp_shadow","wisp_water").containsAll(keys)){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_INERT_KEY,
                     "Source-inert TMT item fields "+keys+": exhaustive lbc/lbcr item-data and dynamic-dispatch audit finds no reader; separate companion ENTITY tags do not activate from these fields (TMT_WISP_REACHABILITY_2026_11_07)");return;
@@ -435,6 +460,8 @@ final class LbcTmtCatalog {
         // Legacy TMT rolls these achievement labels; neither flag converts its carrier to a trident.
         flags(result,"Native player_killed_entity/lbc:true_advancements/tridents/harpoon",Event.KILL,Location.MAIN_HAND,"harpoon");
         flags(result,"Native using_item/lbc:true_advancements/tridents/sea_legend",Event.USING,Location.USED_HAND,"sea_legend");
+        flags(result,"Native player_killed_entity/lbc:true_advancements/swords/crowbar",Event.KILL,Location.MAIN_HAND,"crowbar");
+        flags(result,"Native inventory_changed/lbc:true_advancements/swords/slimeball",Event.INVENTORY,Location.INVENTORY,"slimeball");
         flags(result,"LbcMagic dirty inventory cache/LbcElectro",Event.INVENTORY,Location.INVENTORY,"electroblocker");
         result.put("halloween_mace",new Rule("halloween_mace","LbcHalloweenWind/LbcTmtSelfAbilities",
                 Set.of(Event.SELF,Event.JUMP),Set.of(Location.USED_HAND)));
@@ -471,6 +498,7 @@ final class LbcTmtCatalog {
         flags(result,"LbcRerollCrafting",Event.CRAFT,Location.CRAFT_GRID,"reroll_machine");
         flags(result,"LbcSteampunkGlove",Event.HELD,Location.MAIN_HAND,"steampunk_sword");
         flags(result,"LbcKfcFood",Event.CONSUME,Location.USED_HAND,"kfc_chick","eat_shit");
+        flags(result,"LbcAimbobRewards",Event.CONSUME,Location.USED_HAND,"aimbobapple");
         flags(result,"LbcOreshek",Event.CONSUME,Location.USED_HAND,"eat_oreshek");
         flags(result,"LbcClassicMelee",Event.HELD,Location.MAIN_HAND,"one_punch","hylian");
         flags(result,"LbcItems/LbcFrost",Event.MELEE,Location.MAIN_HAND,"icesword");

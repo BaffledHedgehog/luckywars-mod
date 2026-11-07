@@ -78,7 +78,30 @@ public final class TmtCriterionTraitChecks {
                 flags.entrySet().forEach(entry->base.putInt(entry.getKey(),entry.getValue().getAsInt()));}
             catch(Exception error){throw new IllegalStateException("Actual TMT source base flags",error);}
             require(base.getIntOr("transformable",0)==1&&base.getIntOr("trident",0)==1,"actual generator header supplies native criterion qualifiers");
-            catalog();killCriteria();labelDoesNotCast();useBegin();}
+            catalog();killCriteria();additionalCriteria();labelDoesNotCast();useBegin();}
+        void additionalCriteria(){
+            var crowbar=property("crowbar");var slime=property("slimeball");
+            var crowbarAdv=advancement("lbc:true_advancements/swords/crowbar");var slimeAdv=advancement("lbc:true_advancements/swords/slimeball");
+            var cow=new Cow(EntityTypes.COW,f.level);cow.setPos(f.home.add(4,4,0));cow.setNoAi(true);cow.setNoGravity(true);
+            require(f.level.addFreshEntity(cow),"native crowbar nonplayer witness");f.own(cow);
+            for(int carrier=0;carrier<5;carrier++){
+                clear();var stack=combined(carrier,crowbar,slime,sibling);var saved=stack.copy();f.owner.setItemInHand(InteractionHand.MAIN_HAND,stack);
+                revoke(crowbarAdv);CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(f.owner,f.other,f.owner.damageSources().playerAttack(f.owner));
+                require(done(crowbarAdv),"Crowbar real player kill criterion on carrier="+carrier);unchanged(stack,saved);
+                revoke(crowbarAdv);CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(f.owner,cow,f.owner.damageSources().playerAttack(f.owner));
+                require(!done(crowbarAdv),"Crowbar rejects nonplayer criterion");
+                f.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);f.owner.getInventory().setItem(9,stack);
+                revoke(slimeAdv);CriteriaTriggers.INVENTORY_CHANGED.trigger(f.owner,f.owner.getInventory(),stack);
+                require(done(slimeAdv),"Slimeball actual inventory criterion on carrier="+carrier);unchanged(stack,saved);
+            }
+            clear();var offhand=combined(0,crowbar,sibling);f.owner.setItemInHand(InteractionHand.OFF_HAND,offhand);
+            revoke(crowbarAdv);CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(f.owner,f.other,f.owner.damageSources().playerAttack(f.owner));require(!done(crowbarAdv),"Crowbar offhand does not satisfy mainhand");
+            var plain=combined(0,sibling);f.owner.getInventory().setItem(9,plain);revoke(slimeAdv);
+            CriteriaTriggers.INVENTORY_CHANGED.trigger(f.owner,f.owner.getInventory(),plain);require(!done(slimeAdv),"Slimeball rejects plain header");
+            clear();var spectator=combined(0,slime,sibling);f.owner.getInventory().setItem(9,spectator);f.owner.setGameMode(GameType.SPECTATOR);revoke(slimeAdv);
+            CriteriaTriggers.INVENTORY_CHANGED.trigger(f.owner,f.owner.getInventory(),spectator);require(!done(slimeAdv),"Slimeball rejects spectator");f.owner.setGameMode(GameType.SURVIVAL);
+            f.discard(cow);require(f.owner.getHealth()==alphaHealth&&f.other.getHealth()==betaHealth,"additional native criteria do not simulate player deaths");
+        }
         void killCriterion(Entity victim,boolean expected,String why){revoke(harpoonAdv);
             CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(f.owner,victim,f.owner.damageSources().playerAttack(f.owner));
             require(done(harpoonAdv)==expected,"actual native PLAYER_KILLED_ENTITY predicate, not a simulated death: "+why);}

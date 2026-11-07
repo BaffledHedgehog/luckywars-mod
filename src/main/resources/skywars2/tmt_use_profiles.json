@@ -27523,7 +27523,7 @@
       ]
     },
     {
-      "item": "minecraft:snowball",
+      "item": "skywars2:troll_box",
       "data": [
         "{trollge:1,gadget:1}"
       ],
@@ -29137,7 +29137,7 @@
       ]
     },
     {
-      "item": "minecraft:snowball",
+      "item": "skywars2:gayradar",
       "data": [
         "{gadget:1,gayradar:1}"
       ],
@@ -42072,17 +42072,20 @@
     {
       "key": "gayradar",
       "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure."
+      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "nativeItem": "skywars2:gayradar"
     },
     {
       "key": "steampunk_rocket",
       "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure."
+      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "nativeItem": "skywars2:steampunk_rocket"
     },
     {
       "key": "trollge",
       "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure."
+      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "nativeItem": "skywars2:troll_box"
     }
   ],
   "unparsedSourceResources": [

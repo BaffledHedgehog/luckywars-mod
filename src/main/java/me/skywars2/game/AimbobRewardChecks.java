@@ -92,6 +92,20 @@ public final class AimbobRewardChecks {
         void helmet(){clear();owner.setItemSlot(EquipmentSlot.HEAD,helmet.copy());debuffs();pulse(19);require(!owner.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION)&&owner.hasEffect(net.minecraft.world.effect.MobEffects.BLINDNESS),"helmet waits19 actual service player ticks");pulse(1);cleansed();owner.removeEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION);pulse(19);require(!owner.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION),"helmet second pulse keeps source20 cadence");pulse(1);effect(owner,net.minecraft.world.effect.MobEffects.NIGHT_VISION,300,0);
             clear();owner.getInventory().setItem(9,helmet.copy());owner.setItemInHand(InteractionHand.OFF_HAND,helmet.copy());pulse(20);require(!owner.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION),"carried and offhand helmet do not activate equipped-head source");clear();owner.setItemSlot(EquipmentSlot.HEAD,helmet.copy());pulse(20);owner.setItemSlot(EquipmentSlot.HEAD,ItemStack.EMPTY);owner.addEffect(ItemEffectLevels.create(net.minecraft.world.effect.MobEffects.BLINDNESS,111,0));pulse(20);effect(owner,net.minecraft.world.effect.MobEffects.NIGHT_VISION,300,0);effect(owner,net.minecraft.world.effect.MobEffects.BLINDNESS,111,0);}
         ItemStack eat(ItemStack source){owner.getFoodData().setFoodLevel(1);var held=source.copy();owner.setItemInHand(InteractionHand.MAIN_HAND,held);int before=held.getCount();var output=held.finishUsingItem(owner.level(),owner);require(output.getCount()==before-1,"actual native consumption debits exactly one");return output;}
+        void tmtApple(){
+            var family=game.items().tmt().catalog().families().stream().filter(row->row.id().equals("native/aimbobapple")).findFirst().orElseThrow();
+            var sibling=game.items().tmt().catalog().families().stream().filter(row->row.id().equals("native/zaika")).findFirst().orElseThrow().variants().getFirst();
+            for(var hand:net.minecraft.world.InteractionHand.values()){
+                clear();var stack=LbcTmtItems.prototype(4);stack.setCount(2);var data=stack.get(DataComponents.CUSTOM_DATA).copyTag();
+                LbcTmtAbilities.write(data,List.of(family.variants().getFirst(),sibling));stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));
+                var expected=stack.copyWithCount(1);var stat=Stats.ITEM_USED.get(stack.getItem());int used=owner.getStats().getValue(stat);
+                try{owner.setItemInHand(hand,stack);owner.getFoodData().setFoodLevel(1);var result=stack.finishUsingItem(owner.level(),owner);
+                    require(ItemStack.matches(result,expected)&&!LbcTmtAbilities.nativePredicatesActive(),"native TMT apple debits one and retains complete sibling/private/carrier payload in "+hand);
+                    effect(owner,net.minecraft.world.effect.MobEffects.HEALTH_BOOST,6000,9);effect(owner,net.minecraft.world.effect.MobEffects.REGENERATION,60,5);
+                    effect(owner,net.minecraft.world.effect.MobEffects.RESISTANCE,100,4);effect(owner,net.minecraft.world.effect.MobEffects.SATURATION,1,127);
+                }finally{owner.getStats().setValue(owner,stat,used);}
+            }
+        }
         void apple(){
             clear();eat(apple);
             effect(owner,net.minecraft.world.effect.MobEffects.HEALTH_BOOST,6000,9);
@@ -114,5 +128,5 @@ public final class AimbobRewardChecks {
             var main=owner.level();for(String name:List.of("nexus","imprinted")){var level=game.server().getLevel(net.minecraft.resources.ResourceKey.create(Registries.DIMENSION,Identifier.parse("minecraft:"+name)));require(level!=null,"original sealed source dimension exists "+name);clear();owner.setItemSlot(EquipmentSlot.HEAD,helmet.copy());try{require(owner.teleportTo(level,0,100,0,Set.of(),0,0,true),"native test dimension transition");acknowledge();require(!LbcDimensionItems.ordinary(owner),"shared dimension helper rejects original sealed realm");pulse(20);require(!owner.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION),"helmet rejects sealed dimension "+name);service.consumed(owner,apple);require(!owner.hasEffect(net.minecraft.world.effect.MobEffects.HEALTH_BOOST),"already completed consume callback rejects sealed dimension "+name);}finally{owner.teleportTo(main,saved.state.position.x,saved.state.position.y,saved.state.position.z,Set.of(),saved.state.yaw,saved.state.pitch,true);acknowledge();}}}
         @SuppressWarnings("unchecked") public void close(){try{for(var m:markers){game.items().magic().unloaded(m);m.discard();}owner.stopUsingItem();saved.restore(game);acknowledge();}finally{var current=(Map<ServerPlayer,Integer>)read(service,"phases");current.clear();current.putAll(phases);set(service,"epoch",epoch);owner.connection=connection;connection.resetPosition();}}
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.payloads();f.helmet();f.apple();f.admission();}SkyWars2.LOGGER.info("[check] PASS aimbob-rewards (independent source reward components, native consumption, helmet cadence/cleansing and shared admission)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.payloads();f.helmet();f.apple();f.tmtApple();f.admission();}SkyWars2.LOGGER.info("[check] PASS aimbob-rewards (independent source reward components, native consumption including private TMT apple both hands/exact sibling payload, helmet cadence/cleansing and shared admission)");}
 }

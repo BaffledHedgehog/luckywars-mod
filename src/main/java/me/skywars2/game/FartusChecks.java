@@ -233,6 +233,20 @@ public final class FartusChecks {
             require(service.hud(owner).getString().contains("\uE103")&&service.hud(owner).getString().endsWith("1"),"source sword charge HUD");remove(c);
             var poop=new ItemStack(Items.DIRT,3);var tag=new net.minecraft.nbt.CompoundTag();tag.putInt("govnoq",1);poop.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));owner.getInventory().setItem(9,poop);owner.setItemInHand(InteractionHand.OFF_HAND,poop.copyWithCount(2));service.updateSword(owner);require(owner.getMainHandItem().get(DataComponents.ATTRIBUTE_MODIFIERS).equals(LbcFartus.attributes(69)),"full carried plus offhand govnoq count5 gives69 base bonus");owner.getInventory().setItem(9,ItemStack.EMPTY);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);service.updateSword(owner);require(owner.getMainHandItem().get(DataComponents.ATTRIBUTE_MODIFIERS).equals(LbcFartus.attributes(19)),"removing govnoq restores source19");panel.discard();
         }
+        void tmtMaterial(){
+            owner.getInventory().clearContent();owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcFartus.ACADEMY));
+            var family=game.items().tmt().catalog().families().stream().filter(row->row.id().equals("native/material/govno")).findFirst().orElseThrow();
+            var sibling=game.items().tmt().catalog().families().stream().filter(row->row.id().equals("native/zaika")).findFirst().orElseThrow().variants().getFirst();
+            var material=LbcTmtItems.prototype(0);var data=material.get(DataComponents.CUSTOM_DATA).copyTag();LbcTmtAbilities.write(data,List.of(family.variants().getFirst(),sibling));material.set(DataComponents.CUSTOM_DATA,CustomData.of(data));material.setCount(3);
+            var saved=material.copy();owner.getInventory().setItem(9,material);owner.setItemInHand(InteractionHand.OFF_HAND,material.copyWithCount(2));service.updateSword(owner);
+            require(owner.getMainHandItem().get(DataComponents.ATTRIBUTE_MODIFIERS).equals(LbcFartus.attributes(69)),"real Fartus owner counts5 private TMT material units without per-item NBT copies");
+            var input=net.minecraft.world.item.crafting.CraftingInput.of(2,1,List.of(new ItemStack(LbcElectro.CYBERKATANA),material));
+            require(LbcCraftingRecipe.craftingKind(input)==LbcCraftingRecipe.Kind.SHIT_KATANA,"real native crafting classifier accepts private TMT material");
+            var pattern=new net.minecraft.nbt.CompoundTag();pattern.putInt("govnoq",1);
+            require(material.get(DataComponents.CUSTOM_DATA).matchedBy(pattern)&&ItemStack.matches(material,saved)&&!LbcTmtAbilities.nativePredicatesActive(),"native dropped-material predicate and complete independent source payload remain intact");
+            owner.getInventory().setItem(9,ItemStack.EMPTY);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);service.updateSword(owner);
+            require(owner.getMainHandItem().get(DataComponents.ATTRIBUTE_MODIFIERS).equals(LbcFartus.attributes(19)),"removing private donors restores source19");
+        }
         void boundaries(){
             held("fartus_wand",InteractionHand.MAIN_HAND);mana.noMagic(owner,1);require(!game.items().wands().use(owner,InteractionHand.MAIN_HAND)&&service.count()==0,"noMagic input rejects");mana.noMagic(owner,0);
             owner.entityTags().add("time_stopped");require(!game.items().wands().use(owner,InteractionHand.MAIN_HAND),"entity time stop rejects input");owner.entityTags().remove("time_stopped");
@@ -256,7 +270,7 @@ public final class FartusChecks {
             game.players().save();mana.inventoryChanged(owner);mana.inventoryChanged(other);game.items().magic().flushCleansing();
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.init();CombatVisualChecks.piss(game,f.owner,f.other);f.owner.removeAllEffects();f.other.removeAllEffects();f.move(f.owner,f.at);f.move(f.other,f.at.add(7,0,0));f.presentationAndInputs();f.recipes();f.visuals();f.nativeContacts();f.movement();f.trialAndSword();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS fartus (native loot/input/craft, used-hand trial/X promotion, actual source projectile impacts/deaths/reflection, full melee stun, camera particle wire payload and lifecycle; explicit boundary ticks)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();CombatVisualChecks.piss(game,f.owner,f.other);f.owner.removeAllEffects();f.other.removeAllEffects();f.move(f.owner,f.at);f.move(f.other,f.at.add(7,0,0));f.presentationAndInputs();f.recipes();f.visuals();f.nativeContacts();f.movement();f.trialAndSword();f.tmtMaterial();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS fartus (native loot/input/craft, private TMT carried/offhand material count and native recipe, used-hand trial/X promotion, actual source projectile impacts/deaths/reflection, full melee stun, camera particle wire payload and lifecycle; explicit boundary ticks)");}
     private static Saved stopSaved;private static String stopEpoch;private static LbcFartus.Shot stopShot;private static Set<Entity> stopBefore;
     public static void stopProbe(GameController game){
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(stopSaved==null&&owner!=null&&game.canUseGameplayItems(owner)&&game.items().fartus().count()==0&&cleanAttribution(game,owner),"clean exclusive actual-stop probe");stopSaved=new Saved(game,owner);stopBefore=Collections.newSetFromMap(new IdentityHashMap<>());owner.level().getAllEntities().forEach(stopBefore::add);

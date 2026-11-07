@@ -83,7 +83,14 @@ final class LbcTmtUseProfiles {
                 if(add(game,stack,supported,collected,rejected,existing))admitted++;
             }
             for(var value:source.getAsJsonArray("knownLegacyOwnerGaps")) {
-                var row=value.getAsJsonObject();gaps.add(row.get("key").getAsString()+": "+row.get("status").getAsString());
+                var row=value.getAsJsonObject();String key=row.get("key").getAsString();
+                // A declared resolution only closes when its real native input was admitted.
+                // Missing/changed factories remain visible instead of trusting a historical label.
+                boolean resolved=row.has("nativeItem")&&collected.values().stream().flatMap(variants->variants.values().stream()).anyMatch(ability->{
+                    var data=(ItemData.IntReader)(Object)ability.data();
+                    return data.skywars2$readInt(key,0)==1&&data.skywars2$readString(NATIVE_ITEM,"").equals(row.get("nativeItem").getAsString());
+                });
+                if(!resolved)gaps.add(key+": "+row.get("status").getAsString());
             }
         }catch(Exception failure){throw new IllegalStateException("Invalid native TMT use prototypes",failure);}
         var result=new ArrayList<Family>();
