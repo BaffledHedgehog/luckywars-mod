@@ -121,7 +121,7 @@ public final class LbcCombatRewards {
         if(!scopes.isEmpty()&&scopes.peek().victim==victim){action.run();return;}
         var scope=new Scope(victim,level);scopes.push(scope);
         boolean completed=false;
-        try{action.run();completed=true;}
+        try{game.items().sauvojenBoss().died(victim);game.items().crocodildo().died(victim);action.run();completed=true;}
         finally{scopes.pop();if(completed)finish(scope);}
     }
     /** Called only after addFreshEntity returned true; no world or age search. */

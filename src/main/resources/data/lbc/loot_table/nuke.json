@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:panda_spawn_egg",
+          "name": "skywars2:nuke",
           "modifier": [
             {
               "count": 1,
@@ -14,16 +14,7 @@
             {
               "components": {
                 "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "lbc:nuke",
-                "minecraft:entity_data": {
-                  "id": "minecraft:marker",
-                  "Tags": [
-                    "nuke",
-                    "rc_1sec",
-                    "marker_2t",
-                    "mecha"
-                  ]
-                }
+                "minecraft:item_model": "lbc:nuke"
               },
               "type": "minecraft:set_components"
             },

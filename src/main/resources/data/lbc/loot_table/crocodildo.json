@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:repeating_command_block",
+          "name": "skywars2:crocodildo_encounter",
           "modifier": [
             {
               "count": 1,

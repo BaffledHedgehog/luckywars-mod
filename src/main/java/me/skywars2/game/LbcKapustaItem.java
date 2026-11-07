@@ -20,6 +20,9 @@ public final class LbcKapustaItem extends SnowballItem implements PolymerItem {
     public static final Item ITEM=Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:kapusta"),
             new LbcKapustaItem(LbcUtilityItemPrototypes.properties("skywars2:kapusta",
                     "/data/lbc/loot_table/item_defs/lbc/kapusta__e3a9b9e791f5.json",Items.SNOWBALL,16)));
+    public static final Item JACK=Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:halloween_jack"),
+            new LbcKapustaItem(LbcUtilityItemPrototypes.properties("skywars2:halloween_jack",
+                    "/data/lbc/loot_table/item_defs/minecraft/jack_o_lantern__cc18e55635ba.json",Items.SNOWBALL,16)));
     private LbcKapustaItem(Properties properties){super(properties);}
     public static void register(){}
     @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.SNOWBALL;}

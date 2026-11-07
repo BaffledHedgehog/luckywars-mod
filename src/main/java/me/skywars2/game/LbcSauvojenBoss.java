@@ -53,8 +53,9 @@ public final class LbcSauvojenBoss {
         if(rewinding)return false;callbackDepth++;try{
         if(!ready(token))return false;var author=(ServerPlayer)game.items().specialDrops().owner(token);var level=author.level();var at=token.position();
         var ghast=EntityTypes.GHAST.create(level,EntitySpawnReason.COMMAND);if(ghast==null)return false;
-        load(ghast,"{DeathLootTable:\"lbc:sauvojen_tuntija\",PersistenceRequired:true,ExplosionPower:3}");
-        ghast.setPos(at.add(0,20,0));ghast.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100024);ghast.setHealth(100024);
+        load(ghast,"{DeathLootTable:\"minecraft:empty\",PersistenceRequired:true,ExplosionPower:3}");
+        // Legacy 100024 -> 99900 was 124 real HP above a loot-survival sentinel.
+        ghast.setPos(at.add(0,20,0));ghast.getAttribute(Attributes.MAX_HEALTH).setBaseValue(124);ghast.setHealth(124);
         ghast.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(256);ghast.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(256);
         ghast.setCustomName(Component.literal("Sauvojen Tuntija").withStyle(ChatFormatting.BLUE,ChatFormatting.BOLD).withStyle(s->s.withItalic(false)));
         ghast.entityTags().addAll(List.of(BOSS,"sauvojen_tuntija","rcdenyalways"));game.items().markCurrentItemEpoch(ghast);
@@ -123,8 +124,6 @@ public final class LbcSauvojenBoss {
         var position=boss.position();double x=position.x,y=position.y,z=position.z;
         if(y>=300)y=40;if(y<=0)y=200;if(x>=120)x=-100;else if(x<=-120)x=100;if(z>=120)z=-100;else if(z<=-120)z=100;
         if(x!=position.x||y!=position.y||z!=position.z)boss.teleportTo(level,x,y,z,Set.of(),boss.getYRot(),boss.getXRot(),true);
-        // Native /data get Health 1 truncates before the inclusive scoreboard comparison.
-        if((int)boss.getHealth()<=99900)infinity(boss,author);
     }
     private void cloud(LivingEntity boss,ServerPlayer author,LbcSauvojen.Kind kind,LbcSpellSource.Source authority){
         var carrier=new Marker(EntityTypes.MARKER,author.level());carrier.setPos(boss.position());
@@ -159,12 +158,15 @@ public final class LbcSauvojenBoss {
         if(effects){var level=(ServerLevel)d.carrier.level();level.sendParticles(ParticleTypes.WITCH,d.position.x,d.position.y,d.position.z,30,.1,.1,.1,.5);LbcOverload.sound(level,d.position,"minecraft:block.enchantment_table.use",2,1.3f,0,0);}
         d.carrier.discard();
     }
-    /** Both the threshold and the native death-table drop use the same original reward sequence. */
+    /** Claim the actual death once, before its explosion can continue through emitted rewards. */
+    void died(LivingEntity boss){
+        if(rewinding||!boss.isDeadOrDying())return;
+        var state=actors.remove(boss);if(state==null||!game.items().currentEpoch(state.epoch()))return;
+        infinity((ServerLevel)boss.level(),boss.position(),game.server().getPlayerList().getPlayer(state.author()));
+    }
+    /** Compatibility entry: ordinary native death owns the reward; no teleport or threshold. */
     public void infinity(LivingEntity boss,ServerPlayer author){
         callbackDepth++;try{
-        var at=boss.position();infinity(author,at);actors.remove(boss);
-        boss.teleportTo(author.level(),0,-10000,0,Set.of(),boss.getYRot(),boss.getXRot(),true);
-        // Source teleports before /kill, so its death-table token is emitted at the lower position.
         boss.hurtServer(author.level(),boss.damageSources().genericKill(),Float.MAX_VALUE);
 
         }finally{callbackDepth--;}
@@ -205,7 +207,7 @@ public final class LbcSauvojenBoss {
         var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(ProblemReporter.DISCARDING,item.registryAccess());item.saveWithoutId(output);
         var saved=output.buildResult();saved.putInt("Health",health);saved.putShort("Age",(short)-32768);saved.putBoolean("NoGravity",true);saved.putBoolean("Glowing",true);saved.putBoolean("CustomNameVisible",true);
         item.load(TagValueInput.create(ProblemReporter.DISCARDING,item.registryAccess(),saved));
-        item.setCustomName(name);item.setUnlimitedLifetime();item.setDeltaMovement(Vec3.ZERO);if(author!=null)item.setThrower(author);
+        item.setCustomName(name);LbcBossLoot.protect(item);if(author!=null)item.setThrower(author);
         game.items().markCurrentItemEpoch(item);game.items().timeStop().prepareFrozen(item);level.addFreshEntity(item);
     }
     private static void load(Entity entity,String nbt){try{entity.load(TagValueInput.create(ProblemReporter.DISCARDING,entity.registryAccess(),TagParser.parseCompoundFully(nbt)));}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}}

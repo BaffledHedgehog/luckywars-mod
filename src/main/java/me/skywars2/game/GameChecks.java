@@ -886,6 +886,7 @@ public final class GameChecks {
                                 case "chaos-armor" -> { ChaosArmorChecks.run(game); return; }
                                 case "chaos-armor-candidate" -> { ChaosArmorChecks.runCandidate(game); return; }
                                 case "aimbob-rewards" -> { AimbobRewardChecks.run(game); return; }
+                                case "boss-projectiles" -> {BossProjectileChecks.run(game);return;}
                                 case "sauvojen-boss" -> { SauvojenBossChecks.run(game); return; }
                                 case "hostile-electro" -> { HostileElectroChecks.run(game); return; }
                                 case "raw-raycast-spells" -> { RawRaycastSpellChecks.run(game); return; }
@@ -1681,7 +1682,7 @@ public final class GameChecks {
             SteampunkBreakerChecks.tick(game);SteampunkGloveChecks.tick(game);
         SteampunkHookChecks.tick(game);
             GrimoireBossChecks.tick(game);            UniwandChecks.tick(game);GrimoireDungeonChecks.tick(game);            MapRotationChecks.tick(game);            ImbaRuneChecks.tickGlobals(game);ImbaRuneChecks.tickRestart(game);
-            RawRaycastSpellChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);StonekiviSunChecks.tick(game);
+            RawRaycastSpellChecks.tick(game);BossProjectileChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);StonekiviSunChecks.tick(game);
             AttributeFoodChecks.tick(game);
             ImprintedHudChecks.tick(game);
             TrollBoxChecks.tick(game);

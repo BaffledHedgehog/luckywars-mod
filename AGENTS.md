@@ -7,6 +7,36 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## Shared boss rewards and projectile owners - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL internal parent is now608c5159/c659daf5 over6c24e5c5/5a872f29.
+20 explicit Java families/5 resources;7 native suites qualified. Source and proof:
+[TMT_BOSS_PROJECTILES_2026_11_07.md](agent_notes/TMT_BOSS_PROJECTILES_2026_11_07.md).
+Author approved real200HP Crocodildo, normal shared nuke, TECH rewarded death and
+whole-cycle TimeStop. Real NPC cause persists through self-kill and rewind links.
+Native dropped encounter, original body/display/audio, paired checkpoint/clone helpers,
+active five-second bombing clock. Immediate actual boss loot is protected before
+publication; nuclear explicit entity cleanup skips only these rewards, not foreign loot.
+Sauvojen's100024->99900 sentinel is now real124 effectiveHP/ordinary native death;
+one immediate protected Infinity/cloud reward at actual position, no teleport/second token.
+64_nukes now packaged and corrected to native26.3 modifier schema;64 functional timed
+nuclear eggs plus upgraded native Exasperato, retaining authored overlays/reference reuse.
+Halloween Jack reuses the complete cabbage flight/attachment/firework/clone/checkpoint
+owner as a typed mode, source deterministic homing and no cabbage offspring. Real TMT
+private input proven. Raw lightning uses existing queued ray/library chain terminal;
+eight raw aliases native input/terminal/no-mana/one-debit/miss/suppression checks pass.
+5b6f8f3e passed7 suites. Final608c5159 changes ONLY BossProjectileChecks$Scene.class
+to restore TMT-carrot item-used stats too; fresh scene passes,6 other passing proofs
+carried by exact archive comparison. Whole actual encounter capture/discard/restore,
+self-nuke, every later wave/final cleanup, TECH death and usable egg use-on all proven.
+10483 guarded inputs/282 author paths/four WIP/HUD/Main exact. One512MiB compiler then
+1280MiB fixture, normal exits/restoration/no locks/listeners. Main83b0ea27 unchanged;
+NO installer/restart/RP edits. Hold ALL changes until stable. Full goal remains ACTIVE.
+Standalone Crocodildo is not yet a composable TMT DROP adapter. Keep genuine one-unit
+drop composition for Academy/helicopter/Crocodildo, protected author WIP integration,
+current capability/firework-ammo audit, unloaded rocket/heavy800-tick Troll throughput
+and final acquisition/atlas/stable-release chain. Do not call pending live domains inert.
+
 ## Large current-content TMT batch - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL internal parent is now6c24e5c5/5a872f29 over6a164293/0c16c474.

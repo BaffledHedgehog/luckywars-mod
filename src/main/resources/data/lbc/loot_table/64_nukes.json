@@ -6,10 +6,10 @@
         {
           "type": "minecraft:loot_table",
           "value": "lbc:nuke",
-          "functions": [
+          "modifier": [
             {
-              "function": "set_count",
-              "count": 64
+              "count": 64,
+              "type": "minecraft:set_count"
             }
           ]
         }
@@ -20,31 +20,30 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754",
-          "functions": [
+          "value": "lbc:ported/exasperato_wand",
+          "modifier": [
             {
-              "function": "minecraft:set_count",
-              "count": 1
+              "count": 1,
+              "type": "minecraft:set_count"
             },
             {
-              "function": "minecraft:set_components",
               "components": {
                 "minecraft:item_model": "lbc:exasperato",
                 "minecraft:tooltip_style": "lbc:tier_ss"
-              }
+              },
+              "type": "minecraft:set_components"
             },
             {
-              "function": "minecraft:set_name",
               "name": [
                 {
                   "translate": "exasperato_wand",
                   "italic": false,
                   "color": "dark_red"
                 }
-              ]
+              ],
+              "type": "minecraft:set_name"
             },
             {
-              "function": "minecraft:set_lore",
               "mode": "replace_all",
               "entity": "this",
               "lore": [
@@ -91,11 +90,12 @@
                   "italic": false,
                   "color": "green"
                 }
-              ]
+              ],
+              "type": "minecraft:set_lore"
             },
             {
-              "function": "minecraft:set_custom_data",
-              "tag": "{transformable:1,staff:1,magicwand:1,exasperato_wand:1,upgraded:1,mode:1}"
+              "tag": "{transformable:1,staff:1,magicwand:1,exasperato_wand:1,upgraded:1,mode:1}",
+              "type": "minecraft:set_custom_data"
             }
           ]
         }

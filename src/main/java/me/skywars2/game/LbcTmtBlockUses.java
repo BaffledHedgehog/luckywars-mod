@@ -14,7 +14,7 @@ import net.minecraft.world.item.context.UseOnContext;
 /** The genuine use-on context and native factory own placement geometry, permissions and the sole debit. */
 final class LbcTmtBlockUses {
     private LbcTmtBlockUses(){}
-    static boolean supports(Item item){return item==LbcImbaNativeItems.FIREWORK||item==LbcCorruptedGlyphs.DUST||shulkerItem(item)||BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("skywars2")
+    static boolean supports(Item item){return item==LbcCrocodildoItems.NUKE||item==LbcImbaNativeItems.FIREWORK||item==LbcCorruptedGlyphs.DUST||shulkerItem(item)||BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("skywars2")
             &&(item instanceof BlockItem||item instanceof LbcMarkerEggItem||item instanceof LbcPumpkinatorItem||item instanceof SpawnEggItem);}
     static Item canonical(ItemStack stack){
         // The bare registered transport has no glyph selector; only authored kinds own use-on.

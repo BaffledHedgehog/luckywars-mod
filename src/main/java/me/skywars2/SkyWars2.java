@@ -51,6 +51,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
     private static InteractionResult seasonalUse(net.minecraft.world.entity.player.Player player,net.minecraft.world.InteractionHand hand){
         if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.PASS;
         var stack=owner.getItemInHand(hand);
+        if(me.skywars2.game.LbcKapusta.jack(stack))return game.vanity().blocked(owner)?InteractionResult.FAIL:
+                game.items().kapusta().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
         if(me.skywars2.game.LbcNovemberLightsaberItems.selector(stack)){
             if(game.vanity().blocked(owner))return InteractionResult.FAIL;
             return game.items().lightsabers().use(owner,hand);

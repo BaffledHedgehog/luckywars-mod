@@ -49,7 +49,9 @@ public final class LbcNukeEvent {
             Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.BROWN),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.ORANGE),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.GREEN),
             Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.LIME),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.CYAN),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.GRAY),Blocks.STAINED_GLASS_PANE.pick(net.minecraft.world.item.DyeColor.LIGHT_GRAY)};
     private static final String[] MUSIC={"nuke","ponos","backrooms","burning_balance","penis_bossfight","kazahstan"};
-    private record Cause(UUID author,LbcIndirectKills.Owner accepted,String epoch){}
+    private record Cause(UUID author,LbcIndirectKills.Owner accepted,String epoch,LivingEntity npc){
+        Cause(UUID author,LbcIndirectKills.Owner accepted,String epoch){this(author,accepted,epoch,null);}
+    }
     /** Unpublished source survives in captured DamageSource records, without a service-map entry. */
     private static final class BlastSource extends Marker {
         final Cause cause;BlastSource(ServerLevel level,Cause cause){super(EntityTypes.MARKER,level);this.cause=cause;}
@@ -118,6 +120,24 @@ public final class LbcNukeEvent {
         }finally{callbackDepth--;}
     }
     /** Source nuke_eoe: immediate strict beacon and a separate globally REPLACE'd nuke1 deadline. */
+    boolean startPlaced(ServerPlayer author,Vec3 at){
+        if(rewinding||author==null||!author.isAlive()||!game.canUseGameplayItems(author)||game.isObserver(author)
+                ||!live(game.items().epoch())||!LbcDimensionItems.ordinary(author)||paused(author.level())||!author.level().hasChunkAt(BlockPos.containing(at)))return false;
+        callbackDepth++;try{
+            if(generation==0)prepare();
+            var level=author.level();var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(at);
+            var cause=new Cause(author.getUUID(),game.items().indirectKills().wildCause(author),game.items().epoch());
+            marker.entityTags().addAll(List.of(TAG,"nuke","nuke1","rc_1sec","marker_2t","mecha"));game.items().markCurrentItemEpoch(marker);
+            actors.put(marker,new State(cause,true));sources.put(marker,cause);
+            if(!level.addFreshEntity(marker)){actors.remove(marker);sources.remove(marker);return false;}
+            game.items().timeStop().prepareFrozen(marker);
+            for(var p:game.server().getPlayerList().getPlayers()){
+                p.connection.send(new ClientboundSetTitleTextPacket(Component.literal(" ")));
+                p.connection.send(new ClientboundSetSubtitleTextPacket(author.getDisplayName().copy().withStyle(ChatFormatting.RED).append(Component.translatable("nuke_activated").withStyle(ChatFormatting.DARK_RED))));
+            }
+            sound(new Site(level,at,0,cause),"nuke",1);if(!stooper(marker)){pendingEoe=400;pendingEoeCause=cause;schedules++;}return true;
+        }finally{callbackDepth--;}
+    }
     public boolean startEoe(ServerPlayer author,ServerLevel level,Vec3 at,LbcIndirectKills.Owner accepted){
         if(rewinding)return false;
         callbackDepth++;try{
@@ -279,6 +299,13 @@ public final class LbcNukeEvent {
         var cause=new Cause(accepted==null?null:accepted.player(),wild,game.items().epoch());
         pointBurst(new Site(level,at,yaw,cause));return true;
     }
+    /** Hostile encounter bombs reuse the complete normal nuclear engine and their actual NPC cause. */
+    boolean encounterBurst(ServerLevel level,Vec3 at,LivingEntity emitter){
+        if(emitter==null||rewinding||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
+                ||!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
+        if(generation==0)prepare();
+        pointBurst(new Site(level,at,emitter.getYRot(),new Cause(null,null,game.items().epoch(),emitter)));return true;
+    }
     private boolean pointBurst(ServerPlayer author,ServerLevel level,Vec3 at,boolean status){
         if(author==null||!live(game.items().epoch())||!LbcDimensionItems.ordinary(level)||paused(level)
                 ||!level.hasChunkAt(BlockPos.containing(at))||LbcExplosionSuppression.suppressed(game,level,at))return false;
@@ -330,7 +357,7 @@ public final class LbcNukeEvent {
     private Operation killOperation(Site site){return new Operation(site.level,BlockPos.containing(site.at),BlockPos.containing(site.at),site.cause,()->{
         var coverage=LbcExplosionSuppression.coverage(game,site.level);if(coverage.contains(site.at))return;
         for(var entity:List.copyOf(site.level.getEntities((Entity)null,new AABB(site.at,site.at).inflate(14),e->e.isAlive()&&e.getType()!=EntityTypes.CREEPER
-                &&e.getType()!=EntityTypes.PLAYER&&!e.entityTags().contains("slowparticlesexplode_2")&&!e.entityTags().contains("strict_map_object")
+                &&e.getType()!=EntityTypes.PLAYER&&!LbcBossLoot.protectedReward(e)&&!e.entityTags().contains("slowparticlesexplode_2")&&!e.entityTags().contains("strict_map_object")
                 &&e.position().distanceToSqr(site.at)<=196&&!coverage.targets(e)))){
             if(entity instanceof LivingEntity living)game.items().indirectKills().inheritedKill(living,site.cause.accepted);else entity.kill(site.level);
         }
@@ -348,7 +375,7 @@ public final class LbcNukeEvent {
     }
     private static final class NuclearDamage extends DamageSource {
         final Vec3 position;
-        NuclearDamage(ServerLevel level,Entity direct,ServerPlayer author,Vec3 at){super(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.PLAYER_EXPLOSION),direct,author);position=at;}
+        NuclearDamage(ServerLevel level,Entity direct,Entity author,Vec3 at){super(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(author instanceof LivingEntity&&!(author instanceof ServerPlayer)?DamageTypes.EXPLOSION:DamageTypes.PLAYER_EXPLOSION),direct,author);position=at;}
         @Override public Vec3 getSourcePosition(){return position;}
         @Override public boolean scalesWithDifficulty(){return true;}
         @Override public Component getLocalizedDeathMessage(LivingEntity victim){return Component.translatable("death.attack.explosion.player",victim.getDisplayName(),Component.translatable("killed_by_nuke"));}
@@ -362,7 +389,7 @@ public final class LbcNukeEvent {
         var previousCause=executingCause;var previousLevel=executingLevel;var previousEmitter=executingEmitter;
         executingCause=site.cause;executingLevel=site.level;executingEmitter=direct;
         try{
-            var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,site.cause.author==null?null:game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
+            var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,site.cause.npc!=null?site.cause.npc:site.cause.author==null?null:game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
             Runnable action=()->game.items().indirectKills().trapChanges(site.level,site.cause.accepted,
                     ()->site.level.explode(direct,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB));
             if(damageOnly||at.y-power*2>site.level.getMaxY()||at.y+power*2<site.level.getMinY())NuclearTerrain.damageWave(direct,action);else action.run();blasts++;
@@ -518,6 +545,7 @@ public final class LbcNukeEvent {
         private final Map<UUID,State> dormant=new HashMap<>(unloaded);
         private final Map<UUID,SavedChild> children=new HashMap<>(unloadedChildren);
         private final List<Value> values=new ArrayList<>();private final List<Source> lineage=new ArrayList<>();private final List<Picture> pictures=new ArrayList<>();
+        private final Map<Cause,MatchDamageSources.Ref> npcSources=new HashMap<>();
         private final List<MapManager.TemplateSlice> preparedAir=air;private final int version=generation,deadline=pending,eoe=pendingEoe;
         private final String deadlineEpoch=pendingEpoch;private final Cause eoeCause=pendingEoeCause;
         private final long savedWarnings=warnings,savedSchedules=schedules,savedDetonations=detonations,savedCenters=centers,savedBlasts=blasts,savedBeacons=beacons;
@@ -530,10 +558,14 @@ public final class LbcNukeEvent {
             for(var value:unloaded.values())if(seen.add(value))values.add(new Value(value,value.lifetime,value.activated));
             sources.forEach((entity,cause)->lineage.add(new Source(links.key(entity),cause)));
             for(var visual:visuals)pictures.add(new Picture(links.key(visual.marker),visual.cause,visual.age));
+            for(var cause:sources.values())if(cause.npc!=null)npcSources.put(cause,links.key(cause.npc));
+            for(var visual:visuals)if(visual.cause.npc!=null)npcSources.put(visual.cause,links.key(visual.cause.npc));
         }
         Runnable prepare(MatchSpellCheckpoint.Links links){
-            checkpointBoundary();var restored=registry.restore(links);var nextSources=new ArrayList<Map.Entry<Entity,Cause>>();for(var source:lineage)nextSources.add(Map.entry(links.get(source.entity),source.cause));
-            var nextPictures=new ArrayList<Visual>();for(var picture:pictures)nextPictures.add(new Visual((Marker)links.get(picture.marker),picture.cause,picture.age));
+            checkpointBoundary();var restored=registry.restore(links);
+            var rebased=new HashMap<Cause,Cause>();npcSources.forEach((cause,ref)->rebased.put(cause,new Cause(cause.author,cause.accepted,cause.epoch,(LivingEntity)links.get(ref))));
+            var nextSources=new ArrayList<Map.Entry<Entity,Cause>>();for(var source:lineage)nextSources.add(Map.entry(links.get(source.entity),rebased.getOrDefault(source.cause,source.cause)));
+            var nextPictures=new ArrayList<Visual>();for(var picture:pictures)nextPictures.add(new Visual((Marker)links.get(picture.marker),rebased.getOrDefault(picture.cause,picture.cause),picture.age));
             return ()->{for(var value:values){value.original.lifetime=value.lifetime;value.original.activated=value.activated;}
                 actors=restored;unloaded.clear();unloaded.putAll(dormant);unloadedChildren.clear();unloadedChildren.putAll(children);
                 sources.clear();for(var source:nextSources)sources.put(source.getKey(),source.getValue());visuals.clear();visuals.addAll(nextPictures);

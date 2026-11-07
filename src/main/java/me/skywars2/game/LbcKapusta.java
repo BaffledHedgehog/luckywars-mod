@@ -36,21 +36,24 @@ public final class LbcKapusta {
             Codec.LONG.fieldOf("order").forGetter(s->s.cause().order()),
             Codec.BOOL.fieldOf("projectile").forGetter(s->s.cause().projectile()),
             Codec.STRING.fieldOf("epoch").forGetter(Flight::epoch),Codec.BOOL.fieldOf("primary").forGetter(Flight::primary),
-            Codec.INT.fieldOf("age").forGetter(Flight::age),Codec.LONG.fieldOf("rng").forGetter(Flight::rng))
-            .apply(instance,(author,order,projectile,epoch,primary,age,rng)->new Flight(author,
-                    new LbcIndirectKills.Owner(author,order,true,projectile),epoch,primary,age,rng)));
+            Codec.INT.fieldOf("age").forGetter(Flight::age),Codec.LONG.fieldOf("rng").forGetter(Flight::rng),
+            Codec.BOOL.optionalFieldOf("jack",false).forGetter(Flight::jack))
+            .apply(instance,(author,order,projectile,epoch,primary,age,rng,jack)->new Flight(author,
+                    new LbcIndirectKills.Owner(author,order,true,projectile),epoch,primary,age,rng,jack)));
     private static final AttachmentType<Flight> DATA=AttachmentRegistry.create(
             Identifier.parse("skywars2:kapusta"),builder->builder.persistent(FLIGHT_CODEC));
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
-    private static final CompoundTag FIREWORK=fireworkPreset();
-    private static CompoundTag fireworkPreset(){
-        try{return TagParser.parseCompoundFully("{Life:1,LifeTime:1,ShotAtAngle:1b,FireworksItem:{id:'minecraft:firework_rocket',components:{'minecraft:fireworks':{explosions:[{shape:'large_ball',colors:[5111552],fade_colors:[2606080],has_trail:1b,has_twinkle:1b}]}},count:1}}");}
+    private static final CompoundTag FIREWORK=fireworkPreset(false),JACK_FIREWORK=fireworkPreset(true);
+    private static CompoundTag fireworkPreset(boolean jack){
+        try{return TagParser.parseCompoundFully("{Life:1,LifeTime:1,ShotAtAngle:1b,FireworksItem:{id:'minecraft:firework_rocket',components:{'minecraft:fireworks':{explosions:[{shape:'large_ball',colors:["+(jack?16732416:5111552)+"],fade_colors:["+(jack?16730112:2606080)+"],has_trail:1b,has_twinkle:1b}]}},count:1}}");}
         catch(Exception error){throw new ExceptionInInitializerError(error);}
     }
     // This bounds work, never the number of accepted actors or offspring.
     private static final int DISPATCH_BUDGET=256;
-    public record Flight(UUID author,LbcIndirectKills.Owner cause,String epoch,boolean primary,int age,long rng){}
+    public record Flight(UUID author,LbcIndirectKills.Owner cause,String epoch,boolean primary,int age,long rng,boolean jack){
+        public Flight(UUID author,LbcIndirectKills.Owner cause,String epoch,boolean primary,int age,long rng){this(author,cause,epoch,primary,age,rng,false);}
+    }
     public record Spawn(ServerLevel level,Vec3 at,float yaw,float pitch,Flight state){}
     private final GameController game;
     private final Map<Entity,Flight> flights=new LinkedHashMap<>();
@@ -60,7 +63,8 @@ public final class LbcKapusta {
     private boolean restoring;
     public LbcKapusta(GameController game){this.game=game;}
     public static void register(){LbcKapustaItem.register();}
-    public static boolean matches(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"kapusta",0)==1;}
+    public static boolean jack(ItemStack stack){return !stack.isEmpty()&&ItemData.intValue(stack,"jack_o_lantern",0)==1;}
+    public static boolean matches(ItemStack stack){return !stack.isEmpty()&&(ItemData.intValue(stack,"kapusta",0)==1||jack(stack));}
     public static boolean isManaged(Entity body){return body!=null&&body.entityTags().contains(TAG);}
     public static boolean wild(Entity body){return isManaged(body);}
     static boolean cloneRecognizes(Entity body){return isManaged(body);}
@@ -96,7 +100,8 @@ public final class LbcKapusta {
             &&game.server().tickRateManager().runsNormally();}
     public boolean use(ServerPlayer owner,InteractionHand hand){
         var held=owner.getItemInHand(hand);if(!matches(held)||!admitted(owner))return false;
-        if(launch(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),true)==null)return false;
+        var state=new Flight(owner.getUUID(),game.items().indirectKills().wildCause(owner),game.items().epoch(),!jack(held),0,owner.getRandom().nextLong(),jack(held));
+        if(spawn(owner.level(),owner.getEyePosition(),owner.getYRot(),owner.getXRot(),state)==null)return false;
         LbcOverload.sound(owner,owner.position(),"minecraft:entity.snowball.throw",.5f,.4f/(owner.getRandom().nextFloat()*.4f+.8f),0);
         owner.awardStat(Stats.ITEM_USED.get(held.getItem()));held.consume(1,owner);return true;
     }
@@ -107,9 +112,10 @@ public final class LbcKapusta {
     private BlockDisplay spawn(ServerLevel level,Vec3 at,float yaw,float pitch,Flight state){
         if(!level.hasChunkAt(BlockPos.containing(at)))return null;
         var body=new BlockDisplay(EntityTypes.BLOCK_DISPLAY,level);body.setPos(at);body.setYRot(yaw);body.setXRot(pitch);
-        body.setBlockState(Blocks.MELON.defaultBlockState());body.setViewRange(10);
-        body.setPosRotInterpolationDuration(5);body.setTransformationInterpolationDuration(5);
-        body.entityTags().add("slowraycast");body.entityTags().add("rare");body.entityTags().add("kapusta");body.entityTags().add("shield_blockable");
+        body.setBlockState(state.jack()?Blocks.JACK_O_LANTERN.defaultBlockState().setValue(net.minecraft.world.level.block.CarvedPumpkinBlock.FACING,net.minecraft.core.Direction.WEST):Blocks.MELON.defaultBlockState());body.setViewRange(10);
+        body.setPosRotInterpolationDuration(state.jack()?1:5);body.setTransformationInterpolationDuration(state.jack()?1:5);
+        if(state.jack())body.setTransformation(new com.mojang.math.Transformation(new org.joml.Vector3f(-.5f,-.5f,-.5f),new org.joml.Quaternionf(),new org.joml.Vector3f(1,1,1),new org.joml.Quaternionf()));
+        body.entityTags().add("slowraycast");body.entityTags().add("rare");body.entityTags().add(state.jack()?"jack_o_lantern":"kapusta");body.entityTags().add("shield_blockable");
         if(state.primary())body.entityTags().add("ass");install(body,state);
         if(!level.addFreshEntity(body)){unloaded(body);body.discard();return null;}return body;
     }
@@ -138,21 +144,32 @@ public final class LbcKapusta {
             var at=body.position();var step=body.getLookAngle().scale(.2);boolean waiting=false;
             for(int sample=0;sample<8;sample++){
                 if(!level.hasChunkAt(BlockPos.containing(at))){waiting=true;break;}
-                if(collides(level,at,state.author())||!level.getBlockState(BlockPos.containing(at)).is(AIRS)){
+                if(state.jack())level.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,at.x,at.y,at.z,1,0,0,0,0);
+                if(collides(level,at,state.author(),state.jack())||!level.getBlockState(BlockPos.containing(at)).is(AIRS)){
                     explode(body,state,at);break;
                 }
                 if(sample<7)at=at.add(step);
             }
             if(!flights.containsKey(body))continue;
             // Loaded samples remain committed if the next cell is not resident; never sample through absent terrain.
-            body.setPos(at);var next=new Flight(state.author(),state.cause(),state.epoch(),state.primary(),state.age()+(waiting?0:1),state.rng());
+            body.setPos(at);if(state.jack()&&!waiting){softHome(body,state);LbcOverload.sound(level,at,"minecraft:block.cherry_leaves.step",.5f,1,0,0);}
+            var next=new Flight(state.author(),state.cause(),state.epoch(),state.primary(),state.age()+(waiting?0:1),state.rng(),state.jack());
             flights.put(body,next);write(body,next);ready.addLast(body);
         }
     }
-    private boolean collides(ServerLevel level,Vec3 at,UUID owner){
+    private void softHome(BlockDisplay body,Flight state){
+        var level=(ServerLevel)body.level();var owner=game.server().getPlayerList().getPlayer(state.author());var at=body.position();var look=body.getLookAngle();var ahead=at.add(look.scale(30));
+        var target=level.getEntitiesOfClass(LivingEntity.class,new AABB(ahead,ahead).inflate(30),
+                e->!e.getUUID().equals(state.author())&&e.getType().builtInRegistryHolder().is(MOBS)&&e.position().distanceToSqr(at)<=3600&&e.position().distanceToSqr(ahead)<=900
+                        &&game.items().wands().validRoleTarget(e,false)&&(owner==null||game.items().wands().projectileTarget(owner,e)))
+                .stream().min(Comparator.comparingDouble(e->e.position().distanceToSqr(at))).orElse(null);
+        if(target==null)return;var direction=look.add(target.getEyePosition().subtract(at).normalize().scale(.1)).normalize();
+        body.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));body.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
+    }
+    private boolean collides(ServerLevel level,Vec3 at,UUID owner,boolean jack){
         return !level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),
                 mob->!mob.getUUID().equals(owner)&&mob.isAlive()&&!mob.isSpectator()&&!mob.entityTags().contains("spectator")
-                        &&mob.getType().builtInRegistryHolder().is(MOBS)&&mob.position().distanceToSqr(at)<=25
+                        &&mob.getType().builtInRegistryHolder().is(MOBS)&&mob.position().distanceToSqr(at)<=(jack?64:25)
                         &&game.items().wands().validRoleTarget(mob,false)).isEmpty();
     }
     private void explode(BlockDisplay body,Flight state,Vec3 at){
@@ -160,7 +177,7 @@ public final class LbcKapusta {
         var coverage=LbcExplosionSuppression.coverage(game,level);if(coverage.contains(at))return;
         firework(level,at,state);
         var owner=game.server().getPlayerList().getPlayer(state.author());
-        var type=owner!=null&&owner.level()==level?DamageTypes.ARROW:DamageTypes.GENERIC;
+        var type=state.jack()||owner!=null&&owner.level()==level?DamageTypes.ARROW:DamageTypes.GENERIC;
         var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),body,
                 owner!=null&&owner.level()==level?owner:null);
         var captured=game.items().indirectKills().captureDamage(damage,state.cause());
@@ -168,6 +185,7 @@ public final class LbcKapusta {
                 e->e.isAlive()&&!e.isSpectator()&&e.getType().builtInRegistryHolder().is(MOBS)
                         &&e.position().distanceToSqr(at)<=3.5*3.5&&game.items().wands().validRoleTarget(e,false)
                         &&!game.items().timeStop().frozen(e)&&!coverage.targets(e)))target.hurtServer(level,captured,6);
+        if(state.jack())return;
         var random=new Rolls(state.rng());
         if(state.primary())for(int i=0;i<8;i++)child(level,at,body.getEyePosition(),state,random);
         for(int i=0;i<5;i++)if(random.integer(100)<20)child(level,at,body.getEyePosition(),state,random);
@@ -184,9 +202,9 @@ public final class LbcKapusta {
     }
     private void firework(ServerLevel level,Vec3 at,Flight state){
         var rocket=new FireworkRocketEntity(EntityTypes.FIREWORK_ROCKET,level);
-        rocket.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),FIREWORK));
+        rocket.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),state.jack()?JACK_FIREWORK:FIREWORK));
         rocket.setPos(at);var owner=game.server().getPlayerList().getPlayer(state.author());if(owner!=null)rocket.setOwner(owner);
-        rocket.entityTags().add(ROCKET);install(rocket,new Flight(state.author(),state.cause(),state.epoch(),false,0,0));
+        rocket.entityTags().add(ROCKET);install(rocket,new Flight(state.author(),state.cause(),state.epoch(),false,0,0,state.jack()));
         if(!level.addFreshEntity(rocket)){unloaded(rocket);rocket.discard();}
     }
     /** Actor-local deterministic stream belongs to the typed checkpoint, including the five independent chances. */
@@ -215,7 +233,7 @@ public final class LbcKapusta {
             // Source clones draw their own future random choices. A fresh UUID forks that stream once;
             // replay then preserves the resulting stream exactly in the ordinary typed actor state.
             long fork=saved.rng()^clone.getUUID().getMostSignificantBits()^clone.getUUID().getLeastSignificantBits();
-            install(clone,new Flight(saved.author(),saved.cause(),saved.epoch(),saved.primary(),saved.age(),fork));
+            install(clone,new Flight(saved.author(),saved.cause(),saved.epoch(),saved.primary(),saved.age(),fork,saved.jack()));
         },this::unloaded);
     }
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}

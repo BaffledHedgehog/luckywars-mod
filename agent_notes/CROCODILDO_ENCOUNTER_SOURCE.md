@@ -1,5 +1,12 @@
 # Crocodildo encounter source audit
 
+**7 November2026 update:** the author confirmed real200HP, normal rewarded death under
+TECH and whole-cycle TimeStop. Boss death from its own nuke is intentional; protect
+immediate actual loot instead of HP sentinels/delayed spawning. The bomb must reuse the
+normal shared nuke, superseding the separate24-blast recommendation below. The same
+loot workaround applies to Sauvojen. Native implementation and qualification:
+[TMT_BOSS_PROJECTILES_2026_11_07.md](TMT_BOSS_PROJECTILES_2026_11_07.md).
+
 Read-only source audit, 22 October 2026; no implementation or runtime qualification.
 Legacy base `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/` (below, `L/`). Native base `src/main/java/me/skywars2/game/` (`J/`). All nine files in `L/function/drops/crocodildo/` were read.
 

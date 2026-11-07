@@ -82,7 +82,7 @@ public final class LbcInfinity {
         var item=EntityTypes.ITEM.create(level,EntitySpawnReason.COMMAND);
         if(item==null)return null;
         item.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),REWARD.copy()));
-        item.setPos(at);if(author!=null)item.setThrower(author);
+        item.setPos(at);LbcBossLoot.protect(item);if(author!=null)item.setThrower(author);
         game.items().markCurrentItemEpoch(item);game.items().timeStop().prepareFrozen(item);
         if(!level.addFreshEntity(item)){item.discard();return null;}
         var board=game.server().getScoreboard();var team=board.getPlayerTeam("bluegays");

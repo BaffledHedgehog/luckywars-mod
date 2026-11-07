@@ -88,7 +88,7 @@ public final class LbcLibrarySpells {
     }
     private record RawRaycast(String flag,int effect) { }
     // Original raycast_spells/select order, independent of typed libspell/spellid definitions.
-    private static final List<RawRaycast> RAW_RAYCAST=List.of(new RawRaycast("tnts",16),
+    private static final List<RawRaycast> RAW_RAYCAST=List.of(new RawRaycast("lightning",13),new RawRaycast("tnts",16),
             new RawRaycast("wither1",18),new RawRaycast("heal1",19),new RawRaycast("arrows1",21),
             new RawRaycast("lava1",20),new RawRaycast("anvils",22),new RawRaycast("skeletons",17));
     private static RawRaycast rawRaycast(ItemStack stack){
@@ -100,13 +100,13 @@ public final class LbcLibrarySpells {
     }
     public static boolean matchesRawRaycast(ItemStack stack){return rawRaycast(stack)!=null;}
     static boolean hasRaw(ServerPlayer p,String flag){
-        for(int slot=0;slot<36;slot++)if(LbcFartus.data(p.getInventory().getItem(slot)).getIntOr(flag,0)==1)return true;
+        for(int slot=0;slot<36;slot++)if(ItemData.intValue(p.getInventory().getItem(slot),flag,0)==1)return true;
         for(var slot:List.of(net.minecraft.world.entity.EquipmentSlot.HEAD,net.minecraft.world.entity.EquipmentSlot.CHEST,
                 net.minecraft.world.entity.EquipmentSlot.LEGS,net.minecraft.world.entity.EquipmentSlot.FEET,
                 net.minecraft.world.entity.EquipmentSlot.OFFHAND))
-            if(LbcFartus.data(p.getItemBySlot(slot)).getIntOr(flag,0)==1)return true;
+            if(ItemData.intValue(p.getItemBySlot(slot),flag,0)==1)return true;
         var craft=p.inventoryMenu.getCraftSlots();
-        for(int slot=0;slot<craft.getContainerSize();slot++)if(LbcFartus.data(craft.getItem(slot)).getIntOr(flag,0)==1)return true;
+        for(int slot=0;slot<craft.getContainerSize();slot++)if(ItemData.intValue(craft.getItem(slot),flag,0)==1)return true;
         return false;
     }
     /** Normal raw consumable spells cost one matching item on a terminal hit, with no mana price. */
@@ -122,7 +122,7 @@ public final class LbcLibrarySpells {
     /** Source /clear searches the whole inventory, including equipment and crafting slots. */
     static void debitRawRaycast(ServerPlayer p,String flag,Item used){
         p.getInventory().clearOrCountMatchingItems(s->!s.isEmpty()
-                &&LbcFartus.data(s).getIntOr(flag,0)==1,false,1,p.inventoryMenu.getCraftSlots());
+                &&ItemData.intValue(s,flag,0)==1,false,1,p.inventoryMenu.getCraftSlots());
         p.getInventory().setChanged();p.inventoryMenu.slotsChanged(p.getInventory());p.containerMenu.broadcastChanges();
         p.awardStat(Stats.ITEM_USED.get(used));
     }

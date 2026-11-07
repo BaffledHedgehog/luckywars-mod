@@ -1082,6 +1082,7 @@ processResources {
             'data/lbc/loot_table/big_bob.json',
             'data/lbc/loot_table/boba_eblan.json',
             'data/lbc/loot_table/crocodildo.json',
+            'data/lbc/loot_table/64_nukes.json',
             'data/lbc/loot_table/divider_by_metal_pipe.json',
             'data/lbc/loot_table/drone.json',
             'data/lbc/loot_table/feather_greed.json',

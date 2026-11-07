@@ -3,8 +3,33 @@
   "source": "All current native loot leaves/reference overlays; finalized registered native defaults augment these at bootstrap. Owner predicate admits executable direct-use profiles.",
   "prototypes": [
     {
-      "item": "minecraft:carrot_on_a_stick",
+      "item": "skywars2:nuke",
+      "data": [],
+      "components": {},
+      "sources": [
+        "64_nukes.json",
+        "infinity_upgraded_luck.json",
+        "infinity_upgraded_luck_noadv.json",
+        "lucky_items.json",
+        "lucky_items_1.json",
+        "lucky_items_high_quality.json",
+        "luckyblock.json",
+        "luckyblock_64.json",
+        "luckyblock_without_rec.json",
+        "native_lucky/normal.json",
+        "nuke.json"
+      ],
+      "aliases": [
+        "lbc:nuke",
+        "lbc:luckyblock",
+        "lbc:lucky_items",
+        "lbc:lucky_items_high_quality"
+      ]
+    },
+    {
+      "item": "skywars2:exasperato_wand",
       "data": [
+        "{transformable:1,staff:1,magicwand:1,exasperato_wand:1}",
         "{transformable:1,staff:1,magicwand:1,exasperato_wand:1,upgraded:1,mode:1}"
       ],
       "components": {},
@@ -12,7 +37,7 @@
         "64_nukes.json"
       ],
       "aliases": [
-        "lbc:item_defs/minecraft/carrot_on_a_stick__fc2cbe716754"
+        "lbc:ported/exasperato_wand"
       ]
     },
     {
@@ -5689,7 +5714,7 @@
       ]
     },
     {
-      "item": "minecraft:repeating_command_block",
+      "item": "skywars2:crocodildo_encounter",
       "data": [
         "{crocodildo_boss:1,drop:1}"
       ],
@@ -7411,7 +7436,7 @@
       ]
     },
     {
-      "item": "minecraft:snowball",
+      "item": "skywars2:halloween_jack",
       "data": [
         "{jack_o_lantern:1,gadget:1}"
       ],

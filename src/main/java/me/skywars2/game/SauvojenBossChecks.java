@@ -50,9 +50,9 @@ public final class SauvojenBossChecks {
             require(game.items().sauvojenBoss().ready(token)&&game.items().specialDrops().spawn(token),"actual shared native special-drop dispatch");
             require(token.getItem().getCount()==1&&game.items().sauvojenBoss().count()==1,"one native boss and exactly one token debit");token.discard();
             boss=(LivingEntity)game.items().sauvojenBoss().snapshot().getFirst();((Mob)boss).setNoAi(true);boss.setNoGravity(true);
-            require(boss.getType()==EntityTypes.GHAST&&boss.getHealth()==100024&&boss.getMaxHealth()==100024,"source ghast and exact native100024HP");
+            require(boss.getType()==EntityTypes.GHAST&&boss.getHealth()==124&&boss.getMaxHealth()==124,"source ghast with real124HP and no loot-survival sentinel");
             require(boss.getAttribute(Attributes.FOLLOW_RANGE).getBaseValue()==256&&boss.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getBaseValue()==256,"source follow/knockback bases");
-            var data=saved(boss);require(data.getStringOr("DeathLootTable","").equals("lbc:sauvojen_tuntija")&&data.getIntOr("ExplosionPower",0)==3,"native source loot and blast3");
+            var data=saved(boss);require(data.getStringOr("DeathLootTable","").equals("minecraft:empty")&&data.getIntOr("ExplosionPower",0)==3,"native guarded death owns reward without a delayed duplicate token; blast3");
             require(boss.entityTags().containsAll(Set.of("sauvojen_tuntija","rcdenyalways"))&&game.items().sauvojenBoss().owner(boss)==owner,"source identity and independent causal author");
             near(boss.position(),owner.position().add(0,20,0),"source Y+20 spawn");
             authority=game.items().spellSources().source(boss);require(authority!=null&&authority.emitter().equals(boss.getUUID())&&authority.author().equals(owner.getUUID()),"explicit actual emitter binding");
@@ -137,6 +137,17 @@ public final class SauvojenBossChecks {
             require(sameAuthor.getOwner()==owner&&game.items().spellSources().source(sameAuthor)==null,
                     "same-author reflection epoch stamp cannot rebind the old hostile scope");base.clear();
         }
+        void death(){
+            var level=owner.level();var at=boss.position();long before=game.items().sauvojenBoss().rewards();
+            boss.setInvulnerableTime(0);boss.damageCooldownTime=0;
+            require(boss.hurtServer(level,boss.damageSources().genericKill(),Float.MAX_VALUE)&&!boss.isAlive(),"actual lethal native hit without threshold polling");
+            require(game.items().sauvojenBoss().rewards()==before+1&&boss.position().equals(at),"immediate one reward at actual death position, no teleport");
+            var drops=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,new net.minecraft.world.phys.AABB(at,at).inflate(2),LbcBossLoot::protectedReward);
+            require(!drops.isEmpty(),"actual immediately protected Infinity reward");
+            for(var drop:drops){var nbt=saved(drop);require(nbt.getBooleanOr("Invulnerable",false)&&nbt.getBooleanOr("NoGravity",false)&&nbt.getBooleanOr("Glowing",false)&&nbt.getIntOr("Age",0)==-32768,"legacy reward lifetime/visibility/flight plus real invulnerability");
+                require(!drop.hurtServer(level,new net.minecraft.world.damagesource.DamageSource(level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.EXPLOSION)),10000)&&!drop.isRemoved(),"published reward survives actual native explosion damage");}
+            game.items().sauvojenBoss().died(boss);require(game.items().sauvojenBoss().rewards()==before+1,"reentrant death cannot duplicate reward");
+        }
         @Override public void close(){
             try{for(var cow:cows){game.items().indirectKills().clear(cow);cow.discard();}game.items().sauvojenBoss().stop();base.clear();
                 for(var e:owner.level().getAllEntities())if(!before.contains(e)&&!(e instanceof ServerPlayer))e.discard();
@@ -144,7 +155,7 @@ public final class SauvojenBossChecks {
         }
     }
     public static void run(GameController game){
-        try(var fixture=new Fixture(game)){fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();}
+        try(var fixture=new Fixture(game)){fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();fixture.death();}
         SkyWars2.LOGGER.info("[check] PASS sauvojen-boss (native shared token activation; nine explicit source payloads and actual engine steps; source7 cactus, Blind80/WitherII, self/allied swept targets, actual Greed reflection, nested source restoration)");
         SkyWars2.LOGGER.info("[check] PENDING sauvojen-boss continuation: native random10 coverage/original40-tick cadence and actual player-retaliation scope integration require real server ticks; no private clocks or fake scheduling were used");
     }

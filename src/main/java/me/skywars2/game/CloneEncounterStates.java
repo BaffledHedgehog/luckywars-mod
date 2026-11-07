@@ -14,15 +14,16 @@ import net.minecraft.world.level.storage.TagValueOutput;
 public final class CloneEncounterStates {
     private CloneEncounterStates() { }
     public static boolean recognizes(Entity e) {
-        return LbcSauvojenBoss.managed(e)||LbcGrimoireBoss.managed(e)||LbcGodHedgehog.cloneRecognizes(e)
+        return LbcCrocodildo.managed(e)||LbcSauvojenBoss.managed(e)||LbcGrimoireBoss.managed(e)||LbcGodHedgehog.cloneRecognizes(e)
                 ||LbcHelicopterEncounter.cloneRecognizes(e)||LbcShishEncounter.managed(e)||LbcApocalypseActors.managed(e);
     }
     public static boolean protectedActor(Entity e) {
-        return LbcGrimoireBoss.cloneProtected(e)||LbcGodHedgehog.cloneProtected(e)
+        return LbcCrocodildo.visual(e)||LbcGrimoireBoss.cloneProtected(e)||LbcGodHedgehog.cloneProtected(e)
                 ||LbcHelicopterEncounter.cloneProtected(e)||LbcShishEncounter.cloneProtected(e);
     }
     public static LbcCloneSkills.ActorImage capture(GameController game,Entity e) {
         if(protectedActor(e))return null;
+        if(LbcCrocodildo.managed(e))return game.items().crocodildo().cloneImage(e);
         if(LbcSauvojenBoss.managed(e))return game.items().sauvojenBoss().cloneImage(e);
         if(LbcGrimoireBoss.managed(e))return game.items().grimoireBoss().cloneImage(e);
         if(LbcGodHedgehog.cloneRecognizes(e))return game.items().godHedgehog().cloneImage(e);

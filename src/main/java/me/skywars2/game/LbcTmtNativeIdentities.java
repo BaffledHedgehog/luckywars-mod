@@ -9,6 +9,7 @@ final class LbcTmtNativeIdentities {
 
     /** Blade color is presentation; the native kill owner uses the player's actual faction. */
     static net.minecraft.world.item.Item canonical(ItemStack source){
+        if(LbcKapusta.jack(source))return LbcKapustaItem.JACK;
         return LbcNovemberLightsaberItems.blade(source)?LbcNovemberLightsaberItems.JEDI:null;
     }
 
