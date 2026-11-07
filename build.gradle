@@ -1071,6 +1071,7 @@ processResources {
             'data/lbc/loot_table/stoppers.json',
             'data/lbc/loot_table/swapper.json',
             'data/lbc/loot_table/troll_box.json',
+            'data/lbc/structure/walls.nbt',
             'data/lbc/loot_table/tuntijaa_bolts_reforging.json',
             'data/lbc/loot_table/witch_gens.json',
             'data/lbc/loot_table/yameteluckyblock.json',

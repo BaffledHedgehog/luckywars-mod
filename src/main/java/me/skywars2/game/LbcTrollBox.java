@@ -76,8 +76,12 @@ public final class LbcTrollBox {
         var parser=new ItemParser(game.server().registryAccess());
         try{for(int i=0;i<6;i++)masks[i]=parser.parse(new StringReader(MASK_ARGS[i])).createItemStack(1);}
         catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException("Authored Troll Box mask data",error);}
-        return game.maps().prepareSpellTemplates(List.of(WALLS)).thenAccept(ready->walls=List.copyOf(ready.get(WALLS)));
+        return game.maps().prepareSpellTemplates(List.of(WALLS)).thenAccept(ready->{
+            var slices=ready.get(WALLS);if(slices==null||slices.isEmpty())throw new IllegalStateException("Empty Troll Box walls template");
+            walls=List.copyOf(slices);
+        }).whenComplete((ignored,error)->{if(error!=null)SkyWars2.LOGGER.error("Troll Box source preparation failed; admission remains closed",error);});
     }
+    public boolean ready(){return !walls.isEmpty()&&Arrays.stream(masks).allMatch(Objects::nonNull);}
     public ItemStack maskPrototype(int number){if(number<1||number>6||masks[number-1]==null)throw new IllegalStateException("Prepare all six authored masks before Troll Box use");return masks[number-1].copy();}
     public View view(){return new View(hunter!=null,darkness!=null,powerfall!=null,abyss!=null,darkClock,gravityLeft,hunters.size(),powers.size(),placements.size(),eyes.size());}
     private boolean running(){return !restoring&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&!game.maps().busy()
@@ -94,7 +98,7 @@ public final class LbcTrollBox {
         var service=game.items().trollBox();var stack=owner.getItemInHand(hand);
         service.syncEpoch();
         if(!matches(stack)||game.vanity().capturePreparing()||!service.running()||!service.role(owner)||!LbcDimensionItems.ordinary(owner)||service.paused(owner)
-                ||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner))return false;
+                ||!service.ready()||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner))return false;
         // Author: Troll Box RMB has no jammer gate. The separately worn mask6 retains its old MAG gate.
         for(int i=0;i<6;i++)if(service.masks[i]==null)throw new IllegalStateException("Prepare Troll Box native sources before admission");
         var event=new Event(owner.level(),service.authority(owner));var id=owner.getUUID();
@@ -208,19 +212,20 @@ public final class LbcTrollBox {
         powers.put(body.getUUID(),new Power(body,accepted));game.items().spellSources().bind(body,source);game.items().markCurrentItemEpoch(body);game.items().timeStop().prepareFrozen(body);
         try(var scope=game.items().spellSources().scope(source,level)){if(!level.addFreshEntity(body)){powers.remove(body.getUUID());body.discard();}}
     }
-    private final class Visit {final Power power;int cell;Visit(Power power){this.power=power;}}
+    private final class Visit {final UUID body;int cell;Visit(UUID body,int cell){this.body=body;this.cell=cell;}}
     private final class PowerFrame implements LbcStonekivi.Work {
         final ArrayDeque<Visit> todo=new ArrayDeque<>();boolean closed;
-        PowerFrame(){for(var power:powers.values())todo.addLast(new Visit(power));}
-        public boolean ready(){if(closed)return true;if(!running())return false;for(var visit:todo)if(gone(visit.power.body)||!paused(visit.power.body)&&!paused(visit.power.event))return true;return todo.isEmpty();}
+        PowerFrame(){for(var power:powers.values())todo.addLast(new Visit(power.body.getUUID(),0));}
+        public boolean ready(){if(closed)return true;if(!running())return false;for(var visit:todo){var power=powers.get(visit.body);if(power==null||gone(power.body)||!paused(power.body)&&!paused(power.event))return true;}return todo.isEmpty();}
+        public boolean snapshotIdle(){return true;}
         public boolean step(){
             if(closed)return true;if(!running())return false;callbacks++;try{
                 int examined=todo.size();while(examined-->0&&!todo.isEmpty()){
-                    var visit=todo.peekFirst();var p=visit.power;if(gone(p.body)){powers.remove(p.body.getUUID());todo.removeFirst();continue;}
+                    var visit=todo.peekFirst();var p=powers.get(visit.body);if(p==null||gone(p.body)){powers.remove(visit.body);todo.removeFirst();continue;}
                     if(paused(p.body)||paused(p.event)){todo.addLast(todo.removeFirst());continue;}
-                    var level=(ServerLevel)p.body.level();var center=p.body.blockPosition();int budget=64;
+                    var level=(ServerLevel)p.body.level();var center=p.body.blockPosition();int budget=256;
                     while(visit.cell<343&&budget-->0){int cell=visit.cell++;var at=center.offset(cell%7-3,cell/49-3,cell/7%7-3);
-                        if(level.hasChunkAt(at)&&level.getBlockState(at).is(SOLID))game.items().writeOwnedTerrain(level,at,Blocks.OBSIDIAN.defaultBlockState(),p.event.source.cause(),true);
+                        if(level.hasChunkAt(at)){var state=level.getBlockState(at);if(!state.is(Blocks.OBSIDIAN)&&state.is(SOLID))game.items().writeOwnedTerrain(level,at,Blocks.OBSIDIAN.defaultBlockState(),p.event.source.cause(),true);}
                     }
                     if(visit.cell<343)return false;
                     level.sendParticles(new DustParticleOptions(0x080749,4),true,false,p.body.getX(),p.body.getY(),p.body.getZ(),1,.1,.1,.1,0);
@@ -232,12 +237,19 @@ public final class LbcTrollBox {
         }
         private boolean finishIfEmpty(){if(!todo.isEmpty())return false;closed=true;if(powerFrame==this)powerFrame=null;return true;}
         public void cancel(){closed=true;todo.clear();if(powerFrame==this)powerFrame=null;}
-        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){if(!closed)throw new IllegalStateException("Drain Troll Box power terrain frame before capture");return links->()->{};}
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            record Cell(MatchDamageSources.Ref body,int cursor){}
+            var saved=new ArrayList<Cell>();for(var visit:todo){var power=powers.get(visit.body);if(power!=null&&!gone(power.body))saved.add(new Cell(graph.links.key(power.body),visit.cell));}
+            boolean savedClosed=closed;
+            return links->{var rebound=new ArrayList<Visit>();for(var cell:saved)rebound.add(new Visit(links.get(cell.body).getUUID(),cell.cursor));
+                return ()->{todo.clear();todo.addAll(rebound);closed=savedClosed;if(!closed)powerFrame=this;};};
+        }
     }
     private final class Placement implements LbcStonekivi.Work {
         final Event event;final Vec3 at;final UUID victim;final boolean cage;final long seed;int offset,slice;boolean closed;
         Placement(Event event,Vec3 at,UUID victim,boolean cage,long seed){this.event=event;this.at=at;this.victim=victim;this.cage=cage;this.seed=seed;}
         public boolean ready(){return closed||running()&&!paused(event)&&(cage||!walls.isEmpty());}
+        public boolean snapshotIdle(){return true;}
         public boolean step(){if(closed)return true;if(!ready())return false;callbacks++;try{
             if(!game.items().currentEpoch(event.source.epoch())){cancel();return true;}
             try(var scope=game.items().spellSources().scope(event.source,event.level)){
@@ -257,7 +269,10 @@ public final class LbcTrollBox {
         }finally{callbacks--;}}
         private boolean finish(){closed=true;placements.remove(this);return true;}
         public void cancel(){finish();}
-        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){if(!closed)throw new IllegalStateException("Drain Troll Box cages/wall placements before capture");return links->()->{};}
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
+            int savedOffset=offset,savedSlice=slice;boolean savedClosed=closed;
+            return links->()->{offset=savedOffset;slice=savedSlice;closed=savedClosed;if(!closed)placements.add(this);};
+        }
     }
     private final class Eye implements LbcExasperato.ReplayableRay {
         final UUID wearer;final Event event;LbcExasperato.RayTicket ticket;
@@ -297,8 +312,8 @@ public final class LbcTrollBox {
         var hunter=hunters.get(actor.getUUID());if(hunter!=null&&actor instanceof LivingEntity living){hunter.body=living;return;}var power=powers.get(actor.getUUID());if(power!=null){power.body=actor;return;}actor.discard();
     }
     public void removed(Entity actor){if(restoring||MatchActorCheckpoint.restoring(actor)||actor.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)return;hunters.remove(actor.getUUID());powers.remove(actor.getUUID());playerFrames.remove(actor.getUUID());}
-    public boolean captureReady(){return callbacks==0&&!restoring&&placements.isEmpty()&&powerFrame==null;}
-    void checkpointBoundary(){if(!captureReady())throw new IllegalStateException("Finish Troll Box native callbacks and accepted terrain before capture");}
+    public boolean captureReady(){return callbacks==0&&!restoring;}
+    void checkpointBoundary(){if(callbacks!=0||restoring&&!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Finish Troll Box native callbacks before capture/replay");}
     public void prepareFrozen(){checkpointBoundary();restoring=true;hunters.clear();powers.clear();eyes.clear();playerFrames.clear();}
     public void publishFrozen(){restoring=false;lastTick=game.server().getTickCount();playerFrames.clear();}
     public void cancelFrozen(){restoring=false;}
@@ -308,13 +323,14 @@ public final class LbcTrollBox {
         final Event savedHunter=hunter,savedDark=darkness,savedPower=powerfall,savedAbyss=abyss;
         final String savedEpoch=epoch;final int dark=darkClock,gravity=gravityLeft,hclock=hunterClock,pclock=powerClock;
         final Set<UUID> marked=Set.copyOf(darknessPlayers),floating=Set.copyOf(gravityPlayers);
+        final PowerFrame savedFrame=powerFrame;
         final List<Body> hunterBodies=new ArrayList<>(),powerBodies=new ArrayList<>();
         Checkpoint(MatchSpellCheckpoint.Links links){for(var value:hunters.values())hunterBodies.add(new Body(links.key(value.body),value.event,0));for(var value:powers.values())powerBodies.add(new Body(links.key(value.body),value.event,value.age));}
         Runnable prepare(MatchSpellCheckpoint.Links links){
             var nextHunters=new LinkedHashMap<UUID,Hunter>();for(var body:hunterBodies){var actor=(LivingEntity)links.get(body.body);nextHunters.put(actor.getUUID(),new Hunter(actor,body.event));}
             var nextPowers=new LinkedHashMap<UUID,Power>();for(var body:powerBodies){var actor=links.get(body.body);var value=new Power(actor,body.event);value.age=body.age;nextPowers.put(actor.getUUID(),value);}
             return ()->{epoch=savedEpoch;hunter=savedHunter;darkness=savedDark;powerfall=savedPower;abyss=savedAbyss;darkClock=dark;gravityLeft=gravity;hunterClock=hclock;powerClock=pclock;
-                darknessPlayers.clear();darknessPlayers.addAll(marked);gravityPlayers.clear();gravityPlayers.addAll(floating);hunters.clear();hunters.putAll(nextHunters);powers.clear();powers.putAll(nextPowers);powerFrame=null;playerFrames.clear();};
+                darknessPlayers.clear();darknessPlayers.addAll(marked);gravityPlayers.clear();gravityPlayers.addAll(floating);hunters.clear();hunters.putAll(nextHunters);powers.clear();powers.putAll(nextPowers);powerFrame=savedFrame;playerFrames.clear();};
         }
     }
     public void stop(){

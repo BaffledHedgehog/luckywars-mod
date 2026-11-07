@@ -7,6 +7,35 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## Troll Box outcomes and queued replay - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL internal parent is now a21c7f3a/01d136f9 over d990f817/c4507081.
+Three Java families plus authored data/lbc/structure/walls.nbt; build.gradle now
+includes it. Previously absent packaged template silently left wall jobs waiting.
+Preparation readiness/error reporting now rejects admission before debit until ready.
+Four native suites pass: troll-box-native, troll-box-rewind, tmt-gadgets, tmt-catalog.
+All six actual source/private outcomes: real silent/caused hunter, Imprinted/gravity,
+moving powers/statuses, both cages/four anvils,25 functional walls, abyss and mask6 beam.
+Full coordinator proof captures all four global event flags, live hunter/power bodies,
+four suspended cage/wall jobs and a nonzero partial power cursor under TimeStop.
+Actual future, discarded bodies, canonical replacement, exact state/terrain/cursor
+restore and identical completed geometry after80 active ticks on both timelines pass.
+Typed Work images retain seed/template/cell cursors; Visit looks up canonical power UUID.
+Checkpoint boundary permits staged replay only while the native simulation is frozen.
+Power cell budget256 removes old128-step/64-cell hard throughput mismatch; identical
+obsidian writes skipped. Heavy-load steady-state800-active-tick lifetime/throughput
+still needs audit: no peakTPS claim or arbitrary stress guarantee from these scenes.
+Proof build/verification/tmt-troll-box-2026-11-07/component-verification.json;
+10475 guarded inputs/282 author paths exact, normal child exits/restores/no locks.
+Native defaults880/prototypes1876/families976/variants1853 are inventories, not closure.
+Fresh a21c7f3a-tmt-catalog-domains.json has84 pending native rows/25 item IDs and three
+stale LEGACY_OWNER_GAP labels for gayradar/steampunk_rocket/trollge (real owners now exist).
+Next reconcile actual aliases/domains using remaining-domain-groups.json (44 distinct
+item/reason groups), not old gap notes. Fully unloaded rocket, other current native
+capabilities, acquisition/atlas/final TMT chain remain. Main83b0ea27 unchanged; NO install.
+Compile512MiB and fixture1280MiB sequentially; no author WIP/four protected Java files
+were compiled. Hold ALL changes until next stable release per explicit preference above.
+
 ## Legacy HUD and personal Imprinted return - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Internal d990f817/c4507081 over FULL27f9e2af/dacd3889:9 Java families,0 resources.
