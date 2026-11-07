@@ -32,7 +32,7 @@ final class MatchRuntimeRebind {
         try{work=new MatchQueuedWorkCheckpoint(game,sources);}
         catch(IllegalStateException pending){
             String reason=pending.getMessage();
-            if(reason==null||!(reason.contains("shared-work checkpoint adapter")||reason.contains("Duplicating")||reason.contains("duplicating")))throw pending;
+            if(reason==null||!(reason.contains("shared-work checkpoint adapter")||reason.contains("Duplicating")||reason.contains("duplicating")||reason.contains("Troll Box native callbacks")))throw pending;
             // A current, unrelated construction continues after reconnect. Its private
             // continuation is not an old world image and must not be discarded or rewound.
             work=null;
@@ -44,7 +44,7 @@ final class MatchRuntimeRebind {
     }
     private static void ready(Set<UUID> pending){if(!pending.isEmpty())throw new IllegalStateException("Real-login references unavailable: "+pending);}
     void prepareFrozen(){
-        stop.prepareFrozen();fpv.prepareFrozen();if(queued!=null)queued.prepareFrozen();blasts.prepareFrozen();
+        spells.prepareFrozen();stop.prepareFrozen();fpv.prepareFrozen();if(queued!=null)queued.prepareFrozen();blasts.prepareFrozen();
         statuses.prepareFrozen();chefs.prepareFrozen();hedgehogs.prepareFrozen();encounters.prepareFrozen();residents.prepareFrozen();
         var pending=new LinkedHashSet<UUID>();sources.restore(lookup,pending);ready(pending);
         ready(spells.restoreFrozen(lookup,false));ready(authorities.restoreFrozen(lookup));ready(attribution.restoreFrozen(lookup));

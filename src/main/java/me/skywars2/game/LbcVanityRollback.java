@@ -78,7 +78,7 @@ public final class LbcVanityRollback {
                 &&MatchEventActorCheckpoint.captureReady(game)&&MatchFieldCheckpoint.captureReady(game)
                 &&MatchTransientSpells.captureReady(game)&&MatchAcademyCheckpoint.captureReady(game)
                 &&MatchEncounterCheckpoint.captureReady(game)&&items.sauvojen().meditation().count()==0
-                &&items.duplicating().captureReady()&&items.stonekivi().captureSettled()&&items.eternalWealth().captureReady()&&items.nexusWires().captureReady()&&items.supernova().captureReady();
+                &&items.trollBox().captureReady()&&items.duplicating().captureReady()&&items.stonekivi().captureSettled()&&items.eternalWealth().captureReady()&&items.nexusWires().captureReady()&&items.supernova().captureReady();
     }
     /** Called once at END_SERVER_TICK, including ticks whose native simulation is frozen. */
     public void tick(){
@@ -293,7 +293,7 @@ public final class LbcVanityRollback {
         if(busy()&&image!=null&&game.playing()&&!game.maps().busy()&&game.items().currentEpoch(image.epoch)){
             game.server().tickRateManager().setFrozen(true);
             // An interrupted publication must not leave private owners staged into the next match.
-            for(Runnable cancel:List.<Runnable>of(image.timeStop::cancelFrozen,image.queued::cancelFrozen,image.blasts::cancelFrozen,image.fpv::cancelFrozen,
+            for(Runnable cancel:List.<Runnable>of(image.spells::cancelFrozen,image.timeStop::cancelFrozen,image.queued::cancelFrozen,image.blasts::cancelFrozen,image.fpv::cancelFrozen,
                     image.holes::cancelFrozen,image.polymorph::cancelFrozen,image.auras::cancelFrozen,image.fields::cancelFrozen,
                     image.events::cancelFrozen,image.statuses::cancelFrozen,image.academy::cancelFrozen,
                     image.chefs::cancelFrozen,image.hedgehogs::cancelFrozen,image.encounters::cancelFrozen,image.aim::cancelFrozen)){

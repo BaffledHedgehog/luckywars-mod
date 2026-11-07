@@ -1396,6 +1396,7 @@ public final class GameChecks {
                                 case "tmt-loose-rewards" -> {TmtLooseRewardChecks.run(game);return;}
                                 case "tmt-magnum-ammo" -> {TmtMagnumAmmoChecks.run(game);return;}
                                 case "tmt-criterion-traits" -> {TmtCriterionTraitChecks.run(game);return;}
+                                case "tmt-gadgets" -> {TmtGadgetChecks.run(game);return;}
                                 case "tmt-electro-traits" -> {TmtElectroTraitChecks.run(game);return;}
                                 case "legacy-slabs" -> {LegacySlabChecks.run(game);return;}
                                 case "legacy-slabs-rewind" -> {LegacySlabChecks.runRewind(game);return;}
@@ -1718,7 +1719,7 @@ public final class GameChecks {
             TmtInventoryTraitChecks.tick(game);
             ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);TmtDropChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
             TmtCriterionTraitChecks.tick(game);
-            TmtElectroTraitChecks.tick(game);
+            TmtGadgetChecks.tick(game);TmtElectroTraitChecks.tick(game);
             TmtMagnumAmmoChecks.tick(game);TmtLooseRewardChecks.tick(game);ClockFragmentChecks.tick(game);KillButtonChecks.tick(game);TmtPassiveQueryChecks.tick(game);TmtGlyphChecks.tick(game);LegacySlabChecks.tick(game);BucksTraderChecks.tick(game);TmtNativeIdentityChecks.tick(game);TmtManaPotionChecks.tick(game);TmtShieldChecks.tick(game);LegacyRangedChecks.tick(game);TmtInventoryMutationChecks.tick(game);NativeTestReportCombatChecks.tick(game);CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

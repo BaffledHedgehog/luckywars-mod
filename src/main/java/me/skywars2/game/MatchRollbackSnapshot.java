@@ -86,7 +86,7 @@ final class MatchRollbackSnapshot {
         levelups.prepareFrozen();
         // Detach discarded future hits silently before any teardown can trigger an end-of-stop replay.
         timeStop.prepareFrozen();game.items().stonekivi().cancelQueuedForRollback();
-        fpv.prepareFrozen();queued.prepareFrozen();blasts.prepareFrozen();
+        spells.prepareFrozen();fpv.prepareFrozen();queued.prepareFrozen();blasts.prepareFrozen();
         holes.prepareFrozen();polymorph.prepareFrozen();auras.prepareFrozen();fields.prepareFrozen();
         statuses.prepareFrozen();academy.prepareFrozen();chefs.prepareFrozen();hedgehogs.prepareFrozen();encounters.prepareFrozen();aim.prepareFrozen();residents.prepareFrozen();
         events.cancelFutureTerrainForRollback();events.prepareFrozen();

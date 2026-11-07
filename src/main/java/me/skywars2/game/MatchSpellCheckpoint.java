@@ -60,7 +60,9 @@ final class MatchSpellCheckpoint {
     private final LbcReactiveDefense.Checkpoint reactiveDefense;
     private final LbcBedwarsAuxiliaries.Checkpoint bedwars;
     private final CloneFinalAbilityStates.Checkpoint logicalActors;
-    private boolean installed,published;
+    private final LbcSteampunkRocket.Checkpoint rockets;
+    private final Map<UUID,MatchDamageSources.Ref> rocketBodies=new LinkedHashMap<>();
+    private boolean prepared,installed,published;
     MatchSpellCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);links=new Links(sources);
         policies=game.items().spellSources().checkpoint(links);controls=game.items().communism().checkpoint(links);
@@ -68,6 +70,18 @@ final class MatchSpellCheckpoint {
         bedwars=game.bedwars().auxiliaries().checkpoint(links);
         prism=game.items().prism().checkpoint(links);reactiveDefense=game.items().reactiveTrinkets().defense().checkpoint(links);
         logicalActors=new CloneFinalAbilityStates.Checkpoint(game,links);
+        rockets=game.items().steampunkRocket().checkpoint();
+        var nativeBodies=MatchActorCheckpoint.currentBodies(game);
+        for(var id:rockets.actorIds()){
+            var body=nativeBodies.get(id);if(body!=null)rocketBodies.put(id,links.key(body));
+        }
+    }
+    /** Native Arrow bodies/passenger graphs remain in MatchActorCheckpoint. */
+    Set<UUID> actorIds(){return rockets.actorIds();}
+    /** Export/residency prerequisite for actors already unloaded at capture. */
+    Set<UUID> unresidentActorIds(){var ids=new LinkedHashSet<>(rockets.actorIds());ids.removeAll(rocketBodies.keySet());return Set.copyOf(ids);}
+    void prepareFrozen(){
+        stable(true);game.items().steampunkRocket().prepareFrozen();prepared=true;installed=false;published=false;
     }
     private void stable(boolean frozen){
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy()||!game.items().currentEpoch(epoch)
@@ -78,10 +92,16 @@ final class MatchSpellCheckpoint {
     /** Resolve and prepare EVERY map/queue first. Missing bodies defer the entire private install. */
     Set<UUID> restoreFrozen(Function<UUID,Entity> lookup){return restoreFrozen(lookup,true);}
     Set<UUID> restoreFrozen(Function<UUID,Entity> lookup,boolean rewind){
-        stable(true);var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
+        stable(true);if(!prepared)prepareFrozen();
+        var pending=links.resolve(lookup);if(!pending.isEmpty())return pending;
+        var rocketPlan=rockets.prepare(id->{var ref=rocketBodies.get(id);return ref==null?lookup.apply(id):links.get(ref);});
+        if(!rocketPlan.pending().isEmpty())return rocketPlan.pending();
         var policy=policies.prepare(links);var control=controls.prepare(links);var summon=summons.prepare(links);
         var prismPlan=prism.prepare(links);var defensePlan=reactiveDefense.prepare(links);
         var actors=logicalActors.prepare(links);var danmakuState=danmaku.prepare(links);var bedwarsState=bedwars.prepare(links);
+        // Rocket metadata rebinds bodies first; the shared captured policy image is
+        // authoritative afterward, including a projectile's native reflection state.
+        rocketPlan.install().run();
         prismPlan.run();defensePlan.run();policy.run();control.run();summon.run();actors.run();danmakuState.run();bedwarsState.run();
         installed=true;published=false;
         // User permits cancellation of short pending operations at rewind. No stale charge may commit.
@@ -105,6 +125,12 @@ final class MatchSpellCheckpoint {
     void publishFrozen(){
         stable(true);if(published)return;
         if(!installed)throw new IllegalStateException("Install spell actors before presentation publication");
-        CloneFinalAbilityStates.publishCheckpoint(game);published=true;
+        game.items().steampunkRocket().publishFrozen();
+        CloneFinalAbilityStates.publishCheckpoint(game);published=true;prepared=false;
+    }
+    /** Abort never synthesizes a ground terminal or replays a pending native use. */
+    void cancelFrozen(){
+        if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())throw new IllegalStateException("Cancel spell state on its frozen native thread");
+        game.items().steampunkRocket().stop();prepared=false;installed=false;published=false;
     }
 }

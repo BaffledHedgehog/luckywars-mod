@@ -26,7 +26,7 @@ public final class LbcGadgetItems {
     public static final Item SWAPPER=create("swapper","lbc:swapper",false);
     public static final Item LUCKY_GRENADE=create("lucky_grenade","lbc:luckygrenade",true);
     private LbcGadgetItems(){}
-    public static void register(){LbcKillButton.register();LbcClockFragments.register();}
+    public static void register(){LbcKillButton.register();LbcClockFragments.register();LbcGayradar.register();LbcSteampunkRocket.register();LbcTrollBox.register();}
     private static Item create(String name,String model,boolean grenade){
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:"+name));
         var properties=new Item.Properties(){@Override public Identifier effectiveModel(){return Identifier.parse(model);}}

@@ -446,6 +446,10 @@ public final class LbcItems {
     private final LbcAllItemPools allItemPools;
     public LbcAllItemPools allItemPools(){return allItemPools;}
     private final LbcClockFragments clockFragments;
+    private final LbcSteampunkRocket steampunkRocket;
+    private final LbcTrollBox trollBox;
+    public LbcSteampunkRocket steampunkRocket(){return steampunkRocket;}
+    public LbcTrollBox trollBox(){return trollBox;}
     public LbcClockFragments clockFragments(){return clockFragments;}
     private final LbcBucksTrader bucksTrader;
     public LbcBucksTrader bucksTrader(){return bucksTrader;}
@@ -944,7 +948,7 @@ public final class LbcItems {
     }
 
     public LbcItems(GameController game) {
-        this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);this.legacySlabs=new LbcLegacySlabs(game);this.bucksTrader=new LbcBucksTrader(game);this.clockFragments=new LbcClockFragments(game);this.allItemPools=new LbcAllItemPools(game);
+        this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);this.legacySlabs=new LbcLegacySlabs(game);this.bucksTrader=new LbcBucksTrader(game);this.clockFragments=new LbcClockFragments(game);this.steampunkRocket=new LbcSteampunkRocket(game);this.trollBox=new LbcTrollBox(game);this.allItemPools=new LbcAllItemPools(game);
         this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.reactiveTrinkets=new LbcReactiveTrinkets(game); this.trinketArrows = new LbcTrinketArrows(game);this.shulkerBow = new LbcShulkerBow(game);this.madokaBow = new LbcMadokaBow(game); this.frost = new LbcFrost(game);
         this.mana = new LbcMana(game); LbcChaosRewardItems.prepare(mana); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);this.tmt=new LbcTmtRuntime(game);
         this.terra = new LbcTerra(game);
@@ -1264,7 +1268,7 @@ public final class LbcItems {
         this.bolts = new LbcBolts(game);
         this.lightningAcquisition = new LbcLightningAcquisition(game);
         this.bridgeBuilder.prepare();this.cunnyTerrain.prepare();this.imbaTerrainUtilities.prepare();
-        this.summons.prepare();
+        this.summons.prepare();this.trollBox.prepare();LbcGayradar.prepare(game);
         this.nukeEvent.prepare();apocalypseEvents.prepare();
     }
 
@@ -1603,6 +1607,7 @@ public final class LbcItems {
             entity.discard();
             return;
         }
+        steampunkRocket.loaded(entity);trollBox.loaded(entity);
         helicopterEncounter.loaded(entity);
         transformator.loaded(entity);
         stalin.loaded(entity);
@@ -1733,6 +1738,7 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        steampunkRocket.unloaded(entity);trollBox.removed(entity);
         mysticalTree.unloaded(entity);funnyTnt.unloaded(entity);deltaTnt.unloaded(entity);diamondifier.unloaded(entity);homingArrows.unloaded(entity);kapusta.unloaded(entity);thrownUtilities.unloaded(entity);
         if(game.bedwars()!=null)game.bedwars().auxiliaries().unloaded(entity);
         fallingHedgehogs.unloaded(entity);
@@ -2046,10 +2052,7 @@ public final class LbcItems {
         var data = used.get(DataComponents.CUSTOM_DATA);
         if (data == null || !data.matchedBy(BROKEN_TOTEM) || !active(player)) return;
         screamer(player,null);
-        if (!magic.rejectCustomDebuff(player)){
-            var curse=turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player));curse.remaining+=100;
-            mana.score(player,"skill_issue").set(curse.remaining);
-        }
+        addTurnCurse(player,100);
     }
 
     /** Один исходный скример для сломанного тотема и психических жезлов; проклятие тотема отдельно. */
@@ -2177,6 +2180,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
+        steampunkRocket.tick();trollBox.tick();
         reactiveTrinkets.tick();rainbowAura.tick(game.matchTicks(),Math.floorMod(game.matchTicks(),100));psychblindSkill.tick();projectileLevelups.tick();badApple.tick();bridgeBuilder.tick();cinema.tick();mellstroy.tick();mellstroyCrafting.tick();cunny.tick();
         for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);
         containedSkills.tick();fallingHedgehogs.tick();godClaw.tick();stoneGolemSkill.tick();expansionSkill.tick();hakureiSkill.tick();touhouCollectibles.tick();
@@ -2329,7 +2333,7 @@ public final class LbcItems {
         tickNanoTraps();
         tickRockets();
         tickRocketCrafts();
-        for(var player:game.server().getPlayerList().getPlayers()) { aimbobRewards.tickPlayer(player);refreshHud(player); }
+        for(var player:game.server().getPlayerList().getPlayers()) { aimbobRewards.tickPlayer(player);trollBox.playerTick(player);refreshHud(player); }
         planetoidSkill.tick();
         if (turnCurses.isEmpty()) return;
         // Reuse a bounded snapshot: damage can synchronously remove an owner through AFTER_DEATH.
@@ -2362,12 +2366,18 @@ public final class LbcItems {
         player.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS, 40, 0));
     }
 
+    /** Shared additive psychic disorder owner. Jammers never remove an accepted curse. */
+    public void addTurnCurse(ServerPlayer player,int ticks) {
+        if(ticks<=0||magic.rejectCustomDebuff(player))return;
+        var curse=turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player));
+        long previous=Math.max(curse.remaining,mana.score(player,"skill_issue").get());
+        curse.remaining=(int)Math.min(Integer.MAX_VALUE,previous+ticks);
+        mana.score(player,"skill_issue").set(curse.remaining);
+    }
+
     /** Only gameplay counts/deadlines; published HUD caches and tick clocks are never incremented. */
     void addPlayerCounters(ServerPlayer player) {
-        if(!magic.rejectCustomDebuff(player)){
-            var curse=turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player));curse.remaining++;
-            mana.score(player,"skill_issue").set(curse.remaining);
-        }
+        addTurnCurse(player,1);
         var rocket=rockets.get(player.getUUID());
         if(rocket!=null) {
             rocket.jumps++;
@@ -2487,7 +2497,7 @@ public final class LbcItems {
     }
     private void lightsabersLoaded(Entity entity){if(entity instanceof ServerPlayer p)lightsabers.sourceScoreChanged(p);}
     public void stop() {
-        clockFragments.stop();tmt.stop();
+        clockFragments.stop();steampunkRocket.stop();trollBox.stop();tmt.stop();
         mysticalTree.stop();funnyTnt.stop();deltaTnt.stop();diamondifier.stop();homingArrows.stop();imbaHoe.stop();kapusta.stop();pumpkinator.stop();thrownUtilities.stop();cunny.stop();cunnyTerrain.stop();imbaTerrainUtilities.stop();whiteArrows.stop();mellstroy.stop();mellstroyCrafting.stop();bridgeBuilder.stop();imbaAxe.stop();cinema.stop();phoenix.stop();cosmetics.stop();badApple.stop();rainbowAura.stop();psychblindSkill.stop();projectileLevelups.stop();
         lightsabers.clear();pozdmanBot.stop();cursedPumpkin.clear();
         combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();symbioteSkill.stop();cloneSkills.stop();

@@ -7,6 +7,9 @@ import net.minecraft.world.item.ItemStack;
 final class LbcTmtNativeThrows {
     private LbcTmtNativeThrows(){}
     static Item canonical(ItemStack stack){
+        if(LbcGayradar.matches(stack))return LbcGayradar.TOKEN;
+        if(LbcSteampunkRocket.matches(stack))return LbcSteampunkRocket.TOKEN;
+        if(LbcTrollBox.matches(stack))return LbcTrollBox.TOKEN;
         if(LbcClockFragments.duration(stack)>0)return LbcClockFragments.ITEM;
         if(LbcKillButton.matches(stack))return LbcKillButton.TOKEN;
         if(LbcBucksTrader.matches(stack))return LbcBucksTrader.TOKEN;

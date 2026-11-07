@@ -57,3 +57,24 @@ Each `other/troll_box/{1..6}` grants a distinct full authored leather helmet (`t
 2. Gayradar's typed TurnCurse entry plus explicit damage-metric reconciliation; no duplicate disorder owner.
 3. Rocket's single typed physical-arrow controller and owned ground-only TNT terminal path, age/rider/freeze/checkpoint tests.
 4. Troll Box requires a coupled typed global event owner, shared ANVIL/template/raycast/status/dimension/mob hooks and authored mask input support. Do not mark supported after only random mask grants. Jammer admission questions absent from the source remain explicit author-policy questions; no new blanket policy was invented in this audit.
+
+## Three missing gadget owners - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Native Gayradar, steampunk rocket and Troll Box factories now join TMT and source loot.
+Gay TECH, rocket TECH, Troll unjammed; accepted psychic curse remains unjammed.
+Shared curse/native damage criterion, actual riding Arrow, existing cage/templates,
+canonical lifecycle/checkpoint/clone owners; no function execution or fake reward-only owner.
+Internal cf398e67/d3387241 over full002901c5: six native suites pass;17families/3resources.
+10469 guarded inputs/282author paths; HUD/fourWIP/Main/libs/RP preserved.
+Proof: build/verification/tmt-gadgets-2026-11-07/component-verification.json.
+Actual proof covers native/TMT carrot both hands, source metric/additive curse,
+TECH no debit/MAG distinction,40active-tick Arrow/TimeStop/resident private replay,
+all six parsed mask payloads and actual hunter outcome activation. It does NOT yet
+prove Troll outcomes2..6, active hunter/power bodies/terrain/full coordinator replay,
+or fully-unloaded rocket export. Keep these outstanding before full release.
+One512MiB compile then one1280MiB fixture; normal exits/exact restoration/no locks.
+Stopped only two validated idle own Serena JDTs under RAM pressure; editor/Main preserved.
+NEW LbcTmtEquipment.java is an excluded uncompiled draft for current native GLIDER,
+UNBREAKABLE/DAMAGE_RESISTANT/TOOL composition. Next integrate native component families
+with literal typed values and actual native equipment/mining checks. Current content,
+not the stale legacy flag list, defines meaningful scope. Full TMT active/unreleased.

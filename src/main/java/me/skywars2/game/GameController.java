@@ -379,7 +379,7 @@ public final class GameController {
                 && MatchTransientSpells.captureReady(this) && MatchAcademyCheckpoint.captureReady(this)
                 && MatchEncounterCheckpoint.captureReady(this) && items.sauvojen().meditation().count()==0
                 && items.duplicating().pendingCheckpointWrites()==0 && items.stonekivi().captureSettled()
-                && items.eternalWealth().captureReady() && items.nexusWires().captureReady() && items.imbaTerrainUtilities().restartSettled();
+                && items.trollBox().captureReady() && items.eternalWealth().captureReady() && items.nexusWires().captureReady() && items.imbaTerrainUtilities().restartSettled();
     }
     private boolean renewalPlayer(ServerPlayer player) {
         return balanceMap!=null || !player.level().dimension().equals(LbcHedgehogDimensions.IMPRINTED);
@@ -511,7 +511,7 @@ public final class GameController {
             holdSupernovaPlayers();
             // This is the explicit full old-mode boundary, distinct from same-match Supernova.
             vanity.stop();lbc.resetLevelupMatch();events.stop();zoneBarrier.stop();luckyModifiers.endMatch();attributeHud.stop();
-            items.stop();
+            items.stop();LbcGayradar.resetRound(this);
             balanceMap=intent.phase(RenewalPhase.LOADING);
             balanceLegacy(false);
             for(var entry:participants.entrySet()){
@@ -1093,6 +1093,7 @@ public final class GameController {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < (developerMode() ? 1 : 2)) { restoreLobby(); return; }
         perkChoices.clear();
+        LbcGayradar.resetRound(this);
         lbc.resetLevelupMatch();
         LbcPhdCrafting.matchStarted(this);
         luckyModifiers.startMatch();

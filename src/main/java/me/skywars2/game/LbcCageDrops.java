@@ -19,6 +19,7 @@ import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.phys.Vec3;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -31,6 +32,7 @@ import java.util.UUID;
 public final class LbcCageDrops {
     private static final String ACTOR = "skywars2.cage_drop";
     private static final CompoundTag ANVIL = preset("{BlockState:\"minecraft:anvil\",Time:1,DropItem:1b,HurtEntities:1b,FallHurtMax:35,FallHurtAmount:2.0f,Motion:[0.0d,0.0d,0.0d]}");
+    private static final CompoundTag EMPTY_ANVIL = preset("{BlockState:\"minecraft:anvil\",Time:1,DropItem:1b,HurtEntities:1b,FallHurtMax:1,FallHurtAmount:1.0f,Motion:[0.0d,0.0d,0.0d]}");
     private static final CompoundTag FIREBALL = preset("{ExplosionPower:4,Motion:[0.0d,-0.05d,0.0d]}");
     private static final CompoundTag[] POTIONS = {potion(0), potion(1)};
     private final GameController game;
@@ -74,7 +76,10 @@ public final class LbcCageDrops {
         // With no eligible player the legacy execute does nothing, but still consumes its token.
         if (target == null) return true;
         if (target.level() != level || !game.items().wands().validTarget(target)) return false;
-        var center = BlockPos.containing(target.position());
+        return resident(level,BlockPos.containing(target.position()));
+    }
+
+    private static boolean resident(ServerLevel level,BlockPos center){
         // Include one neighbour around the three-wide shape for native shape/block updates.
         for (int x = (center.getX() - 2) >> 4; x <= (center.getX() + 2) >> 4; x++) {
             for (int z = (center.getZ() - 2) >> 4; z <= (center.getZ() + 2) >> 4; z++) {
@@ -88,16 +93,54 @@ public final class LbcCageDrops {
         if (!ready(token, kind, target)) return false;
         if (target == null) return true;
         var level = (ServerLevel) token.level();
-        var center = BlockPos.containing(target.position());
         var owner = game.items().specialDrops().owner(token);
+        return spawnAt(level,target.position(),kind,owner,null,target,false,ANVIL);
+    }
+
+    /** Accepted source contexts choose their exact position; this method owns no token or debit. */
+    public boolean spawn(ServerLevel level,Vec3 at,LbcCageDropItem.Kind kind,ServerPlayer causalAuthor,LbcIndirectKills.Owner capturedCause){
+        return spawnSource(level,at,kind,causalAuthor,capturedCause,ANVIL);
+    }
+
+    /** Troll Box's empty_cage shares geometry but its two anvils have source damage1/max1. */
+    public boolean spawnEmptyAnvilCage(ServerLevel level,Vec3 at,ServerPlayer causalAuthor,LbcIndirectKills.Owner capturedCause){
+        return spawnSource(level,at,LbcCageDropItem.Kind.ANVIL,causalAuthor,capturedCause,EMPTY_ANVIL);
+    }
+
+    private boolean spawnSource(ServerLevel level,Vec3 at,LbcCageDropItem.Kind kind,ServerPlayer causalAuthor,
+                                LbcIndirectKills.Owner capturedCause,CompoundTag anvilPreset){
+        if(level==null||at==null||kind==null||level.getServer()!=game.server()||!game.server().isSameThread()
+                ||!Double.isFinite(at.x)||!Double.isFinite(at.y)||!Double.isFinite(at.z)
+                ||!game.playing()||game.stage()==GameController.Stage.ENDING
+                ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen()
+                ||game.items().timeStop().stopped(level)||!resident(level,BlockPos.containing(at)))return false;
+        var inherited=game.items().spellSources().current();
+        if(inherited!=null&&!game.items().currentEpoch(inherited.epoch()))return false;
+        var cause=capturedCause!=null?capturedCause:inherited!=null?inherited.cause()
+                :causalAuthor==null?null:game.items().indirectKills().wildCause(causalAuthor);
+        // Troll Box's global selectors include non-map dimensions. Explicit accepted source
+        // authority keeps these children alive there; ordinary token admission remains map-only.
+        var source=inherited==null?new LbcSpellSource.Source(UUID.randomUUID(),cause!=null?cause.player():causalAuthor==null?null:causalAuthor.getUUID(),
+                game.items().epoch(),cause,Set.of(),true)
+                :new LbcSpellSource.Source(inherited.emitter(),inherited.author(),inherited.epoch(),cause,inherited.excluded(),true);
+        try(var scope=game.items().spellSources().scope(source,level)){
+            if(!LbcBedwarsRoleGuards.publication(level))return false;
+            return spawnAt(level,at,kind,causalAuthor,cause,null,true,anvilPreset);
+        }
+    }
+
+    private boolean spawnAt(ServerLevel level,Vec3 at,LbcCageDropItem.Kind kind,LivingEntity owner,
+                            LbcIndirectKills.Owner capturedCause,ServerPlayer presentation,boolean sourceContext,CompoundTag anvilPreset){
+        var center=BlockPos.containing(at);
         Runnable writes = () -> geometry(level, center, kind);
-        if (owner instanceof ServerPlayer player) game.items().indirectKills().trapChanges(level, player, true, writes);
+        if(capturedCause!=null)game.items().indirectKills().trapChanges(level,capturedCause,writes);
+        else if (!sourceContext&&owner instanceof ServerPlayer player) game.items().indirectKills().trapChanges(level, player, true, writes);
         else writes.run();
-        double x = center.getX() + .5, y = target.getY(), z = center.getZ() + .5;
+        double x = center.getX() + .5, y = at.y, z = center.getZ() + .5;
         switch (kind) {
             case ANVIL -> {
-                insert(level, EntityTypes.FALLING_BLOCK.create(level, EntitySpawnReason.COMMAND), ANVIL, x, y + 40, z, owner);
-                insert(level, EntityTypes.FALLING_BLOCK.create(level, EntitySpawnReason.COMMAND), ANVIL, x, y + 42, z, owner);
+                insert(level, EntityTypes.FALLING_BLOCK.create(level, EntitySpawnReason.COMMAND), anvilPreset, x, y + 40, z, owner);
+                insert(level, EntityTypes.FALLING_BLOCK.create(level, EntitySpawnReason.COMMAND), anvilPreset, x, y + 42, z, owner);
             }
             case FIREBALL -> insert(level, EntityTypes.FIREBALL.create(level, EntitySpawnReason.COMMAND), FIREBALL, x, y + 70, z, owner);
             case POTIONS -> {
@@ -108,9 +151,9 @@ public final class LbcCageDrops {
             }
             default -> { }
         }
-        if (kind != LbcCageDropItem.Kind.OBSIDIAN) {
-            target.connection.send(new ClientboundSetTitleTextPacket(Component.literal(" ")));
-            target.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("look_up")));
+        if (presentation!=null&&kind != LbcCageDropItem.Kind.OBSIDIAN) {
+            presentation.connection.send(new ClientboundSetTitleTextPacket(Component.literal(" ")));
+            presentation.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("look_up")));
         }
         return true;
     }
@@ -141,6 +184,8 @@ public final class LbcCageDrops {
     private void insert(ServerLevel level, Entity actor, CompoundTag preset, double x, double y, double z, LivingEntity owner) {
         if (actor == null) return;
         actor.load(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), preset.copy()));
+        if(actor instanceof FallingBlockEntity falling&&(preset==ANVIL||preset==EMPTY_ANVIL))
+            falling.setHurtsEntities(preset==EMPTY_ANVIL?1.0f:2.0f,preset==EMPTY_ANVIL?1:35);
         actor.setPos(x,y,z);
         if (actor instanceof Projectile projectile) projectile.setOwner(owner);
         actor.entityTags().add(ACTOR);
@@ -164,19 +209,23 @@ public final class LbcCageDrops {
         var reflected = game.items().electro().reflectedOwner(actor);
         if (reflected != null) return reflected;
         if (actor instanceof PrimedTnt tnt && tnt.getOwner() != null) return tnt.getOwner();
-        return causes.get(actor);
+        var retained=causes.get(actor);
+        return retained!=null?retained:game.items().spellSources().owner(actor);
     }
 
     /** Native TNT getOwner/save hooks use this non-recursive fallback. */
     public LivingEntity retainedOwner(Entity actor) {
         if (!managed(actor)) return null;
         var reflected = game.items().electro().reflectedOwner(actor);
-        return reflected != null ? reflected : causes.get(actor);
+        if(reflected!=null)return reflected;
+        var retained=causes.get(actor);
+        return retained!=null?retained:game.items().spellSources().owner(actor);
     }
 
     public void inheritChild(Entity parent, Entity child) {
         if (!managed(parent) || !active(parent) || !(child instanceof PrimedTnt)) return;
         child.entityTags().add(ACTOR);
+        game.items().spellSources().inherit(parent,child);
         game.items().markCurrentItemEpoch(child);
         causes.put(child, owner(parent));
         tracked.add(child);
@@ -196,7 +245,7 @@ public final class LbcCageDrops {
 
     private boolean active(Entity actor) {
         return game.playing() && game.stage() != GameController.Stage.ENDING
-                && actor.level() == game.maps().level() && game.items().currentEpoch(actor);
+                && (actor.level() == game.maps().level()||game.items().spellSources().persistent(actor)) && game.items().currentEpoch(actor);
     }
 
     public void loaded(Entity actor) {
