@@ -7,6 +7,26 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## TMT native rocket unload/full Troll lifetime - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL internal parent is now112e2ded/3f32154c overf3b70523/954a85bb.
+Four Java families/zero resources; all6 native suites pass on SAME final artifact.
+[TMT_LIFECYCLE_2026_11_07.md](agent_notes/TMT_LIFECYCLE_2026_11_07.md).
+Fabric ENTITY_UNLOAD also fires at live tracking-end with null removal reason; rocket
+now preserves that accepted flight instead of retiring it. Actual native chunk IO
+recreates Arrow with same UUID/owner/source/position/age; remaining lifetime expires
+once. Actual one Troll emitter reaches steady39..41 powers; first expires at800 active
+ticks; TimeStop holds age/motion/emission. No speculative throughput/scheduler patch.
+All6 suites: tmt-rocket-unload/troll-box-load/troll-box-native/troll-box-rewind/
+tmt-gadgets/boss-projectiles. Native200HP Crocodildo/self-nuke/protected rewards and
+TECH rewarded death reconfirmed.10485 guards/281 author paths/three WIP/HUD/RP/Main
+exact;512MiB compiler then1280MiB fixture, normal exit/exact remote region/ticket restore.
+Main83b0ea27 unchanged; NO installer/restart/RP edits, hold all fixes until stable.
+Goal remains ACTIVE. Next meaningful class/component/service audit, firework ammo,
+acquisition/atlas/stable chain and protected source integration. Ordinary firework
+ammo already has ImbaNativeVariantsMixin factory/held/power/wear; reuse it for private
+TMT payloads, don't create another owner. Details and limitations in linked note.
+
 ## TMT shared Academy/encounter drops - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL internal parent is now f3b70523/954a85bb over608c5159/c659daf5.

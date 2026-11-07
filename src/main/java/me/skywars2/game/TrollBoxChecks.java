@@ -28,7 +28,7 @@ public final class TrollBoxChecks {
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Troll Box: "+why);}
     private static void set(Object object,String name,Object value){for(Class<?> c=object.getClass();c!=null;c=c.getSuperclass())try{var f=c.getDeclaredField(name);f.setAccessible(true);f.set(object,value);return;}catch(NoSuchFieldException ignored){}catch(IllegalAccessException e){throw new IllegalStateException(e);}throw new IllegalStateException(name);}
     /** Control only this source's lottery/coordinates; all unrelated native RNG calls remain native. */
-    private static final class WorldRandom implements AutoCloseable {
+    static final class WorldRandom implements AutoCloseable {
         final ServerLevel level;final Object saved;
         WorldRandom(ServerLevel level){this.level=level;saved=WoolBucketChecks.read(level,"random");set(level,"random",Proxy.newProxyInstance(RandomSource.class.getClassLoader(),new Class<?>[]{RandomSource.class},(proxy,method,args)->{
             boolean own=StackWalker.getInstance().walk(frames->frames.filter(f->!f.getClassName().equals(WorldRandom.class.getName())&&!f.getClassName().startsWith("java.")&&!f.getClassName().startsWith("jdk.")).findFirst().map(f->f.getClassName().equals(LbcTrollBox.class.getName())).orElse(false));

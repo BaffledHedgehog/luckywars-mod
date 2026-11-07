@@ -227,6 +227,9 @@ public final class LbcSteampunkRocket {
         }catch(RuntimeException malformed){entity.discard();}
     }
     public void unloaded(Entity entity){var flight=flights.get(entity.getUUID());if(flight==null||flight.body!=entity)return;
+        // Fabric also emits ENTITY_UNLOAD when a live entity merely stops being
+        // tracked. That visibility transition must not retire its accepted flight.
+        if(entity.getRemovalReason()==null)return;
         if(entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)flight.body=null;
         else {flights.remove(flight.id);retire(flight.id);}}
     public int count(){return flights.size();}
