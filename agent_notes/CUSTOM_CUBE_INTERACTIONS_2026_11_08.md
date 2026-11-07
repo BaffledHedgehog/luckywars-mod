@@ -1,0 +1,15 @@
+# Custom cube interactions and stable delivery ? 8 November 2026
+
+Full-source test1b19066a / production91ce3148 qualified in `build/verification/custom-block-interactions-2026-11-08`. Four actual mode1 matches/eight focused suites on the same test JAR. Includes the earlier survival-mining/settings/visual fixes and qualified native Key kits.
+
+The author was running production299e61e8, which does NOT contain the survival-mining fix. The fix had been built and staged while honoring the hold-until-stable preference. This qualified stable group is now published for tests and queued for ordinary-shutdown installation, preserving the current production flavor. Read `main-install.json` for actual installation status; never assume a queued build is already running. No automatic Main stop or restart.
+
+All four placeable cubes now use a NOTE_BLOCK item projection with the complete allocated client block-state properties, cached once at registration. The original held-item model, native block/properties, source components and Polymer roundtrip remain intact. Prediction-only state is hidden from tooltip and never written into the server stack. No RP edit or new palette allocation.
+
+Vanilla note-block interaction consumes non-crouched clicks before local item prediction. The shared Cube audio exception now includes its owner for block items/buckets in that case. Crouched and ordinary-surface placement retains ordinary client prediction, avoiding duplicate audio. Existing destruction sound/particle handling is unchanged.
+
+The same Cube forwards native BucketItem use through ServerPlayerGameMode.useItem, since note-block client interaction otherwise withholds the air-use packet. Vanilla fluid raycast, consumption, protections and sounds remain the owner. The Polymer success result suppresses duplicate following use packets. Both hands, crouch, source pickup and water/lava pour are covered. Other unrelated air-use items are not changed.
+
+Evidence:100 actual placement packet inputs and32 fluid combinations with pour/pickup and duplicate-use suppression. Native sound packets are checked independently for actor and observer. Vanilla note-block placement-state calculation on three different supporting materials matches every allocated client state. Eight focused suites additionally cover exact source Lucky presentation/roundtrip, real survival START/ticks for all3 Lucky cubes and consumed cube, loot rules, native Key last-use luck, all-item pools and TMT native components. All5938 packaged loot tables are byte-exact to the qualified Key parent.10805 source inputs and282 author paths verified; production/test common classes byte-exact; normal fixture exits and exact restoration.
+
+No physical Minecraft first-frame rendering or peakTPS claim. Gradle768MiB/one worker followed by one1280MiB native fixture. Author RP and protected Java/HUD/deletions remain untouched. Old build/libs are backed up under `previous-build-libs`; Main rollback is recorded by the normal-stop installer.

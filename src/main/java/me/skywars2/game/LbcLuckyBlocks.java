@@ -70,7 +70,7 @@ public final class LbcLuckyBlocks {
                     ?net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COMPOSTABLE_MEDIUM
                     :net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COMPOSTABLE_MEDIUM_HIGH);
             ITEMS[kind.ordinal()]=Registry.register(BuiltInRegistries.ITEM,itemKey,
-                    new LbcBlockModels.CubeItem(block,properties,carrierItem(kind)){
+                    new LbcBlockModels.CubeItem(block,properties){
                         @Override public InteractionResult useOn(UseOnContext context){
                             var game=SkyWars2.game();
                             if(!(context.getPlayer() instanceof ServerPlayer player)||game==null

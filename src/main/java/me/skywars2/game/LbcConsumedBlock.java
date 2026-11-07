@@ -26,7 +26,7 @@ public final class LbcConsumedBlock {
     public static final Block BLOCK=Registry.register(BuiltInRegistries.BLOCK,ID,new Consumed(
             BlockBehaviour.Properties.ofFullCopy(Blocks.RED_MUSHROOM_BLOCK).setId(ResourceKey.create(Registries.BLOCK,ID))));
     public static final Item ITEM=Registry.register(BuiltInRegistries.ITEM,ID,new LbcBlockModels.CubeItem(BLOCK,
-            new Item.Properties().setId(ResourceKey.create(Registries.ITEM,ID)).component(DataComponents.ITEM_MODEL,MODEL),Blocks.RED_MUSHROOM_BLOCK.asItem()));
+            new Item.Properties().setId(ResourceKey.create(Registries.ITEM,ID)).component(DataComponents.ITEM_MODEL,MODEL)));
     private LbcConsumedBlock(){}
     public static void register(){
         LbcBlockModels.model(Identifier.parse("lbc:block/consumed_block"),BLOCK_MODEL);

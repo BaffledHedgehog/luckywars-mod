@@ -1444,6 +1444,7 @@ public final class GameChecks {
                                 case "native-special-artifacts" -> { NativeSpecialArtifactChecks.run(game); return; }
                                 case "native-touhou" -> { NativeTouhouChecks.run(game); return; }
                                 case "native-tools" -> { NativeToolChecks.run(game); return; }
+                                case "cube-interactions" -> { CubeInteractionChecks.run(game); return; }
                                 case "key-kit-menu", "luck-key-kit-menu" -> { KeyKitChecks.menu(game, suite.startsWith("luck-")); return; }
                                 case "key-kit", "luck-key-kit" -> { KeyKitChecks.run(game, suite.startsWith("luck-")); return; }
                                 case "ordinary-tools" -> { OrdinaryToolChecks.run(game); return; }

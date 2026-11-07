@@ -1,3 +1,22 @@
+## Custom cube feedback ? QUALIFIED STABLE, normal-stop delivery (8 November2026)
+
+[Scope, exact artifacts and deployment contract](agent_notes/CUSTOM_CUBE_INTERACTIONS_2026_11_08.md).
+Full-source test1b19066a/production91ce3148;4 actual matches/8 focused suites pass
+on the SAME final test archive. All prior survival mining/visual/Key fixes included.
+Main was still production299e61e8 WITHOUT survival-mining fix when author tested.
+New stable artifacts published build/libs; ordinary-shutdown installer targets
+PRODUCTION91ce3148, preserving author's current flavor. Read custom-block-interactions-
+2026-11-08/main-install.json for real status; do not call queued JAR already running.
+No forced stop/restart. Preserve full archives and production MapEditing exclusion.
+Four placeable cubes project exact allocated NOTE_BLOCK item state, original held
+model intact; prediction properties cached once/client-only/hidden. Shared Cube
+plays placement sound to owner only when note interaction blocks local prediction;
+crouched/ordinary cases avoid doubles. Native BucketItem forwarded via GameMode,
+water/lava and pickup/both hands/crouch/duplicate use covered. Destruction unchanged.
+100 placement inputs/32 fluid combinations; actual survival START/ticks regression
+passes all3 Lucky cubes+consumed cube. Source loot5938 exact;10805 inputs/282 author
+paths verified. No author RP edit/new palette or physical-client/peakTPS claim.
+
 ## Key kits14/16 ? QUALIFIED, STAGED ONLY (8 November2026)
 
 [Source, scope, native evidence and delivery](agent_notes/KEY_KITS_2026_11_08.md).

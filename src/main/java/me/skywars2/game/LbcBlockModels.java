@@ -13,32 +13,65 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 
 /** One startup allocation per opaque cube; Polymer owns vanilla-state remapping and pack generation. */
 final class LbcBlockModels {
-    /** Opaque custom cubes whose vanilla block-item carrier already predicts placement audio. */
+    /** Predict the exact allocated note state, with the authored item model unchanged. */
     static class CubeItem extends PolymerBlockItem {
-        CubeItem(Block block,Item.Properties properties,Item carrier){super(block,properties,carrier,true);}
+        private final BlockItemStateProperties prediction;
+        CubeItem(Block block,Item.Properties properties){
+            super(block,properties,Items.NOTE_BLOCK,true);
+            var state=PolymerBlockUtils.getPolymerBlockState(block.defaultBlockState(),null);
+            var value=BlockItemStateProperties.EMPTY;
+            for(var property:state.getProperties())value=value.with(property,state);
+            prediction=value;
+        }
+        @Override public void modifyBasePolymerItemStack(ItemStack out,ItemStack source,PacketContext context,HolderLookup.Provider lookup){
+            out.set(DataComponents.BLOCK_STATE,prediction);
+            out.set(DataComponents.TOOLTIP_DISPLAY,out.getOrDefault(DataComponents.TOOLTIP_DISPLAY,TooltipDisplay.DEFAULT).withHidden(DataComponents.BLOCK_STATE,true));
+        }
+        // Ordinary/crouched placement is predicted locally. Cube clicks handle their own exception below.
         @Override public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state,ServerPlayer player,
                 InteractionHand hand,ItemStack stack,ServerLevel level,BlockHitResult hit){return false;}
     }
     abstract static class Cube extends Block implements PolymerTexturedBlock {
         Cube(Properties properties){super(properties);}
+        @Override public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state,ServerPlayer player,
+                InteractionHand hand,ItemStack stack,ServerLevel level,BlockHitResult hit){
+            // The client's interactive note block consumes a non-crouched click before item prediction.
+            return !player.isSecondaryUseActive()&&(stack.getItem() instanceof BlockItem||stack.getItem() instanceof BucketItem);
+        }
+        @Override protected InteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,
+                Player player,InteractionHand hand,BlockHitResult hit){
+            if(player instanceof ServerPlayer server&&stack.getItem() instanceof BucketItem)
+                return server.gameMode.useItem(server,level,stack,hand);
+            return super.useItemOn(stack,state,level,pos,player,hand,hit);
+        }
         @Override public void spawnDestroyByEntityParticles(Level level,Entity entity,BlockPos pos,BlockState state){
             // Keep native observer exclusion. Calling super would also run Polymer's unconditional
             // self event, duplicating vanilla's predicted destruction for creative/instant mining.

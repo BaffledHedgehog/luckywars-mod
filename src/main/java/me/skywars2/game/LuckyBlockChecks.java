@@ -103,7 +103,8 @@ public final class LuckyBlockChecks {
             var provider=(net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)world.base.recording;
             net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(provider,()->{
                 var proxy=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(s,net.minecraft.world.item.TooltipFlag.NORMAL,provider.getPacketContext(),p.registryAccess());
-                require(proxy.is(LbcLuckyBlocks.legacyState(kind).getBlock().asItem())&&Objects.equals(proxy.get(DataComponents.ITEM_MODEL),s.get(DataComponents.ITEM_MODEL)),"actual authored Polymer projection "+kind);
+                require(proxy.is(Items.NOTE_BLOCK)&&Objects.equals(proxy.get(DataComponents.ITEM_MODEL),s.get(DataComponents.ITEM_MODEL)),"authored item model and exact-state note carrier "+kind);
+                var predicted=proxy.get(DataComponents.BLOCK_STATE);require(predicted!=null&&predicted.apply(Blocks.NOTE_BLOCK.defaultBlockState())==((eu.pb4.polymer.core.api.block.PolymerBlock)LbcLuckyBlocks.block(kind)).getPolymerBlockState(LbcLuckyBlocks.block(kind).defaultBlockState(),provider.getPacketContext()),"first placement predicts the same allocated client state "+kind);
                 require(ItemStack.matches(s,eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(proxy,provider.getPacketContext(),p.registryAccess())),"native Polymer roundtrip "+kind);
             });
         }
