@@ -36,7 +36,7 @@ public final class LootTestCatalog {
 
     /** Bare generated-item transports are not ready gameplay prototypes. */
     public static boolean publicNativeItem(net.minecraft.world.item.Item item) {
-        return item != LbcNexusWireItems.BLUE&&!LbcTmtItems.output(item);
+        return !LbcTmtItems.output(item);
     }
     public static boolean publicNativeStack(net.minecraft.world.item.ItemStack stack){
         return publicNativeItem(stack.getItem())||LbcTmtItems.output(stack.getItem())&&!LbcTmtAbilities.read(stack).isEmpty();

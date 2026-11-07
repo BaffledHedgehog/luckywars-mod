@@ -41,7 +41,7 @@ final class LbcTmtBlockUses {
     static String eggFamily(ItemStack stack){return authoredEgg(stack,stack.getItem())?"vanilla_summon/"+BuiltInRegistries.ENTITY_TYPE.getKey(stack.get(DataComponents.ENTITY_DATA).type()):null;}
     private static boolean shulkerItem(Item item){return item==net.minecraft.world.item.Items.DYED_SHULKER_BOX.pick(net.minecraft.world.item.DyeColor.BLACK)
             ||item==net.minecraft.world.item.Items.DYED_SHULKER_BOX.pick(net.minecraft.world.item.DyeColor.YELLOW);}
-    /** Admission requires the exact authored flag/table pair, never an ordinary vanilla container. */
+    /** Exact authored loot contract; the old table has no flag. Bare vanilla boxes are excluded. */
     static boolean authoredShulker(ItemStack stack){
         if(!shulkerItem(stack.getItem()))return false;
         var loot=stack.get(net.minecraft.core.component.DataComponents.CONTAINER_LOOT);if(loot==null)return false;

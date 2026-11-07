@@ -39,8 +39,8 @@ public final class ContentGalleryChecks {
             require(!BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("minecraft")
                     || !ItemStack.isSameItemSameComponents(stack, new ItemStack(stack.getItem())), "no ordinary vanilla novelty section");
         }
-        require(!represented.contains(LbcNexusWireItems.BLUE)&&represented.contains(LbcNexusWireItems.WHITE),
-                "ready white wire is public while deferred outside green/TMT reward stays internal");
+        require(represented.contains(LbcNexusWireItems.BLUE)&&represented.contains(LbcNexusWireItems.WHITE),
+                "ready green/white wires are public after full native random-item/TMT reward integration");
         for (var item : BuiltInRegistries.ITEM) if (BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("skywars2") && LootTestCatalog.publicNativeItem(item))
             require(represented.contains(item), "every registered native mod item represented: " + BuiltInRegistries.ITEM.getKey(item));
         var params = new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN, player.position())

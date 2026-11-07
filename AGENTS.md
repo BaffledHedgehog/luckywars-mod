@@ -1,3 +1,23 @@
+## TMT FULL SOURCE QUALIFIED - ready for author tests (7 November2026)
+
+TMT goal is implemented and qualified, superseding the older intermediate
+"TMT unfinished" checkpoints below. Other mod migration remains separate.
+[Final scope/evidence/delivery](agent_notes/TMT_STABLE_2026_11_07.md).
+Ordinary full-source Gradle test9641d266/production32fb6fdb in build/libs and
+build/verification/tmt-stable-full-2026-11-07; no component-overlay final JAR.
+26 fresh native matches/23 distinct suites pass across both exact artifacts;
+production has zero MapAuthoring/MapDeletion classes, test8. All fixture JVMs
+exit normally and exact snapshots restore. GPU atlas checks pass; six-asset
+tmt-item-atlas-patch.zip delivered separately, author RP untouched. Physical
+Minecraft rendering remains author testing, no performance benchmark claim.
+1144 families/2268 variants/2274 prototypes; explicit97 service/9 inert findings,
+no pending native domains; counts alone are not coverage (see final matrix).
+10497 inputs/281 author paths/three WIP preserved; full compile includes their
+current contents and both authored reroll preview styles. Native reroll passes.
+Ready green wire public gate/gallery enabled; bare TMT transports remain hidden.
+Main83b0ea27 still unchanged, no installer/restart queued. Do not install an older
+component over this full build. Keep unrelated author deletions/HUD/RP/WIP intact.
+
 ## Author release preference - hold ALL fixes until next stable patch (7 November2026)
 
 User explicitly says the server is only for tests: no separate hotfixes, even for
