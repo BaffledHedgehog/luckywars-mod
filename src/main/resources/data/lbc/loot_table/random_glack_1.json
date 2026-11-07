@@ -1,114 +1,13 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:luckyblock_without_rec",
-                    "weight": 130
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:loliluckyblock",
-                    "weight": 10
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:nekolucky_items",
-                    "weight": 10
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:random_item",
-                    "weight": 20
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:infinity_no_shulker",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:bob",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:aimbob",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:hohlopitek",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:imba/lucky_items_imba",
-                    "weight": 5
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:hedgehog_wall",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:infinity_tuntija",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:reactive_shish_item",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:end_of_technomagic",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_nyauwu",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_technomk2",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:voidman",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:divider_by_metal_pipe",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:greed_greed",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:feather_greed",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:cyborgboss",
-                    "weight": 1
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:infinite_lucky_block",
-                    "weight": 1
-                }
-            ]
+          "type": "skywars2:uniform_item",
+          "domain": "union"
         }
-    ]
+      ]
+    }
+  ]
 }

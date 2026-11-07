@@ -85,12 +85,26 @@ public final class LbcTmtItems {
     private static final class NativeBow extends BowItem implements PolymerItem {
         NativeBow(Properties properties){super(properties);}
         @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){return LbcTmtBlockUses.input(context);}
+        @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
+            var result=super.use(level,player,hand);if(result.consumesAction())return result;
+            var game=SkyWars2.game();if(game!=null&&player instanceof net.minecraft.server.level.ServerPlayer owner){
+                var shield=LbcTmtShield.input(game,owner,hand);if(shield!=InteractionResult.PASS)return shield;
+            }
+            return result;
+        }
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.BOW;}
         @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){super.onUseTick(level,entity,stack,remaining);using(entity,stack);}
     }
     private static final class NativeCrossbow extends CrossbowItem implements PolymerItem {
         NativeCrossbow(Properties properties){super(properties);}
         @Override public InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){return LbcTmtBlockUses.input(context);}
+        @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
+            var result=super.use(level,player,hand);if(result.consumesAction())return result;
+            var game=SkyWars2.game();if(game!=null&&player instanceof net.minecraft.server.level.ServerPlayer owner){
+                var shield=LbcTmtShield.input(game,owner,hand);if(shield!=InteractionResult.PASS)return shield;
+            }
+            return result;
+        }
         @Override public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.CROSSBOW;}
         @Override public void onUseTick(Level level,LivingEntity entity,ItemStack stack,int remaining){super.onUseTick(level,entity,stack,remaining);using(entity,stack);}
     }

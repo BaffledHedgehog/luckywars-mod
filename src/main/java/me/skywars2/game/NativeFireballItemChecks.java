@@ -71,8 +71,10 @@ public final class NativeFireballItemChecks {
                 require(stack.getCount()==1&&f.owner.getItemInHand(other).is(Items.STICK)&&f.owner.getItemInHand(other).getCount()==7
                         &&f.owner.getStats().getValue(Stats.ITEM_USED.get(entry.item()))==stat+1,"one real used-hand debit/stat "+entry.id());
                 require(actors.stream().allMatch(e->f.service.owner(e)==f.owner&&game.items().currentEpoch(e)&&e.tickCount==0),"actual creator/epoch before first actor tick "+entry.id());
-                require(actors.stream().allMatch(e->kind==0?e instanceof SmallFireball:kind==3?e instanceof PrimedTnt:kind==1||kind==4?e instanceof LargeFireball:kind==6?e instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl:e instanceof DragonFireball),"exact native body family "+entry.id());
+                require(actors.stream().allMatch(e->kind==0?e instanceof SmallFireball:kind==3?e instanceof PrimedTnt:kind==1||kind==4?e instanceof LargeFireball:kind==6?e instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl:kind==7?e instanceof net.minecraft.world.entity.projectile.arrow.Arrow:e instanceof DragonFireball),"exact native body family "+entry.id());
                 if(kind==3)require(actors.stream().allMatch(e->((PrimedTnt)e).getFuse()==100),"source TNT fuse starts at100 before any tick");
+                if(kind==7)require(actors.stream().allMatch(e->((me.skywars2.mixin.ShulkerBowMixin.ArrowAccess)e).skywars2$baseDamage()==1
+                        &&((net.minecraft.world.entity.projectile.arrow.Arrow)e).pickup==net.minecraft.world.entity.projectile.arrow.AbstractArrow.Pickup.CREATIVE_ONLY),"source impulse dart damage and creative-only pickup");
             }
             f.clear();var held=new ItemStack(entry.item(),2);f.owner.setItemInHand(InteractionHand.MAIN_HAND,held);
             f.owner.entityTags().add("time_stopped");try{require(!f.owner.gameMode.useItem(f.owner,f.owner.level(),held,InteractionHand.MAIN_HAND).consumesAction()&&held.getCount()==2&&f.service.trackedCount()==0,"frozen input retains item and emits nothing "+entry.id());}finally{f.owner.entityTags().remove("time_stopped");}
@@ -87,6 +89,6 @@ public final class NativeFireballItemChecks {
             try{presentation(game,f);launches(game,f);}finally{for(var entry:stats.entrySet())f.owner.getStats().setValue(f.owner,Stats.ITEM_USED.get(entry.getKey()),entry.getValue());}
         }finally{game.config().lbcLevelups=levelups;}
         ImbaPearlChecks.run(game);
-        SkyWars2.LOGGER.info("[check] PASS native-fireball-items (seven canonical native prototypes, seeded source counts/all components, ready wrappers/Polymer, both actual hands, immediate1/33/17 final bodies/no snowball or pending tick, creator/epoch/fuse/pearl ledger, sole debit/stat, frozen and creative input)");
+        SkyWars2.LOGGER.info("[check] PASS native-fireball-items (eight canonical native prototypes, seeded source counts/all components, ready wrappers/Polymer, both actual hands, immediate1/33/17 final bodies/no snowball or pending tick, creator/epoch/fuse/pearl ledger, sole debit/stat, frozen and creative input)");
     }
 }

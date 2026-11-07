@@ -10,8 +10,9 @@ import net.minecraft.world.item.Items;
 /** Native sustained-use prerequisites. The original owners still handle every real using tick. */
 final class LbcTmtContinuous {
     private LbcTmtContinuous(){}
-    static boolean sustained(ItemStack stack){return LbcHolyShield.matches(stack)||LbcCunnyItems.nahida(stack);}
+    static boolean sustained(ItemStack stack){return LbcHolyShield.matches(stack)||LbcCunnyItems.nahida(stack)||LbcTmtShield.sustained(stack);}
     static void apply(ItemStack stack){
+        var game=me.skywars2.SkyWars2.game();if(game!=null)LbcTmtShield.apply(game,stack);
         if(LbcHolyShield.matches(stack))stack.set(DataComponents.BLOCKS_ATTACKS,
                 LbcMeleeItems.Kind.HOLY_SHIELD.item.getDefaultInstance().get(DataComponents.BLOCKS_ATTACKS));
         if(LbcCunnyItems.nahida(stack)){
@@ -24,6 +25,7 @@ final class LbcTmtContinuous {
     /** Carrot/snowball native overrides otherwise never enter the generic Item sustained-use path. */
     static InteractionResult use(GameController game,ServerPlayer owner,InteractionHand hand){
         var stack=owner.getItemInHand(hand);if(!sustained(stack))return InteractionResult.PASS;
+        if(LbcTmtShield.sustained(stack))return LbcTmtShield.input(game,owner,hand);
         if(!game.items().tmt().admitted(owner)||LbcCunnyItems.nahida(stack)&&!game.items().cunny().nahidaAllowed(owner,hand))return InteractionResult.FAIL;
         owner.startUsingItem(hand);return InteractionResult.CONSUME;
     }

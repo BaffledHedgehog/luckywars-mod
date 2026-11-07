@@ -49,6 +49,14 @@
       "distinctOpaqueColors": 46402
     }
   },
+  "transparentSourceRgbIgnoredSeeds": [
+    0,
+    3,
+    5,
+    9,
+    34,
+    65535
+  ],
   "maximumCollageFetches": 8,
   "assetSha256": {
     "assets/lbc/items/tmt/procedural.json": "125b837826871157664618aa6e54153fd2bb8b69eb3970ac751f1d0696165b51",

@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 final class LbcTmtExtraUses {
     private LbcTmtExtraUses(){}
     private enum Input { TOUHOU, NEXUS_COMPASS, NEXUS_COMBAT, NEXUS_TOOLS, POZDMAN, BALANCE, SUPPLY,
-                         TERRA_RAZOR, TERRA_SWORD, KAPUSTA, CRUX, FIREBALL, WIN }
+                         TERRA_RAZOR, TERRA_SWORD, KAPUSTA, CRUX, FIREBALL, WIN, POTION, SHIELD }
 
     private static Input input(ItemStack stack){
         if(stack.isEmpty())return null;
@@ -29,6 +29,8 @@ final class LbcTmtExtraUses {
         if(LbcOverload.isCrux(stack))return Input.CRUX;
         if(LbcSpecialFireballs.variant(stack)!=0)return Input.FIREBALL;
         if(LbcKfcRewards.winButton(stack))return Input.WIN;
+        if(LbcTmtManaPotions.thrownCandidate(stack))return Input.POTION;
+        if(LbcTmtShield.candidate(stack))return Input.SHIELD;
         return null;
     }
 
@@ -50,6 +52,8 @@ final class LbcTmtExtraUses {
             case CRUX->2001;
             case FIREBALL->2002;
             case WIN->2003;
+            case POTION->2004;
+            case SHIELD->2005;
         };
     }
 
@@ -69,6 +73,8 @@ final class LbcTmtExtraUses {
             case CRUX->game.items().mana().overload().use(player,hand);
             case FIREBALL->game.items().specialFireballs().use(player,hand);
             case WIN->game.items().kfcRewards().useWin(player,hand);
+            case POTION->LbcTmtManaPotions.use(game,player,hand);
+            case SHIELD->LbcTmtShield.use(game,player,hand);
         };
     }
 }

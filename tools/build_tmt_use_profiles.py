@@ -11,7 +11,7 @@ TABLES = ROOT / "src/main/resources/data/lbc/loot_table"
 OUTPUT = ROOT / "src/main/resources/skywars2/tmt_use_profiles.json"
 PAYLOAD_COMPONENTS = {"minecraft:" + name for name in (
     "entity_data", "bucket_entity_data", "block_entity_data", "block_state",
-    "potion_contents", "potion_duration_scale", "fireworks", "container", "container_loot")}
+    "potion_contents", "potion_duration_scale", "fireworks", "container", "container_loot", "blocks_attacks")}
 
 
 def build():

@@ -99,7 +99,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             game = new GameController(server, config, players, maps);
             game.menus(new GameMenus(server, game, config, players, maps));
             game.startServer();
-            game.items().nexusCompass().reload();game.items().nexusCombat().reload();
+            game.items().nexusCompass().reload();game.items().nexusCombat().reload();game.items().allItemPools().initialize();
             game.items().academy().prepare();
             game.items().stone().prepare();
             game.items().bedrock().prepare();
@@ -117,7 +117,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resources, success) -> {
             if (success && game != null) {
                 game.items().nexusCompass().reload();game.items().nexusCombat().reload();
-                game.items().tmt().reload();
+                game.items().tmt().reload();game.items().allItemPools().reload();
                 game.items().magic().refreshEntityIndexes();
                 game.items().academy().prepare();
                 game.items().stone().prepare();
@@ -435,6 +435,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
+            if(game!=null){var slab=me.skywars2.game.LbcLegacySlabs.legacyUseOn(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(slab!=InteractionResult.PASS)return slab;}
             if(game!=null){var utility=me.skywars2.game.LbcImbaTerrainUtilityItems.legacyBlock(new net.minecraft.world.item.context.UseOnContext(player,hand,hit));if(utility!=InteractionResult.PASS)return utility;}
             if(game!=null&&player instanceof ServerPlayer owner&&player.getItemInHand(hand).getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("supply_beacon",0)==1){
                 var pos=hit.getBlockPos();if(!level.getBlockState(pos).getCollisionShape(level,pos).isEmpty())pos=pos.relative(hit.getDirection());

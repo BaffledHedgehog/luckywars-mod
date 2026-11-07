@@ -22,7 +22,7 @@ public final class LbcTmtComponents {
     private static final ThreadLocal<java.util.IdentityHashMap<ItemStack,Scope>> ACTIVE=new ThreadLocal<>();
     private static final List<DataComponentType<?>> PAYLOADS=List.of(DataComponents.ENTITY_DATA,DataComponents.BUCKET_ENTITY_DATA,
             DataComponents.BLOCK_ENTITY_DATA,DataComponents.BLOCK_STATE,DataComponents.POTION_CONTENTS,
-            DataComponents.POTION_DURATION_SCALE,DataComponents.FIREWORKS,DataComponents.CONTAINER,DataComponents.CONTAINER_LOOT);
+            DataComponents.POTION_DURATION_SCALE,DataComponents.FIREWORKS,DataComponents.CONTAINER,DataComponents.CONTAINER_LOOT,DataComponents.BLOCKS_ATTACKS);
     static Item nativeItem(CustomData data){
         var id=Identifier.tryParse(((ItemData.IntReader)(Object)data).skywars2$readString(LbcTmtAbilities.NATIVE,""));
         return id==null?Items.AIR:BuiltInRegistries.ITEM.getValue(id);

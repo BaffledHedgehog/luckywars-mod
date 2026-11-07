@@ -26,13 +26,14 @@
       "prototype_evidence": 263,
       "native_reader_evidence": 250,
       "metadata_or_acquisition": 6,
-      "live_legacy_native_owner_gap": 14,
+      "native_owner_qualified": 5,
+      "live_legacy_native_owner_gap": 5,
       "profile_parameter": 7,
-      "exclude_raw_marker_no_independent_effect": 7,
+      "exclude_raw_marker_no_independent_effect": 13,
+      "native_owner_implemented_verified": 4,
       "native_identity_only_adapter_required": 1,
       "native_loot_predicate_service_marker": 1,
-      "native_dynamic_reader_evidence": 10,
-      "live_legacy_family_no_item_marker_route": 6
+      "native_dynamic_reader_evidence": 10
     },
     "literalSkywars2IdCandidates": 420,
     "literalCustomDataWriteKeys": 195,
@@ -40073,8 +40074,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_qualified",
+      "reason": "Shared native owner and mixed TMT composition qualified by actual native suites in tmt-remaining-domains-2026-11-07; money uses immediate RMB, not projectile collision.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -40421,8 +40422,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_qualified",
+      "reason": "Shared native owner and mixed TMT composition qualified by actual native suites in tmt-remaining-domains-2026-11-07; money uses immediate RMB, not projectile collision.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -41113,8 +41114,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_qualified",
+      "reason": "Shared native owner and mixed TMT composition qualified by actual native suites in tmt-remaining-domains-2026-11-07; money uses immediate RMB, not projectile collision.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -44250,8 +44251,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_qualified",
+      "reason": "Shared native owner and mixed TMT composition qualified by actual native suites in tmt-remaining-domains-2026-11-07; money uses immediate RMB, not projectile collision.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -45372,8 +45373,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_owner_qualified",
+      "reason": "Shared native owner and mixed TMT composition qualified by actual native suites in tmt-remaining-domains-2026-11-07; money uses immediate RMB, not projectile collision.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -51569,8 +51570,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_family_no_item_marker_route",
-      "reason": "Wisp create/passive/delete engine is live source, but key occurrences are loot or display entity Tags; no held custom_data reader located in either namespace. Needs actual wisp-book input and a native owner, not inferred entity-tag casting.",
+      "status": "exclude_raw_marker_no_independent_effect",
+      "reason": "Exact TMT item custom_data field has writers and zero item-data readers in both namespaces and all dynamic dispatches. The similarly named companion ENTITY tag is separate. See TMT_WISP_REACHABILITY_2026_11_07.md; no companion engine implementation is claimed.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -51622,8 +51623,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_family_no_item_marker_route",
-      "reason": "Wisp create/passive/delete engine is live source, but key occurrences are loot or display entity Tags; no held custom_data reader located in either namespace. Needs actual wisp-book input and a native owner, not inferred entity-tag casting.",
+      "status": "exclude_raw_marker_no_independent_effect",
+      "reason": "Exact TMT item custom_data field has writers and zero item-data readers in both namespaces and all dynamic dispatches. The similarly named companion ENTITY tag is separate. See TMT_WISP_REACHABILITY_2026_11_07.md; no companion engine implementation is claimed.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -51675,8 +51676,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_family_no_item_marker_route",
-      "reason": "Wisp create/passive/delete engine is live source, but key occurrences are loot or display entity Tags; no held custom_data reader located in either namespace. Needs actual wisp-book input and a native owner, not inferred entity-tag casting.",
+      "status": "exclude_raw_marker_no_independent_effect",
+      "reason": "Exact TMT item custom_data field has writers and zero item-data readers in both namespaces and all dynamic dispatches. The similarly named companion ENTITY tag is separate. See TMT_WISP_REACHABILITY_2026_11_07.md; no companion engine implementation is claimed.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -51728,8 +51729,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_family_no_item_marker_route",
-      "reason": "Wisp create/passive/delete engine is live source, but key occurrences are loot or display entity Tags; no held custom_data reader located in either namespace. Needs actual wisp-book input and a native owner, not inferred entity-tag casting.",
+      "status": "exclude_raw_marker_no_independent_effect",
+      "reason": "Exact TMT item custom_data field has writers and zero item-data readers in both namespaces and all dynamic dispatches. The similarly named companion ENTITY tag is separate. See TMT_WISP_REACHABILITY_2026_11_07.md; no companion engine implementation is claimed.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -51781,8 +51782,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_family_no_item_marker_route",
-      "reason": "Wisp create/passive/delete engine is live source, but key occurrences are loot or display entity Tags; no held custom_data reader located in either namespace. Needs actual wisp-book input and a native owner, not inferred entity-tag casting.",
+      "status": "exclude_raw_marker_no_independent_effect",
+      "reason": "Exact TMT item custom_data field has writers and zero item-data readers in both namespaces and all dynamic dispatches. The similarly named companion ENTITY tag is separate. See TMT_WISP_REACHABILITY_2026_11_07.md; no companion engine implementation is claimed.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [
@@ -51834,8 +51835,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_family_no_item_marker_route",
-      "reason": "Wisp create/passive/delete engine is live source, but key occurrences are loot or display entity Tags; no held custom_data reader located in either namespace. Needs actual wisp-book input and a native owner, not inferred entity-tag casting.",
+      "status": "exclude_raw_marker_no_independent_effect",
+      "reason": "Exact TMT item custom_data field has writers and zero item-data readers in both namespaces and all dynamic dispatches. The similarly named companion ENTITY tag is separate. See TMT_WISP_REACHABILITY_2026_11_07.md; no companion engine implementation is claimed.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [

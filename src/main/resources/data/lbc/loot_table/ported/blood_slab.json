@@ -1,0 +1,13 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:item_defs/minecraft/acacia_slab__c3f3f3e17aae"
+        }
+      ]
+    }
+  ]
+}

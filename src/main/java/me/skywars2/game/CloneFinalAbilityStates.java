@@ -7,16 +7,16 @@ import net.minecraft.world.entity.Entity;
 public final class CloneFinalAbilityStates {
     private CloneFinalAbilityStates() { }
     public static boolean recognizes(Entity e) {
-        return LbcMysticalTree.cloneRecognizes(e)||LbcFunnyTnt.cloneRecognizes(e)||LbcDeltaTnt.cloneRecognizes(e)||LbcDiamondifier.cloneRecognizes(e)||LbcHomingArrows.cloneRecognizes(e)||LbcKapusta.cloneRecognizes(e)||LbcBouncingPoop.cloneRecognizes(e)||LbcSauvojen.cloneProtected(e)
+        return LbcLegacySlabs.managed(e)||LbcMysticalTree.cloneRecognizes(e)||LbcFunnyTnt.cloneRecognizes(e)||LbcDeltaTnt.cloneRecognizes(e)||LbcDiamondifier.cloneRecognizes(e)||LbcHomingArrows.cloneRecognizes(e)||LbcKapusta.cloneRecognizes(e)||LbcBouncingPoop.cloneRecognizes(e)||LbcSauvojen.cloneProtected(e)
                 ||e.entityTags().contains(SauvojenMeditation.TAG)||e.entityTags().contains("banhammer3d");
     }
     /** Modern attachment/native bodies need not retain the old datapack slowraycast spelling. */
-    public static boolean recognizesGameplay(Entity e){return LbcMysticalTree.cloneRecognizes(e)||LbcFunnyTnt.cloneRecognizes(e)||LbcDeltaTnt.cloneRecognizes(e)||LbcDiamondifier.cloneRecognizes(e)||LbcHomingArrows.cloneRecognizes(e)||LbcKapusta.cloneRecognizes(e)||LbcBouncingPoop.cloneRecognizes(e);}
+    public static boolean recognizesGameplay(Entity e){return LbcLegacySlabs.managed(e)||LbcMysticalTree.cloneRecognizes(e)||LbcFunnyTnt.cloneRecognizes(e)||LbcDeltaTnt.cloneRecognizes(e)||LbcDiamondifier.cloneRecognizes(e)||LbcHomingArrows.cloneRecognizes(e)||LbcKapusta.cloneRecognizes(e)||LbcBouncingPoop.cloneRecognizes(e);}
     public static boolean protectedActor(Entity e) {
         return LbcSauvojen.cloneProtected(e)||e.entityTags().contains(SauvojenMeditation.TAG);
     }
     public static LbcCloneSkills.ActorImage captureNative(GameController game,Entity e) {
-        return LbcMysticalTree.cloneRecognizes(e)?game.items().mysticalTree().cloneImage(e):LbcFunnyTnt.cloneRecognizes(e)?game.items().funnyTnt().cloneImage(e):LbcDeltaTnt.cloneRecognizes(e)?game.items().deltaTnt().cloneImage(e):LbcDiamondifier.cloneRecognizes(e)?game.items().diamondifier().cloneImage(e):LbcHomingArrows.cloneRecognizes(e)?game.items().homingArrows().cloneImage(e):LbcKapusta.cloneRecognizes(e)?game.items().kapusta().cloneImage(e):LbcBouncingPoop.cloneRecognizes(e)?game.items().bouncingPoop().cloneImage(e):null;
+        return LbcLegacySlabs.managed(e)?game.items().legacySlabs().cloneImage(e):LbcMysticalTree.cloneRecognizes(e)?game.items().mysticalTree().cloneImage(e):LbcFunnyTnt.cloneRecognizes(e)?game.items().funnyTnt().cloneImage(e):LbcDeltaTnt.cloneRecognizes(e)?game.items().deltaTnt().cloneImage(e):LbcDiamondifier.cloneRecognizes(e)?game.items().diamondifier().cloneImage(e):LbcHomingArrows.cloneRecognizes(e)?game.items().homingArrows().cloneImage(e):LbcKapusta.cloneRecognizes(e)?game.items().kapusta().cloneImage(e):LbcBouncingPoop.cloneRecognizes(e)?game.items().bouncingPoop().cloneImage(e):null;
     }
     public static int duplicateNear(GameController game,ServerPlayer holder,int skill,int budget,long deadlineNanos) {
         if(skill!=15&&skill!=17||budget<CloneVirtualAbilityStates.count(skill))return 0;

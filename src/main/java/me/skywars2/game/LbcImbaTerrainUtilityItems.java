@@ -1,9 +1,7 @@
 package me.skywars2.game;
 
-import eu.pb4.polymer.core.api.item.PolymerItem;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import me.skywars2.SkyWars2;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.*;
@@ -25,9 +23,8 @@ public final class LbcImbaTerrainUtilityItems {
     private LbcImbaTerrainUtilityItems(){}
     public static void register(){}
     private static LbcImbaTerrainUtilities service(){var game=SkyWars2.game();return game==null?null:game.items().imbaTerrainUtilities();}
-    private static final class Dirter extends BlockItem implements PolymerItem {
-        Dirter(Properties properties){super(net.minecraft.world.level.block.Blocks.COARSE_DIRT,properties);}
-        public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.COARSE_DIRT;}
+    private static final class Dirter extends LbcVanillaBlockAliasItem {
+        Dirter(Properties properties){super(net.minecraft.world.level.block.Blocks.COARSE_DIRT,properties,Items.COARSE_DIRT);}
         @Override public InteractionResult place(BlockPlaceContext context){
             if(!(context.getPlayer() instanceof ServerPlayer player))return InteractionResult.FAIL;var service=service();var origin=player.position();
             if(service==null||!LbcImbaTerrainUtilities.dirter(context.getItemInHand())||!service.canActivate(player,LbcImbaTerrainUtilities.Kind.DIRTER,origin))return InteractionResult.FAIL;

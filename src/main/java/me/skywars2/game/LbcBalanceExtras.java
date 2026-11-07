@@ -49,7 +49,12 @@ final class LbcBalanceExtras {
     List<Snowball> trailActors(){return List.copyOf(bridges.keySet());}
     DyeColor trailColor(Entity actor){var state=bridges.get(actor);return state==null?null:state.color;}
     LbcIndirectKills.Owner trailCause(Entity actor){var state=bridges.get(actor);return state==null?null:state.cause;}
-    static boolean isDrop(ItemStack stack){return LbcBalanceItems.flag(stack,"drop")&&LbcBalanceItems.flag(stack,"luckyspawner_old");}
+    static int luckySpawnerVariant(ItemStack stack){
+        if(!LbcBalanceItems.flag(stack,"drop"))return 0;
+        // The legacy selector writes current first, then old; the latter wins a raw mixed payload.
+        return LbcBalanceItems.flag(stack,"luckyspawner_old")?1:LbcBalanceItems.flag(stack,"luckyspawner")?2:0;
+    }
+    static boolean isDrop(ItemStack stack){return luckySpawnerVariant(stack)!=0;}
     void damaged(ServerPlayer owner){
         if(!game.playing()||!game.canUseGameplayItems(owner)||game.isObserver(owner)||!game.items().wands().validRoleTarget(owner,true)
                 ||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)||game.items().timeStop().stopped(owner.level())
@@ -62,13 +67,14 @@ final class LbcBalanceExtras {
     boolean drop(ItemEntity token){
         if(!canDrop(token))return false;var level=(ServerLevel)token.level();
         try{
-            var tag=TagParser.parseCompoundFully("{SpawnCount:1s,SpawnRange:3s,Delay:0s,MinSpawnDelay:100s,MaxSpawnDelay:101s,MaxNearbyEntities:1000s,RequiredPlayerRange:100s,SpawnData:{entity:{id:'minecraft:marker',Tags:['futureluckyblock','rc_1sec','skywars2.balance.lucky_marker']}}}");
+            boolean current=luckySpawnerVariant(token.getItem())==2;
+            var tag=TagParser.parseCompoundFully("{SpawnCount:1s,SpawnRange:"+(current?5:3)+"s,Delay:0s,MinSpawnDelay:"+(current?80:100)+"s,MaxSpawnDelay:"+(current?100:101)+"s,MaxNearbyEntities:1000s,RequiredPlayerRange:"+(current?50:100)+"s,SpawnData:{entity:{id:'minecraft:marker',Tags:['futureluckyblock','rc_1sec','skywars2.balance.lucky_marker']}}}");
             var cause=game.items().specialDrops().owner(token);var author=LbcIndirectKills.playerSource(cause);var pos=token.blockPosition();
             game.items().indirectKills().worldChanges(level,cause,true,()->new BlockInput(Blocks.SPAWNER.defaultBlockState(),Set.of(),tag).place(level,pos,258));
             var id=author==null?new UUID(0,0):author.getUUID();var authority=author==null?new LbcIndirectKills.Owner(id,0,true,false):game.items().indirectKills().wildCause(author);
             game.items().potionSpawnerDrops().admitSourceSpawner(level,pos,new LbcSpellSource.Source(UUID.randomUUID(),id,game.items().epoch(),authority,Set.of(),true));
             return true;
-        }catch(Exception error){throw new IllegalStateException("Invalid fixed old lucky spawner",error);}
+        }catch(Exception error){throw new IllegalStateException("Invalid fixed lucky spawner",error);}
     }
     List<Projectile> augment(ServerPlayer owner,ItemStack weapon,List<Projectile> family){
         boolean currentDouble=LbcBalanceItems.flag(weapon,"double");

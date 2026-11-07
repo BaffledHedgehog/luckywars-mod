@@ -30,7 +30,7 @@ public final class LbcSpecialFireballs {
     private static final String TAG="skywars2.special_fireball", CHILD="skywars2.special_fireball.child";
     private static final String DELTA="skywars2.delta_payload";
     private static final String OWNER="skywars2.special_fireball.owner.";
-    private static final String[] FLAGS={"smallfireball","fireball","dragfireball","smallfireball_imba","fireball_imba","dragfireball_imba","ender_pernul"};
+    private static final String[] FLAGS={"smallfireball","fireball","dragfireball","smallfireball_imba","fireball_imba","dragfireball_imba","ender_pernul","impulse"};
     private final GameController game;
     private final Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Snowball> pending=new LinkedHashSet<>();
@@ -63,7 +63,7 @@ public final class LbcSpecialFireballs {
         carrier.entityTags().add(game.items().epoch()); // Geometry only: never index this unpublished carrier.
         if(convert(carrier).isEmpty()){carrier.discard();return false;}
         carrier.discard();
-        LbcOverload.sound(owner,owner.position(),"minecraft:item.firecharge.use",1,1,0);
+        LbcOverload.sound(owner,owner.position(),variant(stack)==8?"minecraft:entity.snowball.throw":"minecraft:item.firecharge.use",1,1,0);
         owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem()));
         owner.gameEvent(net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT);
         stack.consume(1,owner);return true;
@@ -118,7 +118,7 @@ public final class LbcSpecialFireballs {
     /** Use the actual snowball's position, rotation and velocity, including any native throw spread. */
     public List<Entity> convert(Snowball ball){
         int kind=variant(ball.getItem());if(kind==0||ball.isRemoved()||!(ball.getOwner() instanceof ServerPlayer p)||!active(ball)||frozen(ball))return List.of();
-        var direction=Vec3.directionFromRotation(ball.getXRot(),ball.getYRot());var at=ball.position().add(direction.scale(kind==3||kind==6||kind==7?0:1.5));
+        var direction=Vec3.directionFromRotation(ball.getXRot(),ball.getYRot());var at=ball.position().add(direction.scale(kind==3||kind==6||kind==7||kind==8?0:1.5));
         if(!resident(p.level(),at)||!resident(p.level(),at.add(0,0,3)))return List.of();
         var result=new ArrayList<Entity>();var motion=ball.getDeltaMovement();
         switch(kind){
@@ -141,6 +141,11 @@ public final class LbcSpecialFireballs {
                             (Math.floor(velocity.z*10)+p.getRandom().nextInt(21)-10)*.1);
                     result.add(insert(p,new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(EntityTypes.ENDER_PEARL,p.level()),at,v,true));
                 }}
+            case 8->{
+                var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(p.level(),p,new ItemStack(Items.ARROW),null);
+                arrow.setBaseDamage(1);arrow.pickup=net.minecraft.world.entity.projectile.arrow.AbstractArrow.Pickup.CREATIVE_ONLY;
+                result.add(insert(p,arrow,at,scaled(motion,10000,.0006),false));
+            }
             default->{}
         }
         result.removeIf(Objects::isNull);

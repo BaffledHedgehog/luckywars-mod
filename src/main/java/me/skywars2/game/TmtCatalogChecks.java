@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.NbtOps;
@@ -13,6 +14,10 @@ public final class TmtCatalogChecks {
     private static void require(boolean yes,String why){if(!yes)throw new IllegalStateException("TMT catalog: "+why);}
     public static void run(GameController game){
         var runtime=game.items().tmt();var catalog=runtime.catalog();var ids=new HashSet<String>();
+        for(var key:List.of("wisp_air","wisp_fire","wisp_light","wisp_nature","wisp_shadow","wisp_water")){
+            require(catalog.families().stream().flatMap(f->f.variants().stream()).noneMatch(v->((ItemData.IntReader)(Object)v.data()).skywars2$readInt(key,0)==1),"source-inert wisp flag is never sampled: "+key);
+            require(catalog.domains().findings().stream().anyMatch(f->f.disposition()==LbcTmtCatalog.Disposition.EXCLUDED_INERT_KEY&&f.reason().contains(key)),"explicit source-inert reconciliation remains visible: "+key);
+        }
         for(var family:catalog.families())require(ids.add(family.id()),"one lottery entry per semantic family");
         for(var wand:LbcWands.tmtAbilities())require(ids.contains("wand/"+wand.family()),"all native common/Tiny/Academy wand families retained");
         require(LbcWands.tmtAbilities()==LbcWands.tmtAbilities(),"immutable finalized native wand domain is reused");

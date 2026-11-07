@@ -1,8 +1,6 @@
 package me.skywars2.game;
 
-import eu.pb4.polymer.core.api.item.PolymerItem;
 import me.skywars2.SkyWars2;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -27,9 +25,8 @@ public final class LbcImbaFollowupItems {
     /** Saved legacy carriers enter these same native input owners without replacing user components. */
     static Item legacyTarget(ItemStack stack){return ItemData.intValue(stack,"debriser",0)==1?DEBRIS:LbcDiamondifier.matches(stack)?DIAMONDIFIER:midas(stack)?MIDAS_BLOCK:LbcImbaRecursionItems.legacyTarget(stack);}
     private static Item.Properties properties(String name,String source,Item carrier){return LbcUtilityItemPrototypes.properties("skywars2:"+name,"/data/lbc/loot_table/"+source+".json",carrier,64);}
-    private static final class Debris extends BlockItem implements PolymerItem {
-        Debris(Properties properties){super(Blocks.ANCIENT_DEBRIS,properties);}
-        public Item getPolymerItem(ItemStack stack,PacketContext context){return Items.ANCIENT_DEBRIS;}
+    private static final class Debris extends LbcVanillaBlockAliasItem {
+        Debris(Properties properties){super(Blocks.ANCIENT_DEBRIS,properties,Items.ANCIENT_DEBRIS);}
         @Override public InteractionResult place(BlockPlaceContext context){
             var game=SkyWars2.game();if(game==null||!(context.getPlayer() instanceof ServerPlayer player))return InteractionResult.FAIL;
             var service=game.items().imbaTerrainUtilities();var origin=player.position();

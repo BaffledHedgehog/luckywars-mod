@@ -50,7 +50,10 @@ public final class LbcTmtRanged {
             ItemStack weapon,ItemStack fired,List<Projectile> nativeFamily){
         if(ItemData.intValue(fired,"tmt_item",0)!=1)return false;
         var family=List.copyOf(nativeFamily);
-        LbcTmtAbilities.afterScopes(()->{
+        // Native shoot returns before Bow/Crossbow award their weapon statistic
+        // (and Crossbow criterion). A legal final-item continuation may consume
+        // that weapon, so wait for the true native action, then its private scopes.
+        LbcTmtShotCompletion.afterNativeAction(()->{
             acceptedShot(game,owner,hand,weapon,fired,family);
             game.items().tmt().bowShot(owner,hand,weapon,fired,family);
         });

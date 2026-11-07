@@ -116,7 +116,7 @@ public final class LbcTmtRuntime {
         game.items().foodLifecycle().countTmtFood(player,stack);
         for(var slot:LbcTmtAbilities.read(stack)){
             if(stack.isEmpty())break;
-            LbcTmtAbilities.invoke(stack,slot.id(),()->{nativeOwners.run();return true;});
+            LbcTmtAbilities.invoke(stack,slot.id(),()->{nativeOwners.run();LbcTmtManaPotions.consumed(game,player,stack);return true;});
         }
         game.items().foodLifecycle().finishTmtTraits(player,stack);
     }

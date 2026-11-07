@@ -412,7 +412,11 @@
     "ShulkerBowMixin$BulletAccess",
     "TmtShulkerBlockMixin",
     "TmtShulkerDropsMixin",
-    "TmtShulkerPickMixin"
+    "TmtShulkerPickMixin",
+    "TmtPotionSourceMixin",
+    "TmtShotCompletionMixin$Bow",
+    "TmtShotCompletionMixin$Crossbow",
+    "ItemCostCacheMixin"
   ],
   "injectors": {
     "defaultRequire": 1

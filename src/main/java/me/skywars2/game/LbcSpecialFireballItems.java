@@ -22,7 +22,8 @@ public final class LbcSpecialFireballItems {
             entry("imba_throwable_small_fireball","smallfireball__dff5ed11dc93"),
             entry("imba_throwable_large_fireball","bigfireball__0f6adc3f0b43"),
             entry("imba_throwable_dragon_fireball","dragfireball__409f7dfdb4f7"),
-            entry("imba_ender_pearl","minecraft","ender_pearl__db2c64fce6b9"));
+            entry("imba_ender_pearl","minecraft","ender_pearl__db2c64fce6b9"),
+            entry("impulse_dart","impulsedart__c82cc92e3e6e"));
     private LbcSpecialFireballItems(){}
     public static void register(){for(var entry:ENTRIES)net.minecraft.world.level.block.DispenserBlock.registerProjectileBehavior(entry.item());}
     static List<Entry> entries(){return ENTRIES;}

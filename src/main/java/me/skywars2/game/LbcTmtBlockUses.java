@@ -17,6 +17,7 @@ final class LbcTmtBlockUses {
     static boolean supports(Item item){return shulkerItem(item)||BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("skywars2")
             &&(item instanceof BlockItem||item instanceof LbcMarkerEggItem||item instanceof LbcPumpkinatorItem||item instanceof SpawnEggItem);}
     static Item canonical(ItemStack stack){
+        var slab=LbcLegacySlabs.canonical(stack);if(slab!=null)return slab;
         if(shulkerItem(stack.getItem()))return authoredShulker(stack)?stack.getItem():null;
         if(supports(stack.getItem()))return stack.getItem();
         var legacy=LbcImbaFollowupItems.legacyTarget(stack);if(legacy!=null&&supports(legacy))return legacy;

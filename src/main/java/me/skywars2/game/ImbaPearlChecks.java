@@ -17,7 +17,7 @@ final class ImbaPearlChecks {
     private ImbaPearlChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("IMBA pearl: "+why);}
     private static List<Entity> release(SpecialFireballChecks.Fixture f,Vec3 at,Vec3 velocity){
-        var item=LbcSpecialFireballItems.entries().getLast().item();
+        var item=LbcSpecialFireballItems.entries().stream().filter(entry->entry.id().equals("imba_ender_pearl")).findFirst().orElseThrow().item();
         var carrier=new Snowball(f.owner.level(),f.owner,new ItemStack(item));
         carrier.setPos(at);carrier.setYRot(37);carrier.setXRot(-23);carrier.setDeltaMovement(velocity);
         require(f.owner.level().addFreshEntity(carrier)&&f.service.pendingCount()==1,"legacy snowball alias enters the shared adapter");

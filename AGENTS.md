@@ -1,3 +1,17 @@
+## TMT additional domains/uniform base pools - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Evidence and required carry-forward](agent_notes/TMT_REMAINING_DOMAINS_2026_11_07.md).
+Native slabs/terrain rewind, current spawner/dart, immediate Bucks and full merchants;
+shared logical custom/vanilla/union index with one fresh TMT ticket; actual potion/shield;
+shared synchronous native shot completion preserves criterion/stat before source debit.
+Internal62aad5ba/b53eb060 on full1929bf7b parent;16 focused native suites pass.
+41 Java families/17 resources;10331 other inputs/282 author paths/HUD preserved.
+GPU atlas8variants/transparent padding control pass; author RP and Main/libs unchanged.
+Full TMT remains pending:5 meaningful legacy owners, remaining native/loose/charged
+adapters, typed pools/vanilla callers, acquisition, offline fireball edge and coherent release.
+See fresh native reconciliation and typed-pool audits. One512MiB compiler then one2GiB
+fixture; both exited. Preserve VSCode Java; do not start Main or install this partial chain.
+
 ## TMT native ranged/container/inventory domains - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Evidence and carry-forward](agent_notes/TMT_NATIVE_DOMAINS_2026_11_07.md).

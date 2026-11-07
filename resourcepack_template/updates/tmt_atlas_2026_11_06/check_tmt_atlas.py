@@ -34,7 +34,7 @@ programs = [ctx.program(vertex_shader=expand(source(vs_path, old), old),
 frame = ctx.simple_framebuffer((384, 384), components=4, dtype='f4')
 dtype = np.dtype([('pos', 'f4', 3), ('color', 'f4', 4), ('uv', 'f4', 2),
                   ('overlay', 'i4', 2), ('light', 'i4', 2), ('normal', 'f4', 3)])
-def render(program, rgba, angle=90, fade=1, light=1, offset=0, atlas=64, reverse=False, cull=False, additive=False, tint=None):
+def render(program, rgba, angle=90, fade=1, light=1, offset=0, atlas=64, reverse=False, cull=False, additive=False, tint=None, padding_rgb=None):
     buffers = []
     theta = np.radians(angle)
     model = np.array([[1, 0, 0, 0], [0, np.cos(theta), -np.sin(theta), 0],
@@ -62,6 +62,9 @@ def render(program, rgba, angle=90, fade=1, light=1, offset=0, atlas=64, reverse
         buffers.append(buffer)
     yy, xx = np.indices((atlas, atlas))
     pixels = np.stack([(xx * 17) % 256, (yy * 29) % 256, ((xx + yy) * 11) % 256, np.full_like(xx, 255)], axis=2).astype('u1')
+    if padding_rgb is not None:
+        pixels[:, :, :3] = padding_rgb
+        pixels[:, :, 3] = 0
     pixels[16:32, 16:32] = rgba
     textures = [ctx.texture((atlas, atlas), 4, pixels.tobytes()),
                 ctx.texture((1, 1), 4, bytes([80, 90, 100, 255])),
@@ -119,6 +122,14 @@ for offset in (0,4,12):
     assert np.allclose(reference, render(programs[0], carrier, tint=(250,12,34), offset=offset), atol=1e-6)
 assert np.allclose(reference, render(programs[0], carrier, tint=(250,12,34)), atol=1e-6)
 assert not np.allclose(reference, render(programs[0], carrier, tint=(250,12,35)), atol=1e-6)
+# Padding RGB must never bleed into a collage: only opaque source texels may paint.
+# Keep the genuine carrier opaque while changing exclusively invisible source RGB.
+for seed in (0, 3, 5, 9, 34, 65535):
+    tint = (250, seed >> 8, seed & 255)
+    empty_magenta = render(programs[0], carrier, tint=tint, padding_rgb=(255, 0, 255))
+    empty_green = render(programs[0], carrier, tint=tint, padding_rgb=(0, 255, 0))
+    assert np.allclose(empty_magenta, empty_green, atol=1e-6), ('transparent source RGB leaked', seed)
+    assert np.isfinite(empty_magenta).all() and np.max(empty_magenta[:, :, 3]) == 1
 for angle in (90,45,15,-15,-45,-90):
     image = render(programs[0], carrier, tint=(250,12,34), angle=angle)
     assert np.isfinite(image).all() and np.max(image[:,:,3]) == 1
@@ -172,6 +183,7 @@ result=dict(passed=True, renderer=ctx.info['GL_RENDERER'], compiledLinkedVariant
             nativeQuadOffsets=[0,4,12], testedAngles=[90,45,15,-15,-45,-90],
             authorShaderHashesUnchanged=True, weightedResolutionSeedCounts=resolution_counts,
             cpuGpuResolutionAgreementSeeds=65536, resolutionVisualSamples=resolution_visuals,
+            transparentSourceRgbIgnoredSeeds=[0,3,5,9,34,65535],
             maximumCollageFetches=8,
             assetSha256={str(p.relative_to(HERE)).replace(chr(92),'/'):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((HERE/'assets').rglob('*')) if p.is_file()},
             limitation='Standalone GPU with synthetic atlas/native shader includes; no live Minecraft GUI/hand/drop capture or frame-time benchmark.')

@@ -69,6 +69,12 @@ final class LbcTmtUseProfiles {
                 canonical++;var row=value.getAsJsonObject();var id=Identifier.parse(row.get("item").getAsString());
                 if(!Set.of("skywars2","minecraft").contains(id.getNamespace())||!BuiltInRegistries.ITEM.containsKey(id)){missing.add(id.toString());continue;}
                 var stack=BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1);
+                if(row.has("components")){
+                    var parsed=net.minecraft.core.component.DataComponentPatch.CODEC.parse(
+                            game.server().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),row.get("components"));
+                    if(parsed.error().isPresent()){rejected.add(id+" unsupported literal payload: "+parsed.error().get().message());continue;}
+                    stack.applyComponents(parsed.getOrThrow());
+                }
                 var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
                 // Native defaults and proper SNBT preserve string selectors, compounds and lists.
                 for(var raw:row.getAsJsonArray("data"))if(!raw.isJsonNull())
@@ -87,9 +93,8 @@ final class LbcTmtUseProfiles {
         for(var family:families){
             int index=Integer.MAX_VALUE;
             for(var variant:family.variants){
-                var data=variant.data().copyTag();var nativeId=Identifier.parse(data.getStringOr(NATIVE_ITEM,"minecraft:air"));
-                var prototype=BuiltInRegistries.ITEM.getValue(nativeId).getDefaultInstance().copyWithCount(1);
-                prototype.set(DataComponents.CUSTOM_DATA,variant.data());
+                // Native admission/order may depend on the full private payload (notably potion doses).
+                var prototype=LbcTmtComponents.source(game,variant);
                 index=Math.min(index,inputOrder(prototype));
             }
             order.put(family.id,index);
@@ -167,7 +172,8 @@ final class LbcTmtUseProfiles {
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         data.remove(LbcTmtAbilities.SLOTS);data.remove(LbcTmtAbilities.ACTIVE);data.remove("tmt_item");data.remove("tmt_texture_seed");
         LbcTmtComponents.capture(game,source,stack.getItem(),data);
-        String family=LbcTmtNativeThrows.wool(stack)?"wool_trail":family(nativeId,data),id=PREFIX+digest(family);data.putString(NATIVE_ITEM,nativeId);
+        String potionFamily=LbcTmtManaPotions.family(stack);
+        String family=potionFamily!=null?potionFamily:LbcTmtNativeThrows.wool(stack)?"wool_trail":family(nativeId,data),id=PREFIX+digest(family);data.putString(NATIVE_ITEM,nativeId);
         var ability=new LbcTmtAbilities.Ability(id,CustomData.of(data));
         // Full typed payload and native identity determine variants; acquisition count/style never enters this key.
         collected.computeIfAbsent(family,ignored->new LinkedHashMap<>()).putIfAbsent(canonical(ability.data().copyTag()),ability);

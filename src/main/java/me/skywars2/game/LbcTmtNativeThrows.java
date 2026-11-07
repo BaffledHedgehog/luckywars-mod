@@ -3,10 +3,11 @@ package me.skywars2.game;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-/** Native snowball factories already own permission, aim, source capture, sound and debit. */
+/** Native utility factories own permission, source capture and debit, including immediate RMB consumables. */
 final class LbcTmtNativeThrows {
     private LbcTmtNativeThrows(){}
     static Item canonical(ItemStack stack){
+        if(LbcBucksTrader.matches(stack))return LbcBucksTrader.TOKEN;
         var color=LbcBalanceExtras.woolColor(stack);
         if(color!=null)return LbcWoolTrailItems.tokens().get(color);
         var thrown=LbcThrownUtilities.kind(stack);

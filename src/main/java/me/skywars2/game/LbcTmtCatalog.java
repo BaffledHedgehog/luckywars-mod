@@ -32,7 +32,7 @@ import net.minecraft.world.item.component.CustomData;
 final class LbcTmtCatalog {
     enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON, CRAFT }
     enum Location { USED_HAND, MAIN_HAND, INVENTORY, EQUIPPED, AMMUNITION, LOOSE_ITEM, CRAFT_GRID }
-    enum Disposition { EXCLUDED_SERVICE, PENDING_NATIVE_DOMAIN, PENDING_COMPONENT_ADAPTER, MISSING_NATIVE_ITEM, LEGACY_OWNER_GAP }
+    enum Disposition { EXCLUDED_SERVICE, EXCLUDED_INERT_KEY, PENDING_NATIVE_DOMAIN, PENDING_COMPONENT_ADAPTER, MISSING_NATIVE_ITEM, LEGACY_OWNER_GAP }
 
     record Family(String id,String name,List<LbcTmtAbilities.Ability> variants,Set<Event> events,
                   Set<Location> locations,List<String> owners) {
@@ -45,7 +45,7 @@ final class LbcTmtCatalog {
     record Finding(String item,String source,Disposition disposition,String reason) {}
     record Domains(int registeredItems,int canonicalPrototypes,int families,int variants,List<Finding> findings) {
         Domains { findings=List.copyOf(findings); }
-        boolean hasPending(){return findings.stream().anyMatch(row->row.disposition()!=Disposition.EXCLUDED_SERVICE);}
+        boolean hasPending(){return findings.stream().anyMatch(row->row.disposition()!=Disposition.EXCLUDED_SERVICE&&row.disposition()!=Disposition.EXCLUDED_INERT_KEY);}
     }
     private record Rule(String family,String owner,Set<Event> events,Set<Location> locations) {}
     private record Trinket(String identity,Event event) {}
@@ -96,6 +96,10 @@ final class LbcTmtCatalog {
                 all.get(family.id()).owners.add("LbcImbaAxe/LbcTmtTools");
             }
             if(LbcTmtBlockUses.supports(LbcTmtComponents.nativeItem(ability.data()))){all.get(family.id()).events.add(Event.BLOCK);all.get(family.id()).owners.add("LbcTmtBlockUses/native factory");}
+            if(LbcTmtShield.candidate(LbcTmtComponents.source(game,ability))){
+                all.get(family.id()).events.add(Event.USING);all.get(family.id()).events.add(Event.INCOMING);
+                all.get(family.id()).owners.add("Native BlocksAttacks/LbcTmtShield");
+            }
             knownInputs.add(canonical(originalAbility.data().copyTag()));
         }
         for(var profile:LbcWands.tmtAbilities()){
@@ -215,6 +219,7 @@ final class LbcTmtCatalog {
         }
         if(LbcTmtUseProfiles.commonWand(stack))return;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        LbcTmtNativeIdentities.normalize(stack,data);
         // These native consume owners accept identity as well as legacy flags.
         if(stack.is(LbcKfcFood.KFC_CHICK))data.putInt("kfc_chick",1);
         if(stack.is(LbcKfcFood.GOVNO_EATEN))data.putInt("eat_shit",1);
@@ -240,6 +245,16 @@ final class LbcTmtCatalog {
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"TMT transport/acquisition is not a recursively sampled property");return;
         }
 
+        if(LbcTmtManaPotions.delivery(stack)==LbcTmtManaPotions.Delivery.DRINK){
+            String family=LbcTmtManaPotions.family(stack),id="native/"+family;
+            var events=EnumSet.of(Event.CONSUME);var locations=EnumSet.of(Location.USED_HAND);
+            if(LbcSheep.potion(stack)){events.add(Event.INVENTORY);events.add(Event.DROP);locations.add(Location.INVENTORY);locations.add(Location.LOOSE_ITEM);}
+            add(all,id,family,ability(id,nativeId,data),new Rule(family,"Native PotionContents.onConsume/LbcTmtManaPotions/LbcSheep",events,locations));return;
+        }
+        if(stack.is(LbcMana.MANA_POTION)||stack.is(LbcMana.MANA_SPLASH_POTION)||stack.is(LbcMana.MANA_LINGERING_POTION)){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
+                    "Dose-free native potion transport has no independent effect; actual authored PotionContents doses are sampled through their native drink/splash/lingering domains");return;
+        }
         String trinket=data.getStringOr("trinket","");
         if(!trinket.isEmpty()){
             Trinket admitted=null;
@@ -327,6 +342,10 @@ final class LbcTmtCatalog {
                     "LbcAcademy owns a real loose-item structure placement/acquisition operation; it requires its DROP/LOOSE_ITEM event and is not an inert service token or a held-use ability");return;
         }
         var keys=new TreeSet<String>(data.keySet());keys.removeAll(SERVICE);keys.removeIf(key->key.startsWith("tmt_"));
+        if(!keys.isEmpty()&&Set.of("wisp_air","wisp_fire","wisp_light","wisp_nature","wisp_shadow","wisp_water").containsAll(keys)){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_INERT_KEY,
+                    "Source-inert TMT item fields "+keys+": exhaustive lbc/lbcr item-data and dynamic-dispatch audit finds no reader; separate companion ENTITY tags do not activate from these fields (TMT_WISP_REACHABILITY_2026_11_07)");return;
+        }
         // Identity-only drops, arrows, placeables and collectible outputs can have no
         // custom data. An empty payload is not proof of an inert item.
         if(keys.isEmpty()&&nativeId.getNamespace().equals("minecraft")){
@@ -400,6 +419,8 @@ final class LbcTmtCatalog {
         flags(result,"LbcIceMaterials",Event.INVENTORY,Location.INVENTORY,"runic_ice_shard");
         flags(result,"LbcIceMaterials",Event.HELD,Location.USED_HAND,"neutral_ball");
         flags(result,"LbcClownKit",Event.EQUIPMENT,Location.EQUIPPED,"clown_mask");
+        flags(result,"LbcAimbobRewards",Event.EQUIPMENT,Location.EQUIPPED,"night_vision");
+        result.put("dynamite",rule("dynamite_chestplate","LbcBalanceExtras",Event.INCOMING,Location.EQUIPPED));
         flags(result,"LbcMana/LbcOverload",Event.EQUIPMENT,Location.EQUIPPED,"mage","overload");
         result.put("explosive_feets",new Rule("explosive_feets","LbcItems/RocketState",Set.of(Event.EQUIPMENT,Event.JUMP),Set.of(Location.EQUIPPED)));
         flags(result,"LbcNexusWires",Event.INVENTORY,Location.INVENTORY,"nexus_wire_red","nexus_wire_black");

@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:birch_slab",
+          "name": "skywars2:cum_slab",
           "modifier": [
             {
               "type": "minecraft:set_count",
