@@ -1,3 +1,35 @@
+## Author release preference - hold ALL fixes until next stable patch (7 November2026)
+
+User explicitly says the server is only for tests: no separate hotfixes, even for
+serious reported bugs. Keep fixes for the next stable release. Supersedes earlier
+isolated crash/chunk hotfix scheduling. Installer18520 was cancelled after identity
+validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b removed.
+Do not restart or replace Main for HUD/Imprinted/new feedback independently.
+Existing crash/chunk fixes remain committed/internal and must carry into stable.
+
+## Legacy HUD and personal Imprinted return - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Internal d990f817/c4507081 over FULL27f9e2af/dacd3889:9 Java families,0 resources.
+Four native suites pass: legacy-hud, imprinted-return, attribute-food, hedgehog-dimensions.
+Actual900-active-tick visits with staggered entries, TimeStop pause, same-world teleport,
+same-tick exit/reentry and missing persisted counter are proven. Source Troll Box's
+global45s return removed; its90s repeat/gravity remain. Existing dimension projection
+hook also initializes/clears a per-player native score; no NBT polling or second timer map.
+Author LbcHudIcons/LbcHudIconChecks integrated UNCHANGED; only E100..E2FF glyphs use
+#4E5C24. Actual actionbar packets prove15 restored counter rows with original prefixes
+and independent number colors. cold_cd stays hidden; existing ghosting is not duplicated.
+Native existing food test proves roll4 can enter Imprinted. Old HedgehogDimensionChecks
+still expected Nexus no-op before confirmed7d30ae0da; now checks outbound map and actual
+exit plus new personal counter lifecycle. Production destination choices were unchanged.
+Proof build/verification/hud-imprinted-2026-11-07/component-verification.json; one512MiB
+compiler then one1280MiB fixture, normal exit/exact restore/no locks. Final fixture25576;
+earlier25577 bind failed before gameplay. Parent in-memory-bot Polymer context warning
+is recorded separately from passing suite/cleanup results.282 author paths preserved.
+Main remains83b0ea27, NO install queued. Hold until stable per explicit preference above.
+Source audit records unported shadow_wisp_charge producer/progress and independent
+effect_dimshifting special-arrow consumer; restoring a HUD row is not a new effect engine.
+Full TMT remains active; retain parent outstanding scope and all prior internal patches.
+
 ## Central initial chunks and gallery startup crash - VERIFIED HOTFIX (7 November2026)
 
 Author reported missing central lobby/match chunks until far teleport and startup crash.
@@ -20,11 +52,10 @@ and new queue mixin families plus mixin registration change; all other installed
 entries/protocol fix preserved, NO unreleased TMT/catalog changes. Native installed-base
 queue and bulk600 probes pass (separate bridge test artifact). Qualification:
 build/verification/initial-chunks-gallery-2026-11-07/main-hotfix-qualification.json.
-Queue via existing install_when_stopped.py after normal main stop only; never kill/restart
-main or change its live JAR. Check main-install.json for actual waiting/installed status.
-After install Main SHA becomes e4e1ca7b..., not83b0ea27; future TMT staging must validate
-that explicit receipt before adopting the new Main baseline, and keep full27f9e2af as
-internal carry-forward. Full TMT still active/gated. Physical client reconnect unverified.
+That isolated installer was CANCELLED at the author's explicit hold-until-stable request.
+main-install.json records cancelled-by-author-hold-until-stable; Main remains83b0ea27.
+Do not queue e4e1ca7b or adopt it as the installed baseline. Keep full27f9e2af (now carried
+by d990f817) internally. Full TMT still active/gated. Physical client reconnect unverified.
 
 ## Current native component capabilities - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 

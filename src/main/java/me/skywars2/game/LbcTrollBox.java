@@ -158,7 +158,7 @@ public final class LbcTrollBox {
             boolean admitting=!game.vanity().capturePreparing();
             if(admitting&&darkness!=null&&!paused(darkness)){
                 if(gravityLeft>0)--gravityLeft;if(gravityLeft==0)clearGravity(false);
-                if(++darkClock==900)for(var player:darknessTargets())transfer(player,game.server().getLevel(Level.OVERWORLD),darkness,"minecraft:block.portal.travel",1);
+                ++darkClock; // Every Imprinted visitor now owns their own return deadline.
                 if(darkClock>=1800){darkClock=0;enterDarkness();}
             }
             // The source one-second grid exists before these globals are enabled; activation

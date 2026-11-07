@@ -17,6 +17,8 @@ import net.minecraft.world.phys.Vec3;
 /** Native legacy destinations: the map itself is the actual Overworld. */
 public final class LbcHedgehogDimensions {
     static final ResourceKey<Level> NEXUS=key("minecraft:nexus"), IMPRINTED=key("minecraft:imprinted");
+    static final String RETURN_COUNTER="imprinted_return";
+    static final int RETURN_TICKS=45*20;
     private final GameController game;
     public LbcHedgehogDimensions(GameController game){this.game=game;}
     private static ResourceKey<Level> key(String id){return ResourceKey.create(Registries.DIMENSION,Identifier.parse(id));}
@@ -32,6 +34,36 @@ public final class LbcHedgehogDimensions {
         return null;
     }
     private ServerLevel world(ResourceKey<Level> key){return game.server().getLevel(key);}
+    /** Residence belongs to the player, regardless of the ability that brought them here. */
+    public void changedWorld(ServerPlayer player,ServerLevel from,ServerLevel to){
+        if(from==to||game.server().tickRateManager().isFrozen())return;
+        var mana=game.items().mana();
+        if(to.dimension().equals(IMPRINTED))mana.score(player,RETURN_COUNTER).set(RETURN_TICKS);
+        else if(mana.hudValue(player,RETURN_COUNTER)>0)mana.score(player,RETURN_COUNTER).set(0);
+    }
+    void tickReturns(){
+        if(!game.server().tickRateManager().runsNormally())return;
+        var mana=game.items().mana();
+        for(var player:game.server().getPlayerList().getPlayers()){
+            int left=mana.hudValue(player,RETURN_COUNTER);
+            if(!player.level().dimension().equals(IMPRINTED)){
+                if(left>0)mana.score(player,RETURN_COUNTER).set(0);
+                continue;
+            }
+            if(!player.isAlive()||player.isRemoved())continue;
+            // Also covers logins already in this dimension and teleports during native freeze.
+            if(left<=0){mana.score(player,RETURN_COUNTER).set(RETURN_TICKS);continue;}
+            if(game.items().timeStop().stopped(player.level()))continue;
+            if(left>1){mana.score(player,RETURN_COUNTER).set(left-1);continue;}
+            var overworld=game.server().overworld();
+            var arrival=player.teleport(new TeleportTransition(overworld,player.position(),player.getDeltaMovement(),
+                    player.getYRot(),player.getXRot(),TeleportTransition.DO_NOTHING));
+            if(arrival!=null){
+                mana.score(player,RETURN_COUNTER).set(0);
+                LbcOverload.sound(overworld,player.position(),"minecraft:block.portal.travel",1,1,32,0);
+            }
+        }
+    }
     boolean teleport(LivingEntity target,ServerPlayer owner,int roll){
         return transfer(target,owner,roll)!=null;
     }

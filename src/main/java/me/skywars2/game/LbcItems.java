@@ -737,16 +737,30 @@ public final class LbcItems {
         hudPositive(component,"  \uE121 ",electro.shocks(source),ChatFormatting.RED);
         hudPositive(component,"  \uE122 ",homing.curseSeconds(source),ChatFormatting.RED);
         hudPositive(component," \uE123 ",psycho.hudValue(source,"twitching"),ChatFormatting.RED);
+        hudPositive(component,"  \uE125 ",mana.hudValue(source,"dimensional_shifting"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE126 ",mana.hudValue(source,"void_resistance"),ChatFormatting.GREEN);
+        hudPositive(component,"  \uE127 ",mana.hudValue(source,"all_seeing_eye"),ChatFormatting.GREEN);
+        hudPositive(component,"  \uE128 ",mana.hudValue(source,"living_legend"),ChatFormatting.GREEN);
         hudPositive(component,"  \uE129 ",curseTicks(source),ChatFormatting.RED);
         hudPositive(component,"  \uE162 ",pendingCombat.curseSeconds(source),ChatFormatting.RED);
         // Overheaven is authored as matches remaining, not an elapsed-time estimate.
         hudPositive(component,"  \uE131 ",mana.hudValue(source,"overheaven"),ChatFormatting.GREEN);
         hudPositive(component,"  \uE135 ",kfcFood.gigaponosRemaining(source),ChatFormatting.WHITE);
+        hudPositive(component,"  \uE136 ",mana.hudValue(source,"sprint_cooldown"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE168 ",deus.cooldown(source),ChatFormatting.GOLD);
+        hudPositive(component,"  \uE140 ",mana.hudValue(source,"effect_explosion"),ChatFormatting.RED);
+        hudPositive(component,"  \uE141 ",mana.hudValue(source,"effect_big_explosion"),ChatFormatting.RED);
+        hudPositive(component,"  \uE143 ",mana.hudValue(source,"effect_traps"),ChatFormatting.RED);
+        hudPositive(component,"  \uE149 ",mana.hudValue(source,"effect_dimshifting"),ChatFormatting.WHITE);
+        hudPositive(component,"  \uE150 ",mana.hudValue(source,"effect_witch_gens_reset"),ChatFormatting.RED);
+        hudPositive(component,"  \uE151 ",mana.hudValue(source,"effect_hedgehog_boom"),ChatFormatting.RED);
+        hudPositive(component,"  \uE152 ",mana.hudValue(source,"effect_stand_arrow_hit"),ChatFormatting.RED);
+        hudPositive(component,"  \uE153 ",mana.hudValue(source,"effect_nuking"),ChatFormatting.RED);
         hudPositive(component,"  \uE154 ",mana.hudValue(source,"effect_vacuum"),ChatFormatting.RED);
         hudPositive(component,"  \uE155 ",mana.hudValue(source,"effect_timestop"),ChatFormatting.RED);
+        hudPositive(component,"  \uE156 ",mana.hudValue(source,"effect_shock_potion"),ChatFormatting.WHITE);
         mana.appendHudManaStatuses(source,component);
+        hudPositive(component,"  \uE161 ",mana.hudValue(source,"effect_snus"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE166 ",godClaw.score(source),ChatFormatting.DARK_PURPLE);
         hudPositive(component,"  \uE167 ",expansionSkill.score(source),ChatFormatting.GOLD);
         var touhou=touhouCollectibles.counters(source);
@@ -760,6 +774,7 @@ public final class LbcItems {
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_1"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_2"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_3"),ChatFormatting.WHITE);
+        hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_4"),ChatFormatting.WHITE);
         var rocket=rockets.get(source.getUUID());
         if(rocket!=null) component.append(rocketHudComponent(rocket));
         int akAmmo=akAmmoHudValue(source);
@@ -793,7 +808,7 @@ public final class LbcItems {
         if(polymorph.masked(source)||!mana.visible(source)) { clearHud(viewer); return; }
         UUID viewerId=viewer.getUUID();
         // Compare the actual row so a newly added status cannot be omitted from cache invalidation.
-        var content=hud(source);
+        var content=LbcHudIcons.mark(hud(source));
         var old=hudStates.get(viewerId); int now=game.server().getTickCount(); UUID sourceId=source.getUUID();
         if(old!=null && old.source().equals(sourceId) && old.content().equals(content) && now-old.sentAt()<20) return;
         viewer.connection.send(new ClientboundSetActionBarTextPacket(content));
@@ -2180,6 +2195,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
+        hedgehogDimensions.tickReturns();
         steampunkRocket.tick();trollBox.tick();
         reactiveTrinkets.tick();rainbowAura.tick(game.matchTicks(),Math.floorMod(game.matchTicks(),100));psychblindSkill.tick();projectileLevelups.tick();badApple.tick();bridgeBuilder.tick();cinema.tick();mellstroy.tick();mellstroyCrafting.tick();cunny.tick();
         for(var player:game.server().getPlayerList().getPlayers())LbcParasite.beforeEffects(player);

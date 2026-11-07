@@ -37,7 +37,8 @@ public final class HedgehogDimensionChecks {
                 &&dimensions.destination(end,3)==nexus&&dimensions.destination(end,4)==imprinted,"End exact four destinations");
         require(dimensions.destination(imprinted,1)==nether&&dimensions.destination(imprinted,2)==end
                 &&dimensions.destination(imprinted,3)==nexus&&dimensions.destination(imprinted,4)==arena,"Imprinted exact four destinations");
-        for(int roll=1;roll<=4;roll++)require(dimensions.destination(nexus,roll)==null,"Nexus source no-op retained");
+        require(dimensions.destination(nexus,1)==arena&&dimensions.destination(nexus,2)==nether
+                &&dimensions.destination(nexus,3)==end&&dimensions.destination(nexus,4)==imprinted,"confirmed Nexus outbound destinations");
         var saved=new GameChecks.WandThirdPlayerState(victim,game.items().mana());
         var originalLevel=victim.level();
         var initial=owner.position().add(24,3,24);float yaw=37,pitch=-19;
@@ -54,10 +55,12 @@ public final class HedgehogDimensionChecks {
             close(victim.getX(),initial.x,"roundtrip coordinate scaling");
             require(dimensions.teleport(victim,owner,2)&&victim.level()==end,"actual End transfer");
             require(dimensions.teleport(victim,owner,4)&&victim.level()==imprinted,"actual Imprinted transfer");
+            require(game.items().mana().hudValue(victim,LbcHedgehogDimensions.RETURN_COUNTER)==900,"native arrival initializes personal return");
             var chunk=imprinted.getChunkAt(victim.blockPosition());
             require(chunk.getBlockState(new BlockPos(victim.getBlockX(),-16,victim.getBlockZ())).is(Blocks.BEDROCK)
                     &&chunk.getBlockState(new BlockPos(victim.getBlockX(),-12,victim.getBlockZ())).isAir(),"actual Imprinted source flat layers generated");
             require(dimensions.teleport(victim,owner,4)&&victim.level()==arena,"actual Imprinted to arena return");
+            require(game.items().mana().hudValue(victim,LbcHedgehogDimensions.RETURN_COUNTER)==0,"native exit clears personal return");
             victim.entityTags().add("strict_map_object");
             try{require(!dimensions.teleport(victim,owner,1)&&victim.level()==arena,"protected role cannot be moved");}
             finally{victim.entityTags().remove("strict_map_object");}
@@ -69,7 +72,8 @@ public final class HedgehogDimensionChecks {
                         &&victim.getZ()>=-4800&&victim.getZ()<=4800&&victim.getX()==Math.rint(victim.getX())
                         &&victim.getZ()==Math.rint(victim.getZ()),"Nexus exact integer RTP bounds and height");
                 require(!gravity.hasModifier(anti),"Nexus RTP removes only authored antigravity modifier");
-                var point=victim.position();require(!dimensions.teleport(victim,owner,1)&&victim.level()==nexus&&victim.position().equals(point),"actual Nexus no-op");
+                var point=victim.position();require(dimensions.teleport(victim,owner,1)&&victim.level()==arena,"actual confirmed Nexus exit");
+                close(victim.getX(),point.x,"Nexus exit x");close(victim.getY(),point.y,"Nexus exit y");close(victim.getZ(),point.z,"Nexus exit z");
             }finally{gravity.removeModifier(anti);}
             cow=new Cow(EntityTypes.COW,arena);cowId=cow.getUUID();cow.setNoAi(true);cow.setNoGravity(true);
             cow.setPos(initial);cow.setCustomName(net.minecraft.network.chat.Component.literal("Hedgehog dimension fixture"));
