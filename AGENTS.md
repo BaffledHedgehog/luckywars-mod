@@ -1,3 +1,13 @@
+## TMT native throw factories - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Evidence and carry-forward](agent_notes/TMT_NATIVE_THROWS_2026_11_07.md).
+Real registered snowball Item.use factories; canonical legacy inputs and actual native owners.
+Sixteen wool colors share one lottery family; shared source alphabetical selector retained.
+Mixed wool/bucket native factory launch and full coordinator source-context replay pass.
+Internal3f76765b/9d6f7172 on fullf60e4685 parent;8 actual mode1 matches pass.
+6 Java families/0 resources;10339 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Remaining domains/acquisition/full TMT release pending.
+
 ## TMT native passive-domain additions - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Evidence and carry-forward](agent_notes/TMT_PASSIVE_DOMAIN_2026_11_07.md).

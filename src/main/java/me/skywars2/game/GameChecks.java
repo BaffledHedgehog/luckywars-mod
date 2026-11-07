@@ -1379,6 +1379,7 @@ public final class GameChecks {
                                 case "tmt-drops" -> { TmtDropChecks.run(game); return; }
                                 case "tmt-intake" -> { TmtIntakeChecks.run(game); return; }
                                 case "tmt-passives" -> { TmtPassiveChecks.run(game); return; }
+                                case "tmt-native-throws" -> { TmtNativeThrowChecks.run(game); return; }
                                 case "tmt-ammo-rewind" -> { TmtAmmoRewindChecks.run(game); return; }
                                 case "tmt-extra-use" -> { TmtExtraUseChecks.run(game); return; }
                                 case "entity-protocol" -> { EntityProtocolChecks.run(game); return; }
@@ -1680,6 +1681,7 @@ public final class GameChecks {
             IndividualNameplateChecks.tick(game);TimeFragmentSprintChecks.tick(game);
             TmtIntakeChecks.tick(game);
             TmtPassiveChecks.tick(game);
+            TmtNativeThrowChecks.tick(game);
             ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);TmtDropChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
             CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);

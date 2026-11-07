@@ -27,8 +27,8 @@ final class LbcTmtBlockUses {
         return null;
     }
     private static Item selected(ItemStack stack){var item=LbcTmtAbilities.nativePredicatesActive()?LbcTmtAbilities.nativePredicateItem(stack):null;return item==null?stack.getItem():item;}
-    static boolean airCandidate(ItemStack stack){var item=selected(stack);return supports(item)&&!(item instanceof BlockItem);}
-    static boolean air(GameController game,ServerPlayer player,InteractionHand hand){var item=selected(player.getItemInHand(hand));return supports(item)&&!(item instanceof BlockItem)&&item.use(player.level(),player,hand).consumesAction();}
+    static boolean airCandidate(ItemStack stack){var item=selected(stack);return supports(item)&&!(item instanceof BlockItem)||LbcTmtNativeThrows.canonical(stack)==item;}
+    static boolean air(GameController game,ServerPlayer player,InteractionHand hand){var stack=player.getItemInHand(hand);var item=selected(stack);return (supports(item)&&!(item instanceof BlockItem)||LbcTmtNativeThrows.canonical(stack)==item)&&item.use(player.level(),player,hand).consumesAction();}
     static int use(GameController game,UseOnContext context){
         if(!(context.getPlayer() instanceof ServerPlayer player))return 0;var stack=context.getItemInHand();int accepted=0;
         for(var property:LbcTmtAbilities.read(stack)){

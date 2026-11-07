@@ -33,6 +33,11 @@ final class LbcBalanceExtras {
     private static final AttachmentType<CompoundTag> TRAIL_CAUSE=AttachmentRegistry.create(
             Identifier.parse("skywars2:wool_trail_cause"),builder->builder.persistent(CompoundTag.CODEC));
     private final Map<Snowball,Trail> bridges=new IdentityHashMap<>();
+    static DyeColor woolColor(ItemStack stack){
+        if(!LbcWoolTrailItems.matches(stack))return null;
+        for(var color:SOURCE_COLORS)if(ItemData.intValue(stack,color.name().toLowerCase(Locale.ROOT),0)==1)return color;
+        return null;
+    }
     private LbcBalance.WoolPolicy woolPolicy=new LbcBalance.WoolPolicy(){};
     private final Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Entity> luckyMarkers=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -85,9 +90,7 @@ final class LbcBalanceExtras {
         if(body instanceof Snowball snowball&&!bridges.containsKey(snowball)){
             var data=LbcFartus.data(snowball.getItem());
             if(data.getIntOr("projegadget",0)==1){
-                boolean most=data.getIntOr("most",0)==1;DyeColor color=null;
-                if(data.getIntOr("wool",0)==1)for(var candidate:SOURCE_COLORS)
-                    if(data.getIntOr(candidate.name().toLowerCase(Locale.ROOT),0)==1){color=candidate;break;}
+                boolean most=data.getIntOr("most",0)==1;DyeColor color=woolColor(snowball.getItem());
                 if(most||color!=null){
                     LbcIndirectKills.Owner cause=null;var saved=snowball.getAttached(TRAIL_CAUSE);
                     if(saved!=null){try{cause=game.items().indirectKills().restoreColdCause(UUID.fromString(saved.getStringOr("author","")),saved.getLongOr("order",0),true);}catch(IllegalArgumentException invalid){return;}}

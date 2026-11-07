@@ -159,7 +159,7 @@ final class LbcTmtUseProfiles {
     private static boolean add(GameController game,ItemStack stack,Predicate<ItemStack> candidate,
             Map<String,LinkedHashMap<String,LbcTmtAbilities.Ability>> collected,Set<String> rejected,Set<String> existing) {
         if(stack.isEmpty())return false;
-        var source=stack;var block=LbcTmtBlockUses.canonical(stack);if(block!=null&&block!=stack.getItem())stack=stack.transmuteCopy(block);
+        var source=stack;var block=LbcTmtBlockUses.canonical(stack);if(block==null)block=LbcTmtNativeThrows.canonical(stack);if(block!=null&&block!=stack.getItem())stack=stack.transmuteCopy(block);
         String nativeId=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         if(commonWand(stack)){existing.add(nativeId);return false;}
         // Classification only: never invoke Item.use or an owner with a synthetic player/stack here.
@@ -167,7 +167,7 @@ final class LbcTmtUseProfiles {
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         data.remove(LbcTmtAbilities.SLOTS);data.remove(LbcTmtAbilities.ACTIVE);data.remove("tmt_item");data.remove("tmt_texture_seed");
         LbcTmtComponents.capture(game,source,stack.getItem(),data);
-        String family=family(nativeId,data),id=PREFIX+digest(family);data.putString(NATIVE_ITEM,nativeId);
+        String family=LbcTmtNativeThrows.wool(stack)?"wool_trail":family(nativeId,data),id=PREFIX+digest(family);data.putString(NATIVE_ITEM,nativeId);
         var ability=new LbcTmtAbilities.Ability(id,CustomData.of(data));
         // Full typed payload and native identity determine variants; acquisition count/style never enters this key.
         collected.computeIfAbsent(family,ignored->new LinkedHashMap<>()).putIfAbsent(canonical(ability.data().copyTag()),ability);
