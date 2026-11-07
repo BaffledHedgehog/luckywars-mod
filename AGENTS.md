@@ -1,3 +1,22 @@
+## Current native component capabilities - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+TMT now independently samples actual current GLIDER/UNBREAKABLE/DAMAGE_RESISTANT/TOOL
+values from registered items and literal canonical prototypes, beyond legacy flag readers.
+One semantic family per component; equal values deduplicate aliases; typed private patches
+retain non-default values. No source-item identity is borrowed for a component property:
+it cannot accidentally activate the source item's other abilities. Generator copies only
+four selected native components, preserving carrier/equipment/food/name/stats/private siblings.
+Native vanilla movement/mining/wear/item-damage consumers run normally, no added tick scan.
+Internal81217222/460971a6 over fullcf398e67:5 native suites pass,5families/0resources.
+Twenty actual carrier/slot combinations, every current registered component value, codec,
+native glide/correct-drop/mining/fire resistance/unbreakable wear and real generator pass.
+Main/libs/RP/282authorpaths/HUD/fourWIP remain exact; children exited/restored/no locks.
+Proof: build/verification/tmt-native-components-2026-11-07/component-verification.json.
+This supersedes the prior uncompiled LbcTmtEquipment draft note. Full TMT remains ACTIVE,
+not released: other current native capabilities, source alias reconciliation, Troll Box
+outcomes2..6/active terrain/full replay, unloaded rocket edge, acquisition/atlas/final chain
+still need work. Legacy generators are a minimum, never an exhaustive current ability list.
+
 ## Three missing gadget owners - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Native Gayradar, steampunk rocket and Troll Box factories now join TMT and source loot.

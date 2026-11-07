@@ -122,7 +122,7 @@ public final class LbcTmtRuntime {
     }
     ItemStack generate(RandomSource random,List<LbcTmtAbilities.Ability> draws){
         if(generator==null)generator=new LbcTmtProperties(game.maps().level());
-        var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);return result;
+        var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtEquipment.apply(game,result);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);return result;
     }
     public ItemStack generate(RandomSource random){return generate(random,catalog().drawSeven(random));}
     LbcTmtCatalog catalog(){if(catalog==null)catalog=new LbcTmtCatalog(game,useProfiles());return catalog;}

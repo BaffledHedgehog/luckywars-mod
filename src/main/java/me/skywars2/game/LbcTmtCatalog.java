@@ -200,6 +200,17 @@ final class LbcTmtCatalog {
                                 Map<String,Finding> findings){
         if(stack.isEmpty())return;
         var nativeId=BuiltInRegistries.ITEM.getKey(stack.getItem());
+        boolean composedComponent=false;
+        for(var property:LbcTmtEquipment.PROPERTIES)if(property.present(stack)){
+            composedComponent=true;
+            var payload=LbcTmtEquipment.capture(game,stack,property);String id=property.id();
+            var existing=all.get(id);var literal=payload.get(LbcTmtEquipment.KEY);
+            // Native identity/style/count aliases do not add lottery weight or duplicate identical values.
+            if(existing!=null&&existing.variants.values().stream().anyMatch(v->literal.equals(v.data().copyTag().get(LbcTmtEquipment.KEY))))continue;
+            var events=property.name().equals("glider")?Set.of(Event.EQUIPMENT):property.name().equals("tool")?Set.of(Event.MINING):property.name().equals("damage_resistant")?Set.of(Event.DROP):Set.of(Event.MINING,Event.MELEE,Event.EQUIPMENT);
+            var locations=property.name().equals("glider")?Set.of(Location.EQUIPPED):property.name().equals("damage_resistant")?Set.of(Location.LOOSE_ITEM):Set.of(Location.MAIN_HAND,Location.EQUIPPED);
+            add(all,id,"component/"+property.name(),new LbcTmtAbilities.Ability(id,CustomData.of(payload)),new Rule("","Native stack component/"+property.name(),events,locations));
+        }
         boolean nativeTool=false;
         for(var tool:LbcNativeToolItems.Kind.values())if(stack.is(tool.item)){
             nativeTool=true;finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
@@ -386,6 +397,7 @@ final class LbcTmtCatalog {
         }
         // Identity-only drops, arrows, placeables and collectible outputs can have no
         // custom data. An empty payload is not proof of an inert item.
+        if(keys.isEmpty()&&composedComponent)return;
         if(keys.isEmpty()&&nativeId.getNamespace().equals("minecraft")){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"Vanilla carrier with only category/parameter markers and no admitted native operation");return;
         }

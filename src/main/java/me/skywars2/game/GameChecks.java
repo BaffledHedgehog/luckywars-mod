@@ -1396,6 +1396,7 @@ public final class GameChecks {
                                 case "tmt-loose-rewards" -> {TmtLooseRewardChecks.run(game);return;}
                                 case "tmt-magnum-ammo" -> {TmtMagnumAmmoChecks.run(game);return;}
                                 case "tmt-criterion-traits" -> {TmtCriterionTraitChecks.run(game);return;}
+                                case "tmt-native-components" -> {TmtEquipmentChecks.run(game);return;}
                                 case "tmt-gadgets" -> {TmtGadgetChecks.run(game);return;}
                                 case "tmt-electro-traits" -> {TmtElectroTraitChecks.run(game);return;}
                                 case "legacy-slabs" -> {LegacySlabChecks.run(game);return;}
