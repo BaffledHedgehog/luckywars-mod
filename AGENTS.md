@@ -1,3 +1,18 @@
+## TMT native criterion provenance - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Literal source/native criteria proof](agent_notes/TMT_CRITERION_TRAITS_2026_11_07.md).
+Harpoon/SeaLegend scalar flags are real achievement provenance; KILL/USING domains retained.
+Fivecarrier real killcriterion boundary (no actualdeath claim), four realnativeusing cases,
+negatives/fullprivatepayload/nativebucket equip+Oguzokheldattrs pass. No inventedtridentclass
+conversion/charge/Riptide from labels. Independent enchantments/ordinary tridents unchanged.
+Authoredtrident pending slow_falling1 is source-inert; physicalhead/sword component-only.
+Internaldb00bbe5/3bd7dcfe on full6a564a55:9suites pass,3families/0resources;
+10471otherinputs/282authorpaths/Main/libs/RP/HUD/WIP preserved. JVMs exited/restored/no locks.
+Fresh966families/1830variants/92pendingrows is notcompletion. Full TMT active/unreleased.
+Next genuine3: Energy sustained native Item.use(BLOCKS_ATTACKS), Electroblocker dirtycache,
+HalloweenMace existing SELF/JUMP. Readonlyminimalpatchmap available from tmt_bucks_trader;
+no newshieldengine/Item.use impersonation/extra inventorypolling. Pending3legacy question stays.
+
 ## TMT chemical registered prototypes - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Exact prototype/source/native proof and scope correction](agent_notes/TMT_CHEMICAL_PROTOTYPES_2026_11_07.md).

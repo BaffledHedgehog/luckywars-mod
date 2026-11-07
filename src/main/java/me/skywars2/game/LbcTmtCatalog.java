@@ -30,7 +30,7 @@ import net.minecraft.world.item.component.CustomData;
  * Unknown inputs and native component requirements are deliberately reported.
  */
 final class LbcTmtCatalog {
-    enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON, CRAFT }
+    enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON, CRAFT, KILL }
     enum Location { USED_HAND, MAIN_HAND, INVENTORY, EQUIPPED, AMMUNITION, LOOSE_ITEM, CRAFT_GRID }
     enum Disposition { EXCLUDED_SERVICE, EXCLUDED_INERT_KEY, PENDING_NATIVE_DOMAIN, PENDING_COMPONENT_ADAPTER, MISSING_NATIVE_ITEM, LEGACY_OWNER_GAP }
 
@@ -352,6 +352,10 @@ final class LbcTmtCatalog {
             String id="native/phd";add(all,id,"phd",ability(id,nativeId,data),rule("phd","LbcPhdCrafting",Event.CRAFT,Location.CRAFT_GRID));return;
         }
         if(nativeTool||nativeAmmo)return;
+        if(nativeId.toString().equals("skywars2:bucket_head")||nativeId.toString().equals("skywars2:oguzok_sword")){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
+                    "Ordinary equipment/weapon components and presentation, with no independent custom item-data ability reader; physical items and the separate thrown-bucket/Chef owners remain intact, generated stats/equipment stay with LbcTmtProperties");return;
+        }
         if(data.getIntOr("multiplying",0)==1||data.getIntOr("randchanted",0)==1){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
                     "Multiplying/RandChanted flags classify LbcBolts reforge recipes; native benefits are attribute/enchantment components already owned by the TMT property generator, not a separate flag effect");return;
@@ -374,6 +378,10 @@ final class LbcTmtCatalog {
         if(keys.equals(Set.of("god"))&&data.getIntOr("god",0)==1){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_INERT_KEY,
                     "God-hedgehog trophy marker: both legacy namespaces contain only item producers/presentation and no item-data reader; the separate boss entity engine is not an item ability");return;
+        }
+        if(keys.equals(Set.of("slow_falling"))&&data.getIntOr("slow_falling",0)==1){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_INERT_KEY,
+                    "Source-inert item field: aimbob and TMT tag pool only write slow_falling1; neither legacy namespace nor native item-data consumers read it. The actual slow-falling effect/potion/pill domains remain separate");return;
         }
         // Identity-only drops, arrows, placeables and collectible outputs can have no
         // custom data. An empty payload is not proof of an inert item.
@@ -411,6 +419,9 @@ final class LbcTmtCatalog {
     private static Map<String,Rule> rules(){
         // Ordered by actual event owners; selectors remain inside these complete payloads.
         var result=new LinkedHashMap<String,Rule>();
+        // Legacy TMT rolls these achievement labels; neither flag converts its carrier to a trident.
+        flags(result,"Native player_killed_entity/lbc:true_advancements/tridents/harpoon",Event.KILL,Location.MAIN_HAND,"harpoon");
+        flags(result,"Native using_item/lbc:true_advancements/tridents/sea_legend",Event.USING,Location.USED_HAND,"sea_legend");
         flags(result,"LbcPendingSwords",Event.MELEE,Location.MAIN_HAND,"cool","cool_old","fragmentsword","fragmentsword_old","ender","antimagic");
         flags(result,"LbcPendingCombat",Event.MELEE,Location.MAIN_HAND,"chaos_swo","gravitationsword","piston_sword");
         flags(result,"LbcClassicMelee/LbcEvolutionSwordItem",Event.SELF,Location.MAIN_HAND,"feeding","vampire","seaguardian","evolution");
