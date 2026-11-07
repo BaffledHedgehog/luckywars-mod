@@ -1,3 +1,19 @@
+## TMT chemical registered prototypes - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Exact prototype/source/native proof and scope correction](agent_notes/TMT_CHEMICAL_PROTOTYPES_2026_11_07.md).
+Two catalog scans now use newItemStack, not creative PotionItem water defaults.
+Existing4canonicalchemfamilies dedup unchanged; real registered doses are no longer falsepending.
+Eight legal bothhand native throws/impact/first actual cloud quantum/nextframe unload pass.
+Internal6a564a55/984ff6bd on fullfc44a78b:9 focused native suites pass.
+2families/0resources;10471otherinputs/282authorpaths/Main/libs/RP/HUD/WIP preserved.
+One512MiB compiler then one2GiB fixture, exited/restored/no locks. Full TMT still unreleased.
+Next SOURCE-backed reconciliation: Harpoon/SeaLegend flags have native achievement observers,
+not customcharge logic; preserve provenance/criteria. Authoredtrident pendingkey is inert
+slow_falling1, not missingRiptide XV. Prior genericcharged-adapter proposal was not a user
+requirement; don't invent class conversion/weapon substitution from ordinary components.
+Independent registered enchantment generator stays intact. Remaining native/loose owners,
+3pendinglegacy policies/acquisition/atlas/coherent release still needed.
+
 ## TMT BadApple native wholebody - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Literal owner/source evidence and native proof](agent_notes/TMT_BADAPPLE_2026_11_07.md).

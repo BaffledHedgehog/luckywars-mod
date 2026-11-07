@@ -111,7 +111,8 @@ final class LbcTmtCatalog {
         int registered=0,canonical=0;
         for(var id:BuiltInRegistries.ITEM.keySet().stream().filter(id->id.getNamespace().equals("skywars2")).sorted().toList()){
             registered++;
-            collect(game,BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1),"native default",all,knownInputs,findings);
+            // A creative default may replace registered payloads (PotionItem substitutes water).
+            collect(game,new ItemStack(BuiltInRegistries.ITEM.getValue(id)),"native default",all,knownInputs,findings);
         }
         try(var input=LbcTmtCatalog.class.getResourceAsStream("/skywars2/tmt_use_profiles.json")){
             if(input==null)throw new IllegalStateException("Missing canonical TMT prototypes");
@@ -123,7 +124,7 @@ final class LbcTmtCatalog {
                 if(!Set.of("skywars2","minecraft").contains(id.getNamespace())||!BuiltInRegistries.ITEM.containsKey(id)){
                     finding(findings,id.toString(),origin,Disposition.MISSING_NATIVE_ITEM,"Canonical item is absent from the bound native registry");continue;
                 }
-                var stack=BuiltInRegistries.ITEM.getValue(id).getDefaultInstance().copyWithCount(1);
+                var stack=new ItemStack(BuiltInRegistries.ITEM.getValue(id));
                 if(row.has("components")){
                     var parsed=net.minecraft.core.component.DataComponentPatch.CODEC.parse(
                             game.server().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),row.get("components"));
