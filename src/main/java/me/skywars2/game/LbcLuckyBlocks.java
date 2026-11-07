@@ -1,7 +1,5 @@
 package me.skywars2.game;
 
-import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
-import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import java.util.List;
 import me.skywars2.SkyWars2;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
@@ -62,7 +60,7 @@ public final class LbcLuckyBlocks {
                     ?net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COMPOSTABLE_MEDIUM
                     :net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COMPOSTABLE_MEDIUM_HIGH);
             ITEMS[kind.ordinal()]=Registry.register(BuiltInRegistries.ITEM,itemKey,
-                    new PolymerBlockItem(block,properties,carrierItem(kind),true){
+                    new LbcBlockModels.CubeItem(block,properties,carrierItem(kind)){
                         @Override public InteractionResult useOn(UseOnContext context){
                             var game=SkyWars2.game();
                             if(!(context.getPlayer() instanceof ServerPlayer player)||game==null
@@ -135,7 +133,7 @@ public final class LbcLuckyBlocks {
         return breaker instanceof ServerPlayer player
                 ?game.items().spellSources().scope(game.items().spellSources().hostile(player,player,java.util.Set.of()),player.level()):null;
     }
-    private static final class LuckyBlock extends Block implements PolymerTexturedBlock {
+    private static final class LuckyBlock extends LbcBlockModels.Cube {
         private final Kind kind;
         LuckyBlock(Properties properties,Kind kind){super(properties);this.kind=kind;}
         @Override public BlockState getPolymerBlockState(BlockState state,PacketContext context){return CLIENT_STATES[kind.ordinal()];}

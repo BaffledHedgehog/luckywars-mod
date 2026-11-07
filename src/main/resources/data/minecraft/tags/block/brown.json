@@ -11,5 +11,12 @@
         "minecraft:brown_wool",
         "minecraft:brown_carpet",
         "minecraft:brown_bed",
-        "minecraft:brown_banner"]
+        "minecraft:brown_banner",
+        "minecraft:brown_wool_stairs",
+        "minecraft:brown_wool_slab",
+        "minecraft:brown_concrete_stairs",
+        "minecraft:brown_concrete_slab",
+        "minecraft:brown_wall_banner",
+        "minecraft:brown_candle_cake"
+    ]
 }

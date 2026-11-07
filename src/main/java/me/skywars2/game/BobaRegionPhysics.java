@@ -16,6 +16,22 @@ import net.minecraft.world.phys.Vec3;
 
 /** Map-owned, persistent disjoint regions. All mutation belongs to the server thread. */
 public final class BobaRegionPhysics {
+    /** The accessor is supplied by the Entity mixin; metadata projection never changes server data. */
+    public interface ClientGravityData {
+        net.minecraft.network.syncher.SynchedEntityData.DataValue<Boolean> boba$gravityData(boolean value);
+    }
+    public static boolean clientPhysics(Entity entity){
+        return !(entity instanceof Player)&&entity.getMoveSimulationType()==net.minecraft.world.entity.MoveSimulationType.SERVER_AND_CLIENT;
+    }
+    public static boolean clientNoGravity(Entity entity){return clientPhysics(entity)&&turns(entity)!=0;}
+    public static List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> clientMetadata(Entity entity,
+            List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> values){
+        if(!clientNoGravity(entity))return values;
+        var gravity=((ClientGravityData)entity).boba$gravityData(true);
+        var result=new ArrayList<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>>();
+        for(var value:values)if(value.id()!=gravity.id())result.add(value);
+        result.add(gravity);return result;
+    }
     public record Region(int x0,int y0,int z0,int x1,int y1,int z1,int turns){
         boolean contains(BlockPos p){return p.getX()>=x0&&p.getX()<x1&&p.getY()>=y0&&p.getY()<y1&&p.getZ()>=z0&&p.getZ()<z1;}
     }

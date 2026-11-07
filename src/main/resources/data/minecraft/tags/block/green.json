@@ -11,5 +11,12 @@
         "minecraft:green_wool",
         "minecraft:green_carpet",
         "minecraft:green_bed",
-        "minecraft:green_banner"]
+        "minecraft:green_banner",
+        "minecraft:green_wool_stairs",
+        "minecraft:green_wool_slab",
+        "minecraft:green_concrete_stairs",
+        "minecraft:green_concrete_slab",
+        "minecraft:green_wall_banner",
+        "minecraft:green_candle_cake"
+    ]
 }

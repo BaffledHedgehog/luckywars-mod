@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:sauvojen_wand",
           "modifier": [
             {
               "count": 1,

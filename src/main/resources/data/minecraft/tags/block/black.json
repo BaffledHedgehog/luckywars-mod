@@ -11,5 +11,12 @@
         "minecraft:black_wool",
         "minecraft:black_carpet",
         "minecraft:black_bed",
-        "minecraft:black_banner"]
+        "minecraft:black_banner",
+        "minecraft:black_wool_stairs",
+        "minecraft:black_wool_slab",
+        "minecraft:black_concrete_stairs",
+        "minecraft:black_concrete_slab",
+        "minecraft:black_wall_banner",
+        "minecraft:black_candle_cake"
+    ]
 }

@@ -1,3 +1,19 @@
+## User test report fixes - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[All17 report items and evidence](agent_notes/TEST_REPORT_FIXES_2026_11_07.md).
+Gallery authored defaults/rerolls/20-block tracking; cube feedback; Silent Otchim;
+crystal chain explosions; signed multiplicative Weakness; captured-body Void chaining;
+async Railgun chunk leases/single creeper flash; WILD utilities and thrown-pipe impact;
+firecharge/correction; durable perk statistics/legacy import; rotated client gravity,
+falling support and suffocation; updated color tags; tree cloud/145 native loot identities;
+real Cunny queued-start COUNTDOWN deadlock fixed at the shared begin boundary.
+Internal76e441e2/7b0d706c on full93c5f4a7 parent;15 native suites pass with
+explicit final gameplay-byte equivalence, including TMT throws/block-use and core rewind.
+36 Java families/164 resources;282 author paths and concurrent HUD preserved.
+Main/libs/RP unchanged. Physical-client fireball offset/audio/render confirmation remains.
+Full TMT acquisition/release remains pending; do not install this internal component silently.
+Session-owned duplicate Serena JDT processes were stopped; preserve VSCode Java processes.
+
 ## TMT inventory traits/physical drops - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Evidence and carry-forward](agent_notes/TMT_INVENTORY_TRAITS_2026_11_07.md).

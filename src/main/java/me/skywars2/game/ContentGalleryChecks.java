@@ -28,6 +28,7 @@ public final class ContentGalleryChecks {
         int batches = 0;
         while (!catalog.step(24)) require(++batches < 100000, "finite public-definition traversal");
         var contents = catalog.finish();
+        require(contents.stream().filter(stack->stack.is(LbcKfcFood.GOVNO_EATEN)).allMatch(stack->stack.has(DataComponents.TOOLTIP_STYLE)),"gallery fallback uses authored edible-govno style");
         require(catalog.errorCount() == 0, "all public definitions decode successfully");
         require(!contents.isEmpty(), "live public catalog is populated");
         var identities = new HashSet<ContentGallery.Identity>();
@@ -68,6 +69,22 @@ public final class ContentGalleryChecks {
         var inventory = new ArrayList<ItemStack>();
         for (int index = 0; index < player.getInventory().getContainerSize(); index++) inventory.add(player.getInventory().getItem(index).copy());
         try {
+            if(ContentGallery.allowed(player))try{
+                var sourceRolls=ContentGallery.Catalog.class.getDeclaredField("rolls");sourceRolls.setAccessible(true);
+                var liveRolls=ContentGallery.class.getDeclaredField("rolls");liveRolls.setAccessible(true);
+                liveRolls.set(service,sourceRolls.get(catalog));
+                var shovel=contents.stream().filter(stack->BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals("skywars2:random_enchanted_shovel")).findFirst().orElseThrow();
+                var randomFrame=ContentGallery.frame(level,origin.above(2),shovel,layout);frames.add(randomFrame);
+                require(level.addFreshEntity(randomFrame),"randomized native showroom frame");
+                var variants=new HashSet<Integer>();
+                for(int roll=0;roll<24;roll++){
+                    player.getInventory().clearContent();require(service.useEntity(player,randomFrame),"actual operator right click");
+                    var result=player.getInventory().getItem(0);
+                    require(result.is(shovel.getItem())&&Objects.equals(result.get(DataComponents.TOOLTIP_STYLE),shovel.get(DataComponents.TOOLTIP_STYLE)),"rerolled item retains authored native identity/tier");
+                    variants.add(ItemStack.hashItemAndComponents(result));
+                }
+                require(variants.size()>1,"right click rerolls enchantments instead of cloning the framed seed");
+            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
             require(service.ownsChest(level, layout.chest()) && !service.ownsChest(level, layout.chest().east()), "precise owned central chest position");
             require(!service.useBlock(player, layout.chest().east()), "foreign block never intercepted");
             require(!service.useEntity(player, player), "foreign entity never intercepted");

@@ -1794,6 +1794,7 @@ public final class LbcWands {
         if(LbcRasengan.blast(source))return validRoleTarget(victim,false)&&!LbcGreed.active(victim);
         if(LbcGreed.active(victim)) return false;
         if(LbcSpecialFireballs.managed(source.getDirectEntity()))return game.items().specialFireballs().canAffect(source.getDirectEntity(),victim);
+        if(LbcThrownUtilities.isManaged(source.getDirectEntity()))return validRoleTarget(victim,false);
         if(LbcEdibleSpells.wild(source))return validRoleTarget(victim,false);
         if(LbcFoodLifecycle.managed(source.getDirectEntity()))return game.items().foodLifecycle().canAffect(source.getDirectEntity(),victim);
         if(LbcOreshek.managed(source.getDirectEntity()))return game.items().oreshek().canAffect(source.getDirectEntity(),victim);

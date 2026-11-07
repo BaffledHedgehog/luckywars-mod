@@ -119,6 +119,7 @@ public final class LbcChargedBows {
         private final BeamPayload payload;private final LbcIndirectKills.Owner cause;
         private final boolean railgun,preview;private Vec3 direction;private boolean firstSample=true,homingLost;
         private LbcExasperato.RayTicket ticket;
+        private BeamWork residence;
         Beam(ServerPlayer owner,BeamPayload payload,LbcIndirectKills.Owner cause,boolean railgun,boolean preview){
             author=owner.getUUID();level=owner.level();epoch=game.items().epoch();this.payload=payload;this.cause=cause;
             this.railgun=railgun;this.preview=preview;direction=owner.getLookAngle().normalize();
@@ -127,7 +128,12 @@ public final class LbcChargedBows {
         public boolean target(Entity entity){return false;}
         public void trail(Vec3 from,Vec3 to){}
         public void submitted(LbcExasperato.RayTicket ticket){this.ticket=ticket;beams.add(this);}
-        public void complete(HitResult hit){beams.remove(this);}
+        public void complete(HitResult hit){beams.remove(this);if(residence!=null)release(residence);}
+        public boolean readyAt(Vec3 point){
+            if(preview)return true;
+            if(residence==null)residence=new BeamWork(level,point,cause,0,-1);
+            return resident(residence,BlockPos.containing(point));
+        }
         public double sampleStep(){return 1;}
         public HitResult sampleAt(Vec3 point){
             if(!game.items().currentEpoch(epoch))return null;
@@ -146,7 +152,7 @@ public final class LbcChargedBows {
                 if(payload.hasVariant(111))enqueue(new BeamWork(level,point,cause,0,1));
                 if(!payload.hasVariant(302))blast(level,point,cause,1,false);
                 if(payload.hasVariant(301))blast(level,point,cause,1,false);
-                particles(level,ParticleTypes.EXPLOSION,point,1,1.5);particles(level,CYAN,point,5,.1);
+                particles(level,CYAN,point,5,.1);
             }else{
                 blast(level,point,cause,4,true);enqueue(new BeamWork(level,point,cause,3,0));
                 for(float pitch:new float[]{2,1,1.5f})sound(level,point,"minecraft:block.azalea_leaves.break",.2f,pitch);
@@ -175,7 +181,7 @@ public final class LbcChargedBows {
         public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
             var savedDirection=direction;var state=payload==null?null:payload.checkpoint(links);
             boolean savedFirst=firstSample,savedLost=homingLost,savedActive=beams.contains(this);
-            return rebound->{var plan=state==null?null:state.prepare(rebound);return ()->{direction=savedDirection;firstSample=savedFirst;homingLost=savedLost;
+            return rebound->{var plan=state==null?null:state.prepare(rebound);return ()->{if(residence!=null)release(residence);direction=savedDirection;firstSample=savedFirst;homingLost=savedLost;
                 if(savedActive)beams.add(this);else beams.remove(this);if(plan!=null)plan.run();};};
         }
     }
@@ -255,5 +261,5 @@ public final class LbcChargedBows {
     }
     public int pending(){return jobs.size();}
     public void stop(){crafting.stop();for(var beam:List.copyOf(beams))if(beam.ticket!=null)beam.ticket.cancel();beams.clear();for(var job:List.copyOf(jobs))job.cancel();jobs.clear();}
-    void prepareFrozen(){beams.clear();for(var job:List.copyOf(jobs))release(job);jobs.clear();}
+    void prepareFrozen(){for(var beam:beams)if(beam.residence!=null)release(beam.residence);beams.clear();for(var job:List.copyOf(jobs))release(job);jobs.clear();}
 }

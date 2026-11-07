@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:tipped_arrow",
+          "name": "skywars2:stand_arrow",
           "modifier": [
             {
               "count": 1,

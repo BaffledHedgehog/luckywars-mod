@@ -63,8 +63,7 @@ public final class LbcSpecialFireballs {
         carrier.entityTags().add(game.items().epoch()); // Geometry only: never index this unpublished carrier.
         if(convert(carrier).isEmpty()){carrier.discard();return false;}
         carrier.discard();
-        owner.level().playSound(null,owner.getX(),owner.getY(),owner.getZ(),net.minecraft.sounds.SoundEvents.SNOWBALL_THROW,
-                net.minecraft.sounds.SoundSource.NEUTRAL,.5f,.4f/(owner.getRandom().nextFloat()*.4f+.8f));
+        LbcOverload.sound(owner,owner.position(),"minecraft:item.firecharge.use",1,1,0);
         owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem()));
         owner.gameEvent(net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT);
         stack.consume(1,owner);return true;
@@ -168,6 +167,11 @@ public final class LbcSpecialFireballs {
         for(var actor:List.copyOf(actors)){
             if(actor.isRemoved()){actors.remove(actor);continue;}if(!active(actor)){actors.remove(actor);actor.discard();continue;}
             if(frozen(actor)||!resident((ServerLevel)actor.level(),actor.position()))continue;
+            if(actor instanceof net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile){
+                // Client fireballs predict inertia and collisions; correct through the native tracker each tick.
+                // Keep the authored launch position and the real projectile's motion/impact authority.
+                actor.syncPosition=true;actor.needsSync=true;
+            }
             if(actor instanceof PrimedTnt tnt&&tnt.onGround()&&tnt.entityTags().remove("groundbam")){
                 tnt.setFuse(2);if(tnt.entityTags().contains(CHILD)||tnt.entityTags().contains(DELTA))landing(tnt);
             }

@@ -11,5 +11,12 @@
         "minecraft:yellow_wool",
         "minecraft:yellow_carpet",
         "minecraft:yellow_bed",
-        "minecraft:yellow_banner"]
+        "minecraft:yellow_banner",
+        "minecraft:yellow_wool_stairs",
+        "minecraft:yellow_wool_slab",
+        "minecraft:yellow_concrete_stairs",
+        "minecraft:yellow_concrete_slab",
+        "minecraft:yellow_wall_banner",
+        "minecraft:yellow_candle_cake"
+    ]
 }

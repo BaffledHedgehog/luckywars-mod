@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:advanced_ender_wand",
           "modifier": [
             {
               "count": 1,

@@ -15,7 +15,11 @@ import org.spongepowered.asm.mixin.injection.At;
 
 /** Redirect native gravity impulses and resolve grounding on the region's actual support axis. */
 @Mixin(Entity.class)
-public abstract class BobaGravityMixin {
+public abstract class BobaGravityMixin implements BobaRegionPhysics.ClientGravityData {
+    @Shadow @org.spongepowered.asm.mixin.Final private static net.minecraft.network.syncher.EntityDataAccessor<Boolean> DATA_NO_GRAVITY;
+    @Override public net.minecraft.network.syncher.SynchedEntityData.DataValue<Boolean> boba$gravityData(boolean value){
+        return net.minecraft.network.syncher.SynchedEntityData.DataValue.create(DATA_NO_GRAVITY,value);
+    }
     @Unique private Vec3 boba$moveStart=Vec3.ZERO;
     @Unique private Vec3 boba$requested=Vec3.ZERO;
     @Shadow private static Vec3 collideWithShapes(Vec3 movement,net.minecraft.world.phys.AABB box,java.util.List<net.minecraft.world.phys.shapes.VoxelShape> shapes){throw new AssertionError();}
@@ -58,6 +62,13 @@ public abstract class BobaGravityMixin {
         var self=(Entity)(Object)this;
         int turns=self instanceof net.minecraft.world.entity.player.Player?0:BobaRegionPhysics.turns(self.level(),net.minecraft.core.BlockPos.containing(position));
         return turns==0?box:boba$box(box.move(position.scale(-1)),turns).move(position);
+    }
+    @WrapOperation(method="isInWall",at=@At(value="INVOKE",target="Lnet/minecraft/world/phys/AABB;ofSize(Lnet/minecraft/world/phys/Vec3;DDD)Lnet/minecraft/world/phys/AABB;"))
+    private net.minecraft.world.phys.AABB boba$eyeCollision(Vec3 eye,double x,double y,double z,Operation<net.minecraft.world.phys.AABB> original){
+        var self=(Entity)(Object)this;int turns=BobaRegionPhysics.turns(self);
+        if(turns==0)return original.call(eye,x,y,z);
+        // Keep vanilla suffocation rules, but test the thin eye slice in the body's actual frame.
+        return boba$box(original.call(new Vec3(0,self.getEyeHeight(),0),x,y,z),turns).move(self.position());
     }
     @WrapMethod(method="applyGravity")
     private void boba$gravity(Operation<Void> original){
@@ -108,6 +119,95 @@ public abstract class BobaGravityMixin {
             case 2->new Vec3(self.getX(),box.maxY+offset,self.getZ());
             case 3->new Vec3(self.getX(),(box.minY+box.maxY)*.5,box.maxZ+offset);default->self.position();};
         ci.setReturnValue(net.minecraft.core.BlockPos.containing(support));
+    }
+
+    /** Vanilla clients simulate these entities too: project gravity and correct their unrotated collisions. */
+    @Mixin(net.minecraft.server.level.ServerEntity.class)
+    public abstract static class Tracking {
+        @Shadow @org.spongepowered.asm.mixin.Final private Entity entity;
+        @Shadow @org.spongepowered.asm.mixin.Final private net.minecraft.server.level.ServerEntity.Synchronizer synchronizer;
+        @Unique private boolean boba$projectedGravity;
+        @Unique private boolean boba$pairedWithGravity;
+        @org.spongepowered.asm.mixin.injection.ModifyArg(method={"sendPairingData","sendDirtyEntityData"},
+                at=@At(value="INVOKE",target="Lnet/minecraft/network/protocol/game/ClientboundSetEntityDataPacket;<init>(ILjava/util/List;)V"),index=1)
+        private java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> boba$metadata(
+                java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> values){
+            return BobaRegionPhysics.clientMetadata(entity,values);
+        }
+        @org.spongepowered.asm.mixin.injection.Inject(method="sendPairingData",at=@At("TAIL"))
+        private void boba$pairGravity(net.minecraft.server.level.ServerPlayer player,
+                java.util.function.Consumer<net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener>> broadcast,
+                org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci){
+            // A default-data entity has no native metadata packet at all; late viewers still need the override.
+            if(BobaRegionPhysics.clientNoGravity(entity)){
+                broadcast.accept(new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(
+                        entity.getId(),java.util.List.of(((BobaRegionPhysics.ClientGravityData)entity).boba$gravityData(true))));
+                boba$pairedWithGravity=true;
+            }
+        }
+        @org.spongepowered.asm.mixin.injection.Inject(method="sendChanges",at=@At("HEAD"))
+        private void boba$trackGravity(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci){
+            boolean projected=BobaRegionPhysics.clientNoGravity(entity);
+            if(projected!=boba$projectedGravity||boba$pairedWithGravity){
+                synchronizer.sendToTrackingPlayers(new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(entity.getId(),
+                        java.util.List.of(((BobaRegionPhysics.ClientGravityData)entity).boba$gravityData(projected||entity.isNoGravity()))));
+                boba$projectedGravity=projected;
+                boba$pairedWithGravity=false;
+                entity.needsSync=true;entity.syncPosition=true;
+            }
+            if(projected){entity.needsSync=true;entity.syncPosition=true;}
+        }
+        @WrapOperation(method="createMovePacket",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/Entity;getRequiresPrecisePosition()Z"))
+        private boolean boba$precisePosition(Entity self,Operation<Boolean> original){
+            return original.call(self)||BobaRegionPhysics.clientNoGravity(self);
+        }
+        @org.spongepowered.asm.mixin.injection.Inject(method="sendChanges",at=@At("TAIL"))
+        private void boba$trackMovement(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci){
+            // NoGravity suppresses acceleration, not client drag or world-axis collision prediction.
+            if(BobaRegionPhysics.clientNoGravity(entity))synchronizer.sendToTrackingPlayers(
+                    new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(entity));
+        }
+    }
+    @Mixin(net.minecraft.world.level.block.FallingBlock.class)
+    public abstract static class FallingBlock {
+        @WrapOperation(method="tick",at=@At(value="INVOKE",target="Lnet/minecraft/core/BlockPos;below()Lnet/minecraft/core/BlockPos;"))
+        private net.minecraft.core.BlockPos boba$fallSupport(net.minecraft.core.BlockPos pos,Operation<net.minecraft.core.BlockPos> original,
+                @com.llamalad7.mixinextras.sugar.Local(argsOnly=true) net.minecraft.server.level.ServerLevel level){
+            int turns=BobaRegionPhysics.turns(level,pos);
+            return turns==0?original.call(pos):pos.relative(BobaRegionPhysics.rotate(net.minecraft.core.Direction.DOWN,turns));
+        }
+    }
+    @Mixin(net.minecraft.world.entity.item.FallingBlockEntity.class)
+    public abstract static class FallingEntity {
+        @WrapOperation(method="fall",at=@At(value="INVOKE",target="Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
+        private static boolean boba$fallOrigin(net.minecraft.world.level.Level level,Entity entity,Operation<Boolean> original,
+                @com.llamalad7.mixinextras.sugar.Local(argsOnly=true) net.minecraft.core.BlockPos pos){
+            int turns=BobaRegionPhysics.turns(level,pos);
+            if(turns!=0){
+                // Rotate local feet around the source cell center before the native spawn packet is built.
+                entity.setPos(Vec3.atCenterOf(pos).subtract(BobaRegionPhysics.rotate(new Vec3(0,.5,0),turns)));
+                entity.xo=entity.getX();entity.yo=entity.getY();entity.zo=entity.getZ();
+            }
+            return original.call(level,entity);
+        }
+        @WrapOperation(method="tick",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/item/FallingBlockEntity;blockPosition()Lnet/minecraft/core/BlockPos;"))
+        private net.minecraft.core.BlockPos boba$landingCell(net.minecraft.world.entity.item.FallingBlockEntity self,Operation<net.minecraft.core.BlockPos> original){
+            return BobaRegionPhysics.turns(self)==0?original.call(self):net.minecraft.core.BlockPos.containing(self.getBoundingBox().getCenter());
+        }
+        @WrapOperation(method="tick",at=@At(value="INVOKE",target="Lnet/minecraft/core/BlockPos;below()Lnet/minecraft/core/BlockPos;"))
+        private net.minecraft.core.BlockPos boba$landingSupport(net.minecraft.core.BlockPos pos,Operation<net.minecraft.core.BlockPos> original){
+            int turns=BobaRegionPhysics.turns((Entity)(Object)this);
+            return turns==0?original.call(pos):pos.relative(BobaRegionPhysics.rotate(net.minecraft.core.Direction.DOWN,turns));
+        }
+        @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method="tick",at=@At(value="FIELD",target="Lnet/minecraft/core/Direction;DOWN:Lnet/minecraft/core/Direction;"))
+        private net.minecraft.core.Direction boba$placeDown(net.minecraft.core.Direction down){return BobaRegionPhysics.rotate(down,BobaRegionPhysics.turns((Entity)(Object)this));}
+        @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method="tick",at=@At(value="FIELD",target="Lnet/minecraft/core/Direction;UP:Lnet/minecraft/core/Direction;"))
+        private net.minecraft.core.Direction boba$placeUp(net.minecraft.core.Direction up){return BobaRegionPhysics.rotate(up,BobaRegionPhysics.turns((Entity)(Object)this));}
+        @WrapOperation(method="tick",at=@At(value="INVOKE",target="Lnet/minecraft/world/phys/Vec3;multiply(DDD)Lnet/minecraft/world/phys/Vec3;"))
+        private Vec3 boba$landingBounce(Vec3 movement,double x,double y,double z,Operation<Vec3> original){
+            int turns=BobaRegionPhysics.turns((Entity)(Object)this);
+            return turns==0?original.call(movement,x,y,z):BobaRegionPhysics.rotate(original.call(BobaRegionPhysics.rotate(movement,-turns),x,y,z),turns);
+        }
     }
 
     @Mixin(LivingEntity.class)

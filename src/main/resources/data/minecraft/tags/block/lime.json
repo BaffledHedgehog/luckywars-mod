@@ -11,5 +11,12 @@
         "minecraft:lime_wool",
         "minecraft:lime_carpet",
         "minecraft:lime_bed",
-        "minecraft:lime_banner"]
+        "minecraft:lime_banner",
+        "minecraft:lime_wool_stairs",
+        "minecraft:lime_wool_slab",
+        "minecraft:lime_concrete_stairs",
+        "minecraft:lime_concrete_slab",
+        "minecraft:lime_wall_banner",
+        "minecraft:lime_candle_cake"
+    ]
 }

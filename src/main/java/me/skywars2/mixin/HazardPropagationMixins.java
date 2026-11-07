@@ -276,6 +276,8 @@ public final class HazardPropagationMixins {
         @WrapOperation(method="spawnLingeringCloud",at=@At(value="INVOKE",target=
                 "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
         private boolean skywars2$creeperCloud(net.minecraft.world.level.Level level,Entity child,Operation<Boolean> original) {
+            // This invisibility hides the tree's explosion actor; it must not become a lingering potion.
+            if(((Entity)(Object)this).entityTags().contains("skywars2.mystical_tree.creeper"))return false;
             var game=SkyWars2.game();
             if(game!=null) game.items().creeperDrops().inheritChild((Entity)(Object)this,child);
             return original.call(level,child);

@@ -36,6 +36,7 @@ public final class ContentGallery {
     private HolderLookup.Provider registry;
     private Catalog catalog;
     private List<ItemStack> contents = List.of();
+    private Map<Identity,LootTable> rolls = Map.of();
     private final ArrayDeque<RunnablePlacement> placements = new ArrayDeque<>();
     private final LinkedHashMap<CellKey, Cell> baseline = new LinkedHashMap<>();
     private final LinkedHashMap<CellKey, Cell> restoring = new LinkedHashMap<>();
@@ -161,6 +162,7 @@ public final class ContentGallery {
             if (!catalog.step(24)) return;
             catalogErrors = catalog.errors;
             contents = catalog.finish();
+            rolls = Map.copyOf(catalog.rolls);
             catalog = null;
             plan();
         }
@@ -179,7 +181,7 @@ public final class ContentGallery {
         if (!ready.isEmpty()) { save(); for (var placement : ready) place(level,placement); }
         if (placements.isEmpty() && requester != null) {
             var player = game.server().getPlayerList().getPlayer(requester);
-            if (player != null) player.sendSystemMessage(Component.literal("Gallery ready: " + contents.size() + " distinct mod item identities. Right-click a frame to copy one; central ender chest opens perks."
+            if (player != null) player.sendSystemMessage(Component.literal("Gallery ready: " + contents.size() + " distinct mod item identities. Right-click a frame to roll its loot again; central ender chest opens perks."
                     + (catalogErrors == 0 ? "" : " WARNING: " + catalogErrors + " definitions failed; see server log.")));
             requester = null;
         }
@@ -237,9 +239,12 @@ public final class ContentGallery {
         if (!owned(entity)) return false;
         if (allowed(player) && !obsolete(entity) && player.level() == entity.level()
                 && player.distanceToSqr(entity) <= 64) {
-            var copy = ((ItemFrame) entity).getItem().copyWithCount(1);
-            // Do not drop rewards when the inventory is full.
-            if (!player.getInventory().add(copy)) player.sendSystemMessage(Component.literal("Make room in your inventory."));
+            var displayed = ((ItemFrame)entity).getItem();
+            var table = rolls.get(new Identity(displayed));
+            var params = new LootParams.Builder(player.level()).withParameter(LootContextParams.ORIGIN,player.position())
+                    .withOptionalParameter(LootContextParams.THIS_ENTITY,player).create(LootContextParamSets.CHEST);
+            var results = table==null ? List.of(displayed.copyWithCount(1)) : table.getRandomItems(params);
+            for(var copy:results)if(!player.getInventory().add(copy))player.sendSystemMessage(Component.literal("Make room in your inventory."));
             player.inventoryMenu.broadcastChanges();
         }
         return true;
@@ -437,6 +442,7 @@ public final class ContentGallery {
         private final com.mojang.serialization.DynamicOps<JsonElement> ops;
         private final ArrayDeque<Node> queue = new ArrayDeque<>();
         private final LinkedHashMap<Identity, ItemStack> items = new LinkedHashMap<>();
+        private final Map<Identity,LootTable> rolls = new HashMap<>();
         private final Set<String> expanded = new HashSet<>();
         private final Set<Item> represented = Collections.newSetFromMap(new IdentityHashMap<>());
         private int errors;
@@ -474,10 +480,6 @@ public final class ContentGallery {
         private static void append(List<JsonElement> target, JsonElement value) {
             if (value == null || value.isJsonNull()) return;
             if (value.isJsonArray()) { value.getAsJsonArray().forEach(child -> append(target, child)); return; }
-            // Quantity is deliberately absent from display identity. Dynamic score-based counts may
-            // otherwise erase a perfectly valid canonical item outside its original match context.
-            if (value.isJsonObject() && value.getAsJsonObject().has("type")
-                    && value.getAsJsonObject().get("type").getAsString().equals("minecraft:set_count")) return;
             target.add(value);
         }
         private void expand(Node node) {
@@ -509,9 +511,16 @@ public final class ContentGallery {
                 var pool = new JsonObject(); pool.addProperty("rolls", 1); pool.add("entries", entries);
                 var pools = new JsonArray(); pools.add(pool);
                 var table = new JsonObject(); table.add("pools", pools);
+                var roll = LootTable.DIRECT_CODEC.parse(ops, table).getOrThrow();
+                // Display one even when the real count depends on scores outside this showroom.
+                functions.asList().removeIf(value->value.isJsonObject()&&value.getAsJsonObject().has("type")&&value.getAsJsonObject().get("type").getAsString().equals("minecraft:set_count"));
+                var one = new JsonObject();one.addProperty("type","minecraft:set_count");one.addProperty("count",1);
+                functions.add(one);entry.add("modifier",functions);
                 for (var item : LootTable.DIRECT_CODEC.parse(ops, table).getOrThrow().getRandomItems(params, 268361115L)) {
                     var id = BuiltInRegistries.ITEM.getKey(item.getItem());
-                    if (!id.getNamespace().equals("minecraft") || !ItemStack.isSameItemSameComponents(item, new ItemStack(item.getItem()))) add(item);
+                    if (!id.getNamespace().equals("minecraft") || !ItemStack.isSameItemSameComponents(item, new ItemStack(item.getItem()))) {
+                        add(item);rolls.putIfAbsent(new Identity(item),roll);
+                    }
                 }
             }
         }
@@ -526,7 +535,18 @@ public final class ContentGallery {
             if (!queue.isEmpty()) throw new IllegalStateException("Gallery catalog still building");
             for (var item : BuiltInRegistries.ITEM) {
                 var id = BuiltInRegistries.ITEM.getKey(item);
-                if (id.getNamespace().equals("skywars2") && !represented.contains(item)) add(new ItemStack(item));
+                if (id.getNamespace().equals("skywars2") && !represented.contains(item)&&LootTestCatalog.publicNativeItem(item)) {
+                    // Native defaults carry mechanics; authored loot owns names, lore and tier.
+                    for(var path:List.of(id.getPath(),"ported/"+id.getPath())){
+                        var table=game.server().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:"+path)));
+                        if(table==LootTable.EMPTY)continue;
+                        for(var stack:table.getRandomItems(params,268361115L))if(stack.is(item)){
+                            add(stack);rolls.putIfAbsent(new Identity(stack),table);
+                        }
+                        if(represented.contains(item))break;
+                    }
+                    if(!represented.contains(item))add(new ItemStack(item));
+                }
             }
             if (errors != 0) SkyWars2.LOGGER.warn("Gallery catalog completed with {} unsupported definitions", errors);
             return items.values().stream().map(ItemStack::copy).toList();

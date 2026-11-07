@@ -37,7 +37,7 @@ public final class LbcFamilyDrops {
             {Tags:["mom","rc_1sec","active"],CustomNameVisible:1b,ShowArms:1b,Invulnerable:1b,NoBasePlate:1b,DisabledSlots:4144959,Pose:{LeftLeg:[180f,0f,0f],RightLeg:[180f,0f,0f],RightArm:[0f,0f,0f]}}
             """);
     private static final CompoundTag OTCHIM=preset("""
-            {Tags:["otchim","lucky_mob","active"],CustomNameVisible:1b,Invulnerable:1b,PersistenceRequired:1b,drop_chances:{head:0f,chest:0f,legs:0f,feet:0f},active_effects:[{id:"minecraft:invisibility",amplifier:1b,duration:20000000}]}
+            {Tags:["otchim","lucky_mob","active"],Silent:1b,CustomNameVisible:1b,Invulnerable:1b,PersistenceRequired:1b,drop_chances:{head:0f,chest:0f,legs:0f,feet:0f},active_effects:[{id:"minecraft:invisibility",amplifier:1b,duration:20000000}]}
             """);
     private static final CompoundTag CHILD=preset("""
             {Tags:["absurd_child","lucky_mob"],Glowing:1b,CustomNameVisible:1b,PersistenceRequired:1b,Health:100000f,CustomName:{bold:true,color:"gold",italic:false,translate:"absurd_child"},attributes:[{id:"minecraft:max_health",base:100000}],drop_chances:{mainhand:0f}}

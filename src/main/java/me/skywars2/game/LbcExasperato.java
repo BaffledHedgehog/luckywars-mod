@@ -127,6 +127,8 @@ public final class LbcExasperato {
         default Vec3 directionAt(Vec3 point,Vec3 direction){return direction;}
         default net.minecraft.world.phys.HitResult sampleAt(Vec3 point){throw new UnsupportedOperationException();}
         default boolean sampleContinues(Vec3 point){return true;}
+        /** An owned asynchronous chunk lease may pause the cursor without blocking the tick. */
+        default boolean readyAt(Vec3 point){return true;}
         default MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){return ignored->()->{};}
     }
     /** The original request identity survives replay; its completion bit belongs to Search, not a JDK future. */
@@ -493,6 +495,7 @@ public final class LbcExasperato {
             search.started=true;
             Vec3 from=search.position;
             if(sampled){
+                if(!search.replay.readyAt(from)){searches.addLast(search);continue;}
                 if(!level.hasChunkAt(BlockPos.containing(from))){complete(search,null);continue;}
                 search.direction=search.replay.directionAt(from,search.direction).normalize();
                 var hit=search.replay.sampleAt(from);

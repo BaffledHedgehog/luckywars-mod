@@ -11,5 +11,12 @@
         "minecraft:white_wool",
         "minecraft:white_carpet",
         "minecraft:white_bed",
-        "minecraft:white_banner"]
+        "minecraft:white_banner",
+        "minecraft:white_wool_stairs",
+        "minecraft:white_wool_slab",
+        "minecraft:white_concrete_stairs",
+        "minecraft:white_concrete_slab",
+        "minecraft:white_wall_banner",
+        "minecraft:white_candle_cake"
+    ]
 }

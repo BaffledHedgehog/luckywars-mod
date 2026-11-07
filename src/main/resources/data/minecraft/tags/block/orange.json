@@ -11,5 +11,12 @@
         "minecraft:orange_wool",
         "minecraft:orange_carpet",
         "minecraft:orange_bed",
-        "minecraft:orange_banner"]
+        "minecraft:orange_banner",
+        "minecraft:orange_wool_stairs",
+        "minecraft:orange_wool_slab",
+        "minecraft:orange_concrete_stairs",
+        "minecraft:orange_concrete_slab",
+        "minecraft:orange_wall_banner",
+        "minecraft:orange_candle_cake"
+    ]
 }

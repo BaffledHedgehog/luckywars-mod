@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:confuse_wand",
           "modifier": [
             {
               "count": 1,

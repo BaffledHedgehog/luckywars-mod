@@ -11,5 +11,12 @@
         "minecraft:gray_wool",
         "minecraft:gray_carpet",
         "minecraft:gray_bed",
-        "minecraft:gray_banner"]
+        "minecraft:gray_banner",
+        "minecraft:gray_wool_stairs",
+        "minecraft:gray_wool_slab",
+        "minecraft:gray_concrete_stairs",
+        "minecraft:gray_concrete_slab",
+        "minecraft:gray_wall_banner",
+        "minecraft:gray_candle_cake"
+    ]
 }

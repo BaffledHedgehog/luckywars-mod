@@ -31,6 +31,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Source utilities using vanilla transport and the shared Psycho, inventory and pipe owners. */
 public final class LbcThrownUtilities {
+    public interface OwnerGate { boolean skywars2$leftOwner(); }
     public enum Kind { RUCHKA, HONEW, THROWABLE_METAL_PIPE, BUCKET, PUMPKIN }
     /** Author decisions can change suppression without changing native launch/debit ownership. */
     public interface Policy {
@@ -96,7 +97,7 @@ public final class LbcThrownUtilities {
         if(output.size()!=1||!LbcMetalPipe.matches(output.getFirst()))return false;
         var stack=output.getFirst();LbcInventoryHazards.recordProducer(stack,owner.getUUID(),game.items().epoch());
         var item=new ItemEntity(owner.level(),at.x,at.y,at.z,stack);item.setDeltaMovement(velocity);item.setThrower(owner);
-        item.setPickUpDelay(10);game.items().markCurrentItemEpoch(item);
+        item.entityTags().add(LbcMetalPipe.THROWN);item.setPickUpDelay(10);game.items().markCurrentItemEpoch(item);
         if(!owner.level().addFreshEntity(item))return false;
         game.items().metalPipe().loaded(item);return true;
     }
@@ -108,9 +109,9 @@ public final class LbcThrownUtilities {
                 ||!policy.allowsPayload(Kind.RUCHKA,owner,target))return;
         owner.getMainHandItem().shrink(1);ruchka(owner,target);
     }
-    private boolean target(ServerPlayer owner,ServerPlayer target){return owner!=target&&target.isAlive()&&!target.isRemoved()
+    private boolean target(ServerPlayer owner,ServerPlayer target){return target.isAlive()&&!target.isRemoved()
             &&owner.level()==target.level()&&!game.items().timeStop().frozen(target)
-            &&game.items().wands().projectileTarget(owner,target);}
+            &&game.items().wands().validRoleTarget(target,false);}
     /** Dispatch before native Snowball.tick, after TimeStop's frozen-actor gate. No world scan or tick NBT decode. */
     public void beforeTick(Entity entity){
         if(!(entity instanceof Snowball shot))return;var state=flights.get(shot);if(state==null)return;
@@ -125,7 +126,9 @@ public final class LbcThrownUtilities {
         var owner=game.server().getPlayerList().getPlayer(state.author());if(owner==null||owner.level()!=shot.level())return;
         var center=shot.position().add(0,1,0);ServerPlayer nearest=null;double distance=4.5*4.5;
         for(var candidate:((ServerLevel)shot.level()).getEntitiesOfClass(ServerPlayer.class,
-                new AABB(center,center).inflate(4.5),p->target(owner,p))){
+                new AABB(center,center).inflate(4.5),p->target(owner,p)&&(p!=owner||((OwnerGate)shot).skywars2$leftOwner()
+                        &&(p.getBoundingBox().inflate(.3).contains(shot.position())
+                        ||p.getBoundingBox().inflate(.3).clip(shot.position(),shot.position().add(shot.getDeltaMovement())).isPresent())))){
             double next=candidate.position().distanceToSqr(center);
             if(next<=distance){nearest=candidate;distance=next;}
         }
@@ -169,7 +172,7 @@ public final class LbcThrownUtilities {
         // A real projectile source retains caster attribution without becoming an accepted melee hit.
         var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(DamageTypes.GENERIC),shot,owner);
-        target.hurtServer(level,damage,5);
+        target.hurtServer(level,game.items().indirectKills().captureDamage(damage,game.items().indirectKills().wildCause(owner)),5);
         for(int i=0;i<10;i++)LbcOverload.sound(level,target.position(),"minecraft:lbcsounds.bell",10,1,5,0);
     }
     /** Publish the exact previous helmet before replacing it; share protection and provenance with the bucket. */
@@ -193,7 +196,7 @@ public final class LbcThrownUtilities {
         if(equipHead(target,"lbc:imba/pumpkin_head",Items.CARVED_PUMPKIN,"helmet"))
             target.sendSystemMessage(Component.translatable("tikva_equip").withStyle(net.minecraft.ChatFormatting.YELLOW));
         var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),shot,owner);
-        target.hurtServer(level,damage,5);
+        target.hurtServer(level,game.items().indirectKills().captureDamage(damage,game.items().indirectKills().wildCause(owner)),5);
         for(float pitch:new float[]{1,2})LbcOverload.sound(level,at,"minecraft:block.decorated_pot.insert",1,pitch,0,0);
         level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,ItemStackTemplate.fromNonEmptyStack(new ItemStack(Items.SNOWBALL))),
                 at.x,at.y+1,at.z,40,.3,.6,.3,0);

@@ -17,8 +17,15 @@ public final class CunnyRestartChecks {
         if (!value) throw new IllegalStateException("Cunny restart: " + why);
     }
     public static void run(GameController game) {
+        run(game,false);
+    }
+    /** Reproduce a queued lobby start winning the selected-map callback before the Cunny driver ticks. */
+    public static void runQueuedStart(GameController game) {
+        run(game,true);
+    }
+    private static void run(GameController game,boolean queueDuringPreparation) {
         require(running == null,"exclusive fixture");
-        var fixture = new Fixture(game); running = fixture;
+        var fixture = new Fixture(game,queueDuringPreparation); running = fixture;
         try { fixture.begin(); } catch (Throwable error) { running = null; fixture.close(); throw error; }
     }
     public static void tick(GameController game) {
@@ -28,7 +35,7 @@ public final class CunnyRestartChecks {
             require(fixture.game == game,"same controller");
             if (!fixture.step()) return;
             running = null; fixture.close();
-            SkyWars2.LOGGER.info("[check] PASS cunny-restart (new epoch, observer enrolled, native TimeStop, one start award, lives/settings/profiles preserved, fresh match playing)");
+            SkyWars2.LOGGER.info("[check] PASS {} (queuedStart={}, new epoch, observer enrolled, native TimeStop, one start award, lives/settings/profiles preserved, fresh match playing)",fixture.queueDuringPreparation?"cunny-queued-restart":"cunny-restart",fixture.queueDuringPreparation);
         } catch (Throwable error) {
             running = null;
             try { fixture.close(); } catch (Throwable cleanup) { error.addSuppressed(cleanup); }
@@ -51,10 +58,12 @@ public final class CunnyRestartChecks {
         final String epoch,map;
         final int mode,lives,start;
         final boolean broken;
+        final boolean queueDuringPreparation;
         final Map<UUID,Profile> profiles = new LinkedHashMap<>();
-        int state,at; boolean closed,completed;
-        Fixture(GameController game) {
+        int state,at; boolean closed,completed,queuedStart;
+        Fixture(GameController game,boolean queueDuringPreparation) {
             this.game=game;
+            this.queueDuringPreparation=queueDuringPreparation;
             var online=game.server().getPlayerList().getPlayers();
             require(game.playing() && online.size() >= 2,"actual match and at least two players");
             owner=online.getFirst();observer=online.get(1);
@@ -86,7 +95,12 @@ public final class CunnyRestartChecks {
                 game.items().timeStop().end(game.maps().level());state=1;return false;
             }
             if(state==1) {
+                if(queueDuringPreparation&&!queuedStart&&game.cunnyRestartPending()&&game.inLobby()&&!game.selectedMapReady()){
+                    game.requestStart(null,false);queuedStart=true;
+                }
                 if(epoch.equals(game.items().epoch()) || game.stage()!=GameController.Stage.COUNTDOWN)return false;
+                require(!queueDuringPreparation||queuedStart,"queued start exercised the preparation callback");
+                require(!game.cunnyRestartPending(),"countdown consumes the old restart driver, including a queued-start callback");
                 require(game.config().gameMode==mode && game.config().mapId.equals(map)
                         && game.config().broken==broken,"selected admitted mode/map retained");
                 for(var entry:profiles.entrySet()) {

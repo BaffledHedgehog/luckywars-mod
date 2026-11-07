@@ -382,6 +382,38 @@ public final class LbcLoadouts {
         };
     }
 
+    /** Accepted initial choices, independent of later debug edits and respawn reapplication. */
+    java.util.Map<String, List<Integer>> statisticsChoices(ServerPlayer player) {
+        var profile = players.get(player.getUUID());
+        var choices = new java.util.LinkedHashMap<String, List<Integer>>();
+        var kit = byId(Kind.KITS, profile.lbcKit);
+        if (config.lbcKits && kit != null && allowed(player, kit)) choices.put("kit", List.of(kit.id));
+        var skill = byId(Kind.SKILLS, profile.lbcSkill);
+        if (config.lbcSkills && skill != null && allowed(player, skill)) choices.put("skill", List.of(skill.id));
+        var trinkets = new ArrayList<Integer>();
+        for (int n = 0; n < Math.min(config.lbcTrinketLimit, profile.trinkets.length); n++) {
+            var entry = byId(Kind.TRINKETS, profile.trinkets[n]);
+            if (entry != null && allowed(player, entry)) trinkets.add(entry.id);
+        }
+        choices.put("trinket", List.copyOf(trinkets));
+        var levelups = new ArrayList<Integer>();
+        if (config.lbcLevelups) for (int n = 0; n < Math.min(config.lbcLevelupLimit, profile.levelups.length); n++) {
+            var entry = byId(Kind.LEVELUPS, profile.levelups[n]);
+            if (entry != null && allowed(player, entry)) levelups.add(entry.id);
+        }
+        choices.put("levelup", List.copyOf(levelups));
+        if (config.lbcChallenges && profile.lbcChallengeKit == 1 && challengeRewardAvailable(player))
+            choices.put("x_kit", List.of(1));
+        if (profile.lbcChallenge == 1) choices.put("challenge", List.of(1));
+        if (config.vanillaKits && profile.kit > 0 && profile.kit <= 24 && profile.kit != 19
+                && OriginalGuiDesign.unlocked(player, "swrg", 3000, profile.kit - 1, profile, config))
+            choices.put("swrg_kit", List.of(profile.kit));
+        if (config.vanillaSkills && profile.skill > 0 && profile.skill <= 13
+                && OriginalGuiDesign.unlocked(player, "swrg", 4000, profile.skill - 1, profile, config))
+            choices.put("swrg_skill", List.of(profile.skill));
+        return java.util.Map.copyOf(choices);
+    }
+
     /** Called only at start/respawn. Registry tables preserve source names, models and components. */
     public void apply(ServerPlayer player) {
         apply(player, true);

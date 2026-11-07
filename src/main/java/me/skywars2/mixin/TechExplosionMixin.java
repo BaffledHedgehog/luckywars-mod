@@ -34,6 +34,16 @@ public final class TechExplosionMixin {
     private TechExplosionMixin(){}
     @Mixin(value=ServerLevel.class,priority=6000)
     public abstract static class LevelExplosion {
+        @WrapMethod(method="explode(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;DDDFZLnet/minecraft/world/level/Level$ExplosionInteraction;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/util/random/WeightedList;Lnet/minecraft/core/Holder;)V")
+        private void skywars2$creeperPresentation(Entity source,DamageSource damage,ExplosionDamageCalculator calculator,
+                double x,double y,double z,float radius,boolean fire,Level.ExplosionInteraction interaction,
+                ParticleOptions small,ParticleOptions large,WeightedList<ExplosionParticleInfo> blocks,Holder<SoundEvent> sound,Operation<Void> original){
+            // MOB is the legacy creeper blast path. Preserve its single central flash;
+            // 26.3 otherwise adds emitter bursts and a separate cloud of block fragments.
+            boolean creeper=interaction==Level.ExplosionInteraction.MOB;
+            original.call(source,damage,calculator,x,y,z,radius,fire,interaction,small,
+                    creeper?small:large,creeper?WeightedList.of():blocks,sound);
+        }
         @Inject(method="explode(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;DDDFZLnet/minecraft/world/level/Level$ExplosionInteraction;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/util/random/WeightedList;Lnet/minecraft/core/Holder;)V",at=@At("HEAD"),cancellable=true)
         private void skywars2$techBlastPublication(Entity source,DamageSource damage,ExplosionDamageCalculator calculator,
                 double x,double y,double z,float radius,boolean fire,Level.ExplosionInteraction interaction,

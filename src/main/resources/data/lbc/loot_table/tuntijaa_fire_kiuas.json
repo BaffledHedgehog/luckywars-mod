@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:repeating_command_block",
+          "name": "skywars2:sun_arcanum",
           "modifier": [
             {
               "count": 1,

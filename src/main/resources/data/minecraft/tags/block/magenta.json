@@ -11,5 +11,12 @@
         "minecraft:magenta_wool",
         "minecraft:magenta_carpet",
         "minecraft:magenta_bed",
-        "minecraft:magenta_banner"]
+        "minecraft:magenta_banner",
+        "minecraft:magenta_wool_stairs",
+        "minecraft:magenta_wool_slab",
+        "minecraft:magenta_concrete_stairs",
+        "minecraft:magenta_concrete_slab",
+        "minecraft:magenta_wall_banner",
+        "minecraft:magenta_candle_cake"
+    ]
 }

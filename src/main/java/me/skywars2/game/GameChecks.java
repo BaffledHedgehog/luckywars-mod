@@ -1278,6 +1278,11 @@ public final class GameChecks {
                                 case "cunny-native" -> {CunnyChecks.run(game);return;}
                                 case "cunny-rewind" -> {CunnyChecks.runRewind(game);return;}
                                 case "cunny-restart" -> {CunnyRestartChecks.run(game);return;}
+                                case "cunny-queued-restart" -> {CunnyRestartChecks.runQueuedStart(game);return;}
+                                case "native-test-report-combat" -> {NativeTestReportCombatChecks.run(game);return;}
+                                case "rotated-physics" -> {RotatedPhysicsChecks.run(game);return;}
+                                case "perk-statistics" -> {PerkStatisticsChecks.run(game);return;}
+                                case "test-report-core" -> {TestReportCoreChecks.run(game);return;}
                                 case "mellstroy-native" -> {MellstroyChecks.run(game);return;}
                                 case "mellstroy-rewind" -> {MellstroyChecks.runRewind(game);return;}
                                 case "cinema-native" -> {AbsoluteCinemaChecks.run(game);return;}
@@ -1685,7 +1690,7 @@ public final class GameChecks {
             TmtNativeThrowChecks.tick(game);
             TmtInventoryTraitChecks.tick(game);
             ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);TmtDropChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
-            CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
+            NativeTestReportCombatChecks.tick(game);CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);
             SheepChecks.tick(game);

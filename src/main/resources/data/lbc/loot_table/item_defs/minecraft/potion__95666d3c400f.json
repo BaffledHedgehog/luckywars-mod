@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:potion",
+          "name": "skywars2:mana_potion",
           "modifier": [
             {
               "count": 1,

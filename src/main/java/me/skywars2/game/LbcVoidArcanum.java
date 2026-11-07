@@ -295,6 +295,9 @@ public final class LbcVoidArcanum {
         for(var entity:hole.world.getAllEntities()){
             if(!(entity instanceof LivingEntity target)||!physicalTarget(hole,author,target)
                     ||!resident(hole.world,target.position())||!hole.wild&&!game.items().wands().target(author,target))continue;
+            // A captured body keeps being pulled/damaged, but is no longer a destination.
+            // Use its actual volume, so tall mobs cannot pin the hole to their feet or eyes.
+            if(BlackHoleDamage.distanceSquared(target,hole.point)<=hurt*hurt)continue;
             double distance=chasePoint(hole,target).distanceToSqr(hole.point);
             if(distance<best){best=distance;nearest=target;}
         }
@@ -302,8 +305,7 @@ public final class LbcVoidArcanum {
         if(nearest!=null){
             Vec3 offset=chasePoint(hole,nearest).subtract(hole.point);
             // Bounded steering retains momentum while accelerating toward the current nearest target.
-            // Arrive at the chase point itself: a one-block exclusion shell made contact
-            // switch to farther targets, resembling physical repulsion by the victim.
+            // Captured targets are excluded above; steering now chains to the next body.
             double distance=offset.length(),acceleration=ACCELERATION[hole.level];
             // Discrete braking distance: remove the old stand-off without orbiting the eyes.
             double arrivalSpeed=Math.sqrt(acceleration*acceleration+2*acceleration*distance)-acceleration;

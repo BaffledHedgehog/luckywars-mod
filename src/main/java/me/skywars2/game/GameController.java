@@ -71,6 +71,7 @@ public final class GameController {
         private final Set<UUID> balanceResets;
         private final Map<UUID,Integer> balanceRewards;
         private final Map<UUID, Participant> members = new LinkedHashMap<>();
+        private final Map<UUID, PerkChoice> perkChoices;
         private final Set<UUID> pending;
         private final List<Entity> unloads;
         private final Stage stage;
@@ -94,6 +95,7 @@ public final class GameController {
             balanceRenewal=g.balanceMap;legacy=g.balanceLegacy;balanceResets=Set.copyOf(g.balancePendingReset);
             balanceRewards=Map.copyOf(g.balancePendingRewards);
             g.participants.forEach((id,p)->members.put(id,copy(p)));
+            perkChoices=Map.copyOf(g.perkChoices);
             pending=Set.copyOf(g.pendingLobby);unloads=List.copyOf(g.nativeEntityUnloads);
             stage=g.stage;host=g.host;pendingStarter=g.pendingStarter;victoryWinner=g.victoryWinner;
             activeGameMode=g.activeGameMode;
@@ -140,6 +142,7 @@ public final class GameController {
         items.containedSkills().stop();
         items.combatRewards().clear();items.machinegunSkill().clearTransient();items.zeusSkill().clearTransient();
         participants.clear();image.members.forEach((id,p)->participants.put(id,Checkpoint.copy(p)));
+        perkChoices.clear();perkChoices.putAll(image.perkChoices);
         pendingLobby.clear();pendingLobby.addAll(image.pending);nativeEntityUnloads.clear();nativeEntityUnloads.addAll(image.unloads);
         stage=image.stage;host=image.host;pendingStarter=image.pendingStarter;victoryWinner=image.victoryWinner;
         countdownTicks=image.countdownTicks;gameTicks=image.gameTicks;finishTicks=image.finishTicks;lastAliveTicks=image.lastAliveTicks;
@@ -224,9 +227,12 @@ public final class GameController {
     private boolean startAfterSelection;
     private UUID pendingStarter;
     private UUID victoryWinner;
+    private record PerkChoice(String receipt, String playerName, Map<String, List<Integer>> choices) {}
+    private final Map<UUID, PerkChoice> perkChoices = new LinkedHashMap<>();
 
     public GameController(MinecraftServer server, GameConfig config, PlayerStore players, MapManager maps) {
         this.server = server; this.config = config; this.players = players; this.maps = maps;
+        LbcPerkStatistics.initialize(server);
         this.teamColors = new LbcTeamColors(server.getScoreboard());
         this.zoneBarrier = new ZoneBarrier(this);
         this.events = new MatchEvents(this, maps, config, players);
@@ -888,6 +894,9 @@ public final class GameController {
     }
 
     private void begin() {
+        // A selected-map callback can start before the restart driver gets its next tick.
+        // Entering the fresh round consumes every old lobby/start intent at this common boundary.
+        cunnyRestart=null;runeRestartPending=false;startAfterSelection=false;pendingStarter=null;
         beginMatchMode(config.gameMode);
         developerTools.gallery().clearForMatchStart();
         maps.removeLobbyOverlay();
@@ -1083,6 +1092,7 @@ public final class GameController {
     private void startPlaying() {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < (developerMode() ? 1 : 2)) { restoreLobby(); return; }
+        perkChoices.clear();
         lbc.resetLevelupMatch();
         LbcPhdCrafting.matchStarted(this);
         luckyModifiers.startMatch();
@@ -1095,6 +1105,9 @@ public final class GameController {
             if (config.vanillaSkills) events.giveSkill(player);
             items.magic().colors().resetResources(player);
             lbc.apply(player);
+            var choice = new PerkChoice(UUID.randomUUID().toString(), player.getName().getString(), lbc.statisticsChoices(player));
+            perkChoices.put(player.getUUID(), choice);
+            LbcPerkStatistics.get(server).recordPicks(choice.receipt(), choice.playerName(), choice.choices());
             var member=participants.get(player.getUUID());
             member.lives=items.phoenix().start(player,member.lives);player.setHealth(player.getMaxHealth());
             items.cinema().start(player,maps.centerPositions());
@@ -1425,6 +1438,8 @@ public final class GameController {
         // Team victory belongs to every enrolled teammate, including dead/offline teammates.
         List<UUID> rewarded=bedwarsResult?bedwarsRewarded:winner==null?List.of():List.of(winner.getUUID());
         for(UUID id:rewarded){var profile=players.get(id);profile.coins+=100;profile.wins++;
+            var choice=perkChoices.get(id);
+            if(choice!=null)LbcPerkStatistics.get(server).recordWins(choice.receipt(),choice.playerName(),choice.choices());
             profile.keys[ThreadLocalRandom.current().nextInt(4)]++;
             var onlineWinner=server.getPlayerList().getPlayer(id);
             if(onlineWinner!=null)onlineWinner.sendSystemMessage(rewardText("swrg.reward.win"));}
@@ -1461,6 +1476,7 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        perkChoices.clear();
         cunnyRestart=null;
         vanity.stop();
         lbc.resetLevelupMatch();
@@ -1716,6 +1732,8 @@ public final class GameController {
     }
 
     public void shutdown() {
+        LbcPerkStatistics.get(server).flush();
+        perkChoices.clear();
         bedwars.stop();
         developerTools.close();
         vanity.stop();

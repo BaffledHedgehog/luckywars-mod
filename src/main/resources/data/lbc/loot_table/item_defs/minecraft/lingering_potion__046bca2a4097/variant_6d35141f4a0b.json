@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:lingering_potion",
+          "name": "skywars2:mana_lingering_potion",
           "modifier": [
             {
               "count": 1,

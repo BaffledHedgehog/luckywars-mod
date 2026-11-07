@@ -400,10 +400,40 @@ final class OriginalGuiDesign {
             if (!stack.isEmpty()) {
                 ItemStack result = stack.copy();
                 applySourceText(result, id, player, profile, config);
+                appendMissingPerkStatistics(result, id, player);
                 return result;
             }
         }
         throw failure("Source GUI loot table produced no item: " + id);
+    }
+
+    /** Original SWRG selectors and the active challenge lacked the LBC statistics rows. */
+    private static void appendMissingPerkStatistics(ItemStack stack, Identifier id, ServerPlayer player) {
+        String category;
+        int index;
+        String path = id.getPath();
+        if (id.getNamespace().equals("swrg") && path.matches("gui/page/(3000|4000)/\\d+")) {
+            category = path.startsWith("gui/page/3000/") ? "swrg_kit" : "swrg_skill";
+            index = Integer.parseInt(path.substring(path.lastIndexOf('/') + 1));
+            if (category.equals("swrg_kit") ? index >= 24 || index == 18 : index >= 13) return;
+        } else if (id.getNamespace().equals("lbc") && path.equals("gui/page/12000/0")) {
+            category = "challenge";
+            index = 0;
+        } else return;
+        var lore = stack.get(DataComponents.LORE);
+        var lines = new ArrayList<Component>(lore == null ? List.of() : lore.lines());
+        for (String kind : List.of("pick", "win")) {
+            String rate = LbcPerkStatistics.value(player.level().getServer(), player.getName().getString(),
+                    kind + "_rate_" + category + "[" + index + "]");
+            String count = LbcPerkStatistics.value(player.level().getServer(), player.getName().getString(),
+                    kind + "_count_" + category + "[" + index + "]");
+            lines.add(Component.translatable(kind + "_rate").withStyle(net.minecraft.ChatFormatting.GOLD)
+                    .append(Component.literal(rate).withStyle(net.minecraft.ChatFormatting.YELLOW))
+                    .append(Component.translatable(kind + "_count").withStyle(net.minecraft.ChatFormatting.GOLD))
+                    .append(Component.literal(count).withStyle(net.minecraft.ChatFormatting.YELLOW))
+                    .withStyle(style -> style.withItalic(false)));
+        }
+        stack.set(DataComponents.LORE, new ItemLore(lines));
     }
 
     private static void applySourceText(ItemStack stack, Identifier tableId, ServerPlayer player,
@@ -717,6 +747,17 @@ final class OriginalGuiDesign {
             return result;
         }
         JsonObject object = source.getAsJsonObject();
+        if (object.has("nbt") && object.has("storage") && object.get("storage").getAsString().equals("stats:stats")) {
+            if (values == null || values.player == null) throw failure("Missing player for perk statistics at " + description);
+            JsonObject literal = object.deepCopy();
+            String path = literal.remove("nbt").getAsString();
+            literal.remove("storage");
+            literal.remove("interpret");
+            literal.remove("type");
+            literal.addProperty("text", LbcPerkStatistics.value(values.player.level().getServer(),
+                    values.player.getName().getString(), path));
+            return resolveDynamic(literal, values, description);
+        }
         if (object.has("selector") && object.get("selector").isJsonPrimitive()) {
             if (values == null || values.player == null) throw failure("Missing player for source selector at " + description);
             JsonObject literal = object.deepCopy();

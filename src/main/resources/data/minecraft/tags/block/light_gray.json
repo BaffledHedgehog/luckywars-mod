@@ -11,5 +11,12 @@
         "minecraft:light_gray_wool",
         "minecraft:light_gray_carpet",
         "minecraft:light_gray_bed",
-        "minecraft:light_gray_banner"]
+        "minecraft:light_gray_banner",
+        "minecraft:light_gray_wool_stairs",
+        "minecraft:light_gray_wool_slab",
+        "minecraft:light_gray_concrete_stairs",
+        "minecraft:light_gray_concrete_slab",
+        "minecraft:light_gray_wall_banner",
+        "minecraft:light_gray_candle_cake"
+    ]
 }

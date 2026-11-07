@@ -2,6 +2,7 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "GalleryTrackingMixin",
     "TmtItemPredicateMixin",
     "TmtTypedPredicateMixin",
     "TmtPhysicalDropMixin",
@@ -59,6 +60,9 @@
     "ChemicalCloudVisualMixin",
     "WeaknessAttributeMixin",
     "BobaGravityMixin",
+    "BobaGravityMixin$Tracking",
+    "BobaGravityMixin$FallingBlock",
+    "BobaGravityMixin$FallingEntity",
     "BobaGravityMixin$Living",
     "BobaGravityMixin$Boat",
     "BobaGravityMixin$Squid",

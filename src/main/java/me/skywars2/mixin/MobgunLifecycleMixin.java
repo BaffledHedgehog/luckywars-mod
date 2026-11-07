@@ -78,6 +78,8 @@ public final class MobgunLifecycleMixin {
 
     @Mixin(net.minecraft.world.entity.boss.enderdragon.EndCrystal.class)
     public abstract static class Crystal {
+        @com.llamalad7.mixinextras.injector.ModifyExpressionValue(method="hurtServer",at=@At(value="INVOKE",target="Lnet/minecraft/world/damagesource/DamageSource;is(Lnet/minecraft/tags/TagKey;)Z"))
+        private boolean skywars2$chainCrystalBlast(boolean explosion){return false;}
         @WrapMethod(method="hurtServer")
         private boolean skywars2$actorCrystalAttack(ServerLevel level,net.minecraft.world.damagesource.DamageSource source,
                 float amount,Operation<Boolean> original) {

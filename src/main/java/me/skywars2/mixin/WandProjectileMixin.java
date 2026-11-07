@@ -13,7 +13,9 @@ import net.minecraft.world.phys.HitResult;
 
 /** Отсекаем защищённые цели до нативного onHitEntity, который сначала поджигает цель. */
 @Mixin(Projectile.class)
-public abstract class WandProjectileMixin {
+public abstract class WandProjectileMixin implements me.skywars2.game.LbcThrownUtilities.OwnerGate {
+    @org.spongepowered.asm.mixin.gen.Accessor("leftOwner")
+    public abstract boolean skywars2$leftOwner();
     /** Прямой setter вместо полной загрузки NBT для каждого ножа в массовом залпе. */
     @Mixin(net.minecraft.world.entity.projectile.arrow.AbstractArrow.class)
     public interface ArrowAccess {

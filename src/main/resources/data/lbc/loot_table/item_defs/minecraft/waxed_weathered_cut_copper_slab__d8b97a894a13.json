@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:waxed_weathered_cut_copper_slab",
+          "name": "skywars2:kara_weathered_slab",
           "modifier": [
             {
               "type": "minecraft:set_count",

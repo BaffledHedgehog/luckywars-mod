@@ -66,21 +66,24 @@ public final class AttributePolicyChecks {
         damage.setBaseValue(3);
         damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(weakness,-400,
                 net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
-        require(damage.getValue()==0,"Weakness's own penalty stops at zero");
-        damage.setBaseValue(-7);require(damage.getValue()==-7,"negative authored base survives Weakness");
+        require(Math.abs(damage.getValue()-3*Math.pow(.75,100))<1e-20,"Weakness scales by .75 per level");
+        damage.setBaseValue(-7);require(Math.abs(damage.getValue()+7*Math.pow(.75,100))<1e-20,"negative authored base remains signed under Weakness");
         damage.removeModifier(weakness);damage.setBaseValue(3);
         damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(other,-8,
                 net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
         require(damage.getValue()==-5,"independent negative additive damage remains signed");
         damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(weakness,-400,
                 net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
-        require(damage.getValue()==-5,"Weakness does not deepen an existing other-source negative total");
+        require(Math.abs(damage.getValue()+5*Math.pow(.75,100))<1e-20,"Weakness scales independent signed modifiers");
         damage.removeModifier(other);damage.removeModifier(weakness);damage.setBaseValue(3);
         damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(other,-2,
                 net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-        damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(weakness,-1,
+        damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(weakness,-4,
                 net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
-        require(damage.getValue()==-2,"other-source negative percentage remains signed after Weakness's own deduction");
+        require(damage.getValue()==-2.25,"other-source negative percentage remains signed under multiplicative Weakness");
+        damage.removeModifier(other);damage.removeModifier(weakness);
+        damage.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(weakness,4,net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE));
+        require(damage.getValue()==4,"negative Weakness applies reciprocal multiplier");
         SkyWars2.LOGGER.info("[check] PASS attribute-policy");
     }
 }

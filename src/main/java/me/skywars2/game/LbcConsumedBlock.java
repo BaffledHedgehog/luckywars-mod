@@ -1,7 +1,5 @@
 package me.skywars2.game;
 
-import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
-import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -27,14 +25,14 @@ public final class LbcConsumedBlock {
     private static final BlockState CLIENT_STATE=LbcBlockModels.fullCube(ID,Identifier.parse("lbc:block/consumed_block"));
     public static final Block BLOCK=Registry.register(BuiltInRegistries.BLOCK,ID,new Consumed(
             BlockBehaviour.Properties.ofFullCopy(Blocks.RED_MUSHROOM_BLOCK).setId(ResourceKey.create(Registries.BLOCK,ID))));
-    public static final Item ITEM=Registry.register(BuiltInRegistries.ITEM,ID,new PolymerBlockItem(BLOCK,
-            new Item.Properties().setId(ResourceKey.create(Registries.ITEM,ID)).component(DataComponents.ITEM_MODEL,MODEL),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLACK).asItem(),true));
+    public static final Item ITEM=Registry.register(BuiltInRegistries.ITEM,ID,new LbcBlockModels.CubeItem(BLOCK,
+            new Item.Properties().setId(ResourceKey.create(Registries.ITEM,ID)).component(DataComponents.ITEM_MODEL,MODEL),Blocks.RED_MUSHROOM_BLOCK.asItem()));
     private LbcConsumedBlock(){}
     public static void register(){
         LbcBlockModels.model(Identifier.parse("lbc:block/consumed_block"),BLOCK_MODEL);
         LbcBlockModels.texture(Identifier.parse("lbc:block/consumed_block"),BLACK_TEXTURE);
     }
-    private static final class Consumed extends Block implements PolymerTexturedBlock {
+    private static final class Consumed extends LbcBlockModels.Cube {
         Consumed(Properties properties){super(properties);}
         @Override public BlockState getPolymerBlockState(BlockState state,PacketContext context){return CLIENT_STATE;}
         // The consumed-state branch in the original mushroom loot explicitly emitted nothing.

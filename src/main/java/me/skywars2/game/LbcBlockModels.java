@@ -5,17 +5,54 @@ import com.google.gson.JsonObject;
 import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
+import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
+import eu.pb4.polymer.core.api.block.PolymerBlockUtils;
+import eu.pb4.polymer.core.api.item.PolymerBlockItem;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 /** One startup allocation per opaque cube; Polymer owns vanilla-state remapping and pack generation. */
 final class LbcBlockModels {
+    /** Opaque custom cubes whose vanilla block-item carrier already predicts placement audio. */
+    static class CubeItem extends PolymerBlockItem {
+        CubeItem(Block block,Item.Properties properties,Item carrier){super(block,properties,carrier,true);}
+        @Override public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state,ServerPlayer player,
+                InteractionHand hand,ItemStack stack,ServerLevel level,BlockHitResult hit){return false;}
+    }
+    abstract static class Cube extends Block implements PolymerTexturedBlock {
+        Cube(Properties properties){super(properties);}
+        @Override public void spawnDestroyByEntityParticles(Level level,Entity entity,BlockPos pos,BlockState state){
+            // Keep native observer exclusion. Calling super would also run Polymer's unconditional
+            // self event, duplicating vanilla's predicted destruction for creative/instant mining.
+            level.levelEvent(entity,LevelEvent.PARTICLES_DESTROY_BLOCK,pos,Block.getId(state));
+            if(entity instanceof ServerPlayer player&&!player.getAbilities().instabuild
+                    &&PolymerBlockUtils.shouldMineServerSide(player,pos,state)){
+                var client=PolymerBlockUtils.getPolymerBlockState(state,player.connection.getPacketContext());
+                // Slower server-controlled mining never reaches the client's destroyBlock path.
+                // A client that could insta-mine already emitted both the sound and the particles.
+                if(client.getDestroyProgress(player,level,pos)<1)player.connection.send(new ClientboundLevelEventPacket(
+                        LevelEvent.PARTICLES_DESTROY_BLOCK,pos,Block.getId(state),false));
+            }
+        }
+    }
     record Allocation(Identifier serverBlock, Identifier model, BlockState clientState) {}
     private static final Map<Identifier,Allocation> ALLOCATIONS=new LinkedHashMap<>();
     private static final Map<String,String> MODELS=new LinkedHashMap<>();

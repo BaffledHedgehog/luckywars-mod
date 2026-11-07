@@ -215,12 +215,14 @@ final class MapRotation implements LbcStonekivi.Work {
         var pos=new BlockPos.MutableBlockPos();
         for(int i=0;i<destinationSections.length;i++)for(int sy=0;sy<SIZE/16;sy++){
             var section=destinationSections[i][sy];
-            if(section==null||!section.maybeHas(s->!s.getFluidState().isEmpty()))continue;
+            if(section==null||!section.maybeHas(s->!s.getFluidState().isEmpty()||s.getBlock() instanceof net.minecraft.world.level.block.FallingBlock))continue;
             for(int cell=0;cell<4096;cell++){
                 int x=(minChunkX+i/depth)*16+(cell&15),z=(minChunkZ+i%depth)*16+(cell>>4&15),y=sy*16+(cell>>8);
                 pos.set(x,y,z);if(!inside(pos))continue;
-                var fluid=section.getBlockState(x&15,y&15,z&15).getFluidState();
+                var state=section.getBlockState(x&15,y&15,z&15);var fluid=state.getFluidState();
                 if(!fluid.isEmpty())level.scheduleTick(pos.immutable(),fluid.getType(),fluid.getType().getTickDelay(level));
+                // Section publication bypasses onPlace/updateShape; seed native support checks only after the new frame commits.
+                if(state.getBlock() instanceof net.minecraft.world.level.block.FallingBlock)level.scheduleTick(pos.immutable(),state.getBlock(),2);
             }
         }
     }

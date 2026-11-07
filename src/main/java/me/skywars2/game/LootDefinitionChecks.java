@@ -24,6 +24,7 @@ public final class LootDefinitionChecks {
     private static final Set<String> FUNCTIONS = Set.of("set_components", "set_count", "set_name", "set_lore",
             "set_custom_data", "set_enchantments", "set_attributes", "enchant_with_levels", "toggle_tooltips",
             "set_damage", "explosion_decay", "copy_components", "fill_player_head");
+    private static final String MELLSTROY_PROTOTYPE = "lbc:item_defs/lbc/mellstroy_mask__fc2cbe716754";
     // Exact reused targets introduced by canonicalization, independent of unreleased source pools.
     private static final String[] REUSED = {
         "lbc:lightning_bolt_egg",
@@ -532,11 +533,12 @@ public final class LootDefinitionChecks {
             if (!singleSelection(entry)) return null;
             JsonObject payload;
             if (kind(entry).equals("item")) {
-                if (!Set.of("type", "name", "modifier", "weight", "quality", "conditions").containsAll(entry.keySet())
+                // Legacy functions is opaque metadata: only modifier is executed by the native codec.
+                if (!Set.of("type", "name", "modifier", "weight", "quality", "conditions", "functions").containsAll(entry.keySet())
                         || !entry.has("name") || !safeFunctions(entry)) return null;
                 payload = entry.deepCopy();
             } else if (kind(entry).equals("loot_table") && entry.has("value") && entry.get("value").isJsonPrimitive()) {
-                if (!Set.of("type", "value", "modifier", "weight", "quality", "conditions").containsAll(entry.keySet())) return null;
+                if (!Set.of("type", "value", "modifier", "weight", "quality", "conditions", "functions").containsAll(entry.keySet())) return null;
                 payload = definition(entry.get("value").getAsString(), active);
                 if (payload == null || !safeFunctions(entry)) return null;
                 var functions = modifiers(payload);
@@ -582,6 +584,14 @@ public final class LootDefinitionChecks {
     }
 
     public static void run(GameController game) {
+        var mellstroy = definition(MELLSTROY_PROTOTYPE, new HashSet<>());
+        require(mellstroy != null && mellstroy.get("name").getAsString().equals("minecraft:carrot_on_a_stick")
+                && !mellstroy.has("functions") && !mellstroy.has("modifier"),
+                "native Mellstroy prototype keeps legacy functions opaque to loot expansion");
+        var jungleSlab = definition("lbc:item_defs/minecraft/jungle_slab__1da05219a901", new HashSet<>());
+        require(jungleSlab != null && jungleSlab.get("name").getAsString().equals("skywars2:cunny_jungle_slab")
+                && !jungleSlab.has("functions") && !jungleSlab.has("modifier"),
+                "native jungle slab keeps legacy count functions opaque to loot expansion");
         var wrapper = JsonParser.parseString("{\"type\":\"minecraft:loot_table\",\"value\":\"lbc:item_defs/lbc/popit__1655a8bd833f\","
                 + "\"weight\":7,\"quality\":-2,\"condition\":{\"type\":\"minecraft:random_chance\",\"chance\":0.25},"
                 + "\"modifier\":[{\"type\":\"minecraft:set_count\",\"count\":3}]}").getAsJsonObject();
@@ -595,7 +605,7 @@ public final class LootDefinitionChecks {
                 "check expander keeps definition prefix before caller count suffix");
         var resources = game.server().getResourceManager().listResources("loot_table/item_defs",
                 id -> id.getNamespace().equals("lbc") && id.getPath().endsWith(".json"));
-        require(resources.size() == 3614, "all 3614 packaged canonical resources, actual=" + resources.size());
+        require(resources.size() == 3623, "all 3623 packaged canonical resources, actual=" + resources.size());
         for (var resource : resources.keySet()) {
             String path = resource.getPath();
             String id = resource.getNamespace() + ":" + path.substring("loot_table/".length(), path.length() - 5);
@@ -621,10 +631,11 @@ public final class LootDefinitionChecks {
                 && popit.getFirst().has(DataComponents.CUSTOM_NAME) && popit.getFirst().has(DataComponents.LORE)
                 && LbcFartus.data(popit.getFirst()).getIntOr("popit", 0) == 1, "canonical full custom identity/components");
         var sword = game.lbc().rollTable(player.level(), player.position(), player, "lbc:ported/antimagic_sword");
-        require(sword.size() == 1 && sword.getFirst().is(Items.IRON_SWORD) && sword.getFirst().getCount() == 1
-                && sword.getFirst().has(DataComponents.CUSTOM_NAME), "existing ported canonical leaf");
+        require(sword.size() == 1 && net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(sword.getFirst().getItem()).equals(Identifier.parse("skywars2:antimagic_sword")) && sword.getFirst().getCount() == 1
+                && sword.getFirst().has(DataComponents.CUSTOM_NAME)
+                && Identifier.parse("lbc:tier_s").equals(sword.getFirst().get(DataComponents.TOOLTIP_STYLE)), "existing native ported canonical leaf");
         nativeOpaqueCodec(game, player);
-        SkyWars2.LOGGER.info("[check] PASS canonical-loot (3614 canonical definitions, {} reused targets, native representative rolls and opaque codec witnesses)", REUSED.length);
+        SkyWars2.LOGGER.info("[check] PASS canonical-loot (3623 canonical definitions, {} reused targets, native representative rolls and opaque codec witnesses)", REUSED.length);
     }
 
     private static void nativeOpaqueCodec(GameController game, net.minecraft.server.level.ServerPlayer player) {

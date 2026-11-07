@@ -267,26 +267,22 @@ public final class VoidArcanumChecks {
             }finally{bodies();for(var pos:dense)block(pos,Blocks.AIR);}
         }
         void elevatedChase(){
-            prime();double[] caps={0,.13,.13,.13,.13,.5};int clock=game.server().getTickCount();
+            prime();double[] caps={0,.13,.13,.13,.13,.5},hurt={0,1.5,2,4,8,24};int clock=game.server().getTickCount();
             for(int level=1;level<=5;level++){
-                bodies();var hole=spawn(owner,at);hole.level=level;var target=cow(at);
-                target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100000);target.setHealth(100000);
-                var aim=target.getEyePosition().add(0,.5*(level-1),0);var cause=service.source(hole).cause();
-                require(aim.y>at.y+1,"native eye position plus exact half-block tier elevation "+level);
-                service.physics(hole,owner,cause);
-                require(hole.point.y>at.y&&hole.velocity.y>0&&Math.abs(hole.velocity.x)<.000001&&Math.abs(hole.velocity.z)<.000001,"feet-centred hole steers vertically toward eyes plus tier elevation "+level);
-                for(int step=0;step<120;step++){
+                bodies();var hole=spawn(owner,at);hole.level=level;
+                var captured=cow(at);var target=cow(at.add(0,hurt[level]+4,0));
+                for(var body:List.of(captured,target)){body.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100000);body.setHealth(100000);}
+                var cause=service.source(hole).cause();
+                for(int step=0;step<4;step++){
                     var start=hole.point;service.physics(hole,owner,cause);
-                    require(hole.point.distanceTo(start)<=caps[level]+.000001&&hole.velocity.length()<=caps[level]+.000001,"elevated chase retains total 3D speed ceiling "+level);
+                    require(hole.point.distanceTo(start)<=caps[level]+.000001&&hole.velocity.length()<=caps[level]+.000001,"chain chase retains tier speed ceiling "+level);
                     var normal=hole.tilt.transform(new org.joml.Vector3f(0,1,0));
-                    require(Float.isFinite(normal.x)&&Float.isFinite(normal.y)&&Float.isFinite(normal.z)&&normal.y>.99999,"pure vertical chase keeps finite upright disc tilt "+level);
+                    require(Float.isFinite(normal.x)&&Float.isFinite(normal.y)&&Float.isFinite(normal.z),"finite chain tilt "+level);
                 }
-                double distance=hole.point.distanceTo(aim);
-                require(Math.abs(hole.point.x-at.x)<.000001&&Math.abs(hole.point.z-at.z)<.000001&&hole.point.y>at.y&&distance<.002&&hole.velocity.length()<.002,
-                        "native chase settles at actual eyes plus "+(.5*(level-1))+" blocks without contact deadzone at tier "+level+" distance="+distance+" velocity="+hole.velocity);
-                game.items().indirectKills().clear(target);target.discard();mobs.remove(target);
+                require(hole.point.y>at.y&&hole.velocity.y>0&&hole.point.distanceToSqr(target.getEyePosition())<at.distanceToSqr(target.getEyePosition()),"captured cow does not pin hole; steering pursues next vertical body "+level);
+                for(var body:List.of(captured,target)){game.items().indirectKills().clear(body);body.discard();mobs.remove(body);}
             }
-            require(game.server().getTickCount()==clock,"explicit elevated physics calls do not claim elapsed native ticks");bodies();
+            require(game.server().getTickCount()==clock,"explicit physics calls do not claim elapsed native ticks");bodies();
         }
         void closeChaseAndBodyPush(){
             prime();bodies();var hole=spawn(owner,at);var target=cow(at);var decoy=cow(at.add(-6,0,0));
@@ -294,12 +290,10 @@ public final class VoidArcanumChecks {
                 target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100000);target.setHealth(100000);
                 target.setPos(at.add(.4,-target.getEyeHeight(),0));
                 var cause=service.source(hole).cause();service.physics(hole,owner,cause);
-                require(hole.velocity.x>0&&Math.abs(hole.velocity.y)<.000001&&Math.abs(hole.velocity.z)<.000001,
-                        "inside-one-block nearest chase target wins over farther opposite decoy");
+                require(hole.velocity.x<0,"captured nearest body yields homing to farther decoy");
                 hole.point=target.getEyePosition();hole.velocity=Vec3.ZERO;hole.marker.setPos(hole.point);
                 service.physics(hole,owner,cause);
-                require(hole.velocity.equals(Vec3.ZERO)&&hole.point.distanceTo(target.getEyePosition())<.000001,
-                        "overlapping nearest target stays selected instead of switching to farther decoy");
+                require(hole.velocity.x<0,"overlapping body remains pulled while homing chains onward");
                 target.setPos(hole.point.add(.2,0,0));target.setDeltaMovement(.02,.03,.04);hole.marker.setDeltaMovement(.01,.02,.03);
                 var point=hole.point;var markerPosition=hole.marker.position();var velocity=hole.velocity;
                 var markerVelocity=hole.marker.getDeltaMovement();var mobVelocity=target.getDeltaMovement();
@@ -316,7 +310,7 @@ public final class VoidArcanumChecks {
             prime();LbcVoidArcanum.Hole hole=null;ProbeCow target=null;
             double[] acceleration={0,.025,.035,.018,.022,.025},caps={0,.13,.13,.13,.13,.5};
             for(int level=1;level<=5;level++){
-                bodies();hole=spawn(owner,at);hole.level=level;target=cow(at.add(14,0,0));var cause=service.source(hole).cause();double last=0;
+                bodies();hole=spawn(owner,at);hole.level=level;owner.level().getChunkAt(BlockPos.containing(at.add(32,0,0)));target=cow(at.add(level==5?32:14,0,0));var cause=service.source(hole).cause();double last=0;
                 for(int i=0;i<5;i++){
                     var start=hole.point;var velocity=hole.velocity;service.physics(hole,owner,cause);double speed=hole.point.distanceTo(start);
                     require(speed>=last-.000001&&speed<=caps[level]+.000001&&hole.velocity.x>0,"native level "+level+" accelerates toward nearest suitable entity up to legacy speed");
@@ -328,13 +322,13 @@ public final class VoidArcanumChecks {
                 var cappedPoint=hole.point;var cappedVelocity=hole.velocity;var cappedTilt=new org.joml.Quaternionf(hole.tilt);
                 var originalTarget=target.position();
                 for(Vec3 momentum:List.of(new Vec3(3,0,0),new Vec3(1,2,3),new Vec3(-2,-1,-3))){
-                    target.setPos(hole.point.add(8,6,8));hole.velocity=momentum;start=hole.point;
+                    target.setPos(hole.point.add(level==5?26:8,6,level==5?26:8));hole.velocity=momentum;start=hole.point;
                     service.physics(hole,owner,cause);
                     require(hole.point.distanceTo(start)<=caps[level]+.000001&&hole.velocity.length()<=caps[level]+.000001,
                             "over-cap inherited/downgraded momentum and diagonal steering obey legacy 3D limit "+level);
                 }
                 for(int tick=0;tick<48;tick++){
-                    target.setPos(hole.point.add(tick%2==0?8:-8,4,8));start=hole.point;
+                    target.setPos(hole.point.add((tick%2==0?1:-1)*(level==5?26:8),4,level==5?26:8));start=hole.point;
                     service.physics(hole,owner,cause);
                     require(hole.point.distanceTo(start)<=caps[level]+.000001,"sustained turning chase never exceeds legacy speed "+level);
                 }
@@ -351,7 +345,7 @@ public final class VoidArcanumChecks {
             var index=game.items().blackHoleVisuals().origins(owner).indexOf(hole.point);require(index>=0,"tilted live display present");
             var display=game.items().blackHoleVisuals().displays(owner).get(index);
             require(display.getLeftRotation().equals(hole.tilt)&&display.getRightRotation().equals(new org.joml.Quaternionf()),"actual native left-rotation metadata and identity right-rotation");
-            var near=cow(hole.point.add(0,0,4));var beforeVelocity=hole.velocity;var beforeTilt=new org.joml.Quaternionf(hole.tilt);
+            owner.level().getChunkAt(BlockPos.containing(hole.point.add(0,0,26)));var near=cow(hole.point.add(0,0,26));var beforeVelocity=hole.velocity;var beforeTilt=new org.joml.Quaternionf(hole.tilt);
             service.physics(hole,owner,member.cause());
             require(hole.velocity.z>beforeVelocity.z&&hole.velocity.x<beforeVelocity.x&&hole.velocity.subtract(beforeVelocity).length()<=.025001,"nearest replacement steers with reduced bounded acceleration");
             require(!hole.tilt.equals(beforeTilt)&&hole.tilt.transform(new org.joml.Vector3f(0,1,0)).z>0,"tilt smoothly follows replacement target");
@@ -383,7 +377,7 @@ public final class VoidArcanumChecks {
             for(var entity:owner.level().getAllEntities())if(!before.contains(entity)&&(entity instanceof net.minecraft.world.entity.item.ItemEntity||entity instanceof net.minecraft.world.entity.ExperienceOrb))entity.discard();game.players().save();game.items().magic().flushCleansing();
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.fluidTerrain();f.elevatedChase();f.closeChaseAndBodyPush();f.motion();f.boundaries();f.denseTerrain();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, radial noisy erosion/lens, small-tier source/flowing water/lava and waterlogged absorption, bounded moving/dense native erosion work, all-tier elevated eye chase/settling and speed caps, closest contact target and marker body-push guard, tilt metadata and cleanup; explicit boundary ticks)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.fluidTerrain();f.elevatedChase();f.closeChaseAndBodyPush();f.motion();f.boundaries();f.denseTerrain();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, radial noisy erosion/lens, small-tier source/flowing water/lava and waterlogged absorption, bounded moving/dense native erosion work, all-tier chain chase and speed caps, captured target exclusion and marker body-push guard, tilt metadata and cleanup; explicit boundary ticks)");}
 
     private static Saved stopSaved;private static String stopEpoch;private static LbcVoidArcanum.Hole stopHole;
     private static final Set<Entity> stopBefore=Collections.newSetFromMap(new IdentityHashMap<>());
