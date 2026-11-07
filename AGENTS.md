@@ -1,3 +1,19 @@
+## Key kits14/16 ? QUALIFIED, STAGED ONLY (8 November2026)
+
+[Source, scope, native evidence and delivery](agent_notes/KEY_KITS_2026_11_08.md).
+Full-source test97ad4fb5/productionb9b5ae78 staged in key-kits-2026-11-07;
+5 actual matches/11 focused suites pass on the SAME final test archive.
+All25 kit IDs ready; canonical native key leaves, original gates/design/components.
+Lucky Key uses one native wear; original Neko excludes both ordinary branches.
+26.3 predicate holder also checks pre-wear TOOL; exact actor/origin scoped pre-wear
+luck survives native removal of broken equipment modifiers. No tick scanner/global
+cleanup. Native mining/all14 tools/pools/TMT/genuine Zaika regressions pass.
+10804 source inputs/282 author paths exact;5931 old loot tables unchanged, Neko only
+changed,6 key tables newly packaged. No RP edit, installer or Main/build/libs change.
+Main still production299e61e8 WITHOUT the survival mining fix. Author now testing it
+reports placement-audio, first-frame mushroom prediction and bucket-water failures;
+these are the next feedback scope. Keep full artifacts, preserve author WIP.
+
 ## Test feedback: mining/settings/FOV/TMT armor/Imprinted - QUALIFIED, STAGED ONLY (7 November2026)
 
 [Scope, delivery, source settings and native/GPU evidence](agent_notes/TEST_FEEDBACK_2026_11_07.md).

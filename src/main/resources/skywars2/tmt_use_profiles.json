@@ -40411,6 +40411,46 @@
       "aliases": []
     },
     {
+      "item": "skywars2:key",
+      "data": [],
+      "components": {
+        "minecraft:tool": {
+          "damage_per_block": 100,
+          "default_mining_speed": 2,
+          "rules": []
+        }
+      },
+      "sources": [
+        "item_defs/key.json",
+        "kit/key.json",
+        "ported/key.json"
+      ],
+      "aliases": [
+        "lbc:item_defs/key"
+      ]
+    },
+    {
+      "item": "skywars2:key_luck",
+      "data": [
+        "{luck_key:1}"
+      ],
+      "components": {
+        "minecraft:tool": {
+          "damage_per_block": 1,
+          "default_mining_speed": 2,
+          "rules": []
+        }
+      },
+      "sources": [
+        "item_defs/key_luck.json",
+        "kit/key_luck.json",
+        "ported/key_luck.json"
+      ],
+      "aliases": [
+        "lbc:item_defs/key_luck"
+      ]
+    },
+    {
       "item": "skywars2:academy_caustic_wand",
       "data": [
         "{craftusable:1,transformable:1,staff:1,raycastspell:1,acidwand:1,upgradable:0,upgrade_available:1,upgraded:1,mode:1}"
@@ -43765,42 +43805,6 @@
       ],
       "aliases": [
         "lbc:ported/grapping_hook"
-      ]
-    },
-    {
-      "item": "minecraft:stick",
-      "data": [],
-      "components": {
-        "minecraft:tool": {
-          "damage_per_block": 100,
-          "default_mining_speed": 2,
-          "rules": []
-        }
-      },
-      "sources": [
-        "kit/key.json"
-      ],
-      "aliases": [
-        "lbc:item_defs/minecraft/stick__213ddfc47337"
-      ]
-    },
-    {
-      "item": "minecraft:stick",
-      "data": [
-        "{luck_key:1}"
-      ],
-      "components": {
-        "minecraft:tool": {
-          "damage_per_block": 1,
-          "default_mining_speed": 2,
-          "rules": []
-        }
-      },
-      "sources": [
-        "kit/key_luck.json"
-      ],
-      "aliases": [
-        "lbc:item_defs/minecraft/stick__213ddfc47337"
       ]
     },
     {

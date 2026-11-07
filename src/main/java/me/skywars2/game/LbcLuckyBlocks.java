@@ -33,6 +33,16 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 /** Three stable server blocks; vanilla BLOCK loot owns rolls, tools and explosion context. */
 public final class LbcLuckyBlocks {
+    private static final ThreadLocal<MiningLuck> MINING_LUCK=new ThreadLocal<>();
+    /** Native wear removes equipment modifiers before playerDestroy builds its loot. */
+    public record MiningLuck(ServerPlayer player,net.minecraft.world.phys.Vec3 origin,double luck,MiningLuck previous) implements AutoCloseable {
+        @Override public void close(){if(previous==null)MINING_LUCK.remove();else MINING_LUCK.set(previous);}
+    }
+    public static MiningLuck miningScope(ServerPlayer player,BlockPos pos){
+        if(kind(player.level().getBlockState(pos))==null)return null;
+        var snapshot=new MiningLuck(player,net.minecraft.world.phys.Vec3.atCenterOf(pos),player.getAttributeValue(Attributes.LUCK),MINING_LUCK.get());
+        MINING_LUCK.set(snapshot);return snapshot;
+    }
     public enum Kind { NORMAL, NEKO, LOLI }
     private static final Block[] BLOCKS=new Block[3];
     private static final Item[] ITEMS=new Item[3];
@@ -97,16 +107,23 @@ public final class LbcLuckyBlocks {
         return null;
     }
     public static void refreshLuck(GameController game,Entity source){
+        refreshLuck(game,source,null);
+    }
+    private static void refreshLuck(GameController game,Entity source,MiningLuck snapshot){
         if(source instanceof ServerPlayer living){
             // Matches execute store result attribute get 1, followed by scoreboard add1.
-            int amount=(int)living.getAttributeValue(Attributes.LUCK);
+            int amount=(int)(snapshot==null?living.getAttributeValue(Attributes.LUCK):snapshot.luck());
             game.items().mana().score(source,"luck_amount").set(amount+1);
         }
     }
     public static void prepare(BlockState state,LootParams.Builder params){
         if(kind(state)==null)return;
         var game=SkyWars2.game();
-        if(game!=null)refreshLuck(game,params.getOptionalParameter(LootContextParams.THIS_ENTITY));
+        if(game!=null){
+            var source=params.getOptionalParameter(LootContextParams.THIS_ENTITY);var snapshot=MINING_LUCK.get();
+            if(snapshot!=null&&(snapshot.player()!=source||!snapshot.origin().equals(params.getOptionalParameter(LootContextParams.ORIGIN))))snapshot=null;
+            refreshLuck(game,source,snapshot);
+        }
     }
     public static boolean silkToken(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("adv_check_lbc",0)==1;}
     public static void silkToken(net.minecraft.world.entity.item.ItemEntity token){

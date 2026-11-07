@@ -1,0 +1,41 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:key",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:key",
+                "minecraft:max_damage": 1,
+                "minecraft:damage": 0,
+                "minecraft:enchantments": {
+                  "minecraft:fortune": 64
+                },
+                "minecraft:tool": {
+                  "damage_per_block": 100,
+                  "default_mining_speed": 2,
+                  "rules": []
+                },
+                "minecraft:max_stack_size": 1
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "key",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -60,19 +60,7 @@
               },
               {
                 "type": "minecraft:inverted",
-                "term": {
-                  "type": "minecraft:entity_properties",
-                  "entity": "this",
-                  "predicate": {
-                    "slots": {
-                      "weapon.mainhand": {
-                        "predicates": {
-                          "minecraft:custom_data": "{luck_key:1}"
-                        }
-                      }
-                    }
-                  }
-                }
+                "term": "lbc:using_luck_key"
               }
             ]
           }
@@ -130,19 +118,7 @@
               },
               {
                 "type": "minecraft:inverted",
-                "term": {
-                  "type": "minecraft:entity_properties",
-                  "entity": "this",
-                  "predicate": {
-                    "slots": {
-                      "weapon.mainhand": {
-                        "predicates": {
-                          "minecraft:custom_data": "{luck_key:1}"
-                        }
-                      }
-                    }
-                  }
-                }
+                "term": "lbc:using_luck_key"
               }
             ]
           }

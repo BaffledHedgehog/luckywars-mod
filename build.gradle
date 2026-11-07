@@ -27,6 +27,10 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/kit/key.json', 'data/lbc/loot_table/kit/key_luck.json'
+    include 'data/lbc/loot_table/ported/key.json', 'data/lbc/loot_table/ported/key_luck.json'
+    include 'data/lbc/predicate/using_luck_key.json'
+    include 'data/c/tags/item/rods/wooden.json'
     include 'skywars2/team_prefixes.json'
     include 'skywars2/vanilla_damage_26_3.json'
     include 'data/c/tags/item/dyeable/dynamic.json'

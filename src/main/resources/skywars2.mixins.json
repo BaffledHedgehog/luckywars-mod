@@ -85,6 +85,7 @@
     "CustomDataReadMixin",
     "InfiniteShulkerLootMixin",
     "LuckyBlockDropsMixin",
+    "LuckyBlockDropsMixin$Mining",
     "LuckyBlockDropsMixin$Resources",
     "SteampunkActionMixin",
     "ImbaAxeBlockMixin",

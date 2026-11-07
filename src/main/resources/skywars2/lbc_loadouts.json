@@ -1,14 +1,6 @@
 {
   "kits": [
     {
-      "id": 6,
-      "page": 9000,
-      "slot": 5,
-      "table": "lbc:kit/lucky_baffled",
-      "gate": "lbc:true_advancements/armor/chaos_full",
-      "lockedKey": "lbc.adv.armor.chaos_full.lore"
-    },
-    {
       "id": 1,
       "page": 9000,
       "slot": 0,
@@ -47,6 +39,14 @@
       "table": "lbc:kit/hell",
       "gate": "lbc:true_advancements/arcanums/kiuaskivi",
       "lockedKey": "lbc.adv.arcanums.kiuaskivi.lore"
+    },
+    {
+      "id": 6,
+      "page": 9000,
+      "slot": 5,
+      "table": "lbc:kit/lucky_baffled",
+      "gate": "lbc:true_advancements/armor/chaos_full",
+      "lockedKey": "lbc.adv.armor.chaos_full.lore"
     },
     {
       "id": 7,
@@ -105,12 +105,28 @@
       "lockedKey": "lbc.adv.armor.technomk2.lore"
     },
     {
+      "id": 14,
+      "page": 9000,
+      "slot": 13,
+      "table": "lbc:kit/key",
+      "gate": "lbc:true_advancements/axes/randchanted",
+      "lockedKey": "lbc.adv.axe.randchanted"
+    },
+    {
       "id": 15,
       "page": 9000,
       "slot": 14,
       "table": "lbc:kit/dynamite",
       "gate": "lbc:true_advancements/bows/firework",
       "lockedKey": "lbc.adv.bow.firework.lore"
+    },
+    {
+      "id": 16,
+      "page": 9000,
+      "slot": 15,
+      "table": "lbc:kit/key_luck",
+      "gate": "lbc:true_advancements/hoes/op_hoe",
+      "lockedKey": "lbc.adv.hoe.op_hoe"
     },
     {
       "id": 17,

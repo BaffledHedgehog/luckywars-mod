@@ -46,5 +46,5 @@ public final class NativeToolChecks {
         var mined=Stats.BLOCK_MINED.get(Blocks.STONE);stats.before.put(mined,f.owner.getStats().getValue(mined));var before=new HashSet<UUID>();for(var e:f.level.getAllEntities())before.add(e.getUUID());
         require(f.owner.gameMode.destroyBlock(pos)&&f.level.getBlockState(pos).isAir(),"real native player block mining");
         var drops=f.level.getEntitiesOfClass(ItemEntity.class,new AABB(pos).inflate(2),item->!before.contains(item.getUUID()));for(var drop:drops)f.own(drop);require(drops.stream().anyMatch(item->item.getItem().is(Items.STONE)),"native Silk TouchX and correct-tool data produce real stone loot");
-    }SkyWars2.LOGGER.info("[check] PASS native-tools (12 source prototypes/all carrier components and tags; seeded stochastic enchants, Polymer/server-codec persistence, genuine axe/shovel/hoe/fire inputs and SilkX block mining/drop)");}
+    }SkyWars2.LOGGER.info("[check] PASS native-tools ({} source prototypes/all carrier components and tags; seeded stochastic enchants, Polymer/server-codec persistence, genuine axe/shovel/hoe/fire inputs and SilkX block mining/drop)",LbcNativeToolItems.Kind.values().length);}
 }

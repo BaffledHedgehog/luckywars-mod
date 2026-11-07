@@ -20,12 +20,15 @@ public final class LbcNativeToolItems {
         OP_HOE("op_hoe","op_hoe",Items.NETHERITE_HOE),
         SICKLE("sickle","ported/sickle",Items.IRON_HOE),
         SILK_PICKAXE("silk_pickaxe","item_defs/minecraft/diamond_pickaxe__b730b9a4a36b",Items.DIAMOND_PICKAXE),
-        TOMAHAWK("tomahawk","ported/tomahawk",Items.GOLDEN_AXE);
+        TOMAHAWK("tomahawk","ported/tomahawk",Items.GOLDEN_AXE),
+        KEY("key","item_defs/key",Items.STICK),
+        LUCK_KEY("key_luck","item_defs/key_luck",Items.STICK);
         public final String id,definition;
         public final Item carrier,item;
         Kind(String id,String definition,Item carrier){
             this.id=id;this.definition="/data/lbc/loot_table/"+definition+".json";this.carrier=carrier;
             var properties=LbcUtilityItemPrototypes.deferredProperties("skywars2:"+id,this.definition,carrier,64);
+            if(carrier==Items.STICK)properties.cookingFuel(net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders.COOKING_TIME_DRY_PLANTS);
             item=Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+id),
                     carrier==Items.FLINT_AND_STEEL?new NativeFlint(properties):new SimplePolymerItem(properties,carrier,true));
         }

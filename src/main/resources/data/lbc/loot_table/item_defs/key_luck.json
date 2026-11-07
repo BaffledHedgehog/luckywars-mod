@@ -1,0 +1,51 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:key_luck",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:key_luck",
+                "minecraft:max_damage": 1,
+                "minecraft:damage": 0,
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:luck",
+                    "slot": "mainhand",
+                    "id": "95839458394634644tghgh",
+                    "operation": "add_value",
+                    "amount": 32
+                  }
+                ],
+                "minecraft:tool": {
+                  "damage_per_block": 1,
+                  "default_mining_speed": 2,
+                  "rules": []
+                },
+                "minecraft:max_stack_size": 1
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "key_luck",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{luck_key:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
