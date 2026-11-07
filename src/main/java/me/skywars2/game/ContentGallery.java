@@ -120,8 +120,12 @@ public final class ContentGallery {
 
     private void removeObsoleteFrames() {
         if (layout == null) return;
-        for (var world : game.server().getAllLevels())
-            for (var entity : world.getAllEntities()) if (obsolete(entity)) {
+        for (var world : game.server().getAllLevels()) {
+            // Discard mutates the native linked entity map, including its capacity.
+            // Finish traversing it first; retain only matching obsolete frames.
+            var retired=new ArrayList<Entity>();
+            for (var entity : world.getAllEntities()) if (obsolete(entity)) retired.add(entity);
+            for (var entity : retired) {
                 for (var old : legacy) if (old.layout.dimension.equals(world.dimension().identifier().toString())) {
                     var at = entity.blockPosition();
                     int offset = at.getZ()-old.layout.center.getZ()-5;
@@ -134,6 +138,7 @@ public final class ContentGallery {
                 }
                 entity.discard();
             }
+        }
     }
 
     private ServerLevel level() {

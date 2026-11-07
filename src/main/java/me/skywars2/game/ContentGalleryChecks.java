@@ -124,11 +124,17 @@ public final class ContentGalleryChecks {
             service.writeFixtureCell(level,foreignCell,net.minecraft.world.level.block.Blocks.STONE_BRICKS);
             level.setBlock(foreignCell,net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState(),2);
             service.roundTripJournalForChecks();
+            // Retiring hundreds of frames must not mutate a live native entity-map iterator.
+            for(int i=0;i<600;i++){
+                var frame=ContentGallery.frame(level,origin.above(4),contents.getFirst(),layout);
+                frames.add(frame);require(level.addFreshEntity(frame),"bulk obsolete-frame fixture admitted");
+            }
             service.clearForMatchStart();
             var restored=game.maps().snapshot(level,chest);
             require(restored.state()==before.state() && Objects.equals(restored.entity(),before.entity()),"exact first baseline including container items survives repeated writes and compact journal roundtrip");
             require(level.getBlockState(foreignCell).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK),"cleanup preserves foreign replacement of a gallery-written cell");
             require(nativeFrame.isRemoved() && !foreign.isRemoved(), "match admission removes owned frames and preserves foreign frames");
+            require(frames.stream().filter(service::owned).allMatch(ItemFrame::isRemoved),"all600 obsolete frames retire across native linked-map resizes without invalidating traversal");
             require(!service.ownsChest(level,layout.chest()),"suspended gallery no longer intercepts its chest");
             service.tick();
             require(!foreign.isRemoved(),"suspended tick cannot regenerate display placements or remove foreign frames");

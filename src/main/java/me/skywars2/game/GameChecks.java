@@ -864,6 +864,7 @@ public final class GameChecks {
                                 case "negative-attributes" -> { NegativeAttributeChecks.run(game); return; }
                                 case "attack-knockback" -> { AttackKnockbackChecks.run(game); return; }
                                 case "source-knockback-balance" -> { SourceKnockbackBalanceChecks.run(game); return; }
+                                case "initial-chunk-send" -> {InitialChunkSendChecks.run(game);return;}
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
                                 case "map-streaming" -> { MapStreamingChecks.run(game); return; }
                                 case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
@@ -1710,7 +1711,7 @@ public final class GameChecks {
             SharedArrowExplosionChecks.tick(game);
             ReactiveArtifactChecks.tick(game);
             FragmentKnowledgeChecks.tick(game);
-            MapLightingChecks.tick(game);
+            InitialChunkSendChecks.tick(game);MapLightingChecks.tick(game);
             MapStreamingChecks.tick(game);
             ImbaAxeChecks.tick(game);PhoenixSkillChecks.tick(game);
             IndividualNameplateChecks.tick(game);TimeFragmentSprintChecks.tick(game);

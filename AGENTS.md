@@ -1,3 +1,31 @@
+## Central initial chunks and gallery startup crash - VERIFIED HOTFIX (7 November2026)
+
+Author reported missing central lobby/match chunks until far teleport and startup crash.
+Actual crash12:16:33 is ContentGallery.removeObsoleteFrames: removing live native
+Int2ObjectLinkedOpenHashMap values invalidated its shrinking iterator. Snapshot only
+matching obsolete frames before discard; preserve foreign ownership and terrain logic.
+Client12:17:33 reports chunk-load timeout. Real login12:17:02 overlapped selected-map
+write completion12:17:04. Native ChunkMap.markChunkPendingToSend silently skipped
+already ticking chunks while sendSync was gated; no later queue admission occurred.
+InitialChunkQueueMixin changes ONLY that admission call: queue resident ticking chunk
+position; actual PlayerChunkSender still waits normal getChunkToSend/light barriers.
+No forced sends, periodic resend scan, movement spoof, chunk loads or RP changes.
+Native bad-code witness reproduces lost request and bulk600 incomplete gallery cleanup.
+Fixed full internal27f9e2af/dacd3889: initial view delivery after light/no teleport,
+bulk600 plus foreign frame and native map-lighting pass.6families/1resource;
+282authorpaths/HUD/fourWIP preserved. Proof initial-chunks-gallery-2026-11-07.
+A separately compiled MINIMAL hotfix e4e1ca7b01b7af4539f63dbad3215bc95806eef38b4f9e08006f6b3d7b6a9fa4
+is based on installed83b0ea27 and that build's original Gallery source. Only Gallery
+and new queue mixin families plus mixin registration change; all other installed
+entries/protocol fix preserved, NO unreleased TMT/catalog changes. Native installed-base
+queue and bulk600 probes pass (separate bridge test artifact). Qualification:
+build/verification/initial-chunks-gallery-2026-11-07/main-hotfix-qualification.json.
+Queue via existing install_when_stopped.py after normal main stop only; never kill/restart
+main or change its live JAR. Check main-install.json for actual waiting/installed status.
+After install Main SHA becomes e4e1ca7b..., not83b0ea27; future TMT staging must validate
+that explicit receipt before adopting the new Main baseline, and keep full27f9e2af as
+internal carry-forward. Full TMT still active/gated. Physical client reconnect unverified.
+
 ## Current native component capabilities - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 TMT now independently samples actual current GLIDER/UNBREAKABLE/DAMAGE_RESISTANT/TOOL
