@@ -98,7 +98,7 @@ processResources {
     include 'data/lbc/loot_table/ported/imba_ender_pearl.json'
     include 'data/lbc/loot_table/ported/impulse_dart.json'
     include 'data/lbc/loot_table/imba/random_bucks.json'
-    include 'data/lbc/loot_table/ported/blood_slab.json', 'data/lbc/loot_table/ported/cum_slab.json', 'data/lbc/loot_table/ported/bucks.json', 'data/lbc/loot_table/ported/kill_button.json'
+    include 'data/lbc/loot_table/ported/blood_slab.json', 'data/lbc/loot_table/ported/cum_slab.json', 'data/lbc/loot_table/ported/bucks.json', 'data/lbc/loot_table/ported/kill_button.json', 'data/lbc/loot_table/ported/clock_fragment.json'
     include 'data/lbc/loot_table/random_item.json', 'data/lbc/loot_table/random_glack_1.json', 'data/lbc/loot_table/random_glack.json'
     include 'data/lbc/loot_table/uniform/*.json'
     include 'data/lbc/loot_table/27_acessories.json', 'data/lbc/loot_table/27_bows.json', 'data/lbc/loot_table/27_grimoires.json', 'data/lbc/loot_table/27_instruments.json', 'data/lbc/loot_table/27_potions.json', 'data/lbc/loot_table/27_random_items.json', 'data/lbc/loot_table/27_rofls.json', 'data/lbc/loot_table/27_shooters.json', 'data/lbc/loot_table/27_slabs.json', 'data/lbc/loot_table/27_staffs.json', 'data/lbc/loot_table/27_summons.json', 'data/lbc/loot_table/27_swords.json'

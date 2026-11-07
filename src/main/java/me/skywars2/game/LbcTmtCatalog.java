@@ -241,6 +241,9 @@ final class LbcTmtCatalog {
         }
         if(blockItem!=null){String id="native/block/"+nativeId.getPath();add(all,id,"block/"+nativeId.getPath(),ability(id,nativeId,data),
                 rule("","LbcTmtBlockUses/native factory",Event.BLOCK,Location.USED_HAND));return;}
+        if(stack.is(LbcClockFragments.ITEM)&&LbcClockFragments.duration(stack)==0){
+            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"Unparameterized clock transport; sixteen authored selectors use the native whole-world simulation owner.");return;
+        }
         if(stack.is(LbcCorruptedGlyphs.DUST)&&LbcCorruptedGlyphs.kind(stack)==null){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,
                     "Unparameterized glyph transport; four authored glyphkind payloads are admitted by the real native use-on factory, not a blank dust ability");return;

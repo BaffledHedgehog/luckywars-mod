@@ -445,6 +445,8 @@ public final class LbcItems {
     public LbcLegacySlabs legacySlabs(){return legacySlabs;}
     private final LbcAllItemPools allItemPools;
     public LbcAllItemPools allItemPools(){return allItemPools;}
+    private final LbcClockFragments clockFragments;
+    public LbcClockFragments clockFragments(){return clockFragments;}
     private final LbcBucksTrader bucksTrader;
     public LbcBucksTrader bucksTrader(){return bucksTrader;}
     public LbcSpecialFireballs specialFireballs(){return specialFireballs;}
@@ -942,7 +944,7 @@ public final class LbcItems {
     }
 
     public LbcItems(GameController game) {
-        this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);this.legacySlabs=new LbcLegacySlabs(game);this.bucksTrader=new LbcBucksTrader(game);this.allItemPools=new LbcAllItemPools(game);
+        this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);this.legacySlabs=new LbcLegacySlabs(game);this.bucksTrader=new LbcBucksTrader(game);this.clockFragments=new LbcClockFragments(game);this.allItemPools=new LbcAllItemPools(game);
         this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.reactiveTrinkets=new LbcReactiveTrinkets(game); this.trinketArrows = new LbcTrinketArrows(game);this.shulkerBow = new LbcShulkerBow(game);this.madokaBow = new LbcMadokaBow(game); this.frost = new LbcFrost(game);
         this.mana = new LbcMana(game); LbcChaosRewardItems.prepare(mana); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);this.tmt=new LbcTmtRuntime(game);
         this.terra = new LbcTerra(game);
@@ -2485,7 +2487,7 @@ public final class LbcItems {
     }
     private void lightsabersLoaded(Entity entity){if(entity instanceof ServerPlayer p)lightsabers.sourceScoreChanged(p);}
     public void stop() {
-        tmt.stop();
+        clockFragments.stop();tmt.stop();
         mysticalTree.stop();funnyTnt.stop();deltaTnt.stop();diamondifier.stop();homingArrows.stop();imbaHoe.stop();kapusta.stop();pumpkinator.stop();thrownUtilities.stop();cunny.stop();cunnyTerrain.stop();imbaTerrainUtilities.stop();whiteArrows.stop();mellstroy.stop();mellstroyCrafting.stop();bridgeBuilder.stop();imbaAxe.stop();cinema.stop();phoenix.stop();cosmetics.stop();badApple.stop();rainbowAura.stop();psychblindSkill.stop();projectileLevelups.stop();
         lightsabers.clear();pozdmanBot.stop();cursedPumpkin.clear();
         combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();symbioteSkill.stop();cloneSkills.stop();

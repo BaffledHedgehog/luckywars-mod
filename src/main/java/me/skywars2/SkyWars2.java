@@ -143,6 +143,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             me.skywars2.game.SignedEffectVisuals.tick(server);
             me.skywars2.game.WeaponSpreadVisuals.tick(server);
             if(game!=null)game.vanity().tick();
+            if(game!=null)game.items().clockFragments().endTick();
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;

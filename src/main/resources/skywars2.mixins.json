@@ -416,7 +416,9 @@
     "TmtPotionSourceMixin",
     "TmtShotCompletionMixin$Bow",
     "TmtShotCompletionMixin$Crossbow",
-    "ItemCostCacheMixin"
+    "ItemCostCacheMixin",
+    "ClockFragmentSprintAccess",
+    "ClockFragmentSprintMixin"
   ],
   "injectors": {
     "defaultRequire": 1

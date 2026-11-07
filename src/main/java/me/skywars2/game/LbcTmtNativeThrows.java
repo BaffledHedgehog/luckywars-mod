@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 final class LbcTmtNativeThrows {
     private LbcTmtNativeThrows(){}
     static Item canonical(ItemStack stack){
+        if(LbcClockFragments.duration(stack)>0)return LbcClockFragments.ITEM;
         if(LbcKillButton.matches(stack))return LbcKillButton.TOKEN;
         if(LbcBucksTrader.matches(stack))return LbcBucksTrader.TOKEN;
         var color=LbcBalanceExtras.woolColor(stack);

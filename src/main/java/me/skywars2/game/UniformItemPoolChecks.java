@@ -83,13 +83,14 @@ public final class UniformItemPoolChecks {
             require(found,"mana transport represented by its real source dose domain");
         }
         require(service.complete(),"all current registered native IDs have an authored or explicitly audited complete-default admission");
-        // Raw authored quantities include legitimate zero outcomes (for example the
-        // explosive Magnum round's 0..2 provider). Keep those source functions intact;
-        // also materialize every ticket through real positive count/max-stack wrappers.
+        shockQuantityBoundary(game,manifest,params);
+        // Raw authored quantities include zero and overstack outcomes. Validate their
+        // unchanged components, then the actual native public materialization boundary.
+        // Positive count/max-stack wrappers are independently checked below.
         for(int i=0;i<custom.size();i++){
             var output=new ArrayList<ItemStack>();service.drawSlot(LbcAllItemPools.Domain.CUSTOM,i,context,output::add);
             require(output.size()==1&&output.getFirst().getCount()>=0,"every raw custom index emits exactly one source stack callback: "+custom.get(i));
-            if(!output.getFirst().isEmpty())require(ItemStack.validateStrict(output.getFirst()).error().isEmpty(),"native raw component invariants for "+custom.get(i));
+            rawBoundary(output.getFirst(),player.level(),custom.get(i));
         }
         allCustomWrappers(game,params,custom);
         // The index seam covers every vanilla ticket with real native output.
@@ -108,6 +109,61 @@ public final class UniformItemPoolChecks {
         var second=tmt.get(1).copy();tmt.getFirst().setCount(0);require(ItemStack.matches(second,tmt.get(1)),"generated outputs do not alias private state");
         wrappers(game,context,params,factory,custom.size());
         SkyWars2.LOGGER.info("[check] PASS uniform-item-pools (exact authored/native/vanilla membership, one union index, source-profile closure, one fresh five-form TMT factory and native count wrappers); complete={} findings={}",service.complete(),service.findings().size());
+    }
+    /** validateComponents is private in26.3; public strict validation of an identical
+     * count1 copy runs that native validator without conflating raw loot quantity. */
+    private static void rawBoundary(ItemStack raw,net.minecraft.server.level.ServerLevel level,String label){
+        int count=raw.getCount(),maximum=raw.getMaxStackSize();
+        var strict=ItemStack.validateStrict(raw);boolean oversized=count>maximum;
+        if(!raw.isEmpty()){
+            var componentWitness=raw.copyWithCount(1);
+            require(ItemStack.isSameItemSameComponents(raw,componentWitness),"component witness preserves exact native item/components: "+label);
+            require(ItemStack.validateStrict(componentWitness).error().isEmpty(),"native raw COMPONENT invariants: "+label+" error="+ItemStack.validateStrict(componentWitness).error());
+        }
+        require(strict.error().isPresent()==oversized,"raw strict failure iff authored outer quantity exceeds native maximum: "+label+" count="+count+" max="+maximum+" error="+strict.error());
+        if(oversized)require(strict.error().orElseThrow().message().equals("Item stack with stack size of "+count+" was larger than maximum: "+maximum),"precise native raw quantity failure, no unrelated component exception: "+label);
+        var materialized=new ArrayList<ItemStack>();
+        LootTable.createStackSplitter(level,materialized::add).accept(raw.copy());
+        long sum=0;
+        for(var stack:materialized){
+            require(ItemStack.validateStrict(stack).error().isEmpty(),"native public split output is strictly valid: "+label+" error="+ItemStack.validateStrict(stack).error());
+            require(ItemStack.isSameItemSameComponents(raw,stack),"native splitter preserves exact source item and every component: "+label);
+            if(count>0)require(!stack.isEmpty()&&stack.getCount()>0,"positive source quantity cannot produce empty public stacks: "+label);
+            else require(stack.isEmpty()&&stack.getCount()==0,"zero source callback retains native empty-output semantics: "+label);
+            sum+=stack.getCount();
+        }
+        require(sum==count,"native splitter preserves complete authored quantity: "+label+" raw="+count+" final="+sum);
+        require(raw.getCount()==count&&raw.getMaxStackSize()==maximum,"validation never mutates source raw quantity/components: "+label);
+    }
+    private static void shockQuantityBoundary(GameController game,JsonObject manifest,LootParams params){
+        JsonObject selected=null;
+        for(var value:manifest.getAsJsonArray("custom"))if(value.getAsJsonObject().get("id").getAsString().equals("custom/e9c3ec574855f44e9a2b"))selected=value.getAsJsonObject();
+        require(selected!=null,"shock potion source identity witness exists");
+        var nodes=manifest.getAsJsonObject("entryNodes");JsonObject wrapper=null;
+        for(var value:selected.getAsJsonArray("profiles")){
+            var node=nodes.getAsJsonObject(value.getAsJsonObject().get("entry").getAsString());
+            if(node.has("modifier")&&node.get("modifier").isJsonObject()){
+                var modifier=node.getAsJsonObject("modifier");var count=modifier.get("count");
+                if(count!=null&&count.isJsonObject()&&count.getAsJsonObject().has("min")&&count.getAsJsonObject().get("min").getAsInt()==3&&count.getAsJsonObject().get("max").getAsInt()==6){require(wrapper==null,"one exact source shock3..6 outer profile");wrapper=node;}
+            }
+        }
+        require(wrapper!=null&&wrapper.getAsJsonArray("children").size()==1,"source shock profile retains outer3..6 native count modifier");
+        var leaf=nodes.getAsJsonObject(wrapper.getAsJsonArray("children").get(0).getAsString());
+        require(leaf.get("name").getAsString().equals("minecraft:lingering_potion"),"source shock leaf is actual vanilla lingering potion");
+        // A real native table modifier has exactly the source boundary ordering:
+        // leaf functions first, enclosing caller modifier afterward.
+        var source=new JsonObject();var pools=new JsonArray();var pool=new JsonObject();var entries=new JsonArray();
+        entries.add(leaf.deepCopy());pool.addProperty("rolls",1);pool.add("entries",entries);pools.add(pool);source.add("pools",pools);source.add("modifier",wrapper.get("modifier").deepCopy());
+        var ops=game.server().reloadableRegistries().lookup().createSerializationContext(JsonOps.INSTANCE);
+        var table=LootTable.DIRECT_CODEC.parse(ops,source).getOrThrow();
+        for(int seed=0;seed<8;seed++){
+            var context=new LootContext.Builder(params).withOptionalRandomSource(net.minecraft.util.RandomSource.create(seed)).create(Optional.empty());
+            var output=new ArrayList<ItemStack>();table.getRandomItemsRaw(context,output::add);
+            require(output.size()==1&&output.getFirst().is(Items.LINGERING_POTION)&&output.getFirst().getCount()>=3&&output.getFirst().getCount()<=6&&output.getFirst().getMaxStackSize()==1,"native source outer3..6 overrides innercount1 without changing potion components");
+            var raw=output.getFirst();var error=ItemStack.validateStrict(raw).error().orElseThrow().message();
+            if(seed==0)SkyWars2.LOGGER.info("[check] uniform source shock quantity witness: raw_count={} max_stack={} native_strict_error={}",raw.getCount(),raw.getMaxStackSize(),error);
+            rawBoundary(raw,params.getLevel(),"shock_potion/source3..6/seed"+seed);
+        }
     }
     private static void allCustomWrappers(GameController game,LootParams params,List<String> custom){
         var ops=game.server().reloadableRegistries().lookup().createSerializationContext(JsonOps.INSTANCE);

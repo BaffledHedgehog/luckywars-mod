@@ -40565,8 +40565,8 @@
       "values": [
         "1"
       ],
-      "status": "live_legacy_native_owner_gap",
-      "reason": "Real source behavior; matching current native owner not located; cannot exclude or claim closure.",
+      "status": "native_whole_world_simulation_owner",
+      "reason": "Author night32 chose genuine whole-world instant simulation: LbcClockFragments uses native sprint with16 private selectors, owned queue/freeze/foreign-sprint/rewind lifecycle; old selective datapack cadence replay is superseded.",
       "prototypeIds": [],
       "ownerCandidates": [],
       "sourceEvidence": [

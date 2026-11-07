@@ -1,3 +1,24 @@
+## TMT native clock-fragment simulation ? COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Author intent, exact source/native evidence and carry-forward](agent_notes/CLOCK_FRAGMENTS_NATIVE_2026_11_07.md).
+Night32 explicitly requests genuine instant simulation including vanilla processes;
+old selective datapack cadence replay and prior public-OFF experiment are superseded.
+Native TickRateManager runs actual worlds/mobs/effects/physics, acceptedFIFO atEND
+AFTERVanity; owned final0/externalfreeze/foreignsprint/stop/realrewind handled.
+16complete profiles/bothhands,4actualTMTuseevents,authoritativeAppleconsume negative;
+MAG/sourceguards,canonicalTimeStop progression,no inventedTECH/debit/cooldown.
+Internal ae8e96c8/88402d2e on full232a4cce:11 focused suites pass;5956 profile
+native iterations plus100TimeStop ticks and realqueue/freeze/rewind scenes.
+11families/20resources;10436 other inputs/282 authorpaths/currentHUD protected.
+Source raw3..6 potion quantity is preserved; strengthened native public split check
+passes without weakening component/finalstack validity or changing production.
+Compiler512MiB then fixture2GiB, sequential; children exited/restored/no locks.
+Main/libs/RP unchanged; fullTMT still active/unreleased, do not installpartialchain.
+[Fresh remainingnative reconciliation](agent_notes/TMT_PENDING_NATIVE_RECONCILIATION_FRESH_2026_11_07.md):
+125pendingrows/48IDs (33native+15vanilla),not125abilities;3legacyowners remain.
+Next: retained native looseCopy/tablet2/3/4 adapter. Pendingasync question already
+asks Gayradar/rocket/TrollBox launchjammers; do not ask it again or infer an answer.
+
 ## TMT Kill Rand native input ? COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Exact behavior, source evidence and carry-forward](agent_notes/TMT_KILL_BUTTON_2026_11_07.md).
