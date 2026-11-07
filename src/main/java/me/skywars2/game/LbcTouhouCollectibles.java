@@ -47,7 +47,12 @@ public final class LbcTouhouCollectibles {
         try{
             var inventory=player.getInventory();
             for(int slot=0;slot<inventory.getContainerSize();slot++){
-                var stack=inventory.getItem(slot);int type=id(stack);
+                var stack=inventory.getItem(slot);
+                if(LbcTmtItems.matches(stack)){
+                    if(LbcTmtIntake.touhou(stack,type->counts[type]+=stack.getCount()))inventory.setItem(slot,ItemStack.EMPTY);
+                    continue;
+                }
+                int type=id(stack);
                 if(type>=1&&type<=10){counts[type]+=stack.getCount();inventory.setItem(slot,ItemStack.EMPTY);}
             }
             if(Arrays.stream(counts).sum()==0)return;

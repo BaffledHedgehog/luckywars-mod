@@ -30,8 +30,8 @@ import net.minecraft.world.item.component.CustomData;
  * Unknown inputs and native component requirements are deliberately reported.
  */
 final class LbcTmtCatalog {
-    enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON }
-    enum Location { USED_HAND, MAIN_HAND, INVENTORY, EQUIPPED, AMMUNITION, LOOSE_ITEM }
+    enum Event { USE, USING, HELD, SELF, MELEE, INCOMING, JUMP, INVENTORY, EQUIPMENT, SHOT, AMMO, CONSUME, BLOCK, MINING, DEATH, DROP, WAND_CAST, SUMMON, CRAFT }
+    enum Location { USED_HAND, MAIN_HAND, INVENTORY, EQUIPPED, AMMUNITION, LOOSE_ITEM, CRAFT_GRID }
     enum Disposition { EXCLUDED_SERVICE, PENDING_NATIVE_DOMAIN, PENDING_COMPONENT_ADAPTER, MISSING_NATIVE_ITEM, LEGACY_OWNER_GAP }
 
     record Family(String id,String name,List<LbcTmtAbilities.Ability> variants,Set<Event> events,
@@ -269,6 +269,8 @@ final class LbcTmtCatalog {
                 case 3->rule("mystical/jump","LbcJumpArtifacts",Event.JUMP,Location.INVENTORY);
                 default->rule("mystical/incoming","LbcIncomingArtifacts",Event.INCOMING,Location.INVENTORY);
             };
+        }else if(LbcTouhouCollectibles.id(stack)>=1&&LbcTouhouCollectibles.id(stack)<=10){
+            selected=rule("touhou/"+LbcTouhouCollectibles.id(stack),"LbcTouhouCollectibles",Event.INVENTORY,Location.INVENTORY);
         }else if(data.contains("pill")){
             int id=LbcPills.pillId(stack);
             if(LbcPills.definition(id)==null){
@@ -297,7 +299,7 @@ final class LbcTmtCatalog {
             add(all,id,selected.family(),ability(id,nativeId,data),selected);return;
         }
         if(LbcPills.certificate(stack)){
-            finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"LbcPills.certificate is reusable LbcPhdCrafting recipe eligibility; no independent native inventory passive consumes phd");return;
+            String id="native/phd";add(all,id,"phd",ability(id,nativeId,data),rule("phd","LbcPhdCrafting",Event.CRAFT,Location.CRAFT_GRID));return;
         }
         if(nativeTool||nativeAmmo)return;
         if(data.getIntOr("multiplying",0)==1||data.getIntOr("randchanted",0)==1){
@@ -373,6 +375,7 @@ final class LbcTmtCatalog {
         flags(result,"LbcRegenerationBelt",Event.INVENTORY,Location.INVENTORY,"heall");
         flags(result,"LbcBalancePassive (legacy mode)",Event.INVENTORY,Location.INVENTORY,"heall_old","manabelt_old");
         flags(result,"LbcMana",Event.INVENTORY,Location.INVENTORY,"manabelt");
+        flags(result,"LbcNexusWires",Event.INVENTORY,Location.INVENTORY,"nexus_wire_red","nexus_wire_black");
         flags(result,"LbcQuiver",Event.INVENTORY,Location.INVENTORY,"arrowgenerator");
         flags(result,"LbcGaaraPot",Event.INCOMING,Location.INVENTORY,"gaara_tikva");
         flags(result,"LbcIncomingArtifacts",Event.MELEE,Location.INVENTORY,"gaara","gaara_old");

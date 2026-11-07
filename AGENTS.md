@@ -1,3 +1,13 @@
+## TMT inventory intake/PhD - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Contracts and evidence](agent_notes/TMT_INTAKE_RUNTIME_2026_11_07.md).
+Native Touhou private collectible aggregation; original quantity and one inventory removal.
+Native red/black wire rewards/shared debit and protection; green acquisition remains deferred.
+PhD private catalyst works through actual native survival result slot/full mixed remainder.
+Internal3595866c/6ce0ebb1 on full01ca4903 parent;6 actual mode1 matches pass.
+7 Java families/0 resources;10335 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Other native domains/acquisition/full TMT release pending.
+
 ## TMT shared active drops - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Contracts and evidence](agent_notes/TMT_DROPS_RUNTIME_2026_11_07.md).

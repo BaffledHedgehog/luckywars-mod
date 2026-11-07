@@ -211,6 +211,7 @@ public final class LbcPills {
         return value>=0&&value<=OUTPUT_COUNT?value:-1;
     }
     public static boolean certificate(ItemStack stack){
+        if(LbcTmtItems.matches(stack))return LbcTmtIntake.has(stack,"phd");
         return !stack.isEmpty()&&(stack.is(CERTIFICATE)||stack.is(Items.REPEATING_COMMAND_BLOCK))
                 &&LbcFartus.data(stack).getIntOr("phd",0)==1;
     }

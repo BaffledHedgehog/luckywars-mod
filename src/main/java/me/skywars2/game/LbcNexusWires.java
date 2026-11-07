@@ -56,13 +56,30 @@ public final class LbcNexusWires {
             &&LbcDimensionItems.ordinary(p)&&game.items().wands().validRoleTarget(p,false)&&!game.items().wands().inputTimeStopped(p)&&!paused(p);}
     private void consume(ServerPlayer p,boolean black){
         if(!admitted(p))return;
-        java.util.function.Predicate<ItemStack> matches=black?LbcNexusWireItems::isBlack:LbcNexusWireItems::isRed;
+        java.util.function.Predicate<ItemStack> matches=stack->!LbcTmtItems.matches(stack)&&(black?LbcNexusWireItems.isBlack(stack):LbcNexusWireItems.isRed(stack));
         if(game.items().inventoryHazards().protectedInventory(p)&&!matches.test(p.getMainHandItem()))return;
         if(p.getInventory().clearOrCountMatchingItems(matches,false,1,p.inventoryMenu.getCraftSlots())==0)return;
+        grant(p,black);
+        p.getInventory().setChanged();game.items().mana().inventoryChanged(p);
+    }
+    private int consumeTmt(ServerPlayer p){
+        if(!admitted(p))return 0;
+        boolean protectedInventory=game.items().inventoryHazards().protectedInventory(p);
+        for(int slot=0;slot<p.getInventory().getContainerSize();slot++){
+            var stack=p.getInventory().getItem(slot);
+            if(!LbcTmtItems.matches(stack)||protectedInventory&&stack!=p.getMainHandItem())continue;
+            int mask=LbcTmtIntake.wires(stack);if(mask==0)continue;
+            stack.shrink(1);
+            if((mask&2)!=0)grant(p,true);
+            if((mask&1)!=0)grant(p,false);
+            p.getInventory().setChanged();game.items().mana().inventoryChanged(p);return mask;
+        }
+        return 0;
+    }
+    private void grant(ServerPlayer p,boolean black){
         if(black){var r=p.getRandom();gateways.add(new Gateway(p.level(),new BlockPos(r.nextInt(4001)-2000,r.nextInt(320),r.nextInt(4001)-2000),game.items().indirectKills().wildCause(p)));}
         else grantRed(p);
         p.sendSystemMessage(Component.translatable(black?"black_wire_destroyed":"red_wire_destroyed").withColor(black?0xaaaaaa:0xff5555));
-        p.getInventory().setChanged();game.items().mana().inventoryChanged(p);
     }
     /** Own temporary tickets keep remote gateway loads out of the match-long map-loading cache. */
     private void tickGateways(){
@@ -97,10 +114,10 @@ public final class LbcNexusWires {
         }
         for(var id:Set.copyOf(dirty)){
             dirty.remove(id);var p=game.server().getPlayerList().getPlayer(id);boolean found=false;
-            if(p!=null)for(int i=0;i<p.getInventory().getContainerSize();i++){var stack=p.getInventory().getItem(i);if(LbcNexusWireItems.isRed(stack)||LbcNexusWireItems.isBlack(stack)){found=true;break;}}
+            if(p!=null)for(int i=0;i<p.getInventory().getContainerSize();i++){var stack=p.getInventory().getItem(i);if(LbcTmtItems.matches(stack)?LbcTmtIntake.wires(stack)!=0:LbcNexusWireItems.isRed(stack)||LbcNexusWireItems.isBlack(stack)){found=true;break;}}
             if(found)carriers.add(id);else carriers.remove(id);
         }
-        for(var id:Set.copyOf(carriers)){var p=game.server().getPlayerList().getPlayer(id);consume(p,true);consume(p,false);}
+        for(var id:Set.copyOf(carriers)){var p=game.server().getPlayerList().getPlayer(id);int applied=consumeTmt(p);if((applied&2)==0)consume(p,true);if((applied&1)==0)consume(p,false);}
         if(++heightPhase%20==0)for(var p:game.server().getPlayerList().getPlayers())
             if(p.isAlive()&&!p.isSpectator()&&!game.isObserver(p)&&LbcDimensionItems.ordinary(p)&&p.getY()>=14500000&&!paused(p))game.items().hedgehogDimensions().heightNexus(p);
     }
