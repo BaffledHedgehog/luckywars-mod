@@ -66,7 +66,8 @@ final class LbcTmtComponents {
         private final ItemStack stack;private final List<Value> saved;
         private final GameController game;private final Item item;
         private Scope(GameController game,ItemStack stack,Item item,List<Value> saved){this.game=game;this.stack=stack;this.item=item;this.saved=saved;}
-        void remember(CompoundTag payload){if(!stack.isEmpty()&&game!=null)for(var value:saved)if(!Objects.equals(stack.get(value.type),value.next)){capture(game,stack,item,payload);break;}}
+        boolean changed(){if(stack.isEmpty())return false;for(var value:saved)if(!Objects.equals(stack.get(value.type),value.next))return true;return false;}
+        void remember(CompoundTag payload){if(game!=null&&changed())capture(game,stack,item,payload);}
         public void close(){try{for(var value:saved)if(!Objects.equals(stack.get(value.type),value.previous))set(stack,value.type,value.previous);}
             finally{var active=ACTIVE.get();if(active!=null){active.remove(stack);if(active.isEmpty())ACTIVE.remove();}}}
     }

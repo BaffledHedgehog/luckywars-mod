@@ -1,3 +1,13 @@
+## TMT shared active drops - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Contracts and evidence](agent_notes/TMT_DROPS_RUNTIME_2026_11_07.md).
+Native SpecialDrops private readiness/execution; one real dropped stack/debit.
+Common derived admission index rebuilt after canonical body replay, including ordinary drops.
+Read-only scopes retain immutable CustomData and parsed slots; no global cache.
+Internal01ca4903/f804ce65 on fullfb24be1e parent;12 actual mode1 matches pass.
+10 Java families/0 resources;10330 other inputs/282 author paths preserved.
+Main/libs/HUD unchanged. Independent intake/domain reconciliation and full TMT release pending.
+
 ## TMT native payload/use-on - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Contracts, exact evidence and carry-forward](agent_notes/TMT_BLOCK_RUNTIME_2026_11_07.md).

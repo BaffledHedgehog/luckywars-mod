@@ -62,6 +62,7 @@ public final class LbcBalance {
     public void adoptEgg(Entity body,LivingEntity user){eggs.adopt(body,user);}
     public static boolean isDrop(ItemStack stack){return LbcBalanceExtras.isDrop(stack);}
     public boolean drop(net.minecraft.world.entity.item.ItemEntity token){return extras.drop(token);}
+    public boolean canDrop(net.minecraft.world.entity.item.ItemEntity token){return extras.canDrop(token);}
     public void damaged(ServerPlayer owner){extras.damaged(owner);}
     public void woolPolicy(WoolPolicy policy){extras.woolPolicy(policy);}
     public boolean woolAllowed(ServerPlayer owner,InteractionHand hand){return extras.woolAllowed(owner,hand);}

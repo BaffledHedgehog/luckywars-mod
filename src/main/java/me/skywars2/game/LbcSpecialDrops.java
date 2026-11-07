@@ -30,6 +30,9 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
+        return LbcTmtDrops.matches(stack)||nativeRecognized(stack);
+    }
+    static boolean nativeRecognized(net.minecraft.world.item.ItemStack stack) {
         return LbcBalance.isDrop(stack) || LbcEternalWealthItems.isDrop(stack) || LbcLuckyBlocks.silkToken(stack) || LbcFamilyDrops.matches(stack) || LbcGrimoireDungeon.matches(stack) || LbcMagicBean.recognized(stack) || LbcInfinity.recognized(stack) || LbcChaosTrapActors.matches(stack) || LbcSauvojenBoss.recognized(stack) || LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack) || LbcPortalDropItem.matches(stack) || LbcLuckyRoomDropItem.matches(stack) || LbcPisaDropItem.matches(stack) || LbcAntigravityDropItem.matches(stack) || LbcUltraponosDropItem.matches(stack) || LbcNpcDropItems.isTransformator(stack) || LbcStalinDropItem.isTrigger(stack);
     }
 
@@ -109,9 +112,24 @@ public final class LbcSpecialDrops {
 
     /** Returns whether an active loaded attempt was dispatched, even when native placement fails. */
     boolean spawn(ItemEntity token) {
-        try(var scope=game.items().spellSources().scope(token)){return spawnScoped(token);}
+        try(var scope=game.items().spellSources().scope(token)){
+            if(LbcTmtDrops.matches(token.getItem())&&!LbcTmtAbilities.active(token.getItem()))return spawnTmt(token);
+            return spawnScoped(token,true,true,true);
+        }
     }
-    private boolean spawnScoped(ItemEntity token) {
+    private boolean spawnTmt(ItemEntity token){
+        int now=game.server().getTickCount();if(lastAttempt.getOrDefault(token,Integer.MIN_VALUE)==now)return false;
+        var stack=token.getItem();var admitted=new java.util.ArrayList<LbcTmtAbilities.Ability>();
+        for(var property:LbcTmtDrops.properties(stack))if(LbcTmtAbilities.invoke(stack,property.id(),()->spawnScoped(token,false,false,false)))admitted.add(property);
+        if(admitted.isEmpty())return false;
+        lastAttempt.put(token,now);boolean dispatched=false;
+        for(var property:admitted){if(token.isRemoved()||token.getItem()!=stack||stack.isEmpty())break;
+            dispatched|=LbcTmtAbilities.invoke(stack,property.id(),()->spawnScoped(token,true,false,false));
+        }
+        if(dispatched&&!token.isRemoved()&&!token.getItem().isEmpty())consume(token);
+        return dispatched;
+    }
+    private boolean spawnScoped(ItemEntity token,boolean perform,boolean debit,boolean stamp) {
         if (token.isRemoved() || token.getAge() >= 5999 || stale(token) || !active(token)
                 || !(token.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return false;
         if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token).epoch())) return false;
@@ -166,7 +184,7 @@ public final class LbcSpecialDrops {
         if (infinity && !game.items().infinity().ready(token)) return false;
         if (magicBean && !game.items().magicBean().ready(token)) return false;
         int now = game.server().getTickCount();
-        if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
+        if (stamp&&lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
         if (!resident(level, pos, chest ? 1 : 0)) return false;
         for (var kind : LbcOpAnvilDropItem.Kind.values())
@@ -216,8 +234,10 @@ public final class LbcSpecialDrops {
         if (target != null) for (var kind : LbcHoleDropItem.Kind.values()) {
             if (LbcHoleDropItem.matches(token.getItem(), kind) && !game.items().holeDrops().ready(token, kind, target)) return false;
         }
+        if(balanceDrop&&!game.items().balance().canDrop(token))return false;
+        if(!perform)return true;
         if(balanceDrop&&!game.items().balance().drop(token))return false;
-        lastAttempt.put(token, now);
+        if(stamp)lastAttempt.put(token, now);
         // The source dispatcher executes every matching flag in order, then debits once.
         for (var kind : LbcCreeperDropItem.Kind.values()) {
             if (LbcCreeperDropItem.matches(token.getItem(), kind)) game.items().creeperDrops().spawn(token, kind);
@@ -297,10 +317,13 @@ public final class LbcSpecialDrops {
         if(family)game.items().familyDrops().spawn(token);
         if (transformator) game.items().transformator().spawn(token);
         if (stalin) game.items().stalin().spawn(token);
+        if(debit)consume(token);
+        return true;
+    }
+    private static void consume(ItemEntity token){
         var remaining = token.getItem().copy();
         remaining.shrink(1);
         if (remaining.isEmpty()) token.discard(); else token.setItem(remaining);
-        return true;
     }
 
     private static boolean resident(ServerLevel level, BlockPos pos, int border) {
@@ -346,6 +369,14 @@ public final class LbcSpecialDrops {
             level.setBlockEntity(new ChestBlockEntity(pos, state));
         }
         return true;
+    }
+
+    /** Native body replay suppresses load callbacks; rebuild only the derived admission index. */
+    void reindexRestored(Iterable<Entity> bodies) {
+        if(!game.server().isSameThread()||!game.server().tickRateManager().isFrozen())
+            throw new IllegalStateException("Reindex restored drops on the frozen native thread");
+        stop();
+        for(var body:bodies)if(body instanceof ItemEntity)loaded(body);
     }
 
     public void stop() {

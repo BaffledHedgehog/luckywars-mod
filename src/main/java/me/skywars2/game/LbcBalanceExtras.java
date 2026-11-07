@@ -52,9 +52,10 @@ final class LbcBalanceExtras {
         var body=new PrimedTnt(owner.level(),owner.getX(),owner.getY()+.2,owner.getZ(),owner);body.setFuse(80);insert(owner,body);
     }
     /** Native BaseSpawner remains the sole timing/position/population owner. */
+    boolean canDrop(ItemEntity token){return isDrop(token.getItem())&&token.level() instanceof ServerLevel level&&game.playing()&&game.stage()!=GameController.Stage.ENDING
+                &&level==game.maps().level()&&!game.items().timeStop().stopped(level)&&level.hasChunkAt(token.blockPosition());}
     boolean drop(ItemEntity token){
-        if(!isDrop(token.getItem())||!(token.level() instanceof ServerLevel level)||!game.playing()||game.stage()==GameController.Stage.ENDING
-                ||level!=game.maps().level()||game.items().timeStop().stopped(level)||!level.hasChunkAt(token.blockPosition()))return false;
+        if(!canDrop(token))return false;var level=(ServerLevel)token.level();
         try{
             var tag=TagParser.parseCompoundFully("{SpawnCount:1s,SpawnRange:3s,Delay:0s,MinSpawnDelay:100s,MaxSpawnDelay:101s,MaxNearbyEntities:1000s,RequiredPlayerRange:100s,SpawnData:{entity:{id:'minecraft:marker',Tags:['futureluckyblock','rc_1sec','skywars2.balance.lucky_marker']}}}");
             var cause=game.items().specialDrops().owner(token);var author=LbcIndirectKills.playerSource(cause);var pos=token.blockPosition();

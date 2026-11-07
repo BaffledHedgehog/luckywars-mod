@@ -1376,6 +1376,7 @@ public final class GameChecks {
                                 case "tmt-ammo" -> { TmtAmmoChecks.run(game); return; }
                                 case "tmt-held" -> { TmtHeldChecks.run(game); return; }
                                 case "tmt-block-use" -> { TmtBlockUseChecks.run(game); return; }
+                                case "tmt-drops" -> { TmtDropChecks.run(game); return; }
                                 case "tmt-ammo-rewind" -> { TmtAmmoRewindChecks.run(game); return; }
                                 case "tmt-extra-use" -> { TmtExtraUseChecks.run(game); return; }
                                 case "entity-protocol" -> { EntityProtocolChecks.run(game); return; }
@@ -1675,7 +1676,7 @@ public final class GameChecks {
             MapStreamingChecks.tick(game);
             ImbaAxeChecks.tick(game);PhoenixSkillChecks.tick(game);
             IndividualNameplateChecks.tick(game);TimeFragmentSprintChecks.tick(game);
-            ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
+            ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);TmtDropChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
             CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

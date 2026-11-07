@@ -19,7 +19,7 @@ public final class LbcTmtAbilities {
     private static final List<String> PARAMETERS=List.of("upgraded","mode","type");
     private static final List<String> IDENTITY=List.of(SLOTS,ACTIVE,"tmt_item","tmt_texture_seed");
     // Captured source stacks retain ACTIVE as context. Runtime reentry is never a serialized lock.
-    private static final ThreadLocal<java.util.Map<ItemStack,CompoundTag>> SCOPES=new ThreadLocal<>();
+    private static final ThreadLocal<java.util.Map<ItemStack,CustomData>> SCOPES=new ThreadLocal<>();
     private static final ThreadLocal<java.util.ArrayDeque<Runnable>> AFTER_SCOPES=new ThreadLocal<>();
     private static final ThreadLocal<java.util.Map<ItemStack,net.minecraft.world.item.Item>> NATIVE_SCOPES=new ThreadLocal<>();
     private static final java.util.concurrent.atomic.AtomicInteger NATIVE_DEPTH=new java.util.concurrent.atomic.AtomicInteger();
@@ -27,7 +27,7 @@ public final class LbcTmtAbilities {
     /** Inventory refunds preserve the full item; projectile captures deliberately use ordinary copy(). */
     static ItemStack outerCopy(ItemStack stack){
         var result=stack.copy();var scopes=SCOPES.get();var original=scopes==null?null:scopes.get(stack);
-        if(original!=null)result.set(DataComponents.CUSTOM_DATA,CustomData.of(original));
+        if(original!=null)result.set(DataComponents.CUSTOM_DATA,original);
         LbcTmtComponents.restoreOuterCopy(stack,result);
         return result;
     }
@@ -107,21 +107,21 @@ public final class LbcTmtAbilities {
     /** No hand replacement or copied-item execution. Only this callback's property parameters are projected. */
     static boolean invoke(ItemStack stack,String id,BooleanSupplier action) {
         if(stack.isEmpty()||active(stack))return false;
-        var original=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        var slots=read(original);Ability selected=null;
+        var originalData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY);
+        var slots=read(stack);Ability selected=null;
         for(var ability:slots)if(ability.id.equals(id)){selected=ability;break;}
         if(selected==null)return false;
-        var payload=selected.data.copyTag();var effective=original.copy();
+        var payload=selected.data.copyTag();var effective=originalData.copyTag();
         // Legacy set_basics advertised both Fragment selectors even without an actual
         // Fragment property. Native callbacks must only see a selector owned by this slot.
         effective.remove("fragmentsword");effective.remove("fragmentsword_old");
         // The aggregate flags classify the outer item, but cannot impersonate a sibling
         // inside a native owner's first-match dispatch or self-effect branch.
-        for(var ability:slots)for(var key:ability.data.copyTag().keySet())
-            if(!IDENTITY.contains(key))effective.remove(key);
+        for(var key:new ArrayList<>(effective.keySet()))if(!IDENTITY.contains(key))for(var ability:slots)
+            if(((ItemData.IntReader)(Object)ability.data).skywars2$contains(key)){effective.remove(key);break;}
         for(var key:PARAMETERS)effective.remove(key);
         effective.merge(payload);effective.putString(ACTIVE,id);
-        var before=effective.copy();
+        var before=effective;var projectedData=CustomData.of(effective);
         var nativeItem=nativeItem(selected.data);
         java.util.Map<ItemStack,net.minecraft.world.item.Item> nativeScopes=null;
         if(nativeItem!=null){
@@ -131,12 +131,14 @@ public final class LbcTmtAbilities {
         }
         var scopes=SCOPES.get();
         if(scopes==null){scopes=new java.util.IdentityHashMap<>();SCOPES.set(scopes);}
-        scopes.put(stack,original);
+        scopes.put(stack,originalData);
         LbcTmtComponents.Scope components=null;
-        try{stack.set(DataComponents.CUSTOM_DATA,CustomData.of(effective));components=LbcTmtComponents.project(me.skywars2.SkyWars2.game(),stack,selected.data);return action.getAsBoolean();}
+        try{stack.set(DataComponents.CUSTOM_DATA,projectedData);components=LbcTmtComponents.project(me.skywars2.SkyWars2.game(),stack,selected.data);return action.getAsBoolean();}
         finally{
             try{
             if(!stack.isEmpty()){
+                if(stack.get(DataComponents.CUSTOM_DATA)==projectedData&&(components==null||!components.changed()))stack.set(DataComponents.CUSTOM_DATA,originalData);
+                else {
                 var after=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
                 // Native mode/version/counter writes belong to this property, not its siblings.
                 for(var key:after.keySet())if(!IDENTITY.contains(key)
@@ -144,11 +146,16 @@ public final class LbcTmtAbilities {
                     payload.put(key,after.get(key).copy());
                 for(var key:new ArrayList<>(payload.keySet()))if(!after.contains(key))payload.remove(key);
                 if(components!=null)components.remember(payload);
+                if(payload.equals(selected.data.copyTag()))stack.set(DataComponents.CUSTOM_DATA,originalData);
+                else {
                 var list=new ListTag();
                 for(var ability:slots)list.add(entry(ability.id,ability.id.equals(id)?payload:ability.data.copyTag()));
+                var original=originalData.copyTag();
                 original.put(SLOTS,list);original.remove(ACTIVE);
                 for(var key:PARAMETERS)original.remove(key);
                 stack.set(DataComponents.CUSTOM_DATA,CustomData.of(original));
+                }
+                }
             }
             }finally{
                 try{if(components!=null)components.close();}finally{

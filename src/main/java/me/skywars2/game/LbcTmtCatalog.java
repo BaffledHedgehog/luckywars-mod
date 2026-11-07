@@ -82,7 +82,11 @@ final class LbcTmtCatalog {
 
         // Retain IDs admitted by the existing real native direct-use dispatcher.
         for(var family:useProfiles.families())for(var ability:family.variants()){
+            var originalAbility=ability;
+            boolean dropped=LbcSpecialDrops.nativeRecognized(LbcTmtComponents.source(game,ability));
+            if(dropped){var data=ability.data().copyTag();data.putInt(LbcTmtDrops.FLAG,1);ability=new LbcTmtAbilities.Ability(ability.id(),CustomData.of(data));}
             add(all,family.id(),family.id(),ability,rule("","LbcTmtUseProfiles/native input",Event.USE,Location.USED_HAND));
+            if(dropped){all.get(family.id()).events.add(Event.DROP);all.get(family.id()).locations.add(Location.LOOSE_ITEM);all.get(family.id()).owners.add("LbcSpecialDrops");}
             var traits=ability.data().copyTag();
             for(var entry:RULES.entrySet())if(traits.getIntOr(entry.getKey(),0)==1){
                 var collected=all.get(family.id());collected.events.addAll(entry.getValue().events());
@@ -93,7 +97,7 @@ final class LbcTmtCatalog {
                 all.get(family.id()).owners.add("LbcImbaAxe/LbcTmtTools");
             }
             if(LbcTmtBlockUses.supports(LbcTmtComponents.nativeItem(ability.data()))){all.get(family.id()).events.add(Event.BLOCK);all.get(family.id()).owners.add("LbcTmtBlockUses/native factory");}
-            knownInputs.add(canonical(ability.data().copyTag()));
+            knownInputs.add(canonical(originalAbility.data().copyTag()));
         }
         for(var profile:LbcWands.tmtAbilities()){
             commonItems.add(profile.nativeItem());
@@ -213,6 +217,13 @@ final class LbcTmtCatalog {
         LbcTmtComponents.capture(game,stack,blockItem==null?stack.getItem():blockItem,data);
         var probe=ability("probe",nativeId,data);
         if(knownInputs.contains(canonical(probe.data().copyTag())))return;
+        if(LbcSpecialDrops.nativeRecognized(stack)){
+            data.putInt(LbcTmtDrops.FLAG,1);var keys=new TreeSet<String>();
+            for(var key:data.keySet())if(!SERVICE.contains(key)&&!key.startsWith("tmt_"))keys.add(normal(key));
+            String family="drop/"+(keys.isEmpty()?nativeId.getPath().replaceFirst("^old_","").replaceFirst("_old$",""):String.join("/",keys));String id="native/"+family;
+            add(all,id,family,ability(id,nativeId,data),rule("","LbcSpecialDrops/native dispatch",Event.DROP,Location.LOOSE_ITEM));
+            if(blockItem!=null){all.get(id).events.add(Event.BLOCK);all.get(id).locations.add(Location.USED_HAND);}return;
+        }
         if(blockItem!=null){String id="native/block/"+nativeId.getPath();add(all,id,"block/"+nativeId.getPath(),ability(id,nativeId,data),
                 rule("","LbcTmtBlockUses/native factory",Event.BLOCK,Location.USED_HAND));return;}
         if(LbcTmtItems.output(stack.getItem())||stack.is(LbcTmtItems.TOKEN)){
