@@ -7,6 +7,28 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## TMT ordinary potion arrows/old shulker - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL parent now78aef9a2/5ece4350 over3981713d/c09e2533.
+Six Java families/zero resources; all7 suites pass on SAME final artifact.
+[TMT_POTION_ARROW_CONTAINER_2026_11_07.md](agent_notes/TMT_POTION_ARROW_CONTAINER_2026_11_07.md).
+40 ordinary potion-arrow doses use existing LbcTmtAmmoPayloads/LbcQuiver contact engine;
+shared effect identity helper, actual native0.125 duration scale, no free-ammo trait.
+Real vanilla control hits and composed TMT crossbow hit match level/duration exactly;
+outer regeneration does not leak, real chamber/ammo/pickup/codec preserved. Exact
+infinity_old black container now admitted without modern inf flag; real placement/
+open/recursive returned box/native break preserve resolved private contents and outer
+loot key. Bare vanilla boxes still excluded. All7 suites: tmt-potion-arrow-container/
+tmt-ammo/tmt-ammo-rewind/tmt-mana-potions/tmt-block-use/tmt-acquisition/tmt-catalog.
+1144 families/2268 variants/2274 prototypes;97service/9inert/ZERO pending is inventory,
+not full completion.10491 guards/281 author paths/three WIP/HUD/RP/Main exact;512MiB
+compiler then1280MiB fixture, normal exit/exact restore/no locks. Main83b0ea27 unchanged;
+NO installer/restart/author-RP edits; hold ALL fixes until stable. Goal remains ACTIVE.
+Next full-source assembly of complete chain, remaining service/source reconciliation,
+ready-item gates and atlas delivery. Read prior protected-token audit: two check files
+formatter-only; RerollCrafting has white preview name/dark-purple description additions.
+Preserve these authored changes unchanged in full build; no arbitrary function execution.
+
 ## TMT authored component-only inputs/eggs - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL parent is now3981713d/c09e2533 over82333594/757cdfe0.

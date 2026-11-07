@@ -222,11 +222,11 @@ final class LbcTmtCatalog {
         }
         boolean nativeAmmo=LbcImbaNativeItems.specialArrows().contains(stack.getItem())
                 ||LbcImbaNativeItems.quiverArrows().contains(stack.getItem())
-                ||stack.is(LbcImbaNativeItems.INFINITE_ARROW)||stack.is(LbcImbaNativeItems.HOMING_ARROW)||LbcStand.isArrow(stack);
+                ||stack.is(LbcImbaNativeItems.INFINITE_ARROW)||stack.is(LbcImbaNativeItems.HOMING_ARROW)||LbcStand.isArrow(stack)||LbcTmtAmmoPayloads.potionArrow(stack);
         if(nativeAmmo){
             if(LbcTmtAmmoPayloads.supports(stack)){
                 var canonical=LbcStand.isArrow(stack)?LbcStand.ARROW.getDefaultInstance():stack;
-                var ammoId=BuiltInRegistries.ITEM.getKey(canonical.getItem());String family="ammo/"+ammoId.getPath(),id="native/"+family;
+                var ammoId=BuiltInRegistries.ITEM.getKey(canonical.getItem());String family=LbcTmtAmmoPayloads.potionArrow(canonical)?"ammo/potion/"+LbcTmtManaPotions.effectIdentity(canonical):"ammo/"+ammoId.getPath(),id="native/"+family;
                 var ammoData=canonical.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();LbcTmtComponents.capture(game,canonical,ammoData);
                 add(all,id,family,ability(id,ammoId,ammoData),
                         new Rule(family,"LbcTmtAmmoPayloads/LbcQuiver/LbcBeamAmmo",Set.of(Event.SHOT,Event.AMMO),Set.of(Location.USED_HAND)));

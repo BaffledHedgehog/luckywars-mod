@@ -129,7 +129,15 @@ public final class LbcTmtAmmoPayloads {
     private static boolean supported(ItemStack source){
         if(source.isEmpty()||!(source.getItem() instanceof ArrowItem)||source.getItem()==LbcImbaNativeItems.INFINITE_ARROW||LbcInfiniteAmmo.matches(source))return false;
         var item=source.getItem();return LbcImbaNativeItems.specialArrows().contains(item)||LbcImbaNativeItems.quiverArrows().contains(item)
-                ||item==LbcImbaNativeItems.HOMING_ARROW||LbcStand.isArrow(source);
+                ||item==LbcImbaNativeItems.HOMING_ARROW||LbcStand.isArrow(source)||potionArrow(source);
+    }
+    /** Ordinary potion arrows add their real effects, never a free-ammunition capability. */
+    static boolean potionArrow(ItemStack source){
+        if(source.getItem()!=net.minecraft.world.item.Items.TIPPED_ARROW)return false;
+        var contents=source.get(DataComponents.POTION_CONTENTS);if(contents==null||!contents.hasEffects())return false;
+        // Reserved Raid Omen carriers belong to the existing typed special-arrow domain.
+        for(var effect:contents.getAllEffects())if(effect.is(net.minecraft.world.effect.MobEffects.RAID_OMEN))return false;
+        return true;
     }
     public static boolean supports(ItemStack source){return supported(source);}
     public static int variant(ItemStack ammo){

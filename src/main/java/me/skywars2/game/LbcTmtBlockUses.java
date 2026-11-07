@@ -48,7 +48,8 @@ final class LbcTmtBlockUses {
         var id=loot.lootTable().identifier().toString();
         return stack.getItem()==net.minecraft.world.item.Items.DYED_SHULKER_BOX.pick(net.minecraft.world.item.DyeColor.BLACK)
                 &&(id.equals("lbc:infinity")&&ItemData.intValue(stack,"inf_shulker",0)==1
-                ||id.equals("lbc:infinity_upgraded")&&ItemData.intValue(stack,"inf_inf_shulker",0)==1)
+                ||id.equals("lbc:infinity_upgraded")&&ItemData.intValue(stack,"inf_inf_shulker",0)==1
+                ||id.equals("lbc:infinity_old"))
                 ||stack.getItem()==net.minecraft.world.item.Items.DYED_SHULKER_BOX.pick(net.minecraft.world.item.DyeColor.YELLOW)
                 &&id.equals("lbc:infinity_upgraded_luck")&&ItemData.intValue(stack,"sigma_shulker",0)==1;
     }

@@ -38,6 +38,10 @@ public final class LbcTmtManaPotions {
     /** Effect identities define a family; full ordered doses/levels/colors/scales remain private variants. */
     static String family(ItemStack stack){
         var delivery=delivery(stack);if(delivery==null)return null;
+        return "potion/"+delivery.name().toLowerCase(java.util.Locale.ROOT)+"/"+effectIdentity(stack);
+    }
+    /** Shared semantic identity; delivery and full source doses remain with their native owners. */
+    static String effectIdentity(ItemStack stack){
         var identities=new java.util.TreeSet<String>();
         for(var effect:stack.get(DataComponents.POTION_CONTENTS).getAllEffects()){
             String id=BuiltInRegistries.MOB_EFFECT.getKey(effect.getEffect().value()).toString();
@@ -49,7 +53,7 @@ public final class LbcTmtManaPotions {
         if(identity.length()>80)try{identity="effects/"+java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
                 .digest(identity.getBytes(java.nio.charset.StandardCharsets.UTF_8)));}
             catch(java.security.NoSuchAlgorithmException error){throw new IllegalStateException(error);}
-        return "potion/"+delivery.name().toLowerCase(java.util.Locale.ROOT)+"/"+identity;
+        return identity;
     }
 
     /**
