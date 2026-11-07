@@ -71,8 +71,10 @@ def build():
                                     components.pop(key[1:] if key.startswith("!") else "!" + key, None)
                                     components[key] = value
                     # Several finished owners still use custom data on a vanilla
-                    # carrier (Big Bob is one). Plain vanilla loot is not an ability.
-                    if item.startswith("skywars2:") or payloads:
+                    # carrier (Big Bob is one). Authored gameplay components can be
+                    # the entire behavior too, e.g. ENTITY_DATA on a vanilla egg.
+                    # Cosmetic fields were filtered above; native owners still own admission.
+                    if item.startswith("skywars2:") or payloads or components:
                         yield item, payloads, components, references
             elif kind in ("minecraft:loot_table", "loot_table"):
                 reference = node.get("value", node.get("name"))

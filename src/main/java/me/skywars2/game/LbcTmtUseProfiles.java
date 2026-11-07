@@ -180,8 +180,9 @@ final class LbcTmtUseProfiles {
         data.remove(LbcTmtAbilities.SLOTS);data.remove(LbcTmtAbilities.ACTIVE);data.remove("tmt_item");data.remove("tmt_texture_seed");
         LbcTmtComponents.capture(game,source,stack.getItem(),data);
         String potionFamily=LbcTmtManaPotions.family(stack);
+        String eggFamily=LbcTmtBlockUses.eggFamily(stack);
         String family=LbcTmtShield.candidate(stack)&&LbcElectro.isShield(stack)?"energy_shield":
-                potionFamily!=null?potionFamily:LbcTmtNativeThrows.wool(stack)?"wool_trail":family(nativeId,data);
+                potionFamily!=null?potionFamily:eggFamily!=null?eggFamily:LbcTmtNativeThrows.wool(stack)?"wool_trail":family(nativeId,data);
         String id=PREFIX+digest(family);data.putString(NATIVE_ITEM,nativeId);
         var ability=new LbcTmtAbilities.Ability(id,CustomData.of(data));
         // Full typed payload and native identity determine variants; acquisition count/style never enters this key.

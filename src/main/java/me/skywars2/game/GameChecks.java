@@ -904,6 +904,7 @@ public final class GameChecks {
                                 case "attribute-food" -> { AttributeFoodChecks.start(game); return; }
                                 case "legacy-hud" -> { ImprintedHudChecks.hud(game); return; }
                                 case "imprinted-return" -> { ImprintedHudChecks.start(game); return; }
+                                case "tmt-authored-eggs" -> {TmtAuthoredEggChecks.run(game);break;}
                                 case "tmt-acquisition" -> {TmtAcquisitionChecks.run(game);return;}
                                 case "tmt-firework-ammo" -> {TmtFireworkAmmoChecks.run(game);return;}
                                 case "tmt-rocket-unload" -> {TmtLifecycleChecks.run(game,true);return;}

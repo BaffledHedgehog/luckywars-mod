@@ -7,6 +7,31 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## TMT authored component-only inputs/eggs - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL parent is now3981713d/c09e2533 over82333594/757cdfe0.
+Four Java families/one resource/generator; all8 suites pass on SAME final artifact.
+[TMT_AUTHORED_COMPONENTS_2026_11_07.md](agent_notes/TMT_AUTHORED_COMPONENTS_2026_11_07.md).
+Builder now retains its existing allowed gameplay components without custom_data.
+Vanilla eggs with nondefault ENTITY_DATA reuse actual native use-on/fluid factory;
+bare eggs excluded, legacy native aliases take priority, entity type owns one family.
+Authored vanilla fireworks canonicalize to existing native factory/family/ammo path.
+Extra potion doses use existing typed owners. Actual canonical Illusioner+native Vex
+compose with private NoAI, conflicting outer Cow does not leak; native debit/state/
+codec/other hand all exact.8 suites: tmt-authored-eggs/tmt-block-use/tmt-current-content/
+tmt-acquisition/content-gallery/tmt-catalog/tmt-mana-potions/tmt-firework-ammo.
+Prototypes1879->2274;1125families/2227variants;138service/9inert/ZERO pending is inventory,
+not full completion.10490 guards/281 author paths/three WIP/HUD/RP/Main exact;512MiB
+compiler then1280MiB fixture, normal exit/exact restore/no locks. Main83b0ea27 untouched;
+NO installer/restart/author RP edits, hold ALL until stable. Goal remains ACTIVE.
+CONFIRMED NEXT:40 ordinary potion-arrow doses still service-excluded; reuse existing
+LbcTmtAmmoPayloads/LbcQuiver effects/native duration scale. Old infinity_old black
+shulker without inf flag also meaningful; reuse exact-table private container path.
+Then current capability reconciliation and full-source stable assembly/atlas delivery.
+Protected-source token audit: AcidAntDropChecks/HelicopterEncounterChecks formatter-only;
+LbcRerollCrafting adds white preview name/dark-purple description styles. Preserve these
+unchanged in eventual full build. Review JSON/link details in note; no edits to WIP.
+
 ## TMT acquisition and real gallery factory - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL parent is now82333594/757cdfe0 over92762114/4db43bdd.
