@@ -9,7 +9,7 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 /** The Paper tablet payload operates on native components, without command/NBT scratch storage. */
 public final class LbcMultiplierTablets {
     private LbcMultiplierTablets(){}
-    public static int kind(ItemStack stack){return stack.isEmpty()?0:LbcFartus.data(stack).getIntOr("multiply",0);}
+    public static int kind(ItemStack stack){return ItemData.intValue(stack,"multiply",0);}
     static ItemAttributeModifiers doubled(ItemAttributeModifiers source){
         var entries=new ArrayList<ItemAttributeModifiers.Entry>(source.modifiers().size());
         for(var entry:source.modifiers()){

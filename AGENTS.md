@@ -1,3 +1,17 @@
+## TMT retained native loose copier/tablets - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Source, shared owner and actual native proof](agent_notes/TMT_LOOSE_REWARDS_2026_11_07.md).
+Private cached admission plus retained source replay through existing LbcLooseRewards;
+one multiply family/modes2/3/4, source tablet-before-copier order/per-success unit debit.
+Complete outer remainder publication; shared frozen derived-index reindex without epoch stamping.
+Native pickup/split/codec/unload-reload/restoreFrom/full Vanity continuation pass.
+Internal206f0d5c/2d41f522 on fullae8e96c8:8 focused native suites pass.
+7families/0resources;10465 other guarded inputs/282author paths/HUD/WIP preserved.
+Fresh962families/1821variants/118pendingrows are reconciliation, not full completion.
+One512MiB compiler then one2GiB fixture, sequential; all children exited/restored/no locks.
+Main/libs/RP unchanged; full remaining TMT owners/domains/acquisition/release pending.
+Next selected inventory intake: Magnum6 rounds via shared private query/native single debit.
+
 ## TMT native clock-fragment simulation ? COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Author intent, exact source/native evidence and carry-forward](agent_notes/CLOCK_FRAGMENTS_NATIVE_2026_11_07.md).

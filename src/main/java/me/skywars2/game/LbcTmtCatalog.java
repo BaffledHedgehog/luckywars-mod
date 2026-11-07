@@ -232,6 +232,12 @@ final class LbcTmtCatalog {
         LbcTmtComponents.capture(game,stack,blockItem==null?stack.getItem():blockItem,data);
         var probe=ability("probe",nativeId,data);
         if(knownInputs.contains(canonical(probe.data().copyTag())))return;
+        int looseKind=LbcTmtLooseRewards.prototypeKind(stack);
+        if(looseKind!=0){
+            String id=looseKind==1?LbcTmtLooseRewards.COPIER_FAMILY:LbcTmtLooseRewards.MULTIPLY_FAMILY;
+            add(all,id,looseKind==1?"loose/copier":"loose/multiply",ability(id,nativeId,data),
+                    rule("","LbcLooseRewards/LbcTmtLooseRewards",Event.DROP,Location.LOOSE_ITEM));return;
+        }
         if(LbcSpecialDrops.nativeRecognized(stack)){
             data.putInt(LbcTmtDrops.FLAG,1);var keys=new TreeSet<String>();
             for(var key:data.keySet())if(!SERVICE.contains(key)&&!key.startsWith("tmt_"))keys.add(normal(key));
