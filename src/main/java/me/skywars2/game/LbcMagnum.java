@@ -106,7 +106,12 @@ public final class LbcMagnum {
         return !stack.isEmpty() && (stack.is(ITEM) || data!=null && data.matchedBy(FLAG));
     }
     public static int mode(ItemStack stack) {
-        return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",0),0,5);
+        return Math.clamp(ItemData.intValue(stack,"mode",0),0,5);
+    }
+    /** Catalog source selector; ammo intake itself follows the native inventory debit below. */
+    static int roundMode(ItemStack stack) {
+        for(int mode=0;mode<MODES.length;mode++)if(ItemData.intValue(stack,MODES[mode]+"_round",0)==1)return mode;
+        return -1;
     }
     private boolean valid(ServerPlayer owner) {
         return owner!=null && owner.isAlive() && !owner.isRemoved() && !game.isObserver(owner)
@@ -132,9 +137,8 @@ public final class LbcMagnum {
         }
         if(game.items().shooters().cooldownRemaining(owner)>0 || bursts.containsKey(owner.getUUID())) return false;
         var marker=flag(MODES[mode]+"_round");
-        if(owner.getInventory().clearOrCountMatchingItems(stack->{
-            var data=stack.get(DataComponents.CUSTOM_DATA); return data!=null && data.matchedBy(marker);
-        },false,1,owner.inventoryMenu.getCraftSlots())!=1) return false;
+        if(owner.getInventory().clearOrCountMatchingItems(stack->LbcTmtInventory.matches(stack,marker),
+                false,1,owner.inventoryMenu.getCraftSlots())!=1) return false;
         var burst=new Burst(owner,hand,gun,mode,game.items().epoch(),4);
         bursts.put(owner.getUUID(),burst);
         shoot(burst);

@@ -232,6 +232,12 @@ final class LbcTmtCatalog {
         LbcTmtComponents.capture(game,stack,blockItem==null?stack.getItem():blockItem,data);
         var probe=ability("probe",nativeId,data);
         if(knownInputs.contains(canonical(probe.data().copyTag())))return;
+        if(LbcMagnum.roundMode(stack)>=0){
+            String id="native/magnum/ammunition";
+            add(all,id,"magnum/ammunition",ability(id,nativeId,data),
+                    new Rule("","LbcMagnum/LbcTmtInventory",Set.of(Event.AMMO),
+                            Set.of(Location.INVENTORY,Location.CRAFT_GRID,Location.AMMUNITION)));return;
+        }
         int looseKind=LbcTmtLooseRewards.prototypeKind(stack);
         if(looseKind!=0){
             String id=looseKind==1?LbcTmtLooseRewards.COPIER_FAMILY:LbcTmtLooseRewards.MULTIPLY_FAMILY;

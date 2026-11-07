@@ -1,3 +1,15 @@
+## TMT selected Magnum ammo - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+[Exact intake contract/native proof](agent_notes/TMT_MAGNUM_AMMO_2026_11_07.md).
+Six payloads/one family through shared private inventory query and native physical debit.
+Existing inventory/craft/cursor search and actual5-shot burst retained; no polling/new engine.
+Thirty legal mode/carrier scenes plus guards/TimeStop/real samecarrier action pass.
+Mode scalar read no longer copies full NBT. Internal e588e673/f9debc4f on full206f0d5c:
+8 focused native suites pass,4families/0resources;10469 otherinputs/282authorpaths exact.
+One512MiB compiler then one2GiB fixture; child exited/restored/no locks.
+Main/libs/RP/HUD/protectedWIP unchanged. Full TMT remains active/unreleased.
+Next: BadApple typed admission/wholebody proof; no invented perquantum projection or debit.
+
 ## TMT retained native loose copier/tablets - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 [Source, shared owner and actual native proof](agent_notes/TMT_LOOSE_REWARDS_2026_11_07.md).
