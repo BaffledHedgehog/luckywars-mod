@@ -34,7 +34,7 @@ public final class TmtCatalogChecks {
         for(var flag:List.of("crowbar","slimeball","aimbobapple"))require(ids.contains("native/"+flag),"actual criterion/consume property is sampled: "+flag);
         // Ordinary most is admitted through the real wool snowball factory, separately from most_imba.
         var resolvedFlags=List.of("gayradar","steampunk_rocket","trollge","bucks","govnoq","randomgovno","rewardtype","rewardcoin","randomselect","luck_key","crowbar","slimeball","aimbobapple","imbaxe",
-                "most","lightsaber","lightsaberrc","wtf_item","infinity_rand","liquidvoid","yellow_lightning","nexus_wire_blue","nexus_wire_white","end_of_everything","baffled_of_everything","shish_of_everything","rasengan");
+                "most","lightsaber","lightsaberrc","wtf_item","infinity_rand","liquidvoid","yellow_lightning","nexus_wire_blue","nexus_wire_white","end_of_everything","baffled_of_everything","shish_of_everything","rasengan","lightning","jack_o_lantern","academy_token","magic_academy","helicopter_boss","crocodildo_boss");
         for(var finding:catalog.domains().findings())if(finding.disposition()==LbcTmtCatalog.Disposition.PENDING_NATIVE_DOMAIN)
             for(var flag:resolvedFlags)require(!finding.reason().matches(".*\\b"+flag+"\\b.*"),"audited source alias/domain no longer falsely pending: "+finding);
         var pills=new HashSet<Integer>();var mystical=new HashSet<String>();var fragments=new HashSet<String>();
@@ -72,7 +72,7 @@ public final class TmtCatalogChecks {
             if(LbcTmtBlockUses.authoredShulker(source))shulkerTables.add(source.get(DataComponents.CONTAINER_LOOT).lootTable().identifier().toString());
         }
         require(shulkerTables.containsAll(java.util.Set.of("lbc:infinity","lbc:infinity_upgraded","lbc:infinity_upgraded_luck")),"all authored native shulker payloads survive the actual sampler manifest");
-        require(catalog.domains().hasPending(),"unresolved custom/native component owners stay explicit before public release");
+        // Do not require a fabricated pending row: actual owner/domain assertions above own readiness.
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var trinkets=catalog.families().stream().filter(row->row.name().startsWith("trinket/")).limit(2).toList();
             require(trinkets.size()==2,"distinct actual trinket identities exist in the unified catalog");

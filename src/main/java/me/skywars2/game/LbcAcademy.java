@@ -434,7 +434,7 @@ public final class LbcAcademy {
                             .withStyle(label.getText().getStyle()));
                     // A short title belongs at the panel's centre, just in front of its inner face.
                     // The ordinary welcome keeps its source position and multi-line layout.
-                    label.setPos(placing.origin.getX()+6,placing.origin.getY()+3,placing.origin.getZ()+9.97);
+                    label.setPos(placing.origin.getX()+6,placing.origin.getY()+2.25,placing.origin.getZ()+9.97);
                     entity.entityTags().add(SINGLE_PANEL);
                 }
             }
@@ -451,7 +451,7 @@ public final class LbcAcademy {
             }
             entities.add(entity); return true;
         }
-        if (entity instanceof ItemEntity item && isDrop(item.getItem()) && item.level() == game.maps().level()) {
+        if (entity instanceof ItemEntity item && isDrop(item.getItem()) && !LbcTmtItems.matches(item.getItem()) && item.level() == game.maps().level()) {
             game.items().markCurrentItemEpoch(item);
             drops.add(item); return true;
         }
@@ -460,6 +460,36 @@ public final class LbcAcademy {
     private static boolean isDrop(ItemStack stack) {
         var tag = stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(TOKEN) || tag != null && (tag.matchedBy(TOKEN_DATA) || tag.matchedBy(BUILDING_DATA));
+    }
+    static boolean recognizedDrop(ItemStack stack){return isDrop(stack);}
+    static boolean singleUseDrop(ItemStack stack){return stack.is(TOKEN)||ItemData.intValue(stack,"academy_token",0)==1;}
+    private record DropPlan(StructureTemplate template,ServerLevel level,BlockPos origin,boolean token){}
+    /** Readiness has no RNG, template scan, queue mutation or debit. */
+    private DropPlan planDrop(ItemEntity item){
+        if(MatchAcademyCheckpoint.frozen(this)||item.isRemoved()||item.getAge()>=5999||!isDrop(item.getItem())||stale(item)||item.level()!=game.maps().level()
+                ||game.maps().busy()||game.stage()==GameController.Stage.ENDING||game.items().timeStop().stopped(game.maps().level()))return null;
+        boolean token=singleUseDrop(item.getItem());if(token&&!item.onGround())return null;
+        if(!game.playing()&&!(item.getOwner() instanceof ServerPlayer p&&active(p)))return null;
+        var template=game.server().getStructureTemplateManager().get(TEMPLATE).orElse(null);if(template==null)return null;
+        var origin=item.blockPosition().offset(-6,token?-1:0,-6);var level=(ServerLevel)item.level();
+        return resident(level,origin,template.getSize())?new DropPlan(template,level,origin,token):null;
+    }
+    boolean readyDrop(ItemEntity item){return planDrop(item)!=null;}
+    /** Same native placement owner for ordinary and composed loose items. */
+    boolean spawnDrop(ItemEntity item,boolean debit){
+        var plan=planDrop(item);if(plan==null)return false;
+        var part=new Placement(plan.template(),plan.level(),plan.origin(),item.position(),game.items().epoch(),plan.token(),item.getRandom().nextLong());
+        if(plan.token())placements.addLast(part);else placements.addFirst(part);
+        drops.remove(item);
+        if(plan.token()){
+            plan.level().sendParticles(ParticleTypes.WITCH,item.getX(),item.getY(),item.getZ(),350,5,5,5,1);
+            plan.level().playSound(null,item.getX(),item.getY(),item.getZ(),net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT,net.minecraft.sounds.SoundSource.MASTER,1,1);
+        }
+        if(debit){
+            if(plan.token())item.discard();
+            else{var remaining=item.getItem().copy();remaining.shrink(1);if(remaining.isEmpty())item.discard();else{item.setItem(remaining);drops.add(item);}}
+        }
+        return true;
     }
     public void unloaded(Entity entity) {
         drops.remove(entity);
@@ -475,34 +505,10 @@ public final class LbcAcademy {
         wasStopped = stopped;
         // Удалённый TNT взрывается до следующего END_SERVER_TICK: очищаем только после damage callbacks.
         blastSources.keySet().removeIf(Entity::isRemoved);
-        for (var it = drops.iterator(); it.hasNext();) {
-            var item = it.next();
-            if (item.isRemoved() || !isDrop(item.getItem())) { it.remove(); continue; }
-            if (stale(item)) { item.discard(); it.remove(); continue; }
-            boolean token = item.getItem().is(TOKEN) || data(item.getItem()).getIntOr("academy_token", 0) == 1;
-            if (token && !item.onGround() || item.level() != game.maps().level() || game.maps().busy()
-                    || game.stage() == GameController.Stage.ENDING
-                    || game.items().timeStop().stopped(game.maps().level())) continue;
-            if (!game.playing() && !(item.getOwner() instanceof ServerPlayer p && active(p))) continue;
-            var template = game.server().getStructureTemplateManager().get(TEMPLATE).orElse(null);
-            if (template == null || template.getSize().getY() == 0) continue;
-            var origin = item.blockPosition().offset(-6, token ? -1 : 0, -6);
-            var part = new Placement(template, game.maps().level(), origin, item.position(),
-                    game.items().epoch(), token, item.getRandom().nextLong());
-            if (!resident(part)) continue; // Reject before debit; never request a chunk for acquisition.
-            if(token)placements.addLast(part);else placements.addFirst(part);
-            it.remove();
-            if (token) {
-                game.maps().level().sendParticles(ParticleTypes.WITCH, item.getX(), item.getY(), item.getZ(), 350, 5, 5, 5, 1);
-                item.level().playSound(null, item.getX(), item.getY(), item.getZ(), net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT,
-                        net.minecraft.sounds.SoundSource.MASTER, 1, 1);
-                item.discard();
-            } else {
-                var remaining = item.getItem().copy(); remaining.shrink(1);
-                if (remaining.isEmpty()) item.discard();
-                else { item.setItem(remaining); drops.add(item); }
-            }
-            break; // Не разворачивать несколько зданий за один тик.
+        for(var item:List.copyOf(drops)){
+            if(item.isRemoved()||item.getAge()>=5999||!isDrop(item.getItem())||LbcTmtItems.matches(item.getItem())){drops.remove(item);continue;}
+            if(stale(item)){item.discard();drops.remove(item);continue;}
+            if(spawnDrop(item,true))break; // One ordinary building admission per tick, as before.
         }
         if (placements.isEmpty() || game.maps().busy()) return;
         var part = placements.removeFirst(); var size = part.template.getSize(); var origin = part.origin;
@@ -580,13 +586,15 @@ public final class LbcAcademy {
         return false;
     }
     private boolean resident(Placement part) {
-        var size = part.template.getSize(); var origin = part.origin;
-        if (size.getX()<=0 || size.getY()<=0 || size.getZ()<=0 || origin.getY()<part.level.getMinY()
-                || (long)origin.getY()+size.getY()-1>part.level.getMaxY()) return false;
+        return resident(part.level,part.origin,part.template.getSize());
+    }
+    private boolean resident(ServerLevel level,BlockPos origin,net.minecraft.core.Vec3i size){
+        if (size.getX()<=0 || size.getY()<=0 || size.getZ()<=0 || origin.getY()<level.getMinY()
+                || (long)origin.getY()+size.getY()-1>level.getMaxY()) return false;
         // Native block updates can inspect neighbours just beyond the template boundary.
         for (int x=(origin.getX()-1)>>4; x<=(origin.getX()+size.getX())>>4; x++)
             for (int z=(origin.getZ()-1)>>4; z<=(origin.getZ()+size.getZ())>>4; z++)
-                if (part.level.getChunkSource().getChunkNow(x,z)==null) return false;
+                if (level.getChunkSource().getChunkNow(x,z)==null) return false;
         return true;
     }
     int pendingCount() { return placements.size(); }

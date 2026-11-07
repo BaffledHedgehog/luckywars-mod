@@ -48,9 +48,19 @@ public final class LbcCrocodildo {
                 :"{view_range:1000f,interpolation_duration:1,teleport_duration:1,item_display:'fixed',item:{id:'minecraft:stick',count:1,components:{'minecraft:item_model':'lbc:crocodildo'}},transformation:{scale:[15f,15f,15f],translation:[0f,1f,0f]}}");
         d.entityTags().add(VISUAL);return d;
     }
-    boolean spawn(ItemEntity token){
+    private Vec3 origin(ItemEntity token){
+        var p=token.position();var inward=new Vec3(-p.x,0,-p.z).normalize();if(inward.lengthSqr()==0)inward=new Vec3(0,0,1);
+        return p.add(0,80,0).subtract(inward.scale(150));
+    }
+    boolean ready(ItemEntity token){
         if(frozen||token.isRemoved()||token.getAge()>=5999||!trigger(token.getItem())||!live(game.items().epoch())||!game.items().currentEpoch(token)
                 ||token.level()!=game.maps().level()||stopped(token)||game.maps().busy())return false;
+        return ((ServerLevel)token.level()).hasChunkAt(BlockPos.containing(origin(token)));
+    }
+    boolean spawn(ItemEntity token){return spawn(token,true);}
+    /** A shared TMT drop calls the real publication path and owns its one physical debit. */
+    boolean spawn(ItemEntity token,boolean debit){
+        if(!ready(token))return false;
         depth++;try{
             var level=(ServerLevel)token.level();var p=token.position();var inward=new Vec3(-p.x,0,-p.z).normalize();
             if(inward.lengthSqr()==0)inward=new Vec3(0,0,1);
@@ -62,7 +72,7 @@ public final class LbcCrocodildo {
             var d=presentation(level,false);body.setPos(at);d.setPos(at);body.setYRot((float)Math.toDegrees(Math.atan2(-inward.x,inward.z)));body.entityTags().addAll(List.of(BODY,"crocodildo"));
             var actor=new Actor(body,d,game.items().epoch(),false,body);actors.add(actor);prepare(body);prepare(d);
             if(!level.addFreshEntity(body)||!level.addFreshEntity(d)){retire(actor);return false;}d.startRiding(body,true,true);
-            var remaining=token.getItem().copy();remaining.shrink(1);if(remaining.isEmpty())token.discard();else token.setItem(remaining);
+            if(debit){var remaining=token.getItem().copy();remaining.shrink(1);if(remaining.isEmpty())token.discard();else token.setItem(remaining);}
             bar(actor);if(actors.stream().filter(a->!a.bomb).count()==1)music(true);
             level.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION,p.x,p.y,p.z,100,10,10,10,0);return true;
         }finally{depth--;}
@@ -134,7 +144,9 @@ public final class LbcCrocodildo {
     private void retire(Actor a){actors.remove(a);a.terminal=true;if(!a.bomb)closeBar(a.body.getUUID());a.visual.discard();if(!a.body.isRemoved())a.body.discard();}
     void loaded(Entity e){
         if(frozen||MatchActorCheckpoint.restoring(e))return;
-        if(e instanceof ItemEntity item&&trigger(item.getItem())){pending.add(item);return;}
+        if(e instanceof ItemEntity item&&trigger(item.getItem())&&!LbcTmtItems.matches(item.getItem())){
+            if(live(game.items().epoch())&&item.level()==game.maps().level()){game.items().markCurrentItemEpoch(item);pending.add(item);}return;
+        }
         if(!managed(e))return;
         boolean found=false;
         for(var a:actors){if(a.body.getUUID().equals(e.getUUID()))a.body=(LivingEntity)e;if(a.visual.getUUID().equals(e.getUUID()))a.visual=(Display.ItemDisplay)e;

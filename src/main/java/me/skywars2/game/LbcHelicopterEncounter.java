@@ -83,10 +83,19 @@ public final class LbcHelicopterEncounter {
     public static boolean isTrigger(ItemStack stack) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).matchedBy(TRIGGER);
     }
-    boolean spawn(ItemEntity token) {
-        if(checkpointFrozen)return false;checkpointDepth++;try{
-        if(token.isRemoved() || token.getAge()>=5999 || !isTrigger(token.getItem()) || !(token.level() instanceof ServerLevel level)
+    boolean ready(ItemEntity token){
+        if(checkpointFrozen||token.isRemoved() || token.getAge()>=5999 || !isTrigger(token.getItem()) || !(token.level() instanceof ServerLevel level)
                 || level!=game.maps().level() || !game.playing() || game.stage()==GameController.Stage.ENDING || stopped(level)) return false;
+        return level.hasChunkAt(BlockPos.containing(origin(token)));
+    }
+    private static Vec3 origin(ItemEntity token){
+        return token.position().add(Vec3.directionFromRotation(token.getXRot()-90,token.getYRot()).scale(20))
+                .add(Vec3.directionFromRotation(token.getXRot(),token.getYRot()).scale(50));
+    }
+    boolean spawn(ItemEntity token){return spawn(token,true);}
+    boolean spawn(ItemEntity token,boolean debit) {
+        if(!ready(token))return false;checkpointDepth++;try{
+        var level=(ServerLevel)token.level();
         Vec3 forward=Vec3.directionFromRotation(token.getXRot(),token.getYRot());
         Vec3 up=Vec3.directionFromRotation(token.getXRot()-90,token.getYRot());
         Vec3 at=token.position().add(up.scale(20)).add(forward.scale(50));
@@ -104,8 +113,8 @@ public final class LbcHelicopterEncounter {
         game.items().markCurrentItemEpoch(display);game.items().markCurrentItemEpoch(hitbox);
         var pair=new Pair(display,hitbox,game.items().epoch());pairs.add(pair);
         if(!level.addFreshEntity(hitbox) || !level.addFreshEntity(display)) { terminal(pair,false);return false; }
-        var remaining=token.getItem().copy();remaining.shrink(1);
-        if(remaining.isEmpty()) token.discard();else token.setItem(remaining);
+        if(debit){var remaining=token.getItem().copy();remaining.shrink(1);
+            if(remaining.isEmpty()) token.discard();else token.setItem(remaining);}
         LbcOverload.sound(level,token.position(),"minecraft:lbcsounds.helicopter",.1f,1,20,.1f);
         LbcOverload.sound(level,token.position(),"minecraft:lbcsounds.kazahstan",1,1,20,.4f);
         level.sendParticles(new net.minecraft.core.particles.DustParticleOptions(0xff0000,2),token.getX(),token.getY()+10,token.getZ(),1000,0,100,0,0);
@@ -293,7 +302,9 @@ public final class LbcHelicopterEncounter {
     }
     void loaded(Entity entity) {
         checkpointDepth++;try{if(checkpointFrozen||MatchActorCheckpoint.restoring(entity))return;
-        if(entity instanceof ItemEntity token && isTrigger(token.getItem()) && game.playing() && token.level()==game.maps().level()) pending.add(token);
+        if(entity instanceof ItemEntity token && isTrigger(token.getItem()) && !LbcTmtItems.matches(token.getItem()) && game.playing() && token.level()==game.maps().level()) {
+            game.items().markCurrentItemEpoch(token);pending.add(token);
+        }
         if((entity.entityTags().contains(DISPLAY) || entity.entityTags().contains(HITBOX))
                 && pairs.stream().noneMatch(pair->pair.display==entity || pair.hitbox==entity)) entity.discard();
         if(entity.entityTags().contains(ATTACK) && !attacks.contains(entity)) entity.discard();

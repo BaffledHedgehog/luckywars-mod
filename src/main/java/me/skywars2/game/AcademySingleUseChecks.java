@@ -139,7 +139,7 @@ public final class AcademySingleUseChecks {
             var drop=new ItemEntity(level,source.x,source.y,source.z,loot.getFirst().copy());drop.setThrower(alpha);drop.setOnGround(true);
             owned.add(drop);require(level.addFreshEntity(drop),"native grounded token admission");
             academy.tick();
-            require(drop.isRemoved() && academy.pendingCount()==1,"single native acquisition admitted: origin="+origin
+            require(drop.isRemoved() && academy.pendingCount()==(token?1:0),"native acquisition admitted; only token keeps queued rows: origin="+origin
                     +" removed="+drop.isRemoved()+" pending="+academy.pendingCount()+" onGround="+drop.onGround()
                     +" canAdmitDrop="+(game.playing()&&game.canUseGameplayItems(alpha)&&drop.level()==level)
                     +" mapsBusy="+game.maps().busy()+" timeStop="+game.items().timeStop().stopped(level)
@@ -155,10 +155,10 @@ public final class AcademySingleUseChecks {
             }
             require(actors.size()==1 && labels.size()==1,"one actual native Interaction and one TextDisplay");
             require(actors.getFirst().position().distanceToSqr(Vec3.atLowerCornerOf(origin).add(6,1,10.5))<.0001,"source interaction coordinates");
-            require(labels.getFirst().position().distanceToSqr(Vec3.atLowerCornerOf(origin).add(6,token?3:2,token?9.97:10))<.0001,"token title centred above floor and clear of panel; ordinary source coordinates");
+            require(labels.getFirst().position().distanceToSqr(Vec3.atLowerCornerOf(origin).add(6,token?2.25:2,token?9.97:10))<.0001,"authored token title above floor and clear of panel; ordinary source coordinates");
             if(token){
                 var title=labels.getFirst();
-                require(level.getBlockState(title.blockPosition()).isAir()&&title.getY()>origin.getY()+2.9
+                require(level.getBlockState(title.blockPosition()).isAir()&&title.getY()>origin.getY()+2
                         &&title.getZ()<origin.getZ()+10,"actual token label origin is in front of solid background");
             }
             return new School(origin,actors.getFirst(),labels.getFirst());

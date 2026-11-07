@@ -395,10 +395,6 @@ final class LbcTmtCatalog {
         if(nativeId.toString().equals("skywars2:dev_tools")||nativeId.toString().equals("skywars2:consumed_block")){
             finding(findings,nativeId.toString(),source,Disposition.EXCLUDED_SERVICE,"Developer UI/generated terrain representation, not an independent gameplay item ability");return;
         }
-        if(data.getIntOr("academy_token",0)==1||data.getIntOr("magic_academy",0)==1){
-            finding(findings,nativeId.toString(),source,Disposition.PENDING_NATIVE_DOMAIN,
-                    "LbcAcademy owns a real loose-item structure placement/acquisition operation; it requires its DROP/LOOSE_ITEM event and is not an inert service token or a held-use ability");return;
-        }
         var keys=new TreeSet<String>(data.keySet());keys.removeAll(SERVICE);keys.removeIf(key->key.startsWith("tmt_"));
         if((keys.equals(Set.of("reward","rewardtype"))&&data.getStringOr("rewardtype","").equals("suffix"))
                 ||(keys.equals(Set.of("rewardtype"))&&data.getStringOr("rewardtype","").equals("drop"))

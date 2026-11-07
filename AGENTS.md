@@ -7,6 +7,34 @@ validation while waiting; Main remained83b0ea27. Pending request for e4e1ca7b re
 Do not restart or replace Main for HUD/Imprinted/new feedback independently.
 Existing crash/chunk fixes remain committed/internal and must carry into stable.
 
+## TMT shared Academy/encounter drops - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
+
+Preferred FULL internal parent is now f3b70523/954a85bb over608c5159/c659daf5.
+10 Java families/0 resources; all7 suites pass on the SAME final artifact.
+[TMT_SHARED_DROPS_2026_11_07.md](agent_notes/TMT_SHARED_DROPS_2026_11_07.md).
+Academy/Helicopter/Crocodildo expose pure readiness and optional native debit. Shared
+special-drop dispatcher executes genuine private TMT operations, then debits one unit.
+Ordinary owner queues exclude TMT; shared index excludes ordinary external tokens.
+No fake use/copied item event or duplicated placement/encounter owner. Real four-way
+TMT drop admits active Academy/both encounters once; unready single-use sibling stays
+inactive. Real subsequent token drop waits in air, lands naturally, spends one unit.
+TimeStop pauses source and queued geometry. Existing MatchAcademy checkpoint barrier
+rejects partial/adopts complete geometry; new entry respects its frozen boundary.
+Fresh ordinary encounter load stamps its epoch. Canonical raw/native aliases dedup.
+Reviewed Academy WIP has ONE semantic change: title Y+2.25 instead of+3; preserved
+unchanged in this native integration. Three other author WIP files remain exact and
+uncompiled. Old single-use test expected previous title and a queued row for active
+Academy; corrected to authored position/source immediate completion. Final7 suites:
+tmt-shared-drops/tmt-drops/academy-acquisition/academy-single-use/helicopter-encounter/
+boss-projectiles/tmt-catalog. Actual native catalog1001families/1883variants,
+115service/9inert findings/ZERO PENDING_NATIVE_DOMAIN; inventories are NOT completion.
+10484 guards/281 remaining author paths/HUD/RP/Main exact; sequential512MiB compiler
+and1280MiB fixture; normal exit/exact restore/no locks. Main83b0ea27 unchanged; NO
+installer/restart/RP edits, hold all fixes until stable. Full goal remains ACTIVE.
+Next: meaningful current class/component capability and service-exclusion audit,
+firework ammo contract, fully unloaded rocket, heavy800-active-tick Troll throughput,
+final acquisition/atlas/stable-release chain and remaining protected source integration.
+
 ## Shared boss rewards and projectile owners - COMPONENT VERIFIED, NOT INSTALLED (7 November2026)
 
 Preferred FULL internal parent is now608c5159/c659daf5 over6c24e5c5/5a872f29.
