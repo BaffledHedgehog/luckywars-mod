@@ -146,11 +146,14 @@ public final class LbcStone {
         var hit=game.items().wands().firstHit(owner,from,end);
         if(hit!=null) end=hit.getLocation();
         double distance=from.distanceTo(end);
-        for(double step=0;step<=distance;step+=.5) {
+        try(var stoneRay=new LbcParticleBatch.Group(sourceLevel(owner),spike?SPIKE_PARTICLES:STONE_PARTICLES,.05,0,true)){
+for(double step=0;step<=distance;step+=.5) {
             Vec3 point=from.add(direction.scale(step));
-            sourceLevel(owner).sendParticles(spike ? SPIKE_PARTICLES : STONE_PARTICLES,true,false,point.x,point.y,point.z,1,.05,.05,.05,0);
-            sourceSound(owner,point,"minecraft:block.amethyst_cluster.break",1,.1f,0);
+            stoneRay.add(point);
+
         }
+}
+        sourceSound(owner,from.lerp(end,.5),"minecraft:block.amethyst_cluster.break",1,.1f,0);
         if(hit!=null && (!Double.isFinite(boundary)||from.distanceToSqr(hit.getLocation())<from.distanceToSqr(limit)-1e-9)
                 && (!(hit instanceof BlockHitResult wall) || sourceLevel(owner).hasChunkAt(wall.getBlockPos()))) impact(owner,end,spike);
     }

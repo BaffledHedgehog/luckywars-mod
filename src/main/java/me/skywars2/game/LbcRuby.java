@@ -155,12 +155,14 @@ public final class LbcRuby {
                 var visited=new LongOpenHashSet(64);
                 boolean loaded=true;
                 try {
-                    for(int sample=0;sample<=Math.ceil(distance/DRILL_STEP);sample++) {
+                    try(var drillVisual=new LbcParticleBatch.Group(sourceLevel(owner),DRILL_PARTICLE,.1,0,true)){
+for(int sample=0;sample<=Math.ceil(distance/DRILL_STEP);sample++) {
                         Vec3 point=distance<1e-9?from:from.add(movement.scale(Math.min(1,sample*DRILL_STEP/distance)));
                         if(!sourceLevel(owner).hasChunkAt(BlockPos.containing(point))) { loaded=false; break; }
-                        sourceLevel(owner).sendParticles(DRILL_PARTICLE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
+                        drillVisual.add(point);
                         digCube(owner,point,DRILL_HALF,visited);
                     }
+}
                 } finally { game.items().indirectKills().finishSupportRemoval(); }
                 if(!loaded) { remove(charge); continue; }
                 charge.setPos(from.add(charge.getDeltaMovement()));
@@ -192,11 +194,13 @@ public final class LbcRuby {
         sourceSound(owner,from,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         Vec3 end=hit==null?limit:hit.getLocation();
         double distance=from.distanceTo(end);
-        for(double step=0;step<=distance+1e-7;step+=HOLE_SAMPLE) {
+        try(var holeVisual=new LbcParticleBatch.Group(level,HOLE_PARTICLE,0,0,true)){
+for(double step=0;step<=distance+1e-7;step+=HOLE_SAMPLE) {
             Vec3 point=from.add(direction.scale(Math.min(distance,step)));
             if(!level.hasChunkAt(BlockPos.containing(point))) return;
-            level.sendParticles(HOLE_PARTICLE,true,false,point.x,point.y,point.z,1,0,0,0,0);
+            holeVisual.add(point);
         }
+}
         if(hit==null || Double.isFinite(boundary)&&from.distanceToSqr(hit.getLocation())>=from.distanceToSqr(limit)-1e-9
                 || (hit instanceof BlockHitResult wall && !level.hasChunkAt(wall.getBlockPos()))) return;
         // На положительной грани floor(hit) указывает уже на соседний воздух; центр нужен внутри встретившегося блока.
@@ -219,10 +223,25 @@ public final class LbcRuby {
                 candidate->candidate!=owner && candidate.position().distanceToSqr(point)<=9 && validEnemy(owner,candidate))) {
             if(!validOwner(owner)) break;
             Vec3 destination=point;
-            target.teleportTo(destination.x,destination.y,destination.z);
+            if(target instanceof ServerPlayer player)syncCompressionBlocks(player,center);
+            TeleportMomentum.teleportStopped(target,destination);
             game.items().indirectKills().displaced(target,owner);
             if(game.items().mana().hudValue(target,"void_resistance")<=0)
                 target.hurtServer(level,damage,1);
+        }
+    }
+
+    private static void syncCompressionBlocks(ServerPlayer player,BlockPos center) {
+        var sections=new java.util.LinkedHashMap<net.minecraft.core.SectionPos,it.unimi.dsi.fastutil.shorts.ShortSet>();
+        for(var pos:BlockPos.betweenClosed(center.offset(-3,-3,-3),center.offset(3,3,3))) {
+            if(player.level().isOutsideBuildHeight(pos)||!player.level().hasChunkAt(pos))continue;
+            sections.computeIfAbsent(net.minecraft.core.SectionPos.of(pos),ignored->new it.unimi.dsi.fastutil.shorts.ShortOpenHashSet())
+                    .add(net.minecraft.core.SectionPos.sectionRelativePos(pos));
+        }
+        for(var entry:sections.entrySet()) {
+            var section=entry.getKey();var chunk=player.level().getChunk(section.x(),section.z());
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket(
+                    section,entry.getValue(),chunk.getSection(player.level().getSectionIndexFromSectionY(section.y()))));
         }
     }
 
@@ -234,12 +253,14 @@ public final class LbcRuby {
         var visited=new LongOpenHashSet(256);
         double boundary=game.items().magic().suppressionFraction(level,origin,origin.add(direction.scale(RAY_RANGE)))*RAY_RANGE;
         try {
-            for(double step=0;step<=RAY_RANGE+1e-7&&step<boundary;step+=RAY_SAMPLE) {
+            try(var rubyRay=new LbcParticleBatch.Group(level,RAY_PARTICLE,0,0,true)){
+for(double step=0;step<=RAY_RANGE+1e-7&&step<boundary;step+=RAY_SAMPLE) {
                 Vec3 point=origin.add(direction.scale(step));
                 if(!level.hasChunkAt(BlockPos.containing(point))) break;
-                level.sendParticles(RAY_PARTICLE,true,false,point.x,point.y,point.z,1,0,0,0,0);
+                rubyRay.add(point);
                 digCube(owner,point,.1,visited);
             }
+}
         } finally { game.items().indirectKills().finishSupportRemoval(); }
     }
 

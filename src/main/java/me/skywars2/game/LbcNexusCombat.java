@@ -110,10 +110,12 @@ public final class LbcNexusCombat {
         // Source thirty curved tentacles are visual only; the area damage is executed exactly once.
         for(int tentacle=0;tentacle<30;tentacle++){
             float yaw=(level.getRandom().nextInt(36001)-18000)*.01f,pitch=(level.getRandom().nextInt(8001)-4000)*.01f;var point=at;
-            for(int sample=0;sample<=30;sample++){
-                level.sendParticles(ORB_DUST,true,false,point.x,point.y,point.z,1,0,0,0,0);
+            try(var tentacleVisual=new LbcParticleBatch.Group(level,ORB_DUST,0,0,true)){
+for(int sample=0;sample<=30;sample++){
+                tentacleVisual.add(point);
                 yaw+=5;point=point.add(Vec3.directionFromRotation(pitch,yaw).scale(.5));
             }
+}
         }
     }
     void tick(){pulsar.tick();uncrafting.tick();}

@@ -57,7 +57,7 @@ public final class NuclearTerrain {
     static Point point(Vec3 at,float yaw,boolean marker,long seed){return new Point(at,yaw,marker,seed);}
     // The actual legacy32-creeper surface crater has a solid inner18 and its
     // transition centred near23. The former40x45 surrogate enlarged that bowl.
-    static Shape wand(Vec3 at){return new Shape(at,at,23,24,20);}
+    static Shape wand(Vec3 at){return new Shape(at,at,23,23,20,true);}
     /** Source AIR templates are separate from the native creeper lobes; they ignore blast resistance. */
     static final class Point {
         private record Cube(BlockPos low,float integrity){}
@@ -134,66 +134,20 @@ public final class NuclearTerrain {
         private void advanceSection(){section++;word=0;bits=0;wordLoaded=false;}
         void cancel(){if(preparation!=null)preparation.cancel(false);done=true;}
     }
-    /** Bounded main-thread copies; the worker only sees detached arrays and immutable block states. */
+    /** Pure countdown preparation: no world copies and no32 overlapping native blast calculations. */
     static final class WandPreparation {
-        final Vec3 at;final int minY,maxY;final long seed;
-        final java.util.List<Long> pending=new java.util.ArrayList<>();int cursor;
-        final it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<net.minecraft.world.level.block.state.BlockState[]> sections=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<>();
-        java.util.concurrent.CompletableFuture<Geometry> future;
-        volatile boolean cancelled;
+        final Vec3 at;final long seed;
+        java.util.concurrent.CompletableFuture<Geometry> future;volatile boolean cancelled;
         WandPreparation(ServerLevel level,Vec3 at){this(level,at,level.getRandom().nextLong());}
-        WandPreparation(ServerLevel level,Vec3 at,long seed){
-            this.at=at;minY=level.getMinY();maxY=level.getMaxY();this.seed=seed;
-            var center=BlockPos.containing(at);
-            for(int x=(center.getX()-44)>>4;x<=(center.getX()+44)>>4;x++)for(int z=(center.getZ()-44)>>4;z<=(center.getZ()+44)>>4;z++)
-                for(int y=Math.max(minY,center.getY()-52)>>4;y<=(Math.min(maxY-1,center.getY()+57)>>4);y++)pending.add(net.minecraft.core.SectionPos.asLong(x,y,z));
-        }
-        void capture(ServerLevel level,int budget){
-            while(cursor<pending.size()&&budget-->0){
-                long key=pending.get(cursor++);int x=net.minecraft.core.SectionPos.x(key),y=net.minecraft.core.SectionPos.y(key),z=net.minecraft.core.SectionPos.z(key);
-                var chunk=level.getChunkSource().getChunkNow(x,z);if(chunk==null)continue;
-                var section=chunk.getSection(level.getSectionIndex(y<<4));if(section.hasOnlyAir())continue;
-                var states=new net.minecraft.world.level.block.state.BlockState[4096];
-                for(int cell=0;cell<4096;cell++)states[cell]=section.getBlockState(cell&15,cell>>8,(cell>>4)&15);
-                sections.put(key,states);
-            }
-        }
-        void tick(GameController game,ServerLevel level){
-            if(future!=null)return;capture(level,16);
-            if(cursor==pending.size())future=game.maps().preparePure(this::calculate);
-        }
+        WandPreparation(ServerLevel level,Vec3 at,long seed){this.at=at;this.seed=seed;}
+        void tick(GameController game,ServerLevel level){if(future==null)future=game.maps().preparePure(this::calculate);}
         boolean ready(){return future!=null&&future.isDone();}
-        net.minecraft.world.level.block.state.BlockState original(BlockPos pos){
-            var states=sections.get(net.minecraft.core.SectionPos.asLong(pos.getX()>>4,pos.getY()>>4,pos.getZ()>>4));
-            return states==null?Blocks.AIR.defaultBlockState():states[(pos.getX()&15)|((pos.getZ()&15)<<4)|((pos.getY()&15)<<8)];
-        }
+        net.minecraft.world.level.block.state.BlockState original(BlockPos pos){return Blocks.AIR.defaultBlockState();}
         private Geometry calculate(){return calculate(true);}
-        private Geometry calculate(boolean mayCancel){
-            var removed=new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
-            var view=new BlastRayTrace.Cells(){
-                public boolean inside(BlockPos pos){return pos.getY()>=minY&&pos.getY()<maxY&&Math.abs((long)pos.getX())<30_000_000&&Math.abs((long)pos.getZ())<30_000_000;}
-                public net.minecraft.world.level.block.state.BlockState state(BlockPos pos){return removed.contains(pos.asLong())?Blocks.AIR.defaultBlockState():original(pos);}
-                public float loss(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return (Math.max(state.getBlock().getExplosionResistance(),state.getFluidState().getExplosionResistance())+.3F)*.3F;}
-                public boolean destroy(BlockPos pos,net.minecraft.world.level.block.state.BlockState state,float power){return true;}
-            };
-            var random=net.minecraft.util.RandomSource.create(seed);
-            for(var offset:LbcExasperato.NUKE_OFFSETS){
-                if(mayCancel&&cancelled||Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
-                var wave=BlastRayTrace.trace(at.add(offset),20,random,true,view);for(var pos:wave)removed.add(pos.asLong());
-            }
-            var fallback=Geometry.prepare(wand(at));
-            var masks=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<java.util.BitSet>();
-            for(var section:fallback.sections)masks.put(net.minecraft.core.SectionPos.asLong(section.x,section.y,section.z),java.util.BitSet.valueOf(section.mask));
-            for(long key:removed){var pos=BlockPos.of(key);long section=net.minecraft.core.SectionPos.asLong(pos.getX()>>4,pos.getY()>>4,pos.getZ()>>4);
-                masks.computeIfAbsent(section,ignored->new java.util.BitSet(4096)).set((pos.getX()&15)|((pos.getZ()&15)<<4)|((pos.getY()&15)<<8));}
-            var result=new java.util.ArrayList<Geometry.Section>();var keys=new it.unimi.dsi.fastutil.longs.LongArrayList(masks.keySet());keys.sort(null);
-            for(long key:keys)result.add(new Geometry.Section(net.minecraft.core.SectionPos.x(key),net.minecraft.core.SectionPos.y(key),net.minecraft.core.SectionPos.z(key),masks.get(key).toLongArray()));
-            return new Geometry(at,result,this,removed);
-        }
+        private Geometry calculate(boolean mayCancel){var shape=wand(at);shape.seed=seed;return Geometry.prepare(shape,()->mayCancel&&cancelled);}
         Geometry finish(ServerLevel level){
             if(future!=null&&future.isDone()&&!future.isCompletedExceptionally())return future.getNow(null);
-            // Accepted deadlines never wait for a worker. This rare fallback calculates the same physics.
-            cancelled=true;if(future!=null)future.cancel(false);capture(level,Integer.MAX_VALUE);return calculate(false);
+            cancelled=true;if(future!=null)future.cancel(false);return calculate(false);
         }
         void cancel(){cancelled=true;if(future!=null)future.cancel(false);}
     }
@@ -201,29 +155,31 @@ public final class NuclearTerrain {
     static final class Geometry {
         private record Section(int x,int y,int z,long[] mask){}
         final Vec3 origin;private final java.util.List<Section> sections;
-        final WandPreparation snapshot;final it.unimi.dsi.fastutil.longs.LongSet selected;
+        final WandPreparation snapshot;final it.unimi.dsi.fastutil.longs.LongSet selected;long seed;
         private Geometry(Vec3 origin,java.util.List<Section> sections){this(origin,sections,null,null);}
         private Geometry(Vec3 origin,java.util.List<Section> sections,WandPreparation snapshot,it.unimi.dsi.fastutil.longs.LongSet selected){
             this.origin=origin;this.sections=java.util.List.copyOf(sections);this.snapshot=snapshot;this.selected=selected;
         }
-        static Geometry prepare(Shape shape){
+        static Geometry prepare(Shape shape){return prepare(shape,()->false);}
+        static Geometry prepare(Shape shape,java.util.function.BooleanSupplier cancelled){
             var result=new java.util.ArrayList<Section>();
             for(int x=shape.lowX>>4;x<=shape.highX>>4;x++)for(int z=shape.lowZ>>4;z<=shape.highZ>>4;z++)for(int y=shape.lowY>>4;y<=shape.highY>>4;y++){
+                if(cancelled.getAsBoolean()||Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
                 var mask=new java.util.BitSet(4096);
                 for(int cell=0;cell<4096;cell++){
                     int bx=(x<<4)+(cell&15),by=(y<<4)+(cell>>8),bz=(z<<4)+((cell>>4)&15);
                     if(bx<shape.lowX||bx>shape.highX||by<shape.lowY||by>shape.highY||bz<shape.lowZ||bz>shape.highZ)continue;
                     double dx=(bx+.5-shape.center.x)/shape.horizontal,dy=(by+.5-shape.center.y)/shape.vertical,dz=(bz+.5-shape.center.z)/shape.horizontal;
-                    if(contains(shape.seed,dx,dy,dz,Math.sqrt(dx*dx+dy*dy+dz*dz)))mask.set(cell);
+                    if(shape.contains(dx,dy,dz,Math.sqrt(dx*dx+dy*dy+dz*dz)))mask.set(cell);
                 }
                 if(!mask.isEmpty())result.add(new Section(x,y,z,mask.toLongArray()));
             }
-            return new Geometry(shape.origin,result);
+            var geometry=new Geometry(shape.origin,result);geometry.seed=shape.seed;return geometry;
         }
     }
     /** Direction-coherent wand bowl; point nukes retain their separate source template/ray composition. */
     static final class Shape {
-        final Vec3 origin,center;final double horizontal,vertical;final float power;final long seed;
+        final Vec3 origin,center;final double horizontal,vertical;final float power;long seed;final boolean exterior;
         final int lowX,highX,lowY,highY,lowZ,highZ;
         int chunkX,chunkZ,sectionY,cell,visited;boolean done;
         net.minecraft.world.level.ServerExplosion nativeApplication;
@@ -231,19 +187,30 @@ public final class NuclearTerrain {
         Shape(Vec3 center,double horizontal,double vertical,float power){
             this(center,center,horizontal,vertical,power);
         }
-        private Shape(Vec3 origin,Vec3 center,double horizontal,double vertical,float power){
+        private Shape(Vec3 origin,Vec3 center,double horizontal,double vertical,float power){this(origin,center,horizontal,vertical,power,false);}
+        private Shape(Vec3 origin,Vec3 center,double horizontal,double vertical,float power,boolean exterior){
+            this.exterior=exterior;double extent=exterior?3.5:1.12;
             this.origin=origin;this.center=center;this.horizontal=horizontal;this.vertical=vertical;this.power=power;seed=BlockPos.containing(center).asLong();
-            lowX=(int)Math.floor(center.x-horizontal*1.12);highX=(int)Math.ceil(center.x+horizontal*1.12);
-            lowY=(int)Math.floor(center.y-vertical*1.12);highY=(int)Math.ceil(center.y+vertical*1.12);
-            lowZ=(int)Math.floor(center.z-horizontal*1.12);highZ=(int)Math.ceil(center.z+horizontal*1.12);
+            lowX=(int)Math.floor(center.x-horizontal*extent);highX=(int)Math.ceil(center.x+horizontal*extent);
+            lowY=(int)Math.floor(center.y-vertical*extent);highY=(int)Math.ceil(center.y+vertical*extent);
+            lowZ=(int)Math.floor(center.z-horizontal*extent);highZ=(int)Math.ceil(center.z+horizontal*extent);
             walls=new Occlusion(origin,horizontal*.3);
             chunkX=lowX>>4;chunkZ=lowZ>>4;sectionY=lowY>>4;
         }
-        Shape copy(){var next=new Shape(origin,center,horizontal,vertical,power);next.chunkX=chunkX;next.chunkZ=chunkZ;
+        boolean contains(double dx,double dy,double dz,double radius){
+            if(NuclearTerrain.contains(seed,dx,dy,dz,radius))return true;
+            if(!exterior||radius>=3.5)return false;
+            double density=.85*Math.exp(-1.15*Math.max(0,radius-.8));
+            if(radius>3)density*=(3.5-radius)/.5;
+            int x=(int)Math.floor(center.x+dx*horizontal),y=(int)Math.floor(center.y+dy*vertical),z=(int)Math.floor(center.z+dz*horizontal);
+            return unit(seed^BlockPos.asLong(x,y,z)^0x52dce729L)<density;
+        }
+        Shape copy(){var next=new Shape(origin,center,horizontal,vertical,power,exterior);next.seed=seed;next.chunkX=chunkX;next.chunkZ=chunkZ;
             next.sectionY=sectionY;next.cell=cell;next.visited=visited;next.done=done;next.walls=walls.copy();return next;}
         /** Read current block states at the deadline, including blocks placed after preparation started. */
         java.util.List<BlockPos> preparedPositions(GameController game,ServerLevel level,Geometry geometry){
             if(!origin.equals(geometry.origin))throw new IllegalArgumentException("Prepared blast belongs to another origin");
+            if(geometry.snapshot==null)seed=geometry.seed;
             var positions=new java.util.ArrayList<BlockPos>();var coverage=LbcExplosionSuppression.coverage(game,level);
             if(coverage.contains(origin))return positions;
             var probe=new BlockPos.MutableBlockPos();
@@ -282,7 +249,7 @@ public final class NuclearTerrain {
         private boolean admitted(ServerLevel level,BlockPos pos,net.minecraft.world.level.block.state.BlockState state,LbcExplosionSuppression.Coverage coverage){
             if(state.isAir()||coverage.blocks(pos)||state.getDestroySpeed(level,pos)<0)return false;
             double dx=(pos.getX()+.5-center.x)/horizontal,dy=(pos.getY()+.5-center.y)/vertical,dz=(pos.getZ()+.5-center.z)/horizontal;
-            double radius=Math.sqrt(dx*dx+dy*dy+dz*dz);if(!contains(seed,dx,dy,dz,radius))return false;
+            double radius=Math.sqrt(dx*dx+dy*dy+dz*dz);if(!contains(dx,dy,dz,radius))return false;
             float resistance=Math.max(state.getBlock().getExplosionResistance(),state.getFluidState().getExplosionResistance());
             return unit(seed^pos.asLong())<breakChance(resistance,radius,power);
         }

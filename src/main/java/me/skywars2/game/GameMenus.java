@@ -125,6 +125,7 @@ public final class GameMenus {
             case LBC_KITS, LBC_SKILLS, LBC_TRINKETS, LBC_LEVELUPS, LBC_CHALLENGE ->
                     renderLbc(gui, player, profile);
             case COSMETICS -> renderCosmetics(gui, player, profile);
+            case PERSONAL_SETTINGS -> renderPersonalSettings(gui, player, profile);
             case COSMETIC_SOUNDS, COSMETIC_CAGES, COSMETIC_SUFFIXES, COSMETIC_SUFFIXES_NEXT,
                     COSMETIC_WINS, COSMETIC_KILLS -> renderCosmeticDetails(gui, player, profile);
             case CASES -> renderCases(gui, player, profile);
@@ -474,7 +475,28 @@ public final class GameMenus {
             original(gui, player, slot, OriginalGuiDesign.button(player, "swrg", 7000, slot, p, config),
                     null, List.of(), () -> open(player, target));
         }
+        original(gui, player, 22, new ItemStack(Items.COMPARATOR), Component.literal("\u041b\u0438\u0447\u043d\u044b\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438"),
+                List.of(), () -> open(player, Page.PERSONAL_SETTINGS));
         originalTable(gui, player, 18, "swrg:gui/back", null, List.of(), () -> open(player, Page.HUB));
+    }
+
+    private void renderPersonalSettings(Menu gui, ServerPlayer player, PlayerStore.Profile profile) {
+        var button = new GuiElementBuilder(Items.SPYGLASS)
+                .setName(Component.literal("\u042d\u0444\u0444\u0435\u043a\u0442\u044b \u043f\u043e\u043b\u044f \u0437\u0440\u0435\u043d\u0438\u044f: " + profile.fovEffects + "%"))
+                .addLoreLine(Component.literal("\u041f\u041a\u041c: +1%, Shift+\u041f\u041a\u041c: +10%"))
+                .addLoreLine(Component.literal("\u041f\u0440\u0438\u0446\u0435\u043b\u044b \u043e\u0440\u0443\u0436\u0438\u044f \u043d\u0435 \u043c\u0435\u043d\u044f\u044e\u0442\u0441\u044f"));
+        button.setCallback((index, type, action, source) -> {
+            if (type != ClickType.MOUSE_RIGHT && type != ClickType.MOUSE_RIGHT_SHIFT) return;
+            profile.fovEffects = Math.floorMod(profile.fovEffects + (type == ClickType.MOUSE_RIGHT_SHIFT ? 10 : 1), 101);
+            players.save();controller.items().rifleZoom().personalSettingsChanged(player);
+            playOriginalClick(player);open(player, Page.PERSONAL_SETTINGS);
+        });
+        gui.setSlot(13, button.build());
+        gui.setSlot(14,new GuiElementBuilder(Items.REPEATER)
+                .setName(Component.literal("Shift + \u043a\u043e\u043b\u0435\u0441\u043e: "+(profile.modeScroll?"\u0412\u041a\u041b":"\u0412\u042b\u041a\u041b")))
+                .addLoreLine(Component.literal("\u041f\u0435\u0440\u0435\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0440\u0435\u0436\u0438\u043c\u043e\u0432 \u043f\u0440\u0435\u0434\u043c\u0435\u0442\u0430"))
+                .setCallback(()->{profile.modeScroll=!profile.modeScroll;players.save();playOriginalClick(player);open(player,Page.PERSONAL_SETTINGS);}).build());
+        originalTable(gui, player, 18, "swrg:gui/back", null, List.of(), () -> open(player, Page.COSMETICS));
     }
 
     private int cosmeticPage(Page page) {
@@ -739,7 +761,7 @@ public final class GameMenus {
             case HUB, VANILLA_KITS, VANILLA_SKILLS, KEY_SHOP, STATS,
                     LBC_KITS, LBC_SKILLS, LBC_TRINKETS, LBC_LEVELUPS, LBC_CHALLENGE,
                     COSMETICS, CASES, COSMETIC_SOUNDS, COSMETIC_CAGES, COSMETIC_SUFFIXES,
-                    COSMETIC_SUFFIXES_NEXT, COSMETIC_WINS, COSMETIC_KILLS -> true;
+                    COSMETIC_SUFFIXES_NEXT, COSMETIC_WINS, COSMETIC_KILLS, PERSONAL_SETTINGS -> true;
             case SETTINGS, MAPS, BEDWARS -> false;
         };
     }
@@ -757,7 +779,7 @@ public final class GameMenus {
         LBC_TRINKETS,
         LBC_LEVELUPS,
         LBC_CHALLENGE,
-        COSMETICS,
+        COSMETICS, PERSONAL_SETTINGS,
         COSMETIC_SOUNDS, COSMETIC_CAGES, COSMETIC_SUFFIXES, COSMETIC_SUFFIXES_NEXT,
         COSMETIC_WINS, COSMETIC_KILLS,
         CASES,

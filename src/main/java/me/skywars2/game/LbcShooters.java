@@ -619,7 +619,7 @@ public final class LbcShooters {
         var stack=player.getItemInHand(hand);
         if(player.isShiftKeyDown()) {
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int next=mode(stack)%4+1; data.putInt("mode",next);
+            int next=LbcModeScroll.next(mode(stack),4); data.putInt("mode",next);
             stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(next) {
                 case 2 -> "karich_mode_2";

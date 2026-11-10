@@ -23,6 +23,8 @@ import net.minecraft.world.effect.*;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.Display.BlockDisplay;
 import net.minecraft.world.entity.animal.equine.Horse;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.Display.ItemDisplay;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ClipContext;
@@ -35,6 +37,7 @@ import net.minecraft.resources.Identifier;
 
 /** Source12/15/17 reactions; native bodies/teleports/effects/attribution remain canonical. */
 public final class LbcReactiveDefense {
+    private static final String FLIGHT_SEAT="skywars2.reactive.twilight_seat";
     private static final String HORSE="skywars2.reactive.twilight",SPIKE="skywars2.reactive.ground_spike",OWNER="skywars2.reactive.owner:",TEAM="skywars2.reactive.team:";
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
@@ -44,7 +47,7 @@ public final class LbcReactiveDefense {
     private record Proc(Kind kind,UUID owner,String epoch,ServerLevel level,Vec3 at,UUID body,String team,LbcIndirectKills.Owner cause) { }
     private static final class Actor {
         final Entity body;final UUID owner;final String epoch,team;final Kind kind;final LbcIndirectKills.Owner cause;
-        int remaining;long due;
+        int remaining;long due;Entity control;
         Actor(Entity body,UUID owner,String epoch,String team,Kind kind,LbcIndirectKills.Owner cause,int remaining,long due){this.body=body;this.owner=owner;this.epoch=epoch;this.team=team;this.kind=kind;this.cause=cause;this.remaining=remaining;this.due=due;}
     }
     public record BodyView(Entity body,UUID owner,boolean horse,int remaining,long due) { }
@@ -102,7 +105,10 @@ public final class LbcReactiveDefense {
     private boolean publish(Proc proc,ServerPlayer p){
         Entity body;
         if(proc.kind==Kind.HORSE){
-            var horse=new Horse(EntityTypes.HORSE,proc.level);horse.setAge(-10000);horse.setHealth(8);horse.setDeltaMovement(Vec3.ZERO);
+            var horse=new Horse(EntityTypes.HORSE,proc.level);
+            // New foal models hide horse armor. A half-size adult retains the old armored silhouette.
+            horse.setAge(0);horse.getAttribute(Attributes.SCALE).setBaseValue(.5);horse.setTamed(true);
+            horse.setHealth(8);horse.setDeltaMovement(Vec3.ZERO);
             horse.setItemSlot(EquipmentSlot.SADDLE,new ItemStack(Items.SADDLE));horse.setItemSlot(EquipmentSlot.BODY,new ItemStack(Items.DIAMOND_HORSE_ARMOR));
             horse.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,-1,0,false,false,true),p);
             horse.setCustomName(Component.translatable("twilight_sparkle").withStyle(style->style.withColor(0xb83ac4).withItalic(false)));horse.setCustomNameVisible(true);
@@ -119,7 +125,7 @@ public final class LbcReactiveDefense {
         // A shared native purge may have removed an admitted magical horse. That is a completed/cancelled output.
         if(body.isRemoved()){actors.remove(body);return true;}
         work.addLast(state);attachTeam(state);
-        if(proc.kind==Kind.HORSE){mirror(state);p.startRiding(body,true,false);game.items().mana().score(p,"falltimer").set(0);LbcOverload.sound(proc.level,proc.at,"minecraft:entity.ender_dragon.flap",SoundSource.PLAYERS,3,1,0,0);}
+        if(proc.kind==Kind.HORSE){mirror(state);flightSeat(state);if(state.control==null){retire(state);return false;}p.startRiding(state.control,true,false);game.items().mana().score(p,"falltimer").set(0);LbcOverload.sound(proc.level,proc.at,"minecraft:entity.ender_dragon.flap",SoundSource.PLAYERS,3,1,0,0);}
         else{LbcOverload.sound(proc.level,proc.at,"minecraft:entity.silverfish.death",SoundSource.PLAYERS,1,1,0,0);proc.level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,Items.IRON_INGOT),proc.at.x,proc.at.y+.5,proc.at.z,10,0,.5,0,0);}
         return true;
     }
@@ -136,6 +142,7 @@ public final class LbcReactiveDefense {
                 var level=(ServerLevel)a.body.level();long clock=clocks.computeIfAbsent(level,ignored->0L);
                 if(paused(level)||game.items().timeStop().frozen(a.body)||!resident(level,a.body.position())){work.addLast(a);continue;}
                 if(a.kind==Kind.HORSE&&game.items().magic().suppressedAt(level,a.body.position())){retire(a);continue;}
+                if(a.kind==Kind.HORSE)fly(a);
                 if(clock>=a.due){
                     if(a.kind==Kind.HORSE){int elapsed=(int)Math.min(Integer.MAX_VALUE,1+(clock-a.due)/2);a.due+=2L*elapsed;horse(a,elapsed);}
                     else{a.due++;spike(a);}
@@ -145,13 +152,42 @@ public final class LbcReactiveDefense {
         }finally{ticking=false;}
     }
     private void horse(Actor a,int elapsed){
-        if(a.remaining<=0)return;var level=(ServerLevel)a.body.level();
+        if(a.remaining<=0)return;
         a.remaining=Math.max(0,a.remaining-elapsed);mirror(a);
-        if(a.remaining==0)return;
-        if(a.body.getFirstPassenger() instanceof ServerPlayer rider&&!game.isObserver(rider)&&rider.isAlive()&&game.canUseGameplayItems(rider)){
-            var direction=rider.getLookAngle();a.body.setDeltaMovement(new Vec3(quantized(direction.x),quantized(direction.y),quantized(direction.z)));
-            if(rider.getRandom().nextFloat()<.1f)LbcOverload.sound(level,a.body.position(),"minecraft:entity.ender_dragon.flap",SoundSource.NEUTRAL,1,1.5f,0,0);
-        }
+        if(a.remaining==0){releaseSeat(a);return;}
+        var rider=rider(a);
+        if(rider!=null&&rider.getRandom().nextFloat()<.1f)
+            LbcOverload.sound((ServerLevel)a.body.level(),a.body.position(),"minecraft:entity.ender_dragon.flap",SoundSource.NEUTRAL,1,1.5f,0,0);
+    }
+    private ServerPlayer rider(Actor a){
+        for(var passenger:a.body.getIndirectPassengers())if(passenger instanceof ServerPlayer player
+                &&!game.isObserver(player)&&player.isAlive()&&game.canUseGameplayItems(player))return player;
+        return null;
+    }
+    private void flightSeat(Actor a){
+        if(a.control==null)a.control=a.body.getPassengers().stream().filter(e->e.entityTags().contains(FLIGHT_SEAT)).findFirst().orElse(null);
+        if(a.control!=null&&!a.control.isRemoved()&&a.control.getVehicle()==a.body)return;
+        var rider=rider(a);if(rider!=null)rider.stopRiding();
+        var seat=new ItemDisplay(EntityTypes.ITEM_DISPLAY,a.body.level());seat.setPos(a.body.position());
+        seat.entityTags().addAll(List.of(FLIGHT_SEAT,"strictMapObject"));game.items().markCurrentItemEpoch(seat);
+        if(((ServerLevel)a.body.level()).addFreshEntity(seat)&&seat.startRiding(a.body,true,false))a.control=seat;
+        else seat.discard();
+        if(rider!=null)rider.startRiding(a.control==null?a.body:a.control,true,false);
+    }
+    private void releaseSeat(Actor a){
+        if(a.control==null)return;
+        var rider=rider(a);a.control.discard();a.control=null;
+        if(rider!=null&&!a.body.isRemoved()&&a.body.isAlive())rider.startRiding(a.body,true,false);
+    }
+    private void fly(Actor a){
+        if(a.remaining<=0)return;
+        // A non-player first passenger keeps the vanilla client from predicting a walking horse.
+        // An empty display is only a passenger seat; the real horse owns collision and tracking.
+        flightSeat(a);var rider=rider(a);if(rider==null)return;
+        var direction=rider.getLookAngle();
+        a.body.setYRot(rider.getYRot());a.body.setXRot(rider.getXRot());
+        a.body.setDeltaMovement(new Vec3(quantized(direction.x),quantized(direction.y),quantized(direction.z)));
+        a.body.needsSync=true;
     }
     private static double quantized(double value){return Math.floor(value*10000)*.0001;}
     private boolean target(Actor a,LivingEntity e){
@@ -174,7 +210,7 @@ public final class LbcReactiveDefense {
         if(hit.getType()==HitResult.Type.BLOCK){body.setPos(hit.getLocation());body.setDeltaMovement(Vec3.ZERO);}
         else{body.setPos(at.add(0,falling,0));body.setDeltaMovement(0,falling,0);}
     }
-    private void retire(Actor a){actors.remove(a.body);work.remove(a);if(!a.body.isRemoved())a.body.discard();}
+    private void retire(Actor a){releaseSeat(a);actors.remove(a.body);work.remove(a);if(!a.body.isRemoved())a.body.discard();}
     public ServerPlayer owner(Entity body){var a=actors.get(body);return a==null?null:game.server().getPlayerList().getPlayer(a.owner);}
     public static boolean managed(Entity body){return body!=null&&(body.entityTags().contains(HORSE)||body.entityTags().contains(SPIKE));}
     public List<BodyView> snapshot(){return work.stream().filter(a->actors.get(a.body)==a).map(a->new BodyView(a.body,a.owner,a.kind==Kind.HORSE,a.remaining,a.due)).toList();}
@@ -186,27 +222,27 @@ public final class LbcReactiveDefense {
         Kind kind=body.entityTags().contains(HORSE)&&body instanceof Horse?Kind.HORSE:body.entityTags().contains(SPIKE)&&body instanceof BlockDisplay?Kind.SPIKE:null;
         if(owner==null||kind==null){body.discard();return;}
         var level=(ServerLevel)body.level();long clock=clocks.computeIfAbsent(level,ignored->0L);
-        var a=new Actor(body,owner,game.items().epoch(),team,kind,new LbcIndirectKills.Owner(owner,0,false,kind==Kind.SPIKE),kind==Kind.HORSE?Math.max(0,game.items().mana().score(body,"sprint_timer").get()):0,clock+(kind==Kind.HORSE?2:1));actors.put(body,a);work.addLast(a);attachTeam(a);
+        var a=new Actor(body,owner,game.items().epoch(),team,kind,new LbcIndirectKills.Owner(owner,0,false,kind==Kind.SPIKE),kind==Kind.HORSE?Math.max(0,game.items().mana().score(body,"sprint_timer").get()):0,clock+(kind==Kind.HORSE?2:1));a.control=body.getPassengers().stream().filter(e->e.entityTags().contains(FLIGHT_SEAT)).findFirst().orElse(null);actors.put(body,a);work.addLast(a);attachTeam(a);
     }
-    public void unloaded(Entity body){if(restoring||MatchActorCheckpoint.restoring(body))return;var a=actors.remove(body);if(a!=null)work.remove(a);}
+    public void unloaded(Entity body){if(restoring||MatchActorCheckpoint.restoring(body))return;var a=actors.remove(body);if(a!=null){work.remove(a);if(body.getRemovalReason()!=null&&body.getRemovalReason().shouldDestroy())releaseSeat(a);}}
     public void forget(ServerPlayer player){if(restoring||MatchPlayerCheckpoint.restoring(player))return;pending.removeIf(p->p.owner.equals(player.getUUID()));for(var a:List.copyOf(actors.values()))if(a.owner.equals(player.getUUID()))retire(a);}
     public void stop(){if(restoring)return;pending.clear();for(var a:List.copyOf(actors.values()))retire(a);work.clear();clocks.clear();lastTick=Integer.MIN_VALUE;}
     public void prepareFrozen(){boundary();restoring=true;}
     public void publishFrozen(){restoring=false;lastTick=outputTick=game.server().getTickCount();outputSpent=64;}
     private void boundary(){if(publishing||ticking||draining||!spawning.isEmpty())throw new IllegalStateException("Finish reactive native callbacks before checkpoint");}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){boundary();return new Checkpoint(links);}
-    private record ActorImage(MatchDamageSources.Ref body,UUID owner,String epoch,String team,Kind kind,LbcIndirectKills.Owner cause,int remaining,long due) { }
+    private record ActorImage(MatchDamageSources.Ref body,MatchDamageSources.Ref control,UUID owner,String epoch,String team,Kind kind,LbcIndirectKills.Owner cause,int remaining,long due) { }
     final class Checkpoint {
         final List<Proc> saved=List.copyOf(pending);final List<ActorImage> bodies;final Map<ServerLevel,Long> time=new IdentityHashMap<>(clocks);
-        Checkpoint(MatchSpellCheckpoint.Links links){bodies=work.stream().filter(a->actors.get(a.body)==a).map(a->new ActorImage(links.key(a.body),a.owner,a.epoch,a.team,a.kind,a.cause,a.remaining,a.due)).toList();}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var next=new ArrayList<Actor>();for(var a:bodies)next.add(new Actor(links.get(a.body),a.owner,a.epoch,a.team,a.kind,a.cause,a.remaining,a.due));return ()->{pending.clear();pending.addAll(saved);actors.clear();work.clear();for(var a:next){actors.put(a.body,a);work.addLast(a);mirror(a);}clocks.clear();clocks.putAll(time);};}
+        Checkpoint(MatchSpellCheckpoint.Links links){bodies=work.stream().filter(a->actors.get(a.body)==a).map(a->new ActorImage(links.key(a.body),a.control==null?null:links.key(a.control),a.owner,a.epoch,a.team,a.kind,a.cause,a.remaining,a.due)).toList();}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var next=new ArrayList<Actor>();for(var a:bodies){var actor=new Actor(links.get(a.body),a.owner,a.epoch,a.team,a.kind,a.cause,a.remaining,a.due);actor.control=a.control==null?null:links.get(a.control);next.add(actor);}return ()->{pending.clear();pending.addAll(saved);actors.clear();work.clear();for(var a:next){actors.put(a.body,a);work.addLast(a);mirror(a);}clocks.clear();clocks.putAll(time);};}
     }
     public boolean cloneRecognizes(Entity body){return actors.containsKey(body);}
     public boolean cloneProtected(Entity body){return false;}
     public LbcCloneSkills.ActorImage cloneImage(Entity source){
         var a=actors.get(source);if(a==null)return null;var owner=a.owner;var epoch=a.epoch;var team=a.team;var kind=a.kind;var cause=a.cause;int remaining=a.remaining;long wait=Math.max(0,a.due-clocks.getOrDefault((ServerLevel)source.level(),0L));
         return new LbcCloneSkills.ActorImage(){
-            public void install(Entity original,Entity clone,Map<Entity,Entity> family){var level=(ServerLevel)clone.level();long clock=clocks.computeIfAbsent(level,ignored->0L);var next=new Actor(clone,owner,epoch,team,kind,cause,remaining,clock+wait);actors.put(clone,next);work.addLast(next);mirror(next);attachTeam(next);}
+            public void install(Entity original,Entity clone,Map<Entity,Entity> family){var level=(ServerLevel)clone.level();long clock=clocks.computeIfAbsent(level,ignored->0L);var next=new Actor(clone,owner,epoch,team,kind,cause,remaining,clock+wait);next.control=a.control==null?null:family.get(a.control);actors.put(clone,next);work.addLast(next);mirror(next);attachTeam(next);}
             public void rollback(Entity clone){var next=actors.remove(clone);if(next!=null)work.remove(next);}
         };
     }

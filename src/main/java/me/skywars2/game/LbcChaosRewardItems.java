@@ -49,8 +49,9 @@ public final class LbcChaosRewardItems {
             if(!g.items().mana().trySpendWand(p,cost,0))return false;
             int mode=data.getIntOr("mode",1);
             // Original up/down predicates overlap at pitch zero; preserve their sequential wrap.
-            if(p.getXRot()<=0){mode++;if(mode>=56)mode=1;}
-            if(p.getXRot()>=0){mode--;if(mode<=0)mode=54;}
+            if(LbcModeScroll.scrolling())mode=LbcModeScroll.next(mode,55);
+            else{if(p.getXRot()<=0){mode++;if(mode>=56)mode=1;}
+                if(p.getXRot()>=0){mode--;if(mode<=0)mode=54;}}
             data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             if(mode>=1&&mode<=MODES.length)p.sendSystemMessage(Component.translatable(MODES[mode-1]));
             p.getInventory().setChanged();p.containerMenu.broadcastChanges();return true;

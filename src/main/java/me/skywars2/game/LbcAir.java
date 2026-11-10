@@ -171,21 +171,26 @@ public final class LbcAir {
     private void emitTrail(ServerPlayer owner,Charge charge,Vec3 from,Vec3 end) {
         if(charge.flyingStyle) {
             double distance=from.distanceTo(end);Vec3 direction=end.subtract(from).normalize();
-            for(double step=0;step<=distance+1e-7;step+=.2) {
+            try(var smokeVisual=new LbcParticleBatch.Group(sourceLevel(owner),ParticleTypes.SMOKE,.1,0,true)){
+for(double step=0;step<=distance+1e-7;step+=.2) {
                 Vec3 point=from.add(direction.scale(Math.min(step,distance)));
-                sourceLevel(owner).sendParticles(ParticleTypes.SMOKE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
+                smokeVisual.add(point);
             }
+}
             return;
         }
         if(charge.mode==0 || charge.mode==1) {
             sourceLevel(owner).sendParticles(ParticleTypes.EXPLOSION,true,false,end.x,end.y,end.z,1,0,0,0,0);
         } else {
             double step=charge.mode==2?.7:.4, distance=from.distanceTo(end);
-            for(double d=0;d<=distance+1e-7;d+=step) {
+            try(var airVisual=new LbcParticleBatch.Group(sourceLevel(owner),AIR_PARTICLE,0,0,true)){
+for(double d=0;d<=distance+1e-7;d+=step) {
                 Vec3 p=distance<1e-9?from:from.add(end.subtract(from).scale(Math.min(1,d/distance)));
-                sourceLevel(owner).sendParticles(AIR_PARTICLE,true,false,p.x,p.y,p.z,1,0,0,0,0);
-                sourceSound(owner,p,"minecraft:block.moss_carpet.step",.2f,1,0);
+                airVisual.add(p);
+
             }
+}
+            sourceSound(owner,from.lerp(end,.5),"minecraft:block.moss_carpet.step",.2f,1,0);
         }
         if(charge.mode==0 || charge.mode==1)
             sourceSound(owner,end,"minecraft:block.moss_carpet.step",.05f,1,0);

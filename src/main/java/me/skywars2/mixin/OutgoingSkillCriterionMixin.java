@@ -22,8 +22,7 @@ public abstract class OutgoingSkillCriterionMixin {
         if(game==null||blocked||!(target instanceof LivingEntity victim))return;
         try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)){
             game.items().reactiveTrinkets().outgoing(attacker,victim,source,blocked);
-            game.items().championSkill().damaged(victim,source);
-            game.items().manaVampireSkill().damaged(victim,source);
+            me.skywars2.game.LbcAcceptedHits.stanceHit(victim,source);
             // Unlike Fabric AFTER_DAMAGE, the native criterion also observes lethal contacts.
             if(actual>0)game.items().terra().damaged(attacker,source);
             game.items().cinema().outgoing(attacker,victim,source,original,actual,blocked);

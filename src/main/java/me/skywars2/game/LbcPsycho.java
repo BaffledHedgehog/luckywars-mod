@@ -255,7 +255,7 @@ public final class LbcPsycho {
         var mana=game.items().mana();
         if(academy && owner.isShiftKeyDown()) {
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),4);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             owner.sendSystemMessage(Component.translatable(donor?switch(mode) {
                 case 2->"mode_screamer"; case 3->"mode_look_back"; case 4->"mode_scare"; default->"mode_sound";

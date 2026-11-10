@@ -38,7 +38,7 @@ final class LbcCorruption {
         int mode=Mth.clamp(data.getIntOr("mode",1),1,5);
         // Mode selection is free even when the owner cannot afford a cast, in the actual used hand.
         if(academy&&owner.isShiftKeyDown()){
-            mode=mode%5+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+            mode=LbcModeScroll.next(mode,5);data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             owner.getInventory().setChanged();
             owner.sendSystemMessage(mode==5?Component.translatableWithFallback("mode_alternating","Чередующийся")
                     :Component.translatable(switch(mode){case 1->"effect_poison";case 2->"effect_wither";case 3->"effect_hunger";default->"effect_damage";}));

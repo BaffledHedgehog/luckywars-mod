@@ -27,10 +27,10 @@ final class LbcAwakenedAcid {
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Mth.clamp(data.getIntOr("mode",1),1,4);
         if(academy&&owner.isShiftKeyDown()){
-            if(owner.getXRot()>=89&&owner.getXRot()<=90){
+            if(!LbcModeScroll.scrolling()&&owner.getXRot()>=89&&owner.getXRot()<=90){
                 int tier=data.getIntOr("tier",0)==1?2:1;data.putInt("tier",tier);
                 owner.sendSystemMessage(Component.translatable(tier==1?"mode_ignited_true":"mode_ignited_false"));
-            }else{mode=mode%4+1;data.putInt("mode",mode);owner.sendSystemMessage(Component.translatable(MODES[mode-1]));}
+            }else{mode=LbcModeScroll.next(mode,4);data.putInt("mode",mode);owner.sendSystemMessage(Component.translatable(MODES[mode-1]));}
             stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("acidacid_wand_mana_use"),"lbc.math").get();

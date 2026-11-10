@@ -170,7 +170,7 @@ public final class LbcConsuming {
         if(!castable(owner) || !ready()) return false;
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,4):1;
         if(upgraded && owner.isShiftKeyDown()) {
-            mode=mode%4+1; var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            mode=LbcModeScroll.next(mode,4); var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
             owner.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2->"mode_silence"; case 3->"mode_the_end"; case 4->"mode_avarice"; default->"mode_default";
@@ -502,16 +502,17 @@ public final class LbcConsuming {
             if(++area.age%5!=0) continue;
             float yaw=area.owner.getRandom().nextFloat()*360-180,pitch=area.owner.getRandom().nextFloat()*180-90;
             Vec3 point=area.point;
+            try(var particles=new LbcParticleBatch.Group(area.level,AREA_DUST,.1,0,true)){
             for(int remaining=149;remaining>=0;remaining--) {
                 if(!area.level.hasChunkAt(BlockPos.containing(point))) break;
                 erase(area.owner,point,.51);
                 if(area.owner.getRandom().nextFloat()<.4f)
-                    area.level.sendParticles(AREA_DUST,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
+                    particles.add(point);
                 point=point.add(Vec3.directionFromRotation(pitch,yaw).scale(.5));
                 if(remaining<=50) { yaw+=10; pitch+=1; }
                 else if(remaining<=100) { yaw+=5; pitch-=.2f; }
                 else yaw+=1;
-            }
+            }}
             area.level.sendParticles(ParticleTypes.PORTAL,area.point.x,area.point.y,area.point.z,30,1,1,1,3);
         }
         areas.removeIf(area->area.age>=6000);

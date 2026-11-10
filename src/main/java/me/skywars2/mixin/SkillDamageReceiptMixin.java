@@ -25,4 +25,20 @@ public abstract class SkillDamageReceiptMixin {
             if(mob instanceof ServerPlayer player)game.items().containedSkills().recordDamage(player,source,amount);
         }
     }
+    @Mixin(LivingEntity.class)
+    public abstract static class Attempt {
+        @com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method="hurtServer",
+                at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/LivingEntity;die(Lnet/minecraft/world/damagesource/DamageSource;)V"))
+        private void skywars2$nativeDeathCriterion(LivingEntity victim,DamageSource source,
+                com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original){
+            me.skywars2.game.LbcAcceptedHits.beforeNativeDeath(victim,source);
+            original.call(victim,source);
+        }
+        @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="hurtServer")
+        private boolean skywars2$receiptLifetime(net.minecraft.server.level.ServerLevel level,DamageSource source,float amount,
+                com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original){
+            try{return original.call(level,source,amount);}
+            finally{me.skywars2.game.LbcAcceptedHits.finished((LivingEntity)(Object)this);}
+        }
+    }
 }

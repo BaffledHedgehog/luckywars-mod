@@ -87,7 +87,7 @@ public final class LbcDuplicating {
         if(!castable(owner) || !ready()) return false;
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,4):1;
         if(upgraded && owner.isShiftKeyDown()) {
-            mode=mode%4+1; var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            mode=LbcModeScroll.next(mode,4); var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
             owner.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2->"mode_expand"; case 3->"mode_divide"; case 4->"mode_black_hole"; default->"mode_default";

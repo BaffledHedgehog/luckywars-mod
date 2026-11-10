@@ -33,7 +33,7 @@ final class LbcCausticOmega {
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Mth.clamp(data.getIntOr("mode",1),1,2);
         if(acid&&academy&&owner.isShiftKeyDown()){
-            mode=mode%2+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
+            mode=LbcModeScroll.next(mode,2);data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
             owner.sendSystemMessage(Component.translatable(mode==1?"mode_default":"mode_ignited"));return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly(acid?"acid_wand_mana_use":"absurd_singularity_mana_use"),"lbc.math").get();

@@ -615,6 +615,20 @@ public final class LbcWands {
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         return spell!=null && castSpell(player,hand,stack,spell);
     }
+    boolean hasSelectableMode(ItemStack stack){
+        for(var candidate:SPELLS)if(matches(stack,candidate.item,candidate.flag))return switch(candidate){
+            case ACADEMY_CORRUPTION,ACADEMY_ACID_CORRUPTION,ACADEMY_ERECTO,ACADEMY_TESLA,
+                    ACADEMY_AWAKENED_ACID,ACADEMY_GAYCASTER,ACADEMY_CAUSTIC,ACADEMY_ADVANCED_ENDER,
+                    ACADEMY_BAD_WIKI,ACADEMY_NEUTRAL,ACADEMY_CONFUSE,ACADEMY_EVOKER,ACADEMY_BASS,
+                    ACADEMY_LIFESTEALER,ACADEMY_FIRE,ACADEMY_BLAZE,ACADEMY_FIREBLAZE,
+                    ACADEMY_FALLING_STARS,ACADEMY_CONSUMING,ACADEMY_DUPLICATING,
+                    ACADEMY_LIGHTNING_BOLTS,ACADEMY_BOLTBOLT,ACADEMY_EXAHOMING,
+                    ACADEMY_PSYCHOWAND,ACADEMY_PSYCHOBLIND,ACADEMY_BLIND,ACADEMY_AIR,
+                    ACADEMY_STONE,ACADEMY_TELEPORT,ACADEMY_RUBY,ACADEMY_REGULAR_ACID,
+                    ACADEMY_ELECTRO,ACADEMY_EXASPERATO,ACADEMY_BEDROCK,ACADEMY_WALL,ACADEMY_STONEKIVI->true;
+            default->false;
+        };return false;
+    }
     private boolean castSpell(ServerPlayer player,InteractionHand hand,ItemStack stack,Spell spell) {
         // Detached producers and the trial share ordinary admission/payment, once per real hand.
         if(spell==Spell.SAUVOJEN || spell==Spell.ACADEMY_SAUVOJEN) {
@@ -691,7 +705,7 @@ public final class LbcWands {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped") || game.items().magic().suppressed(player)
 ) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),5)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),5);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2 -> "mode_earth";
@@ -713,7 +727,7 @@ public final class LbcWands {
                     || game.items().magic().suppressed(player)
 ) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),3);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2 -> "mode_hole";
@@ -728,7 +742,7 @@ public final class LbcWands {
                     || game.items().magic().suppressed(player)
 ) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),3);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2 -> "mode_inverted";
@@ -743,7 +757,7 @@ public final class LbcWands {
                     || game.items().magic().suppressed(player)
 ) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),3);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2 -> "mode_fast_rocket";
@@ -758,7 +772,7 @@ public final class LbcWands {
                     || game.items().magic().suppressed(player)
 ) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),4);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2 -> "mode_phantom";
@@ -773,7 +787,7 @@ public final class LbcWands {
                     || game.items().magic().suppressed(player)
 ) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),4);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2 -> "mode_shield";
@@ -787,7 +801,7 @@ public final class LbcWands {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
                     || game.items().magic().suppressed(player) || game.items().frost().isFrozen(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),3);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(mode==1 ? "mode_default" : mode==2 ? "mode_big" : "mode_concentrated"));
             return true;
@@ -796,7 +810,7 @@ public final class LbcWands {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
                     || game.items().magic().suppressed(player) || game.items().frost().isFrozen(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),4);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2 -> "mode_electro_ray";
@@ -810,7 +824,7 @@ public final class LbcWands {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
                     || game.items().magic().suppressed(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=data.getIntOr("mode",1)==2 ? 1 : 2;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),2);
             data.putInt("mode",mode);
             stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             player.sendSystemMessage(Component.translatable(mode==1 ? "mode_default" : "mode_ray"));
@@ -822,7 +836,7 @@ public final class LbcWands {
                 if(!mana.visible(player) || game.items().magic().suppressed(player)) return false;
                 // Mode selection is independent per used hand and never enters the paid cast path.
                 var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-                int mode=data.getIntOr("mode",1)==2 ? 1 : 2;
+                int mode=LbcModeScroll.next(data.getIntOr("mode",1),2);
                 data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));player.getInventory().setChanged();
                 player.sendSystemMessage(Component.translatable(mode==1 ? "mode_default" : "mode_ignited"));
                 return true;
@@ -1037,11 +1051,14 @@ public final class LbcWands {
                 && (!(hit instanceof net.minecraft.world.phys.BlockHitResult wall) || level.hasChunkAt(wall.getBlockPos()));
         if(hit!=null) to=hit.getLocation();
         double distance=from.distanceTo(to);
-        for(double step=0;step<=distance;step+=.5) {
+        try(var fireVisual=new LbcParticleBatch.Group(level,ParticleTypes.FALLING_LAVA,.05,0,true)){
+for(double step=0;step<=distance;step+=.5) {
             var point=from.add(direction.scale(step));
-            level.sendParticles(ParticleTypes.FALLING_LAVA,true,false,point.x,point.y,point.z,1,.05,.05,.05,0);
-            LbcOverload.sound(player,point,"minecraft:block.lava.ambient",1,.1f,0);
+            fireVisual.add(point);
+
         }
+}
+        LbcOverload.sound(player,from,"minecraft:block.lava.ambient",1,.1f,0);
         if(terminal) {
             Vec3 end=to;
             game.items().indirectKills().worldChanges(level,player,()-> {
@@ -1379,12 +1396,15 @@ public final class LbcWands {
             LbcOverload.sound(owner,shield.getEntity().position(),"minecraft:item.shield.block",1,1,0);
         }
         double distance=from.distanceTo(end);
-        for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f) {
+        try(var denseDust=new LbcParticleBatch.Group(level,ELECTRO_PARTICLE,.1,0,true);var denseSpark=new LbcParticleBatch.Group(level,ParticleTypes.ELECTRIC_SPARK,.1,1,false)){
+for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f) {
             Vec3 point=from.add(direction.scale(i*.1));
-            level.sendParticles(ELECTRO_PARTICLE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
-            level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,.1,.1,.1,1);
-            LbcOverload.sound(owner,point,"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
+            denseDust.add(point);
+            denseSpark.add(point);
+
         }
+}
+        if(distance>0)LbcOverload.sound(owner,from.lerp(end,.5),"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
         // Проводники останавливают этот режим; отдельного импульса проводимости в нём нет.
         if(distance>1e-7) electroHits(new ElectroTrace(owner,from,game.items().epoch()),from,end,.1,.4f,1);
         LbcOverload.sound(owner,from,"minecraft:entity.firework_rocket.twinkle",1,1,0);
@@ -1486,24 +1506,28 @@ public final class LbcWands {
         double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
         double stopDistance=Math.min(shieldDistance,mechanismDistance);
         Vec3 end=from,conductor=null;
-        boolean clear=true;
+        boolean clear=true;boolean emitted=false;
+        var dust=new LbcParticleBatch.Group(level,ELECTRO_PARTICLE,.1,0,true);
+        var sparksVisual=new LbcParticleBatch.Group(level,ParticleTypes.ELECTRIC_SPARK,.1,1,false);
+        var rods=new LbcParticleBatch.Group(level,ParticleTypes.END_ROD,.1,.1,false);
+        BlockPos previousPos=null;net.minecraft.world.level.block.state.BlockState previousBlock=null;
         for(int i=0;i<=samples && i*.2<stopDistance-1e-7;i++) {
             Vec3 point=from.add(direction.scale(i*.2));
             var pos=BlockPos.containing(point);
             if(!level.hasChunkAt(pos)) { clear=false; break; }
             end=point;
-            level.sendParticles(ELECTRO_PARTICLE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
-            level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,.1,.1,.1,1);
-            electroSound(trace,point,"minecraft:entity.firework_rocket.twinkle",.03f,2);
-            var block=level.getBlockState(pos);
+            dust.add(point);sparksVisual.add(point);emitted=true;
+            var block=pos.equals(previousPos)?previousBlock:level.getBlockState(pos);previousPos=pos;previousBlock=block;
             if(block.is(CONDUCTIVE)) {
                 if(conductor==null) conductor=point;
                 Vec3 sparks=point.subtract(direction.scale(.5));
-                level.sendParticles(ParticleTypes.END_ROD,sparks.x,sparks.y,sparks.z,5,.1,.1,.1,.1);
+                rods.add(sparks,5);
             } else if(!block.is(AIRS)) {
                 end=new AABB(pos).clip(from,point).orElse(from); clear=false; break;
             }
         }
+        dust.flush();sparksVisual.flush();rods.flush();
+        if(emitted)electroSound(trace,from.lerp(end,.5),"minecraft:entity.firework_rocket.twinkle",.03f,2);
         // (user) Щит обрезает путь на границе сферы, не отменяя эффекты уже пройденной части.
         if(clear && Double.isFinite(mechanismDistance) && mechanismDistance<=shieldDistance) {
             end=from.add(direction.scale(mechanismDistance)); clear=false;
@@ -1623,10 +1647,11 @@ public final class LbcWands {
             case ACID -> ParticleTypes.SNEEZE;
             default -> throw new IllegalArgumentException("Not a ray spell: "+spell);
         };
-        for(int i=0;i<=100 && i<boundary;i++) {
+        try(var rayVisual=new LbcParticleBatch.Group(player.level(),particle,0,0,true)){
+for(int i=0;i<=100 && i<boundary;i++) {
             Vec3 point=origin.add(step.scale(i));
             if(spell!=Spell.BLIND || player.getRandom().nextFloat()<.3f)
-                player.level().sendParticles(particle,true,false,point.x,point.y,point.z,1,0,0,0,0);
+                rayVisual.add(point);
             Entity hit=rayTarget(player,candidates,point);
             if(hit!=null) {
                 // (user) Первый контакт завершает луч: исходный повтор при entity+wall был багом.
@@ -1641,6 +1666,7 @@ public final class LbcWands {
                 break;
             }
         }
+}
         raySound(player,spell,origin);
     }
     private void raySound(ServerPlayer player,Spell spell,Vec3 point) {

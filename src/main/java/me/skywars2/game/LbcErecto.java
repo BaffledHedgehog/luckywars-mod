@@ -59,7 +59,7 @@ final class LbcErecto {
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();int mode=Mth.clamp(data.getIntOr("mode",1),1,4);
         if(academy&&owner.isShiftKeyDown()){
-            mode=mode%4+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
+            mode=LbcModeScroll.next(mode,4);data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
             owner.sendSystemMessage(Component.translatable(switch(mode){case 2->"mode_ray";case 3->"mode_sphere";case 4->"mode_sniper";default->"mode_default";}));return true;
         }
         var mana=game.items().mana();int cost=mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("erecto_wand_mana_use"),"lbc.math").get();
@@ -287,7 +287,10 @@ final class LbcErecto {
         if(Double.isFinite(boundary))end=from.lerp(end,Math.max(0,Math.nextDown(boundary)));
         var wall=LbcTerra.wallHit(owner.level(),from,end);if(wall!=null)end=wall.getLocation();
         if(from.distanceToSqr(end)<1e-12)return;
-        for(int i=0;i<=100&&i*.5<=from.distanceTo(end)+1e-7;i++)if(owner.getRandom().nextFloat()<.35f){var point=from.add(direction.scale(i*.5));owner.level().sendParticles(DUST,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,.1,.1,.1,1);LbcOverload.sound(owner,point,"minecraft:entity.firework_rocket.twinkle",.03f,2,0);}
+        try(var rayDust=new LbcParticleBatch.Group(owner.level(),DUST,.1,0,true);var raySpark=new LbcParticleBatch.Group(owner.level(),ParticleTypes.ELECTRIC_SPARK,.1,1,false)){
+for(int i=0;i<=100&&i*.5<=from.distanceTo(end)+1e-7;i++)if(owner.getRandom().nextFloat()<.35f){var point=from.add(direction.scale(i*.5));rayDust.add(point);raySpark.add(point);}
+}
+        LbcOverload.sound(owner,from.lerp(end,.5),"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
         var damage=new DamageSource(owner.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
         var affected=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
         LbcDamage.hurtSegment(owner.level(),damage,from,end,Vec3.ZERO,.5,.5f,1,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e),false,e->{

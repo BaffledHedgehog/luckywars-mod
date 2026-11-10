@@ -63,6 +63,7 @@ public final class BouncingPoopChecks {
                 f.level.setBlock(BlockPos.containing(start.add(-1,1,-1)),Blocks.PODZOL.defaultBlockState(),2|16|32);
                 phase=2;started=game.server().getTickCount();return false;}
             if(phase==2){if(elapsed<1)return false;require(!flight.isRemoved()&&flight.getDeltaMovement().z<-.399999,"native wall collision retains actor and reflects its full normal velocity");
+                require(f.level.getBlockState(BlockPos.containing(start.add(0,0,.8))).is(Blocks.ROOTED_DIRT),"ordinary stone at real impact enters the packaged legacy soil ladder");
                 require(f.level.getBlockState(BlockPos.containing(start.add(1,1,-1))).is(Blocks.PODZOL)&&f.level.getBlockState(BlockPos.containing(start.add(-1,1,-1))).is(Blocks.COARSE_DIRT),"strict soil ladder advances each cell once");
                 service.stop();clear();held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"body launch");flight=service.snapshot().getFirst();flight.setPos(f.at.add(0,2,0));flight.setYRot(0);flight.setXRot(0);flight.setDeltaMovement(new Vec3(0,0,.4));
                 position(beta,f.at.add(.5,2,.8));beta.removeAllEffects();phase=3;started=game.server().getTickCount();return false;}

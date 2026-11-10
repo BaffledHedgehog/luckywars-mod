@@ -18,6 +18,8 @@ public abstract class IndirectKillMixin {
         if(game!=null){
             game.items().indirectKills().dying((LivingEntity)(Object)this,source);
             game.items().combatRewards().beforeDeath((LivingEntity)(Object)this,source);
+            // Before native death closes equipment/roles, with attribution already settled.
+            me.skywars2.game.LbcAcceptedHits.lethal((LivingEntity)(Object)this,source);
         }
     }
 }

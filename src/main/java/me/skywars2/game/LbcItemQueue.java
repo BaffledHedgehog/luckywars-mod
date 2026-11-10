@@ -130,6 +130,15 @@ public final class LbcItemQueue {
             }
         }
     }
+    /** A newly pasted arena must not retain authoring debris or revive it from the dormant queue. */
+    void clearRoundStart(ServerLevel level){
+        if(closed)return;
+        var remove=new java.util.ArrayList<ItemEntity>();
+        for(var entity:level.getAllEntities())if(entity instanceof ItemEntity item)remove.add(item);
+        for(var item:remove){unloaded(item);item.discard();}
+        var w=world(level);w.live.clear();w.order.clear();w.store.sleeping.clear();
+        w.store.setDirty();w.scanBefore=Long.MAX_VALUE;
+    }
     /** Full round boundaries retire sleeping loot too; server shutdown alone keeps saved data. */
     public void roundEnded(){if(!closed)for(var w:worlds.values())if(!w.store.sleeping.isEmpty()){
         w.store.sleeping.clear();w.store.setDirty();w.scanBefore=Long.MAX_VALUE;

@@ -128,7 +128,7 @@ public final class LbcMagnum {
         var gun=owner.getItemInHand(hand);
         int mode=mode(gun);
         if(owner.isShiftKeyDown()) {
-            int next=(mode+1)%6;
+            int next=LbcModeScroll.nextZero(mode,6);
             var tag=gun.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag(); tag.putInt("mode",next);
             gun.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
             gun.set(DataComponents.CUSTOM_NAME,Component.translatable("magnum_mode_"+MODES[next]).withStyle(style->style.withItalic(false)));

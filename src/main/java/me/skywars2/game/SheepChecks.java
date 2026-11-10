@@ -141,7 +141,7 @@ public final class SheepChecks {
         boolean input(InteractionHand hand){return owner.gameMode.useItem(owner,owner.level(),owner.getItemInHand(hand),hand).consumesAction();}
         ProbeCow cow(Vec3 p){var c=new ProbeCow(owner.level());c.setPos(p);c.setNoAi(true);c.setNoGravity(true);add(c);return c;}
         void clear(){sheep.forget(owner.getUUID());sheep.forget(other.getUUID());}
-        Entity sheepEntity(){require(sheep.sheepViews().size()==1,"exactly one replacement sheep");var e=owner.level().getEntity(sheep.sheepViews().getFirst().entity());require(e!=null,"resident replacement");owned.add(e);return e;}
+        Entity sheepEntity(){require(sheep.sheepViews().size()==2,"both pierced targets have a replacement sheep");var e=owner.level().getEntity(sheep.sheepViews().getFirst().entity());require(e!=null,"resident replacement");owned.add(e);return e;}
         ItemStack potion(){var p=new ItemStack(Items.POTION);for(var key:List.of("transformable","potion","succubus"))flag(p,key,1);return p;}
         void presentation(){
             var a=loot("sheep_wand");var b=loot("academy_sheep_wand");require(a.is(LbcSheep.ITEM)&&b.is(LbcSheep.ACADEMY_ITEM)&&LbcSheep.isWand(a)&&LbcSheep.isAcademy(b)&&!LbcSheep.isAcademy(a),"native ordinary and Academy identities");
@@ -164,7 +164,7 @@ public final class SheepChecks {
             try{require(!input(InteractionHand.MAIN_HAND)&&mana.get(owner)==500,"real antimagic field cast admission");}finally{game.items().magic().unloaded(marker);marker.discard();game.items().magic().flushCleansing();}
             var first=cow(at.add(0,.5,4));var second=cow(at.add(0,.5,8));var sentinel=new ItemEntity(owner.level(),at.x,at.y+1.5,at.z+2,new ItemStack(Items.DIAMOND));sentinel.setNoGravity(true);add(sentinel);
             other.getInventory().setItem(2,new ItemStack(Items.EMERALD,7));move(other,at.add(0,0,2));mana.set(owner,500);owner.setYRot(0);owner.setXRot(0);
-            require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&game.items().polymorph().active(first)&&!second.isRemoved(),"first native impact terminates once");
+            require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&game.items().polymorph().active(first)&&game.items().polymorph().active(second),"one native input transforms both pierced targets");
             var replacement=sheepEntity();require(replacement instanceof net.minecraft.world.entity.animal.sheep.Sheep,"actual vanilla sheep replacement");
             var living=(net.minecraft.world.entity.LivingEntity)replacement;
             require(living.getHealth()==8&&living.getMaxHealth()==8&&replacement.getCustomName()!=null&&replacement.getCustomName().getString().equals("jeb_")&&living.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE).getBaseValue()==20,"source jeb_ health8 and resistance20");

@@ -315,14 +315,18 @@ public final class LbcElectro {
         if(wall!=null) end=wall.getLocation();
         if(shield!=null) end=shield.getLocation();
         double distance=from.distanceTo(end);
-        for(int i=0;i<=2;i++) {
+        try(var yellowVisual=new LbcParticleBatch.Group(trace.level,YELLOW_PARTICLE,.1,0,true);var yellowDirt=new LbcParticleBatch.Group(trace.level,DIRT_PARTICLE,.1,1,false)){
+for(int i=0;i<=2;i++) {
             Vec3 point=from.add(direction.scale(i*.5));
             if(i*.5>distance+1e-7) break;
-            trace.level.sendParticles(YELLOW_PARTICLE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
-            trace.level.sendParticles(DIRT_PARTICLE,point.x,point.y,point.z,1,.1,.1,.1,1);
-            LbcOverload.sound(trace.owner,point,"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
-            LbcOverload.sound(trace.owner,point,"minecraft:block.rooted_dirt.break",.03f,2,0);
+            yellowVisual.add(point);
+            yellowDirt.add(point);
+
+
         }
+}
+        LbcOverload.sound(trace.owner,from.lerp(end,.5),"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
+        LbcOverload.sound(trace.owner,from.lerp(end,.5),"minecraft:block.rooted_dirt.break",.03f,2,0);
         LbcDamage.hurtSegment(trace.level,yellowDamage(trace,LbcDamage.YELLOW_BOLT),from,end,Vec3.ZERO,.5,.25f,2,
                 entity->yellowTarget(trace.owner,entity),false);
         trace.position=end;

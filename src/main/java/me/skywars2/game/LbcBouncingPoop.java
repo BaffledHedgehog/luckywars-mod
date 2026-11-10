@@ -103,7 +103,7 @@ public final class LbcBouncingPoop {
             sound(level,next);if(d.getBooleanOr("mega",false))mega(actor,d,next);retire(actor);continue;
         }
         if(x||y||z){
-            soil(level,before,cause(d));if(d.getBooleanOr("mega",false))mega(actor,d,before);
+            soil(level,next,cause(d));if(d.getBooleanOr("mega",false))mega(actor,d,before);
         }
         if(actor.isRemoved()||!actors.contains(actor))continue;
         var updated=d.copy();int age=d.getIntOr("age",0)+1;updated.putInt("age",age);actor.setAttached(DATA,updated);if(age>=600)retire(actor);

@@ -58,20 +58,18 @@ public final class SpeedFovChecks {
         player.connection.send(new ClientboundUpdateAttributesPacket(player.getId(),List.of(player.getAttribute(Attributes.MOVEMENT_SPEED))));
     }
     private static void math(){
-        close(LbcRifleZoom.speedFov(.2,.1,LbcRifleZoom.SPEED_FOV_POLICY),1.025,"existing speed gain remains five percent");
-        close(LbcRifleZoom.speedFov(.6999,.1,LbcRifleZoom.SPEED_FOV_POLICY),1.149975,"continuous growth just below fifteen-percent cap");
+        close(LbcRifleZoom.speedFov(.2,.1,LbcRifleZoom.DEFAULT_FOV_PERCENT),1.025,"existing speed gain remains five percent");
+        close(LbcRifleZoom.speedFov(.6999,.1,LbcRifleZoom.DEFAULT_FOV_PERCENT),1.149975,"continuous growth just below fifteen-percent cap");
         for(double speed:new double[]{.7,.7001,1024,1_000_000_000})
-            close(LbcRifleZoom.speedFov(speed,.1,LbcRifleZoom.SPEED_FOV_POLICY),1.15,"ordinary speed FOV never exceeds115 percent");
-        for(double speed:new double[]{-.5,-1000,-1_000_000_000})
-            close(LbcRifleZoom.speedFov(speed,.1,LbcRifleZoom.SPEED_FOV_POLICY),.85,"signed speed contribution never lowers FOV below85 percent");
-        for(var policy:LbcRifleZoom.SpeedFovPolicy.values())for(float speed:new float[]{-1000,-.1f,0,.1f,.2f,1000}){
+            close(LbcRifleZoom.speedFov(speed,.1,5),1+((speed/.1+1)/2-1)*.05,"vanilla curve scaled by personal five percent");
+        for(var policy:new int[]{0,5,100})for(float speed:new float[]{0,.001f,.1f,.2f,1000}){
             float walk=LbcRifleZoom.projectedWalking(speed,.1f,false,policy);
             close(speedFactor(speed,walk),speed==0?1:LbcRifleZoom.speedFov(speed,.1,policy),"signed/zero/normal/extreme pure projection "+policy);
             require(Float.isFinite(walk),"finite denominator");
             float scoped=LbcRifleZoom.projectedWalking(speed,.1f,true,policy);
             close(speedFactor(speed,scoped),speed==0?1:.25,"scope overrides both speed policies");
         }
-        require(LbcRifleZoom.projectedWalking(Float.NaN,.1f,false,LbcRifleZoom.SPEED_FOV_POLICY)==.1f,"nonfinite movement preserves native denominator");
+        require(LbcRifleZoom.projectedWalking(Float.NaN,.1f,false,LbcRifleZoom.DEFAULT_FOV_PERCENT)==.1f,"nonfinite movement preserves native denominator");
     }
     public static void run(GameController game){
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
@@ -91,10 +89,9 @@ public final class SpeedFovChecks {
                 int start=recording.packets.size();movementPacket(player);zoom.tick(game.server().getTickCount());player.onUpdateAbilities();
                 var projected=recording.latest(start);flags(projected,nativePacket);
                 float clientSpeed=(float)Math.clamp(speed,0,1024);
-                double target=clientSpeed==0?1:LbcRifleZoom.speedFov(clientSpeed,.1f,LbcRifleZoom.SPEED_FOV_POLICY);
+                double target=clientSpeed==0?1:LbcRifleZoom.speedFov(clientSpeed,.1f,LbcRifleZoom.DEFAULT_FOV_PERCENT);
                 close(speedFactor(clientSpeed,projected.getWalkingSpeed()),target,"actual native baseline packet including client attribute limit");
-                require(speedFactor(clientSpeed,projected.getWalkingSpeed())>=.85-1e-6
-                        &&speedFactor(clientSpeed,projected.getWalkingSpeed())<=1.15+1e-6,"actual native speed contribution stays within fifteen percent");
+                require(Float.isFinite(projected.getWalkingSpeed())&&projected.getWalkingSpeed()>=0,"personal projection remains finite at every native movement speed");
                 // The native client applies flight1.1 and a fully drawn bow0.85 after the speed term.
                 close(speedFactor(clientSpeed,projected.getWalkingSpeed())*1.1*.85,target*1.1*.85,"flight/bow multipliers remain independent");
                 require(attr.getBaseValue()==input&&player.getSpeed()==movement&&abilities.pack().equals(snapshot)
@@ -107,12 +104,12 @@ public final class SpeedFovChecks {
                 int start=recording.packets.size();zoom.punch(player,game.server().getTickCount()+100);
                 close(speedFactor(speed,recording.latest(start).getWalkingSpeed()),.25,"both scopes bypass ordinary FOV cap even at extreme speed");
                 start=recording.packets.size();zoom.forget(player);outside=recording.latest(start);
-                close(speedFactor(speed,outside.getWalkingSpeed()),LbcRifleZoom.speedFov(speed,.1f,LbcRifleZoom.SPEED_FOV_POLICY),"scope exit restores attenuated/capped baseline");
+                close(speedFactor(speed,outside.getWalkingSpeed()),LbcRifleZoom.speedFov(speed,.1f,LbcRifleZoom.DEFAULT_FOV_PERCENT),"scope exit restores personal baseline");
             }
             // Off-thread projection needs only immutable published wire/ability snapshots.
             var concurrent=java.util.concurrent.CompletableFuture.supplyAsync(()->zoom.projectAbilities(player.getUUID(),nativePacket)).join();
             require(concurrent.getWalkingSpeed()==outside.getWalkingSpeed(),"off-thread ability resend uses published immutable wire speed");
-            SkyWars2.LOGGER.info("[check] PASS speed-fov (five-percent gain plus fifteen-percent cap, boundary/extreme native packets, independent flight/bow and full-strength scope)");
+            SkyWars2.LOGGER.info("[check] PASS speed-fov (personal default five-percent gain, boundary/extreme native packets, independent flight/bow and full-strength scope)");
         }finally{
             zoom.forget(player);abilities.apply(packed);attr.setBaseValue(base);saved.restore(game);
             player.connection=previous;previous.resetPosition();movementPacket(player);zoom.tick();player.onUpdateAbilities();

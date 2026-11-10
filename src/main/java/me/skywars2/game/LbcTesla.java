@@ -27,7 +27,7 @@ final class LbcTesla {
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();int mode=Math.clamp(data.getIntOr("mode",1),1,3);
         if(academy&&owner.isShiftKeyDown()){
-            mode=mode%3+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
+            mode=LbcModeScroll.next(mode,3);data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
             owner.sendSystemMessage(Component.translatable(switch(mode){case 2->"mode_instant";case 3->"mode_chain";default->"mode_default";}));return true;
         }
         int cost=game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("lightning_wand_mana_use"),"lbc.math").get();
@@ -82,11 +82,12 @@ final class LbcTesla {
             game.items().stonekivi().beginNativeWork();try {
                 if(!game.items().currentEpoch(epoch)||!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner))return true;
                 Vec3 from=point,last=point,conductor=null;boolean terminal=false,emitted=false;
+                var white=new LbcParticleBatch.Group(level,WHITE,0,2,true);
+                var purple=new LbcParticleBatch.Group(level,PURPLE,0,1,true);
                 for(int i=0;i<8;i++){
                     if(game.items().magic().mechanismSuppressedAt(level,point)){terminal=true;break;}
                     var pos=BlockPos.containing(point);if(!level.hasChunkAt(pos)){terminal=true;break;}
-                    emitted=true;last=point;level.sendParticles(WHITE,true,false,point.x,point.y,point.z,1,0,0,0,2);
-                    level.sendParticles(PURPLE,true,false,point.x,point.y,point.z,1,0,0,0,1);
+                    emitted=true;last=point;white.add(point);purple.add(point);
                     var state=level.getBlockState(pos);
                     if(state.is(CONDUCTIVE)){
                         if(conductor==null)conductor=point;
@@ -101,6 +102,7 @@ final class LbcTesla {
                     point=next;
                     if(bend)break;
                 }
+                white.flush();purple.flush();
                 // Groups have disjoint sample endpoints, so splitting work cannot duplicate bypass-cooldown hits.
                 if(emitted)LbcDamage.hurtSegment(level,damage,from,last,Vec3.ZERO,.25,.5f,1,
                         entity->entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,entity),false);

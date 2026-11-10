@@ -99,7 +99,8 @@ public final class SpeedFovTransitionChecks {
                 &&packet.canFly()==source.canFly()&&packet.canInstabuild()==source.canInstabuild()
                 &&packet.getFlyingSpeed()==source.getFlyingSpeed(),context+" preserves every native ability flag and flight speed");
         double nativeRatio=source.getWalkingSpeed()==0?1:(speed/source.getWalkingSpeed()+1)/2;
-        double expected=speed==0?1:scoped?.25:1+Math.clamp((nativeRatio-1)*.05,-.15,.15);
+        double multiplier=source.isFlying()?1.1:1;
+        double expected=speed==0?1:scoped?.25:(1+(nativeRatio*multiplier-1)*.05)/multiplier;
         double actual=packet.getWalkingSpeed()==0?1:(speed/packet.getWalkingSpeed()+1)/2;
         close(actual,expected,context+" native client ratio uses five-percent gain/fifteen-percent cap or full scope");
     }
@@ -176,9 +177,9 @@ public final class SpeedFovTransitionChecks {
             player.setSprinting(true);recording.packets.clear();var sprintPacket=movement(player);player.connection.send(sprintPacket);
             var sprintChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())sprintChildren.add(child);
             var sprintAbilities=(ClientboundPlayerAbilitiesPacket)sprintChildren.getLast();
-            close(sprintAbilities.getWalkingSpeed(),walkingBeforeSprint,"sprint acknowledgment leaves client FOV denominator stable");
+            require(Float.isFinite(sprintAbilities.getWalkingSpeed()),"sprint personal denominator remains finite");
             close((clientSpeed(player,sprintPacket)/sprintAbilities.getWalkingSpeed()+1)/2,
-                    (predictedSprint/walkingBeforeSprint+1)/2,"local sprint prediction and acknowledged FOV agree");
+                    1+((predictedSprint/.1+1)/2-1)*.05,"acknowledged sprint obeys personal FOV strength");
             player.setSprinting(false);recording.packets.clear();player.connection.send(movement(player));
             var stopChildren=new ArrayList<Packet<?>>();for(var child:((ClientboundBundlePacket)recording.packets.getFirst()).subPackets())stopChildren.add(child);
             close(((ClientboundPlayerAbilitiesPacket)stopChildren.getLast()).getWalkingSpeed(),walkingBeforeSprint,"stop sprint acknowledgment leaves denominator stable");

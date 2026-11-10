@@ -60,7 +60,7 @@ public final class LbcNeutral {
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Math.max(1,Math.min(6,data.getIntOr("mode",1)));
         if(academy&&p.isShiftKeyDown()){
-            mode=mode%6+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));p.getInventory().setChanged();
+            mode=LbcModeScroll.next(mode,6);data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));p.getInventory().setChanged();
             p.sendSystemMessage(mode==6?Component.translatableWithFallback("mode_alternating","Чередующийся"):Component.translatable(MODES[mode-1]));return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("neutral_wand_mana_use"),"lbc.math").get();

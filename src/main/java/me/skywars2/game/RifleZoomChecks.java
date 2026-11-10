@@ -68,7 +68,7 @@ public final class RifleZoomChecks {
     }
     private static void restored(ServerPlayer player,Recording recording,int start){
         var expected=new ClientboundPlayerAbilitiesPacket(player.getAbilities());var actual=recording.latest(start);flags(actual,expected);
-        require(actual.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),expected.getWalkingSpeed(),false,LbcRifleZoom.SPEED_FOV_POLICY),"exit packet restores latest attenuated speed FOV baseline");
+        require(actual.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),expected.getWalkingSpeed(),false,LbcRifleZoom.DEFAULT_FOV_PERCENT),"exit packet restores latest attenuated speed FOV baseline");
     }
     // Exact 26.3 AbstractClientPlayer arithmetic without item use; FOV Effects is a client preference.
     private static float clientFov(ServerPlayer player,ClientboundPlayerAbilitiesPacket packet,float effects){
@@ -103,7 +103,7 @@ public final class RifleZoomChecks {
             projected(player,recording.latest(start),latestNative);
             require(attribute.getBaseValue()==(base==0?.13:base*1.6)&&abilities.pack().equals(latestPacked)&&player.getSpeed()==changedMovement&&player.position().equals(position)&&player.getDeltaMovement().equals(velocity),"refresh changes only outbound FOV denominator");
             start=recording.packets.size();zoom.forget(player);var restored=recording.latest(start);flags(restored,latestNative);
-            require(restored.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),latestNative.getWalkingSpeed(),false,LbcRifleZoom.SPEED_FOV_POLICY)&&!zoomed(player)&&!exiting(player),"hard cleanup restores attenuated baseline and removes both overlays");
+            require(restored.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),latestNative.getWalkingSpeed(),false,LbcRifleZoom.DEFAULT_FOV_PERCENT,1.1)&&!zoomed(player)&&!exiting(player),"hard cleanup restores personal flight FOV and removes both overlays");
             require(zoom.projectAbilities(player.getUUID(),latestNative).getWalkingSpeed()==restored.getWalkingSpeed(),"inactive projection preserves attenuated baseline across native resends");
         }finally{zoom.forget(player);abilities.apply(packed);attribute.setBaseValue(base);movementPacket(player);}
     }

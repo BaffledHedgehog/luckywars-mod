@@ -508,6 +508,11 @@ public final class LbcTerra {
         double distance = travelled.length();
         Vec3 forward = motion.normalize(), right = projectile.kind == Kind.TRUE_BEAM ? beamRight(projectile) : Vec3.ZERO;
         int samples = Math.max(1, Math.min(projectile.kind.samples, (int)Math.floor(distance / .3 + 1e-7) + 1));
+        var beamGroups=new LbcParticleBatch.Group[projectile.kind==Kind.TRUE_BEAM?BEAM_SIDES.length:0];
+        for(int i=0;i<beamGroups.length;i++)beamGroups[i]=new LbcParticleBatch.Group(level,BEAM_DUST,0,0,false);
+        var color=projectile.kind==Kind.ACADEMY||projectile.kind==Kind.TRUE_CHARGE||projectile.kind==Kind.RAZOR?ACADEMY_DUST:DUST;
+        try(var particles=new LbcParticleBatch.Group(level,color,projectile.kind.lifetime>0?.1:.05,0,true)){
+        try{
         for (int i = 0; i < samples; i++) {
             Vec3 point = projectile.kind == Kind.TRUE_BEAM
                     ? from.add(forward.scale(Math.min(distance, i * .33)))
@@ -516,14 +521,11 @@ public final class LbcTerra {
                 // Исходные девять точек дуги; визуальные samples не запускают повторный поиск целей.
                 for (int offset = 0; offset < BEAM_SIDES.length; offset++) {
                     Vec3 dot = point.add(right.scale(BEAM_SIDES[offset])).subtract(forward.scale(BEAM_BACK[offset]));
-                    level.sendParticles(BEAM_DUST, false, false, dot.x, dot.y, dot.z, 1, 0, 0, 0, 0);
+                    beamGroups[offset].add(dot);
                 }
-            } else level.sendParticles(projectile.kind == Kind.ACADEMY || projectile.kind == Kind.TRUE_CHARGE || projectile.kind == Kind.RAZOR ? ACADEMY_DUST : DUST,
-                    true, false, point.x, point.y, point.z, 1,
-                    projectile.kind.lifetime > 0 ? .1 : .05,
-                    projectile.kind.lifetime > 0 ? .1 : .05,
-                    projectile.kind.lifetime > 0 ? .1 : .05, 0);
+            } else particles.add(point);
         }
+        }finally{for(var group:beamGroups)group.close();}}
     }
 
     static BlockHitResult wallHit(ServerLevel level, Vec3 from, Vec3 to) {

@@ -2221,6 +2221,8 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
+        // Keep accepted ability graphs visible until the real lobby transition retires them.
+        if(game.stage()==GameController.Stage.ENDING){rifleZoom.tick();return;}
         radar.begin();
         hedgehogDimensions.tickReturns();
         steampunkRocket.tick();trollBox.tick();
@@ -2540,6 +2542,18 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     private void lightsabersLoaded(Entity entity){if(entity instanceof ServerPlayer p)lightsabers.sourceScoreChanged(p);}
+    void beginCelebration(){
+        timeStop.stop();
+        polymorph.finishPlayers();
+        // Service graphs stay alive during fireworks, but their paused clocks must not
+        // leave a player frozen, stunned or attached to a remote camera until the lobby.
+        for(var player:game.server().getPlayerList().getPlayers()){
+            frost.clear(player);shooters.clearStun(player);fpvDrone.release(player);
+        }
+        rifleZoom.stop();
+        cosmetics.beginCelebration();
+    }
+
     public void stop() {
         game.itemQueue().roundEnded();
         radar.stop();

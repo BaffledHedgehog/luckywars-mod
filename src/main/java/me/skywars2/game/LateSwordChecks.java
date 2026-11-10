@@ -179,7 +179,8 @@ public final class LateSwordChecks {
             target=cow(origin.add(0,0,2),200);held("blazefire_sword",InteractionHand.MAIN_HAND);score("swordcharged9",5);
             require(damage(target,DamageTypes.MAGIC,1)&&swords.blazeCharges(base.owner)==5,"player-attributed spell does not recharge Blaze");
             require(melee(target)&&swords.blazeCharges(base.owner)==6,"uncapped source Blaze native melee charge");
-            damage(target,DamageTypes.ARROW,1);require(score("swordcharged9")==6,"Blaze arrow followup never recharges");clearActors();
+            damage(target,DamageTypes.ARROW,1);require(score("swordcharged9")==6,"Blaze arrow followup never recharges");
+            target.setHealth(1);require(melee(target)&&target.isDeadOrDying()&&score("swordcharged9")==7,"Blaze lethal native melee charges exactly once before death cleanup");clearActors();
         }
         void triple(){
             held("triple_golden_sword",InteractionHand.MAIN_HAND);score("swordcharged8",0);base.mana.set(base.owner,-999);
@@ -232,7 +233,20 @@ public final class LateSwordChecks {
         void blaze(){
             held("blazefire_sword",InteractionHand.MAIN_HAND);score("swordcharged9",4);base.mana.set(base.owner,-900);
             require(!input(InteractionHand.MAIN_HAND),"Blaze requires source five charges");score("swordcharged9",6);require(input(InteractionHand.MAIN_HAND)&&swords.activeBlaze(base.owner),"native firing starts");
-            var target=cow(origin.add(0,0,5),100);pulse();near(target.getHealth(),98.9,"one in_fire1 plus arrow.1 per target per pulse");
+            var target=cow(origin.add(0,0,5),100);
+            var clouds=game.items().clouds();var point=base.owner.getEyePosition().add(base.owner.getLookAngle().scale(2));
+            var acids=List.of(clouds.ordinaryWandAcid(base.owner),clouds.academyWandAcid(base.owner,false),
+                    clouds.greatAcid(base.owner,point,base.owner.getLookAngle()),
+                    clouds.awakenedAcid(base.owner,point,base.owner.getLookAngle(),1,false),
+                    clouds.awakenedAcid(base.owner,point,base.owner.getLookAngle(),2,false),
+                    clouds.sourceAcid(base.owner.level(),point,0,0,300,true,base.owner),
+                    clouds.flyingWandAcid(base.owner,point,base.owner.getLookAngle()));
+            try{
+                for(var acid:acids){acid.setPos(point);acid.setDeltaMovement(Vec3.ZERO);}
+                pulse();
+                require(acids.stream().allMatch(a->a.entityTags().contains("on_fire")),"real ultimate ignites every native acid variant regardless of its ownership or target policy");
+            }finally{for(var acid:acids){clouds.unloaded(acid);acid.discard();}}
+            near(target.getHealth(),98.9,"one in_fire1 plus arrow.1 per target per pulse");
             require(score("swordcharged9")==3&&swords.activeBlaze(base.owner)&&base.mana.get(base.owner)==-900,"own attributed fire never recharges melee-only charges; one mana-free debit3");
             base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);pulse();require(score("swordcharged9")==0&&!swords.activeBlaze(base.owner),"already active stream persists without held sword until the second debit exhausts charges");pulse();require(score("swordcharged9")==0&&!swords.activeBlaze(base.owner)&&!base.owner.entityTags().contains("firefarting"),"source <=0 clamp/removes native fire state");clearActors();
             held("blazefire_sword",InteractionHand.OFF_HAND);score("swordcharged9",6);require(input(InteractionHand.OFF_HAND),"native offhand Blaze start");

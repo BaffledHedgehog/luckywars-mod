@@ -85,7 +85,7 @@ final class LbcAcidCorruption {
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();int mode=Mth.clamp(data.getIntOr("mode",1),1,4);
         if(academy&&owner.isShiftKeyDown()){
-            mode=mode%4+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
+            mode=LbcModeScroll.next(mode,4);data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
             owner.sendSystemMessage(Component.translatable(switch(mode){case 2->"mode_reverse";case 3->"mode_titul";case 4->"mode_chuma";default->"mode_default";}));return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("acidcorrupt_wand_mana_use"),"lbc.math").get();

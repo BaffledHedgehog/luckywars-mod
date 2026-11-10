@@ -155,12 +155,14 @@ public final class LbcAk47 {
         var level=(net.minecraft.server.level.ServerLevel)owner.level();
         Vec3 direction=end.subtract(origin).normalize();
         int samples=Math.min(801,(int)Math.floor(origin.distanceTo(end)/.2)+1);
-        for(int i=0;i<samples;i++) {
+        try(var ash=new LbcParticleBatch.Group(level,ParticleTypes.WHITE_ASH,0,0,false);var flame=new LbcParticleBatch.Group(level,ParticleTypes.SMALL_FLAME,0,0,false)){
+for(int i=0;i<samples;i++) {
             Vec3 point=origin.add(direction.scale(i*.2));
-            level.sendParticles(ParticleTypes.WHITE_ASH,point.x,point.y,point.z,1,0,0,0,0);
+            ash.add(point);
             if(owner.getRandom().nextInt(20)==0)
-                level.sendParticles(ParticleTypes.SMALL_FLAME,point.x,point.y,point.z,1,0,0,0,0);
+                flame.add(point);
         }
+}
     }
     public int ammo(ServerPlayer owner) { return game.items().mana().score(owner,"hitbullet").get(); }
     public void setAmmo(ServerPlayer owner,int amount) {

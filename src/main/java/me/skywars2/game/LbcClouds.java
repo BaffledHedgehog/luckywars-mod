@@ -575,6 +575,15 @@ public final class LbcClouds {
     public int acidAge(AcidProjectile projectile){var state=acids.get(projectile);return state==null?projectile.getAttachedOrCreate(ACID_AGE):state.lifetime;}
     public List<AcidProjectile> acidSnapshot(){return List.copyOf(acids.keySet());}
 
+    /** All acid variants share ignition, regardless of their author or damage target policy. */
+    void igniteAcid(ServerLevel level,Vec3 at,double radius){
+        if(game.items().timeStop().stopped(level))return;
+        for(var acid:level.getEntitiesOfClass(AcidProjectile.class,new AABB(at,at).inflate(radius),
+                e->!e.isRemoved()&&!game.items().polymorph().suspended(e)
+                        &&!game.items().timeStop().frozen(e)&&e.getBoundingBox().distanceToSqr(at)<=radius*radius))
+            acid.entityTags().add("on_fire");
+    }
+
     private void tickAcid(AcidState state) {
         var projectile = state.projectile;
         if(game.items().polymorph().suspended(projectile))return;

@@ -15,7 +15,7 @@ public final class LbcTmtShotCompletion {
 
     /** Ordinary native weapons take their original path without allocating a frame. */
     public static <T> T call(ItemStack weapon,Supplier<T> nativeAction){
-        if(!LbcTmtItems.matches(weapon))return nativeAction.get();
+        if(!LbcTmtItems.matches(weapon)&&!LbcTrollBox.matches(weapon))return nativeAction.get();
         var parent=ACTIVE.get();var frame=new Frame();ACTIVE.set(frame);boolean completed=false;
         try{T result=nativeAction.get();completed=true;return result;}
         finally{

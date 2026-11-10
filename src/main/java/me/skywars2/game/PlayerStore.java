@@ -156,6 +156,8 @@ public final class PlayerStore {
         public int winEffect;
         public int cage;
         public int killEffect;
+        public int fovEffects = 5;
+        public boolean modeScroll = true;
         // Exact SWRG tags/advancements, separate from LBC achievement unlocks.
         public Set<String> legacyUnlocks = new HashSet<>();
         // Explicit administrator decisions override stale offline advancement files on login.
@@ -184,6 +186,7 @@ public final class PlayerStore {
 
         private void normalize() {
             if (username == null) username = "";
+            fovEffects = Math.clamp(fovEffects, 0, 100);
             coins = Math.max(0, coins);
             memcoins = Math.max(0, memcoins);
             games = Math.max(0, games);

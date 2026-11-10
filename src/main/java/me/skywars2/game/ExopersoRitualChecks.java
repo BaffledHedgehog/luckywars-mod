@@ -40,7 +40,7 @@ public final class ExopersoRitualChecks {
                 require(state.age==0&&state.anchor.position().equals(target)&&state.rings.size()==30,"one native anchor and thirty rune bodies");
                 for(var ring:state.rings){double height=ring.getY()-target.y;require(height>=10&&height<=50&&height>previous,"strict bottom-up heights10..50");previous=height;
                     models.add(ring.getItemStack().get(DataComponents.ITEM_MODEL));var scale=transformation(ring).scale();require(scale.x()==0&&scale.z()==0,"native initial scale is zero");}
-                for(int i=0;i<state.scales.length;i++)require(state.scales[i]>=5&&state.scales[i]<=100&&Math.abs(state.speeds[i])>=3.6f&&Math.abs(state.speeds[i])<=36.00001f,"fixed5..100 scale and signed0.2..2 rotations/second");
+                for(int i=0;i<state.scales.length;i++)require(state.scales[i]>=6&&state.scales[i]<=100f/1.5f&&Math.abs(state.speeds[i])>=3.6f&&Math.abs(state.speeds[i])<=36.00001f,"fixed6..66.67 scale and signed0.2..2 rotations/second");
                 require(models.size()==10,"all ten authored rune models occur across thirty rings");
             }
             owner.setYRot(90);started=game.server().getTickCount();
@@ -66,8 +66,8 @@ public final class ExopersoRitualChecks {
             }
             require(core>10_000&&coreRemaining==0,"full legacy-size inner18 must be an empty connected cavity, residual="+coreRemaining);
             double transitionDensity=transitionAir/(double)transition,outsideDensity=outsideAir/(double)outside;
-            require(transition>1000&&transitionDensity>.30&&transitionDensity<.75,"legacy22..24 transition retains a substantial part of the terrain: "+transitionDensity);
-            require(outside>1000&&outsideDensity<.02,"outside28 mostly survives instead of becoming a larger perforated sphere: "+outsideDensity);
+            require(transition>1000&&transitionDensity>.45&&transitionDensity<.98,"spherical22..24 boundary blends into frequent exterior noise: "+transitionDensity);
+            require(outside>1000&&outsideDensity>.08&&outsideDensity<transitionDensity,"exterior noise remains frequent and decays beyond the main sphere: "+outsideDensity);
             SkyWars2.LOGGER.info("[check] Exoperso full stone half-space coreRemaining={} coreCells={} transitionDensity={} outsideDensity={}",coreRemaining,core,transitionDensity,outsideDensity);
         }
         boolean step(){
@@ -91,18 +91,18 @@ public final class ExopersoRitualChecks {
                 var first=transformation(ordinary.rings.getFirst()).scale();var last=transformation(ordinary.rings.getLast()).scale();
                 require(first.x()>0&&first.x()==first.z()&&last.x()==ordinary.scales[29],"all thirty rings finish their two-tick growth before tick60");
             }
-            if(!academyDone&&academy.age==159){for(var ring:academy.rings)require(transformation(ring).scale().x()==0&&transformation(ring).scale().z()==0,"Academy publishes its zero-scale frame before removal");academyZero=true;}
+            if(!academyDone&&academy.age==179){for(var ring:academy.rings)require(transformation(ring).scale().x()==0&&transformation(ring).scale().z()==0,"Academy publishes its zero-scale frame before removal");academyZero=true;}
             if(!academyDone&&academy.anchor.isRemoved()){
                 verifyCrater();
-                require(academyZero&&academy.age==160&&ordinary.age==160&&game.items().exoperso().count()==1,"Academy finishes at half the ordinary duration");
+                require(academyZero&&academy.age==180&&ordinary.age==180&&game.items().exoperso().count()==1,"Academy deadline includes the additional second");
                 for(var p:probes)require(base.owner.level().getBlockState(p).isAir(),"prepared Academy crater consumes blocks placed after preparation");
                 require(base.owner.level().getBlockState(bedrock).is(Blocks.BEDROCK)&&!game.items().exasperato().pendingNuclearTerrain(),"one immediate native terrain operation retains bedrock and leaves no delayed crater");
                 academyDone=true;refill();
             }
-            if(ordinary.age==319){for(var ring:ordinary.rings)require(transformation(ring).scale().x()==0&&transformation(ring).scale().z()==0,"ordinary final zero-scale frame");normalZero=true;}
+            if(ordinary.age==339){for(var ring:ordinary.rings)require(transformation(ring).scale().x()==0&&transformation(ring).scale().z()==0,"ordinary final zero-scale frame");normalZero=true;}
             if(!ordinary.anchor.isRemoved())return false;
             verifyCrater();
-            require(academyDone&&normalZero&&ordinary.age==320&&game.items().exoperso().count()==0,"normal320tick deadline retires only its complete graph");
+            require(academyDone&&normalZero&&ordinary.age==340&&game.items().exoperso().count()==0,"normal340tick deadline retires only its complete graph");
             for(var p:probes)require(base.owner.level().getBlockState(p).isAir(),"ordinary prepared crater also reads current world state");
             return true;
         }
@@ -111,6 +111,6 @@ public final class ExopersoRitualChecks {
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");var next=new Fixture(game);try{next.initialize();running=next;}catch(Throwable error){next.close();throw error;}}
     public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;
-        SkyWars2.LOGGER.info("[check] PASS exoperso-ritual (actual native320/160tick deadlines, immutable gaze,10 distinct runes, zero-scale growth/collapse frames,8tick TimeStop, explicit typed native graph replay, latest-state single prepared crater)");
+        SkyWars2.LOGGER.info("[check] PASS exoperso-ritual (actual native340/180tick deadlines, immutable gaze,10 distinct runes, zero-scale growth/collapse frames,8tick TimeStop, explicit typed native graph replay, latest-state single prepared crater)");
     }catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL exoperso-ritual",error);}}
 }

@@ -250,7 +250,7 @@ public final class LbcStonekivi {
         for(int steps=0;steps<128 && !work.isEmpty() && System.nanoTime()<deadline;steps++) {
             var job=work.remove();
             if(game.stage()==GameController.Stage.ENDING&&!job.postgame()) {
-                job.cancel();idle=0;continue;
+                work.add(job);if(++idle>=work.size())break;continue;
             }
             if(paused||!job.ready()) {
                 work.add(job); if(++idle>=work.size()) break;

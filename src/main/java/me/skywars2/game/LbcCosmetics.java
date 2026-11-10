@@ -387,6 +387,10 @@ public final class LbcCosmetics {
     /** Keep only harmless, already accepted death visuals across the real gameplay-epoch retirement. */
     record EndingVisual(ServerPlayer author,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause,
                         Effect effect,int age,int selected,boolean impact,long rng,int delay,List<DropBody> drops){}
+    void beginCelebration(){
+        boundary();
+        for(var job:jobs)if(switch(job.effect){case DROPS,SOUL,BLOOD,HAMMER->true;default->false;})job.postgame=true;
+    }
     List<EndingVisual> finishVisuals(){
         boundary();int now=game.server().getTickCount();
         return jobs.stream().filter(j->!j.closed&&switch(j.effect){case DROPS,SOUL,BLOOD,HAMMER->true;default->false;})

@@ -73,7 +73,7 @@ public final class LbcLifestealer {
                 || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         if(academy && owner.isShiftKeyDown()) {
-            int mode=data.getIntOr("mode",1)==2?1:2;
+            int mode=LbcModeScroll.next(data.getIntOr("mode",1),2);
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             owner.getInventory().setChanged();
             owner.sendSystemMessage(Component.translatable(mode==1?"mode_caster":"mode_charge"));
@@ -209,10 +209,11 @@ public final class LbcLifestealer {
     private void trail(ServerPlayer owner,Vec3 from,Vec3 end) {
         double distance=from.distanceTo(end);
         // Particle sampling is independent of the single swept collision query.
+        try(var particles=new LbcParticleBatch.Group(owner.level(),ParticleTypes.DAMAGE_INDICATOR,.1,0,true)){
         for(int i=0;i<15 && i*.3<=distance+1e-7;i++) {
             Vec3 point=distance<1e-9?from:from.lerp(end,i*.3/distance);
-            owner.level().sendParticles(ParticleTypes.DAMAGE_INDICATOR,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
-        }
+            particles.add(point);
+        }}
     }
     private boolean valid(ServerPlayer owner) {
         return owner!=null && !owner.isRemoved() && owner.isAlive() && owner.level()==game.maps().level()

@@ -107,7 +107,8 @@ public final class LbcDeus {
         Curve curve=curve(point,direction,target==null?point.add(direction.scale(REACH)):target.getBoundingBox().getCenter());
         double progress=0;
         // Both geometry and particles have a fixed per-caster upper bound; no per-tick randomness.
-        for(int sample=0;sample<160&&spent<REACH-1e-8;sample++){
+        try(var deusVisual=new LbcParticleBatch.Group(owner.level(),ParticleTypes.ELECTRIC_SPARK,0,0,false)){
+for(int sample=0;sample<160&&spent<REACH-1e-8;sample++){
             double nextProgress=Math.min(1,progress+STEP/Math.max(STEP,curve.tangent(progress).length()));
             Vec3 next=curve.at(nextProgress);
             for(int refine=0;refine<8&&point.distanceToSqr(next)>STEP*STEP;refine++){
@@ -135,7 +136,7 @@ public final class LbcDeus {
             if(contact!=null){next=contact;hits.add(contactBody.getUUID());tangents.put(contactBody.getUUID(),tangent);}
             spent+=point.distanceTo(next);path.add(next);
             if(sample%3==0||contact!=null||jammed){
-                owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,next.x,next.y,next.z,1,0,0,0,0);lastVisual=next;
+                deusVisual.add(next);lastVisual=next;
             }
             point=next;progress=nextProgress;direction=tangent;
             if(contact!=null){
@@ -150,6 +151,7 @@ public final class LbcDeus {
                 curve=curve(point,direction,target.getBoundingBox().getCenter());progress=0;
             }else if(progress>=1||jammed)break;
         }
+}
         if(path.size()>1&&!point.equals(lastVisual))
             owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,0,0,0,0);
         frames.put(owner.getUUID(),new Frame(List.copyOf(path),List.copyOf(hits),Map.copyOf(tangents),List.copyOf(accepted)));

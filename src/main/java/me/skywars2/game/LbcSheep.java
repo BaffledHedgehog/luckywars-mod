@@ -155,26 +155,31 @@ public final class LbcSheep {
     }
     void cast(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
         Vec3 from=p.getEyePosition(),direction=p.getLookAngle().normalize();
-        // The generic LivingEntity overload accepts explicit collision eligibility, including dropped potions.
         Vec3 to=from.add(direction.scale(RANGE));
-        var hit=game.items().wands().firstHit((LivingEntity)p,from,to,e->rayTarget(p,e,academy));
-        Vec3 end=hit==null?to:hit.getLocation();
+        // One block clip and one broad phase; native ProjectileUtil ignores unpickable pearls.
+        var wall=LbcTerra.wallHit(p.level(),from,to);
+        Vec3 end=wall==null?to:wall.getLocation();
         var greed=LbcGreed.firstHit(p.level(),from,end,0);
-        if(greed!=null&&greed.getEntity()!=p){end=greed.getLocation();hit=greed;}
-        boolean blocked=false;double length=from.distanceTo(end);
+        if(greed!=null&&greed.getEntity()!=p)end=greed.getLocation();
+        double length=from.distanceTo(end);Vec3 lastValid=from;
         var dust=new DustParticleOptions(academy?0x813681:0xff00ff,2);
         for(double d=0;d<=length;d+=.75){
             Vec3 at=from.add(direction.scale(d));
-            if(!resident(p.level(),at)||suppressed(p.level(),at)){blocked=true;break;}
+            if(!resident(p.level(),at)||suppressed(p.level(),at)){end=lastValid;break;}
+            lastValid=at;
             p.level().sendParticles(dust,at.x,at.y,at.z,academy?1:2,0,0,0,.1);
             // Original inventory/dropped-potion proximity checks run at each source ray sample.
             if(consumePotion(p,hand,stack,at))return;
         }
-        if(blocked||hit==null||!resident(p.level(),end)||suppressed(p.level(),end))return;
-        if(hit instanceof EntityHitResult entityHit){
-            var target=entityHit.getEntity();if(LbcGreed.active(target))return;
-            transform(p,target,academy);
-        }
+        if(!resident(p.level(),end)||suppressed(p.level(),end))return;
+        final Vec3 clipped=end;
+        // Fixed world-space margin, independent of target size; snapshot before publishing sheep.
+        var targets=List.copyOf(p.level().getEntities(p,new AABB(from,end).inflate(2),e->
+                rayTarget(p,e,academy)&&!LbcGreed.active(e)&&!(e instanceof ItemEntity)
+                &&(e.getBoundingBox().inflate(2).contains(from)||e.getBoundingBox().inflate(2).clip(from,clipped).isPresent())
+                &&e.getBoundingBox().getCenter().subtract(from).dot(direction)>=0
+                &&e.getBoundingBox().getCenter().subtract(clipped).dot(direction)<=0));
+        for(var target:targets)transform(p,target,academy);
         consumePotion(p,hand,stack,end);
     }
     static boolean potion(ItemStack stack){var d=LbcFartus.data(stack);return !stack.isEmpty()&&d.getIntOr("transformable",0)==1&&d.getIntOr("potion",0)==1&&d.getIntOr("succubus",0)==1;}
@@ -211,7 +216,7 @@ public final class LbcSheep {
             if(original.entityTags().contains("male")){if(spawnHole(p,original.position())!=null)clearItems(p.level(),original.position());}
         }
         if(original instanceof LivingEntity living&&living.getHealth()>=1000)game.items().mana().award(p,"lbc:true_advancements/staffs/polymorph");
-        if(!academy&&original instanceof LivingEntity living)return game.items().polymorph().transform(living,game.items().indirectKills().coldCause(p,false),true);
+        if(!academy)return game.items().polymorph().transformWand(original,game.items().indirectKills().coldCause(p,false));
         if(original instanceof Player)return null;
         return permanent(p,original);
         }finally{callbackDepth--;}

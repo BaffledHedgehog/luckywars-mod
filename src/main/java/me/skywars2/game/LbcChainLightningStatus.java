@@ -114,10 +114,12 @@ public final class LbcChainLightningStatus {
     }
     private static void sparks(ServerLevel level,Vec3 from,Vec3 to){
         double length=from.distanceTo(to);if(length<1e-6)return;var direction=to.subtract(from).scale(1/length);
-        for(double distance=0;distance<=length;distance+=.5){var point=from.add(direction.scale(distance));
+        try(var chainVisual=new LbcParticleBatch.Group(level,ParticleTypes.ELECTRIC_SPARK,0,0,false)){
+for(double distance=0;distance<=length;distance+=.5){var point=from.add(direction.scale(distance));
             if(!level.hasChunkAt(net.minecraft.core.BlockPos.containing(point)))break;
-            level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y+1.2,point.z,1,0,0,0,0);
+            chainVisual.add(point.add(0,1.2,0));
         }
+}
     }
     void clear(LivingEntity target){
         callbackDepth++;try{pending.remove(target);target.removeAttached(DATA);if(game.items().mana().hudValue(target,COUNTER)!=0)game.items().mana().score(target,COUNTER).set(0);

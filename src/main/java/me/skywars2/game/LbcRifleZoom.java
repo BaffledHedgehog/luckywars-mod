@@ -47,36 +47,43 @@ public final class LbcRifleZoom {
     // Outbound packets may originate outside the simulation thread. Publish only immutable FOV inputs.
     private final Map<UUID,Float> scopedMovement=new ConcurrentHashMap<>();
     private record MovementView(float speed,float base,float withoutSprint) {
-        float forProjection(boolean scoped){return scoped?speed:withoutSprint;}
+        float forProjection(boolean scoped){return speed;}
     }
     private final Map<UUID,MovementView> movementViews=new ConcurrentHashMap<>();
     private final Map<UUID,ClientboundPlayerAbilitiesPacket> abilityViews=new ConcurrentHashMap<>();
     private final Map<UUID,Scope> modelViews=new ConcurrentHashMap<>();
-    enum SpeedFovPolicy { GAIN_FIVE_PERCENT, CLAMP_FIVE_PERCENT }
-    static final SpeedFovPolicy SPEED_FOV_POLICY=SpeedFovPolicy.GAIN_FIVE_PERCENT;
-    private static final double SPEED_FOV_LIMIT=.15;
+    private record FovView(int percent,double itemMultiplier) { }
+    private final Map<UUID,FovView> personalViews=new ConcurrentHashMap<>();
+    static final int DEFAULT_FOV_PERCENT=5;
 
-    /** Attenuates only the speed term; flight and held-item FOV remain client-native. */
-    static double speedFov(double speed,double walking,SpeedFovPolicy policy) {
+    static double speedFov(double speed,double walking,int percent) {
         if(!Double.isFinite(speed)||!Double.isFinite(walking)||walking==0)return 1;
-        double original=(speed/walking+1)/2;
-        if(!Double.isFinite(original))return 1;
-        double delta=original-1;
-        double contribution=policy==SpeedFovPolicy.CLAMP_FIVE_PERCENT?Math.clamp(delta,-.05,.05):delta*.05;
-        return 1+Math.clamp(contribution,-SPEED_FOV_LIMIT,SPEED_FOV_LIMIT);
+        return 1+(((Math.max(0,speed)/walking+1)/2)-1)*Math.clamp(percent,0,100)/100.0;
     }
-
-    static float projectedWalking(float speed,float walking,boolean scoped,SpeedFovPolicy policy) {
+    static float projectedWalking(float speed,float walking,boolean scoped,int percent) {
+        return projectedWalking(speed,walking,scoped,percent,1);
+    }
+    static float projectedWalking(float speed,float walking,boolean scoped,int percent,double multiplier) {
         if(!Float.isFinite(speed))return walking;
-        // Client skips its entire speed ratio for walkingSpeed0; also handles speed0 scope safely.
-        if(speed==0)return 0;
-        double target=scoped?.25:speedFov(speed,walking,policy);
+        if(speed<=0)return 0;
+        double original=walking==0?1:(speed/(double)walking+1)/2;
+        double target=scoped?.25:(1+(original*multiplier-1)*Math.clamp(percent,0,100)/100.0)/multiplier;
         double divisor=2*target-1;
         if(!Double.isFinite(divisor)||divisor==0)return walking;
         double result=speed/divisor;
         if(!Double.isFinite(result)||Math.abs(result)>Float.MAX_VALUE)return walking;
         float projected=(float)result;
         return projected==0||!Float.isFinite(projected)?walking:projected;
+    }
+    private FovView personalView(ServerPlayer player) {
+        double item=1;
+        if(player.isUsingItem()&&player.getUseItem().is(net.minecraft.world.item.Items.BOW)) {
+            double draw=Math.min(player.getTicksUsingItem()/20.0,1);item=1-draw*draw*.15;
+        }
+        return new FovView(Math.clamp(game.players().get(player.getUUID()).fovEffects,0,100),item);
+    }
+    public void personalSettingsChanged(ServerPlayer player) {
+        personalViews.put(player.getUUID(),personalView(player));syncAbilities(player);
     }
 
     private static final class State {
@@ -215,8 +222,10 @@ public final class LbcRifleZoom {
         // Gameplay admission is quarantined during restore; packet-only FOV still follows the saved macro state.
         return checkpointProjection||!game.server().isSameThread()?scopedMovement.containsKey(player.getUUID()):scoped(player);
     }
-    private static ClientboundPlayerAbilitiesPacket project(ClientboundPlayerAbilitiesPacket packet,float speed,boolean scoped) {
-        float walking=projectedWalking(speed,packet.getWalkingSpeed(),scoped,SPEED_FOV_POLICY);
+    private ClientboundPlayerAbilitiesPacket project(UUID id,ClientboundPlayerAbilitiesPacket packet,float speed,boolean scoped) {
+        var preference=personalViews.getOrDefault(id,new FovView(5,1));
+        double multiplier=(packet.isFlying()?1.1:1)*preference.itemMultiplier;
+        float walking=projectedWalking(speed,packet.getWalkingSpeed(),scoped,preference.percent,multiplier);
         if(Float.floatToIntBits(walking)==Float.floatToIntBits(packet.getWalkingSpeed()))return packet;
         var view=new Abilities();
         view.invulnerable=packet.isInvulnerable(); view.flying=packet.isFlying();
@@ -226,10 +235,11 @@ public final class LbcRifleZoom {
     }
     /** Client-only denominator always matches the last movement attribute sent to that client. */
     public ClientboundPlayerAbilitiesPacket projectAbilities(ServerPlayer player,ClientboundPlayerAbilitiesPacket packet) {
+        personalViews.put(player.getUUID(),personalView(player));
         abilityViews.put(player.getUUID(),packet);
         var movement=movementViews.get(player.getUUID());
         boolean scoped=scopeView(player);
-        return movement==null?packet:project(packet,movement.forProjection(scoped),scoped);
+        return movement==null?packet:project(player.getUUID(),packet,movement.forProjection(scoped),scoped);
     }
     public ClientboundPlayerAbilitiesPacket projectAbilities(UUID id,ClientboundPlayerAbilitiesPacket packet) {
         if(game.server().isSameThread()) {
@@ -239,7 +249,7 @@ public final class LbcRifleZoom {
         abilityViews.put(id,packet);
         var movement=movementViews.get(id);
         boolean scoped=scopedMovement.containsKey(id);
-        return movement==null?packet:project(packet,movement.forProjection(scoped),scoped);
+        return movement==null?packet:project(id,packet,movement.forProjection(scoped),scoped);
     }
     /** Bundle movement snapshots with their denominator so a rendered frame never sees only one half. */
     @SuppressWarnings("unchecked")
@@ -264,7 +274,7 @@ public final class LbcRifleZoom {
             if(source==null)return packet;
             abilityViews.put(player.getUUID(),source);
             return new ClientboundBundlePacket(java.util.List.of(
-                    (Packet<? super ClientGamePacketListener>)packet,project(source,view.forProjection(scopeView(player)),scopeView(player))));
+                    (Packet<? super ClientGamePacketListener>)packet,project(player.getUUID(),source,view.forProjection(scopeView(player)),scopeView(player))));
         }
         if(packet instanceof ClientboundPlayerAbilitiesPacket abilities)return projectAbilities(player,abilities);
         if(packet instanceof ClientboundBundlePacket bundle) {
@@ -286,9 +296,8 @@ public final class LbcRifleZoom {
             var source=game.server().isSameThread()?new ClientboundPlayerAbilitiesPacket(player.getAbilities()):abilityViews.get(player.getUUID());
             if(source==null)return packet;
             abilityViews.put(player.getUUID(),source);
-            // The client predicts sprint before this packet arrives. Keep its denominator
-            // independent of sprint so the acknowledgment cannot undo that local FOV change.
-            return new ClientboundBundlePacket(java.util.List.of(attributes,project(source,view.forProjection(scopeView(player)),scopeView(player))));
+            // Publish the acknowledged sprint attribute and its personal FOV denominator atomically.
+            return new ClientboundBundlePacket(java.util.List.of(attributes,project(player.getUUID(),source,view.forProjection(scopeView(player)),scopeView(player))));
         }
         return packet;
     }
@@ -300,7 +309,10 @@ public final class LbcRifleZoom {
         for(var player:game.server().getPlayerList().getPlayers()) {
             online.add(player.getUUID());
             abilityViews.put(player.getUUID(),new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+            var view=personalView(player);var previous=personalViews.put(player.getUUID(),view);
+            if(!view.equals(previous)&&movementViews.containsKey(player.getUUID())&&!scopeVisible(player))syncAbilities(player);
         }
+        personalViews.keySet().retainAll(online);
         movementViews.keySet().retainAll(online);
         abilityViews.keySet().retainAll(online);
         for(var iterator=states.values().iterator();iterator.hasNext();) {

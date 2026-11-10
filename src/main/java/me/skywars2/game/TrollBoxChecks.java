@@ -69,9 +69,9 @@ public final class TrollBoxChecks {
         long seed(int result){for(long s=0;s<10000;s++)if(RandomSource.create(s).nextInt(6)+1==result)return s;throw new IllegalStateException("lottery seed");}
         void use(int result,int kind){
             if(result==4)expectedCagePlayers=(int)game.server().getPlayerList().getPlayers().stream().filter(p->p.isAlive()&&!p.isRemoved()&&!p.isSpectator()&&!game.isObserver(p)&&game.canUseGameplayItems(p)&&game.items().wands().validRoleTarget(p,false)&&!p.level().dimension().equals(LbcHedgehogDimensions.NEXUS)).count();
-            f.owner.stopUsingItem();var hand=kind==0?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND;var stack=kind==0?new ItemStack(LbcTrollBox.TOKEN,2):privateItem();var copy=stack.copyWithCount(1);f.owner.setItemInHand(hand,stack);f.owner.getRandom().setSeed(seed(result));
+            f.owner.stopUsingItem();var hand=kind==0?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND;var stack=kind==0?new ItemStack(LbcTrollBox.TOKEN,1):privateItem();var copy=stack.copyWithCount(kind==0?0:1);f.owner.setItemInHand(hand,stack);f.owner.getRandom().setSeed(seed(result));
             require(f.owner.gameMode.useItem(f.owner,f.owner.level(),stack,hand).consumesAction(),"real source/private native input outcome="+result+" variant="+kind);
-            require(ItemStack.matches(stack,copy)&&!LbcTmtAbilities.active(stack),"one physical debit preserves private sibling and carrier");
+            require(ItemStack.matches(stack,copy)&&!LbcTmtAbilities.active(stack),"last normal token is consumed; private carrier sibling remains");
             require(f.owner.getInventory().contains(s->LbcTrollBox.mask(s)==result),"actual authored mask reward "+result);
         }
         Map<UUID,Integer> ages(){var out=new LinkedHashMap<UUID,Integer>();var powers=(Map<?,?>)WoolBucketChecks.read(service,"powers");for(var e:powers.entrySet())out.put((UUID)e.getKey(),(Integer)WoolBucketChecks.read(e.getValue(),"age"));return out;}

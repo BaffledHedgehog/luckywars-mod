@@ -483,6 +483,7 @@ public final class GameController {
         }
         config.mapId=intent.map(); config.broken=intent.broken();
         readyMap=intent.map();readyBroken=intent.broken();mapFailure=Component.empty();
+        itemQueue.clearRoundStart(maps.level());
         if(!bedwars.mode()){maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);}
         // Restart only stage scheduling. Skill state, inventory, resources and lives retain their owners.
         zoneBarrier.stop(); events.cancelPendingHitReactions();events.restoreTimeline(new MatchEvents.Timeline(true,-1,-1));
@@ -596,6 +597,7 @@ public final class GameController {
             if(player.isAlive()&&(member==null||member.lives<=0||member.disconnected||isObserver(player)))teleport(player,maps.look(),0,0);
         }
         balanceLegacy(true);balanceMap=null;readyMap=null;mapFailure=Component.empty();
+        itemQueue.clearRoundStart(maps.level());
         if(!bedwars.mode()){maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);}
         gameTicks=0;lastAliveTicks=5;fallEnabled=false;transition(Stage.PLAYING);
         events.restoreTimeline(new MatchEvents.Timeline(true,-1,-1));
@@ -690,6 +692,7 @@ public final class GameController {
     }
 
     public void leave(ServerPlayer player) {
+        LbcModeScroll.forget(player);
         carpetBots.forget(player);
         items.cosmetics().nameplates().forget(player);
         cases.onLeave(player);
@@ -993,6 +996,7 @@ public final class GameController {
                 maps.cages(true);
                 for(var player:ready){var member=participants.get(player.getUUID());items.cosmetics().cage(player,maps.level(),net.minecraft.core.BlockPos.containing(member.spawn.position()),gameMode());}
             }
+            itemQueue.clearRoundStart(maps.level());
             items.cosmetics().startSuffixes(ready,maps.level().getRandom().nextLong());
             countdownTicks = bedwars.mode()?60:Math.max(1, config.countdownSeconds) * 20;
             gameTicks = 0; lastAliveTicks = 5; fallEnabled = false;
@@ -1516,8 +1520,7 @@ public final class GameController {
         vanity.stop();
         luckyModifiers.endMatch();
         lbc.resetLevelupMatch();
-        var endingVisuals=items.cosmetics().finishVisuals();
-        items.stop();
+        items.beginCelebration();
         events.stop(); if(!bedwarsResult)maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
         List<ServerPlayer> alive = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
                 && !e.getValue().disconnected).map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null && !isObserver(p)).toList();
@@ -1561,7 +1564,6 @@ public final class GameController {
         maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
         config.gamesPlayed++; config.save(); players.save();
         transition(Stage.ENDING); finishTicks = Math.max(1, config.endingSeconds) * 20;
-        items.cosmetics().resumeVisuals(endingVisuals);
         // В исходном конце игры первая четвёрка ракет появляется сразу, затем раз в секунду.
         if (winner != null) {items.cosmetics().winner(winner,gameTicks);events.victoryTick(winner, finishTicks);}
     }

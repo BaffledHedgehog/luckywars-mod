@@ -303,7 +303,7 @@ public final class LbcBolts {
         if(upgraded && owner.isShiftKeyDown()) {
             // (user) Любой режим доступен при пустой или отрицательной мане, не только Reforge.
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int nextMode=Math.floorMod(data.getIntOr("mode",1),donor?3:4)+1;
+            int nextMode=LbcModeScroll.next(data.getIntOr("mode",1),donor?3:4);
             data.putInt("mode",nextMode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             owner.sendSystemMessage(Component.translatable(donor?switch(nextMode) {
                 case 2->"mode_reforge"; case 3->"mode_chain"; default->"mode_default";

@@ -41,7 +41,8 @@ public final class LbcEnderWiki {
         int mode=Math.max(1,Math.min(28,data.getIntOr("mode",1))),tier=Math.max(1,Math.min(3,data.getIntOr("tier",1)));
         if(wiki&&academy&&p.isShiftKeyDown()){
             // Disjoint pitch ranges fix the legacy double switch on the exact horizon/boundaries.
-            if(p.getXRot()<=-89)tier=tier%3+1;
+            if(LbcModeScroll.scrolling())mode=LbcModeScroll.next(mode,28);
+            else if(p.getXRot()<=-89)tier=tier%3+1;
             else if(p.getXRot()>=89)tier=(tier+1)%3+1;
             else if(p.getXRot()<=0)mode=mode%28+1;
             else mode=(mode+26)%28+1;

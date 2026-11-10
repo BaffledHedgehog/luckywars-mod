@@ -111,7 +111,7 @@ public final class LbcSoulless {
         int mode=Math.clamp(data(stack).getIntOr("mode",1),1,2);
         if(academy&&p.isShiftKeyDown()){
             // Mode selection changes only the actual used stack and never enters the paid cast path.
-            var tag=data(stack);mode=mode==1?2:1;tag.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+            var tag=data(stack);mode=LbcModeScroll.next(mode,2);tag.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
             p.getInventory().setChanged();
             p.sendSystemMessage(net.minecraft.network.chat.Component.translatable(mode==1?"mode_default":"mode_create_metasola"));
             return true;

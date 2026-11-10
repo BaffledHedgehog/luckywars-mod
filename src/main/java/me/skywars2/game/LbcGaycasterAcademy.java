@@ -52,7 +52,7 @@ final class LbcGaycasterAcademy {
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Mth.clamp(data.getIntOr("mode",1),1,8);
         if(owner.isShiftKeyDown()){
-            mode=mode%8+1;data.putInt("mode",mode);data.putInt("color",mode);
+            mode=LbcModeScroll.next(mode,8);data.putInt("mode",mode);data.putInt("color",mode);
             stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
             owner.sendSystemMessage(Component.translatable(MODES[mode-1]));return true;
         }

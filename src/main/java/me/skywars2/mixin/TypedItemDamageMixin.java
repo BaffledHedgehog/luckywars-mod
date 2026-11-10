@@ -20,6 +20,9 @@ public abstract class TypedItemDamageMixin {
         var data = ((ItemEntity) (Object) this).getItem().get(DataComponents.CUSTOM_DATA);
         // Numeric artifact types and string clock types share presence semantics.
         // Read on damage so replacement, merging and loading need no cached entity flag.
-        if (data != null && data.copyTag().contains("type")) cir.setReturnValue(false);
+        if (data != null) {
+            var tag=data.copyTag();
+            if(tag.contains("type")||tag.getIntOr("transformable",0)==1)cir.setReturnValue(false);
+        }
     }
 }

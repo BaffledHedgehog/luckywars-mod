@@ -37,7 +37,7 @@ final class LbcWall {
                 || game.items().magic().suppressed(owner)) return false;
         // (user) Горизонт относится к переключению вперёд, без двух отменяющих друг друга вызовов.
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        int mode=Math.floorMod(data.getIntOr("mode",1)-1+(owner.getXRot()>0?-1:1),4)+1;
+        int mode=Math.floorMod(data.getIntOr("mode",1)-1+LbcModeScroll.steps(owner.getXRot()>0?-1:1),4)+1;
         data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
         owner.sendSystemMessage(Component.translatable(switch(mode) {
             case 2 -> "mode_horizontal_wall";

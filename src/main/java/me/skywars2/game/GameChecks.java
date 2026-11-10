@@ -636,6 +636,8 @@ public final class GameChecks {
                                 case "exoperso" -> checkExoperso(game);
                                 case "legacy-mob-ticks" -> {LegacyMobTickChecks.run(game);return;}
                                 case "nuclear-finalization" -> {NuclearFinalizationChecks.run(game);return;}
+                                case "native-explosion-cache" -> { NativeExplosionCacheChecks.run(game); return; }
+                                case "exoperso-shape" -> { ExopersoShapeChecks.run(game); return; }
                                 case "exoperso-ritual" -> {ExopersoRitualChecks.run(game);return;}
                                 case "nuclear-visual" -> checkNuclearVisual(game);
                                 case "visual-reload" -> {
@@ -733,6 +735,11 @@ public final class GameChecks {
                                 case "rifle-presentation" -> { RiflePresentationChecks.run(game); return; }
                                 case "magnum" -> { MagnumChecks.run(game); return; }
                                 case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }
+                                case "personal-settings" -> { PersonalSettingsChecks.run(game); return; }
+                                case "mode-scroll" -> { ModeScrollChecks.run(game); return; }
+                                case "native-item-feedback" -> { NativeItemFeedbackChecks.run(game); return; }
+                                case "academy-interaction" -> { AcademyInteractionChecks.run(game); return; }
+                                case "polymorph-wand" -> { PolymorphWandChecks.run(game); return; }
                                 case "speed-fov" -> { SpeedFovChecks.run(game); return; }
                                 case "speed-fov-transitions" -> { SpeedFovTransitionChecks.run(game); return; }
                                 case "rifle-main-hand" -> { RifleMainHandChecks.run(game); return; }
@@ -1201,6 +1208,8 @@ public final class GameChecks {
                                 case "erecto" -> { ErectoChecks.run(game); return; }
                                 case "erecto-stop-probe" -> { ErectoChecks.stopProbe(game); return; }
                                 case "erecto-cleanup" -> { ErectoChecks.cleanup(game); return; }
+                                case "tesla-traffic" -> { TeslaTrafficChecks.run(game); return; }
+                                case "potion-ground-impact" -> { PotionGroundImpactChecks.run(game); return; }
                                 case "tesla" -> { TeslaChecks.run(game); return; }
                                 case "tesla-stop-probe" -> { TeslaChecks.stopProbe(game); return; }
                                 case "tesla-cleanup" -> { TeslaChecks.cleanup(game); return; }
@@ -1680,6 +1689,7 @@ public final class GameChecks {
                                         checkTeleportWandResume(game);
                                         return;
                                 }
+                                case "ruby-compression" -> { RubyCompressionChecks.run(game); return; }
                                 case "ruby-wand" -> {
                                         checkRubyWand(game);
                                         return;
@@ -1882,6 +1892,8 @@ public final class GameChecks {
         CorruptionChecks.tick(game);
         ErectoChecks.tick(game);
         TeslaChecks.tick(game);
+        TeslaTrafficChecks.tick(game);
+        PotionGroundImpactChecks.tick(game);PolymorphWandChecks.tick(game);
         AwakenedAcidChecks.tick(game);
         GaycasterChecks.tick(game);
         TimeStopContactChecks.tick(game);

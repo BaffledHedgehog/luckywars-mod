@@ -268,13 +268,39 @@ public final class CaseCosmeticChecks {
             // This immediate scripted death is deliberately outside the normal respawn grace period.
             other.removeAllEffects();
             if(effect==3)other.getInventory().setItem(9,new ItemStack(Items.DIAMOND,3));move(other,origin.add(0,0,8));other.setHealth(10);other.setInvulnerableTime(0);other.damageCooldownTime=0;soundStart=packets(client).size();retired=other;
-            require(other.hurtServer(level,other.damageSources().playerAttack(owner),10000)&&other.isDeadOrDying()&&game.awaitingRespawn(other.getUUID()),"actual native player life loss with selected cosmetic");checkSound(client,soundStart,"minecraft:entity.witch.celebrate",.9f);
+            var held=owner.getMainHandItem();int charges=game.items().chargedSwords().blazeCharges(owner);
+            boolean skills=game.config().lbcSkills,ranked=game.config().ranked;
+            int skill=profile().lbcSkill;var mana=game.items().mana();int previousMana=mana.get(owner),previousMaximum=mana.maximum(owner);
+            try{
+                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(LbcChargedSwords.BLAZE));
+                game.config().lbcSkills=true;game.config().ranked=true;profile().lbcSkill=29;
+                mana.maximum(owner,10000);mana.set(owner,0);mana.set(other,500);
+                require(game.lbc().hasSkill(owner,29),"actual Mana Vampire admission for lethal-source parity");
+                // Exactly the source constructed by the ordinary moving Tesla charge. Player
+                // credit and even a sword in hand cannot turn this electrical spell into melee.
+                var bolt=new net.minecraft.world.damagesource.DamageSource(level.registryAccess()
+                        .lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
+                require(other.hurtServer(level,bolt,1)&&other.isAlive(),"actual nonlethal Tesla damage source");
+                require(mana.get(owner)==0&&mana.get(other)==500,"nonlethal Tesla neither grants nor steals mana");
+                require(game.items().chargedSwords().blazeCharges(owner)==charges,"nonlethal Tesla cannot charge a held sword");
+                other.setInvulnerableTime(0);other.damageCooldownTime=0;
+                boolean electrical=effect==3;
+                var source=electrical?bolt:other.damageSources().playerAttack(owner);
+                require(other.hurtServer(level,source,10000)&&other.isDeadOrDying()&&game.awaitingRespawn(other.getUUID()),"actual native player life loss with selected cosmetic");
+                require(mana.get(owner)==(electrical?0:1000),"fatal source retains ordinary eligibility: Tesla grants zero, melee grants exactly1000 mana; electrical="+electrical+" mana="+mana.get(owner));
+                require(game.items().chargedSwords().blazeCharges(owner)==charges+(electrical?0:1),"fatal source retains sword eligibility without duplicate dispatch");
+            }finally{
+                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,held);
+                game.config().lbcSkills=skills;game.config().ranked=ranked;profile().lbcSkill=skill;
+                mana.maximum(owner,previousMaximum);mana.set(owner,previousMana);
+            }
+            checkSound(client,soundStart,"minecraft:entity.witch.celebrate",.9f);
             if(effect==2){var selected=effectJobs("HAMMER");require(selected.size()==1,"empty-loot actual player death still enrolls one hammer");hammer=selected.getFirst();hammerStart=(Vec3)get(hammer,"at");require(hammerStart.equals(retired.position().add(0,11,0)),"hammer source11 height over actual victim");}
             else require(!effectJobs("DROPS").isEmpty()&&packets(client).subList(soundStart,packets(client).size()).stream().filter(ClientboundSystemChatPacket.class::isInstance).map(ClientboundSystemChatPacket.class::cast).anyMatch(p->p.content().getString().contains("bloodshedkilled")),"blood actual player message and causal body producer");
         }
         void respawn(){
             audience.close();other=game.server().getPlayerList().respawn(retired,false,Entity.RemovalReason.KILLED);require(other!=retired&&other.isAlive(),"genuine native replacement player");other.connection.resetPosition();var ack=(MatchPlayerCheckpoint.SimulatedAcknowledgement)other.connection;ack.skywars2$beginRespawn();ack.skywars2$acknowledgeRestore();audience=new RegenerationBeltChecks.ScheduledClient(game,other);set(otherSaved,"player",other);set(otherSaved.state,"player",other);move(other,origin.add(12,0,0));
-            require(other.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)
+            if(game.playing())require(other.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)
                     &&other.getEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING).getAmplifier()==0
                     &&other.hasEffect(net.minecraft.world.effect.MobEffects.RESISTANCE)
                     &&other.getEffect(net.minecraft.world.effect.MobEffects.RESISTANCE).getAmplifier()==4,
@@ -314,11 +340,19 @@ public final class CaseCosmeticChecks {
             require(profile().coins==coinsBefore+normalized.payout().coins()&&profile().memcoins==memBefore+normalized.payout().memcoins(),"paid replay cannot duplicate wallet award");return elapsed>=8;
         }
         Object endingSword;BlockPos blastCenter;int endingAge;boolean sawEndingIngot;Object midasWave;Set<BlockPos> blastBlocks=new HashSet<>();
+        Set<UUID> endingHoleActors=new HashSet<>();
         void beginEnding(){
             cosmetics.stop();playerDeath(2);require(effectJobs("HAMMER").size()==1,"actual death before canonical finish accepts a hammer");profile().winEffect=2;grant(owner,"swrg:rewards/turnir/trophy1");game.config().endingSeconds=60;level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,true,game.server());
             @SuppressWarnings("unchecked") var members=(Map<UUID,Object>)get(game,"participants");for(var e:members.entrySet())if(!e.getKey().equals(owner.getUUID()))set(e.getValue(),"lives",0);
-            endingStarted=true;invoke(game,"finish",new Class<?>[0]);require(game.stage()==GameController.Stage.ENDING&&!game.playing()&&!game.items().currentEpoch(epoch),"actual canonical finish enters ENDING and retires its gameplay epoch (no direct phase assignment)");
-            require(effectJobs("HAMMER").size()==1,"final-kill hammer survives canonical gameplay-epoch retirement");hammer=effectJobs("HAMMER").getFirst();
+            require(game.items().sheep().holeViews().isEmpty(),"exclusive accepted polymorph-hole witness");
+            var beforeHole=new HashSet<UUID>();for(var e:level.getAllEntities())beforeHole.add(e.getUUID());
+            require(game.items().sheep().spawnHole(owner,origin.add(25,0,-25))!=null,"actual accepted polymorph black hole before victory");
+            for(var e:level.getAllEntities())if(!beforeHole.contains(e.getUUID()))endingHoleActors.add(e.getUUID());
+            require(!endingHoleActors.isEmpty(),"hole has actual native visual/anchor graph");
+            require(game.items().shooters().selfStun(owner,200)&&game.items().actionsBlocked(owner),"actual player control lock before victory");
+            endingStarted=true;invoke(game,"finish",new Class<?>[0]);require(game.stage()==GameController.Stage.ENDING&&!game.playing()&&game.items().currentEpoch(epoch),"actual canonical finish enters ENDING and retains accepted entity epoch until lobby");
+            require(!game.items().shooters().stunned(owner)&&!game.items().actionsBlocked(owner),"victory releases player controls while retaining accepted ability entities");
+            require(effectJobs("HAMMER").size()==1,"final-kill hammer remains the same accepted job");hammer=effectJobs("HAMMER").getFirst();
             require(effectJobs("WINNER").size()==1,"actual canonical winner transition enrolls one golden source producer");move(owner,origin);owner.setYRot(0);owner.setXRot(0);endingAge=(int)get(effectJobs("WINNER").getFirst(),"age");next(40);
         }
         boolean cosmeticStep(int elapsed){
@@ -335,6 +369,7 @@ public final class CaseCosmeticChecks {
         }
         boolean endingStep(int elapsed){
             require(game.stage()==GameController.Stage.ENDING,"actual canonical ENDING remains live during source celebration work");
+            for(var id:endingHoleActors)require(level.getEntity(id)!=null&&!level.getEntity(id).isRemoved(),"accepted polymorph hole graph survives actual fireworks");
             if(stage==40){
                 for(var e:level.getAllEntities())if(!original.contains(e.getUUID())&&e instanceof ItemEntity item&&item.getItem().is(Items.GOLD_INGOT)&&LbcCosmetics.managed(e)){sawEndingIngot=true;require(cosmetics.owner(e)==owner,"actual postgame ingot captured winner attribution");}
                 var swords=effectJobs("SWORD");if(!sawEndingIngot||swords.stream().noneMatch(j->get(j,"display")!=null)){require(elapsed<12,"real ENDING branch pumps shared golden producer and native sword display");return false;}
@@ -383,7 +418,7 @@ public final class CaseCosmeticChecks {
             if(closed)return;closed=true;Throwable failure=null;
             for(Runnable action:List.<Runnable>of(
                     ()->{if(offline){game.server().getPlayerList().getPlayersByUUID().put(owner.getUUID(),owner);offline=false;}},
-                    ()->{if(kind==2)game.vanity().stop();},()->{cosmetics.stop();if(stopped){game.items().timeStop().end(level);stopped=false;}},
+                    ()->{if(kind==2)game.vanity().stop();},()->{cosmetics.stop();if(!endingHoleActors.isEmpty())game.items().sheep().forget(owner.getUUID());if(stopped){game.items().timeStop().end(level);stopped=false;}},
                     ()->{if(retired!=null&&!other.isAlive())respawn();},
                     ()->{
                         owner.closeContainer();other.closeContainer();

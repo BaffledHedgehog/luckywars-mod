@@ -49,9 +49,12 @@ public final class LbcWhiteArrows {
         var to=from.add(direction.scale(2.5));
         for(var entity:level.getEntities((Entity)null,new AABB(from,to).inflate(1e-7),target))
             if(entity instanceof LivingEntity living&&LbcBeamGeometry.intersects(living.getBoundingBox(),from,to))execute.accept(living);
-        for(int n=0;n<=20;n++){var point=from.add(direction.scale(n*.125));if(!resident.test(point))continue;
-            level.sendParticles(ParticleTypes.END_ROD,true,false,point.x,point.y,point.z,1,.01,.01,.01,0);
-            LbcOverload.sound(level,point,"minecraft:block.beacon.deactivate",.02f,2,0,0);
+        boolean sounded=false;
+        try(var particles=new LbcParticleBatch.Group(level,ParticleTypes.END_ROD,.01,0,true)){
+            for(int n=0;n<=20;n++){var point=from.add(direction.scale(n*.125));if(!resident.test(point))continue;
+                particles.add(point);
+                if(!sounded){LbcOverload.sound(level,point,"minecraft:block.beacon.deactivate",.02f,2,0,0);sounded=true;}
+            }
         }return to;
     }
     private static boolean resident(ServerLevel level,Vec3 point){var pos=BlockPos.containing(point);return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}

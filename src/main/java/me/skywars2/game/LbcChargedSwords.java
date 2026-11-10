@@ -315,6 +315,7 @@ public final class LbcChargedSwords {
         callbackDepth++;try{
         if(!live(pulse)||!pulse.level.hasChunkAt(BlockPos.containing(at)))return;
         pulse.level.sendParticles(ParticleTypes.FLAME,at.x,at.y,at.z,10,.8,.8,.8,.01);
+        game.items().clouds().igniteAcid(pulse.level,at,2);
         var center=at.add(0,-1,0);
         for(var target:List.copyOf(pulse.level.getEntities(pulse.owner,new AABB(center,center).inflate(2),
                 e->!pulse.hit.contains(e.getUUID())&&e.position().distanceToSqr(center)<=4&&game.items().wands().projectileTarget(pulse.owner,e)))){

@@ -47,7 +47,7 @@ public final class LbcBloodConfuse {
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Math.max(1,Math.min(5,data.getIntOr("mode",1)));
         if(!blood&&academy&&owner.isShiftKeyDown()){
-            mode=mode%5+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
+            mode=LbcModeScroll.next(mode,5);data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
             owner.sendSystemMessage(mode==5?Component.translatableWithFallback("mode_alternating","Чередующийся")
                     :Component.translatable(switch(mode){case 1->"mode_invisibility";case 2->"mode_teleport";case 3->"mode_speed";default->"mode_levitate";}));return true;
         }

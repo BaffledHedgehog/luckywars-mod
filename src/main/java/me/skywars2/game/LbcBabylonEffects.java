@@ -70,7 +70,7 @@ public final class LbcBabylonEffects {
         if(!isEffect(effect)||target.entityTags().contains("sin_greed_active")
                 ||!valid(target)||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         if(skillImmune(target)){clear(target);return true;}
-        int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
+        int duration=effect.getAmplifier()==104?1:effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
         pending.computeIfAbsent(target,k->queues()).get(index(effect.getAmplifier())).addLast(new Contribution(duration,cause));sync(target);return true;
     }
     private boolean valid(LivingEntity target){return game.playing()&&target.level()==game.maps().level()&&game.items().wands().validTarget(target);}
@@ -83,10 +83,17 @@ public final class LbcBabylonEffects {
                 ||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped((ServerLevel)arrow.level())
                 ||game.items().timeStop().frozen(arrow)||arrow.entityTags().contains("time_stopped"))return;
         var level=(ServerLevel)arrow.level();
-        if(game.items().magic().luckyEffectWarded(level,at)
-                ||(kind==0?game.items().magic().mechanismSuppressedAt(level,at):game.items().magic().suppressedAt(level,at)))return;
         var cause=game.items().indirectKills().coldCause(owner,true);
-        actAt(level,at,kind,new LbcIndirectKills.Owner(cause.player(),cause.order(),true,true));
+        carrierImpact(level,amp,at,new LbcIndirectKills.Owner(cause.player(),cause.order(),true,true));
+    }
+    /** Same legacy in-ground actuator for native tipped arrows and Babylon transports. */
+    void carrierImpact(ServerLevel level,int amp,Vec3 at,LbcIndirectKills.Owner cause){
+        int kind=index(amp);
+        if(kind<0||!game.playing()||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(at))
+                ||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(level))return;
+        if(game.items().magic().luckyEffectWarded(level,at)
+                ||(kind==0||kind==3||kind==4?game.items().magic().mechanismSuppressedAt(level,at):game.items().magic().suppressedAt(level,at)))return;
+        actAt(level,at,kind,cause);
     }
     public void tick(){for(var target:List.copyOf(pending.keySet()))tickTarget(target);}
     public void tickTarget(LivingEntity target){

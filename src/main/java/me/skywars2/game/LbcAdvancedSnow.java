@@ -47,7 +47,7 @@ public final class LbcAdvancedSnow {
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Math.max(1,Math.min(3,data.getIntOr("mode",1)));
         if(!snow&&academy&&p.isShiftKeyDown()){
-            mode=mode%3+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));p.getInventory().setChanged();
+            mode=LbcModeScroll.next(mode,3);data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));p.getInventory().setChanged();
             p.sendSystemMessage(Component.translatable(switch(mode){case 1->"mode_default";case 2->"mode_uppest_block";default->"mode_wall_clip";}));return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly(snow?"snow_wand_mana_use":"advanced_ender_wand_mana_use"),"lbc.math").get();

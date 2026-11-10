@@ -160,6 +160,7 @@ public final class ReactiveTrinketChecks {
                 var pos=new BlockPos(x,y,z);require(level.hasChunkAt(pos),"source absolute-zero teleport columns resident");terrain.putIfAbsent(pos,game.maps().snapshot(level,pos));require(level.setBlock(pos,Blocks.STONE.defaultBlockState(),2)||level.getBlockState(pos).is(Blocks.STONE),"actual native source surface fixture");
             }
         }
+        Vec3 flightStart,lastFlight;double flightDistance;
         void beginDefense(){
             target.discard();empty();move(origin);platform();equip(LbcTrinkets.BANANGAY,99);health(owner);
             require(owner.hurtServer(level,owner.damageSources().generic(),1),"actual pre-hit incoming banana damage accepted");client.acknowledge();
@@ -169,7 +170,11 @@ public final class ReactiveTrinketChecks {
             var spike=game.items().reactiveTrinkets().defense().snapshot().stream().filter(v->!v.horse()).findFirst().orElseThrow();require(spike.owner().equals(owner.getUUID())&&spike.body().position().distanceTo(feet)<1e-6,"native spike uses captured pre-hit feet and actual owner");
             empty();owner.setOnGround(false);game.items().reactiveTrinkets().defense().fall(owner,49,-150);
             var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();
-            require(horse.body() instanceof Horse h&&h.isBaby()&&h.getHealth()==8&&h.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)&&owner.getVehicle()==h&&horse.remaining()==100,"real source juvenile horse/rider/effect/100 source counter");
+            require(horse.body() instanceof Horse h&&!h.isBaby()&&Math.abs(h.getScale()-.5)<1e-6&&h.getHealth()==8&&h.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)&&owner.getRootVehicle()==h&&horse.remaining()==100,"small old-style armored horse/rider/effect/100 source counter");
+            var mount=(Horse)horse.body();
+            require(mount.getBodyArmorItem().is(net.minecraft.world.item.Items.DIAMOND_HORSE_ARMOR)&&mount.isSaddled(),"native armor and saddle retained");
+            require(mount.getControllingPassenger()==null&&mount.isLocalInstanceAuthoritative()&&mount.getPassengers().size()==1&&owner.getVehicle()==mount.getFirstPassenger(),"server-authored flight, no conflicting vanilla rider prediction");
+            owner.setYRot(90);owner.setXRot(0);flightStart=mount.position();lastFlight=flightStart;
             phase=3;when=game.server().getTickCount();
         }
         void beginRewind(){
@@ -209,11 +214,21 @@ public final class ReactiveTrinketChecks {
                     require(game.items().mana().score(owner,"h").get()==expectedHue,"first complete ray precedes conditional upward hue+20 continuation");
                     require(level.getEntity(sheep)!=null&&!level.getEntity(sheep).isRemoved()&&game.items().polymorph().remaining(gemOriginal)>0,"gem sheep remains until timed restoration");beginDefense();
                 }
-                case 3->{if(elapsed<4)return false;var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();require(horse.remaining()<100&&horse.remaining()>90,"fixed active two-tick horse clock");owner.stopRiding();horse.body().setDeltaMovement(Vec3.ZERO);phase=4;when=game.server().getTickCount();}
+                case 3->{
+                    var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();
+                    double moved=horse.body().position().distanceTo(lastFlight);flightDistance+=moved;lastFlight=horse.body().position();
+                    require(((Horse)horse.body()).getControllingPassenger()==null,"client never owns flight movement");
+                    if(elapsed>=3)require(moved>.5&&moved<1.3,"steady native flight displacement each tick: "+moved);
+                    if(elapsed==8){owner.setYRot(0);owner.setXRot(-20);}
+                    if(elapsed<16)return false;
+                    require(flightDistance>12&&horse.body().getZ()>flightStart.z+4,"source-speed flight turns toward rider gaze without teleporting");
+                    require(horse.remaining()<100&&horse.remaining()>=90,"fixed active two-tick horse clock");
+                    owner.stopRiding();horse.body().setDeltaMovement(Vec3.ZERO);phase=4;when=game.server().getTickCount();
+                }
                 case 4->{if(elapsed<205)return false;
                     require(!game.items().polymorph().active(gemOriginal)&&!gemOriginal.isRemoved()&&!gemOriginal.isInvisible()&&level.getEntity(sheep)==null,"gem restores original identity after ten active seconds: "+gemDiagnostic());
                     var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();
-                    require(horse.remaining()==0&&!horse.body().isRemoved(),"unridden horse boost expires after ten seconds while horse remains");return true;}
+                    require(horse.remaining()==0&&!horse.body().isRemoved()&&horse.body().getPassengers().isEmpty(),"unridden horse boost expires after ten seconds and removes control seat while horse remains");return true;}
                 case 10->{
                     if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;
                     var rays=game.items().prism().snapshot().stream().filter(c->c.trinket&&!c.isRemoved()).toList();require(!rays.isEmpty(),"captured nonempty typed Prism bodies");

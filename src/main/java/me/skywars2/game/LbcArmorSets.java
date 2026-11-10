@@ -69,6 +69,14 @@ public final class LbcArmorSets {
         return count;
     }
 
+    /** Admission-time immunity: none of the denied effects enters the active effect map. */
+    public boolean rejectsEffect(ServerPlayer player,net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect){
+        if(!eligible(player))return false;
+        boolean visual=effect==MobEffects.BLINDNESS||effect==MobEffects.DARKNESS;
+        if((visual||effect==MobEffects.NAUSEA)&&(LbcTechnoArmor.piece(player,EquipmentSlot.HEAD,"reactive")
+                ||LbcTechnoArmor.piece(player,EquipmentSlot.HEAD,"technomk2")))return true;
+        return visual&&count(worn(player),"assasin")==4&&!game.items().magic().beaconSuppressed(player.position());
+    }
     public void tick(){
         flesh.tick();
         nyauwu.tick();

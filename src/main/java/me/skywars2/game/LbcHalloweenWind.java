@@ -106,7 +106,7 @@ public final class LbcHalloweenWind {
         if(!isWind(stack)||!owner(p)||paused(p)||game.items().actionsBlocked(p)||game.items().frost().isFrozen(p))return false;
         // Family mode changes are free, including an empty mana pool/personal nomagic.
         if(academy(stack)&&p.isShiftKeyDown()){
-            var tag=data(stack);int mode=Math.max(1,Math.min(4,tag.getIntOr("mode",1)))%4+1;
+            var tag=data(stack);int mode=LbcModeScroll.next(tag.getIntOr("mode",1),4);
             tag.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));p.getInventory().setChanged();
             p.sendSystemMessage(Component.translatable(switch(mode){case 1->"mode_default";case 2->"mode_user";case 3->"mode_not_user";default->"mode_windball";}));return true;
         }

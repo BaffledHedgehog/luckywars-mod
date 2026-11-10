@@ -47,7 +47,7 @@ public final class LbcQuiver {
     public static boolean isEffect(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&Set.of(101,102,103,112,113,120,121,122,123).contains(effect.getAmplifier());}
     private static int amp(Arrow arrow){for(var effect:arrow.getPickupItemStackOrigin().getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).getAllEffects())if(effect.is(MobEffects.RAID_OMEN))return effect.getAmplifier();return -1;}
     private static int color(Arrow arrow){return arrow.getPickupItemStackOrigin().getOrDefault(DataComponents.POTION_CONTENTS,PotionContents.EMPTY).customColor().orElse(-1);}
-    public static boolean custom(Arrow arrow){return !LbcBabylon.managed(arrow)&&(Set.of(6710881,6710882,6710883,6710884,6710886,2883328,65493).contains(color(arrow))||LbcStand.isArrow(arrow.getPickupItemStackOrigin())||Set.of(101,102,103,111,112,113,120,121,122,123,124).contains(amp(arrow)));}
+    public static boolean custom(Arrow arrow){return !LbcBabylon.managed(arrow)&&(Set.of(6710881,6710882,6710883,6710884,6710886,2883328,65493).contains(color(arrow))||LbcStand.isArrow(arrow.getPickupItemStackOrigin())||Set.of(101,102,103,104,107,108,109,110,111,112,113,118,120,121,122,123,124,125).contains(amp(arrow)));}
     private static boolean disabled(Level level){return !LbcDimensionItems.ordinary(level);}
     private boolean runtime(Entity e){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&e.level()==game.maps().level()&&!disabled(e.level());}
     private boolean frozen(Entity e){return game.items().timeStop().stopped((ServerLevel)e.level())||game.items().timeStop().frozen(e)||e instanceof LivingEntity living&&game.items().frost().isFrozen(living)||e.entityTags().contains("time_stopped");}
@@ -124,6 +124,11 @@ public final class LbcQuiver {
             case 101->{if(!game.items().magic().luckyEffectWarded(level,at)&&!game.items().magic().mechanismSuppressedAt(level,at))explode(level,at,authority);}
             case 102->{if(!game.items().magic().beaconSuppressed(at))evoker(level,at,authority,true);}
             case 103->{if(!game.items().magic().mechanismSuppressedAt(level,at))shock(level,at,authority);}
+            case 104,107,109,110->game.items().babylonEffects().carrierImpact(level,amp,at,cause);
+            case 108->{if(owner!=null&&!game.items().magic().mechanismSuppressedAt(level,at))game.items().chaosTraps().spawnUnjammed(owner,at);}
+            case 118->{if(owner!=null&&!game.items().magic().suppressedAt(level,at))game.items().hedgehog().spawnWall(level,at,owner);}
+            case 125->{if(actor instanceof net.minecraft.world.entity.projectile.Projectile projectile){game.items().trinketArrows().mark(projectile,LbcTrinketArrows.ROCKET);
+                game.items().trinketArrows().hit(projectile,new net.minecraft.world.phys.BlockHitResult(at,net.minecraft.core.Direction.UP,BlockPos.containing(at),false));}}
             case 111->{if(!game.items().magic().beaconSuppressed(at))game.items().kiuas().arrowTerrain(level,owner,at,true,cause);}
             case 119->{for(var stack:game.lbc().rollTable(level,at,owner,"lbc:stand_arrow")){var item=new ItemEntity(level,at.x,at.y,at.z,stack);item.setDefaultPickUpDelay();level.addFreshEntity(item);}}
             default->groundCarrier(actor,owner,level,at,yaw,pitch,amp,cause);
@@ -203,7 +208,7 @@ public final class LbcQuiver {
     }
     /** Terminal is called once by the actual carrier's block-hit owner. */
     void groundCarrier(Entity carrier,ServerPlayer owner,ServerLevel level,Vec3 point,float yaw,float pitch,ItemStack ammo,LbcIndirectKills.Owner accepted){
-        groundCarrier(carrier,owner,level,point,yaw,pitch,carrierAmp(ammo),accepted);
+        groundVariant(carrier,owner,level,point,yaw,pitch,carrierAmp(ammo),accepted);
     }
     void groundCarrier(Entity carrier,ServerPlayer owner,ServerLevel level,Vec3 point,float yaw,float pitch,int amp,LbcIndirectKills.Owner accepted){
         if(!game.playing()||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(point))||game.items().timeStop().stopped(level)

@@ -157,6 +157,14 @@ public final class LbcPolymorph {
     Sheep transform(LivingEntity original,LbcIndirectKills.Owner cause,boolean rainbow){return transform(original,cause,rainbow,false);}
     /** Gem sources retain nonliving identity too; wand and Magnesia admission stay unchanged. */
     Sheep transformGem(Entity original,LbcIndirectKills.Owner cause){return transform(original,cause,true,true);}
+    /** Wand form shares the reversible entity owner, including native projectiles. */
+    void finishPlayers(){for(var form:List.copyOf(forms.values()))if(form.original instanceof ServerPlayer)finish(form,false);}
+    Sheep transformWand(Entity original,LbcIndirectKills.Owner cause){
+        if(original instanceof net.minecraft.world.entity.player.Player)return null;
+        var sheep=transform(original,cause,true,true);
+        if(sheep!=null)forms.get(original).remaining=60*20;
+        return sheep;
+    }
     private Sheep transform(Entity original,LbcIndirectKills.Owner cause,boolean rainbow,boolean gem){
         checkpointDepth++;try{
         if(!(gem?gemEligible(original):eligible(original))||!game.playing()||game.stage()==GameController.Stage.ENDING)return null;

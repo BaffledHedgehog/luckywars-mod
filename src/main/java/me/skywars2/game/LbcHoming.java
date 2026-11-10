@@ -163,7 +163,7 @@ public final class LbcHoming {
         var mana=game.items().mana();
         if(upgraded && owner.isShiftKeyDown()) {
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            int mode=Math.floorMod(tag.getIntOr("mode",1),donor?3:4)+1;
+            int mode=LbcModeScroll.next(tag.getIntOr("mode",1),donor?3:4);
             tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
             owner.sendSystemMessage(Component.translatable(donor?switch(mode) {
                 case 2->"mode_big"; case 3->"mode_fire_rain"; default->"mode_default";

@@ -84,9 +84,9 @@ public final class LbcBedrock {
                 || game.items().magic().suppressedAt(player.level(), player.getEyePosition())) return false;
 
         if (upgraded && player.isShiftKeyDown()) {
-            if (player.getXRot() < 89.0f || player.getXRot() > 90.0f) {
+            if (LbcModeScroll.scrolling() || player.getXRot() < 89.0f || player.getXRot() > 90.0f) {
                 CompoundTag data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-                int next = Math.floorMod(data.getIntOr("mode", 1), 5) + 1;
+                int next = LbcModeScroll.next(data.getIntOr("mode",1),5);
                 data.putInt("mode", next);
                 stack.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
                 player.sendSystemMessage(net.minecraft.network.chat.Component.translatable(switch (next) {

@@ -880,10 +880,14 @@ public final class LbcExasperato {
     /** Идеи Paper/Moonrise: готовые лучи, локальные чтения и кэш сопротивления.
      * (user) Точная случайная форма кратера не обязательна: сила каждого луча равна radius.
      * Меняется только поиск блоков; native damage, owner, loot и применение разрушений остаются снаружи. */
+    private static long optimizedBlockSearches;
+    static long optimizedBlockSearches(){return optimizedBlockSearches;}
     public static List<BlockPos> explosionBlocks(net.minecraft.world.level.ServerExplosion blast,
             net.minecraft.world.level.ExplosionDamageCalculator calculator) {
+        optimizedBlockSearches++;
         var level=blast.level();Vec3 origin=blast.center();
-        boolean nativeShape=cacheableNativeBlast(blast.getDirectSourceEntity())||LbcNukeEvent.cacheableNativeBlast(blast.getDirectSourceEntity());
+        boolean nativeShape=blast.getDirectSourceEntity()!=null&&blast.getDirectSourceEntity().getClass()==PrimedTnt.class
+                ||cacheableNativeBlast(blast.getDirectSourceEntity())||LbcNukeEvent.cacheableNativeBlast(blast.getDirectSourceEntity());
         boolean residentOnly=LbcNukeEvent.cacheableNativeBlast(blast.getDirectSourceEntity());
         if(emptyBlastVolume(level,origin,blast.radius())){
             if(nativeShape)for(int ray=0;ray<BlastRayTrace.rayCount();ray++)level.getRandom().nextFloat();

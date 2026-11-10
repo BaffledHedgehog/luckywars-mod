@@ -102,7 +102,7 @@ public final class LbcHedgehog {
                 ||game.items().wands().inputTimeStopped(p)||game.items().magic().suppressed(p)||suppressed(p.level(),p.getEyePosition()))return false;
         boolean academy=LbcHedgehogItems.isAcademy(stack);var tag=LbcFartus.data(stack);int mode=Math.clamp(tag.getIntOr("mode",1),1,5);
         if(academy&&p.isShiftKeyDown()){
-            mode=mode%5+1;tag.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));p.getInventory().setChanged();
+            mode=LbcModeScroll.next(mode,5);tag.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));p.getInventory().setChanged();
             p.sendSystemMessage(Component.translatable(MODES[mode-1]));return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly(academy?"academy_baffled_wand_mana_use":"baffled_wand_mana_use"),"lbc.math").get();

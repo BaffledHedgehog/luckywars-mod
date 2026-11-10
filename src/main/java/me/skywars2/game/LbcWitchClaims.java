@@ -62,7 +62,7 @@ public final class LbcWitchClaims {
                 ||game.items().timeStop().stopped(p.level())||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands
                 ||p.entityTags().contains("nomagic_active")||game.items().magic().artifactSuppressedAt(p.level(),p.position()))return false;
         if(p.isShiftKeyDown()){
-            Integer before=counters.read(p,"gens_type");int next=before==null?1:before+1;if(next>=8)next=1;
+            Integer before=counters.read(p,"gens_type");int next=before==null?1:LbcModeScroll.next(before,7);
             game.items().mana().score(p,"gens_type").set(next);var mode=Mode.of(next);
             if(mode!=null)p.sendSystemMessage(Component.translatable(mode.key));return true;
         }

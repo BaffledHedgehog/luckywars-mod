@@ -45,7 +45,9 @@ public final class HazardPropagationMixins {
         @org.spongepowered.asm.mixin.injection.Inject(method="<init>",at=@At("TAIL"))
         private void skywars2$identifyWandBlast(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
             var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
-            skywars2$skipEmptyBlastBlocks=me.skywars2.game.LbcNukeEvent.cacheableNativeBlast(source)||source instanceof net.minecraft.world.entity.item.PrimedTnt
+            skywars2$skipEmptyBlastBlocks=me.skywars2.game.VanillaExpansionRules.enabled()
+                    && source!=null&&source.getClass()==net.minecraft.world.entity.item.PrimedTnt.class
+                    ||me.skywars2.game.LbcNukeEvent.cacheableNativeBlast(source)||source instanceof net.minecraft.world.entity.item.PrimedTnt
                     && (source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)
                         || me.skywars2.game.LbcTntDrops.managed(source)
                         || me.skywars2.game.LbcDroneDrops.managed(source)

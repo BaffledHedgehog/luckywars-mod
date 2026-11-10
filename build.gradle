@@ -346,6 +346,9 @@ processResources {
     include 'data/minecraft/tags/block/mineable/axe.json'
     include 'data/minecraft/tags/block/mineable/pickaxe.json'
     include 'data/minecraft/tags/block/needs_stone_tool.json'
+    include 'data/minecraft/tags/block/to_netherrack_no_dirt.json'
+    include 'data/minecraft/tags/block/tannerkivi_no_dirt.json', 'data/minecraft/tags/block/solid_no_dirt.json'
+    include 'data/minecraft/tags/block/concrete_powder.json'
     // Exact closed IMBA Bridge Builder family; preserve explicit AIR in its native templates.
     include 'data/lbc/loot_table/ported/bridge_builder_imba.json'
     include 'data/lbc/structure/most.nbt'

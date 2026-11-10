@@ -301,15 +301,16 @@ public final class LbcBlind {
                 charge.setPos(end);
                 double distance=from.distanceTo(end);
                 Vec3 travel=end.subtract(from);
-                sourceLevel(owner).sendParticles(ParticleTypes.SQUID_INK,true,false,from.x,from.y,from.z,1,.1,.1,.1,0);
+                try(var particles=new LbcParticleBatch.Group(sourceLevel(owner),ParticleTypes.SQUID_INK,.1,0,true)){
+                particles.add(from);
                 for(double step=.3;step<=distance+1e-7;step+=.3) {
                     double fraction=Math.min(1,step/distance);
-                    sourceLevel(owner).sendParticles(ParticleTypes.SQUID_INK,true,false,
-                            from.x+travel.x*fraction,from.y+travel.y*fraction,from.z+travel.z*fraction,1,.1,.1,.1,0);
-                }
+                    particles.add(from.add(travel.scale(fraction)));
+                }}
+                // Retire before damage callbacks: a nested tick cannot hit with this charge again.
+                if(hit!=null || boundary!=null || ++charge.age>=charge.lifetime) { charges.remove(charge); charge.discard(); }
                 if(!shieldBlocked && hit instanceof EntityHitResult entityHit)
                     blindImpact(charge,owner,entityHit.getEntity(),end);
-                if(hit!=null || boundary!=null || ++charge.age>=charge.lifetime) { charges.remove(charge); charge.discard(); }
                 }
             }
         } finally { batch.clear(); }

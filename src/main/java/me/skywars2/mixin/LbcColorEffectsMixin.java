@@ -119,7 +119,8 @@ public abstract class LbcColorEffectsMixin {
         if(me.skywars2.game.LbcStand.isArrowMarker(effect)) { ci.setReturnValue(false); return; }
         var game = SkyWars2.game();
         if (game != null && (Object)this instanceof ServerPlayer player
-                && game.items().magic().rejectEffect(player, effect.getEffect())) ci.setReturnValue(false);
+                && (game.items().magic().rejectEffect(player, effect.getEffect())
+                    ||game.items().armorSets().rejectsEffect(player,effect.getEffect()))) ci.setReturnValue(false);
     }
 
     @Inject(method="tickEffects",at=@At("HEAD"))

@@ -154,6 +154,36 @@ public final class LbcAcademy {
                 &&!target.entityTags().contains(BUILDING_TAG)&&(academy==null||!academy.spent);
     }
     private final GameController game;
+    private static final Set<Integer> TRANSPARENT=java.util.concurrent.ConcurrentHashMap.newKeySet();
+    public static boolean transparentInteraction(Entity entity){return entity instanceof net.minecraft.world.entity.Interaction&&entity.entityTags().contains("magic_academy");}
+    public static java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> transparentMetadata(int id,
+            java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> fields){
+        if(!TRANSPARENT.contains(id))return fields;
+        var width=me.skywars2.mixin.AcademyInteractionMixin.Data.skywars2$width();
+        var height=me.skywars2.mixin.AcademyInteractionMixin.Data.skywars2$height();
+        var result=new java.util.ArrayList<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>>();
+        for(var value:fields)if(value.id()!=width.id()&&value.id()!=height.id())result.add(value);
+        result.add(new net.minecraft.network.syncher.SynchedEntityData.DataValue<>(width.id(),net.minecraft.network.syncher.EntityDataSerializers.FLOAT,0f));
+        result.add(new net.minecraft.network.syncher.SynchedEntityData.DataValue<>(height.id(),net.minecraft.network.syncher.EntityDataSerializers.FLOAT,0f));
+        return java.util.List.copyOf(result);
+    }
+    public static void publishInteraction(Entity entity){if(transparentInteraction(entity))TRANSPARENT.add(entity.getId());}
+
+    /** Client hitboxes are transparent; only actual wand use asks the native academy owner. */
+    public boolean tryUse(ServerPlayer player,InteractionHand hand){
+        if(hand!=InteractionHand.MAIN_HAND||LbcModeScroll.scrolling()||LbcTmtAbilities.active(player.getMainHandItem())
+                ||!active(player)||game.items().actionsBlocked(player)
+                ||wand(player.getMainHandItem())==null&&!LbcChaosRewardItems.book(player.getMainHandItem()))return false;
+        var from=player.getEyePosition();var to=from.add(player.getLookAngle().scale(player.entityInteractionRange()));
+        var wall=player.level().clip(new net.minecraft.world.level.ClipContext(from,to,net.minecraft.world.level.ClipContext.Block.OUTLINE,
+                net.minecraft.world.level.ClipContext.Fluid.NONE,player));
+        double nearest=from.distanceToSqr(wall.getLocation());Entity selected=null;
+        for(var target:entities)if(transparentInteraction(target)&&!target.isRemoved()&&target.level()==player.level()){
+            var box=target.getBoundingBox();var hit=box.contains(from)?java.util.Optional.of(from):box.clip(from,to);
+            if(hit.isPresent()&&from.distanceToSqr(hit.get())<=nearest){nearest=from.distanceToSqr(hit.get());selected=target;}
+        }
+        return selected!=null&&interact(player,hand,selected);
+    }
     private final Set<ItemEntity> drops = new LinkedHashSet<>();
     private final Set<Entity> entities = new HashSet<>();
     private final Map<UUID, Long> lastInteractions = new HashMap<>();
@@ -205,6 +235,7 @@ public final class LbcAcademy {
     /** Съедаем также offhand callback: нажатие по NPC не должно одновременно кастовать жезл. */
     public boolean interact(ServerPlayer player, InteractionHand hand, Entity target) {
         if (!target.entityTags().contains("magic_academy")) return false;
+        if(wand(player.getMainHandItem())==null&&!LbcChaosRewardItems.book(player.getMainHandItem()))return false;
         var academy = singleUse.get(target.getUUID());
         if (target.isRemoved() || !target.isAlive() || academy != null && academy.spent) return true;
         if (target.entityTags().contains(BUILDING_TAG)) return true;
@@ -436,6 +467,7 @@ public final class LbcAcademy {
 
     public boolean loaded(Entity entity) {
         if (stale(entity)) { entity.discard(); return true; }
+        if(transparentInteraction(entity)){publishInteraction(entity);entities.add(entity);}
         var academy = singleUse.get(entity.getUUID());
         if (academy != null) {
             if (academy.spent) { entity.discard(); return true; }
@@ -510,6 +542,7 @@ public final class LbcAcademy {
         return true;
     }
     public void unloaded(Entity entity) {
+        TRANSPARENT.remove(entity.getId());
         drops.remove(entity);
         // Keep the small ownership record through chunk unload: completion and stop must still close it.
         if (entity.getRemovalReason() != null && entity.getRemovalReason().shouldDestroy()) entities.remove(entity);
@@ -619,6 +652,7 @@ public final class LbcAcademy {
     int ownedCount() { return entities.size(); }
     int pendingRow() { return placements.isEmpty() ? -1 : placements.peekFirst().row; }
     public void stop() {
+        TRANSPARENT.clear();
         drops.clear(); placements.clear(); lastInteractions.clear(); blastSources.clear();
         singleUse.clear(); panelOwners.clear(); pendingWhite.clear(); wasStopped = false;
         var old = Set.copyOf(entities); entities.clear(); old.forEach(Entity::discard);

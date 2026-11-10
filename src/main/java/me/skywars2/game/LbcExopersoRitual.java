@@ -41,7 +41,7 @@ final class LbcExopersoRitual {
             this.owner=owner;this.epoch=epoch;this.level=level;this.target=target;this.upgraded=upgraded;
             this.anchor=anchor;this.timer=timer;this.rings=List.copyOf(rings);this.scales=scales;this.angles=angles;this.speeds=speeds;
         }
-        int duration(){return upgraded?160:320;}
+        int duration(){return upgraded?180:340;}
         int collapse(){return 1;}
         float scale(int index){
             int growth=upgraded?1:2,birth=index*growth;
@@ -72,7 +72,7 @@ final class LbcExopersoRitual {
             ring.setViewRange(8);ring.setPosRotInterpolationDuration(1);ring.setTransformationInterpolationDuration(1);
             // Private outline mask feeds rune bloom; ordinary warm scene colors do not.
             ring.setGlowingTag(true);ring.setGlowColorOverride(0xE75313);
-            scales[i]=5*(1+random.nextFloat()*19);angles[i]=random.nextFloat()*360;
+            scales[i]=6+random.nextFloat()*(100f/1.5f-6);angles[i]=random.nextFloat()*360;
             speeds[i]=(random.nextBoolean()?1:-1)*(3.6f+random.nextFloat()*32.4f);
             rings.add(ring);
         }
@@ -110,8 +110,8 @@ final class LbcExopersoRitual {
                     ||game.items().magic().suppressedAt(state.level,state.target)){remove(state);continue;}
             if(game.items().timeStop().stopped(state.level)||game.items().wands().inputTimeStopped(owner))continue;
             ++state.age;
-            if(state.age>=state.duration()-40){
-                if(state.terrain==null)state.terrain=new NuclearTerrain.WandPreparation(state.level,state.target);
+            if(state.age>=1){
+                if(state.terrain==null)state.terrain=new NuclearTerrain.WandPreparation(state.level,state.target,state.anchor.getUUID().getLeastSignificantBits()^state.anchor.getUUID().getMostSignificantBits());
                 state.terrain.tick(game,state.level);
             }
             if(state.age<state.duration()){paint(state);continue;}
