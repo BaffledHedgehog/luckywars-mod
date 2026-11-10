@@ -261,7 +261,7 @@ public final class LbcPolymorph {
     Orb orb(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at,Vec3 direction){
         checkpointDepth++;try{
         if(!live(authority)||!resident(level,at))return null;var display=new Visual(level);
-        load(display,"{billboard:'center',brightness:{sky:15,block:15},shadow_radius:0f,Glowing:1b,glow_color_override:14619903,teleport_duration:1,transformation:{scale:[0.65f,0.65f,0.65f]}}");
+        load(display,"{billboard:'center',brightness:{sky:15,block:15},shadow_radius:0f,Glowing:1b,glow_color_override:14619903,teleport_duration:1,transformation:{scale:[0.65f,0.65f,0.65f],translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}");
         var stack=new ItemStack(Items.STICK);stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:polymorph_sphere"));display.setItemStack(stack);display.setPos(at);
         display.entityTags().add(ORB);game.items().markCurrentItemEpoch(display);publishing.add(display);
         try{if(!level.addFreshEntity(display)||display.isRemoved())return null;}finally{publishing.remove(display);}

@@ -19,6 +19,8 @@ public abstract class ZombieTntDropMixin {
     @Inject(method="canAttack", at=@At("HEAD"), cancellable=true)
     private void skywars2$trapTarget(LivingEntity target, CallbackInfoReturnable<Boolean> ci) {
         var game=SkyWars2.game();
+        if(me.skywars2.game.LbcSpellSource.playersOnlyTrap((Entity)(Object)this)
+                &&!(target instanceof net.minecraft.server.level.ServerPlayer)){ci.setReturnValue(false);return;}
         if(game!=null && (!game.items().totems().canAffect((Entity)(Object)this,target)
                 || !game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canTarget((Entity)(Object)this,target)
@@ -34,6 +36,8 @@ public abstract class ZombieTntDropMixin {
     @Inject(method="setTarget", at=@At("HEAD"), cancellable=true)
     private void skywars2$trapSetTarget(LivingEntity target, CallbackInfo ci) {
         var game=SkyWars2.game();
+        if(target!=null&&me.skywars2.game.LbcSpellSource.playersOnlyTrap((Entity)(Object)this)
+                &&!(target instanceof net.minecraft.server.level.ServerPlayer)){ci.cancel();return;}
         if(game!=null && (!game.items().totems().canAffect((Entity)(Object)this,target)
                 || !game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canTarget((Entity)(Object)this,target)
@@ -67,6 +71,10 @@ public abstract class ZombieTntDropMixin {
     private boolean skywars2$trapConversion(ServerLevel level, Entity converted, Operation<Boolean> original) {
         var game=SkyWars2.game();
         if(game!=null) {
+            // Freezing must not turn a named reward mob into a vanilla-loot Stray.
+            if(!game.balanceLegacy() && ((Entity)(Object)this).entityTags().contains("fat_skeleton")
+                    && (Object)this instanceof net.minecraft.world.entity.Mob parent && converted instanceof net.minecraft.world.entity.Mob child)
+                ((MobLootAccess)child).skywars2$lootTable(parent.getLootTable());
             game.items().summons().inheritConversion((Entity)(Object)this,converted);
             game.items().syringe().converted((Entity)(Object)this,converted);
             game.items().communism().converted((Entity)(Object)this,converted);

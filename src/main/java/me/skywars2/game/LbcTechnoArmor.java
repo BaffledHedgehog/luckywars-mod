@@ -109,16 +109,13 @@ public final class LbcTechnoArmor {
         for(var mob:visible){
             if(mob==p||mob.level()!=p.level()||!mob.isAlive()||mob.isSpectator()||mob.entityTags().contains("spectator")||!mob.getType().builtInRegistryHolder().is(MOBS))continue;
             if(mob instanceof ServerPlayer viewer&&(viewer.distanceToSqr(p)<.0001||game.items().magic().mechanismSuppressed(viewer)))continue;
-            var particle=ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,mob instanceof ServerPlayer?0xff000200:0xff000100);
-            p.level().sendParticles(p,particle,true,false,mob.getX(),mob.getY(),mob.getZ(),1,0,0,0,0);
+            game.items().radar().mark(p,mob);
         }
     }
     private void directions(ServerPlayer p){
         for(var other:p.level().players()){
             if(other==p||other.isSpectator()||other.distanceToSqr(p)<1||game.items().magic().mechanismSuppressed(other))continue;
-            var at=p.position().add(0,3,0);var direction=other.getEyePosition().subtract(at).normalize();
-            // Source's nearest viewer is the wearer under normal admission; keep this private.
-            directionParticles(p,at,direction,ParticleTypes.FLAME);
+            game.items().radar().mark(p,other);
         }
     }
     /** The helmet and All-Seeing Eye share the exact eight-point directional glyph. */
@@ -169,10 +166,11 @@ public final class LbcTechnoArmor {
             }
         }
         if(piece(p,EquipmentSlot.FEET,"techno")&&read(p,"nitro")>0&&p.getXRot()>=89&&p.getXRot()<=90){
-            p.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false),p);
+            if(game.balanceLegacy())p.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false),p);
+            var protection=ExplosionItemProtection.owner(p.getUUID(),5);
             var at=p.position().add(0,1.2,0).subtract(net.minecraft.world.phys.Vec3.directionFromRotation(0,p.getYRot()));
             var kills=game.items().indirectKills();var cause=kills.wildCause(p);var damage=kills.captureDamage(p.damageSources().explosion(null,p),cause);
-            for(int i=0;i<10;i++)kills.trapChanges(p.level(),cause,()->p.level().explode(null,damage,null,at.x,at.y,at.z,1,false,Level.ExplosionInteraction.MOB));
+            for(int i=0;i<10;i++)kills.trapChanges(p.level(),cause,()->ExplosionItemProtection.with(damage,protection,()->p.level().explode(null,damage,null,at.x,at.y,at.z,1,false,Level.ExplosionInteraction.MOB)));
             add(p,"nitro",-1);
         }
     }

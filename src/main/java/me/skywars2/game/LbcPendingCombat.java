@@ -134,7 +134,9 @@ public final class LbcPendingCombat {
     private static boolean resident(ServerLevel level,BlockPos pos){return !level.isOutsideBuildHeight(pos)&&level.getWorldBorder().isWithinBounds(pos)
         &&level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
     public boolean use(ServerPlayer owner,InteractionHand hand){
-        if(!isPiston(owner.getItemInHand(hand))||!admitted(owner)||!magic(owner)||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
+        if(!isPiston(owner.getItemInHand(hand))||!admitted(owner)||game.items().magic().mechanismSuppressed(owner)
+                ||game.items().magic().artifactSuppressedAt(owner.level(),owner.position())
+                ||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
         LbcOverload.sound(owner,"minecraft:block.piston.extend",1,1,0);
         var direction=owner.getLookAngle();var at=owner.getEyePosition();
         for(int sample=0;sample<=200;sample++,at=at.add(direction.scale(.33))){
@@ -145,6 +147,7 @@ public final class LbcPendingCombat {
         return true;
     }
     /** One forward pass over the digital path; never loads chunks, caps chain length or delays a shift. */
+    boolean swordProjectile(Entity entity,ServerPlayer owner){return entity!=null&&copies.stream().anyMatch(copy->copy.display==entity&&copy.owner==owner);}
     boolean shift(ServerPlayer owner,BlockPos first,Vec3 direction){return shift(owner,first,direction,null);}
     /** Accepted terrain work keeps its original world and cause after a player lifecycle transition. */
     boolean shift(ServerLevel level,LbcIndirectKills.Owner cause,BlockPos first,Vec3 direction){
@@ -182,6 +185,11 @@ public final class LbcPendingCombat {
         });
         if(!success[0])game.items().indirectKills().restoreTerrain(provenance);
         else{
+            var moves=new java.util.HashMap<BlockPos,BlockPos>();
+            for(int i=0;i<positions.size()-1;i++)moves.put(positions.get(i),positions.get(i+1));
+            var bounds=new net.minecraft.world.phys.AABB(positions.getFirst());
+            for(var pos:positions)bounds=bounds.minmax(new net.minecraft.world.phys.AABB(pos));
+            game.maps().moveMapObjects(level,bounds,moves::get,moves.keySet());
             // Ordinary clone stages BARRIER then performs final placement with flags2. Defer its native
             // onPlace until commit: liquids/falling blocks must schedule themselves, while rollback stays inert.
             for(int i=positions.size()-1;i>0;i--){

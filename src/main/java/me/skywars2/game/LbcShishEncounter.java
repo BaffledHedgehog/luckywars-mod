@@ -107,7 +107,7 @@ public final class LbcShishEncounter {
     private Display.ItemDisplay supply(LbcApocalypseEvents.Authority authority,ServerLevel level,Vec3 at,int initial,boolean immediate){
         if(checkpointFrozen)return null;checkpointDepth++;try{
         var display=EntityTypes.ITEM_DISPLAY.create(level,EntitySpawnReason.COMMAND);if(display==null)return null;
-        load(display,tag("{Tags:['supply_drop','new','rc_1sec'],Rotation:[0.0f,0.0f],transformation:{translation:[0.0f,0.5f,0.0f]},item:{id:'minecraft:stick',count:1,components:{'minecraft:item_model':'lbc:supply_beacon'}}}"));
+        load(display,tag("{Tags:['supply_drop','new','rc_1sec'],Rotation:[0.0f,0.0f],transformation:{translation:[0.0f,0.5f,0.0f],scale:[1f,1f,1f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]},item:{id:'minecraft:stick',count:1,components:{'minecraft:item_model':'lbc:supply_beacon'}}}"));
         var center=immediate?Vec3.atCenterOf(BlockPos.containing(at)):at;display=admit(display,center,authority,Kind.SUPPLY);if(display!=null){actors.get(display).fall=initial;write(display,"supplyFall",initial);if(immediate)runSupply(display,actors.get(display));}return display;
 
         }finally{checkpointDepth--;}
@@ -201,6 +201,10 @@ public final class LbcShishEncounter {
     }
     private static void teleport(ServerPlayer player,Vec3 target){var motion=player.getDeltaMovement();try{player.teleportTo(player.level(),target.x,target.y,target.z,TeleportMomentum.positionFlags(Set.of()),player.getYRot(),player.getXRot(),true);}finally{player.setDeltaMovement(motion);}}
     /** Canonical original movement scoreboard, shared with Witch statistics; no second private position ledger. */
+    void seedMovement(ServerPlayer player){
+        write(player,"x",Mth.floor(player.getX()*100));write(player,"y",Mth.floor(player.getY()*100));write(player,"z",Mth.floor(player.getZ()*100));
+        write(player,"speed",0);write(player,"speedy",0);
+    }
     public void sampleMovement(ServerPlayer player){
         int x=Mth.floor(player.getX()*100),y=Mth.floor(player.getY()*100),z=Mth.floor(player.getZ()*100);int dx=x-read(player,"x"),dy=y-read(player,"y"),dz=z-read(player,"z");write(player,"speedy",dy);int squared=dx*dx+dy*dy+dz*dz,speed=Math.floorDiv(squared,2);
         for(int n=0;n<17;n++){int value=squared;if(speed!=0)value=Math.floorDiv(value,speed);value+=speed;speed=Math.floorDiv(value,2);}write(player,"speed",speed);if(read(player,"sleep_time")>0)write(player,"sleep_time",read(player,"sleep_time")-15);if(speed==0)write(player,"sleep_time",read(player,"sleep_time")+16);

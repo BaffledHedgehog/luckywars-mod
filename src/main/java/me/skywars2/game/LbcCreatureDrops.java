@@ -47,6 +47,7 @@ public final class LbcCreatureDrops {
     private static final int[][] BULLET_OFFSETS={{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1},{1,0},{-1,0},{0,0}};
     private final GameController game;
     private final Set<Entity> tracked=Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Set<net.minecraft.world.entity.boss.enderdragon.EnderDragon> nativeDragons=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<UUID,ServerPlayer> authors=new HashMap<>();
     public LbcCreatureDrops(GameController game){this.game=game;}
     private static CompoundTag preset(String snbt){try{return SourceKnockbackBalance.entity(TagParser.parseCompoundFully(snbt));}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new ExceptionInInitializerError(error);}}
@@ -150,14 +151,16 @@ public final class LbcCreatureDrops {
         prepare(actor,author);
     }
     private void prepare(Entity actor,ServerPlayer author){
+        if(actor instanceof net.minecraft.world.entity.Mob){actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);}
         actor.entityTags().add(ACTOR);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().add(OWNER+author.getUUID());}
         game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);
     }
     public static boolean managed(Entity actor){return actor!=null && (actor instanceof Vex || actor instanceof AbstractSkeleton || actor instanceof Zombie || actor instanceof ShulkerBullet || actor instanceof net.minecraft.world.entity.monster.warden.Warden) && actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){
+        if(LbcSpellSource.unownedHazard(actor)){if(actor instanceof LivingEntity living)return living;if(actor instanceof net.minecraft.world.entity.projectile.Projectile shot&&shot.getOwner() instanceof LivingEntity living)return living;}
         if(actor instanceof ItemEntity token && LbcCreatureDropItem.matches(token.getItem()))return game.items().specialDrops().owner(token);
         if(!managed(actor))return null;
-        if(actor instanceof ShulkerBullet bullet&&actor.entityTags().contains(ARMOR_SHELL)&&bullet.getOwner() instanceof LivingEntity current)return current;
+        if(actor instanceof ShulkerBullet bullet&&bullet.getOwner() instanceof LivingEntity current)return current;
         for(var tag:actor.entityTags())if(tag.startsWith(OWNER))try{
             var id=UUID.fromString(tag.substring(OWNER.length()));var online=game.server().getPlayerList().getPlayer(id);return online==null?authors.get(id):online;
         }catch(IllegalArgumentException ignored){}
@@ -168,20 +171,30 @@ public final class LbcCreatureDrops {
         if(actor!=null&&actor.entityTags().contains("skywars2.balance.old_scroll_actor"))return game.items().spellSources().canAffect(actor,target);
         if(!managed(actor))return true;
         if(target==null || !active(actor) || !game.items().wands().validTarget(target))return false;
+        if(game.items().spellSources().lootProjectile(actor))return game.items().spellSources().canAffect(actor,target);
+        if(LbcSpellSource.unownedHazard(actor))return true;
         if(actor instanceof ShulkerBullet || actor instanceof Vex && actor.entityTags().contains(NORMAL_VEX))return true; // WILD trap: self, allies and enemies are all eligible.
         return !(owner(actor) instanceof ServerPlayer author) || target==author || game.items().wands().target(author,target);
     }
     public boolean canTarget(Entity actor,LivingEntity target){
         if(target==null)return true;
         // A shell may accidentally hit any participant without acquiring its caster or allies.
-        if(actor instanceof ShulkerBullet&&actor.entityTags().contains(ARMOR_SHELL)){
+        if(actor instanceof ShulkerBullet&&actor.entityTags().contains(ARMOR_SHELL)&&!game.items().spellSources().lootProjectile(actor)){
             var current=owner(actor);
             if(target==current||current instanceof ServerPlayer author&&!game.items().wands().projectileTarget(author,target))return false;
         }
         return canAffect(actor,target);
     }
-    public void loaded(Entity actor){if(!managed(actor))return;if(!active(actor)){actor.discard();return;}tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
-    public void unloaded(Entity actor){if(managed(actor))tracked.remove(actor);}
+    public void loaded(Entity actor){if(actor instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon)nativeDragons.add(dragon);if(!managed(actor))return;if(!active(actor)){actor.discard();return;}tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
+    public void unloaded(Entity actor){nativeDragons.remove(actor);if(managed(actor))tracked.remove(actor);}
+    /** Source mobs_1s applies to native dragons even with NoAI, in every ordinary dimension. */
+    void nativeMobSecond(){
+        if(!game.playing()||game.stage()==GameController.Stage.ENDING||!game.server().tickRateManager().runsNormally()||game.server().getTickCount()%20!=0)return;
+        nativeDragons.removeIf(Entity::isRemoved);
+        for(var dragon:nativeDragons)if(LbcDimensionItems.ordinary(dragon.level())&&!game.items().timeStop().stopped((ServerLevel)dragon.level())
+                &&dragon.getPhaseManager().getCurrentPhase().getPhase()==net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase.HOVERING)
+            dragon.getPhaseManager().setPhase(net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase.STRAFE_PLAYER);
+    }
     public void tick(){for(var actor:List.copyOf(tracked))if(actor.isRemoved())tracked.remove(actor);else if(!active(actor)){tracked.remove(actor);actor.discard();}}
     public void stop(){var actors=List.copyOf(tracked);tracked.clear();for(var actor:actors)if(!actor.isRemoved())actor.discard();authors.clear();}
     public List<Entity> snapshot(){return List.copyOf(tracked);}

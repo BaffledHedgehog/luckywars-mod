@@ -106,7 +106,7 @@ public final class LbcTransformator {
         var level=(ServerLevel)token.level(); var floor=token.blockPosition();
         var at=new Vec3(floor.getX()+.5,floor.getY()-.1,floor.getZ()+.5);
         var actor=new Actor(level);
-        load(actor,"{Silent:1b,CustomNameVisible:1b,PersistenceRequired:1b,NoAI:1b,Health:500f,IsBaby:0b,CustomName:{color:'gold',italic:false,translate:'transformator',extra:[{color:'gray',text:' Nightmare23 Birthday'}]},equipment:{head:{id:'minecraft:repeating_command_block',count:1,components:{'minecraft:item_model':'lbc:transformator'}}},drop_chances:{head:0f},active_effects:[{id:'minecraft:invisibility',amplifier:1,duration:2000000,show_particles:0b}],attributes:[{id:'minecraft:max_health',base:500d},{id:'minecraft:knockback_resistance',base:100d}]}");
+        load(actor,"{DeathLootTable:\"minecraft:empty\",Silent:1b,CustomNameVisible:1b,PersistenceRequired:1b,NoAI:1b,Health:500f,IsBaby:0b,CustomName:{color:'gold',italic:false,translate:'transformator',extra:[{color:'gray',text:' Nightmare23 Birthday'}]},equipment:{head:{id:'minecraft:repeating_command_block',count:1,components:{'minecraft:item_model':'lbc:transformator'}}},drop_chances:{head:0f},active_effects:[{id:'minecraft:invisibility',amplifier:1,duration:2000000,show_particles:0b}],attributes:[{id:'minecraft:max_health',base:500d},{id:'minecraft:knockback_resistance',base:100d}]}");
         // Effect metadata normally refreshes on the first living tick; the spawn packet must already hide the zombie.
         actor.setInvisible(true);actor.setPos(at);actor.entityTags().addAll(List.of(ACTOR,"transformator","lucky_mob"));
         var text=new Label(level);
@@ -121,6 +121,7 @@ public final class LbcTransformator {
     }
     /** The source egg has a visible custom name and no separate text-display label. */
     void adoptEgg(Zombie actor,LivingEntity author) {
+        ((me.skywars2.mixin.MobLootAccess)actor).skywars2$lootTable(Optional.of(net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("minecraft:empty"))));
         actor.entityTags().addAll(List.of(ACTOR,"transformator","lucky_mob"));
         actor.setInvisible(true);game.items().markCurrentItemEpoch(actor);
         if(author!=null) authors.put(actor,author);
@@ -135,6 +136,7 @@ public final class LbcTransformator {
             if(!game.items().currentEpoch(pair.epoch) || !game.playing() || game.stage()==GameController.Stage.ENDING
                     || actor.isRemoved() || !actor.isAlive() || pair.text!=null && pair.text.isRemoved()
                     || !resident(level,actor.blockPosition())) {terminal(pair);continue;}
+            if(game.items().magic().mechanismSuppressedAt(level,actor.position())) {terminal(pair);continue;}
             if(game.items().timeStop().stopped(level)) continue;
             if(++pair.ticks%5==0) pulse(actor);
         }

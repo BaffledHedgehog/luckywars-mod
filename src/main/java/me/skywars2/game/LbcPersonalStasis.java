@@ -27,7 +27,7 @@ public final class LbcPersonalStasis {
         data.putString("dimension",p.level().dimension().identifier().toString());
         data.putDouble("x",p.getX());data.putDouble("y",p.getY());data.putDouble("z",p.getZ());
         data.putFloat("yaw",p.getYRot());data.putFloat("pitch",p.getXRot());data.putInt("ticks",ticks);
-        p.setAttached(DATA,data);p.entityTags().add(TAG);
+        p.setAttached(DATA,data);p.entityTags().add(TAG);LbcFrozenMotion.hold(p,LbcFrozenMotion.STASIS);
         // The source initial application clears effects before its first recurring frame.
         p.removeAllEffects();
     }
@@ -35,9 +35,10 @@ public final class LbcPersonalStasis {
     void startMob(net.minecraft.world.entity.LivingEntity target){
         if(!target.isAlive()||target.isRemoved())return;
         if(target instanceof net.minecraft.world.entity.Mob mob)mob.setNoAi(true);
+        LbcFrozenMotion.hold(target,LbcFrozenMotion.STASIS);
         target.setPermanentlyInvulnerable(true);target.setNoGravity(true);target.setSilent(true);target.removeAllEffects();
     }
-    public void clear(ServerPlayer p){p.removeAttached(DATA);p.entityTags().remove(TAG);}
+    public void clear(ServerPlayer p){LbcFrozenMotion.release(p,LbcFrozenMotion.STASIS);p.removeAttached(DATA);p.entityTags().remove(TAG);}
     public void tick(ServerPlayer p){
         var data=p.getAttached(DATA);if(data==null)return;
         if(LbcParasite.active(p)){clear(p);return;}
@@ -48,7 +49,7 @@ public final class LbcPersonalStasis {
                 ||game.items().wands().inputTimeStopped(p)||game.items().polymorph().masked(p))return;
         if(p.level()!=game.maps().level()||!p.level().dimension().identifier().toString().equals(data.getStringOr("dimension","")))return;
         if(!game.canUseGameplayItems(p)||game.isObserver(p)||!game.items().wands().validRoleTarget(p,false))return;
-        p.entityTags().add(TAG);
+        LbcFrozenMotion.hold(p,LbcFrozenMotion.STASIS);p.entityTags().add(TAG);
         p.removeAllEffects();
         p.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false),p);
         p.addEffect(ItemEffectLevels.create(MobEffects.WEAKNESS,20,127,false,false),p);

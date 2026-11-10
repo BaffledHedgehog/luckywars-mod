@@ -265,6 +265,8 @@ public final class CaseCosmeticChecks {
         void playerDeath(int effect){
             require(game.lives(other.getUUID())>1,"actual life loss retains a playable participant");profile().killEffect=effect;grant(owner,effect==2?"lbc:true_advancements/event/soulhunter_mace":"swrg:rewards/turnir/killer");
             grant(other,"swrg.sound3");otherProfile().killSound=3;profile().killSound=1;grant(owner,"swrg.sound1");other.getInventory().clearContent();other.setExperienceLevels(0);other.setExperiencePoints(0);other.totalExperience=0;
+            // This immediate scripted death is deliberately outside the normal respawn grace period.
+            other.removeAllEffects();
             if(effect==3)other.getInventory().setItem(9,new ItemStack(Items.DIAMOND,3));move(other,origin.add(0,0,8));other.setHealth(10);other.setInvulnerableTime(0);other.damageCooldownTime=0;soundStart=packets(client).size();retired=other;
             require(other.hurtServer(level,other.damageSources().playerAttack(owner),10000)&&other.isDeadOrDying()&&game.awaitingRespawn(other.getUUID()),"actual native player life loss with selected cosmetic");checkSound(client,soundStart,"minecraft:entity.witch.celebrate",.9f);
             if(effect==2){var selected=effectJobs("HAMMER");require(selected.size()==1,"empty-loot actual player death still enrolls one hammer");hammer=selected.getFirst();hammerStart=(Vec3)get(hammer,"at");require(hammerStart.equals(retired.position().add(0,11,0)),"hammer source11 height over actual victim");}
@@ -272,6 +274,11 @@ public final class CaseCosmeticChecks {
         }
         void respawn(){
             audience.close();other=game.server().getPlayerList().respawn(retired,false,Entity.RemovalReason.KILLED);require(other!=retired&&other.isAlive(),"genuine native replacement player");other.connection.resetPosition();var ack=(MatchPlayerCheckpoint.SimulatedAcknowledgement)other.connection;ack.skywars2$beginRespawn();ack.skywars2$acknowledgeRestore();audience=new RegenerationBeltChecks.ScheduledClient(game,other);set(otherSaved,"player",other);set(otherSaved.state,"player",other);move(other,origin.add(12,0,0));
+            require(other.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING)
+                    &&other.getEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING).getAmplifier()==0
+                    &&other.hasEffect(net.minecraft.world.effect.MobEffects.RESISTANCE)
+                    &&other.getEffect(net.minecraft.world.effect.MobEffects.RESISTANCE).getAmplifier()==4,
+                    "genuine respawn retains legacy slow-falling and resistance protection after all grants");
         }
         Map<String,Object> image(Object job){var result=new LinkedHashMap<String,Object>();for(var key:List.of("at","direction","age","selected","cursor","stage","rng","drops","closed"))result.put(key,get(job,key));return result;}
         void beginReplay(){
@@ -308,9 +315,10 @@ public final class CaseCosmeticChecks {
         }
         Object endingSword;BlockPos blastCenter;int endingAge;boolean sawEndingIngot;Object midasWave;Set<BlockPos> blastBlocks=new HashSet<>();
         void beginEnding(){
-            cosmetics.stop();profile().killEffect=0;profile().winEffect=2;grant(owner,"swrg:rewards/turnir/trophy1");game.config().endingSeconds=60;level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,true,game.server());
+            cosmetics.stop();playerDeath(2);require(effectJobs("HAMMER").size()==1,"actual death before canonical finish accepts a hammer");profile().winEffect=2;grant(owner,"swrg:rewards/turnir/trophy1");game.config().endingSeconds=60;level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,true,game.server());
             @SuppressWarnings("unchecked") var members=(Map<UUID,Object>)get(game,"participants");for(var e:members.entrySet())if(!e.getKey().equals(owner.getUUID()))set(e.getValue(),"lives",0);
             endingStarted=true;invoke(game,"finish",new Class<?>[0]);require(game.stage()==GameController.Stage.ENDING&&!game.playing()&&!game.items().currentEpoch(epoch),"actual canonical finish enters ENDING and retires its gameplay epoch (no direct phase assignment)");
+            require(effectJobs("HAMMER").size()==1,"final-kill hammer survives canonical gameplay-epoch retirement");hammer=effectJobs("HAMMER").getFirst();
             require(effectJobs("WINNER").size()==1,"actual canonical winner transition enrolls one golden source producer");move(owner,origin);owner.setYRot(0);owner.setXRot(0);endingAge=(int)get(effectJobs("WINNER").getFirst(),"age");next(40);
         }
         boolean cosmeticStep(int elapsed){
@@ -330,7 +338,10 @@ public final class CaseCosmeticChecks {
             if(stage==40){
                 for(var e:level.getAllEntities())if(!original.contains(e.getUUID())&&e instanceof ItemEntity item&&item.getItem().is(Items.GOLD_INGOT)&&LbcCosmetics.managed(e)){sawEndingIngot=true;require(cosmetics.owner(e)==owner,"actual postgame ingot captured winner attribution");}
                 var swords=effectJobs("SWORD");if(!sawEndingIngot||swords.stream().noneMatch(j->get(j,"display")!=null)){require(elapsed<12,"real ENDING branch pumps shared golden producer and native sword display");return false;}
-                require((int)get(effectJobs("WINNER").getFirst(),"age")>endingAge,"actual source postgame logical ticker advances");endingSword=swords.stream().filter(j->get(j,"display")!=null).findFirst().orElseThrow();
+                require((int)get(effectJobs("WINNER").getFirst(),"age")>endingAge,"actual source postgame logical ticker advances");
+                require(get(hammer,"display") instanceof net.minecraft.world.entity.Display.ItemDisplay finalHammer
+                        &&!finalHammer.isRemoved()&&finalHammer.getItemStack().getOrDefault(net.minecraft.core.component.DataComponents.ITEM_MODEL,net.minecraft.resources.Identifier.parse("minecraft:air")).equals(net.minecraft.resources.Identifier.parse("lbc:banhammer3d")),"actual final-kill hammer model renders through native postgame scheduler");
+                endingSword=swords.stream().filter(j->get(j,"display")!=null).findFirst().orElseThrow();
                 blastCenter=BlockPos.containing(origin.add(0,0,24));for(var p:BlockPos.betweenClosed(blastCenter.offset(-5,-5,-5),blastCenter.offset(5,5,5)))block(p,Blocks.AIR.defaultBlockState());
                 for(var p:BlockPos.betweenClosed(blastCenter.offset(-1,-1,-1),blastCenter.offset(1,1,1))){block(p,Blocks.PUMPKIN.defaultBlockState());blastBlocks.add(p.immutable());}
                 // Select one existing source terminal deterministically; publication/scheduler/TNT remain native.
@@ -360,7 +371,11 @@ public final class CaseCosmeticChecks {
             throw new IllegalStateException("cosmetic ending stage "+stage);
         }
         boolean step(){
-            client.acknowledge();if(other.isAlive())audience.acknowledge();require(game.server().getTickCount()-started<1200,"bounded scheduled fixture "+name()+" stage="+stage);int elapsed=game.server().getTickCount()-when;
+            client.acknowledge();
+            // The final dead victim has no native replacement body in ENDING. Its retired
+            // listener can receive visuals, but cannot acknowledge a new player's loaded state.
+            if(other.isAlive()&&!(endingStarted&&other==retired))audience.acknowledge();
+            require(game.server().getTickCount()-started<1200,"bounded scheduled fixture "+name()+" stage="+stage);int elapsed=game.server().getTickCount()-when;
             if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
             if(kind==0)return stage==2?manualStep():caseStep();if(kind==1)return cosmeticStep(elapsed);return rewindStep(elapsed);
         }

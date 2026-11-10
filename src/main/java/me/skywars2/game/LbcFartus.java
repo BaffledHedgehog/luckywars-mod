@@ -273,7 +273,7 @@ public final class LbcFartus {
             // The shared stun enforces the same40 active ticks without that exploit.
             game.items().shooters().stun(owner,target,40);
             for(var effect:List.of(MobEffects.BLINDNESS,MobEffects.DARKNESS,MobEffects.WEAKNESS))
-                game.items().indirectKills().inheritedEffect(target,ItemEffectLevels.create(effect,40,99,false,false),cause);
+                game.items().indirectKills().inheritedEffect(target,ItemEffectLevels.create(effect,40,effect.is(MobEffects.BLINDNESS)||effect.is(MobEffects.DARKNESS)?1:99,false,false),cause);
             game.items().indirectKills().withCause(target,cause,()->MobEffects.INSTANT_DAMAGE.value().applyInstantaneousEffect(level,shot,owner,target,3,1));
             LbcOverload.sound(owner,target.position(),"minecraft:lbcsounds.bananoponos",1,1,0);
             level.sendParticles(ParticleTypes.SNEEZE,target.getX(),target.getY()+1,target.getZ(),40,.1,.1,.1,1);

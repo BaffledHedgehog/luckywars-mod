@@ -36,7 +36,7 @@ final class LbcTeamColors {
         for(int number=1;number<=32;number++){
             String name=Integer.toString(number);var team=board.getPlayerTeam(name);
             if(team==null){team=board.addPlayerTeam(name);sourceMetadata(team);}
-            team.setColor(Optional.of(color(number)));
+            if(!active())team.setColor(Optional.of(color(number)));
         }
     }
     private static void sourceMetadata(PlayerTeam team){
@@ -46,7 +46,12 @@ final class LbcTeamColors {
     }
     void begin(List<ServerPlayer> participants){
         stop();ensurePalette();
+        var colors=new java.util.ArrayList<>(PALETTE);
+        var random=participants.isEmpty()?null:participants.getFirst().level().getRandom();
         for(int i=0;i<participants.size();i++){
+            if(i%colors.size()==0)for(int j=colors.size()-1;j>0;j--){
+                int other=random.nextInt(j+1);var value=colors.get(j);colors.set(j,colors.get(other));colors.set(other,value);
+            }
             var player=participants.get(i);String name=player.getScoreboardName();var original=board.getPlayersTeam(name);
             var team=i<32?board.getPlayerTeam(Integer.toString(i+1)):null;
             // Never put a solo participant beside an unrelated player or entity.
@@ -55,6 +60,7 @@ final class LbcTeamColors {
                 int suffix=0;while(board.getPlayerTeam(candidate)!=null)candidate=base+(++suffix);
                 team=board.addPlayerTeam(candidate);sourceMetadata(team);team.setColor(Optional.of(color(i+1)));temporaryTeams.add(team);
             }
+            team.setColor(Optional.of(colors.get(i%colors.size())));
             assignments.put(name,new Assignment(original,team));board.addPlayerToTeam(name,team);
         }
         prefixes();

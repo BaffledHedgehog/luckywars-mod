@@ -1,11 +1,8 @@
 package me.skywars2.game;
 
-import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import java.util.List;
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,34 +16,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HugeMushroomBlock;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootParams;
 
-/** Distinct server identities keep raw map mushrooms outside the Greedstone mechanic. */
+/** Greedstone items. Cursed terrain uses the ordinary Lucky Block identity and loot. */
 public final class LbcEternalWealthItems {
     private static final CompoundTag DROP_TRIGGER=trigger("greedcurse",true),STONE_TRIGGER=trigger("greedstone",false);
     public static final Item DROP = drop(false);
     public static final Item IMBA_DROP = drop(true);
     public static final Item STONE = stone();
-    private static final BlockState LEGACY_CURSED_STATE = Blocks.RED_MUSHROOM_BLOCK.defaultBlockState()
-            .setValue(HugeMushroomBlock.NORTH, false).setValue(HugeMushroomBlock.SOUTH, false)
-            .setValue(HugeMushroomBlock.EAST, false).setValue(HugeMushroomBlock.WEST, false)
-            .setValue(HugeMushroomBlock.UP, false).setValue(HugeMushroomBlock.DOWN, false);
-    private static final BlockState CLIENT_CURSED_STATE = cursedClientState();
-    public static final Block CURSED_BLOCK = cursedBlock();
 
     private LbcEternalWealthItems() { }
     public static void register() { }
-    private static BlockState cursedClientState(){
-        var model=Identifier.parse("skywars2:block/greedstone_cursed_block");
-        LbcBlockModels.model(model,"{\"parent\":\"minecraft:block/cube_all\",\"textures\":{\"all\":\"minecraft:block/mushroom_block_inside\"}}");
-        return LbcBlockModels.fullCube(Identifier.parse("skywars2:greedstone_cursed_block"),model);
-    }
     private static CompoundTag trigger(String key,boolean drop){var tag=new CompoundTag();tag.putInt(key,1);if(drop)tag.putInt("drop",1);return tag;}
 
     private static Item.Properties properties(String model) {
@@ -97,22 +76,4 @@ public final class LbcEternalWealthItems {
         return !stack.isEmpty()&&(stack.is(STONE)||stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).matchedBy(STONE_TRIGGER));
     }
 
-    private static Block cursedBlock() {
-        var key = ResourceKey.create(Registries.BLOCK, Identifier.parse("skywars2:greedstone_cursed_block"));
-        return Registry.register(BuiltInRegistries.BLOCK, key, new CursedBlock(
-                BlockBehaviour.Properties.ofFullCopy(Blocks.RED_MUSHROOM_BLOCK).setId(key)));
-    }
-
-    private static final class CursedBlock extends Block implements PolymerTexturedBlock {
-        CursedBlock(Properties properties) { super(properties); }
-        @Override public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
-            return CLIENT_CURSED_STATE;
-        }
-        @Override protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-            return LEGACY_CURSED_STATE.getDrops(params);
-        }
-        @Override protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
-            return LEGACY_CURSED_STATE.getCloneItemStack(level, pos, includeData);
-        }
-    }
 }

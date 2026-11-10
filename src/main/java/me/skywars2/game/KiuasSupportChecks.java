@@ -52,7 +52,9 @@ public final class KiuasSupportChecks {
                 require(LbcKiuas.fireSupported(level,center)&&LbcKiuas.kiuResult(level,center,Blocks.AIR.defaultBlockState()).is(Blocks.FIRE),"flammable support on each native side: "+direction);
             }
             clear.run();level.setBlock(center.below(),Blocks.WATER.defaultBlockState(),818);
-            require(LbcKiuas.fireSupported(level,center),"any nonair below, including fluid");
+            require(!LbcKiuas.fireSupported(level,center),"water cannot support floating fire");
+            clear.run();level.setBlock(center.below(2),Blocks.STONE.defaultBlockState(),818);level.setBlock(center.below(),Blocks.FIRE.defaultBlockState(),818);
+            require(!LbcKiuas.fireSupported(level,center),"existing supported fire does not support another fire above it");
             clear.run();level.setBlock(center.east(),Blocks.OAK_SLAB.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED,true),818);
             require(!LbcKiuas.fireSupported(level,center),"waterlogged side retains native nonflammability");
             clear.run();owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcKiuas.KIUASKIVI));game.items().mana().set(owner,10000);

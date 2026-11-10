@@ -15,6 +15,7 @@ public final class AttributePolicy {
             "safe_fall_distance","oxygen_bonus","block_break_speed","mining_efficiency","submerged_mining_speed","luck","camera_distance");
     public record Bounds(double minimum,double maximum){}
     public static Bounds bounds(Attribute attribute,double nativeMinimum,double nativeMaximum){
+        if(!VanillaExpansionRules.enabled())return new Bounds(nativeMinimum,nativeMaximum);
         var id=BuiltInRegistries.ATTRIBUTE.getKey(attribute);
         if(id==null||!id.getNamespace().equals("minecraft"))return new Bounds(nativeMinimum,nativeMaximum);
         String path=id.getPath();

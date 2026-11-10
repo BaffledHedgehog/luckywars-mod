@@ -20,6 +20,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.phys.Vec3;
 
@@ -220,6 +221,30 @@ public final class RemainingLevelupChecks {
             var falling=EntityTypes.FALLING_BLOCK.create(level,EntitySpawnReason.COMMAND);require(falling!=null,"native neutral falling block factory");falling.setPos(eye);game.items().projectileLevelups().beforeNativeSpawn(falling);require(!falling.isNoGravity(),"common admission never treats a neutral falling block as an owned projectile");falling.discard();
             var foreignTnt=new PrimedTnt(level,eye.x-1,eye.y,eye.z,other);foreignTnt.setFuse(400);foreignTnt.setDeltaMovement(Vec3.ZERO);publish(foreignTnt);foreignBodies.add(foreignTnt);
             var neutralTnt=new PrimedTnt(level,eye.x+1,eye.y,eye.z,null);neutralTnt.setFuse(400);neutralTnt.setDeltaMovement(Vec3.ZERO);publish(neutralTnt);foreignBodies.add(neutralTnt);
+            var receipt=new net.minecraft.world.entity.item.ItemEntity(level,eye.x,eye.y,eye.z,new ItemStack(Items.PAPER));receipt.setThrower(owner);
+            var sources=game.items().spellSources();
+            for(var kind:LbcLuckyBlocks.Kind.values())try(var reward=LbcLuckyBlocks.rewardScope(LbcLuckyBlocks.block(kind).defaultBlockState(),owner)){
+                var body=EntityTypes.FALLING_BLOCK.create(level,EntitySpawnReason.COMMAND);require(body!=null,"native Lucky trap body");body.setPos(eye.add(1,1,1));
+                game.items().projectileLevelups().beforeNativeSpawn(body);publish(body);foreignBodies.add(body);
+                require(!body.isNoGravity()&&sources.projectileController(body)==null&&sources.source(body)!=null&&sources.source(body).emitter().equals(owner.getUUID())
+                        &&sources.canAffect(body,owner),"each real Lucky reward scope keeps creator-emitted traps WILD and outside Gravitas: "+kind);
+            }
+            try(var loot=sources.lootScope(receipt)){
+                var anvil=EntityTypes.FALLING_BLOCK.create(level,EntitySpawnReason.COMMAND);require(anvil!=null,"native trap anvil factory");
+                var data=new net.minecraft.nbt.CompoundTag();data.putString("BlockState","minecraft:anvil");
+                anvil.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),data));anvil.setPos(eye.add(1,1,0));
+                game.items().projectileLevelups().beforeNativeSpawn(anvil);publish(anvil);foreignBodies.add(anvil);
+                require(anvil.getBlockState().is(Blocks.ANVIL)&&!anvil.isNoGravity()&&sources.projectileController(anvil)==null,"creator's Gravitas never adopts an actual falling trap anvil: state="+anvil.getBlockState()+",noGravity="+anvil.isNoGravity()+",controller="+sources.projectileController(anvil));
+                var bomb=new PrimedTnt(level,eye.x,eye.y+1,eye.z+1,owner);bomb.setFuse(400);bomb.setDeltaMovement(Vec3.ZERO);publish(bomb);foreignBodies.add(bomb);
+                require(bomb.getOwner()==null&&!bomb.isNoGravity()&&sources.projectileController(bomb)==null,"trap TNT loses native creator control without gaining Gravitas: owner="+bomb.getOwner()+",native="+((LbcSpellSource.TntOwnerAccess)bomb).skywars2$nativeLootOwner()+",gravity="+bomb.isNoGravity()+",frozen="+game.items().timeStop().frozen(bomb)+",policy="+sources.source(bomb));
+                var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(level,owner,new ItemStack(Items.ARROW),null);arrow.setPos(eye.add(2,1.5,0));arrow.setDeltaMovement(Vec3.ZERO);
+                game.items().projectileLevelups().beforePublish(owner,arrow,LbcProjectileLevelups.Launch.BOW);publish(arrow);foreignBodies.add(arrow);
+                require(arrow.getOwner()==null&&!arrow.isNoGravity()&&!arrow.entityTags().contains(LbcProjectileLevelups.FINALIZED),"trap arrows never acquire creator's launch scalars or gravity");
+                for(var body:List.of(anvil,bomb,arrow)){
+                    var cause=sources.source(body);require(cause!=null&&cause.cause()!=null&&cause.cause().player().equals(owner.getUUID())&&LbcIndirectKills.playerSource(body)==owner,"statistical trap receipt survives independently of native control");
+                    require(sources.canAffect(body,owner),"trap can affect its own creator");
+                }
+            }finally{receipt.discard();}
             game.items().timeStop().begin(level,1000);stopped=true;next(12);
         }
         void beginReplay(){

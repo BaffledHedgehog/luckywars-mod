@@ -28,15 +28,18 @@ public final class SupernovaChecks {
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ServerPlayer owner,other;final boolean borders;
         final String epoch;int state,at,start,clock,lives,otherLives,xp;boolean closed;
+        final boolean ownerPreview,otherPreview;
         Fixture(GameController game){
             this.game=game;require(game.playing(),"actual active match");
             owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
             other=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta")));
             borders=game.config().noBorders;epoch=game.items().epoch();start=at=game.server().getTickCount();
+            ownerPreview=AtlasGlitchSignal.manualEnabled(owner);otherPreview=AtlasGlitchSignal.manualEnabled(other);
         }
         ItemStack loot(String name){var items=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:ported/"+name);require(items.size()==1,"canonical "+name);return items.getFirst();}
         void move(ServerPlayer p,net.minecraft.server.level.ServerLevel level,Vec3 at){p.teleportTo(level,at.x,at.y,at.z,Set.of(),0,0,true);p.setNoGravity(true);p.setDeltaMovement(Vec3.ZERO);}
         void begin(){
+            AtlasGlitchSignal.manual(owner,false);AtlasGlitchSignal.manual(other,true);
             game.config().noBorders=true;for(var p:List.of(owner,other)){p.closeContainer();p.inventoryMenu.getCraftSlots().clearContent();p.getInventory().clearContent();p.removeAllEffects();}
             move(owner,game.maps().level(),new Vec3(1024.5,1000,1024.5));
             var nexus=game.server().getLevel(LbcHedgehogDimensions.NEXUS);require(nexus!=null,"native Nexus dimension");move(other,nexus,new Vec3(1,2332,1));
@@ -54,11 +57,14 @@ public final class SupernovaChecks {
             int now=game.server().getTickCount();var service=game.items().supernova();require(now-start<2200,"bounded full chain scheduler timeout: fixture="+state+", event="+service.phase()+", map="+game.supernovaMapTransition());
             if(state==0){if(now-at<8)return false;require(service.phase()==LbcSupernova.Phase.IDLE&&service.activeTicks()==clock,"stopped activation and timer");require(owner.inventoryMenu.getCraftSlots().getItem(0).getCount()==2,"stopped recipe debit absent");game.items().timeStop().end(owner.level());state=1;at=now;return false;}
             if(state==1){if(service.phase()==LbcSupernova.Phase.IDLE){require(now-at<80,"event admitted from real crafting slots");return false;}
+                for(var viewer:game.server().getPlayerList().getPlayers())require(viewer.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"actual Supernova start projects every online viewer, including Nexus and spectators");
                 require(owner.inventoryMenu.getCraftSlots().getItem(0).getCount()==1&&owner.inventoryMenu.getCraftSlots().getItem(1).getCount()==2,"one katana and one gun only");
                 var id=service.eventId();service.craftChanged(owner);require(Objects.equals(id,service.eventId()),"busy service retains single event");
                 owner.inventoryMenu.getCraftSlots().clearContent();service.craftChanged(owner);clock=service.activeTicks();game.items().timeStop().begin(owner.level(),200);state=2;at=now;return false;}
             if(state==2){if(now-at<8)return false;require(service.activeTicks()==clock,"running event paused by real TimeStop");game.items().timeStop().end(owner.level());state=3;at=now;return false;}
             if(state==3){if(service.phase()!=LbcSupernova.Phase.IDLE||game.supernovaMapTransition())return false;
+                require(!owner.getPostEffects().contains(AtlasGlitchSignal.EFFECT)&&other.getPostEffects().contains(AtlasGlitchSignal.EFFECT),"real map completion releases automatic shader but preserves the separate manual preview");
+                AtlasGlitchSignal.manual(other,false);
                 require(game.items().epoch().equals(epoch),"same match epoch after Supernova");require(game.lives(owner.getUUID())==lives&&game.lives(other.getUUID())==otherLives,"same lives");
                 require(owner.experienceLevel==xp&&owner.getInventory().getItem(8).is(Items.DIAMOND)&&owner.getInventory().getItem(8).getCount()==7,"XP and inventory retained");
                 require(other.level()==game.maps().level()&&other.getInventory().getItem(8).is(Items.EMERALD),"Nexus player returned with items");
@@ -74,6 +80,6 @@ public final class SupernovaChecks {
                 require(owner.experienceLevel==xp,"source Balance keeps existing XP");return true;}
             return false;
         }
-        public void close(){if(closed)return;closed=true;game.config().noBorders=borders;game.items().timeStop().end(game.maps().level());}
+        public void close(){if(closed)return;closed=true;game.config().noBorders=borders;game.items().timeStop().end(game.maps().level());AtlasGlitchSignal.manual(owner,ownerPreview);AtlasGlitchSignal.manual(other,otherPreview);}
     }
 }

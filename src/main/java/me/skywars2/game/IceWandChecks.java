@@ -74,7 +74,7 @@ public final class IceWandChecks {
             if(source.is(DamageTypes.ARROW)){arrow++;lastArrow=amount;author=source.getEntity();}return super.hurtServer(level,source,amount);
         }
     }
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         final GameController game;final ServerPlayer owner,other;final PlayerState saved,otherSaved;
         final LbcIceWand service;final Vec3 at;final BlockPos origin;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());

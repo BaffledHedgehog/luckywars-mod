@@ -1,5 +1,7 @@
 package me.skywars2.mixin;
 
+import me.skywars2.game.VanillaExpansionRules;
+
 import com.llamalad7.mixinextras.sugar.Local;
 import me.skywars2.game.NegativeAttributeEffects;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class NegativeMobAttackMixin {
     @Inject(method="doHurtTarget",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/Entity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"),cancellable=true)
     private void skywars2$negativeMobMeleeHeals(ServerLevel level,Entity target,CallbackInfoReturnable<Boolean> cir,@Local(ordinal=0) float amount){
+        if(!VanillaExpansionRules.enabled()){return;}
         var attacker=(Mob)(Object)this;
         if(!NegativeAttributeEffects.negativeAttack(attacker,amount))return;
         boolean healed=NegativeAttributeEffects.mobAttack(attacker,target,amount);

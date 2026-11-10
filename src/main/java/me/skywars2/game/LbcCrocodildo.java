@@ -44,8 +44,8 @@ public final class LbcCrocodildo {
     private static void load(Entity e,String snbt){try{e.load(TagValueInput.create(ProblemReporter.DISCARDING,e.registryAccess(),TagParser.parseCompoundFully(snbt)));}catch(Exception error){throw new IllegalStateException(error);}}
     private Display.ItemDisplay presentation(ServerLevel level,boolean bomb){
         var d=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);
-        load(d,bomb?"{view_range:1000f,interpolation_duration:1,teleport_duration:1,billboard:'center',item:{id:'minecraft:stick',count:1,components:{'minecraft:item_model':'lbc:nuke'}},transformation:{scale:[3f,3f,3f],translation:[0f,-0.4f,0f]}}"
-                :"{view_range:1000f,interpolation_duration:1,teleport_duration:1,item_display:'fixed',item:{id:'minecraft:stick',count:1,components:{'minecraft:item_model':'lbc:crocodildo'}},transformation:{scale:[15f,15f,15f],translation:[0f,1f,0f]}}");
+        load(d,bomb?"{view_range:1000f,interpolation_duration:1,teleport_duration:1,billboard:'center',item:{id:'minecraft:stick',count:1,components:{'minecraft:item_model':'lbc:nuke'}},transformation:{scale:[3f,3f,3f],translation:[0f,-0.4f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}"
+                :"{view_range:1000f,interpolation_duration:1,teleport_duration:1,item_display:'fixed',item:{id:'minecraft:stick',count:1,components:{'minecraft:item_model':'lbc:crocodildo'}},transformation:{scale:[15f,15f,15f],translation:[0f,1f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}");
         d.entityTags().add(VISUAL);return d;
     }
     private Vec3 origin(ItemEntity token){

@@ -1,5 +1,7 @@
 package me.skywars2.mixin;
 
+import me.skywars2.game.VanillaExpansionRules;
+
 import me.skywars2.game.NegativeAttributeEffects;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class NegativeDirectMeleeMixin {
     @Inject(method="hurtServer",at=@At("HEAD"),cancellable=true)
     private void skywars2$signedDirectMeleeHeals(ServerLevel level,DamageSource source,float amount,CallbackInfoReturnable<Boolean> cir){
+        if(!VanillaExpansionRules.enabled()){return;}
         if(NegativeAttributeEffects.directMelee((LivingEntity)(Object)this,source,amount))cir.setReturnValue(false);
     }
 }

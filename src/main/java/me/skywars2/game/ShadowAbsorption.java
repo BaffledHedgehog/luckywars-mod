@@ -32,7 +32,22 @@ public final class ShadowAbsorption {
         public boolean zeroMaximum;
     }
     public static State state(LivingEntity entity) { return ((Access)entity).skywars2$shadowAbsorption(); }
-    public static boolean server(LivingEntity entity) { return !entity.level().isClientSide(); }
+    public static boolean server(LivingEntity entity) { return !entity.level().isClientSide()&&VanillaExpansionRules.enabled(); }
+    /** Translate the live native effect at a real mode change, without refilling spent yellow HP. */
+    static void modeChanged(LivingEntity entity){
+        var s=state(entity);var active=entity.getEffect(MobEffects.ABSORPTION);float amount=entity.getAbsorptionAmount();
+        s.entries.clear();s.capacity=s.stored=s.positiveCapacity=0;s.zeroMaximum=false;s.loading=false;
+        var health=entity.getAttribute(Attributes.MAX_HEALTH);var yellow=entity.getAttribute(Attributes.MAX_ABSORPTION);
+        if(health!=null)health.removeModifier(HEALTH);if(yellow!=null)yellow.removeModifier(YELLOW);
+        if(!VanillaExpansionRules.enabled()){
+            if(active!=null)MobEffects.ABSORPTION.value().addAttributeModifiers(entity.getAttributes(),active.getAmplifier());
+        }else if(active!=null){
+            s.entries.put(active.getAmplifier(),new MobEffectInstance(active));
+            s.positiveCapacity=Math.max(0,4.0*level(active.getAmplifier()));
+            reconcile(entity,false);
+        }
+        entity.setAbsorptionAmount(Math.min(amount,(float)entity.getAttributeValue(Attributes.MAX_ABSORPTION)));
+    }
     public static boolean frozen(LivingEntity entity) {
         var game = SkyWars2.game();
         return game != null && game.items().timeStop().frozen(entity);

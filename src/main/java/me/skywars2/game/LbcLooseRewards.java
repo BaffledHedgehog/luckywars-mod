@@ -23,6 +23,7 @@ public final class LbcLooseRewards {
     LbcLooseRewards(GameController game){this.game=game;}
     public static boolean luckyWand(ItemStack stack){return ItemData.intValue(stack,"luckyblockwand",0)==1;}
     public static boolean copier(ItemStack stack){return LbcTmtLooseRewards.copier(stack);}
+    static ItemStack copyStack(ItemStack donor){return donor.copy();}
     private boolean paused(Entity actor){return !game.server().tickRateManager().runsNormally()
             ||game.items().timeStop().frozen(actor)||game.items().timeStop().stopped((ServerLevel)actor.level())
             ||actor.entityTags().contains("time_stopped");}
@@ -88,7 +89,7 @@ public final class LbcLooseRewards {
         }
         if(donor==null)return false;
         // Only Item and Motion were copied in legacy: no donor age, pickup delay or entity NBT.
-        var duplicate=new ItemEntity(level,item.getX(),item.getY(),item.getZ(),donor.getItem().copy());
+        var duplicate=new ItemEntity(level,item.getX(),item.getY(),item.getZ(),copyStack(donor.getItem()));
         duplicate.setDeltaMovement(item.getDeltaMovement());
         if(item.getOwner()!=null)duplicate.setThrower(item.getOwner());
         game.items().markCurrentItemEpoch(duplicate);
@@ -116,19 +117,9 @@ public final class LbcLooseRewards {
         }
         // Select the nearest eligible physical item first; a no-op never falls through to a farther one.
         if(donor==null||game.items().magic().suppressedAt(level,donor.position()))return false;
-        var original=donor.getItem();var changed=original.copy();
-        if(kind==2){
-            // ItemStack resolves implicit native defaults through its item component map.
-            var attributes=original.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY);
-            var doubled=LbcMultiplierTablets.doubled(attributes);
-            if(doubled.equals(attributes))return false;
-            changed.set(DataComponents.ATTRIBUTE_MODIFIERS,doubled);
-        }else if(kind==4){
-            var enchantments=original.getOrDefault(DataComponents.ENCHANTMENTS,ItemEnchantments.EMPTY);
-            var quadrupled=LbcMultiplierTablets.quadrupled(enchantments);
-            if(quadrupled.equals(enchantments))return false;
-            changed.set(DataComponents.ENCHANTMENTS,quadrupled);
-        }else{
+        var original=donor.getItem();var changed=LbcMultiplierTablets.amplified(original,kind);
+        if(changed.isEmpty())return false;
+        if(kind==3){
             long remaining=original.getCount()*3L;
             int maximum=Math.max(1,original.getMaxStackSize());
             int first=(int)Math.min(remaining,maximum);remaining-=first;

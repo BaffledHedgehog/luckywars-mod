@@ -146,6 +146,18 @@ public final class InventorySkillChecks {
         for(var gate:gates){profile.lbcUnlocks.remove(gate);var advancement=game.server().getAdvancements().get(Identifier.parse(gate));require(advancement!=null,"original source advancement exists: "+gate);for(var criterion:advancement.value().criteria().keySet())owner.getAdvancements().revoke(advancement,criterion);}
         profile.lbcSkill=8;var locked=decorated(owner,Items.DIAMOND_HELMET);owner.setItemSlot(EquipmentSlot.HEAD,locked);var untouched=locked.copy();net.minecraft.advancements.triggers.CriteriaTriggers.INVENTORY_CHANGED.trigger(owner,owner.getInventory(),locked);require(ItemStack.matches(untouched,owner.getItemBySlot(EquipmentSlot.HEAD)),"real inventory event preserves original achievement unlock gate");
         for(var gate:gates){var advancement=game.server().getAdvancements().get(Identifier.parse(gate));for(var criterion:advancement.value().criteria().keySet())owner.getAdvancements().award(advancement,criterion);}
+        // Native hotbar right-click must work without inventing an inventory criterion event.
+        profile.lbcSkill=4;
+        try(var client=new RegenerationBeltChecks.ScheduledClient(game,owner)){
+        for(int i=0;i<ARMOR.length;i++){
+            clearArmor(owner);equipment(owner);owner.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(PIECES[i]));
+            client.acknowledge();
+            owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(net.minecraft.world.InteractionHand.MAIN_HAND,100+i,owner.getYRot(),owner.getXRot()));
+            var worn=owner.getItemBySlot(ARMOR[i]);
+            require(!worn.isEmpty(),"actual hotbar right-click packet equips "+ARMOR[i]);
+            require(worn.has(DataComponents.UNBREAKABLE)&&ItemData.contains(worn,"tanner_upgraded"),"right-click equipment receives skill4 without GUI events: "+ARMOR[i]);
+            equipment(owner);require(owner.getAttributeValue(Attributes.ARMOR_TOUGHNESS)>=3,"native equipment attributes include the actual upgrade");
+        }}
         for(int skill:new int[]{4,8,11})for(var tag:List.of("", "stopper_magic", "stopper")){
             net.minecraft.world.entity.Marker jammer=null;
             try{

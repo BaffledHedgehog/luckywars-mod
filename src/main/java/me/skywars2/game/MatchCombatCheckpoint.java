@@ -30,7 +30,7 @@ final class MatchCombatCheckpoint {
     // Keep those original anchors; live actors/players ALWAYS resolve through the body owner.
     private record History(MatchDamageSources.Image source,float damage,net.minecraft.world.damagesource.FallLocation location,float distance) { }
     private record Kinetic(MatchDamageSources.Ref target,long stamp) { }
-    private record Image(Class<?> type,UUID player,UUID mob,MatchDamageSources.Ref attacked,int memory,int mobTime,int attackTime,
+    private record Image(Class<?> type,UUID player,boolean playerResolved,UUID mob,boolean mobResolved,MatchDamageSources.Ref attacked,int memory,int mobTime,int attackTime,
                          MatchDamageSources.Image damage,long damageStamp,long worldTime,List<History> entries,int last,int start,int end,
                          boolean combat,boolean taking,ItemStack spin,EquipmentSlot spinSlot,boolean kineticPresent,
                          long kineticDefault,List<Kinetic> kinetic,Optional<BlockPos> climb,BlockPos position) { }
@@ -50,7 +50,7 @@ final class MatchCombatCheckpoint {
             if(recent!=null)for(var entry:recent.object2LongEntrySet())kinetic.add(new Kinetic(ref(entry.getKey()),entry.getLongValue()));
             var spin=access.skywars2$spin();EquipmentSlot slot=null;
             if(spin!=null&&!spin.isEmpty())for(var candidate:EquipmentSlot.values())if(living.getItemBySlot(candidate)==spin){slot=candidate;break;}
-            images.put(living.getUUID(),new Image(living.getClass(),id(access.skywars2$player()),id(access.skywars2$mob()),ref(living.getLastHurtMob()),
+            images.put(living.getUUID(),new Image(living.getClass(),id(access.skywars2$player()),EntityReference.getPlayer(access.skywars2$player(),living.level())!=null,id(access.skywars2$mob()),EntityReference.getLivingEntity(access.skywars2$mob(),living.level())!=null,ref(living.getLastHurtMob()),
                     access.skywars2$memory(),living.getLastHurtByMobTimestamp(),living.getLastHurtMobTimestamp(),source(access.skywars2$damage()),
                     access.skywars2$damageTime(),living.level().getGameTime(),List.copyOf(history),tracker.skywars2$last(),tracker.skywars2$start(),tracker.skywars2$end(),
                     tracker.skywars2$combat(),tracker.skywars2$taking(),spin==null?null:spin.copy(),slot,recent!=null,recent==null?0:recent.defaultReturnValue(),
@@ -77,7 +77,7 @@ final class MatchCombatCheckpoint {
             var image=entry.getValue();
             if(!(target instanceof LivingEntity living)||target.getClass()!=image.type)throw new IllegalStateException("Restore original living bodies before native combat");
             var access=(CombatCheckpointAccess.Living)living;
-            var player=resolve(image.player,lookup,pending);var mob=resolve(image.mob,lookup,pending);var attacked=resolve(image.attacked,lookup,pending);
+            var player=MatchDamageSources.resolveNative(image.player,image.playerResolved,lookup,pending);var mob=MatchDamageSources.resolveNative(image.mob,image.mobResolved,lookup,pending);var attacked=resolve(image.attacked,lookup,pending);
             access.skywars2$player(player instanceof Player p?EntityReference.of(p):image.player==null?null:EntityReference.of(image.player));
             access.skywars2$mob(mob instanceof LivingEntity m?EntityReference.of(m):image.mob==null?null:EntityReference.of(image.mob));
             access.skywars2$attacked(attacked instanceof LivingEntity l?l:null);access.skywars2$memory(image.memory);

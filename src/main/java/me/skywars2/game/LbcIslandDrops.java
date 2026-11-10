@@ -103,6 +103,12 @@ public final class LbcIslandDrops {
 
         int radius=kind==LbcIslandDropItem.Kind.RAISE?16:9;
         int dy=kind==LbcIslandDropItem.Kind.RAISE?46:-13;
+        if(copied.get()){
+            var center=BlockPos.containing(origin);int width=kind==LbcIslandDropItem.Kind.RAISE?15:8;
+            var box=AABB.encapsulatingFullBlocks(center.offset(-width,kind==LbcIslandDropItem.Kind.RAISE?-15:-12,-width),
+                    center.offset(width,kind==LbcIslandDropItem.Kind.RAISE?15:0,width));
+            game.maps().moveMapObjects(level,box,pos->box.contains(Vec3.atCenterOf(pos))?pos.offset(0,dy,0):null,null);
+        }
         // Native @e selection is after both terrain commands and is based on each entity's position.
         var selected=level.getEntities((Entity)null,new AABB(origin,origin).inflate(radius),
                 actor->eligible(actor,kind) && actor.position().distanceToSqr(origin)<=radius*radius);

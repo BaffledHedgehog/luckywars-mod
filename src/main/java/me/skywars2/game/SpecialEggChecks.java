@@ -142,7 +142,7 @@ public final class SpecialEggChecks {
             require(head.is(Items.OAK_SLAB)&&head.getCount()==1&&name!=null&&name.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents tr&&tr.getKey().equals("agressive_slab")&&head.get(DataComponents.CUSTOM_NAME)==null&&zombie.getDropChances().byEquipment(EquipmentSlot.HEAD)==1,"native oak slab item_name and guaranteed helmet drop");
             var modifiers=head.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers();
             require(modifiers.size()==1&&modifiers.getFirst().modifier().amount()==7&&modifiers.getFirst().modifier().id().equals(Identifier.parse("minecraft:base_attack_damage")),"source egg slab +7 distinct from existing +6 drop");
-            require(game.items().slabDrops().owner(zombie)==owner,"slab adopted by existing native creature lifecycle");
+            require(game.items().slabDrops().owner(zombie)==zombie,"slab adopted by existing native creature lifecycle");
         }
         void offspring() {
             var parent=new Zombie(EntityTypes.ZOMBIE,level);parent.setNoAi(true);parent.setPos(origin.add(2,0,0));
@@ -203,10 +203,10 @@ public final class SpecialEggChecks {
         void rewards() {
             var vex=(Vex)spawn(LbcSpecialEggs.Kind.LOW_VEX,InteractionHand.OFF_HAND,true);
             require(vex.getMainHandItem().isEmpty()&&vex.getOffhandItem().isEmpty(),"LowVex egg clears native default sword before world insertion");
-            require(vex.getHealth()==1&&vex.getMaxHealth()==1&&game.items().creatureDrops().owner(vex)==owner,"native offhand one-HP Vex retains adoption");
+            require(vex.getHealth()==1&&vex.getMaxHealth()==1&&game.items().creatureDrops().owner(vex)==vex,"native offhand one-HP Vex retains adoption");
             seededReward(vex,"lbc:vex_sword","lbc:ported/vex_sword");
             var creeper=(Creeper)spawn(LbcSpecialEggs.Kind.SARVATRA_CREEPER,InteractionHand.MAIN_HAND,true);
-            require(saved(creeper).getByteOr("ExplosionRadius",(byte)-1)==1&&game.items().creeperDrops().owner(creeper)==owner,"native radius1 creeper retains adoption");
+            require(saved(creeper).getByteOr("ExplosionRadius",(byte)-1)==1&&game.items().creeperDrops().owner(creeper)==creeper,"native radius1 creeper retains adoption");
             seededReward(creeper,"lbc:creeper_wand","lbc:ported/air_wand");
         }
         void fluid() {
@@ -215,7 +215,7 @@ public final class SpecialEggChecks {
             var stack=egg(LbcSpecialEggs.Kind.LOW_VEX,2);owner.setItemInHand(InteractionHand.MAIN_HAND,stack);
             var before=current();require(owner.gameMode.useItem(owner,level,stack,InteractionHand.MAIN_HAND).consumesAction()&&stack.getCount()==1,"actual source-water right-click consumes one egg");
             var actors=fresh(before).stream().filter(e->e instanceof Vex).toList();
-            require(actors.size()==1&&((Vex)actors.getFirst()).getHealth()==1&&((Vex)actors.getFirst()).getMainHandItem().isEmpty()&&((Vex)actors.getFirst()).getOffhandItem().isEmpty()&&game.items().creatureDrops().owner(actors.getFirst())==owner,"native fluid ray creates adopted one-HP Vex");actors.forEach(Entity::discard);
+            require(actors.size()==1&&((Vex)actors.getFirst()).getHealth()==1&&((Vex)actors.getFirst()).getMainHandItem().isEmpty()&&((Vex)actors.getFirst()).getOffhandItem().isEmpty()&&game.items().creatureDrops().owner(actors.getFirst())==actors.getFirst(),"native fluid ray creates adopted one-HP Vex");actors.forEach(Entity::discard);
             set(pad.above(),Blocks.AIR.defaultBlockState());
             owner.teleportTo(level,origin.x,origin.y+2,origin.z-3,Set.of(),0,0,true);
         }
@@ -229,7 +229,7 @@ public final class SpecialEggChecks {
             require(zombies.size()==1,"egg Shahid is one carrier, no four-ring fanout");var zombie=zombies.getFirst();
             require(zombie.isBaby()&&zombie.position().distanceTo(at)<1e-6&&zombie.getPassengers().size()==1&&zombie.getPassengers().getFirst() instanceof PrimedTnt,"one colocated baby and native TNT passenger");
             var tnt=(PrimedTnt)zombie.getPassengers().getFirst();owned.add(tnt);
-            require(tnt.getFuse()==200&&game.items().zombieTntDrops().owner(tnt)==owner&&game.items().currentEpoch(tnt),"exact200 native fuse, author and epoch");
+            require(tnt.getFuse()==200&&game.items().zombieTntDrops().owner(tnt)==zombie&&game.items().currentEpoch(tnt),"exact200 native fuse, author and epoch");
             var cow=new Cow(EntityTypes.COW,level);cow.setPos(at.add(2,0,0));cow.setNoAi(true);require(level.addFreshEntity(cow),"melee target");owned.add(cow);
             float hp=cow.getHealth();require(!zombie.doHurtTarget(level,cow)&&cow.getHealth()==hp&&game.items().zombieTntDrops().wild(tnt)&&game.items().zombieTntDrops().canAffect(tnt,owner),"existing no-melee carrier and WILD TNT self target");cow.discard();
             frozen=List.of(zombie,tnt);for(var e:frozen)positions.put(e,e.position());fuses.put(tnt,tnt.getFuse());

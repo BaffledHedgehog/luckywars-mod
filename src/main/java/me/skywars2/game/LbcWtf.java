@@ -239,22 +239,28 @@ public final class LbcWtf {
             if(actionAim!=null&&tickCount<=aimUntil)at=actionAim;
             turnLook(at,15,8);
         }
+        // Physics, route following and precise actions share one native frame's turn allowance.
+        private void bodyYaw(float value){setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRotO,value,25));}
+        private void cameraYaw(float value){setYRot(net.minecraft.util.Mth.approachDegrees(yRotO,value,25));}
+        @Override protected void tickHeadTurn(float desired){
+            super.tickHeadTurn(desired);bodyYaw(yBodyRot);
+        }
         private void turnLook(Vec3 at,float yawStep,float pitchStep){
             Vec3 delta=at.subtract(getEyePosition());
             float yaw=delta.horizontalDistanceSqr()<1.0e-8?getYRot():(float)(Math.atan2(-delta.x,delta.z)*180/Math.PI);
             float pitch=(float)(-Math.atan2(delta.y,delta.horizontalDistance())*180/Math.PI);
             float head=net.minecraft.util.Mth.approachDegrees(getYHeadRot(),yaw,yawStep);
             head=getYRot()+net.minecraft.util.Mth.clamp(net.minecraft.util.Mth.wrapDegrees(head-getYRot()),-75,75);
-            setYHeadRot(head);
+            setYHeadRot(net.minecraft.util.Mth.approachDegrees(yHeadRotO,head,25));
             // Pitch is bounded to [-90,90], unlike yaw. Wrapped interpolation at
             // the overhead-to-floor 180-degree transition sticks at native -90.
-            setXRot(net.minecraft.util.Mth.approach(getXRot(),pitch,pitchStep));
+            setXRot(net.minecraft.util.Mth.approach(xRotO,net.minecraft.util.Mth.approach(getXRot(),pitch,pitchStep),20));
         }
         void face(Vec3 at){
             Vec3 delta=at.subtract(getEyePosition());
             float desired=(float)(Math.atan2(-delta.x,delta.z)*180/Math.PI);
-            setYRot(net.minecraft.util.Mth.approachDegrees(getYRot(),desired,20));
-            setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),15));
+            cameraYaw(net.minecraft.util.Mth.approachDegrees(getYRot(),desired,20));
+            bodyYaw(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),15));
             lookAt(at);
         }
         /** An action waits for the actual camera ray, rather than merely requesting a turn. */
@@ -262,8 +268,8 @@ public final class LbcWtf {
             actionAim=at;aimUntil=tickCount+2;
             Vec3 offset=at.subtract(getEyePosition());
             float yaw=offset.horizontalDistanceSqr()<1.0e-8?getYRot():(float)Math.toDegrees(Math.atan2(-offset.x,offset.z));
-            setYRot(net.minecraft.util.Mth.approachDegrees(getYRot(),yaw,25));
-            setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),20));
+            cameraYaw(net.minecraft.util.Mth.approachDegrees(getYRot(),yaw,25));
+            bodyYaw(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),20));
             turnLook(at,25,20);
             byte packedYaw=net.minecraft.util.Mth.packDegrees(getYRot()),packedPitch=net.minecraft.util.Mth.packDegrees(getXRot());
             byte packedHead=net.minecraft.util.Mth.packDegrees(getYHeadRot());
@@ -298,14 +304,14 @@ public final class LbcWtf {
             if(distance<.035){xxa=0;zza=0;jumping=jump;return;}
             Vec3 look=facing==null?delta:facing.subtract(position());
             float desiredYaw=(float)(Math.atan2(-look.x,look.z)*180/Math.PI);
-            if(actionAim==null||tickCount>aimUntil)setYRot(net.minecraft.util.Mth.approachDegrees(getYRot(),desiredYaw,20));
-            if(actionAim==null||tickCount>aimUntil)setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),15));
+            if(actionAim==null||tickCount>aimUntil)cameraYaw(net.minecraft.util.Mth.approachDegrees(getYRot(),desiredYaw,20));
+            if(actionAim==null||tickCount>aimUntil)bodyYaw(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),15));
             // Direction is independent of bounded body rotation: corners cannot make a circling actor.
             double yaw=Math.toRadians(getYRot()),dx=delta.x/distance,dz=delta.z/distance;
             float throttle=(float)(!onGround()?1:Math.min(1,distance*4));
             xxa=(float)(dx*Math.cos(yaw)+dz*Math.sin(yaw))*throttle;
             zza=(float)(-dx*Math.sin(yaw)+dz*Math.cos(yaw))*throttle;
-            setSpeed((float)getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED));
+            setSpeed((float)getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED)*(isShiftKeyDown()?.3f:1));
             jumping=jump;lookAt(facing==null?target.getEyePosition():facing);
         }
 
@@ -365,13 +371,13 @@ public final class LbcWtf {
             boolean movingTarget=chef.previousTarget!=null&&chef.target.position().distanceToSqr(chef.previousTarget)>.0004;
             chef.previousTarget=chef.target.position();
             if(chef.distanceToSqr(chef.target)<=6.25&&chef.hasLineOfSight(chef.target)){
-                boolean chase=movingTarget||chef.position().subtract(chef.target.position()).horizontalDistanceSqr()>1.44;
-                if(chase){chef.setSprinting(true);chef.steer(chef.target.position(),false);}
+                boolean chase=movingTarget||chef.position().subtract(chef.target.position()).horizontalDistanceSqr()>1.44||!LbcBotActions.melee(chef,chef.target,2.5);
+                if(chase){chef.setSprinting(true);if(!chef.brain.closeGround(chef.target.position()))chef.brain.tick();if(chef.brain.preciseAction())return;}
                 else chef.halt();
                 // Turn and prepare the sword concurrently; neither hand dwell nor
                 // a large camera turn should postpone starting the other action.
                 boolean aimed=chef.aimAction(chef.target.getEyePosition()),equipped=chef.equipCombat();
-                boolean ready=aimed&&equipped;
+                boolean ready=aimed&&equipped&&LbcBotActions.melee(chef,chef.target,2.5);
                 boolean crit=!chef.onGround()&&chef.getDeltaMovement().y<-.05&&!chef.isInWater()&&!chef.onClimbable()&&!chef.isPassenger();
                 if(chef.attackDelay==0&&ready){
                     boolean safeJump=chef.onGround()&&!chef.isInWater()&&chef.level().noCollision(chef,chef.getBoundingBox().move(0,1.25,0));

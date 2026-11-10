@@ -67,7 +67,7 @@ public final class FamilyDropChecks {
             // retire another subsystem's borrowed transient spell or projectile.
             for(var level:game.server().getAllLevels())for(var e:level.getAllEntities()){
                 var source=game.items().spellSources().source(e);
-                require(source==null||!source.author().equals(base.base.owner.getUUID())||source.persistent(),"exclusive persistent author sources before real forget hook");
+                require(source==null||!Objects.equals(source.author(),base.base.owner.getUUID())||source.persistent(),"exclusive persistent author sources before real forget hook");
             }
             game.items().spellSources().forget(base.base.owner);
         }
@@ -89,7 +89,9 @@ public final class FamilyDropChecks {
             require(actor.entityTags().containsAll(mom?Set.of("mom","rc_1sec","active"):Set.of("otchim","lucky_mob","active"))&&saved(actor).getBooleanOr("Invulnerable",false),"source tags and invulnerability");
             if(!mom)require(((Zombie)actor).isPersistenceRequired()&&living.hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY),"persistent invisible Otchim");
             var source=game.items().spellSources().source(actor);
-            require(source!=null&&source.author().equals(base.base.owner.getUUID())&&source.cause()!=null&&source.cause().player().equals(base.base.owner.getUUID())&&source.cause().friendlyFire()&&game.items().currentEpoch(actor),"actual thrower WILD cause and current epoch");
+            require(source!=null&&game.items().currentEpoch(actor),"current native actor policy and epoch");
+            if(mom)require(Objects.equals(source.author(),base.base.owner.getUUID())&&source.cause()!=null&&source.cause().player().equals(base.base.owner.getUUID())&&source.cause().friendlyFire(),"nonhostile mother retains original trigger metadata");
+            else require(source.author()==null&&source.cause()==null&&source.nativeEmitter()==actor&&actor.entityTags().contains("skywars2.players_only_trap"),"Otchim is independently hostile to every player, with native mob attacker and no human kill author");
             require(clock(actor)==0,"new native clock starts at zero");
         }
         void guards(){

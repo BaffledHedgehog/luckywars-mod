@@ -19,10 +19,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
-/** Only Gate of Babylon's three arrow transports; each FIFO contribution retains its original cause. */
+/** Shared explosive/lightning/fire status transports; each FIFO contribution retains its original cause. */
 public final class LbcBabylonEffects {
-    private static final String[] COUNTERS={"effect_small_explosion","effect_lightning_bolt","effect_firebreak"};
-    private static final int[] AMPS={101,109,110};
+    private static final String[] COUNTERS={"effect_small_explosion","effect_lightning_bolt","effect_firebreak","effect_explosion","effect_big_explosion"};
+    private static final int[] AMPS={101,109,110,104,107};
     private static final net.fabricmc.fabric.api.attachment.v1.AttachmentType<CompoundTag> DATA=
         net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(Identifier.parse("skywars2:babylon_effects"),b->b.persistent(CompoundTag.CODEC));
     private final GameController game;
@@ -44,7 +44,7 @@ public final class LbcBabylonEffects {
     public LbcBabylonEffects(GameController game,LbcMana mana){this.game=game;this.mana=mana;}
     private static int index(int amp){for(int i=0;i<AMPS.length;i++)if(AMPS[i]==amp)return i;return -1;}
     public static boolean isEffect(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&index(effect.getAmplifier())>=0;}
-    private static List<ArrayDeque<Contribution>> queues(){return List.of(new ArrayDeque<>(),new ArrayDeque<>(),new ArrayDeque<>());}
+    private static List<ArrayDeque<Contribution>> queues(){var result=new ArrayList<ArrayDeque<Contribution>>(AMPS.length);for(int i=0;i<AMPS.length;i++)result.add(new ArrayDeque<>());return result;}
     public boolean accept(LivingEntity target,Projectile arrow,MobEffectInstance effect){
         if(!isEffect(effect)||!LbcBabylon.managed(arrow)||!game.items().currentEpoch(arrow)
                 ||target.entityTags().contains("sin_greed_active")||!valid(target)||!target.canBeAffected(effect)
@@ -64,11 +64,14 @@ public final class LbcBabylonEffects {
     }
     /** Arrow-equivalent carriers feed the same accepted counter, without a synthetic world arrow. */
     public boolean acceptCarrier101(LivingEntity target,MobEffectInstance effect,LbcIndirectKills.Owner cause){
-        if(effect.getAmplifier()!=101||!isEffect(effect)||target.entityTags().contains("sin_greed_active")
+        return effect.getAmplifier()==101&&acceptCarrier(target,effect,cause);
+    }
+    public boolean acceptCarrier(LivingEntity target,MobEffectInstance effect,LbcIndirectKills.Owner cause){
+        if(!isEffect(effect)||target.entityTags().contains("sin_greed_active")
                 ||!valid(target)||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
         if(skillImmune(target)){clear(target);return true;}
         int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return true;
-        pending.computeIfAbsent(target,k->queues()).get(0).addLast(new Contribution(duration,cause));sync(target);return true;
+        pending.computeIfAbsent(target,k->queues()).get(index(effect.getAmplifier())).addLast(new Contribution(duration,cause));sync(target);return true;
     }
     private boolean valid(LivingEntity target){return game.playing()&&target.level()==game.maps().level()&&game.items().wands().validTarget(target);}
     private boolean skillImmune(LivingEntity target){return LbcParasite.active(target);}
@@ -94,13 +97,15 @@ public final class LbcBabylonEffects {
         if(!valid(target)||skillImmune(target)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p)){clear(target);return;}
         if(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped((ServerLevel)target.level())||game.items().timeStop().frozen(target)
                 ||target.entityTags().contains("time_stopped")||game.items().frost().isFrozen(target)||target.entityTags().contains("sin_greed_active"))return;
-        for(int kind=0;kind<3;kind++){
+        for(int kind=0;kind<AMPS.length;kind++){
             var queue=all.get(kind);var next=queue.peekFirst();if(next==null)continue;
             var level=(ServerLevel)target.level();
-            boolean ward=game.items().magic().luckyEffectWarded(level,target.position());
-            boolean suppressed=kind==0?game.items().magic().mechanismSuppressedAt(level,target.position()):game.items().magic().suppressedAt(level,target.position());
-            if(!ward&&!suppressed)act(target,kind,next.cause);
+            boolean ward=kind<3&&game.items().magic().luckyEffectWarded(level,target.position());
+            boolean suppressed=kind>=3?game.items().legacyEffects().explosionSuppressed(target):
+                    kind==0?game.items().magic().mechanismSuppressedAt(level,target.position()):game.items().magic().suppressedAt(level,target.position());
             if(--next.remaining<=0)queue.removeFirst();
+            if(!ward&&!suppressed)act(target,kind,next.cause);
+            if(pending.get(target)!=all)return; // Native lethal callbacks may clear this entire target.
         }
         if(all.stream().allMatch(Deque::isEmpty))clear(target);else sync(target);
     }
@@ -110,13 +115,13 @@ public final class LbcBabylonEffects {
     void quiverExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){actAt(level,at,0,cause);}
     /** Ordinary explosive darts retain native TNT strength and two-tick fuse in the shared child lifecycle. */
     void primeExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
-        var owner=game.server().getPlayerList().getPlayer(cause.player());
+        var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
         var tnt=new net.minecraft.world.entity.item.PrimedTnt(level,at.x,at.y,at.z,owner);tnt.setFuse(2);
         inheritChild(cause,tnt);level.addFreshEntity(tnt);
     }
     /** Source bigexplode has seven native MOB explosions, sharing accepted WILD damage and terrain ownership. */
     void bigExplosionAt(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){
-        var owner=game.server().getPlayerList().getPlayer(cause.player());
+        var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
         for(var offset:List.of(Vec3.ZERO,new Vec3(0,0,4),new Vec3(0,0,-4),new Vec3(-4,0,0),new Vec3(4,0,0),new Vec3(0,-4,0),new Vec3(0,4,0))){
             var point=at.add(offset);if(!level.hasChunkAt(BlockPos.containing(point)))continue;
             var damage=new OwnerDamageSource(level,null,owner,cause,game.items().epoch());
@@ -126,6 +131,8 @@ public final class LbcBabylonEffects {
     private void actAt(ServerLevel level,Vec3 at,int kind,LbcIndirectKills.Owner cause){
         var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
         if(cause!=null&&owner==null&&!cause.friendlyFire())return;
+        if(kind==3){primeExplosionAt(level,at,cause);return;}
+        if(kind==4){bigExplosionAt(level,at,cause);return;}
         if(kind==0){
             var damage=new OwnerDamageSource(level,null,owner,cause,game.items().epoch());
             game.items().indirectKills().trapChanges(level,cause,()->level.explode(null,damage,null,at,1,false,Level.ExplosionInteraction.MOB));
@@ -180,7 +187,7 @@ public final class LbcBabylonEffects {
     public int pendingCount(){return pending.size();}
     private void sync(LivingEntity target){
         var tag=new CompoundTag();tag.putString("epoch",game.items().epoch());var entries=new ListTag();
-        for(int i=0;i<3;i++){mana.score(target,COUNTERS[i]).set(queued(target,AMPS[i]));for(var c:pending.get(target).get(i)){
+        for(int i=0;i<AMPS.length;i++){mana.score(target,COUNTERS[i]).set(queued(target,AMPS[i]));for(var c:pending.get(target).get(i)){
             var entry=new CompoundTag();entry.putInt("amp",AMPS[i]);entry.putInt("ticks",c.remaining);if(c.cause!=null){entry.putString("owner",c.cause.player().toString());entry.putLong("order",c.cause.order());entry.putBoolean("wild",c.cause.friendlyFire());entry.putBoolean("projectile",c.cause.projectile());}entries.add(entry);
         }}tag.put("entries",entries);target.setAttached(DATA,tag);
     }
@@ -206,12 +213,12 @@ public final class LbcBabylonEffects {
     public void stop(){for(var target:List.copyOf(pending.keySet()))clear(target);for(var entity:List.copyOf(secondary.keySet()))if(!entity.isRemoved())entity.discard();secondary.clear();retainedTargets.clear();}
     void adoptRawFoodStatuses(ServerPlayer player){
         if(!valid(player)||skillImmune(player)||game.items().magic().rejectCustomDebuff(player))return;
-        int[] desired=new int[3];for(int i=0;i<3;i++)desired[i]=mana.hudValue(player,COUNTERS[i]);
-        for(int i=0;i<3;i++){long delta=(long)desired[i]-queued(player,AMPS[i]);if(delta>0)
+        int[] desired=new int[AMPS.length];for(int i=0;i<AMPS.length;i++)desired[i]=mana.hudValue(player,COUNTERS[i]);
+        for(int i=0;i<AMPS.length;i++){long delta=(long)desired[i]-queued(player,AMPS[i]);if(delta>0)
             pending.computeIfAbsent(player,k->queues()).get(i).addLast(new Contribution((int)Math.min(Integer.MAX_VALUE,delta),game.items().indirectKills().wildCause(player)));}
         if(pending.containsKey(player))sync(player);
     }
-    public void addPlayerCounter(ServerPlayer player,String name){for(int i=0;i<3;i++)if(COUNTERS[i].equals(name)){mana.score(player,name).set(queued(player,AMPS[i]));return;}}
+    public void addPlayerCounter(ServerPlayer player,String name){for(int i=0;i<AMPS.length;i++)if(COUNTERS[i].equals(name)){mana.score(player,name).set(queued(player,AMPS[i]));return;}}
 
     ResidentCheckpoint residentCheckpoint(MatchSpellCheckpoint.Links links){return new ResidentCheckpoint(links);}
     void prepareResidentFrozen(){pending.clear();secondary.clear();retainedTargets.clear();}
@@ -228,7 +235,7 @@ public final class LbcBabylonEffects {
         Runnable prepare(MatchSpellCheckpoint.Links links){
             var next=new LinkedHashMap<LivingEntity,List<ArrayDeque<Contribution>>>();var offline=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
             for(var target:targets){var body=(LivingEntity)links.get(target.body);var all=queues();
-                for(int kind=0;kind<3;kind++)for(var row:target.queues.get(kind))all.get(kind).add(new Contribution(row.remaining,row.cause));
+                for(int kind=0;kind<AMPS.length;kind++)for(var row:target.queues.get(kind))all.get(kind).add(new Contribution(row.remaining,row.cause));
                 next.put(body,all);if(MatchOfflinePlayers.retained(body))offline.add(body);}
             var nextChildren=new WeakHashMap<Entity,LbcIndirectKills.Owner>();children.forEach((ref,cause)->nextChildren.put(links.get(ref),cause));
             return ()->{pending.clear();pending.putAll(next);secondary.clear();secondary.putAll(nextChildren);retainedTargets.clear();retainedTargets.addAll(offline);};
@@ -242,7 +249,7 @@ public final class LbcBabylonEffects {
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){
                 if(child)secondary.put(clone,cause);
-                if(image!=null){var queues=queues();for(int i=0;i<3;i++)for(var c:image.get(i))queues.get(i).addLast(new Contribution(c.remaining,c.cause));pending.put((LivingEntity)clone,queues);sync((LivingEntity)clone);}
+                if(image!=null){var queues=queues();for(int i=0;i<AMPS.length;i++)for(var c:image.get(i))queues.get(i).addLast(new Contribution(c.remaining,c.cause));pending.put((LivingEntity)clone,queues);sync((LivingEntity)clone);}
             }
             public void rollback(Entity clone){secondary.remove(clone);pending.remove(clone);retainedTargets.remove(clone);}
         };

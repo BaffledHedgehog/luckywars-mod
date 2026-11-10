@@ -19,6 +19,10 @@ public abstract class SkillDamageReceiptMixin {
     @Inject(method="recordDamage",at=@At("HEAD"))
     private void skywars2$vip(DamageSource source,float amount,CallbackInfo ci){
         var game=SkyWars2.game();
-        if(game!=null&&mob instanceof ServerPlayer player)game.items().containedSkills().recordDamage(player,source,amount);
+        if(game!=null){
+            me.skywars2.game.LbcAcceptedHits.record(mob,source,amount);
+            game.items().indirectKills().acceptedDamage(mob,source,amount);
+            if(mob instanceof ServerPlayer player)game.items().containedSkills().recordDamage(player,source,amount);
+        }
     }
 }

@@ -230,7 +230,7 @@ public final class LbcTrollBox {
                     if(visit.cell<343)return false;
                     level.sendParticles(new DustParticleOptions(0x080749,4),true,false,p.body.getX(),p.body.getY(),p.body.getZ(),1,.1,.1,.1,0);
                     for(var victim:level.getEntitiesOfClass(LivingEntity.class,p.body.getBoundingBox().inflate(4),e->e.distanceToSqr(p.body)<=16&&target(p.event,e)&&!paused(e)))
-                        for(var effect:List.of(MobEffects.SLOWNESS,MobEffects.WEAKNESS,MobEffects.WITHER,MobEffects.BLINDNESS))game.items().indirectKills().wildEffect(victim,ItemEffectLevels.create(effect,100,100,false,false),p.event.source.cause());
+                        for(var effect:List.of(MobEffects.SLOWNESS,MobEffects.WEAKNESS,MobEffects.WITHER,MobEffects.BLINDNESS))game.items().indirectKills().wildEffect(victim,ItemEffectLevels.create(effect,100,effect.is(MobEffects.BLINDNESS)?1:100,false,false),p.event.source.cause());
                     p.body.setPos(p.body.position().add(0,-.5,0));if(++p.age>=800){powers.remove(p.body.getUUID());p.body.discard();}todo.removeFirst();return finishIfEmpty();
                 }return finishIfEmpty();
             }finally{callbacks--;}

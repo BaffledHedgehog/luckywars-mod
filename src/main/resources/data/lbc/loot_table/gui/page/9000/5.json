@@ -6,13 +6,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:red_mushroom_block",
-          "modifier": [
+          "name": "skywars2:lucky_block",
+          "functions": [
             {
               "components": {
                 "minecraft:item_model": "lbc:lucky_block"
               },
-              "type": "minecraft:set_components"
+              "function": "minecraft:set_components"
             },
             {
               "entity": "this",
@@ -21,7 +21,7 @@
                 "italic": false,
                 "color": "white"
               },
-              "type": "minecraft:set_name"
+              "function": "minecraft:set_name"
             },
             {
               "mode": "replace_all",
@@ -91,7 +91,7 @@
                   }
                 ]
               ],
-              "type": "minecraft:set_lore"
+              "function": "minecraft:set_lore"
             }
           ]
         }

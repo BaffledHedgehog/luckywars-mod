@@ -23,17 +23,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.NoteBlock;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -64,25 +62,24 @@ final class LbcBlockModels {
         @Override public boolean isIgnoringBlockInteractionPlaySoundExceptedEntity(BlockState state,ServerPlayer player,
                 InteractionHand hand,ItemStack stack,ServerLevel level,BlockHitResult hit){
             // The client's interactive note block consumes a non-crouched click before item prediction.
-            return !player.isSecondaryUseActive()&&(stack.getItem() instanceof BlockItem||stack.getItem() instanceof BucketItem);
+            return !player.isSecondaryUseActive();
         }
-        @Override protected InteractionResult useItemOn(ItemStack stack,BlockState state,Level level,BlockPos pos,
-                Player player,InteractionHand hand,BlockHitResult hit){
-            if(player instanceof ServerPlayer server&&stack.getItem() instanceof BucketItem)
-                return server.gameMode.useItem(server,level,stack,hand);
-            return super.useItemOn(stack,state,level,pos,player,hand,hit);
+        @Override public boolean isPolymerBlockInteraction(BlockState state,ServerPlayer player,InteractionHand hand,
+                ItemStack stack,ServerLevel level,BlockHitResult hit,InteractionResult result){
+            // Native fallback already tried both hands. A no-op must not be replayed at client-tick end.
+            return result!=InteractionResult.PASS;
         }
         @Override public void spawnDestroyByEntityParticles(Level level,Entity entity,BlockPos pos,BlockState state){
             // Keep native observer exclusion. Calling super would also run Polymer's unconditional
             // self event, duplicating vanilla's predicted destruction for creative/instant mining.
-            level.levelEvent(entity,LevelEvent.PARTICLES_DESTROY_BLOCK,pos,Block.getId(state));
+            level.levelEvent(entity,LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK,pos,Block.getId(state));
             if(entity instanceof ServerPlayer player&&!player.getAbilities().instabuild
                     &&PolymerBlockUtils.shouldMineServerSide(player,pos,state)){
                 var client=PolymerBlockUtils.getPolymerBlockState(state,player.connection.getPacketContext());
                 // Slower server-controlled mining never reaches the client's destroyBlock path.
                 // A client that could insta-mine already emitted both the sound and the particles.
                 if(client.getDestroyProgress(player,level,pos)<1)player.connection.send(new ClientboundLevelEventPacket(
-                        LevelEvent.PARTICLES_DESTROY_BLOCK,pos,Block.getId(state),false));
+                        LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK,pos,Block.getId(state),false));
             }
         }
     }
@@ -116,10 +113,22 @@ final class LbcBlockModels {
             if(!previous.model().equals(model))throw new IllegalStateException("Conflicting block model for "+serverBlock);
             return previous.clientState();
         }
-        var state=PolymerBlockResourceUtils.requestBlock(BlockModelType.FULL_BLOCK,PolymerBlockModel.of(model));
-        // FULL_BLOCK can spill into target/hive states; the common carrier must remain a note block.
-        if(state==null||!state.is(Blocks.NOTE_BLOCK))
-            throw new IllegalStateException("No Polymer note-block palette slot available for "+serverBlock);
+        // Client-side vertical neighbor prediction recomputes INSTRUMENT, e.g. when lighting fire.
+        // Reserve every instrument/powered variant at one note so that predicted states keep this model.
+        var creator=me.skywars2.mixin.PolymerBlockResourceAccess.skywars2$creator();
+        var available=((me.skywars2.mixin.PolymerBlockResourceAccess.States)(Object)creator)
+                .skywars2$available().get(BlockModelType.FULL_BLOCK);
+        BlockState state=null;
+        for(int note=1;note<=24;note++){
+            int value=note;
+            var family=Blocks.NOTE_BLOCK.getStateDefinition().getPossibleStates().stream()
+                    .filter(s->s.getValue(NoteBlock.NOTE)==value).toList();
+            if(!available.containsAll(family))continue;
+            for(var member:family)if(creator.requestBlock(BlockModelType.FULL_BLOCK,member::equals,PolymerBlockModel.of(model))!=member)
+                throw new IllegalStateException("Polymer note family reservation changed for "+serverBlock);
+            state=Blocks.NOTE_BLOCK.defaultBlockState().setValue(NoteBlock.NOTE,value);break;
+        }
+        if(state==null)throw new IllegalStateException("No complete Polymer note-block family available for "+serverBlock);
         ALLOCATIONS.put(serverBlock,new Allocation(serverBlock,model,state));
         me.skywars2.SkyWars2.LOGGER.info("Custom cube palette: {} -> {} ({})",serverBlock,state,model);
         return state;
@@ -136,6 +145,8 @@ final class LbcBlockModels {
         entry.addProperty("model",allocation.model().toString());
         entry.addProperty("client_block",BuiltInRegistries.BLOCK.getKey(allocation.clientState().getBlock()).toString());
         entry.addProperty("client_state",allocation.clientState().toString());
+        entry.addProperty("prediction_safe_note",allocation.clientState().getValue(NoteBlock.NOTE));
+        entry.addProperty("all_instruments_and_powered_variants",true);
         var state=BlockState.FULL_CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE,allocation.clientState()).getOrThrow().getAsJsonObject();
         entry.add("properties",state.getAsJsonObject("properties"));
         entry.addProperty("merge_into","assets/minecraft/blockstates/note_block.json");

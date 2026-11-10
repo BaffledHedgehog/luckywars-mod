@@ -22,7 +22,7 @@ final class MatchTransientSpells {
         add(ids,items.blind().snapshot());add(ids,items.teleport().snapshot());add(ids,items.prism().transientSnapshot());
         add(ids,items.electro().transientSnapshot());add(ids,items.babylon().snapshot());add(ids,items.trinkets().transientSnapshot());
         add(ids,items.fartus().snapshot());for(var shot:items.fartus().snapshot())if(shot.display!=null)ids.add(shot.display.getUUID());
-        add(ids,items.evokerBass().snapshot());add(ids,items.terra().transientSnapshot());
+        add(ids,items.evokerBass().snapshot());
         return Set.copyOf(ids);
     }
     private static void add(Set<UUID> ids,Iterable<? extends Entity> actors){for(var actor:actors)ids.add(actor.getUUID());}
@@ -35,6 +35,6 @@ final class MatchTransientSpells {
         items.ruby().stop();items.air().stop();items.stone().stop();items.prism().cancelTransient();
         items.blind().stop();items.teleport().stop();items.erecto().stop();items.bedrock().stop();items.gaycasterAcademy().stop();
         items.babylon().stop();items.trinkets().stop();
-        items.fartus().cancelTransient();items.evokerBass().cancelTransient();items.terra().cancelTransient();
+        items.fartus().cancelTransient();items.evokerBass().cancelTransient();
     }
 }

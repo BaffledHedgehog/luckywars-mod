@@ -10,6 +10,11 @@ import net.minecraft.world.item.Items;
 /** Exact equipment queries and the shared source jump leaf; existing native boundaries own admission. */
 final class LbcTmtPassiveQueries {
     private LbcTmtPassiveQueries(){}
+    static boolean rocketFeet(ItemStack stack){
+        for(var property:LbcTmtAbilities.read(stack))if(LbcTmtComponents.nativeItem(property.data())==LbcItems.ROCKET_BOOTS
+                ||((ItemData.IntReader)(Object)property.data()).skywars2$readInt("explosive_feets",0)==1)return true;
+        return false;
+    }
     /** Caller supplies the actual FEET slot. Legacy Balance requires both iron boots and its own flag. */
     static boolean reactiveOldFeet(ItemStack feet){
         if(!LbcTmtItems.matches(feet))return feet.is(Items.IRON_BOOTS)&&ItemData.intValue(feet,"reactive_old",0)==1;

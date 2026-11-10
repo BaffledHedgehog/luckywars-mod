@@ -31,9 +31,8 @@ public final class BlockPaletteChecks {
                         "skywars2:lucky_block","minecraft:block/lucky_block",
                         "skywars2:lucky_block_neko","minecraft:block/neko_lucky_block",
                         "skywars2:lucky_block_loli","minecraft:block/lucky_block_loli",
-                        "skywars2:consumed_block","lbc:block/consumed_block",
-                        "skywars2:greedstone_cursed_block","skywars2:block/greedstone_cursed_block");
-                var allocations=LbcBlockModels.allocations();require(allocations.size()==expected.size(),"all five full-cube allocations");
+                        "skywars2:consumed_block","lbc:block/consumed_block");
+                var allocations=LbcBlockModels.allocations();require(allocations.size()==expected.size(),"only three Lucky variants and consumed full-cube allocations");
                 var reserved=new HashSet<BlockState>();var servers=new HashSet<Identifier>();
                 var full=new net.minecraft.world.phys.AABB(0,0,0,1,1,1);
                 for(var allocation:allocations){
@@ -59,7 +58,7 @@ public final class BlockPaletteChecks {
                 covered[0]=notes;covered[1]=mushrooms;
             });
         }finally{game.maps().restoreSnapshot(level,pos,before,2|16|32);game.items().magic().blockChanged(pos,level.getBlockState(pos));}
-        SkyWars2.LOGGER.info("[check] PASS block-palette (five distinct actual textured packet mappings, full native/client collision, no holders, {} real vanilla note states, {} natural mushroom states, exact generated model references and owned assets)",covered[0],covered[1]);
+        SkyWars2.LOGGER.info("[check] PASS block-palette (four distinct actual textured packet mappings, full native/client collision, no holders, {} real vanilla note states, {} natural mushroom states, exact generated model references and owned assets)",covered[0],covered[1]);
     }
     private static <T extends Comparable<T>> String value(BlockState state,Property<T> property){return property.getName(state.getValue(property));}
     private static Map<String,String> properties(BlockState state){var result=new TreeMap<String,String>();for(var property:state.getProperties())result.put(property.getName(),value(state,property));return result;}
@@ -93,9 +92,10 @@ public final class BlockPaletteChecks {
         var path=eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils.getMainPath();require(java.nio.file.Files.isRegularFile(path),"existing generated Polymer pack");
         try(var zip=new ZipFile(path.toFile())){
             var states=json(zip,"assets/minecraft/blockstates/note_block.json");
-            for(var allocation:allocations)require(modelsFor(states,allocation.clientState()).equals(Set.of(allocation.model())),"generated exact reserved-state model "+allocation);
-            var cursed=json(zip,"assets/skywars2/models/block/greedstone_cursed_block.json");
-            require(cursed.get("parent").getAsString().equals("minecraft:block/cube_all")&&cursed.getAsJsonObject("textures").get("all").getAsString().equals("minecraft:block/mushroom_block_inside"),"cursed block retains authored mushroom-inside appearance");
+            for(var allocation:allocations)for(var member:Blocks.NOTE_BLOCK.getStateDefinition().getPossibleStates())
+                if(member.getValue(net.minecraft.world.level.block.NoteBlock.NOTE).equals(allocation.clientState().getValue(net.minecraft.world.level.block.NoteBlock.NOTE)))
+                    require(modelsFor(states,member).equals(Set.of(allocation.model())),"generated prediction-safe model for every instrument/powered variant "+allocation+" "+member);
+            require(zip.getEntry("assets/skywars2/models/block/greedstone_cursed_block.json")==null,"no fabricated Greedstone terrain model is generated");
             var consumed=json(zip,"assets/lbc/models/block/consumed_block.json");require(consumed.getAsJsonObject("textures").get("all").getAsString().equals("lbc:block/consumed_block")&&zip.getEntry("assets/lbc/textures/block/consumed_block.png")!=null,"consumed model and owned texture remain in generated pack");
         }catch(java.io.IOException error){throw new IllegalStateException("Read existing generated block palette pack",error);}
     }

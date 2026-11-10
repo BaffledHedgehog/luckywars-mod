@@ -68,7 +68,7 @@ public final class ContainedSkillChecks {
             game.config().lbcSkills=true;game.config().ranked=true;game.server().tickRateManager().setFrozen(false);
             for(var p:List.of(owner,other)){
                 clearAttackers(p);p.closeContainer();p.stopUsingItem();p.getInventory().clearContent();p.removeAllEffects();p.setGameMode(GameType.SURVIVAL);p.getAbilities().invulnerable=false;p.setNoGravity(true);
-                p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);p.getAttribute(Attributes.ARMOR).removeModifiers();p.getAttribute(Attributes.ARMOR_TOUGHNESS).removeModifiers();p.setHealth(100);p.setAbsorptionAmount(0);
+                p.getAttribute(Attributes.MAX_HEALTH).removeModifiers();p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);p.getAttribute(Attributes.ARMOR).removeModifiers();p.getAttribute(Attributes.ARMOR_TOUGHNESS).removeModifiers();p.setHealth(100);p.setAbsorptionAmount(0);
                 p.entityTags().removeAll(Set.of("time_stopped","spectator","strict_map_object","magic_academy","rcdenyalways","sin_greed_active","nomagic_active"));
                 var profile=game.players().get(p.getUUID());profile.lbcKit=0;profile.lbcChallengeKit=0;profile.lbcSkill=0;profile.lbcChallenge=0;profile.lbcTrinket=0;Arrays.fill(profile.levelups,0);Arrays.fill(profile.trinkets,0);
                 game.items().magic().inventoryChanged(p);game.items().armorSets().inventoryChanged(p);service().clear(p);
@@ -121,7 +121,7 @@ public final class ContainedSkillChecks {
         DamageSource playerDamage(){return owner.damageSources().playerAttack(other);}
         void vip(){
             select(12);require(game.items().specialTools().immuneToHammer(owner),"canonical VIP retains Banhammer immunity");var source=playerDamage();service().clear(owner);service().recordDamage(owner,source,40);service().recordDamage(owner,source,60);
-            near(service().damageThisTick(owner),100,"same-tick accepted hits sum to maxHP");require(service().protectsDeath(owner,source),"exact >= maxHP threshold qualifies");require(!service().protectsDeath(owner,source),"one receipt cannot protect a second death");
+            near(service().damageThisTick(owner),100,"same-tick accepted hits sum to maxHP");require(service().protectsDeath(owner,source),"exact >= maxHP threshold qualifies; actual max="+owner.getMaxHealth());require(!service().protectsDeath(owner,source),"one receipt cannot protect a second death");
             service().clear(owner);service().recordDamage(owner,source,200);near(service().damageThisTick(owner),200,"overkill accepted amount is not clamped to current HP");
             service().clear(owner);service().recordDamage(owner,source,99.5f);require(!service().protectsDeath(owner,source),"below maxHP never qualifies");
             service().clear(owner);clearAttackers(owner);require(owner.getKillCredit()==null,"unauthored environment control has no native kill credit");
@@ -132,6 +132,19 @@ public final class ContainedSkillChecks {
             var arrow=new Arrow(EntityTypes.ARROW,level);arrow.setOwner(other);arrow.setPos(origin.add(0,2,0));require(level.addFreshEntity(arrow),"native indirect projectile");actors.add(arrow);
             var indirect=owner.damageSources().arrow(arrow,other);service().clear(owner);service().recordDamage(owner,indirect,100);require(service().protectsDeath(owner,indirect),"native foreign player projectile counts");
             var captured=game.items().indirectKills().captureDamage(owner.damageSources().generic(),game.items().indirectKills().wildCause(other));service().clear(owner);service().recordDamage(owner,captured,100);require(service().protectsDeath(owner,captured),"true inherited player ownership counts even without direct entity");
+            var npc=new net.minecraft.world.entity.monster.zombie.Zombie(EntityTypes.ZOMBIE,level);npc.setPos(origin.add(0,0,2));actors.add(npc);
+            game.items().spellSources().unowned(npc);require(level.addFreshEntity(npc),"unowned native attacker admitted");
+            owner.setLastHurtByPlayer(other,100);service().clear(owner);var npcHit=owner.damageSources().mobAttack(npc);
+            service().recordDamage(owner,npcHit,200);near(service().damageThisTick(owner),0,"unowned Mob cannot borrow earlier PvP credit for VIP");
+            require(!service().protectsDeath(owner,npcHit),"unowned Mob lethal receipt excluded");
+            owner.setHealth(100);owner.setAbsorptionAmount(0);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;
+            require(owner.hurtServer(level,npcHit,3)&&owner.getKillCredit()==npc,"accepted native Mob supersedes older PvP credit before death");
+            near(service().damageThisTick(owner),0,"accepted Mob damage records no player receipt");
+            var ownerless=game.items().indirectKills().nativeMobDamage(owner.damageSources().magic(),null);
+            owner.setLastHurtByPlayer(other,100);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;
+            require(owner.hurtServer(level,ownerless,3)&&owner.getKillCredit()==null,"authorless scripted NPC damage clears stale native player credit");
+            near(service().damageThisTick(owner),0,"authorless NPC source also excluded from VIP");
+            clearAttackers(owner);npc.discard();actors.remove(npc);
             service().clear(owner);game.config().lbcSkills=false;try{service().recordDamage(owner,source,100);require(!service().protectsDeath(owner,source)&&!game.items().specialTools().immuneToHammer(owner),"globally disabled VIP cannot protect or reject Banhammer");}finally{game.config().lbcSkills=true;service().clear(owner);}
             owner.entityTags().add("spectator");try{service().recordDamage(owner,source,100);require(!service().protectsDeath(owner,source)&&!game.items().specialTools().immuneToHammer(owner),"observer cannot accumulate VIP or retain Banhammer immunity");}finally{owner.entityTags().remove("spectator");service().clear(owner);}
             owner.removeAllEffects();owner.setHealth(100);owner.setAbsorptionAmount(0);owner.setInvulnerableTime(0);owner.damageCooldownTime=0;

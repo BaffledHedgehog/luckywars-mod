@@ -117,7 +117,7 @@ public final class LbcSpecialDrops {
 
     /** Returns whether an active loaded attempt was dispatched, even when native placement fails. */
     boolean spawn(ItemEntity token) {
-        try(var scope=game.items().spellSources().scope(token)){
+        try(var scope=game.items().spellSources().lootScope(token)){
             if(LbcTmtDrops.matches(token.getItem())&&!LbcTmtAbilities.active(token.getItem()))return spawnTmt(token);
             return spawnScoped(token,true,true,true);
         }

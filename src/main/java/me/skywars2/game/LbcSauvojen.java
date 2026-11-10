@@ -206,7 +206,7 @@ public final class LbcSauvojen {
         if(!LbcBedwarsRoleGuards.canEmit(source,level))return;
         if(source==null||!game.items().currentEpoch(source.epoch())||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||!LbcDimensionItems.ordinary(level)||!level.hasChunkAt(BlockPos.containing(origin)))return;
-        var author=game.server().getPlayerList().getPlayer(source.author());
+        var author=game.items().spellSources().authorPlayer(source);
         if(!source.persistent()&&(!validOwner(author)||author.level()!=level))return;
         try(var sourceScope=game.items().spellSources().scope(source,level)){
             switch(kind){
@@ -301,10 +301,10 @@ public final class LbcSauvojen {
         int range=EntityTypes.ITEM_DISPLAY.clientTrackingRange()*16;double rangeSquared=(double)range*range;
         for(var connection:List.copyOf(drone.holder.getWatchingPlayers())){
             var viewer=connection.player;
-            if(viewer.connection!=connection||!connected.contains(viewer)||viewer.level()!=drone.owner.level()
+            if(viewer.connection!=connection||!connected.contains(viewer)||viewer.level()!=drone.carrier.level()
                     ||viewer.position().distanceToSqr(drone.position)>=rangeSquared)drone.holder.stopWatching(connection);
         }
-        for(var viewer:connected)if(viewer.level()==drone.owner.level()&&viewer.position().distanceToSqr(drone.position)<rangeSquared)
+        for(var viewer:connected)if(viewer.level()==drone.carrier.level()&&viewer.position().distanceToSqr(drone.position)<rangeSquared)
             drone.holder.startWatching(viewer);
         drone.holder.tick();
     }

@@ -5504,7 +5504,7 @@
       ]
     },
     {
-      "item": "minecraft:red_mushroom_block",
+      "item": "skywars2:lucky_block",
       "data": [],
       "components": {
         "minecraft:block_state": {
@@ -5524,14 +5524,22 @@
         "infinity_upgraded_luck.json",
         "infinity_upgraded_luck_noadv.json",
         "item_defs/lbc/lucky_block__d81cd3f25be8.json",
+        "item_defs/lbc/lucky_block__e196d020d84e/variant_cebd527e2a9c.json",
+        "item_defs/lbc/lucky_block__e196d020d84e/variant_e5d5f79f4617.json",
+        "item_defs/lbc/lucky_block__e196d020d84e/variant_e98680e387b5.json",
+        "kit/lucky_baffled.json",
         "lucky_items.json",
         "lucky_items_1.json",
         "lucky_items_high_quality.json",
         "luckyblock.json",
         "luckyblock_64.json",
+        "luckyblock_all_stacks.json",
+        "luckyblock_block.json",
+        "luckyblock_block_only.json",
         "luckyblock_imba.json",
         "luckyblock_without_rec.json",
         "native_lucky/normal.json",
+        "ported/lucky_block.json",
         "yameteluckyblock.json"
       ],
       "aliases": [
@@ -5544,7 +5552,10 @@
         "lbc:luckyblock_imba",
         "lbc:imba/barriers_imba",
         "lbc:lucky_items_high_quality",
-        "lbc:barriers"
+        "lbc:barriers",
+        "lbc:luckyblock_block_only",
+        "lbc:ported/lucky_block",
+        "lbc:luckyblock_block"
       ]
     },
     {
@@ -8186,6 +8197,15 @@
       "components": {},
       "sources": [
         "gui/page/9000/19.json"
+      ],
+      "aliases": []
+    },
+    {
+      "item": "skywars2:lucky_block",
+      "data": [],
+      "components": {},
+      "sources": [
+        "gui/page/9000/5.json"
       ],
       "aliases": []
     },
@@ -40108,7 +40128,7 @@
       ]
     },
     {
-      "item": "minecraft:panda_spawn_egg",
+      "item": "skywars2:railroad",
       "data": [],
       "components": {
         "minecraft:entity_data": {
@@ -40133,7 +40153,8 @@
         "luckyblock.json",
         "luckyblock_64.json",
         "luckyblock_without_rec.json",
-        "native_lucky/normal.json"
+        "native_lucky/normal.json",
+        "ported/railroad.json"
       ],
       "aliases": [
         "lbc:luckyblock",
@@ -40501,9 +40522,7 @@
       "data": [
         "{explosive_feets:1,craftusable:1,PublicBukkitValues:{\"lws:item\":{\"lws:additionals\":[\"rocket_armor\"]}}}"
       ],
-      "components": {
-        "minecraft:glider": {}
-      },
+      "components": {},
       "sources": [
         "item_defs/lbc/armors/rocket_boots__fd00635bef16.json",
         "kit/explosive_feets.json"
@@ -41138,36 +41157,6 @@
       ],
       "aliases": [
         "lbc:item_defs/lbc/liquidabyss__6e31baa5f9d5"
-      ]
-    },
-    {
-      "item": "skywars2:lucky_block",
-      "data": [],
-      "components": {
-        "minecraft:block_state": {
-          "down": "false",
-          "up": "false",
-          "south": "false",
-          "north": "false",
-          "east": "false",
-          "west": "false"
-        }
-      },
-      "sources": [
-        "item_defs/lbc/lucky_block__e196d020d84e/variant_cebd527e2a9c.json",
-        "item_defs/lbc/lucky_block__e196d020d84e/variant_e5d5f79f4617.json",
-        "item_defs/lbc/lucky_block__e196d020d84e/variant_e98680e387b5.json",
-        "kit/lucky_baffled.json",
-        "luckyblock_all_stacks.json",
-        "luckyblock_block.json",
-        "luckyblock_block_only.json",
-        "native_lucky/normal.json",
-        "ported/lucky_block.json"
-      ],
-      "aliases": [
-        "lbc:luckyblock_block_only",
-        "lbc:ported/lucky_block",
-        "lbc:luckyblock_block"
       ]
     },
     {

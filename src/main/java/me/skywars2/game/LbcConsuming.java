@@ -431,8 +431,8 @@ public final class LbcConsuming {
             summons.put(mob,new Owned(owner,game.items().epoch()));
             if(!owner.level().addFreshEntity(mob)) { summons.remove(mob); mob.discard(); }
         }
-        owner.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,400,3,false,false));
-        owner.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,400,3,false,false));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,400,1,false,false));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,400,1,false,false));
 
         }finally{callbackDepth--;}
     }

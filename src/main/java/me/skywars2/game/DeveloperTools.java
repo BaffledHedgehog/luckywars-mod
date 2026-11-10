@@ -94,8 +94,8 @@ public final class DeveloperTools {
     private static DeveloperTools service(){return Objects.requireNonNull(SkyWars2.game(),"Game not running").developerTools();}
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher){
         java.util.function.Predicate<CommandSourceStack> op=source -> Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source);
-        dispatcher.register(Commands.literal("gallery").requires(op).executes(ctx->{service().gallery.spawn(ctx.getSource().getPlayerOrException());return 1;}));
-        dispatcher.register(Commands.literal("developer").requires(op).then(Commands.argument("enabled",IntegerArgumentType.integer(0,1)).executes(ctx->{
+        SkyWarsCommandTree.add(dispatcher,Commands.literal("gallery").requires(op).executes(ctx->{service().gallery.spawn(ctx.getSource().getPlayerOrException());return 1;}));
+        SkyWarsCommandTree.add(dispatcher,Commands.literal("developer").requires(op).then(Commands.argument("enabled",IntegerArgumentType.integer(0,1)).executes(ctx->{
             var p=ctx.getSource().getPlayerOrException();boolean enabled=IntegerArgumentType.getInteger(ctx,"enabled")==1;
             SkyWars2.game().developerMode(p,enabled);if(enabled)service().giveTools(p);return 1;})));
         var save=Commands.literal("mapsave").requires(op).executes(ctx->{service().open(ctx.getSource().getPlayerOrException());return 1;})
@@ -105,9 +105,9 @@ public final class DeveloperTools {
             for(String mode:List.of("skywars","bedwars"))save.then(Commands.literal("save"+mode).then(Commands.argument("name",StringArgumentType.greedyString()).executes(ctx->{service().authoring.save(ctx.getSource().getPlayerOrException(),mode,StringArgumentType.getString(ctx,"name"));return 1;})));
             java.util.function.Predicate<CommandSourceStack> deletion=source -> op.test(source) && source.getPlayer()!=null && MapEditing.allowedDeletion(source.getPlayer(),source.getServer());
             save.then(Commands.literal("delete").requires(deletion).then(Commands.argument("id_name",StringArgumentType.word()).executes(ctx->{return MapEditing.delete(SkyWars2.game(),ctx.getSource().getPlayerOrException(),StringArgumentType.getString(ctx,"id_name"));})));
-            dispatcher.register(Commands.literal("mapdelete").requires(deletion).then(Commands.argument("id_name",StringArgumentType.word()).executes(ctx->{return MapEditing.delete(SkyWars2.game(),ctx.getSource().getPlayerOrException(),StringArgumentType.getString(ctx,"id_name"));})));
+            SkyWarsCommandTree.add(dispatcher,Commands.literal("mapdelete").requires(deletion).then(Commands.argument("id_name",StringArgumentType.word()).executes(ctx->{return MapEditing.delete(SkyWars2.game(),ctx.getSource().getPlayerOrException(),StringArgumentType.getString(ctx,"id_name"));})));
         }
-        dispatcher.register(save);
+        SkyWarsCommandTree.add(dispatcher,save);
     }
     public void giveTools(ServerPlayer player){if(!authorized(player))return;for(int i=0;i<player.getInventory().getContainerSize();i++)if(isTools(player.getInventory().getItem(i)))return;give(player,new ItemStack(ITEM));}
     private static void give(ServerPlayer player,ItemStack stack){if(!player.getInventory().add(stack))player.drop(stack,false,net.minecraft.util.Prediction.SERVER_ONLY);}
@@ -185,7 +185,7 @@ public final class DeveloperTools {
     private void saveName(ServerPlayer player,SimpleGui gui,String mode) {
         gui.close(); player.sendSystemMessage(Component.literal("[Нажми и допиши название карты]")
                 .withStyle(style -> style.withColor(net.minecraft.ChatFormatting.YELLOW).withClickEvent(
-                        new net.minecraft.network.chat.ClickEvent.SuggestCommand("/mapsave "+mode+" "))));
+                        new net.minecraft.network.chat.ClickEvent.SuggestCommand("/skywars mapsave "+mode+" "))));
     }
     private void button(SimpleGui gui,ServerPlayer player,int slot,Item item,String name,Runnable action){var stack=new ItemStack(item);var data=new CompoundTag();data.putBoolean("is_gui",true);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));gui.setSlot(slot,new GuiElementBuilder(stack).setName(Component.literal(name)).setCallback((index,type,input,source)->{if(!authorized(player)){gui.close();return;}if(input==net.minecraft.world.inventory.ContainerInput.PICKUP_ALL||type==eu.pb4.sgui.api.ClickType.MOUSE_DOUBLE_CLICK)return;action.run();}).build());}
     private void count(ServerPlayer player){var entities=mapMarkers(player);for(var kind:MarkerKind.values())if(kind!=MarkerKind.DELETE&&kind!=MarkerKind.STRICT_SPAWN&&kind!=MarkerKind.STRICT_LOOK)message(player,kind.label+": "+entities.stream().filter(e->e.entityTags().contains(kind.tags.getFirst())).count());}

@@ -3,19 +3,13 @@ package me.skywars2.game;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffects;
 
 /** Accepted native hits only. No nearby HurtTime scan and no independent damage wrapper. */
 public final class LbcManaVampireSkill {
-    private static final TagKey<DamageType> ACCEPTABLE=TagKey.create(Registries.DAMAGE_TYPE,
-            Identifier.parse("minecraft:acceptable_for_manavampirism"));
     private final GameController game;
     private final Predicate<ServerPlayer> ownerAdmission;
     private final BiPredicate<ServerPlayer,LivingEntity> targetAdmission;
@@ -43,9 +37,9 @@ public final class LbcManaVampireSkill {
     }
 
     public void damaged(LivingEntity victim,DamageSource source){
-        if(damaging||!source.is(ACCEPTABLE))return;
+        if(damaging)return;
         var owner=owner(game,source);
-        if(owner==null||owner==victim||!admitted(owner)||owner.level()!=victim.level()
+        if(owner==null||owner==victim||!eligibleSource(game,source,owner)||!admitted(owner)||owner.level()!=victim.level()
                 ||!LbcDimensionItems.ordinary(victim.level())||!targetAdmission.test(owner,victim))return;
         if(victim instanceof ServerPlayer player){
             var mana=game.items().mana();
@@ -59,5 +53,10 @@ public final class LbcManaVampireSkill {
             try{victim.hurtServer(owner.level(),owner.damageSources().indirectMagic(owner,owner),15);}
             finally{damaging=false;}
         }
+    }
+    static boolean eligibleSource(GameController game,DamageSource source,ServerPlayer owner){
+        return LbcDamage.isMeleeAttack(source,owner)||LbcTerra.swordProjectile(source.getDirectEntity(),owner)
+                ||LbcChargedSwords.swordProjectile(source.getDirectEntity(),owner)
+                ||game.items().pendingCombat().swordProjectile(source.getDirectEntity(),owner);
     }
 }

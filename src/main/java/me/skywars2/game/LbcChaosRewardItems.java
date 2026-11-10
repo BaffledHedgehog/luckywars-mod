@@ -135,7 +135,7 @@ public final class LbcChaosRewardItems {
         p.level().sendParticles(ParticleTypes.PORTAL,true,false,p.getX(),p.getY()+.81,p.getZ(),50,0,.5,0,.5);
         LbcOverload.sound(p,"minecraft:entity.enderman.teleport",1,1,0);
     }
-    private static void twitch(GameController g,ServerPlayer p,net.minecraft.world.phys.Vec3 at){
+    static void twitch(GameController g,ServerPlayer p,net.minecraft.world.phys.Vec3 at){
         LbcOverload.sound(p,at,TWITCH[p.getRandom().nextInt(TWITCH.length)],2.5f,1,0);
         p.level().sendParticles(new DustParticleOptions(0xffffff,1),at.x,at.y+.8,at.z,30,.1,.1,.1,.2);
         // Source helper runs as the attacker; its bottle is spent at the helper's execution position.

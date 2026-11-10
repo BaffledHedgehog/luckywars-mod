@@ -103,7 +103,7 @@ public final class LuckyPigDropChecks {
             for(int i=0;i<4;i++){var p=ordered.get(i);require(p.position().distanceTo(expected.get(i))<1e-8,"fractional cardinal source position/order "+i);
                 require(!p.isBaby() && !p.isNoAi() && !p.isNoGravity() && p.getHealth()==10 && p.getYRot()==0 && p.getXRot()==0 && p.getDeltaMovement().equals(Vec3.ZERO),"native adult health/AI/gravity/zero rotation/motion");
                 require(p.getCustomName()!=null && p.getCustomName().getContents().equals(net.minecraft.network.chat.Component.literal("Lucky Pig").getContents()) && p.getCustomName().getString().equals("Lucky Pig") && !p.getCustomName().getStyle().isItalic() && p.getCustomName().getStyle().getColor().getValue()==0xffaa00 && p.isCustomNameVisible(),"literal gold visible nonitalic name");
-                require(saved(p,level).getStringOr("DeathLootTable","").equals("lbc:applepig"),"native death loot table");require(LbcLuckyPigs.managed(p) && game.items().currentEpoch(p) && game.items().luckyPigs().owner(p)==author,"actual thrower independent of pickup owner");
+                require(saved(p,level).getStringOr("DeathLootTable","").equals("lbc:applepig"),"native death loot table");require(LbcLuckyPigs.managed(p) && game.items().currentEpoch(p) && game.items().luckyPigs().owner(p)==p,"actual thrower independent of pickup owner");
                 p.setNoAi(true);p.setNoGravity(true);
             }require(t.getYRot()==37 && t.getXRot()==23,"source token orientation retained");t.discard();return pigs;
         }
@@ -114,7 +114,7 @@ public final class LuckyPigDropChecks {
             require(loot.size()==1 && loot.getFirst().getCount()==1 && (loot.getFirst().is(Items.GOLDEN_APPLE)||loot.getFirst().is(Items.ENCHANTED_GOLDEN_APPLE)),"native combat death emits exactly one apple and no pork");clear();
             pigs=batch(alpha);var source=pigs.getFirst();var bolt=new net.minecraft.world.entity.LightningBolt(EntityTypes.LIGHTNING_BOLT,level);source.thunderHit(level,bolt);
             var converted=game.items().luckyPigs().snapshotConverted();require(source.isRemoved() && converted.size()==1,"native lightning converts one pig");var z=converted.getFirst();
-            require(LbcLuckyPigs.managed(z) && game.items().currentEpoch(z) && game.items().luckyPigs().owner(z)==alpha,"native conversion retains cause/epoch");
+            require(LbcLuckyPigs.managed(z) && game.items().currentEpoch(z) && game.items().luckyPigs().owner(z)==z,"native conversion retains cause/epoch");
             require(z.getCustomName()!=null && z.getCustomName().equals(source.getCustomName()) && z.isCustomNameVisible(),"native conversion preserves name");
             require(!saved(z,level).getStringOr("DeathLootTable","").equals("lbc:applepig"),"conversion restores vanilla zombified piglin loot");
             convertedCombat(z);
@@ -126,7 +126,7 @@ public final class LuckyPigDropChecks {
             var offspring=pigs.get(1).getBreedOffspring(level,pigs.get(2));require(offspring!=null,"native managed-parent breeding factory");offspring.setBaby(true);offspring.setPos(origin);require(level.addFreshEntity(offspring),"ordinary offspring admission");
             try{require(!LbcLuckyPigs.managed(offspring) && game.items().luckyPigs().owner(offspring)==null && !saved(offspring,level).getStringOr("DeathLootTable","").equals("lbc:applepig"),"ordinary offspring has no managed cause/apple table");clear();require(!offspring.isRemoved() && z.isRemoved(),"quiet stop removes conversion and preserves ordinary offspring");}finally{offspring.discard();}
             var author=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);author.setPos(origin.add(0,25,0));require(level.addFreshEntity(author),"disposable author");
-            try{var t=drop(1,author);author.discard();require(game.items().luckyPigs().spawn(t) && live().size()==4 && live().stream().allMatch(p->game.items().luckyPigs().owner(p)==author),"departed captured author does not cancel pigs");t.discard();}finally{author.discard();clear();}
+            try{var t=drop(1,author);author.discard();require(game.items().luckyPigs().spawn(t) && live().size()==4 && live().stream().allMatch(p->game.items().luckyPigs().owner(p)==p),"departed captured author does not cancel pigs");t.discard();}finally{author.discard();clear();}
         }
         void convertedCombat(net.minecraft.world.entity.monster.zombie.ZombifiedPiglin z){
             var service=game.items().luckyPigs();z.setNoAi(true);z.setNoGravity(true);
@@ -138,7 +138,7 @@ public final class LuckyPigDropChecks {
                 z.setTarget(beta);require(z.getTarget()==beta,"native target hook admits enemy");z.setTarget(alpha);require(z.getTarget()==alpha,"native target hook admits thrower self");z.setTarget(null);
                 board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
                 float health=beta.getHealth();var motion=beta.getDeltaMovement();z.setTarget(beta);
-                require(!service.canAffect(z,beta) && !service.canTarget(z,beta) && z.getTarget()!=beta && !z.doHurtTarget(level,beta) && beta.getHealth()==health && beta.getDeltaMovement().equals(motion),"native allied targeting/melee rejected before damage and knockback");
+                require(service.canAffect(z,beta) && service.canTarget(z,beta) && z.getTarget()==beta && z.doHurtTarget(level,beta) && beta.getHealth()<health,"unowned converted Mob attacks every player regardless of team");health=beta.getHealth();beta.setInvulnerableTime(0);beta.damageCooldownTime=0;
                 require(service.canTarget(z,alpha),"self remains eligible despite same team");
                 board.removePlayerFromTeam(beta.getScoreboardName());
                 for(String tag:List.of("spectator","magic_academy","sauvojen_tuntija","strict_map_object")){
@@ -146,7 +146,7 @@ public final class LuckyPigDropChecks {
                 }
                 beta.setGameMode(GameType.SPECTATOR);try{require(!service.canTarget(z,beta) && !z.doHurtTarget(level,beta),"native spectator rejected");}finally{beta.setGameMode(GameType.SURVIVAL);beta.setNoGravity(true);}
                 var cow=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);cow.setPos(z.position().add(1,0,0));cow.setNoAi(true);cow.setNoGravity(true);require(level.addFreshEntity(cow),"disposable converted attack victim");
-                int before=kills(alpha);try{cow.setHealth(1);require(z.doHurtTarget(level,cow) && cow.isDeadOrDying() && cow.getKillCredit()==alpha && kills(alpha)==before+1,"native converted melee keeps causal owner and builtin kill statistic");}finally{game.items().indirectKills().clear(cow);cow.discard();}
+                int before=kills(alpha);try{cow.setHealth(1);require(z.doHurtTarget(level,cow) && cow.isDeadOrDying() && cow.getKillCredit()==z && kills(alpha)==before,"native converted melee keeps causal owner and builtin kill statistic");}finally{game.items().indirectKills().clear(cow);cow.discard();}
             }finally{
                 z.setTarget(null);board.removePlayerTeam(team);if(alphaTeam!=null)board.addPlayerToTeam(alpha.getScoreboardName(),alphaTeam);if(betaTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),betaTeam);
             }

@@ -73,6 +73,7 @@ public final class TrueLegacyChecks {
             require(target.hurtServer(p.level(),source,3)&&target.getHealth()==17,"first real native arrow damage accepted");
             require(!target.hurtServer(p.level(),source,3)&&target.getHealth()==17,"second same-tick arrow obeys native hurt cooldown");
             require(Math.abs(CombatRules.getDamageAfterAbsorb(target,10,source,100,0)-2)<.0001,"real CombatRules uses vanilla armor cap");
+            TrueLegacyVanillaChecks.run(game,p,target);
         }finally{
             target.discard();saved.restore(game);
             profile.kit=kit;profile.skill=skill;profile.lbcKit=superKit;profile.lbcSkill=superSkill;
@@ -87,6 +88,7 @@ public final class TrueLegacyChecks {
     private static int count(net.minecraft.server.level.ServerPlayer p,net.minecraft.world.item.Item item){int result=0;for(int slot=0;slot<p.getInventory().getContainerSize();slot++){var stack=p.getInventory().getItem(slot);if(stack.is(item))result+=stack.getCount();}return result;}
     public static void exit(GameController game){
         require(game.inLobby()&&!game.balanceLegacy(),"normal match exit clears legacy overlay");
+        TrueLegacyVanillaChecks.exit(game);
         require(legacyArrow!=null&&legacyArrow.is(DamageTypeTags.BYPASSES_COOLDOWN),"same native DamageSource returns to ordinary server tags after exit");
         legacyArrow=null;
         SkyWars2.LOGGER.info("[check] PASS true-legacy-exit (real stop clears overlay and restores dynamic ordinary damage policy)");

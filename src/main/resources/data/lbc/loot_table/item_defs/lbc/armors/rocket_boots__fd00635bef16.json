@@ -23,8 +23,7 @@
                     "type": "minecraft:armor",
                     "slot": "feet"
                   }
-                ],
-                "glider": {}
+                ]
               },
               "type": "minecraft:set_components"
             },

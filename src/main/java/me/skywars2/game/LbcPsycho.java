@@ -61,7 +61,6 @@ public final class LbcPsycho {
     private static final DustColorTransitionOptions RAY_DUST=new DustColorTransitionOptions(0x4bffe1,0x132724,1);
     private static final double[][] SCARE_SHIFTS={{.5,0},{-.5,0},{0,.5},{0,-.5},{-.5,-.5},{.5,-.5},{-.5,.5},{.5,.5}};
     private static final int[][] SCARE_ANGLES={{5,0},{-5,0},{0,5},{0,-5},{5,5},{-5,5},{5,-5},{-5,-5}};
-    private static final String[] TWITCH_SOUNDS={"icum","yamai_desu","yamai_desu_2","yamai_desu_3","ooh","nyah"};
     private final GameController game;
     private final Set<Charge> charges=new LinkedHashSet<>();
     private final Map<LivingEntity,Affliction> effects=new IdentityHashMap<>();
@@ -178,6 +177,26 @@ public final class LbcPsycho {
             effect.forcedItem=player.getUseItem(); effect.forcedHand=player.getUsedItemHand();
             effect.forcedTicks=player.getRandom().nextInt(19)+2;
             effect.lastUseTicks=player.getTicksUsingItem();
+        }
+    }
+    /** Source chooses one of six categories; it never rolls an unrestricted left/right click. */
+    private void twitchRandomUse(ServerPlayer player){
+        int kind=player.getRandom().nextInt(6)+1;
+        var main=player.getMainHandItem();
+        if(kind==1){
+            var carrier=main.getItem();
+            if(carrier instanceof eu.pb4.polymer.core.api.item.PolymerItem polymer)
+                carrier=polymer.getPolymerItem(main,player.connection.getPacketContext());
+            if(carrier==Items.CARROT_ON_A_STICK)twitchClick(player,false);
+        }else if(kind==3){if(main.getItem() instanceof net.minecraft.world.item.BowItem)twitchClick(player,false);}
+        else if(kind==4){if(main.getItem() instanceof net.minecraft.world.item.CrossbowItem
+                &&!main.getOrDefault(DataComponents.CHARGED_PROJECTILES,net.minecraft.world.item.component.ChargedProjectiles.EMPTY).isEmpty())twitchClick(player,false);}
+        else for(var hand:InteractionHand.values()){
+            var stack=player.getItemInHand(hand);
+            boolean selected=kind==2&&(stack.getItem() instanceof net.minecraft.world.item.PotionItem
+                    ||stack.getItem() instanceof net.minecraft.world.item.ThrowablePotionItem)
+                    ||kind==5&&stack.is(Items.SNOWBALL)||kind==6&&stack.is(Items.ENDER_PEARL);
+            if(selected&&!player.isUsingItem())player.gameMode.useItem(player,player.level(),stack,hand);
         }
     }
     int effectValue(LivingEntity entity,String name) { return hudValue(entity,name); }
@@ -327,6 +346,9 @@ public final class LbcPsycho {
         var vex=new PsychoVex(owner); vex.setPos(target.position());
         vex.finalizeSpawn(owner.level(),owner.level().getCurrentDifficultyAt(vex.blockPosition()),
                 net.minecraft.world.entity.EntitySpawnReason.COMMAND,null);
+        // Finalization adds a vanilla iron sword; this ghost is deliberately unarmed.
+        vex.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,ItemStack.EMPTY);
+        vex.setDropChance(net.minecraft.world.entity.EquipmentSlot.MAINHAND,0);
         vex.getAttribute(Attributes.MAX_HEALTH).setBaseValue(2_000_000_000); vex.setHealth(2_000_000_000f);
         vex.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(200);
         vex.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(100);
@@ -488,15 +510,15 @@ public final class LbcPsycho {
                 if(effect.piss<=0) restoreFollowRange(entity,effect);
             }
             if(ticks%2==0 && effect.twitching>0 && !(entity instanceof ServerPlayer)) effect.twitching--;
-            if(ticks%2==0 && effect.twitching>0 && entity instanceof ServerPlayer player
-                    && !game.items().magic().suppressedAt(player.level(),player.position())) {
+            if(ticks%2==0 && effect.twitching>0 && entity instanceof ServerPlayer player) {
                 if(player.getRandom().nextFloat()<.01f) {
-                    LbcOverload.sound(player,"minecraft:lbcsounds."+TWITCH_SOUNDS[player.getRandom().nextInt(TWITCH_SOUNDS.length)],2.5f,1,0);
-                    player.level().sendParticles(new DustParticleOptions(0xffffff,1),player.getX(),player.getY()+.8,player.getZ(),30,.1,.1,.1,.2);
+                    LbcChaosRewardItems.twitch(game,player,player.position());
                 }
                 if(player.getRandom().nextFloat()<.1f) player.level().sendParticles(new ItemParticleOption(ParticleTypes.ITEM,Items.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.WHITE)),
                         player.getX(),player.getY()+.8,player.getZ(),10,.1,.1,.1,0);
-                if(player.getRandom().nextFloat()<.5f) twitchClick(player,player.getRandom().nextBoolean());
+                // A matching hand category is only one of six: effective chance .5/6, not .5.
+                // Sound and particles above have their own independent legacy rolls.
+                if(player.getRandom().nextFloat()<.5f)twitchRandomUse(player);
                 if(player.getRandom().nextFloat()<.4f) LbcOverload.sound(player,"minecraft:entity.slime.jump_small",.5f,1,0);
                 effect.twitching--;
             }

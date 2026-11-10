@@ -108,6 +108,11 @@ public final class ElectroNativeMixins {
             var game=SkyWars2.game();
             if(game!=null) {
                 LivingEntity owner=game.items().electro().reflectedOwner((Entity)(Object)this);
+                if(owner==null&&game.items().spellSources().lootProjectile((Entity)(Object)this)){
+                    owner=((me.skywars2.game.LbcSpellSource.TntOwnerAccess)this).skywars2$nativeLootOwner();
+                    if(owner==null)owner=game.items().spellSources().nativeMobSource((Entity)(Object)this);
+                    ci.setReturnValue(owner instanceof net.minecraft.world.entity.player.Player?null:owner);return;
+                }
                 if(owner==null) owner=game.items().tntDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().creeperDrops().owner((Entity)(Object)this);
                 if(owner==null) owner=game.items().cageDrops().retainedOwner((Entity)(Object)this);

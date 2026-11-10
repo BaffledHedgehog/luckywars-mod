@@ -59,7 +59,7 @@ public final class GodHedgehogChecks {
         void restore(GameController game){
             try{for(var e:fields.entrySet())e.getKey().set(profile,e.getValue());}catch(IllegalAccessException error){throw new IllegalStateException(error);}
             state.restore(game);player.setShiftKeyDown(shift);player.setSprinting(sprint);player.setOnGround(ground);counters.forEach(Runnable::run);
-            for(var objective:game.server().getScoreboard().getObjectives())if(scores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(player,objective).set(scores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(player,objective);
+            for(var objective:game.server().getScoreboard().getObjectives())if(scores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(player,objective,true).set(scores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(player,objective);
             game.items().indirectKills().clear(player);game.items().magic().inventoryChanged(player);
         }
     }

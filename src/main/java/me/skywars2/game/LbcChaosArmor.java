@@ -178,9 +178,9 @@ public final class LbcChaosArmor {
         particles(p,ParticleTypes.SMOKE,1,50,.5,1,.5,.7);sound(p,"minecraft:entity.firework_rocket.large_blast",2,0);
     }
     private void explode(ServerPlayer p){
-        protect(p,8);self(p,MobEffects.SLOW_FALLING,200,0,true);
+        var protection=ExplosionItemProtection.area(game,p.level(),p.position(),8,5);if(game.balanceLegacy())protect(p,8);self(p,MobEffects.SLOW_FALLING,200,0,true);
         for(var offset:new Vec3[]{new Vec3(.5,0,0),new Vec3(-.5,0,0),new Vec3(0,0,.5),new Vec3(0,0,-.5)}){
-            var at=p.position().add(offset);var tnt=new PrimedTnt(p.level(),at.x,at.y,at.z,p);tnt.setFuse(5);tnt.setDeltaMovement(Vec3.ZERO);game.items().incomingArtifacts().trackWild(p,tnt);
+            var at=p.position().add(offset);var tnt=new PrimedTnt(p.level(),at.x,at.y,at.z,p);tnt.setFuse(5);tnt.setDeltaMovement(Vec3.ZERO);ExplosionItemProtection.stamp(tnt,protection);game.items().incomingArtifacts().trackWild(p,tnt);
         }
         sound(p,"minecraft:entity.tnt.primed",1,1);
     }
@@ -188,11 +188,11 @@ public final class LbcChaosArmor {
         for(var q:p.level().players())if(q.distanceToSqr(p)<=radius*radius&&game.items().wands().validRoleTarget(q,false))self(q,MobEffects.RESISTANCE,20,4,true);
     }
     private void nitro(ServerPlayer p){
-        protect(p,2);self(p,MobEffects.SLOW_FALLING,400,0,true);
+        var protection=ExplosionItemProtection.area(game,p.level(),p.position(),2,5);if(game.balanceLegacy())protect(p,2);self(p,MobEffects.SLOW_FALLING,400,0,true);
         var at=p.position().subtract(Vec3.directionFromRotation(0,p.getYRot()));var kills=game.items().indirectKills();
         // Native ordinary creeper radius=3, source nine blasts; no helper mobs or Techno radius=1 substitution.
         var cause=kills.wildCause(p);var damage=kills.captureDamage(p.damageSources().explosion(null,p),cause);
-        for(int i=0;i<9;i++)kills.trapChanges(p.level(),cause,()->p.level().explode(null,damage,null,at.x,at.y,at.z,3,false,Level.ExplosionInteraction.MOB));
+        for(int i=0;i<9;i++)kills.trapChanges(p.level(),cause,()->ExplosionItemProtection.with(damage,protection,()->p.level().explode(null,damage,null,at.x,at.y,at.z,3,false,Level.ExplosionInteraction.MOB)));
     }
     private void flame(ServerPlayer p){self(p,MobEffects.FIRE_RESISTANCE,1200,0);replace(p,5,Blocks.FIRE,AIRS,false);sound(p,"minecraft:item.firecharge.use",1,1);particles(p,ParticleTypes.FLAME,1,32,.5,1,.5,.1);}
     private void speed(ServerPlayer p){fireworks(p);self(p,MobEffects.SPEED,200,4);self(p,MobEffects.JUMP_BOOST,200,4);}
@@ -216,12 +216,12 @@ public final class LbcChaosArmor {
     }
     private void helmet(ServerPlayer p){
         helmetCount++;
-        for(var q:p.level().players())if(q!=p&&q.distanceToSqr(p)>=.0001&&q.distanceToSqr(p)<=625&&game.items().wands().target(p,q))game.items().chaosTraps().spawn(p,q.position());
+        for(var q:p.level().players())if(q!=p&&q.distanceToSqr(p)>=.0001&&q.distanceToSqr(p)<=625&&game.items().wands().target(p,q))game.items().chaosTraps().spawnArmor(p,q.position());
     }
     private void rescue(ServerPlayer p){
         rescueCount++;self(p,MobEffects.RESISTANCE,20,4);
         teleport(p,game.config().noBorders?p.position():Vec3.ZERO,190,125);
-        game.items().chaosTraps().spawn(p,new Vec3(p.getX(),100,p.getZ()));
+        game.items().chaosTraps().spawnArmor(p,new Vec3(p.getX(),100,p.getZ()));
     }
     private void replace(ServerPlayer p,int radius,Block block,TagKey<Block> replace,boolean strict){
         var level=p.level();var center=p.blockPosition();var from=center.offset(-radius,-radius,-radius);var to=center.offset(radius,radius,radius);

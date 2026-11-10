@@ -1,0 +1,23 @@
+{
+  "clock": "lbc:atlas_glitch",
+  "tracks": {
+    "minecraft:visual/night_vision_color": {
+      "modifier": "multiply",
+      "ease": "linear",
+      "keyframes": [
+        {
+          "ticks": 0,
+          "value": "#ffffff"
+        },
+        {
+          "ticks": 1000000000,
+          "value": "#20a000"
+        },
+        {
+          "ticks": 1008388608,
+          "value": "#20a0ff"
+        }
+      ]
+    }
+  }
+}

@@ -267,7 +267,7 @@ public final class VoidArcanumChecks {
             }finally{bodies();for(var pos:dense)block(pos,Blocks.AIR);}
         }
         void elevatedChase(){
-            prime();double[] caps={0,.13,.13,.13,.13,.5},hurt={0,1.5,2,4,8,24};int clock=game.server().getTickCount();
+            prime();double[] caps={0,.078,.078,.078,.078,.3},hurt={0,1.5,2,4,8,24};int clock=game.server().getTickCount();
             for(int level=1;level<=5;level++){
                 bodies();var hole=spawn(owner,at);hole.level=level;
                 var captured=cow(at);var target=cow(at.add(0,hurt[level]+4,0));
@@ -308,13 +308,13 @@ public final class VoidArcanumChecks {
         }
         void motion(){
             prime();LbcVoidArcanum.Hole hole=null;ProbeCow target=null;
-            double[] acceleration={0,.025,.035,.018,.022,.025},caps={0,.13,.13,.13,.13,.5};
+            double[] acceleration={0,.025,.035,.018,.022,.025},caps={0,.078,.078,.078,.078,.3};
             for(int level=1;level<=5;level++){
                 bodies();hole=spawn(owner,at);hole.level=level;owner.level().getChunkAt(BlockPos.containing(at.add(32,0,0)));target=cow(at.add(level==5?32:14,0,0));var cause=service.source(hole).cause();double last=0;
                 for(int i=0;i<5;i++){
                     var start=hole.point;var velocity=hole.velocity;service.physics(hole,owner,cause);double speed=hole.point.distanceTo(start);
-                    require(speed>=last-.000001&&speed<=caps[level]+.000001&&hole.velocity.x>0,"native level "+level+" accelerates toward nearest suitable entity up to legacy speed");
-                    require(Math.abs(speed-Math.min(caps[level],last+acceleration[level]))<.000001&&hole.velocity.subtract(velocity).length()<=acceleration[level]+.000001,"preserved acceleration with legacy tier ceiling "+level);last=speed;
+                    require(speed>=last-.000001&&speed<=caps[level]+.000001&&hole.velocity.x>0,"native level "+level+" accelerates toward nearest suitable entity up to the reduced speed");
+                    require(Math.abs(speed-Math.min(caps[level],last+acceleration[level]))<.000001&&hole.velocity.subtract(velocity).length()<=acceleration[level]+.000001,"preserved acceleration with reduced tier ceiling "+level);last=speed;
                 }
                 // Exercise the cap boundary without claiming elapsed native travel time.
                 hole.velocity=target.getEyePosition().add(0,.5*(level-1),0).subtract(hole.point).normalize().scale(caps[level]-acceleration[level]/2);var start=hole.point;service.physics(hole,owner,cause);
@@ -330,7 +330,7 @@ public final class VoidArcanumChecks {
                 for(int tick=0;tick<48;tick++){
                     target.setPos(hole.point.add((tick%2==0?1:-1)*(level==5?26:8),4,level==5?26:8));start=hole.point;
                     service.physics(hole,owner,cause);
-                    require(hole.point.distanceTo(start)<=caps[level]+.000001,"sustained turning chase never exceeds legacy speed "+level);
+                    require(hole.point.distanceTo(start)<=caps[level]+.000001,"sustained turning chase never exceeds the reduced speed "+level);
                 }
                 // Keep the pre-existing positive-X visual/steering fixture
                 // independent of the deliberately alternating diagonal chase.

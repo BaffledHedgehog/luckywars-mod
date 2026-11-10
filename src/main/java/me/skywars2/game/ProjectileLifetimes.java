@@ -70,6 +70,7 @@ public final class ProjectileLifetimes {
     private int snapshotRevision = -1;
     private int serial;
     private boolean stopped;
+    private boolean reviewing;
 
     ProjectileLifetimes(GameController game) {
         this.game = game;
@@ -125,6 +126,8 @@ public final class ProjectileLifetimes {
             snapshotRevision = targetRevision;
         }
 
+        reviewing=true;
+        try {
         int budget = REVIEW_BUDGET;
         int terrainBudget = TERRAIN_BUDGET;
         int finished = 0;
@@ -182,6 +185,7 @@ public final class ProjectileLifetimes {
                 queue.addLast(review); // Исчерпание бюджета не означает отсутствие цели.
             }
         }
+        } finally { reviewing=false; }
     }
 
     /** 1: впереди столкновение, -1: доступная траектория закончилась, 0: продолжить в следующем тике. */
@@ -269,6 +273,36 @@ public final class ProjectileLifetimes {
         double reach = forward + TARGET_BUFFER + target.getSize() * 2;
         return expanded.clip(from, from.add(direction.scale(reach))).isPresent();
     }
+    void checkpointBoundary(){if(reviewing)throw new IllegalStateException("Finish shared lifetime review before checkpointing");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    private record ReviewImage(MatchDamageSources.Ref body,MatchDamageSources.Ref owner,boolean terrain,
+                               Vec3 position,Vec3 direction,int next,int targetIndex,int revision,int age,boolean queued){}
+    /** One owner for every family's bounded search queue; no re-registration or fresh review budget on replay. */
+    final class Checkpoint {
+        private final List<ReviewImage> reviews;
+        private final List<MatchDamageSources.Ref> ordered,liveTargets,snapshot;
+        private final int revision=targetRevision,snapshotVersion=snapshotRevision,sequence=serial;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            reviews=tracked.values().stream().filter(r->!links.omitted(r.projectile)).map(r->new ReviewImage(
+                    links.key(r.projectile),links.key(r.owner),r.terrain,r.scanPosition,r.scanDirection,r.nextReview,
+                    r.targetIndex,r.targetRevision,r.age,r.queued)).toList();
+            ordered=queue.stream().filter(r->tracked.get(r.projectile)==r&&!links.omitted(r.projectile)).map(r->links.key(r.projectile)).toList();
+            liveTargets=targets.stream().map(links::key).toList();snapshot=targetSnapshot.stream().map(links::key).toList();
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var restored=new IdentityHashMap<Projectile,Review>();
+            for(var image:reviews){var body=(Projectile)links.get(image.body);var r=new Review(body,image.next,image.terrain);
+                r.owner=links.get(image.owner);r.scanPosition=image.position;r.scanDirection=image.direction;r.targetIndex=image.targetIndex;
+                r.targetRevision=image.revision;r.age=image.age;r.queued=image.queued;restored.put(body,r);}
+            var restoredQueue=ordered.stream().map(ref->java.util.Objects.requireNonNull(restored.get((Projectile)links.get(ref)))).toList();
+            var restoredTargets=liveTargets.stream().map(ref->(LivingEntity)links.get(ref)).toList();
+            var restoredSnapshot=snapshot.stream().map(ref->(LivingEntity)links.get(ref)).toList();
+            return ()->{tracked.clear();tracked.putAll(restored);queue.clear();queue.addAll(restoredQueue);
+                targets.clear();targets.addAll(restoredTargets);targetSnapshot=restoredSnapshot;
+                targetRevision=revision;snapshotRevision=snapshotVersion;serial=sequence;stopped=false;};
+        }
+    }
+
     LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(!(source instanceof Projectile p))return null;var r=tracked.get(p);if(r==null)return null;
         boolean terrain=r.terrain,queued=r.queued;int next=r.nextReview,index=r.targetIndex,revision=r.targetRevision,age=r.age;

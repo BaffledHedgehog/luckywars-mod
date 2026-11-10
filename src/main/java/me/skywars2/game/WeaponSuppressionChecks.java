@@ -117,7 +117,7 @@ public final class WeaponSuppressionChecks {
                 for(var entry:cells.entrySet())game.maps().restoreSnapshot(entry.getKey(),entry.getValue());for(long key:forced)owner.level().setChunkForced(net.minecraft.world.level.ChunkPos.getX(key),net.minecraft.world.level.ChunkPos.getZ(key),false);
                 if(client!=null)client.close();base.retain=true;base.close();owner.setKnownMovement(knownMovement);attribution.close();game.config().lbcSkills=skills;game.items().shooters().setCooldown(owner,oldCooldown);
                 if(hadCurse)curses.put(owner.getUUID(),oldCurse);if(hadRotation)rotations.put(owner.getUUID(),oldRotation);
-                for(var objective:game.server().getScoreboard().getObjectives())if(scores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(owner,objective).set(scores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(owner,objective);
+                for(var objective:game.server().getScoreboard().getObjectives())if(scores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(owner,objective,true).set(scores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(owner,objective);
                 stats.forEach((stat,value)->owner.getStats().setValue(owner,stat,value));advancements.forEach((a,done)->{for(var key:a.value().criteria().keySet())if(done.contains(key))owner.getAdvancements().award(a,key);else owner.getAdvancements().revoke(a,key);});var profile=game.players().get(owner.getUUID());profile.lbcUnlocks.clear();profile.lbcUnlocks.addAll(unlocks);
             }finally{owner.connection.resetPosition();}
         }

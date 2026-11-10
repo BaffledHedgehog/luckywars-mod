@@ -60,13 +60,13 @@ public final class LbcApocalypseEvents {
 """);
     private static final String[] LUCKY_ITEMS={
         """
-minecraft:red_mushroom_block[minecraft:custom_name={"bold":false,"color":"gold","italic":false,"text":"Lucky Block"},minecraft:lore=[{"text": "By BaffledHedgehog","color": "gray","italic": false}],minecraft:block_state={up:"false",down:"false",north:"false",south:"false",east:"false",west:"false"},minecraft:item_model="lbc:lucky_block",tooltip_style="lbc:tier_u"]
+skywars2:lucky_block[minecraft:custom_name={"bold":false,"color":"gold","italic":false,"text":"Lucky Block"},minecraft:lore=[{"text": "By BaffledHedgehog","color": "gray","italic": false}],minecraft:block_state={up:"false",down:"false",north:"false",south:"false",east:"false",west:"false"},minecraft:item_model="lbc:lucky_block",tooltip_style="lbc:tier_u"]
 """,
         """
-minecraft:brown_mushroom_block[minecraft:custom_name={"color":"light_purple","italic":false,"text":"Lucky Block Neko"},minecraft:lore=[{"text":"By BaffledHedgehog","color":"gray","italic":false}],minecraft:block_state={up:"false",down:"false",north:"false",south:"false",east:"false",west:"false"},minecraft:item_model="lbc:lucky_block_neko",tooltip_style="lbc:tier_u"]
+skywars2:lucky_block_neko[minecraft:custom_name={"color":"light_purple","italic":false,"text":"Lucky Block Neko"},minecraft:lore=[{"text":"By BaffledHedgehog","color":"gray","italic":false}],minecraft:block_state={up:"false",down:"false",north:"false",south:"false",east:"false",west:"false"},minecraft:item_model="lbc:lucky_block_neko",tooltip_style="lbc:tier_u"]
 """,
         """
-minecraft:mushroom_stem[minecraft:custom_name={"color":"#FFB8E0","italic":false,"text":"❤ Lucky Block Loli ❤"},minecraft:lore=[{"text":"Community of the Lucky Wars ❤","color":"gray","italic":false}],minecraft:block_state={up:"false",down:"false",north:"false",south:"false",east:"false",west:"false"},minecraft:item_model="lbc:lucky_block_loli",tooltip_style="lbc:tier_u"]
+skywars2:lucky_block_loli[minecraft:custom_name={"color":"#FFB8E0","italic":false,"text":"❤ Lucky Block Loli ❤"},minecraft:lore=[{"text":"Community of the Lucky Wars ❤","color":"gray","italic":false}],minecraft:block_state={up:"false",down:"false",north:"false",south:"false",east:"false",west:"false"},minecraft:item_model="lbc:lucky_block_loli",tooltip_style="lbc:tier_u"]
 """
     };
     private static final int[] DELAY_END={0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,40,5,5,5,5,5,5,5,100,15,15,15,40,10,10,10,40,60,15,15,15,40,10,10,10,10,10,10,10,10,10,10,10,60,10,10,10,70,140,100,140,300,440,0};

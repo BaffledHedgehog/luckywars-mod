@@ -41,6 +41,14 @@ public final class LbcWitchStatistics {
         if(stat==Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL)))return "lucky_block_count";
         return null;
     }
+    /** Per-match progress never inherits the previous match's dummy or native-criterion scores. */
+    static void beginMatch(GameController game){
+        for(var player:game.server().getPlayerList().getPlayers()){
+            for(var key:java.util.List.of("dmg_dealt","lolidefecation","food_count","sleep_time","greed_prestige","lucky_block_count","indolence_cd","lust_cd","gens_type"))
+                game.items().mana().score(player,key).set(0);
+            game.items().shishEncounter().seedMovement(player);
+        }
+    }
     /** Create before vanilla forAllObjectives, so the first native award is counted too. */
     public static void prepare(ServerPlayer player,Stat<?> stat){
         var game=SkyWars2.game();var name=name(stat);if(game!=null&&name!=null)game.items().mana().score(player,name);
@@ -68,7 +76,7 @@ public final class LbcWitchStatistics {
     public static void reset(ServerPlayer player,Stat<?> stat){
         var game=SkyWars2.game();var name=name(stat);if(game==null||name==null)return;
         var objective=player.level().getScoreboard().getObjective(name);
-        if(objective!=null&&objective.getCriteria()==ObjectiveCriteria.DUMMY)game.items().mana().score(player,name).set(0);
+        if(objective!=null&&objective.getCriteria()!=stat)game.items().mana().score(player,name).set(0);
     }
     /** Called before native HP subtraction, after armor, effects and absorption. Also covers sweeps/death. */
     public static void meleeDamage(net.minecraft.world.entity.LivingEntity victim,

@@ -46,8 +46,9 @@ public final class LbcCreeperDrops {
     /** Single native egg actor: retain radius, reward and native AI instead of spawning the trap's ring. */
     void adoptEgg(Creeper creeper, LivingEntity owner) {
         creeper.entityTags().add(CREEPER);
+            creeper.entityTags().add("skywars2.players_only_trap");
         game.items().markCurrentItemEpoch(creeper);
-        causes.put(creeper,owner); tracked.add(creeper);
+        causes.put(creeper,creeper); tracked.add(creeper);game.items().spellSources().unowned(creeper);
         game.items().timeStop().prepareFrozen(creeper);
     }
 
@@ -97,9 +98,11 @@ public final class LbcCreeperDrops {
                     ? token.position().add(NORMAL[i][0], 0, NORMAL[i][1])
                     : OLD_FORWARD.apply(token.position(), new Vec2(token.getXRot(), yaw + i * 20)));
             creeper.entityTags().add(CREEPER);
+            creeper.entityTags().add("skywars2.players_only_trap");
             game.items().markCurrentItemEpoch(creeper);
-            causes.put(creeper, owner);
+            causes.put(creeper, creeper);
             tracked.add(creeper);
+            game.items().spellSources().unowned(creeper);
             game.items().timeStop().prepareFrozen(creeper);
             if (!level.addFreshEntity(creeper)) {
                 tracked.remove(creeper);
@@ -118,6 +121,7 @@ public final class LbcCreeperDrops {
     /** Captured causal thrower only; does not turn the hostile mob into a friendly summon. */
     public LivingEntity owner(Entity entity) {
         if (!managed(entity)) return null;
+        if(entity instanceof Creeper creeper&&LbcSpellSource.unownedHazard(creeper))return creeper;
         if (entity instanceof PrimedTnt) {
             var reflected = game.items().electro().reflectedOwner(entity);
             if (reflected != null) return reflected;

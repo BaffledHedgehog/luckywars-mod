@@ -45,6 +45,12 @@ final class MatchDamageSources {
     static Entity resolve(Ref ref,Function<UUID,Entity> lookup,Set<UUID> pending){
         if(ref==null)return null;if(ref.historical!=null)return ref.historical;var current=lookup.apply(ref.id);if(current==null&&!intentionallyAbsent(ref.id)){current=MatchOfflinePlayers.find(ref.id);if(current==null)pending.add(ref.id);}return current;
     }
+    /** Native EntityReference may already contain only an unresolved UUID at the save point. */
+    static Entity resolveNative(UUID id,boolean resolvedAtCapture,Function<UUID,Entity> lookup,Set<UUID> pending){
+        if(id==null)return null;var current=lookup.apply(id);
+        if(current==null&&resolvedAtCapture&&!intentionallyAbsent(id))pending.add(id);
+        return current;
+    }
     void missing(Function<UUID,Entity> lookup,Set<UUID> pending){for(var image:images.values()){resolve(image.direct,lookup,pending);resolve(image.cause,lookup,pending);}}
     void restore(Function<UUID,Entity> lookup,Set<UUID> pending){
         for(var image:images.values()){var access=(CombatCheckpointAccess.Source)image.original;access.skywars2$direct(resolve(image.direct,lookup,pending));access.skywars2$cause(resolve(image.cause,lookup,pending));}

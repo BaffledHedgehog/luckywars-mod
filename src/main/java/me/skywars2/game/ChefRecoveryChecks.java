@@ -70,7 +70,7 @@ public final class ChefRecoveryChecks {
     private static void retreat(ChefChecks.Fixture f){
         var terrain=f.terrain();var victim=f.cow(f.at.add(0,0,2.15));var chef=f.spawn(f.owner,victim);start(chef,f.at);
         int steps;
-        for(steps=0;steps<120&&victim.getHealth()==20;steps++){
+        for(steps=0;steps<120&&(victim.getHealth()==20||steps<10);steps++){
             // Slow retreat crosses the melee edge during native preparation/critical
             // ascent. The victim is never repositioned toward the attacker.
             victim.setPos(victim.position().add(0,0,.07));advance(f,chef);
@@ -158,7 +158,7 @@ public final class ChefRecoveryChecks {
         BlockPos source=f.center.offset(2,0,0);f.block(source,Blocks.WATER);
         if(blocked)for(int z=-1;z<=1;z++)for(int y=0;y<=2;y++)f.block(f.center.offset(1,y,z),Blocks.BEDROCK);
         // Keep the body still: only the native survival pickup may change this source.
-        for(int i=0;i<45;i++){chef.tickCount++;chef.survival.tick();}
+        for(int i=0;i<45;i++){chef.commonTick();chef.tick();chef.survival.tick();}
         boolean filled=chef.survival.supplies().stream().anyMatch(stack->stack.is(Items.WATER_BUCKET));
         require(filled!=blocked,"empty bucket collects visible foreign water and rejects occluded water; blocked="+blocked+state(chef));
         require(f.owner.level().getFluidState(source).isSource()==blocked,"only reachable source changes through native pickup");
@@ -166,10 +166,15 @@ public final class ChefRecoveryChecks {
     private static void verticalAimReversal(ChefChecks.Fixture f){
         var victim=f.cow(f.at.add(0,0,8));var chef=f.spawn(f.owner,victim);start(chef,f.at);
         Vec3 overhead=chef.getEyePosition().add(0,2,0),floor=chef.getEyePosition().add(0,-2,0);
+        // Repeated requests share one allowance. Both commonTick and LivingEntity.tick
+        // advance the next native frame: camera, head/body history and entity clock.
+        chef.commonTick();chef.tick();float firstPitch=chef.getXRot();
         for(int i=0;i<10;i++)chef.aimAction(overhead);
+        require(Math.abs(chef.getXRot()-firstPitch)<=20.001,"repeated same-frame action requests cannot bypass the pitch limit");
+        for(int i=0;i<10;i++){chef.commonTick();chef.tick();chef.aimAction(overhead);}
         require(chef.getXRot()<-88,"roof mining preparation looks straight overhead");
         boolean ready=false;
-        for(int i=0;i<10&&!ready;i++)ready=chef.aimAction(floor);
+        for(int i=0;i<10&&!ready;i++){chef.commonTick();chef.tick();ready=chef.aimAction(floor);}
         require(ready&&chef.getXRot()>88,"camera and head reverse from mined roof to pillar support within bounded turns"+state(chef));
     }
     private static void roofEscape(ChefChecks.Fixture f){

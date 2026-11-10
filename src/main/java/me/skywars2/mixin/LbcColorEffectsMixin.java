@@ -73,6 +73,9 @@ public abstract class LbcColorEffectsMixin {
             if(me.skywars2.game.LbcGreed.active(target) && source!=target) { ci.setReturnValue(false); return; }
             var arrow=me.skywars2.game.LbcBabylon.effectArrow();
             var quiverArrow=me.skywars2.game.LbcQuiver.effectArrow();
+            if(me.skywars2.game.LbcStaticCharge.marker(effect)){
+                ci.setReturnValue(game.items().legacyEffects().staticCharge().accept(target,effect));return;
+            }
             if(me.skywars2.game.LbcChainLightningStatus.isMarker(effect)){
                 ci.setReturnValue(game.items().bolts().acceptStatus(target,effect,arrow==null?source:arrow));return;
             }
@@ -82,12 +85,21 @@ public abstract class LbcColorEffectsMixin {
             if(quiverArrow!=null && me.skywars2.game.LbcQuiver.isEffect(effect)) {
                 ci.setReturnValue(game.items().quiver().accept(target,effect,quiverArrow));return;
             }
-            if(effect.is(net.minecraft.world.effect.MobEffects.RAID_OMEN)&&effect.getAmplifier()==120){
-                var author=me.skywars2.game.LbcIndirectKills.playerSource(source);
-                if(author==null&&target instanceof ServerPlayer player)author=player;
-                if(author!=null){ci.setReturnValue(game.items().quiver().acceptCarrier(target,effect,author));return;}
+            if(me.skywars2.game.LbcBabylonEffects.isEffect(effect)){
+                if(!game.items().indirectKills().allowProjectileEffect(target,effect,source)){ci.setReturnValue(false);return;}
+                ci.setReturnValue(game.items().babylonEffects().acceptCarrier(target,effect,
+                        game.items().indirectKills().carrierEffectCause(target,source)));return;
+            }
+            if(me.skywars2.game.LbcQuiver.isEffect(effect)){
+                if(!game.items().indirectKills().allowProjectileEffect(target,effect,source)){ci.setReturnValue(false);return;}
+                var author=source==null?null:me.skywars2.game.LbcIndirectKills.playerSource(source);
+                ci.setReturnValue(game.items().quiver().acceptCarrier(target,effect,author,
+                        game.items().indirectKills().carrierEffectCause(target,source)));return;
             }
             if(!game.items().indirectKills().allowProjectileEffect(target,effect,source)) { ci.setReturnValue(false); return; }
+            if(me.skywars2.game.LbcLegacyEffects.carrierMarker(effect)){
+                ci.setReturnValue(game.items().legacyEffects().acceptCarrier(target,effect,source));return;
+            }
             if(target instanceof ServerPlayer player&&game.items().containedSkills().acceptSlowness(player,effect,source)){
                 ci.setReturnValue(true);return;
             }

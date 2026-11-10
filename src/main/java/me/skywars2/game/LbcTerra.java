@@ -107,7 +107,8 @@ public final class LbcTerra {
     private final ArrayList<TerraProjectile> batch = new ArrayList<>();
     private final Map<UUID, Integer> swordCharges = new HashMap<>();
     // Только визуальный хвост: после попадания gameplay-сущность уже удалена и урон не повторяется.
-    private record FinishingModel(ElementHolder holder, int removeAt) { }
+    private record FinishingModel(ElementHolder holder, ServerLevel level, Vec3 position,
+                                  Kind kind, float yaw, float pitch, Vec3 offset, int removeAt) { }
     private final ArrayDeque<FinishingModel> finishingModels = new ArrayDeque<>();
     private int modelTicks;
 
@@ -121,6 +122,10 @@ public final class LbcTerra {
     }
     public static boolean isSword(ItemStack stack) {
         return matches(stack, SWORD, SWORD_FLAG) || matches(stack, TRUE_SWORD, TRUE_SWORD_FLAG);
+    }
+    static boolean swordProjectile(Entity entity,ServerPlayer owner){
+        return entity instanceof TerraProjectile projectile&&projectile.getOwner()==owner
+                &&(projectile.kind==Kind.SWORD||projectile.kind==Kind.TRUE_CHARGE||projectile.kind==Kind.TRUE_BEAM);
     }
     private static boolean flagged(ItemStack stack,String name) {
         var data=stack.get(DataComponents.CUSTOM_DATA);
@@ -263,10 +268,10 @@ public final class LbcTerra {
         @Override public boolean isPushedByFluid() { return false; }
         ItemDisplayElement display() { return display; }
 
-        private void attachModel() {
+        private static ItemDisplayElement model(Kind kind) {
             var stack = new ItemStack(Items.STICK);
             stack.set(DataComponents.ITEM_MODEL, kind.model);
-            display = new ItemDisplayElement(stack);
+            var display = new ItemDisplayElement(stack);
             display.setItemDisplayContext(ItemDisplayContext.FIXED);
             // Заряды летят лезвием вперёд, дуга развёрнута горизонтально и поперёк направления полёта.
             display.setTransformation(kind == Kind.TRUE_BEAM || kind == Kind.RAZOR
@@ -281,11 +286,20 @@ public final class LbcTerra {
             display.setShadowRadius(0);
             display.setShadowStrength(0);
             display.setScale(new Vector3f(1.5f));
+            return display;
+        }
+        private void attachModel() { attachModel(null); }
+        private void attachModel(Vec3 restoredOffset) {
+            display = model(kind);
             holder = new ElementHolder();
             holder.addElement(display);
             // Attachment сразу подключает зрителей и отправляет spawn: поворот нужен ДО него.
             // До attachment holder.tick() ничего не отправляет, но параметры display уже готовы.
-            syncModel(position());
+            if (restoredOffset == null) syncModel(position());
+            else {
+                display.setYaw(getYRot());display.setPitch(getXRot());display.setOffset(restoredOffset);
+                display.setTeleportDuration(0);display.setAlwaysSyncAbsolutePosition(true);
+            }
             new EntityAttachment(holder, this, false);
         }
         private void syncModel(Vec3 visualPosition) {
@@ -309,6 +323,7 @@ public final class LbcTerra {
         }
         private void destroyModel() {
             if (holder != null) { holder.destroy(); holder = null; }
+            display = null;
         }
     }
 
@@ -547,7 +562,8 @@ public final class LbcTerra {
         if (previous != null) previous.destroy();
         projectile.holder = null;
         // Полный тик интерполяции + тик для кадра в конечной точке, без новых gameplay-тиков.
-        finishingModels.addLast(new FinishingModel(holder, modelTicks + 2));
+        finishingModels.addLast(new FinishingModel(holder, (ServerLevel)projectile.level(), impact,
+                projectile.kind, projectile.getYRot(), projectile.getXRot(), projectile.display.getOffset(), modelTicks + 2));
     }
 
     private boolean target(ServerPlayer owner, Entity entity) {
@@ -631,7 +647,7 @@ public final class LbcTerra {
         for (var model : finishingModels) model.holder().destroy();
         finishingModels.clear();
     }
-    TerraProjectile sourceEmitter(ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    TerraProjectile sourceEmitter(ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.items().spellSources().authorPlayer(source),origin,direction);}}
     private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
         if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
         else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);
@@ -644,10 +660,49 @@ public final class LbcTerra {
 
 
     List<TerraProjectile> transientSnapshot(){return List.copyOf(projectiles);}
-    void cancelTransient(){
-        var old=List.copyOf(projectiles);projectiles.clear();batch.clear();
-        for(var shot:old){shot.destroyModel();if(!shot.isRemoved())shot.discard();}
-        for(var model:finishingModels)model.holder().destroy();finishingModels.clear();
+    void checkpointBoundary(){if(!batch.isEmpty())throw new IllegalStateException("Finish Terra sampling before checkpointing");}
+    Checkpoint checkpoint(MatchSpellCheckpoint.Links links){checkpointBoundary();return new Checkpoint(links);}
+    /** Forget abandoned presentation/private queues. Canonical native bodies have their own restore owner. */
+    void prepareFrozen(){
+        checkpointBoundary();for(var shot:projectiles)shot.destroyModel();projectiles.clear();
+        for(var tail:finishingModels)tail.holder.destroy();finishingModels.clear();
+    }
+    private record ShotImage(MatchDamageSources.Ref body,Kind kind,int age,int lifetime,
+                             boolean emitter,boolean paused,Vec3 visualOffset){}
+    private record TailImage(ServerLevel level,Vec3 position,Kind kind,float yaw,float pitch,Vec3 offset,int remaining){}
+    final class Checkpoint {
+        private final List<ShotImage> shots;
+        private final List<TailImage> tails;
+        private final Map<UUID,Integer> charges=Map.copyOf(swordCharges);
+        private final int clock=modelTicks;
+        Checkpoint(MatchSpellCheckpoint.Links links){
+            shots=projectiles.stream().filter(p->!p.isRemoved()).map(p->new ShotImage(links.key(p),p.kind,p.age,
+                    p.sourceLifetime,p.emitterStyle,p.modelPaused,p.holder==null?null:p.display.getOffset())).toList();
+            tails=finishingModels.stream().map(t->new TailImage(t.level,t.position,t.kind,t.yaw,t.pitch,t.offset,t.removeAt-modelTicks)).toList();
+        }
+        Runnable prepare(MatchSpellCheckpoint.Links links){
+            var restored=new java.util.LinkedHashMap<TerraProjectile,ShotImage>();
+            for(var image:shots)restored.put((TerraProjectile)links.get(image.body),image);
+            for(var tail:tails)MatchAuthorityCheckpoint.world(game,tail.level);
+            return ()->{
+                projectiles.clear();swordCharges.clear();swordCharges.putAll(charges);modelTicks=clock;
+                restored.forEach((body,image)->{
+                    body.kind=image.kind;body.age=image.age;body.sourceLifetime=image.lifetime;
+                    body.emitterStyle=image.emitter;body.modelPaused=image.paused;projectiles.add(body);
+                });
+            };
+        }
+        /** Publication cannot advance flight, damage, RNG, vegetation, charge rewards or tail deadlines. */
+        void publish(MatchSpellCheckpoint.Links links){
+            for(var image:shots)if(image.visualOffset!=null)((TerraProjectile)links.get(image.body)).attachModel(image.visualOffset);
+            for(var tail:tails){
+                var holder=new ElementHolder();var display=TerraProjectile.model(tail.kind);
+                display.setYaw(tail.yaw);display.setPitch(tail.pitch);display.setOffset(tail.offset);
+                display.setTeleportDuration(0);display.setAlwaysSyncAbsolutePosition(true);holder.addElement(display);
+                game.visualTracking().attach(holder,tail.level,()->tail.position);
+                finishingModels.addLast(new FinishingModel(holder,tail.level,tail.position,tail.kind,tail.yaw,tail.pitch,tail.offset,modelTicks+tail.remaining));
+            }
+        }
     }
 
     LbcCloneSkills.ActorImage cloneImage(TerraProjectile source) {
@@ -656,7 +711,7 @@ public final class LbcTerra {
         return new LbcCloneSkills.ActorImage() {
             public void install(Entity original,Entity clone,Map<Entity,Entity> family) {
                 var target=(TerraProjectile)clone;target.kind=kind;target.age=age;target.sourceLifetime=lifetime;
-                target.emitterStyle=emitter;target.modelPaused=paused;target.attachModel();
+                target.emitterStyle=emitter;target.modelPaused=paused;if(!emitter)target.attachModel();
             }
             public void rollback(Entity clone){unloaded(clone);}
         };

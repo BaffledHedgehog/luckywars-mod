@@ -65,19 +65,17 @@ public final class ChefNavigationChecks {
         require(f.terrain().equals(unchanged),"stable route crosses existing passages without terrain edits"+state(chef));
         hit(f,chef,victim,"stable route jitter="+jitter+" steps="+steps);
     }
+    static net.minecraft.world.level.block.state.BlockState noisyState(int x,int z){
+        int noise=Math.floorMod(x*31+z*17+x*z*7,11);
+        if(noise<=2)return Blocks.STONE.defaultBlockState();
+        if(noise<=5)return Blocks.STONE_SLAB.defaultBlockState();
+        if(noise<=8)return Blocks.STONE_STAIRS.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING,
+                List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST).get(Math.floorMod(x*3+z,4)));
+        return Blocks.SNOW.defaultBlockState().setValue(BlockStateProperties.LAYERS,1+2*Math.floorMod(x+z,4));
+    }
     private static void noisy(ChefChecks.Fixture f){
         for(int x=-12;x<=12;x++)for(int z=-12;z<=12;z++){
-            int noise=Math.floorMod(x*31+z*17+x*z*7,11);var p=f.center.offset(x,0,z);
-            if(noise<=2)f.block(p,Blocks.STONE);
-            else if(noise<=5)f.block(p,Blocks.STONE_SLAB);
-            else if(noise<=8){
-                f.block(p,Blocks.STONE_STAIRS);
-                var direction=List.of(Direction.NORTH,Direction.EAST,Direction.SOUTH,Direction.WEST).get(Math.floorMod(x*3+z,4));
-                f.owner.level().setBlock(p,Blocks.STONE_STAIRS.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING,direction),2);
-            }else{
-                f.block(p,Blocks.SNOW);
-                f.owner.level().setBlock(p,Blocks.SNOW.defaultBlockState().setValue(BlockStateProperties.LAYERS,1+2*Math.floorMod(x+z,4)),2);
-            }
+            var p=f.center.offset(x,0,z);var state=noisyState(x,z);f.block(p,state.getBlock());f.owner.level().setBlock(p,state,2);
         }
         f.block(f.center.offset(-9,0,-10),Blocks.STONE);f.block(f.center.offset(9,0,10),Blocks.STONE);
         var unchanged=f.terrain();var victim=f.cow(f.at.add(9,1,10));var chef=f.spawn(f.owner,victim);

@@ -34,6 +34,7 @@ final class VanityTerrainScene {
     final GameController game;final ChefChecks.Fixture base;final LbcStonekivi stone;final LbcBolts bolts;
     final BlockPos chest,otherChest,stoneFirst,stoneLast,stoneFuture,magFirst,magLast,magFuture,areaFirst,areaLast,areaFuture,pasteFirst,pasteLast;
     final Object stoneJob,stoneSlices,trial,magmify,ownedJob,reforgeJob,futureStone;
+    final ObservedWork placedSlice,trialCall;
     final Object blockJob,boltTemplate;final BlockAreaWork area;
     final LbcBolts.Owned state;final LbcBolts.ReforgeInput input;final ItemEntity arrows;
     final Cow chainTarget;final LbcBolts.Chain chain;final LbcBolts.Meteor meteor;
@@ -61,6 +62,20 @@ final class VanityTerrainScene {
     Object template(ServerPlayer owner,Identifier id,BlockPos origin){return invoke(stone,"template",new Class<?>[]{ServerPlayer.class,Identifier.class,BlockPos.class,float.class},owner,id,origin,1f);}
     Object boltTemplate(LbcBolts.Owned owner,Identifier id,BlockPos origin){return invoke(bolts,"template",new Class<?>[]{LbcBolts.Owned.class,Identifier.class,BlockPos.class},owner,id,origin);}
 
+    /** Observe actual source work at its boundary, before independent WILD effects can overwrite its result. */
+    final class ObservedWork implements LbcStonekivi.Work {
+        final LbcStonekivi.Work actual;final BlockPos placed;int completions;
+        ObservedWork(LbcStonekivi.Work actual,BlockPos placed){this.actual=actual;this.placed=placed;}
+        public boolean ready(){return actual.ready();}
+        public void cancel(){actual.cancel();}
+        public boolean step(){
+            if(placed==null){var current=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));require(get(trial,"owner")==current&&get(trial,"stack")==current.getOffhandItem(),"actual trial callback uses current canonical player and hand");}
+            boolean done=actual.step();if(done){completions++;if(placed!=null)require(base.owner.level().getBlockState(placed).is(Blocks.DIAMOND_BLOCK),"actual native slice places its diamond before later WILD terrain work");}
+            return done;
+        }
+        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){graph.capture(actual);int count=completions;return links->()->completions=count;}
+    }
+
     VanityTerrainScene(GameController game,ChefChecks.Fixture base,ServerPlayer gamma){
         this.game=game;this.base=base;stone=game.items().stonekivi();bolts=game.items().bolts();
         require(bolts.count()==0,"exclusive bolt private actors and reforge producers");
@@ -79,7 +94,16 @@ final class VanityTerrainScene {
         var id=Identifier.parse("lbc:vanity_terrain_fixture");
         var prepared=VanityTerrainScene.<Map<Identifier,List<MapManager.TemplateSlice>>>get(stone,"templates");
         var trialStack=new ItemStack(LbcWands.STONEKIVI);var data=LbcFartus.data(trialStack);data.putInt("upgradable",1);trialStack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));gamma.setItemInHand(InteractionHand.OFF_HAND,trialStack);
-        var impact=base.center.offset(-12,5,-2);write(impact,Blocks.BEDROCK);
+        var impact=base.center.offset(7,3,0);write(impact,Blocks.BEDROCK);
+        // Positive native control: a real opponent in a solid block completes this exact source trial.
+        // A fresh independent stack then owns the pending replay test, where WILD snake work can
+        // legitimately change the blocks/target before TrialWork runs.
+        var pendingStack=trialStack.copy();var feet=base.owner.blockPosition();var before=gamma.level().getBlockState(feet);
+        try{
+            write(feet,Blocks.STONE);game.items().academy().stonekiviTrial(gamma,InteractionHand.OFF_HAND,trialStack,impact);
+            require(LbcFartus.data(trialStack).getIntOr("upgrade_available",0)==1&&!LbcAcademy.trial(trialStack),"actual source trial grants upgrade with a real trapped hostile player");
+        }finally{gamma.level().setBlock(feet,before,Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);}
+        trialStack=pendingStack;gamma.setItemInHand(InteractionHand.OFF_HAND,trialStack);
         try{
             // The actual source produces its own TrialWork; its empty template phases are replaced
             // by bounded source factory phases before any native dispatcher turn can run.
@@ -87,13 +111,15 @@ final class VanityTerrainScene {
             invoke(stone,"castAt",new Class<?>[]{ServerPlayer.class,InteractionHand.class,ItemStack.class,int.class,Vec3.class,Vec3.class,boolean.class},gamma,InteractionHand.OFF_HAND,trialStack,1,Vec3.atCenterOf(impact).add(0,0,-3),new Vec3(0,0,1),true);
             stoneJob=queue().getLast();trial=children(stoneJob).getLast();require(trial.getClass().getSimpleName().equals("TrialWork"),"actual accepted Stonekivi trial terminal");
             set(stone,"templates",Map.of(id,parts));
-            stoneLast=base.center.offset(-14,3,-10);stoneFirst=stoneLast.west();stoneFuture=base.center.offset(-15,9,-2);
+            stoneLast=base.center.offset(11,1,0);stoneFirst=stoneLast.west();stoneFuture=base.center.offset(-15,9,-2);
             stoneSlices=template(gamma,id,stoneFirst);
             require(children(stoneSlices).size()==2,"two genuine native Stonekivi template placements");
             require(children(stoneSlices).removeFirst().step(),"actual first source slice completed before capture");
             require(gamma.level().getBlockState(stoneFirst).is(Blocks.STONE)&&gamma.level().getBlockState(stoneLast).isAir(),"only first explicit partial slice was placed");
+            placedSlice=new ObservedWork(children(stoneSlices).removeFirst(),stoneLast);children(stoneSlices).add(placedSlice);
+            trialCall=new ObservedWork((LbcStonekivi.Work)trial,null);
             futureStone=template(gamma,id,stoneFuture);
-            children(stoneJob).clear();children(stoneJob).add((LbcStonekivi.Work)stoneSlices);children(stoneJob).add((LbcStonekivi.Work)trial);
+            children(stoneJob).clear();children(stoneJob).add((LbcStonekivi.Work)stoneSlices);children(stoneJob).add(trialCall);
         }finally{set(stone,"templates",prepared);}
         stoneChildren=List.copyOf(children(stoneJob));sliceChildren=List.copyOf(children(stoneSlices));
 
@@ -169,7 +195,7 @@ final class VanityTerrainScene {
     }
     void verify(ServerPlayer gamma){
         require(List.copyOf(queue()).equals(order)&&children(stoneJob).stream().toList().equals(stoneChildren)&&children(stoneSlices).stream().toList().equals(sliceChildren)&&ownedChildren(ownedJob).stream().toList().equals(ownedChildren),"same whole dispatcher and independent original nested sequence cursors");
-        require(get(trial,"owner")==gamma&&get(trial,"stack")==gamma.getOffhandItem()&&LbcAcademy.trial(gamma.getOffhandItem())&&get(sliceChildren.getFirst(),"owner")==gamma,"actual trial and native template bind current author/canonical hand without completion replay");
+        require(get(trial,"owner")==gamma&&get(trial,"stack")==gamma.getOffhandItem()&&LbcAcademy.trial(gamma.getOffhandItem())&&get(placedSlice.actual,"owner")==gamma&&placedSlice.completions==0&&trialCall.completions==0,"actual trial and native template bind current author/canonical hand without completion replay");
         require(base.owner.level().getBlockState(stoneFirst).is(Blocks.STONE)&&base.owner.level().getBlockState(stoneLast).isAir()&&base.owner.level().getBlockState(stoneFuture).isAir(),"captured first slice remains; pending/future slices did not execute on restoration");
         require(get(magmify,"owner")==gamma&&get(magmify,"phase")==magPhase&&VanityTerrainScene.<Integer>get(magmify,"seen")==seen&&Arrays.equals((long[])invoke(get(magmify,"frontier"),"image",new Class<?>[]{}),frontier)&&Arrays.equals(VanityTerrainScene.<long[]>get(magmify,"centerSample"),reservoir),"same flood owner, phase, FIFO and independent partial reservoir");
         var cells=VanityTerrainScene.<Map<Long,Object>>get(magmify,"observed");require(cells.keySet().equals(originalCells.keySet())&&cells.entrySet().stream().allMatch(e->get(e.getValue(),"original")==originalCells.get(e.getKey())&&get(e.getValue(),"expected")==expectedCells.get(e.getKey()))&&VanityTerrainScene.<Set<Long>>get(magmify,"discovered").equals(discovered)&&VanityTerrainScene.<Set<Long>>get(magmify,"surfaceBlocks").equals(surface),"original observations/acknowledged expected writes and flood membership detach from future mutations");
@@ -189,7 +215,10 @@ final class VanityTerrainScene {
     boolean ready(){return jobs.stream().noneMatch(queue()::contains)&&input.converted==64&&bolts.meteorCount()==0;}
     void beforeThaw(){require(bolts.statusCount(chainTarget)==10,"full saved chain FIFO verified before each native thaw");bolts.clearChainStatus(chainTarget);require(bolts.statusCount(chainTarget)==0&&attachment()==null,"withdraw fixture-only chain status after frozen proof before global damaging pulse");}
     void thawed(){
-        var gamma=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));require(ready()&&base.owner.level().getBlockState(stoneLast).is(Blocks.DIAMOND_BLOCK)&&LbcFartus.data(gamma.getOffhandItem()).getIntOr("upgrade_available",0)==1&&!LbcAcademy.trial(gamma.getOffhandItem()),"native resumed pending slice completes the actual Stonekivi trial once in current hand");
+        var gamma=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestGamma"));
+        require(ready()&&placedSlice.completions==1&&trialCall.completions==1&&get(trial,"stack")==gamma.getOffhandItem(),"native placement and actual current-hand trial callback each execute exactly once per original/replayed timeline");
+        int upgrade=LbcFartus.data(gamma.getOffhandItem()).getIntOr("upgrade_available",0);
+        require((upgrade==0&&LbcAcademy.trial(gamma.getOffhandItem()))||(upgrade==1&&!LbcAcademy.trial(gamma.getOffhandItem())),"source trial state stays coherent under later legitimate WILD terrain interference");
         require(input.converted==64&&input.remaining==0&&input.units==0&&arrows.isRemoved()&&bolts.pendingReforgeCount()==0,"actual Ultra consumes remaining63 without a second ammo roll");
         require(base.owner.level().getBlockState(magLast).is(Blocks.REINFORCED_DEEPSLATE)&&get(magmify,"phase").toString().equals("FINISHED")&&base.owner.level().getBlockState(magFuture).is(Blocks.BEDROCK),"actual remaining flood node finishes and abandoned future discovery never executes: first="+base.owner.level().getBlockState(magFirst)+", last="+base.owner.level().getBlockState(magLast)+", future="+base.owner.level().getBlockState(magFuture)+", phase="+get(magmify,"phase")+", seen="+get(magmify,"seen"));
         for(var pos:BlockPos.betweenClosed(areaFirst,areaLast))require(base.owner.level().getBlockState(pos).is(Blocks.GOLD_BLOCK),"resumed original owned bitmap cell "+pos);
@@ -200,6 +229,7 @@ final class VanityTerrainScene {
         base.other.closeContainer();bolts.stop();
     }
     void mutate(){
+        placedSlice.completions=99;trialCall.completions=99;
         children(stoneJob).add((LbcStonekivi.Work)futureStone);children(stoneSlices).clear();ownedChildren(ownedJob).clear();ownedChildren(boltTemplate).clear();area.include(bounds(areaFuture,areaFuture));
         var cells=VanityTerrainScene.<Map<Long,Object>>get(magmify,"observed");set(cells.get(magFirst.asLong()),"expected",Blocks.DIRT.defaultBlockState());VanityTerrainScene.<long[]>get(magmify,"centerSample")[0]=magFuture.asLong();var fifo=VanityTerrainScene.<LongArrayFIFOQueue>get(magmify,"frontier");fifo.clear();fifo.enqueue(magFuture.asLong());VanityTerrainScene.<RandomSource>get(magmify,"random").nextLong();set(magmify,"seen",99);
         input.remaining=99;input.units=99;input.converted=99;input.convertedArrowStack=false;chain.untilNext=999;meteor.age=999;meteor.impactVisualTicks=99;
@@ -207,5 +237,5 @@ final class VanityTerrainScene {
         for(var row:currentStatus)set(row,"remaining",99);var future=new ArrayDeque<>(currentStatus);future.addFirst(currentStatus.getLast());VanityTerrainScene.<Map<Object,ArrayDeque<Object>>>get(chainStatus,"pending").put(chainTarget,future);
         ((Container)base.owner.level().getBlockEntity(chest)).setItem(0,new ItemStack(Items.STICK,5));((Container)base.owner.level().getBlockEntity(otherChest)).setItem(8,new ItemStack(Items.DIAMOND,64));
     }
-    void pending(){require(bolts.count()==0&&input.converted==99&&VanityTerrainScene.<Integer>get(magmify,"seen")==99&&chain.untilNext==999&&statusQueue().size()==3&&VanityTerrainScene.<Integer>get(statusQueue().getFirst(),"remaining")==99,"offline current Gamma defers ALL native terrain/bolt metadata without restoring any partial cursor or source callback");}
+    void pending(){require(placedSlice.completions==99&&trialCall.completions==99&&bolts.count()==0&&input.converted==99&&VanityTerrainScene.<Integer>get(magmify,"seen")==99&&chain.untilNext==999&&statusQueue().size()==3&&VanityTerrainScene.<Integer>get(statusQueue().getFirst(),"remaining")==99,"offline current Gamma defers ALL native terrain/bolt metadata without restoring any partial cursor or source callback");}
 }

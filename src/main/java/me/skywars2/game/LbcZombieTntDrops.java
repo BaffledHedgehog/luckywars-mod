@@ -76,7 +76,7 @@ public final class LbcZombieTntDrops {
             tnt.setPos(zombie.position());
             tnt.setFuse(200);
             prepare(zombie, ZOMBIE, cause);
-            prepare(tnt, TNT, cause);
+            prepare(tnt, TNT, zombie);
             if (!tnt.startRiding(zombie, true, true)) {
                 forget(zombie);
                 forget(tnt);
@@ -102,6 +102,7 @@ public final class LbcZombieTntDrops {
 
     private void prepare(Entity actor, String tag, LivingEntity cause) {
         actor.entityTags().add(tag);
+        if(actor instanceof Zombie){actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);}
         game.items().markCurrentItemEpoch(actor);
         causes.put(actor, cause);
         if (actor instanceof Zombie zombie) zombies.add(zombie);
@@ -135,6 +136,7 @@ public final class LbcZombieTntDrops {
         if (!managed(actor)) return null;
         var reflected = game.items().electro().reflectedOwner(actor);
         if (reflected != null) return reflected;
+        if(LbcSpellSource.unownedHazard(actor))return nativeCause(actor);
         if (actor instanceof PrimedTnt tnt && tnt.getOwner() != null) return tnt.getOwner();
         return causes.get(actor);
     }
@@ -143,7 +145,12 @@ public final class LbcZombieTntDrops {
     public LivingEntity retainedOwner(Entity actor) {
         if (!managed(actor)) return null;
         var reflected = game.items().electro().reflectedOwner(actor);
+        if(reflected==null&&LbcSpellSource.unownedHazard(actor))return nativeCause(actor);
         return reflected != null ? reflected : causes.get(actor);
+    }
+    private LivingEntity nativeCause(Entity actor){
+        var nativeOwner=game.items().spellSources().nativeMobSource(actor);if(nativeOwner!=null)return nativeOwner;
+        var retained=causes.get(actor);return retained instanceof ServerPlayer?null:retained;
     }
 
     /** Called before native chain TNT insertion; retain its native fuse and velocity. */

@@ -186,8 +186,8 @@ public final class LbcOverloadArmor {
                 .getOrThrow(DamageTypes.OUTSIDE_BORDER), player);
 
         for (Entity entity : level.getEntities((Entity) null, area, target -> isDamageTarget(player, target))) {
-            double distance = player.distanceToSqr(entity);
-            if (distance < .000001 || distance > radiusSquared) continue;
+            double distance = entity.getBoundingBox().distanceToSqr(player.position());
+            if (distance > radiusSquared) continue;
             if (entity instanceof LivingEntity living)
                 living.hurtServer(level, damageSource, damage);
         }
@@ -205,7 +205,7 @@ public final class LbcOverloadArmor {
     }
 
     private boolean isDamageTarget(ServerPlayer owner, Entity target) {
-        if (!(target instanceof LivingEntity living) || !living.isAlive() || living.isRemoved()
+        if (target == owner || !(target instanceof LivingEntity living) || !living.isAlive() || living.isRemoved()
                 || living.level() != owner.level() || living.entityTags().contains("spectator")
                 || owner.isAlliedTo(living)) return false;
         if (living instanceof ServerPlayer player && (game.isObserver(player)
@@ -218,12 +218,19 @@ public final class LbcOverloadArmor {
     private void drainNearbyPlayers(ServerPlayer owner, int radius, int amount, boolean includeOwner, boolean enemiesOnly) {
         if (radius <= 0 || amount <= 0) return;
         double radiusSquared = radius * (double) radius;
+        LbcIndirectKills.Owner cause = null;
         for (ServerPlayer target : game.server().getPlayerList().getPlayers()) {
             if (target.level() != owner.level() || !target.isAlive() || target.isRemoved()
                     || game.isObserver(target) || game.awaitingRespawn(target.getUUID()) || target.entityTags().contains("spectator")
                     || !includeOwner && target == owner || enemiesOnly && owner.isAlliedTo(target)) continue;
-            double distance = owner.distanceToSqr(target);
-            if ((includeOwner || distance >= .000001) && distance <= radiusSquared) mana.add(target, -amount);
+            double distance = enemiesOnly?target.getBoundingBox().distanceToSqr(owner.position()):owner.distanceToSqr(target);
+            if (distance <= radiusSquared) {
+                mana.add(target, -amount);
+                if (target != owner) {
+                    if (cause == null) cause = game.items().indirectKills().wildCause(owner);
+                    game.items().indirectKills().manaLost(target, cause);
+                }
+            }
         }
     }
 }

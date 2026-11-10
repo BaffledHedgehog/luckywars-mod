@@ -128,7 +128,7 @@ public final class LbcAbsoluteCinema {
         var candidates=roles.entrySet().stream().filter(e->e.getValue().role==Role.TRUMP).map(e->game.server().getPlayerList().getPlayer(e.getKey())).filter(this::active).toList();
         if(candidates.isEmpty())return;var author=candidates.get(attacker.getRandom().nextInt(candidates.size()));
         retaliating=true;callbacks++;
-        try{attacker.hurtServer(attacker.level(),attacker.damageSources().playerAttack(author),10);broadcast("trump_angry",0xFFFFFF,false,null);}
+        try{attacker.hurtServer(attacker.level(),attacker.damageSources().playerAttack(author),30);broadcast("trump_angry",0xFFFFFF,false,null);}
         finally{callbacks--;retaliating=false;}
     }
     /** One call per actual native victim death, before role/life cleanup; no synthetic/log-out deaths. */

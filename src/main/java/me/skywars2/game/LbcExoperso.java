@@ -41,6 +41,7 @@ public final class LbcExoperso {
     public static final EntityType<Charge> TYPE = registerType();
 
     private final GameController game;
+    final LbcExopersoRitual rituals;
     private final Set<Charge> charges = new LinkedHashSet<>();
     private final ArrayList<Charge> batch = new ArrayList<>();
     private IdentityHashMap<Entity, Series> blastSources = new IdentityHashMap<>();
@@ -83,11 +84,12 @@ public final class LbcExoperso {
         public void checkpoint(MatchBlastCheckpoint.Graph graph){graph.remember(this,()->{var required=Set.copyOf(requiredPlayers);var saved=Set.copyOf(kills);return links->()->{requiredPlayers.clear();requiredPlayers.addAll(required);kills.clear();kills.addAll(saved);};});}
     }
 
-    LbcExoperso(GameController game) { this.game = game; }
-    public int count() { return charges.size(); }
+    LbcExoperso(GameController game) { this.game = game;rituals=new LbcExopersoRitual(game,this); }
+    public int count() { return charges.size()+rituals.count(); }
     List<Charge> snapshot() { return List.copyOf(charges); }
 
     void loaded(Entity entity) {
+        rituals.loaded(entity);
         if (!(entity instanceof Charge charge)) return;
         if (!game.items().currentEpoch(charge) || charge.level() != game.maps().level()
                 || !(charge.getOwner() instanceof ServerPlayer)) {
@@ -99,6 +101,7 @@ public final class LbcExoperso {
     }
 
     void unloaded(Entity entity) {
+        rituals.unloaded(entity);
         if (entity instanceof Charge charge) {
             charges.remove(charge);
             cleanup(charge);
@@ -110,23 +113,7 @@ public final class LbcExoperso {
         if (!validOwner(owner) || paused(owner)
                 || game.items().magic().suppressedAt((net.minecraft.server.level.ServerLevel) owner.level(), owner.getEyePosition()))
             return false;
-        Charge charge = new Charge(TYPE, owner.level());
-        charge.setOwner(owner);
-        charge.setPos(owner.getEyePosition());
-        charge.setNoGravity(true);
-        charge.upgraded = upgraded;
-        charge.setYRot(owner.getYRot());
-        charge.setXRot(owner.getXRot());
-        charge.setDeltaMovement(Vec3.ZERO);
-        game.items().markCurrentItemEpoch(charge);
-        if (!owner.level().addFreshEntity(charge)) {
-            charge.discard();
-            return false;
-        }
-        charges.add(charge);
-        LbcOverload.sound(owner, owner.position().add(0, 20, 0), "minecraft:lbcsounds.exoperso",
-                15, upgraded ? 2 : 1, 0);
-        return true;
+        return rituals.cast(owner,upgraded);
     }
 
     /** Delta enters the same native charge owner directly at source Lifetime321. */
@@ -163,6 +150,7 @@ public final class LbcExoperso {
     void tick() {if(rewinding)return;if(advancing)throw new IllegalStateException("Reentrant Exoperso advance");advancing=true;try{
         // TNT удаляется перед native explode: освобождаем цепные источники только после его тика.
         blastSources.keySet().removeIf(Entity::isRemoved);
+        rituals.tick();
         if (charges.isEmpty()) return;
         batch.addAll(charges);
         try {
@@ -263,6 +251,13 @@ public final class LbcExoperso {
         game.items().exasperato().exopersoBurst(owner, point, series);
     }
 
+    void ritualImpact(ServerPlayer owner,Vec3 point,NuclearTerrain.Geometry geometry){
+        if(!validOwner(owner))return;
+        var series=new Series(owner,game.items().epoch());
+        for(var player:game.alivePlayers())if(!player.getUUID().equals(series.owner))series.requiredPlayers.add(player.getUUID());
+        game.items().exasperato().exopersoPrepared(owner,point,series,geometry);
+    }
+
     /** Used by the queue's blast callback so source attribution survives the synchronous explosion. */
     public void blastFinished(Entity source) { blastSources.remove(source); }
 
@@ -287,7 +282,7 @@ public final class LbcExoperso {
             game.items().mana().award(owner, "lbc:true_advancements/staffs/exoperso");
     }
 
-    private boolean validOwner(ServerPlayer owner) {
+    boolean validOwner(ServerPlayer owner) {
         return owner != null && !owner.isRemoved() && owner.isAlive() && owner.level() == game.maps().level()
                 && game.canUseGameplayItems(owner) && !game.isObserver(owner)
                 && game.stage() != GameController.Stage.ENDING;
@@ -308,6 +303,7 @@ public final class LbcExoperso {
     }
 
     public void stop() {
+        rituals.stop();
         for (Charge charge : List.copyOf(charges)) cleanup(charge);
         charges.clear();
         batch.clear();
@@ -315,14 +311,14 @@ public final class LbcExoperso {
     }
 
     void checkpointBoundary(){if(advancing||!batch.isEmpty())throw new IllegalStateException("Finish Exoperso callbacks before checkpointing");}
-    void prepareCheckpoint(){rewinding=true;}
-    void cancelCheckpoint(){rewinding=false;}
+    void prepareCheckpoint(){rewinding=true;rituals.prepareFrozen();}
+    void cancelCheckpoint(){rewinding=false;rituals.cancelFrozen();}
     Checkpoint checkpoint(MatchBlastCheckpoint.Graph graph){return new Checkpoint(graph);}
     final class Checkpoint {
         private record Actor(MatchDamageSources.Ref key,int age,int flight,boolean upgraded,Vec3 aim,int released){}
-        private final List<Actor> actors;private final MatchSpellCheckpoint.IdentityImage<Entity,Series> series;
-        Checkpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.flightAge,c.upgraded,c.aim,c.releasedRemaining)).toList();blastSources.values().forEach(v->v.checkpoint(graph));series=new MatchSpellCheckpoint.IdentityImage<>(blastSources,graph.links);}
-        Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exoperso charges first");bodies.add(c);}var ledger=series.restore(links);return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.flightAge=a.flight;c.upgraded=a.upgraded;c.aim=a.aim;c.releasedRemaining=a.released;}blastSources=ledger;rewinding=false;};}
+        private final List<Actor> actors;private final MatchSpellCheckpoint.IdentityImage<Entity,Series> series;private final LbcExopersoRitual.Checkpoint ritualImage;
+        Checkpoint(MatchBlastCheckpoint.Graph graph){ritualImage=rituals.checkpoint(graph.links);actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.flightAge,c.upgraded,c.aim,c.releasedRemaining)).toList();blastSources.values().forEach(v->v.checkpoint(graph));series=new MatchSpellCheckpoint.IdentityImage<>(blastSources,graph.links);}
+        Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exoperso charges first");bodies.add(c);}var ledger=series.restore(links);var ritualPlan=ritualImage.prepare(links);return ()->{ritualPlan.run();charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.flightAge=a.flight;c.upgraded=a.upgraded;c.aim=a.aim;c.releasedRemaining=a.released;}blastSources=ledger;rewinding=false;};}
     }
 
     static boolean cloneRecognizes(Entity e){return e instanceof Charge||e.entityTags().contains(EXPLOSIVE);}

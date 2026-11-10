@@ -148,7 +148,7 @@ public final class AllGrimoireChecks {
         @Override public void close(){if(!retain)reset();base.retain=retain;base.close();betaSaved.restore(base.game);
             for(var entry:stats.entrySet())base.owner.getStats().setValue(base.owner,net.minecraft.stats.Stats.ITEM_USED.get(entry.getKey()),entry.getValue());
             for(var objective:base.game.server().getScoreboard().getObjectives()){
-                var value=scores.get(objective.getName());if(value!=null)base.mana.score(base.owner,objective.getName()).set(value);else base.game.server().getScoreboard().resetSinglePlayerScore(base.owner,objective);
+                var value=scores.get(objective.getName());if(value!=null)base.game.server().getScoreboard().getOrCreatePlayerScore(base.owner,objective,true).set(value);else base.game.server().getScoreboard().resetSinglePlayerScore(base.owner,objective);
             }
             if(!retain)restore();
         }

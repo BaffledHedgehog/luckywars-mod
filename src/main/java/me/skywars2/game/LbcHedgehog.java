@@ -46,6 +46,7 @@ public final class LbcHedgehog {
     public enum Kind { ORDINARY, DEFAULT, HEALER, TANK, SNIPER, LASER, WALL }
     private static final String[] MODES={"mode_default","mode_healer","mode_tank","mode_far","mode_laser"};
     private final GameController game;
+    private final LbcFadingBeams beamVisuals;
     private final List<Fish> fish=new ArrayList<>();
     private final List<HelperArrow> arrows=new ArrayList<>();
     private final java.util.Set<Silverfish> silverfish=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
@@ -62,7 +63,8 @@ public final class LbcHedgehog {
     private static final class BlastBatch {
         final ServerLevel level;final Vec3 origin;final Silverfish source;final ServerPlayer author;final LbcIndirectKills.Owner cause;final String epoch;int next;
         NuclearTerrain.Shape terrain;
-        BlastBatch(ServerLevel level,Vec3 origin,Silverfish source,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){this.level=level;this.origin=origin;this.source=source;this.author=author;this.cause=cause;this.epoch=epoch;terrain=NuclearTerrain.wand(origin);}
+        NuclearTerrain.Occlusion walls;
+        BlastBatch(ServerLevel level,Vec3 origin,Silverfish source,ServerPlayer author,LbcIndirectKills.Owner cause,String epoch){this.level=level;this.origin=origin;this.source=source;this.author=author;this.cause=cause;this.epoch=epoch;terrain=NuclearTerrain.wand(origin);walls=terrain.walls;}
     }
     // Raw source offsets, preserving all32 simultaneous radius20 creepers.
     private static final int[][] SNEEZE_OFFSETS={{0,0,0},{5,0,0},{-5,0,0},{0,0,5},{0,0,-5},{5,0,5},{-5,0,-5},{5,0,-5},{-5,0,5},
@@ -71,6 +73,7 @@ public final class LbcHedgehog {
         {7,-5,0},{-7,-5,0},{0,-5,7},{0,-5,-7},{7,-5,7},{-7,-5,-7},{7,-5,-7},{-7,-5,7}};
     public LbcHedgehog(GameController game,LbcMana mana){
         this.game=game;
+        beamVisuals=new LbcFadingBeams(game);
         var holder=ScoreHolder.forNameOnly("baffled_wand_mana_use");var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");
         if(objective==null||board.getPlayerScoreInfo(holder,objective)==null)mana.score(holder,"lbc.math").set(2500);
     }
@@ -227,16 +230,18 @@ public final class LbcHedgehog {
     }
     private void damage(Fish f,LivingEntity target,float amount,boolean laser){var p=player(f.author);if(p==null&&f.kind!=Kind.WALL||!impact(f,target))return;
         var level=(ServerLevel)f.level();var type=laser?DamageTypes.GENERIC:DamageTypes.ARROW;
-        var source=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),f,p==null?f:p);
+        var source=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),f,f);
         target.hurtServer(level,game.items().indirectKills().captureDamage(source,f.cause),amount);}
     private void beam(Fish f,LivingEntity target,Kind kind){
         var p=player(f.author);if(p==null&&f.kind!=Kind.WALL)return;var level=(ServerLevel)f.level();var from=f.getEyePosition();var direction=target.getEyePosition().subtract(from).normalize();
         LbcOverload.sound(level,from,"minecraft:entity.silverfish.hurt",1,1,0,0);
         if(kind==Kind.SNIPER)LbcOverload.sound(p,from,"minecraft:item.trident.return",5,1,0);
         int max=kind==Kind.SNIPER?300:kind==Kind.LASER?30:50;int color=kind==Kind.HEALER?0xffdcdc:kind==Kind.SNIPER?0xbeb3ff:kind==Kind.LASER?0x3fffbf:0xbdbdbd;
-        for(int i=0;i<=max;i++){
+        boolean display=kind==Kind.SNIPER||kind==Kind.WALL||kind==Kind.DEFAULT;Vec3 end=from;
+        try{for(int i=0;i<=max;i++){
             var at=from.add(direction.scale(i*.3));if(!resident(level,at)||suppressed(level,at))return;
-            level.sendParticles(new DustParticleOptions(color,kind==Kind.SNIPER?3:1),at.x,at.y,at.z,1,0,0,0,0);
+            end=at;
+            if(!display)level.sendParticles(new DustParticleOptions(color,kind==Kind.SNIPER?3:1),at.x,at.y,at.z,1,0,0,0,0);
             var targets=level.getEntitiesOfClass(LivingEntity.class,cell(at),e->kind==Kind.HEALER?e!=f&&eligible(e)&&allied(f,e):impact(f,e));
             if(!targets.isEmpty()){
                 var hit=targets.getFirst();
@@ -244,7 +249,7 @@ public final class LbcHedgehog {
                 else{damage(f,hit,kind==Kind.SNIPER?20:kind==Kind.LASER?.02f:4,kind==Kind.LASER);if(kind!=Kind.LASER)return;}
             }
             if(kind!=Kind.LASER&&!level.getBlockState(BlockPos.containing(at)).isAir())return;
-        }
+        }}finally{if(display)beamVisuals.show(level,from,end,kind==Kind.SNIPER);}
     }
     /** The same attack boundary used after the source random wall/Sniper admission. */
     public void fireBeam(Silverfish helper,LivingEntity target){
@@ -272,8 +277,8 @@ public final class LbcHedgehog {
         var arrow=new HelperArrow((ServerLevel)f.level(),p,f);var arrowTag=new CompoundTag();arrowTag.putByte("PierceLevel",(byte)100);
         arrow.load(TagValueInput.create(ProblemReporter.DISCARDING,p.registryAccess(),arrowTag));arrow.entityTags().add(ARROW);arrow.entityTags().add("magic");
         arrow.setPos(f.getEyePosition());arrow.setDeltaMovement(target.getEyePosition().subtract(f.getEyePosition()).normalize().scale(2));
-        // Native projectile owner is the accepted caster; helper remains the direct firing body.
-        arrow.setOwner(p);game.items().markCurrentItemEpoch(arrow);arrows.add(arrow);game.items().timeStop().prepareFrozen(arrow);
+        // Native retaliation targets the actual firing mob. The separate receipt retains player credit.
+        arrow.setOwner(f);game.items().markCurrentItemEpoch(arrow);arrows.add(arrow);game.items().timeStop().prepareFrozen(arrow);
         if(!p.level().addFreshEntity(arrow))arrow.discard();
         var at=f.position();p.level().sendParticles(new DustParticleOptions(0xcccccc,1),at.x,at.y,at.z,30,.2,.2,.2,1);
         LbcOverload.sound(p,at,"minecraft:entity.arrow.shoot",1,1,0);
@@ -292,7 +297,7 @@ public final class LbcHedgehog {
                 var child=children.get(e);if(e.isRemoved()){children.remove(e);continue;}
                 if(!game.playing()||!game.items().currentEpoch(child.epoch)||!resident((ServerLevel)e.level(),e.position())){children.remove(e);e.discard();}
             }
-            tickBlasts();
+            tickBlasts();beamVisuals.tick();
         }finally{leaveCheckpointCallback();}
     }
     private void retire(Fish f){f.retired=true;fish.remove(f);f.discard();}
@@ -333,7 +338,7 @@ public final class LbcHedgehog {
     }
     public void stop(){
         enterCheckpointCallback();try {
-        for(var f:List.copyOf(fish))retire(f);for(var a:arrows)a.discard();arrows.clear();blasts.clear();for(var child:children.keySet())child.discard();children.clear();checkpointRestoring=false;
+        for(var f:List.copyOf(fish))retire(f);for(var a:arrows)a.discard();arrows.clear();blasts.clear();for(var child:children.keySet())child.discard();children.clear();beamVisuals.stop();checkpointRestoring=false;
         }finally{leaveCheckpointCallback();}
     }
     /** Public deterministic boundary lets checks trigger the real astronomically rare consequence. */
@@ -352,7 +357,7 @@ public final class LbcHedgehog {
         }finally{leaveCheckpointCallback();}
     }
     /** Native explosion callbacks retain the original accepted event even after its fish has died. */
-    public LbcIndirectKills.Owner cause(Entity source){var child=children.get(source);return source==blastSource?blastCause:child==null?null:child.cause;}
+    public LbcIndirectKills.Owner cause(Entity source){if(source instanceof LbcHedgehog.HelperArrow arrow)return arrow.getOwner() instanceof ServerPlayer?null:arrow.cause;if(source instanceof LbcHedgehog.Fish fish)return fish.cause;var child=children.get(source);return source==blastSource?blastCause:child==null?null:child.cause;}
     public boolean executingSneeze(ServerLevel level){return blastLevel==level;}
     public boolean explosionTarget(ServerLevel level,Entity victim){return !executingSneeze(level)||game.items().wands().validTarget(victim);}
     public boolean explosionTarget(Entity source,Entity victim){return source==null||source!=blastSource&&!children.containsKey(source)||game.items().wands().validTarget(victim);}
@@ -401,8 +406,8 @@ public final class LbcHedgehog {
             var nativeDamage=batch.level.damageSources().explosion(batch.source,batch.author);
             var damage=game.items().indirectKills().captureDamage(nativeDamage,batch.cause);
             // Null actor retains native self-exposure of the fish; exact damage-source identity scopes terrain suppression.
-            NuclearTerrain.damageWave(batch.source,()->game.items().indirectKills().trapChanges(batch.level,batch.cause,
-                    ()->batch.level.explode(null,damage,null,point.x,point.y,point.z,20,false,Level.ExplosionInteraction.MOB)));
+            NuclearTerrain.withOcclusion(batch.walls,()->NuclearTerrain.damageWave(batch.source,()->game.items().indirectKills().trapChanges(batch.level,batch.cause,
+                    ()->batch.level.explode(null,damage,null,point.x,point.y,point.z,20,false,Level.ExplosionInteraction.MOB))));
             completedBlasts++;
         }finally{blastSource=oldSource;blastCause=oldCause;blastLevel=oldLevel;blastAuthor=oldAuthor;}
     }
@@ -429,7 +434,7 @@ public final class LbcHedgehog {
     private void enterCheckpointCallback(){checkpointCallbacks++;}
     private void leaveCheckpointCallback(){checkpointCallbacks--;}
     void prepareFrozen(){
-        checkpointBoundary();checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();blasts.clear();children.clear();
+        checkpointBoundary();checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();blasts.clear();children.clear();beamVisuals.stop();
         blastSource=null;blastCause=null;blastLevel=null;blastAuthor=null;
     }
     void publishFrozen(){checkpointBoundary();checkpointRestoring=false;}
@@ -439,19 +444,20 @@ public final class LbcHedgehog {
         private record FishImage(Fish original,MatchDamageSources.Ref body,int timer,boolean retired){}
         private record ArrowImage(HelperArrow original,MatchDamageSources.Ref body){}
         private record ChildImage(MatchDamageSources.Ref body,MatchDamageSources.Ref author,LbcIndirectKills.Owner cause,String epoch){}
-        private record BlastImage(BlastBatch original,MatchDamageSources.Ref source,MatchDamageSources.Ref author,int next,NuclearTerrain.Shape terrain){}
+        private record BlastImage(BlastBatch original,MatchDamageSources.Ref source,MatchDamageSources.Ref author,int next,NuclearTerrain.Shape terrain,NuclearTerrain.Occlusion walls){}
         private final List<FishImage> savedFish;
         private final List<ArrowImage> savedArrows;
         private final List<MatchDamageSources.Ref> savedSilverfish;
         private final List<ChildImage> savedChildren;
         private final List<BlastImage> savedBlasts;
+        private final List<LbcFadingBeams.Image> savedBeams=beamVisuals.checkpoint();
         private final long completed=completedBlasts;
         Checkpoint(MatchSpellCheckpoint.Links links){
             savedFish=fish.stream().map(f->new FishImage(f,links.key(f),f.timer,f.retired)).toList();
             savedArrows=arrows.stream().map(a->new ArrowImage(a,links.key(a))).toList();
             savedSilverfish=silverfish.stream().map(links::key).toList();
             var childImages=new ArrayList<ChildImage>();children.forEach((body,c)->childImages.add(new ChildImage(links.key(body),links.key(c.author),c.cause,c.epoch)));savedChildren=List.copyOf(childImages);
-            savedBlasts=blasts.stream().map(b->new BlastImage(b,links.key(b.source),links.key(b.author),b.next,b.terrain==null?null:b.terrain.copy())).toList();
+            savedBlasts=blasts.stream().map(b->new BlastImage(b,links.key(b.source),links.key(b.author),b.next,b.terrain==null?null:b.terrain.copy(),b.walls.copy())).toList();
         }
         Runnable prepare(MatchSpellCheckpoint.Links links){
             checkpointBoundary();var plans=new ArrayList<Runnable>();
@@ -462,8 +468,8 @@ public final class LbcHedgehog {
             for(var image:savedChildren){var body=links.get(image.body);var author=(ServerPlayer)links.get(image.author);var child=new Child(author,image.cause,image.epoch);plans.add(()->children.put(body,child));}
             for(var image:savedBlasts){var b=image.original;var source=(Silverfish)links.get(image.source);var author=(ServerPlayer)links.get(image.author);
                 if(source!=b.source)throw new IllegalStateException("Restore the same accepted Hedgehog blast source");MatchAuthorityCheckpoint.world(game,b.level);
-                var batch=new BlastBatch(b.level,b.origin,source,author,b.cause,b.epoch);batch.next=image.next;batch.terrain=image.terrain==null?null:image.terrain.copy();plans.add(()->blasts.addLast(batch));}
-            return ()->{checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();children.clear();blasts.clear();plans.forEach(Runnable::run);completedBlasts=completed;};
+                var batch=new BlastBatch(b.level,b.origin,source,author,b.cause,b.epoch);batch.next=image.next;batch.terrain=image.terrain==null?null:image.terrain.copy();batch.walls=batch.terrain==null?image.walls.copy():batch.terrain.walls;plans.add(()->blasts.addLast(batch));}
+            return ()->{checkpointRestoring=true;fish.clear();arrows.clear();silverfish.clear();children.clear();blasts.clear();plans.forEach(Runnable::run);beamVisuals.restore(savedBeams);completedBlasts=completed;};
         }
     }
 

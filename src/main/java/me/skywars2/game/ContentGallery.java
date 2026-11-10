@@ -259,7 +259,7 @@ public final class ContentGallery {
         var level = level();
         if (!ownsChest(player.level(), position)
                 || !level.hasChunkAt(position) || !level.getBlockState(position).is(Blocks.ENDER_CHEST)) return false;
-        if (allowed(player)) game.menus().openDebug(player);
+        if (allowed(player)) game.menus().openFromChest(player, position, true);
         return true;
     }
     boolean ownsChest(ServerLevel level, BlockPos position) {

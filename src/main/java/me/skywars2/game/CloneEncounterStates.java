@@ -35,7 +35,7 @@ public final class CloneEncounterStates {
     static LbcSpellSource.Source rebase(LbcSpellSource.Source source,UUID original,Entity clone) {
         if(source==null)return null;
         return new LbcSpellSource.Source(original.equals(source.emitter())?clone.getUUID():source.emitter(),
-                source.author(),source.epoch(),source.cause(),source.excluded(),source.persistent());
+                source.author(),source.epoch(),source.cause(),source.excluded(),source.persistent(),source.unownedMobs(),original.equals(source.emitter())&&(source.author()==null||source.helmetCredit())&&source.unownedMobs()&&clone instanceof net.minecraft.world.entity.LivingEntity living?living:source.nativeEmitter(),source.helmetCredit());
     }
     /** A reviewed presentation child's native serialized value, with a fresh construction identity. */
     static final class Presentation {

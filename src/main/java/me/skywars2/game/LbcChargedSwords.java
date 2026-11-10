@@ -56,6 +56,9 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 
 /** Shared source player counters, straight Triple copies and independent Blazefire continuation. */
 public final class LbcChargedSwords {
+    static boolean swordProjectile(Entity entity,ServerPlayer owner){
+        return entity instanceof ThrownSword sword&&sword.getOwner()==owner&&!sword.entityTags().contains(BONE);
+    }
     public static final Item TRIPLE=registerItem("triple_golden_sword",900,"triple_golden_sword");
     public static final Item BLAZE=registerItem("blazefire_sword",600,"lbckit.18");
     public static final EntityType<ThrownSword> TYPE=registerType();

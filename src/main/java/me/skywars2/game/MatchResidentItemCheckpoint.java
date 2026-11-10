@@ -11,6 +11,7 @@ final class MatchResidentItemCheckpoint {
     private final String epoch;
     private final MatchSpellCheckpoint.Links links;
     private final LbcItems.ResidentCheckpoint items;
+    private final LbcItemQueue.Checkpoint itemQueue;
     private final LbcTechnoFlight.ResidentCheckpoint flight;
     private final LbcKfcFood.ResidentCheckpoint food;
     private final LbcBabylonEffects.ResidentCheckpoint babylon;
@@ -36,7 +37,7 @@ final class MatchResidentItemCheckpoint {
     private boolean prepared,installed,published;
     MatchResidentItemCheckpoint(GameController game,MatchDamageSources sources){
         this.game=game;epoch=game.items().epoch();stable(false);links=new MatchSpellCheckpoint.Links(sources);
-        bedwarsArena=game.bedwars().arena().checkpoint();
+        bedwarsArena=game.bedwars().arena().checkpoint();itemQueue=game.itemQueue().checkpoint();
         godClaw=game.items().godClaw().checkpoint();golem=game.items().stoneGolemSkill().checkpoint();
         expansion=game.items().expansionSkill().checkpoint();hakurei=game.items().hakureiSkill().checkpoint();touhou=game.items().touhouCollectibles().checkpoint();reactiveTrinkets=game.items().reactiveTrinkets().checkpoint();rainbow=game.items().rainbowAura().checkpoint();
         pumpkins=game.items().cursedPumpkin().checkpoint();lightsabers=game.items().lightsabers().checkpoint();
@@ -73,7 +74,7 @@ final class MatchResidentItemCheckpoint {
         var lightState=lightsabers.prepare(lookup);
         var nova=supernova.prepare(lookup);if(!nova.pending().isEmpty())return nova.pending();
         var i=items.prepare(links);var f=flight.prepare(links);var k=food.prepare(links);var b=babylon.prepare(links);var s=stand.prepare(links);
-        i.run();f.run();k.run();b.run();s.run();bedwarsState.install().run();estate.install().run();wireState.install().run();nx.install().run();pulse.install().run();acquired.install().run();nova.install().run();craft.install().run();pumpkinState.install().run();clawState.install().run();golemState.install().run();expansionState.install().run();hakureiState.install().run();touhouState.install().run();trinketState.install().run();rainbowState.install().run();lightState.install().run();game.items().nexusCompass().restoreDestinations(compassDestinations);installed=true;published=false;return Set.of();
+        i.run();f.run();k.run();b.run();s.run();bedwarsState.install().run();estate.install().run();wireState.install().run();nx.install().run();pulse.install().run();acquired.install().run();nova.install().run();craft.install().run();pumpkinState.install().run();clawState.install().run();golemState.install().run();expansionState.install().run();hakureiState.install().run();touhouState.install().run();trinketState.install().run();rainbowState.install().run();lightState.install().run();game.items().nexusCompass().restoreDestinations(compassDestinations);game.itemQueue().restore(itemQueue);installed=true;published=false;return Set.of();
     }
     Set<UUID> publishFrozen(){
         stable(true);if(published)return Set.of();if(!installed)throw new IllegalStateException("Install resident item state before publication");

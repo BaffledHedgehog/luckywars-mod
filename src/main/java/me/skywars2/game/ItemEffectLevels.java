@@ -9,9 +9,10 @@ import net.minecraft.world.effect.MobEffects;
 public final class ItemEffectLevels {
     private ItemEffectLevels() { }
     public static int amplifier(Holder<MobEffect> effect,int value) {
+        if(!VanillaExpansionRules.enabled())return value;
         int cap=effect.is(MobEffects.REGENERATION)||effect.is(MobEffects.WITHER)?5:
                 effect.is(MobEffects.POISON)||effect.is(MobEffects.RESISTANCE)?4:
-                effect.is(MobEffects.BLINDNESS)||effect.is(MobEffects.DARKNESS)?2:Integer.MAX_VALUE;
+                effect.is(MobEffects.BLINDNESS)||effect.is(MobEffects.DARKNESS)?1:Integer.MAX_VALUE;
         return Math.min(cap,value);
     }
     public static MobEffectInstance cap(MobEffectInstance effect) {

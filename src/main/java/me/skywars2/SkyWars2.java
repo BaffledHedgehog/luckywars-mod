@@ -100,6 +100,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             var maps = new MapManager(server,()->game!=null&&game.server()==server?game.gameMode():config.gameMode);
             game = new GameController(server, config, players, maps);
             game.menus(new GameMenus(server, game, config, players, maps));
+            game.itemQueue().initialize();
             game.startServer();
             game.items().nexusCompass().reload();game.items().nexusCombat().reload();game.items().allItemPools().initialize();
             game.items().academy().prepare();
@@ -136,6 +137,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             }
         });
         ServerTickEvents.START_SERVER_TICK.register(server -> {
+            me.skywars2.game.LbcAcceptedHits.clear();
             me.skywars2.game.TpsCompensation.beginTick(server);
             me.skywars2.game.SignedEnvironmentalEffects.beginTick();
         });
@@ -146,20 +148,22 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             me.skywars2.game.WeaponSpreadVisuals.tick(server);
             if(game!=null)game.vanity().tick();
             if(game!=null)game.items().clockFragments().endTick();
+            if(game!=null)game.itemQueue().endTick();
+            AtlasGlitchSignal.tick(server);
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;
             if(game!=null) game.cancelQueuedEntityUnload(entity);
             // Вход с сохранённым эффектом: active_effects загружается без onEffectAdded.
             if (entity instanceof ServerPlayer player) FullInvisibility.effectsChanged(player);
-            if (game != null) game.items().entityLoaded(entity);
+            if (game != null) { game.items().entityLoaded(entity); game.itemQueue().loaded(entity); }
             if (game != null && game.inLobby()) game.maps().queueLobbyEntity(entity);
         });
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;
             if (game != null && entity instanceof net.minecraft.world.entity.LivingEntity living)
                 game.items().indirectKills().clear(living);
-            if (game != null) game.queueEntityUnload(entity);
+            if (game != null) { game.itemQueue().unloaded(entity); game.queueEntityUnload(entity); }
         });
         ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> {
             if(game!=null)game.developerTools().gallery().chunkLoaded(level,chunk);
@@ -177,10 +181,12 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             me.skywars2.game.SignedEnvironmentalEffects.clear();
             me.skywars2.game.SignedEffectVisuals.stop(server);
             if (game != null) { game.shutdown(); game = null; }
+            AtlasGlitchSignal.stop(server);
             me.skywars2.game.WeaponSpreadVisuals.stop();
         });
         ServerPlayerEvents.JOIN.register(player -> { if (game != null) { game.items().mana().initializeResources(player); game.join(player); } me.skywars2.game.SignedEffectVisuals.joined(player); });
         ServerPlayerEvents.LEAVE.register(player -> {
+            AtlasGlitchSignal.leaving(player);
             me.skywars2.game.WeaponSpreadVisuals.forget(player);
             FullInvisibility.cameraChanging(player, null);
             me.skywars2.game.SignedEffectVisuals.clear(player);
@@ -198,24 +204,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damage) -> {
             if(game!=null&&entity instanceof ServerPlayer player)game.items().fpvDrone().forget(player);
-            // Fabric пропускает AFTER_DAMAGE при смертельном ударе; испытания должны учитывать и такие попадания.
-            if (game != null) game.items().stand().onAcceptedDamage(entity, damage);
-            if (game != null) game.items().academy().damaged(entity, damage);
-            if (game != null) game.items().grimoireRooms().damaged(entity);
-            if (game != null) game.items().vexSword().damaged(entity, damage, 1);
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().fevgaleaStar().damaged(entity, damage));
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().chargedSwords().damaged(entity, damage));
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().karaSlabs().damaged(entity, damage));
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().classicMelee().damaged(entity, damage));
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().metalPipe().damaged(entity, damage));
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().devilSword().damaged(entity, damage));
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().pendingCombat().damaged(entity, damage));
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().pendingSwords().damaged(entity, damage));
-            if (game != null) game.items().incomingArtifacts().damaged(entity, damage);
-            if (game != null) game.items().reactiveArtifacts().damaged(entity, damage);
-            if (game != null && damage.getEntity() instanceof ServerPlayer owner) game.items().tmt().withHeldTraits(damage,()->game.items().fartus().melee(owner,entity,damage));
-            if (game != null) game.items().tmt().withHeldTraits(damage,()->game.items().wtf().melee(entity,damage));
-            if (game != null) { game.items().tmt().withHeldTraits(damage,()->game.items().specialTools().melee(entity,damage)); game.items().specialTools().died(entity,damage); }
+            me.skywars2.game.LbcAcceptedHits.lethal(entity,damage);
+            if (game != null) game.items().specialTools().died(entity,damage);
             if (game != null) game.items().exoperso().died(entity, damage);
             if (game != null) game.items().helicopterEncounter().died(entity, damage);
             if (game != null && entity instanceof ServerPlayer player) game.items().witchWrath().died(player);
@@ -223,17 +213,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.items().frost().clear(entity);
             if (game != null && entity instanceof ServerPlayer player) { game.items().steampunkHook().reset(player);game.items().steampunkGlove().reset(player);game.died(player, damage); }
         });
-        ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damage, blocked) -> {
-            if (game != null && !blocked && damage > 0) game.items().academy().damaged(entity, source);
-            if (game != null && !blocked && damage > 0) game.items().indirectKills().damaged(entity, source);
-            if (game != null && !blocked && damage > 0) game.items().damaged(entity, source);
-            if (game != null && !blocked && damage > 0) game.items().vexSword().damaged(entity, source, damage);
-            if (game != null && !blocked && damage > 0 && source.getEntity() instanceof ServerPlayer owner) game.items().tmt().withHeldTraits(source,()->game.items().fartus().melee(owner,entity,source));
-            if (game != null && !blocked && damage > 0) game.items().tmt().withHeldTraits(source,()->game.items().wtf().melee(entity,source));
-            if (game != null && !blocked && entity instanceof ServerPlayer player) game.hurtForSkill(player);
-            if (game != null && !blocked && damage > 0 && entity instanceof ServerPlayer player)
-                { game.items().ak47().receivedDamage(player,damage); game.damaged(player, source, damage); }
-        });
+        ServerLivingEntityEvents.AFTER_DAMAGE.register((entity,source,baseDamage,damage,blocked) ->
+                me.skywars2.game.LbcAcceptedHits.nonlethal(entity,source,damage,blocked));
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, damage, amount) -> {
             if(game!=null&&LbcDamage.isElectricalContact(damage)&&game.items().fpvDrone().tryShortCircuit(entity))return false;
             boolean allowed=game==null ? LbcDamage.allowDamage(entity,damage) : game.items().allowDamage(entity,damage);
@@ -412,7 +393,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
                     && !game.isDeveloper(serverPlayer)
                     && level.getBlockState(pos).is(Blocks.ENDER_CHEST)) {
-                game.menus().open(serverPlayer); return InteractionResult.SUCCESS;
+                game.menus().openFromChest(serverPlayer, pos, false); return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
         });
@@ -450,7 +431,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
                     && !game.isDeveloper(serverPlayer)
                     && level.getBlockState(hit.getBlockPos()).is(Blocks.ENDER_CHEST)) {
-                game.menus().open(serverPlayer); return InteractionResult.SUCCESS;
+                game.menus().openFromChest(serverPlayer, hit.getBlockPos(), false); return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
         });
@@ -478,6 +459,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     && entity.entityTags().contains("swrg.quickstart")) {
                 game.requestStart(serverPlayer, true); return InteractionResult.SUCCESS;
             }
+            if(game!=null&&player instanceof ServerPlayer owner){
+                var crystal=game.items().interactIceCrystal(owner,hand,entity,hit==null?null:hit.getLocation());
+                if(crystal!=InteractionResult.PASS)return crystal;
+            }
             return InteractionResult.PASS;
         });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
@@ -491,7 +476,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
             DeveloperTools.registerCommands(dispatcher);
             me.skywars2.game.BulkPlayerCommand.register(dispatcher);
-            var root = Commands.literal("sw").executes(ctx -> {
+            var root = Commands.literal("skywars").executes(ctx -> {
                 if (game != null) game.menus().open(ctx.getSource().getPlayerOrException()); return 1;
             });
             root.then(Commands.literal("status").executes(ctx -> {
@@ -532,7 +517,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                         ctx.getSource().sendSuccess(() -> text("settings.saved", "lbcUnlock", id), false);
                         return 1;
                     }))));
-            dispatcher.register(Commands.literal("settings").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+            me.skywars2.game.SkyWarsCommandTree.add(dispatcher,Commands.literal("settings").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                     .executes(ctx -> {
                         if (game == null) { ctx.getSource().sendFailure(text("message.starting")); return 0; }
                         ctx.getSource().sendSuccess(() -> game.settingsSummary(), false);
@@ -557,8 +542,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                                             }))))
                     .then(Commands.argument("parameter", StringArgumentType.word())
                             .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(List.of(
-                                    "lives", "health", "healthDisplay", "hp", "imbaDropChance", "imbadrop_chance", "prefixes", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
-                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "luckyModifier", "cfg_lucky_modifier", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcKits", "lbcSkills", "lbcLevelups", "lbcLevelupLimit", "lbcTrinketLimit", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "gameMode", "bedwarsDirectBedBreaking", "map", "broken"), builder))
+                                    "lives", "health", "healthDisplay", "imbaDropChance", "prefixes", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
+                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "luckyModifier", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcKits", "lbcSkills", "lbcLevelups", "lbcLevelupLimit", "lbcTrinketLimit", "lbcChallenges", "offhandWands", "noBorders", "gameMode", "bedwarsDirectBedBreaking", "map", "broken"), builder))
                             .then(Commands.argument("value", StringArgumentType.word())
                                     .suggests((ctx, builder) -> settingValueSuggestions(
                                             StringArgumentType.getString(ctx, "parameter"), builder))
@@ -574,15 +559,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                                             return 0;
                                         }
                                     }))));
-            var command = dispatcher.register(root);
-            // A redirect would bypass local effect/reload children. Share child nodes instead.
-            var skywars=dispatcher.register(Commands.literal("skywars").executes(command.getCommand()));
-            for(var child:command.getChildren())skywars.addChild(child);
-            for(String alias:java.util.List.of("gallery","developer","mapsave","mapdelete","settings","player")){
-                var target=dispatcher.getRoot().getChild(alias);
-                if(target!=null)skywars.addChild(Commands.literal(alias).requires(target.getRequirement())
-                        .executes(target.getCommand()).redirect(target).build());
-            }
+            dispatcher.register(root);
             me.skywars2.game.SkyWarsFeedbackCommands.register(dispatcher);
             me.skywars2.game.ServerTickMetrics.register(dispatcher);
         });
@@ -593,23 +570,26 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             String parameter, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
         if (game == null) return builder.buildFuture();
         String key = parameter.toLowerCase(java.util.Locale.ROOT);
-        if (List.of("ranked", "vanillakits", "vanillaskills", "lbckits", "lbcskills", "lbclevelups", "lbcchallenges", "offhandwands", "lefthandwands", "noborders", "bedwarsdirectbedbreaking", "broken").contains(key))
+        if (List.of("ranked", "vanillakits", "vanillaskills", "lbckits", "lbcskills", "lbclevelups", "lbcchallenges", "offhandwands", "noborders", "bedwarsdirectbedbreaking", "broken").contains(key))
             return SharedSuggestionProvider.suggest(List.of("true", "false"), builder);
-        if (key.equals("map") || key.equals("mapid"))
+        if (key.equals("map"))
             return SharedSuggestionProvider.suggest(game.maps().catalog().stream().filter(MapManager.MapInfo::available)
                     .map(MapManager.MapInfo::id), builder);
         List<String> values = switch (key) {
             case "lives" -> List.of("1", "2", "3", "4", "5");
             case "health" -> List.of("2", "10", "20", "40", "60");
-            case "countdown", "countdownseconds" -> List.of("0", "3", "5", "10", "30", "60");
-            case "stageoneseconds", "stage1seconds" -> List.of("0", "60", "120", "180", "300", "600", "1200", "3600");
-            case "stagetwoseconds", "stage2seconds" -> List.of("0", "120", "240", "360", "600", "1200", "3600", "7200");
-            case "ending", "endingseconds" -> List.of("0", "5", "10", "30", "60", "120");
-            case "stageoneevent", "stage1event" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
-            case "stagetwoevent", "stage2event" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8");
-            case "pvp", "pvpmode" -> List.of("1", "2");
+            case "healthdisplay" -> List.of("0", "1", "2", "3");
+            case "imbadropchance" -> List.of("0", "1", "2", "3", "4", "5", "6");
+            case "prefixes" -> List.of("0", "1", "2", "3", "4");
+            case "countdownseconds" -> List.of("0", "3", "5", "10", "30", "60");
+            case "stageoneseconds" -> List.of("0", "60", "120", "180", "300", "600", "1200", "3600");
+            case "stagetwoseconds" -> List.of("0", "120", "240", "360", "600", "1200", "3600", "7200");
+            case "endingseconds" -> List.of("0", "5", "10", "30", "60", "120");
+            case "stageoneevent" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+            case "stagetwoevent" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8");
+            case "pvpmode" -> List.of("1", "2");
             case "tntprotection" -> List.of("0", "1", "2", "3", "4", "5");
-            case "luckymodifier", "cfg_lucky_modifier" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
+            case "luckymodifier" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
             case "day" -> List.of("1", "2", "3");
             default -> List.of();
         };

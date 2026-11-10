@@ -165,4 +165,48 @@ public final class OreshekChecks {
         }
     }
     public static void run(GameController game){try(var f=new Fixture(game)){f.branches();f.producer();}SkyWars2.LOGGER.info("[check] PASS oreshek (actual nut consumption, native15 isolated survivor blast, Nexus, silent obsolete-latch reset,47producer; no Zelensky/nuke cascade qualification)");}
+    private static Fixture held;
+    private static Choices heldChoices;
+    private static int heldPhase,heldAt;
+    private static long heldConsumed;
+    public static void runInput(GameController game){
+        require(held==null,"exclusive actual held-use fixture");held=new Fixture(game);heldPhase=0;
+        try{beginHeld(game);}catch(Throwable error){closeHeld(error);throw error;}
+    }
+    private static void beginHeld(GameController game){
+        var f=held;f.reset();f.p.stopUsingItem();f.p.getFoodData().setFoodLevel(20);
+        if(heldPhase==1)game.items().addTurnCurse(f.p,200);
+        var nut=f.nut.copy();f.p.setItemInHand(InteractionHand.MAIN_HAND,nut);
+        var client=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(nut,TooltipFlag.NORMAL,f.p.connection.getPacketContext(),f.p.registryAccess());
+        require(client.get(DataComponents.CONSUMABLE).equals(nut.get(DataComponents.CONSUMABLE))
+                &&client.get(DataComponents.FOOD).canAlwaysEat(),"real client nut projection remains edible at full hunger");
+        heldConsumed=game.items().oreshek().consumedCount();heldChoices=new Choices(f.level,.5f,.5f,.5f);
+        require(f.p.gameMode.useItem(f.p,f.level,nut,InteractionHand.MAIN_HAND).consumesAction()
+                &&f.p.isUsingItem()&&f.p.getUseItem()==nut,"actual native hand use begins under curse="+(heldPhase==1));
+        heldAt=game.server().getTickCount();
+    }
+    public static void tickInput(GameController game){
+        if(held==null)return;
+        try{
+            held.acknowledge();
+            // This scoped Recording listener is not installed in the server connection list.
+            // Advance the real native player tick once, just as the live listener does.
+            held.p.doTick();int elapsed=game.server().getTickCount()-heldAt;
+            if(game.items().oreshek().consumedCount()==heldConsumed){
+                require(elapsed<50&&held.p.isUsingItem(),"native held nut must finish without release under curse="+(heldPhase==1)+", elapsed="+elapsed);
+                return;
+            }
+            require(game.items().oreshek().consumedCount()==heldConsumed+1&&held.p.getMainHandItem().isEmpty()
+                    &&elapsed>=held.nut.get(DataComponents.CONSUMABLE).consumeTicks()-1,"real server ticks finish exactly one nut at native duration");
+            if(heldPhase==1)require(game.items().curseTicks(held.p)>0,"Skill Issue stayed active for the entire real native eating interval");
+            heldChoices.close();heldChoices=null;
+            if(++heldPhase<2){beginHeld(game);return;}
+            closeHeld(null);SkyWars2.LOGGER.info("[check] PASS oreshek-input (actual full-hunger client consumable projection and native held-use ticks; exactly one debit and callback, with and without active Skill Issue)");
+        }catch(Throwable error){closeHeld(error);SkyWars2.LOGGER.error("[check] FAIL oreshek-input",error);}
+    }
+    private static void closeHeld(Throwable error){
+        if(heldChoices!=null){try{heldChoices.close();}catch(Throwable cleanup){if(error!=null)error.addSuppressed(cleanup);else error=cleanup;}heldChoices=null;}
+        if(held!=null){try{held.p.stopUsingItem();held.close();}catch(Throwable cleanup){if(error!=null)error.addSuppressed(cleanup);else error=cleanup;}held=null;}
+        if(error!=null)SkyWars2.LOGGER.error("[check] oreshek-input cleanup/failure",error);
+    }
 }

@@ -31,6 +31,15 @@ public final class SummonOrderChecks {
         var far=troops.stream().filter(SummonOrderChecks::fighter).findFirst().orElseThrow();far.setPos(f.at.add(28,1,0));f.base.owner.setPos(f.at.add(-8,0,0));require(far.distanceToSqr(f.base.owner)>900,"old30-block owner restriction would exclude this soldier");
         var ally=cow(f,f.at.add(-4,.5,6));service.track(f.base.owner,ally);
         var selected=cow(f,f.at.add(0,.5,12));var closer=cow(f,f.at.add(4,.5,3));var distant=cow(f,f.at.add(0,.5,18));aim(f,selected.getBoundingBox().getCenter());
+        // This positive focus case requires a visible lane. Hidden-target behavior
+        // is tested separately below with a real wall and native beam ticks.
+        for(var mob:troops)if(mob instanceof net.minecraft.world.entity.monster.Guardian){
+            for(int clear=0;clear<64;clear++){
+                var wall=LbcTerra.wallHit(f.level,mob.getEyePosition(),selected.getEyePosition());if(wall==null)break;
+                f.level.setBlock(wall.getBlockPos(),Blocks.AIR.defaultBlockState(),2|16|32);
+            }
+            require(mob.hasLineOfSight(selected),"visible native Guardian focus fixture");
+        }
         require(orders.lookedAt(f.base.owner)==selected,"actual enemy hitbox under crosshair");
         var foreign=service.spawnPreset(f.beta,"vex",f.at.add(3,2,0));require(foreign!=null,"other owner's helper");foreign.setNoAi(true);foreign.setTarget(closer);
         for(var item:items())for(var hand:InteractionHand.values()){
@@ -67,6 +76,16 @@ public final class SummonOrderChecks {
         f.beta.setPos(at.add(5,0,0));f.beta.getInventory().clearContent();f.beta.removeAllEffects();f.beta.setHealth(1000);float betaHp=f.beta.getHealth();
         for(int tick=0;tick<200;tick++)f.level.tickNonPassenger(guardian);
         require(chosen.getHealth()<1000&&f.beta.getHealth()==betaHp&&service.orders().assigned(guardian)==chosen,"real native beam damages Cow, retaining commanded focus despite closer native player candidate; cow="+chosen.getHealth()+" beta="+f.beta.getHealth()+" expected="+betaHp+" guardian="+guardian.position()+" target="+guardian.getTarget()+" assigned="+service.orders().assigned(guardian)+" cowPos="+chosen.position()+" canSee="+guardian.getSensing().hasLineOfSight(chosen));
+        var midpoint=guardian.getEyePosition().lerp(chosen.getEyePosition(),.5);var cover=new java.util.ArrayList<BlockPos>();
+        for(var cell:BlockPos.betweenClosed(BlockPos.containing(midpoint.add(-1.5,-2,-1.5)),BlockPos.containing(midpoint.add(1.5,2,1.5)))){
+            cover.add(cell.immutable());f.level.setBlock(cell,Blocks.STONE.defaultBlockState(),2|16|32);
+        }
+        try{
+            require(!guardian.hasLineOfSight(chosen)&&service.orders().assigned(guardian)==null,"new wall immediately invalidates hidden Guardian focus");
+            float before=chosen.getHealth();for(int tick=0;tick<20;tick++)f.level.tickNonPassenger(guardian);
+            require(chosen.getHealth()==before&&((net.minecraft.world.entity.monster.Guardian)guardian).getActiveAttackTarget()!=chosen,
+                    "native Guardian beam stops behind a wall, without hidden damage or target refresh");
+        }finally{for(var cell:cover)f.level.setBlock(cell,Blocks.AIR.defaultBlockState(),2|16|32);}
         chosen.discard();f.beta.setPos(f.at.add(12,500,0));var automatic=cow(f,at.add(0,0,10));for(int tick=0;tick<20;tick++)service.tick();
         for(int tick=0;tick<130;tick++)f.level.tickNonPassenger(guardian);
         require(automatic.getHealth()<1000&&service.orders().assigned(guardian)==automatic,"Guardian automatically acquires and attacks ordinary mob after previous target dies");

@@ -31,7 +31,8 @@ public final class LbcSummonOrders {
             .sorted(Comparator.comparingInt(Entity::getId)).toList();}
     LivingEntity assigned(Mob mob){var order=assignments.get(mob);
         return order!=null&&summons.owner(mob)!=null&&summons.owner(mob).getUUID().equals(order.owner)
-                &&summons.canAttack(mob,order.target)?order.target:null;
+                &&summons.canAttack(mob,order.target)
+                &&(!(mob instanceof net.minecraft.world.entity.monster.Guardian)||mob.hasLineOfSight(order.target))?order.target:null;
     }
     /** Loaded entity hitboxes, nearest intersection and native block outlines; no arbitrary aim range. */
     LivingEntity lookedAt(ServerPlayer owner){
@@ -71,7 +72,8 @@ public final class LbcSummonOrders {
         for(var mob:troops){
             if(!replace&&assigned(mob)!=null)continue;
             LivingEntity best=null;double score=Double.POSITIVE_INFINITY;
-            for(var target:candidates){double distance=mob.distanceToSqr(target);if(distance>radius(mob)*radius(mob))continue;
+            for(var target:candidates){double distance=mob.distanceToSqr(target);if(distance>radius(mob)*radius(mob)
+                    ||mob instanceof net.minecraft.world.entity.monster.Guardian&&!mob.hasLineOfSight(target))continue;
                 double weighted=(distance+16)*(1+loads.getOrDefault(target,0));
                 if(weighted<score){score=weighted;best=target;}
             }

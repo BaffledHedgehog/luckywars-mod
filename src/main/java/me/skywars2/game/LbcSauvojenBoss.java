@@ -59,7 +59,9 @@ public final class LbcSauvojenBoss {
         ghast.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(256);ghast.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(256);
         ghast.setCustomName(Component.literal("Sauvojen Tuntija").withStyle(ChatFormatting.BLUE,ChatFormatting.BOLD).withStyle(s->s.withItalic(false)));
         ghast.entityTags().addAll(List.of(BOSS,"sauvojen_tuntija","rcdenyalways"));game.items().markCurrentItemEpoch(ghast);
-        var source=game.items().spellSources().hostile(ghast,author,EXCLUDED);var state=new Actor(author.getUUID(),game.items().epoch(),source);
+        ghast.entityTags().add("skywars2.unowned_hazard");
+        var source=new LbcSpellSource.Source(ghast.getUUID(),null,game.items().epoch(),null,EXCLUDED,true,true);
+        var state=new Actor(author.getUUID(),game.items().epoch(),source);
         actors.put(ghast,state);game.items().spellSources().bind(ghast,source);game.items().timeStop().prepareFrozen(ghast);
         if(!level.addFreshEntity(ghast)){actors.remove(ghast);ghast.discard();return false;}
         LbcOverload.sound(level,at,"minecraft:entity.wither.spawn",1,1,0,.5f);
@@ -74,7 +76,7 @@ public final class LbcSauvojenBoss {
     }
     public boolean canAffect(Entity source,Entity target){
         var state=actors.get(source);var authority=state==null?game.items().spellSources().source(source):state.source();
-        if(authority==null)return false;var author=game.server().getPlayerList().getPlayer(authority.author());
+        if(authority==null)return false;var author=authority.author()==null?null:game.server().getPlayerList().getPlayer(authority.author());
         try(var scope=game.items().spellSources().scope(authority)){return Boolean.TRUE.equals(game.items().spellSources().target(author,target));}
     }
     public void targetChanged(Mob actor,LivingEntity target){if(managed(actor)&&target!=null&&!canAffect(actor,target))actor.setTarget(null);}
@@ -90,12 +92,12 @@ public final class LbcSauvojenBoss {
         var level=game.maps().level();if(level==null||game.items().timeStop().stopped(level))return;
         phase=(phase+1)%240;
         for(var boss:List.copyOf(actors.keySet())){
-            var state=actors.get(boss);var author=owner(boss);
-            if(boss.isRemoved()||!game.items().currentEpoch(state.epoch())||boss.level()!=level||author==null||author.level()!=level||!game.canUseGameplayItems(author)){
+            var state=actors.get(boss);
+            if(boss.isRemoved()||!game.items().currentEpoch(state.epoch())||boss.level()!=level){
                 actors.remove(boss);if(!boss.isRemoved())boss.discard();continue;
             }
             if(!(boss instanceof LivingEntity living)||!living.isAlive()||boss.entityTags().contains("time_stopped"))continue;
-            if(phase%40==0&&nearest(level,boss.position(),110)!=null)select(living,state,author);
+            if(phase%40==0&&nearest(level,boss.position(),110)!=null)select(living,state);
         }
         for(var cloud:List.copyOf(clouds))tickCloud(cloud);
 
@@ -111,34 +113,35 @@ public final class LbcSauvojenBoss {
         }
         return nearest;
     }
-    private void select(LivingEntity boss,Actor state,ServerPlayer author){
+    private void select(LivingEntity boss,Actor state){
         selections++;int branch=boss.getRandom().nextInt(10);var level=(ServerLevel)boss.level();var at=boss.position();
-        if(branch<9)cloud(boss,author,LbcSauvojen.Kind.values()[branch],state.source());
+        if(branch<9)cloud(boss,LbcSauvojen.Kind.values()[branch],state.source());
         else{
-            var center=boss.blockPosition();var task=new Terrain(author,center.offset(-15,-15,-15),center.offset(15,15,15),state.source());
+            var center=boss.blockPosition();var task=new Terrain(level,state.author(),center.offset(-15,-15,-15),center.offset(15,15,15),state.source());
             terrain.add(task);game.items().stonekivi().queuedWork(task);
             level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,at.x,at.y,at.z,1000,10,10,10,0);
         }
         level.sendParticles(ParticleTypes.PORTAL,true,false,at.x,at.y+2,at.z,50,1,1,1,1);
-        if(boss.getRandom().nextInt(100)<35)boss.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false),author);
+        if(boss.getRandom().nextInt(100)<35)boss.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false),boss);
         var position=boss.position();double x=position.x,y=position.y,z=position.z;
         if(y>=300)y=40;if(y<=0)y=200;if(x>=120)x=-100;else if(x<=-120)x=100;if(z>=120)z=-100;else if(z<=-120)z=100;
         if(x!=position.x||y!=position.y||z!=position.z)boss.teleportTo(level,x,y,z,Set.of(),boss.getYRot(),boss.getXRot(),true);
     }
-    private void cloud(LivingEntity boss,ServerPlayer author,LbcSauvojen.Kind kind,LbcSpellSource.Source authority){
-        var carrier=new Marker(EntityTypes.MARKER,author.level());carrier.setPos(boss.position());
+    private void cloud(LivingEntity boss,LbcSauvojen.Kind kind,LbcSpellSource.Source authority){
+        var level=(ServerLevel)boss.level();
+        var carrier=new Marker(EntityTypes.MARKER,level);carrier.setPos(boss.position());
         carrier.entityTags().addAll(List.of(CLOUD,"savoujen_cloud","magic","sauvojen_"+kind.name().toLowerCase(Locale.ROOT)));game.items().markCurrentItemEpoch(carrier);
-        var drone=new LbcSauvojen.Drone(author,InteractionHand.MAIN_HAND,ItemStack.EMPTY,kind,game.items().epoch(),carrier);
+        var drone=new LbcSauvojen.Drone(null,InteractionHand.MAIN_HAND,ItemStack.EMPTY,kind,game.items().epoch(),carrier);
         var exclusions=new HashSet<>(authority.excluded());if(kind==LbcSauvojen.Kind.TERRA||kind==LbcSauvojen.Kind.ELECTRO)exclusions.add("summoned_cultist");
         if(kind==LbcSauvojen.Kind.ELECTRO){exclusions.add("transformator");exclusions.add("cyborg_boss");}
-        var source=new LbcSpellSource.Source(authority.emitter(),authority.author(),authority.epoch(),authority.cause(),exclusions);
+        var source=new LbcSpellSource.Source(authority.emitter(),authority.author(),authority.epoch(),authority.cause(),exclusions,authority.persistent(),authority.unownedMobs(),authority.nativeEmitter(),authority.helmetCredit());
         var cloud=new Cloud(drone,source);clouds.add(cloud);game.items().spellSources().bind(carrier,source);
-        if(!author.level().addFreshEntity(carrier)){remove(cloud,false);return;}
-        game.visualTracking().attach(drone.holder,author.level(),()->drone.position);game.items().sauvojen().sync(drone);
+        if(!level.addFreshEntity(carrier)){remove(cloud,false);return;}
+        game.visualTracking().attach(drone.holder,level,()->drone.position);game.items().sauvojen().sync(drone);
     }
     private void tickCloud(Cloud cloud){
-        var d=cloud.visual();var author=d.owner;var level=(ServerLevel)d.carrier.level();
-        if(d.carrier.isRemoved()||!game.items().currentEpoch(d.epoch)||level!=game.maps().level()||author.level()!=level||!game.canUseGameplayItems(author)){
+        var d=cloud.visual();var level=(ServerLevel)d.carrier.level();
+        if(d.carrier.isRemoved()||!game.items().currentEpoch(d.epoch)||level!=game.maps().level()){
             remove(cloud,false);return;
         }
         if(d.carrier.entityTags().contains("time_stopped")||!level.hasChunkAt(BlockPos.containing(d.position)))return;
@@ -149,7 +152,7 @@ public final class LbcSauvojenBoss {
         if(outerFacing&&target==null)return;
         d.lifetime+=d.kind.cadence;if(target==null)return;
         var direction=target.getEyePosition().subtract(d.position).normalize();if(direction.lengthSqr()>1e-12)d.direction=direction;
-        game.items().sauvojen().emitHostile(author,d.kind,d.position,d.direction,cloud.source());emissions++;
+        game.items().sauvojen().emitHostile(level,d.kind,d.position,d.direction,cloud.source());emissions++;
         game.items().sauvojen().sync(d);
         if(d.lifetime>=200)remove(cloud,true);
     }
@@ -214,11 +217,11 @@ public final class LbcSauvojenBoss {
     private static boolean resident(ServerLevel level,BlockPos from,BlockPos to){for(int x=from.getX()>>4;x<=to.getX()>>4;x++)for(int z=from.getZ()>>4;z<=to.getZ()>>4;z++)if(level.getChunkSource().getChunkNow(x,z)==null)return false;return true;}
     private final class Terrain implements LbcStonekivi.Work {
         final ServerLevel level;final UUID author;final String epoch=game.items().epoch();final BlockPos from,to;final LbcSpellSource.Source source;boolean cancelled;
-        Terrain(ServerPlayer author,BlockPos from,BlockPos to,LbcSpellSource.Source source){level=author.level();this.author=author.getUUID();this.from=from;this.to=to;this.source=source;}
+        Terrain(ServerLevel level,UUID author,BlockPos from,BlockPos to,LbcSpellSource.Source source){this.level=level;this.author=author;this.from=from;this.to=to;this.source=source;}
         boolean live(){return !cancelled&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch)&&level==game.maps().level();}
         @Override public boolean ready(){return !live()||!game.items().timeStop().stopped(level)&&resident(level,from,to);}
         @Override public boolean step(){
-        callbackDepth++;try{if(live())try(var scope=game.items().spellSources().scope(source)){game.items().indirectKills().trapChanges(level,source.cause(),()->LbcDropBlocks.fill(level,from,to,Blocks.AIR,true));}cancel();return true;
+        callbackDepth++;try{if(live())try(var scope=game.items().spellSources().scope(source,level)){game.items().indirectKills().trapChanges(level,source.cause(),()->LbcDropBlocks.fill(level,from,to,Blocks.AIR,true));}cancel();return true;
         }finally{callbackDepth--;}
     }
         @Override public void cancel(){
@@ -245,14 +248,14 @@ public final class LbcSauvojenBoss {
     /** Reconnect replaces only the real owner's reference, preserving the live cloud and its clocks. */
     void rebindRetained(ServerPlayer player){
         checkpointBoundary();
-        for(var cloud:clouds){var visual=cloud.visual();if(visual.owner!=player&&visual.owner.getUUID().equals(player.getUUID()))visual.owner=player;}
+        for(var cloud:clouds){var visual=cloud.visual();if(visual.owner!=null&&visual.owner!=player&&visual.owner.getUUID().equals(player.getUUID()))visual.owner=player;}
     }
     public void forget(ServerPlayer player){
         callbackDepth++;try{
-        for(var entity:List.copyOf(actors.keySet()))if(actors.get(entity).author().equals(player.getUUID())){actors.remove(entity);entity.discard();}
-        unloaded.values().removeIf(state->state.author().equals(player.getUUID()));
+        for(var entity:List.copyOf(actors.keySet()))if(!actors.get(entity).source().persistent()&&actors.get(entity).author().equals(player.getUUID())){actors.remove(entity);entity.discard();}
+        unloaded.values().removeIf(state->!state.source().persistent()&&state.author().equals(player.getUUID()));
         for(var cloud:List.copyOf(clouds))if(cloud.visual().owner==player)remove(cloud,false);
-        for(var task:List.copyOf(terrain))if(task.author.equals(player.getUUID()))task.cancel();
+        for(var task:List.copyOf(terrain))if(!task.source.persistent()&&task.author.equals(player.getUUID()))task.cancel();
 
         }finally{callbackDepth--;}
     }
@@ -274,7 +277,7 @@ public final class LbcSauvojenBoss {
             var drone=new LbcSauvojen.Drone(saved.owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY,saved.kind,saved.epoch,saved.carrier);
             drone.position=saved.position;drone.direction=saved.direction;drone.lifetime=saved.lifetime;drone.nextMode=saved.nextMode;
             clouds.add(new Cloud(drone,saved.source));
-            game.visualTracking().attach(drone.holder,saved.owner.level(),()->drone.position);game.items().sauvojen().sync(drone);
+            game.visualTracking().attach(drone.holder,(ServerLevel)saved.carrier.level(),()->drone.position);game.items().sauvojen().sync(drone);
         }
         stagedClouds=List.of();rewinding=false;
     }

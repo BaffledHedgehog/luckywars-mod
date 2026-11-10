@@ -172,6 +172,13 @@ public final class LbcSoulless {
         p.level().addFreshEntity(drop);feedback(p,vex.position(),"minecraft:entity.vex.charge",1,.3f);
         game.items().indirectKills().withCause(vex,game.items().indirectKills().wildCause(p),()->vex.kill(p.level()));
     }
+    /** Operator grant enters the same native consumer as the wand; no orphan raw counter. */
+    boolean setGhosting(ServerPlayer player,int seconds){
+        if(seconds<=0)return false;
+        apply(player,player);
+        if(!ghosts.containsKey(player))return false;
+        mana.score(player,"effect_ghosting").set(seconds);return true;
+    }
     private void feedback(ServerPlayer p,Vec3 at,String sound,float volume,float pitch){p.level().sendParticles(ParticleTypes.CLOUD,at.x,at.y,at.z,10,0,0,0,.5);LbcOverload.sound(p,at,sound,volume,pitch,0);}
     void tickGhost(LivingEntity target,Ghosting status){
         checkpointDepth++;try{

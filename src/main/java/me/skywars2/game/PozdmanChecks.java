@@ -68,7 +68,7 @@ public final class PozdmanChecks {
             var ally=new Cow(EntityTypes.COW,level);ally.setNoAi(true);ally.setPos(origin.add(0,0,2));nativeActors.add(ally);require(level.addFreshEntity(ally),"native ally admission");game.items().mana().score(ally,"team_number").set(team);service.loaded(ally);
             require(service.nearest(dolphin)==enemy,"pursuit uses1..200 exact team score and excludes nearer allied mob");
             service.dolphinTick(dolphin);require(Math.abs(dolphin.position().distanceTo(origin)-1)<1e-9,"native pursuit advances exactly one horizontal source block");
-            var coin=service.spawnCoin(dolphin);require(coin!=null&&coin.getOwner()==owner,"physical coin inherits actual controller");nativeActors.add(coin);
+            var coin=service.spawnCoin(dolphin);require(coin!=null&&coin.getOwner()==owner,"physical coin inherits actual controller");nativeActors.add(coin);DisplayTransformChecks.pose(service.state(coin).display(),0,0,0,2,2,2);
             coin.setPos(enemy.position());coin.setDeltaMovement(Vec3.ZERO);
             float before=enemy.getHealth();require(service.coinContact(coin)&&coin.isRemoved()&&Math.abs(enemy.getHealth()-(before-15))<1e-6,"native falling_block15 accepted hit consumes physical coin");
             require(enemy.getLastDamageSource()!=null&&enemy.getLastDamageSource().is(DamageTypes.FALLING_BLOCK)&&enemy.getLastDamageSource().getEntity()==owner&&enemy.getLastDamageSource().getDirectEntity()==coin,"native direct coin and actual owner damage attribution");

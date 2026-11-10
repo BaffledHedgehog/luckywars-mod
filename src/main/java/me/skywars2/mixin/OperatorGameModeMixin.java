@@ -61,7 +61,7 @@ public abstract class OperatorGameModeMixin {
                             .executes(context -> CommandAccess.skywars2$setMode(context,
                                     EntityArgument.getPlayers(context, "target"), mode))));
         }
-        dispatcher.register(root);
+        me.skywars2.game.SkyWarsCommandTree.add(dispatcher,root);
     }
 
     @Mixin(GameModeCommand.class)

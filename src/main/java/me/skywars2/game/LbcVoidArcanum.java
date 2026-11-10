@@ -48,7 +48,7 @@ public final class LbcVoidArcanum {
     private static final double[] RADII={0,2,3,5,9,24}, HURT={0,1.5,2,4,8,24}, PULL={0,3,4,8,12,30};
     private static final float[] DAMAGE={0,.2f,.25f,.3f,.35f,.4f};
     // Legacy voidcursed1..4 move .13 per tick; voidcursed5 moves .5.
-    private static final double[] ACCELERATION={0,.025,.035,.018,.022,.025}, MAX_SPEED={0,.13,.13,.13,.13,.5};
+    private static final double[] ACCELERATION={0,.025,.035,.018,.022,.025}, MAX_SPEED={0,.078,.078,.078,.078,.3};
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
     public static final Item ITEM=registerItem();
@@ -269,7 +269,7 @@ public final class LbcVoidArcanum {
     }
     private static Vec3 chasePoint(Hole hole,LivingEntity target){
         // Arcanum alone hovers above larger victims instead of ploughing along their feet.
-        // Keep the tier's legacy speed cap; this changes its destination, not its speed.
+        // Targeting changes its destination; all tier movement caps include the author's40% reduction.
         return target.getEyePosition().add(0,.5*(hole.level-1),0);
     }
     void physics(Hole hole,ServerPlayer author,LbcIndirectKills.Owner cause){

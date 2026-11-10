@@ -33,6 +33,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Accepted bow families become discrete rays on the existing fair queue, never extra arrows. */
 public final class LbcChargedBows {
+    public static final String BLAST="skywars2.charged_bow.blast";
     /** The shared final-family transaction supplies all ammo effects and already rolled traits. */
     public interface BeamPayload {
         int variant();
@@ -88,7 +89,7 @@ public final class LbcChargedBows {
             payload=payloads.capture(owner,weapon.copy(),accepted);
         for(var projectile:accepted)projectile.discard();
         if(payload==null)return true;
-        owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,shish,shish),owner);
+        if(game.balanceLegacy())owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,shish,shish),owner);
         var eye=owner.getEyePosition();var direction=owner.getLookAngle().normalize();
         LbcOverload.sound(owner,owner.position(),"minecraft:item.trident.return",10,2,shish?.7f:.2f);
         LbcOverload.sound(owner,owner.position(),shish?"minecraft:block.azalea_leaves.break":"minecraft:entity.generic.explode",.3f,.8f,.3f);
@@ -96,8 +97,9 @@ public final class LbcChargedBows {
         if(shish&&distance<6)return true;
         int count=shish?distance:Math.max(1,distance);
         var cause=game.items().indirectKills().wildCause(owner);
-        game.items().exasperato().replayableSamples(owner,eye.add(direction.scale(shish?3:2)),direction,count-1,
-                new Beam(owner,payload,cause,!shish,false));
+        var start=eye.add(direction.scale(shish?3:2));
+        game.items().exasperato().replayableSamples(owner,start,direction,count-1,
+                new Beam(owner,payload,cause,!shish,false,start,count));
         return true;
     }
     /** Caller supplies its existing active-time bow charge; this method never adds another counter. */
@@ -120,21 +122,66 @@ public final class LbcChargedBows {
         private final boolean railgun,preview;private Vec3 direction;private boolean firstSample=true,homingLost;
         private LbcExasperato.RayTicket ticket;
         private BeamWork residence;
+        private final Vec3 origin;private final int sampleCount;
+        private final Map<Chunk,BeamWork> atomicLeases=new HashMap<>();
+        private final java.util.ArrayList<Vec3> leafCenters=new java.util.ArrayList<>();
+        private int samplesVisited;
+        private boolean atomicReady;
         Beam(ServerPlayer owner,BeamPayload payload,LbcIndirectKills.Owner cause,boolean railgun,boolean preview){
+            this(owner,payload,cause,railgun,preview,owner.getEyePosition(),1);
+        }
+        Beam(ServerPlayer owner,BeamPayload payload,LbcIndirectKills.Owner cause,boolean railgun,boolean preview,Vec3 origin,int sampleCount){
             author=owner.getUUID();level=owner.level();epoch=game.items().epoch();this.payload=payload;this.cause=cause;
             this.railgun=railgun;this.preview=preview;direction=owner.getLookAngle().normalize();
+            this.origin=origin;this.sampleCount=sampleCount;
         }
         public boolean block(BlockPos pos,BlockState state){return false;}
         public boolean target(Entity entity){return false;}
         public void trail(Vec3 from,Vec3 to){}
         public void submitted(LbcExasperato.RayTicket ticket){this.ticket=ticket;beams.add(this);}
-        public void complete(HitResult hit){beams.remove(this);if(residence!=null)release(residence);}
+        public void complete(HitResult hit){
+            try{if(atomicSamples()&&samplesVisited==sampleCount&&game.items().currentEpoch(epoch)&&game.playing())leaves();}
+            finally{beams.remove(this);if(residence!=null)release(residence);releaseAtomic();leafCenters.clear();}
+        }
         public boolean readyAt(Vec3 point){
             if(preview)return true;
+            if(atomicSamples())return readyAtomic();
             if(residence==null)residence=new BeamWork(level,point,cause,0,-1);
             return resident(residence,BlockPos.containing(point));
         }
         public double sampleStep(){return 1;}
+        public boolean atomicSamples(){return !railgun&&!preview;}
+        private boolean readyAtomic(){
+            if(atomicReady)return true;
+            if(atomicLeases.isEmpty())for(int sample=0;sample<sampleCount;sample++){
+                var point=BlockPos.containing(origin.add(direction.scale(sample)));
+                // Native power4 rays reach <8 blocks; include the complete leaf/native-blast footprint.
+                for(int x=(point.getX()-8)>>4;x<=(point.getX()+8)>>4;x++)for(int z=(point.getZ()-8)>>4;z<=(point.getZ()+8)>>4;z++){
+                    if(x< -1875000||x>=1875000||z< -1875000||z>=1875000)continue;
+                    var key=new Chunk(level,new ChunkPos(x,z));
+                    atomicLeases.computeIfAbsent(key,k->new BeamWork(level,new Vec3(k.pos.x()<<4,level.getMinY(),k.pos.z()<<4),cause,0,-1));
+                }
+            }
+            boolean ready=true;for(var entry:atomicLeases.entrySet())if(!resident(entry.getValue(),entry.getValue().center))ready=false;
+            atomicReady=ready;return ready;
+        }
+        private void releaseAtomic(){for(var lease:atomicLeases.values())release(lease);atomicLeases.clear();atomicReady=false;}
+        private void leaves(){
+            var cells=new it.unimi.dsi.fastutil.longs.LongOpenHashSet();
+            for(var point:leafCenters){if(jammed(level,point,true))continue;var center=BlockPos.containing(point);
+                if(center.getY()-5>=level.getMaxY()||center.getY()+7<level.getMinY())continue;
+                for(var box:LEAF_VOLUMES)for(int x=box[0];x<=box[3];x++)for(int y=box[1];y<=box[4];y++)for(int z=box[2];z<=box[5];z++){
+                    int actualY=center.getY()+y;if(actualY>=level.getMinY()&&actualY<level.getMaxY())
+                        cells.add(BlockPos.asLong(center.getX()+x,actualY,center.getZ()+z));
+                }
+            }
+            var replacement=Blocks.SPRUCE_LEAVES.defaultBlockState();var pos=new BlockPos.MutableBlockPos();
+            game.items().indirectKills().capturedWorldChanges(level,cause,()->{
+                for(var iter=cells.iterator();iter.hasNext();){long cell=iter.nextLong();pos.set(BlockPos.getX(cell),BlockPos.getY(cell),BlockPos.getZ(cell));
+                    if(level.getBlockState(pos).is(TANNERKIVI))LbcDropBlocks.setBlock(level,pos.immutable(),replacement,true);
+                }
+            });
+        }
         public HitResult sampleAt(Vec3 point){
             if(!game.items().currentEpoch(epoch))return null;
             if(preview){
@@ -154,7 +201,7 @@ public final class LbcChargedBows {
                 if(payload.hasVariant(301))blast(level,point,cause,1,false);
                 particles(level,CYAN,point,5,.1);
             }else{
-                blast(level,point,cause,4,true);enqueue(new BeamWork(level,point,cause,3,0));
+                blast(level,point,cause,4,true);leafCenters.add(point);samplesVisited++;
                 for(float pitch:new float[]{2,1,1.5f})sound(level,point,"minecraft:block.azalea_leaves.break",.2f,pitch);
                 particles(level,LEAVES,point,3,.2);
             }
@@ -181,15 +228,19 @@ public final class LbcChargedBows {
         public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){
             var savedDirection=direction;var state=payload==null?null:payload.checkpoint(links);
             boolean savedFirst=firstSample,savedLost=homingLost,savedActive=beams.contains(this);
-            return rebound->{var plan=state==null?null:state.prepare(rebound);return ()->{if(residence!=null)release(residence);direction=savedDirection;firstSample=savedFirst;homingLost=savedLost;
+            int savedVisited=samplesVisited;var savedCenters=List.copyOf(leafCenters);
+            return rebound->{var plan=state==null?null:state.prepare(rebound);return ()->{if(residence!=null)release(residence);releaseAtomic();direction=savedDirection;firstSample=savedFirst;homingLost=savedLost;
+                samplesVisited=savedVisited;leafCenters.clear();leafCenters.addAll(savedCenters);
                 if(savedActive)beams.add(this);else beams.remove(this);if(plan!=null)plan.run();};};
         }
     }
     private void blast(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,float radius,boolean tnt){
         if(!level.hasChunkAt(BlockPos.containing(point)))return;
         var damage=game.items().indirectKills().captureDamage(level.damageSources().explosion(null,null),cause);
-        game.items().indirectKills().trapChanges(level,cause,()->level.explode(null,damage,null,point,radius,false,
-                tnt?Level.ExplosionInteraction.TNT:Level.ExplosionInteraction.MOB));
+        var emitter=new net.minecraft.world.entity.Marker(net.minecraft.world.entity.EntityTypes.MARKER,level);
+        emitter.setPos(point);emitter.entityTags().add(BLAST);
+        game.items().indirectKills().trapChanges(level,cause,()->ExplosionItemProtection.with(emitter,ExplosionItemProtection.owner(cause.player(),5),
+                ()->level.explode(emitter,damage,null,point,radius,false,tnt?Level.ExplosionInteraction.TNT:Level.ExplosionInteraction.MOB)));
     }
     private static void particles(ServerLevel level,net.minecraft.core.particles.ParticleOptions particle,Vec3 at,int count,double spread){level.sendParticles(particle,at.x,at.y,at.z,count,spread,spread,spread,0);}
     private void sound(ServerLevel level,Vec3 at,String sound,float volume,float pitch){
@@ -261,5 +312,5 @@ public final class LbcChargedBows {
     }
     public int pending(){return jobs.size();}
     public void stop(){crafting.stop();for(var beam:List.copyOf(beams))if(beam.ticket!=null)beam.ticket.cancel();beams.clear();for(var job:List.copyOf(jobs))job.cancel();jobs.clear();}
-    void prepareFrozen(){for(var beam:beams)if(beam.residence!=null)release(beam.residence);beams.clear();for(var job:List.copyOf(jobs))release(job);jobs.clear();}
+    void prepareFrozen(){for(var beam:beams){if(beam.residence!=null)release(beam.residence);beam.releaseAtomic();}beams.clear();for(var job:List.copyOf(jobs))release(job);jobs.clear();}
 }

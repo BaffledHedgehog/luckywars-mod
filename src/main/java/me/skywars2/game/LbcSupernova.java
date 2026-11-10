@@ -171,6 +171,7 @@ public final class LbcSupernova {
         if(old==null)for(var effect=player.getEffect(MobEffects.ABSORPTION);effect!=null;effect=((EffectLayers.Access)effect).skywars2$layerHidden())if(effect.getAmplifier()==30){old=effect;break;}
         absorptionBaseline=old==null?null:EffectLayers.copy(old);
         internalAbsorption=true;try{player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION,200000,30),player);}finally{internalAbsorption=false;}
+        AtlasGlitchSignal.tick(game.server());
         present(player);
     }
     private void drops(boolean block,boolean entity,boolean mob){var rules=level.getGameRules();rules.set(GameRules.BLOCK_DROPS,block,game.server());rules.set(GameRules.ENTITY_DROPS,entity,game.server());rules.set(GameRules.MOB_DROPS,mob,game.server());}
@@ -263,7 +264,7 @@ public final class LbcSupernova {
     private void removeBodies(){if(root!=null){if(core!=null&&!core.isRemoved())core.discard();else retired.add(root);}core=null;
         for(var p:points){if(p.body!=null&&!p.body.isRemoved())p.body.discard();else retired.add(p.id);p.body=null;}}
     private void finish(boolean success){var id=event;var recipient=owner;removeBodies();releaseTickets();benefits();drops(success||blockDrops,success||entityDrops,success||mobDrops);
-        phase=Phase.IDLE;points.clear();event=owner=root=null;cause=null;origin=null;level=null;absorptionBaseline=null;pendingCompletion=null;mapIntent=false;actions.finished(id,recipient,success);}
+        phase=Phase.IDLE;points.clear();event=owner=root=null;cause=null;origin=null;level=null;absorptionBaseline=null;pendingCompletion=null;mapIntent=false;actions.finished(id,recipient,success);AtlasGlitchSignal.tick(game.server());}
     public void stop(){clones.stop();if(phase!=Phase.IDLE)finish(false);releaseTickets();craftDirty.clear();katanas.clear();restoring=false;}
     /** Capture only waits for accepted atomic terrain writes, never for the whole event. */
     public boolean captureReady(){return clones.captureReady()&&loading.isEmpty()&&phase!=Phase.MAP;}

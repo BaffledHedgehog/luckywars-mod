@@ -38,6 +38,11 @@ final class LbcTmtExtraUses {
     }
 
     static boolean candidate(ItemStack stack){return input(stack)!=null;}
+    /** Reuse the native owner classifier; menu/travel/defence inputs are not aimed attacks. */
+    static boolean combatCandidate(ItemStack stack){var input=input(stack);return input!=null&&switch(input){
+        case NEXUS_COMPASS,BALANCE,SUPPLY,LIGHTSABER,SHIELD->false;
+        default->true;
+    };}
     /** Ordinary callback positions precede the native Item.use-only continuations. */
     static int order(ItemStack stack){
         var input=input(stack);if(input==null)return Integer.MAX_VALUE;

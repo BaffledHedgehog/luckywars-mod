@@ -54,22 +54,22 @@ public final class BouncingPoopChecks {
         }
         boolean step(){client.acknowledge();audience.acknowledge();int elapsed=game.server().getTickCount()-started;require(elapsed<80,"bounded scheduler stage="+phase);
             if(phase==0){if(elapsed<3)return false;require(flight.position().equals(start)&&LbcBouncingPoop.state(flight).getIntOr("age",-1)==0,"world TimeStop freezes native flight and attached age");game.items().timeStop().end(f.level);p.entityTags().remove("time_stopped");phase=1;started=game.server().getTickCount();return false;}
-            if(phase==1){if(elapsed<1)return false;require(flight.position().distanceTo(start)>.39&&LbcBouncingPoop.state(flight).getIntOr("age",0)>0,"real scheduler advances .4 curve and persisted clock even under all jammers");
+            if(phase==1){if(elapsed<1)return false;require(flight.position().distanceTo(start)>.39&&LbcBouncingPoop.state(flight).getIntOr("age",0)>0,"real scheduler advances ballistic motion and persisted clock even under all jammers");
                 removeFields();p.getInventory().setItem(9,ItemStack.EMPTY);game.items().magic().inventoryChanged(p);game.items().magic().flushCleansing();
                 service.stop();clear();held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"bounce launch");flight=service.snapshot().getFirst();
-                flight.setPos(new Vec3(Math.floor(f.at.x)+.5,Math.floor(f.at.y)+2,Math.floor(f.at.z)+.75));flight.setYRot(0);flight.setXRot(0);start=flight.position();
+                flight.setPos(new Vec3(Math.floor(f.at.x)+.5,Math.floor(f.at.y)+2,Math.floor(f.at.z)+.75));flight.setYRot(0);flight.setXRot(0);flight.setDeltaMovement(new Vec3(0,0,.4));start=flight.position();
                 f.level.setBlock(BlockPos.containing(start.add(0,0,.8)),Blocks.STONE.defaultBlockState(),2|16|32);
                 f.level.setBlock(BlockPos.containing(start.add(1,1,-1)),Blocks.ROOTED_DIRT.defaultBlockState(),2|16|32);
                 f.level.setBlock(BlockPos.containing(start.add(-1,1,-1)),Blocks.PODZOL.defaultBlockState(),2|16|32);
                 phase=2;started=game.server().getTickCount();return false;}
-            if(phase==2){if(elapsed<1)return false;require(!flight.isRemoved()&&flight.getYRot()==-180,"scheduled wall bounce retains actor and reflects yaw");
+            if(phase==2){if(elapsed<1)return false;require(!flight.isRemoved()&&flight.getDeltaMovement().z<-.399999,"native wall collision retains actor and reflects its full normal velocity");
                 require(f.level.getBlockState(BlockPos.containing(start.add(1,1,-1))).is(Blocks.PODZOL)&&f.level.getBlockState(BlockPos.containing(start.add(-1,1,-1))).is(Blocks.COARSE_DIRT),"strict soil ladder advances each cell once");
-                service.stop();clear();held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"body launch");flight=service.snapshot().getFirst();flight.setPos(f.at.add(0,2,0));flight.setYRot(0);flight.setXRot(0);
+                service.stop();clear();held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"body launch");flight=service.snapshot().getFirst();flight.setPos(f.at.add(0,2,0));flight.setYRot(0);flight.setXRot(0);flight.setDeltaMovement(new Vec3(0,0,.4));
                 position(beta,f.at.add(.5,2,.8));beta.removeAllEffects();phase=3;started=game.server().getTickCount();return false;}
             if(phase==3){if(!flight.isRemoved())return false;require(beta.hasEffect(MobEffects.NAUSEA)&&beta.hasEffect(MobEffects.WITHER),"actual one-cell body contact applies both native effects");
                 require(beta.getEffect(MobEffects.WITHER).getAmplifier()==ItemEffectLevels.create(MobEffects.WITHER,60,10).getAmplifier(),"shared Wither cap");
                 clear();game.config().lbcSkills=true;game.players().get(p.getUUID()).lbcSkill=9;held(InteractionHand.MAIN_HAND,false);require(input(InteractionHand.MAIN_HAND,false),"mega source skill launch");flight=service.snapshot().getFirst();require(LbcBouncingPoop.state(flight).getBooleanOr("mega",false),"attached accepted mega skill");
-                flight.setPos(f.at.add(0,2,0));flight.setYRot(0);flight.setXRot(0);position(beta,f.at.add(.5,2,.8));beta.removeAllEffects();phase=4;started=game.server().getTickCount();return false;}
+                flight.setPos(f.at.add(0,2,0));flight.setYRot(0);flight.setXRot(0);flight.setDeltaMovement(new Vec3(0,0,.4));position(beta,f.at.add(.5,2,.8));beta.removeAllEffects();phase=4;started=game.server().getTickCount();return false;}
             if(phase==4){if(!flight.isRemoved())return false;require(beta.hasEffect(MobEffects.RESISTANCE)&&beta.getEffect(MobEffects.RESISTANCE).getAmplifier()==3,"source mega resistanceIV before native TNT explosion");
                 var rubble=new ArrayList<net.minecraft.world.entity.item.FallingBlockEntity>();for(var entity:f.level.getAllEntities())if(entity instanceof net.minecraft.world.entity.item.FallingBlockEntity block&&block.entityTags().contains("skywars2.bouncing_poop.dirt"))rubble.add(block);
                 require(rubble.size()==10&&rubble.stream().allMatch(b->b.getBlockState().is(Blocks.DIRT)),"ten shared native dirt children, one terminal mega impact");

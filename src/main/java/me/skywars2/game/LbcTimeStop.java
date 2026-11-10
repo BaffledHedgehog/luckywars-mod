@@ -190,6 +190,7 @@ public final class LbcTimeStop {
             }
             entity.setDeltaMovement(Vec3.ZERO);
             if(!(entity instanceof ServerPlayer)) entity.setNoGravity(true);
+            if(entity instanceof LivingEntity living)LbcFrozenMotion.hold(living,LbcFrozenMotion.TIME);
             sendMotion(entity);
             acquireContact(entity,state);
         }
@@ -308,6 +309,7 @@ public final class LbcTimeStop {
     }
     private void restore(Entity entity,Frozen state) {
         releaseContact(state);
+        if(entity instanceof LivingEntity living)LbcFrozenMotion.release(living,LbcFrozenMotion.TIME);
         if(entity.isRemoved() || !entity.isAlive()) return;
         if(entity instanceof PrimedTnt tnt) sendTntFuse(tnt,tnt.getFuse());
         entity.setNoGravity(state.noGravity);

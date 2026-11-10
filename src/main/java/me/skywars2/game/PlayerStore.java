@@ -163,6 +163,9 @@ public final class PlayerStore {
         // Immutable typed LbcCases.Pending serialized as one scalar. MatchValueSnapshot
         // already captures Strings exactly, including offline profiles; no ItemStack/NBT here.
         public String casePending = "";
+        // Immutable serialized personal presets; parsed only during build-manager actions.
+        // A scalar also participates in the existing exact match-profile checkpoint.
+        public String savedBuilds = "";
         public int lbcKit;
         public int lbcSkill;
         public int lbcTrinket;
@@ -195,6 +198,7 @@ public final class PlayerStore {
             cage = Math.max(0, cage);
             killEffect = Math.clamp(killEffect, 0, 3);
             if (casePending == null) casePending = "";
+            if (savedBuilds == null) savedBuilds = "";
             Set<String> normalizedLegacy = new HashSet<>();
             if (legacyUnlocks != null) for (String unlock : legacyUnlocks)
                 if (LbcSourceUnlocks.valid(unlock)) normalizedLegacy.add(unlock);

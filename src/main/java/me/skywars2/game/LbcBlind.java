@@ -447,7 +447,7 @@ public final class LbcBlind {
         for(Charge charge:List.copyOf(charges)) charge.discard();
         charges.clear(); batch.clear(); gatlings.clear(); gatlingBatch.clear(); clouds.clear(); cloudBatch.clear();
     }
-    void sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){sourceEmitter(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    void sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){sourceEmitter(game.items().spellSources().authorPlayer(source),origin,direction);}}
     private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
         if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
         else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);

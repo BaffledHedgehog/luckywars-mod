@@ -122,7 +122,6 @@ public final class LbcItems {
         var properties = new Item.Properties().setId(key)
                 .humanoidArmor(ArmorMaterials.CHAINMAIL, ArmorType.BOOTS).rarity(Rarity.UNCOMMON)
                 .overrideDescription("lbckit.21").durability(280)
-                .component(DataComponents.GLIDER,Unit.INSTANCE)
                 .component(DataComponents.EQUIPPABLE,net.minecraft.world.item.equipment.Equippable.builder(EquipmentSlot.FEET)
                         .setAsset(ResourceKey.create(net.minecraft.world.item.equipment.EquipmentAssets.ROOT_ID,Identifier.parse("lbc:rocket"))).build())
                 .component(DataComponents.ITEM_MODEL, Identifier.parse("lbc:armors/rocket_boots"));
@@ -156,6 +155,7 @@ public final class LbcItems {
 
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
+        legacyEffects.staticCharge().damaged(victim);
         crocodildo.damaged(victim);
         if(victim instanceof ServerPlayer player)tmt.damaged(player);
         reactiveSkills.damaged(victim,source);
@@ -226,6 +226,7 @@ public final class LbcItems {
         TurnCurse(ServerPlayer owner) { this.owner = owner; }
     }
     private final GameController game;
+    private final LbcRadarDisplays radar;
     private final LbcClouds clouds;
     private final LbcTrinkets trinkets;
     private final LbcReactiveTrinkets reactiveTrinkets;
@@ -246,6 +247,7 @@ public final class LbcItems {
     private final LbcImbaPickaxe imbaPickaxe;
     private final LbcDiamondifier diamondifier;
     private final LbcMysticalTree mysticalTree;
+    private final LbcRailroad railroad;
     private final LbcFunnyTnt funnyTnt;
     private final LbcDeltaTnt deltaTnt;
     private final LbcHomingArrows homingArrows;
@@ -544,7 +546,10 @@ public final class LbcItems {
 
     /** Сохраняем распознавание старого Paper PDC; обычный glider не становится ракетной способностью. */
     public static boolean isRocketBoots(ItemStack stack) {
-        if (stack.is(ROCKET_BOOTS)) return true;
+        if(stack.is(ROCKET_BOOTS))return true;
+        if(LbcTmtItems.matches(stack))return LbcTmtPassiveQueries.rocketFeet(stack);
+        if(ItemData.intValue(stack,"explosive_feets",0)==1)return true;
+        if(!ItemData.contains(stack,"PublicBukkitValues"))return false;
         var data = stack.get(DataComponents.CUSTOM_DATA);
         if (stack.isEmpty() || data == null) return false;
         CompoundTag tag = data.copyTag();
@@ -575,6 +580,7 @@ public final class LbcItems {
 
     /** onEquipItem бывает вызван до записи слота: изменяем переданный новый стек, не читаем старые ноги. */
     public void rocketEquipment(ServerPlayer player, ItemStack boots) {
+        if(isRocketBoots(boots))syncRocketGlider(boots,false);
         if (!active(player) || !isRocketBoots(boots)) { resetRocket(player); return; }
         RocketState state = rockets.computeIfAbsent(player.getUUID(), ignored -> new RocketState(player));
         syncRocketGlider(boots, state.jumps > 0);
@@ -582,53 +588,54 @@ public final class LbcItems {
     }
 
     private static void syncRocketGlider(ItemStack boots, boolean available) {
-        if (available && !boots.has(DataComponents.GLIDER)) boots.set(DataComponents.GLIDER, Unit.INSTANCE);
-        else if (!available && boots.has(DataComponents.GLIDER)) boots.remove(DataComponents.GLIDER);
+        // Migrate saved boots too: jumping is native input, never an Elytra surrogate.
+        if(!LbcTmtItems.matches(boots)&&boots.has(DataComponents.GLIDER))boots.remove(DataComponents.GLIDER);
     }
 
-    /** Вызывается перед native startFallFlying, когда vanilla уже проверила воду, землю и levitation. */
-    public boolean rocketGlide(ServerPlayer player) {
-        if (game.isObserver(player)) return true;
-        ItemStack boots = player.getItemBySlot(EquipmentSlot.FEET);
-        if (!isRocketBoots(boots)) return false;
-        boolean elytra = player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA);
-        // Clear client-predicted glide even on a suppressed or exhausted boost attempt.
-        if(!elytra)player.stopFallFlying();
-        if (!active(player)) return !elytra;
-        RocketState state = rockets.computeIfAbsent(player.getUUID(), ignored -> new RocketState(player));
-        // Native mechanism beacons use a sphere; legacy markers retain the Paper cube check.
-        boolean stopped = magic.mechanismSuppressedAt(player.level(),player.position())
-                || !player.level().getEntitiesOfClass(Marker.class,
-                new AABB(player.position(), player.position()).inflate(20), marker -> marker.entityTags().contains("stopper")).isEmpty();
-        if (stopped || state.jumps == 0) return !elytra;
+    /** A rising edge of accepted logical jump input; holding jump never re-enters this action. */
+    public boolean rocketJumpPressed(ServerPlayer player) {
+        if(!active(player)||player.onGround()||player.isInWater()||player.isInLava()
+                ||player.isPassenger()||player.getAbilities().flying||player.isFallFlying()
+                ||player.hasEffect(MobEffects.LEVITATION)||actionsBlocked(player))return false;
+        ItemStack boots=player.getItemBySlot(EquipmentSlot.FEET);
+        if(!isRocketBoots(boots))return false;
+        RocketState state=rockets.computeIfAbsent(player.getUUID(),ignored->new RocketState(player));
+        boolean stopped=magic.mechanismSuppressedAt(player.level(),player.position())
+                ||!player.level().getEntitiesOfClass(Marker.class,new AABB(player.position(),player.position()).inflate(20),
+                    marker->marker.entityTags().contains("stopper")).isEmpty();
+        if(stopped||state.jumps==0)return false;
         state.jumps--;
-        if (state.nextCharge == 0) {
-            // В исходнике сначала decrement до нуля, затем восстановление на следующем тике: 301 тик.
-            state.nextCharge = game.server().getTickCount() + 301;
-            rechargingRockets.add(state);
-        }
-        syncRocketGlider(boots, state.jumps > 0);
-        Vec3 velocity = player.getDeltaMovement(), direction = player.getLookAngle();
-        double y = velocity.y > 0 ? velocity.y + 0.5 : direction.y < 0 ? 0.5 : velocity.y;
-        player.setDeltaMovement(new Vec3(velocity.x, y, velocity.z).add(direction));
+        if(state.nextCharge==0){state.nextCharge=game.server().getTickCount()+301;rechargingRockets.add(state);}
+        syncRocketGlider(boots,false);
+        Vec3 velocity=player.getDeltaMovement(),direction=player.getLookAngle();
+        double y=velocity.y>0?velocity.y+.5:direction.y<0?.5:velocity.y;
+        player.setDeltaMovement(new Vec3(velocity.x,y,velocity.z).add(direction));
         player.connection.send(new ClientboundSetEntityMotionPacket(player));
-        // Paper World overload без extra использует 1.0, включая исходные частицы импульса.
-        player.level().sendParticles(ParticleTypes.EXPLOSION, player.getX(), player.getY(), player.getZ(), 1, 0, 0, 0, 1);
-        player.level().sendParticles(ParticleTypes.FLAME, player.getX(), player.getY(), player.getZ(), 10, .5, .5, .5, 1);
-        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.5F, 2F);
-        rocketHud(state);
-        return !elytra;
+        player.level().sendParticles(ParticleTypes.EXPLOSION,player.getX(),player.getY(),player.getZ(),1,0,0,0,1);
+        player.level().sendParticles(ParticleTypes.FLAME,player.getX(),player.getY(),player.getZ(),10,.5,.5,.5,1);
+        player.level().playSound(null,player.getX(),player.getY(),player.getZ(),SoundEvents.GENERIC_EXPLODE.value(),SoundSource.PLAYERS,1.5F,2F);
+        rocketHud(state);return true;
     }
 
     public int rocketJumps(ServerPlayer player) {
+
         var state = rockets.get(player.getUUID());
+
         return state == null ? 0 : state.jumps;
+
     }
 
+
+
     public int rocketCooldownTicks(ServerPlayer player) {
+
         var state = rockets.get(player.getUUID());
+
         return state == null || state.nextCharge == 0 ? 0 : Math.max(0, state.nextCharge - game.server().getTickCount() - 1);
+
     }
+
+
 
     private void rocketHud(RocketState state) {
         refreshHud(state.owner);
@@ -801,7 +808,7 @@ public final class LbcItems {
     void invalidateHud(ServerPlayer viewer) { hudStates.remove(viewer.getUUID()); }
 
     void refreshHud(ServerPlayer viewer) {
-        if(game.lbc().hidesKnowledge(viewer)) { clearHud(viewer); return; }
+        if(!LbcDimensionItems.ordinary(viewer)||game.lbc().hidesKnowledge(viewer)) { clearHud(viewer); return; }
         ServerPlayer source=viewer;
         if(game.isObserver(viewer)) {
             if(viewer.getCamera() instanceof ServerPlayer target && target!=viewer) source=target;
@@ -897,7 +904,10 @@ public final class LbcItems {
     }
 
     public static boolean rocketIngredient(ItemStack stack) {
-        if (stack.is(ROCKET_BOOTS)) return true;
+        if(stack.is(ROCKET_BOOTS))return true;
+        if(LbcTmtItems.matches(stack))return LbcTmtPassiveQueries.rocketFeet(stack);
+        if(ItemData.intValue(stack,"explosive_feets",0)==1)return true;
+        if(!ItemData.contains(stack,"PublicBukkitValues"))return false;
         var data = stack.get(DataComponents.CUSTOM_DATA);
         if (stack.isEmpty() || data == null) return false;
         var tag = data.copyTag();
@@ -966,7 +976,7 @@ public final class LbcItems {
 
     public LbcItems(GameController game) {
         this.looseRewards=new LbcLooseRewards(game);this.specialFireballs=new LbcSpecialFireballs(game);this.legacySlabs=new LbcLegacySlabs(game);this.bucksTrader=new LbcBucksTrader(game);this.clockFragments=new LbcClockFragments(game);this.steampunkRocket=new LbcSteampunkRocket(game);this.trollBox=new LbcTrollBox(game);this.allItemPools=new LbcAllItemPools(game);
-        this.game = game; this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.reactiveTrinkets=new LbcReactiveTrinkets(game); this.trinketArrows = new LbcTrinketArrows(game);this.shulkerBow = new LbcShulkerBow(game);this.madokaBow = new LbcMadokaBow(game); this.frost = new LbcFrost(game);
+        this.game = game;this.radar=new LbcRadarDisplays(game); this.clouds = new LbcClouds(game); this.trinkets = new LbcTrinkets(game); this.reactiveTrinkets=new LbcReactiveTrinkets(game); this.trinketArrows = new LbcTrinketArrows(game);this.shulkerBow = new LbcShulkerBow(game);this.madokaBow = new LbcMadokaBow(game); this.frost = new LbcFrost(game);
         this.mana = new LbcMana(game); LbcChaosRewardItems.prepare(mana); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);this.tmt=new LbcTmtRuntime(game);
         this.terra = new LbcTerra(game);
         this.shooters = new LbcShooters(game);
@@ -1109,6 +1119,7 @@ public final class LbcItems {
             public boolean tick(ServerLevel level,Vec3 at){return !magic.suppressedAt(level,at);}
             public boolean deletion(Entity e,LbcIndirectKills.Owner cause){return !magic.suppressedAt((ServerLevel)e.level(),e.position())&&LbcImbaFollowup.erase(game,e,cause);}
         });
+        this.railroad=new LbcRailroad(game);
         this.mysticalTree=new LbcMysticalTree(game,new LbcMysticalTree.Policy(){
             public boolean admission(ServerPlayer author,Vec3 at){return true;}
             public boolean continues(ServerLevel level,Vec3 at){return true;}
@@ -1318,6 +1329,7 @@ public final class LbcItems {
     public LbcImbaHoe imbaHoe(){return imbaHoe;}
     public LbcImbaPickaxe imbaPickaxe(){return imbaPickaxe;}
     public LbcDiamondifier diamondifier(){return diamondifier;}
+    public LbcRailroad railroad(){return railroad;}
     public LbcMysticalTree mysticalTree(){return mysticalTree;}
     public LbcFunnyTnt funnyTnt(){return funnyTnt;}
     public LbcDeltaTnt deltaTnt(){return deltaTnt;}
@@ -1353,6 +1365,7 @@ public final class LbcItems {
     public LbcMadokaBow madokaBow(){return madokaBow;}
     public LbcFrost frost() { return frost; }
     public LbcMagic magic() { return magic; }
+    public LbcRadarDisplays radar(){return radar;}
     public LbcMana mana() { return mana; }
     public LbcWands wands() { return wands; }
     public LbcTmtRuntime tmt() { return tmt; }
@@ -1568,6 +1581,8 @@ public final class LbcItems {
     public void voidArcanumHandsSwapped(ServerPlayer player) { voidArcanum.handSwapped(player); }
     LbcIceWand iceWand() { return iceWand; }
     LbcIceMaterials iceMaterials() { return iceMaterials; }
+    public boolean iceCrystalHitbox(Entity target){return iceWand.clickable(target);}
+    public net.minecraft.world.InteractionResult interactIceCrystal(ServerPlayer player,InteractionHand hand,Entity target,Vec3 hit){return iceWand.interact(player,hand,target,hit);}
     public boolean attackIceCrystal(ServerPlayer player,Entity target) { return iceWand.attack(player,target); }
     LbcAcidCorruption acidCorruption() { return acidCorruption; }
     public LbcCorruptedGlyphs corruptedGlyphs() { return corruptedGlyphs; }
@@ -1602,6 +1617,7 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
+        legacyEffects.staticCharge().loaded(entity);
         if(game.bedwars()!=null)game.bedwars().auxiliaries().loaded(entity);
         communism.loaded(entity);
         trinketArrows.loaded(entity);shulkerBow.loaded(entity);madokaBow.loaded(entity);
@@ -1609,7 +1625,7 @@ public final class LbcItems {
         grimoireDungeon.capture(entity);uniwand.loaded(entity);
         spellSources.capture(entity);apocalypseEvents.inheritChild(entity);shishEncounter.inheritChild(entity);
         projectileLevelups.loaded(entity);
-        mysticalTree.loaded(entity);funnyTnt.loaded(entity);deltaTnt.loaded(entity);diamondifier.loaded(entity);homing.nativeLoaded(entity);homingArrows.loaded(entity);kapusta.loaded(entity);thrownUtilities.loaded(entity);
+        railroad.loaded(entity);mysticalTree.loaded(entity);funnyTnt.loaded(entity);deltaTnt.loaded(entity);diamondifier.loaded(entity);homing.nativeLoaded(entity);homingArrows.loaded(entity);kapusta.loaded(entity);thrownUtilities.loaded(entity);
         if(entity instanceof Snowball ball&&ball.getOwner() instanceof ServerPlayer player&&!LbcApocalypseEvents.kinds(ball.getItem()).isEmpty()){
             if(apocalypseEvents.thrown(player,ball.getItem())&&LbcFartus.data(ball.getItem()).getIntOr("tmt_item",0)!=1){ball.discard();return;}
         }
@@ -1757,8 +1773,9 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        legacyEffects.staticCharge().unloaded(entity);
         steampunkRocket.unloaded(entity);trollBox.removed(entity);
-        mysticalTree.unloaded(entity);funnyTnt.unloaded(entity);deltaTnt.unloaded(entity);diamondifier.unloaded(entity);homingArrows.unloaded(entity);kapusta.unloaded(entity);thrownUtilities.unloaded(entity);
+        railroad.unloaded(entity);mysticalTree.unloaded(entity);funnyTnt.unloaded(entity);deltaTnt.unloaded(entity);diamondifier.unloaded(entity);homingArrows.unloaded(entity);kapusta.unloaded(entity);thrownUtilities.unloaded(entity);
         if(game.bedwars()!=null)game.bedwars().auxiliaries().unloaded(entity);
         fallingHedgehogs.unloaded(entity);
         looseRewards.unloaded(entity);specialFireballs.unloaded(entity);legacySlabs.unloaded(entity);legacySlabs.removed(entity);rasengan.unloaded(entity);
@@ -1956,6 +1973,11 @@ public final class LbcItems {
             markerBatch.clear();
             return;
         }
+        // Legacy chance0_5: one faint turquoise dust particle, independently at each dormant mine.
+        for(var marker:nanoTraps)if(!marker.isRemoved()&&currentEpoch(marker)&&inArena(marker)
+                &&marker.level() instanceof ServerLevel level&&!timeStop.stopped(level)
+                &&level.getRandom().nextFloat()<.005f)
+            level.sendParticles(new DustParticleOptions(net.minecraft.util.ARGB.colorFromFloat(1,.357f,.937f,.98f)&0xffffff,.6f),marker.getX(),marker.getY()+1,marker.getZ(),1,0,1,0,0);
         // Поиск зависит от числа живых игроков, а не от количества разложенных неактивных мин.
         // Несколько игроков могут найти одну мину: срабатывание остаётся единым для всех её целей.
         for (ServerPlayer player : game.alivePlayers()) {
@@ -2083,7 +2105,7 @@ public final class LbcItems {
     public void screamer(LivingEntity target, ServerPlayer owner, boolean old) {
         int duration=old ? 200 : 120;
         if (!(target instanceof ServerPlayer player)) {
-            target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,duration,10,false,false),owner);
+            target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,duration,1,false,false),owner);
             return;
         }
         float volume=old ? 100000 : 1; // Explicitly retained by the author for the old trap.
@@ -2097,7 +2119,7 @@ public final class LbcItems {
         if (!old) sound(player, SoundEvents.WITHER_SPAWN, 0);
         player.level().sendParticles(player, old ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE, old, false,
                 player.getX(), player.getY() + 1.62, player.getZ(), 5000, 0.5, 0.3, 0.5, 0.05);
-        player.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS, duration, 10, false, false),owner);
+        player.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS, duration, 1, false, false),owner);
     }
 
     private static void sound(ServerPlayer player, net.minecraft.sounds.SoundEvent sound, float pitch) {
@@ -2199,6 +2221,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
+        radar.begin();
         hedgehogDimensions.tickReturns();
         steampunkRocket.tick();trollBox.tick();
         reactiveTrinkets.tick();rainbowAura.tick(game.matchTicks(),Math.floorMod(game.matchTicks(),100));psychblindSkill.tick();projectileLevelups.tick();badApple.tick();bridgeBuilder.tick();cinema.tick();mellstroy.tick();mellstroyCrafting.tick();cunny.tick();
@@ -2206,7 +2229,7 @@ public final class LbcItems {
         containedSkills.tick();fallingHedgehogs.tick();godClaw.tick();stoneGolemSkill.tick();expansionSkill.tick();hakureiSkill.tick();touhouCollectibles.tick();
         combatRewards.tick();machinegunSkill.tick();zeusSkill.tick();symbioteSkill.tick();cloneSkills.tick();
         reactiveSkills.tick();
-        timeStop.tick();polymorph.tick();fpvDrone.tick();witchClaims.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
+        timeStop.tick();creatureDrops.nativeMobSecond();polymorph.tick();fpvDrone.tick();witchClaims.tick();witchPassives.tick();witchWrath.tick();witchGluttony.tick();witchIndolence.tick();indolenceFingers.tick();witchLust.tick();apocalypseEvents.tick();apocalypseActors.tick();shishEncounter.tick();
         grimoireRooms.tick();grimoireBoss.tick();uniwand.tick();
         steampunkHook.tick();familyDrops.tick();teleportGadgets.tick();whiteArrows.tick();diamondifier.tick();kapusta.tick();pumpkinator.tick();thrownUtilities.tick();
         nukeEvent.tick();foodLifecycle.tick();oreshek.tick();legacyEffects.tick();rasengan.tick();imbaRunes.tick();
@@ -2265,7 +2288,7 @@ public final class LbcItems {
         magicBean.tick();
         edibleSpells.tick();
         foodStatuses.tick();
-        stonekivi.tick();mysticalTree.tick();funnyTnt.tick();deltaTnt.tick();
+        stonekivi.tick();railroad.tick();mysticalTree.tick();funnyTnt.tick();deltaTnt.tick();
         tanner.tick();
         kiuas.tick();
         blaze.tick();
@@ -2379,6 +2402,7 @@ public final class LbcItems {
             mana.score(owner,"skill_issue").set(Math.max(0,curse.remaining));
         }
         tickBatch.clear();
+        radar.end();
     }
 
     private static void punish(ServerPlayer player) {
@@ -2517,8 +2541,10 @@ public final class LbcItems {
     }
     private void lightsabersLoaded(Entity entity){if(entity instanceof ServerPlayer p)lightsabers.sourceScoreChanged(p);}
     public void stop() {
+        game.itemQueue().roundEnded();
+        radar.stop();
         clockFragments.stop();steampunkRocket.stop();trollBox.stop();tmt.stop();
-        mysticalTree.stop();funnyTnt.stop();deltaTnt.stop();diamondifier.stop();homingArrows.stop();imbaHoe.stop();kapusta.stop();pumpkinator.stop();thrownUtilities.stop();cunny.stop();cunnyTerrain.stop();imbaTerrainUtilities.stop();whiteArrows.stop();mellstroy.stop();mellstroyCrafting.stop();bridgeBuilder.stop();imbaAxe.stop();cinema.stop();phoenix.stop();cosmetics.stop();badApple.stop();rainbowAura.stop();psychblindSkill.stop();projectileLevelups.stop();
+        railroad.stop();mysticalTree.stop();funnyTnt.stop();deltaTnt.stop();diamondifier.stop();homingArrows.stop();imbaHoe.stop();kapusta.stop();pumpkinator.stop();thrownUtilities.stop();cunny.stop();cunnyTerrain.stop();imbaTerrainUtilities.stop();whiteArrows.stop();mellstroy.stop();mellstroyCrafting.stop();bridgeBuilder.stop();imbaAxe.stop();cinema.stop();phoenix.stop();cosmetics.stop();badApple.stop();rainbowAura.stop();psychblindSkill.stop();projectileLevelups.stop();
         lightsabers.clear();pozdmanBot.stop();cursedPumpkin.clear();
         combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();symbioteSkill.stop();cloneSkills.stop();
         containedSkills.stop();fallingHedgehogs.stop();godClaw.stop();stoneGolemSkill.stop();championSkill.stop();expansionSkill.stop();hakureiSkill.stop();touhouCollectibles.stop();
@@ -2675,6 +2701,7 @@ public final class LbcItems {
             if (player != null) resetAttributes(player);
             else originalNanoAttributes.remove(id);
         }
+        LbcMatchReset.all(game);
         entityEpochTag = newEntityEpochTag();
     }
 

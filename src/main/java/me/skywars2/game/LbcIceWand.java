@@ -146,11 +146,13 @@ final class LbcIceWand {
     private static ItemStack model(String name){var stack=new ItemStack(Items.REPEATING_COMMAND_BLOCK);stack.set(DataComponents.ITEM_MODEL,Identifier.parse(name));return stack;}
     private Display.ItemDisplay display(ServerPlayer owner,Vec3 at,String model,float yaw,float pitch,float offset){
         var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());
+        // Entity pitch is limited to +/-90 in 26.3; the ceiling flip belongs to the model transform.
+        String rotation=pitch==180?"[1f,0f,0f,0f]":"[0f,0f,0f,1f]";
         try{
-            var preset=TagParser.parseCompoundFully("{teleport_duration:1,shadow_radius:0f,shadow_strength:0f,transformation:{translation:[0f,"+offset+"f,0f]},item:{id:'minecraft:repeating_command_block',count:1,components:{'minecraft:item_model':'"+model+"'}}}");
+            var preset=TagParser.parseCompoundFully("{teleport_duration:1,shadow_radius:0f,shadow_strength:0f,transformation:{translation:[0f,"+offset+"f,0f],left_rotation:"+rotation+",scale:[1f,1f,1f],right_rotation:[0f,0f,0f,1f]},item:{id:'minecraft:repeating_command_block',count:1,components:{'minecraft:item_model':'"+model+"'}}}");
             display.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),preset));
         }catch(com.mojang.brigadier.exceptions.CommandSyntaxException ex){throw new IllegalStateException(ex);}
-        display.snapTo(at.x,at.y,at.z,yaw,pitch);display.entityTags().addAll(List.of("magic","skywars2.ice_display"));
+        display.snapTo(at.x,at.y,at.z,yaw,pitch==180?0:pitch);display.entityTags().addAll(List.of("magic","skywars2.ice_display"));
         game.items().markCurrentItemEpoch(display);return display;
     }
     private void sync(IceShot shot){
@@ -158,7 +160,7 @@ final class LbcIceWand {
         float yaw=(float)-Math.toDegrees(Math.atan2(motion.x,motion.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(motion.y,motion.horizontalDistance()));
         shot.setYRot(yaw);shot.setXRot(pitch);
-        if(shot.display!=null)shot.display.snapTo(shot.getX(),shot.getY(),shot.getZ(),yaw,pitch);
+        if(shot.display!=null){shot.display.setPos(shot.position());shot.display.setYRot(yaw);shot.display.setXRot(pitch);shot.display.needsSync=true;shot.display.syncPosition=true;}
         var at=shot.position();var level=(ServerLevel)shot.level();
         level.sendParticles(new DustParticleOptions(0x68b0eb,1),true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
         level.sendParticles(ParticleTypes.SNOWFLAKE,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
@@ -174,10 +176,11 @@ final class LbcIceWand {
     private void impact(IceShot shot,HitResult result){
         var at=result.getLocation();
         var crystalAt=result instanceof net.minecraft.world.phys.BlockHitResult wall?at.add(wall.getDirection().getUnitVec3().scale(.01)):at;
-        impact(shot,at,crystalAt);
+        impact(shot,at,crystalAt,result instanceof net.minecraft.world.phys.BlockHitResult wall?wall:null);
     }
     void impact(IceShot shot,Vec3 at){impact(shot,at,at);}
-    private void impact(IceShot shot,Vec3 at,Vec3 crystalAt){
+    private void impact(IceShot shot,Vec3 at,Vec3 crystalAt){impact(shot,at,crystalAt,null);}
+    private void impact(IceShot shot,Vec3 at,Vec3 crystalAt,net.minecraft.world.phys.BlockHitResult wall){
         if(!shots.contains(shot)||!(shot.getOwner() instanceof ServerPlayer owner))return;
         if(valid(shot)&&((ServerLevel)shot.level()).hasChunkAt(BlockPos.containing(at))
                 &&!game.items().magic().suppressedAt((ServerLevel)shot.level(),at)){
@@ -186,7 +189,7 @@ final class LbcIceWand {
             for(var target:targets(level,at,3))if(target(owner,target)){
                 target.hurtServer(level,damage,IMPACT_DAMAGE);cold(owner,shot.hand,shot.initiatingStack,target);
             }
-            spawnCrystal(owner,shot.hand,shot.initiatingStack,crystalAt);
+            spawnCrystal(owner,shot.hand,shot.initiatingStack,crystalAt,wall);
             particles(level,at,30,.1);LbcOverload.sound(owner,at,"minecraft:entity.player.hurt_freeze",1,0,0);
         }
         remove(shot);
@@ -201,7 +204,12 @@ final class LbcIceWand {
     }
     /** Source face priority is deterministic, including its second-distance fallback. */
     Crystal spawnCrystal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 impact){
+        return spawnCrystal(owner,hand,stack,impact,null);
+    }
+    private Crystal spawnCrystal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 impact,net.minecraft.world.phys.BlockHitResult wall){
         var level=owner.level();var start=BlockPos.containing(impact);BlockPos candidate=null;Direction face=null;
+        if(wall!=null){var cell=wall.getBlockPos().relative(wall.getDirection());
+            if(level.hasChunkAt(cell)&&level.getBlockState(cell).is(AIRS)){candidate=cell;face=wall.getDirection().getOpposite();}}
         for(int distance=1;distance<=2&&candidate==null;distance++)for(var direction:FACES){
             var cell=distance==1?start:start.relative(direction);
             var support=start.relative(direction,distance);
@@ -210,7 +218,8 @@ final class LbcIceWand {
             }
         }
         if(candidate==null)return null;
-        var at=Vec3.atCenterOf(candidate);
+        boolean attached=wall!=null&&candidate.equals(wall.getBlockPos().relative(wall.getDirection()));
+        var at=!attached?Vec3.atCenterOf(candidate):wall.getLocation().add(wall.getDirection().getUnitVec3().scale(.5));
         if(game.items().magic().suppressedAt(level,at))return null;
         float yaw=switch(face){case EAST->90;case WEST->-90;case SOUTH->180;default->0;};
         float pitch=face==Direction.DOWN?0:face==Direction.UP?180:90;
@@ -224,6 +233,33 @@ final class LbcIceWand {
         game.items().timeStop().prepareFrozen(display);game.items().timeStop().prepareFrozen(hitbox);
         if(!level.addFreshEntity(display)||display.isRemoved()||!level.addFreshEntity(hitbox)||hitbox.isRemoved()){remove(crystal);return null;}
         return crystal;
+    }
+    Interaction crystalAt(ServerLevel level,BlockPos pos){
+        var barrier=barriers.get(new BlockKey(level,pos));if(barrier==null)return null;
+        for(var crystal:barrier.owners)if(!crystal.removed&&crystal.hitbox.isAlive())return crystal.hitbox;
+        return null;
+    }
+    boolean clickable(Entity entity){var crystal=actors.get(entity);return crystal!=null&&entity==crystal.hitbox&&!crystal.removed;}
+    net.minecraft.world.InteractionResult interact(ServerPlayer player,InteractionHand hand,Entity entity,Vec3 click){
+        var crystal=actors.get(entity);
+        if(crystal==null||entity!=crystal.hitbox||crystal.removed)return net.minecraft.world.InteractionResult.PASS;
+        if(player.isUsingItem())return net.minecraft.world.InteractionResult.CONSUME;
+        var animation=player.getItemInHand(hand).getInteractAnimation();
+        var eye=player.getEyePosition();
+        var destination=click!=null&&entity.getBoundingBox().inflate(.01).contains(click)?click:Vec3.atCenterOf(crystal.block.pos);
+        var direction=destination.subtract(eye);if(direction.lengthSqr()<1e-12)direction=player.getLookAngle();
+        var end=destination.add(direction.normalize().scale(.5));
+        var hit=player.level().clip(new net.minecraft.world.level.ClipContext(eye,end,
+                net.minecraft.world.level.ClipContext.Block.OUTLINE,net.minecraft.world.level.ClipContext.Fluid.NONE,player));
+        var result=hit.getType()==HitResult.Type.BLOCK?LbcCubeInteractions.throughBlock(player,hand,hit)
+                :LbcUseInteractions.airHands(player,hand);
+        // Fabric's entity-use callback cancels the native packet handler; explicitly deliver the swing.
+        if(result instanceof net.minecraft.world.InteractionResult.Success success
+                &&success.swingSource()!=net.minecraft.world.InteractionResult.SwingSource.NONE){
+            player.swing(hand,animation,true);
+            return new net.minecraft.world.InteractionResult.Success(net.minecraft.world.InteractionResult.SwingSource.NONE,success.itemContext());
+        }
+        return result==net.minecraft.world.InteractionResult.PASS?net.minecraft.world.InteractionResult.CONSUME:result;
     }
     boolean attack(ServerPlayer attacker,Entity target){
         var crystal=actors.get(target);if(crystal==null||target!=crystal.hitbox)return false;

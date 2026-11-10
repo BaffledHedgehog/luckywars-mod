@@ -1,5 +1,7 @@
 package me.skywars2.mixin;
 
+import me.skywars2.game.VanillaExpansionRules;
+
 import me.skywars2.game.SignedEnvironmentalEffects;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SignedEnvironmentalInfestedMixin {
     @Inject(method="onMobHurt",at=@At("HEAD"),cancellable=true)
     private void skywars2$signedInfested(ServerLevel level,LivingEntity mob,int amplifier,DamageSource source,float damage,CallbackInfo ci) {
+        if(!VanillaExpansionRules.enabled()){return;}
         SignedEnvironmentalEffects.infested(level,mob,amplifier);ci.cancel();
     }
 }

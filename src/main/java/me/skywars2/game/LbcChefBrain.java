@@ -24,7 +24,8 @@ final class LbcChefBrain {
     private static int budget=GLOBAL_NODES,probes;
     static void beginTick(long tick){if(tick!=budgetTick){budgetTick=tick;budget=GLOBAL_NODES;probes=0;
         deadline=System.nanoTime()+12_000_000L;}}
-    private final LbcWtf.Chef chef;
+    private final net.minecraft.world.entity.LivingEntity chef;
+    private final Driver driver;
     private final ServerLevel level;
     private List<ItemStack> tools=List.of(new ItemStack(Items.NETHERITE_PICKAXE),new ItemStack(Items.NETHERITE_AXE),
             new ItemStack(Items.NETHERITE_SHOVEL),new ItemStack(Items.NETHERITE_HOE),new ItemStack(Items.SHEARS),LbcWtf.sword());
@@ -76,14 +77,58 @@ final class LbcChefBrain {
             open.add(root);costs.put(start,0d);
         }
     }
-    LbcChefBrain(LbcWtf.Chef chef){this.chef=chef;level=(ServerLevel)chef.level();}
+    /** Movement geometry/search is shared; each actor owns its real actions and supplies. */
+    interface Driver {
+        net.minecraft.server.level.ServerPlayer owner();
+        LbcItems items();
+        Vec3 destination();
+        Vec3 lookPoint();
+        void halt();
+        void steer(Vec3 point,boolean jump,Vec3 facing);
+        default void steer(Vec3 point,boolean jump){steer(point,jump,null);}
+        boolean equip(ItemStack stack);
+        boolean aimAction(Vec3 point);
+        void acted(Vec3 point);
+        void pillarJump();
+        boolean canSprint();
+        default int actionSerial(){return 0;}
+        default void rescue(Vec3 point){}
+        default boolean mayRescue(){return true;}
+        default void crouch(boolean value){}
+        default boolean prepareJump(Vec3 destination){return true;}
+        default boolean hasBlocks(){return true;}
+        default boolean mayJumpBuild(){return true;}
+        default int maxGapJump(){return 5;}
+        default boolean nativeActions(){return false;}
+        default List<ItemStack> nativeTools(){return null;}
+        default boolean mine(BlockPos point){return false;}
+        default void abortMining(){}
+        default boolean place(BlockPos point,net.minecraft.world.phys.BlockHitResult hit){return false;}
+    }
+    LbcChefBrain(LbcWtf.Chef chef){this(chef,new Driver(){
+        public net.minecraft.server.level.ServerPlayer owner(){return chef.owner;}
+        public LbcItems items(){return chef.service.gameItems();}
+        public Vec3 destination(){return chef.target.position();}
+        public Vec3 lookPoint(){return chef.target.getEyePosition();}
+        public void halt(){chef.halt();}
+        public void steer(Vec3 point,boolean jump,Vec3 facing){chef.steer(point,jump,facing);}
+        public boolean equip(ItemStack stack){return chef.equip(stack);}
+        public boolean aimAction(Vec3 point){return chef.aimAction(point);}
+        public void acted(Vec3 point){chef.acted(point);}
+        public void pillarJump(){chef.pillarJump();}
+        public boolean canSprint(){return chef.survival.canSprint();}
+        public void crouch(boolean value){chef.setShiftKeyDown(value);}
+        public int actionSerial(){return chef.actionSerial;}
+        public void rescue(Vec3 point){chef.rescue(point);}
+    });}
+    LbcChefBrain(net.minecraft.world.entity.LivingEntity actor,Driver driver){this.chef=actor;this.driver=driver;level=(ServerLevel)actor.level();}
     List<ItemStack> tools(){return tools.stream().map(ItemStack::copy).toList();}
     int searchCount(){return searches;}
     int resetCount(){return resets;}
     String diagnostics(){return "path="+path.size()+" next="+path.peek()+" search="+(search==null?"none":
             "actions expanded="+search.expanded+" open="+search.open.size()+" best="+search.best.spot)
             +" goal="+goal+" stuck="+stuck+" replan="+replan+" takeoff="+runwayPhase+" pillar="+pillarLaunched
-            +" mining="+mining+" dig="+progress+" pose="+chef.getPose()+" eye="+chef.getEyePosition()+" yaw="+chef.getYRot()+" pitch="+chef.getXRot()+" head="+chef.getYHeadRot()+" action="+chef.actionSerial+" probes="+probes+" searches="+searches+" ground="+chef.onGround()+" velocity="+chef.getDeltaMovement()+" resets="+resets+" lastReset="+lastReset+" placement="+lastPlacement;}
+            +" mining="+mining+" dig="+progress+" pose="+chef.getPose()+" eye="+chef.getEyePosition()+" yaw="+chef.getYRot()+" pitch="+chef.getXRot()+" head="+chef.getYHeadRot()+" action="+driver.actionSerial()+" probes="+probes+" searches="+searches+" ground="+chef.onGround()+" velocity="+chef.getDeltaMovement()+" resets="+resets+" lastReset="+lastReset+" placement="+lastPlacement;}
     Set<BlockPos> checkpointPlaced(){return Set.copyOf(placed);}
     /** Search/mining/run-up caches are disposable; no block, packet, pose or equipment action runs here. */
     void resetForCheckpoint(){
@@ -97,11 +142,11 @@ final class LbcChefBrain {
     }
     void reset(){reset("external");}
     private void reset(String why){lastReset=why+" step="+path.peek()+" at="+chef.position();resets++;
-        path.clear();search=null;progressStep=null;clearMining();replan=0;stuck=0;clearTakeoff();}
+        path.clear();search=null;progressStep=null;clearMining();placementWaiting=false;replan=0;stuck=0;clearTakeoff();}
     private void clearTakeoff(){airborneJump=false;preparingJump=null;runway=null;flightAim=null;runwayPhase=0;runwayRetreats=0;
         pillarStep=null;pillarLaunched=false;pillarSettle=0;}
     private boolean loaded(BlockPos p){return level.isInWorldBounds(p)&&level.hasChunkAt(p)&&level.getWorldBorder().isWithinBounds(p);}
-    private boolean hazard(BlockPos p){
+    boolean hazard(BlockPos p){
         if(!loaded(p))return true;
         BlockState s=level.getBlockState(p);
         return level.getFluidState(p).is(FluidTags.LAVA)||s.is(Blocks.FIRE)||s.is(Blocks.SOUL_FIRE)
@@ -128,6 +173,31 @@ final class LbcChefBrain {
         AABB feet=new AABB(p.x-.299,p.y-.075,p.z-.299,p.x+.299,p.y+.005,p.z+.299);
         if(!loaded(BlockPos.containing(p.x,p.y-.05,p.z)))return false;
         return !level.noCollision(chef,feet)&&!hazard(BlockPos.containing(p.x,p.y-.05,p.z));
+    }
+    boolean grounded(){return chef.onGround()&&floorSupported(chef.position());}
+    /** A deliberate lower route surface is distinct from the bottom of an unexpected trap. */
+    boolean plannedGround(){
+        var step=path.peek();if(step==null||!grounded())return false;
+        var target=step.to.point();return Math.abs(target.y-chef.getY())<.65&&target.subtract(chef.position()).horizontalDistanceSqr()<2.25;
+    }
+    boolean supported(Vec3 point){return floorSupported(point);}
+    Vec3 landingSurface(Vec3 center){return nearestSurface(center,4);}
+    Vec3 landingSurface(Vec3 center,double maxY){return nearestSurface(center,12,maxY);}
+    boolean safeWalk(Vec3 point){return walkClear(chef.position(),point,true);}
+    Vec3 surfaceAt(Vec3 point){
+        return floors(null,(int)Math.floor(point.x),(int)Math.floor(point.z),chef.getY()-2.5,chef.getY()+1.05).stream()
+                .min(Comparator.comparingDouble(p->Math.abs(p.y()-point.y))).map(Spot::point).orElse(null);
+    }
+    /** Existing surface-only planner, without accepting its incomplete-frontier fallback. */
+    Vec3 reachableGround(Vec3 point){
+        var start=actualStart();if(start==null)return null;var target=BlockPos.containing(point);
+        var route=directSurface(start,target);
+        return route!=null&&heuristic(route.spot,target)<.75?route.spot.point():null;
+    }
+    int retreatMargin(Vec3 point){
+        int sides=0;
+        for(var face:Direction.Plane.HORIZONTAL)if(floorSupported(point.add(face.getStepX()*1.5,0,face.getStepZ()*1.5)))sides++;
+        return sides;
     }
     private Spot actualStart(){
         int x=chef.blockPosition().getX(),z=chef.blockPosition().getZ();
@@ -163,17 +233,21 @@ final class LbcChefBrain {
     }
     void findSpawnSurface(){
         Vec3 found=nearestSurface(chef.position(),12);
-        if(found!=null){chef.rescue(found);lastGround=found;}
+        if(found!=null){driver.rescue(found);lastGround=found;}
     }
     void returnFromVoid(){
+        if(!driver.mayRescue())return;
         if(chef.tickCount<nextVoidAttempt)return;
         nextVoidAttempt=chef.tickCount+20;
         Vec3 found=lastGround!=null&&clear(lastGround)&&floorSupported(lastGround)?lastGround:null;
-        if(found==null)found=nearestSurface(chef.target.position(),24);
+        if(found==null)found=nearestSurface(driver.destination(),24);
         if(found==null)found=nearestSurface(chef.position(),24);
-        if(found!=null){chef.rescue(found);reset("void rescue");}
+        if(found!=null){driver.rescue(found);reset("void rescue");}
     }
     private Vec3 nearestSurface(Vec3 center,int radius){
+        return nearestSurface(center,radius,Double.POSITIVE_INFINITY);
+    }
+    private Vec3 nearestSurface(Vec3 center,int radius,double maxY){
         Vec3 best=null;double distance=Double.POSITIVE_INFINITY;
         // Prefer nearby resident columns. Scan below canopy/roof rather than only four top cells.
         for(int r=0;r<=radius;r++)for(int dx=-r;dx<=r;dx++)for(int dz=-r;dz<=r;dz++){
@@ -181,8 +255,8 @@ final class LbcChefBrain {
             int x=(int)Math.floor(center.x)+dx,z=(int)Math.floor(center.z)+dz;
             if(!level.hasChunkAt(new BlockPos(x,0,z)))continue;
             int top=level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z);
-            double low=Math.max(level.getMinY(),Math.min(center.y-8,top-24));
-            for(Spot s:floors(null,x,z,low,top+1)){
+            double high=Math.min(maxY,top+1),low=Math.max(level.getMinY(),Math.min(center.y-8,high-24));
+            for(Spot s:floors(null,x,z,low,high)){
                 double d=s.point().distanceToSqr(center);
                 if(d<distance){distance=d;best=s.point();}
             }
@@ -214,7 +288,7 @@ final class LbcChefBrain {
         // Probe the full swept native body; never move through or erase bedrock.
         if(!clear(chef.position())&&chef.getBbHeight()<1.5&&floorSupported(chef.position())){
             Vec3 best=null;double score=Double.NEGATIVE_INFINITY;
-            Vec3 toward=chef.target.position().subtract(chef.position()).multiply(1,0,1).normalize();
+            Vec3 toward=driver.destination().subtract(chef.position()).multiply(1,0,1).normalize();
             for(int i=0;i<16;i++){
                 double a=i*Math.PI/8;Vec3 direction=new Vec3(Math.cos(a),0,Math.sin(a));
                 Vec3 end=chef.position().add(direction.scale(1.25));boolean pass=true;
@@ -229,21 +303,32 @@ final class LbcChefBrain {
                 double value=direction.dot(toward)+(clear(end)?2:0);
                 if(value>score){score=value;best=end;}
             }
-            if(best!=null){chef.setSprinting(false);chef.steer(best,false);return true;}
+            if(best!=null){chef.setSprinting(false);driver.steer(best,false);return true;}
         }
         return false;
     }
+    boolean preciseAction(){return placementWaiting||mining!=null||pillarLaunched;}
+    /** Sub-block pursuit uses the real target, after checking the whole supported approach. */
+    boolean closeGround(Vec3 destination){
+        if(preciseAction()||Math.abs(destination.y-chef.getY())>.6
+                ||destination.subtract(chef.position()).horizontalDistanceSqr()>9
+                ||!walkClear(chef.position(),destination,true))return false;
+        chef.setSprinting(true);driver.steer(destination,false,driver.lookPoint());return true;
+    }
     void tick(){
-        beginTick(chef.owner.level().getServer().getTickCount());
+        driver.crouch(false);
+        beginTick(level.getServer().getTickCount());
+        if(driver.nativeActions()){var available=driver.nativeTools();tools=available==null||available.isEmpty()?List.of(ItemStack.EMPTY):available;}
+        if(driver.nativeActions()&&mining!=null&&!level.getBlockState(mining).equals(miningState))clearMining();
         if(chef.getY()<level.getMinY()-8){returnFromVoid();return;}
         if(chef.onGround()&&floorSupported(chef.position())&&clear(chef.position()))lastGround=chef.position();
         if(flightAim!=null){
-            if(!chef.onGround()){chef.setSprinting(true);chef.steer(flightAim,false);return;}
+            if(!chef.onGround()){chef.setSprinting(true);driver.steer(flightAim,false);return;}
             flightAim=null;
         }
         if(replan>0)replan--;
         failedSteps.entrySet().removeIf(e->e.getValue()<=chef.tickCount);
-        BlockPos target=chef.target.blockPosition();
+        BlockPos target=BlockPos.containing(driver.destination());
         if(goal==null)goal=target;
         else if(goal.distManhattan(target)>4&&(!airborneJump||chef.onGround())){
             // Finish the usable local prefix while searching from its endpoint. World
@@ -266,8 +351,8 @@ final class LbcChefBrain {
                 Spot footing=actualStart();
                 if(footing!=null&&footing.point().subtract(chef.position()).horizontalDistanceSqr()>.04
                         &&walkClear(chef.position(),footing.point(),false))
-                    chef.steer(footing.point(),false,chef.target.getEyePosition());
-                else chef.halt();
+                    driver.steer(footing.point(),false,driver.lookPoint());
+                else driver.halt();
             }
             return;
         }
@@ -279,7 +364,7 @@ final class LbcChefBrain {
         // A jump loop can repeatedly leave the ground without getting any closer.
         // Run-up has its own short deadline; it cannot suppress this watchdog forever.
         if(mining==null&&preparingJump==null&&chef.tickCount-progressAt>48){
-            failedSteps.put(current,chef.tickCount+100);reset("no edge progress");chef.halt();return;
+            failedSteps.put(current,chef.tickCount+100);reset("no edge progress");driver.halt();return;
         }
         execute(path.peek());
     }
@@ -299,7 +384,7 @@ final class LbcChefBrain {
     }
     private void execute(Step step){
         Spot to=step.to;Vec3 next=to.point();
-        if(!loaded(to.cell())){reset("unloaded step");chef.halt();return;}
+        if(!loaded(to.cell())){reset("unloaded step");driver.halt();return;}
         if(step.action==Action.JUMP_BUILD){jumpBuild(step);return;}
         if(step.action==Action.MINE||step.action==Action.MINE_DOWN){
             BlockPos obstacle=step.action==Action.MINE_DOWN?
@@ -308,20 +393,20 @@ final class LbcChefBrain {
             if(step.action==Action.MINE_DOWN&&!chef.onGround()){
                 // A removed support may leave several air cells before the next floor.
                 // Let gravity finish that fall instead of invalidating the still-solid lower landing.
-                chef.halt();return;
+                driver.halt();return;
             }
         }
         if(step.action==Action.RAMP){
             BlockPos block=BlockPos.containing(next.x,next.y-1,next.z);
             if(!support(block)){
                 chef.setSprinting(false);
-                if(chef.getBoundingBox().intersects(new AABB(block))){chef.steer(step.from.point(),false);return;}
-                if(!place(block)){if(!placementWaiting){failedSteps.put(step,chef.tickCount+100);reset("ramp place "+lastPlacement);chef.halt();}return;}
+                if(chef.getBoundingBox().intersects(new AABB(block))){driver.steer(step.from.point(),false);return;}
+                if(!place(block)){if(!placementWaiting){failedSteps.put(step,chef.tickCount+100);reset("ramp place "+lastPlacement);driver.halt();}return;}
                 nextBuild=chef.tickCount+2;
             }
         }
         if(step.action==Action.PILLAR||step.action==Action.MINE_UP){
-            if(step.action==Action.MINE_UP){
+            {
                 // A pillar must clear its native jump apex, not only the final
                 // standing body. Otherwise the next ceiling clips every launch.
                 BlockPos roof=obstacle(next.add(0,.25,0));
@@ -329,23 +414,28 @@ final class LbcChefBrain {
             }
             BlockPos block=BlockPos.containing(next.x,next.y-1,next.z);
             if(!support(block)){
-                if(!clear(next)){reset("pillar headroom");chef.halt();return;}
+                if(!clear(next)){reset("pillar headroom");driver.halt();return;}
                 chef.setSprinting(false);
                 if(pillarStep!=step){pillarStep=step;pillarLaunched=false;pillarSettle=0;}
                 if(!pillarLaunched){
                     // Ground friction settles the real actor before its jump. A zero-input jump
                     // must not inherit the preceding walk's horizontal momentum off the column.
-                    if(!chef.onGround()){chef.halt();return;}
+                    if(!chef.onGround()){driver.halt();return;}
                     double centering=chef.position().subtract(step.from.point()).horizontalDistanceSqr();
-                    if(centering>.0256){pillarSettle=0;chef.steer(step.from.point(),false);return;}
-                    if(chef.getDeltaMovement().horizontalDistanceSqr()>.0025){pillarSettle=0;chef.halt();return;}
-                    boolean equipped=chef.equip(new ItemStack(Items.COBBLESTONE,64));
-                    boolean aimed=chef.aimAction(new Vec3(chef.getX(),block.getY(),chef.getZ()));
-                    if(!equipped||!aimed){chef.halt();return;}
+                    var down=new Vec3(chef.getX(),block.getY(),chef.getZ());
+                    if(centering>.0625){pillarSettle=0;driver.steer(step.from.point(),false,down);return;}
+                    if(chef.getDeltaMovement().horizontalDistanceSqr()>.0025){
+                        pillarSettle=0;
+                        var motion=chef.getDeltaMovement();
+                        driver.steer(step.from.point().add(-motion.x*3,0,-motion.z*3),false,down);return;
+                    }
+                    boolean equipped=driver.equip(new ItemStack(Items.COBBLESTONE,64));
+                    boolean aimed=driver.aimAction(new Vec3(chef.getX(),block.getY(),chef.getZ()));
+                    if(!equipped||!aimed){driver.halt();return;}
                     pillarLaunched=true;
                 }
-                chef.halt();
-                if(chef.onGround())chef.pillarJump();
+                driver.halt();
+                if(chef.onGround()||chef.isInWater())driver.pillarJump();
                 if(chef.getBoundingBox().minY>=block.getY()+1-.01&&chef.tickCount>=nextBuild){
                     if(!place(block)){if(!placementWaiting)reset("pillar place "+lastPlacement);return;}
                     nextBuild=chef.tickCount+2;
@@ -354,27 +444,31 @@ final class LbcChefBrain {
             }
             // Keep looking at the column between placements, including the landing.
             // Walking to its centre would turn the camera back toward the victim every floor.
-            chef.halt();
-            chef.aimAction(new Vec3(chef.getX(),block.getY()+1,chef.getZ()));
+            driver.halt();
+            driver.aimAction(new Vec3(chef.getX(),block.getY()+1,chef.getZ()));
             return;
         }
         if(step.action==Action.BRIDGE&&!floorSupported(next)){
             // Commit support ahead while still on the preceding block. No fake player sneak is assumed.
             chef.setSprinting(false);
             BlockPos block=BlockPos.containing(next.x,next.y-1,next.z);
-            if(chef.tickCount<nextBuild){chef.halt();return;}
-            if(!floorSupported(chef.position())||!clear(next)){reset("bridge support/headroom");chef.halt();return;}
-            if(!place(block)){if(!placementWaiting){reset("bridge place "+lastPlacement);chef.halt();}return;}
+            if(chef.tickCount<nextBuild){driver.halt();return;}
+            if(!floorSupported(chef.position())||!clear(next)){reset("bridge support/headroom");driver.halt();return;}
+            if(!place(block)){if(!placementWaiting){reset("bridge place "+lastPlacement);driver.halt();}return;}
             nextBuild=chef.tickCount+2;
         }
-        if(!clear(next)||(!floorSupported(next)&&step.action!=Action.JUMP)){reset("invalid destination");chef.halt();return;}
+        if(!clear(next)||(!floorSupported(next)&&step.action!=Action.JUMP)){reset("invalid destination");driver.halt();return;}
         clearMining();
         boolean jump=step.action==Action.JUMP||step.action==Action.RAMP;
         if(jump){
             boolean launch=false;
             // Recheck a launch after terrain changes, but leave native flight in control after takeoff.
             if(!airborneJump&&chef.onGround()){
-                if(!jumpClear(step.from,to)){reset("jump recheck");chef.halt();return;}
+                if(!jumpClear(step.from,to)){reset("jump recheck");driver.halt();return;}
+                // A bounded camera turn belongs before the run-up. Waiting to
+                // face the bank only at the lip lets residual motion use up the
+                // remaining support while the native jump is still unarmed.
+                if(!driver.prepareJump(next)){driver.halt();return;}
                 double length=Math.sqrt(step.from.point().subtract(next).horizontalDistanceSqr());
                 if(length>3.2&&!prepareRunup(step))return;
                 airborneJump=true;preparingJump=null;runway=null;nextJump=chef.tickCount+12;
@@ -385,11 +479,11 @@ final class LbcChefBrain {
             chef.setSprinting(to.y()-step.from.y()<=.61||next.subtract(step.from.point()).horizontalDistance()>2.2);
             // Landing on the near edge is already a successful leap. Walk the
             // remaining fraction instead of jumping again before retiring this step.
-            chef.steer(next,launch);
+            driver.steer(next,launch||chef.isInWater()&&next.y>chef.getY()+.1,new Vec3(next.x,chef.getEyeY(),next.z));
             return;
         }
         boolean openRun=(step.action==Action.WALK||step.action==Action.DROP)
-                &&chef.position().distanceToSqr(chef.target.position())>9;
+                &&chef.position().distanceToSqr(driver.destination())>9;
         Vec3 aim=next;
         Step aimStep=step;
         // String-pull short turns only after checking the complete body and every support.
@@ -419,7 +513,7 @@ final class LbcChefBrain {
         boolean runningJump=false;
         if(openRun&&chef.onGround()&&chef.tickCount>=nextJump
                 &&step.action==Action.WALK&&flatRunway(chef.position(),aim)
-                &&chef.position().subtract(chef.target.position()).horizontalDistanceSqr()>25){
+                &&chef.position().subtract(driver.destination()).horizontalDistanceSqr()>25){
             Vec3 forward=aim.subtract(chef.position()).multiply(1,0,1);
             if(forward.horizontalDistanceSqr()>1){
                 Vec3 landing=chef.position().add(forward.normalize().scale(4.25));
@@ -431,16 +525,17 @@ final class LbcChefBrain {
             }
         }
         // Slabs/stairs within native step height stay walking; only explicit jump edges request a jump.
-        chef.steer(aim,runningJump);
+        driver.steer(aim,runningJump||chef.isInWater()&&aim.y>=chef.getY()-.2);
     }
     private Vec3 runway(Spot from,Spot to){
-        if(!chef.survival.canSprint())return null;
+        if(!driver.canSprint())return null;
         Vec3 direction=to.point().subtract(from.point()).multiply(1,0,1).normalize();
         Vec3 behind=from.point().subtract(direction.scale(.4));
         return walkClear(behind,from.point(),true)?behind:null;
     }
     private boolean prepareRunup(Step step){
         Vec3 takeoff=step.from.point(),landing=step.to.point();
+        Vec3 facing=new Vec3(landing.x,chef.getEyeY(),landing.z);
         Vec3 direction=landing.subtract(takeoff).multiply(1,0,1).normalize();
         Vec3 offset=chef.position().subtract(takeoff);
         double along=offset.x*direction.x+offset.z*direction.z;
@@ -451,12 +546,12 @@ final class LbcChefBrain {
             preparingJump=step;runwayStarted=chef.tickCount;runwayPhase=1;runwayRetreats=0;
         }
         if(chef.tickCount-runwayStarted>24){
-            failedSteps.put(step,chef.tickCount+100);reset("bounded takeoff deadline");chef.halt();return false;
+            failedSteps.put(step,chef.tickCount+100);reset("bounded takeoff deadline");driver.halt();return false;
         }
         // Finish a single short backstep before approaching again. The old forward
         // branch interrupted this retreat and repeated it forever near the lip.
         if(runwayPhase==0){
-            chef.setSprinting(false);chef.steer(runway,false,landing);
+            chef.setSprinting(false);driver.steer(runway,false,facing);
             if(chef.position().subtract(runway).horizontalDistanceSqr()<.0256)runwayPhase=1;
             return false;
         }
@@ -466,16 +561,16 @@ final class LbcChefBrain {
         if(lateral<.38&&along<=.81&&nativeJumpReach(speed,landing.y-chef.getY())>=required)return true;
         double nextAdvance=Math.max(0,speed)+.1274;
         if(along+nextAdvance<=.78&&lateral<.38){
-            chef.setSprinting(true);chef.steer(landing,false);return false;
+            chef.setSprinting(true);driver.steer(landing,false,facing);return false;
         }
         if(runwayRetreats==0){
             runway=runway(step.from,step.to);
             if(runway!=null&&walkClear(chef.position(),runway,true)){
                 runwayRetreats++;runwayPhase=0;
-                chef.setSprinting(false);chef.steer(runway,false,landing);return false;
+                chef.setSprinting(false);driver.steer(runway,false,facing);return false;
             }
         }
-        failedSteps.put(step,chef.tickCount+100);reset("takeoff lacks supported approach");chef.halt();return false;
+        failedSteps.put(step,chef.tickCount+100);reset("takeoff lacks supported approach");driver.halt();return false;
     }
     private double nativeJumpReach(double speed,double rise){
         double forward=speed+.2,travel=0,y=0,vy=.42;
@@ -491,16 +586,16 @@ final class LbcChefBrain {
         int dx=Integer.signum(step.to.x-step.from.x),dz=Integer.signum(step.to.z-step.from.z);
         BlockPos end=step.to.cell().below(),first=end.offset(dx,0,dz);
         if(!airborneJump){
-            if(!chef.onGround()){chef.steer(landing,false);return;}
+            if(!chef.onGround()){driver.steer(landing,false);return;}
             // Prepare the hand and camera before takeoff. The far bank supplies real
             // attachment faces; no floating blocks or position/velocity teleports are used.
             Vec3 face=Vec3.atCenterOf(first).add(dx*.5,0,dz*.5);
-            boolean equipped=chef.equip(new ItemStack(Items.COBBLESTONE,64));
-            boolean aimed=chef.aimAction(face);
-            if(!equipped||!aimed){chef.halt();return;}
+            boolean equipped=driver.equip(new ItemStack(Items.COBBLESTONE,64));
+            boolean aimed=driver.aimAction(face);
+            if(!equipped||!aimed){driver.halt();return;}
             if(!prepareRunup(step))return;
             airborneJump=true;preparingJump=null;runway=null;
-            chef.setSprinting(true);chef.steer(landing,true);return;
+            chef.setSprinting(true);driver.steer(landing,true);return;
         }
         if(!chef.onGround()){
             // Extend the far bank towards the flight, one legal face-connected block
@@ -509,9 +604,9 @@ final class LbcChefBrain {
             if(pending!=null&&chef.tickCount>=nextBuild
                     &&Vec3.atCenterOf(pending).distanceToSqr(chef.getEyePosition())<=20.25)
                 place(pending,0,new HashSet<>());
-            chef.setSprinting(true);chef.steer(landing,false);return;
+            chef.setSprinting(true);driver.steer(landing,false);return;
         }
-        if(floorSupported(landing)){chef.steer(landing,false);return;}
+        if(floorSupported(landing)){driver.steer(landing,false);return;}
         failedSteps.put(step,chef.tickCount+100);reset("airborne support not completed");
     }
     private BlockPos obstacle(Vec3 feet){
@@ -562,10 +657,11 @@ final class LbcChefBrain {
     private boolean flatRunway(Vec3 from,Vec3 aim){
         Vec3 direction=aim.subtract(from).multiply(1,0,1);
         if(direction.horizontalDistance()<1.5)return false;
-        Vec3 toward=chef.target.position().subtract(from).multiply(1,0,1).normalize();
+        Vec3 toward=driver.destination().subtract(from).multiply(1,0,1).normalize();
         if(direction.normalize().dot(toward)<.985)return false;
         direction=direction.normalize();Vec3 side=new Vec3(-direction.z,0,direction.x).scale(.3);
-        for(int i=0;i<=18;i++){
+        // Leave supported braking room after the native airborne sprint impulse.
+        for(int i=0;i<=26;i++){
             Vec3 at=from.add(direction.scale(i*.25));
             if(!clear(at)||!floorSupported(at)||!floorSupported(at.add(side))||!floorSupported(at.subtract(side)))return false;
         }
@@ -578,7 +674,7 @@ final class LbcChefBrain {
         double dx=to.x-from.x,dz=to.z-from.z,distance=Math.sqrt(dx*dx+dz*dz);
         double rise=to.y()-from.y();
         if(distance>5.05||rise>1.05||rise< -2.5||!(futureSupport?clear(to.point()):safe(to)))return false;
-        if(distance>1.5&&!chef.survival.canSprint())return false;
+        if(distance>1.5&&!driver.canSprint())return false;
         // Conservative native jump envelope (.42 launch, .08 gravity, .98 drag). Delayed
         // horizontal progress on ascent models pressing into a one-block step until feet clear it.
         double y=from.y(),vy=.42;
@@ -608,8 +704,9 @@ final class LbcChefBrain {
         return Math.max(0,Math.sqrt(dx*dx+dz*dz)-1.5)+Math.abs(p.y()-target.getY())*.7;
     }
     private Node directColumn(Spot start,BlockPos destination){
+        if(!driver.hasBlocks())return null;
         double rise=destination.getY()-start.y();
-        if(start.height%16!=0||rise<=2||rise>14)return null;
+        if(start.height%16!=0||rise<=2||rise>64)return null;
         Spot base=new Spot(destination.getX(),destination.getZ(),start.height);
         if(base.point().distanceToSqr(start.point())>144||!walkClear(start.point(),base.point(),true))return null;
         Node column=new Node(start,0,0,null,Action.WALK);
@@ -717,13 +814,13 @@ final class LbcChefBrain {
             // Multi-cell parkour is considered before any construction edges. Diagonal corner
             // collisions are checked with the same complete mannequin box as cardinal movement.
             boolean launchClear=!ordinaryWalk&&clear(s.point().add(dx*.75,1.1,dz*.75));
-            if(launchClear)for(int length=2;length<=5;length++){
+            if(launchClear)for(int length=2;length<=driver.maxGapJump();length++){
                 if(dx!=0&&dz!=0&&length>2)break;
                 for(Spot p:floors(work,s.x+dx*length,s.z+dz*length,s.y()-1.2,s.y()+.65)){
                     if(jumpClear(s,p))offer(work,p,n.cost+Math.hypot(dx,dz)*length+.65,n,Action.JUMP);
                 }
             }
-            if(launchClear&&s.height%16==0&&(dx==0||dz==0)&&chef.survival.canSprint()){
+            if(driver.mayJumpBuild()&&driver.hasBlocks()&&launchClear&&s.height%16==0&&(dx==0||dz==0)&&driver.canSprint()){
                 for(int bankDistance=5;bankDistance<=6;bankDistance++){
                     BlockPos bank=new BlockPos(s.x+dx*bankDistance,(int)s.y()-1,s.z+dz*bankDistance);
                     Spot landing=new Spot(s.x+dx*(bankDistance-2),s.z+dz*(bankDistance-2),s.height);
@@ -736,10 +833,10 @@ final class LbcChefBrain {
             }
             Spot flat=new Spot(x,z,s.height);
             BlockPos below=BlockPos.containing(x+.5,s.y()-1,z+.5);
-            if(s.height%16==0&&!floorSupported(flat.point())&&clear(flat.point())&&replaceable(below))
+            if((dx==0||dz==0)&&driver.hasBlocks()&&s.height%16==0&&!floorSupported(flat.point())&&clear(flat.point())&&replaceable(below))
                 offer(work,flat,n.cost+Math.hypot(dx,dz)+1.8,n,Action.BRIDGE);
             if(s.height%16==0&&support(below)&&mineableBody(flat))offer(work,flat,n.cost+3+miningCost(flat),n,Action.MINE);
-            if(s.height%16==0&&work.destination.getY()>s.y()+.7){
+            if(driver.hasBlocks()&&s.height%16==0&&work.destination.getY()>s.y()+.7){
                 Spot rising=new Spot(x,z,s.height+16);
                 if(replaceable(flat.cell())&&clear(rising.point())&&Math.abs(rising.y()-work.start.y())<14)
                     offer(work,rising,n.cost+3.4+Math.hypot(dx,dz),n,Action.RAMP);
@@ -752,7 +849,7 @@ final class LbcChefBrain {
                     offer(work,down,n.cost+2.2+drop*.3+miningCost(new Spot(s.x,s.z,s.height-16)),n,Action.MINE_DOWN);
             }
         }
-        if(s.height%16==0&&work.destination.getY()>s.y()+.7){
+        if(driver.hasBlocks()&&s.height%16==0&&work.destination.getY()>s.y()+.7){
             Spot up=new Spot(s.x,s.z,s.height+16);
             if(replaceable(s.cell())&&Math.abs(up.y()-work.start.y())<14){
                 if(clear(up.point()))offer(work,up,n.cost+4.2,n,Action.PILLAR);
@@ -766,8 +863,12 @@ final class LbcChefBrain {
         if(!walkClear(from.point(),high,false))return false;
         return walkClear(high,to.point(),false)&&safe(to);
     }
-    private boolean replaceable(BlockPos p){return loaded(p)&&!hazard(p)&&level.getBlockState(p).canBeReplaced()
-            &&!level.getFluidState(p).is(FluidTags.WATER);}
+    private boolean replaceable(BlockPos p){
+        if(!loaded(p))return false;var state=level.getBlockState(p);
+        // A real placed support replaces water or extinguishes fire before the actor
+        // stands on it. These cells must agree with native block-item placement.
+        return state.canBeReplaced()&&(!hazard(p)||state.is(Blocks.FIRE)||state.is(Blocks.SOUL_FIRE));
+    }
     private boolean mineableBody(Spot p){
         BlockPos obstacle=obstacle(p.point());
         if(obstacle==null||obstacle.getY()<p.cell().getY())return false;
@@ -806,43 +907,63 @@ final class LbcChefBrain {
         work.costs.put(p,cost);work.open.add(new Node(p,cost,cost+remaining*1.25,parent,action));
     }
     private void clearMining(){
+        if(driver.nativeActions())driver.abortMining();
         if(mining!=null)level.destroyBlockProgress(chef.getId(),mining,-1);
         mining=null;miningState=null;miningCause=null;progress=0;
     }
     private void mine(BlockPos pos){
-        chef.setSprinting(false);chef.halt();
+        chef.setSprinting(false);driver.halt();
         if(Vec3.atCenterOf(pos).distanceToSqr(chef.getEyePosition())>20.25||!breakable(pos)){reset("mining reach/state");return;}
         BlockState state=level.getBlockState(pos);
         if(!pos.equals(mining)||!state.equals(miningState)){
             clearMining();mining=pos.immutable();miningState=state;
-            miningCause=chef.service.gameItems().indirectKills().coldCause(chef.owner,false);
+            miningCause=driver.items().indirectKills().coldCause(driver.owner(),false);
+        }
+        if(driver.nativeActions()){
+            if(!driver.mine(pos)){reset("native mining rejected");driver.halt();}
+            return;
         }
         ItemStack tool=tools.stream().max(Comparator.comparingDouble(t->t.getDestroySpeed(state))).orElse(tools.getFirst());
-        if(!chef.equip(tool.copy())||!chef.aimAction(Vec3.atCenterOf(pos)))return;
+        if(!driver.equip(tool.copy())||!driver.aimAction(Vec3.atCenterOf(pos)))return;
         if(chef.tickCount%4==0)chef.swing(InteractionHand.MAIN_HAND,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
-        chef.acted(Vec3.atCenterOf(pos));
+        driver.acted(Vec3.atCenterOf(pos));
         if(chef.tickCount%4==0)level.playSound(null,pos,state.getSoundType().getHitSound(),net.minecraft.sounds.SoundSource.BLOCKS,.5f,1);
         float hardness=state.getDestroySpeed(level,pos);
         progress+=hardness==0?1:tool.getDestroySpeed(state)/hardness/(tool.isCorrectToolForDrops(state)||!state.requiresCorrectToolForDrops()?30:100);
         level.destroyBlockProgress(chef.getId(),pos,Math.min(9,(int)(progress*10)));
         if(progress<1)return;
         boolean own=placed.remove(pos);var blockEntity=level.getBlockEntity(pos);
-        chef.service.gameItems().indirectKills().trapChanges(level,miningCause,()->{
-            chef.service.gameItems().indirectKills().supportRemoved(level,miningCause,pos);
+        driver.items().indirectKills().trapChanges(level,miningCause,()->{
+            driver.items().indirectKills().supportRemoved(level,miningCause,pos);
             if(!own&&(!state.requiresCorrectToolForDrops()||tool.isCorrectToolForDrops(state)))Block.dropResources(state,level,pos,blockEntity,chef,tool);
             level.levelEvent(2001,pos,Block.getId(state));level.removeBlock(pos,false);
         });
         clearMining();
     }
+    /** A visible side face requires the eye to pass its plane while the body retains support. */
+    private boolean bridgeEdge(BlockPos target){
+        Vec3 stand=null,look=null;double best=Double.POSITIVE_INFINITY;
+        for(Direction side:Direction.Plane.HORIZONTAL){
+            var neighbor=target.relative(side);if(!support(neighbor))continue;
+            var at=new Vec3(neighbor.getX()+.5-side.getStepX()*.58+side.getStepZ()*.08,chef.getY(),neighbor.getZ()+.5-side.getStepZ()*.58-side.getStepX()*.08);
+            if(!clear(at)||!floorSupported(at))continue;double score=chef.position().distanceToSqr(at);
+            if(score<best){best=score;stand=at;look=Vec3.atCenterOf(neighbor).add(-side.getStepX()*.5,.2,-side.getStepZ()*.5);}
+        }
+        if(stand==null||best>9)return false;
+        placementWaiting=true;chef.setSprinting(false);
+        if(best>.0016)driver.steer(stand,false,look);else{driver.halt();driver.aimAction(look);}
+        driver.crouch(best<.20);
+        lastPlacement="approaching visible face "+target;return true;
+    }
     private boolean place(BlockPos pos){return place(pos,2,new HashSet<>());}
     private boolean place(BlockPos pos,int connect,Set<BlockPos> visited){
         placementWaiting=false;
         if(!visited.add(pos))return false;
-        if(chef.tickCount<nextBuild){placementWaiting=true;chef.halt();return false;}
+        if(chef.tickCount<nextBuild){placementWaiting=true;driver.halt();return false;}
         if(!replaceable(pos)||Vec3.atCenterOf(pos).distanceToSqr(chef.getEyePosition())>20.25){lastPlacement="reach/replaceable "+pos;return false;}
         // Find a real collision face on a neighbour and aim at its surface, as a player's
         // block interaction would. Fluids/noncolliding decorations do not attach a bridge.
-        Vec3 hit=null;
+        Vec3 hit=null;Direction attached=null;
         for(Direction d:Direction.values()){
             BlockPos neighbour=pos.relative(d);
             if(!support(neighbour))continue;
@@ -856,11 +977,12 @@ final class LbcChefBrain {
                 if(candidate.distanceToSqr(chef.getEyePosition())>20.25)continue;
                 var ray=level.clip(new net.minecraft.world.level.ClipContext(chef.getEyePosition(),candidate.add(d.getStepX()*.01,d.getStepY()*.01,d.getStepZ()*.01),
                         net.minecraft.world.level.ClipContext.Block.COLLIDER,net.minecraft.world.level.ClipContext.Fluid.NONE,chef));
-                if(ray.getType()==net.minecraft.world.phys.HitResult.Type.MISS||ray.getBlockPos().equals(neighbour)){hit=candidate;break;}
+                if(ray.getType()==net.minecraft.world.phys.HitResult.Type.BLOCK&&ray.getBlockPos().equals(neighbour)&&ray.getDirection()==d.getOpposite()){hit=candidate;attached=d;break;}
             }
             if(hit!=null)break;
         }
         if(hit==null){
+            if(chef.onGround()&&Math.abs(pos.getY()+1-chef.getY())<.15&&bridgeEdge(pos))return false;
             // Diagonals still require a visible, face-connected real block.
             if(connect>0)for(Direction side:Direction.values()){
                 BlockPos elbow=pos.relative(side);
@@ -870,14 +992,24 @@ final class LbcChefBrain {
             }
             lastPlacement="no attached visible face "+pos;return false;
         }
+        if(driver.nativeActions()){
+            if(!driver.hasBlocks()||!driver.aimAction(hit)){placementWaiting=driver.hasBlocks();driver.halt();return false;}
+            var actual=LbcBotActions.placement(chef,pos,4.5);
+            if(actual==null){placementWaiting=true;driver.halt();return false;}
+            boolean committed=driver.place(pos,actual);
+            if(committed){driver.acted(hit);nextBuild=chef.tickCount+4;lastPlacement="native inventory placement "+pos;}
+            else lastPlacement="native placement rejected "+pos;
+            return committed;
+        }
         BlockState state=Blocks.COBBLESTONE.defaultBlockState();
         if(!level.isUnobstructed(state,pos,CollisionContext.empty())){lastPlacement="entity collision "+pos;return false;}
-        if(!chef.equip(new ItemStack(Items.COBBLESTONE,64))||!chef.aimAction(hit)){
-            placementWaiting=true;chef.halt();return false;
+        if(!driver.equip(new ItemStack(Items.COBBLESTONE,64))||!driver.aimAction(hit)){
+            placementWaiting=true;driver.halt();return false;
         }
-        chef.acted(hit);
+        if(LbcBotActions.placement(chef,pos,4.5)==null){placementWaiting=true;driver.halt();return false;}
+        driver.acted(hit);
         chef.swing(InteractionHand.MAIN_HAND,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
-        chef.service.gameItems().indirectKills().trapChanges(level,chef.service.gameItems().indirectKills().coldCause(chef.owner,false),()->level.setBlock(pos,state,3));
+        driver.items().indirectKills().trapChanges(level,driver.items().indirectKills().coldCause(driver.owner(),false),()->level.setBlock(pos,state,3));
         if(!level.getBlockState(pos).is(Blocks.COBBLESTONE)){lastPlacement="world write rejected "+pos;return false;}
         level.playSound(null,pos,state.getSoundType().getPlaceSound(),net.minecraft.sounds.SoundSource.BLOCKS,1,.8f);
         level.gameEvent(chef,net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE,pos);

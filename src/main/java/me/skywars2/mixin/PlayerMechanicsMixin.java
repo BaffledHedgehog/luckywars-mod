@@ -21,15 +21,6 @@ public abstract class PlayerMechanicsMixin {
         if (game != null && (Object) this instanceof ServerPlayer player && game.items().actionsBlocked(player)) ci.cancel();
     }
 
-    @Inject(method = "tryToStartFallFlying", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;startFallFlying()V"), cancellable = true)
-    private void skywars2$rocketJump(CallbackInfoReturnable<Boolean> cir) {
-        var game = SkyWars2.game();
-        if (game != null && (Object) this instanceof ServerPlayer player && game.items().rocketGlide(player)) {
-            cir.setReturnValue(false);
-        }
-    }
-
     @Inject(method = "causeFallDamage", at = @At("RETURN"))
     private void skywars2$landed(double distance, float modifier, DamageSource source, CallbackInfoReturnable<Boolean> cir) {
         var game = SkyWars2.game();

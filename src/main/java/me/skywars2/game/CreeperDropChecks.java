@@ -117,7 +117,7 @@ public final class CreeperDropChecks {
                 require(!c.isNoAi() && !c.isNoGravity() && c.getHealth()==20 && c.getMaxHealth()==20,"native AI/gravity/default health before test freezing");
                 require(tag.getShortOr("Fuse",(short)-1)==30 && !tag.getBooleanOr("powered",false) && !tag.getBooleanOr("ignited",false),"native fuse30/unpowered/unignited");
                 require(kind==LbcCreeperDropItem.Kind.NORMAL?tag.getStringOr("DeathLootTable","").equals("lbc:creeper_wand"):!tag.contains("DeathLootTable"),"normal override / old vanilla death loot");
-                require(game.items().creeperDrops().owner(c)==author,"actual thrower retained, pickup target never substitutes");
+                require(game.items().creeperDrops().owner(c)==c,"actual thrower retained, pickup target never substitutes");
                 c.setNoAi(true);c.setNoGravity(true);c.setDeltaMovement(Vec3.ZERO);
             }
             require(item.getYRot()==(kind==LbcCreeperDropItem.Kind.OLD?337:37) && item.getXRot()==23,"old fifteen rotations retain pitch; normal never rotates");
@@ -181,7 +181,7 @@ public final class CreeperDropChecks {
             for(var entity:level.getAllEntities())if(!before.contains(entity) && entity instanceof ItemEntity item)
                 require(!item.getItem().is(LbcWands.AIR_WAND),"native self explosion never rolls ordinary death reward");
             float loss=1000-beta.getHealth();
-            if(loss>0)require(beta.getLastDamageSource()!=null && beta.getLastDamageSource().getDirectEntity()==c && beta.getLastDamageSource().getEntity()==alpha,"native creeper blast credits actual throwing player");
+            if(loss>0)require(beta.getLastDamageSource()!=null && beta.getLastDamageSource().getDirectEntity()==c && beta.getLastDamageSource().getEntity()==c,"native creeper blast retains the actual Mob cause");
             return loss;
         }
         void consequentialChildren() {
@@ -204,16 +204,18 @@ public final class CreeperDropChecks {
             }
             require(parent.isRemoved() && clouds.size()==1 && children.size()==2 && level.getBlockState(first).isAir() && level.getBlockState(second).isAir(),"actual native potion creeper creates one cloud and primes both TNT blocks");
             var cloud=clouds.getFirst();
-            require(cloud.getOwner()==alpha && game.items().creeperDrops().owner(cloud)==alpha && LbcCreeperDrops.managed(cloud) && game.items().currentEpoch(cloud),"native lingering cloud retains actual thrower, managed marker and epoch");
+            require(cloud.getOwner()==parent && game.items().creeperDrops().owner(cloud)==parent && LbcCreeperDrops.managed(cloud) && game.items().currentEpoch(cloud),"native lingering cloud retains actual thrower, managed marker and epoch");
             require(cloud.getRadius()==2.5f && cloud.getDuration()==300 && cloud.getRadiusOnUse()==-.5f,"native creeper cloud geometry/duration unchanged");
-            for(var child:children)require(child.getOwner()==alpha && game.items().creeperDrops().owner(child)==alpha && LbcCreeperDrops.managed(child) && game.items().currentEpoch(child) && child.getFuse()>0 && child.getFuse()<80 && !child.isNoGravity(),"native chain TNT inherits actual thrower and epoch with native delayed fuse/gravity");
+            for(var child:children)require(child.getOwner()==parent && game.items().creeperDrops().owner(child)==parent && LbcCreeperDrops.managed(child) && game.items().currentEpoch(child) && child.getFuse()>0 && child.getFuse()<80 && !child.isNoGravity(),"native chain TNT inherits actual thrower and epoch with native delayed fuse/gravity");
             var board=game.server().getScoreboard();require(board.getPlayerTeam("codex_creeper_child_probe")==null,"child fixture team available");
             var team=board.addPlayerTeam("codex_creeper_child_probe");
             try {
                 board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
                 beta.teleportTo(level,origin.x+1,origin.y,origin.z,Set.of(),0,0,true);beta.setHealth(1000);beta.setAbsorptionAmount(0);beta.setInvulnerableTime(0);beta.damageCooldownTime=0;
                 var child=children.getFirst();child.setPos(origin);child.setNoGravity(true);child.setDeltaMovement(Vec3.ZERO);child.setFuse(1);child.tick();
-                require(child.isRemoved() && beta.getHealth()==1000,"actual native chain TNT explosion respects throwing player's allied guard");
+                require(child.isRemoved() && beta.getHealth()<1000,"unowned native chain TNT damages allied player");
+                require(beta.getLastDamageSource()!=null&&beta.getLastDamageSource().getEntity()==parent,
+                        "native chain retains its removed Creeper cause instead of a player or missing world lookup");
             }finally{board.removePlayerTeam(team);}
             var pending=children.get(1);require(!pending.isRemoved() && !cloud.isRemoved(),"delayed native consequences remain live before quiet stop");
             clear();require(pending.isRemoved() && cloud.isRemoved(),"quiet service stop removes native cloud and unexpired child TNT without effects");
@@ -258,7 +260,7 @@ public final class CreeperDropChecks {
                     var team=board.addPlayerTeam("codex_creeper_drop_probe");
                     try {
                         board.addPlayerToTeam(alpha.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
-                        require(blast(false)==0,"thrower attribution preserves allied blast protection");
+                        require(blast(false)>0,"unowned creeper blast harms allied participants");
                     }finally{board.removePlayerTeam(team);}
                     require(blast(true)>0,"native creeper remains damaging with griefing enabled");clear();consequentialChildren();phase++;
                 }
@@ -268,7 +270,7 @@ public final class CreeperDropChecks {
                         departed.setPos(origin.add(0,25,0));departed.setNoGravity(true);require(level.addFreshEntity(departed),"departing native thrower");
                         var item=drop(LbcCreeperDropItem.Kind.NORMAL,1,departed);item.setTarget(beta.getUUID());departed.discard();
                         require(game.items().creeperDrops().spawn(item,LbcCreeperDropItem.Kind.NORMAL),"activation retains departed actual thrower");item.discard();
-                        require(live().size()==20 && live().stream().allMatch(c->game.items().creeperDrops().owner(c)==departed),"captured author survives native ENTITY_LOAD and departure");
+                        require(live().size()==20 && live().stream().allMatch(c->game.items().creeperDrops().owner(c)==c),"captured author survives native ENTITY_LOAD and departure");
                     }finally{departed.discard();clear();}
                     var stale=drop(LbcCreeperDropItem.Kind.OLD,1,alpha);stale.entityTags().add("skywars2.items.stale-fixture");
                     require(!game.items().creeperDrops().spawn(stale,LbcCreeperDropItem.Kind.OLD),"stale epoch rejected");stale.discard();

@@ -1196,14 +1196,14 @@ public final class LbcWands {
     void hostileSauvojenElectro(ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){
         if(!LbcBedwarsRoleGuards.canEmit(source,level))return;
         for(int i=0;i<4;i++){var trace=new ElectroTrace(level,origin,direction,source,20);
-            trace.owner=game.server().getPlayerList().getPlayer(source.author());electroTraces.add(trace);}
+            trace.owner=game.items().spellSources().authorPlayer(source);electroTraces.add(trace);}
         LbcOverload.sound(level,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0,0);
     }
     void cyborgElectro(LivingEntity emitter,LbcSpellSource.Source source){
         if(!LbcBedwarsRoleGuards.canEmitFrom(emitter)||!LbcBedwarsRoleGuards.canEmit(source,(ServerLevel)emitter.level()))return;
         var direction=emitter.getLookAngle();var level=(ServerLevel)emitter.level();var at=emitter.getEyePosition();
         for(int i=0;i<4;i++){var trace=new ElectroTrace(level,at.subtract(direction.scale(i*.01)),direction,source,30+i*5);
-            trace.owner=game.server().getPlayerList().getPlayer(source.author());electroTraces.add(trace);}
+            trace.owner=game.items().spellSources().authorPlayer(source);electroTraces.add(trace);}
         LbcOverload.sound(level,at,"minecraft:entity.firework_rocket.twinkle",1,1,0,0);
     }
     void hostileSauvojenElectro(ServerPlayer author,Vec3 origin,Vec3 direction,LbcSpellSource.Source source) {

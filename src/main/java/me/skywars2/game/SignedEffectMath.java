@@ -116,6 +116,12 @@ public final class SignedEffectMath {
     private static final net.minecraft.resources.Identifier NEGATIVE_JUMP=net.minecraft.resources.Identifier.fromNamespaceAndPath("skywars2","negative_jump");
     public static void dolphin(LivingEntity entity) {
         if(entity.level().isClientSide())return;
+        if(!VanillaExpansionRules.enabled()){
+            for(var pair:java.util.List.of(java.util.Map.entry(Attributes.JUMP_STRENGTH,NEGATIVE_JUMP),java.util.Map.entry(Attributes.MOVEMENT_SPEED,DOLPHIN_SPEED),java.util.Map.entry(Attributes.WATER_MOVEMENT_EFFICIENCY,DOLPHIN_WATER))){
+                var attribute=entity.getAttribute(pair.getKey());if(attribute!=null)attribute.removeModifier(pair.getValue());
+            }
+            return;
+        }
         long jump=level(entity,MobEffects.JUMP_BOOST);
         dolphinModifier(entity,Attributes.JUMP_STRENGTH,NEGATIVE_JUMP,entity instanceof Player&&jump<0?.1*jump:0,
                 net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE);

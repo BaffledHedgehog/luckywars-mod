@@ -31,6 +31,9 @@
         "minecraft:end_rod",
         "minecraft:glowstone",
         "minecraft:bone_block",
-        "skywars2:greedstone_cursed_block"
+        "skywars2:lucky_block",
+        "skywars2:lucky_block_neko",
+        "skywars2:lucky_block_loli",
+        "skywars2:consumed_block"
     ]
 }

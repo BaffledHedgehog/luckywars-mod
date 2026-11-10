@@ -47,6 +47,7 @@ public final class LbcUltraponos {
         }
     }
     record BlastSnapshot(Vec3 position,int radius,int remainingTicks,LivingEntity owner) { }
+    record Warning(Vec3 center,double radius,int remainingTicks) { }
     private static final class Emitter {
         final ServerLevel level;
         final Vec3 center;
@@ -172,6 +173,24 @@ public final class LbcUltraponos {
     }
     public int emitterCount() { return emitters.size(); }
     public int pendingBlastCount() { return blasts.size(); }
+    /** Visible eruption warning, scoped to its actual level; never changes a queued blast. */
+    Warning warning(ServerLevel level,Vec3 point){
+        Blast nearest=null;double distance=Double.POSITIVE_INFINITY;
+        for(var blast:blasts){
+            if(blast.level!=level||!game.items().currentEpoch(blast.epoch))continue;
+            double radius=blast.radius*(blast.charged?2:1)*2;
+            double horizontal=point.subtract(blast.position).horizontalDistanceSqr();
+            if(Math.abs(point.y-blast.position.y)>radius+8||horizontal>(radius+32)*(radius+32))continue;
+            if(horizontal<distance){nearest=blast;distance=horizontal;}
+        }
+        if(nearest==null)return null;
+        double radius=0;int remaining=nearest.remainingTicks;
+        for(var blast:blasts)if(blast.level==level&&blast.epoch.equals(nearest.epoch)
+                &&blast.position.x==nearest.position.x&&blast.position.z==nearest.position.z){
+            radius=Math.max(radius,blast.radius*(blast.charged?2:1)*2+4);remaining=Math.min(remaining,blast.remainingTicks);
+        }
+        return new Warning(new Vec3(nearest.position.x,point.y,nearest.position.z),radius,remaining);
+    }
     List<BlastSnapshot> pendingBlasts() {
         return blasts.stream().map(blast->new BlastSnapshot(blast.position,blast.radius*(blast.charged?2:1),blast.remainingTicks,blast.owner)).toList();
     }

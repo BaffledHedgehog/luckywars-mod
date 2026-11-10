@@ -6,6 +6,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,16 +17,7 @@ public abstract class LbcEquipmentMixin {
     /** Нативный прыжок живёт в LivingEntity; броня реагирует без опроса статистики jump каждый тик. */
     @Inject(method = "jumpFromGround", at = @At("TAIL"))
     private void skywars2$overloadJump(CallbackInfo ci) {
-        var game=SkyWars2.game();
-        if(game!=null && (Object)this instanceof ServerPlayer player) {
-            game.items().halloweenWind().jump(player);
-            game.items().soulhunter().jump(player);
-            game.items().mana().overload().armor().jump(player);
-            game.items().jumpArtifacts().jump(player);
-            game.items().shulkerArmor().jump(player);
-            game.items().armorSets().techno().jump(player);
-            game.items().armorSets().chaos().jump(player);
-        }
+        if((Object)this instanceof ServerPlayer player)me.skywars2.game.GroundJumpEvents.jumped(player);
     }
     /** Normalize old miniguns before vanilla snapshots and applies equipment attribute modifiers. */
     @Inject(method = "onEquipItem", at = @At("HEAD"))
@@ -34,17 +27,33 @@ public abstract class LbcEquipmentMixin {
     /** RETURN покрывает ранние выходы vanilla (firstTick/observer), в том числе начальную экипировку. */
     @Inject(method = "onEquipItem", at = @At("RETURN"))
     private void skywars2$rocketEquipment(EquipmentSlot slot, ItemStack previous, ItemStack next, CallbackInfo ci) {
-        var game = SkyWars2.game();
-        if(game!=null && (Object)this instanceof ServerPlayer player) {
-            game.items().mana().inventoryChanged(player);
-            game.lbc().inventoryChanged(player);
-            if(slot==EquipmentSlot.HEAD)game.items().clownKit().effectsChanged(player);
-            game.items().refreshMinigunMovement(player);
-            game.items().shulkerArmor().inventoryChanged(player);
-            game.items().armorSets().inventoryChanged(player);game.items().shishEncounter().inventoryChanged(player);
+        if ((Object)this instanceof ServerPlayer player)
+            skywars2$refreshEquipment(player,slot==EquipmentSlot.HEAD,slot==EquipmentSlot.FEET);
+    }
+    @Shadow private java.util.Map<EquipmentSlot,ItemStack> lastEquipmentItems;
+    @Unique private boolean skywars2$refreshingEquipment;
+    /** Native snapshots cover hotbar use, dispensers and direct inventory equipment writes too. */
+    @Inject(method="detectEquipmentUpdates",at=@At("HEAD"))
+    private void skywars2$actualEquipment(CallbackInfo ci){
+        if(skywars2$refreshingEquipment || !((Object)this instanceof ServerPlayer player))return;
+        boolean changed=false,head=false,feet=false;
+        for(var slot:EquipmentSlot.VALUES)if(!ItemStack.matches(lastEquipmentItems.get(slot),player.getItemBySlot(slot))){
+            changed=true;head|=slot==EquipmentSlot.HEAD;feet|=slot==EquipmentSlot.FEET;
         }
-        if (slot == EquipmentSlot.FEET && game != null && (Object) this instanceof ServerPlayer player) {
-            game.items().rocketEquipment(player, next);
-        }
+        if(!changed)return;
+        skywars2$refreshingEquipment=true;
+        try{skywars2$refreshEquipment(player,head,feet);}finally{skywars2$refreshingEquipment=false;}
+    }
+    @Unique private static void skywars2$refreshEquipment(ServerPlayer player,boolean head,boolean feet){
+        var game=SkyWars2.game();if(game==null)return;
+        game.items().mana().inventoryChanged(player);
+        game.lbc().inventoryChanged(player);
+        game.items().magic().inventoryChanged(player);
+        if(head)game.items().clownKit().effectsChanged(player);
+        game.items().refreshMinigunMovement(player);
+        game.items().shulkerArmor().inventoryChanged(player);
+        game.items().armorSets().inventoryChanged(player);
+        game.items().shishEncounter().inventoryChanged(player);
+        if(feet)game.items().rocketEquipment(player,player.getItemBySlot(EquipmentSlot.FEET));
     }
 }

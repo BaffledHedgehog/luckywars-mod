@@ -26,6 +26,12 @@ public interface CombatRewardMixin {
     }
     @Mixin(LivingEntity.class)
     abstract class DeathLoot {
+        @Inject(method="getKillCredit",at=@At("RETURN"),cancellable=true)
+        private void skywars2$retainedNpc(CallbackInfoReturnable<LivingEntity> result){
+            if(result.getReturnValue()!=null)return;
+            var attacker=me.skywars2.game.LbcIndirectKills.retainedNpcCredit((LivingEntity)(Object)this);
+            if(attacker!=null)result.setReturnValue(attacker);
+        }
         @WrapMethod(method="dropAllDeathLoot")
         private void skywars2$lootItems(ServerLevel level,DamageSource source,Operation<Void> original) {
             var game=SkyWars2.game();

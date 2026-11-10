@@ -17,6 +17,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -205,7 +206,7 @@ public final class LuckyBlockChecks {
             game.items().timeStop().begin(world.level,40);try{require(game.items().timeStop().frozen(p),"real world stop has no fixture exemption");require(!p.gameMode.destroyBlock(pos)&&world.level.getBlockState(pos).equals(state),"world TimeStop rejects native destruction");}finally{game.items().timeStop().end(world.level);}
             require(!game.isObserver(p),"participant initially not observer");game.spectators().enter(p);try{require(game.isObserver(p),"actual observer positive control");require(!p.gameMode.destroyBlock(pos)&&world.level.getBlockState(pos).equals(state),"observer cannot break reward block");}finally{game.spectators().remove(p);p.setGameMode(GameType.SURVIVAL);}
             int configured=game.config().luckyModifier;var published=score(ScoreHolder.forNameOnly("cfg_lucky_modifier"),"swrg.math");
-            try{game.config().gameMode=1;game.config().luckyModifier=12;modifier.set(6);var owner=new GameLuckyModifiers(game);require(owner.startMatch(1)==6&&game.server().getScoreboard().getPlayerScoreInfo(modifier.holder,modifier.objective).value()==6,"explicit ordinary startup retains the categorical result");owner.endMatch();require(game.server().getScoreboard().getPlayerScoreInfo(modifier.holder,modifier.objective).value()==6,"ordinary end retains categorical result");var live=new GameLuckyModifiers(game);require(live.startMatch()==(game.gameMode()==2?12:6),"actual modifier owner follows captured match mode rather than future configuration");live.endMatch();}finally{game.config().luckyModifier=configured;game.config().gameMode=mode;published.close();modifier.set(1);}
+            try{game.config().gameMode=1;game.config().luckyModifier=12;modifier.set(6);var owner=new GameLuckyModifiers(game);require(owner.startMatch(1)==1&&game.server().getScoreboard().getPlayerScoreInfo(modifier.holder,modifier.objective).value()==1,"explicit ordinary startup clears a previous categorical result");owner.endMatch();require(game.server().getScoreboard().getPlayerScoreInfo(modifier.holder,modifier.objective).value()==1,"ordinary end clears categorical result");var live=new GameLuckyModifiers(game);require(live.startMatch()==(game.gameMode()==2?12:1),"actual modifier owner follows captured match mode rather than future configuration");live.endMatch();}finally{game.config().luckyModifier=configured;game.config().gameMode=mode;published.close();modifier.set(1);}
         }
         @Override public void close(){if(closed)return;closed=true;Throwable failure=null;
             for(Runnable action:List.<Runnable>of(()->{drops();for(var e:created){game.items().spellSources().unloaded(e);for(var objective:game.server().getScoreboard().getObjectives())game.server().getScoreboard().resetSinglePlayerScore(e,objective);e.discard();}},world::close,()->{for(var s:scores)s.close();},()->saved.restore(game),saved::restoreAttributes,saved::restoreUse,()->betaSaved.restore(game),betaSaved::restoreAttributes,betaSaved::restoreUse,()->{world.level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS,blockDrops,game.server());game.config().gameMode=mode;p.entityTags().clear();p.entityTags().addAll(tags);beta.entityTags().clear();beta.entityTags().addAll(betaTags);stats.forEach((stat,n)->p.getStats().setValue(p,stat,n));betaStats.forEach((stat,n)->beta.getStats().setValue(beta,stat,n));game.items().magic().inventoryChanged(p);game.items().magic().inventoryChanged(beta);game.players().save();},()->{for(var e:randoms.entrySet())try{field(e.getKey(),"random").set(e.getKey(),e.getValue());}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
@@ -213,28 +214,51 @@ public final class LuckyBlockChecks {
         }
     }
     public static void mining(GameController game){
-        try(var f=new Fixture(game)){
+        try(var f=new Fixture(game);var client=new RegenerationBeltChecks.ScheduledClient(game,f.p);
+                var audience=new RegenerationBeltChecks.ScheduledClient(game,f.beta)){
             f.world.level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS,false,game.server());
             f.p.setPos(f.pos.getX()+.5,f.pos.getY(),f.pos.getZ()+2.5);f.p.setOnGround(true);
+            f.beta.setPos(f.pos.getX()+2.5,f.pos.getY(),f.pos.getZ()+2.5);
             f.p.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
             var states=new ArrayList<BlockState>();for(var kind:LbcLuckyBlocks.Kind.values())states.add(LbcLuckyBlocks.block(kind).defaultBlockState());
             states.add(LbcConsumedBlock.BLOCK.defaultBlockState());
-            boolean previousBlock=false;
             for(var state:states){
+                // The ordinary inter-block delay must also elapse while no block is being mined.
+                for(int idle=0;idle<5;idle++)f.p.gameMode.tick();
                 f.world.level.setBlock(f.pos,state,3);float rate=state.getDestroyProgress(f.p,f.world.level,f.pos);
                 float oldRate=Blocks.RED_MUSHROOM_BLOCK.defaultBlockState().getDestroyProgress(f.p,f.world.level,f.pos);
                 require(rate>0&&Math.abs(rate-oldRate)<.000001,"exact mushroom hand mining rate "+state);
+                int ownerBreaks=breakEvents(client,f.pos),observerBreaks=breakEvents(audience,f.pos);
                 f.p.gameMode.handleBlockBreakAction(f.pos,net.minecraft.network.protocol.game.ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,Direction.NORTH,f.world.level.getMaxY(),0);
                 int ticks=0;while(!f.world.level.getBlockState(f.pos).isAir()&&ticks<16){f.p.gameMode.tick();ticks++;}
-                // Polymer supplies the vanilla client's five-tick delay for consecutive
-                // server-controlled breaks, and consumes it only while mining progresses.
-                int delay=previousBlock?5:0;
-                require(f.world.level.getBlockState(f.pos).isAir()&&ticks<=Math.ceil(1/rate)+delay+1,"actual START plus native ticks complete Polymer mining, without client STOP: "+state+" ticks="+ticks);
+                // No additional hidden delay after the preceding five idle ticks.
+                require(f.world.level.getBlockState(f.pos).isAir()&&ticks<=Math.ceil(1/rate)+1,"actual START plus native ticks complete Polymer mining, without client STOP: "+state+" ticks="+ticks);
+                require(breakEvents(client,f.pos)==ownerBreaks+1&&breakEvents(audience,f.pos)==observerBreaks+1,
+                        "exactly one final particles-AND-sound event reaches both survival miner and observer: "+state);
                 f.p.gameMode.handleBlockBreakAction(f.pos,net.minecraft.network.protocol.game.ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK,Direction.NORTH,f.world.level.getMaxY(),0);
-                previousBlock=true;
             }
         }
         SkyWars2.LOGGER.info("[check] PASS custom-block-mining (native survival START/ticks completes all3 Lucky cubes and consumed cube at exact mushroom hand speed; no synthetic destroyBlock or client STOP)");
+    }
+    private static int breakEvents(RegenerationBeltChecks.ScheduledClient client,BlockPos pos){
+        try{
+            var connectionField=field(client,"connection");connectionField.setAccessible(true);var connection=connectionField.get(client);
+            var packetsField=field(connection,"packets");packetsField.setAccessible(true);
+            var packets=(java.util.List<?>)packetsField.get(connection);int count=0;
+            for(var packet:packets)if(packet instanceof net.minecraft.network.protocol.game.ClientboundLevelEventPacket event
+                    &&event.getType()==net.minecraft.world.level.block.LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK&&event.getPos().equals(pos)){
+                var bytes=new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());
+                try{
+                    net.minecraft.network.protocol.game.ClientboundLevelEventPacket.STREAM_CODEC.encode(bytes,event);
+                    var decoded=net.minecraft.network.protocol.game.ClientboundLevelEventPacket.STREAM_CODEC.decode(bytes);
+                    var presented=Block.stateById(decoded.getData());
+                    require(presented.is(Blocks.NOTE_BLOCK)&&!presented.isAir(),"actual encoded2001 payload contains a valid vanilla note state, never the unknown server custom-block ID");
+                    require(presented.getSoundType().getBreakSound()!=net.minecraft.sounds.SoundEvents.EMPTY,"decoded native event carries a real final break sound");
+                    count++;
+                }finally{bytes.release();}
+            }
+            return count;
+        }catch(IllegalAccessException error){throw new IllegalStateException(error);}
     }
     public static void run(GameController game){try(var f=new Fixture(game)){f.placement();}SkyWars2.LOGGER.info("[check] PASS lucky-blocks (three canonical native leaves/Polymer roundtrip, both actual placement hands/exact debit, full collision/stable proxy/neighbor identity, actual placed-block gameMode destruction/physical root rewards)");}
     public static void rules(GameController game){try(var f=new Fixture(game)){f.lootRules();f.nekoBranches();f.policies();}SkyWars2.LOGGER.info("[check] PASS lucky-block-rules (actual native BLOCK / vanilla mushroom contexts, zero/negative/positive/missing-score/no-actor, Silk physical native returns and exact advancement token, Fortune/per-stack99, ordinary mushroom exclusion, legacy plus Silk pools, Neko real inventory/offhand/armor zaika and mainhand luck_key predicates, separate vanilla/native mined counters, Creative/developer/observer/input/world TimeStop)");}

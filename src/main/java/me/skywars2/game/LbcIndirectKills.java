@@ -73,10 +73,11 @@ public final class LbcIndirectKills {
     private Owner activeCause;
     private static final class CapturedDamage extends DamageSource {
         final Owner cause;final DamageSource original;
-        CapturedDamage(DamageSource source,Owner cause){super(source.typeHolder(),source.getDirectEntity(),source.getEntity());this.cause=cause;this.original=source;}
+        CapturedDamage(DamageSource source,Owner cause){this(source,cause,source.getEntity());}
+        CapturedDamage(DamageSource source,Owner cause,Entity attacker){super(source.typeHolder(),source.getDirectEntity(),attacker);this.cause=cause;this.original=source;}
         @Override public boolean isDirect(){return original.isDirect();}
         @Override public net.minecraft.world.phys.Vec3 sourcePositionRaw(){return original.sourcePositionRaw();}
-        @Override public net.minecraft.world.item.ItemStack getWeaponItem(){return original.getWeaponItem();}
+        @Override public net.minecraft.world.item.ItemStack getWeaponItem(){return getEntity()==original.getEntity()?original.getWeaponItem():super.getWeaponItem();}
         @Override public boolean is(net.minecraft.tags.TagKey<net.minecraft.world.damagesource.DamageType> tag){return original.is(tag);}
         @Override public boolean is(net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){return original.is(type);}
         @Override public float getFoodExhaustion(){return original.getFoodExhaustion();}
@@ -103,28 +104,57 @@ public final class LbcIndirectKills {
         var cause=babylonCause(source);
         return captureDamage(new TransferredDamage(source),cause);
     }
+    /** Accepted hostile-Mob authority, separate from the player's retained drop provenance. */
+    private static final class NativeMobDamage extends DamageSource {
+        final DamageSource original;
+        NativeMobDamage(DamageSource source,LivingEntity mob){super(source.typeHolder(),source.getDirectEntity(),mob);original=source;}
+        @Override public net.minecraft.world.phys.Vec3 sourcePositionRaw(){return original.sourcePositionRaw();}
+        @Override public net.minecraft.world.phys.Vec3 getSourcePosition(){return original.sourcePositionRaw()!=null?original.sourcePositionRaw():super.getSourcePosition();}
+        @Override public boolean scalesWithDifficulty(){return original.scalesWithDifficulty();}
+        @Override public net.minecraft.world.item.ItemStack getWeaponItem(){return original.getWeaponItem();}
+        @Override public boolean is(net.minecraft.tags.TagKey<net.minecraft.world.damagesource.DamageType> tag){return original.is(tag);}
+        @Override public boolean is(net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){return original.is(type);}
+        @Override public float getFoodExhaustion(){return original.getFoodExhaustion();}
+    }
+    static boolean npcSource(DamageSource source){
+        for(var value=source;value!=null;value=checkpointWrappedSource(value))if(value instanceof NativeMobDamage)return true;
+        return false;
+    }
+    /** Native EntityReference drops removed bodies; accepted NPC receipts still identify the attacker. */
+    public static LivingEntity retainedNpcCredit(LivingEntity victim){
+        var state=(me.skywars2.mixin.CombatCheckpointAccess.Living)victim;
+        if(state.skywars2$player()!=null||state.skywars2$mob()==null)return null;
+        var damage=state.skywars2$damage();
+        if(!npcSource(damage)||!(damage.getEntity() instanceof LivingEntity actor)
+                ||actor instanceof net.minecraft.world.entity.player.Player)return null;
+        return state.skywars2$mob().matches(actor)?actor:null;
+    }
+    DamageSource nativeMobDamage(DamageSource source,LivingEntity mob){return npcSource(source)?source:new NativeMobDamage(source,mob);}
     public void withCause(LivingEntity target,Owner cause,Runnable action){
         var previousTarget=causeTarget;var previousCause=activeCause;causeTarget=target;activeCause=cause;
         try{action.run();}finally{causeTarget=previousTarget;activeCause=previousCause;}
     }
     public DamageSource inheritDamage(LivingEntity target,DamageSource source){
+        if(npcSource(source))return source;
         if(source instanceof CapturedDamage)return source;
         var accepted=causeTarget==target&&activeCause!=null?activeCause:babylonCause(source);
         return accepted==null?source:new CapturedDamage(source,accepted);
     }
     /** Detached spell segments retain the original accepted effect's author and ordering. */
-    public DamageSource captureDamage(DamageSource source,Owner cause){return cause==null?source:new CapturedDamage(source,cause);}
+    public DamageSource captureDamage(DamageSource source,Owner cause){return cause==null||npcSource(source)?source:new CapturedDamage(source,cause);}
+    public DamageSource captureDamage(DamageSource source,Owner cause,Entity attacker){return cause==null||npcSource(source)?source:new CapturedDamage(source,cause,attacker);}
     /** Preserve source-specific behavior when native attribution has wrapped a damage source. */
     static DamageSource originalDamage(DamageSource source){
         while(true){
-            if(source instanceof CapturedDamage captured)source=captured.original;
+            if(source instanceof CapturedDamage captured){if(captured.getEntity()!=captured.original.getEntity())break;source=captured.original;}
             else if(source instanceof TransferredDamage transferred)source=transferred.original;
+            else if(source instanceof NativeMobDamage nativeMob)source=nativeMob.original;
             else break;
         }
         return source;
     }
     /** Read-only parent for the native combat checkpoint; accepted causes are never regenerated. */
-    static DamageSource checkpointWrappedSource(DamageSource source){return source instanceof CapturedDamage captured?captured.original:source instanceof TransferredDamage transferred?transferred.original:null;}
+    static DamageSource checkpointWrappedSource(DamageSource source){return source instanceof CapturedDamage captured?captured.original:source instanceof TransferredDamage transferred?transferred.original:source instanceof NativeMobDamage nativeMob?nativeMob.original:null;}
     /** Native ServerPlayer friendship admission runs before LivingEntity's damage callbacks. */
     public static boolean isWildCaptured(DamageSource source){return source instanceof CapturedDamage captured&&captured.cause.friendlyFire();}
     public void inheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
@@ -189,6 +219,14 @@ public final class LbcIndirectKills {
 
     /** Deferred Frost processing retains the original impact's order, rather than becoming a new hit. */
     Owner wildCause(ServerPlayer player){return owner(player,true);}
+    /** Encoded potion/arrow statuses retain the same accepted cause as their actual native carrier. */
+    public Owner carrierEffectCause(LivingEntity target,Entity source){
+        if(causeTarget==target&&activeCause!=null)return activeCause;
+        var spell=source==null?null:game.items().spellSources().source(source);
+        if(spell!=null)return spell.cause();
+        var author=source==null?null:playerSource(source);
+        return author==null?null:coldCause(author,true);
+    }
     /** The original cause travels with Time Stop's saved DamageSource; later accepted hits can supersede it. */
     private static final class InheritedKill extends DamageSource {
         final Owner cause;
@@ -213,6 +251,7 @@ public final class LbcIndirectKills {
 
     /** Нативное зелье передаёт source как игрока, снаряд или облако — разворачиваем владельца. */
     public static ServerPlayer playerSource(Entity source) {
+        if(LbcSpellSource.unownedHazard(source))return null;
         var original=source;
         var produceGame=me.skywars2.SkyWars2.game();
         if(produceGame!=null&&LbcKapusta.isManaged(source)){var cause=produceGame.items().kapusta().cause(source);if(cause!=null){var author=produceGame.server().getPlayerList().getPlayer(cause.player());if(author!=null)return author;}}
@@ -769,7 +808,9 @@ public final class LbcIndirectKills {
         return game.items().babylonEffects().cause(actor);
     }
     public Owner babylonCause(DamageSource source) {
+        if(npcSource(source))return null;
         if (source instanceof CapturedDamage captured) return captured.cause;
+        var helperCause=game.items().hedgehog().cause(source.getDirectEntity());if(helperCause!=null)return helperCause;
         var cabbageCause=game.items().kapusta().cause(source.getDirectEntity());if(cabbageCause!=null)return cabbageCause;
         var cosmeticCause=game.items().cosmetics().cause(source.getDirectEntity());if(cosmeticCause!=null)return cosmeticCause;
         if(LbcSpecialFireballs.managed(source.getDirectEntity())&&game.items().specialFireballs().owner(source.getDirectEntity()) instanceof ServerPlayer player)return wildCause(player);
@@ -795,6 +836,10 @@ public final class LbcIndirectKills {
         return bossCause!=null ? bossCause : game.items().babylonEffects().cause(source.getDirectEntity());
     }
     public void damaged(LivingEntity target, DamageSource source) {
+        if(npcSource(source)||LbcSpellSource.unownedHazard(source.getDirectEntity())||LbcSpellSource.unownedHazard(source.getEntity())){
+            mobImpact(target,source);
+            return;
+        }
         var inherited=causeTarget==target&&activeCause!=null ? activeCause : babylonCause(source);
         if(inherited!=null) { displaced(target,inherited); return; }
         var player=playerSource(source.getEntity());
@@ -873,6 +918,8 @@ public final class LbcIndirectKills {
 
     /** Вызывается до нативного die: mob loot/XP, vanilla kill score и статистика мода видят автора. */
     public void dying(LivingEntity target, DamageSource damage) {
+        // Lethal callbacks run before AFTER_DAMAGE: settle native/indirect credit now.
+        if(npcSource(damage)||LbcSpellSource.unownedHazard(damage.getDirectEntity())||LbcSpellSource.unownedHazard(damage.getEntity())){mobImpact(target,damage);return;}
         var babylon=causeTarget==target&&activeCause!=null ? activeCause : babylonCause(damage);
         if(babylon!=null && target.level() instanceof ServerLevel level) { credit(target,level,babylon); return; }
         if(damage instanceof InheritedKill inherited&&target.level() instanceof ServerLevel level){credit(target,level,inherited.cause);return;}
@@ -939,6 +986,21 @@ public final class LbcIndirectKills {
         arrivals.remove(target);
         pendingMana.remove(target); manaDrains.remove(target); manaDebts.remove(target);
         burning.remove(target); hungerDebts.remove(target);
+    }
+    static boolean unownedDamage(DamageSource source){
+        return npcSource(source)||LbcSpellSource.unownedHazard(source.getDirectEntity())||LbcSpellSource.unownedHazard(source.getEntity());
+    }
+    /** Settle accepted NPC attribution before native death and VIP receipts. */
+    public void acceptedDamage(LivingEntity target,DamageSource source,float amount){
+        if(amount>0&&unownedDamage(source))mobImpact(target,source);
+    }
+    private void mobImpact(LivingEntity target,DamageSource source){
+        // A hostile Mob supersedes an old player's push, while independent
+        // poison, fire and mana effects keep their own accepted causes.
+        falls.remove(target);removedSupports.remove(target);laterAttacks.remove(target);arrivals.remove(target);
+        target.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0);
+        var actor=source.getEntity() instanceof LivingEntity living?living:game.items().spellSources().nativeMobSource(source.getDirectEntity());
+        target.setLastHurtByMob(actor instanceof net.minecraft.world.entity.player.Player?null:actor);
     }
     public void stop() {
         falls.clear(); statuses.clear(); removedSupports.clear(); laterAttacks.clear(); stone.clear();

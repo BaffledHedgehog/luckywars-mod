@@ -131,7 +131,7 @@ public final class TmtCriterionTraitChecks {
             f.owner.setItemInHand(InteractionHand.MAIN_HAND,bucket);require(f.owner.gameMode.useItem(f.owner,f.level,bucket,InteractionHand.MAIN_HAND).consumesAction(),"actual native EQUIPPABLE use equips source bucket");when=game.server().getTickCount();phase=1;}
         boolean step(){f.client.acknowledge();f.audience.acknowledge();require(game.server().getTickCount()-started<40,"bounded native criterion scene phase="+phase+" case="+useCase);
             if(game.server().getTickCount()==when)return false;
-            if(phase==0){require(done(seaAdv)==(useCase!=0),"native using_item tick resolves exact source Sea Legend predicate case="+useCase);
+            if(phase==0){require(!done(seaAdv),"using a labeled bow/apple cannot award successful Sea Legend propulsion case="+useCase);
                 require(f.owner.isUsingItem()&&current.get(DataComponents.CUSTOM_DATA)==dataBefore&&!f.owner.isAutoSpinAttack()&&tridents()==0,"actual native using retains carrier identity and creates no trident mechanics");unchanged(current,before);
                 if(useCase<3)require(f.owner.getInventory().getItem(9).getCount()==1,"native bow use starts with legitimate unconsumed arrow; no fabricated shot");
                 f.owner.stopUsingItem();if(++useCase<5)useBegin();else bucketBegin();return false;}

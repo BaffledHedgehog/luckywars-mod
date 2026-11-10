@@ -182,6 +182,16 @@ public final class AttributeFoodChecks {
             if(next==1)zone(false);if(next==2)zone(true);if(next==3)game.items().timeStop().begin(level,40);
             if(next>=4){require(game.items().wands().validTarget(p),"shared native teleport target admitted tags="+p.entityTags());counters(0,0,1);random=new RandomScope(level,LbcFoodStatuses.class.getName(),null,next==4?.99f:0f,next==4?null:3);}
         }
+        void checkRadarTarget(){
+            var packets=new ArrayList<net.minecraft.network.protocol.Packet<?>>();
+            base.recording.packets.forEach(packet->flatten(packet,packets));
+            var displays=packets.stream().filter(ClientboundAddEntityPacket.class::isInstance).map(ClientboundAddEntityPacket.class::cast)
+                    .filter(packet->packet.getType()==EntityTypes.ITEM_DISPLAY).toList();
+            require(displays.stream().anyMatch(packet->Math.abs(packet.getX()-witness.getX())<.000001
+                    &&Math.abs(packet.getZ()-witness.getZ())<.000001&&Math.abs(packet.getY()-witness.getBoundingBox().maxY-.3)<.000001),
+                    "native bundled private radar display is anchored above actual target; wire="+displays.stream()
+                            .map(packet->new Vec3(packet.getX(),packet.getY(),packet.getZ())).toList());
+        }
         boolean step(){
             require(game.server().getTickCount()-start<180,"bounded actual status scheduler");ack();
             if(phase<0){attributeCases();begin(0);return false;}
@@ -189,7 +199,7 @@ public final class AttributeFoodChecks {
             int elapsed=game.server().getTickCount()-phaseTick;
             if(phase<4){if(elapsed<4)return false;require(elapsed==4,"one fixture observation per actual tick");boolean pause=phase==1||phase==3;
                 require(score("all_seeing_eye")==100-(pause?0:4)&&score("living_legend")==100-(pause?0:4),"actual scoreboard lifetime phase="+phase);
-                if(phase==0){require(!p.hasEffect(MobEffects.NAUSEA),"actual eye cleanses native nausea");require(Arrays.stream(net.minecraft.world.item.DyeColor.values()).anyMatch(color->level.getBlockState(floor).is(Blocks.STAINED_GLASS.pick(color))),"source custom airs replacement produced native glass");require(level.getBlockState(floor.offset(1,0,0)).is(Blocks.STONE),"solid source exclusion retained");require(base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast).anyMatch(packet->packet.particle().getType()==net.minecraft.core.particles.ParticleTypes.ENTITY_EFFECT&&packet.count()==0&&packet.overrideLimiter()),"native forced private status dot");}
+                if(phase==0){require(!p.hasEffect(MobEffects.NAUSEA),"actual eye cleanses native nausea");require(Arrays.stream(net.minecraft.world.item.DyeColor.values()).anyMatch(color->level.getBlockState(floor).is(Blocks.STAINED_GLASS.pick(color))),"source custom airs replacement produced native glass");require(level.getBlockState(floor.offset(1,0,0)).is(Blocks.STONE),"solid source exclusion retained");checkRadarTarget();}
                 begin(phase+1);return false;
             }
             if(score("dimensional_shifting")>0)return false;

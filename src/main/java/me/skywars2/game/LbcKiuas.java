@@ -354,21 +354,23 @@ public final class LbcKiuas {
     /** Preserve the ordered classification, but admit new fire only at a supported live position. */
     static BlockState kiuResult(ServerLevel level,BlockPos pos,BlockState state) {
         var result=kiuResult(state);
-        if(!result.is(Blocks.FIRE)||state.is(Blocks.FIRE)||fireSupported(level,pos))return result;
+        if(!result.is(Blocks.FIRE)||state.is(Blocks.FIRE))return result;
+        if(fireSupported(level,pos)){
+            var placement=net.minecraft.world.level.block.BaseFireBlock.getState(level,pos);
+            return placement.is(Blocks.FIRE)?placement:result;
+        }
         // The first conversion still removes water/snow even when the second cannot ignite it.
         return state.is(TO_AIR)?Blocks.AIR.defaultBlockState():state;
     }
     static boolean fireSupported(ServerLevel level,BlockPos pos) {
-        var below=pos.below();
-        if(resident(level,below)&&!level.getBlockState(below).isAir())return true;
-        for(var direction:Direction.values())if(direction!=Direction.DOWN){
-            var neighbour=pos.relative(direction);if(!resident(level,neighbour))continue;
-            var state=level.getBlockState(neighbour);
-            if(state.hasProperty(BlockStateProperties.WATERLOGGED)&&state.getValue(BlockStateProperties.WATERLOGGED))continue;
-            var flammable=FlammableBlockRegistry.getDefaultInstance().get(state.getBlock());
-            if(flammable!=null&&flammable.getIgniteOdds()>0)return true;
+        if(!resident(level,pos))return false;
+        // Native fire checks support and flammability, never another fire cell as support.
+        // Preflight neighbours so vanilla's local check cannot synchronously load a chunk.
+        for(var direction:Direction.values()){
+            var neighbour=pos.relative(direction);
+            if(!level.isOutsideBuildHeight(neighbour)&&!resident(level,neighbour))return false;
         }
-        return false;
+        return Blocks.FIRE.defaultBlockState().canSurvive(level,pos);
     }
     private static boolean resident(ServerLevel level,BlockPos pos) {
         return pos.getY()>=level.getMinY()&&pos.getY()<=level.getMaxY()

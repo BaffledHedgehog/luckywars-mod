@@ -91,7 +91,7 @@ public final class LbcChaosTrapActors {
                 ||!resident(level,BlockPos.containing(at),0))return false;
         var marker=EntityTypes.MARKER.create(level,EntitySpawnReason.COMMAND);if(marker==null)return false;
         marker.entityTags().addAll(List.of("forest","rc_5t","magic",AGE+"0"));
-        game.items().spellSources().bind(marker,new LbcSpellSource.Source(marker.getUUID(),authority.author(),authority.epoch(),authority.cause(),Set.of(),true));
+        game.items().spellSources().bind(marker,new LbcSpellSource.Source(marker.getUUID(),authority.author(),authority.epoch(),authority.cause(),Set.of(),true).hostileLoot());
         admit(level,marker,at,game.server().getPlayerList().getPlayer(authority.author()));return !marker.isRemoved();
     }
     private void spawn(ServerLevel level,EntityType<?> type,CompoundTag data,Vec3 at,ServerPlayer author){
@@ -99,6 +99,10 @@ public final class LbcChaosTrapActors {
         var actor=type.create(level,EntitySpawnReason.COMMAND);
         if(actor==null)return;
         actor.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),data.copy()));
+        if(actor instanceof LivingEntity living&&actor.entityTags().contains("aimbob")){
+            var resistance=living.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE);
+            if(resistance!=null)resistance.setBaseValue(1);
+        }
         admit(level,actor,at,author);
     }
     private void admit(ServerLevel level,Entity actor,Vec3 at,ServerPlayer author){
@@ -107,11 +111,13 @@ public final class LbcChaosTrapActors {
     }
     private void prepare(Entity actor,ServerPlayer author){
         actor.entityTags().add(ACTOR);
+        if(actor instanceof net.minecraft.world.entity.Mob){actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);}
         if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().removeIf(t->t.startsWith(OWNER));actor.entityTags().add(OWNER+author.getUUID());}
         game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);
     }
     public static boolean managed(Entity actor){return actor!=null&&actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){
+        if(actor instanceof LivingEntity living&&LbcSpellSource.unownedHazard(actor))return living;
         if(actor instanceof Projectile projectile&&managed(projectile.getOwner()))actor=projectile.getOwner();
         if(actor instanceof ItemEntity token&&matches(token.getItem()))return game.items().specialDrops().owner(token);
         if(!managed(actor))return null;

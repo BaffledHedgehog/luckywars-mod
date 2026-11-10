@@ -40,6 +40,7 @@ public final class LbcProjectileLevelups {
      * Frozen-launch callers must prepareFrozen AFTER these scalar writes. */
     public void beforePublish(ServerPlayer p,Projectile body,Launch launch){
         if(!admitted(p)||body.level()!=p.level()||body.getOwner()!=p||body.isRemoved()
+                ||game.items().spellSources().projectileController(body)!=p
                 ||body.entityTags().contains(FINALIZED))return;
         if(launch==Launch.SNOWBALL&&!(body instanceof Snowball))return;
         body.entityTags().add(FINALIZED);
@@ -80,17 +81,9 @@ public final class LbcProjectileLevelups {
             EntityTypes.SNOWBALL,EntityTypes.TRIDENT,EntityTypes.TNT,
             EntityTypes.WIND_CHARGE,EntityTypes.BREEZE_WIND_CHARGE);
     public static boolean gravityBody(Entity e){return e instanceof Projectile || GRAVITY_TYPES.contains(e.getType());}
-    /** Use the same current author as native reflection and source-acid damage. Never infer
-     * ownership from proximity: neutral falling blocks and foreign TNT remain untouched. */
+    /** Use actual native control, never a summoned mob's or trap's statistical kill author. */
     Entity projectileOwner(Entity e){
-        var reflected=game.items().electro().reflectedOwner(e);
-        if(reflected!=null)return reflected;
-        var shared=LbcIndirectKills.playerSource(e);
-        if(shared!=null)return shared;
-        if(LbcClouds.sourceAcidManaged(e))return game.items().clouds().sourceAcidOwner(e);
-        if(e instanceof Projectile projectile)return projectile.getOwner();
-        if(e instanceof net.minecraft.world.entity.item.PrimedTnt tnt)return tnt.getOwner();
-        return null;
+        return game.items().spellSources().projectileController(e);
     }
     /** Loaded admission also covers direct addFreshEntity producers and late native ownership. */
     public void loaded(Entity body){applyOwnedGravity(body);}

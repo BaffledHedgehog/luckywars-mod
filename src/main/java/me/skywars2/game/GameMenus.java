@@ -31,6 +31,7 @@ public final class GameMenus {
     private final GameConfig config;
     private final PlayerStore players;
     private final MapManager maps;
+    private final GameBuilds builds;
     private final java.util.Map<UUID, Integer> mapPages = new java.util.HashMap<>();
     private final java.util.Map<UUID, java.util.EnumMap<Page, Integer>> perkPages = new java.util.HashMap<>();
 
@@ -45,6 +46,7 @@ public final class GameMenus {
         this.config = config;
         this.players = players;
         this.maps = maps;
+        this.builds = new GameBuilds(controller, players);
     }
 
     private static Component t(String key, Object... args) {
@@ -57,6 +59,17 @@ public final class GameMenus {
 
     public void open(ServerPlayer player) {
         open(player, Page.HUB);
+    }
+
+    public GameBuilds builds() { return builds; }
+
+    /** Keep the real chest's native lid, opener count and positional audio with the GUI. */
+    public void openFromChest(ServerPlayer player, net.minecraft.core.BlockPos position, boolean debug) {
+        if (debug && !GameController.operator(player)) return;
+        if (!(player.level().getBlockEntity(position) instanceof net.minecraft.world.level.block.entity.EnderChestBlockEntity chest)) return;
+        if (debug) player.entityTags().add("skywars2.debug_perks");
+        Menu menu = open(player, Page.HUB, debug);
+        if (menu != null) menu.attachChest(chest);
     }
 
     /** Настройка доступа меняет вид уже открытых меню без закрытия контейнера. */
@@ -81,19 +94,19 @@ public final class GameMenus {
         return GameController.operator(player) && SguiUtils.getCurrentGui(player) instanceof Menu menu && menu.debug;
     }
 
-    private void open(ServerPlayer player, Page page, boolean debug) {
+    private Menu open(ServerPlayer player, Page page, boolean debug) {
         debug = debug && GameController.operator(player);
-        if (controller.items().shooters().stunned(player)) return;
+        if (controller.items().shooters().stunned(player)) return null;
         boolean observer = controller.isObserver(player);
         if (observer && !observerPage(page)) {
             player.sendSystemMessage(c("lobby_only"));
-            return;
+            return null;
         }
         if (!debug && !controller.canUseMenus(player) && page != Page.STATS) {
             player.sendSystemMessage(c("lobby_only"));
-            return;
+            return null;
         }
-        if ((page == Page.SETTINGS || page == Page.MAPS) && !controller.allowMatchControl(player)) return;
+        if ((page == Page.SETTINGS || page == Page.MAPS) && !controller.allowMatchControl(player)) return null;
         // Personal menus are usable by observers after leaving the watched target.
         if (observer && controller.spectators().attached(player)) controller.spectators().detach(player);
         PlayerStore.Profile profile = players.get(player.getUUID(), player.getName().getString());
@@ -128,8 +141,9 @@ public final class GameMenus {
                 else active.setSlot(slot, element);
             }
             player.containerMenu.sendAllDataToRemote();
+            return active;
         } else {
-            gui.open();
+            return gui.open() ? gui : null;
         }
     }
 
@@ -151,6 +165,7 @@ public final class GameMenus {
                 case 12 -> () -> open(player, Page.VANILLA_KITS);
                 case 13 -> () -> open(player, Page.CASES);
                 case 14 -> () -> open(player, Page.VANILLA_SKILLS);
+                case 17 -> () -> builds.open(player);
                 case 20 -> () -> open(player, Page.LBC_TRINKETS);
                 case 21 -> () -> open(player, Page.LBC_LEVELUPS);
                 case 22 -> () -> open(player, Page.LBC_KITS);
@@ -396,15 +411,16 @@ public final class GameMenus {
                     }
                 };
             }
+            int selectedCount=loadoutKind==null?0:controller.lbc().selectedCount(p,loadoutKind,sourcePage,sourceSlot);
             boolean selected = page == Page.LBC_CHALLENGE && slot == 0
                     ? OriginalGuiDesign.unlocked(player, "lbc", sourcePage, slot, p, config)
                         && controller.lbc().challengeSelected(player)
                     : loadoutKind != null
                     && OriginalGuiDesign.unlocked(player, "lbc", sourcePage, sourceSlot, p, config)
-                    && controller.lbc().selected(p, loadoutKind, sourcePage, sourceSlot);
+                    && selectedCount>0;
             original(gui, player, slot,
                     OriginalGuiDesign.button(player, "lbc", sourcePage, slot, p, config), null, List.of(), click,
-                    selected);
+                    selected, loadoutKind==LbcLoadouts.Kind.TRINKETS?selectedCount:0);
         }
         originalTable(gui, player, 18, "swrg:gui/back", null, List.of(), () -> {
             if (index > 0) { pages.put(page, index - 1); open(player, page); }
@@ -619,13 +635,19 @@ public final class GameMenus {
             List<Component> lore,
             Runnable click,
             boolean selected) {
+        original(gui,player,slot,stack,name,lore,click,selected,0);
+    }
+
+    private void original(Menu gui,ServerPlayer player,int slot,ItemStack stack,Component name,
+            List<Component> lore,Runnable click,boolean selected,int selectedCount) {
         if (stack.isEmpty()) return;
         GuiElementBuilder builder = new GuiElementBuilder(stack);
         if (name != null) builder.setComponent(DataComponents.CUSTOM_NAME, name);
         List<Component> renderedLore = new java.util.ArrayList<>();
         if (selected) {
-            renderedLore.add(Component.translatable("swrg.gui.select")
-                    .withStyle(style -> style.withColor(ChatFormatting.GREEN).withItalic(false)));
+            var label=Component.translatable("swrg.gui.select");
+            if(selectedCount>0)label.append(": "+selectedCount);
+            renderedLore.add(label.withStyle(style -> style.withColor(ChatFormatting.GREEN).withItalic(false)));
             builder.setComponent(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
             var sourceLore = stack.get(DataComponents.LORE);
             if (sourceLore != null) renderedLore.addAll(sourceLore.lines());
@@ -746,14 +768,42 @@ public final class GameMenus {
         private int lastCasePhase = Integer.MIN_VALUE;
         private Page page;
         private boolean debug;
+        private net.minecraft.world.level.block.entity.EnderChestBlockEntity sourceChest;
 
         private Menu(ServerPlayer player, Page page) {
             super(MenuType.GENERIC_9x3, player, false);
             this.page = page;
         }
 
+        void attachChest(net.minecraft.world.level.block.entity.EnderChestBlockEntity chest) {
+            if (sourceChest == chest) return;
+            releaseChest();
+            if (getPlayer().isSpectator()) return;
+            sourceChest = chest;
+            var inventory = getPlayer().getEnderChestInventory();
+            inventory.setActiveChest(chest);
+            inventory.startOpen(getPlayer());
+        }
+
+        private void releaseChest() {
+            var chest = sourceChest;
+            sourceChest = null;
+            if (chest != null && getPlayer().getEnderChestInventory().isActiveChest(chest))
+                getPlayer().getEnderChestInventory().stopOpen(getPlayer());
+        }
+
+        @Override
+        public void onRemoved() {
+            releaseChest();
+        }
+
         @Override
         public void onTick() {
+            if (sourceChest != null && (sourceChest.isRemoved() || sourceChest.getLevel() != getPlayer().level()
+                    || !sourceChest.stillValid(getPlayer()))) {
+                close();
+                return;
+            }
             if (page != Page.CASES) return;
             var player = getPlayer();
             var view = controller.cases().renderView(player);

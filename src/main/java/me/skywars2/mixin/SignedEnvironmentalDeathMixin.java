@@ -1,5 +1,7 @@
 package me.skywars2.mixin;
 
+import me.skywars2.game.VanillaExpansionRules;
+
 import me.skywars2.game.SignedEnvironmentalEffects;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
@@ -13,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SignedEnvironmentalDeathMixin {
     @Inject(method="onMobRemoved",at=@At("HEAD"),cancellable=true)
     private void skywars2$signedDeath(ServerLevel level,LivingEntity mob,int amplifier,Entity.RemovalReason reason,CallbackInfo ci) {
+        if(!VanillaExpansionRules.enabled()){return;}
         SignedEnvironmentalEffects.removed(level,mob,amplifier,reason,(MobEffect)(Object)this);ci.cancel();
     }
 }

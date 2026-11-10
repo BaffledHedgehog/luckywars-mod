@@ -169,7 +169,7 @@ public final class LbcIndolenceFingers {
         var payments=costs.stream().filter(c->c.finger.equals(source.getUUID())).map(c->new Cost(c.finger,c.player,c.level,c.born,c.left)).toList();
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){
-                var next=new LbcSpellSource.Source(clone.getUUID(),state.author(),state.epoch(),state.cause(),state.excluded(),state.persistent());
+                var next=new LbcSpellSource.Source(clone.getUUID(),state.author(),state.epoch(),state.cause(),state.excluded(),state.persistent(),state.unownedMobs(),state.nativeEmitter(),state.helmetCredit());
                 actors.put(clone,next);game.items().spellSources().bind(clone,next);
                 for(var c:payments)costs.add(new Cost(clone.getUUID(),c.player,c.level,c.born,c.left));
             }

@@ -66,7 +66,7 @@ public final class AttributeHud {
     /** Вызывать раз за серверный тик: позиция каждого игрока сверяется с предыдущим сэмплом. */
     public void tick() {
         for (ServerPlayer player : game.server().getPlayerList().getPlayers()) {
-            if (game.balanceLegacy() || !player.isAlive() || game.lbc().hidesKnowledge(player)) {
+            if (game.balanceLegacy() || !LbcDimensionItems.ordinary(player) || !player.isAlive() || game.lbc().hidesKnowledge(player)) {
                 clear(player);
                 continue;
             }
@@ -192,11 +192,13 @@ public final class AttributeHud {
             displayed[i] = differs(value, info.baseline);
             if (displayed[i]) displayKeys[i] = displayKey(value);
         }
-        return new DisplaySnapshot(supported, displayed, values, displayKeys);
+        int lives=game.playing()&&!game.isObserver(player)?game.lives(player.getUUID()):-1;
+        return new DisplaySnapshot(supported, displayed, values, displayKeys,lives);
     }
 
     private List<Component> buildLines(DisplaySnapshot snapshot) {
         List<Value> changed = new ArrayList<>();
+        if(snapshot.lives>=0)changed.add(new Value("\uE171",Integer.toString(snapshot.lives)));
         for (int i = 0; i < attributes.size(); i++) {
             if (!snapshot.displayed[i]) continue;
             AttributeInfo info = attributes.get(i);
@@ -224,7 +226,11 @@ public final class AttributeHud {
                     advance += glyph == '.' ? 2 : GLYPH_ADVANCE;
                 offset += Character.charCount(glyph);
             }
-            column.append(Component.literal(text).withStyle(rowStyle(firstRow + i % ROWS_PER_COLUMN)));
+            var rendered=value.icon.equals("\uE171")
+                    ?Component.literal(value.icon+iconPadding(value.icon)).withColor(LbcHudIcons.COLOR)
+                        .append(Component.literal(value.text).withColor(0xffffff))
+                    :Component.literal(text);
+            column.append(rendered.withStyle(rowStyle(firstRow + i % ROWS_PER_COLUMN)));
             column.append(Component.literal(rewind(advance)).withStyle(style -> style.withFont(FontDescription.DEFAULT)));
             width = Math.max(width, advance);
         }
@@ -240,7 +246,7 @@ public final class AttributeHud {
     }
 
     private static boolean attributeIcon(int codepoint) {
-        return codepoint >= 0xE210 && codepoint <= 0xE245;
+        return codepoint==0xE171 || codepoint >= 0xE210 && codepoint <= 0xE245;
     }
 
     private static String iconPadding(String icon) {
@@ -437,8 +443,9 @@ public final class AttributeHud {
     private record AttributeInfo(Holder<Attribute> holder, String name, String icon, double baseline) { }
     private record Value(String icon, String text) { }
 
-    private record DisplaySnapshot(boolean[] supported, boolean[] displayed, double[] values, long[] displayKeys) {
+    private record DisplaySnapshot(boolean[] supported, boolean[] displayed, double[] values, long[] displayKeys,int lives) {
         boolean sameDisplayedState(DisplaySnapshot other) {
+            if(lives!=other.lives)return false;
             if (!java.util.Arrays.equals(displayed, other.displayed)) return false;
             for (int i = 0; i < displayed.length; i++) {
                 if (displayed[i] && displayKeys[i] != other.displayKeys[i]) return false;

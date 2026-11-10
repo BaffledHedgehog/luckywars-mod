@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
@@ -24,13 +25,58 @@ public final class LbcLegacyEffects {
             "effect_witch_gens_reset","frozen","gigaponos","lookback","nomagic","piss","scared","shock",
             "skill_issue","target","twitching");
     private static final List<String> OWNED=List.of("effect_big_explosion","effect_explosion","effect_nuking",
-            "effect_traps","effect_snus","effect_stand_arrow_hit","effect_witch_gens_reset","effect_hedgehog_boom","effect_vacuum","effect_timestop");
+            "effect_traps","effect_snus","effect_stand_arrow_hit","effect_witch_gens_reset","effect_hedgehog_boom","effect_vacuum","effect_timestop","effect_dimshifting","effect_rtp_4");
     private final GameController game;
     private final LbcPersonalStasis personalStasis;
+    private final LbcStaticCharge staticCharge;
     private int lastTick=Integer.MIN_VALUE,lastSelection;
     private long selections,actions;
-    public LbcLegacyEffects(GameController game){this.game=game;this.personalStasis=new LbcPersonalStasis(game);}
+    public LbcLegacyEffects(GameController game){this.game=game;this.personalStasis=new LbcPersonalStasis(game);this.staticCharge=new LbcStaticCharge(game);}
+    public LbcStaticCharge staticCharge(){return staticCharge;}
     public LbcPersonalStasis personalStasis(){return personalStasis;}
+    private static String carrierCounter(MobEffectInstance effect){
+        if(!effect.is(MobEffects.RAID_OMEN))return null;
+        return switch(effect.getAmplifier()){
+            case 74->"effect_snus";case 105->"effect_rtp_4";case 108->"effect_traps";
+            case 115->"effect_dimshifting";case 117->"effect_witch_gens_reset";
+            case 118->"effect_hedgehog_boom";case 119->"effect_stand_arrow_hit";default->null;
+        };
+    }
+    public static boolean carrierMarker(MobEffectInstance effect){return carrierCounter(effect)!=null
+            ||effect.is(MobEffects.RAID_OMEN)&&switch(effect.getAmplifier()){
+                case -22,-21,97,106,114,116,234,235->true;default->false;
+            };}
+    /** Potions, real arrows and arrow-equivalent carriers all enter the existing status owners. */
+    public boolean acceptCarrier(net.minecraft.world.entity.LivingEntity target,MobEffectInstance effect,net.minecraft.world.entity.Entity source){
+        if(!carrierMarker(effect)||!game.playing()||game.stage()==GameController.Stage.ENDING
+                ||target.level()!=game.maps().level()||!game.items().wands().validTarget(target))return false;
+        if(LbcParasite.active(target)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomDebuff(p))return false;
+        int duration=effect.getDuration()==2?1:effect.getDuration();if(duration<=0)return false;
+        var owner=source==null?null:LbcIndirectKills.playerSource(source);
+        int amp=effect.getAmplifier();
+        if(amp==234||amp==-22){
+            var cause=game.items().indirectKills().carrierEffectCause(target,source);
+            game.items().indirectKills().withCause(target,cause,()->target.hurtServer((net.minecraft.server.level.ServerLevel)target.level(),target.damageSources().lava(),4));
+            return true;
+        }
+        if(amp==235||amp==-21){
+            game.items().indirectKills().inheritedEffect(target,ItemEffectLevels.create(MobEffects.POISON,200,4),
+                    game.items().indirectKills().carrierEffectCause(target,source));return true;
+        }
+        if(amp==97||amp==106||amp==114){
+            if(owner==null&&source==null&&target instanceof ServerPlayer player)owner=player;
+            if(owner==null)return false;
+            if(amp==97)game.items().clownKit().gas(owner,target.position());
+            else game.items().reactiveArtifacts().grenadeSmoke(owner,target.position(),amp==114);
+            return true;
+        }
+        if(effect.getAmplifier()==116){game.items().psycho().afflict(target,owner,0,0,0,duration);return true;}
+        if(!(target instanceof ServerPlayer player))return false;
+        var key=carrierCounter(effect);var score=game.items().mana().score(player,key);
+        score.set((int)Math.min(Integer.MAX_VALUE,Math.max(0L,score.get())+duration));
+        player.entityTags().addAll(List.of("have_lucky_effects","have_lucky_effects_1s","have_lucky_effects_5t"));
+        game.items().adoptRawFoodStatuses(player);return true;
+    }
     private boolean admitted(ServerPlayer p){return p!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&p.isAlive()&&!p.isRemoved()&&game.canUseGameplayItems(p)&&!game.isObserver(p)
             &&game.items().wands().validRoleTarget(p,false)&&LbcDimensionItems.ordinary(p)
@@ -54,11 +100,13 @@ public final class LbcLegacyEffects {
     /** Scores are authoritative; no private duration is introduced for generic consumers. */
     public void adoptRawFoodStatuses(ServerPlayer p){
         if(LbcParasite.active(p)){clearDebuffs(p);return;}
+        staticCharge.loaded(p);
         if(OWNED.stream().anyMatch(k->read(p,k)>0))p.entityTags().add("have_lucky_effects");
         if(read(p,"effect_gravity_curse")>0)p.entityTags().add("have_lucky_effects_1s");
     }
     public void tick(){
         int now=game.server().getTickCount();if(now==lastTick)return;lastTick=now;
+        staticCharge.tick();
         for(var p:List.copyOf(game.server().getPlayerList().getPlayers())){
             if(LbcParasite.active(p))clearDebuffs(p);
             personalStasis.tick(p);
@@ -66,6 +114,16 @@ public final class LbcLegacyEffects {
             if((now&1)==0)ambientReactions(p);
             boolean greed=p.entityTags().contains("sin_greed_active");
             if(!greed){
+                consume(p,"effect_rtp_4",()->game.items().magic().colors().spread(p,
+                        game.config().noBorders?p.position():net.minecraft.world.phys.Vec3.ZERO,game.config().noBorders?140:190));
+                consume(p,"effect_dimshifting",()->{
+                    if(!game.items().magic().suppressedAt(p.level(),p.position())){
+                        var random=p.level().getRandom();int roll=random.nextInt(4)+1;
+                        game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("rand2"),"lbc.math").set(roll);
+                        game.items().hedgehogDimensions().teleport(p,p,roll,random);
+                    }
+                });
+                if(!admitted(p))continue;
                 consume(p,"effect_explosion",()->{if(!explosionSuppressed(p))game.items().babylonEffects().primeExplosionAt(p.level(),p.position(),game.items().indirectKills().wildCause(p));});
                 consume(p,"effect_big_explosion",()->{if(!explosionSuppressed(p))game.items().babylonEffects().bigExplosionAt(p.level(),p.position(),game.items().indirectKills().wildCause(p));});
                 consume(p,"effect_traps",()->game.items().chaosTraps().spawnUnjammed(p,p.position()));
@@ -106,7 +164,9 @@ public final class LbcLegacyEffects {
             LbcOverload.sound(p,at,"minecraft:block.honey_block.break",1,0,0);
         }
     }
-    private void consume(ServerPlayer p,String objective,Runnable action){if(read(p,objective)<=0)return;
+    private void consume(ServerPlayer p,String objective,Runnable action){if(read(p,objective)<=0
+            ||objective.equals("effect_explosion")&&game.items().babylonEffects().queued(p,104)>0
+            ||objective.equals("effect_big_explosion")&&game.items().babylonEffects().queued(p,107)>0)return;
         action.run();drain(p,objective);actions++;
     }
     private void vacuum(ServerPlayer p){vacuumAt(p.level(),p.position(),p.getYRot(),p.getXRot(),game.items().indirectKills().wildCause(p));}
@@ -126,10 +186,11 @@ public final class LbcLegacyEffects {
         game.items().transformSpellOrigins(level,transform);
     }
     private boolean magicBeacon(ServerPlayer p){return p.level()==game.maps().level()&&game.items().magic().beaconSuppressed(p.position());}
-    private boolean explosionSuppressed(ServerPlayer p){
-        if(game.items().magic().mechanismSuppressedAt(p.level(),p.position()))return true;
+    boolean explosionSuppressed(net.minecraft.world.entity.LivingEntity p){
+        var level=(net.minecraft.server.level.ServerLevel)p.level();
+        if(game.items().magic().mechanismSuppressedAt(level,p.position()))return true;
         // The source queries raw type2 inventory even when an artifact's own active behavior is suppressed.
-        for(var holder:p.level().players())if(holder.position().distanceToSqr(p.position())<=144)
+        for(var holder:level.players())if(holder.position().distanceToSqr(p.position())<=144)
             for(int slot=0;slot<=40;slot++){var data=LbcFartus.data(holder.getInventory().getItem(slot));
                 if((LbcTmtInventory.mysticalTypes(data,1)&(1<<2))!=0)return true;}
         return false;
@@ -160,15 +221,16 @@ public final class LbcLegacyEffects {
         game.items().mana().score(p,"effect_gravity_curse").add(-1);p.entityTags().add("have_lucky_effects_1s");
     }
     public void clearDebuffs(ServerPlayer p){
+        staticCharge.clear(p);
         var mana=game.items().mana();
         for(var key:RANDOM_COUNTERS)if(mana.hudValue(p,key)!=0)mana.score(p,key).set(0);
         for(var key:List.of("effect_vacuum","effect_timestop"))if(mana.hudValue(p,key)!=0)mana.score(p,key).set(0);
         game.items().pendingCombat().clearEffects(p);personalStasis.clear(p);
     }
-    public void clear(ServerPlayer p){for(var key:OWNED)game.items().mana().score(p,key).set(0);
+    public void clear(ServerPlayer p){staticCharge.clear(p);for(var key:OWNED)game.items().mana().score(p,key).set(0);
         // Shared PendingCombat owns active physical modifiers and its ordinary clear boundary.
         game.items().mana().score(p,"effect_gravity_curse").set(0);}
     public void forget(ServerPlayer p){personalStasis.clear(p);clear(p);}
-    public void stop(){for(var p:game.server().getPlayerList().getPlayers())forget(p);lastTick=Integer.MIN_VALUE;}
+    public void stop(){staticCharge.stop();for(var p:game.server().getPlayerList().getPlayers())forget(p);lastTick=Integer.MIN_VALUE;}
     public int lastSelection(){return lastSelection;}public long selections(){return selections;}public long actions(){return actions;}
 }

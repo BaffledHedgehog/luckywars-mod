@@ -1,5 +1,7 @@
 package me.skywars2.mixin;
 
+import me.skywars2.game.VanillaExpansionRules;
+
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import me.skywars2.game.SignedEffectVisuals;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
@@ -36,15 +38,18 @@ public final class SignedEffectVisualMixin {
         @ModifyExpressionValue(method="updateInvisibilityStatus",at=@At(value="INVOKE",
                 target="Lnet/minecraft/world/entity/LivingEntity;hasEffect(Lnet/minecraft/core/Holder;)Z"))
         private boolean positiveInvisibility(boolean original) {
+        if(!VanillaExpansionRules.enabled()){return original;}
             return SignedEffectVisuals.invisibilityLevel((LivingEntity)(Object)this) > 0;
         }
         @ModifyExpressionValue(method="isCurrentlyGlowing",at=@At(value="INVOKE",
                 target="Lnet/minecraft/world/entity/LivingEntity;hasEffect(Lnet/minecraft/core/Holder;)Z"))
         private boolean signedGlowing(boolean original) {
+        if(!VanillaExpansionRules.enabled()){return original;}
             return original && SignedEffectVisuals.level((LivingEntity)(Object)this, MobEffects.GLOWING) > 0;
         }
         @Inject(method="isCurrentlyGlowing",at=@At("RETURN"),cancellable=true)
         private void negativeInvisibilityGlow(CallbackInfoReturnable<Boolean> ci) {
+        if(!VanillaExpansionRules.enabled()){return;}
             if (SignedEffectVisuals.level((LivingEntity)(Object)this, MobEffects.INVISIBILITY) < 0) ci.setReturnValue(true);
         }
         @Inject(method={"onEffectAdded","onEffectUpdated","onEffectsRemoved","readAdditionalSaveData"},at=@At("TAIL"))
@@ -57,6 +62,7 @@ public final class SignedEffectVisualMixin {
         @ModifyExpressionValue(method="isMobilityRestricted",at=@At(value="INVOKE",
                 target="Lnet/minecraft/world/entity/player/Player;hasEffect(Lnet/minecraft/core/Holder;)Z"))
         private boolean positiveBlindness(boolean original) {
+        if(!VanillaExpansionRules.enabled()){return original;}
             return original && SignedEffectVisuals.level((LivingEntity)(Object)this,MobEffects.BLINDNESS)>0;
         }
     }
@@ -66,6 +72,7 @@ public final class SignedEffectVisualMixin {
         @ModifyArg(method="write",at=@At(value="INVOKE",target=
                 "Lnet/minecraft/network/protocol/game/ClientboundSetEntityDataPacket;pack(Ljava/util/List;Lnet/minecraft/network/RegistryFriendlyByteBuf;)V"),index=0)
         private List<SynchedEntityData.DataValue<?>> perViewer(List<SynchedEntityData.DataValue<?>> fields) {
+        if(!VanillaExpansionRules.enabled()){return fields;}
             var context = PacketContext.get();
             return context == null ? fields : SignedEffectVisuals.project(id(), fields, context);
         }
@@ -77,6 +84,7 @@ public final class SignedEffectVisualMixin {
         @ModifyExpressionValue(method="write",at=@At(value="FIELD",target=
                 "Lnet/minecraft/network/protocol/game/ClientboundUpdateMobEffectPacket;effectDurationTicks:I"))
         private int nonpositiveDuration(int duration) {
+        if(!VanillaExpansionRules.enabled()){return duration;}
             var context = PacketContext.get();
             return context == null || eu.pb4.polymer.common.api.PolymerCommonUtils.getPlayer(context) == null
                     ? duration : SignedEffectVisuals.clientDuration(effect, effectAmplifier, duration);

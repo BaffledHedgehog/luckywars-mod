@@ -27,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-/** Kit11's curved, bouncing item display. Its native attachment is the sole flight state. */
+/** Kit11's elastic ballistic item display. Its native attachment is the sole flight state. */
 public final class LbcBouncingPoop {
     static final String TAG="skywars2.bouncing_poop";
     private static final AttachmentType<CompoundTag> DATA=AttachmentRegistry.create(
@@ -64,6 +64,7 @@ public final class LbcBouncingPoop {
         d.putLong("order",game.items().indirectKills().coldCause(owner,true).order());d.putInt("age",0);
         d.putBoolean("mega",game.lbc().skillsEnabled()&&game.players().get(owner.getUUID()).lbcSkill==9);
         if(owner.getTeam()!=null)d.putString("team",owner.getTeam().getName());
+        actor.setDeltaMovement(Vec3.directionFromRotation(actor.getXRot(),actor.getYRot()).scale(.4));
         actor.setAttached(DATA,d);actor.entityTags().add(TAG);game.items().markCurrentItemEpoch(actor);
         if(!owner.level().hasChunkAt(actor.blockPosition())||!owner.level().addFreshEntity(actor)){actor.discard();return false;}
         actors.add(actor);game.items().spellSources().bind(actor,source(actor));owner.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(stack.getItem()));stack.shrink(1);owner.getInventory().setChanged();owner.containerMenu.broadcastChanges();return true;
@@ -80,32 +81,33 @@ public final class LbcBouncingPoop {
     public void tick(){if(game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally())return;for(var actor:List.copyOf(actors)){
         var d=state(actor);if(actor.isRemoved()||d==null||!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(d.getStringOr("epoch",""))){retire(actor);continue;}
         var level=(ServerLevel)actor.level();if(game.items().timeStop().stopped(level)||actor.entityTags().contains("time_stopped")||!level.hasChunkAt(actor.blockPosition()))continue;
-        var before=actor.position();var next=before.add(Vec3.directionFromRotation(actor.getXRot(),actor.getYRot()).scale(.4));
-        if(!level.hasChunkAt(BlockPos.containing(next)))continue;
-        actor.setPos(next);actor.setXRot(actor.getXRot()+5);
-        // The zero-delta source selector spans exactly one unit cell, intersecting native bodies.
-        var cell=new AABB(next.x,next.y,next.z,next.x+1,next.y+1,next.z+1);
-        var hits=level.getEntitiesOfClass(LivingEntity.class,cell,e->target(d,e));
+        var before=actor.position();var velocity=actor.getDeltaMovement();
+        if(!actor.isNoGravity())velocity=velocity.add(0,-.03,0);
+        if(!level.hasChunkAt(BlockPos.containing(before.add(velocity))))continue;
+        // Display entities have zero native dimensions: give the collision engine the
+        // physical half-block projectile body for this move, without moving its render origin.
+        actor.noPhysics=false;actor.setBoundingBox(new AABB(before.x-.25,before.y,before.z-.25,before.x+.25,before.y+.5,before.z+.25));
+        actor.move(MoverType.SELF,velocity);
+        var next=actor.position();var travelled=next.subtract(before);
+        boolean x=Math.abs(travelled.x-velocity.x)>1e-7,y=Math.abs(travelled.y-velocity.y)>1e-7,z=Math.abs(travelled.z-velocity.z)>1e-7;
+        var reflected=new Vec3(x?-velocity.x:velocity.x,y?-velocity.y:velocity.y,z?-velocity.z:velocity.z);
+        actor.setDeltaMovement(reflected);actor.setYRot((float)Math.toDegrees(Math.atan2(-reflected.x,reflected.z)));
+        actor.setXRot((float)-Math.toDegrees(Math.atan2(reflected.y,reflected.horizontalDistance())));
+        var sweep=new AABB(before,next).inflate(.5);
+        var hits=level.getEntitiesOfClass(LivingEntity.class,sweep,e->target(d,e)
+                &&(e.getBoundingBox().inflate(.25).contains(before)||e.getBoundingBox().inflate(.25).clip(before,next).isPresent()));
         if(!hits.isEmpty()){
             game.items().indirectKills().trapChanges(level,cause(d),()->LbcDropBlocks.setBlock(level,BlockPos.containing(next),Blocks.DIRT.defaultBlockState(),false));
             for(var hit:hits){if(hit instanceof ServerPlayer player&&!game.items().magic().rejectEffect(player,MobEffects.NAUSEA))hit.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,300,0),actor);
                 hit.addEffect(ItemEffectLevels.create(MobEffects.WITHER,60,10),actor);}
             sound(level,next);if(d.getBooleanOr("mega",false))mega(actor,d,next);retire(actor);continue;
         }
-        if(!level.getBlockState(BlockPos.containing(next)).isAir()){
-            // Source wall callback executes at the preceding sample and continues the same actor.
-            actor.setPos(before);bounce(actor,level,before);soil(level,before,cause(d));if(d.getBooleanOr("mega",false))mega(actor,d,before);
+        if(x||y||z){
+            soil(level,before,cause(d));if(d.getBooleanOr("mega",false))mega(actor,d,before);
         }
         if(actor.isRemoved()||!actors.contains(actor))continue;
         var updated=d.copy();int age=d.getIntOr("age",0)+1;updated.putInt("age",age);actor.setAttached(DATA,updated);if(age>=600)retire(actor);
     }}
-    private void bounce(Display.ItemDisplay actor,ServerLevel level,Vec3 at){
-        if(solid(level,at.add(0,.8,0))||solid(level,at.add(0,-.8,0)))actor.setXRot(-actor.getXRot());
-        else if(solid(level,at.add(.8,0,0))||solid(level,at.add(-.8,0,0)))actor.setYRot(-actor.getYRot());
-        else if(solid(level,at.add(0,0,.8))||solid(level,at.add(0,0,-.8)))actor.setYRot(-actor.getYRot()-180);
-        else{actor.setXRot(-actor.getXRot());actor.setYRot(actor.getYRot()+180);}
-    }
-    private boolean solid(ServerLevel level,Vec3 at){var pos=BlockPos.containing(at);return level.hasChunkAt(pos)&&!level.getBlockState(pos).isAir();}
     private void soil(ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause){game.items().indirectKills().trapChanges(level,cause,()->{
         for(var pos:BlockPos.betweenClosed(BlockPos.containing(at.add(-1.5,-1.5,-1.5)),BlockPos.containing(at.add(1.5,1.5,1.5)))){
             if(!level.hasChunkAt(pos))continue;var old=level.getBlockState(pos);

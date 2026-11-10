@@ -1,0 +1,8 @@
+{
+  "assets/minecraft/shaders/post/bloom_sample.fsh": "7a59c3e9b633e2167fad760f9e7f57935f5106e4c2bfa335e8e7434057dd8687",
+  "assets/minecraft/shaders/core/rendertype_outline.fsh": "aa423deb27d84a71f2cd673361eafaf631355bd2b94127a06ccb0223e9a4bd3c",
+  "assets/minecraft/shaders/post/entity_sobel.fsh": "83bcc9c62af0e9042c4d85b391157590723805fe723fa164985b2c9dc8957d87",
+  "assets/lbc/shaders/post/polymorph_outline_bloom_sample.fsh": "2521abc7a84b9c855bbc14dedbb7288d8204b7e4b4ca10f19f1d817e424d0550",
+  "assets/minecraft/post_effect/entity_outline.json": "cade0e066eaad2577a0e9400fcdf923d8b3f297ecb07c815cf61978696feb7b4",
+  "assets/lbc/shaders/include/exoperso_bloom.glsl": "98da18438820da9055e45962288a120985b347f8c5d47c110cff7b8c5036d953"
+}

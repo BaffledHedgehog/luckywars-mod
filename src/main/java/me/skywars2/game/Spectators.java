@@ -90,6 +90,9 @@ public final class Spectators {
     public void detach(ServerPlayer player) {
         View view = viewers.get(player.getUUID());
         if (view == null) return;
+        // Keep native death/respawn intact. Healing this body makes PERFORM_RESPAWN
+        // fail its health check while the listener still rejects every gameplay packet.
+        if (player.isDeadOrDying() || ((MatchPlayerCheckpoint.SimulatedAcknowledgement)player.connection).skywars2$waitingForRespawn()) return;
         clearEffects(player, view);
         view.target = null;
         view.inventory = null;

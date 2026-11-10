@@ -153,6 +153,7 @@ public final class GameChecks {
                                 }
                                 case "terra-load-cleanup", "terra-academy-load-cleanup" -> cleanupTerraLoad(game);
                                 case "tnt-protection" -> checkTntProtection(game);
+                                case "explosion-protection" -> ExplosionProtectionChecks.run(game);
                                 case "map-world" -> MapWorldChecks.run(game);
                                 case "regressions" -> RegressionChecks.run(game);
                                 case "observer-match" -> RegressionChecks.match(game);
@@ -627,11 +628,15 @@ public final class GameChecks {
                                 case "exasperato-crafting" -> checkExasperatoCrafting(game);
                                 case "electroblocker" -> checkElectroblocker(game);
                                 case "exasperato" -> checkExasperato(game);
+                                case "exasperato-fast" -> {ExasperatoSpeedChecks.run(game);return;}
                                 case "wand-physics" -> checkWandPhysics(game);
                                 case "damage-cooldown" -> checkDamageCooldown(game);
                                 case "exasperato-academy" -> { warmExasperatoAcademy(game); return; }
                                 case "exoperso-menu" -> checkExopersoMenu(game);
                                 case "exoperso" -> checkExoperso(game);
+                                case "legacy-mob-ticks" -> {LegacyMobTickChecks.run(game);return;}
+                                case "nuclear-finalization" -> {NuclearFinalizationChecks.run(game);return;}
+                                case "exoperso-ritual" -> {ExopersoRitualChecks.run(game);return;}
                                 case "nuclear-visual" -> checkNuclearVisual(game);
                                 case "visual-reload" -> {
                                         require(deferredCheck==null,"No earlier asynchronous visual check");
@@ -710,6 +715,10 @@ public final class GameChecks {
                                 case "bow-trinkets" -> { BowTrinketChecks.run(game); return; }
                                 case "feedback-models" -> { FeedbackModelChecks.run(game); return; }
                                 case "nuclear-blast" -> { NuclearBlastChecks.run(game); return; }
+                                case "nuclear-queued" -> { NuclearQueuedChecks.run(game); return; }
+                                case "nuclear-point" -> {NuclearPointChecks.run(game);return;}
+                                case "bot-item-use" -> {BotUseChecks.run(game);return;}
+                                case "bot-workbench" -> {BotWorkbenchChecks.run(game);return;}
                                 case "frost-timing" -> { FrostTimingChecks.start(game); return; }
                                 case "planetoid-skills" -> { PlanetoidSkillChecks.run(game); return; }
                                 case "clone-skills" -> { CloneSkillChecks.run(game); return; }
@@ -793,6 +802,7 @@ public final class GameChecks {
                                 case "one-punch-glove" -> { OnePunchGloveChecks.run(game); return; }
                                 case "infinite-shulker" -> { InfiniteShulkerChecks.run(game); return; }
                                 case "psycho-sound" -> { PsychoSoundChecks.start(game); return; }
+                                case "twitch-feedback" -> { TwitchingFeedbackChecks.run(game); return; }
                                 case "sound-normalization" -> { SoundPlaybackChecks.run(game,"sound-normalization"); return; }
                                 case "sound-playback" -> { SoundPlaybackChecks.run(game,"sound-playback"); return; }
                                 case "riptide-velocity" -> { RiptideVelocityChecks.run(game); return; }
@@ -812,6 +822,46 @@ public final class GameChecks {
                                 case "lucky-blocks" -> { LuckyBlockChecks.run(game); return; }
                                 case "custom-block-mining" -> { LuckyBlockChecks.mining(game); return; }
                                 case "feedback-patch" -> { FeedbackPatchChecks.run(game); return; }
+                                case "menu-chest" -> { GameMenuChestChecks.run(game); return; }
+                                case "build-manager" -> { GameBuildChecks.run(game); return; }
+                                case "sight-effects" -> { SightEffectChecks.run(game); return; }
+                                case "fireball-presentation" -> { FireballPresentationChecks.run(game); return; }
+                                case "potion-carriers" -> { PotionCarrierChecks.run(game); return; }
+                                case "carpet-bot-ai" -> { CarpetBotChecks.run(game); return; }
+                                case "bot-revision" -> { BotRevisionChecks.run(game); return; }
+                                case "bot-counter" -> { BotRevisionChecks.counter(game); return; }
+                                case "bot-academy-trial" -> { BotRevisionChecks.academy(game); return; }
+                                case "bot-cages" -> { BotCageChecks.run(game); return; }
+                                case "bot-route-flat", "bot-route-noise", "bot-route-parkour", "bot-route-narrow", "bot-route-ledge" -> { BotRouteChecks.run(game,suite.substring("bot-route-".length()));return; }
+                                case "chef-route-flat", "chef-route-noise", "chef-route-parkour" -> { ChefRouteChecks.run(game,suite.substring("chef-route-".length()));return; }
+                                case "bot-map-start" -> { BotMapChecks.run(game);return; }
+                                case "bot-lucky-preparation" -> { BotLuckyChecks.run(game);return; }
+                                case "bot-island-trap-explode", "bot-island-trap-korrosion", "bot-island-trap-creepers", "bot-island-trap-yama", "bot-island-trap-lookupanvil", "bot-island-trap-lookuplava",
+                                     "bot-island-trap-bob", "bot-island-trap-skeleton", "bot-island-trap-vex", "bot-island-trap-obsidiantrap", "bot-island-trap-badspawner", "bot-island-trap-droppertnt",
+                                     "bot-island-trap-bullets", "bot-island-trap-skrimmer", "bot-island-trap-slab", "bot-island-trap-clone", "bot-island-trap-evilluckyblock", "bot-island-trap-lookupfireball",
+                                     "bot-island-trap-lookuppotions", "bot-island-trap-zombietnt", "bot-island-trap-aimbob", "bot-island-trap-sauvojen_tuntija", "bot-island-trap-forest", "bot-island-trap-ultraponos" -> {
+                                    BotIslandTrapChecks.run(game,suite.substring("bot-island-trap-".length()));return;
+                                }
+                                case "bot-trap-explode", "bot-trap-korrosion", "bot-trap-creepers", "bot-trap-yama", "bot-trap-lookupanvil", "bot-trap-lookuplava",
+                                     "bot-trap-bob", "bot-trap-skeleton", "bot-trap-vex", "bot-trap-obsidiantrap", "bot-trap-badspawner", "bot-trap-droppertnt",
+                                     "bot-trap-bullets", "bot-trap-skrimmer", "bot-trap-slab", "bot-trap-clone", "bot-trap-evilluckyblock", "bot-trap-lookupfireball",
+                                     "bot-trap-lookuppotions", "bot-trap-zombietnt", "bot-trap-aimbob", "bot-trap-sauvojen_tuntija", "bot-trap-forest", "bot-trap-ultraponos" -> {
+                                        BotTrapChecks.run(game,suite.substring("bot-trap-".length()));return;
+                                }
+                                case "bot-fireball-cage" -> { BotCageChecks.fireball(game); return; }
+                                case "bot-potion-cage" -> { BotCageChecks.potions(game); return; }
+                                case "bot-defense" -> { BotRevisionChecks.defense(game); return; }
+                                case "feedback-nov9" -> { FeedbackNov9Checks.run(game); return; }
+                                case "death-body" -> { DeathBodyChecks.run(game); return; }
+                                case "lethal-hits" -> { LethalHitChecks.run(game); return; }
+                                case "static-charge-no-echo" -> { StaticChargeNoEchoChecks.run(game); return; }
+                                case "feedback-round-two" -> { FeedbackRoundTwoChecks.run(game); return; }
+                                case "lucky-reset-prepare12" -> { FeedbackRoundTwoChecks.prepareLuck(game,12); return; }
+                                case "lucky-reset-prepare1" -> { FeedbackRoundTwoChecks.prepareLuck(game,1); return; }
+                                case "lucky-start-fixed12" -> { FeedbackRoundTwoChecks.startedLuck(game,12); return; }
+                                case "lucky-start-fixed1" -> { FeedbackRoundTwoChecks.startedLuck(game,1); return; }
+                                case "lucky-reset-lobby" -> { FeedbackRoundTwoChecks.endedLuck(game); return; }
+                                case "atlas-glitch" -> { AtlasGlitchChecks.run(game); return; }
                                 case "lucky-block-rules" -> { LuckyBlockChecks.rules(game); return; }
                                 case "shooter-pools-menu" -> ShooterPoolChecks.menu(game);
                                 case "shooter-pools" -> ShooterPoolChecks.run(game);
@@ -868,6 +918,9 @@ public final class GameChecks {
                                 case "source-knockback-balance" -> { SourceKnockbackBalanceChecks.run(game); return; }
                                 case "initial-chunk-send" -> {InitialChunkSendChecks.run(game);return;}
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
+                                case "railroad" -> { RailroadChecks.run(game); return; }
+                                case "map-replacement" -> { MapReplacementChecks.run(game); return; }
+                                case "map-imprinted" -> { MapReplacementChecks.imprinted(game); return; }
                                 case "map-streaming" -> { MapStreamingChecks.run(game); return; }
                                 case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
@@ -885,11 +938,13 @@ public final class GameChecks {
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
                                 case "flesh-armor" -> { FleshArmorChecks.run(game); return; }
                                 case "mage-nyauwu" -> { MageNyauwuChecks.run(game); return; }
-                                case "chaos-armor" -> { ChaosArmorChecks.run(game); return; }
+                                case "helmet-trap-source" -> ChaosArmorChecks.runHelmetOwnership(game);
+            case "chaos-armor" -> { ChaosArmorChecks.run(game); return; }
                                 case "chaos-armor-candidate" -> { ChaosArmorChecks.runCandidate(game); return; }
                                 case "aimbob-rewards" -> { AimbobRewardChecks.run(game); return; }
                                 case "boss-projectiles" -> {BossProjectileChecks.run(game);return;}
                                 case "sauvojen-boss" -> { SauvojenBossChecks.run(game); return; }
+                                case "sauvojen-lifecycle" -> { SauvojenLifecycleChecks.run(game); return; }
                                 case "hostile-electro" -> { HostileElectroChecks.run(game); return; }
                                 case "raw-raycast-spells" -> { RawRaycastSpellChecks.run(game); return; }
                                 case "fpv-drone" -> { FpvDroneChecks.start(game); return; }
@@ -913,6 +968,7 @@ public final class GameChecks {
                                 case "tmt-rocket-unload" -> {TmtLifecycleChecks.run(game,true);return;}
                                 case "troll-box-load" -> {TmtLifecycleChecks.run(game,false);return;}
                                 case "troll-box-native" -> { TrollBoxChecks.run(game,false); return; }
+                                case "troll-power-status" -> { TrollBoxChecks.runPowerStatus(game); return; }
                                 case "troll-box-rewind" -> { TrollBoxChecks.run(game,true); return; }
                                 case "edible-spells" -> { EdibleSpellChecks.run(game); return; }
                                 case "nuke-event" -> { NukeEventChecks.run(game); return; }
@@ -920,11 +976,15 @@ public final class GameChecks {
                                 case "named-food" -> { NamedFoodChecks.run(game); return; }
                                 case "food-lifecycle" -> { FoodLifecycleChecks.run(game); return; }
                                 case "oreshek" -> { OreshekChecks.run(game); return; }
+                                case "oreshek-input" -> { OreshekChecks.runInput(game); return; }
+                                case "item-queue" -> { ItemQueueChecks.run(game); return; }
+                                case "dimension-ticks" -> { DimensionTickChecks.run(game); return; }
                                 case "oreshek-death" -> { OreshekDeathChecks.run(game); return; }
                                 case "witch-passives" -> { WitchPassiveChecks.run(game); return; }
                                 case "witch-envy" -> { WitchEnvyChecks.run(game); return; }
                                 case "witch-progress" -> { WitchProgressChecks.run(game); return; }
                                 case "witch-gluttony" -> { WitchGluttonyChecks.run(game); return; }
+                                case "witch-snake-status" -> { WitchGluttonyChecks.runSnakeStatus(game); return; }
                                 case "witch-indolence" -> { WitchIndolenceChecks.run(game); return; }
                                 case "witch-acquisition" -> { WitchClaimChecks.run(game); return; }
                                 case "witch-lust" -> { WitchLustChecks.run(game); return; }
@@ -1088,6 +1148,7 @@ public final class GameChecks {
                                 case "hedgehog-spikes-stop-probe" -> { HedgehogSpikeChecks.stopProbe(game); return; }
                                 case "hedgehog-spikes-cleanup" -> { HedgehogSpikeChecks.cleanup(game); return; }
                                 case "hedgehog" -> { HedgehogChecks.run(game); return; }
+                                case "hedgehog-source" -> { HedgehogChecks.runSource(game); return; }
                                 case "hedgehog-stop-probe" -> { HedgehogChecks.stopProbe(game); return; }
                                 case "hedgehog-cleanup" -> { HedgehogChecks.cleanup(game); return; }
                                 case "god-hedgehog" -> { GodHedgehogChecks.run(game); return; }
@@ -1129,6 +1190,7 @@ public final class GameChecks {
                                 case "void-arcanum-cleanup" -> { VoidArcanumChecks.cleanup(game); return; }
                                 case "neutral-crafts" -> { NeutralCraftChecks.run(game); return; }
                                 case "ice-wand" -> { IceWandChecks.run(game); return; }
+                                case "ice-crystal-inputs" -> { IceCrystalInputChecks.run(game); return; }
                                 case "ice-materials" -> { IceMaterialChecks.run(game); return; }
                                 case "ice-wand-stop-probe" -> { IceWandChecks.stopProbe(game); return; }
                                 case "ice-wand-cleanup" -> { IceWandChecks.cleanup(game); return; }
@@ -1445,6 +1507,13 @@ public final class GameChecks {
                                 case "native-touhou" -> { NativeTouhouChecks.run(game); return; }
                                 case "native-tools" -> { NativeToolChecks.run(game); return; }
                                 case "cube-interactions" -> { CubeInteractionChecks.run(game); return; }
+                                case "cube-use-audit" -> { CubeUseAuditChecks.run(game); return; }
+                                case "feedback-input" -> { FeedbackInputChecks.run(game); return; }
+                                case "feedback-actors" -> { FeedbackActorChecks.run(game); return; }
+                                case "static-charge-rewind" -> { StaticChargeRewindChecks.run(game); return; }
+                                case "posthumous-spell" -> { PosthumousSpellChecks.run(game); return; }
+                                case "historical-npc-replay" -> { HistoricalNpcReplayChecks.run(game); return; }
+                                case "terra-replay" -> { TerraReplayChecks.run(game); return; }
                                 case "key-kit-menu", "luck-key-kit-menu" -> { KeyKitChecks.menu(game, suite.startsWith("luck-")); return; }
                                 case "key-kit", "luck-key-kit" -> { KeyKitChecks.run(game, suite.startsWith("luck-")); return; }
                                 case "ordinary-tools" -> { OrdinaryToolChecks.run(game); return; }
@@ -1684,11 +1753,31 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            LegacyMobTickChecks.tick(game);
+            NuclearFinalizationChecks.tick(game);
+            ExopersoRitualChecks.tick(game);
+            PotionCarrierChecks.tick(game);
+            CarpetBotChecks.tick(game);
+            BotRevisionChecks.tick(game);
+            NuclearQueuedChecks.tick(game);
+            BotCageChecks.tick(game);
+            BotTrapChecks.tick(game);
+            BotRouteChecks.tick(game);
+            ChefRouteChecks.tick(game);
+            BotMapChecks.tick(game);
+            BotLuckyChecks.tick(game);
+            BotIslandTrapChecks.tick(game);
+            FeedbackNov9Checks.tick(game);
+        StaticChargeNoEchoChecks.tick(game);
+            FeedbackRoundTwoChecks.tick(game);
+            OreshekChecks.tickInput(game);
+            DimensionTickChecks.tick(game);
             BedwarsChecks.tick(game);BedwarsShopChecks.tick(game);BedwarsAuxiliaryChecks.tick(game);BedwarsRenewalChecks.tick(game);
             DeveloperModeChecks.tick(game);
             DeveloperSoloChecks.tick(game);
+            SauvojenLifecycleChecks.tick(game);
             ContainedSkillChecks.tick(game);
-            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);BridgeBuilderChecks.tick(game);CaseCosmeticChecks.tick(game);BadAppleChecks.tick(game);RemainingLevelupChecks.tick(game);AuraPsychblindChecks.tick(game);ReactiveTrinketChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
+            CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);BridgeBuilderChecks.tick(game);CaseCosmeticChecks.tick(game);BadAppleChecks.tick(game);RemainingLevelupChecks.tick(game);AuraPsychblindChecks.tick(game);ReactiveTrinketChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);NuclearPointChecks.tick(game);BotUseChecks.tick(game);BotWorkbenchChecks.tick(game);ExasperatoSpeedChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
             ArmorZeusSkillChecks.tick(game);
             MapEditing.tickChecks(game);
             OnePunchGloveChecks.tick(game);InfiniteShulkerChecks.tick(game);PsychoSoundChecks.tick(game);LuckyGrenadeChecks.tick(game);TeleportGadgetChecks.tick(game);TabletGroundChecks.tick(game);
@@ -1700,6 +1789,8 @@ public final class GameChecks {
             GrimoireBossChecks.tick(game);            UniwandChecks.tick(game);GrimoireDungeonChecks.tick(game);            MapRotationChecks.tick(game);            ImbaRuneChecks.tickGlobals(game);ImbaRuneChecks.tickRestart(game);
             RawRaycastSpellChecks.tick(game);BossProjectileChecks.tick(game);RewardToolChecks.tick(game);FpvDroneChecks.tick(game);LooseRewardChecks.tick(game);StonekiviSunChecks.tick(game);
             AttributeFoodChecks.tick(game);
+            IceCrystalInputChecks.tick(game);
+            StaticChargeRewindChecks.tick(game);PosthumousSpellChecks.tick(game);HistoricalNpcReplayChecks.tick(game);TerraReplayChecks.tick(game);
             ImprintedHudChecks.tick(game);
             TrollBoxChecks.tick(game);TmtLifecycleChecks.tick(game);TmtFireworkAmmoChecks.tick(game);TmtAcquisitionChecks.tick(game);
             EdibleSpellChecks.tick(game);
@@ -1736,7 +1827,7 @@ public final class GameChecks {
             ReactiveArtifactChecks.tick(game);
             FragmentKnowledgeChecks.tick(game);
             InitialChunkSendChecks.tick(game);MapLightingChecks.tick(game);
-            MapStreamingChecks.tick(game);
+            RailroadChecks.tick(game);MapReplacementChecks.tick(game);MapStreamingChecks.tick(game);
             ImbaAxeChecks.tick(game);PhoenixSkillChecks.tick(game);
             IndividualNameplateChecks.tick(game);TimeFragmentSprintChecks.tick(game);
             TmtIntakeChecks.tick(game);
@@ -4999,7 +5090,7 @@ public final class GameChecks {
                 deferredTicks = 21;
                 deferredCheck = () -> {
                         require(donor.isRemoved() && LbcItems.isRocketBoots(target.getItem())
-                                        && target.getItem().has(DataComponents.GLIDER),
+                                        && !target.getItem().has(DataComponents.GLIDER),
                                         "Tracked ground donor upgrades one nearby native target item: donorRemoved="
                                                         + donor.isRemoved()
                                                         + " targetRemoved=" + target.isRemoved() + " distance="
@@ -5120,7 +5211,7 @@ public final class GameChecks {
                 crafting.setItem(1, ItemStack.EMPTY);
                 inventoryClick(player, 0, 0, ContainerInput.PICKUP);
                 ItemStack upgraded = menu.getCarried().copy();
-                require(LbcItems.isRocketBoots(upgraded) && upgraded.has(DataComponents.GLIDER)
+                require(LbcItems.isRocketBoots(upgraded) && !upgraded.has(DataComponents.GLIDER)
                                 && crafting.isEmpty() && menu.getResultSlot().getItem().isEmpty(),
                                 "Inventory output take consumes exactly one pair and grants one result");
                 requireRocketTargetPreserved(upgraded);
@@ -10686,6 +10777,10 @@ public final class GameChecks {
                         row.addProperty("id",net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(block).toString());
                         row.addProperty("fullCube",state.isCollisionShapeFullBlock(net.minecraft.world.level.EmptyBlockGetter.INSTANCE,net.minecraft.core.BlockPos.ZERO));
                         row.addProperty("air",state.isAir());
+                        row.addProperty("hasBlockEntity",state.hasBlockEntity());
+                        for(var allocation:LbcBlockModels.allocations())
+                                if(allocation.serverBlock().toString().equals(row.get("id").getAsString()))
+                                        row.addProperty("visualModel",allocation.model().toString());
                         if(block==LbcMagic.MAGIC_BEACON_BLOCK || block==LbcMagic.MECHANISM_BEACON_BLOCK) row.addProperty("visualBlock","minecraft:lightning_rod");
                         blocks.add(row);
                 }
@@ -10728,6 +10823,9 @@ public final class GameChecks {
         }
         private static void checkWoodificatorPalette(GameController game) {
                 var palette=woodificatorPaletteFixture(); var mapping=palette.getAsJsonObject("mapping");
+                require(!palette.getAsJsonObject("candidates").has("minecraft:crafting_table")
+                                &&!mapping.get("minecraft:crafting_table").getAsString().equals("minecraft:crafting_table"),
+                        "Crafting table is neither an output nor a preserved source");
                 var excluded=new java.util.HashSet<String>(); for(var id:palette.getAsJsonArray("excluded")) excluded.add(id.getAsString());
                 require(excluded.equals(java.util.Set.of("minecraft:air","minecraft:cave_air","minecraft:void_air","minecraft:light","minecraft:structure_void","minecraft:barrier")),"Only the six explicitly invisible blocks are excluded");
                 int covered=0;
@@ -11354,7 +11452,7 @@ public final class GameChecks {
                                         && skeleton.getMaxHealth()==40 && skeleton.getHealth()==40 && skeleton.hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY)
                                         && skeleton.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)==10
                                         && service.owner(entity)==owner && game.items().currentEpoch(entity)),"Trial skeletons retain source health/invisibility, owner and epoch");
-                        require(owner.hasEffect(net.minecraft.world.effect.MobEffects.DARKNESS) && owner.hasEffect(net.minecraft.world.effect.MobEffects.BLINDNESS),"Trial applies source blindness and darkness immediately");
+                        require(owner.hasEffect(net.minecraft.world.effect.MobEffects.DARKNESS) && owner.hasEffect(net.minecraft.world.effect.MobEffects.BLINDNESS) && owner.getEffect(net.minecraft.world.effect.MobEffects.DARKNESS).getAmplifier()==1 && owner.getEffect(net.minecraft.world.effect.MobEffects.BLINDNESS).getAmplifier()==1,"Trial applies author-approved DarknessII and BlindnessII immediately");
                         require(owner.level().addFreshEntity(npc),"Academy fixture NPC is live"); owner.setShiftKeyDown(false);
                         require(service.canTrialTarget(summons.getFirst(),owner) && !service.canTrialTarget(summons.getFirst(),ally)
                                         && !service.canTrialTarget(summons.getFirst(),npc),"Hostile trial preserves its caster target while protecting caster allies and service NPC");
@@ -12675,7 +12773,8 @@ public final class GameChecks {
                         var ghosts=level.getEntitiesOfClass(net.minecraft.world.entity.monster.Vex.class,
                                         owner.getBoundingBox().inflate(32),vex->game.items().currentEpoch(vex) && vex.hasCustomName());
                         require(ghosts.size()==1 && ghosts.getFirst().getHealth()==2_000_000_000f
-                                        && ghosts.getFirst().getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).getBaseValue()==2_000_000_000,
+                                        && ghosts.getFirst().getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).getBaseValue()==2_000_000_000
+                                        && ghosts.getFirst().getMainHandItem().isEmpty(),
                                         "Execution creates the original hostile ghost with two-billion health and max-health");
                         var ghostVictim=frostProbeCow(level,cows,x+2.5,260,z+8.5); ghostVictim.setHealth(.25f);
                         require(ghosts.getFirst().canAttack(owner) && ghosts.getFirst().doHurtTarget(level,ghostVictim)
@@ -14513,7 +14612,7 @@ public final class GameChecks {
                         game.items().mana().set(owner, 5000);
                         require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.OFF_HAND)
                                         && game.items().mana().get(owner) == -5000 && exoperso.count() == 1
-                                        && exoperso.snapshot().getFirst().upgraded,
+                                        && exoperso.rituals.snapshot().getFirst().upgraded,
                                         "Academy Exoperso casts from its enabled offhand and spends 10000");
                         exoperso.stop(); game.config().offhandWands = false;
 
@@ -14525,37 +14624,14 @@ public final class GameChecks {
                         game.items().mana().set(owner, 30000);
                         require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.MAIN_HAND)
                                         && exoperso.count() == 1, "Native dispatch launches one tracked Exoperso charge");
-                        var charge = exoperso.snapshot().getFirst();
-                        require(charge.getOwner() == owner && game.items().currentEpoch(charge)
-                                        && charge.getDeltaMovement().equals(net.minecraft.world.phys.Vec3.ZERO),
-                                        "Exoperso windup charge has owner, current epoch and no launch speed");
-                        charge.age = 315;
-                        exoperso.tick();
-                        Vec3 prepPosition = charge.position();
-                        exoperso.tick(); exoperso.tick();
-                        require(charge.age == 318 && !charge.isRemoved()
-                                        && charge.position().distanceTo(prepPosition) < 1e-6,
-                                        "Three source preparation ticks keep the charge pinned before aim capture");
-                        exoperso.tick();
-                        require(charge.age == 319 && charge.aim != null
-                                        && charge.aim.distanceTo(owner.getLookAngle().normalize()) < 1e-6,
-                                        "Age 319 captures the launch aim once");
-                        var fixedAim = charge.aim;
-                        owner.setYRot(0);
-                        exoperso.tick();
-                        require(charge.age == 320 && charge.flightAge == 0
-                                        && charge.position().distanceTo(owner.getEyePosition()) < 1e-6
-                                        && charge.getDeltaMovement().distanceTo(fixedAim.scale(2)) < 1e-6,
-                                        "Age 320 repositions without replacing the captured aim");
-                        var releasePosition = charge.position();
-                        exoperso.tick();
-                        require(charge.age == 321 && charge.flightAge == 1
-                                        && charge.position().distanceTo(releasePosition.add(fixedAim.scale(2))) < 1e-6,
-                                        "Age 321 begins native two-block-per-tick flight along the stored aim");
-                        charge.flightAge = 700;
-                        exoperso.tick();
-                        require(!charge.isRemoved() && charge.flightAge == 701,
-                                        "Smart terrain-and-target lifetime keeps a flight alive beyond the legacy 700 ticks");
+                        var ritual=exoperso.rituals.snapshot().getFirst();
+                        var fixedTarget=ritual.target;
+                        require(ritual.owner.equals(owner.getUUID())&&game.items().currentEpoch(ritual.anchor)
+                                        &&ritual.rings.size()==10,"native wand creates one fixed ritual with ten native rune displays");
+                        ritual.age=315;owner.setYRot(0);
+                        for(int i=0;i<4;i++)exoperso.tick();
+                        require(ritual.age==319&&ritual.target.equals(fixedTarget)&&ritual.rings.stream().allMatch(r->!r.isRemoved()),
+                                        "wand target remains immutable after camera turn and rings survive their final zero-scale frame");
                         exoperso.stop();
 
                         // A wall impact and a living entity impact each consume one charge and enqueue
@@ -14563,30 +14639,14 @@ public final class GameChecks {
                         var wall = net.minecraft.core.BlockPos.containing(x + 1, 261, z);
                         changedBlocks.put(wall, level.getBlockState(wall));
                         level.setBlockAndUpdate(wall, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
-                        require(exoperso.cast(owner, false), "Wall-impact fixture creates an Exoperso charge");
-                        charge = exoperso.snapshot().getFirst(); charge.age = 321;
-                        charge.setPos(x + .5, owner.getEyeY(), z + .5); charge.setDeltaMovement(2, 0, 0);
+                        var externalSource=game.items().spellSources().hostile(owner,owner,java.util.Set.of());
+                        require(exoperso.releaseAt(externalSource,level,new Vec3(x+.5,owner.getEyeY(),z+.5),new Vec3(1,0,0)),
+                                        "External invocation retains the actual released rocket path");
+                        var charge=exoperso.snapshot().getFirst();
                         exoperso.tick();
-                        require(charge.isRemoved() && exoperso.count() == 0 && blast.pendingBlasts() == 31,
-                                        "Wall collision consumes one charge and applies one native wave and queues exactly 31 remaining radius-20 steps");
-                        exoperso.tick();
-                        require(blast.pendingBlasts() == 31,
-                                        "A removed wall-impact charge cannot enqueue the same burst twice");
-                        blast.stop();
-                        level.setBlockAndUpdate(wall, changedBlocks.get(wall)); changedBlocks.remove(wall);
-
-                        var cow = new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW, level);
-                        cow.setNoGravity(true); cow.setPos(x + 1.5, owner.getEyeY() - .9, z + .5);
-                        require(level.addFreshEntity(cow), "Exoperso swept entity target spawns"); spawned.add(cow);
-                        require(exoperso.cast(owner, false), "Entity-impact fixture creates an Exoperso charge");
-                        charge = exoperso.snapshot().getFirst(); charge.age = 321;
-                        charge.setPos(x + .5, owner.getEyeY(), z + .5); charge.setDeltaMovement(2, 0, 0);
-                        exoperso.tick();
-                        require(charge.isRemoved() && exoperso.count() == 0 && blast.pendingBlasts() == 31,
-                                        "Living entity collision consumes one charge and applies one native wave and queues the same 31 remaining radius-20 steps");
-                        exoperso.tick();
-                        require(blast.pendingBlasts() == 31,
-                                        "A removed entity-impact charge cannot enqueue the same burst twice");
+                        require(charge.isRemoved()&&exoperso.count()==0&&blast.pendingBlasts()==31,
+                                        "External block collision consumes one rocket and queues the original 31 remaining native waves");
+                        exoperso.tick();require(blast.pendingBlasts()==31,"Removed external rocket never repeats its impact");
                         exoperso.stop(); blast.stop();
                         require(exoperso.count() == 0 && blast.pendingBlasts() == 0 && blast.mushroomCount() == 0,
                                         "Stopping both native services clears Exoperso charges and queued burst state");
@@ -14645,12 +14705,8 @@ public final class GameChecks {
                         cow.setPos(x + 1.5, 261, z + .5);
                         require(level.addFreshEntity(cow), "High-health blast attribution target spawns"); spawned.add(cow);
 
-                        require(exo.cast(owner, false), "Real Exoperso projectile is created for burst drain");
-                        var charge = exo.snapshot().getFirst(); charge.age = 321;
-                        charge.setPos(x + .5, owner.getEyeY(), z + .5); charge.setDeltaMovement(2, 0, 0);
-                        exo.tick();
-                        require(charge.isRemoved() && burst.pendingBlasts() == 31,
-                                        "Swept wall collision applies the immediate native wave and queues 31 remaining Exoperso steps");
+                        exo.edibleBurst(owner,new Vec3(x+.5,owner.getEyeY(),z+.5));
+                        require(burst.pendingBlasts()==31,"Actual edible producer retains the immediate native wave and31 queued callbacks");
                         // Move the owner clear of the explosion radius; the spawned TNT keeps its owner.
                         owner.teleportTo(level, x + 64.5, 260, z + .5, java.util.Set.of(), 0, 0, true);
                         for (int tick = 0; tick < 64 && burst.pendingBlasts() > 0; tick++) burst.tick();
@@ -16975,7 +17031,7 @@ public final class GameChecks {
                                 victim.setHealth(20); victim.setInvulnerableTime(0); victim.damageCooldownTime=0;
                                 require(stand.use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Actual fist collision fixture starts variant "+variant);
                                 standTicks(stand,2); require(stand.fistSnapshot().size()==1,"Variant creates one native fist");
-                                var display=stand.fistSnapshot().getFirst();
+                                var display=stand.fistSnapshot().getFirst();DisplayTransformChecks.pose(display,0,0,0,2,2,2);
                                 require(!display.shouldBeSaved(),"Managed fist is never persisted to chunks");
                                 display.setPos(victim.getBoundingBox().getCenter().subtract(.5,.5,.5)
                                         .subtract(stand.fistDirection(display).scale(2))); stand.tick();
@@ -17132,7 +17188,7 @@ public final class GameChecks {
                                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,standOraora(game,owner));
                                         require(stand.use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Respawned fifth-match owner can immediately start a fresh empowered burst"); standTicks(stand,2);
                                         var victim=regularTerraCow(level,mobs,8.5,201,53.5); victim.setHealth(20); victim.setInvulnerableTime(0); victim.damageCooldownTime=0;
-                                        var display=stand.fistSnapshot().getFirst(); display.setPos(victim.getBoundingBox().getCenter().subtract(.5,.5,.5).subtract(stand.fistDirection(display).scale(2))); stand.tick();
+                                        var display=stand.fistSnapshot().getFirst();DisplayTransformChecks.pose(display,0,0,0,2,2,2); display.setPos(victim.getBoundingBox().getCenter().subtract(.5,.5,.5).subtract(stand.fistDirection(display).scale(2))); stand.tick();
                                         require(Math.abs(victim.getHealth()-5)<.01,"Last retained match still deals the full Overheaven15 native fist damage"); victim.discard();
                                 }
                                 owner.getInventory().clearContent();
@@ -17345,7 +17401,7 @@ public final class GameChecks {
                         snapshots.forEach((pos,snapshot)->{ game.maps().restoreSnapshot(pos,snapshot); magic.blockChanged(pos,level.getBlockState(pos)); });
                         saved.restore(game); savedOther.restore(game); game.config().offhandWands=offhand;
                         owner.getStats().setValue(owner,net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS),oldMobKills); global.set(oldGlobal);
-                        for(var objective:board.getObjectives()) if(scores.containsKey(objective)) board.getOrCreatePlayerScore(owner,objective).set(scores.get(objective)); else board.resetSinglePlayerScore(owner,objective);
+                        for(var objective:board.getObjectives()) if(scores.containsKey(objective)) board.getOrCreatePlayerScore(owner,objective,true).set(scores.get(objective)); else board.resetSinglePlayerScore(owner,objective);
                 }
                 SkyWars2.LOGGER.info("[check] PASS ak47");
         }
@@ -18428,6 +18484,13 @@ public final class GameChecks {
                                 "Rocket transfer source lore style");
         }
 
+        private static boolean pressRocketInput(ServerPlayer player){
+                player.connection.handlePlayerInput(new net.minecraft.network.protocol.game.ServerboundPlayerInputPacket(net.minecraft.world.entity.player.Input.EMPTY));
+                player.connection.handlePlayerInput(new net.minecraft.network.protocol.game.ServerboundPlayerInputPacket(
+                        new net.minecraft.world.entity.player.Input(false,false,false,false,true,false,false)));
+                return true;
+        }
+
         private static void beginRocketBootsFlight(GameController game, ServerPlayer player, ServerPlayer observer,
                         ItemStack rocketBoots) {
                 require(player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET).isEmpty(),
@@ -18457,49 +18520,34 @@ public final class GameChecks {
                 stopper.entityTags().add("stopper");
                 require(level.addFreshEntity(stopper), "Rocket stopper probe enters arena");
                 player.setDeltaMovement(Vec3.ZERO);
-                player.connection.handlePlayerCommand(
-                                new net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket(
-                                                player,
-                                                net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
+                pressRocketInput(player);
                 require(player.getDeltaMovement().lengthSqr() == 0 && game.items().rocketJumps(player) == 3,
                                 "Stopper at diagonal 19,19 blocks the source cube without spending a charge");
                 stopper.discard();
 
                 Vec3 before = player.getDeltaMovement();
-                player.connection.handlePlayerCommand(
-                                new net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket(
-                                                player,
-                                                net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
-                require(!player.isFallFlying(), "Feet glider boost does not start server gliding");
+                pressRocketInput(player);
+                require(!player.isFallFlying(), "Native jump boost does not start server gliding");
                 Vec3 after = player.getDeltaMovement();
                 require(after.distanceTo(before) > 0.5 && after.z > 0.5 && after.y > 0.5
                                 && game.items().rocketJumps(player) == 2,
-                                "First native fall-flying attempt applies a directional boost and spends one charge");
+                                "First native jump input press applies a directional boost and spends one charge");
                 require(game.items().rocketCooldownTicks(player) == 300 && !player.isFallFlying(),
                                 "Rocket boost starts 300 tick cooldown without Elytra gliding");
                 player.setDeltaMovement(Vec3.ZERO);
-                player.connection.handlePlayerCommand(
-                                new net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket(
-                                                player,
-                                                net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
+                pressRocketInput(player);
                 require(player.getDeltaMovement().lengthSqr() > 0 && game.items().rocketJumps(player) == 1,
                                 "Cooldown does not prevent spending the second available charge");
                 player.setDeltaMovement(Vec3.ZERO);
-                player.connection.handlePlayerCommand(
-                                new net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket(
-                                                player,
-                                                net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
+                pressRocketInput(player);
                 require(player.getDeltaMovement().lengthSqr() > 0 && game.items().rocketJumps(player) == 0
                                 && !player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET)
                                                 .has(DataComponents.GLIDER),
                                 "Third boost spends the final charge and removes the feet glider component");
                 player.setDeltaMovement(Vec3.ZERO);
-                player.connection.handlePlayerCommand(
-                                new net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket(
-                                                player,
-                                                net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
+                pressRocketInput(player);
                 require(player.getDeltaMovement().lengthSqr() == 0 && game.items().rocketJumps(player) == 0,
-                                "Fourth fall-flying attempt cannot boost without a charge or GLIDER component");
+                                "Fourth jump input press cannot boost without a charge or GLIDER component");
 
                 // Chest Elytra must keep vanilla's true glide result, independently of the feet
                 // item hook.
@@ -18522,10 +18570,7 @@ public final class GameChecks {
                 require(game.items().rocketJumps(player) == 3 && game.items().rocketCooldownTicks(player) == 0,
                                 "Removing and re-equipping boots resets their charge state");
                 player.setDeltaMovement(Vec3.ZERO);
-                player.connection.handlePlayerCommand(
-                                new net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket(
-                                                player,
-                                                net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
+                pressRocketInput(player);
                 require(game.items().rocketJumps(player) == 2 && game.items().rocketCooldownTicks(player) == 300,
                                 "Re-equipped boots can spend a fresh charge");
                 nativeTickProbes.add(player.getUUID());
@@ -18568,17 +18613,14 @@ public final class GameChecks {
                         observer.setOnGround(false);
                         observer.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, rocketBoots.copy());
                         observer.setDeltaMovement(0, -0.1, 0);
-                        observer.connection.handlePlayerCommand(
-                                        new net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket(
-                                                        observer,
-                                                        net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
+                        pressRocketInput(observer);
                         require(game.isObserver(observer) && !observer.isFallFlying()
                                         && observer.getDeltaMovement().equals(new Vec3(0, -0.1, 0))
                                         && game.items().rocketJumps(observer) == 0,
                                         "Observer cannot activate copied rocket boots");
                         observer.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, ItemStack.EMPTY);
                         player.setDeltaMovement(Vec3.ZERO);
-                        require(!player.tryToStartFallFlying() && game.items().rocketJumps(player) == 2,
+                        require(pressRocketInput(player) && !player.isFallFlying() && game.items().rocketJumps(player) == 2,
                                         "Re-equipped boots can still spend charges after regeneration");
                         player.setInvulnerableTime(0);
                         player.damageCooldownTime = 0;
@@ -19261,8 +19303,10 @@ public final class GameChecks {
                         panel.clear(player);
                         panel.tick();
                         for (int i = 0; i < 20; i++) panel.tick();
-                        require(!panel.shown(player) && attack.getValue() == 1,
-                                        "Ordinary PLAYER defaults including attack_damage=1 produce no panel");
+                        boolean lifeRow=game.playing()&&!game.isObserver(player);
+                        require(panel.shown(player)==lifeRow && attack.getValue() == 1 && panel.displayedAttributeKeys(player).isEmpty(),
+                                        "Player defaults have no changed attributes; a live participant retains the separate life row");
+                        if(lifeRow)require(panel.displayedLines(player).getFirst().getString().contains("\uE171"+new String(Character.toChars(0xFE171))+game.lives(player.getUUID())),"exact Hakurei heart glyph and actual participant lives");
                         attack.setBaseValue(7);
                         for (int i = 0; i < 5; i++) panel.tick();
                         require(panel.shown(player) && panel.displays(player,
@@ -19281,7 +19325,7 @@ public final class GameChecks {
                                         "Effective modifier bonuses are included even with an unchanged base value");
                         attack.removeModifier(testModifier);
                         for (int i = 0; i < 5; i++) panel.tick();
-                        require(!panel.shown(player), "Returning all values to player defaults removes the panel");
+                        require(panel.shown(player)==lifeRow && panel.displayedAttributeKeys(player).isEmpty(), "Returning to defaults removes attribute rows while preserving participant lives");
 
                         int changed = 0;
                         for (var value : saved) {
@@ -19293,11 +19337,12 @@ public final class GameChecks {
                                         && panel.displayedLines(player).size() == 1,
                                         "More than 15 changed attributes render through one scoreboard entry without dropping values");
                         var parts = panel.displayedLines(player).getFirst().getSiblings();
-                        int columns = (changed + 17) / 18;
-                        require(changed > 18 && columns == 2 && parts.size() == changed * 2 + columns,
-                                        "Overflow attributes form a second column in one scoreboard entry");
-                        int firstRow = -Math.min(6, (Math.min(18, changed) - 1) / 2), widest = 0;
-                        for (int row = 0; row < changed; row++) {
+                        int virtualRows=changed+(lifeRow?1:0);
+                        int columns = (virtualRows + 17) / 18;
+                        require(changed > 18 && columns >= 2 && parts.size() == virtualRows * 2 + columns,
+                                        "Overflow attributes plus life row form the calculated columns in one scoreboard entry: attributes="+changed+", rows="+virtualRows+", columns="+columns+", parts="+parts.size());
+                        int firstRow = -Math.min(6, (Math.min(18, virtualRows) - 1) / 2), widest = 0;
+                        for (int row = 0; row < virtualRows; row++) {
                                 if (row > 0 && row % 18 == 0) {
                                         require(parts.get(row * 2 + row / 18 - 1).getString().equals("\uE000".repeat(widest + 6)),
                                                         "Next column begins after the previous width and six-pixel gap");
@@ -19315,7 +19360,7 @@ public final class GameChecks {
                                 String rendered = text.getString();
                                 require(!rendered.contains(". "), "Decimal formatting inserts no space after its point");
                                 int[] glyphs = rendered.codePoints().toArray();
-                                require(glyphs.length >= 3 && glyphs[0] >= 0xE210 && glyphs[0] <= 0xE245
+                                require(glyphs.length >= 3 && (glyphs[0] >= 0xE210 && glyphs[0] <= 0xE245 || lifeRow && row==0 && glyphs[0]==0xE171)
                                                 && glyphs[1] == 0xF0000 + glyphs[0],
                                                 "Each author-defined icon carries its resource-pack spacing glyph");
                                 int advance = 10 + java.util.Arrays.stream(glyphs, 2, glyphs.length)
@@ -20288,7 +20333,15 @@ public final class GameChecks {
                         mana.inventoryChanged(player);
                         player.entityTags().add("overload_slam");
                         mana.score(player, "overload_slam").set(10);
+                        var belowSlam = new net.minecraft.world.entity.animal.cow.Cow(
+                                        net.minecraft.world.entity.EntityTypes.COW, level);
+                        belowSlam.setPos(player.position().add(0,-3.25,0));belowSlam.setNoGravity(true);belowSlam.setNoAi(true);
+                        require(level.addFreshEntity(belowSlam),"actual lower slam target published");ownedEntities.add(belowSlam);
+                        float belowHealth=belowSlam.getHealth();
                         overload.armor().tick(player);
+                        require(belowSlam.getHealth()<belowHealth&&belowSlam.getLastDamageSource().getEntity()==player,
+                                        "downward slam hits the actual body within its radius even when target feet are farther away, retaining attacker");
+                        belowSlam.discard();ownedEntities.remove(belowSlam);
                         require(!player.entityTags().contains("overload_slam")
                                         && mana.score(player, "overload_slam").get() == 0,
                                         "Grounded slam applies impact once and clears its tag and counter");
@@ -27535,7 +27588,14 @@ public final class GameChecks {
                 enemy.setHealth(60);
                 enemy.setInvulnerableTime(0);
                 enemy.damageCooldownTime = 0;
-                owner.causeFallDamage(40, 0, owner.damageSources().fall());
+                var protectedLoot=new net.minecraft.world.entity.item.ItemEntity(owner.level(),owner.getX()+1,owner.getY(),owner.getZ(),new ItemStack(Items.DIAMOND,7));
+                protectedLoot.setNoGravity(true);protectedLoot.setPickUpDelay(32767);
+                require(owner.level().addFreshEntity(protectedLoot),"ordinary vulnerable dropped-item control");
+                try{
+                    owner.causeFallDamage(40, 0, owner.damageSources().fall());
+                    require(!protectedLoot.isRemoved()&&protectedLoot.getItem().is(Items.DIAMOND)&&protectedLoot.getItem().getCount()==7,
+                            "Heavyweight maximum native landing damage preserves nearby vulnerable dropped items");
+                }finally{protectedLoot.discard();}
                 require(Math.abs(enemy.getHealth() - (60 - 3999 * 0.00915)) < 0.001, "Heavyweight clamps at 3999 cm");
                 enemy.teleportTo(enemy.level(), 7, 200, 0, java.util.Set.of(), 0, 0, true);
                 enemy.setHealth(60);
@@ -28880,7 +28940,7 @@ public final class GameChecks {
                         catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { nonOpRejected = true; }
                         require(nonOpRejected, "Native /settings root remains protected by operator permission");
                         boolean nonOpNestedRejected = false;
-                        try { dispatcher.execute("settings event halloween true", playerSource); }
+                        try { dispatcher.execute("skywars settings event halloween true", playerSource); }
                         catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { nonOpNestedRejected = true; }
                         require(nonOpNestedRejected, "Native /settings event remains protected by operator permission");
                         alpha.entityTags().add("admin");
@@ -28895,14 +28955,14 @@ public final class GameChecks {
                         require(dispatcher.execute("settings", opSource) == 1,
                                         "Native operator /settings command succeeds without an admin tag");
                         boolean busyBeforeMapSetting = game.maps().busy();
-                        require(dispatcher.execute("settings map " + originalMap, opSource) == 1
+                        require(dispatcher.execute("skywars settings map " + originalMap, opSource) == 1
                                         && game.config().mapId.equals(originalMap) && game.config().broken == originalBroken
                                         && game.maps().busy() == busyBeforeMapSetting,
                                         "Operator /settings map can reapply the current map despite another tagged admin, without starting a paste");
                         alpha.entityTags().remove("admin");
-                        require(dispatcher.execute("settings event halloween true", opSource) == 1
-                                        && dispatcher.execute("settings event november true", opSource) == 1
-                                        && dispatcher.execute("settings event tournament true", opSource) == 1,
+                        require(dispatcher.execute("skywars settings event halloween true", opSource) == 1
+                                        && dispatcher.execute("skywars settings event november true", opSource) == 1
+                                        && dispatcher.execute("skywars settings event tournament true", opSource) == 1,
                                         "Native operator event settings accept all three persistent flags");
                         require(game.config().eventHalloween && game.config().eventNovember
                                         && game.config().eventTournament,
@@ -28943,11 +29003,11 @@ public final class GameChecks {
                                 alpha.entityTags().remove("admin");
                         }
                         boolean invalidRejected = false;
-                        try { dispatcher.execute("settings event halloween maybe", opSource); }
+                        try { dispatcher.execute("skywars settings event halloween maybe", opSource); }
                         catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { invalidRejected = true; }
                         require(invalidRejected && game.config().eventHalloween,
                                         "Invalid event boolean is rejected without changing the saved flag");
-                        require(dispatcher.execute("settings event halloween false", opSource) == 1
+                        require(dispatcher.execute("skywars settings event halloween false", opSource) == 1
                                         && !game.config().eventHalloween && !GameConfig.load().eventHalloween,
                                         "False event values persist through the same operator command path");
                         SkyWars2.LOGGER.info("[check] PASS admin-controls");

@@ -90,12 +90,19 @@ public final class LbcLuckyPigs {
     void adoptEgg(Pig actor, LivingEntity cause) { prepare(actor,cause); }
     void adoptFakeEgg(Pig actor,LivingEntity cause){actor.entityTags().add(FAKE);prepare(actor,cause);bindFake(actor,cause);}
     private void bindFake(Entity actor,LivingEntity cause){
+        if(LbcSpellSource.unownedHazard(actor)||LbcSpellSource.unownedHazard(cause)){
+            actor.entityTags().add("skywars2.unowned_hazard");
+            var emitter=actor instanceof LivingEntity||cause==null?actor:cause;
+            game.items().spellSources().bind(actor,new LbcSpellSource.Source(emitter.getUUID(),null,game.items().epoch(),null,Set.of(),true,true));
+            return;
+        }
         var author=LbcIndirectKills.playerSource(cause);var accepted=author==null?new LbcIndirectKills.Owner(new UUID(0,0),0,true,false):game.items().indirectKills().wildCause(author);
         game.items().spellSources().bind(actor,new LbcSpellSource.Source(actor.getUUID(),accepted.player(),game.items().epoch(),accepted,Set.of(),true));
     }
 
     private void prepare(Entity actor, LivingEntity cause) {
         actor.entityTags().add(PIG);
+        actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);
         game.items().markCurrentItemEpoch(actor);
         causes.put(actor, cause);
         if (actor instanceof Pig pig) pigs.add(pig);
@@ -114,6 +121,7 @@ public final class LbcLuckyPigs {
     }
 
     public LivingEntity owner(Entity actor) {
+        if(LbcSpellSource.unownedHazard(actor))return game.items().spellSources().nativeMobSource(actor);
         if (actor instanceof ItemEntity token && LbcLuckyPigDropItem.matches(token.getItem()))
             return game.items().specialDrops().owner(token);
         return managed(actor) ? causes.get(actor) : null;

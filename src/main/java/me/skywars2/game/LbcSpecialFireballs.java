@@ -45,6 +45,40 @@ public final class LbcSpecialFireballs {
         return 0;
     }
     public static boolean managed(Entity entity){return entity!=null&&entity.entityTags().contains(TAG);}
+
+    /** Custom fireballs already publish real positions every tick. Disable only the client's extra
+     * extrapolation; their server velocity, native collision and damage remain authoritative. */
+    public net.minecraft.network.protocol.Packet<?> clientPacket(ServerPlayer viewer,net.minecraft.network.protocol.Packet<?> packet){
+        if(!game.server().isSameThread())return packet;
+        if(packet instanceof net.minecraft.network.protocol.game.ClientboundBundlePacket bundle){
+            ArrayList<net.minecraft.network.protocol.Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener>> output=null;
+            int unchanged=0;
+            for(var child:bundle.subPackets()){
+                var corrected=clientPacket(viewer,child);
+                if(output==null&&corrected!=child){
+                    output=new ArrayList<>();int n=0;
+                    for(var prefix:bundle.subPackets()){if(n++==unchanged)break;output.add(prefix);}
+                }
+                if(output!=null)output.add(gamePacket(corrected));
+                unchanged++;
+            }
+            return output==null?packet:new net.minecraft.network.protocol.game.ClientboundBundlePacket(output);
+        }
+        int id=packet instanceof net.minecraft.network.protocol.game.ClientboundAddEntityPacket spawn?spawn.getId():
+                packet instanceof net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket motion?motion.id():-1;
+        if(id<0||!(viewer.level().getEntity(id) instanceof net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile actor)||!managed(actor))return packet;
+        if(packet instanceof net.minecraft.network.protocol.game.ClientboundAddEntityPacket spawn){
+            if(spawn.getMovement().equals(Vec3.ZERO))return packet;
+            return new net.minecraft.network.protocol.game.ClientboundAddEntityPacket(spawn.getId(),spawn.getUUID(),spawn.getX(),spawn.getY(),spawn.getZ(),
+                    spawn.getXRot(),spawn.getYRot(),spawn.getType(),spawn.getData(),Vec3.ZERO,spawn.getYHeadRot());
+        }
+        var motion=(net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket)packet;
+        return motion.movement().equals(Vec3.ZERO)?packet:new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(id,Vec3.ZERO);
+    }
+    @SuppressWarnings("unchecked")
+    private static net.minecraft.network.protocol.Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener> gamePacket(net.minecraft.network.protocol.Packet<?> packet){
+        return (net.minecraft.network.protocol.Packet<? super net.minecraft.network.protocol.game.ClientGamePacketListener>)packet;
+    }
     private static boolean horizontal(BlockPos pos){return pos.getX()>=-30000000&&pos.getX()<30000000&&pos.getZ()>=-30000000&&pos.getZ()<30000000;}
     private boolean resident(ServerLevel level,Vec3 at){var pos=BlockPos.containing(at);return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;}
     private boolean active(Entity e){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&e.level()==game.maps().level()&&(game.items().currentEpoch(e)||e.entityTags().contains(DELTA)&&game.items().spellSources().source(e)!=null);}

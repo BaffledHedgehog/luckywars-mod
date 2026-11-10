@@ -162,7 +162,7 @@ public final class LbcPozdmanBot {
     }
     private Display.ItemDisplay display(ServerLevel level){
         var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);
-        try{var preset=TagParser.parseCompoundFully("{item_display:'fixed',brightness:{block:15,sky:15},teleport_duration:1,interpolation_duration:1,transformation:{scale:[2f,2f,2f]},item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:bitcoin'}}}");
+        try{var preset=TagParser.parseCompoundFully("{item_display:'fixed',brightness:{block:15,sky:15},teleport_duration:1,interpolation_duration:1,transformation:{scale:[2f,2f,2f],translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]},item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:bitcoin'}}}");
             display.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),preset));
         }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
         display.setNoGravity(true);display.entityTags().add("skywars2.pozdman_display");game.items().markCurrentItemEpoch(display);return display;

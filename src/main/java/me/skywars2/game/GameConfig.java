@@ -153,20 +153,20 @@ public final class GameConfig {
         switch (key) {
             case "lives" -> { configured = lives = integer(key, value, 1, 5); canonical = "lives"; }
             case "health" -> { configured = health = integer(key, value, 1, 60); canonical = "health"; }
-            case "countdownseconds", "countdown" -> { configured = countdownSeconds = integer(key, value, 0, 60); canonical = "countdownSeconds"; }
-            case "stageoneseconds", "stage1seconds" -> { configured = stageOneSeconds = integer(key, value, 0, 3600); canonical = "stageOneSeconds"; }
-            case "stagetwoseconds", "stage2seconds" -> { configured = stageTwoSeconds = integer(key, value, 0, 7200); canonical = "stageTwoSeconds"; }
-            case "endingseconds", "ending" -> { configured = endingSeconds = integer(key, value, 0, 120); canonical = "endingSeconds"; }
-            case "stageoneevent", "stage1event" -> { configured = stageOneEvent = integer(key, value, 0, 9); canonical = "stageOneEvent"; }
-            case "stagetwoevent", "stage2event" -> { configured = stageTwoEvent = integer(key, value, 0, 8); canonical = "stageTwoEvent"; }
-            case "pvpmode", "pvp" -> { configured = pvpMode = integer(key, value, 1, 2); canonical = "pvpMode"; }
+            case "countdownseconds" -> { configured = countdownSeconds = integer(key, value, 0, 60); canonical = "countdownSeconds"; }
+            case "stageoneseconds" -> { configured = stageOneSeconds = integer(key, value, 0, 3600); canonical = "stageOneSeconds"; }
+            case "stagetwoseconds" -> { configured = stageTwoSeconds = integer(key, value, 0, 7200); canonical = "stageTwoSeconds"; }
+            case "endingseconds" -> { configured = endingSeconds = integer(key, value, 0, 120); canonical = "endingSeconds"; }
+            case "stageoneevent" -> { configured = stageOneEvent = integer(key, value, 0, 9); canonical = "stageOneEvent"; }
+            case "stagetwoevent" -> { configured = stageTwoEvent = integer(key, value, 0, 8); canonical = "stageTwoEvent"; }
+            case "pvpmode" -> { configured = pvpMode = integer(key, value, 1, 2); canonical = "pvpMode"; }
             case "tntprotection" -> { configured = tntProtection = integer(key, value, 0, 5); canonical = "tntProtection"; }
             case "gamemode" -> { configured = gameMode = integer(key, value, 1, 4); canonical = "gameMode"; }
             case "bedwarsdirectbedbreaking" -> { configured = bedwarsDirectBedBreaking = bool(key, value); canonical = "bedwarsDirectBedBreaking"; }
-            case "luckymodifier", "cfg_lucky_modifier" -> { configured = luckyModifier = integer(key, value, 0, 12); canonical = "luckyModifier"; }
+            case "luckymodifier" -> { configured = luckyModifier = integer(key, value, 0, 12); canonical = "luckyModifier"; }
             case "day" -> { configured = day = integer(key, value, 1, 3); canonical = "day"; }
-            case "hp", "healthdisplay" -> { configured = healthDisplay = integer(key,value,0,3); canonical="healthDisplay"; }
-            case "imbadropchance", "imbadrop_chance" -> { configured = imbaDropChance = integer(key,value,0,6); canonical="imbaDropChance"; }
+            case "healthdisplay" -> { configured = healthDisplay = integer(key,value,0,3); canonical="healthDisplay"; }
+            case "imbadropchance" -> { configured = imbaDropChance = integer(key,value,0,6); canonical="imbaDropChance"; }
             case "prefixes" -> { configured = prefixes = integer(key,value,0,4); canonical="prefixes"; }
             case "ranked" -> { configured = ranked = bool(key, value); canonical = "ranked"; }
             case "vanillakits" -> { configured = vanillaKits = bool(key, value); canonical = "vanillaKits"; }
@@ -175,7 +175,7 @@ public final class GameConfig {
             case "lbcskills" -> { configured = lbcSkills = bool(key, value); canonical = "lbcSkills"; }
             case "lbclevelups" -> { configured = lbcLevelups = bool(key, value); canonical = "lbcLevelups"; }
             case "lbcchallenges" -> { configured = lbcChallenges = bool(key, value); canonical = "lbcChallenges"; }
-            case "offhandwands", "lefthandwands" -> { configured = offhandWands = bool(key, value); canonical = "offhandWands"; }
+            case "offhandwands" -> { configured = offhandWands = bool(key, value); canonical = "offhandWands"; }
             case "lbcleveluplimit" -> { configured = lbcLevelupLimit = integer(key, value, 1, 12); canonical = "lbcLevelupLimit"; }
             case "lbctrinketlimit" -> { configured = lbcTrinketLimit = integer(key, value, 0, 12); canonical = "lbcTrinketLimit"; }
             case "noborders" -> { configured = noBorders = bool(key, value); canonical = "noBorders"; }

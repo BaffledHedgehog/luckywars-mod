@@ -23,6 +23,13 @@ public abstract class MovementLimitsMixin {
     @Shadow private boolean clientIsFloating;
     @Shadow private int aboveGroundTickCount;
 
+    /** Vanilla snaps to the client's old coordinates after jumpFromGround returns. */
+    @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="handlePlayerPositionChange")
+    private void skywars2$finishMovementBeforeJump(double x,double y,double z,float yaw,float pitch,
+            boolean ground,boolean horizontalCollision,com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original){
+        me.skywars2.game.GroundJumpEvents.afterMovement(player,()->original.call(x,y,z,yaw,pitch,ground,horizontalCollision));
+    }
+
     /** Observe accepted positions only; rotation packets never interrupt the stationary charge. */
     @Inject(method="handleMovePlayer",at=@At("RETURN"))
     private void skywars2$gadgetMovement(ServerboundMovePlayerPacket packet,CallbackInfo ci) {
@@ -33,6 +40,16 @@ public abstract class MovementLimitsMixin {
     @Unique private boolean skywars2$stunned() {
         var game=SkyWars2.game();
         return game!=null && (game.items().shooters().stunned(player) || game.items().timeStop().frozen(player) || game.items().fpvDrone().controlling(player));
+    }
+
+    @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="handlePlayerInput")
+    private void skywars2$jumpPress(ServerboundPlayerInputPacket packet,
+            com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original) {
+        var game=SkyWars2.game();
+        if(game==null||!game.server().isSameThread()){original.call(packet);return;}
+        boolean before=player.getLastClientInput().jump();
+        original.call(packet);
+        if(!before&&player.getLastClientInput().jump())game.items().rocketJumpPressed(player);
     }
 
     /** 26.3 already performs travel in doTick; normally this snap discards its server position. */
@@ -72,7 +89,7 @@ public abstract class MovementLimitsMixin {
         ci.cancel();
     }
 
-    /** Управление транспортом и переключение полёта тоже являются добровольным вводом. */
+    /** РЈРїСЂР°РІР»РµРЅРёРµ С‚СЂР°РЅСЃРїРѕСЂС‚РѕРј Рё РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РїРѕР»С‘С‚Р° С‚РѕР¶Рµ СЏРІР»СЏСЋС‚СЃСЏ РґРѕР±СЂРѕРІРѕР»СЊРЅС‹Рј РІРІРѕРґРѕРј. */
     @Inject(method={"handleMoveVehicle","handlePlayerCommand","handlePlayerAbilities"},at=@At(value="INVOKE",target=
             "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
             shift=At.Shift.AFTER),cancellable=true)

@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:panda_spawn_egg",
+          "name": "skywars2:railroad",
           "modifier": [
             {
               "count": 1,

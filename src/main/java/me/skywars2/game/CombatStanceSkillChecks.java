@@ -92,9 +92,14 @@ public final class CombatStanceSkillChecks {
         void hits(){
             select(29);var mana=game.items().mana();mana.maximum(owner,10000);mana.set(owner,14999);mana.set(other,0);
             hit(other,other.damageSources().playerAttack(owner));near(mana.get(owner),15999,"pre-hit threshold overshoot retained");near(mana.get(other),-1000,"victim debit has no floor");
-            mana.set(owner,0);mana.set(other,500);hit(other,other.damageSources().arrow(arrow(),owner));near(mana.get(owner),1000,"native owned arrow steals");near(mana.get(other),-500,"native arrow victim debit");
+            mana.set(owner,0);mana.set(other,500);hit(other,other.damageSources().arrow(arrow(),owner));near(mana.get(owner),0,"native owned arrow cannot steal");near(mana.get(other),500,"arrow leaves victim mana unchanged");
             mana.set(owner,0);hit(other,new DamageSource(owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(LbcKfcRewards.CULTUS_ARROW),arrow(),owner));
-            near(mana.get(owner),1000,"native Cultus arrow retains acceptable tag");
+            near(mana.get(owner),0,"Cultus arrow cannot grant melee-only mana vampirism");
+            var sword=new LbcChargedSwords.ThrownSword(LbcChargedSwords.TYPE,level);sword.setOwner(owner);sword.setPos(at.add(0,8,0));actors.add(sword);
+            mana.set(owner,0);mana.set(other,500);hit(other,new DamageSource(owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),sword,owner));
+            near(mana.get(owner),1000,"real sword projectile is eligible even when using arrow damage");near(mana.get(other),-500,"sword projectile transfers mana");
+            sword.setOwner(other);mana.set(owner,0);hit(other,new DamageSource(owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.ARROW),sword,owner));
+            near(mana.get(owner),0,"statistical player credit cannot impersonate physical sword ownership");
             mana.maximum(owner,Integer.MAX_VALUE);mana.set(owner,Integer.MAX_VALUE);mana.set(other,Integer.MIN_VALUE);hit(other,other.damageSources().playerAttack(owner));
             near(mana.get(owner),Integer.MAX_VALUE,"native award does not wrap into negative mana");near(mana.get(other),Integer.MIN_VALUE,"native debit does not wrap into positive mana");mana.maximum(owner,10000);
             mana.set(owner,0);hit(other,other.damageSources().indirectMagic(owner,owner));near(mana.get(owner),0,"plain attributed magic cannot steal");

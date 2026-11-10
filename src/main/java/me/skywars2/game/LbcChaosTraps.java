@@ -21,9 +21,10 @@ public final class LbcChaosTraps {
     public LbcChaosTraps(GameController game){this.game=game;}
 
     /** /loot spawn has a chest context and default luck zero, independent of the wearer's Luck. */
-    public List<ItemEntity> spawn(ServerPlayer owner,Vec3 pos){return spawn(owner,pos,true);}
-    public List<ItemEntity> spawnUnjammed(ServerPlayer owner,Vec3 pos){return spawn(owner,pos,false);}
-    private List<ItemEntity> spawn(ServerPlayer owner,Vec3 pos,boolean magical){
+    public List<ItemEntity> spawn(ServerPlayer owner,Vec3 pos){return spawn(owner,pos,true,false);}
+    public List<ItemEntity> spawnArmor(ServerPlayer owner,Vec3 pos){return spawn(owner,pos,true,true);}
+    public List<ItemEntity> spawnUnjammed(ServerPlayer owner,Vec3 pos){return spawn(owner,pos,false,false);}
+    private List<ItemEntity> spawn(ServerPlayer owner,Vec3 pos,boolean magical,boolean helmet){
         if(owner==null||!game.playing()||game.stage()==GameController.Stage.ENDING
                 ||owner.level()!=game.maps().level()||game.isObserver(owner)
                 ||game.items().timeStop().stopped(owner.level())
@@ -39,6 +40,7 @@ public final class LbcChaosTraps {
             // Thrower is set before ENTITY_LOAD; pickup target must never become the trap's author.
             token.setThrower(owner);
             token.setDefaultPickUpDelay();
+            if(helmet)game.items().spellSources().bind(token,new LbcSpellSource.Source(token.getUUID(),owner.getUUID(),game.items().epoch(),game.items().indirectKills().wildCause(owner),java.util.Set.of()).helmetLoot());
             game.items().markCurrentItemEpoch(token);
             game.items().timeStop().prepareFrozen(token);
             if(level.addFreshEntity(token)){

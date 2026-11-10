@@ -12,10 +12,9 @@ public final class GameLuckyModifiers {
     GameLuckyModifiers(GameController game) {
         this.game = game;
         syncConfig();
-        // A completed LuckyWars result can remain between matches; ordinary SkyWars does not reroll it.
-        int previous = game.items().mana().score(ScoreHolder.forNameOnly("final_luck_modifier"), "lbc.math").get();
-        current = previous >= 1 && previous <= 12 ? previous : 1;
-        if (previous != current) publish();
+        // A saved scoreboard is not a live match. Never resurrect its previous category.
+        current = 1;
+        publish();
     }
 
     /** Source random table: 89 neutral outcomes and one outcome for each fixed variant. */
@@ -31,7 +30,7 @@ public final class GameLuckyModifiers {
     Checkpoint checkpoint() { return new Checkpoint(current, committed); }
     void restore(Checkpoint image) { current = image.current; committed = image.committed; }
 
-    /** Only LuckyWars resolves this selector. Other modes retain it without consuming randomness. */
+    /** Only LuckyWars resolves this selector. Other modes start neutral without consuming randomness. */
     public int startMatch() {
         return startMatch(game.gameMode());
     }
@@ -39,12 +38,14 @@ public final class GameLuckyModifiers {
     int startMatch(int mode) {
         if (committed) return current;
         if (mode == 2) return commit(game.config().luckyModifier);
+        current = 1;
         committed = true;
+        publish();
         return current;
     }
 
-    /** Unlock the next eligible start, preserving both the GUI setting and the previous result. */
-    public void endMatch() { committed = false; }
+    /** The configured selector persists; its resolved match result does not. */
+    public void endMatch() { reset(); }
 
     /** Configuration publication never rerolls an active category. Called only on actual edits. */
     public void syncConfig() {

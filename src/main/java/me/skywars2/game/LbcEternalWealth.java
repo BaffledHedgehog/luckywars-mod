@@ -177,8 +177,8 @@ public final class LbcEternalWealth {
         game.items().indirectKills().capturedWorldChanges(level,actor.cause,()->{
             for(int x=-4;x<=4;x++)for(int y=-4;y<=4;y++)for(int z=-4;z<=4;z++)if(inMask(x,y,z)){
                 var pos=center.offset(x,y,z);if(level.isOutsideBuildHeight(pos))continue;var old=level.getBlockState(pos);
-                if(old.is(SOLID)||old.is(LbcEternalWealthItems.CURSED_BLOCK)){
-                    LbcDropBlocks.setBlock(level,pos,LbcEternalWealthItems.CURSED_BLOCK.defaultBlockState(),true);
+                if(old.is(SOLID)){
+                    LbcDropBlocks.setBlock(level,pos,LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL).defaultBlockState(),true);
                 }else if(old.is(FLUIDS))LbcDropBlocks.setBlock(level,pos,Blocks.GOLD_BLOCK.defaultBlockState(),true);
             }
         });
@@ -193,7 +193,7 @@ public final class LbcEternalWealth {
                 if(suppressed(level,target.position())||game.items().mana().hudValue(target,"void_resistance")>0||target.entityTags().contains("sin_greed_active"))continue;
                 int contacts=0;
                 for(var delta:CONTACTS)
-                    if(level.getBlockState(BlockPos.containing(target.position().add(delta))).is(LbcEternalWealthItems.CURSED_BLOCK))contacts++;
+                    if(level.getBlockState(BlockPos.containing(target.position().add(delta))).is(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL)))contacts++;
                 if(contacts==0)continue;
                 for(var field:entry.getValue())if(!field.body.isRemoved()&&field.body.position().distanceToSqr(target.position())<=30.25){
                     var source=game.items().indirectKills().captureDamage(level.damageSources().fellOutOfWorld(),field.cause);
@@ -254,7 +254,7 @@ public final class LbcEternalWealth {
         for(var field:actors.values())if(field.kind==Kind.FIELD&&field.body.level()==level&&!removed.contains(field))maskCells(field.body.blockPosition(),protectedCells);
         positions.removeAll(protectedCells);
         for(long value:positions){var pos=BlockPos.of(value);
-            if(level.hasChunkAt(pos)&&level.getBlockState(pos).is(LbcEternalWealthItems.CURSED_BLOCK))
+            if(level.hasChunkAt(pos)&&level.getBlockState(pos).is(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL)))
                 LbcDropBlocks.setBlock(level,pos,Blocks.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.YELLOW).defaultBlockState(),true);
         }
         removed.forEach(this::remove);

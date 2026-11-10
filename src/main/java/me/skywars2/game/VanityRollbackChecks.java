@@ -224,7 +224,7 @@ public final class VanityRollbackChecks {
                 for(int n=0;n<100;n++)game.items().addPlayerCounters(gamma);
                 gamma.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET,new ItemStack(LbcItems.ROCKET_BOOTS));
                 game.items().rocketEquipment(gamma,gamma.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET));
-                require(game.items().rocketGlide(gamma)&&game.items().rocketJumps(gamma)==2,"real rocket use creates a charged resident ability");
+                require(game.items().rocketJumpPressed(gamma)&&game.items().rocketJumps(gamma)==2,"real rocket use creates a charged resident ability");
                 gamma.setDeltaMovement(Vec3.ZERO);
                 game.items().mana().score(gamma,"dmg_dealt").set(0);game.items().mana().score(gamma,"gens_type").set(5);
                 gamma.getInventory().setSelectedSlot(0);gamma.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,game.lbc().rollTable(gamma.level(),gamma.position(),gamma,"lbc:witch_gens").getFirst().copyWithCount(2));

@@ -10,6 +10,20 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 public final class LbcMultiplierTablets {
     private LbcMultiplierTablets(){}
     public static int kind(ItemStack stack){return ItemData.intValue(stack,"multiply",0);}
+    /** Shared ground/crafting payload. An empty result is a true no-op and spends no tablet. */
+    static ItemStack amplified(ItemStack donor,int kind){
+        var changed=donor.copy();
+        if(kind==2){
+            var before=donor.getOrDefault(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,ItemAttributeModifiers.EMPTY);
+            var after=doubled(before);if(after.equals(before))return ItemStack.EMPTY;
+            changed.set(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,after);
+        }else if(kind==4){
+            var before=donor.getOrDefault(net.minecraft.core.component.DataComponents.ENCHANTMENTS,ItemEnchantments.EMPTY);
+            var after=quadrupled(before);if(after.equals(before))return ItemStack.EMPTY;
+            changed.set(net.minecraft.core.component.DataComponents.ENCHANTMENTS,after);
+        }else if(kind!=3)return ItemStack.EMPTY;
+        return changed;
+    }
     static ItemAttributeModifiers doubled(ItemAttributeModifiers source){
         var entries=new ArrayList<ItemAttributeModifiers.Entry>(source.modifiers().size());
         for(var entry:source.modifiers()){

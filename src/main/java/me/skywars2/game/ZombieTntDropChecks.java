@@ -116,7 +116,7 @@ public final class ZombieTntDropChecks {
                 require(zombie.getHealth()==20 && zombie.getDeltaMovement().equals(Vec3.ZERO),"native default health/motion");
                 var tnt=mounted(zombie);
                 require(tnt.getVehicle()==zombie && tnt.getFuse()==200 && !tnt.isNoGravity() && tnt.getDeltaMovement().equals(Vec3.ZERO),"native riding relation, fuse200, zero default motion/gravity");
-                require(tnt.getOwner()==author && game.items().zombieTntDrops().owner(zombie)==author,"actual thrower independent of pickup owner");
+                require(tnt.getOwner()==zombie && game.items().zombieTntDrops().owner(zombie)==zombie,"actual thrower independent of pickup owner");
                 var tag=saved(zombie,level);var passengers=tag.getList("Passengers").orElseThrow();
                 require(passengers.size()==1 && saved(tnt,level).getShortOr("fuse",(short)-1)==200,"native entity serialization retains mounted TNT/fuse200");
                 require(Math.abs(tnt.getY()-zombie.getY()-.98)<1e-6 && Math.abs(tnt.getX()-zombie.getX())<1e-8 && Math.abs(tnt.getZ()-zombie.getZ())<1e-8,"native baby passenger attachment placement");
@@ -127,28 +127,28 @@ public final class ZombieTntDropChecks {
         }
         PrimedTnt single(){var actors=batch(alpha);var selected=actors.getFirst();var result=mounted(selected);
             for(var other:actors)if(other!=selected){mounted(other).discard();other.discard();}
-            result.stopRiding();selected.discard();result.setPos(origin);result.setNoGravity(true);result.setDeltaMovement(Vec3.ZERO);return result;
+            result.stopRiding();selected.setPos(origin.add(0,50,0));result.setPos(origin);result.setNoGravity(true);result.setDeltaMovement(Vec3.ZERO);return result;
         }
         float blast(int protection,boolean reflected){
-            var tnt=single();game.config().tntProtection=protection;if(reflected)game.items().electro().assignOwner(tnt,beta);
+            var tnt=single();var nativeOwner=tnt.getOwner();game.config().tntProtection=protection;if(reflected)game.items().electro().assignOwner(tnt,beta);
             beta.teleportTo(level,origin.x+1,origin.y,origin.z,Set.of(),0,0,true);beta.setHealth(1000);beta.setAbsorptionAmount(0);beta.setDeltaMovement(Vec3.ZERO);
             beta.setInvulnerableTime(0);beta.damageCooldownTime=0;tnt.setFuse(1);tnt.tick();
             require(tnt.isRemoved(),"actual native final fuse explosion");float loss=1000-beta.getHealth();
-            if(loss>0)require(beta.getLastDamageSource()!=null && beta.getLastDamageSource().getDirectEntity()==tnt && beta.getLastDamageSource().getEntity()==(reflected?beta:alpha),"native blast retains reflection-first thrower");return loss;
+            if(loss>0)require(beta.getLastDamageSource()!=null && beta.getLastDamageSource().getDirectEntity()==tnt && beta.getLastDamageSource().getEntity()==(reflected?beta:nativeOwner),"native blast retains reflection-first thrower");return loss;
         }
         net.minecraft.world.entity.animal.cow.Cow cow(Vec3 at){
             var cow=new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW,level);
             cow.setPos(at);cow.setNoAi(true);cow.setNoGravity(true);require(level.addFreshEntity(cow),"disposable mob admitted");return cow;
         }
         void lethal(boolean reflected){
-            away();var tnt=single();var owner=reflected?beta:alpha;if(reflected)game.items().electro().assignOwner(tnt,beta);
+            away();var tnt=single();var owner=reflected?beta:alpha;var expected=reflected?beta:tnt.getOwner();if(reflected)game.items().electro().assignOwner(tnt,beta);
             var cow=cow(origin.add(1,0,0));int before=kills(owner);
-            try{cow.setHealth(1);tnt.setFuse(1);tnt.tick();require(cow.isDeadOrDying() && cow.getKillCredit()==owner && kills(owner)==before+1,"native TNT death credits causal/reflected player and builtin mob kill");}
+            try{cow.setHealth(1);tnt.setFuse(1);tnt.tick();require(cow.isDeadOrDying() && cow.getKillCredit()==expected && kills(owner)==before+(reflected?1:0),"native TNT death credits causal/reflected player and builtin mob kill");}
             finally{game.items().indirectKills().clear(cow);cow.discard();clear();}
         }
         void roundTrip(){
             for(boolean reflected:List.of(false,true)){
-                var original=single();LivingEntity expected=reflected?beta:alpha;if(reflected)game.items().electro().assignOwner(original,beta);
+                var original=single();LivingEntity expected=reflected?beta:original.getOwner();if(reflected)game.items().electro().assignOwner(original,beta);
                 var tag=saved(original,level);require(tag.contains("owner"),"native serialized causal owner");
                 var restored=new PrimedTnt(net.minecraft.world.entity.EntityTypes.TNT,level);
                 try{restored.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),tag));
@@ -157,10 +157,10 @@ public final class ZombieTntDropChecks {
             }
         }
         void chain(){
-            away();var parent=single();var pos=BlockPos.containing(origin).east();level.setBlock(pos,Blocks.TNT.defaultBlockState(),3);
+            away();var parent=single();var nativeOwner=parent.getOwner();var pos=BlockPos.containing(origin).east();level.setBlock(pos,Blocks.TNT.defaultBlockState(),3);
             parent.setFuse(1);parent.tick();var children=explosives();
             require(parent.isRemoved() && level.getBlockState(pos).isAir() && children.size()==1,"actual native blast primes one native TNT block");
-            var child=children.getFirst();require(child.getOwner()==alpha && LbcZombieTntDrops.managed(child) && game.items().currentEpoch(child) && child.getFuse()>0 && child.getFuse()<80 && !child.isNoGravity(),"native chain inherits cause/epoch while retaining fuse/gravity");
+            var child=children.getFirst();require(child.getOwner()==nativeOwner && LbcZombieTntDrops.managed(child) && game.items().currentEpoch(child) && child.getFuse()>0 && child.getFuse()<80 && !child.isNoGravity(),"native chain inherits cause/epoch while retaining fuse/gravity");
             clear();require(child.isRemoved(),"quiet stop removes delayed native chain");
         }
         void melee(){
@@ -178,8 +178,8 @@ public final class ZombieTntDropChecks {
             var drowned=source.convertTo(net.minecraft.world.entity.EntityTypes.DROWNED,
                     net.minecraft.world.entity.ConversionParams.single(source,true,true),net.minecraft.world.entity.EntitySpawnReason.CONVERSION,converted->{});
             require(drowned!=null && source.isRemoved() && drowned.isBaby() && LbcZombieTntDrops.managed(drowned)
-                    && game.items().zombieTntDrops().owner(drowned)==alpha && game.items().currentEpoch(drowned),"actual native conversion retains baby carrier cause/epoch");
-            require(tnt.getVehicle()==drowned && tnt.getFuse()==200 && tnt.getOwner()==alpha,"native conversion transfers the same live TNT passenger");
+                    && game.items().zombieTntDrops().owner(drowned)==drowned && game.items().currentEpoch(drowned),"actual native conversion retains baby carrier cause/epoch");
+            require(tnt.getVehicle()==drowned && tnt.getFuse()==200 && tnt.getOwner()==drowned,"native conversion transfers the same live TNT passenger");
             clear();require(drowned.isRemoved() && tnt.isRemoved(),"quiet cleanup tracks converted carrier/passenger");
             actors=batch(alpha);source=actors.getFirst();tnt=mounted(source);
             for(var other:actors)if(other!=source){mounted(other).discard();other.discard();}
@@ -244,7 +244,7 @@ public final class ZombieTntDropChecks {
                 case 8->{
                     var author=cow(origin.add(0,25,0));try{var t=drop(1,author);t.setTarget(beta.getUUID());author.discard();
                         require(game.items().zombieTntDrops().spawn(t),"departed captured actual author still activates");t.discard();
-                        require(live().size()==4 && live().stream().allMatch(z->game.items().zombieTntDrops().owner(z)==author) && explosives().stream().allMatch(tnt->tnt.getOwner()==author),"capture retains departed author for carriers/passengers");
+                        require(live().size()==4 && live().stream().allMatch(z->game.items().zombieTntDrops().owner(z)==z) && explosives().stream().allMatch(tnt->tnt.getOwner()==tnt.getVehicle()),"capture retains departed author for carriers/passengers");
                     }finally{author.discard();clear();}
                     var stale=drop(1,alpha);stale.entityTags().add("skywars2.items.stale-fixture");require(!game.items().zombieTntDrops().ready(stale) && !game.items().zombieTntDrops().spawn(stale),"stale epoch rejects before actor admission");stale.discard();
                     var remote=drop(2,alpha);int x=(BlockPos.containing(origin).getX()>>4)+128,z=(BlockPos.containing(origin).getZ()>>4)+128;

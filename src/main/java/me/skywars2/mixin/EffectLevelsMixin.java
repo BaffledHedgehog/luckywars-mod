@@ -1,5 +1,7 @@
 package me.skywars2.mixin;
 
+import me.skywars2.game.VanillaExpansionRules;
+
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
@@ -21,6 +23,7 @@ public abstract class EffectLevelsMixin {
     private void skywars2$fullAmplifier(Holder<MobEffect> effect, int duration, int amplifier,
                                        boolean ambient, boolean visible, boolean showIcon,
                                        MobEffectInstance hidden, CallbackInfo ci) {
+        if(!VanillaExpansionRules.enabled()){return;}
         this.amplifier = amplifier;
     }
 

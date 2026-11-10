@@ -340,7 +340,8 @@ public final class LbcSummons {
             if(!mob.isAlive() || mob.isRemoved() || !valid(owner) || mob.level()!=owner.level()
                     || !game.items().currentEpoch(state.epoch)) { remove(mob); continue; }
             if(paused(mob)) { mob.setTarget(null); continue; }
-            if(mob.getTarget()!=null && !canAttack(mob,mob.getTarget())) mob.setTarget(null);
+            if(mob.getTarget()!=null && (!canAttack(mob,mob.getTarget())
+                    ||mob instanceof net.minecraft.world.entity.monster.Guardian&&!mob.hasLineOfSight(mob.getTarget()))) mob.setTarget(null);
             switch(state.kind) {
                 case "obsession" -> {
                     for(var enemy:enemies(owner,mob.position(),2.5))

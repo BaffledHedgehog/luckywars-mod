@@ -90,7 +90,15 @@ public final class LbcReactiveArtifacts {
     private void smoke(ServerPlayer owner){
         var at=owner.position().add(0,1,0);for(var viewer:owner.level().players())if(viewer.distanceToSqr(owner)>=.0001)owner.level().sendParticles(viewer,ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,false,false,at.x,at.y,at.z,500,5,5,5,.1);
         owner.level().sendParticles(owner,ParticleTypes.SMOKE,false,false,at.x,at.y,at.z,10,.3,.3,.3,.05);
-        clouds.add(new Cloud(owner,game.items().epoch()));updateSmoke(false);
+        // The artifact is a one-shot flash, not a lingering aura. Source distance0.01..7
+        // excludes its wielder and grants one full five-second native effect.
+        for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(7),
+                e->e!=owner&&e.distanceToSqr(owner)>=.0001&&e.distanceToSqr(owner)<=49&&wildTarget(e))){
+            if(target instanceof ServerPlayer)effect(owner,target,MobEffects.BLINDNESS,100,0,true,true);
+            else if(target.getType().builtInRegistryHolder().is(MOBS)){
+                var range=target.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.setBaseValue(3);
+            }
+        }
     }
     void grenadeSmoke(ServerPlayer owner,Vec3 at,boolean old){
         if(!valid(owner))return;

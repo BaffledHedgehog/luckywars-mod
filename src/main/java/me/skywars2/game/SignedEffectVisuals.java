@@ -45,6 +45,7 @@ public final class SignedEffectVisuals {
     }
     /** Negative Glowing supplies the matching invisibility tier without replacing real effect layers. */
     public static long invisibilityLevel(LivingEntity entity) {
+        if(!VanillaExpansionRules.enabled())return entity.hasEffect(MobEffects.INVISIBILITY)?1:0;
         long invisibility=level(entity,MobEffects.INVISIBILITY),glowing=level(entity,MobEffects.GLOWING);
         return glowing<0?Math.max(invisibility,-glowing):invisibility;
     }
@@ -59,10 +60,16 @@ public final class SignedEffectVisuals {
     }
     /** Prevent a vanilla client from clamping negative levels into active level I. */
     public static int clientDuration(Holder<MobEffect> effect, int amplifier, int duration) {
+        if(!VanillaExpansionRules.enabled())return duration;
         return (binary(effect) || effect.is(MobEffects.JUMP_BOOST) || effect.is(MobEffects.SLOW_FALLING) || effect.is(MobEffects.DOLPHINS_GRACE) || effect.is(MobEffects.CONDUIT_POWER)) && (long) amplifier + 1 <= 0 ? 0 : duration;
     }
     public static void effectsChanged(LivingEntity entity) {
         if (entity.level().isClientSide()) return;
+        if(!VanillaExpansionRules.enabled()){
+            PRESENTATIONS.remove(entity.getId());ENTITIES.remove(entity.getId());
+            if(entity instanceof ServerPlayer player){REVEAL.remove(player.getUUID());synchronize(player);}
+            FullInvisibility.effectsChanged(entity);SignedGlowVisuals.changed(entity);return;
+        }
         long invisibility = invisibilityLevel(entity);
         var particles = entity.getActiveEffects().stream().filter(MobEffectInstance::isVisible)
                 .map(MobEffectInstance::getParticleOptions).toList();
@@ -156,6 +163,7 @@ public final class SignedEffectVisuals {
         var result = new ArrayList<Identifier>();
         if (dimension.equals("minecraft:nexus")) result.add(NEXUS);
         if (dimension.equals("minecraft:imprinted")) result.add(IMPRINTED);
+        if(!VanillaExpansionRules.enabled())return result;
         // This is the authoritative timed disorder, not a score-only or actionbar projection.
         var game=me.skywars2.SkyWars2.game();
         if(entity instanceof ServerPlayer player&&game!=null&&game.items()!=null
@@ -206,6 +214,7 @@ public final class SignedEffectVisuals {
     /** Runs on the packet encoder: only immutable snapshots and concurrent maps are consulted. */
     public static List<SynchedEntityData.DataValue<?>> project(int id,
             List<SynchedEntityData.DataValue<?>> fields, PacketContext context) {
+        if(!VanillaExpansionRules.enabled())return fields;
         var snapshot = PRESENTATIONS.get(id);
         if (snapshot == null) return fields;
         var viewer = PolymerCommonUtils.getPlayer(context);

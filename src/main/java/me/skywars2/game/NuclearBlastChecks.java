@@ -74,29 +74,103 @@ public final class NuclearBlastChecks {
             wave(at.add(-4,0,0),4);float protectedHealth=covered.getHealth();require(protectedHealth>=18,"native wall exposure is primary protection");
             for(var p:BlockPos.betweenClosed(wall.offset(0,-2,-3),wall.offset(0,4,3)))LbcDropBlocks.setBlock(level,p,Blocks.AIR.defaultBlockState(),true);
             wave(at.add(-4,0,0),4);require(covered.getHealth()<protectedHealth-5,"fresh native exposure penetrates only after wall destruction");
+            nativeResistance();
             shape();
             nativeBlocks();
+            preparedCover();
+        }
+        void preparedCover(){
+            for(var p:BlockPos.betweenClosed(BlockPos.containing(at).offset(-7,-7,-7),BlockPos.containing(at).offset(7,7,7)))
+                LbcDropBlocks.setBlock(level,p,Blocks.AIR.defaultBlockState(),true);
+            var shape=new NuclearTerrain.Shape(at,5,5,4);
+            var geometry=NuclearTerrain.Geometry.prepare(shape);
+            // Build AFTER preparation: immutable geometry must not cache an empty world.
+            var wall=BlockPos.containing(at).offset(-2,0,0);
+            for(var p:BlockPos.betweenClosed(wall.offset(0,-2,-3),wall.offset(0,4,3)))
+                LbcDropBlocks.setBlock(level,p,Blocks.SLIME_BLOCK.defaultBlockState(),true);
+            var bedrock=BlockPos.containing(at).offset(0,-3,0);
+            LbcDropBlocks.setBlock(level,bedrock,Blocks.BEDROCK.defaultBlockState(),true);
+            var far=body(at.add(-4,0,0));far.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);far.setHealth(1000);
+            var near=body(at.add(-.7,0,0));near.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);near.setHealth(1000);
+            near.getAttribute(Attributes.SCALE).setBaseValue(.25);
+            var source=new PrimedTnt(level,at.x,at.y,at.z,base.owner);
+            source.entityTags().add(LbcDamage.UNPROTECTED_TNT);game.items().markCurrentItemEpoch(source);
+            var positions=shape.preparedPositions(game,level,geometry);
+            require(positions.contains(wall)&&!positions.contains(bedrock),"prepared geometry reads newly placed wall and retains bedrock");
+            int[] applications={0};
+            shape.applyPrepared(game,level,game.items().indirectKills().wildCause(base.owner),positions,()->{
+                applications[0]++;return new net.minecraft.world.level.ServerExplosion(level,source,level.damageSources().explosion(source,base.owner),null,at,4,false,
+                        net.minecraft.world.level.Explosion.BlockInteraction.DESTROY);
+            },Runnable::run);
+            require(applications[0]==1&&level.getBlockState(wall).isAir()&&level.getBlockState(bedrock).is(Blocks.BEDROCK),
+                    "one prepared native terrain application removes wall without damaging entities");
+            NuclearTerrain.withOcclusion(shape.walls,()->NuclearTerrain.damageWave(source,
+                    ()->level.explode(source,at.x,at.y,at.z,4,Level.ExplosionInteraction.TNT)));
+            float protectedHealth=far.getHealth();
+            require(protectedHealth>=998&&near.getHealth()<980,"native far exposure retains former wall while immediate core uses live terrain");
+            // No retained snapshot may escape the exact accepted wave scope.
+            wave(at,4);
+            require(far.getHealth()<protectedHealth-5,"unrelated native explosion sees the actual cleared world");
+        }
+        void nativeResistance(){
+            var center=BlockPos.containing(at);var point=Vec3.atCenterOf(center);
+            require(NuclearTerrain.wand(point).power==20&&NuclearTerrain.point(point).power==25,"actual source wave powers");
+            try{
+                var calculate=net.minecraft.world.level.ServerExplosion.class.getDeclaredMethod("calculateExplodedPositions");calculate.setAccessible(true);
+                for(float power:new float[]{20,25}){
+                    for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
+                        LbcDropBlocks.setBlock(level,pos,Blocks.OBSIDIAN.defaultBlockState(),true);
+                    LbcDropBlocks.setBlock(level,center,Blocks.STONE.defaultBlockState(),true);
+                    var creeper=new net.minecraft.world.entity.monster.Creeper(EntityTypes.CREEPER,level);
+                    var nativeBlast=new net.minecraft.world.level.ServerExplosion(level,creeper,level.damageSources().explosion(creeper,creeper),null,point,power,false,
+                            net.minecraft.world.level.Explosion.BlockInteraction.DESTROY);
+                    var selected=(java.util.List<?>)calculate.invoke(nativeBlast);
+                    require(selected.size()==1&&selected.contains(center),"native ray clears stone but cannot penetrate an obsidian shell at power "+power);
+                    LbcDropBlocks.setBlock(level,center,Blocks.OBSIDIAN.defaultBlockState(),true);
+                    require(((java.util.List<?>)calculate.invoke(nativeBlast)).isEmpty(),"native ray cannot even admit its obsidian origin at power "+power);
+                    LbcDropBlocks.setBlock(level,center,Blocks.STONE.defaultBlockState(),true);
+                    var shape=new NuclearTerrain.Shape(point,2,2,power).copy();int steps=0;
+                    while(!shape.step(game,level,game.items().indirectKills().wildCause(base.owner)))require(++steps<100,"finite copied native-resistance shape");
+                    require(level.getBlockState(center).isAir(),"shared copied terrain clears the native-admitted stone");
+                    for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
+                        if(!pos.equals(center))require(level.getBlockState(pos).is(Blocks.OBSIDIAN),"shared copied terrain preserves the native-resistant shell");
+                }
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("Native explosion resistance reference",error);}
         }
         void shape(){
             long seed=4711;int inside=0,outside=0;for(int i=0;i<512;i++){double angle=i*Math.PI/256;
                 require(NuclearTerrain.contains(seed,.6*Math.cos(angle),0,.6*Math.sin(angle),.6),"dense core has no sparse-ray gaps");
                 if(NuclearTerrain.contains(seed,Math.cos(angle),0,Math.sin(angle),1))inside++;else outside++;}
             require(inside>0&&outside>0,"deterministic boundary has spikes and recesses");
-            require(NuclearTerrain.breakChance(6,.4)>NuclearTerrain.breakChance(1200,.4)
-                    &&NuclearTerrain.breakChance(1200,.4)>0,"harder blocks probabilistically retained");
+            require(NuclearTerrain.breakChance(6,.4,25)>0&&NuclearTerrain.breakChance(1200,.4,25)==0,
+                    "resistance beyond native wave energy is always retained");
+            require(NuclearTerrain.breakChance(6,.78,25)==1&&NuclearTerrain.breakChance(6,.9,25)==1
+                            &&NuclearTerrain.breakChance(60,.4,25)>NuclearTerrain.breakChance(60,.9,25),
+                    "ordinary blocks do not gain random survival inside a ray; resistant blocks still attenuate the outside");
+            for(int i=0;i<64;i++){
+                double yaw=i*2.399963229728653,y=.11+(i%17)*.045,horizontal=Math.sqrt(1-y*y);
+                boolean ended=false;
+                for(int step=1;step<=112;step++){
+                    double r=step/100d;boolean selected=NuclearTerrain.contains(seed,Math.cos(yaw)*horizontal*r,y*r,Math.sin(yaw)*horizontal*r,r);
+                    require(!ended||!selected,"a ray cannot resume beyond a gap and leave floating ordinary blocks inside the bowl");
+                    if(!selected)ended=true;
+                }
+            }
             var center=BlockPos.containing(at);for(var p:BlockPos.betweenClosed(center.offset(-3,-3,-3),center.offset(3,3,3)))
                 LbcDropBlocks.setBlock(level,p,Blocks.STONE.defaultBlockState(),true);
             LbcDropBlocks.setBlock(level,center,Blocks.BEDROCK.defaultBlockState(),true);
-            var shape=new NuclearTerrain.Shape(at,5,5);int steps=0;
+            var shape=new NuclearTerrain.Shape(at,5,5,25);int steps=0;
             while(!shape.step(game,level,game.items().indirectKills().wildCause(base.owner))){require(shape.visited<=NuclearTerrain.CELLS_PER_STEP,"bounded terrain reads per step");require(++steps<100,"finite resident work");}
             require(shape.visited<=NuclearTerrain.CELLS_PER_STEP&&level.getBlockState(center).is(Blocks.BEDROCK),"unbreakable native block retained");
             int air=0;for(var p:BlockPos.betweenClosed(center.offset(-3,-3,-3),center.offset(3,3,3)))if(level.getBlockState(p).isAir())air++;
             require(air>250,"shared terrain clears dense weak core in one operation");
+            for(var p:BlockPos.betweenClosed(center.offset(-2,-2,-2),center.offset(2,2,2)))
+                if(!p.equals(center))require(level.getBlockState(p).isAir(),"ordinary stone core has no probabilistic holes");
         }
         void nativeBlocks(){
             for(var p:BlockPos.betweenClosed(BlockPos.containing(at).offset(-7,-7,-7),BlockPos.containing(at).offset(7,7,7)))
                 LbcDropBlocks.setBlock(level,p,Blocks.AIR.defaultBlockState(),true);
-            var shape=new NuclearTerrain.Shape(at,5,5);var tnt=BlockPos.containing(at);BlockPos chest=null;
+            var shape=new NuclearTerrain.Shape(at,5,5,20);var tnt=BlockPos.containing(at);BlockPos chest=null;
             for(var p:BlockPos.betweenClosed(tnt.offset(-2,0,-2),tnt.offset(2,0,2)))
                 if(!p.equals(tnt)&&NuclearTerrain.unit(shape.seed^p.asLong())<.5){chest=p.immutable();break;}
             require(chest!=null,"deterministically admitted native chest fixture");

@@ -266,6 +266,7 @@ public final class LbcFrost {
     /** Покрываем реальный хитбокс после центрирования; верхние грани не захватывают соседний блок. */
     private void captureIce(State state) {
         var entity = state.entity;
+        LbcFrozenMotion.hold(entity,LbcFrozenMotion.FROST);
         var anchor = state.anchor;
         var bounds = entity.getBoundingBox().move(anchor.getX()+.5-entity.getX(),
                 anchor.getY()-entity.getY(), anchor.getZ()+.5-entity.getZ());
@@ -287,6 +288,7 @@ public final class LbcFrost {
     private void hold(State state) {
         if(LbcParasite.active(state.entity)){clear(state.entity);return;}
         var entity = state.entity;
+        LbcFrozenMotion.hold(entity,LbcFrozenMotion.FROST);
         var anchor = state.anchor;
         double x = anchor.getX()+.5, y = anchor.getY(), z = anchor.getZ()+.5;
         if (entity.getX() != x || entity.getY() != y || entity.getZ() != z) entity.teleportTo(x, y, z);
@@ -326,6 +328,7 @@ public final class LbcFrost {
     }
 
     private void thaw(State state, boolean particles) {
+        LbcFrozenMotion.release(state.entity,LbcFrozenMotion.FROST);
         if (state.anchor == null) return;
         for (var pos : state.cells) release(pos, state.entity.getUUID());
         if (particles) {

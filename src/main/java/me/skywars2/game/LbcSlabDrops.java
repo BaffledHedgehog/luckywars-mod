@@ -25,7 +25,7 @@ public final class LbcSlabDrops {
     public LbcSlabDrops(GameController game){this.game=game;}
     private static CompoundTag preset(boolean normal){
         String label=normal?"{italic:false,translate:\"agressive_slab\"}":"{italic:false,text:\"Агрессивный полублок\"}";
-        String text="{"+(normal?"PersistenceRequired:1b,":"")+"DeathLootTable:\"empty\",IsBaby:1b,equipment:{head:{id:\"minecraft:oak_slab\",count:1,components:{\"minecraft:custom_name\":"+label+",\"minecraft:attribute_modifiers\":[{slot:\"mainhand\",id:\"minecraft:base_attack_damage\",type:\"minecraft:attack_damage\",amount:"+(normal?6:3)+",operation:\"add_value\"}]"+(normal?",\"minecraft:tooltip_style\":\"lbc:tier_d\"":"")+"}}},drop_chances:{head:1.0f},active_effects:[{id:\"minecraft:invisibility\",amplifier:1b,duration:2000000,show_particles:0b}]}";
+        String text="{"+(normal?"PersistenceRequired:1b,":"")+"DeathLootTable:\"empty\",IsBaby:1b,equipment:{head:{id:\"minecraft:oak_slab\",count:1,components:{\"minecraft:custom_name\":"+label+",\"minecraft:attribute_modifiers\":[{slot:\"mainhand\",id:\"minecraft:base_attack_damage\",type:\"minecraft:attack_damage\",amount:"+(normal?6:3)+",operation:\"add_value\"}]"+(normal?",\"minecraft:tooltip_style\":\"lbc:tier_d\"":"")+"}}},drop_chances:{head:"+(normal?"2.0f":"1.0f")+"},active_effects:[{id:\"minecraft:invisibility\",amplifier:1b,duration:2000000,show_particles:0b}]}";
         try{return TagParser.parseCompoundFully(text);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new ExceptionInInitializerError(error);}
     }
     public boolean ready(ItemEntity token,LbcSlabDropItem.Kind kind){
@@ -42,9 +42,10 @@ public final class LbcSlabDrops {
     }
     /** Egg equipment intentionally differs from the ordinary dropped slab; do not replace its payload. */
     void adoptEgg(Zombie actor,ServerPlayer author){prepare(actor,author);}
-    private void prepare(Zombie actor,ServerPlayer author){actor.entityTags().add(ACTOR);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().removeIf(t->t.startsWith(OWNER));actor.entityTags().add(OWNER+author.getUUID());}game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
+    private void prepare(Zombie actor,ServerPlayer author){actor.entityTags().add(ACTOR);actor.entityTags().add("skywars2.players_only_trap");game.items().spellSources().unowned(actor);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().removeIf(t->t.startsWith(OWNER));actor.entityTags().add(OWNER+author.getUUID());}game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
     public static boolean managed(Entity actor){return actor instanceof Zombie && actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){
+        if(managed(actor)&&LbcSpellSource.unownedHazard(actor))return (LivingEntity)actor;
         if(actor instanceof ItemEntity token && LbcSlabDropItem.matches(token.getItem()))return game.items().specialDrops().owner(token);
         if(!managed(actor))return null;
         for(var tag:actor.entityTags())if(tag.startsWith(OWNER)){try{var id=UUID.fromString(tag.substring(OWNER.length()));var online=game.server().getPlayerList().getPlayer(id);return online==null?authors.get(id):online;}catch(IllegalArgumentException ignored){}}

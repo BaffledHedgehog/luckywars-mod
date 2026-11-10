@@ -42,8 +42,8 @@ public final class FeedbackPatchChecks {
             require(compass.get(DataComponents.CUSTOM_NAME).getString().equals(f.other.getName().getString()),"actual locator includes target nickname");
             var source=f.owner.createCommandSourceStack();
             try{
-                require(game.server().getCommands().getDispatcher().execute("tps",source)==1
-                        &&game.server().getCommands().getDispatcher().execute("skywars tps",source)==1,"both real TPS command paths execute");
+                require(game.server().getCommands().getDispatcher().getRoot().getChild("tps")==null
+                        &&game.server().getCommands().getDispatcher().execute("skywars tps",source)==1,"only the prefixed TPS command is registered and executes");
             }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException("TPS command dispatch",error);}
         }finally{
             game.config().healthDisplay=health;game.config().imbaDropChance=chance;game.config().prefixes=prefixes;

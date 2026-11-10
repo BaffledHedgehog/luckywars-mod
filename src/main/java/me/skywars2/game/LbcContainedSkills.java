@@ -70,6 +70,7 @@ public final class LbcContainedSkills {
     }
 
     private java.util.UUID attacker(ServerPlayer victim,DamageSource source){
+        if(LbcIndirectKills.unownedDamage(source))return null;
         var inherited=game.items().indirectKills().babylonCause(source);
         if(inherited!=null)return inherited.player();
         var owner=LbcIndirectKills.playerSource(source.getEntity());

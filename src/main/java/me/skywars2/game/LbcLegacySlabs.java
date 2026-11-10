@@ -119,7 +119,7 @@ public final class LbcLegacySlabs {
         var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(Vec3.atCenterOf(at));
         // WILD terrain/area hazards include the creator. Their first physical marker is the
         // emitter; an inherited explicit source keeps its original exclusions and authority.
-        if(nativeAuthority)source=new LbcSpellSource.Source(marker.getUUID(),source.author(),source.epoch(),source.cause(),source.excluded(),source.persistent());
+        if(nativeAuthority)source=new LbcSpellSource.Source(marker.getUUID(),source.author(),source.epoch(),source.cause(),source.excluded(),source.persistent(),source.unownedMobs(),source.nativeEmitter(),source.helmetCredit());
         marker.entityTags().addAll(List.of(ACTOR,"slowraycast","imba_rc",kind==Kind.BLOOD?"blood_slab":"cum_slab",source.epoch()));
         marker.entityTags().add(kind==Kind.BLOOD?"magic":kind==Kind.DOWN?"down":"central");
         var actor=new Actor(marker,kind,source);index(actor);game.items().spellSources().bind(marker,source);game.items().timeStop().prepareFrozen(marker);

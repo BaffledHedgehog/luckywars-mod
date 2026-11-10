@@ -86,7 +86,7 @@ public final class LbcGrimoireRooms {
         child.entityTags().add(MANAGED);game.items().markCurrentItemEpoch(child);
         var source=game.items().spellSources().source(parent);
         if(source!=null){var excluded=new HashSet<>(source.excluded());excluded.add("dungeon_mob");
-            game.items().spellSources().bind(child,new LbcSpellSource.Source(child.getUUID(),source.author(),source.epoch(),source.cause(),excluded,true));}
+            game.items().spellSources().bind(child,new LbcSpellSource.Source(child.getUUID(),source.author(),source.epoch(),source.cause(),excluded,true,source.unownedMobs(),(source.author()==null||source.helmetCredit())&&source.unownedMobs()&&child instanceof LivingEntity living?living:source.nativeEmitter(),source.helmetCredit()));}
         actors.add(child);game.items().timeStop().prepareFrozen(child);
     }
     private Entity spawn(Entity parent,Vec3 at,CompoundTag preset){

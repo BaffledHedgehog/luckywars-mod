@@ -23,8 +23,19 @@ import org.spongepowered.asm.mixin.Mixin;
 public final class HazardPropagationMixins {
     @Mixin(ServerExplosion.class)
     public abstract static class Blast implements me.skywars2.game.NuclearTerrain.BlockEffects {
+        @WrapMethod(method="hurtEntities")
+        private void skywars2$acceptedNuclearExposure(Operation<Void> original){
+            var blast=(ServerExplosion)(Object)this;
+            me.skywars2.game.NuclearTerrain.exposureScope(blast,()->me.skywars2.game.ExplosionItemProtection.scope(blast,()->original.call()));
+        }
+        @WrapOperation(method="getSeenPercent",at=@At(value="INVOKE",target="Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
+        private static net.minecraft.world.phys.BlockHitResult skywars2$preCraterClip(net.minecraft.world.level.Level level,net.minecraft.world.level.ClipContext context,Operation<net.minecraft.world.phys.BlockHitResult> original){
+            var retained=me.skywars2.game.NuclearTerrain.clip(level,context);return retained==null?original.call(level,context):retained;
+        }
         @org.spongepowered.asm.mixin.gen.Invoker("interactWithBlocks")
         public abstract void skywars2$applyNuclearBlocks(java.util.List<BlockPos> positions);
+        @org.spongepowered.asm.mixin.gen.Invoker("calculateExplodedPositions")
+        public abstract java.util.List<BlockPos> skywars2$nativeNuclearPositions();
         @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final
         private net.minecraft.world.level.ExplosionDamageCalculator damageCalculator;
         @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final @org.spongepowered.asm.mixin.Mutable
@@ -34,11 +45,12 @@ public final class HazardPropagationMixins {
         @org.spongepowered.asm.mixin.injection.Inject(method="<init>",at=@At("TAIL"))
         private void skywars2$identifyWandBlast(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
             var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
-            skywars2$skipEmptyBlastBlocks=source instanceof net.minecraft.world.entity.item.PrimedTnt
+            skywars2$skipEmptyBlastBlocks=me.skywars2.game.LbcNukeEvent.cacheableNativeBlast(source)||source instanceof net.minecraft.world.entity.item.PrimedTnt
                     && (source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)
                         || me.skywars2.game.LbcTntDrops.managed(source)
                         || me.skywars2.game.LbcDroneDrops.managed(source)
-                        || source.entityTags().contains(me.skywars2.game.LbcGodHedgehog.BLAST));
+                        || source.entityTags().contains(me.skywars2.game.LbcGodHedgehog.BLAST))
+                    ||source!=null&&source.entityTags().contains(me.skywars2.game.LbcChargedBows.BLAST);
             var game=SkyWars2.game();
             if(game!=null) {
                 var authority=game.items().creeperDrops().owner(source);
@@ -82,7 +94,10 @@ public final class HazardPropagationMixins {
             var source=blast.getDirectSourceEntity();
             if(me.skywars2.game.NuclearTerrain.damageOnly(blast))return java.util.List.of();
             if(!skywars2$skipEmptyBlastBlocks || source.getClass()!=net.minecraft.world.entity.item.PrimedTnt.class
+                    && !me.skywars2.game.LbcExasperato.cacheableNativeBlast(source)
+                    && !me.skywars2.game.LbcNukeEvent.cacheableNativeBlast(source)
                     && !source.entityTags().contains(me.skywars2.game.LbcGodHedgehog.BLAST)
+                    && !source.entityTags().contains(me.skywars2.game.LbcChargedBows.BLAST)
                     || damageCalculator.getClass()!=net.minecraft.world.level.EntityBasedExplosionDamageCalculator.class
                     || Boolean.getBoolean("skywars2.disableExplosionCache")) return original.call();
             return me.skywars2.game.LbcExasperato.explosionBlocks(blast,damageCalculator);
@@ -291,7 +306,7 @@ public final class HazardPropagationMixins {
             var game=SkyWars2.game();
             if(game!=null) {
                 var owner=game.items().creeperDrops().owner((Entity)(Object)this);
-                if(owner!=null) ci.setReturnValue(owner);
+                if(owner!=null&&(!(owner instanceof net.minecraft.server.level.ServerPlayer)||!game.items().spellSources().lootProjectile((Entity)(Object)this))) ci.setReturnValue(owner);
             }
         }
     }

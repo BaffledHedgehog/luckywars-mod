@@ -1,7 +1,13 @@
 {
   "required": true,
   "package": "me.skywars2.mixin",
+  "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "BuildDialogMixin",
+    "LobbyRaidCleanupMixin",
+    "LegacyVanillaStateMixin$Attribute",
+    "LegacyVanillaStateMixin$Visibility",
+    "FireballPresentationMixin",
     "InitialChunkQueueMixin",
     "GalleryTrackingMixin",
     "TmtItemPredicateMixin",
@@ -84,6 +90,7 @@
     "LbcLooperItemMixin",
     "CustomDataReadMixin",
     "InfiniteShulkerLootMixin",
+    "CubeInteractionMixin",
     "LuckyBlockDropsMixin",
     "LuckyBlockDropsMixin$Mining",
     "LuckyBlockDropsMixin$Resources",
@@ -420,7 +427,17 @@
     "TmtShotCompletionMixin$Crossbow",
     "ItemCostCacheMixin",
     "ClockFragmentSprintAccess",
-    "ClockFragmentSprintMixin"
+    "ClockFragmentSprintMixin",
+    "PolymerMiningCadenceMixin",
+    "MobLootAccess",
+    "LegacySlabValueMixin",
+    "FrozenMotionMixin",
+    "StaticChargeCloudAccess",
+    "BlockBreakEventMixin",
+    "TntTimerMixin",
+    "PolymerBlockResourceAccess",
+    "PolymerBlockResourceAccess$States",
+    "CarpetBotJumpMixin"
   ],
   "injectors": {
     "defaultRequire": 1

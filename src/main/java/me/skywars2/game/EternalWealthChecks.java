@@ -35,9 +35,7 @@ public final class EternalWealthChecks {
             require(mask==637,"exact source union, without corner expansion");
             for(var item:List.of(LbcEternalWealthItems.DROP,LbcEternalWealthItems.IMBA_DROP,LbcEternalWealthItems.STONE))
                 require(item instanceof eu.pb4.polymer.core.api.item.PolymerItem,"one native Polymer identity per variant");
-            var projection=((eu.pb4.polymer.core.api.block.PolymerBlock)LbcEternalWealthItems.CURSED_BLOCK).getPolymerBlockState(LbcEternalWealthItems.CURSED_BLOCK.defaultBlockState(),null);
-            require(projection.is(Blocks.NOTE_BLOCK),"native cursed block uses the common full-cube palette without aliasing raw map mushrooms");
-            require(projection.getCollisionShape(base.owner.level(),base.owner.blockPosition()).bounds().equals(new AABB(0,0,0,1,1,1)),"cursed client projection keeps full-cube collision");
+            require(!net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(net.minecraft.resources.Identifier.parse("skywars2:greedstone_cursed_block")),"curse has no separate block registry identity: terrain uses ordinary Lucky Blocks");
             var token=new ItemEntity(base.owner.level(),base.at.x,base.at.y,base.at.z,new ItemStack(LbcEternalWealthItems.DROP));
             game.items().markCurrentItemEpoch(token);base.owner.level().addFreshEntity(token);
             require(game.items().specialDrops().spawn(token),"actual source dispatcher activates the airborne normal drop");
@@ -87,7 +85,7 @@ public final class EternalWealthChecks {
                 if(wealth.fields()==0)return false;
                 require(wait>=150,"curse does not skip its nine-second source age");
                 require(level.getBlockState(curseCenter.offset(0,4,0)).is(Blocks.GOLD_BLOCK)&&level.getBlockState(curseCenter.offset(0,-4,0)).is(Blocks.GOLD_BLOCK),"both formerly omitted fluid layers convert");
-                require(level.getBlockState(curseCenter.below()).is(LbcEternalWealthItems.CURSED_BLOCK),"solid source cells use own server block");
+                require(level.getBlockState(curseCenter.below()).is(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL)),"solid source cells become actual native Lucky Blocks, not mushroom lookalikes");
                 require(eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment.get(level,curseCenter.below())==null,"cursed native block model has no virtual holder");
                 unjam();p.entityTags().remove("greed_cursed");
                 for(var marker:wealth.snapshot())if(marker.entityTags().contains(LbcEternalWealth.TAG+".kind.SEED"))marker.discard();
@@ -113,7 +111,7 @@ public final class EternalWealthChecks {
                 require(!p.entityTags().contains("greed_cursed")&&!base.other.entityTags().contains("greed_cursed"),"all cursed players within ten lose the curse");
                 require(rewards("greed_greed")==2,"one native Divider for each cleansed player");require(wealth.fields()==1,"only the directly touching owner's fields are removed");
                 require(level.getBlockState(curseCenter.offset(-3,-1,0)).is(Blocks.STAINED_GLASS.pick(DyeColor.YELLOW)),"own unshared cells neutralize");
-                require(level.getBlockState(curseCenter.offset(3,-1,0)).is(LbcEternalWealthItems.CURSED_BLOCK),"foreign overlapping field remains dangerous");
+                require(level.getBlockState(curseCenter.offset(3,-1,0)).is(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.NORMAL)),"foreign overlapping field retains actual dangerous Lucky Blocks");
                 var spot=base.at.add(0,2,4);diamond=adopt("DIAMOND",p,spot,0);base.move(p,spot);base.move(base.other,spot.add(1,0,0));phase=10;wait=0;
             }else if(phase==10){
                 if(!diamond.isRemoved())return false;

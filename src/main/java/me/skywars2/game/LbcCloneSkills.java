@@ -138,7 +138,7 @@ public final class LbcCloneSkills {
     public boolean protectedFamilyActor(Entity actor){return adapter.protectedActor(actor);}
     private boolean mob(Entity actor){return actor.getType().builtInRegistryHolder().is(MOBS)||adapter.combatBody(actor);}
     private boolean baseEligible(Entity actor){
-        return !(actor instanceof ServerPlayer)&&!actor.isRemoved()&&actor.level() instanceof ServerLevel level
+        return !LbcStaticCharge.visual(actor)&&!(actor instanceof ServerPlayer)&&!actor.isRemoved()&&actor.level() instanceof ServerLevel level
                 &&level.hasChunkAt(actor.blockPosition())&&!game.items().timeStop().stopped(level)
                 &&!game.items().timeStop().frozen(actor)&&!actor.entityTags().contains("time_stopped")
                 &&!actor.isSpectator()&&!actor.entityTags().contains("spectator")&&!actor.entityTags().contains("magic_academy")

@@ -219,7 +219,7 @@ public final class LbcColors {
         particle(p,ParticleTypes.REVERSE_PORTAL,100,.1,.6,.1,1); sound(p,SoundEvents.ENDERMAN_TELEPORT);
     }
     /** Finite resident search, preserving native ground/two-air/ceiling rules. */
-    private void spread(LivingEntity target, Vec3 center, int radius) {
+    void spread(LivingEntity target, Vec3 center, int radius) {
         if(!(target.level() instanceof net.minecraft.server.level.ServerLevel level))return;
         var destination=LbcSurfaceTeleport.destination(level,center,radius,level.dimension()==Level.NETHER?120:level.getMaxY()+1,target.getRandom());
         if(destination==null)return;

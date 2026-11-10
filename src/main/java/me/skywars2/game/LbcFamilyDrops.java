@@ -84,11 +84,15 @@ public final class LbcFamilyDrops {
             var author=LbcIndirectKills.playerSource(game.items().specialDrops().owner(token));
             if(author!=null)game.items().spellSources().bind(actor,game.items().spellSources().hostile((LivingEntity)actor,author,Set.of()));
         }
+        if(actor instanceof net.minecraft.world.entity.Mob){
+            actor.entityTags().add("skywars2.players_only_trap");
+            game.items().spellSources().unowned(actor);
+        }
         // These independent actors outlive their author's life/session. Keep the accepted
         // causal policy in the shared owner, including inherited emitter and exclusions.
         var source=game.items().spellSources().source(actor);
         if(source!=null&&!source.persistent())game.items().spellSources().bind(actor,new LbcSpellSource.Source(
-                source.emitter(),source.author(),source.epoch(),source.cause(),source.excluded(),true));
+                source.emitter(),source.author(),source.epoch(),source.cause(),source.excluded(),true,source.unownedMobs(),source.nativeEmitter(),source.helmetCredit()));
         actors.add(actor);game.items().timeStop().prepareFrozen(actor);
     }
     private ServerPlayer nearestPlayer(ServerLevel level,Vec3 at){ServerPlayer best=null;double distance=Double.POSITIVE_INFINITY;for(var p:level.players())if(!p.isSpectator()&&!p.isRemoved()){double d=p.position().distanceToSqr(at);if(d<distance){distance=d;best=p;}}return best;}

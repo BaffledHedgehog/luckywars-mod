@@ -24,7 +24,7 @@ public final class SauvojenBossChecks {
     private static void require(boolean condition,String detail){if(!condition)throw new IllegalStateException("Sauvojen boss: "+detail);}
     private static void near(Vec3 actual,Vec3 expected,String detail){require(actual.distanceToSqr(expected)<1e-8,detail+" actual="+actual+" expected="+expected);}
     private static CompoundTag saved(Entity entity){var out=net.minecraft.world.level.storage.TagValueOutput.createWithContext(ProblemReporter.DISCARDING,entity.registryAccess());entity.saveWithoutId(out);return out.buildResult();}
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         final GameController game;final ElementalGrimoireChecks.Fixture base;final ServerPlayer owner,beta;
         final GameChecks.WandThirdPlayerState otherSaved;final PlayerTeam oldOwnerTeam,oldBetaTeam,team;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -40,12 +40,13 @@ public final class SauvojenBossChecks {
             base.initialize();board.addPlayerToTeam(owner.getScoreboardName(),team);board.addPlayerToTeam(beta.getScoreboardName(),team);
             beta.setNoGravity(true);beta.setDeltaMovement(Vec3.ZERO);beta.teleportTo(owner.level(),owner.getX(),owner.getY(),owner.getZ()+4,Set.of(),0,0,true);
         }
-        void activation(){
+        void activation(){activation(owner);}
+        void activation(ServerPlayer creator){
             ItemStack selected=ItemStack.EMPTY;
             for(int attempt=0;attempt<512&&selected.isEmpty();attempt++)for(var stack:game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:traps"))
                 if(LbcSauvojenBoss.recognized(stack)){selected=stack.copyWithCount(2);break;}
             require(!selected.isEmpty(),"original native trap table reaches Sauvojen raw branch");
-            var token=new ItemEntity(owner.level(),owner.getX(),owner.getY(),owner.getZ(),selected);token.setThrower(owner);token.setOnGround(true);token.setNoGravity(true);
+            var token=new ItemEntity(owner.level(),owner.getX(),owner.getY(),owner.getZ(),selected);token.setThrower(creator);token.setOnGround(true);token.setNoGravity(true);
             game.items().markCurrentItemEpoch(token);require(owner.level().addFreshEntity(token),"actual trap token publication");
             require(game.items().sauvojenBoss().ready(token)&&game.items().specialDrops().spawn(token),"actual shared native special-drop dispatch");
             require(token.getItem().getCount()==1&&game.items().sauvojenBoss().count()==1,"one native boss and exactly one token debit");token.discard();
@@ -53,13 +54,13 @@ public final class SauvojenBossChecks {
             require(boss.getType()==EntityTypes.GHAST&&boss.getHealth()==124&&boss.getMaxHealth()==124,"source ghast with real124HP and no loot-survival sentinel");
             require(boss.getAttribute(Attributes.FOLLOW_RANGE).getBaseValue()==256&&boss.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getBaseValue()==256,"source follow/knockback bases");
             var data=saved(boss);require(data.getStringOr("DeathLootTable","").equals("minecraft:empty")&&data.getIntOr("ExplosionPower",0)==3,"native guarded death owns reward without a delayed duplicate token; blast3");
-            require(boss.entityTags().containsAll(Set.of("sauvojen_tuntija","rcdenyalways"))&&game.items().sauvojenBoss().owner(boss)==owner,"source identity and independent causal author");
+            require(boss.entityTags().containsAll(Set.of("sauvojen_tuntija","rcdenyalways"))&&game.items().sauvojenBoss().owner(boss)==creator,"source identity and independent causal author");
             near(boss.position(),owner.position().add(0,20,0),"source Y+20 spawn");
-            authority=game.items().spellSources().source(boss);require(authority!=null&&authority.emitter().equals(boss.getUUID())&&authority.author().equals(owner.getUUID()),"explicit actual emitter binding");
+            authority=game.items().spellSources().source(boss);require(authority!=null&&authority.emitter().equals(boss.getUUID())&&authority.author()==null&&authority.persistent()&&authority.unownedMobs(),"persistent actual NPC emitter without borrowed player authority");
         }
         LbcSpellSource.Source source(LbcSauvojen.Kind kind){
             var excluded=new HashSet<>(authority.excluded());if(kind==LbcSauvojen.Kind.TERRA||kind==LbcSauvojen.Kind.ELECTRO)excluded.add("summoned_cultist");
-            return new LbcSpellSource.Source(authority.emitter(),authority.author(),authority.epoch(),authority.cause(),excluded);
+            return new LbcSpellSource.Source(authority.emitter(),authority.author(),authority.epoch(),authority.cause(),excluded,authority.persistent(),authority.unownedMobs(),authority.nativeEmitter(),authority.helmetCredit());
         }
         Projectile shot(LbcSauvojen.Kind kind){
             return switch(kind){
@@ -73,14 +74,14 @@ public final class SauvojenBossChecks {
         void payloads(){
             var origin=owner.position().add(4,4,-4);var direction=new Vec3(1,0,0);base.mana.set(owner,12345);
             for(var kind:LbcSauvojen.Kind.values()){
-                var policy=source(kind);game.items().sauvojen().emitHostile(owner,kind,origin,direction,policy);
+                var policy=source(kind);game.items().sauvojen().emitHostile(owner.level(),kind,origin,direction,policy);
                 require(game.items().spellSources().current()==null&&base.mana.get(owner)==12345,"producer restores source scope and never charges mana "+kind);
                 if(kind==LbcSauvojen.Kind.ELECTRO){
                     var traces=game.items().wands().electroSnapshot();require(traces.size()==4,"four real hostile electrical records");
-                    for(var trace:traces){require(trace.lifetime==20&&trace.age==0&&trace.sourcePolicy==policy&&trace.owner==owner,"four source20-tick electrical records");near(trace.position,origin,"electrical explicit origin");}
+                    for(var trace:traces){require(trace.lifetime==20&&trace.age==0&&trace.sourcePolicy==policy&&trace.owner==null&&trace.explicitEmitter==boss,"four source20-tick electrical records");near(trace.position,origin,"electrical explicit origin");}
                     game.items().wands().tick();for(var trace:traces){require(trace.age==1,"one actual shared electrical engine step");near(trace.position,origin.add(3.6,0,0),"source nineteen-position electrical segment");}
                 }else{
-                    var shot=shot(kind);require(game.items().currentEpoch(shot)&&game.items().spellSources().owner(shot)==owner,"actual charge keeps causal wearer "+kind);
+                    var shot=shot(kind);require(game.items().currentEpoch(shot)&&game.items().spellSources().owner(shot)==null,"actual charge has no player author "+kind);
                     require(game.items().spellSources().source(shot)!=null,"actual charge keeps explicit hostile policy "+kind);near(shot.position(),origin,"native launch origin "+kind);
                     double speed=switch(kind){case AIR->.8;case TELEPORT->1.2;case STONE->1.6;case FIRE->.7;case BLIND->.99;case ACID->.5;default->1.8;};
                     near(shot.getDeltaMovement(),direction.scale(speed),"source velocity "+kind);
@@ -104,10 +105,10 @@ public final class SauvojenBossChecks {
         Cow cow(Vec3 at){var cow=new Cow(EntityTypes.COW,owner.level());cow.setPos(at);cow.setNoAi(true);cow.setNoGravity(true);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);require(owner.level().addFreshEntity(cow),"actual living target");cows.add(cow);return cow;}
         void targeting(){
             require(!game.items().wands().target(owner,owner)&&!game.items().wands().target(owner,beta),"ordinary self/allied exclusions remain");
-            try(var scope=game.items().spellSources().scope(authority)){
-                require(game.items().wands().target(owner,owner)&&game.items().wands().target(owner,beta),"explicit hostile policy admits wearer and allied player");
+            try(var scope=game.items().spellSources().scope(authority,owner.level())){
+                require(game.items().wands().target(null,owner)&&game.items().wands().target(null,beta),"explicit hostile policy admits wearer and allied player");
                 for(var player:List.of(owner,beta)){
-                    var at=player.position().add(0,.5,0);var hit=game.items().wands().firstHit(owner,at.add(0,0,-1),at.add(0,0,1));
+                    var at=player.position().add(0,.5,0);var hit=game.items().wands().firstHit((ServerPlayer)null,at.add(0,0,-1),at.add(0,0,1));
                     require(hit instanceof EntityHitResult entity&&entity.getEntity()==player,"native swept firstHit includes actual self/allied body");
                 }
                 try(var reaction=game.items().spellSources().scope((LbcSpellSource.Source)null)){require(!game.items().wands().target(owner,beta),"fresh reaction restores ordinary allegiance");}
@@ -117,25 +118,34 @@ public final class SauvojenBossChecks {
             var origin=owner.position().add(4,2,0);var victim=cow(origin.add(.2,0,.2));var excluded=cow(origin.add(.3,0,.3));excluded.entityTags().add("summoned_cultist");
             game.server().getScoreboard().addPlayerToTeam(victim.getScoreboardName(),team);
             require(!game.items().wands().target(owner,victim),"actual team-alias nonplayer protected ordinarily");
-            game.items().sauvojen().emitHostile(owner,LbcSauvojen.Kind.TERRA,origin,new Vec3(0,0,1),source(LbcSauvojen.Kind.TERRA));game.items().terra().tick();
-            require(victim.getHealth()==993&&victim.getLastDamageSource()!=null&&victim.getLastDamageSource().is(DamageTypes.CACTUS)&&victim.getKillCredit()==owner,"actual allied target receives source7 native cactus with wearer credit");
+            game.items().sauvojen().emitHostile(owner.level(),LbcSauvojen.Kind.TERRA,origin,new Vec3(0,0,1),source(LbcSauvojen.Kind.TERRA));game.items().terra().tick();
+            require(victim.getHealth()==993&&victim.getLastDamageSource()!=null&&victim.getLastDamageSource().is(DamageTypes.CACTUS)&&victim.getLastDamageSource().getEntity()==boss&&victim.getKillCredit()==boss&&LbcIndirectKills.npcSource(victim.getLastDamageSource()),"actual allied target receives source7 native cactus with real NPC credit");
             require(excluded.getHealth()==1000,"source summoned-cultist exclusion survives actual Terra samples");base.clear();victim.discard();excluded.discard();
-            var blindVictim=cow(origin.add(.2,0,.2));game.items().sauvojen().emitHostile(owner,LbcSauvojen.Kind.BLIND,origin,new Vec3(0,0,1),source(LbcSauvojen.Kind.BLIND));game.items().blind().tick();
+            var blindVictim=cow(origin.add(.2,0,.2));game.items().sauvojen().emitHostile(owner.level(),LbcSauvojen.Kind.BLIND,origin,new Vec3(0,0,1),source(LbcSauvojen.Kind.BLIND));game.items().blind().tick();
             var blindness=blindVictim.getEffect(MobEffects.BLINDNESS);var wither=blindVictim.getEffect(MobEffects.WITHER);
             require(blindVictim.getHealth()==1000&&blindness!=null&&blindness.getDuration()==80&&wither!=null&&wither.getDuration()==80&&wither.getAmplifier()==1,"hostile Blind source effects have no invented direct damage");base.clear();blindVictim.discard();
         }
         void reflection(){
-            var origin=owner.position().add(4,4,-4);game.items().sauvojen().emitHostile(owner,LbcSauvojen.Kind.RUBY,origin,new Vec3(1,0,0),authority);
+            var origin=owner.position().add(4,4,-4);game.items().sauvojen().emitHostile(owner.level(),LbcSauvojen.Kind.RUBY,origin,new Vec3(1,0,0),authority);
             var shot=game.items().ruby().snapshot().getFirst();var before=shot.getDeltaMovement();boolean already=beta.entityTags().contains("sin_greed_active");
             beta.entityTags().add("sin_greed_active");try{require(LbcGreed.reflect(shot,beta),"actual shared native Greed reflection callback");}finally{if(!already)beta.entityTags().remove("sin_greed_active");}
             require(shot.getOwner()==beta&&game.items().spellSources().source(shot)==null,"real reflection transfers owner and drops hostile source");near(shot.getDeltaMovement(),before.reverse(),"reflection preserves speed/reverses motion");
             try(var scope=game.items().spellSources().scope(shot)){require(!game.items().wands().target(beta,owner),"reflected ordinary projectile protects allied causal wearer");}
             require(game.items().spellSources().current()==null,"reflection scope restores caller");base.clear();
-            game.items().sauvojen().emitHostile(owner,LbcSauvojen.Kind.RUBY,origin,new Vec3(1,0,0),authority);
+            game.items().sauvojen().emitHostile(owner.level(),LbcSauvojen.Kind.RUBY,origin,new Vec3(1,0,0),authority);
             var sameAuthor=game.items().ruby().snapshot().getFirst();
-            try(var scope=game.items().spellSources().scope(authority)){game.items().electro().assignOwner(sameAuthor,owner);}
+            try(var scope=game.items().spellSources().scope(authority,owner.level())){game.items().electro().assignOwner(sameAuthor,owner);}
             require(sameAuthor.getOwner()==owner&&game.items().spellSources().source(sameAuthor)==null,
                     "same-author reflection epoch stamp cannot rebind the old hostile scope");base.clear();
+        }
+        void creatorCleanup(){
+            game.items().sauvojenBoss().forget(owner);
+            require(!boss.isRemoved()&&game.items().sauvojenBoss().count()==1,"creator cleanup does not delete independent native boss");
+            var at=owner.position().add(4,4,-4);
+            game.items().sauvojen().emitHostile(owner.level(),LbcSauvojen.Kind.RUBY,at,new Vec3(1,0,0),authority);
+            var shot=game.items().ruby().snapshot().getFirst();
+            require(shot.getOwner()==boss&&game.items().spellSources().owner(shot)==null,"post-cleanup emission still belongs to real NPC");
+            game.items().ruby().tick();require(!shot.isRemoved(),"post-cleanup native emission advances");base.clear();
         }
         void death(){
             var level=owner.level();var at=boss.position();long before=game.items().sauvojenBoss().rewards();
@@ -150,13 +160,13 @@ public final class SauvojenBossChecks {
         }
         @Override public void close(){
             try{for(var cow:cows){game.items().indirectKills().clear(cow);cow.discard();}game.items().sauvojenBoss().stop();base.clear();
-                for(var e:owner.level().getAllEntities())if(!before.contains(e)&&!(e instanceof ServerPlayer))e.discard();
+                var fresh=new ArrayList<Entity>();for(var e:owner.level().getAllEntities())if(!before.contains(e)&&!(e instanceof ServerPlayer))fresh.add(e);fresh.forEach(Entity::discard);
             }finally{var board=game.server().getScoreboard();board.removePlayerTeam(team);if(oldOwnerTeam!=null)board.addPlayerToTeam(owner.getScoreboardName(),oldOwnerTeam);if(oldBetaTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBetaTeam);otherSaved.restore(game);base.close();}
         }
     }
     public static void run(GameController game){
-        try(var fixture=new Fixture(game)){fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();fixture.death();}
+        try(var fixture=new Fixture(game)){fixture.activation();fixture.payloads();fixture.targeting();fixture.reflection();fixture.creatorCleanup();fixture.death();}
         SkyWars2.LOGGER.info("[check] PASS sauvojen-boss (native shared token activation; nine explicit source payloads and actual engine steps; source7 cactus, Blind80/WitherII, self/allied swept targets, actual Greed reflection, nested source restoration)");
-        SkyWars2.LOGGER.info("[check] PENDING sauvojen-boss continuation: native random10 coverage/original40-tick cadence and actual player-retaliation scope integration require real server ticks; no private clocks or fake scheduling were used");
+        SkyWars2.LOGGER.info("[check] PENDING sauvojen-boss continuation: all ten random branches are not exhaustively sampled here; actual cadence/logout/TimeStop/cloud replay have a separate sauvojen-lifecycle fixture");
     }
 }

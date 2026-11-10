@@ -73,7 +73,7 @@ public final class VanityActorChecks {
         net.minecraft.world.entity.projectile.FishingHook hook;
         ServerPlayer retiredPlayer;
         Entity loginVehicle,loginPearl;
-        net.minecraft.world.damagesource.DamageSource combatSource,positionSource,historicSource;
+        net.minecraft.world.damagesource.DamageSource combatSource,positionSource,historicSource,npcSource;
         Entity historicAnchor;
         long combatTime;
         PrimedTnt tnt;
@@ -158,7 +158,8 @@ public final class VanityActorChecks {
             historicAnchor=new Snowball(EntityTypes.SNOWBALL,base.owner.level());historicAnchor.setPos(at.add(3,4,5));historicAnchor.setRemoved(Entity.RemovalReason.DISCARDED);
             historicSource=new LbcIceWand.ImpactSource(types.getOrThrow(net.minecraft.world.damagesource.DamageTypes.FREEZE),historicAnchor,gamma);
             gamma.setInvulnerableTime(0);gamma.damageCooldownTime=0;
-            require(gamma.hurtServer(gamma.level(),gamma.damageSources().mobAttack(skeleton),1),"genuine native player combat before respawn");
+            npcSource=game.items().indirectKills().nativeMobDamage(new LbcIceWand.ImpactSource(types.getOrThrow(net.minecraft.world.damagesource.DamageTypes.FREEZE),skeleton,gamma),skeleton);
+            require(gamma.hurtServer(gamma.level(),npcSource,1),"genuine NPC subclass damage before native player respawn");
             gamma.setLastHurtMob(cow);gamma.getCombatTracker().recordDamage(historicSource,.75F);
             var access=(me.skywars2.mixin.CombatCheckpointAccess.Living)cow;
             access.skywars2$spin(cow.getMainHandItem());access.skywars2$climb(java.util.Optional.of(base.center.above(2)));access.skywars2$position(base.center.above());
@@ -167,6 +168,9 @@ public final class VanityActorChecks {
             actors=MatchActorCheckpoint.captureRegistered(game);player=new MatchPlayerCheckpoint(game,gamma);core=new MatchCoreCheckpoint(game);clock=game.matchTicks();phase=0;
         }
         void mutate() {
+            for(var source:List.of(npcSource,LbcIndirectKills.originalDamage(npcSource))){
+                var link=(me.skywars2.mixin.CombatCheckpointAccess.Source)source;link.skywars2$direct(base.other);link.skywars2$cause(base.other);
+            }
             cow.setLastHurtByPlayer(base.other,1);cow.setLastHurtByMob(base.other);cow.setLastHurtMob(base.other);gamma.setLastHurtMob(base.other);
             var combat=(me.skywars2.mixin.CombatCheckpointAccess.Living)cow;combat.skywars2$spin(new ItemStack(Items.DIRT,64));combat.skywars2$climb(java.util.Optional.empty());
             if(combat.skywars2$kinetic()!=null)combat.skywars2$kinetic().clear();
@@ -206,6 +210,12 @@ public final class VanityActorChecks {
                     &&history.skywars2$entries().get(1).damage()==2.25F&&history.skywars2$entries().get(1).fallDistance()==7.5F
                     &&positionSource.sourcePositionRaw().equals(new Vec3(1.25,2.5,3.75))&&history.skywars2$combat()&&history.skywars2$taking(),"native combat entries/position/fall values and flags restored without extra hits");
             var playerHistory=(me.skywars2.mixin.CombatCheckpointAccess.Tracker)gamma.getCombatTracker();
+            require(playerHistory.skywars2$entries().getFirst().source()==npcSource&&LbcIndirectKills.npcSource(npcSource)
+                    &&npcSource.getDirectEntity()==skeleton&&npcSource.getEntity()==skeleton
+                    &&LbcIndirectKills.originalDamage(npcSource) instanceof LbcIceWand.ImpactSource
+                    &&LbcIndirectKills.originalDamage(npcSource).getDirectEntity()==skeleton
+                    &&LbcIndirectKills.originalDamage(npcSource).getEntity()==gamma&&npcSource.is(net.minecraft.tags.DamageTypeTags.NO_KNOCKBACK),
+                    "accepted NPC wrapper and nested subclass retain native Mob authority through actual replay");
             require(playerHistory.skywars2$entries().size()==2&&playerHistory.skywars2$entries().get(1).source()==historicSource
                     &&historicSource.getEntity()==gamma&&historicSource.getDirectEntity()==historicAnchor&&historicAnchor.isRemoved()
                     &&historicSource.is(net.minecraft.tags.DamageTypeTags.NO_KNOCKBACK),"new native player tracker preserves source subclass tag override and removed historical direct anchor");

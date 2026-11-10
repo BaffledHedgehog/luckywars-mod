@@ -24,6 +24,8 @@ public abstract class SignedResistanceMixin {
         var entity=(LivingEntity)(Object)this;
         if(source.is(DamageTypeTags.BYPASSES_EFFECTS)||source.is(DamageTypeTags.BYPASSES_RESISTANCE))return damage;
         long level=SignedEffectMath.level(entity,MobEffects.RESISTANCE);
+        int itemShield=me.skywars2.game.ExplosionItemProtection.level(entity,source);
+        if(itemShield>0)level=Math.max(level,itemShield);
         if(level==0)return damage;
         float result=SignedEffectMath.finite(damage*(1-.2*level));
         if(result<0) {

@@ -1,5 +1,7 @@
 package me.skywars2.mixin;
 
+import me.skywars2.game.VanillaExpansionRules;
+
 import me.skywars2.game.EffectLayers;
 import me.skywars2.game.OwnedEffectLayers;
 import me.skywars2.SkyWars2;
@@ -45,12 +47,14 @@ public final class EffectLayersMixin {
 
         @Inject(method = "update", at = @At("HEAD"), cancellable = true)
         private void skywars2$mergeLayers(MobEffectInstance grant, CallbackInfoReturnable<Boolean> cir) {
+        if(!VanillaExpansionRules.enabled()){return;}
             var active = (MobEffectInstance)(Object)this;
             if (!active.is(MobEffects.ABSORPTION)) cir.setReturnValue(EffectLayers.merge(active, grant));
         }
 
         @Inject(method = "downgradeToHiddenEffect", at = @At("HEAD"), cancellable = true)
         private void skywars2$skipExpiredLayers(CallbackInfoReturnable<Boolean> cir) {
+        if(!VanillaExpansionRules.enabled()){return;}
             var active = (MobEffectInstance)(Object)this;
             if (!active.is(MobEffects.ABSORPTION)) cir.setReturnValue(EffectLayers.downgrade(active));
         }
@@ -68,6 +72,7 @@ public final class EffectLayersMixin {
                 at = @At(value = "INVOKE", target = "Lnet/minecraft/world/effect/MobEffectInstance;update(Lnet/minecraft/world/effect/MobEffectInstance;)Z"),
                 cancellable = true)
         private void skywars2$acceptHiddenGrant(MobEffectInstance grant, Entity source, CallbackInfoReturnable<Boolean> cir) {
+        if(!VanillaExpansionRules.enabled()){return;}
             if (grant.is(MobEffects.ABSORPTION)) return;
             if (!EffectLayers.live(grant)) { cir.setReturnValue(false); return; }
             var active = ((LivingEntity)(Object)this).getEffect(grant.getEffect());

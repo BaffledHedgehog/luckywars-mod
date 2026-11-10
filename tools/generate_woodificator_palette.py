@@ -355,8 +355,9 @@ class Palette:
         return None
 
     @lru_cache(maxsize=None)
-    def color(self, block):
-        state = self.assets.json(resource(block,"blockstates"))
+    def color(self, block, visual_model=None):
+        # Server-only Polymer blocks have an explicit model, rather than a client blockstate file.
+        state = {"variants":{"":{"model":visual_model}}} if visual_model else self.assets.json(resource(block,"blockstates"))
         if state is None:
             raise ValueError(f"No blockstate assets for {block}; provide visualBlock in registry export")
         models = model_weights(state)
@@ -450,9 +451,10 @@ def preserved_wood(assets, ids):
             sources.setdefault(identifier,[]).append("#"+tag)
     # These exact native IDs fill semantic-tag gaps. No substring recognition:
     # the mosaic family is bamboo wood; ladder is sticks; composter is wooden
-    # slabs; crafting table is planks. Containers are wooden but BE overrides.
+    # slabs. Crafting tables are explicitly excluded by the author. Containers
+    # are wooden but the native block-entity guard overrides preservation.
     extras = ("minecraft:bamboo_mosaic","minecraft:bamboo_mosaic_slab","minecraft:bamboo_mosaic_stairs",
-              "minecraft:ladder","minecraft:composter","minecraft:crafting_table","minecraft:mangrove_roots",
+              "minecraft:ladder","minecraft:composter","minecraft:mangrove_roots",
               "minecraft:chest","minecraft:trapped_chest","minecraft:barrel")
     for identifier in extras:
         if identifier in ids:
@@ -488,7 +490,7 @@ def generate(args):
             continue
         visual = entry.get("visualBlock") or identifier
         try:
-            color = palette.color(visual)
+            color = palette.color(visual,entry.get("visualModel"))
             sample_lab = lab(color)
             target = min(candidates,key=lambda candidate:(sum((a-b)**2 for a,b in zip(sample_lab,labs[candidate])),candidate))
             mapping[identifier] = target
@@ -504,7 +506,7 @@ def generate(args):
         # registry's effective source texture really is the exact zero-distance
         # candidate colour, never by overriding a different-colour nearest result.
         visual = entries[identifier].get("visualBlock") or identifier
-        self_distance = sum((a-b)**2 for a,b in zip(lab(palette.color(visual)),labs[identifier]))
+        self_distance = sum((a-b)**2 for a,b in zip(lab(palette.color(visual,entries[identifier].get("visualModel"))),labs[identifier]))
         if self_distance != 0:
             raise ValueError(f"Wood source {identifier} has a nonzero self distance: {self_distance}")
         mapping[identifier] = identifier
@@ -530,7 +532,7 @@ def generate(args):
         "tie_policy":"already wooden sources keep their exact zero-distance self match; other equal distances use lexicographic block ID",
         "preserved_wood_count":len(wood_sources),
         "preserved_wood_policy":"explicit vanilla wooden semantic tags plus audited native IDs; preserve any shape only when actual state has no block entity; block entities always convert",
-        "preserved_wood_decisions":"include crafting_table, composter, ladder, exposed mangrove_roots and bamboo_mosaic family; exclude muddy roots, living bamboo, saplings, leaves, potted plants, bookshelves/books, beds/wool, scaffolding/string, mixed-material workstations and redstone mechanisms",
+        "preserved_wood_decisions":"include composter, ladder, exposed mangrove_roots and bamboo_mosaic family; exclude crafting_table, muddy roots, living bamboo, saplings, leaves, potted plants, bookshelves/books, beds/wool, scaffolding/string, mixed-material workstations and redstone mechanisms",
         "generator_sha256":hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     }
     output = {"schema_version":1,"metadata":metadata,
@@ -549,7 +551,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--client-jar",type=Path,required=True)
     parser.add_argument("--resource-pack",type=Path,action="append",default=[])
-    parser.add_argument("--registry",type=Path,required=True,help="Native registry JSON array of IDs or {id,fullCube,visualBlock} objects")
+    parser.add_argument("--registry",type=Path,required=True,help="Native registry JSON array of IDs or {id,fullCube,visualBlock,visualModel} objects")
     parser.add_argument("--output",type=Path,default=ROOT/"src/main/resources/skywars2/woodificator_palette.json")
     parser.add_argument("--evidence",type=Path,help="Optional source-asset hashes report")
     args = parser.parse_args()

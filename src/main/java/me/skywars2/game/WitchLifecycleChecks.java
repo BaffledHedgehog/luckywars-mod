@@ -60,7 +60,7 @@ public final class WitchLifecycleChecks {
             for(var tag:nbt.getListOrEmpty("Tags"))tag.asString().ifPresent(result::add);return result;}
         void disconnect(){var previous=gamma;previous.connection.onDisconnect(new DisconnectionDetails(Component.literal("Witch lifecycle fixture")));require(game.server().getPlayerList().getPlayer(id)==null,"real listener disconnect removes native player");}
         void reconnect(){var previous=gamma;gamma=GameChecks.createBot(game,"TestGamma");require(gamma!=null&&gamma!=previous&&gamma.getUUID().equals(id),"native login loads a fresh session with the same saved UUID");}
-        boolean step(){int now=game.server().getTickCount();require(now-start<60,"bounded native lifecycle scenario");
+        boolean step(){int now=game.server().getTickCount();require(now-start<(phase==3?600:60),"bounded native lifecycle scenario");
             if(phase==-1){ready();phase=-2;return false;}
             if(phase==-2){if(now-start<2)return false;handoff();phase=0;return false;}
             if(phase==0){if(now-start<2)return false;reconnect();
@@ -81,7 +81,24 @@ public final class WitchLifecycleChecks {
                 service.stop();phase++;return false;}
             if(phase==2){reconnect();
                 require(Arrays.stream(LbcWitchClaims.Mode.values()).noneMatch(mode->gamma.entityTags().contains(mode.tag()))&&!gamma.entityTags().contains("sin_greed_active")&&!gamma.entityTags().contains("indolence_active")&&!gamma.entityTags().contains("kill_one_skeleton"),"match-end invalidation cleans offline authority and active flags at native next login");
-                require(service.ownership().isEmpty()&&game.playing()&&game.alivePlayers().size()==2,"source progress and continuing match stay owned by the existing core");return true;}
+                require(service.ownership().isEmpty()&&game.playing()&&game.alivePlayers().size()==2,"source progress and continuing match stay owned by the existing core");
+                game.server().getCommands().performPrefixedCommand(game.server().createCommandSourceStack(),"gamemode survival TestGamma");
+                for(var p:List.of(base.owner,base.other))p.entityTags().add("have_mom");
+                claim(gamma,7,"gens_type",7);
+                require(gamma.entityTags().contains("sin_envy")&&id.equals(service.owner(LbcWitchClaims.Mode.ENVY)),"actual Envy qualification owns the raw tag before whole-match stop");
+                gamma.entityTags().addAll(Set.of("greed_cursed","sin_greed_have_heart","skywars2.reset_fixture.keep"));
+                game.items().mana().score(gamma,"sleep_time").set(712);game.items().mana().score(gamma,"coldown8").set(19);
+                game.stopMatch();
+                require(service.ownership().isEmpty()&&!gamma.entityTags().contains("sin_envy")
+                        &&!gamma.entityTags().contains("greed_cursed")&&!gamma.entityTags().contains("sin_greed_have_heart")
+                        &&!base.owner.entityTags().contains("have_mom")&&gamma.entityTags().contains("skywars2.reset_fixture.keep")
+                        &&game.items().mana().hudValue(gamma,"sleep_time")==0&&game.items().mana().hudValue(gamma,"coldown8")==0,
+                        "real controller stop removes legacy authority/progress/cooldown tags and scores, preserving unrelated tags");
+                start=now;phase=3;return false;}
+            if(phase==3){if(game.stage()!=GameController.Stage.LOBBY)return false;
+                for(var p:game.server().getPlayerList().getPlayers())require(Arrays.stream(LbcWitchClaims.Mode.values()).noneMatch(mode->p.entityTags().contains(mode.tag()))
+                        &&!p.entityTags().contains("have_mom"),"actual lobby handoff cannot restore previous-match authority or Witch qualification tags");
+                gamma.entityTags().remove("skywars2.reset_fixture.keep");return true;}
             return false;
         }
         @SuppressWarnings("unchecked") public void close(){if(closed)return;closed=true;service.stop();game.items().witchPassives().stop();try{

@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 public final class NegativeAttributeEffects {
     private NegativeAttributeEffects(){}
     private static boolean active(LivingEntity entity){
+        if(!VanillaExpansionRules.enabled())return false;
         var game=SkyWars2.game();
         return game!=null&&game.playing()&&entity.level()==game.maps().level()
                 &&game.items().wands().validRoleTarget(entity,false)
@@ -46,10 +47,12 @@ public final class NegativeAttributeEffects {
         return target.getHealth()>before;
     }
     public static boolean negativeAttack(LivingEntity attacker,float amount){
+        if(!VanillaExpansionRules.enabled())return false;
         return attacker.getAttributeValue(Attributes.ATTACK_DAMAGE)<0&&(amount<0||Float.isNaN(amount));
     }
     /** Called after native/Fabric admission, before native onAttack resets strength. */
     public static boolean playerAttack(Player player,Entity entity,float scaledBase,float magicBoost,float strength){
+        if(!VanillaExpansionRules.enabled())return false;
         if(!(player instanceof ServerPlayer)||!(entity instanceof LivingEntity target)
                 ||!(player.getAttributeValue(Attributes.ATTACK_DAMAGE)<0))return false;
         var weapon=player.getWeaponItem();var source=weapon.getDamageSource(player);
@@ -73,6 +76,7 @@ public final class NegativeAttributeEffects {
     }
     /** Fallback only for an actual signed, direct native melee call, never projectiles/effects. */
     public static boolean directMelee(LivingEntity target,DamageSource source,float amount){
+        if(!VanillaExpansionRules.enabled())return false;
         if(!(amount<0)||!(source.getEntity() instanceof LivingEntity attacker)
                 ||source.getDirectEntity()!=attacker||attacker.getAttribute(Attributes.ATTACK_DAMAGE)==null
                 ||!(attacker.getAttributeValue(Attributes.ATTACK_DAMAGE)<0)

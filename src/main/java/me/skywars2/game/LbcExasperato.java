@@ -23,6 +23,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -42,7 +43,6 @@ public final class LbcExasperato {
     private static final int SEARCH_SEGMENT=16, SEARCH_BUDGET=80, SEARCH_HEADROOM_BUDGET=96;
     private static final long BLAST_BUDGET_NANOS=4_000_000;
     private static final int BLASTS_PER_TICK=8;
-    private static final double[] BLAST_RAYS=blastRays();
     private static final net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block> AIRS=
             net.minecraft.tags.TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
     private static final net.minecraft.core.particles.DustColorTransitionOptions NUKE_PARTICLE=
@@ -124,6 +124,8 @@ public final class LbcExasperato {
         default void submitted(RayTicket ticket) { }
         /** Nonzero only for an original discrete selector ray. The same queue owns its cursor. */
         default double sampleStep(){return 0;}
+        /** A bounded instant weapon preloads its complete footprint before advancing in one tick. */
+        default boolean atomicSamples(){return false;}
         default Vec3 directionAt(Vec3 point,Vec3 direction){return direction;}
         default net.minecraft.world.phys.HitResult sampleAt(Vec3 point){throw new UnsupportedOperationException();}
         default boolean sampleContinues(Vec3 point){return true;}
@@ -190,7 +192,11 @@ public final class LbcExasperato {
         boolean protectedDamage;
         boolean cosmos;
         boolean nuclear;
+        boolean rapid;
         NuclearTerrain.Shape terrain;
+        NuclearTerrain.WandPreparation preparation;
+        long preparationSeed;
+        NuclearTerrain.Occlusion walls;
         LbcIndirectKills.Owner terrainCause;
         int next;
         BlastBatch(ServerPlayer owner,Vec3 origin,String epoch) {
@@ -199,10 +205,21 @@ public final class LbcExasperato {
         BlastBatch(ServerPlayer owner,ServerLevel level,Vec3 origin,String epoch) {
             this.owner=owner; this.level=level; this.origin=origin; this.epoch=epoch;
         }
+        void cancelPreparation(){if(preparation!=null)preparation.cancel();preparation=null;}
     }
     // (user) Сохраняем все серии без отказов в касте; одна запись хранит всю серию, а не 32 задачи.
     private final ArrayDeque<BlastBatch> blasts=new ArrayDeque<>();
     private boolean blastAdvancing,blastRewind;private int nativeBlasts;
+
+    /** Only owner retention differs from vanilla; block resistance/calculator semantics do not. */
+    private static final class NativeBlastSource extends PrimedTnt {
+        private final LivingEntity author;
+        private final boolean cachedBlocks,nuclear;
+        NativeBlastSource(ServerLevel level,Vec3 at,LivingEntity author,boolean cachedBlocks){this(level,at,author,cachedBlocks,false);}
+        NativeBlastSource(ServerLevel level,Vec3 at,LivingEntity author,boolean cachedBlocks,boolean nuclear){super(level,at.x,at.y,at.z,nuclear?null:author);this.author=nuclear?null:author;this.cachedBlocks=cachedBlocks;this.nuclear=nuclear;}
+        @Override public LivingEntity getOwner(){return author;}
+    }
+    public static boolean cacheableNativeBlast(Entity source){return source instanceof NativeBlastSource blast&&blast.cachedBlocks&&VanillaExpansionRules.enabled();}
 
     private static EntityType<Charge> registerType() {
         var key=ResourceKey.create(Registries.ENTITY_TYPE,Identifier.parse("skywars2:exasperato_charge"));
@@ -244,6 +261,7 @@ public final class LbcExasperato {
         return false;
     }
     public int mushroomCount() { return game.items().nuclearVisuals().count(); }
+    boolean pendingNuclearTerrain(){return blasts.stream().anyMatch(batch->batch.nuclear);}
     public int pendingBlasts() {
         int remaining=0;
         for(var batch:blasts) remaining+=batch.offsets.length-batch.next;
@@ -495,14 +513,24 @@ public final class LbcExasperato {
             search.started=true;
             Vec3 from=search.position;
             if(sampled){
-                if(!search.replay.readyAt(from)){searches.addLast(search);continue;}
-                if(!level.hasChunkAt(BlockPos.containing(from))){complete(search,null);continue;}
-                search.direction=search.replay.directionAt(from,search.direction).normalize();
-                var hit=search.replay.sampleAt(from);
-                if(hit!=null){complete(search,hit);continue;}
-                if(search.remaining<=1e-7||!search.replay.sampleContinues(from)){complete(search,null);continue;}
-                double step=search.replay.sampleStep();search.position=from.add(search.direction.scale(step));
-                search.remaining-=step;searches.addLast(search);continue;
+                boolean atomic=search.replay.atomicSamples();
+                int samples=atomic?(int)Math.ceil(search.remaining/search.replay.sampleStep())+1:1;
+                for(int sample=0;sample<samples;sample++){
+                    if(atomic&&(!game.items().currentEpoch(search.epoch)||!game.playing()||!owner.isAlive()
+                            ||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner))){complete(search,null);break;}
+                    if(atomic&&(game.items().timeStop().stopped(level)||owner.entityTags().contains("time_stopped"))){searches.addLast(search);break;}
+                    from=search.position;
+                    if(!search.replay.readyAt(from)){searches.addLast(search);break;}
+                    if(!level.hasChunkAt(BlockPos.containing(from))){complete(search,null);break;}
+                    search.direction=search.replay.directionAt(from,search.direction).normalize();
+                    var hit=search.replay.sampleAt(from);
+                    if(hit!=null){complete(search,hit);break;}
+                    if(search.remaining<=1e-7||!search.replay.sampleContinues(from)){complete(search,null);break;}
+                    double step=search.replay.sampleStep();search.position=from.add(search.direction.scale(step));
+                    search.remaining-=step;
+                    if(!atomic){searches.addLast(search);break;}
+                }
+                continue;
             }
             if(!level.hasChunkAt(BlockPos.containing(from))
                     || searchPointSuppressed(search,from)) { complete(search,null); continue; }
@@ -584,16 +612,44 @@ public final class LbcExasperato {
     void blastTick() {
         if(blastRewind)return;if(blastAdvancing)throw new IllegalStateException("Reentrant blast queue advance");blastAdvancing=true;try{
         if(blasts.isEmpty()) return;
+        // The ordinary wand's85 native explosions form one impact, not85 background
+        // jobs. Service one third of EACH accepted impact before the soft queue budget.
+        // Keep every native source, damage calculation and block interaction intact.
+        for(int remaining=blasts.size();remaining>0&&!blasts.isEmpty();remaining--){
+            var burst=blasts.removeFirst();
+            if(!burst.rapid){blasts.addLast(burst);continue;}
+            if(!game.items().currentEpoch(burst.epoch)||game.stage()==GameController.Stage.ENDING||burst.level!=game.maps().level())continue;
+            if(!game.items().timeStop().stopped(burst.level)){
+                int quota=(burst.offsets.length+2)/3;
+                for(int work=0;work<quota&&burst.next<burst.offsets.length;work++){
+                    if(game.items().timeStop().stopped(burst.level))break;
+                    var at=burst.origin.add(burst.offsets[burst.next]);var cell=BlockPos.containing(at);
+                    if(burst.level.getChunkSource().getChunkNow(cell.getX()>>4,cell.getZ()>>4)==null)break;
+                    burst.next++;
+                    nativeBlast(burst.owner,burst.level,at,burst.radius,burst.epoch,burst.protectedDamage,burst.sourceInit,false,false,true);
+                    if(!game.items().currentEpoch(burst.epoch)||game.stage()==GameController.Stage.ENDING)break;
+                }
+            }
+            if(burst.next<burst.offsets.length&&game.items().currentEpoch(burst.epoch)&&game.stage()!=GameController.Stage.ENDING)blasts.addLast(burst);
+        }
         long started=System.nanoTime();
         for(int work=0;work<BLASTS_PER_TICK && !blasts.isEmpty();work++) {
             var burst=blasts.removeFirst();
+            if(burst.rapid){blasts.addLast(burst);continue;}
             if(!game.items().currentEpoch(burst.epoch) || game.stage()==GameController.Stage.ENDING
-                    || !burst.cosmos && burst.level!=game.maps().level()) continue;
+                    || !burst.cosmos && burst.level!=game.maps().level()){burst.cancelPreparation();continue;}
             if(game.items().timeStop().stopped(burst.level)) { blasts.addLast(burst); continue; }
             if(burst.terrain!=null){
-                if(!burst.level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)){burst.terrain=null;blasts.addLast(burst);continue;}
-                if(burst.terrain.step(game,burst.level,burst.terrainCause,()->nuclearTerrainApplication(burst),
-                        writes->withNuclearTerrainSource(burst,writes)))burst.terrain=null;
+                if(!burst.level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
+                        ||LbcExplosionSuppression.suppressed(game,burst.level,burst.origin)){burst.cancelPreparation();burst.terrain=null;blasts.addLast(burst);continue;}
+                if(burst.preparation==null)burst.preparation=new NuclearTerrain.WandPreparation(burst.level,burst.origin,burst.preparationSeed);
+                burst.preparation.tick(game,burst.level);
+                if(burst.preparation.ready()){
+                    var positions=burst.terrain.preparedPositions(game,burst.level,burst.preparation.finish(burst.level));
+                    burst.terrain.applyPrepared(game,burst.level,burst.terrainCause,positions,()->nuclearTerrainApplication(burst),
+                            writes->withNuclearTerrainSource(burst,writes));
+                    burst.cancelPreparation();burst.terrain=null;
+                }
                 blasts.addLast(burst);
                 if(System.nanoTime()-started>=BLAST_BUDGET_NANOS)break;
                 continue;
@@ -607,8 +663,8 @@ public final class LbcExasperato {
             }
             burst.next++;
             if(burst.cosmos) cosmosBlast(burst);
-            else nativeBlast(burst.owner,burst.level,burst.origin.add(offset),burst.radius,burst.epoch,
-                        burst.protectedDamage,burst.sourceInit,false,burst.nuclear);
+            else NuclearTerrain.withOcclusion(burst.walls,()->nativeBlast(burst.owner,burst.level,burst.origin.add(offset),burst.radius,burst.epoch,
+                        burst.protectedDamage,burst.sourceInit,false,burst.nuclear));
             if(burst.next<burst.offsets.length && game.items().currentEpoch(burst.epoch)
                     && game.stage()!=GameController.Stage.ENDING) blasts.addLast(burst);
             // Round-robin даёт прогресс каждой серии, даже при непрерывных новых попаданиях.
@@ -695,6 +751,24 @@ public final class LbcExasperato {
     void exopersoBurst(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit) {
         nuclearBurst(owner,origin,sourceInit,true);
     }
+    /** The ritual prepares geometry during its countdown; block application and native waves share one deadline. */
+    void exopersoPrepared(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit,NuclearTerrain.Geometry geometry){
+        var level=owner.level();var epoch=game.items().epoch();
+        if(LbcExplosionSuppression.suppressed(game,level,origin)||!level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES))return;
+        game.items().nuclearVisuals().show(level,origin,12,true,200);
+        for(var sound:new String[]{"minecraft:entity.dragon_fireball.explode","minecraft:entity.generic.explode","minecraft:item.firecharge.use",
+                "minecraft:entity.firework_rocket.large_blast","minecraft:entity.firework_rocket.large_blast_far"})LbcOverload.sound(owner,origin,sound,100,0,0);
+        var batch=new BlastBatch(owner,origin,epoch);batch.sourceInit=sourceInit;batch.nuclear=true;
+        batch.terrain=NuclearTerrain.wand(origin);batch.walls=batch.terrain.walls;batch.terrainCause=game.items().indirectKills().wildCause(owner);
+        // First damage is immediate and still sees the original walls.
+        nativeBlast(owner,level,origin,20,epoch,false,sourceInit,false,true);
+        var positions=batch.terrain.preparedPositions(game,level,geometry);
+        batch.terrain.applyPrepared(game,level,batch.terrainCause,positions,()->nuclearTerrainApplication(batch),writes->withNuclearTerrainSource(batch,writes));
+        for(int i=1;i<NUKE_OFFSETS.length;i++){
+            var at=origin.add(NUKE_OFFSETS[i]);
+            NuclearTerrain.withOcclusion(batch.walls,()->nativeBlast(owner,level,at,20,epoch,false,sourceInit,false,true));
+        }
+    }
     private void nuclearBurst(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit,boolean exoperso) {
         String epoch=game.items().epoch();
         game.items().nuclearVisuals().show(owner.level(),origin,12,exoperso,exoperso?200:400);
@@ -702,16 +776,17 @@ public final class LbcExasperato {
                 "minecraft:item.firecharge.use","minecraft:entity.firework_rocket.large_blast","minecraft:entity.firework_rocket.large_blast_far"};
         for(var sound:sounds) LbcOverload.sound(owner,origin,sound,100,0,0);
         var batch=new BlastBatch(owner,origin,epoch); batch.sourceInit=sourceInit;
-        batch.nuclear=true;batch.terrain=NuclearTerrain.wand(origin);
-        // Native TNT is neither a Projectile nor a WILD terrain writer.
-        batch.terrainCause=game.items().indirectKills().coldCause(owner,false);batch.next=1;
+        batch.nuclear=true;batch.terrain=NuclearTerrain.wand(origin);batch.walls=batch.terrain.walls;
+        batch.preparationSeed=owner.level().getRandom().nextLong();
+        // The original ownerless creepers are WILD; only kill credit belongs to the caster.
+        batch.terrainCause=game.items().indirectKills().wildCause(owner);batch.next=1;
         blasts.addLast(batch);
         // Native damage is synchronous; a first lethal wave cannot leave an unharmed
         // author producing new payloads while the common terrain queue catches up.
         nativeBlast(owner,owner.level(),origin,20,epoch,false,sourceInit,false,true);
     }
 
-    private static final Vec3[] NUKE_OFFSETS={
+    static final Vec3[] NUKE_OFFSETS={
         new Vec3(0,0,0),new Vec3(5,0,0),new Vec3(-5,0,0),new Vec3(0,0,5),new Vec3(0,0,-5),
         new Vec3(5,0,5),new Vec3(-5,0,-5),new Vec3(5,0,-5),new Vec3(-5,0,5),
         new Vec3(0,5,0),new Vec3(0,10,0),new Vec3(0,15,0),new Vec3(0,20,0),
@@ -790,25 +865,16 @@ public final class LbcExasperato {
     }
 
     /** Данные только непустых блоков одного взрыва: воздух не создаёт тысячи записей/BlockPos. */
-    private static final class BlastCell {
-        final BlockPos pos;
-        final net.minecraft.world.level.block.state.BlockState state;
-        final float loss;
-        boolean added;
-        BlastCell(BlockPos pos,net.minecraft.world.level.block.state.BlockState state,float loss) {
-            this.pos=pos; this.state=state; this.loss=loss;
+    private static boolean emptyBlastVolume(ServerLevel level,Vec3 point,float power){
+        int reach=(int)Math.ceil(power*2);var center=BlockPos.containing(point);
+        int lowY=Math.max(level.getMinY(),center.getY()-reach),highY=Math.min(level.getMaxY()-1,center.getY()+reach);
+        if(lowY>highY)return true;
+        for(int x=(center.getX()-reach)>>4;x<=(center.getX()+reach)>>4;x++)for(int z=(center.getZ()-reach)>>4;z<=(center.getZ()+reach)>>4;z++){
+            var chunk=level.getChunkSource().getChunkNow(x,z);if(chunk==null)return false;
+            for(int section=chunk.getSectionIndex(lowY);section<=chunk.getSectionIndex(highY);section++)
+                if(!chunk.getSection(section).hasOnlyAir())return false;
         }
-    }
-
-    private static double[] blastRays() {
-        double[] steps=new double[(16*16*16-14*14*14)*3]; int next=0;
-        for(int x=0;x<16;x++) for(int y=0;y<16;y++) for(int z=0;z<16;z++) {
-            if(x!=0 && x!=15 && y!=0 && y!=15 && z!=0 && z!=15) continue;
-            double dx=x/15.0*2-1,dy=y/15.0*2-1,dz=z/15.0*2-1;
-            double scale=.3/Math.sqrt(dx*dx+dy*dy+dz*dz);
-            steps[next++]=dx*scale; steps[next++]=dy*scale; steps[next++]=dz*scale;
-        }
-        return steps;
+        return true;
     }
 
     /** Идеи Paper/Moonrise: готовые лучи, локальные чтения и кэш сопротивления.
@@ -816,68 +882,34 @@ public final class LbcExasperato {
      * Меняется только поиск блоков; native damage, owner, loot и применение разрушений остаются снаружи. */
     public static List<BlockPos> explosionBlocks(net.minecraft.world.level.ServerExplosion blast,
             net.minecraft.world.level.ExplosionDamageCalculator calculator) {
-        var level=blast.level(); Vec3 origin=blast.center();
-        var result=new it.unimi.dsi.fastutil.objects.ObjectArrayList<BlockPos>();
-        var cells=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<BlastCell>();
-        var chunks=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<net.minecraft.world.level.chunk.LevelChunk>();
-        // Фиксированный direct-mapped кэш хранит и воздух, но не создаёт объект на каждую пустую клетку.
-        long[] recentKeys=new long[512]; java.util.Arrays.fill(recentKeys,Long.MIN_VALUE);
-        BlastCell[] recentCells=new BlastCell[512];
-        var probe=new BlockPos.MutableBlockPos();
-        net.minecraft.world.level.chunk.LevelChunk lastChunk=null;
-        int lastChunkX=Integer.MIN_VALUE,lastChunkZ=Integer.MIN_VALUE;
-        for(int ray=0;ray<BLAST_RAYS.length;ray+=3) {
-            double x=origin.x,y=origin.y,z=origin.z;
-            double dx=BLAST_RAYS[ray],dy=BLAST_RAYS[ray+1],dz=BLAST_RAYS[ray+2];
-            float power=blast.radius(),loss=0;
-            long previous=Long.MIN_VALUE; BlastCell cell=null;
-            while(power>0) {
-                int bx=net.minecraft.util.Mth.floor(x),by=net.minecraft.util.Mth.floor(y),bz=net.minecraft.util.Mth.floor(z);
-                long key=BlockPos.asLong(bx,by,bz);
-                if(key!=previous) {
-                    probe.set(bx,by,bz);
-                    if(!level.isInWorldBounds(probe)) break;
-                    int slot=(bx&7)|((by&7)<<3)|((bz&7)<<6);
-                    if(recentKeys[slot]==key) {
-                        cell=recentCells[slot]; loss=cell==null ? 0 : cell.loss;
-                    } else {
-                        int cx=bx>>4,cz=bz>>4;
-                        if(cx!=lastChunkX || cz!=lastChunkZ) {
-                            long chunkKey=net.minecraft.world.level.ChunkPos.pack(cx,cz);
-                            lastChunk=chunks.get(chunkKey);
-                            if(lastChunk==null) { lastChunk=level.getChunk(cx,cz); chunks.put(chunkKey,lastChunk); }
-                            lastChunkX=cx; lastChunkZ=cz;
-                        }
-                        var section=lastChunk.getSection(level.getSectionIndex(by));
-                        // Пустая секция не требует обращения к palette, сопротивлению или созданию позиции.
-                        var state=section.hasOnlyAir() ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()
-                                : section.getBlockState(bx&15,by&15,bz&15);
-                        var fluid=state.getFluidState();
-                        if(state.isAir() && fluid.isEmpty()) { cell=null; loss=0; }
-                        else {
-                            cell=cells.get(key);
-                            if(cell==null) {
-                                BlockPos pos=probe.immutable();
-                                var resistance=calculator.getBlockExplosionResistance(blast,level,pos,state,fluid);
-                                float attenuation=resistance.isEmpty() ? 0 : (resistance.get()+.3F)*.3F;
-                                cell=new BlastCell(pos,state,attenuation); cells.put(key,cell);
-                            }
-                            loss=cell.loss;
-                        }
-                        recentKeys[slot]=key; recentCells[slot]=cell;
-                    }
-                    previous=key;
-                }
-                power-=loss;
-                if(power>0 && cell!=null && !cell.added && !cell.state.isAir()
-                        && calculator.shouldBlockExplode(blast,level,cell.pos,cell.state,power)) {
-                    cell.added=true; result.add(cell.pos);
-                }
-                power-=.22500001F;
-                x+=dx; y+=dy; z+=dz;
-            }
+        var level=blast.level();Vec3 origin=blast.center();
+        boolean nativeShape=cacheableNativeBlast(blast.getDirectSourceEntity())||LbcNukeEvent.cacheableNativeBlast(blast.getDirectSourceEntity());
+        boolean residentOnly=LbcNukeEvent.cacheableNativeBlast(blast.getDirectSourceEntity());
+        if(emptyBlastVolume(level,origin,blast.radius())){
+            if(nativeShape)for(int ray=0;ray<BlastRayTrace.rayCount();ray++)level.getRandom().nextFloat();
+            return List.of();
         }
-        return result;
+        var view=new BlastRayTrace.Cells(){
+            final it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<net.minecraft.world.level.chunk.LevelChunk> chunks=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<>();
+            net.minecraft.world.level.chunk.LevelChunk last;int lastX=Integer.MIN_VALUE,lastZ=Integer.MIN_VALUE;
+            public boolean inside(BlockPos pos){return level.isInWorldBounds(pos);}
+            public net.minecraft.world.level.block.state.BlockState state(BlockPos pos){
+                int cx=pos.getX()>>4,cz=pos.getZ()>>4;
+                if(cx!=lastX||cz!=lastZ){
+                    long key=net.minecraft.world.level.ChunkPos.pack(cx,cz);last=chunks.get(key);
+                    if(last==null){last=residentOnly?level.getChunkSource().getChunkNow(cx,cz):level.getChunk(cx,cz);if(last!=null)chunks.put(key,last);}
+                    lastX=cx;lastZ=cz;
+                }
+                var section=last==null?null:last.getSection(level.getSectionIndex(pos.getY()));
+                return section==null||section.hasOnlyAir()?Blocks.AIR.defaultBlockState():section.getBlockState(pos.getX()&15,pos.getY()&15,pos.getZ()&15);
+            }
+            public float loss(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){
+                var resistance=calculator.getBlockExplosionResistance(blast,level,pos,state,state.getFluidState());
+                return resistance.isEmpty()?0:(resistance.get()+.3F)*.3F;
+            }
+            public boolean destroy(BlockPos pos,net.minecraft.world.level.block.state.BlockState state,float power){return calculator.shouldBlockExplode(blast,level,pos,state,power);}
+        };
+        return BlastRayTrace.trace(origin,blast.radius(),level.getRandom(),nativeShape,view);
     }
 
     void instantBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch) {
@@ -909,20 +941,26 @@ public final class LbcExasperato {
         nativeBlast(owner,level,at,radius,epoch,protectedDamage,sourceInit,encounterDimension,false);
     }
     private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
-            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension,boolean nuclear) {nativeBlasts++;try{
+            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension,boolean nuclear) {
+        nativeBlast(owner,level,at,radius,epoch,protectedDamage,sourceInit,encounterDimension,nuclear,false);
+    }
+    private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
+            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension,boolean nuclear,boolean cachedBlocks) {nativeBlasts++;try{
         if(!encounterDimension && level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
                 || !level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
                 || !game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
         // A queued blast can outlive its living author; native EntityReference drops removed owners.
-        PrimedTnt source=new PrimedTnt(level,at.x,at.y,at.z,owner) {
-            @Override public LivingEntity getOwner() { return owner; }
-        };
-        source.setDeltaMovement(Vec3.ZERO); source.setFuse(0);
+        PrimedTnt source=new NativeBlastSource(level,at,owner,cachedBlocks,nuclear);
+        source.setDeltaMovement(Vec3.ZERO); source.setFuse(protectedDamage?1:0);
         if(owner instanceof ServerPlayer) source.entityTags().add(EXPLOSIVE);
         if(!protectedDamage) source.entityTags().add(LbcDamage.UNPROTECTED_TNT);
         game.items().markCurrentItemEpoch(source);
         try { if(sourceInit!=null) sourceInit.accept(source);
-            if(nuclear)NuclearTerrain.damageWave(source,()->level.explode(source,at.x,at.y,at.z,radius,Level.ExplosionInteraction.TNT));
+            if(nuclear){
+                var cause=owner instanceof ServerPlayer player?game.items().indirectKills().wildCause(player):null;
+                var damage=game.items().indirectKills().captureDamage(net.minecraft.world.level.Explosion.getDefaultDamageSource(level,source),cause);
+                NuclearTerrain.damageWave(source,()->level.explode(source,damage,null,at.x,at.y,at.z,radius,false,Level.ExplosionInteraction.TNT));
+            }
             else level.explode(source,at.x,at.y,at.z,radius,Level.ExplosionInteraction.TNT);
         }
         finally {
@@ -978,7 +1016,7 @@ public final class LbcExasperato {
         }
         if(!offsets.isEmpty()) {
             var burst=new BlastBatch(owner,origin,epoch);
-            burst.offsets=offsets.toArray(Vec3[]::new); burst.radius=4; burst.protectedDamage=true;
+            burst.offsets=offsets.toArray(Vec3[]::new); burst.radius=4; burst.protectedDamage=true;burst.rapid=true;
             burst.sourceInit=MatchBlastCheckpoint.academyBinding(game,trial);
             blasts.addLast(burst);
         }
@@ -997,13 +1035,15 @@ public final class LbcExasperato {
     /** Общая политика для всего native взрыва, до урона, knockback и расчёта exposure. */
     public boolean explosionTarget(Entity source,Entity target) {
         if(LbcOreshek.managed(source))return game.items().oreshek().canAffect(source,target);
+        if(source instanceof NativeBlastSource blast&&blast.nuclear)return game.items().currentEpoch(source)
+                &&game.items().wands().validRoleTarget(target,false);
         if(!(source instanceof PrimedTnt tnt) || !source.entityTags().contains(EXPLOSIVE)) return true;
         return tnt.getOwner() instanceof ServerPlayer owner && game.items().currentEpoch(tnt)
                 && game.items().wands().projectileTarget(owner,target);
     }
     void stop() {
         for(var search:searches) {if(search.replay==null)search.result.cancel(false);else complete(search,null);}
-        searches.clear();searchRewind=false; game.items().nuclearVisuals().stop(); blasts.clear();blastRewind=false;
+        searches.clear();searchRewind=false; game.items().nuclearVisuals().stop();for(var burst:blasts)burst.cancelPreparation();blasts.clear();blastRewind=false;
         var detached=List.copyOf(charges); charges.clear();
         for(var charge:detached) charge.discard();
     }
@@ -1022,16 +1062,16 @@ public final class LbcExasperato {
 
 
     void blastBoundary(){if(nativeBlasts!=0||blastAdvancing||!batch.isEmpty())throw new IllegalStateException("Finish explosive callbacks before checkpointing");}
-    void prepareBlastCheckpoint(){blastRewind=true;blasts.clear();}
+    void prepareBlastCheckpoint(){blastRewind=true;for(var burst:blasts)burst.cancelPreparation();blasts.clear();}
     void cancelBlastCheckpoint(){blastRewind=false;}
     BlastCheckpoint checkpointBlasts(MatchBlastCheckpoint.Graph graph){return new BlastCheckpoint(graph);}
     final class BlastCheckpoint {
         private record Actor(MatchDamageSources.Ref key,int age,int mode,int life,boolean trial){}
-        private record Burst(BlastBatch original,MatchDamageSources.Ref owner,Vec3[] offsets,float radius,boolean protectedDamage,boolean cosmos,int next,java.util.function.Consumer<PrimedTnt> init,boolean nuclear,NuclearTerrain.Shape terrain,LbcIndirectKills.Owner terrainCause){}
+        private record Burst(BlastBatch original,MatchDamageSources.Ref owner,Vec3[] offsets,float radius,boolean protectedDamage,boolean cosmos,int next,java.util.function.Consumer<PrimedTnt> init,boolean nuclear,NuclearTerrain.Shape terrain,LbcIndirectKills.Owner terrainCause,NuclearTerrain.Occlusion walls,boolean rapid,long preparationSeed){}
         private final List<Actor> actors;private final List<Burst> queue;
-        BlastCheckpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.mode,c.lifetime,c.academyTrial)).toList();queue=blasts.stream().map(b->{graph.binding(b.sourceInit);return new Burst(b,graph.links.key(b.owner),b.offsets.clone(),b.radius,b.protectedDamage,b.cosmos,b.next,b.sourceInit,b.nuclear,b.terrain==null?null:b.terrain.copy(),b.terrainCause);}).toList();}
+        BlastCheckpoint(MatchBlastCheckpoint.Graph graph){actors=charges.stream().map(c->new Actor(graph.links.key(c),c.age,c.mode,c.lifetime,c.academyTrial)).toList();queue=blasts.stream().map(b->{graph.binding(b.sourceInit);return new Burst(b,graph.links.key(b.owner),b.offsets.clone(),b.radius,b.protectedDamage,b.cosmos,b.next,b.sourceInit,b.nuclear,b.terrain==null?null:b.terrain.copy(),b.terrainCause,b.walls==null?null:b.walls.copy(),b.rapid,b.preparationSeed);}).toList();}
         Runnable prepare(MatchSpellCheckpoint.Links links){var bodies=new LinkedHashSet<Charge>();for(var a:actors){if(!(links.get(a.key) instanceof Charge c))throw new IllegalStateException("Restore native Exasperato charges first");bodies.add(c);}var owners=new java.util.IdentityHashMap<BlastBatch,ServerPlayer>();for(var b:queue){MatchAuthorityCheckpoint.world(game,b.original.level);var owner=links.get(b.owner);if(owner!=null&&!(owner instanceof ServerPlayer))throw new IllegalStateException("Restore current burst authors first");owners.put(b.original,(ServerPlayer)owner);}
-            return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.mode=a.mode;c.lifetime=a.life;c.academyTrial=a.trial;}blasts.clear();for(var b:queue){var live=b.original;live.owner=owners.get(live);live.offsets=b.offsets.clone();live.radius=b.radius;live.protectedDamage=b.protectedDamage;live.cosmos=b.cosmos;live.next=b.next;live.sourceInit=b.init;live.nuclear=b.nuclear;live.terrain=b.terrain==null?null:b.terrain.copy();live.terrainCause=b.terrainCause;blasts.addLast(live);}blastRewind=false;};}
+            return ()->{charges.clear();charges.addAll(bodies);for(var a:actors){var c=(Charge)links.get(a.key);c.age=a.age;c.mode=a.mode;c.lifetime=a.life;c.academyTrial=a.trial;}for(var burst:blasts)burst.cancelPreparation();blasts.clear();for(var b:queue){var live=b.original;live.owner=owners.get(live);live.offsets=b.offsets.clone();live.radius=b.radius;live.protectedDamage=b.protectedDamage;live.cosmos=b.cosmos;live.rapid=b.rapid;live.preparationSeed=b.preparationSeed;live.cancelPreparation();live.next=b.next;live.sourceInit=b.init;live.nuclear=b.nuclear;live.terrain=b.terrain==null?null:b.terrain.copy();live.terrainCause=b.terrainCause;live.walls=live.terrain==null?(b.walls==null?null:b.walls.copy()):live.terrain.walls;blasts.addLast(live);}blastRewind=false;};}
     }
 
     /** Charge state has no Search/RayTicket link; searches are separate accepted virtual casts. */

@@ -15,6 +15,8 @@ import net.minecraft.world.level.Level;
 /** Общий native shapeless-контейнер: matches/preview не расходуют предметы и не запускают эффекты. */
 public final class LbcCraftingRecipe extends CustomRecipe {
     public enum Kind {
+        IMITATOR("imitator_copy",null),
+        MULTIPLY_2("tablet_x2",null),MULTIPLY_3("tablet_x3",null),MULTIPLY_4("tablet_x4",null),
         MELLSTROY("mellstroy_mask",null),
         INFINITE_SHULKER("infinite_shulker_upgrade",null),
         LUCKY_SHULKER("lucky_shulker_upgrade",null),
@@ -101,6 +103,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     public ItemStack assemble(CraftingInput input) {
         var game = SkyWars2.game();
         if(game==null) return ItemStack.EMPTY;
+        if(kind==Kind.IMITATOR)return LbcImitatorCrafting.result(input);
+        if(kind==Kind.MULTIPLY_2||kind==Kind.MULTIPLY_3||kind==Kind.MULTIPLY_4)return LbcMultiplierCrafting.result(input);
         if(kind==Kind.PHD) return LbcPhdCrafting.result(game,input);
         if(kind==Kind.INFINITE_SHULKER||kind==Kind.LUCKY_SHULKER)return craftingKind(input)==kind?LbcInfiniteShulker.assemble(game,input):ItemStack.EMPTY;
         if(kind==Kind.ROCKET) return game.items().rocketCraftResult(input);
@@ -139,6 +143,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
 
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
+        if(!LbcMultiplierCrafting.result(input).isEmpty())return switch(LbcMultiplierCrafting.kind(input)){case 2->Kind.MULTIPLY_2;case 3->Kind.MULTIPLY_3;case 4->Kind.MULTIPLY_4;default->null;};
+        if(LbcImitatorCrafting.donor(input)>=0)return Kind.IMITATOR;
         if(LbcMellstroyCrafting.matches(input))return Kind.MELLSTROY;
         if(LbcPhdCrafting.matches(input))return Kind.PHD;
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
@@ -378,6 +384,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** (user) 60% сохранения донора: случайность только при настоящем расходе, не при preview. */
     @Override
     public net.minecraft.core.NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+        if(kind==Kind.IMITATOR)return LbcImitatorCrafting.remaining(input);
+        if(kind==Kind.MULTIPLY_2||kind==Kind.MULTIPLY_3||kind==Kind.MULTIPLY_4)return LbcMultiplierCrafting.remaining(input);
         if(kind==Kind.MELLSTROY)return net.minecraft.core.NonNullList.withSize(input.size(),ItemStack.EMPTY);
         if(kind==Kind.PHD)return LbcPhdCrafting.remaining(input);
         if((kind==Kind.FEVGALEA||LbcNyauwuCrafting.kind(input)==kind||LbcNyauwuCrafting.mk2Kind(input)==kind||kind==Kind.FLYING_BOOTS)&&craftingKind(input)==kind)
@@ -414,7 +422,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(game==null || !game.canUseGameplayItems(player)) return;
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
-        if(kind==null||kind==Kind.PHD) return;
+          if(kind==Kind.MULTIPLY_2||kind==Kind.MULTIPLY_3||kind==Kind.MULTIPLY_4){LbcMultiplierCrafting.taken(game,player,input);return;}
+        if(kind==null||kind==Kind.PHD||kind==Kind.IMITATOR) return;
         if(kind==Kind.MELLSTROY){LbcMellstroyCrafting.crafted(game,player.level(),player.position(),player);return;}
         if(kind==Kind.INFINITE_SHULKER||kind==Kind.LUCKY_SHULKER){LbcInfiniteShulker.crafted(player.level(),player.position(),kind);return;}
         if(LbcNyauwuCrafting.kind(input)==kind){LbcNyauwuCrafting.crafted(player.level(),player.position());return;}

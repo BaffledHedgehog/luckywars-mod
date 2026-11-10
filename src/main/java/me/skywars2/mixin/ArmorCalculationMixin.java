@@ -18,6 +18,7 @@ public abstract class ArmorCalculationMixin {
     }
     @Inject(method="getDamageAfterAbsorb",at=@At("RETURN"),cancellable=true)
     private static void skywars2$finiteArmorResult(LivingEntity victim,float damage,DamageSource source,float armor,float toughness,CallbackInfoReturnable<Float> result){
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
         if(!Float.isFinite(result.getReturnValue()))result.setReturnValue(ArmorCalculation.afterAbsorb(victim,damage,source,armor,toughness));
     }
 }

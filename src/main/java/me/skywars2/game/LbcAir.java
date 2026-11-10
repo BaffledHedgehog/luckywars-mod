@@ -249,7 +249,7 @@ public final class LbcAir {
         for(Charge charge:List.copyOf(charges)) cleanup(charge);
         charges.clear(); batch.clear();
     }
-    Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.server().getPlayerList().getPlayer(source.author()),origin,direction);}}
+    Charge sourceEmitter(net.minecraft.server.level.ServerLevel level,Vec3 origin,Vec3 direction,LbcSpellSource.Source source){try(var scope=game.items().spellSources().scope(source,level)){return sourceEmitter(game.items().spellSources().authorPlayer(source),origin,direction);}}
     private void sourceSound(ServerPlayer owner,Vec3 at,String sound,float volume,float pitch,double radius){
         if(game.items().spellSources().current()==null)LbcOverload.sound(owner,at,sound,volume,pitch,radius);
         else LbcOverload.sound(sourceLevel(owner),at,sound,volume,pitch,radius,0);

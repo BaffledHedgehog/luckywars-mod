@@ -146,9 +146,9 @@ public final class LbcLuckyBlocks {
         var game=SkyWars2.game();
         if(game==null||kind(state)==null)return null;
         var inherited=game.items().spellSources().current();
-        if(inherited!=null)return game.items().spellSources().scope(inherited);
+        if(inherited!=null)return game.items().spellSources().scope(inherited.hostileLoot());
         return breaker instanceof ServerPlayer player
-                ?game.items().spellSources().scope(game.items().spellSources().hostile(player,player,java.util.Set.of()),player.level()):null;
+                ?game.items().spellSources().scope(game.items().spellSources().hostile(player,player,java.util.Set.of()).hostileLoot(),player.level()):null;
     }
     private static final class LuckyBlock extends LbcBlockModels.Cube {
         private final Kind kind;

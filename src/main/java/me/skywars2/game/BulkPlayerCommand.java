@@ -16,7 +16,7 @@ public final class BulkPlayerCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         if (!FabricLoader.getInstance().isModLoaded("carpet")) return;
-        dispatcher.register(Commands.literal("player")
+        SkyWarsCommandTree.add(dispatcher,Commands.literal("player")
                 .then(Commands.literal("spawn").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(Commands.argument("prefix", StringArgumentType.word())
                                 .then(Commands.argument("count", IntegerArgumentType.integer(1, 1000))

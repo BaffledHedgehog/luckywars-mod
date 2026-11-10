@@ -70,7 +70,7 @@ public final class SheepChecks {
             SheepChecks.restore(profile,profileFields);state.restore(game);player.setShiftKeyDown(shift);player.setSprinting(sprint);player.setOnGround(ground);player.setLastClientInput(input);
             scores.forEach((key,value)->game.items().mana().score(player,key).set(value));counters.forEach(Runnable::run);
             if(click==null)clickTimes(game.items().academy()).remove(player.getUUID());else clickTimes(game.items().academy()).put(player.getUUID(),click);
-            for(var objective:game.server().getScoreboard().getObjectives())if(allScores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(player,objective).set(allScores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(player,objective);
+            for(var objective:game.server().getScoreboard().getObjectives())if(allScores.containsKey(objective))game.server().getScoreboard().getOrCreatePlayerScore(player,objective,true).set(allScores.get(objective));else game.server().getScoreboard().resetSinglePlayerScore(player,objective);
             game.items().magic().inventoryChanged(player);
         }
     }

@@ -112,6 +112,11 @@ public final class LbcAcademy {
     }
     /** Shared reverse progression: downgrades use the same native pairs as Academy upgrades. */
     static Item baseWandItem(Item upgraded){for(var wand:Wand.values())if(wand.upgraded==upgraded)return wand.base;return upgraded;}
+    private static final class WandItems {
+        static final java.util.Set<Item> VALUES=java.util.Arrays.stream(Wand.values())
+                .flatMap(wand->java.util.stream.Stream.of(wand.base,wand.upgraded)).collect(java.util.stream.Collectors.toUnmodifiableSet());
+    }
+    static java.util.Set<Item> wandItems(){return WandItems.VALUES;}
     private static Item registerToken() {
         var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:academy_token"));
         var data = new CompoundTag(); data.putInt("academy_token", 1);
@@ -134,6 +139,19 @@ public final class LbcAcademy {
     static boolean trial(ItemStack stack) {
         var tag = data(stack);
         return tag.getIntOr("upgradable", 0) == 1 && tag.getIntOr("upgraded", 0) != 1;
+    }
+    /** Pure admission for a player deciding whether another teacher visit is useful. */
+    boolean canStudy(ItemStack stack){
+        if(stack.isEmpty())return false;
+        var wand=wand(stack);if(wand==null||stack.is(wand.upgraded))return false;
+        var tag=data(stack);
+        return tag.getIntOr("upgraded",0)!=1&&tag.getIntOr("pissed_by_madoka_sob_sob_sob_sob_sob",0)!=1
+                &&(tag.getIntOr("upgradable",0)!=1||tag.getIntOr("upgrade_available",0)==1);
+    }
+    boolean acceptsStudent(Entity target){
+        var academy=singleUse.get(target.getUUID());
+        return target.isAlive()&&!target.isRemoved()&&target.entityTags().contains("magic_academy")
+                &&!target.entityTags().contains(BUILDING_TAG)&&(academy==null||!academy.spent);
     }
     private final GameController game;
     private final Set<ItemEntity> drops = new LinkedHashSet<>();

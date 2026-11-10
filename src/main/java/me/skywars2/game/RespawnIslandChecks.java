@@ -109,6 +109,7 @@ public final class RespawnIslandChecks {
         UUID victim;
         int lives,deaths,round,phase,ticks,wait;
         boolean awaiting,disconnected,running;
+        List<MapManager.Spawn> selectableSpawns;
         BlockPos air;
         Fixture(GameController game,MapManager.Spawn spawn) {
             this.game=game;maps=game.maps();this.spawn=spawn;
@@ -150,6 +151,9 @@ public final class RespawnIslandChecks {
                 if(p!=null&&game.allowDamage(p)){participant=entry.getValue();victim=entry.getKey();break;}
             }
             require(participant!=null,"prepared original spawn assigned to a live participant");
+            // This scene verifies exact cached terrain/NBT restoration across three real deaths.
+            // Pin its destination rather than relying on the removed assigned-island respawn policy.
+            selectableSpawns=maps.spawns();write(maps,"spawns",List.of(spawn));
             var cache=(Map<BlockPos,Map<BlockPos,MapManager.BlockSnapshot>>)read(maps,"respawnIslands");
             original=cache.get(center);
             require(original!=null&&originalBarrel.equals(original.get(barrel)),"genuine start capture retains deliberate unmarked barrel NBT");
@@ -244,6 +248,7 @@ public final class RespawnIslandChecks {
             }
         }
         void close() {
+            if(selectableSpawns!=null){write(maps,"spawns",selectableSpawns);selectableSpawns=null;}
             before.forEach(maps::restoreSnapshot);
             if(saved!=null) {
                 var current=player();

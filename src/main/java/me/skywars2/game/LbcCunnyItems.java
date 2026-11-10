@@ -54,6 +54,7 @@ public final class LbcCunnyItems {
             case "minecraft:set_custom_data"->properties.component(DataComponents.CUSTOM_DATA,CustomData.of(TagParser.parseCompoundFully(row.get("tag").getAsString())));
             case "minecraft:set_lore"->{if(!row.get("mode").getAsString().equals("replace_all"))throw new IllegalStateException("Unknown lore operation");var lines=new ArrayList<Component>();for(var line:row.getAsJsonArray("lore"))lines.add(ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,line).getOrThrow());properties.component(DataComponents.LORE,new ItemLore(lines));}
             default->throw new IllegalStateException("Unknown Cunny prototype modifier");}}
+        if(nahida)properties.component(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_s"));
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(properties,carrier,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){var game=me.skywars2.SkyWars2.game();
                 if(game==null||!(player instanceof ServerPlayer p))return InteractionResult.FAIL;

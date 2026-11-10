@@ -69,10 +69,7 @@ public final class RasenganChecks {
                     ball.setPos(f.at.add(12,0,0));service.tick();
                     require(service.pendingCount()==0&&!ball.isRemoved(),"one spell admission retains native source snowball");
                     require(cow.getHealth()<200&&protectedCow.getHealth()==200,"native far-cell MOB explosions hurt living target and preserve protected role: hp="+cow.getHealth()+" protected="+protectedCow.getHealth()+" pos="+f.owner.position()+" look="+f.owner.getLookAngle());
-                    require(f.owner.getEffect(MobEffects.RESISTANCE)!=null&&f.owner.getEffect(MobEffects.RESISTANCE).getAmplifier()==4
-                            &&f.owner.getEffect(MobEffects.RESISTANCE).getDuration()==20,"source caster ResistanceV20");
-                    require(f.other.getEffect(MobEffects.RESISTANCE)!=null&&f.other.getEffect(MobEffects.RESISTANCE).getAmplifier()==3
-                            &&f.other.getEffect(MobEffects.RESISTANCE).getDuration()==20,"source nearby player ResistanceIV20");
+                    require(!f.owner.hasEffect(MobEffects.RESISTANCE)&&!f.other.hasEffect(MobEffects.RESISTANCE),"item-local blast shields do not grant temporary effects");
                     require(f.owner.getEffect(MobEffects.LEVITATION)!=null&&f.owner.getEffect(MobEffects.LEVITATION).getDuration()==20
                             &&f.owner.getEffect(MobEffects.SLOW_FALLING)!=null&&f.owner.getEffect(MobEffects.SLOW_FALLING).getDuration()==200,"native launch/slow-fall clocks");
                     float after=cow.getHealth();service.tick();require(cow.getHealth()==after,"retained ball cannot retrigger");

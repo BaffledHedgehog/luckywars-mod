@@ -8,25 +8,25 @@
     "animation_policy": "all mcmeta frames, duration weighted; alpha-zero pixels ignored",
     "special_renderers": "explicit entity atlas adapters, chest/head UVs, fluids six-face still/flow weighting; labelled atlas approximations for dynamic renderers",
     "exclusion_policy": "only air, cave_air, void_air, light, structure_void, barrier; no opacity/collision/hardness exclusions",
-    "registry_source": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\woodificator-block-registry.json",
-    "registry_sha256": "665b468f12cd69408b064cb33a808927ae8e0dc6041a46d39baf6aad81b2064d",
+    "registry_source": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\carpet-bots-2026-11-09\\woodificator-registry-no-cursed-block.json",
+    "registry_sha256": "7f67df51f7c475b8375ffcb10713e9862bf543712dcb9e1fb2a00e53195a005e",
     "client_jar": "C:\\Users\\yarik_temp\\.gradle\\caches\\fabric-loom\\26.3\\minecraft-client.jar",
     "client_jar_sha256": "4508d006323f24fa02876310c192d739af56516eb259000ac50f0909a68c9a2d",
     "resource_packs": [
       "C:\\Users\\yarik_temp\\AppData\\Roaming\\FreesmLauncher\\instances\\26.3\\minecraft\\resourcepacks\\all_in_one_1.21.8"
     ],
-    "asset_inputs_sha256": "ab31bb613804eb4b75be6e63f796610dbd506c352a20d2c09830c7318ca07cae",
-    "asset_input_count": 5494,
+    "asset_inputs_sha256": "c9d0f2d9867ed600f5f3f9e8d57e4189c38f83f9e7c560cc9a4a14ba1be19401",
+    "asset_input_count": 5493,
     "asset_input_counts_by_layer": {
-      "C:\\Users\\yarik_temp\\.gradle\\caches\\fabric-loom\\26.3\\minecraft-client.jar": 5470,
-      "C:\\Users\\yarik_temp\\AppData\\Roaming\\FreesmLauncher\\instances\\26.3\\minecraft\\resourcepacks\\all_in_one_1.21.8": 24
+      "C:\\Users\\yarik_temp\\.gradle\\caches\\fabric-loom\\26.3\\minecraft-client.jar": 5472,
+      "C:\\Users\\yarik_temp\\AppData\\Roaming\\FreesmLauncher\\instances\\26.3\\minecraft\\resourcepacks\\all_in_one_1.21.8": 21
     },
-    "registry_count": 1288,
-    "mapped_count": 1282,
+    "registry_count": 1292,
+    "mapped_count": 1286,
     "excluded_count": 6,
-    "candidate_count": 54,
+    "candidate_count": 53,
     "methods": {
-      "model_faces": 1192,
+      "model_faces": 1196,
       "particle_fallback": 1,
       "special_chest_cuboid_uv": 11,
       "special_fluid_six_faces": 3,
@@ -36,12 +36,12 @@
     },
     "unresolved_count": 0,
     "candidate_validation": "all exclusively wooden preserved_wood families filtered by native DEFAULT state fullCube=true; exact block-entity exclusions all_signs, wooden_shelves, chest, trapped_chest, barrel; native qualification independently checks every target has no block entity",
-    "native_full_cube_candidate_count": 54,
+    "native_full_cube_candidate_count": 53,
     "tie_policy": "already wooden sources keep their exact zero-distance self match; other equal distances use lexicographic block ID",
-    "preserved_wood_count": 242,
+    "preserved_wood_count": 241,
     "preserved_wood_policy": "explicit vanilla wooden semantic tags plus audited native IDs; preserve any shape only when actual state has no block entity; block entities always convert",
-    "preserved_wood_decisions": "include crafting_table, composter, ladder, exposed mangrove_roots and bamboo_mosaic family; exclude muddy roots, living bamboo, saplings, leaves, potted plants, bookshelves/books, beds/wool, scaffolding/string, mixed-material workstations and redstone mechanisms",
-    "generator_sha256": "44fb95fd2eeb2d2d5da7a1e20cd99fae0f5fd965d19271724e165a94587d8d33"
+    "preserved_wood_decisions": "include composter, ladder, exposed mangrove_roots and bamboo_mosaic family; exclude crafting_table, muddy roots, living bamboo, saplings, leaves, potted plants, bookshelves/books, beds/wool, scaffolding/string, mixed-material workstations and redstone mechanisms",
+    "generator_sha256": "0a90c8586a5ac5e16cd390063cf66e7afab2ecf977ae69944ced4ed3b2ad30b2"
   },
   "candidates": {
     "minecraft:acacia_planks": {
@@ -150,18 +150,6 @@
         16.446508,
         12.717269,
         -3.139568
-      ]
-    },
-    "minecraft:crafting_table": {
-      "rgb": [
-        147.906,
-        118.341,
-        79.318
-      ],
-      "lab": [
-        51.717934,
-        6.189928,
-        25.816106
       ]
     },
     "minecraft:crimson_hyphae": {
@@ -771,7 +759,6 @@
     "minecraft:cherry_wood",
     "minecraft:chest",
     "minecraft:composter",
-    "minecraft:crafting_table",
     "minecraft:crimson_button",
     "minecraft:crimson_door",
     "minecraft:crimson_fence",
@@ -1151,9 +1138,6 @@
       "audited exclusively wooden native block"
     ],
     "minecraft:composter": [
-      "audited exclusively wooden native block"
-    ],
-    "minecraft:crafting_table": [
       "audited exclusively wooden native block"
     ],
     "minecraft:crimson_button": [
@@ -1799,7 +1783,7 @@
     "minecraft:blue_wool_slab": "minecraft:crimson_planks",
     "minecraft:blue_wool_stairs": "minecraft:crimson_planks",
     "minecraft:bone_block": "minecraft:birch_wood",
-    "minecraft:bookshelf": "minecraft:crafting_table",
+    "minecraft:bookshelf": "minecraft:jungle_planks",
     "minecraft:brain_coral": "minecraft:stripped_crimson_hyphae",
     "minecraft:brain_coral_block": "minecraft:stripped_crimson_hyphae",
     "minecraft:brain_coral_fan": "minecraft:stripped_crimson_hyphae",
@@ -1810,7 +1794,7 @@
     "minecraft:brick_wall": "minecraft:jungle_planks",
     "minecraft:bricks": "minecraft:jungle_planks",
     "minecraft:brown_banner": "minecraft:spruce_planks",
-    "minecraft:brown_bed": "minecraft:crafting_table",
+    "minecraft:brown_bed": "minecraft:poplar_planks",
     "minecraft:brown_candle": "minecraft:spruce_planks",
     "minecraft:brown_candle_cake": "minecraft:cherry_planks",
     "minecraft:brown_carpet": "minecraft:spruce_planks",
@@ -1841,7 +1825,7 @@
     "minecraft:cake": "minecraft:cherry_planks",
     "minecraft:calcite": "minecraft:birch_wood",
     "minecraft:calibrated_sculk_sensor": "minecraft:warped_hyphae",
-    "minecraft:campfire": "minecraft:crafting_table",
+    "minecraft:campfire": "minecraft:oak_planks",
     "minecraft:candle": "minecraft:birch_planks",
     "minecraft:candle_cake": "minecraft:cherry_planks",
     "minecraft:carrots": "minecraft:bamboo_block",
@@ -1922,11 +1906,11 @@
     "minecraft:copper_door": "minecraft:stripped_acacia_wood",
     "minecraft:copper_golem_statue": "minecraft:stripped_acacia_wood",
     "minecraft:copper_grate": "minecraft:stripped_acacia_wood",
-    "minecraft:copper_lantern": "minecraft:crafting_table",
+    "minecraft:copper_lantern": "minecraft:stripped_jungle_log",
     "minecraft:copper_ore": "minecraft:poplar_planks",
-    "minecraft:copper_torch": "minecraft:crafting_table",
+    "minecraft:copper_torch": "minecraft:poplar_planks",
     "minecraft:copper_trapdoor": "minecraft:stripped_acacia_wood",
-    "minecraft:copper_wall_torch": "minecraft:crafting_table",
+    "minecraft:copper_wall_torch": "minecraft:poplar_planks",
     "minecraft:cornflower": "minecraft:warped_hyphae",
     "minecraft:cracked_deepslate_bricks": "minecraft:pale_oak_wood",
     "minecraft:cracked_deepslate_tiles": "minecraft:warped_hyphae",
@@ -1934,7 +1918,7 @@
     "minecraft:cracked_polished_blackstone_bricks": "minecraft:cherry_wood",
     "minecraft:cracked_stone_bricks": "minecraft:acacia_wood",
     "minecraft:crafter": "minecraft:acacia_wood",
-    "minecraft:crafting_table": "minecraft:crafting_table",
+    "minecraft:crafting_table": "minecraft:jungle_planks",
     "minecraft:creaking_heart": "minecraft:mangrove_planks",
     "minecraft:creeper_head": "minecraft:bamboo_block",
     "minecraft:creeper_wall_head": "minecraft:bamboo_block",
@@ -2038,7 +2022,7 @@
     "minecraft:deepslate_copper_ore": "minecraft:acacia_wood",
     "minecraft:deepslate_diamond_ore": "minecraft:warped_planks",
     "minecraft:deepslate_emerald_ore": "minecraft:warped_planks",
-    "minecraft:deepslate_gold_ore": "minecraft:crafting_table",
+    "minecraft:deepslate_gold_ore": "minecraft:stripped_spruce_wood",
     "minecraft:deepslate_iron_ore": "minecraft:acacia_wood",
     "minecraft:deepslate_lapis_ore": "minecraft:warped_hyphae",
     "minecraft:deepslate_redstone_ore": "minecraft:pale_oak_wood",
@@ -2054,7 +2038,7 @@
     "minecraft:diorite_stairs": "minecraft:pale_oak_planks",
     "minecraft:diorite_wall": "minecraft:pale_oak_planks",
     "minecraft:dirt": "minecraft:spruce_planks",
-    "minecraft:dirt_path": "minecraft:crafting_table",
+    "minecraft:dirt_path": "minecraft:jungle_planks",
     "minecraft:dispenser": "minecraft:acacia_wood",
     "minecraft:dragon_egg": "minecraft:cherry_wood",
     "minecraft:dragon_head": "minecraft:warped_hyphae",
@@ -2078,7 +2062,7 @@
     "minecraft:ender_chest": "minecraft:warped_hyphae",
     "minecraft:exposed_chiseled_copper": "minecraft:jungle_planks",
     "minecraft:exposed_copper": "minecraft:jungle_planks",
-    "minecraft:exposed_copper_bars": "minecraft:crafting_table",
+    "minecraft:exposed_copper_bars": "minecraft:acacia_wood",
     "minecraft:exposed_copper_bulb": "minecraft:jungle_planks",
     "minecraft:exposed_copper_chain": "minecraft:acacia_wood",
     "minecraft:exposed_copper_chest": "minecraft:jungle_planks",
@@ -2139,7 +2123,7 @@
     "minecraft:gray_wool_slab": "minecraft:warped_hyphae",
     "minecraft:gray_wool_stairs": "minecraft:warped_hyphae",
     "minecraft:green_banner": "minecraft:bamboo_block",
-    "minecraft:green_bed": "minecraft:crafting_table",
+    "minecraft:green_bed": "minecraft:poplar_planks",
     "minecraft:green_candle": "minecraft:bamboo_block",
     "minecraft:green_candle_cake": "minecraft:cherry_planks",
     "minecraft:green_carpet": "minecraft:bamboo_block",
@@ -2189,7 +2173,7 @@
     "minecraft:jungle_door": "minecraft:jungle_planks",
     "minecraft:jungle_fence": "minecraft:jungle_planks",
     "minecraft:jungle_fence_gate": "minecraft:jungle_planks",
-    "minecraft:jungle_hanging_sign": "minecraft:crafting_table",
+    "minecraft:jungle_hanging_sign": "minecraft:stripped_jungle_log",
     "minecraft:jungle_leaves": "minecraft:bamboo_block",
     "minecraft:jungle_log": "minecraft:spruce_planks",
     "minecraft:jungle_planks": "minecraft:jungle_planks",
@@ -2200,13 +2184,13 @@
     "minecraft:jungle_slab": "minecraft:jungle_planks",
     "minecraft:jungle_stairs": "minecraft:jungle_planks",
     "minecraft:jungle_trapdoor": "minecraft:jungle_planks",
-    "minecraft:jungle_wall_hanging_sign": "minecraft:crafting_table",
+    "minecraft:jungle_wall_hanging_sign": "minecraft:stripped_jungle_log",
     "minecraft:jungle_wall_sign": "minecraft:jungle_planks",
     "minecraft:jungle_wood": "minecraft:jungle_wood",
     "minecraft:kelp": "minecraft:bamboo_block",
     "minecraft:kelp_plant": "minecraft:bamboo_block",
     "minecraft:ladder": "minecraft:stripped_spruce_wood",
-    "minecraft:lantern": "minecraft:crafting_table",
+    "minecraft:lantern": "minecraft:jungle_planks",
     "minecraft:lapis_block": "minecraft:warped_hyphae",
     "minecraft:lapis_ore": "minecraft:poplar_planks",
     "minecraft:large_amethyst_bud": "minecraft:stripped_cherry_wood",
@@ -2276,7 +2260,7 @@
     "minecraft:lime_wool_slab": "minecraft:bamboo_block",
     "minecraft:lime_wool_stairs": "minecraft:bamboo_block",
     "minecraft:lodestone": "minecraft:poplar_planks",
-    "minecraft:loom": "minecraft:crafting_table",
+    "minecraft:loom": "minecraft:jungle_planks",
     "minecraft:magenta_banner": "minecraft:stripped_crimson_hyphae",
     "minecraft:magenta_bed": "minecraft:stripped_cherry_wood",
     "minecraft:magenta_candle": "minecraft:stripped_crimson_hyphae",
@@ -2330,10 +2314,10 @@
     "minecraft:mossy_stone_bricks": "minecraft:acacia_wood",
     "minecraft:moving_piston": "minecraft:acacia_wood",
     "minecraft:mud": "minecraft:warped_hyphae",
-    "minecraft:mud_brick_slab": "minecraft:crafting_table",
-    "minecraft:mud_brick_stairs": "minecraft:crafting_table",
-    "minecraft:mud_brick_wall": "minecraft:crafting_table",
-    "minecraft:mud_bricks": "minecraft:crafting_table",
+    "minecraft:mud_brick_slab": "minecraft:jungle_planks",
+    "minecraft:mud_brick_stairs": "minecraft:jungle_planks",
+    "minecraft:mud_brick_wall": "minecraft:jungle_planks",
+    "minecraft:mud_bricks": "minecraft:jungle_planks",
     "minecraft:muddy_mangrove_roots": "minecraft:poplar_wood",
     "minecraft:mushroom_stem": "minecraft:stripped_poplar_wood",
     "minecraft:mycelium": "minecraft:poplar_planks",
@@ -2352,7 +2336,7 @@
     "minecraft:netherrack": "minecraft:crimson_hyphae",
     "minecraft:note_block": "minecraft:poplar_wood",
     "minecraft:oak_button": "minecraft:oak_planks",
-    "minecraft:oak_door": "minecraft:crafting_table",
+    "minecraft:oak_door": "minecraft:stripped_jungle_log",
     "minecraft:oak_fence": "minecraft:oak_planks",
     "minecraft:oak_fence_gate": "minecraft:oak_planks",
     "minecraft:oak_hanging_sign": "minecraft:oak_planks",
@@ -2410,7 +2394,7 @@
     "minecraft:oxidized_cut_copper_stairs": "minecraft:stripped_warped_hyphae",
     "minecraft:oxidized_lightning_rod": "minecraft:birch_wood",
     "minecraft:packed_ice": "minecraft:pale_oak_planks",
-    "minecraft:packed_mud": "minecraft:crafting_table",
+    "minecraft:packed_mud": "minecraft:jungle_planks",
     "minecraft:pale_hanging_moss": "minecraft:acacia_wood",
     "minecraft:pale_moss_block": "minecraft:acacia_wood",
     "minecraft:pale_moss_carpet": "minecraft:acacia_wood",
@@ -2458,7 +2442,7 @@
     "minecraft:pink_wool_slab": "minecraft:stripped_cherry_wood",
     "minecraft:pink_wool_stairs": "minecraft:stripped_cherry_wood",
     "minecraft:piston": "minecraft:acacia_wood",
-    "minecraft:piston_head": "minecraft:crafting_table",
+    "minecraft:piston_head": "minecraft:stripped_poplar_log",
     "minecraft:pitcher_crop": "minecraft:stripped_poplar_log",
     "minecraft:pitcher_plant": "minecraft:poplar_planks",
     "minecraft:player_head": "minecraft:poplar_wood",
@@ -2524,9 +2508,9 @@
     "minecraft:potted_acacia_sapling": "minecraft:stripped_spruce_wood",
     "minecraft:potted_allium": "minecraft:crimson_planks",
     "minecraft:potted_azalea_bush": "minecraft:stripped_spruce_wood",
-    "minecraft:potted_azure_bluet": "minecraft:crafting_table",
+    "minecraft:potted_azure_bluet": "minecraft:poplar_planks",
     "minecraft:potted_bamboo": "minecraft:stripped_spruce_wood",
-    "minecraft:potted_birch_sapling": "minecraft:crafting_table",
+    "minecraft:potted_birch_sapling": "minecraft:oak_planks",
     "minecraft:potted_blue_orchid": "minecraft:acacia_wood",
     "minecraft:potted_brown_mushroom": "minecraft:spruce_planks",
     "minecraft:potted_cactus": "minecraft:stripped_spruce_wood",
@@ -2535,14 +2519,14 @@
     "minecraft:potted_cornflower": "minecraft:pale_oak_wood",
     "minecraft:potted_crimson_fungus": "minecraft:stripped_mangrove_wood",
     "minecraft:potted_crimson_roots": "minecraft:stripped_mangrove_wood",
-    "minecraft:potted_dandelion": "minecraft:crafting_table",
+    "minecraft:potted_dandelion": "minecraft:oak_planks",
     "minecraft:potted_dark_oak_sapling": "minecraft:oak_wood",
     "minecraft:potted_dead_bush": "minecraft:spruce_planks",
     "minecraft:potted_fern": "minecraft:oak_wood",
     "minecraft:potted_flowering_azalea_bush": "minecraft:acacia_wood",
     "minecraft:potted_golden_dandelion": "minecraft:spruce_planks",
     "minecraft:potted_jungle_sapling": "minecraft:oak_wood",
-    "minecraft:potted_lily_of_the_valley": "minecraft:crafting_table",
+    "minecraft:potted_lily_of_the_valley": "minecraft:poplar_planks",
     "minecraft:potted_mangrove_propagule": "minecraft:bamboo_block",
     "minecraft:potted_oak_sapling": "minecraft:stripped_spruce_wood",
     "minecraft:potted_open_eyeblossom": "minecraft:acacia_wood",
@@ -2558,11 +2542,11 @@
     "minecraft:potted_torchflower": "minecraft:spruce_planks",
     "minecraft:potted_warped_fungus": "minecraft:oak_wood",
     "minecraft:potted_warped_roots": "minecraft:acacia_wood",
-    "minecraft:potted_white_tulip": "minecraft:crafting_table",
+    "minecraft:potted_white_tulip": "minecraft:oak_wood",
     "minecraft:potted_wither_rose": "minecraft:mangrove_planks",
     "minecraft:powder_snow": "minecraft:stripped_pale_oak_wood",
     "minecraft:powder_snow_cauldron": "minecraft:pale_oak_wood",
-    "minecraft:powered_rail": "minecraft:crafting_table",
+    "minecraft:powered_rail": "minecraft:jungle_planks",
     "minecraft:prismarine": "minecraft:stripped_warped_hyphae",
     "minecraft:prismarine_brick_slab": "minecraft:stripped_warped_hyphae",
     "minecraft:prismarine_brick_stairs": "minecraft:stripped_warped_hyphae",
@@ -2784,12 +2768,12 @@
     "minecraft:tinted_glass": "minecraft:cherry_wood",
     "minecraft:tnt": "minecraft:stripped_cherry_wood",
     "minecraft:torch": "minecraft:oak_planks",
-    "minecraft:torchflower": "minecraft:crafting_table",
+    "minecraft:torchflower": "minecraft:stripped_spruce_wood",
     "minecraft:torchflower_crop": "minecraft:warped_planks",
     "minecraft:trapped_chest": "minecraft:spruce_planks",
     "minecraft:trial_spawner": "minecraft:warped_hyphae",
     "minecraft:tripwire": "minecraft:poplar_planks",
-    "minecraft:tripwire_hook": "minecraft:crafting_table",
+    "minecraft:tripwire_hook": "minecraft:stripped_jungle_log",
     "minecraft:tube_coral": "minecraft:stripped_crimson_stem",
     "minecraft:tube_coral_block": "minecraft:stripped_crimson_stem",
     "minecraft:tube_coral_fan": "minecraft:warped_hyphae",
@@ -2840,14 +2824,14 @@
     "minecraft:waxed_copper_door": "minecraft:stripped_acacia_wood",
     "minecraft:waxed_copper_golem_statue": "minecraft:stripped_acacia_wood",
     "minecraft:waxed_copper_grate": "minecraft:stripped_acacia_wood",
-    "minecraft:waxed_copper_lantern": "minecraft:crafting_table",
+    "minecraft:waxed_copper_lantern": "minecraft:stripped_jungle_log",
     "minecraft:waxed_copper_trapdoor": "minecraft:stripped_acacia_wood",
     "minecraft:waxed_cut_copper": "minecraft:stripped_acacia_wood",
     "minecraft:waxed_cut_copper_slab": "minecraft:stripped_acacia_wood",
     "minecraft:waxed_cut_copper_stairs": "minecraft:stripped_acacia_wood",
     "minecraft:waxed_exposed_chiseled_copper": "minecraft:jungle_planks",
     "minecraft:waxed_exposed_copper": "minecraft:jungle_planks",
-    "minecraft:waxed_exposed_copper_bars": "minecraft:crafting_table",
+    "minecraft:waxed_exposed_copper_bars": "minecraft:acacia_wood",
     "minecraft:waxed_exposed_copper_bulb": "minecraft:jungle_planks",
     "minecraft:waxed_exposed_copper_chain": "minecraft:acacia_wood",
     "minecraft:waxed_exposed_copper_chest": "minecraft:jungle_planks",
@@ -2954,6 +2938,10 @@
     "minecraft:yellow_wool_stairs": "minecraft:bamboo_planks",
     "minecraft:zombie_head": "minecraft:bamboo_block",
     "minecraft:zombie_wall_head": "minecraft:bamboo_block",
+    "skywars2:consumed_block": "minecraft:cherry_wood",
+    "skywars2:lucky_block": "minecraft:bamboo_planks",
+    "skywars2:lucky_block_loli": "minecraft:cherry_planks",
+    "skywars2:lucky_block_neko": "minecraft:stripped_cherry_wood",
     "skywars2:magic_beacon": "minecraft:pale_oak_planks",
     "skywars2:mechanism_beacon": "minecraft:pale_oak_planks"
   },
@@ -5454,20 +5442,18 @@
     },
     "minecraft:brown_mushroom_block": {
       "rgb": [
-        177.593,
-        144.482,
-        106.363
+        178.17,
+        144.945,
+        103.191
       ],
       "method": "model_faces",
       "textures": [
         "block/mushroom_block_inside",
-        "minecraft:block/brown_mushroom_block",
-        "minecraft:block/neko_lucky_block"
+        "minecraft:block/brown_mushroom_block"
       ],
       "models": [
         "minecraft:block/brown_mushroom_block",
-        "minecraft:block/mushroom_block_inside",
-        "minecraft:block/neko_lucky_block"
+        "minecraft:block/mushroom_block_inside"
       ],
       "visual_block": "minecraft:brown_mushroom_block"
     },
@@ -14084,23 +14070,16 @@
     },
     "minecraft:mushroom_stem": {
       "rgb": [
-        203.038,
-        184.133,
-        158.087
+        202.624,
+        184.204,
+        157.53
       ],
       "method": "model_faces",
       "textures": [
         "block/mushroom_block_inside",
-        "minecraft:block/lolies/loli1",
-        "minecraft:block/lolies/loli2",
-        "minecraft:block/lolies/loli3",
-        "minecraft:block/lolies/loli4",
-        "minecraft:block/lolies/loli5",
-        "minecraft:block/lolies/loli6",
         "minecraft:block/mushroom_stem"
       ],
       "models": [
-        "minecraft:block/lucky_block_loli",
         "minecraft:block/mushroom_block_inside",
         "minecraft:block/mushroom_stem"
       ],
@@ -18832,21 +18811,17 @@
     },
     "minecraft:red_mushroom_block": {
       "rgb": [
-        200.088,
-        130.87,
-        93.789
+        201.34,
+        129.784,
+        94.806
       ],
       "method": "model_faces",
       "textures": [
         "block/mushroom_block_inside",
-        "minecraft:block/lucky_block",
-        "minecraft:block/nothing",
         "minecraft:block/red_mushroom_block"
       ],
       "models": [
-        "minecraft:block/lucky_block",
         "minecraft:block/mushroom_block_inside",
-        "minecraft:block/nothing",
         "minecraft:block/red_mushroom_block"
       ],
       "visual_block": "minecraft:red_mushroom_block"
@@ -24637,6 +24612,71 @@
         "minecraft:block/skull"
       ],
       "visual_block": "minecraft:zombie_wall_head"
+    },
+    "skywars2:consumed_block": {
+      "rgb": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "method": "model_faces",
+      "textures": [
+        "lbc:block/consumed_block"
+      ],
+      "models": [
+        "lbc:block/consumed_block"
+      ],
+      "visual_block": "skywars2:consumed_block"
+    },
+    "skywars2:lucky_block": {
+      "rgb": [
+        242.923,
+        200.79,
+        105.094
+      ],
+      "method": "model_faces",
+      "textures": [
+        "minecraft:block/lucky_block"
+      ],
+      "models": [
+        "minecraft:block/lucky_block"
+      ],
+      "visual_block": "skywars2:lucky_block"
+    },
+    "skywars2:lucky_block_loli": {
+      "rgb": [
+        215.728,
+        181.856,
+        174.718
+      ],
+      "method": "model_faces",
+      "textures": [
+        "minecraft:block/lolies/loli1",
+        "minecraft:block/lolies/loli2",
+        "minecraft:block/lolies/loli3",
+        "minecraft:block/lolies/loli4",
+        "minecraft:block/lolies/loli5",
+        "minecraft:block/lolies/loli6"
+      ],
+      "models": [
+        "minecraft:block/lucky_block_loli"
+      ],
+      "visual_block": "skywars2:lucky_block_loli"
+    },
+    "skywars2:lucky_block_neko": {
+      "rgb": [
+        157.65,
+        128.548,
+        175.885
+      ],
+      "method": "model_faces",
+      "textures": [
+        "minecraft:block/neko_lucky_block"
+      ],
+      "models": [
+        "minecraft:block/neko_lucky_block"
+      ],
+      "visual_block": "skywars2:lucky_block_neko"
     },
     "skywars2:magic_beacon": {
       "rgb": [

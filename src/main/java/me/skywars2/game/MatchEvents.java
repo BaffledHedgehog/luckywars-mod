@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ChunkResult;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -304,10 +305,10 @@ public final class MatchEvents {
         float damage = (float) (Math.min(centimeters, 3999) * 0.00915);
         var level = (ServerLevel) player.level();
         level.playSound(null, player.blockPosition(), SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
-        // Source affects all entities at 0.1..6, including allies; it has no player attacker attribution.
+        // Radial fall damage remains WILD, but must not destroy dropped inventory/loot.
         for (Entity target : level.getEntities(player, player.getBoundingBox().inflate(6), entity -> {
             double squared = player.distanceToSqr(entity);
-            return squared >= 0.01 && squared <= 36;
+            return !(entity instanceof net.minecraft.world.entity.item.ItemEntity) && squared >= 0.01 && squared <= 36;
         })) target.hurtServer(level, level.damageSources().fall(), damage);
     }
 
@@ -580,10 +581,11 @@ public final class MatchEvents {
     }
 
     private void shrinkBorder() {
-        List<ServerPlayer> alive = controller.alivePlayers();
+        List<ServerPlayer> alive = controller.alivePlayers().stream().filter(player -> player.level() == maps.level()).toList();
         if (alive.isEmpty()) return;
-        ServerPlayer center = alive.get(ThreadLocalRandom.current().nextInt(alive.size()));
-        controller.zoneBarrier().start(center.getX(), center.getZ(), 384, 4, 200 * TICKS_PER_SECOND);
+        double x = 0, z = 0;
+        for (var player : alive) { x += player.getX(); z += player.getZ(); }
+        controller.zoneBarrier().start(x / alive.size(), z / alive.size(), 384, 4, 200 * TICKS_PER_SECOND);
     }
 
     private void dropCenterChests() {
@@ -593,14 +595,14 @@ public final class MatchEvents {
         var level = maps.level();
         var loot = ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("swrg:chests/center_0"));
         for (int i = 0; i < 10; i++) {
-            double angle = ThreadLocalRandom.current().nextDouble(Math.PI * 2.0);
-            double radius = ThreadLocalRandom.current().nextDouble(0.0, 192.0);
-            double x = centerX + Math.cos(angle) * radius;
-            double z = centerZ + Math.sin(angle) * radius;
+            var floor=airdropGround(centerX,centerZ);
+            if(floor==null)break; // A fully destroyed arena must never receive a guaranteed void drop.
+            double x=floor.getX()+.5,z=floor.getZ()+.5;
+            double y=floor.getY()+21;
             var chicken = new Chicken(EntityTypes.CHICKEN, level);
             var cart = new MinecartChest(EntityTypes.CHEST_MINECART, level);
-            chicken.setPos(x, 110, z);
-            cart.setPos(x, 110, z);
+            chicken.setPos(x,y,z);chicken.setNoAi(false);chicken.setNoGravity(false);
+            cart.setPos(x,y,z);
             chicken.entityTags().add("skywars2.airdrop");
             cart.entityTags().add("skywars2.airdrop");
             chicken.entityTags().add(controller.items().epoch());
@@ -617,6 +619,39 @@ public final class MatchEvents {
         }
     }
 
+    /** Heightmaps are already maintained by native block moves; never loads a column or reads NBT. */
+    BlockPos airdropSurface(int x,int z){
+        var level=maps.level();
+        if(!level.getWorldBorder().isWithinBounds(new BlockPos(x,level.getMinY(),z))
+                ||level.getChunkSource().getChunkNow(x>>4,z>>4)==null)return null;
+        int y=level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,x,z)-1;
+        if(y<level.getMinY()||y>=level.getMaxY())return null;
+        var pos=new BlockPos(x,y,z);var state=level.getBlockState(pos);
+        if(!state.getFluidState().isEmpty())return null;
+        for(var box:state.getCollisionShape(level,pos).toAabbs())
+            if(box.minX<=.5&&box.maxX>=.5&&box.minZ<=.5&&box.maxZ>=.5&&box.maxY>0)return pos;
+        return null;
+    }
+    private BlockPos airdropGround(double centerX,double centerZ){
+        var random=maps.level().getRandom();
+        for(int attempt=0;attempt<96;attempt++){
+            double angle=random.nextDouble()*Math.PI*2,radius=random.nextDouble()*192;
+            var floor=airdropSurface(net.minecraft.util.Mth.floor(centerX+Math.cos(angle)*radius),net.minecraft.util.Mth.floor(centerZ+Math.sin(angle)*radius));
+            if(floor!=null)return floor;
+        }
+        // Tiny/damaged maps still have a deterministic finite fallback on current, movable map spawns.
+        var spawns=maps.spawns();int first=spawns.isEmpty()?0:random.nextInt(spawns.size());
+        for(int i=0;i<spawns.size();i++){
+            var point=spawns.get((first+i)%spawns.size()).position();
+            var floor=airdropSurface(net.minecraft.util.Mth.floor(point.x),net.minecraft.util.Mth.floor(point.z));
+            if(floor!=null)return floor;
+        }
+        for(var player:controller.alivePlayers())if(player.level()==maps.level()){
+            var floor=airdropSurface(player.blockPosition().getX(),player.blockPosition().getZ());if(floor!=null)return floor;
+        }
+        return null;
+    }
+
     /** Публикуем готовые деревья сущностей на тике, не ожидая загрузку чанка внутри игрового события. */
     private void spawnReadyAirdrops() {
         if (pendingAirdrops.isEmpty()) return;
@@ -630,7 +665,12 @@ public final class MatchEvents {
                 Object result = future.join();
                 if (result instanceof ChunkResult<?> chunkResult && !chunkResult.isSuccess())
                     throw new IllegalStateException("Airdrop chunk did not load");
+                var floor=airdropSurface(chicken.blockPosition().getX(),chicken.blockPosition().getZ());
+                if(floor==null){chicken.getSelfAndPassengers().toList().forEach(Entity::discard);continue;}
+                double spawnY=floor.getY()+21;
+                chicken.setPos(floor.getX()+.5,spawnY,floor.getZ()+.5);
                 for (var passenger : chicken.getPassengers()) if (passenger instanceof MinecartChest cart) {
+                    cart.setPos(chicken.position());
                     cart.getItem(0);
                     MapManager.normalizeLootCounts(cart);
                 }

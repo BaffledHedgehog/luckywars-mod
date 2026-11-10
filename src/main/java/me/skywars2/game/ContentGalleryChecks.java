@@ -30,7 +30,7 @@ public final class ContentGalleryChecks {
         var contents = catalog.finish();
         var barriers=contents.stream().filter(stack->net.minecraft.resources.Identifier.withDefaultNamespace("barrier").equals(stack.get(DataComponents.ITEM_MODEL))).map(stack->BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()).distinct().sorted().toList();
         me.skywars2.SkyWars2.LOGGER.info("[check] gallery authored barrier models={} nativeIds={}",barriers.size(),barriers);
-        require(contents.stream().filter(stack->stack.is(LbcKfcFood.GOVNO_EATEN)).allMatch(stack->stack.has(DataComponents.TOOLTIP_STYLE)),"gallery fallback uses authored edible-govno style");
+        require(contents.stream().filter(stack->stack.is(LbcKfcFood.GOVNO_EATEN)).allMatch(stack->stack.has(DataComponents.TOOLTIP_STYLE)),"skywars gallery fallback uses authored edible-govno style");
         require(catalog.errorCount() == 0, "all public definitions decode successfully");
         require(!contents.isEmpty(), "live public catalog is populated");
         var identities = new HashSet<ContentGallery.Identity>();
@@ -62,7 +62,7 @@ public final class ContentGalleryChecks {
         var base = contents.getFirst().copy();
         var many = base.copyWithCount(37);
         require(new ContentGallery.Identity(base).equals(new ContentGallery.Identity(many)), "quantity does not duplicate a display");
-        var modified = base.copy(); modified.set(DataComponents.CUSTOM_NAME, Component.literal("gallery identity fixture"));
+        var modified = base.copy(); modified.set(DataComponents.CUSTOM_NAME, Component.literal("skywars gallery identity fixture"));
         require(!new ContentGallery.Identity(base).equals(new ContentGallery.Identity(modified)), "component variants remain separate");
         var isolatedKey = new ContentGallery.Identity(base);
         base.set(DataComponents.CUSTOM_NAME, Component.literal("later mutation"));

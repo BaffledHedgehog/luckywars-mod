@@ -83,6 +83,7 @@ final class MatchRollbackSnapshot {
     }
 
     void prepareFrozen(GameController game){
+        game.carpetBots().reset(); // Return future crafting cursors before future actors are detached.
         levelups.prepareFrozen();
         // Detach discarded future hits silently before any teardown can trigger an end-of-stop replay.
         timeStop.prepareFrozen();game.items().stonekivi().cancelQueuedForRollback();

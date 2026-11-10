@@ -109,12 +109,12 @@ public final class LuckyModifierChecks {
             require(owner.current() == 1 && active.get() == 1 && owner.commit(6) == 6 && active.get() == 6,
                     "repeated explicit reset permits a new independent commit");
 
-            // Exercise source scope directly without enabling the unavailable LuckyWars controller mode.
+            // Exercise idempotence independently; consecutive actual LuckyWars matches are covered separately.
             game.config().gameMode = 1; game.config().luckyModifier = 7;
             active.set(6);
             var retained = new GameLuckyModifiers(game);
-            require(retained.current() == 6 && active.get() == 6 && configScore.get() == 7,
-                    "startup retains valid previous6 rather than resolving configured7");
+            require(retained.current() == 1 && active.get() == 1 && configScore.get() == 7,
+                    "startup clears saved previous6 without resolving configured7");
             active.set(0);
             var scoped = new GameLuckyModifiers(game);
             require(scoped.current() == 1 && active.get() == 1 && configScore.get() == 7,
@@ -126,22 +126,22 @@ public final class LuckyModifierChecks {
             require(scoped.startMatch(game.config().gameMode) == 7 && active.get() == 7 && configScore.get() == 12,
                     "repeated LuckyWars start retains committed7 while next-match setting stays12");
             scoped.endMatch(); scoped.endMatch();
-            require(scoped.current() == 7 && active.get() == 7 && game.config().luckyModifier == 12
-                    && configScore.get() == 12, "end releases commit without resetting result or configured setting");
+            require(scoped.current() == 1 && active.get() == 1 && game.config().luckyModifier == 12
+                    && configScore.get() == 12, "end clears match result while preserving configured setting");
             game.config().gameMode = 1;
-            require(scoped.startMatch(game.config().gameMode) == 7 && active.get() == 7 && configScore.get() == 12,
-                    "ordinary configured12 start retains prior LuckyWars7");
+            require(scoped.startMatch(game.config().gameMode) == 1 && active.get() == 1 && configScore.get() == 12,
+                    "ordinary configured12 start is neutral after previous LuckyWars7");
             game.config().gameMode = 2; game.config().luckyModifier = 6; scoped.syncConfig();
-            require(scoped.startMatch(game.config().gameMode) == 7 && active.get() == 7,
+            require(scoped.startMatch(game.config().gameMode) == 1 && active.get() == 1,
                     "ordinary committed match cannot resolve a changed mode/config midmatch");
             scoped.endMatch();
-            require(scoped.current() == 7 && active.get() == 7 && configScore.get() == 6,
-                    "ordinary end preserves result and next configured6");
+            require(scoped.current() == 1 && active.get() == 1 && configScore.get() == 6,
+                    "ordinary end preserves neutral result and next configured6");
             require(scoped.startMatch(game.config().gameMode) == 6 && scoped.current() == 6 && active.get() == 6,
                     "next simulated LuckyWars committed start resolves configured6");
             scoped.endMatch();
-            require(game.config().luckyModifier == 6 && configScore.get() == 6 && active.get() == 6,
-                    "LuckyWars end retains result and persistent GUI selector independently");
+            require(game.config().luckyModifier == 6 && configScore.get() == 6 && active.get() == 1,
+                    "LuckyWars end clears result and persistent GUI selector independently");
             game.config().gameMode = mode; game.config().luckyModifier = configured;
             require(game.luckyModifiers().current() == liveCurrent && game.config().luckyModifier == configured,
                     "independent API fixture leaves the live owner and persistent configuration untouched");
@@ -150,7 +150,7 @@ public final class LuckyModifierChecks {
         } finally {
             game.config().gameMode = mode; game.config().luckyModifier = configured;
         }
-        SkyWars2.LOGGER.info("[check] PASS lucky-modifiers-service (simulated LuckyWars owner branch; ordinary retention; idempotent commit/end; explicit reset; exact restoration)");
+        SkyWars2.LOGGER.info("[check] PASS lucky-modifiers-service (simulated LuckyWars owner branch; neutral ordinary starts; idempotent commit/end; explicit reset; exact restoration)");
     }
     private static byte[] configBytes() {
         try {
@@ -212,7 +212,7 @@ public final class LuckyModifierChecks {
                 }
                 game.config().save();
                 alpha.entityTags().remove("admin"); beta.entityTags().remove("admin");
-                command(game, alpha, "settings luckymodifier 0", true);
+                command(game, alpha, "skywars settings luckymodifier 0", true);
                 for (int id = 0; id <= 12; id++) {
                     game.menus().open(alpha, GameMenus.Page.SETTINGS); title(alpha, id);
                     require(configured.get() == id && GameConfig.load().luckyModifier == id,
@@ -232,25 +232,25 @@ public final class LuckyModifierChecks {
                 require(game.config().luckyModifier == 0, "nonadmin network click denied with online admin");
                 for (var who : List.of(alpha, beta)) {
                     boolean denied = false;
-                    try { game.server().getCommands().getDispatcher().execute("settings luckymodifier 7",
+                    try { game.server().getCommands().getDispatcher().execute("skywars settings luckymodifier 7",
                             who.createCommandSourceStack().withPermission(PermissionSet.NO_PERMISSIONS)); }
                     catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { denied = true; }
                     require(denied && game.config().luckyModifier == 0, "OP required even with admin tag");
                 }
-                command(game, alpha, "settings luckymodifier 6", true);
+                command(game, alpha, "skywars settings luckymodifier 6", true);
                 require(GameConfig.load().luckyModifier == 6 && configured.get() == 6, "OP without tag persists canonical setting");
-                command(game, alpha, "settings cfg_lucky_modifier 7", true);
-                require(GameConfig.load().luckyModifier == 7 && configured.get() == 7, "source alias persists and publishes");
+                command(game, alpha, "skywars settings cfg_lucky_modifier 7", false);
+                require(GameConfig.load().luckyModifier == 6 && configured.get() == 6, "removed alias cannot change the canonical setting");
+                command(game, alpha, "skywars settings luckyModifier 7", true);
                 for (String bad : List.of("-1", "13", "x", "1.5")) {
-                    command(game, alpha, "settings luckymodifier " + bad, false);
+                    command(game, alpha, "skywars settings luckymodifier " + bad, false);
                     require(game.config().luckyModifier == 7 && configured.get() == 7
                             && GameConfig.load().luckyModifier == 7, "invalid setting preserves old value: " + bad);
                 }
                 beta.entityTags().remove("admin");
-                for (int unfinished : new int[]{2, 3, 4}) {
-                    game.config().gameMode = unfinished; game.requestStart(null, false);
-                    require(game.inLobby() && active.get() == active.value,
-                            "unfinished mode " + unfinished + " rejected without resolution");
+                for (int ready : new int[]{2, 3, 4}) {
+                    require(game.modeReady(ready), "ported mode " + ready + " is available");
+                    require(active.get() == active.value, "availability checks never commit a modifier");
                 }
             } finally {
                 game.config().luckyModifier = old; game.config().gameMode = mode; game.luckyModifiers().syncConfig();
@@ -314,10 +314,10 @@ public final class LuckyModifierChecks {
         try (var active = new Score(game, "final_luck_modifier", "lbc.math")) {
             int initial = game.luckyModifiers().current();
             require(initial >= 1 && initial <= 12 && active.get() == initial, "committed owner and active score agree");
-            require(initial == ordinary.current && game.config().luckyModifier == ordinary.configured,
-                    "actual ordinary start retains previous result and configured GUI selector");
+            require(initial == 1 && game.config().luckyModifier == ordinary.configured,
+                    "actual ordinary start is neutral and retains configured GUI selector");
             int configured = game.config().luckyModifier;
-            command(game, player(game, "TestAlpha"), "settings luckymodifier 12", false);
+            command(game, player(game, "TestAlpha"), "skywars settings luckymodifier 12", false);
             require(game.config().luckyModifier == configured, "in-match operator mutation rejected");
             for (int i = 0; i < 4; i++) {
                 game.lbc().rollTable(game.maps().level(), player(game, "TestAlpha").position(), player(game, "TestAlpha"), "lbc:transformables_shooter");
@@ -336,8 +336,8 @@ public final class LuckyModifierChecks {
         require(ordinary != null, "ordinary lifecycle snapshot exists");
         try (var score = new Score(game, "final_luck_modifier", "lbc.math");
              var configured = new Score(game, "cfg_lucky_modifier", "swrg.math")) {
-            require(score.get() == ordinary.current && game.luckyModifiers().current() == ordinary.current,
-                    "actual ordinary stop retains previous result and published score");
+            require(score.get() == 1 && game.luckyModifiers().current() == 1,
+                    "actual ordinary stop clears result and published score");
             require(game.config().luckyModifier == ordinary.configured
                     && configured.get() == ordinary.configured && GameConfig.load().luckyModifier == ordinary.configured,
                     "actual ordinary stop retains configured GUI selector and persisted setting");

@@ -239,7 +239,8 @@ public final class LbcElectro {
         if (target instanceof ServerPlayer player && game.items().magic().rejectEffect(player, effect)) {
             return;
         }
-        target.addEffect(ItemEffectLevels.create(effect, 20, 10, false, true, true), owner);
+        int amplifier=effect.is(MobEffects.BLINDNESS)?1:effect.is(MobEffects.GLOWING)?2:10;
+        target.addEffect(ItemEffectLevels.create(effect, 20, amplifier, false, true, true), owner);
     }
 
     private void yellowHit(ServerPlayer owner) {

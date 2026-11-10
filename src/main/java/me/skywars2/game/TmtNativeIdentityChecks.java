@@ -19,7 +19,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.phys.Vec3;
 
-/** Operator fixture: real damage/glide intake and ordinary scheduled native equipment owners. */
+/** Operator fixture: real damage/jump input and ordinary scheduled native equipment owners. */
 public final class TmtNativeIdentityChecks {
     private TmtNativeIdentityChecks(){}
     private static Scene running;
@@ -31,7 +31,7 @@ public final class TmtNativeIdentityChecks {
     public static void tick(GameController game){
         var scene=running;if(scene==null)return;
         try{require(scene.game==game,"same controller");if(!scene.step())return;running=null;scene.close();
-            SkyWars2.LOGGER.info("[check] PASS tmt-native-identities (native default normalization, actual ice melee and rocket glide packet, legal mixed four-slot Overload masks/full-set guard, real damage-owned TNT and scheduled head-only night vision; Hylian shield native component stays distinct from sword aura)");
+            SkyWars2.LOGGER.info("[check] PASS tmt-native-identities (native default normalization, actual ice melee and rocket jump edges with independent glider preserved, legal mixed four-slot Overload masks/full-set guard, real damage-owned TNT and scheduled head-only night vision; Hylian shield native component stays distinct from sword aura)");
         }catch(Throwable error){running=null;try{scene.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL tmt-native-identities",error);}
     }
     public static void cancel(GameController game){var scene=running;if(scene==null)return;require(scene.game==game,"same cancel owner");running=null;scene.close();}
@@ -97,8 +97,18 @@ public final class TmtNativeIdentityChecks {
             require(game.items().mana().trySpendWand(f.owner,50)&&game.items().mana().get(f.owner)==-50,"complete set permits exact native overdraft");game.items().mana().set(f.owner,0);
             require(game.items().rocketJumps(f.owner)==3,"real feet equip hook initializes native rocket state");
             f.owner.setOnGround(false);f.owner.setYRot(0);f.owner.setXRot(0);f.owner.setDeltaMovement(Vec3.ZERO);
+            require(!equipped.get(3).has(DataComponents.GLIDER),"rocket property no longer fabricates a glider");
             f.client.listener.handlePlayerCommand(new ServerboundPlayerCommandPacket(f.owner,ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
-            require(game.items().rocketJumps(f.owner)==2&&f.owner.getDeltaMovement().lengthSqr()>0,"actual native glide packet consumes one boost and applies motion");f.owner.setDeltaMovement(Vec3.ZERO);f.owner.setOnGround(true);
+            require(game.items().rocketJumps(f.owner)==3,"obsolete glide packet no longer spends a rocket boost");
+            equipped.get(3).set(DataComponents.GLIDER,net.minecraft.util.Unit.INSTANCE);game.items().rocketEquipment(f.owner,equipped.get(3));
+            f.client.listener.handlePlayerInput(new net.minecraft.network.protocol.game.ServerboundPlayerInputPacket(net.minecraft.world.entity.player.Input.EMPTY));
+            var jump=new net.minecraft.network.protocol.game.ServerboundPlayerInputPacket(new net.minecraft.world.entity.player.Input(false,false,false,false,true,false,false));
+            f.client.listener.handlePlayerInput(jump);
+            require(game.items().rocketJumps(f.owner)==2&&f.owner.getDeltaMovement().lengthSqr()>0,"accepted native jump edge consumes one mixed-property boost");
+            for(int i=0;i<5;i++)f.client.listener.handlePlayerInput(jump);
+            require(game.items().rocketJumps(f.owner)==2&&equipped.get(3).has(DataComponents.GLIDER),"held jump never repeats; independent TMT glider remains intact");
+            f.client.listener.handlePlayerInput(new net.minecraft.network.protocol.game.ServerboundPlayerInputPacket(net.minecraft.world.entity.player.Input.EMPTY));
+            f.owner.setDeltaMovement(Vec3.ZERO);f.owner.setOnGround(true);
             var before=new java.util.HashSet<PrimedTnt>(f.level.getEntitiesOfClass(PrimedTnt.class,f.owner.getBoundingBox().inflate(2)));
             f.owner.setInvulnerableTime(0);f.owner.damageCooldownTime=0;
             require(f.owner.hurtServer(f.level,f.owner.damageSources().generic(),1),"actual native incoming damage accepted");

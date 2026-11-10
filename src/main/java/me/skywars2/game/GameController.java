@@ -121,6 +121,7 @@ public final class GameController {
         if(!server.isSameThread()||!playing()||stopped||maps.busy()
                 ||supernovaMap!=null&&(supernovaMap.phase()==RenewalPhase.FAILED||!supernovaTerrainSettled())
                 ||balanceMap!=null)throw new IllegalStateException("Capture a stable active match on its server thread");
+        carpetBots.prepareCheckpoint(); // Native crafting-grid stacks must be back in the saved inventory image.
         return new Checkpoint(this);
     }
 
@@ -131,6 +132,7 @@ public final class GameController {
 
     void restoreCore(Checkpoint image) {
         validateCheckpoint(image);
+        carpetBots.reset(); // Intent/path caches are derived from restored native bodies and terrain.
         // Unsupported short restart intent is cancelled by rewind, as other transient actions are.
         runeRestartPending=false;
         cunnyRestart=null;
@@ -191,6 +193,8 @@ public final class GameController {
     private final ZoneBarrier zoneBarrier;
     private final LbcTeamColors teamColors;
     private final ManualVisualTracking visualTracking=new ManualVisualTracking(this);
+    private final LbcCarpetBots carpetBots=new LbcCarpetBots(this);
+    private final LbcItemQueue itemQueue=new LbcItemQueue(this);
     private final ItemStack lobbyCompass = menuCompass();
     private final Map<UUID, Participant> participants = new LinkedHashMap<>();
     private final Set<UUID> pendingLobby = new java.util.HashSet<>();
@@ -218,12 +222,13 @@ public final class GameController {
     private SupernovaMap supernovaMap;
     private boolean supernovaNativeTick;
     private BalanceMap balanceMap;
-    private boolean balanceLegacy;
+    private volatile boolean balanceLegacy;
     private final Set<UUID> balancePendingReset=new java.util.HashSet<>();
     private final Map<UUID,Integer> balancePendingRewards=new LinkedHashMap<>();
     private boolean readyBroken;
     private long selectionVersion;
     private boolean preparingSelection;
+    private long preparingVersion=-1;
     private boolean startAfterSelection;
     private UUID pendingStarter;
     private UUID victoryWinner;
@@ -297,6 +302,8 @@ public final class GameController {
     void beginMatchMode(int mode) {
         if(mode<1||mode>4)throw new IllegalArgumentException("Match mode must be1..4");
         activeGameMode=mode;
+        LbcMatchReset.all(this);
+        LbcWitchStatistics.beginMatch(this);
     }
     void prepareSoloTeams(List<ServerPlayer> ready) {
         if(gameMode()==1||gameMode()==2)teamColors.begin(ready);
@@ -322,6 +329,7 @@ public final class GameController {
         balanceLegacy=active;
         items.mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("legacy"),"lbc.math").set(active?1:0);
         if(!changed)return;
+        VanillaExpansionRules.changed(this);
         attributeHud.stop();
         for(var player:online()) {
             lbc.refreshArtifactView(player);lbc.refreshKnowledgeView(player);
@@ -620,6 +628,8 @@ public final class GameController {
     public GameMenus menus() { return menus; }
     public LbcLoadouts lbc() { return lbc; }
     public LbcItems items() { return items; }
+    public LbcCarpetBots carpetBots() { return carpetBots; }
+    public LbcItemQueue itemQueue() { return itemQueue; }
     public LbcBedwars bedwars() { return bedwars; }
     public GameLuckyModifiers luckyModifiers() { return luckyModifiers; }
     MatchEvents events() { return events; }
@@ -652,6 +662,7 @@ public final class GameController {
     }
 
     public void join(ServerPlayer player) {
+        if(!playing())LbcMatchReset.player(this,player);
         if(balancePendingReset.remove(player.getUUID()))resetBalancePlayer(player);
         if(vanity.joined(player))return;
         items.witchClaims().reconcile(player);
@@ -679,6 +690,7 @@ public final class GameController {
     }
 
     public void leave(ServerPlayer player) {
+        carpetBots.forget(player);
         items.cosmetics().nameplates().forget(player);
         cases.onLeave(player);
         vanity.leaving(player);
@@ -766,11 +778,16 @@ public final class GameController {
     }
 
     private void prepareSelectedMap() {
-        if (stopped || !inLobby() || maps.busy() || developerTools.authoring().busy()) return;
+        if (stopped || !inLobby() || developerTools.authoring().busy()) return;
+        if(maps.busy()){
+            if(!preparingSelection||preparingVersion==selectionVersion||!maps.cancelSelectionLoad())return;
+            preparingSelection=false;
+        }
         String id = config.mapId;
         if(!mapMatchesMode(id)){readyMap=null;startAfterSelection=false;pendingStarter=null;mapFailure=mapModeMismatch();return;}
         boolean broken = config.broken;
         long version = selectionVersion;
+        preparingVersion=version;
         preparingSelection = true;
         // Кэшированный оверлей сохраняет лобби при вставке карты; устаревший результат не разрешает старт.
         developerTools.gallery().clearForMatchStart();
@@ -800,7 +817,7 @@ public final class GameController {
     public Component configureLobbySetting(ServerPlayer player, String parameter, String value) {
         if (stopped) throw new GameConfig.SettingError(text("message.starting"));
         String key = parameter == null ? "" : parameter.trim().toLowerCase(java.util.Locale.ROOT);
-        if (key.equals("map") || key.equals("mapid")) {
+        if (key.equals("map")) {
             MapManager.MapInfo map = maps.info(value);
             if (map == null) throw new GameConfig.SettingError(text("game.map_unknown", value));
             if (!map.available()) throw new GameConfig.SettingError(text("game.map_unavailable", map.displayName(), map.unavailableReason()));
@@ -993,6 +1010,23 @@ public final class GameController {
         enterCountdown.accept(new MapManager.Result(true, Component.empty()));
     }
 
+    void repairHealedDeaths() {
+        // Repair bodies healed by an earlier boundary while native death still owns
+        // the connection. Use the existing respawn machinery, never unlock packets
+        // or revive the dying object in place. The callback installs the current role.
+        for (var player : List.copyOf(online())) {
+            var connection=(MatchPlayerCheckpoint.SimulatedAcknowledgement)player.connection;
+            if (connection.skywars2$waitingForRespawn() && player.getHealth()>0) {
+                SkyWars2.LOGGER.warn("Repairing healed death body for {}: health={}, deathTime={}, stage={}",
+                        player.getScoreboardName(),player.getHealth(),player.deathTime,stage);
+                var replacement=server.getPlayerList().respawn(player,false,net.minecraft.world.entity.Entity.RemovalReason.KILLED);
+                replacement.connection.player=replacement;
+                replacement.connection.resetPosition();
+                ((MatchPlayerCheckpoint.SimulatedAcknowledgement)replacement.connection).skywars2$beginRespawn();
+            }
+        }
+    }
+
     public void tick() {
         visualTracking.tick();
         // Tracking callbacks run inside native section iterators. Pair teardown may remove siblings.
@@ -1000,6 +1034,7 @@ public final class GameController {
         var unloaded=List.copyOf(nativeEntityUnloads);nativeEntityUnloads.clear();
         for(var entity:unloaded) entityUnloaded(entity);
         if (stopped || vanity.busy() || !server.tickRateManager().runsNormally()) return;
+        repairHealedDeaths();
         lifetimeTicks++;
         // Accepted case sessions also advance in lobby/postgame; menu refresh never ticks them.
         cases.tick();
@@ -1088,7 +1123,7 @@ public final class GameController {
             if(bedwars.mode()){
                 if(!items.timeStop().stopped(maps.level()))bedwars.tick();
                 int team=bedwars.winnerTeam();
-                if(developerMode()||team<0||items.timeStop().stopped(maps.level()))lastAliveTicks=5;
+                if(developerMode()||team<0||items.timeStop().stopped(maps.level())||!acceptedNuclearSettled())lastAliveTicks=5;
                 else if(--lastAliveTicks<=0)finish();
                 if(lifetimeTicks%600==0)players.save();
                 return;
@@ -1098,7 +1133,7 @@ public final class GameController {
                     && !e.getValue().disconnected && server.getPlayerList().getPlayer(e.getKey()) != null
                     && !isObserver(server.getPlayerList().getPlayer(e.getKey()))).count();
             boolean waiting = participants.values().stream().anyMatch(p -> p.lives > 0 && p.awaitingRespawn && !p.disconnected);
-            if (developerMode() || eligible >= 2 || waiting) lastAliveTicks = 5;
+            if (developerMode() || eligible >= 2 || waiting || !acceptedNuclearSettled()) lastAliveTicks = 5;
             else if (--lastAliveTicks <= 0) finish();
         } else if (stage == Stage.ENDING) {
             items.stonekivi().tick();
@@ -1226,6 +1261,8 @@ public final class GameController {
         if (developerMode()) p.lives = Math.max(1, p.lives);
         else if(!bedDeath&&!vipRespawn&&!phoenixRespawn&&!items.indolenceFingers().prepareDeath(player))p.lives--;
         p.awaitingRespawn = true;
+        if(!bedwars.mode()||!bedwars.hasBed(player))player.sendSystemMessage(
+                Component.translatable("lives_still").append(Component.literal(Integer.toString(Math.max(0,p.lives)))));
         if(bedDeath)bedwars.death(player);
         attributeHud.clear(player);
         items.resetRocket(player);
@@ -1269,13 +1306,17 @@ public final class GameController {
             }
             if(balanceLegacy){
                 p.awaitingRespawn=false;balancePendingReset.remove(player.getUUID());resetBalancePlayer(player);
+                chooseRespawnIsland(player,p);
                 player.setGameMode(GameType.SURVIVAL);maps.restoreRespawnIsland(p.spawn);
-                teleport(player,p.spawn.position(),p.spawn.yaw(),p.spawn.pitch());events.giveKit(player);events.giveSkill(player);return;
+                teleport(player,p.spawn.position(),p.spawn.yaw(),p.spawn.pitch());events.giveKit(player);events.giveSkill(player);respawnProtection(player,true);return;
             }
             // Полная нормализация относится к границам матча; новую жизнь готовим по прежним правилам.
             p.awaitingRespawn = false; resetPlayer(player, config.health, false);
             boolean fingerSpawn=items.indolenceFingers().fingerSpawn(player);
-            if(!fingerSpawn&&!bedwars.mode())maps.restoreRespawnIsland(p.spawn);
+            if(!fingerSpawn&&!bedwars.mode()){
+                chooseRespawnIsland(player,p);
+                maps.restoreRespawnIsland(p.spawn);
+            }
             player.setGameMode(GameType.SURVIVAL); if(!fingerSpawn)teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
             if (config.vanillaKits) events.giveKit(player);
             if (config.vanillaSkills) events.giveSkill(player);
@@ -1284,9 +1325,27 @@ public final class GameController {
             items.phoenix().bodyReady(player);
             items.stand().respawned(player);
             items.indolenceFingers().respawned(player);
+            respawnProtection(player,!fingerSpawn);
         } else if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
         else if (stage == Stage.LOADING) loadingPlayer(player);
         else { if (p != null) p.awaitingRespawn = false; spectators.enter(player); teleport(player, maps.look(), 0, 0); }
+    }
+
+    /** Each ordinary remaining-life respawn is an independent draw from the current map markers. */
+    private void respawnProtection(ServerPlayer player,boolean resistance) {
+        player.fallDistance=0;
+        // lbc:respawn gives 5s, then respawn21 refreshes to 8s after two ticks.
+        player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOW_FALLING,160,0,false,false));
+        if(resistance)player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE,60,4,false,true));
+    }
+
+    private void chooseRespawnIsland(ServerPlayer player,Participant member) {
+        var choices=maps.spawns();
+        if (choices.isEmpty()) return;
+        member.spawn=choices.get(maps.level().getRandom().nextInt(choices.size()));
+        player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
+                maps.level().dimension(),net.minecraft.core.BlockPos.containing(member.spawn.position()),
+                member.spawn.yaw(),member.spawn.pitch()),true),false);
     }
 
     /** Only the authorized /gamemode command calls this; internal mode changes do not enroll observers. */
@@ -1393,9 +1452,13 @@ public final class GameController {
         items.cinema().start(player,maps.centerPositions());
     }
     void rotateMapSpawns(net.minecraft.core.BlockPos origin){
-        for(var member:participants.values())if(member.spawn!=null)member.spawn=MapManager.rotatedSpawn(member.spawn,origin);
+        transformMapSpawns(spawn->MapManager.rotatedSpawn(spawn,origin));
+    }
+    void transformMapSpawns(java.util.function.UnaryOperator<MapManager.Spawn> transform){
+        for(var member:participants.values())if(member.spawn!=null)member.spawn=transform.apply(member.spawn);
     }
     public void stopMatch() {
+        carpetBots.reset();
         if (developerTools.authoring().busy()) { announce(text("game.wait_loading")); return; }
         if (maps.busy()) { announce(text("game.wait_loading")); return; }
         announce(text("game.cancelled")); restoreLobby();
@@ -1403,6 +1466,7 @@ public final class GameController {
 
     public void damaged(ServerPlayer victim, DamageSource source, float amount) {
         if (!playing() || !allowDamage(victim)) return;
+        if(amount>0)carpetBots.damaged(victim,source);
         if(amount>0)items.balance().damaged(victim);
         events.onPlayerDamaged(victim, source, amount);
         if (source.getEntity() instanceof ServerPlayer attacker && allowDamage(attacker))
@@ -1438,6 +1502,8 @@ public final class GameController {
         return Component.translatable(key).withStyle(style->style.withColor(ChatFormatting.WHITE).withBold(true));
     }
 
+    /** Settle armed consequences before retiring their queues at automatic victory; warning timers do not count. */
+    private boolean acceptedNuclearSettled(){return !items.exasperato().pendingNuclearTerrain()&&items.hedgehog().pendingBlasts()==0&&!items.nukeEvent().pendingDetonation();}
     private void finish() {
         boolean bedwarsResult=bedwars.mode();
         int bedwarsWinner=bedwarsResult?bedwars.winnerTeam():-1;
@@ -1450,6 +1516,7 @@ public final class GameController {
         vanity.stop();
         luckyModifiers.endMatch();
         lbc.resetLevelupMatch();
+        var endingVisuals=items.cosmetics().finishVisuals();
         items.stop();
         events.stop(); if(!bedwarsResult)maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
         List<ServerPlayer> alive = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
@@ -1494,6 +1561,7 @@ public final class GameController {
         maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
         config.gamesPlayed++; config.save(); players.save();
         transition(Stage.ENDING); finishTicks = Math.max(1, config.endingSeconds) * 20;
+        items.cosmetics().resumeVisuals(endingVisuals);
         // В исходном конце игры первая четвёрка ракет появляется сразу, затем раз в секунду.
         if (winner != null) {items.cosmetics().winner(winner,gameTicks);events.victoryTick(winner, finishTicks);}
     }
@@ -1546,6 +1614,7 @@ public final class GameController {
     }
 
     private void lobbyPlayer(ServerPlayer player) {
+        items.witchClaims().reconcile(player);
         // При готовом лобби игрок получает приключение, базовые характеристики и закреплённый компас меню.
         if (isDeveloper(player)) return;
         spectators.remove(player);
@@ -1631,7 +1700,9 @@ public final class GameController {
         if (max != null) max.setBaseValue(Math.max(1, Math.min(1000, health)));
         var speed = player.getAttribute(Attributes.ATTACK_SPEED);
         if (speed != null) speed.setBaseValue(config.pvpMode == 1 && stage != Stage.LOBBY ? 100000 : 4);
-        player.setHealth(player.getMaxHealth()); player.getFoodData().setFoodLevel(20);
+        if (!player.isDeadOrDying() && !((MatchPlayerCheckpoint.SimulatedAcknowledgement)player.connection).skywars2$waitingForRespawn())
+            player.setHealth(player.getMaxHealth());
+        player.getFoodData().setFoodLevel(20);
         player.getFoodData().setSaturation(5);
         player.setExperienceLevels(0); player.setExperiencePoints(0);
         player.setRemainingFireTicks(0); player.fallDistance = 0;
@@ -1676,7 +1747,7 @@ public final class GameController {
         SkyWars2.LOGGER.info("[game] {} -> {}", stage, next);
         if (stage == Stage.LOBBY || next == Stage.LOBBY) maps.resetLobbyEntityCleanup();
         // Lobby entry clears weather left by the match and parks all native weather timers.
-        if (next == Stage.LOBBY) server.setWeatherParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, false, false);
+        if (next == Stage.LOBBY) {server.setWeatherParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, false, false);GameRaidCleanup.clear(this);}
         stage = next;
     }
 
@@ -1764,6 +1835,7 @@ public final class GameController {
     }
 
     public void shutdown() {
+        itemQueue.close(); // Closing the process is not a round reset; native SavedData retains dormant loot.
         LbcPerkStatistics.get(server).flush();
         perkChoices.clear();
         bedwars.stop();

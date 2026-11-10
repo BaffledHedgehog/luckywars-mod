@@ -23,8 +23,6 @@ public final class LbcFoodStatuses {
     private static final List<String> COUNTERS=List.of("all_seeing_eye","living_legend","dimensional_shifting","end_damage");
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
-    private static final ColorParticleOption MOB_DOT=ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,ARGB.colorFromFloat(1,0,.007f,0));
-    private static final ColorParticleOption PLAYER_DOT=ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT,ARGB.colorFromFloat(1,0,.01f,0));
     private static final DustColorTransitionOptions LEGEND_DUST=new DustColorTransitionOptions(
             ARGB.colorFromFloat(1,1,1,1),ARGB.colorFromFloat(1,10,10,10),4);
     private static final DyeColor[] GLASS={DyeColor.WHITE,DyeColor.RED,DyeColor.BLACK,DyeColor.BLUE,
@@ -53,6 +51,8 @@ public final class LbcFoodStatuses {
                 if(read(p,"living_legend")>0)livingLegend(p);
             }
             if(now%20==0&&read(p,"dimensional_shifting")>0)shifting(p);
+            if(now%10==0&&p.level().dimension().equals(Level.NETHER)&&!LbcGreed.active(p))
+                p.hurtServer(p.level(),p.damageSources().inFire(),1_000_000);
             if(!LbcParasite.active(p)&&now%200==0&&p.level().dimension().equals(Level.END)&&!LbcGreed.active(p))endDamage(p);
         }
     }
@@ -63,32 +63,15 @@ public final class LbcFoodStatuses {
         if(read(p,"void_resistance")<=0&&value>0)p.hurtServer(p.level(),new net.minecraft.world.damagesource.DamageSource(p.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.OUTSIDE_BORDER)),value);
     }
     private void allSeeingEye(ServerPlayer p){
-        var level=p.level();
-        for(var entity:level.getAllEntities()){
-            if(entity instanceof ServerPlayer||!entity.getType().builtInRegistryHolder().is(MOBS)
-                    ||entity.position().distanceToSqr(p.position())<.0001)continue;
-            level.sendParticles(p,MOB_DOT,true,false,entity.getX(),entity.getY()+.5,entity.getZ(),0,0,0,0,1);
+        for(var entity:game.items().lifetimes().loadedTargets()){
+            if(entity==p||entity.level()!=p.level()||entity.isSpectator()||entity.entityTags().contains("spectator")
+                    ||!entity.getType().builtInRegistryHolder().is(MOBS))continue;
+            game.items().radar().mark(p,entity);
         }
-        for(var target:level.players()){
-            if(target.isSpectator()||target.position().distanceToSqr(p.position())<.0001)continue;
-            // This source helper is a full twenty-point silhouette, not Techno's single helmet dot.
-            for(int i=0;i<20;i++)level.sendParticles(p,PLAYER_DOT,true,false,target.getX(),target.getY()+i*.1,target.getZ(),0,0,0,0,1);
-        }
-        var origin=p.position().add(0,5,0);
-        if(!game.items().magic().mechanismSuppressedAt(level,origin)){
-            ServerPlayer viewer=null;double nearest=Double.POSITIVE_INFINITY;
-            for(var candidate:level.players())if(!candidate.isSpectator()){
-                double distance=candidate.position().distanceToSqr(origin);
-                if(distance<nearest){nearest=distance;viewer=candidate;}
-            }
-            if(viewer!=null)for(var target:level.players()){
-                if(target.isSpectator()||target.position().distanceToSqr(p.position())<2500)continue;
-                LbcTechnoArmor.directionParticles(viewer,origin,target.getEyePosition().subtract(origin).normalize(),PLAYER_DOT);
-            }
-        }
+        // Both the old silhouette and distant directional glyph now refer to this target mark.
+        // They always belong to the effect holder, never whichever player happens to be nearest.
         p.removeEffect(MobEffects.DARKNESS);p.removeEffect(MobEffects.BLINDNESS);p.removeEffect(MobEffects.NAUSEA);
-        game.items().mana().award(p,"lbc:true_advancements/potions/effect_all_seeing_eye");
-        drain(p,"all_seeing_eye");
+        game.items().mana().award(p,"lbc:true_advancements/potions/effect_all_seeing_eye");drain(p,"all_seeing_eye");
     }
     private void livingLegend(ServerPlayer p){
         var level=p.level();int color=level.getRandom().nextInt(16);

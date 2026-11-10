@@ -32,58 +32,71 @@ public abstract class ShadowAbsorptionMixin implements ShadowAbsorption.Access {
     @Inject(method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z",
             at = @At("HEAD"), cancellable = true)
     private void skywars2$addStack(MobEffectInstance effect, Entity source, CallbackInfoReturnable<Boolean> cir) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
         if (effect.is(MobEffects.ABSORPTION) && ShadowAbsorption.server(skywars2$entity()) && !skywars2$absorptionState.internal)
             cir.setReturnValue(ShadowAbsorption.add(skywars2$entity(), effect, source));
     }
     @Inject(method = "forceAddEffect", at = @At("HEAD"), cancellable = true)
     private void skywars2$forceStack(MobEffectInstance effect, Entity source, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
         if (effect.is(MobEffects.ABSORPTION) && ShadowAbsorption.server(skywars2$entity()) && !skywars2$absorptionState.internal) {
             ShadowAbsorption.add(skywars2$entity(), effect, source);
             ci.cancel();
         }
     }
     @Inject(method = "tickEffects", at = @At("HEAD"))
-    private void skywars2$tickStacks(CallbackInfo ci) { ShadowAbsorption.tick(skywars2$entity()); }
+    private void skywars2$tickStacks(CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return; ShadowAbsorption.tick(skywars2$entity()); }
     @Inject(method = "removeEffectNoUpdate", at = @At("RETURN"))
     private void skywars2$removeStacks(Holder<MobEffect> effect, CallbackInfoReturnable<MobEffectInstance> cir) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
         if (effect.equals(MobEffects.ABSORPTION) && ShadowAbsorption.server(skywars2$entity()))
             ShadowAbsorption.clear(skywars2$entity());
     }
     @Inject(method = "onEffectsRemoved", at = @At("HEAD"))
     private void skywars2$clearStacks(Collection<MobEffectInstance> effects, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
         if (effects.stream().anyMatch(e -> e.is(MobEffects.ABSORPTION)) && ShadowAbsorption.server(skywars2$entity()))
             ShadowAbsorption.clear(skywars2$entity());
     }
     @Inject(method = "heal", at = @At("HEAD"), cancellable = true)
     private void skywars2$healShadow(float amount, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
         if (ShadowAbsorption.heal(skywars2$entity(), amount)) ci.cancel();
     }
     @Inject(method = "getMaxHealth", at = @At("RETURN"), cancellable = true)
     private void skywars2$zeroVisibleMaximum(CallbackInfoReturnable<Float> cir) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
         var s = skywars2$absorptionState;
         if (s != null && !s.reconciling && !s.loading && s.capacity > 0 && ShadowAbsorption.server(skywars2$entity()))
             cir.setReturnValue((float)Math.min(cir.getReturnValueF(), s.visibleMaximum));
     }
     @Inject(method = "onAttributeUpdated", at = @At("HEAD"))
     private void skywars2$maximumChanged(Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
         if (attribute.equals(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH)
                 && !skywars2$absorptionState.entries.isEmpty()) ShadowAbsorption.reconcile(skywars2$entity(), false);
     }
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-    private void skywars2$saveStacks(ValueOutput output, CallbackInfo ci) { ShadowAbsorption.save(skywars2$entity(), output); }
+    private void skywars2$saveStacks(ValueOutput output, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return; ShadowAbsorption.save(skywars2$entity(), output); }
     @Inject(method = "readAdditionalSaveData", at = @At("HEAD"))
-    private void skywars2$startLoad(ValueInput input, CallbackInfo ci) { ShadowAbsorption.beforeLoad(skywars2$entity()); }
+    private void skywars2$startLoad(ValueInput input, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return; ShadowAbsorption.beforeLoad(skywars2$entity()); }
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-    private void skywars2$loadStacks(ValueInput input, CallbackInfo ci) { ShadowAbsorption.load(skywars2$entity(), input); }
+    private void skywars2$loadStacks(ValueInput input, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return; ShadowAbsorption.load(skywars2$entity(), input); }
 
     @Mixin(MobEffect.class)
     public abstract static class Attributes {
         @Inject(method = "addAttributeModifiers", at = @At("HEAD"), cancellable = true)
         private void skywars2$ownCapacity(AttributeMap attributes, int amplifier, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
             if ((Object)this == MobEffects.ABSORPTION.value()) ci.cancel();
         }
         @Inject(method = "removeAttributeModifiers", at = @At("HEAD"), cancellable = true)
         private void skywars2$ownRemoval(AttributeMap attributes, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
             if ((Object)this == MobEffects.ABSORPTION.value()) ci.cancel();
         }
     }
@@ -91,6 +104,7 @@ public abstract class ShadowAbsorptionMixin implements ShadowAbsorption.Access {
     public abstract static class Started {
         @Inject(method = "onEffectStarted", at = @At("HEAD"), cancellable = true)
         private void skywars2$ownRefill(LivingEntity entity, int amplifier, CallbackInfo ci) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
             if (ShadowAbsorption.server(entity)) ci.cancel();
         }
     }
@@ -100,8 +114,9 @@ public abstract class ShadowAbsorptionMixin implements ShadowAbsorption.Access {
         @Accessor("hiddenEffect") public abstract MobEffectInstance skywars2$absorptionHidden();
         @Inject(method = "tickServer", at = @At("HEAD"), cancellable = true)
         private void skywars2$ownClock(ServerLevel level, LivingEntity entity, Runnable update, CallbackInfoReturnable<Boolean> cir) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
             var effect = (MobEffectInstance)(Object)this;
-            if (effect.is(MobEffects.ABSORPTION)) {
+            if (effect.is(MobEffects.ABSORPTION) && !ShadowAbsorption.state(entity).entries.isEmpty()) {
                 var entry = ShadowAbsorption.state(entity).entries.get(effect.getAmplifier());
                 if (entry != null) duration = entry.getDuration();
                 cir.setReturnValue(true);
@@ -112,6 +127,7 @@ public abstract class ShadowAbsorptionMixin implements ShadowAbsorption.Access {
     public abstract static class FoodHealing {
         @Inject(method = "isHurt", at = @At("RETURN"), cancellable = true)
         private void skywars2$foodCanHealShadow(CallbackInfoReturnable<Boolean> cir) {
+        if(!me.skywars2.game.VanillaExpansionRules.enabled())return;
             if (!cir.getReturnValueZ() && ShadowAbsorption.server((Player)(Object)this)
                     && ShadowAbsorption.needsHealing((Player)(Object)this)) cir.setReturnValue(true);
         }

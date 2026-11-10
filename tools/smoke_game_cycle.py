@@ -77,6 +77,14 @@ class Server:
         with self.condition:
             cursor = len(self.lines)
         for command in commands:
+            # The mod has a single public command root; Carpet/vanilla commands stay native.
+            root, separator, tail = command.partition(" ")
+            if root == "sw":
+                command = "skywars" + separator + tail
+            elif root in {"gallery", "developer", "mapsave", "mapdelete", "settings", "tps"}:
+                command = "skywars " + command
+            elif root == "gamemode" and tail.partition(" ")[0] in {"0", "1", "2", "3"}:
+                command = "skywars " + command
             self.process.stdin.write(command + "\n")
         self.process.stdin.flush()
         return cursor

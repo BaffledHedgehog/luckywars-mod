@@ -51,7 +51,7 @@ public final class WitchProgressChecks {
         final SauvojenMeditationChecks.Attribution attribution;ShishEncounterChecks.Client client;
         final net.minecraft.server.level.ServerLevel level;final Vec3 origin;final BlockPos block;
         final MapManager.BlockSnapshot terrain;final LbcIndirectKills.TerrainProvenance provenance;
-        final ObjectiveState damage,mining;final Stat<?> mined=Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM);
+        final ObjectiveState damage,mining;final Stat<?> mined=Stats.BLOCK_MINED.get(LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI));
         final int oldMined;final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
         final List<Entity> owned=new ArrayList<>();Cow target,other,queued;Entity beacon;int phase,at,queuedBefore;boolean closed,stopped,ownedStand;
         Fixture(GameController game){this.game=game;owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
@@ -106,14 +106,19 @@ public final class WitchProgressChecks {
         }
         void statisticMatrix(){
             var dealt=Stats.CUSTOM.get(Stats.DAMAGE_DEALT);
-            for(boolean nativeCriteria:new boolean[]{false,true}){
-                damage.replace(nativeCriteria?dealt:ObjectiveCriteria.DUMMY);mining.replace(nativeCriteria?mined:ObjectiveCriteria.DUMMY);
+            for(int criterion=0;criterion<3;criterion++){
+                boolean nativeCriteria=criterion>0;
+                var oldCarrier=Stats.BLOCK_MINED.get(Blocks.MUSHROOM_STEM);
+                damage.replace(nativeCriteria?dealt:ObjectiveCriteria.DUMMY);mining.replace(criterion==2?oldCarrier:nativeCriteria?mined:ObjectiveCriteria.DUMMY);
                 score("dmg_dealt",110);score("lolidefecation",63);int before=owner.getStats().getValue(dealt);
                 owner.awardStat(dealt,27);owner.awardStat(mined,1);
                 require(score("dmg_dealt")==110&&score("lolidefecation")==64&&owner.getStats().getValue(dealt)==before+27,"generic damage award changes vanilla stats, not melee-only progress, criteria="+nativeCriteria);
+                int oldCarrierTotal=owner.getStats().getValue(oldCarrier);owner.awardStat(oldCarrier,1);
+                require(score("lolidefecation")==64,"ordinary mushroom never increments native or old-carrier Witch progress");
+                owner.getStats().setValue(owner,oldCarrier,oldCarrierTotal);
                 var melee=cow(origin.add(0,0,6),100);int progress=score("dmg_dealt");
-                attack(melee,2);near(melee.getHealth(),98,"actual direct melee hurt accepted");
-                require(score("dmg_dealt")==progress+20,"exact accepted melee HP loss once, native/dummy criterion="+nativeCriteria);
+                attack(melee,2);float lost=100-melee.getHealth();require(lost>0,"actual direct melee hurt accepted");
+                require(score("dmg_dealt")==progress+Math.round(lost*10),"exact accepted melee HP loss once, native/dummy criterion="+nativeCriteria);
                 progress=score("dmg_dealt");
                 attack(melee,2);require(score("dmg_dealt")==progress,"rejected cooldown hit gives no progress");
                 var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(EntityTypes.ARROW,level);
@@ -138,8 +143,10 @@ public final class WitchProgressChecks {
                 owner.awardStat(Stats.CUSTOM.get(Stats.JUMP),3);require(score("dmg_dealt")==0&&score("lolidefecation")==0,"unrelated statistic does not alter either Witch objective");
             }
             damage.remove();mining.remove();
-            level.setBlock(block,Blocks.MUSHROOM_STEM.defaultBlockState(),2|16|32);owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIAMOND_AXE));
-            int old=owner.getStats().getValue(mined);require(owner.gameMode.destroyBlock(block),"actual native block destruction");
+            level.setBlock(block,LbcLuckyBlocks.block(LbcLuckyBlocks.Kind.LOLI).defaultBlockState(),2|16|32);owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.DIAMOND_AXE));
+            int old=owner.getStats().getValue(mined);boolean drops=level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS);
+            try{level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS,false,game.server());require(owner.gameMode.destroyBlock(block),"actual native custom block destruction");}
+            finally{level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.BLOCK_DROPS,drops,game.server());}
             require(owner.getStats().getValue(mined)==old+1&&score("lolidefecation")==1
                     &&game.server().getScoreboard().getObjective("lolidefecation").getCriteria()==mined,"first native mined event creates correct criterion and counts exactly once");
             owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
@@ -150,7 +157,10 @@ public final class WitchProgressChecks {
         Entity marker(String tag){var e=EntityTypes.MARKER.create(level,EntitySpawnReason.COMMAND);require(e!=null,"native beacon marker");e.setPos(owner.position());e.entityTags().add(tag);require(level.addFreshEntity(e),"native beacon publication");owned.add(e);return e;}
         void strike(Cow cow){cow.setInvulnerableTime(0);cow.damageCooldownTime=0;owner.attack(cow);}
         void readyAttack(){try{var f=LivingEntity.class.getDeclaredField("attackStrengthTicker");f.setAccessible(true);f.setInt(owner,100);}catch(ReflectiveOperationException e){throw new IllegalStateException(e);}}
-        void attack(Cow cow,double amount){owner.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(amount);owner.setOnGround(false);owner.fallDistance=0;readyAttack();owner.attack(cow);}
+        void attack(Cow cow,double amount){var attribute=owner.getAttribute(Attributes.ATTACK_DAMAGE);
+            // Controlled damage probes exclude the active match loadout bonuses; State restores all modifiers.
+            for(var modifier:List.copyOf(attribute.getModifiers()))attribute.removeModifier(modifier.id());
+            attribute.setBaseValue(amount);owner.setOnGround(false);owner.fallDistance=0;readyAttack();owner.attack(cow);}
         void discard(Entity e){game.items().entityUnloaded(e);e.discard();}
         void move(Vec3 v){require(owner.teleportTo(level,v.x,v.y,v.z,Set.of(),0,0,true),"native position change");if(client!=null)client.ack();}
         boolean step(){int now=game.server().getTickCount();client.ack();if(now==at)return false;require(now-at<12,"actual scheduler deadline phase="+phase);

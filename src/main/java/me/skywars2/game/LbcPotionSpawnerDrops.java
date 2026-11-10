@@ -110,7 +110,7 @@ public final class LbcPotionSpawnerDrops {
     /** Adopt a source-configured native spawner without replacing its potentials or cadence. */
     public void admitEventSpawner(ServerLevel level,BlockPos pos,LbcApocalypseEvents.Authority authority){
         if(authority==null)return;
-        admitSourceSpawner(level,pos,new LbcSpellSource.Source(UUID.randomUUID(),authority.author(),authority.epoch(),authority.cause(),Set.of(),true));
+        admitSourceSpawner(level,pos,new LbcSpellSource.Source(UUID.randomUUID(),authority.author(),authority.epoch(),authority.cause(),Set.of(),true).hostileLoot());
     }
     /** Same native producer protocol for source-configured dungeon mobs and fireworks. */
     public void admitSourceSpawner(ServerLevel level,BlockPos pos,LbcSpellSource.Source source){
@@ -211,13 +211,15 @@ public final class LbcPotionSpawnerDrops {
     public boolean canTarget(Entity source,LivingEntity target) { return target==null || canAffect(source,target); }
     public void loaded(Entity actor) {
         if(!managed(actor))return;
-        var exclusions=new java.util.HashSet<String>();for(var tag:actor.entityTags())if(tag.startsWith("skywars2.spawner_exclude."))exclusions.add(tag.substring("skywars2.spawner_exclude.".length()));
-        for(var tag:actor.entityTags())if(tag.startsWith(EVENT_CAUSE))try{
+        // Binding the parsed receipt adds source tags. Do not iterate that same live HashSet.
+        var tags=List.copyOf(actor.entityTags());
+        var exclusions=new java.util.HashSet<String>();for(var tag:tags)if(tag.startsWith("skywars2.spawner_exclude."))exclusions.add(tag.substring("skywars2.spawner_exclude.".length()));
+        for(var tag:tags)if(tag.startsWith(EVENT_CAUSE))try{
             var parts=tag.substring(EVENT_CAUSE.length()).split("\\.");
-            UUID author=null;for(var candidate:actor.entityTags())if(candidate.startsWith(OWNER))author=UUID.fromString(candidate.substring(OWNER.length()));
-            String epoch=null;for(var candidate:actor.entityTags())if(candidate.startsWith("skywars2.items."))epoch=candidate;
+            UUID author=null;for(var candidate:tags)if(candidate.startsWith(OWNER))author=UUID.fromString(candidate.substring(OWNER.length()));
+            String epoch=null;for(var candidate:tags)if(candidate.startsWith("skywars2.items."))epoch=candidate;
             if(author!=null&&epoch!=null)game.items().spellSources().bind(actor,new LbcSpellSource.Source(UUID.fromString(parts[0]),author,epoch,
-                    new LbcIndirectKills.Owner(author,Long.parseLong(parts[1]),Boolean.parseBoolean(parts[2]),Boolean.parseBoolean(parts[3])),exclusions,true));
+                    new LbcIndirectKills.Owner(author,Long.parseLong(parts[1]),Boolean.parseBoolean(parts[2]),Boolean.parseBoolean(parts[3])),exclusions,true).hostileLoot());
         }catch(IllegalArgumentException ignored){}
         if(!active(actor)) { actor.discard();return; }
         if(!(actor instanceof ThrownSplashPotion potion)){game.items().timeStop().prepareFrozen(actor);return;}

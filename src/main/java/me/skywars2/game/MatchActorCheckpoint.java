@@ -29,7 +29,7 @@ public final class MatchActorCheckpoint {
     }
     private record Link(UUID id,net.minecraft.world.entity.Pose pose) { }
     private record Image(Entity actor,int id,UUID uuid,MatchEntityState state,List<Link> passengers,
-                         UUID target,UUID owner,UUID hooked,Tag leash,UUID leashHolder,double angularMomentum) { }
+                         MatchDamageSources.Ref target,UUID owner,boolean ownerResolved,UUID hooked,Tag leash,UUID leashHolder,double angularMomentum) { }
     private final GameController game;
     private final String epoch;
     private final Map<UUID,Image> images=new LinkedHashMap<>();
@@ -48,7 +48,8 @@ public final class MatchActorCheckpoint {
     static MatchActorCheckpoint captureRegistered(GameController game,Set<UUID> omitted) {
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy())throw new IllegalStateException("Capture a stable native match on its server thread");
         var result=new MatchActorCheckpoint(game);result.omitted=Set.copyOf(omitted);
-        for(var actor:result.registered()) {
+        var registered=result.registered();result.damageSources=new MatchDamageSources(game,registered,omitted);
+        for(var actor:registered) {
             var passengers=actor.getPassengers().stream().map(e->new Link(e.getUUID(),e.getPose())).toList();
             var target=actor instanceof Mob mob?mob.getTargetUnchecked():null;
             var owner=actor instanceof Projectile shot?shot.getOwner():null;
@@ -61,7 +62,7 @@ public final class MatchActorCheckpoint {
                 angular=leashed.getLeashData().angularMomentum;
             }
             var image=new Image(actor,actor.getId(),actor.getUUID(),state,passengers,
-                    target==null?null:target.getUUID(),ownerId,
+                    target==null||result.omitted.contains(target.getUUID())?null:result.damageSources.bodyRef(target),ownerId,owner!=null,
                     actor instanceof net.minecraft.world.entity.projectile.FishingHook hook&&hook.getHookedIn()!=null?hook.getHookedIn().getUUID():null,
                     leash,leashHolder,angular);
             if(result.images.put(image.uuid,image)!=null)throw new IllegalStateException("Duplicate native actor UUID at capture");
@@ -73,7 +74,6 @@ public final class MatchActorCheckpoint {
             result.playerLedgers.put(player.getUUID(),new PlayerLedger(Set.copyOf(pearls),player.fishing==null?null:player.fishing.getUUID()));
         }
         var actors=result.images.values().stream().map(Image::actor).toList();
-        result.damageSources=new MatchDamageSources(game,actors,omitted);
         result.combat=new MatchCombatCheckpoint(game,actors,result.damageSources);
         result.views=new MatchPlayerViews(game);
         return result;
@@ -211,12 +211,16 @@ public final class MatchActorCheckpoint {
                 if(omitted.contains(image.uuid))continue;
                 var actor=image.actor;
                 if(actor instanceof Mob) {
-                    var target=resolve(image.target);if(image.target!=null&&target==null)pending.add(image.target);
+                    // Raw Mob.target can still point at a removed body; preserve it without requiring resurrection.
+                    var target=MatchDamageSources.resolve(image.target,this::resolve,pending);
                     ((ActorCheckpointAccess.Target)actor).skywars2$target(target instanceof LivingEntity living?living:null);
                 }
                 if(actor instanceof Projectile shot) {
-                    var owner=resolve(image.owner);
-                    if(image.owner!=null&&owner==null)pending.add(image.owner);else shot.setOwner(owner);
+                    var owner=MatchDamageSources.resolveNative(image.owner,image.ownerResolved,this::resolve,pending);
+                    if(image.owner==null||owner!=null)shot.setOwner(owner);
+                    // An already unresolved native Owner UUID is valid saved state, not a missing live body.
+                    // Keep the UUID loaded from NBT; a live captured owner must still resolve normally.
+                    // Captured live-owner dependencies are checked by the shared native resolver.
                 }
                 if(actor instanceof net.minecraft.world.entity.projectile.FishingHook hook) {
                     var hooked=resolve(image.hooked);

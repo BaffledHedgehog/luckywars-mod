@@ -118,10 +118,11 @@ public final class LbcIncomingArtifacts {
         LbcOverload.sound(p,"minecraft:block.anvil.use",2,2,0);
     }
     private void explode(ServerPlayer p){
-        for(var target:p.level().getEntitiesOfClass(ServerPlayer.class,p.getBoundingBox().inflate(7),q->q.distanceToSqr(p)<=49
+        var protection=ExplosionItemProtection.area(game,p.level(),p.position(),7,5);
+        if(game.balanceLegacy())for(var target:p.level().getEntitiesOfClass(ServerPlayer.class,p.getBoundingBox().inflate(7),q->q.distanceToSqr(p)<=49
                 &&game.items().wands().validRoleTarget(q,false)))effect(target,MobEffects.RESISTANCE,20,4,false);
         effect(p,MobEffects.SLOW_FALLING,100,0,true);
-        var tnt=new PrimedTnt(p.level(),p.getX(),p.getY(),p.getZ(),p);tnt.setFuse(0);tnt.setDeltaMovement(Vec3.ZERO);track(p,tnt);
+        var tnt=new PrimedTnt(p.level(),p.getX(),p.getY(),p.getZ(),p);tnt.setFuse(0);tnt.setDeltaMovement(Vec3.ZERO);ExplosionItemProtection.stamp(tnt,protection);track(p,tnt);
     }
     private void corrosion(ServerPlayer p){
         var level=p.level();var origin=p.blockPosition().offset(-5,-8,-5);

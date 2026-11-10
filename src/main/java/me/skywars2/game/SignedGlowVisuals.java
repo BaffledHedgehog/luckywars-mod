@@ -27,6 +27,7 @@ public final class SignedGlowVisuals {
     }
     private SignedGlowVisuals() { }
     public static void changed(LivingEntity target) {
+        if(!VanillaExpansionRules.enabled()){removed(target);return;}
         if (target.level().isClientSide()) return;
         if (SignedEffectVisuals.level(target, MobEffects.GLOWING) >= 2) TARGETS.put(target.getId(), target);
         else TARGETS.remove(target.getId());
@@ -53,6 +54,7 @@ public final class SignedGlowVisuals {
         VIEWERS.clear(); TARGETS.clear();
     }
     public static void tick(MinecraftServer server) {
+        if(!VanillaExpansionRules.enabled()){stop();return;}
         var game = SkyWars2.game();
         if (game == null) return;
         TARGETS.values().removeIf(t -> t.isRemoved() || !t.isAlive()

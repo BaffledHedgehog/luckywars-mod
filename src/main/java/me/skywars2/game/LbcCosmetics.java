@@ -173,8 +173,11 @@ public final class LbcCosmetics {
         int due,age,selected,cursor,stage,spreadRange,spreadAttempts,spreadY=Integer.MIN_VALUE;long rng;
         boolean closed,spreading,impact,postgame,air1,air2;Vec3 candidate;
         Job(ServerPlayer author,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause,Effect effect){
+            this(author,level,at,cause,effect,author.getRandom().nextLong());
+        }
+        Job(ServerPlayer author,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause,Effect effect,long seed){
             this.author=author;this.level=level;this.at=at;this.cause=cause;this.effect=effect;epoch=game.items().epoch();
-            due=game.server().getTickCount();rng=author.getRandom().nextLong();postgame=effect==Effect.PUMPKIN||effect==Effect.WINNER||effect==Effect.SWORD;
+            due=game.server().getTickCount();rng=seed;postgame=effect==Effect.PUMPKIN||effect==Effect.WINNER||effect==Effect.SWORD;
             if(effect==Effect.SOUL||effect==Effect.BLOOD||effect==Effect.HAMMER||effect==Effect.SWORD)age=1;
         }
         long next(){rng+=0x9E3779B97F4A7C15L;long z=rng;z=(z^(z>>>30))*0xBF58476D1CE4E5B9L;z=(z^(z>>>27))*0x94D049BB133111EBL;return z^(z>>>31);}
@@ -211,7 +214,7 @@ public final class LbcCosmetics {
                 if(previous==null||body.position.distanceToSqr(at)<previous.position.distanceToSqr(at))selectedBodies.put(bucket,body);
             }
             for(var body:selectedBodies.values()){
-                var child=new Job(author,level,body.position,cause,selected==1?Effect.SOUL:Effect.BLOOD);enqueue(child);
+                var child=new Job(author,level,body.position,cause,selected==1?Effect.SOUL:Effect.BLOOD);child.postgame=postgame;enqueue(child);
                 if(selected==3)particles(level,block(Blocks.REDSTONE_BLOCK),body.position.add(0,.3,0),200,.3,.1,.3,.3,false);
             }return true;
         }
@@ -380,6 +383,24 @@ public final class LbcCosmetics {
     public ServerPlayer owner(Entity entity){var cause=cause(entity);return cause==null?null:game.server().getPlayerList().getPlayer(cause.player());}
     public LbcMidas midas(){return midas;}
     public void stop(){boundary();for(var job:List.copyOf(jobs))job.cancel();for(var entity:List.copyOf(nativeActors.values()))entity.discard();nativeActors.clear();midas.stop();}
+
+    /** Keep only harmless, already accepted death visuals across the real gameplay-epoch retirement. */
+    record EndingVisual(ServerPlayer author,ServerLevel level,Vec3 at,LbcIndirectKills.Owner cause,
+                        Effect effect,int age,int selected,boolean impact,long rng,int delay,List<DropBody> drops){}
+    List<EndingVisual> finishVisuals(){
+        boundary();int now=game.server().getTickCount();
+        return jobs.stream().filter(j->!j.closed&&switch(j.effect){case DROPS,SOUL,BLOOD,HAMMER->true;default->false;})
+                .map(j->new EndingVisual(j.author,j.level,j.at,j.cause,j.effect,j.age,j.selected,j.impact,j.rng,
+                        Math.max(0,j.due-now),j.drops)).toList();
+    }
+    void resumeVisuals(List<EndingVisual> images){
+        boundary();if(game.stage()!=GameController.Stage.ENDING)return;
+        for(var image:images){
+            var job=new Job(image.author,image.level,image.at,image.cause,image.effect,image.rng);
+            job.age=image.age;job.selected=image.selected;job.impact=image.impact;job.drops=image.drops;
+            job.due=game.server().getTickCount()+image.delay;job.postgame=true;enqueue(job);
+        }
+    }
     void boundary(){if(callbacks!=0)throw new IllegalStateException("Finish cosmetic native quantum before capture/replay");}
     void prepareFrozen(){boundary();restoring=true;jobs=new LinkedHashSet<>();nativeActors=new LinkedHashMap<>();midas.prepareFrozen();}
     void publishFrozen(){boundary();restoring=false;midas.publishFrozen();refreshSuffixes(game.server().getPlayerList().getPlayers());}

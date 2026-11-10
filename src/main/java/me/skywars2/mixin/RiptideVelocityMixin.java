@@ -18,6 +18,13 @@ public abstract class RiptideVelocityMixin {
     private void skywars2$actualSpinVelocity(ItemStack stack,Level level,LivingEntity user,int remaining,
                                            CallbackInfoReturnable<Boolean> cir){
         // This packet REPLACES client-predicted velocity; adding a second impulse would double the boost.
-        if(user instanceof ServerPlayer player)player.connection.send(new ClientboundSetEntityMotionPacket(player));
+        if(user instanceof ServerPlayer player){
+            player.connection.send(new ClientboundSetEntityMotionPacket(player));
+            var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+            if(!player.isSpectator()&&data.getIntOr("transformable",0)==1&&data.getIntOr("trident",0)==1&&data.getIntOr("sea_legend",0)==1){
+                var advancement=player.level().getServer().getAdvancements().get(net.minecraft.resources.Identifier.parse("lbc:true_advancements/tridents/sea_legend"));
+                if(advancement!=null)player.getAdvancements().award(advancement,"requirement");
+            }
+        }
     }
 }

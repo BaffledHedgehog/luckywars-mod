@@ -38,17 +38,20 @@ public final class TrollBoxChecks {
         }));}
         public void close(){set(level,"random",saved);}
     }
-    public static void run(GameController game,boolean rewind){require(running==null&&requested==null,"exclusive native scene");requested=rewind;}
+    private static boolean requestedPower;
+    public static void run(GameController game,boolean rewind){require(running==null&&requested==null,"exclusive native scene");requested=rewind;requestedPower=false;}
+    public static void runPowerStatus(GameController game){run(game,false);requestedPower=true;}
     public static void tick(GameController game){
-        if(requested!=null){boolean rewind=requested;requested=null;var f=new Scene(game,rewind);running=f;try{f.begin();}catch(Throwable e){running=null;try{f.close();}catch(Throwable c){e.addSuppressed(c);}SkyWars2.LOGGER.error("[check] FAIL "+(rewind?"troll-box-rewind":"troll-box-native"),e);}return;}
-        var f=running;if(f==null)return;try{f.ack();if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} (actual source/private inputs; coupled native events, terrain, mask beam and causal actors; scoped cleanup)",f.rewind?"troll-box-rewind":"troll-box-native");}catch(Throwable e){running=null;try{f.close();}catch(Throwable c){e.addSuppressed(c);}SkyWars2.LOGGER.error("[check] FAIL "+(f.rewind?"troll-box-rewind":"troll-box-native"),e);}
+        if(requested!=null){boolean rewind=requested;requested=null;var f=new Scene(game,rewind);f.powerOnly=requestedPower;requestedPower=false;running=f;try{f.begin();}catch(Throwable e){running=null;try{f.close();}catch(Throwable c){e.addSuppressed(c);}SkyWars2.LOGGER.error("[check] FAIL "+(rewind?"troll-box-rewind":"troll-box-native"),e);}return;}
+        var f=running;if(f==null)return;try{f.ack();if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} (actual source/private inputs; coupled native events, terrain, mask beam and causal actors; scoped cleanup)",f.label());}catch(Throwable e){running=null;try{f.close();}catch(Throwable c){e.addSuppressed(c);}SkyWars2.LOGGER.error("[check] FAIL "+(f.label()),e);}
     }
     private static final class Scene implements AutoCloseable {
         final GameController game;final boolean rewind;final WoolBucketChecks.Fixture f;final LbcTrollBox service;final WorldRandom rng;
         final Vec3 origin=new Vec3(8.5,220,8.5);final int started;final Set<UUID> initial=new HashSet<>();
-        int phase,when,number=1,variant;boolean closed;Map<BlockPos,BlockState> savedTerrain,futureWalls;LbcTrollBox.View savedView;
+        int phase,when,number=1,variant,expectedCagePlayers;boolean powerOnly,closed;Map<BlockPos,BlockState> savedTerrain,futureWalls;LbcTrollBox.View savedView;
         Map<UUID,Vec3> savedBodies;Map<UUID,Integer> savedAges;int savedCell;UUID powerId;LivingEntity witness;float witnessHealth;
         Scene(GameController game,boolean rewind){this.game=game;this.rewind=rewind;f=new WoolBucketChecks.Fixture(game,true);service=game.items().trollBox();rng=new WorldRandom(f.level);started=game.server().getTickCount();for(var e:f.level.getAllEntities())initial.add(e.getUUID());}
+        String label(){return powerOnly?"troll-power-status":rewind?"troll-box-rewind":"troll-box-native";}
         void next(int n){phase=n;when=game.server().getTickCount();}
         void ack(){f.client.acknowledge();f.audience.acknowledge();}
         void room(){
@@ -65,6 +68,7 @@ public final class TrollBoxChecks {
         }
         long seed(int result){for(long s=0;s<10000;s++)if(RandomSource.create(s).nextInt(6)+1==result)return s;throw new IllegalStateException("lottery seed");}
         void use(int result,int kind){
+            if(result==4)expectedCagePlayers=(int)game.server().getPlayerList().getPlayers().stream().filter(p->p.isAlive()&&!p.isRemoved()&&!p.isSpectator()&&!game.isObserver(p)&&game.canUseGameplayItems(p)&&game.items().wands().validRoleTarget(p,false)&&!p.level().dimension().equals(LbcHedgehogDimensions.NEXUS)).count();
             f.owner.stopUsingItem();var hand=kind==0?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND;var stack=kind==0?new ItemStack(LbcTrollBox.TOKEN,2):privateItem();var copy=stack.copyWithCount(1);f.owner.setItemInHand(hand,stack);f.owner.getRandom().setSeed(seed(result));
             require(f.owner.gameMode.useItem(f.owner,f.owner.level(),stack,hand).consumesAction(),"real source/private native input outcome="+result+" variant="+kind);
             require(ItemStack.matches(stack,copy)&&!LbcTmtAbilities.active(stack),"one physical debit preserves private sibling and carrier");
@@ -83,15 +87,15 @@ public final class TrollBoxChecks {
         boolean step(){
             require(!game.vanity().status().startsWith("FAILED"),"native coordinator failed: "+game.vanity().status());
             require(game.server().getTickCount()-started<2200,"bounded native scene phase="+phase+" result="+number+" variant="+variant+" state="+service.view()+" vanity="+game.vanity().status());int elapsed=game.server().getTickCount()-when;
-            if(phase==0){if(service.view().hunters()==0)return false;hunter();if(rewind){use(2,0);f.move(f.owner,origin);f.move(f.other,origin.add(12,0,0));use(6,0);use(3,1);stones();next(20);}else{number=2;variant=0;clear();use(2,0);next(10);}return false;}
+            if(phase==0){if(service.view().hunters()==0)return false;hunter();if(rewind){use(2,0);f.move(f.owner,origin);f.move(f.other,origin.add(12,0,0));use(6,0);use(3,1);stones();next(20);}else{number=powerOnly?3:2;variant=0;clear();use(number,0);next(10);}return false;}
             if(phase==10){
                 if(number>6)return true;
                 if(number==2){require(f.owner.level().dimension().equals(LbcHedgehogDimensions.IMPRINTED)&&f.other.level()==f.owner.level(),"darkness moves both actual participants");if(elapsed<101)return false;require(service.view().gravityLeft()<=0&&!f.owner.getAttribute(Attributes.GRAVITY).hasModifier(Identifier.withDefaultNamespace("imprinted")),"native five-second gravity cleanup");require(game.items().mana().hudValue(f.owner,LbcHedgehogDimensions.RETURN_COUNTER)>0,"general personal residence active");nextOutcome();return false;}
                 if(number==3){if(power()==null)return false;require(service.owner(power())==f.owner,"source/private power causal author");
                     if(witness==null){var cow=EntityTypes.COW.create(f.level,EntitySpawnReason.COMMAND);cow.setPos(power().position());cow.setNoGravity(true);cow.setNoAi(true);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);cow.setHealth(1000);f.own(cow);require(f.level.addFreshEntity(cow),"real falling-power status target");witness=cow;next(10);return false;}
                     if(elapsed<2)return false;require(ages().values().stream().anyMatch(v->v>0),"actual falling power native age/terrain frame");
-                    for(var entry:Map.of(MobEffects.SLOWNESS,100,MobEffects.WEAKNESS,100,MobEffects.WITHER,5,MobEffects.BLINDNESS,2).entrySet())require(witness.hasEffect(entry.getKey())&&witness.getEffect(entry.getKey()).getAmplifier()==entry.getValue(),"native saturated-rate power WILD status "+entry+" actual="+witness.getEffect(entry.getKey()));witness=null;nextOutcome();return false;}
-                if(number==4){if(service.view().placements()!=0)return false;require(f.level.getBlockState(BlockPos.containing(origin).below()).is(Blocks.STONE_BRICKS)&&game.items().cageDrops().snapshot().size()==4,"both real empty cages plus two authored anvils per victim");for(var e:game.items().cageDrops().snapshot())require(game.items().cageDrops().owner(e)==f.owner,"cage causal author");nextOutcome();return false;}
+                    for(var entry:Map.of(MobEffects.SLOWNESS,100,MobEffects.WEAKNESS,100,MobEffects.WITHER,5,MobEffects.BLINDNESS,1).entrySet())require(witness.hasEffect(entry.getKey())&&witness.getEffect(entry.getKey()).getAmplifier()==entry.getValue(),"native saturated-rate power WILD status "+entry+" actual="+witness.getEffect(entry.getKey()));witness=null;if(powerOnly)return true;nextOutcome();return false;}
+                if(number==4){if(service.view().placements()!=0)return false;require(f.level.getBlockState(BlockPos.containing(origin).below()).is(Blocks.STONE_BRICKS)&&expectedCagePlayers>=2&&game.items().cageDrops().snapshot().size()==2*expectedCagePlayers,"two authored anvils for every actual admitted participant: expected="+(2*expectedCagePlayers)+" actual="+game.items().cageDrops().snapshot().size());for(var e:game.items().cageDrops().snapshot())require(game.items().cageDrops().owner(e)==f.owner,"cage causal author");nextOutcome();return false;}
                 if(number==5){if(service.view().placements()!=0)return false;long changed=walls().values().stream().filter(s->!s.isAir()).count();require(changed>10000,"full functional25-template walls, not a reward-only mask: "+changed);nextOutcome();return false;}
                 if(number==6){require(service.view().abyss(),"real abyss event");f.move(f.other,new Vec3(origin.x,-1,origin.z));next(11);return false;}
             }

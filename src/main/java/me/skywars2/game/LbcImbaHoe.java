@@ -55,7 +55,7 @@ public final class LbcImbaHoe {
                 ||game.items().timeStop().stopped(owner.level())||game.items().wands().timeStopped()
                 ||game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally()||!policy.activation(owner))return false;
         callbacks++;try{
-            owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,20,4,false,false,false));
+            if(game.balanceLegacy())owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,20,4,false,false,false));
             uses++;var ray=new Ray(++sequence,owner);
             game.items().exasperato().replayableSamples(owner,ray.origin,ray.direction,300,ray);return true;
         }finally{callbacks--;}
@@ -85,7 +85,7 @@ public final class LbcImbaHoe {
                 if(level.getBlockState(at).is(AIRS))return null;
                 // This remains a native actor until its first native tick. In particular, do not
                 // explode synchronously or stamp the epoch tag that identifies thrown dynamites.
-                var charge=new PrimedTnt(level,point.x,point.y,point.z,owner);charge.setFuse(-1);charge.setDeltaMovement(Vec3.ZERO);charge.entityTags().add(TNT);
+                var charge=new PrimedTnt(level,point.x,point.y,point.z,owner);charge.setFuse(-1);charge.setDeltaMovement(Vec3.ZERO);charge.entityTags().add(TNT);ExplosionItemProtection.stamp(charge,ExplosionItemProtection.owner(author,5));
                 var authority=new LbcSpellSource.Source(charge.getUUID(),author,epoch,cause,Set.of());
                 game.items().spellSources().bind(charge,authority);
                 try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null,level)){

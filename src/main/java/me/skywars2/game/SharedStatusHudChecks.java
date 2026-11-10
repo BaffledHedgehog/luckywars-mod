@@ -52,7 +52,7 @@ public final class SharedStatusHudChecks {
             require(text.contains("\uE126 7"),"void resistance displays source seconds");
             final boolean[] green={false};row.visit((style,value)->{if(value.equals("7")&&style.getColor()!=null&&style.getColor().getValue()==0x55ff55)green[0]=true;return Optional.<Object>empty();},net.minecraft.network.chat.Style.EMPTY);
             require(green[0],"void count retains source GREEN style");
-            require(!text.contains("\uE125")&&!text.contains("\uE127")&&!text.contains("\uE128"),"unported historical scores create no stub icons");
+            require(text.contains("\uE125 9999")&&text.contains("\uE127 9999")&&text.contains("\uE128 9999"),"ported source statuses retain original glyphs and remaining counters");
             game.items().timeStop().begin(player.level(),40);stopped=true;
             mana.voidProtectionSecond(player);
             require(mana.hudValue(player,"void_resistance")==7,"actual Time Stop pauses native void timer");
@@ -66,7 +66,7 @@ public final class SharedStatusHudChecks {
         } finally {
             if(stopped)game.items().timeStop().end(player.level());
             psycho.clearStatus(player,"scared");
-            for(var objective:List.copyOf(board.getObjectives()))if(scores.containsKey(objective))board.getOrCreatePlayerScore(player,objective).set(scores.get(objective));else board.resetSinglePlayerScore(player,objective);
+            for(var objective:List.copyOf(board.getObjectives()))if(scores.containsKey(objective))board.getOrCreatePlayerScore(player,objective,true).set(scores.get(objective));else board.resetSinglePlayerScore(player,objective);
             for(var objective:List.copyOf(board.getObjectives()))if(!objectives.contains(objective))board.removeObjective(objective);
             advancements.forEach((advancement,done)->{for(var key:advancement.value().criteria().keySet())if(done.contains(key))player.getAdvancements().award(advancement,key);else player.getAdvancements().revoke(advancement,key);});
             saved.restore(game);player.connection=previous;previous.resetPosition();game.items().invalidateHud(player);

@@ -122,8 +122,8 @@ public final class LbcCageDrops {
         // authority keeps these children alive there; ordinary token admission remains map-only.
         var source=inherited==null?new LbcSpellSource.Source(UUID.randomUUID(),cause!=null?cause.player():causalAuthor==null?null:causalAuthor.getUUID(),
                 game.items().epoch(),cause,Set.of(),true)
-                :new LbcSpellSource.Source(inherited.emitter(),inherited.author(),inherited.epoch(),cause,inherited.excluded(),true);
-        try(var scope=game.items().spellSources().scope(source,level)){
+                :new LbcSpellSource.Source(inherited.emitter(),inherited.author(),inherited.epoch(),cause,inherited.excluded(),true,inherited.unownedMobs(),inherited.nativeEmitter(),inherited.helmetCredit());
+        try(var scope=game.items().spellSources().scope(source.hostileLoot(),level)){
             if(!LbcBedwarsRoleGuards.publication(level))return false;
             return spawnAt(level,at,kind,causalAuthor,cause,null,true,anvilPreset);
         }

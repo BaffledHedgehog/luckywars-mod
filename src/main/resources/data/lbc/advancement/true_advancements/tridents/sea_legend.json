@@ -20,7 +20,7 @@
     "parent": "lbc:true_advancements/tridents",
     "criteria": {
         "requirement": {
-            "trigger": "minecraft:using_item",
+            "trigger": "minecraft:impossible",
             "conditions": {
                 "player": {
                     "term": {

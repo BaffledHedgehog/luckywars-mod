@@ -54,8 +54,11 @@ public final class LbcNukeEvent {
     }
     /** Unpublished source survives in captured DamageSource records, without a service-map entry. */
     private static final class BlastSource extends Marker {
-        final Cause cause;BlastSource(ServerLevel level,Cause cause){super(EntityTypes.MARKER,level);this.cause=cause;}
+        final Cause cause;final boolean cachedBlocks;
+        BlastSource(ServerLevel level,Cause cause){this(level,cause,false);}
+        BlastSource(ServerLevel level,Cause cause,boolean cachedBlocks){super(EntityTypes.MARKER,level);this.cause=cause;this.cachedBlocks=cachedBlocks;}
     }
+    public static boolean cacheableNativeBlast(Entity source){return source instanceof BlastSource blast&&blast.cachedBlocks&&VanillaExpansionRules.enabled();}
     private static final class State {
         final Cause cause;final boolean point;int lifetime;boolean activated;
         State(Cause cause){this(cause,false);}
@@ -65,7 +68,7 @@ public final class LbcNukeEvent {
     private record Visual(Marker marker,Cause cause,int age){}
     private record SavedChild(Cause cause,int visualAge){}
     private record Burst(Site site,long after,float power){}
-    private record Terrain(Site site,NuclearTerrain.Shape shape){}
+    private record Terrain(Site site,NuclearTerrain.Point shape){}
     private final GameController game;
     private IdentityHashMap<Marker,State> actors=new IdentityHashMap<>();
     private final Map<UUID,State> unloaded=new HashMap<>();
@@ -241,7 +244,7 @@ public final class LbcNukeEvent {
             var state=actors.get(marker);sites.add(new Site((ServerLevel)marker.level(),marker.position(),marker.getYRot(),state.cause));
         }
         if(sites.isEmpty())return;detonations++;
-        var job=new Job(game.items().epoch());
+        var job=new Job(game.items().epoch());job.detonation=true;
         // Each execute-at fork snapshots its position; later native kills cannot move later contexts.
         for(var site:sites)job.add(site.level,BlockPos.containing(site.at),BlockPos.containing(site.at),site.cause,()->appendMarker(job,site));
         job.submit();
@@ -254,7 +257,7 @@ public final class LbcNukeEvent {
         for(var site:sites){
             if(LbcExplosionSuppression.suppressed(game,site.level,site.at))continue;
             centers++;
-            job.terrain.add(new Terrain(site,NuclearTerrain.point(site.at)));
+            job.addTerrain(site,NuclearTerrain.point(site.at,site.yaw,true,site.level.getRandom().nextLong()));
             additions.add(new Operation(site.level,BlockPos.containing(site.at),BlockPos.containing(site.at),site.cause,()->wither(site)));
             // Creeper fuse1 was a deferred explosion carrier. Queue exact24 native MOB blasts after the synchronous kill phase.
             job.bursts.add(new Burst(site,game.server().getTickCount(),16));
@@ -318,7 +321,7 @@ public final class LbcNukeEvent {
         if(accepted==null||!live(game.items().epoch())||paused(level)||LbcExplosionSuppression.suppressed(game,level,at))return false;
         if(generation==0)prepare();
         var cause=new Cause(accepted.player(),accepted,game.items().epoch());var site=new Site(level,at,0,cause);
-        var center=BlockPos.containing(at);var job=new Job(cause.epoch);job.legacyClear=new LegacyClear(site);
+        var center=BlockPos.containing(at);var job=new Job(cause.epoch);job.detonation=true;job.legacyClear=new LegacyClear(site);
         job.add(level,center,center,cause,()->{
             var coverage=LbcExplosionSuppression.coverage(game,level);if(coverage.contains(at))return;
             for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(45),e->e.position().distanceToSqr(at)<=2025
@@ -334,9 +337,9 @@ public final class LbcNukeEvent {
     private void pointBurst(Site site){pointBurst(site,null);}
     private void pointBurst(Site site,LivingEntity statusBody){
         if(LbcExplosionSuppression.suppressed(game,site.level,site.at))return;
-        var level=site.level;var at=site.at;var job=new Job(site.cause.epoch);var center=BlockPos.containing(at);
+        var level=site.level;var at=site.at;var job=new Job(site.cause.epoch);job.detonation=true;var center=BlockPos.containing(at);
         visual(site);
-        job.terrain.add(new Terrain(site,NuclearTerrain.point(at)));
+        job.addTerrain(site,NuclearTerrain.point(at,site.yaw,false,level.getRandom().nextLong()));
         job.add(level,center,center,site.cause,()->wither(site));
         job.bursts.add(new Burst(site,game.server().getTickCount(),25));
         job.add(level,center,center,site.cause,()->{
@@ -381,18 +384,32 @@ public final class LbcNukeEvent {
         @Override public Component getLocalizedDeathMessage(LivingEntity victim){return Component.translatable("death.attack.explosion.player",victim.getDisplayName(),Component.translatable("killed_by_nuke"));}
     }
     private void blast(Site site,Vec3 at,float power){blast(site,at,power,true);}
-    private void blast(Site site,Vec3 at,float power,boolean damageOnly){
+    private void blast(Site site,Vec3 at,float power,boolean damageOnly){blast(site,at,power,damageOnly,null);}
+    private void blast(Site site,Vec3 at,float power,boolean damageOnly,NuclearTerrain.Occlusion walls){
+        blast(site,at,power,damageOnly,walls,false,false);
+    }
+    private void blast(Site site,Vec3 at,float power,boolean damageOnly,NuclearTerrain.Occlusion walls,boolean cachedBlocks,boolean terrainOnly){
         if(LbcExplosionSuppression.suppressed(game,site.level,at))return;
         callbackDepth++;try{
-        var direct=new BlastSource(site.level,site.cause);
+        var direct=new BlastSource(site.level,site.cause,cachedBlocks);
         direct.setPos(at);direct.entityTags().add(CHILD);direct.setCustomName(Component.translatable("killed_by_nuke"));game.items().markCurrentItemEpoch(direct);
         var previousCause=executingCause;var previousLevel=executingLevel;var previousEmitter=executingEmitter;
         executingCause=site.cause;executingLevel=site.level;executingEmitter=direct;
         try{
             var damage=game.items().indirectKills().captureDamage(new NuclearDamage(site.level,direct,site.cause.npc!=null?site.cause.npc:site.cause.author==null?null:game.server().getPlayerList().getPlayer(site.cause.author),at),site.cause.accepted);
+            if(terrainOnly){
+                if(!site.level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING))return;
+                var interaction=site.level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_EXPLOSION_DROP_DECAY)
+                        ?net.minecraft.world.level.Explosion.BlockInteraction.DESTROY_WITH_DECAY:net.minecraft.world.level.Explosion.BlockInteraction.DESTROY;
+                var application=new net.minecraft.world.level.ServerExplosion(site.level,direct,damage,null,at,power,false,interaction);
+                var effects=(NuclearTerrain.BlockEffects)application;
+                var selected=effects.skywars2$nativeNuclearPositions();
+                game.items().indirectKills().trapChanges(site.level,site.cause.accepted,()->effects.skywars2$applyNuclearBlocks(selected));
+                return;
+            }
             Runnable action=()->game.items().indirectKills().trapChanges(site.level,site.cause.accepted,
                     ()->site.level.explode(direct,damage,null,at.x,at.y,at.z,power,false,Level.ExplosionInteraction.MOB));
-            if(damageOnly||at.y-power*2>site.level.getMaxY()||at.y+power*2<site.level.getMinY())NuclearTerrain.damageWave(direct,action);else action.run();blasts++;
+            if(damageOnly||at.y-power*2>site.level.getMaxY()||at.y+power*2<site.level.getMinY())NuclearTerrain.withOcclusion(walls,()->NuclearTerrain.damageWave(direct,action));else action.run();blasts++;
         }finally{executingCause=previousCause;executingLevel=previousLevel;executingEmitter=previousEmitter;direct.discard();}
 
         }finally{callbackDepth--;}
@@ -442,15 +459,16 @@ public final class LbcNukeEvent {
     private final class Job implements LbcStonekivi.Work {
         LegacyClear legacyClear;
         final String epoch;final ArrayDeque<Operation> operations=new ArrayDeque<>();final ArrayDeque<Burst> bursts=new ArrayDeque<>();
-        final ArrayDeque<Terrain> terrain=new ArrayDeque<>();boolean cancelled;
+        final ArrayDeque<Terrain> terrain=new ArrayDeque<>();boolean cancelled,detonation;
         LivingEntity statusBody;
         Job(String epoch){this.epoch=epoch;}
         void add(ServerLevel level,BlockPos from,BlockPos to,Cause cause,Runnable action){operations.add(new Operation(level,from,to,cause,action));}
+        void addTerrain(Site site,NuclearTerrain.Point shape){shape.prepare(game);terrain.add(new Terrain(site,shape));}
         void submit(){jobs.add(this);game.items().stonekivi().queuedWork(this);}
         @Override public boolean ready(){if(cancelled||!live(epoch))return true;
             if(legacyClear!=null&&!legacyClear.done)return !paused(legacyClear.site.level);
             if(!operations.isEmpty()){var operation=operations.peekFirst();return prepared()&&operation.ready()&&(legacyClear==null||legacyClear.resident(operation.from,operation.to));}
-            if(!terrain.isEmpty())return !paused(terrain.peekFirst().site.level);
+            if(!terrain.isEmpty())return !paused(terrain.peekFirst().site.level)&&terrain.peekFirst().shape.ready();
             if(bursts.isEmpty())return true;var burst=bursts.peekFirst();return game.server().getTickCount()>burst.after&&!paused(burst.site.level);}
         @Override public boolean step(){
         callbackDepth++;try{
@@ -467,8 +485,10 @@ public final class LbcNukeEvent {
                 // Source order: outer12(radius39), then inner12(radius18), cardinal4 per Y layer.
                 var offsets=new ArrayDeque<Operation>();
                 for(int radius:new int[]{39,18})for(int y:new int[]{0,40,-40})for(var offset:List.of(new Vec3(radius,y,0),new Vec3(-radius,y,0),new Vec3(0,y,radius),new Vec3(0,y,-radius))){
-                    if(radius==18&&y==0&&offset.x==18)continue; // already dispatched synchronously
-                    var point=site.at.add(offset);var p=BlockPos.containing(point);int reach=(int)(burst.power*2)+1;offsets.add(new Operation(site.level,p.offset(-reach,-reach,-reach),p.offset(reach,reach,reach),site.cause,()->blast(site,point,burst.power)));
+                    // That wave's damage was dispatched synchronously. Restore its terrain
+                    // at the original place in the24-source order without another damage hit.
+                    boolean terrainOnly=radius==18&&y==0&&offset.x==18;
+                    var point=site.at.add(offset);var p=BlockPos.containing(point);offsets.add(new Operation(site.level,p,p,site.cause,()->blast(site,point,burst.power,false,null,true,terrainOnly)));
                 }
                 operations.addAll(offsets);return false;
             }
@@ -477,7 +497,7 @@ public final class LbcNukeEvent {
         }finally{callbackDepth--;}
     }
         @Override public void cancel(){
-        callbackDepth++;try{cancelled=true;if(legacyClear!=null)legacyClear.close();operations.clear();bursts.clear();terrain.clear();jobs.remove(this);
+        callbackDepth++;try{cancelled=true;if(legacyClear!=null)legacyClear.close();operations.clear();bursts.clear();for(var task:terrain)task.shape.cancel();terrain.clear();jobs.remove(this);
             if(statusBody!=null&&statusBursts.get(statusBody)==this)statusBursts.remove(statusBody);
         }finally{callbackDepth--;}
     }
@@ -522,6 +542,7 @@ public final class LbcNukeEvent {
         }finally{callbackDepth--;}
     }
     public int pointPendingTicks(){return pendingEoe;}
+    boolean pendingDetonation(){return jobs.stream().anyMatch(job->job.detonation&&!job.cancelled);}
     public int markerCount(){return actors.size();}public int pendingTicks(){return pending;}public int jobCount(){return jobs.size();}
     public long warnings(){return warnings;}public long schedules(){return schedules;}public long detonations(){return detonations;}
     public long centers(){return centers;}public long blasts(){return blasts;}public long beacons(){return beacons;}

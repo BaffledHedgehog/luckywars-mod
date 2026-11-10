@@ -35,19 +35,37 @@ public final class ChargedBowChecks {
     }
     public static void tick(GameController game){
         if(game==null||running==null)return;
-        try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS charged-bows (source charge/range, captured tipped+spectral ammo, beam-only family, positive TECH/MAG policies, bedrock trait, TimeStop, typed nonempty terrain work replay, native survival use/release/debit)");}
+        try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS charged-bows (source charge/range, captured tipped+spectral ammo, beam-only family, TECH/MAG, bedrock, TimeStop/typed queued ray replay, same-tick spruce conversion, actual700-sample single-tick beam and native survival use/release/debit)");}
         catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL charged-bows",error);}
     }
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ChefChecks.Fixture base;final ServerLevel level;final LbcChargedBows bows;
         final Vec3 eye;final BlockPos leaf,bedrock;
+        final java.util.Map<Integer,Integer> sampleTicks=new java.util.HashMap<>();
+        final java.lang.reflect.Field payloadField;final LbcChargedBows.Payloads originalPayloads;
         RegenerationBeltChecks.ScheduledClient client;Cow witness;Marker marker;
         ItemStack nativeBow,nativeAmmo;net.minecraft.world.entity.item.ItemEntity tinyDrop,bowDrop,railDrop,shishDrop;final java.util.List<net.minecraft.world.entity.item.ItemEntity> craftDrops=new java.util.ArrayList<>();int stage,when;boolean closed;
         Fixture(GameController game){
             this.game=game;base=new ChefChecks.Fixture(game);level=base.owner.level();bows=game.items().chargedBows();
             eye=Vec3.atCenterOf(base.center).add(0,3.5,-7);
-            leaf=BlockPos.containing(eye.add(0,0,3));bedrock=BlockPos.containing(eye.add(0,0,2));
+            leaf=BlockPos.containing(eye.add(0,7,3));bedrock=BlockPos.containing(eye.add(0,0,2));
             require(game.items().exasperato().pendingSearches()==0&&bows.pending()==0&&game.items().stonekivi().count()==0,"exclusive shared ray/terrain queues");
+            try{
+                payloadField=LbcChargedBows.class.getDeclaredField("payloads");payloadField.setAccessible(true);originalPayloads=(LbcChargedBows.Payloads)payloadField.get(bows);
+                payloadField.set(bows,(LbcChargedBows.Payloads)(player,weapon,family)->{
+                    var delegate=originalPayloads.capture(player,weapon,family);if(delegate==null)return null;
+                    return new LbcChargedBows.BeamPayload(){
+                        public int variant(){return delegate.variant();}
+                        public boolean hasVariant(int variant){return delegate.hasVariant(variant);}
+                        public void blockContact(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause){delegate.blockContact(level,point,cause);}
+                        public void sample(ServerLevel level,Vec3 point,LbcIndirectKills.Owner cause,boolean railgun){
+                            if(!railgun)sampleTicks.merge(game.server().getTickCount(),1,Integer::sum);
+                            delegate.sample(level,point,cause,railgun);
+                        }
+                        public MatchQueuedWorkCheckpoint.Image checkpoint(MatchSpellCheckpoint.Links links){return delegate.checkpoint(links);}
+                    };
+                });
+            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
         }
         void next(int value){stage=value;when=game.server().getTickCount();}
         void init(){
@@ -109,25 +127,36 @@ public final class ChargedBowChecks {
                     require(level.getBlockState(bedrock).is(Blocks.BEDROCK),"source bedrock trait is carried by beam contact");
                     // Remove the fixture's bedrock trait cube before testing ordinary TNT terrain.
                     for(var pos:BlockPos.betweenClosed(bedrock.offset(-1,-1,-1),bedrock.offset(1,1,1)))base.block(pos,Blocks.AIR);
+                    base.block(leaf,Blocks.STONE);sampleTicks.clear();
                     var shish=arrow(new ItemStack(Items.ARROW));bows.release(base.owner,new ItemStack(LbcChargedBowItems.SHISHGUN),24,List.of(shish));
                     game.items().timeStop().begin(level,100);next(3);
                 }
                 case 3->{
                     require(game.items().exasperato().pendingSearches()==1&&bows.pending()==0,"TimeStop holds queued beam before its first native sample");
-                    if(elapsed>=5){game.items().timeStop().end(level);next(4);}
+                    if(elapsed>=5){
+                        var graph=new MatchQueuedWorkCheckpoint.Graph(new MatchDamageSources(game,List.of(base.owner,base.other)));
+                        var rays=game.items().exasperato().checkpointSearches(graph.links);
+                        require(graph.links.resolve(id->game.server().getPlayerList().getPlayer(id)).isEmpty(),"typed instant ray author/payload links resolve");
+                        var graphPlan=graph.prepare();var rayPlan=rays.prepare(graph.links);
+                        bows.prepareFrozen();game.items().exasperato().prepareSearchCheckpoint();graphPlan.run();rayPlan.run();
+                        require(game.items().exasperato().pendingSearches()==1&&bows.pending()==0,"nonempty typed queued instant ray restored before first sample");
+                        game.items().timeStop().end(level);next(4);
+                    }
                 }
                 case 4->{
                     if(game.items().exasperato().pendingSearches()!=0)return false;
-                    require(bows.pending()>0,"six accepted source leaf children are delayed native work");base.block(leaf,Blocks.STONE);
-                    var graph=new MatchQueuedWorkCheckpoint.Graph(new MatchDamageSources(game,List.of(base.owner,base.other)));
-                    var queue=game.items().stonekivi().checkpoint(graph);int pending=bows.pending();
-                    require(graph.links.resolve(id->game.server().getPlayerList().getPlayer(id)).isEmpty(),"typed detached terrain links resolve");
-                    var plan=graph.prepare();bows.prepareFrozen();game.items().stonekivi().prepareCheckpoint();plan.run();queue.prepare().run();
-                    require(bows.pending()==pending&&game.items().stonekivi().count()>0,"nonempty typed shared terrain replay restores delayed children and queue");next(5);
+                    require(bows.pending()==0&&sampleTicks.size()==1&&sampleTicks.values().iterator().next()==6,"six source samples and foliage complete in one native tick, no delayed leaf children");
+                    require(level.getBlockState(leaf).is(Blocks.SPRUCE_LEAVES),"real stone outside the blast core becomes spruce leaves before completion");
+                    sampleTicks.clear();base.owner.setXRot(-90);var longShot=arrow(new ItemStack(Items.ARROW));
+                    bows.release(base.owner,new ItemStack(LbcChargedBowItems.SHISHGUN),2800,List.of(longShot));next(41);
+                }
+                case 41->{
+                    if(game.items().exasperato().pendingSearches()!=0){require(sampleTicks.isEmpty(),"preflight may wait for chunks, but never publishes a partial long shot");return false;}
+                    require(sampleTicks.size()==1&&sampleTicks.values().iterator().next()==700&&bows.pending()==0,"maximum700-block beam completes in a single actual native tick");
+                    base.owner.setXRot(0);next(5);
                 }
                 case 5->{
                     if(!idle())return false;
-                    require(level.getBlockState(leaf).is(Blocks.SPRUCE_LEAVES),"exact delayed source replacement reaches tannerkivi stone");
                     nativeBow=new ItemStack(LbcChargedBowItems.SHISHGUN);nativeAmmo=new ItemStack(Items.ARROW,8);
                     base.owner.setItemInHand(InteractionHand.MAIN_HAND,nativeBow);base.owner.setItemInHand(InteractionHand.OFF_HAND,nativeAmmo);
                     require(base.owner.gameMode.useItem(base.owner,level,nativeBow,InteractionHand.MAIN_HAND).consumesAction()&&base.owner.isUsingItem(),"real survival native BowItem input admitted");next(6);
@@ -181,7 +210,7 @@ public final class ChargedBowChecks {
         @Override public void close(){
             if(closed)return;closed=true;for(var item:craftDrops)item.discard();Throwable failure=null;
             for(Runnable action:List.<Runnable>of(()->base.owner.stopUsingItem(),()->game.items().timeStop().end(level),bows::stop,
-                    this::removeMarker,()->{if(client!=null)client.close();},base::close))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+                    this::removeMarker,()->{try{payloadField.set(bows,originalPayloads);}catch(IllegalAccessException error){throw new IllegalStateException(error);}},()->{if(client!=null)client.close();},base::close))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             if(failure!=null)throw new IllegalStateException("Charged bow fixture restoration",failure);
         }
     }

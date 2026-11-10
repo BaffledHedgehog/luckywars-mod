@@ -221,6 +221,46 @@ public final class LbcLoadouts {
         return CATALOG.get(kind).stream().filter(entry -> entry.page == page && entry.slot == slot).findFirst().orElse(null);
     }
 
+    /** Presets share the live catalog and ownership gates; they cannot unlock a perk. */
+    int selectableId(ServerPlayer player, Kind kind, int id) {
+        var entry = byId(kind, id);
+        return entry != null && allowed(player, entry) ? id : 0;
+    }
+
+    net.minecraft.world.item.ItemStack preview(ServerPlayer player, Kind kind, int id) {
+        var entry = byId(kind, id);
+        return entry == null ? new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BARRIER)
+                : OriginalGuiDesign.button(player, "lbc", entry.page, entry.slot, players.get(player.getUUID()), config);
+    }
+
+    private void changeSkill(ServerPlayer player, PlayerStore.Profile profile, int id) {
+        if (profile.lbcSkill != id) { game.items().phoenix().forget(player); game.items().cinema().forget(player); }
+        game.items().rainbowAura().clear(player); game.items().psychblindSkill().clear(player.getUUID());
+        game.items().godClaw().clear(player); game.items().expansionSkill().clear(player);
+        game.items().stoneGolemSkill().clear(player); game.items().championSkill().clear(player);
+        game.items().symbioteSkill().clear(player); game.items().zeusSkill().clear(player);
+        game.items().machinegunSkill().clear(player); game.items().containedSkills().clear(player);
+        profile.lbcSkill = id; refreshArtifactView(player);
+        LbcParasite.beforeEffects(player); game.items().containedSkills().beforeEffects(player);
+    }
+
+    void restoreSelection(ServerPlayer player, int kit, int skill, int[] levelups, int[] trinkets) {
+        var profile = players.get(player.getUUID());
+        profile.lbcKit = selectableId(player, Kind.KITS, kit);
+        changeSkill(player, profile, selectableId(player, Kind.SKILLS, skill));
+        java.util.Arrays.fill(profile.levelups, 0); java.util.Arrays.fill(profile.trinkets, 0);
+        int used = 0; var seen = new java.util.HashSet<Integer>();
+        for (int id : levelups) if (used < Math.min(config.lbcLevelupLimit, profile.levelups.length)
+                && selectableId(player, Kind.LEVELUPS, id) != 0 && seen.add(id)) profile.levelups[used++] = id;
+        profile.lbcLevelupSlot = used % Math.max(1, config.lbcLevelupLimit);
+        used = 0;
+        for (int id : trinkets) if (used < Math.min(config.lbcTrinketLimit, profile.trinkets.length)
+                && selectableId(player, Kind.TRINKETS, id) != 0) profile.trinkets[used++] = id;
+        profile.lbcTrinket = used == 0 ? 0 : profile.trinkets[used - 1];
+        profile.lbcTrinketSlot = used % Math.max(1, config.lbcTrinketLimit);
+        inventoryChanged(player); reconcileReactiveSkills(player); game.selectedSkillChanged(player);
+    }
+
     public static Set<String> unlockIds() {
         return CATALOG.values().stream().flatMap(List::stream).map(Entry::gate)
                 .filter(java.util.Objects::nonNull).collect(Collectors.toUnmodifiableSet());
@@ -278,7 +318,7 @@ public final class LbcLoadouts {
         finally{inventorySkillsChanging.remove(id);}
     }
 
-    private boolean hasUnlock(ServerPlayer player, String gate) {
+    boolean hasUnlock(ServerPlayer player, String gate) {
         if (players.get(player.getUUID()).lbcUnlocks.contains(gate)) return true;
         // Нативное достижение либо явный административный grant открывает исходный перк.
         var advancement = game.server().getAdvancements().get(Identifier.parse(gate));
@@ -350,7 +390,7 @@ public final class LbcLoadouts {
         var profile = players.get(player.getUUID());
         switch (kind) {
             case KITS -> profile.lbcKit = entry.id;
-            case SKILLS -> { if(profile.lbcSkill!=entry.id){game.items().phoenix().forget(player);game.items().cinema().forget(player);} game.items().rainbowAura().clear(player);game.items().psychblindSkill().clear(player.getUUID());game.items().godClaw().clear(player);game.items().expansionSkill().clear(player);game.items().stoneGolemSkill().clear(player);game.items().championSkill().clear(player);game.items().symbioteSkill().clear(player);game.items().zeusSkill().clear(player);game.items().machinegunSkill().clear(player);game.items().containedSkills().clear(player);profile.lbcSkill = entry.id; refreshArtifactView(player); LbcParasite.beforeEffects(player);game.items().containedSkills().beforeEffects(player); }
+            case SKILLS -> changeSkill(player, profile, entry.id);
             case TRINKETS -> {
                 int limit = Math.max(1, config.lbcTrinketLimit);
                 int slotIndex = Math.floorMod(profile.lbcTrinketSlot, limit);
@@ -372,15 +412,19 @@ public final class LbcLoadouts {
     }
 
     public boolean selected(PlayerStore.Profile profile, Kind kind, int page, int slot) {
+        return selectedCount(profile,kind,page,slot)>0;
+    }
+
+    public int selectedCount(PlayerStore.Profile profile, Kind kind, int page, int slot) {
         Entry entry = bySlot(kind, page, slot);
-        if (entry == null) return false;
+        if (entry == null) return 0;
         return switch (kind) {
-            case KITS -> profile.lbcKit == entry.id;
-            case SKILLS -> profile.lbcSkill == entry.id;
-            case TRINKETS -> java.util.Arrays.stream(profile.trinkets, 0, Math.min(config.lbcTrinketLimit, profile.trinkets.length))
-                    .anyMatch(id -> id == entry.id);
-            case LEVELUPS -> java.util.Arrays.stream(profile.levelups, 0, Math.min(config.lbcLevelupLimit, profile.levelups.length))
-                    .anyMatch(id -> id == entry.id);
+            case KITS -> profile.lbcKit == entry.id ? 1 : 0;
+            case SKILLS -> profile.lbcSkill == entry.id ? 1 : 0;
+            case TRINKETS -> (int)java.util.Arrays.stream(profile.trinkets, 0, Math.min(config.lbcTrinketLimit, profile.trinkets.length))
+                    .filter(id -> id == entry.id).count();
+            case LEVELUPS -> (int)java.util.Arrays.stream(profile.levelups, 0, Math.min(config.lbcLevelupLimit, profile.levelups.length))
+                    .filter(id -> id == entry.id).count();
         };
     }
 

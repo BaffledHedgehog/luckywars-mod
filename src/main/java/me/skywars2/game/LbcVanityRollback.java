@@ -159,7 +159,7 @@ public final class LbcVanityRollback {
             if(game.server().getPlayerList().getPlayer(id)==null)result.add(id);return result;
     }
     private static void complete(Set<UUID> pending,String owner){
-        if(!pending.isEmpty())throw new IllegalStateException(owner+" awaits saved players "+pending);
+        if(!pending.isEmpty())throw new IllegalStateException(owner+" awaits saved entities "+pending);
     }
     private <T>T privateData(Supplier<T> action){return MatchOfflinePlayers.using(game,retainedBodies,action);}
     private void restoreBodies(){

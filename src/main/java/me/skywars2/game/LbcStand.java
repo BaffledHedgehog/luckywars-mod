@@ -123,7 +123,7 @@ public final class LbcStand {
     }
 
     LbcStand(GameController game) { this.game=game; }
-    static void register() { }
+    static void register() { net.minecraft.world.level.block.DispenserBlock.registerProjectileBehavior(ARROW); }
     private static Item.Properties properties(ResourceKey<Item> key,String name,String model) {
         return new Item.Properties() {
             @Override public Identifier effectiveModel() { return Identifier.parse(model); }
@@ -168,7 +168,7 @@ public final class LbcStand {
     }
     private static CompoundTag fistPreset(String model) {
         try {
-            return TagParser.parseCompoundFully("{interpolation_duration:1,teleport_duration:1,shadow_radius:0f,shadow_strength:0f,item_display:\"fixed\",transformation:{scale:[2f,2f,2f]},item:{id:\"minecraft:repeating_command_block\",count:1,components:{\"minecraft:item_model\":\""+model+"\"}}}");
+            return TagParser.parseCompoundFully("{interpolation_duration:1,teleport_duration:1,shadow_radius:0f,shadow_strength:0f,item_display:\"fixed\",transformation:{scale:[2f,2f,2f],translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]},item:{id:\"minecraft:repeating_command_block\",count:1,components:{\"minecraft:item_model\":\""+model+"\"}}}");
         } catch(Exception e) { throw new IllegalStateException("Invalid Stand fist preset",e); }
     }
     private static boolean flagged(ItemStack stack,String flag) {

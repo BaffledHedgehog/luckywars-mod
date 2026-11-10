@@ -28,7 +28,7 @@ public final class ServerTickMetrics {
         return elapsed<=0?target:Math.min(target,intervals*1_000_000_000d/elapsed);
     }
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
-        var node=dispatcher.register(Commands.literal("tps").executes(context->{
+        var node=SkyWarsCommandTree.add(dispatcher,Commands.literal("tps").executes(context->{
             var server=context.getSource().getServer();long now=System.nanoTime();
             double target=server.tickRateManager().isFrozen()?0:server.tickRateManager().tickrate();
             String message=String.format(java.util.Locale.ROOT,"TPS (1m / 5m / 15m): %.2f / %.2f / %.2f | MSPT: %.2f",
