@@ -1,4 +1,5 @@
-agent_notesagent_notes
+# Local working notes (existing versioned reference documents stay tracked).
+/agent_notes/
 
 # Local Gradle state, generated artifacts and isolated verification servers.
 /.gradle/
@@ -23,3 +24,8 @@ __pycache__/
 *~
 .DS_Store
 Thumbs.db
+
+# Large JVM recordings and local test runtime state.
+/*.hprof
+/*.jfr
+/.serena/cache/
