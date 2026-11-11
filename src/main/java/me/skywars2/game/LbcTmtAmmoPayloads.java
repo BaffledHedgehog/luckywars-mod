@@ -114,7 +114,7 @@ public final class LbcTmtAmmoPayloads {
     public static void install(GameController game,ServerPlayer owner,ItemStack fired,List<Projectile> family){
         if(!LbcTmtItems.matches(fired))return;
         var payloads=new ArrayList<Payload>();
-        for(var ability:LbcTmtAbilities.read(fired)){
+        for(var ability:LbcTmtTriggers.effective(fired)){
             var data=(ItemData.IntReader)(Object)ability.data();var id=Identifier.tryParse(data.skywars2$readString(LbcTmtAbilities.NATIVE,""));
             if(id==null)continue;var item=BuiltInRegistries.ITEM.getValue(id);if(!(item instanceof ArrowItem))continue;
             var source=LbcTmtComponents.source(game,ability);

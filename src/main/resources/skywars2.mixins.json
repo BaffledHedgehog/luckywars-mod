@@ -3,6 +3,10 @@
   "package": "me.skywars2.mixin",
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "TmtInputMixin",
+    "TmtInputMixin$Thrown",
+    "TmtInputMixin$UseModifier",
+    "TmtInputMixin$SourceView",
     "AcademyInteractionMixin$Data",
     "AcademyInteractionMixin$Pairing",
     "AcademyInteractionMixin$Metadata",

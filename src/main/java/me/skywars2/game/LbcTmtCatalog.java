@@ -72,6 +72,8 @@ final class LbcTmtCatalog {
     private static final Map<String,Rule> RULES=rules();
     private static final Map<Item,Trinket> TRINKETS=trinkets();
     private final List<Family> families;
+    private final Map<String,Family> familyById;
+    private final Map<Item,List<Family>> triggerCandidates=new java.util.IdentityHashMap<>();
     private final Domains domains;
 
     LbcTmtCatalog(GameController game,LbcTmtUseProfiles useProfiles){
@@ -179,11 +181,14 @@ final class LbcTmtCatalog {
             collect(game,stack,"LbcPendingSwords branch domain",all,knownInputs,findings);
         }
         families=all.values().stream().map(Collected::freeze).toList();
+        familyById=families.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(Family::id,f->f));
         domains=new Domains(registered,canonical,families.size(),families.stream().mapToInt(family->family.variants().size()).sum(),List.copyOf(findings.values()));
         if(families.isEmpty())throw new IllegalStateException("Empty unified TMT catalog");
     }
 
     List<Family> families(){return families;}
+    Family family(String id){return familyById.get(id);}
+    List<Family> triggerCandidates(ItemStack carrier){return triggerCandidates.computeIfAbsent(LbcTmtItems.vanillaCarrier(carrier),ignored->families.stream().filter(f->LbcTmtTriggers.compatible(f,carrier)).toList());}
     Domains domains(){return domains;}
     /** Each semantic family has one lottery entry; a second uniform draw chooses its private variant. */
     LbcTmtAbilities.Ability draw(RandomSource random){

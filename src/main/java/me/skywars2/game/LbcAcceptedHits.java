@@ -36,7 +36,7 @@ public final class LbcAcceptedHits {
             // The native outgoing criterion runs after die(), when player roles have
             // already been reset. Deliver these target-sensitive skill hooks before it.
             if(receipt.nativeDeath&&source.getEntity() instanceof ServerPlayer)stanceHit(victim,source);
-            dispatch(victim,source,receipt.amount,false);
+            dispatch(victim,source,receipt.amount,false,receipt.nativeDeath);
         }
     }
     /** The same unblocked native criterion also includes resisted, nonlethal hits. */
@@ -58,12 +58,15 @@ public final class LbcAcceptedHits {
     public static void nonlethal(LivingEntity victim,DamageSource source,float amount,boolean blocked){
         var receipt=pending.get(victim);if(receipt!=null&&receipt.source==source)pending.remove(victim);
         if(receipt!=null&&receipt.source==source&&receipt.dispatched)return;
-        if(!blocked&&amount>0)dispatch(victim,source,amount,true);
+        if(!blocked&&amount>0)dispatch(victim,source,amount,true,true);
         else if(!blocked&&victim instanceof ServerPlayer player&&SkyWars2.game()!=null)SkyWars2.game().hurtForSkill(player);
     }
-    private static void dispatch(LivingEntity victim,DamageSource source,float amount,boolean living){
+    private static void dispatch(LivingEntity victim,DamageSource source,float amount,boolean living,boolean nativeHit){
         var game=SkyWars2.game();if(game==null)return;
         game.items().academy().damaged(victim,source);
+        if(nativeHit&&source.getEntity() instanceof ServerPlayer attacker&&LbcDamage.isMeleeAttack(source,attacker))
+            LbcTmtTriggers.input(attacker,LbcTmtTriggers.Input.HIT,victim,null,null);
+        if(nativeHit&&victim instanceof ServerPlayer hurt)LbcTmtTriggers.input(hurt,LbcTmtTriggers.Input.HURT,source.getEntity(),null,null);
         // Fatal native credit was settled by acceptedDamage/beforeDeath already.
         if(living)game.items().indirectKills().damaged(victim,source);
         game.items().damaged(victim,source);

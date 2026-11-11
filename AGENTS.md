@@ -1,3 +1,204 @@
+## Authoritative current goal state
+
+Read `agent_notes/CURRENT_GOAL_STATE.md` first. The chronological headers below are historical; their old RUNNING states are superseded by that file.
+
+## CURRENT: build21 native six suites running (10 November 2026)
+
+COLLECT session93470 FIRST; one1280m fixture JVM LIVE, noGradle. Build21 prod26befe492ea9a83d3e657afca4743226880dc53e64bd47a4b7751a420ca5c9ca / test5a85eabe021689e15994cce3932b896c85026e60b0990bed7603005c7a44aa5c,10904inputs53changes3885commonexact. Native argv bot-revision bot-fireball-cage bot-cages carpet-bot-ai chef-navigation chef-recovery. DO NOT edit src/tools/build untilended/restorationverified. Firstbot-revision reachednewphase11nativewallbutFAILactualhealthloss; newphase10 movingbow-retreatingplayeractualhitPASSED beforethat. Needaddfailurediagnostics(placements/arrowposition/motion/fullbotdiagnostics), evaluatepersistentfixedcovercell (currently recalculatedeachframefromdriftingbody), doNOTweakenhealth/nativeinGround/exact2blockdebitassertions. Remainingcages stillrunning.
+
+Build20 actualsix: bot-revision/oldCarpet/Chefnav/ChefRecovery PASS; focused/fullFireball fail16blockescape evenAFTERphysicallyopeningbarsandescapingcell (roofloopFIXED). FixturehadbypassedWILDdispatcherwiththrowerTestAlpha, causinglegitimateaggro80blocksawayandbowchargefreezepursuit. Source21 fixtureusesACTUALspecialDrops.spawnordinaryunownedtokenandassertsnoPhysicalControllerallpayload; no moreinjectedowner. Production21 also bowschasewhilecharging12..32range,donotstartdraw>32,retainvisiblecurrentenemywithin48,donotswingbeyondmeleerange, sharedincomingimpactTime20ticklookaheadandperframeexistingthreataimwhile3ticknewscan/physicalcontrollerretaliation. AddedactualmovingBow/nativewallcases10/11. Firstnineoldnativecasesstillpreserved. NativeincomingProjectile alreadycoversMOSTcustomwandchargessinceactualclassesextendProjectile; priorgeneralnoteallmagicmissingoverstatesgap. Remainingnon-nativeDisplaytracesmustbereviewedwithoutinventingduplicateflightengine.
+
+WholeBOT/goal UNQUALIFIED. All24trap/minute/longroutes/fullitem+Academy tasks pending. Mainstable621 unchanged/noinstaller/restart. AuthorRPreadonly/noagents/indexers. Previousturnprogress+newsource/nativeevidence, no blocker. Olderheadershistorical.
+
+## CURRENT: build20 native SIX suites running (10 November 2026)
+
+COLLECT session55796 FIRST. Build20 compiled/frozen: prod b342e7a411b7990aee9a2b35a32d0f3c3bec24beb41cfed64686abe1ff29e70f, test c797d19032f4d7ae680e68b170568672eb1f0833070e6d708f65ff64b656282c.10904inputs53changes,3885commonclassesexact. One1280m nativeVM RUNNING, Gradle16047finished. Native argv bot-fireball-cage bot-cages bot-revision carpet-bot-ai chef-navigation chef-recovery. DO NOT edit src/tools/build until native finishes and exactrestoration/cleanup/no locks verified. Wholecandidate UNQUALIFIED pendingresults. CurrentGoalturnwasPROGRESS: sharednuclearordinarycorefixed+native13feedbackPASS16; nativeShulkerpacketjumpPASS; botsbodyclearance/urgentbowinterruption/legalcover added; oldfullCarpet finallyPASS18; exactFireballroofdeadlockidentified19+productionfix20, awaitingnativeproof. Allremainingrequirementsscope intact, GoalACTIVE.
+
+WhenVMends inspect fresh c797d190-bot-fireball-cage-mode1-results.json/log and currentfixture latest.log. Priorheaders/details below. IfFIREBALLpassesthenfull5cagesmayexposePOTIONS/LAVA/OBSIDIANissues; keepreal20HP/threeactualstartertables/finiteblocks/nativebreakroofwitness/1200tickdeadline. Source20roofSeen test provesactualsolidroofbeforepayload; sourcecageCoveredremembersfirstsuccessfulroof so blastconsumingroof+attachmentfacesdoesnotcauseillegalfloatingrebuildloop. Initialroofneverplaceable/rewindstate-clearfallbackstillpendingrobustness. NativeFireball19failed20HP,decisionroof/roofAIR/upperRayvalid/range4.5/InventoryMenu; nofakeblockpermissionissue.
+
+Aftercorecases: ALL24 trapfamilies/minute survival/longsprint-noise-parkour/routes/realprojectilecover/fullitem+Academytrialtasks stillopen. GenericBotCrafting handlescustomtwoingredientnativepairs only; starterlootcontainswoodaxe/water/blocks/armor/bow/food BUTNOPICKAXE (500ticksperironbar),nativevanillacraftingbench+pickaxeplanningwouldimprove. NativePlacementInfo ingredients+slotsToIngredientIndex / ShapedRecipe getIngredients/getWidth/getHeight availablelocal26.3sources; reuseRecipeManager andactual5tickmenuinputs, no private recipes. Nativeincomingpredictor currentlyProjectile-only, magicdisplaythreats stillneedsharedregistry coverage. Nuclearhighres1200breakChance>0 existingportassumptiondeservesactuallegacycreeperreferenceaudit, notchangedyet. Mainstable621 untouched/noinstaller/restart; authorRPREADONLY/noagents/indexers. Questions NIGHT_QUESTIONS_2026_11_10.md. Olderheadershistorical.
+
+## CURRENT: build20 compiling confirmed cage roof fix (10 November 2026)
+
+Build20 snapshot10904inputs53changes; one768mGradle session16047 RUNNING. DO NOT edit src/tools/build until collected. No nativeVM. Freeze.py expects build-20.log. Nextcollectguard/freeze20 then native bot-fireball-cage bot-cages bot-revision carpet-bot-ai chef-navigation chef-recovery, then remainingfeedback regresses asappropriate. Currentproductionfix: survival remembers successfully built protective cage roof; after fireballconsumesroof+attachmentfaces, continueactualbarmining insteadofendlessillegalfloatingroofattempt. Cagechecknowwitnesses actualsolidroofBEFOREpayload, notrequiresitsurviveexplosion; realroof+nativeAFTERbreak+finiteinventory+20HP/1200ticklimitsunchanged. Broadercagefallbackifneverplacable/notyetcovered androllbacklosesmemory remains worthchecking.
+
+Build18 native629d6e92 fulloldCarpet0..9 PASS onsameactualbody/controller: camera-boundrealmiss/nativeattribution, finitebridgeandzero-resourcecontrol, twoblocktoolmining/stairjump/nativelethalremainingliferespawn. Fixedfixturecanonical5000/5000+10manastart; priortracerevealedunrelatedCruxautomaticallygeneratedbyzero-manafixtureandlegitabilityusebeforefirstswing. No productionability/cameraweakening. Build18all5cages stillfailedFIREBALL1200ticksafterANVIL1103ticks20HP PASS. Build19 focusedFireball testcaseb8a3cb6d FAILindependent(firstactualtrap): newdiagnosticsprove decision=roof, roof=AIR, bothupper/lowerironbarsintact, nativeupperRaycorrect, blockRange4.5, InventoryMenu, miningAdmission6butactualminingnull. Confirmsblastconsumedoneinitialsuccessfulroof, thenroofloopabandonedexitbecauseattachmentsgone. Reportsnormalshutdown/exactrestore/nolocks/livechildren/cleanup. No owned VM left.
+
+Feedback16 production675dc420/teste49655f0 selected13 native PASS inclrealShulkerpacketjump and1752/1752STONEcore atbothExopersodeadlines, Psycho2bHPemptyhand. Mainstable621 untouched/noinstaller/restart. WholeBOT/allgoal still UNQUALIFIED: all24trapfamilies(25sourceentries), minute survival/longroutes/fullitem+Academytasks/nativeprojectilecover notfinished. Also sharednuclearradius/resistance approximation deserveslegacyactual-referenceaudit (existing highres1200breakChance>0 testisportassumption, nativecreepersmayretainobsidian; notchangedyet). Questionsfile NIGHT_QUESTIONS_2026_11_10.md. AuthorRPREADONLY/noagents/indexers. Older headers below historical.
+
+## CURRENT: build18 native running, do not edit source (10 November 2026)
+
+Build18 compiled/frozen10904inputs53changes; prod d384bde7/test629d6e92 common3885exact. Native carpet-bot-ai bot-cages running session35722 one1280m JVM, Gradle ended. DO NOT edit src/tools/build until collected. Source18 only canonical5000/5000+10 resources in actual Carpet fixture plus cage diagnostics/actual starterinventory log. Build17 native bot-revision/Chefnav/ChefRecovery PASS; old first-miss FAIL because trace proves AI was using generatedzero-mana OVERLOAD_CRUX before sword, not uncontrolledcamera. Strictmiss unchanged. ANVIL real20HP/1097ticks/nativeAFTERbars+roof PASS; FIREBALL cage1200ticks stuck20HP/roof1, root notyetknown. New diagnostics show cageexit actualupper/lowerblocks/raycast/water. Needcollect18 exactfailures/normalshutdown/restoration before changes. WholeBOTstillunqualified: all24traps, minute survival/longroutes/fullitem/Academy tactics pending. Feedback16 selected13 native allPASS includingrealShulker packetjump+1752/1752bothExopersocores/Psycho2b. Mainstable621 unchanged/noinstaller/restart. Questions filed NIGHT_QUESTIONS_2026_11_10.md. AuthorRPREADONLY/noagents/indexers. Older headers historical.
+
+## CURRENT: build17 compiling bot survival follow-up (10 November 2026)
+
+Build16 native13 selected suites PASS on teste49655f0/prod675dc420; actual Shulker PosRot jump and Exoperso1752/1752 stone core BOTH deadlines now pass. No Main publication/restart. Build17 snapshot10904inputs53changes, Gradle768m session16489 RUNNING; do not edit src/tools/build until collected. Changes: real accepted break event witness for cages (native wrong-tool bars do not award BLOCK_MINED), body clearance shared Chef helper, cancel bows for urgent danger, new-target route reset, cover legal lower support before upper. Added bounded20tick old combat readiness diagnostics; first-miss fixture still must prove actual miss, no weakened assertion. After build guard/freeze17 then native bot-revision carpet-bot-ai bot-cages chef-navigation chef-recovery, then broader all24traps/longroutes/defense/Academy still required. One1280m fixture only after Gradle stops. No agents/indexers/authorRP writes. Older headers below historical.
+
+## CURRENT: build15 native finished, author ghost correction confirmed (10 November 2026)
+
+Build15 native session66654 collected: 13/15 suites passed, shulker-armor actual network jump still fails (teleport overwritten/not triggered); exoperso-ritual full-height dense stone core 1554/1752 fails90percent. No relaxation of assertions, whole candidate UNQUALIFIED. Psycho PASS with actual2,000,000,000 current/max HP and empty main hand. User explicitly requires2b; earlier5000 inference was wrong and reverted before13, never installed. Report10a99b5b-shulker-armor-mode1-results.json: normalChildShutdown=true, exactSnapshotsRestored=true, cleanupErrors=[], retainedLocks=[], liveChildPid=null. No owned fixture remains. Main stable621d46ec untouched, no publication/restart. Latest details in agent_notes/FEEDBACK_2026_11_10.md. Older running headers below historical.
+
+## ACTIVE build15 compilation (10November2026)
+
+See agent_notes/FEEDBACK_2026_11_10.md latesttail. Build13native15suitesFINISHED14PASS/1FAIL(oldShulkerreforgefixtureweightedselectorstaleversusproductionuniformpool). AllusernewnativefixesexceptShulkerpassed;13prodf4eeb034a/test11bf9c18UNQUALIFIEDascombined. Source14fixedfixture+GroundJumpEvents packet-localdefer7abilities+ManaVamprealSword/spoofowner/PistonMAGTECHnativecases;14compileFAILEDfixturearrowAPIonly. Source15fixexplicitDamageSourcearrow andcraterfixtureHEIGHT: oldtargetMAXY-3 upperSTONEsampleswereneverplaced; movedMAXY-100+asserteveryrealSTONEcell. Keep90%threshold tocollecthonestnumbers. CraterproductionROOTUNRESOLVED, doNOTclaimfixed. OptionaluserExopersoreproquestionpending. Authorghost2BHP+noswordSOURCECONFIRMED15;5000abandoned/neverinstalled. Currentbuild15one768mGradle sessionwillbeprintedbelow;NOownednativeVM. DO NOTedit src/tools/buildduringbuild;collectthencheck_inputs/freeze15/runfreshselected15suites. All15shouldpassbeforepublication. WholeBOTrevisionstillunqualified,all24traps/longroutespending;oldcarpetfixtureandcagestatfalseassertneedfix. Mainprior621d46ecinstalled,noMainrestart/newinstaller. AuthorRPREADONLY,GPUwarmBloomaddonall10PASS RTX4080; usermustmergeaddon. Noagents/indexers;1280mnativeonlyafterGradleends. Olderheadershistorical.
+
+## ACTIVE feedback 1..15, build13 NATIVE RUNNING (10November2026)
+
+Read agent_notes/FEEDBACK_2026_11_10.md latesttail. Current frozen10903inputs/49changed source. Build13SUCCESS prod4eeb034a/test11bf9c18, common3883exact; native15suitesRUNNINGsession79011, one1280MiB JVM after768mGradleended. DO NOTedit src/tools/build untilcollected. Firstdeath-body,lethal-hits,inventory-skillsPASS actualnative; restpending. Build12compiledbutfreezeREJECTEDmissingnewaliaspackaging,no native. AUTHORexplicitPsycho ghost2BILLIONHP: restoredbefore13;onlyvanillaMAINHANDswordremoved. No5000HPchangeinstalled. GPUbloomaddonqualified actualRTX4080all10runes old0..1932/new25k..44kpixels,authorRPunchanged. NeednewRPaddonusermerge.
+
+Mainlaststable621d46ec installedpreviousnormal-stopinstaller; no currentdeployment/restart/installer. WholeBOTrevisionUNQUALIFIED: build8oldcarpetfirstmissfixture/botcageswrongBLOCK_MINEDstat assertionsstillneedfix,all24traps/longroutesremain. Feedback15Shulkerexistingdirectnativejump doesn'ttestclientMovecontinuation;13addsrealPosRotjumpstrictassert, expectpotentialoverwrite. Ifconfirmeddefer7sharedjumpabilitiesuntilafterhandlePlayerPositionChangeinpacket-localThreadLocalscope (nopersistentqueues/checkpointstate); notyetimplemented. Feedback5Exopersocraterstillunresolved,13adds>900physicalSTONEthree-plane radius28 coreprofile90%threshold inactualritual (old27Slimeprobesweren'tenough); currentShape.breakChance6 mayleave~10%stoneholes, needactualnumbersbeforedensecorefix. Sourcelegacy32creeper20offsets;externalrocketsmustremain. Newrings30,height10..50scale5..100signed.2..2rps, growth2ticks/Academy1,collapse1both. NativePistonMAGvsTECHpackettestandrealManaVampswordpositive testsstillneeded. Usecurrentnotesforall15tasks.
+
+Memorynoagents/indexers,onlyoneheavytask;authorRPREADONLY. Nextcollect79011/scanfailures/crashes/exactsnapshots beforeanyedits. Parentolderheadershistorical.
+
+## Active feedback10November2026
+
+See agent_notes/FEEDBACK_2026_11_10.md. Source27files afterbot8 unqualified. Build9failedmissingARGBqualification only; fixed10. Ghostnativecheck added; no livecommands/RCONoff. Mainpreviousstable621d46ecinstalled; no restart/newpublication. Noagents/indexers,768mGradlethen1280mnative. Earlierheadershistorical.
+
+## ACTIVE BOT build5 (10 November2026)
+
+Read AI_MOBILITY notes FINALtail. Stagebot-revision-2026-11-10 source12files/10895inputs, parentqualified621d46ec. Build5compile RUNNINGsession79314; NOownedNativeVM. COLLECTbeforecodeedits/native. Build4testf12691c8 native7: bot-revision phase7craftFAILonlybecauseindependentcaseforgotresetrealThornsattacker(memorycorrectly1minchasesfar), oldcarpetmissfixtureFAILfirststrikefullyalignedbecauseidleemptyslot->swordswitchnativecooldown. Source5 fixesFIXTURESonlyforthese(nativeLastHurtByMobclearbetweencases; select+nativecooldownwaitbeforevictimbehind), assertionsstrictunchanged. New20HP+3actualstarterloot/crossbowlastarrow+QuickChargeIII/pickupreturn/5tickarmor/thornsPASSonbuild2f09cc487; isolatedfulloldCarpet0..9PASSsamef09. Alloriginalfailedlogsretained. Chefnav/recovery/Gravitas10ordinarychickens/AcademySingleUse/VanityCorePASS4. WholecombinedBOTcandidateNOTqualified. Currentnewcraft+checkpoint/AcademyBotcases7..9notyetpassed. Source5 also toolrefreshwhileurgent/gearintentguard/allow1blockdropinsteadstair-edgecrouchstalls/Academyscan40tickthrottle. Nextguard/freeze5/run7suitessee notes. ThenALL24uniquetrapsurvival/1200ticks/longroutes/projectiledefense andbroaderitemtacticsstillrequired. Don'tclaimallcomplete. MainstillOLDc36, previousqualified621d46ecwaitingnormalstopinstaller4320; publishedlibs621d46ec. DoNOTsupersedewithunqualifiedBOT. NoMainstop/start/agents/indexers/authorRPwrites. Single768mGradlethen1280mfixture sequential. Olderheadershistorical.
+
+## ACTIVE BOT REVISION (10 November2026)
+
+User says finish remaining. See AI_MOBILITY notes tail. Fresh stagebot-revision-2026-11-10 parentqualified621d46ec/testeb118c9b;8sourcefilesnowchanged/unqualified. Build2compile RUNNING session14680 (build1failedonlywrongIdentifier.namespace API, correctedgetNamespace). NewLbcBotDefense/Crafting andBotRevisionChecks +sharedCarpetFixturevisibility/CarpetBots/action/survival/GameChecks. Needcollectcompile, check_inputs/freeze thennative bot-revision,carpet-bot-ai,chef-navigation,chef-recovery,feedback-nov9. Actualnewfixture20HP+threeactualstarterchesttables thenfocusednativeinteractions, NOTalltrap1200tickproof. BroadALL24trapfamilies/longroutes/Academyremaining. Mainstillc36; installer4320stillforPREVIOUSqualified621d46ecnormal-stop; publishedlibs621d46ecunchanged. Don'tsupersedeinstallerwithunqualifiedbotcandidate. NoMainstop/start/agents/indexers/authorRPwrites. One768mGradlethen1280mfixture sequential. Don'teditcodewhilecompile/native. Olderheadersbelowhistorical.
+
+## FINAL current feedback8 + true-legacy9 + atlas-glitch10 QUALIFIED/PUBLISHED (10 November2026)
+
+Read latest agent_notes/FEEDBACK_ROUND2_2026_11_09.md. Build7 prod621d46ec/testeb118c9b/sources2d4e195b are now published build/libs. All13selectednative suites across11actualmatches passed on SAMEeb118c9b: newAtlas0.1degree encoder/linearV2timeline/manual+automaticcamera protocol, realLuckyWars12->lobbyneutral->1, multipliernative2x2/3x3 crafting/wholeNBTdebits/extra/fullinv, katanaGlowIIIonly, nativeRaidREMOVE, realHedgehog20/4/4/fullscale/eye-origin/fade10or20ticks/TimeStop,32actualSpawnerENTITY_LOADWILD/statcredit/noController, olderregressions andactualSupernova->Balance->nativevanillaeffects+attributelimits->fulloldruntime->realSTOPmodernrestored. NoFAIL/noSERVERCRASH/normalshutdown/exactsnapshots/10891sourcehashes/295protectedauthorpaths/3870commonclasses. Qualification.json authoritative selected scope; wholeArmorMatrixnotselected/noPhysicalClientRenderingclaim.
+
+Main still runs OLDc36a987b (doNOTstop/restartMain). Normal-stop installer4320 runninghidden forqualified621d46ec, receiptstatuswaiting-for-normal-shutdown; itwillreplaceMainmods onlyafterworldlockreleased, noautostart. Checkmain-install.jsonbeforeclaiminginstalled; globalmain-install-requestpointsstagefeedback-round2. NoownedGradle/nativeVMremain. AuthorRPREADONLY. Whitebeamaddon resourcepack_template/updates/hedgehog_beams_2026_11_09 mustbemergedbyuser. Latest suppliedcamera patchalreadyappliedcleanly encoder+fixture+timeline, noauthorRPwrites, sourceguidekitmatches. OtherGlowLEAVEASIS. Noagents/indexers; one768mGradle then1280mfixture sequential.
+
+BroaderBOT/Chef revision remains OPEN, see AI_MOBILITY notes and parentqualificationremaining: actualstarterloot/all25trap1200tick survival, sprint/noisy/parkour longroutes, visible-facebridging, inventory5tick/upgradeverification, distantaggressor/projectilecover/thorns, anyLuckyitems/nativecrafting/Academy. Known sourceissues TOFIX beforeclaimingwholeAI: collectDrop overrides sharedgoal anddoesn'trestorechest/roam after diversion; crossbowusingitem releasehardcoded24 butnativebasecharge25. These broaderrequestsNOTcomplete despitebasicpriorcoretestsPASS. Olderheadersbelowhistorical.
+
+## ACTIVE build6 native qualification (10 November2026)
+
+Latest user request: apply read-only authorRP server_support/atlas_glitch/server_precision/camera-0.1-degree.patch. Applied cleanly encoder+fixture+timeline, added yaw3600/pitch1801 bin/wrap/clamp/nonfinite checks. V2 linear ramp matches author integration kit. Main has no overriding timeline datapack. Build6 SUCCESS3m37,10891 source hashes/55changes/3870common; sealed prod b8b0acf8/test e1178da4. Native wrapper currently RUNNING session52228, one1280MiBfixture (no parallelGradle). Selected suites atlas-glitch, twoactualLuckyWars, feedback-round-two, tablet-ground,feedback-input,hedgehog,hedgehog-source,lucky-blocks,potion-spawner-drops, thenchained supernova-chain,true-legacy-rules,balance-runtime includingactualexit. Collectit BEFOREsourceedits. Build5staged prod302aea64/test4304c694 notnative-run. Prior build4fails corrected5/6; see notes. Neednormalexit/freshsameSHAreport/noSERVERCRASH/exactsnapshots/protected295source+authorpaths, don'ttrustnormalChildShutdownalonetoexcludecrash. Main/libsunchangedc36; noMainstop/start orunqualifiedpublication. Noagents/indexers/authorRPwrites. BroadAIunfinished (knownpickup goaloverride/crossbow24vs25). Full details agent_notes/FEEDBACK_ROUND2_2026_11_09.md. Olderheadershistorical.
+
+## Build5 NEXT, new feedback8+true-legacy9 still active
+
+Read latest agent_notes/FEEDBACK_ROUND2_2026_11_09.md. Native4test39f47c6b passedALL8feedback suites +actualSupernova->Balance entry; newLegacyprobe failsONLYwrongOLDfatigue test (26.3 native nowpow.3level, fixturecorrected5), thenREALnativePotionSpawnerDrops ENTITY_LOAD CME atliveentityTags iteration crashedfixture. Source5 fixes tagsnapshot, adds32realWILD/statcredit/NOcontrollerloadregressions. Fullcrashlogkept. Additional source5 beamorigin correctedafterreading nativeItemDisplayRenderer Y180; nativeAddEntityspawnpositionassertsadded, fullinitialscales/lifetimes stillretained. HPclamp/nativeArmorfinite guardpolish. Build5snapshot/compile next, then guard/freeze, fullnative. NoownedVMnow; Main/libsunchangedc36. Latesttest39notqualifiedwholebatchdespitesubsetPASS. NextCLI order fixed: supernova-chain true-legacy-rules balance-runtime. Wrapper nowrequiresfresh exactSHAreport so prelauncherrors cannot misattributeoldlogs. Needfinaltruelegacyexit actual stop+newmodernpolicychecks. One768mGradlethen1280mfixture sequential,noMainstop/start, agents/indexers/authorRPwrites. UserotherGlowleaveas-is;onlykatanaIII. BroaderBOTtaskunfinishedseeAI notes.
+
+## Newest steering9: true-legacy disables vanilla expansions
+
+Read latest agent_notes/FEEDBACK_ROUND2_2026_11_09.md. Source9 central policy+67fallbacks/attributebounds/absorption/layering/visuals/nativeeffectrange/restore implemented but UNCOMPILED. Build4 next, collect compile then native. Requirement4 useranswered: otherGlowing untouched, onlykatanaIII. Build3 native8matches: 7selectedsuites PASS inclreal consecutiveLuckyWars; newfeedback-round-two failsONLYstaleWither expectation10(existingcap5), corrected5. Its nativeall3tabletcrafts andGlowIIIpassed beforefailure;Raid/raynewchecksnotyetexecuted. Otheroriginalfailedlogs retained. Main/libs unchangedc36a987b; noownedVMcurrently. New4willalsoqualifyactualSupernova->Balance->TrueLegacyRules->realexit with newVanillaExpansionChecks, no syntheticflagtests. See notes for frozenrestore/domainboundaries. OneGradle768m thenfixture1280m sequential, noMainstop/start, agents/indexers/authorRPwrites. Previousheadershistorical.
+
+## ACTIVE newest eight-point feedback (9 November2026)
+
+Read agent_notes/FEEDBACK_ROUND2_2026_11_09.md; stage build/verification/feedback-round2-2026-11-09. New source luck reset/katanaGlowingIII/multiplier crafting/Hedgehog display beams/native raid cleanup is UNCOMPILED and UNQUALIFIED. Next compile first candidate, collect, source guard/freeze, then actual feedback-round-two and consecutive lucky-start-fixed12/fixed1 (wrapper pre/post hooks), existing tablet/hedgehog regressions. Main/libs c36a987b unchanged; parent is qualified AIcandidate cfc120e3/testa57678cb, not installed. No stop/start Main, no agents/indexers/authorRP writes; one768mGradle then1280mfixture sequential. New RP addon hedgehog_beams_2026_11_09 must be merged by user, no physical-client visual claim. All failed logs retained.
+
+AI build3 selected core4suites/4actualmatches samea57678cb PASS; normal shutdown/exact restoration/protected295paths. Ordinary chicken AI all10 actualdescent evenwithGravitas PASS; basicrealCarpet0..9 andChefnav/recovery PASS. Broader AI request remains, see notes. Older active headers below historical.
+
+## ACTIVE: bot/Chef movement and survival revision (9 November 2026)
+
+Read agent_notes/AI_MOBILITY_2026_11_09.md latest tail and build/verification/ai-mobility-2026-11-09. Prior COMPLETE headers below describe previous feedback batch, not this new AI revision. Main production c36a987b and build/libs remain unchanged; do not stop/start Main or publish unqualified candidate. One Gradle768MiB/worker1 then one fixture1280MiB, sequential, no agents/indexers/authorRP writes.
+
+User correction: airdrop carriers must be ORDINARY chickens, all native AI/goals/walking retained. Source MatchEvents ONLY setsNoAi(false),setNoGravity(false); NEVER clear goals/pin XZ. Build1 actual feedback-nov910carriers native Y descent PASS, chef-navigation PASS; Carpet mining and Chef close pursuit/recovery FAIL retained in582abe94 report. Build2 fixes shared safe close-ground approach, visible upper-first native mining, and extends retreat fixture observation10ticks while retaining original displacement/hit assertions. Stronger chicken test enables resolved Gravitas, verifies owned native Snowball NoGravity, then moves owner beside carrier. Build2 currently UNQUALIFIED; collect stage build-2.log/owned session before tests.
+
+Broader user AI requests still active: actual starter-chest loot (not artificial diamond test kit), one inventory stack/5ticks, quality upgrades, all trap escape or1200native ticks survival, strict camera/visible-face finite bridging, sprint/noise/parkour benchmarks, distant aggressor memory and projectile cover, bows/allLucky item tactics/native crafting/Academy. Existing source implements only initial subset; do not claim whole task done. Old basic Carpet fixture100HP is an old regression, NOT proof of requested real starter-loot trap survival.
+
+## Latest batch COMPLETE and INSTALLED (9 November 2026)
+
+Read FINAL tail of agent_notes/LIVE_BATCH_2026_11_09_ACTIVE.md. Build42 productionc36a987b/testf77cb4ca/sources2f125a38 published build/libs. Main E:/servers_mew/skywars2_last/mods/skywars2.jar NOW productionc36a987b, exactSHAreadback; normal-stop installer9388 savedrollbackbb9577c2, restartedFALSE. main-install.json authoritative. No owned Gradle/native/installer work remains, no Mainstop/start, no agents/indexers/authorRPwrites. One768MiBGradle thenone1280MiBfixture sequential used.
+
+Current numberedfeedback1..22 +TNT-onlyconfig/per-itemblastshieldsteering +deferredCarpetAI DONEinselectedscope. Latest full realCarpet BOT42 actualnative0..9PASS:chest/armor/food,12degreeYaw/8degreePitch/realmiss+attributedcombat/mutualbots,finite12blockbridge,emptyresource,TimeStop/allinputrelease,TWOstone/nativePickwear+loot,intactstairnativeAction.oncejump,actuallethalnativeDeath/lifedebitONE/newCarpetbody/nativeSWRGrespawn/AIresumes. SharedChefBrain defaults5/true unchanged;3Chefactual38PASS. Bot maxGapJump1/mayJumpBuildfalse choosesnormalfinitebridges. Proper START/STOP native mining;300tickunreachablechesttimeout. Remaining-life adapter existingVanityCarpetTickMixin bypassesONLYforcedCarpetdisconnect, nativePlayerList/Carpetfactory+SWRGrespawn own lives/body/kit.
+
+Explosion config ONLYordinaryTNT/legacypositivefuse; authoredfuse0,creepers,fireballs,nuclearexempt. SharedExplosionItemProtection itemIV/V exactnativehitscope/durableTNTrecipienttags; no temporaryglobalResistance inmodern, trueLegacy original behavior. Ten actual31nativepasses +fullTechno33 (strictZIPfixture-onlycarry), sharedactual34PASS. FullBOT40 andactualfinal-life nuclear40 PASSEDsame1ffbdddc. Earlier23map/gear/railroad/imprinted/respawnitems andownership18 qualified as recorded. qualification.json namesonlyobservedselectedsuccesses; sameArtifactAllSuitesFALSE; final-scope-package-proof comparesALLentries33/38/40->42 with ONLYbot/AI-familydiffs. Failedoldfixturelogsretained; doNOTredo fixedoldtestfailures.10877sourcehashes/295authorpaths/3852commonclassesexact;MapEditing0prod8test. ARCHITECTURE updated. Entiremigration/long-livedrollbackinteractionaudit andOFF-onlytime-fragmentexperimentremainseparate, NOTclaimedcomplete. Older headers below historical.
+
+## Latest active work: user asks finish ALL remaining
+
+Read LATEST LIVE_BATCH_2026_11_09_ACTIVE.md sections. Build23 prod1b8b304d/test22d802bc:8selectedsuites7actualmatches PASS SAMEfinalSHA (map replacement,brokenImprinted,Railroad,SeaLegend/nativegear,Riptide,TMTcriterion,itemqueue,TMTcatalog). Allnormalshutdown/exactrestore; noownedVM. Main/libsunchangedbb9577c2, noinstaller. Remaining5Exopersoritual(gameplaynotstarted,10runeassetsdone),16nuclearcrater/finishbarrier/cover,full22tickaudit; THENbotsnative+Chefregressions. Detailednextimplementationdesign innotes. CurrentSource10871/86changes,38xxcommon. One768mGradle then1280mfixture sequential; noagents/indexers/authorRPwrites. NoSourceNuclear/ExopersoeditsYET. Earlierheadershistorical.
+
+## Latest ownership work QUALIFIED (selected scope)
+
+Read LATEST sections in agent_notes/LIVE_BATCH_2026_11_09_ACTIVE.md. Build18 prod04fc0222/testd49171a1:2 final actual matches PASS helmet-trap-source+fullchaos-armor;9 other native suites carried by strict full-package equality excluding ONLYChaosArmorChecks$Fixture.class. ownership-qualification.json records scope. Helmet NPC kills credit wearer; ordinary Lucky NPC kills NPC; all WILD and actual NPC shooter distinct from statistical player. Source/Thorns/TNT history/Gravitas fixed and qualified. Main/libs untouched (bb9577c2), no installer. All1..22 NOTfinished; Exoperso/mapcancel/SeaLegend/railroad/nuclear/Imprinted/fulltickaudit pending, botsdeferred. No owned JVM/agent. One768m Gradle then one1280m fixture sequential. Older audit-only/running paragraphs below are historical.
+
+## ACTIVE new numbered feedback1..22; bot AI deferred
+
+See agent_notes/LIVE_BATCH_2026_11_09_ACTIVE.md LATEST sections. Greed correction QUALIFIED build10 prod91823bbe/test1efb9480:4selectednative suites/4actualmatches PASS (block-palette,eternal-wealth,custom-block-mining,woodificator), normal shutdown/exact restoration. Unused greedstone_cursed_block registry/model removed; curse uses ordinary Lucky Block. SAMEworkspaceaddon custom_cube_prediction_2026_11_09 re-exported from actual4allocation pack, obsolete model removed/README4. Author RP READ ONLY and unchanged. Main/libs bb9577c2 untouched, no installer because broader1..22incomplete. Atlas-glitch build8qualified remains in combined source. NEXT ownership11/12 still AUDITONLY/no code yet; Exoperso/mapcancel/SeaLegend/railroad/nuclear/Imprinted/tickaudit pending, botsdeferred. One Gradle768m then one native1280m, no agents/indexers. Existing exact additive build.gradle shader resource inclusion exception recorded; other author paths preserved.
+
+## Live feedback patch ? QUALIFIED, awaiting normal Main shutdown (9 November2026)
+
+See agent_notes/LIVE_FEEDBACK_STABLE_2026_11_09.md. Final full-source build10
+productionbb9577c2 / test4f0e1303 published build/libs. Main currently6ce60367;
+main-install.json says waiting-for-normal-shutdown, hidden installer PID19708,
+PRODUCTION target, no stop/restart. Read receipt before claiming installed.
+22 selected suites/24 successful actual matches;21 carried from build8 by strict
+whole-package comparison excluding ONLY OperatorSettingsChecks. Final3 native
+cosmetics/actual Witch reset/operator scenes PASS; exact snapshots/no locks.
+Original broad failed reports retained; retired-team identity and frozen-thread
+fixture cleanup fixed without changing gameplay. Native700-sample instant Shish,
+same-tick spruce, moved cached island/chest respawn, potion/arrow payloads,
+legacy chemical visual packets, native final block audio and remaining feedback
+covered.10851 inputs/295 protected author paths/3798 common classes exact;
+MapEditing8test/0prod. No author RP edits, extra agents or owned JVM remains.
+NEXT: author-requested Carpet bot-prefix AI, deferred until fixes (now qualified),
+NOT STARTED. General migration/rollback review remains separate; not all done.
+Older status records below are historical.
+
+## Migration full-scene tail — QUALIFIED AND INSTALLED (8 November2026)
+
+See agent_notes/MIGRATION_TAIL_2026_11_08.md and MIGRATION_PROGRESS_2026_11_08.md.
+Full Witch Gluttony/Troll Box native/Troll Box rewind/Pop-It:4 suites,4actual matches
+PASS. Original broad failures were fixture setup drift, not missing item handlers.
+Only3 *Checks families changed; gameplay/resources byte-exact production1a89954e.
+Witch prepares actual Nether chunk; Troll counts admitted victims independently and
+runs in original2player scope; Pop-It uses actual uniform accessory reforge and
+retires its own unrelated effect_dimshifting witness before native scheduler.
+Original damage/homing/clear assertions and timing bounds preserved. Old failures
+retained. First3 suites ran on test988d816d; final Pop-It on testf88cb38f. Strict
+whole-package comparison excluding ONLY PopitChecks carries earlier evidence;
+do not claim four suites ran on SAME SHA. Full Gradle build4 published both JARs.
+Main now production6ce60367, read-back SHA exact, normal-stop world lock installer
+saved rollback1a89954e, restarted=false. No server start/live owned worker remains.
+10838inputs/295author paths/3783common classes exact; MapEditing8test/0production.
+No author RP edits/new agents; Gradle768MiB then one native1280MiB, sequential.
+Do not reuse stale Nov6 remaining list: TMT, all-item pools/Bucks, modes1..4,
+keykits and green Nexus wire already done. General long-lived/rollback interaction
+review and explicitly OFF-only time-fragment experiment remain separate. Entire
+migration NOT declared complete. Older records below are historical.
+
+## Status answers ? QUALIFIED SELECTED SCOPE AND INSTALLED (8 November2026)
+
+[Final changes/evidence and separate broad baseline failures](agent_notes/STATUS_ANSWERS_2026_11_08.md).
+All November8 questions INCLUDING Fartus answered. Test309aef8d / production1a89954e
+full Gradle build3 published build/libs. Seven selected native suites/7actual
+matches PASS on SAME final test JAR; normal shutdown/exact restoration/no locks.
+Main mods/skywars2.jar now production1a89954e, SHA read back; normal-stop installer
+saved rollback4ed111f3, restarted=false. No server start or owned worker remains.
+Consuming BlindII/DarkII, TrollPower BlindII, snake DarkII, Fartus banana bothII;
+other effects/durations/damage preserved. Blind-transfer artifact/global cap exact.
+Twitching .5/6 remains1/12 per matching category every2ticks; real3000-opportunity
+probe gives254uses EACH hand,36voices/306glass bursts/1172slime sounds. Rare voice
+uses existing shared sound/particle/bottle helper, restores exactly1bottle fill.
+Clock texture waived.10838inputs/295protected paths/3783common classes exact;
+MapEditing8test/0prod. Eleven Java input changes only; all other packaged entries
+byte-exact stable54. No RP edits/extra agents, one Gradle768MiB then native1280MiB.
+IMPORTANT: three BROAD scenes fail ALSO on parent490f9b77: foreign Nether rabbit
+indexing (witch-gluttony), fixed2player cage expectation with3players (TrollBox),
+legacy-weight pool interception versus uniform reforge (Popit). Parent-control
+and original failed results retained, not qualified. New explicitly scoped
+witch-snake-status/troll-power-status native payload checks pass; full old scenes
+remain intact. Do not call the broader matrix or entire migration complete.
+
+## Feedback batch54 ? QUALIFIED AND INSTALLED (8 November2026)
+
+[Scope and remaining three author decisions](agent_notes/FEEDBACK_STABLE_2026_11_08.md).
+Full-source test490f9b77 / production4ed111f3 published build/libs.47 explicitly
+selected native suites PASS on the SAME final test JAR,45 actual matches across
+six sequential JVMs; normal child shutdown/exact restoration/no retained locks.
+Raw focused-runner qualified=false refers to its unrequested full armor matrix;
+qualification-54.json records only the observed selected feedback scope.
+Main mods/skywars2.jar is now production4ed111f3: normal-stop installer acquired
+the real world lock and saved rollback91ce3148; main-install.json says installed,
+restarted=false. Server was NOT started. Preserve the production flavor.
+10837 source inputs/295 author paths/3782 common classes byte-exact; MapEditing
+8 test/0 production. Old Balance/true-legacy/protocol retained. No author RP edit.
+Three decisions in NIGHT_QUESTIONS_2026_11_08.md remain: exact clock variant,
+Consuming/Troll Box high blindness, Twitching destructive legacy forced-use.
+Do not guess these or mark the whole migration finished. The user is answering.
+No live owned Gradle/native fixture/installer remains. One Gradle768MiB then one
+fixture1280MiB; no extra agents. Prior failed logs and full rollback are retained.
+
 ## Custom cube feedback ? QUALIFIED STABLE, normal-stop delivery (8 November2026)
 
 [Scope, exact artifacts and deployment contract](agent_notes/CUSTOM_CUBE_INTERACTIONS_2026_11_08.md).

@@ -861,6 +861,7 @@ public final class GameChecks {
                                 case "feedback-nov9" -> { FeedbackNov9Checks.run(game); return; }
                                 case "death-body" -> { DeathBodyChecks.run(game); return; }
                                 case "lethal-hits" -> { LethalHitChecks.run(game); return; }
+                                case "tmt-triggers" -> { TmtTriggerChecks.run(game); return; }
                                 case "static-charge-no-echo" -> { StaticChargeNoEchoChecks.run(game); return; }
                                 case "feedback-round-two" -> { FeedbackRoundTwoChecks.run(game); return; }
                                 case "lucky-reset-prepare12" -> { FeedbackRoundTwoChecks.prepareLuck(game,12); return; }
@@ -1844,7 +1845,7 @@ public final class GameChecks {
             TmtPassiveChecks.tick(game);
             TmtNativeThrowChecks.tick(game);
             TmtInventoryTraitChecks.tick(game);
-            ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);TmtDropChecks.tick(game);TmtSharedDropChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
+            ImbaPlaceableChecks.tick(game);TntRecursionChecks.tick(game);ImbaFollowupChecks.tick(game);ImbaMiningAmmoChecks.tick(game);HomingArrowChecks.tick(game);TmtAmmoRewindChecks.tick(game);TmtHeldChecks.tick(game);TmtDropChecks.tick(game);TmtSharedDropChecks.tick(game);ImbaToolChecks.tick(game);ProduceGadgetChecks.tick(game);WoolBucketChecks.tick(game);TmtTriggerChecks.tick(game);ThrownUtilityChecks.tick(game);ImbaUtilityChecks.tick(game);
             TmtCriterionTraitChecks.tick(game);
             TmtGadgetChecks.tick(game);TmtElectroTraitChecks.tick(game);TmtCurrentContentChecks.tick(game);LuckyLoadoutChecks.tick(game);KeyKitChecks.tick(game);
             TmtMagnumAmmoChecks.tick(game);TmtLooseRewardChecks.tick(game);ClockFragmentChecks.tick(game);KillButtonChecks.tick(game);TmtPassiveQueryChecks.tick(game);TmtGlyphChecks.tick(game);LegacySlabChecks.tick(game);BucksTraderChecks.tick(game);TmtNativeIdentityChecks.tick(game);TmtManaPotionChecks.tick(game);TmtShieldChecks.tick(game);LegacyRangedChecks.tick(game);TmtInventoryMutationChecks.tick(game);NativeTestReportCombatChecks.tick(game);CunnyRestartChecks.tick(game);CunnyChecks.tick(game);MellstroyChecks.tick(game);AbsoluteCinemaChecks.tick(game);

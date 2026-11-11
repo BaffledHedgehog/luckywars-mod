@@ -124,7 +124,7 @@ final class LbcTmtUseProfiles {
         if(player==null||hand==null||!game.items().tmt().admitted(player)
                 ||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return 0;
         var stack=player.getItemInHand(hand);if(LbcTmtAbilities.active(stack))return 0;int completed=0;
-        var slots=new ArrayList<>(LbcTmtAbilities.read(stack));
+        var slots=new ArrayList<>(LbcTmtTriggers.effective(stack));
         slots.sort(java.util.Comparator.comparingInt(slot->sourceOrder.getOrDefault(slot.id(),Integer.MAX_VALUE)));
         for(var slot:slots) {
             if(!slot.id().startsWith(PREFIX))continue;

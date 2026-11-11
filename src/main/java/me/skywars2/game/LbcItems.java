@@ -191,6 +191,13 @@ public final class LbcItems {
         pendingCombat.damaged(victim,source);
         pendingSwords.damaged(victim,source);
     }
+    /** Private item actions only: no fabricated damage receipt, player skill or kill event. */
+    void tmtMelee(ServerPlayer owner,LivingEntity victim,DamageSource source){
+        if(!wands.projectileTarget(owner,victim,true))return;
+        LbcChaosRewardItems.damaged(game,victim,source);specialTools.melee(victim,source);
+        cursedPumpkin.damaged(victim,source);heldMeleeOwners(victim,source);heldMeleeTail(victim,source);
+        fartus.melee(owner,victim,source);wtf.melee(victim,source);
+    }
     private void heldMeleeTail(LivingEntity victim,DamageSource source){
         if (!game.playing() && !debugItemUseWindow() || !inArena(victim) || LbcDamage.isArrowDamage(source)
                 || !(source.getEntity() instanceof ServerPlayer owner) || !LbcDamage.isMeleeAttack(source,owner) || !active(owner)
@@ -2221,6 +2228,7 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
+        LbcTmtTriggers.tick(game);
         // Keep accepted ability graphs visible until the real lobby transition retires them.
         if(game.stage()==GameController.Stage.ENDING){rifleZoom.tick();return;}
         radar.begin();

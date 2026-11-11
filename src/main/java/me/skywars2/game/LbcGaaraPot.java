@@ -27,10 +27,15 @@ public final class LbcGaaraPot {
     private final Set<Terrain> pending=Collections.newSetFromMap(new IdentityHashMap<>());
     public LbcGaaraPot(GameController game){this.game=game;}
     public int count(){return pending.size();}
-    static boolean matches(ItemStack stack){return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr("gaara_tikva",0)==1;}
+    static boolean matches(ItemStack stack){var pattern=new net.minecraft.nbt.CompoundTag();pattern.putInt("gaara_tikva",1);return !stack.isEmpty()&&LbcTmtInventory.matches(stack,pattern);}
 
     /** The incoming owner has already passed pre-hit alive/role admission, including fatal hits. */
     public void incoming(ServerPlayer owner){
+        ItemStack pot=null;
+        for(int slot=0;slot<=40;slot++)if(matches(owner.getInventory().getItem(slot))){pot=owner.getInventory().getItem(slot);break;}
+        if(pot!=null)propertyIncoming(owner,pot);
+    }
+    void propertyIncoming(ServerPlayer owner,ItemStack pot){
         if(owner==null||owner.isRemoved()||owner.level()!=game.maps().level()||!game.playing()
                 ||game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally()
                 ||game.stage()==GameController.Stage.ENDING||game.items().actionsBlocked(owner)
@@ -38,9 +43,7 @@ public final class LbcGaaraPot {
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted"))
                 ||owner.entityTags().contains("nomagic_active")||game.items().magic().suppressed(owner))return;
-        ItemStack pot=null;
-        for(int slot=0;slot<=40;slot++)if(matches(owner.getInventory().getItem(slot))){pot=owner.getInventory().getItem(slot);break;}
-        if(pot==null)return;
+        if(pot.isEmpty()||!matches(pot))return;
         // Debit before any payload can cause another native damage callback.
         pot.shrink(1);owner.getInventory().setChanged();owner.containerMenu.broadcastChanges();
         var task=new Terrain(owner);pending.add(task);game.items().stonekivi().queuedWork(task);

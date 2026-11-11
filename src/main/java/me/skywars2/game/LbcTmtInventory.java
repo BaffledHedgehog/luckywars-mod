@@ -10,7 +10,7 @@ final class LbcTmtInventory {
     static int mysticalTypes(CompoundTag data,int value){
         if(data.getIntOr("tmt_item",0)!=1)return bits(data,value);
         int result=0;
-        for(var ability:LbcTmtAbilities.read(data))result|=bits(ability.data(),value);
+        for(var ability:LbcTmtTriggers.effective(data))result|=bits(ability.data(),value);
         return result;
     }
     private static int bits(CompoundTag data,int value){
@@ -22,21 +22,21 @@ final class LbcTmtInventory {
         return (reader.skywars2$readInt("mystical",0)==value?1<<type:0)|(reader.skywars2$readInt("mystical_old",0)==value?1<<(type+16):0);
     }
     static boolean string(ItemStack stack,String key,String value){
-        if(ItemData.stringValue(stack,key,"").equals(value))return true;
+        if((!LbcTmtTriggers.modern(stack)||LbcTmtAbilities.active(stack))&&ItemData.stringValue(stack,key,"").equals(value))return true;
         if(!LbcTmtItems.matches(stack))return false;
-        for(var ability:LbcTmtAbilities.read(stack))if(((ItemData.IntReader)(Object)ability.data()).skywars2$readString(key,"").equals(value))return true;
+        for(var ability:LbcTmtTriggers.effective(stack))if(((ItemData.IntReader)(Object)ability.data()).skywars2$readString(key,"").equals(value))return true;
         return false;
     }
     static boolean matches(ItemStack stack,CompoundTag pattern){
         var data=stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
-        if(data!=null&&data.matchedBy(pattern))return true;
+        if((!LbcTmtTriggers.modern(stack)||LbcTmtAbilities.active(stack))&&data!=null&&data.matchedBy(pattern))return true;
         if(!LbcTmtItems.matches(stack))return false;
-        for(var ability:LbcTmtAbilities.read(stack))if(ability.data().matchedBy(pattern))return true;
+        for(var ability:LbcTmtTriggers.effective(stack))if(ability.data().matchedBy(pattern))return true;
         return false;
     }
     static boolean upgraded(ItemStack stack,String flag){
         if(!LbcTmtItems.matches(stack))return false;
-        for(var ability:LbcTmtAbilities.read(stack)){
+        for(var ability:LbcTmtTriggers.effective(stack)){
             var data=(ItemData.IntReader)(Object)ability.data();
             if(data.skywars2$readInt(flag,0)==1&&data.skywars2$readInt("upgraded",0)==1)return true;
         }
@@ -45,7 +45,7 @@ final class LbcTmtInventory {
     static java.util.Set<String> strings(ItemStack stack,String key){
         if(!LbcTmtItems.matches(stack))return java.util.Set.of(ItemData.stringValue(stack,key,""));
         var result=new java.util.HashSet<String>();
-        for(var ability:LbcTmtAbilities.read(stack)){
+        for(var ability:LbcTmtTriggers.effective(stack)){
             var value=((ItemData.IntReader)(Object)ability.data()).skywars2$readString(key,"");
             if(!value.isEmpty())result.add(value);
         }

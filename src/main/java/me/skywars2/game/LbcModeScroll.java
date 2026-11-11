@@ -31,7 +31,8 @@ public final class LbcModeScroll {
         try{return action.get();}finally{if(previous==null)STEPS.remove();else STEPS.set(previous);}
     }
     static int delta(int previous,int next){return Math.floorMod(next-previous+4,9)-4;}
-    private static boolean supports(GameController game,ItemStack stack){
+    static boolean supports(GameController game,ItemStack stack){
+        if(LbcTmtTriggers.modern(stack))return LbcTmtTriggers.canCycle(game,stack);
         if(LbcShooters.isSlr(stack)||LbcMagnum.isMagnum(stack)||LbcWitchClaims.matches(stack)
                 ||LbcHedgehogItems.isAcademy(stack)||LbcHalloweenWind.academy(stack)||LbcSoulless.isAcademy(stack))return true;
         var data=LbcFartus.data(stack);

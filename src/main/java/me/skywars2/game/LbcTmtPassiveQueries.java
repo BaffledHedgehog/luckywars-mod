@@ -11,14 +11,14 @@ import net.minecraft.world.item.Items;
 final class LbcTmtPassiveQueries {
     private LbcTmtPassiveQueries(){}
     static boolean rocketFeet(ItemStack stack){
-        for(var property:LbcTmtAbilities.read(stack))if(LbcTmtComponents.nativeItem(property.data())==LbcItems.ROCKET_BOOTS
+        for(var property:LbcTmtTriggers.effective(stack))if(LbcTmtComponents.nativeItem(property.data())==LbcItems.ROCKET_BOOTS
                 ||((ItemData.IntReader)(Object)property.data()).skywars2$readInt("explosive_feets",0)==1)return true;
         return false;
     }
     /** Caller supplies the actual FEET slot. Legacy Balance requires both iron boots and its own flag. */
     static boolean reactiveOldFeet(ItemStack feet){
         if(!LbcTmtItems.matches(feet))return feet.is(Items.IRON_BOOTS)&&ItemData.intValue(feet,"reactive_old",0)==1;
-        for(var property:LbcTmtAbilities.read(feet))if(LbcTmtComponents.nativeItem(property.data())==Items.IRON_BOOTS
+        for(var property:LbcTmtTriggers.effective(feet))if(LbcTmtComponents.nativeItem(property.data())==Items.IRON_BOOTS
                 &&((ItemData.IntReader)(Object)property.data()).skywars2$readInt("reactive_old",0)==1)return true;
         return false;
     }
@@ -26,7 +26,7 @@ final class LbcTmtPassiveQueries {
     static void reactiveOldJump(ServerPlayer owner){
         var feet=owner.getItemBySlot(EquipmentSlot.FEET);boolean reactive=false;
         if(!LbcTmtItems.matches(feet))reactive=ItemData.intValue(feet,"reactive_old",0)==1;
-        else for(var property:LbcTmtAbilities.read(feet))if(((ItemData.IntReader)(Object)property.data()).skywars2$readInt("reactive_old",0)==1){reactive=true;break;}
+        else for(var property:LbcTmtTriggers.effective(feet))if(((ItemData.IntReader)(Object)property.data()).skywars2$readInt("reactive_old",0)==1){reactive=true;break;}
         if(!reactive)return;
         owner.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,0,false,false,false),owner);
         owner.level().sendParticles(ParticleTypes.FLAME,true,false,owner.getX(),owner.getY()-.2,owner.getZ(),100,.2,.1,.2,.1);

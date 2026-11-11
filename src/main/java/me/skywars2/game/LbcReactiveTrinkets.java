@@ -49,7 +49,7 @@ public final class LbcReactiveTrinkets {
         int[] result=new int[types.length];
         p.getInventory().clearOrCountMatchingItems(s->{
             if(s.isEmpty())return false;
-            String id=ItemData.stringValue(s,"trinket","");
+            String id=LbcTmtTriggers.modern(s)&&!LbcTmtAbilities.active(s)?"":ItemData.stringValue(s,"trinket","");
             var privateIds=LbcTmtItems.matches(s)?LbcTmtInventory.strings(s,"trinket"):null;
             for(int i=0;i<types.length;i++)if(s.is(types[i])||id.equals(ids[i])||privateIds!=null&&privateIds.contains(ids[i]))result[i]=add(result[i],s.getCount());
             return false;
@@ -77,6 +77,19 @@ public final class LbcReactiveTrinkets {
         var n=counts(p,OFFENSE,OFFENSE_IDS);offense.outgoing(p,actual,source,false,n[0],n[1],n[2],
                 n[3]>0||n[4]>0?()->game.items().trinkets().outgoing(p,source,n[3],n[4]):null);
     }
+    /** Rebound property uses the same payload owner, excluding unrelated inventory trinkets. */
+    void propertyMelee(ServerPlayer owner,LivingEntity target,DamageSource source,net.minecraft.world.item.component.CustomData property){
+        if(!admission(owner)||paused(owner))return;
+        String id=((ItemData.IntReader)(Object)property).skywars2$readString("trinket","");
+        int[] n=propertyCounts(id,OFFENSE_IDS);
+        offense.outgoing(owner,target,source,false,n[0],n[1],n[2],n[3]>0||n[4]>0?()->game.items().trinkets().outgoing(owner,source,n[3],n[4]):null);
+    }
+    void propertyIncoming(ServerPlayer owner,net.minecraft.world.item.component.CustomData property){
+        if(!admission(owner)||paused(owner))return;
+        var n=propertyCounts(((ItemData.IntReader)(Object)property).skywars2$readString("trinket",""),DEFENSE_IDS);
+        defense.received(owner,n[0],n[1]);game.items().trinkets().incoming(owner,n[2],n[3]);
+    }
+    private static int[] propertyCounts(String id,String[] ids){int[] n=new int[ids.length];for(int i=0;i<ids.length;i++)if(id.equals(ids[i]))n[i]=1;return n;}
     public void inventoryChanged(ServerPlayer p){if(!restoring)dirty.add(p.getUUID());}
     private void refresh(ServerPlayer p){
         // One borrowed scalar read per stack, only after inventory events; never copy CUSTOM_DATA.

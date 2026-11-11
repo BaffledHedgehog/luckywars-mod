@@ -22,7 +22,9 @@ public final class LbcTmtComponents {
     private static final ThreadLocal<java.util.IdentityHashMap<ItemStack,Scope>> ACTIVE=new ThreadLocal<>();
     private static final List<DataComponentType<?>> PAYLOADS=List.of(DataComponents.ENTITY_DATA,DataComponents.BUCKET_ENTITY_DATA,
             DataComponents.BLOCK_ENTITY_DATA,DataComponents.BLOCK_STATE,DataComponents.POTION_CONTENTS,
-            DataComponents.POTION_DURATION_SCALE,DataComponents.FIREWORKS,DataComponents.CONTAINER,DataComponents.CONTAINER_LOOT,DataComponents.BLOCKS_ATTACKS);
+            DataComponents.POTION_DURATION_SCALE,DataComponents.FIREWORKS,DataComponents.CONTAINER,DataComponents.CONTAINER_LOOT,DataComponents.BLOCKS_ATTACKS,DataComponents.TOOL);
+    private static final List<DataComponentType<?>> PRESENTATION=List.of(DataComponents.ITEM_MODEL,DataComponents.CUSTOM_MODEL_DATA,
+            DataComponents.ITEM_NAME,DataComponents.CUSTOM_NAME,DataComponents.LORE,DataComponents.TOOLTIP_STYLE);
     static Item nativeItem(CustomData data){
         var id=Identifier.tryParse(((ItemData.IntReader)(Object)data).skywars2$readString(LbcTmtAbilities.NATIVE,""));
         return id==null?Items.AIR:BuiltInRegistries.ITEM.getValue(id);
@@ -55,9 +57,14 @@ public final class LbcTmtComponents {
     }
     /** Projection borrows the actual stack; source copies keep their own resolved payload for later owners. */
     static Scope project(GameController game,ItemStack stack,CustomData property){
-        var item=nativeItem(property);if(game==null||item==Items.AIR)return new Scope(game,stack,item,List.of());
-        var patch=patch(game,property);var defaults=item.getDefaultInstance().getComponents();var saved=new ArrayList<Value>();
-        for(var type:PAYLOADS)saved.add(new Value(type,stack.get(type),patch.get(defaults,type)));
+        var item=nativeItem(property);var saved=new ArrayList<Value>();
+        if(game!=null&&item!=Items.AIR){
+            var patch=patch(game,property);var defaults=item.getDefaultInstance().getComponents();
+            for(var type:PAYLOADS)saved.add(new Value(type,stack.get(type),patch.get(defaults,type)));
+        }
+        // Native mode writers can update their ordinary item's appearance. That
+        // presentation must not overwrite the independently generated TMT skin/lore.
+        for(var type:PRESENTATION)saved.add(new Value(type,stack.get(type),stack.get(type)));
         var scope=new Scope(game,stack,item,List.copyOf(saved));
         try{for(var value:saved)if(!Objects.equals(value.previous,value.next))set(stack,value.type,value.next);
             var active=ACTIVE.get();if(active==null){active=new java.util.IdentityHashMap<>();ACTIVE.set(active);}active.put(stack,scope);return scope;
@@ -103,8 +110,8 @@ public final class LbcTmtComponents {
         private final ItemStack stack;private final List<Value> saved;
         private final GameController game;private final Item item;
         private Scope(GameController game,ItemStack stack,Item item,List<Value> saved){this.game=game;this.stack=stack;this.item=item;this.saved=saved;}
-        boolean changed(){if(stack.isEmpty())return false;for(var value:saved)if(!Objects.equals(stack.get(value.type),value.next))return true;return false;}
-        void remember(CompoundTag payload){if(game!=null&&changed())capture(game,stack,item,payload);}
+        boolean changed(){if(stack.isEmpty())return false;for(var value:saved)if(!PRESENTATION.contains(value.type)&&!Objects.equals(stack.get(value.type),value.next))return true;return false;}
+        void remember(CompoundTag payload){if(game!=null&&item!=Items.AIR&&changed())capture(game,stack,item,payload);}
         public void close(){try{for(var value:saved)if(!Objects.equals(stack.get(value.type),value.previous))set(stack,value.type,value.previous);}
             finally{var active=ACTIVE.get();if(active!=null){active.remove(stack);if(active.isEmpty())ACTIVE.remove();}}}
     }

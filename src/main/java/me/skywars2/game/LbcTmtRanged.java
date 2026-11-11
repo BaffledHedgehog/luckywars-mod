@@ -37,7 +37,7 @@ public final class LbcTmtRanged {
     public static boolean charging(GameController game,ServerPlayer owner,ItemStack weapon,int activeCharge){
         if(ItemData.intValue(weapon,"tmt_item",0)!=1)return false;
         if(LbcTmtAbilities.active(weapon))return true;
-        for(var ability:LbcTmtAbilities.read(weapon))if(charged(ability))
+        for(var ability:LbcTmtTriggers.effective(weapon))if(charged(ability))
             LbcTmtAbilities.invoke(weapon,ability.id(),()->{game.items().chargedBows().charging(owner,weapon,activeCharge);return true;});
         return true;
     }
@@ -54,7 +54,7 @@ public final class LbcTmtRanged {
         // (and Crossbow criterion). A legal final-item continuation may consume
         // that weapon, so wait for the true native action, then its private scopes.
         LbcTmtShotCompletion.afterNativeAction(()->{
-            acceptedShot(game,owner,hand,weapon,fired,family);
+            LbcTmtTriggers.shot(fired,()->acceptedShot(game,owner,hand,weapon,fired,family));
             game.items().tmt().bowShot(owner,hand,weapon,fired,family);
         });
         return true;
@@ -70,7 +70,7 @@ public final class LbcTmtRanged {
         if(ItemData.intValue(fired,"tmt_item",0)!=1)return false;
         if(LbcTmtAbilities.active(weapon)||LbcTmtAbilities.active(fired))return true;
         LbcTmtAmmoPayloads.install(game,owner,fired,nativeFamily);
-        var abilities=new ArrayList<>(LbcTmtAbilities.read(fired));
+        var abilities=new ArrayList<>(LbcTmtTriggers.effective(fired));
         // Source owner order, independent of random draw/serialization order.
         abilities.sort(java.util.Comparator.comparingInt(LbcTmtRanged::order));
         var family=List.copyOf(nativeFamily);
@@ -109,7 +109,7 @@ public final class LbcTmtRanged {
             boolean converted=scope(weapon,fired,ability,()->{
                 if(legacyConversion(ability))return LbcLegacyRanged.convert(game,owner,fired,donors);
                 if(flag(ability,"explosive"))return game.items().balance().explosiveBow(owner,fired,donors);
-                if(charged(ability))return game.items().chargedBows().release(owner,fired,owner.getTicksUsingItem(),donors);
+                if(charged(ability))return game.items().chargedBows().release(owner,fired,LbcTmtTriggers.shotCharge(owner.getTicksUsingItem()),donors);
                 if(beamImba(ability))return LbcImbaCrossbows.release(game,owner,fired,donors);
                 var result=flag(ability,"shulker_new")?game.items().shulkerBow().augment(owner,fired,donors)
                         :game.items().balance().augment(owner,fired,donors);

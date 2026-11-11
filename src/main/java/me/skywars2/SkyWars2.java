@@ -387,6 +387,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
+            if(player instanceof ServerPlayer owner)me.skywars2.game.LbcTmtTriggers.input(owner,me.skywars2.game.LbcTmtTriggers.Input.LEFT_CLICK);
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
@@ -436,6 +437,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if(player instanceof ServerPlayer owner)me.skywars2.game.LbcTmtTriggers.input(owner,me.skywars2.game.LbcTmtTriggers.Input.RIGHT_CLICK);
             if(me.skywars2.game.LbcBedwars.shopRole(entity))return game!=null&&player instanceof ServerPlayer owner&&hand==net.minecraft.world.InteractionHand.MAIN_HAND&&game.bedwars().shop().open(owner,entity)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
             if(game!=null&&player instanceof ServerPlayer owner){var result=game.items().nexusAcquisition().use(owner,hand,entity);if(result!=InteractionResult.PASS)return result;}

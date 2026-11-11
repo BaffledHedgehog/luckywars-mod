@@ -22,6 +22,9 @@ public final class GroundJumpEvents {
         else dispatch(player);
     }
     private static void dispatch(ServerPlayer player){
+        effects(player);LbcTmtTriggers.input(player,LbcTmtTriggers.Input.JUMP);
+    }
+    static void effects(ServerPlayer player){
         var game=SkyWars2.game();if(game==null)return;
         game.items().halloweenWind().jump(player);
         game.items().soulhunter().jump(player);

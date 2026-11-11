@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "lbc:item/spelllib/shish_wall"
-  }
-}

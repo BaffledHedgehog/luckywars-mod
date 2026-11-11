@@ -503,7 +503,7 @@ public final class LbcWands {
     private record TmtSpell(String slot,Spell spell) {}
     private static java.util.List<TmtSpell> tmtSpells(ItemStack stack) {
         var selected=new java.util.ArrayList<TmtSpell>();
-        for(var slot:LbcTmtAbilities.read(stack)) {
+        for(var slot:LbcTmtTriggers.effective(stack)) {
             if(!slot.id().startsWith("wand/"))continue;
             String family=slot.id().substring(5);Spell chosen=null;
             for(var spell:SPELLS) {
@@ -607,6 +607,7 @@ public final class LbcWands {
     }
 
     boolean cast(ServerPlayer player,InteractionHand hand) {
+        if(LbcTmtItems.matches(player.getItemInHand(hand))&&!LbcTmtAbilities.active(player.getItemInHand(hand)))return game.items().tmt().rightClick(player,hand);
         if(!LbcDimensionItems.ordinary(player))return false;
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);

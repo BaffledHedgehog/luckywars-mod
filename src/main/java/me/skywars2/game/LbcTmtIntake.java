@@ -8,13 +8,13 @@ final class LbcTmtIntake {
     private LbcTmtIntake(){}
     static boolean has(ItemStack stack,String flag){
         if(!LbcTmtItems.matches(stack))return false;
-        for(var property:LbcTmtAbilities.read(stack))
+        for(var property:LbcTmtTriggers.effective(stack))
             if(((ItemData.IntReader)(Object)property.data()).skywars2$readInt(flag,0)==1)return true;
         return false;
     }
     static boolean touhou(ItemStack stack,IntConsumer accept){
         boolean found=false;
-        for(var property:LbcTmtAbilities.read(stack)){
+        for(var property:LbcTmtTriggers.effective(stack)){
             int type=((ItemData.IntReader)(Object)property.data()).skywars2$readInt("touhou_item",0);
             if(type>=1&&type<=10){accept.accept(type);found=true;}
         }

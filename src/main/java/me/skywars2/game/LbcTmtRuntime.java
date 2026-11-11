@@ -53,6 +53,7 @@ public final class LbcTmtRuntime {
     }
     /** Native accepted bow/crossbow event; ammo/trinkets were already handled once by the shot owner. */
     public void bowShot(ServerPlayer player,InteractionHand hand,ItemStack weapon,ItemStack fired,List<Projectile> family){
+        if(LbcTmtTriggers.modern(fired)){if(!family.isEmpty())LbcTmtTriggers.captured(player,LbcTmtTriggers.Input.SHOT,fired,hand,null,null,null);return;}
         if(family.isEmpty()||!LbcTmtItems.matches(fired)||!enter(player))return;
         if(!LbcDimensionItems.ordinary(player)){
             if(player.getItemInHand(hand)==weapon&&!weapon.isEmpty())spells(player,hand);
@@ -84,10 +85,12 @@ public final class LbcTmtRuntime {
     /** Carrot and instant throwing carriers have their ordinary direct-use spell event. */
     boolean rightClick(ServerPlayer player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
+        if(LbcTmtTriggers.modern(stack))return LbcModeScroll.scrolling()&&LbcTmtTriggers.cycle(game,player,hand);
         if(!LbcTmtItems.matches(stack)||LbcTmtAbilities.active(stack)||!enter(player))return false;
         selfGroups(player);charging(player);return spells(player,hand)>0;
     }
     net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext context){
+        if(LbcTmtTriggers.modern(context.getItemInHand()))return net.minecraft.world.InteractionResult.PASS;
         if(!(context.getPlayer() instanceof ServerPlayer owner)||!LbcTmtItems.matches(context.getItemInHand())||LbcTmtAbilities.active(context.getItemInHand())||!enter(owner))return net.minecraft.world.InteractionResult.PASS;
         int count=LbcTmtBlockUses.use(game,context);
         if(count==0){triggered.remove(owner);return net.minecraft.world.InteractionResult.PASS;}
@@ -106,7 +109,7 @@ public final class LbcTmtRuntime {
     public void withHeldTraits(net.minecraft.world.damagesource.DamageSource source,Runnable nativeOwners){
         if(!heldTraitsNeeded(source)){nativeOwners.run();return;}
         var owner=(ServerPlayer)source.getEntity();var stack=owner.getMainHandItem();
-        for(var slot:LbcTmtAbilities.read(stack)){
+        for(var slot:LbcTmtTriggers.effective(stack)){
             if(stack.isEmpty()||owner.getMainHandItem()!=stack)break;
             LbcTmtAbilities.invoke(stack,slot.id(),()->{nativeOwners.run();return true;});
         }
@@ -114,7 +117,7 @@ public final class LbcTmtRuntime {
     void withConsumedTraits(ServerPlayer player,ItemStack stack,Runnable nativeOwners){
         if(!LbcTmtItems.matches(stack)||LbcTmtAbilities.active(stack)){nativeOwners.run();return;}
         game.items().foodLifecycle().countTmtFood(player,stack);
-        for(var slot:LbcTmtAbilities.read(stack)){
+        for(var slot:LbcTmtTriggers.effective(stack)){
             if(stack.isEmpty())break;
             LbcTmtAbilities.invoke(stack,slot.id(),()->{nativeOwners.run();LbcTmtManaPotions.consumed(game,player,stack);return true;});
         }
@@ -124,7 +127,22 @@ public final class LbcTmtRuntime {
         if(generator==null)generator=new LbcTmtProperties(game.maps().level());
         var result=generator.generate(random,LbcTmtItems::prototype,draws);LbcTmtEquipment.apply(game,result);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);return result;
     }
-    public ItemStack generate(RandomSource random){return generate(random,catalog().drawSeven(random));}
+    public ItemStack generate(RandomSource random){
+        if(game.balanceLegacy())return generate(random,catalog().drawSeven(random));
+        if(generator==null)generator=new LbcTmtProperties(game.maps().level());
+        var draws=catalog().drawSeven(random);var result=generator.generate(random,LbcTmtItems::prototype,draws);
+        var root=result.get(DataComponents.CUSTOM_DATA).copyTag();
+        // Remove the old aggregate before replacing its private action definitions.
+        for(var draw:draws)for(var key:draw.data().copyTag().keySet())
+            if(!java.util.Set.of("tmt_item","tmt_texture_seed","tmt_armor_seed").contains(key))root.remove(key);
+        var assigned=LbcTmtTriggers.assign(random,result,catalog(),draws);
+        LbcTmtAbilities.write(root,assigned);root.putInt(LbcTmtTriggers.SCHEMA,1);
+        if(assigned.stream().anyMatch(a->((ItemData.IntReader)(Object)a.data()).skywars2$readInt(LbcTmtDrops.FLAG,0)==1))root.putInt(LbcTmtDrops.FLAG,1);
+        result.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(root));
+        LbcTmtEquipment.apply(game,result);LbcTmtTotems.apply(result);LbcTmtContinuous.apply(result);
+        LbcTmtTriggers.describe(game,result);
+        return result;
+    }
     /** Shared special-drop dispatcher owns admission, TimeStop and the sole token debit. */
     boolean acquire(net.minecraft.world.entity.item.ItemEntity token){
         if(!LbcTmtItems.token(token.getItem())||token.isRemoved()||!(token.level() instanceof net.minecraft.server.level.ServerLevel level))return false;
@@ -148,6 +166,6 @@ public final class LbcTmtRuntime {
         return useProfiles;
     }
     public void reload(){generator=null;useProfiles=null;catalog=null;}
-    void forget(ServerPlayer player){triggered.remove(player);}
-    void stop(){triggered.clear();epoch=null;tick=Integer.MIN_VALUE;}
+    void forget(ServerPlayer player){triggered.remove(player);LbcTmtTriggers.forget(player);}
+    void stop(){triggered.clear();epoch=null;tick=Integer.MIN_VALUE;LbcTmtTriggers.stop();}
 }

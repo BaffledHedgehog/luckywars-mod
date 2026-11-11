@@ -17,7 +17,7 @@ public final class LbcTmtAbilities {
     static final String SLOTS="tmt_abilities",ACTIVE="tmt_active_ability";
     static final String NATIVE="tmt_native_item";
     private static final List<String> PARAMETERS=List.of("upgraded","mode","type");
-    private static final List<String> IDENTITY=List.of(SLOTS,ACTIVE,"tmt_item","tmt_texture_seed");
+    private static final List<String> IDENTITY=List.of(SLOTS,ACTIVE,"tmt_item","tmt_texture_seed",LbcTmtTriggers.SCHEMA);
     // Captured source stacks retain ACTIVE as context. Runtime reentry is never a serialized lock.
     private static final ThreadLocal<java.util.Map<ItemStack,CustomData>> SCOPES=new ThreadLocal<>();
     private static final ThreadLocal<java.util.ArrayDeque<Runnable>> AFTER_SCOPES=new ThreadLocal<>();
@@ -70,18 +70,21 @@ public final class LbcTmtAbilities {
         return item==net.minecraft.world.item.Items.AIR?null:item;
     }
 
-    public record Ability(String id,CustomData data) {
+    public record Ability(String id,CustomData data,java.util.Map<LbcTmtTriggers.Action,LbcTmtTriggers.Input> inputs) {
+        public Ability(String id,CustomData data){this(id,data,LbcTmtTriggers.parse(data));}
         public Ability {
             if(id==null||id.isBlank()||id.length()>128||data==null)throw new IllegalArgumentException("Invalid TMT ability");
             var payload=data.copyTag();
             for(var key:IDENTITY)payload.remove(key);
             for(var key:PARAMETERS)if(!payload.contains(key))payload.putInt(key,0);
             data=CustomData.of(payload);
+            inputs=java.util.Map.copyOf(inputs);
         }
     }
 
     /** Owned by the immutable CustomData component; no global item/NBT cache retains old stacks. */
-    public interface CachedSlots { List<Ability> skywars2$tmtSlots(); }
+    public interface CachedSlots { List<Ability> skywars2$tmtSlots();List<Ability> skywars2$tmtNaturalSlots(); }
+    public static List<Ability> naturalSlots(List<Ability> all){return all.stream().filter(a->!LbcTmtTriggers.bound(a)).toList();}
     public static List<Ability> parseSlots(CustomData data){return read(data.copyTag());}
 
     /** Last occurrence wins without giving repeat draws a second execution slot. */
@@ -95,6 +98,9 @@ public final class LbcTmtAbilities {
             for(var key:PARAMETERS)merged.remove(key);
             merged.remove(NATIVE);
             merged.remove(LbcTmtComponents.KEY);
+            merged.remove(LbcTmtTriggers.KEY);
+            // Retain capability/continuation queries. Discrete event owners use effective()
+            // so rebinding does not also replay the original event.
             root.merge(merged);
             list.add(entry(ability.id,payload));
         }
@@ -155,10 +161,10 @@ public final class LbcTmtAbilities {
                 else {
                 var after=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
                 // Native mode/version/counter writes belong to this property, not its siblings.
-                for(var key:after.keySet())if(!IDENTITY.contains(key)
+                for(var key:after.keySet())if(!IDENTITY.contains(key)&&!key.equals(LbcTmtTriggers.KEY)
                         &&(payload.contains(key)||!Objects.equals(before.get(key),after.get(key))))
                     payload.put(key,after.get(key).copy());
-                for(var key:new ArrayList<>(payload.keySet()))if(!after.contains(key))payload.remove(key);
+                for(var key:new ArrayList<>(payload.keySet()))if(!key.equals(LbcTmtTriggers.KEY)&&!after.contains(key))payload.remove(key);
                 if(components!=null)components.remember(payload);
                 if(payload.equals(selected.data.copyTag()))stack.set(DataComponents.CUSTOM_DATA,originalData);
                 else {

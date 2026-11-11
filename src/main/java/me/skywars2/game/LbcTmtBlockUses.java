@@ -58,7 +58,7 @@ final class LbcTmtBlockUses {
     static boolean air(GameController game,ServerPlayer player,InteractionHand hand){var stack=player.getItemInHand(hand);var item=selected(stack);return airCandidate(stack)&&item.use(player.level(),player,hand).consumesAction();}
     static int use(GameController game,UseOnContext context){
         if(!(context.getPlayer() instanceof ServerPlayer player))return 0;var stack=context.getItemInHand();int accepted=0;
-        for(var property:LbcTmtAbilities.read(stack)){
+        for(var property:LbcTmtTriggers.effective(stack)){
             if(stack.isEmpty()||player.getItemInHand(context.getHand())!=stack)break;
             var item=LbcTmtComponents.nativeItem(property.data());if(!supports(item))continue;
             // Validate the private prototype, so unrelated outer/sibling selector data cannot

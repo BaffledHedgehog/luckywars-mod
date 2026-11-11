@@ -1479,10 +1479,11 @@ public final class GameController {
 
     public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
     public void consumed(ServerPlayer player, ItemStack stack) {
+        LbcTmtTriggers.input(player,LbcTmtTriggers.Input.EAT);
         items.tmt().withConsumedTraits(player,stack,()->consumedProperties(player,stack));
         events.onConsumed(player, stack);
     }
-    private void consumedProperties(ServerPlayer player,ItemStack stack){
+    void consumedProperties(ServerPlayer player,ItemStack stack){
         items.foodLifecycle().consumed(player,stack);
         items.kfcFood().consumed(player,stack);
         items.aimbobRewards().consumed(player,stack);

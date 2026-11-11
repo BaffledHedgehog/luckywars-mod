@@ -42,7 +42,7 @@ final class LbcTmtSelfAbilities {
     static int swords(GameController game,ServerPlayer owner){
         if(!admitted(game,owner))return 0;
         var stack=owner.getMainHandItem();if(LbcTmtAbilities.active(stack))return 0;
-        var slots=LbcTmtAbilities.read(stack);int dispatched=0;
+        var slots=LbcTmtTriggers.effective(stack);int dispatched=0;
         var ordered=new ArrayList<>(slots);
         ordered.sort(java.util.Comparator.comparingInt(LbcTmtSelfAbilities::order));
         for(var slot:ordered){

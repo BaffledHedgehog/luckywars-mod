@@ -7,6 +7,7 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.TagParser;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -90,8 +91,17 @@ public final class LbcIncomingArtifacts {
         if(!a.allowed)return;
         game.items().gaaraPot().incoming(owner);
         criteria++;
+        apply(owner,source.getEntity(),a);
+    }
+    void propertyIncoming(ServerPlayer owner,Entity attacker,net.minecraft.world.item.component.CustomData property){
+        if(!admitted(owner,true))return;
+        var d=(ItemData.IntReader)(Object)property;int type=d.skywars2$readInt("type",0);if(type<1||type>6)return;
+        int current=d.skywars2$readInt("mystical",0)==4?1<<type:0,old=d.skywars2$readInt("mystical_old",0)==4?1<<type:0;
+        apply(owner,attacker,new Admission(owner,true,current,old,true));
+    }
+    private void apply(ServerPlayer owner,Entity attacker,Admission a){
         // The separate shield criterion admits the source entity's original tag, without a magic gate.
-        if((a.current&2)!=0&&source.getEntity()!=null&&source.getEntity().getType().builtInRegistryHolder().is(ATTACKS))shield(owner);
+        if((a.current&2)!=0&&attacker!=null&&attacker.getType().builtInRegistryHolder().is(ATTACKS))shield(owner);
         // container.* outer predicate is narrower than Inventory NBT; armor/offhand alone do not open it.
         if(a.currentContainer&&!game.items().magic().beaconSuppressed(owner.position())){
             if((a.current&4)!=0)explode(owner);
@@ -167,9 +177,10 @@ public final class LbcIncomingArtifacts {
     }
     private boolean inventory(ServerPlayer p,String flag,boolean passive){
         for(int i=0;i<=40;i++)if((!passive||i<36||i==40)&&!p.getInventory().getItem(i).isEmpty()
-                &&LbcFartus.data(p.getInventory().getItem(i)).getIntOr(flag,0)==1)return true;
+                &&(passive?LbcFartus.data(p.getInventory().getItem(i)).getIntOr(flag,0)==1:hasFlag(p.getInventory().getItem(i),flag)))return true;
         return false;
     }
+    private static boolean hasFlag(net.minecraft.world.item.ItemStack stack,String flag){var pattern=new CompoundTag();pattern.putInt(flag,1);return LbcTmtInventory.matches(stack,pattern);}
     private boolean magicHit(ServerPlayer p){
         return !p.entityTags().contains("nomagic_active")&&!game.items().magic().suppressed(p)
                 &&!game.items().magic().suppressedAt(p.level(),p.getEyePosition());
@@ -180,6 +191,12 @@ public final class LbcIncomingArtifacts {
                 ||!admitted(p,true)||!game.items().wands().validRoleTarget(victim,true))return;
         if(inventory(p,"gaara",false)&&magicHit(p)&&p.distanceToSqr(victim)<=100)sand(p,p.getRandom().nextInt(3)+1);
         if(inventory(p,"gaara_old",false))volley(p,true);
+    }
+    void propertyMelee(ServerPlayer owner,LivingEntity victim,net.minecraft.world.item.component.CustomData property){
+        if(!admitted(owner,true)||!game.items().wands().validRoleTarget(victim,true))return;
+        var data=(ItemData.IntReader)(Object)property;
+        if(data.skywars2$readInt("gaara",0)==1&&magicHit(owner)&&owner.distanceToSqr(victim)<=100)sand(owner,owner.getRandom().nextInt(3)+1);
+        if(data.skywars2$readInt("gaara_old",0)==1)volley(owner,true);
     }
     void sand(ServerPlayer p,int branch){
         switch(branch){case 1->volley(p,false);case 2->wall(p);case 3->cages(p);default->throw new IllegalArgumentException("sand branch");}

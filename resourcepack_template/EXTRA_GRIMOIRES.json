@@ -3,112 +3,126 @@
     "spellId": 243,
     "id": "tiny_fire_grimoire",
     "wand": "tiny_fire_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "epic",
+    "tier": "lbc:tier_d",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 244,
     "id": "tiny_blind_grimoire",
     "wand": "tiny_blind_wand",
-    "tier": "lbc:tier_b",
-    "rarity": "epic",
+    "tier": "lbc:tier_d",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 245,
     "id": "tiny_air_grimoire",
     "wand": "tiny_air_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "epic",
+    "tier": "lbc:tier_d",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 246,
     "id": "tiny_stone_grimoire",
     "wand": "tiny_stone_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "epic",
+    "tier": "lbc:tier_d",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 247,
     "id": "tiny_teleport_grimoire",
     "wand": "tiny_teleport_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "epic",
+    "tier": "lbc:tier_c",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 248,
     "id": "tiny_ruby_grimoire",
     "wand": "tiny_ruby_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "epic",
+    "tier": "lbc:tier_c",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 249,
     "id": "tiny_terra_grimoire",
     "wand": "tiny_terra_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "epic",
+    "tier": "lbc:tier_d",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 250,
     "id": "tiny_acid_grimoire",
     "wand": "tiny_acid_wand",
-    "tier": "lbc:tier_b",
-    "rarity": "epic",
+    "tier": "lbc:tier_c",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 251,
     "id": "tiny_electro_grimoire",
     "wand": "tiny_electro_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "epic",
+    "tier": "lbc:tier_c",
+    "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 252,
     "id": "soulless_grimoire",
     "wand": "soulcorruption_wand",
-    "tier": "lbc:tier_b",
+    "tier": "lbc:tier_d",
     "rarity": "base",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 253,
     "id": "soulless_metasola_grimoire",
     "wand": "academy_soulcorruption_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "base",
+    "tier": "lbc:tier_b",
+    "rarity": "rare",
+    "rarityModifier": "enhanced",
     "mode": "mode_create_metasola"
   },
   {
     "spellId": 254,
     "id": "halloween_wind_grimoire",
     "wand": "vex_wind_wand",
-    "tier": "lbc:tier_b",
-    "rarity": "rare",
+    "tier": "lbc:tier_d",
+    "rarity": "base",
+    "rarityModifier": null,
     "mode": null
   },
   {
     "spellId": 255,
     "id": "halloween_wind_self_grimoire",
     "wand": "academy_vex_wind_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "rare",
+    "tier": "lbc:tier_d",
+    "rarity": "base",
+    "rarityModifier": "enhanced",
     "mode": "mode_user"
   },
   {
     "spellId": 256,
     "id": "halloween_wind_others_grimoire",
     "wand": "academy_vex_wind_wand",
-    "tier": "lbc:tier_a",
-    "rarity": "rare",
+    "tier": "lbc:tier_d",
+    "rarity": "base",
+    "rarityModifier": "enhanced",
     "mode": "mode_not_user"
   },
   {
@@ -116,7 +130,8 @@
     "id": "halloween_wind_charges_grimoire",
     "wand": "academy_vex_wind_wand",
     "tier": "lbc:tier_a",
-    "rarity": "rare",
+    "rarity": "base",
+    "rarityModifier": "enhanced",
     "mode": "mode_windball"
   },
   {
@@ -125,6 +140,7 @@
     "wand": "fartus_wand",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": null,
     "mode": null
   },
   {
@@ -133,6 +149,7 @@
     "wand": "gaycaster",
     "tier": "lbc:tier_a",
     "rarity": "legendary",
+    "rarityModifier": null,
     "mode": null
   },
   {
@@ -141,6 +158,7 @@
     "wand": "ice_wand",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": null,
     "mode": null
   },
   {
@@ -149,6 +167,7 @@
     "wand": "shish_wall_wand",
     "tier": "lbc:tier_b",
     "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
@@ -157,6 +176,7 @@
     "wand": "academy_gaycaster",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": "enhanced",
     "mode": "mode_red"
   },
   {
@@ -165,6 +185,7 @@
     "wand": "academy_gaycaster",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": "enhanced",
     "mode": "mode_orange"
   },
   {
@@ -173,6 +194,7 @@
     "wand": "academy_gaycaster",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": "enhanced",
     "mode": "mode_yellow"
   },
   {
@@ -181,6 +203,7 @@
     "wand": "academy_gaycaster",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": "enhanced",
     "mode": "mode_green"
   },
   {
@@ -189,6 +212,7 @@
     "wand": "academy_gaycaster",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": "enhanced",
     "mode": "mode_light_blue"
   },
   {
@@ -197,6 +221,7 @@
     "wand": "academy_gaycaster",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": "enhanced",
     "mode": "mode_blue"
   },
   {
@@ -205,6 +230,7 @@
     "wand": "academy_gaycaster",
     "tier": "lbc:tier_s",
     "rarity": "legendary",
+    "rarityModifier": "enhanced",
     "mode": "mode_purple"
   },
   {
@@ -213,6 +239,7 @@
     "wand": "snow_wand",
     "tier": "lbc:tier_d",
     "rarity": "rare",
+    "rarityModifier": null,
     "mode": null
   },
   {
@@ -221,6 +248,7 @@
     "wand": "academy_snow_wand",
     "tier": "lbc:tier_b",
     "rarity": "rare",
+    "rarityModifier": "enhanced",
     "mode": null
   }
 ]

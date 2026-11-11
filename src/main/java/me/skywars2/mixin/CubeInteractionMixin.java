@@ -16,6 +16,8 @@ public abstract class CubeInteractionMixin {
     private InteractionResult skywars2$shieldAfterServerUse(ServerPlayer player,Level level,ItemStack stack,
             InteractionHand hand,Operation<InteractionResult> original){
         var game=me.skywars2.SkyWars2.game();
+        if(me.skywars2.game.LbcTmtTriggers.tryCycle(player,stack,hand))return me.skywars2.game.LbcUseInteractions.quietResult(true,InteractionResult.SUCCESS);
+        me.skywars2.game.LbcTmtTriggers.input(player,me.skywars2.game.LbcTmtTriggers.Input.RIGHT_CLICK);
         if(game!=null&&game.items().academy().tryUse(player,hand))return InteractionResult.SUCCESS;
         var before=stack.copy();var result=me.skywars2.game.LbcTmtShotCompletion.call(stack,()->original.call(player,level,stack,hand));
         me.skywars2.game.LbcUseInteractions.shieldAfter((ServerPlayerGameMode)(Object)this,player,level,before,hand,result);
@@ -25,6 +27,9 @@ public abstract class CubeInteractionMixin {
     private InteractionResult skywars2$cubeInput(ServerPlayer player,Level level,ItemStack stack,InteractionHand hand,
             BlockHitResult hit,Operation<InteractionResult> original){
         var game=me.skywars2.SkyWars2.game();
+        if(me.skywars2.game.LbcTmtTriggers.tryCycle(player,stack,hand))return me.skywars2.game.LbcUseInteractions.quietResult(true,InteractionResult.SUCCESS);
+        me.skywars2.game.LbcTmtTriggers.input(player,me.skywars2.game.LbcTmtTriggers.Input.RIGHT_CLICK);
+        me.skywars2.game.LbcTmtTriggers.input(player,me.skywars2.game.LbcTmtTriggers.Input.BLOCK_USE,null,hit.getBlockPos(),level.getBlockState(hit.getBlockPos()));
         if(game!=null&&game.items().academy().tryUse(player,hand))return InteractionResult.SUCCESS;
         boolean quiet=me.skywars2.game.LbcUseInteractions.quietUse(player,stack);
         return me.skywars2.game.LbcUseInteractions.quietResult(quiet,
