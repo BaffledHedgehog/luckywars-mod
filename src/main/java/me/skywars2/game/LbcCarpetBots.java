@@ -125,7 +125,7 @@ public final class LbcCarpetBots {
             halt();build=blockSlot()>=0;
             refreshTools();
             int now=game.server().getTickCount();
-            if(now>=nextGear&&!crafting.active()&&!survival.urgent()&&!brain.preciseAction()&&!player.isUsingItem()&&player.containerMenu==player.inventoryMenu){gear();nextGear=now+5;}
+            if(now>=nextGear&&mining==null&&!crafting.active()&&!survival.urgent()&&!brain.preciseAction()&&!player.isUsingItem()&&player.containerMenu==player.inventoryMenu){gear();nextGear=now+5;}
             var attacker=player.getLastHurtByMob();
             if(attacker!=null&&attacker!=player&&player.getLastHurtByMobTimestamp()!=hurtStamp){hurtStamp=player.getLastHurtByMobTimestamp();aggressor=attacker.getUUID();aggressorUntil=now+1200;}
             if(defense.retaliation!=null){aggressor=defense.retaliation.getUUID();aggressorUntil=now+1200;defense.retaliation=null;}
@@ -134,7 +134,7 @@ public final class LbcCarpetBots {
             if(player.isUsingItem()&&(survival.urgent()||
                     player.getUseItem().has(DataComponents.FOOD)&&defense.shelterUrgent()||
                     (player.getUseItem().getItem() instanceof BowItem||player.getUseItem().getItem() instanceof CrossbowItem
-                    ||player.getUseItem().getItem() instanceof TridentItem)&&defense.interruptUse(enemy)))player.stopUsingItem();
+                    ||player.getUseItem().getItem() instanceof TridentItem)&&(preferMelee()||defense.interruptUse(enemy))))player.stopUsingItem();
             if(survival.tick(enemy!=null)){crafting.cancel();academy.cancel();return;}
             if(brain.freeBody()){crafting.cancel();academy.cancel();return;}
             if(player.isUsingItem()){
@@ -143,8 +143,9 @@ public final class LbcCarpetBots {
                 if(used.getItem() instanceof BowItem||used.getItem() instanceof CrossbowItem||used.getItem() instanceof TridentItem){
                     if(!pursueUsing(enemy==null?player.getEyePosition():shotAim(),false))return;
                     // Native onUseTick loads the crossbow, including Quick Charge and special ammunition.
-                    if(used.getItem() instanceof CrossbowItem?CrossbowItem.isCharged(used):player.getTicksUsingItem()>=(used.getItem() instanceof TridentItem?10:20))
-                        player.releaseUsingItem();
+                    if(used.getItem() instanceof CrossbowItem?CrossbowItem.isCharged(used):player.getTicksUsingItem()>=(used.getItem() instanceof TridentItem?10:20)){
+                        if(clearShot())player.releaseUsingItem();else player.stopUsingItem();
+                    }
                 }
                 else if(enemy!=null&&used.has(DataComponents.FOOD)&&!defense.holdsHighGround(enemy)&&!defense.sheltered(enemy))defense.retreat(enemy.position(),9);
                 else if(!used.has(DataComponents.FOOD)){
@@ -169,7 +170,7 @@ public final class LbcCarpetBots {
                 if(player.containerMenu!=player.inventoryMenu)player.closeContainer();
                 goal=enemy.position();chest=null;
                 if(clearCrystal())return;
-                double distance=player.distanceToSqr(enemy);boolean shooting=rangedLoadout();
+                double distance=player.distanceToSqr(enemy);boolean shooting=rangedLoadout()&&!preferMelee();
                 if(defense.sheltered(enemy)){turn(enemy.getEyePosition());return;}
                 if(defense.holdsHighGround(enemy)){
                     if(!defense.thorns(enemy)&&player.hasLineOfSight(enemy)){
@@ -185,7 +186,8 @@ public final class LbcCarpetBots {
                         if(!brain.closeGround(enemy.position()))brain.tick();
                     }
                     if(brain.preciseAction())return;
-                    if(!ranged()&&!ability())turn(enemy.getEyePosition());return;
+                    if(ranged()||ability())return;
+                    // An empty/blocked bow or an unaffordable wand is not a reason to stop chasing.
                 }
                 weapon();
                 if(defense.thorns(enemy)){
@@ -197,7 +199,7 @@ public final class LbcCarpetBots {
                 double reach=player.entityInteractionRange();
                 if(distance>Math.pow(reach+enemy.getBbWidth()*.5,2)||!player.hasLineOfSight(enemy)){if(!brain.closeGround(enemy.position()))brain.tick();}
                 if(brain.preciseAction())return;
-                if(!defense.thorns(enemy)&&(ranged()||ability()))return;
+                if(!preferMelee()&&!defense.thorns(enemy)&&(ranged()||ability()))return;
                 if(defense.thorns(enemy))return;
                 turn(enemy.getEyePosition());attack();return;
             }
@@ -272,7 +274,9 @@ public final class LbcCarpetBots {
             }
             return false;
         }
-        private Vec3 shotAim(){double ticks=Math.min(20,player.distanceTo(enemy)/3);return enemy.getEyePosition().add(enemy.getDeltaMovement().scale(ticks)).add(0,.025*ticks*ticks,0);}
+        private Vec3 shotAim(){return LbcBotActions.arrowAim(player,enemy,shotSpeed());}
+        private double shotSpeed(){return player.getMainHandItem().getItem() instanceof CrossbowItem?3.15:player.getMainHandItem().getItem() instanceof TridentItem?2.5:3;}
+        private boolean clearShot(){return LbcBotActions.clearArrowShot(player,enemy,shotAim(),shotSpeed());}
         private int rangedSlot(){
             for(int slot=0;slot<36;slot++){
                 var stack=player.getInventory().getItem(slot);
@@ -284,7 +288,9 @@ public final class LbcCarpetBots {
         private boolean ranged(){
             if(player.distanceToSqr(enemy)<16&&!defense.holdsHighGround(enemy)||player.distanceToSqr(enemy)>32*32||!player.hasLineOfSight(enemy))return false;
             int slot=rangedSlot();if(slot<0)return false;
-            turn(shotAim());if(!select(slot))return true;
+            if(!select(slot))return true;
+            if(!clearShot())return false;
+            turn(shotAim());
             if(player.getLookAngle().dot(shotAim().subtract(player.getEyePosition()).normalize())<.995)return true;
             return player.gameMode.useItem(player,level,player.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction();
         }
@@ -458,8 +464,8 @@ public final class LbcCarpetBots {
             for(int i=0;i<36;i++){var item=player.getInventory().getItem(i);if(!item.isEmpty())available.add(item);}
             tools=available;
         }
-        private void weapon(){
-            if(player.isUsingItem())return;int chosen=-1;double best=0;
+        private int weaponSlot(){
+            int chosen=-1;double best=0;
             for(int i=0;i<36;i++){
                 var item=player.getInventory().getItem(i);if(item.isEmpty())continue;
                 double damage=attribute(item,Attributes.ATTACK_DAMAGE,1,EquipmentSlot.MAINHAND);
@@ -467,7 +473,14 @@ public final class LbcCarpetBots {
                 double score=Math.max(0,damage)*Math.sqrt(speed);
                 if(score>best){best=score;chosen=i;}
             }
-            if(chosen>=0)select(chosen);
+            return chosen;
+        }
+        private boolean preferMelee(){
+            if(enemy==null||defense.thorns(enemy)||player.distanceToSqr(enemy)>36)return false;
+            int slot=weaponSlot();return slot>=0&&attribute(player.getInventory().getItem(slot),Attributes.ATTACK_DAMAGE,1,EquipmentSlot.MAINHAND)>1;
+        }
+        private void weapon(){
+            if(!player.isUsingItem()){int slot=weaponSlot();if(slot>=0)select(slot);}
         }
         private boolean eat(){
             if(player.getHealth()<player.getMaxHealth()*.65)for(int i=0;i<36;i++)if(player.getInventory().getItem(i).is(Items.GOLDEN_APPLE)&&select(i))return player.gameMode.useItem(player,level,player.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction();
@@ -498,6 +511,9 @@ public final class LbcCarpetBots {
             player.setXRot(Mth.approach(player.getXRot(),pitch,8));player.setYBodyRot(player.getYRot());
         }
         void commit(){
+            // Match a real release of attack when another action takes the camera/tool.
+            // Gear changes are deferred while a legitimate continuous break is in progress.
+            if(mining!=null&&miningTick!=game.server().getTickCount())abortMining();
             // Native sneak protects a stopped builder from walking off its last support.
             boolean unsafe=false;
             var motion=player.getDeltaMovement();

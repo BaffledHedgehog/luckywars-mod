@@ -4,6 +4,7 @@
 # Local Gradle state, generated artifacts and isolated verification servers.
 /.gradle/
 /build/
+/bin/
 /logs/
 
 # Personal IDE configuration.

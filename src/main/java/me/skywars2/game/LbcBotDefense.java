@@ -67,6 +67,9 @@ final class LbcBotDefense {
         if(threat!=null)driver.aimAction(threat);return true;
     }
     boolean retreat(Vec3 danger,double desired){
+        return retreat(danger,desired,false);
+    }
+    private boolean retreat(Vec3 danger,double desired,boolean watchThreat){
         var away=player.position().subtract(danger).multiply(1,0,1);
         if(away.horizontalDistanceSqr()>=desired*desired)return false;
         if(away.lengthSqr()<.001)away=new Vec3(1,0,0);
@@ -83,7 +86,10 @@ final class LbcBotDefense {
             if(point==null)return false;
             retreatPoint=point;retreatDanger=danger;retreatUntil=player.tickCount+5;
         }
-        player.setSprinting(true);driver.steer(point,false,point.add(0,1.5,0));return true;
+        // A short melee cooldown step is ordinary backpedalling, not a repeated
+        // 180-degree turn away from the opponent. Long urgent escapes still face forward.
+        player.setSprinting(!watchThreat);
+        driver.steer(point,false,watchThreat?danger.add(0,player.getEyeHeight(),0):point.add(0,1.5,0));return true;
     }
     /** Turn around an obstruction on existing connected ground before trying to stand and build. */
     private boolean escapeMelee(Vec3 danger){
@@ -156,7 +162,7 @@ final class LbcBotDefense {
         for(var tnt:player.level().getEntitiesOfClass(PrimedTnt.class,player.getBoundingBox().inflate(9),e->e.getFuse()<=45))
             if(retreat(tnt.position(),9))return true;
         if(enemy!=null&&enemy.getUUID().equals(struck)&&player.tickCount-struckAt<30
-                &&player.getAttackStrengthScale(.5f)<.88&&retreat(enemy.position(),3.8))return true;
+                &&player.getAttackStrengthScale(.5f)<.88&&retreat(enemy.position(),3.8,true))return true;
         return false;
     }
     private boolean shelterThreat(){
@@ -168,7 +174,8 @@ final class LbcBotDefense {
     boolean shelterUrgent(){return shelterThreat()&&shelter.urgent();}
     boolean sheltered(LivingEntity enemy){return enemy==rangedAttacker&&shelter.at!=null&&!shelter.urgent()
             &&player.position().subtract(Vec3.atBottomCenterOf(shelter.at)).horizontalDistanceSqr()<2;}
-    private void rememberRanged(LivingEntity attacker){if(rangedAttacker!=attacker)rangedHits=0;rangedAttacker=attacker;}
+    int rangedUntil;
+    private void rememberRanged(LivingEntity attacker){if(rangedAttacker!=attacker)rangedHits=0;rangedAttacker=attacker;rangedUntil=player.tickCount+60;}
     void rangedDamage(LivingEntity attacker){rememberRanged(attacker);rangedHits++;}
     private Boolean shelter(){
         if(!shelterThreat()){shelter.clear();return null;}
@@ -186,6 +193,9 @@ final class LbcBotDefense {
                 &&(enemy.getMainHandItem().getItem() instanceof net.minecraft.world.item.BowItem
                 ||enemy.getMainHandItem().getItem() instanceof net.minecraft.world.item.CrossbowItem)
                 &&player.hasLineOfSight(enemy))rememberRanged(enemy);
+        if(!actual&&player.tickCount>=rangedUntil){
+            rangedAttacker=null;rangedHits=0;cover=null;coverDirection=null;shelter.clear();
+        }
         if(!actual){
             if(rangedAttacker==null||!rangedAttacker.isAlive()||rangedAttacker.level()!=player.level()
                     ||!shelterThreat()&&(player.distanceToSqr(rangedAttacker)>32*32||player.distanceToSqr(rangedAttacker)<16)

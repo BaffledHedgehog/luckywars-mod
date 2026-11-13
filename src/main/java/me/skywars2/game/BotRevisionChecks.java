@@ -144,9 +144,13 @@ final class BotRevisionChecks {
                 }
                 case 16->{
                     require(now-at<180,"actual arrow reflection teaches thorns without a synchronous melee attack");
+                    if((now-at)%10==0)SkyWars2.LOGGER.info("[check] Arrow reflection frame={} ammo={} observation={} health={} source={} arrows={} {}",now-at,
+                            bot.getInventory().countItem(Items.ARROW),game.carpetBots().observation(bot),bot.getHealth(),bot.getLastDamageSource(),
+                            base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(32)).stream()
+                                    .map(arrow->arrow.position()+"/"+arrow.getDeltaMovement()+"/owner="+(arrow.getOwner()==bot)).toList(),game.carpetBots().diagnostics(bot));
                     var state=state();if(state==null||!((LbcBotDefense)WoolBucketChecks.read(state,"defense")).thorns(base.other))return false;
                     require(game.carpetBots().observation(bot).hits()==0&&bot.getInventory().countItem(Items.ARROW)==3,
-                            "one actual arrow shot, no melee observation, learns reflected damage");next(17);
+                            "one actual arrow shot, no melee observation, learns reflected damage: "+game.carpetBots().observation(bot)+" ammo="+bot.getInventory().countItem(Items.ARROW));next(17);
                 }
                 case 17->{
                     require(bot.getInventory().countItem(Items.ARROW)==3,"remembered ranged reflection prevents repeated self-damaging shots");

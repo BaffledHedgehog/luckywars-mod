@@ -836,6 +836,8 @@ public final class GameChecks {
                                 case "potion-carriers" -> { PotionCarrierChecks.run(game); return; }
                                 case "carpet-bot-ai" -> { CarpetBotChecks.run(game); return; }
                                 case "bot-revision" -> { BotRevisionChecks.run(game); return; }
+                                case "bot-combat-feedback" -> { BotCombatFeedbackChecks.run(game); return; }
+                                case "bot-population-24" -> { BotPopulationChecks.run(game); return; }
                                 case "bot-counter" -> { BotRevisionChecks.counter(game); return; }
                                 case "bot-academy-trial" -> { BotRevisionChecks.academy(game); return; }
                                 case "bot-cages" -> { BotCageChecks.run(game); return; }
@@ -1771,6 +1773,8 @@ public final class GameChecks {
             PotionCarrierChecks.tick(game);
             CarpetBotChecks.tick(game);
             BotRevisionChecks.tick(game);
+            BotCombatFeedbackChecks.tick(game);
+            BotPopulationChecks.tick(game);
             NuclearQueuedChecks.tick(game);
             BotCageChecks.tick(game);
             BotTrapChecks.tick(game);

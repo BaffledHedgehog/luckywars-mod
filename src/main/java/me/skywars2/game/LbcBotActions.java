@@ -8,6 +8,44 @@ import net.minecraft.world.phys.*;
 /** Shared physical action admission for the Chef and actual player bots. */
 final class LbcBotActions {
     private LbcBotActions(){}
+    /** Low arrow arc with native air drag, gravity and a bounded lead of the moving target. */
+    static Vec3 arrowAim(LivingEntity actor,LivingEntity target,double speed){
+        var eye=actor.getEyePosition();var origin=eye.add(0,-.1,0);var centre=target.getBoundingBox().getCenter();
+        var motion=target.onGround()?target.getDeltaMovement().multiply(1,0,1):target.getDeltaMovement();
+        var inherited=arrowInheritedMotion(actor);
+        double ticks=Math.min(20,origin.distanceTo(centre)/speed);Vec3 launch=centre.subtract(origin);
+        for(int i=0;i<4;i++){
+            double drag=(1-Math.pow(.99,ticks))/.01;
+            double fall=.05/.01*(ticks-drag);
+            launch=centre.add(motion.scale(ticks)).add(0,fall,0).subtract(origin).scale(1/Math.max(.001,drag)).subtract(inherited);
+            ticks=Math.max(.01,Math.min(20,ticks*launch.length()/speed));
+        }
+        // The camera is at eye height; the projectile is created 0.1 blocks below it.
+        return eye.add(launch);
+    }
+    private static Vec3 arrowInheritedMotion(LivingEntity actor){
+        if(actor.getMainHandItem().getItem() instanceof net.minecraft.world.item.CrossbowItem)return Vec3.ZERO;
+        var motion=actor.getKnownMovement();return actor.onGround()?motion.multiply(1,0,1):motion;
+    }
+    /** Check the actual curved flight, not just the straight eye-to-eye visibility ray. */
+    static boolean clearArrowShot(LivingEntity actor,LivingEntity target,Vec3 aim,double speed){
+        var eye=actor.getEyePosition();var from=eye.add(0,-.1,0);
+        var velocity=aim.subtract(eye).normalize().scale(speed).add(arrowInheritedMotion(actor));
+        var motion=target.onGround()?target.getDeltaMovement().multiply(1,0,1):target.getDeltaMovement();
+        var direction=target.getBoundingBox().getCenter().subtract(from).normalize();
+        double distance=target.getBoundingBox().getCenter().distanceTo(from);
+        var start=from;
+        for(int tick=0;tick<24;tick++){
+            var end=from.add(velocity);
+            var expected=target.getBoundingBox().move(motion.scale(tick)).inflate(.25);
+            var contact=expected.clip(from,end);
+            var wall=actor.level().clip(new ClipContext(from,contact.orElse(end),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,actor));
+            if(wall.getType()!=HitResult.Type.MISS)return false;
+            if(contact.isPresent()||end.subtract(start).dot(direction)>=distance)return true;
+            from=end;velocity=velocity.scale(.99).add(0,-.05,0);
+        }
+        return false;
+    }
     static BlockHitResult ray(LivingEntity actor,double range){
         var eye=actor.getEyePosition();return actor.level().clip(new ClipContext(eye,eye.add(actor.getLookAngle().scale(range)),ClipContext.Block.OUTLINE,ClipContext.Fluid.NONE,actor));
     }
