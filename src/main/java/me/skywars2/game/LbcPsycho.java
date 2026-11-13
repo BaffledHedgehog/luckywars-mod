@@ -80,7 +80,7 @@ public final class LbcPsycho {
 
     public static final class Charge extends Projectile implements PolymerEntity {
         int age,lifetime=100;
-        boolean invisible,spray;
+        boolean invisible,spray,noStack;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -309,7 +309,7 @@ public final class LbcPsycho {
         if(!valid(owner)||paused(owner)||!Double.isFinite(direction.x)||!Double.isFinite(direction.y)
                 ||!Double.isFinite(direction.z)||direction.lengthSqr()<1.0e-12)return false;
         int before=charges.size();
-        spawn(owner,origin,direction.normalize().scale(2),false,false,100);
+        spawn(owner,origin,direction.normalize().scale(2),false,false,100,true);
         if(charges.size()==before)return false;
         LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.5f,.5f,0);
         LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.5f,1.5f,0);
@@ -371,10 +371,13 @@ public final class LbcPsycho {
         }
     }
     private void spawn(ServerPlayer owner,Vec3 point,Vec3 velocity,boolean invisible,boolean spray,int lifetime) {
+        spawn(owner,point,velocity,invisible,spray,lifetime,false);
+    }
+    private void spawn(ServerPlayer owner,Vec3 point,Vec3 velocity,boolean invisible,boolean spray,int lifetime,boolean noStack) {
         if(!owner.level().hasChunkAt(BlockPos.containing(point))) return;
         var charge=new Charge(TYPE,owner.level()); charge.setOwner(owner); charge.setPos(point);
         charge.setNoGravity(true); charge.setDeltaMovement(velocity); charge.invisible=invisible;
-        charge.spray=spray; charge.lifetime=lifetime; charge.entityTags().add("magic");
+        charge.spray=spray;charge.noStack=noStack; charge.lifetime=lifetime; charge.entityTags().add("magic");
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) charges.add(charge);
     }
@@ -443,16 +446,22 @@ public final class LbcPsycho {
         var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),charge,owner);
         target.hurtServer(owner.level(),source,4);
         target.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,400,0),owner);
-        afflict(target,owner,15,5,10,0);
+        afflict(target,owner,15,5,10,0,!charge.noStack);
         privateSound(target,"minecraft:ambient.cave",2,0,target.position());
         privateSound(target,"minecraft:ambient.cave",2,2,target.position());
         if(target instanceof ServerPlayer player) player.level().sendParticles(player,ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,
                 target.getX(),target.getY()+1,target.getZ(),200,0,0,0,1);
     }
     void afflict(LivingEntity entity,ServerPlayer owner,int scared,int lookback,int twitching,int piss) {
+        afflict(entity,owner,scared,lookback,twitching,piss,true);
+    }
+    private void afflict(LivingEntity entity,ServerPlayer owner,int scared,int lookback,int twitching,int piss,boolean stack) {
         if(entity instanceof ServerPlayer player && game.items().magic().rejectCustomDebuff(player)) return;
         var effect=effects.computeIfAbsent(entity,e->new Affliction()); effect.owner=owner; effect.epoch=game.items().epoch();
-        effect.scared+=scared; effect.lookback+=lookback; effect.twitching+=twitching; effect.piss+=piss;
+        effect.scared=stack?effect.scared+scared:Math.max(effect.scared,scared);
+        effect.lookback=stack?effect.lookback+lookback:Math.max(effect.lookback,lookback);
+        effect.twitching=stack?effect.twitching+twitching:Math.max(effect.twitching,twitching);
+        effect.piss=stack?effect.piss+piss:Math.max(effect.piss,piss);
         sync(entity,effect);
     }
     /** Yellow Gaycaster sets the existing source counter rather than extending it. */

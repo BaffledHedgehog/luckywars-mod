@@ -27,6 +27,8 @@ public final class PerkStatisticsChecks {
         try {
             fixture = Files.createTempDirectory("lbc-perk-statistics-check-").toAbsolutePath().normalize();
             counters(fixture.resolve("counters.json"));
+            weightedTrinkets(fixture.resolve("trinkets.json"));
+            batchedPicks(fixture.resolve("batch.json"));
             migration(fixture.resolve("migration.json"));
             rejectedImport(fixture.resolve("blocked.json"));
             malformedStore(fixture.resolve("malformed.json"));
@@ -71,10 +73,48 @@ public final class PerkStatisticsChecks {
         reloaded.recordPicks("match-a", "Offline_A", choices);
         reloaded.recordWins("match-a", "Offline_A", choices);
         require(Arrays.equals(before, Files.readAllBytes(file)), "reloaded receipts reject duplicate picks and wins without rewriting");
-        require(reloaded.value("Offline_A", "win_count_trinket[1]").equals("2"), "reloaded duplicate-slot counts remain exact");
+        require(reloaded.value("Offline_A", "win_count_trinket[1]").equals("1"), "one win with two identical trinkets remains one personal win after reload");
         var raw = read(file).getAsJsonObject("counters");
         require(!raw.has("-1_levelup_pick"), "unset zero ID produces no counter");
         require(read(file).getAsJsonArray("receipts").size() == 3, "receipts grow with accepted match events only");
+    }
+
+    private static void weightedTrinkets(Path file)throws IOException{
+        var store=new LbcPerkStatistics(file);store.migrateLegacy(new CompoundTag(),()->{});
+        var choices=Map.of("trinket",List.of(1,1,1,1,2,2,2,0,0,0,0,0));
+        store.recordPicks("fraction-0","Weighted",choices);store.recordWins("fraction-0","Weighted",choices);
+        require(store.value("Weighted","win_count_trinket[0]").equals("0.57142857"),"four of seven shares, ignoring empty slots");
+        require(store.value("Weighted","win_count_trinket[1]").equals("0.42857143"),"three of seven shares");
+        require(store.value("Weighted","pick_count_trinket[0]").equals("4")&&store.value("Weighted","win_rate_trinket[0]").equals("100"),"picks and global percentages keep source counting");
+        for(int i=1;i<7;i++)store.recordWins("fraction-"+i,"Weighted",choices);
+        store=new LbcPerkStatistics(file);
+        require(store.value("Weighted","win_count_trinket[0]").equals("4")&&store.value("Weighted","win_count_trinket[1]").equals("3"),"seven fractional wins add to exact integers across reload");
+        store.recordWins("single","Solo",Map.of("trinket",List.of(0,0,3,0,0,0,0,0,0,0,0,0)));
+        require(store.value("Solo","win_count_trinket[2]").equals("1"),"one actual trinket among empty slots earns a whole win");
+        store.recordWins("nine","Nine",Map.of("trinket",java.util.Collections.nCopies(9,4)));
+        require(store.value("Nine","win_count_trinket[3]").equals("1"),"nine identical selections earn one personal win");
+        var all=Map.of("trinket",java.util.stream.IntStream.rangeClosed(1,12).boxed().toList());
+        for(int i=0;i<12;i++)store.recordWins("twelfths-"+i,"Twelve",all);
+        for(int i=0;i<12;i++)require(store.value("Twelve","win_count_trinket["+i+"]").equals("1"),"all twelve denominators remain exact");
+        var before=Files.readAllBytes(file);boolean rejected=false;
+        try{store.recordWins("invalid","Weighted",Map.of("trinket",java.util.Collections.nCopies(13,1)));}catch(IllegalStateException expected){rejected=true;}
+        require(rejected&&Arrays.equals(before,Files.readAllBytes(file)),"invalid selection cannot partially alter counters or receipts");
+        var legacy=new CompoundTag();legacy.putInt("Imported_0_trinket_win",7);
+        var imported=new LbcPerkStatistics(file.resolveSibling("old-trinkets.json"));imported.migrateLegacy(legacy,()->{});
+        imported.recordWins("new-win","Imported",Map.of("trinket",List.of(1,2)));
+        require(new LbcPerkStatistics(file.resolveSibling("old-trinkets.json")).value("Imported","win_count_trinket[0]").equals("7.5"),"legacy personal totals are preserved with new exact shares");
+    }
+
+    private static void batchedPicks(Path file)throws IOException{
+        var store=new LbcPerkStatistics(file);store.migrateLegacy(new CompoundTag(),()->{});var before=Files.readAllBytes(file);
+        try(var batch=store.batch()){
+            for(int i=0;i<24;i++)store.recordPicks("round/"+i,"Player"+i,Map.of("kit",List.of(1),"trinket",List.of(1,1)));
+            try(var nested=store.batch()){store.recordWins("round/0","Player0",Map.of("kit",List.of(1)));}
+            require(Arrays.equals(before,Files.readAllBytes(file)),"24 start receipts and nested work defer synchronous disk replacement until the outer boundary");
+            require(store.value("Player23","pick_count_trinket[0]").equals("2"),"accepted in-memory state is immediately visible within the batch");
+        }
+        var restored=new LbcPerkStatistics(file);require(read(file).getAsJsonArray("receipts").size()==25,"all batched events durable together");
+        require(restored.value("Player23","pick_count_trinket[0]").equals("2")&&restored.value("Player0","win_count_kit[0]").equals("1"),"the single durable write retains every actual event");
     }
 
     private static void migration(Path file) throws IOException {

@@ -1161,6 +1161,7 @@ public final class GameController {
         if(!bedwars.mode()){maps.cages(false); maps.captureRespawnIslands(); maps.fillChests(false);}
         transition(Stage.PLAYING); gameTicks = 0;
         events.start();
+        try(var statisticsBatch=LbcPerkStatistics.get(server).batch()){
         for (ServerPlayer player : alivePlayers()) {
             player.setGameMode(GameType.SURVIVAL); player.setHealth(player.getMaxHealth());
             if (config.vanillaKits) events.giveKit(player);
@@ -1174,6 +1175,7 @@ public final class GameController {
             member.lives=items.phoenix().start(player,member.lives);player.setHealth(player.getMaxHealth());
             items.cinema().start(player,maps.centerPositions());
             items.stand().matchStarted(player);
+        }
         }
         maps.level().getGameRules().set(GameRules.BLOCK_DROPS, true, server);
         maps.level().getGameRules().set(GameRules.ENTITY_DROPS, true, server);

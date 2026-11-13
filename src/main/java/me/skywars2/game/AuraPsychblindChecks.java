@@ -4,6 +4,9 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.server.level.*;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -46,7 +49,8 @@ public final class AuraPsychblindChecks {
         final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
         final net.minecraft.world.scores.PlayerTeam oldTeam,otherTeam,team;
         double attack,armor,toughness,knockback;int manaRegen,stage,when;boolean closed,stopped,restoring;
-        Cow target,ally,shop,observer;BlockPos support;float health;UUID doppelId;Vec3 frozenPosition;
+        Cow target,ally,shop,observer;BlockPos support;float health;UUID doppelId;Vec3 frozenPosition;ServerPlayer doppelCaster;
+        int gramPackets;
         Map<UUID,Vec3> replayBodies=new LinkedHashMap<>();
         final Set<UUID> removedGrams=new LinkedHashSet<>();
         Fixture(GameController game,int kind){
@@ -109,6 +113,8 @@ public final class AuraPsychblindChecks {
         void hit(){var before=color();resetHit();require(owner.hurtServer(level,owner.damageSources().generic(),1),"real native incoming damage admitted");require(color()==LbcRainbowAura.Color.values()[(before.ordinal()+1)%7],"exactly one source color transition");}
         void next(int n){stage=n;when=game.server().getTickCount();}
         List<LbcPsychblindSkill.Doppel> doppels(){var result=new ArrayList<LbcPsychblindSkill.Doppel>();for(var e:level.getAllEntities())if(e instanceof LbcPsychblindSkill.Doppel d&&!original.contains(e.getUUID()))result.add(d);return result;}
+        void flatten(Packet<?> packet,List<Packet<?>> out){if(packet instanceof ClientboundBundlePacket bundle)for(var child:bundle.subPackets())flatten(child,out);else out.add(packet);}
+        int displayData(String field){try{var declared=Display.class.getDeclaredField(field);declared.setAccessible(true);return ((net.minecraft.network.syncher.EntityDataAccessor<?>)declared.get(null)).id();}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
         void block(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){terrain.putIfAbsent(pos.immutable(),game.maps().snapshot(level,pos));level.setBlock(pos,state,2);}
         boolean step(){
             client.acknowledge();audience.acknowledge();require(game.server().getTickCount()-started<500,"finite scheduled fixture, stage="+stage);int elapsed=game.server().getTickCount()-when;
@@ -139,6 +145,21 @@ public final class AuraPsychblindChecks {
                     var checkpoint=game.items().rainbowAura().checkpoint();
                     for(var id:checkpoint.actorIds())if(!original.contains(id)&&level.getEntity(id) instanceof Display.ItemDisplay gram&&gram.entityTags().contains("skywars2.rainbow_visual"))removedGrams.add(id);
                     require(!removedGrams.isEmpty(),"real source aqua pulse published owned native managram displays");
+                    gramPackets=client.packets().size();next(9);
+                }
+                case 9->{
+                    if(elapsed<6)return false;
+                    var ids=new HashSet<Integer>();for(var id:removedGrams){var gram=(Display.ItemDisplay)level.getEntity(id);require(gram!=null,"native managram remains live while measuring tracking");ids.add(gram.getId());
+                        require(gram.getYRot()==0&&gram.getTransformationInterpolationDuration()==1,"rotation is carried by the interpolated transform instead of quantized entity yaw");}
+                    int delay=displayData("DATA_TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS_ID"),rotation=displayData("DATA_LEFT_ROTATION_ID"),scale=displayData("DATA_SCALE_ID");
+                    var packets=new ArrayList<Packet<?>>();for(var packet:client.packets().subList(gramPackets,client.packets().size()))flatten(packet,packets);
+                    long frames=packets.stream().filter(ClientboundSetEntityDataPacket.class::isInstance).map(ClientboundSetEntityDataPacket.class::cast)
+                            .filter(packet->ids.contains(packet.id())&&packet.packedItems().stream().anyMatch(v->v.id()==delay&&v.value().equals(0))
+                                    &&packet.packedItems().stream().anyMatch(v->v.id()==rotation)&&packet.packedItems().stream().anyMatch(v->v.id()==scale)).count();
+                    require(frames>=3,"actual tracking sends repeated rotation+scale transforms with an interpolation restart: frames="+frames);
+                    require(packets.stream().filter(ClientboundSetEntityDataPacket.class::isInstance).map(ClientboundSetEntityDataPacket.class::cast)
+                            .filter(packet->ids.contains(packet.id())).flatMap(packet->packet.packedItems().stream())
+                            .anyMatch(v->v.id()==rotation&&v.value() instanceof org.joml.Quaternionf q&&q.y<-.01f),"native transform keeps the original DisplayRenderer yaw direction");
                     // Actual native removal must retire cosmetic links without altering source color/resource ownership.
                     for(var id:removedGrams)level.getEntity(id).discard();next(8);
                 }
@@ -195,9 +216,31 @@ public final class AuraPsychblindChecks {
                 }
                 case 23->{
                     var charges=game.items().psycho().snapshot();if(charges.isEmpty()){require(elapsed<20,"ordinary Psycho terminal appears");return false;}
-                    require(charges.size()==1&&charges.getFirst().lifetime==100&&!charges.getFirst().invisible&&!charges.getFirst().spray,"exactly one existing visible100tick Psycho charge");var shot=charges.getFirst();require(shot.getDeltaMovement().normalize().dot(target.getEyePosition().subtract(shot.position()).normalize())>.999,"terminal aims at actual nearest hostile9 ahead of farther10");require(level.getEntity(doppelId)==null,"terminal consumes the source soul");health=target.getHealth();next(24);
+                    require(charges.size()==1&&charges.getFirst().lifetime==100&&!charges.getFirst().invisible&&!charges.getFirst().spray&&charges.getFirst().noStack,"one visible100tick doppel charge with nonstacking status policy");var shot=charges.getFirst();doppelCaster=(ServerPlayer)shot.getOwner();require(shot.getDeltaMovement().normalize().dot(target.getEyePosition().subtract(shot.position()).normalize())>.999,"terminal aims at actual nearest hostile9 ahead of farther10");require(level.getEntity(doppelId)==null,"terminal consumes the source soul");health=target.getHealth();next(24);
                 }
-                case 24->{if(target.getHealth()==health){require(elapsed<30,"actual shared Psycho flight hits nearest hostile");return false;}require(target.getHealth()==health-4,"existing Psycho collision deals source4");require(target.hasEffect(MobEffects.DARKNESS)&&game.items().psycho().effectValue(target,"scared")>0&&game.items().psycho().effectValue(target,"lookback")>0&&game.items().psycho().effectValue(target,"twitching")>0,"existing shared Psycho status owner receives collision");require(ally.getHealth()==1000,"borrowed ally remains unharmed");require(ally.entityTags().contains(LbcPsychblindSkill.CLAIM),"global source claim survives visual consumption");game.items().psychblindSkill().clear(owner.getUUID());game.items().psychblindSkill().clear(other.getUUID());require(game.items().psychblindSkill().count()==0,"source owner cleanup removes bodies");return true;}
+                case 24->{
+                    if(target.getHealth()==health){require(elapsed<30,"actual shared Psycho flight hits nearest hostile");return false;}
+                    require(target.getHealth()==health-4,"existing Psycho collision deals source4");require(target.hasEffect(MobEffects.DARKNESS)&&game.items().psycho().effectValue(target,"scared")>0&&game.items().psycho().effectValue(target,"lookback")>0&&game.items().psycho().effectValue(target,"twitching")>0,"existing shared Psycho status owner receives collision");
+                    require(game.items().psycho().emitDoppel(doppelCaster,target.getEyePosition().add(-2,0,0),new Vec3(1,0,0)),"second native doppel discharge");
+                    var shot=game.items().psycho().snapshot().stream().filter(c->c.noStack).findFirst().orElseThrow();
+                    require(game.items().cloneSkills().copyNow(shot,15),"real projectile clone admits doppel charge");
+                    require(game.items().psycho().snapshot().stream().filter(c->c.noStack).count()==2,"native clone preserves nonstacking policy");next(26);
+                    // x2 intentionally scatters the copied spawn by up to two blocks.
+                    // Arrange both initial volumes inside the target for this status test;
+                    // subsequent hits must still use the actual projectile collision scheduler.
+                    for(var charge:game.items().psycho().snapshot()){charge.setPos(target.getBoundingBox().getCenter());charge.setDeltaMovement(new Vec3(2,0,0));}
+                }
+                case 26->{
+                    if(!game.items().psycho().snapshot().isEmpty()){require(elapsed<10,"both physical doppel charges collide and are consumed");return false;}
+                    require(game.items().psycho().effectValue(target,"scared")>0&&game.items().psycho().effectValue(target,"scared")<=15
+                            &&game.items().psycho().effectValue(target,"lookback")<=5&&game.items().psycho().effectValue(target,"twitching")<=10,"repeated physical doppel impacts refresh without accumulating duration");
+                    game.items().psycho().emitAt(doppelCaster,3,target.getBoundingBox().getCenter(),new Vec3(2,0,0));next(27);
+                }
+                case 27->{
+                    if(game.items().psycho().effectValue(target,"scared")<=15){require(elapsed<10,"ordinary native Psycho charge still adds its source status duration");return false;}
+                    require(ally.getHealth()==1000,"borrowed ally remains unharmed");require(ally.entityTags().contains(LbcPsychblindSkill.CLAIM),"global source claim survives visual consumption");
+                    game.items().psychblindSkill().clear(owner.getUUID());game.items().psychblindSkill().clear(other.getUUID());require(game.items().psychblindSkill().count()==0,"source owner cleanup removes bodies");return true;
+                }
                 case 40->{
                     if(doppels().isEmpty()){require(elapsed<30,"nonempty actual native rewind graph");return false;}
                     game.items().timeStop().begin(level,10000);stopped=true;require(game.vanity().requestCapture(owner,false),"actual whole coordinator accepts nonempty aura/doppel graph");next(41);

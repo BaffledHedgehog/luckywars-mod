@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -34,6 +35,10 @@ final class LbcPerkStatistics {
     private static final Pattern PATH = Pattern.compile("(pick|win)_(count|rate)_([a-z][a-z0-9_]*)\\[(\\d+)]");
     private static final Pattern RAW = Pattern.compile("(?:.*_)?\\d+_(?:kit|x_kit|skill|trinket|levelup)_(?:pick|win)|(?:kit|x_kit|skill|trinket|levelup)_(?:picks|wins)");
     private final Map<String, Long> counters = new LinkedHashMap<>();
+    // LCM(1..12): every supported trinket selection has an exact integer share.
+    private static final BigInteger TRINKET_UNITS=BigInteger.valueOf(27720);
+    private final Map<String,BigInteger> personalTrinketWins=new LinkedHashMap<>();
+    private int batchDepth;
     private final Set<String> receipts = new LinkedHashSet<>();
     private final Path file;
     private boolean imported;
@@ -107,15 +112,21 @@ final class LbcPerkStatistics {
         if (receipts.contains(event)) { flush(); return; }
         if (playerName == null || playerName.isBlank()) throw new IllegalArgumentException("Missing perk-statistics player name");
         var before = new LinkedHashMap<>(counters);
+        var beforeTrinkets=new LinkedHashMap<>(personalTrinketWins);
         try {
             for (var entry : choices.entrySet()) {
                 String category = entry.getKey();
                 if (!category.matches("[a-z][a-z0-9_]*")) throw new IllegalArgumentException("Invalid perk-statistics category " + category);
+                boolean weighted=kind.equals("win")&&category.equals("trinket");
+                long selected=entry.getValue().stream().filter(id->id>0).count();
+                if(weighted&&selected>12)throw new IllegalArgumentException("More than twelve selected trinkets");
+                var share=weighted&&selected>0?TRINKET_UNITS.divide(BigInteger.valueOf(selected)):BigInteger.ZERO;
                 for (int nativeId : entry.getValue()) {
                     if (nativeId <= 0) continue;
                     String suffix = (nativeId - 1) + "_" + category + "_" + kind;
                     increment(suffix);
-                    increment(playerName + "_" + suffix);
+                    if(weighted)personalTrinketWins.merge(playerName+"_"+suffix,share,BigInteger::add);
+                    else increment(playerName + "_" + suffix);
                     increment(category + "_" + kind + "s");
                 }
             }
@@ -123,6 +134,7 @@ final class LbcPerkStatistics {
         } catch (RuntimeException error) {
             counters.clear();
             counters.putAll(before);
+            personalTrinketWins.clear();personalTrinketWins.putAll(beforeTrinkets);
             receipts.remove(event);
             throw new IllegalStateException("Could not save perk statistics", error);
         }
@@ -132,13 +144,20 @@ final class LbcPerkStatistics {
 
     /** Runtime disk failures retain pending counters for the next accepted event or shutdown. */
     void flush() {
-        if (!dirty) return;
+        if (!dirty||batchDepth>0) return;
         try {
             save();
             dirty = false;
         } catch (IOException error) {
             me.skywars2.SkyWars2.LOGGER.error("Could not save perk statistics; pending counters retained in memory", error);
         }
+    }
+
+    /** One durable write for the accepted players of the same match, including exceptional exits. */
+    Batch batch(){batchDepth++;return new Batch();}
+    final class Batch implements AutoCloseable {
+        private boolean closed;
+        @Override public void close(){if(!closed){closed=true;if(--batchDepth==0)flush();}}
     }
 
     private void increment(String key) {
@@ -154,7 +173,13 @@ final class LbcPerkStatistics {
         if (!match.matches()) throw new IllegalArgumentException("Unknown perk-statistics path " + path);
         String kind = match.group(1), category = match.group(3), id = match.group(4);
         String suffix = id + "_" + category + "_" + kind;
-        if (match.group(2).equals("count")) return Long.toString(count(playerName + "_" + suffix));
+        if (match.group(2).equals("count")) {
+            String key=playerName+"_"+suffix;
+            if(kind.equals("win")&&category.equals("trinket"))return BigDecimal.valueOf(count(key))
+                    .add(new BigDecimal(personalTrinketWins.getOrDefault(key,BigInteger.ZERO))
+                            .divide(new BigDecimal(TRINKET_UNITS),8,RoundingMode.HALF_UP)).stripTrailingZeros().toPlainString();
+            return Long.toString(count(key));
+        }
         long numerator = count(suffix);
         long denominator = count(kind.equals("pick") ? category + "_picks" : id + "_" + category + "_pick");
         if (denominator == 0 || numerator == 0) return "0";
@@ -177,6 +202,11 @@ final class LbcPerkStatistics {
                 if (value < 0) throw new IOException("Negative perk-statistics counter " + entry.getKey());
                 counters.put(entry.getKey(), value);
             }
+            if(root.has("personalTrinketWinUnits"))for(var entry:root.getAsJsonObject("personalTrinketWinUnits").entrySet()){
+                var value=entry.getValue().getAsBigDecimal().toBigIntegerExact();
+                if(value.signum()<0)throw new IOException("Negative personal trinket wins "+entry.getKey());
+                personalTrinketWins.put(entry.getKey(),value);
+            }
         }
     }
 
@@ -191,6 +221,7 @@ final class LbcPerkStatistics {
         var values = new JsonObject();
         counters.forEach(values::addProperty);
         root.add("counters", values);
+        var trinkets=new JsonObject();personalTrinketWins.forEach(trinkets::addProperty);root.add("personalTrinketWinUnits",trinkets);
         byte[] payload = new GsonBuilder().setPrettyPrinting().create().toJson(root).getBytes(StandardCharsets.UTF_8);
         Path temporary = file.resolveSibling(file.getFileName() + ".tmp");
         try {

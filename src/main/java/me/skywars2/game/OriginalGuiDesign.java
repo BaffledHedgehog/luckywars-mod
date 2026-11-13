@@ -50,10 +50,28 @@ public final class OriginalGuiDesign {
     /** Resolve prepared source storage before vanilla loot permanently resolves it to empty text. */
     public static Component resolveLootText(Component source,ServerPlayer player){
         var game=me.skywars2.SkyWars2.game();if(game==null)return source;
+        if(!mayReferenceSourceStorage(source))return source;
         var json=ComponentSerialization.CODEC.encodeStart(player.registryAccess().createSerializationContext(JsonOps.INSTANCE),source).getOrThrow();
         if(!json.toString().contains("\"swrg:lang\""))return source;
         var values=new RuntimeValues(game.players().get(player.getUUID()),game.config(),player);
         return decodeComponent(cosmeticText(json,values),"native loot source text");
+    }
+    /** Most generated loot has literal names/lore: avoid a JSON codec round-trip per line. */
+    private static boolean mayReferenceSourceStorage(Component component){
+        var contents=component.getContents();
+        if(component.getStyle().getHoverEvent()!=null)return true; // Preserve arbitrary nested hover payloads.
+        if(contents instanceof net.minecraft.network.chat.contents.NbtContents nbt){
+            if(nbt.dataSource() instanceof net.minecraft.network.chat.contents.data.StorageDataSource storage&&storage.id().toString().equals("swrg:lang"))return true;
+            if(nbt.separator().isPresent()&&mayReferenceSourceStorage(nbt.separator().get()))return true;
+        }else if(contents instanceof net.minecraft.network.chat.contents.TranslatableContents translated){
+            for(var arg:translated.getArgs())if(arg instanceof Component nested&&mayReferenceSourceStorage(nested))return true;
+        }else if(contents instanceof net.minecraft.network.chat.contents.SelectorContents selector){
+            if(selector.separator().isPresent()&&mayReferenceSourceStorage(selector.separator().get()))return true;
+        }else if(!(contents instanceof net.minecraft.network.chat.contents.PlainTextContents)
+                &&!(contents instanceof net.minecraft.network.chat.contents.KeybindContents)
+                &&!(contents instanceof net.minecraft.network.chat.contents.ScoreContents))return true;
+        for(var sibling:component.getSiblings())if(mayReferenceSourceStorage(sibling))return true;
+        return false;
     }
     /** The case owns its immutable winning icon; legacy text must not query a world block. */
     static Component sourceMessage(String path,ServerPlayer player,PlayerStore.Profile profile,GameConfig config,ItemStack reward) {

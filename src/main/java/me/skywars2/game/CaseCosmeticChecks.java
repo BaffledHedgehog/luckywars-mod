@@ -36,7 +36,23 @@ public final class CaseCosmeticChecks {
     private static Object get(Object object,String name){try{return field(object,name).get(object);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static void set(Object object,String name,Object value){try{field(object,name).set(object,value);}catch(IllegalAccessException e){throw new IllegalStateException(e);}}
     private static Object invoke(Object target,String name,Class<?>[] types,Object... args){try{var method=target.getClass().getDeclaredMethod(name,types);method.setAccessible(true);return method.invoke(target,args);}catch(ReflectiveOperationException e){throw new IllegalStateException("Native fixture call "+name,e instanceof InvocationTargetException i?i.getCause():e);}}
-    public static void runCases(GameController game){checkDropRequests();start(game,0);}
+    public static void runCases(GameController game){checkDropRequests();checkLootText(game);start(game,0);}
+    private static void checkLootText(GameController game){
+        var player=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
+        var literal=Component.literal("Ordinary loot").withColor(0x12abcd);
+        require(OriginalGuiDesign.resolveLootText(literal,player)==literal,"ordinary loot text keeps its exact component and style");
+        var json=com.google.gson.JsonParser.parseString("{\"nbt\":\"kit.d1\",\"storage\":\"swrg:lang\"}");
+        var reference=net.minecraft.network.chat.ComponentSerialization.CODEC.parse(player.registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),json).getOrThrow();
+        var resolved=OriginalGuiDesign.resolveLootText(reference,player);
+        require(!resolved.getString().isBlank(),"actual source storage loot name resolves before vanilla can erase it");
+        var siblings=Component.literal("Reward: ").append(reference);
+        require(OriginalGuiDesign.resolveLootText(siblings,player).getString().contains(resolved.getString()),"nested source references in sibling components remain visible");
+        var translated=Component.translatableWithFallback("skywars2.check.source_argument","[%s]",reference);
+        require(OriginalGuiDesign.resolveLootText(translated,player).getString().contains(resolved.getString()),"source references in translation arguments remain visible");
+        var hover=Component.literal("hover").withStyle(style->style.withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(reference)));
+        require(OriginalGuiDesign.resolveLootText(hover,player).getStyle().getHoverEvent() instanceof net.minecraft.network.chat.HoverEvent.ShowText text
+                &&text.value().getString().equals(resolved.getString()),"hover payloads retain the full source resolver");
+    }
     public static void checkDropRequests(){
         var profile=new PlayerStore.Profile();
         require(LbcDropRequests.pending(profile).isEmpty(),"unearned manual requests excluded");

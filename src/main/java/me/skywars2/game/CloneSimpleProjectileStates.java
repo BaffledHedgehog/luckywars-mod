@@ -108,11 +108,13 @@ final class CloneSimpleProjectileStates {
             var lifetime=source.lifetime;
             var invisible=source.invisible;
             var spray=source.spray;
+            var noStack=source.noStack;
             return image(clone->{var target=(LbcPsycho.Charge)clone;
                 target.age=age;
                 target.lifetime=lifetime;
                 target.invisible=invisible;
                 target.spray=spray;
+                target.noStack=noStack;
             },clone->game.items().psycho().unloaded(clone));
         }
         if(actor instanceof LbcChargedSwords.ThrownSword source) {

@@ -356,8 +356,11 @@ public final class LbcRainbowAura {
         var entity=s.level.getEntity(g.actor);if(!(entity instanceof Display.ItemDisplay actor)||actor.isRemoved())return;
         if(game.items().timeStop().frozen(actor))return;
         g.distance+=g.reverse?-1:5;
-        actor.setTransformation(new Transformation(new Vector3f(),new Quaternionf(),new Vector3f(g.distance*.25f),new Quaternionf()));
-        actor.setYRot(actor.getYRot()+10);if(g.distance==100)g.reverse=true;if(g.distance<=0){actor.discard();
+        float age=g.reverse?20+100-g.distance:g.distance/5f;
+        actor.setTransformationInterpolationDelay(0);
+        // DisplayRenderer applies entity yaw with a negative Y rotation.
+        actor.setTransformation(new Transformation(new Vector3f(),new Quaternionf().rotationY((float)-Math.toRadians(age*10)),new Vector3f(g.distance*.25f),new Quaternionf()));
+        if(g.distance==100)g.reverse=true;if(g.distance<=0){actor.discard();
             for(int i=0;i<s.grams.size();i++)if(s.grams.get(i)==g){s.grams.set(i,null);break;}}
     }
     /** Wire into the shared clone adapter's protectedActor; cosmetics never become inert copies. */
