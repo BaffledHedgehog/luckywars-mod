@@ -23,4 +23,12 @@ public final class TeleportMomentum {
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
         }
     }
+    /** Transfer server-driven riding to the client's native vehicle physics without losing inertia. */
+    static void handoffVehicle(net.minecraft.server.level.ServerPlayer rider,net.minecraft.world.entity.Entity vehicle,net.minecraft.world.phys.Vec3 motion){
+        if(rider.getVehicle()!=vehicle)throw new IllegalArgumentException("Vehicle handoff requires its actual passenger");
+        vehicle.setDeltaMovement(motion);vehicle.needsSync=true;
+        // The local controller must change first, otherwise the client zeros server-owned motion.
+        rider.connection.send(new net.minecraft.network.protocol.game.ClientboundSetPassengersPacket(vehicle));
+        rider.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(vehicle));
+    }
 }

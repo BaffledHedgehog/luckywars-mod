@@ -43,7 +43,7 @@ public final class ContainedSkillChecks {
         try(var fixture=new Fixture(game)){fixture.initialize();fixture.menu();fixture.heart();fixture.vip();fixture.suppression();fixture.actors();}
         SkyWars2.LOGGER.info("[check] PASS contained-skills (native effects/hidden layers, source menu, accepted damage accounting, own-position actor suppression)");
     }
-    private static class Fixture implements AutoCloseable {
+    static class Fixture implements AutoCloseable {
         final GameController game;ServerPlayer owner,other;
         final RegenerationBeltChecks.Snapshot saved,otherSaved;
         final Map<java.lang.reflect.Field,Object> ownerAttackers,otherAttackers;
@@ -168,7 +168,7 @@ public final class ContainedSkillChecks {
             // Placement uses bounded random resident columns, so several tries may miss this tiny floor.
             select(13);Silverfish carrier=null;for(int attempt=0;attempt<128&&carrier==null;attempt++)carrier=service.spawn(owner);
             require(carrier!=null,"bounded source placement finds resident surface");actors.add(carrier);
-            require(carrier.isInvulnerable()&&carrier.isNoAi()&&carrier.entityTags().containsAll(Set.of("angry_hedgehog","lucky_mob")),"source native carrier traits");
+            require(carrier.isInvulnerable()&&!carrier.isNoAi()&&carrier.entityTags().containsAll(Set.of("angry_hedgehog","lucky_mob")),"legacy invulnerable carrier retains native AI/travel/gravity");
             var landing=BlockPos.containing(carrier.position().add(0,-101,0));require(level.hasChunkAt(landing)&&level.getBlockState(landing).is(net.minecraft.tags.BlockTags.ENTITIES_CAN_TELEPORT_TO),"source safe surface plus100 spawn");
             service.unloaded(carrier);require(!service.snapshot().contains(carrier),"unload detaches live reference");service.loaded(carrier);require(service.snapshot().contains(carrier),"load recovers exact native tagged identity");
             for(String tag:List.of("stopper_magic","stopper")){

@@ -154,7 +154,7 @@ public final class LbcReactiveDefense {
     private void horse(Actor a,int elapsed){
         if(a.remaining<=0)return;
         a.remaining=Math.max(0,a.remaining-elapsed);mirror(a);
-        if(a.remaining==0){releaseSeat(a);return;}
+        if(a.remaining==0){releaseSeat(a,true);return;}
         var rider=rider(a);
         if(rider!=null&&rider.getRandom().nextFloat()<.1f)
             LbcOverload.sound((ServerLevel)a.body.level(),a.body.position(),"minecraft:entity.ender_dragon.flap",SoundSource.NEUTRAL,1,1.5f,0,0);
@@ -175,9 +175,13 @@ public final class LbcReactiveDefense {
         if(rider!=null)rider.startRiding(a.control==null?a.body:a.control,true,false);
     }
     private void releaseSeat(Actor a){
+        releaseSeat(a,false);
+    }
+    private void releaseSeat(Actor a,boolean preserveMotion){
         if(a.control==null)return;
-        var rider=rider(a);a.control.discard();a.control=null;
-        if(rider!=null&&!a.body.isRemoved()&&a.body.isAlive())rider.startRiding(a.body,true,false);
+        var motion=a.body.getDeltaMovement();var rider=rider(a);a.control.discard();a.control=null;
+        if(rider!=null&&!a.body.isRemoved()&&a.body.isAlive()&&rider.startRiding(a.body,true,false)&&preserveMotion)
+            TeleportMomentum.handoffVehicle(rider,a.body,motion);
     }
     private void fly(Actor a){
         if(a.remaining<=0)return;

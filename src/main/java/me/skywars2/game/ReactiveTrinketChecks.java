@@ -4,6 +4,10 @@ import java.util.*;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -160,7 +164,8 @@ public final class ReactiveTrinketChecks {
                 var pos=new BlockPos(x,y,z);require(level.hasChunkAt(pos),"source absolute-zero teleport columns resident");terrain.putIfAbsent(pos,game.maps().snapshot(level,pos));require(level.setBlock(pos,Blocks.STONE.defaultBlockState(),2)||level.getBlockState(pos).is(Blocks.STONE),"actual native source surface fixture");
             }
         }
-        Vec3 flightStart,lastFlight;double flightDistance;
+        Vec3 flightStart,lastFlight;double flightDistance;UUID expiryHorse;int expiryPackets;
+        void flatten(Packet<?> packet,List<Packet<?>> out){if(packet instanceof ClientboundBundlePacket bundle)for(var child:bundle.subPackets())flatten(child,out);else out.add(packet);}
         void beginDefense(){
             target.discard();empty();move(origin);platform();equip(LbcTrinkets.BANANGAY,99);health(owner);
             require(owner.hurtServer(level,owner.damageSources().generic(),1),"actual pre-hit incoming banana damage accepted");client.acknowledge();
@@ -193,7 +198,7 @@ public final class ReactiveTrinketChecks {
             require(game.vanity().requestCapture(owner,false),"actual coordinator accepts nonempty reactive graph");phase=10;when=game.server().getTickCount();
         }
         boolean step(){
-            client.acknowledge();require(game.server().getTickCount()-started<500,"bounded normal server fixture");int elapsed=game.server().getTickCount()-when;
+            client.acknowledge();require(game.server().getTickCount()-started<(rewind?500:750),"bounded normal server fixture including two full ten-second horse lifetimes");int elapsed=game.server().getTickCount()-when;
             if(gemBody!=null&&!gemRemovalReported&&(!gemBody.isAlive()||gemBody.isRemoved())){gemRemovalReported=true;SkyWars2.LOGGER.info("[check] reactive-trinkets gem retirement {}",gemDiagnostic());}
             if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
             switch(phase){
@@ -228,7 +233,30 @@ public final class ReactiveTrinketChecks {
                 case 4->{if(elapsed<205)return false;
                     require(!game.items().polymorph().active(gemOriginal)&&!gemOriginal.isRemoved()&&!gemOriginal.isInvisible()&&level.getEntity(sheep)==null,"gem restores original identity after ten active seconds: "+gemDiagnostic());
                     var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();
-                    require(horse.remaining()==0&&!horse.body().isRemoved()&&horse.body().getPassengers().isEmpty(),"unridden horse boost expires after ten seconds and removes control seat while horse remains");return true;}
+                    require(horse.remaining()==0&&!horse.body().isRemoved()&&horse.body().getPassengers().isEmpty(),"unridden horse boost expires after ten seconds and removes control seat while horse remains");
+                    move(origin);owner.setOnGround(false);game.items().reactiveTrinkets().defense().fall(owner,49,-150);
+                    var occupied=game.items().reactiveTrinkets().defense().snapshot().stream().filter(v->v.horse()&&v.remaining()>0).findFirst().orElseThrow();
+                    expiryHorse=occupied.body().getUUID();require(owner.getRootVehicle()==occupied.body(),"second native flight begins with the real rider");
+                    owner.setXRot(-90);owner.setYRot(0);expiryPackets=client.packets().size();phase=5;when=game.server().getTickCount();return false;
+                }
+                case 5->{
+                    require(elapsed<230,"natural occupied flight expires without artificial clock changes");
+                    var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(v->v.body().getUUID().equals(expiryHorse)).findFirst().orElseThrow();
+                    if(horse.remaining()>0)return false;
+                    require(!horse.body().isRemoved()&&owner.getVehicle()==horse.body()&&horse.body().getControllingPassenger()==owner,"native client riding controller receives the same surviving horse");
+                    var packets=new ArrayList<Packet<?>>();for(var packet:client.packets().subList(expiryPackets,client.packets().size()))flatten(packet,packets);
+                    int passenger=-1,motion=-1;Vec3 momentum=Vec3.ZERO;
+                    for(int i=0;i<packets.size();i++){
+                        var packet=packets.get(i);
+                        if(packet instanceof ClientboundSetPassengersPacket changed&&changed.getVehicle()==horse.body().getId()
+                                &&Arrays.equals(changed.getPassengers(),new int[]{owner.getId()}))passenger=i;
+                        if(passenger>=0&&packet instanceof ClientboundSetEntityMotionPacket changed&&changed.id()==horse.body().getId()){
+                            motion=i;momentum=changed.movement();break;
+                        }
+                    }
+                    require(passenger>=0&&motion>passenger&&momentum.y>.5&&momentum.length()<1.2,"actual wire transfers passenger ownership before preserving the existing upward impulse: "+momentum);
+                    return true;
+                }
                 case 10->{
                     if(game.vanity().busy()||!game.vanity().hasSnapshot())return false;
                     var rays=game.items().prism().snapshot().stream().filter(c->c.trinket&&!c.isRemoved()).toList();require(!rays.isEmpty(),"captured nonempty typed Prism bodies");

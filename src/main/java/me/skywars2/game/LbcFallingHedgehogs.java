@@ -86,7 +86,8 @@ public final class LbcFallingHedgehogs {
                 at->resident(level,at.add(0,100,0))&&!suppressed(level,at.add(0,100,0)));
         if(ground==null)return null;
         var actor=new Silverfish(EntityTypes.SILVERFISH,level);var at=ground.add(0,100,0);
-        actor.setPos(at);actor.setPermanentlyInvulnerable(true);actor.setNoAi(true);actor.setPersistenceRequired();actor.setOnGround(false);
+        // Legacy leaves native AI enabled. NoAI also stops Silverfish travel/gravity.
+        actor.setPos(at);actor.setPermanentlyInvulnerable(true);actor.setPersistenceRequired();actor.setOnGround(false);
         // Accept this hazard independently of any unrelated spell currently calling the spawn hook.
         var accepted=game.items().indirectKills().coldCause(owner,false);
         actor.entityTags().addAll(List.of(TAG,"angry_hedgehog","lucky_mob",AUTHOR+accepted.player(),ORDER+accepted.order()));

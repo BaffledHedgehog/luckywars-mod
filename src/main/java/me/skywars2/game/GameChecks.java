@@ -707,6 +707,7 @@ public final class GameChecks {
                                 case "reactive-skills" -> { ReactiveSkillChecks.run(game); return; }
                                 case "parasite" -> { ParasiteChecks.run(game); return; }
                                 case "contained-skills" -> { ContainedSkillChecks.run(game); return; }
+                                case "falling-hedgehog-flight" -> { FallingHedgehogFlightChecks.run(game); return; }
                                 case "symbiote-skills" -> { SymbioteSkillChecks.run(game); return; }
                                 case "armor-zeus-skills" -> { ArmorZeusSkillChecks.run(game); return; }
                                 case "bow-trinket-actors" -> { BowTrinketChecks.runActors(game); return; }
@@ -1793,6 +1794,7 @@ public final class GameChecks {
             DeveloperSoloChecks.tick(game);
             SauvojenLifecycleChecks.tick(game);
             ContainedSkillChecks.tick(game);
+            FallingHedgehogFlightChecks.tick(game);
             CombatRewardSkillChecks.tick(game);CloneSkillChecks.tick(game);PlanetoidSkillChecks.tick(game);BridgeBuilderChecks.tick(game);CaseCosmeticChecks.tick(game);BadAppleChecks.tick(game);RemainingLevelupChecks.tick(game);AuraPsychblindChecks.tick(game);ReactiveTrinketChecks.tick(game);BowTrinketChecks.tick(game);SpecialBowChecks.tick(game);NuclearBlastChecks.tick(game);NuclearPointChecks.tick(game);BotUseChecks.tick(game);BotWorkbenchChecks.tick(game);ExasperatoSpeedChecks.tick(game);FrostTimingChecks.tick(game);OreshekDeathChecks.tick(game);
             ArmorZeusSkillChecks.tick(game);
             MapEditing.tickChecks(game);
