@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Builds original GUI button stacks from native loot tables and prepared source component templates. */
-final class OriginalGuiDesign {
+public final class OriginalGuiDesign {
     private static final Logger LOGGER = LoggerFactory.getLogger(OriginalGuiDesign.class);
     private static final String DESIGN_RESOURCE = "/skywars2/gui_design.json";
     private static JsonObject design;
@@ -45,8 +45,41 @@ final class OriginalGuiDesign {
 
     /** Shared source text for gameplay messages, with the same selectors, keys and formatting as GUI. */
     static Component sourceMessage(String path,ServerPlayer player,PlayerStore.Profile profile,GameConfig config) {
+        return sourceMessage(path,player,profile,config,ItemStack.EMPTY);
+    }
+    /** Resolve prepared source storage before vanilla loot permanently resolves it to empty text. */
+    public static Component resolveLootText(Component source,ServerPlayer player){
+        var game=me.skywars2.SkyWars2.game();if(game==null)return source;
+        var json=ComponentSerialization.CODEC.encodeStart(player.registryAccess().createSerializationContext(JsonOps.INSTANCE),source).getOrThrow();
+        if(!json.toString().contains("\"swrg:lang\""))return source;
+        var values=new RuntimeValues(game.players().get(player.getUUID()),game.config(),player);
+        return decodeComponent(cosmeticText(json,values),"native loot source text");
+    }
+    /** The case owns its immutable winning icon; legacy text must not query a world block. */
+    static Component sourceMessage(String path,ServerPlayer player,PlayerStore.Profile profile,GameConfig config,ItemStack reward) {
         var values=new RuntimeValues(profile,config,player);
-        return decodeComponent(resolveDynamic(resolveStorageComponent(path,values),values,path),path);
+        var source=resolveStorageComponent(path,values);
+        if(!reward.isEmpty())source=rewardComponent(source,reward,player);
+        return decodeComponent(resolveDynamic(source,values,path),path);
+    }
+    private static JsonElement rewardComponent(JsonElement source,ItemStack reward,ServerPlayer player){
+        if(source==null||source.isJsonNull()||source.isJsonPrimitive())return source;
+        if(source.isJsonArray()){var result=new JsonArray();for(var part:source.getAsJsonArray())result.add(rewardComponent(part,reward,player));return result;}
+        var object=source.getAsJsonObject();
+        if(object.has("block")&&object.has("nbt")){
+            String path=object.get("nbt").getAsString();Component replacement=null;
+            if(path.equals("Items[{Slot:2b}].components.minecraft:custom_name"))replacement=reward.getHoverName();
+            else if(path.equals("Items[{Slot:2b}].components.minecraft:lore[]")){
+                var text=Component.empty();for(var line:reward.getOrDefault(DataComponents.LORE,net.minecraft.world.item.component.ItemLore.EMPTY).lines())text.append(line.copy());replacement=text;
+            }else if(path.equals("Items[{Slot:2b}].count"))replacement=Component.literal(Integer.toString(reward.getCount()));
+            if(replacement!=null){
+                var result=object.deepCopy();for(var key:List.of("block","nbt","interpret","type"))result.remove(key);
+                result.addProperty("text","");var extra=new JsonArray();
+                extra.add(net.minecraft.network.chat.ComponentSerialization.CODEC.encodeStart(player.registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE),replacement).getOrThrow());
+                result.add("extra",extra);return result;
+            }
+        }
+        var result=new JsonObject();for(var entry:object.entrySet())result.add(entry.getKey(),rewardComponent(entry.getValue(),reward,player));return result;
     }
 
     static ItemStack button(ServerPlayer player, String namespace, int page, int slot) {

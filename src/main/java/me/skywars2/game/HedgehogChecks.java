@@ -178,9 +178,10 @@ public final class HedgehogChecks {
             float hp=other.getHealth();other.damageCooldownTime=0;other.setInvulnerableTime(0);boolean allyHit=wall.doHurtTarget(owner.level(),other);require(allyHit&&Math.abs(other.getHealth()-(hp-expected))<1e-5,"source wall trap WILD against allied player: accepted="+allyHit+", before="+hp+", after="+other.getHealth()+", expected="+expected+", armor="+other.getArmorValue()+", difficulty="+owner.level().getDifficulty());
             owner.damageCooldownTime=0;owner.setInvulnerableTime(0);hp=owner.getHealth();boolean selfHit=wall.doHurtTarget(owner.level(),owner);require(selfHit&&Math.abs(owner.getHealth()-(hp-expected))<1e-5,"source wall trap WILD against caster: accepted="+selfHit+", before="+hp+", after="+owner.getHealth()+", expected="+expected);
             owner.setHealth(20);other.setHealth(20);owner.setShiftKeyDown(false);
-            for(var f:service.helpers())if(f!=wall)f.discard();move(owner,wall.position().add(6,0,6));move(other,wall.position().add(0,0,-4));other.damageCooldownTime=0;other.setInvulnerableTime(0);
+            move(owner,wall.position().add(6,0,6));move(other,wall.position().add(0,0,-4));other.damageCooldownTime=0;other.setInvulnerableTime(0);
             float beamDamage=switch(owner.level().getDifficulty()){case EASY->3;case HARD->6;case PEACEFUL->0;default->4;};
             service.fireBeam(wall,other);require(other.getHealth()==20-beamDamage&&other.getLastDamageSource().getEntity()==wall,"actual unobstructed native NPC wall beam captures WILD cause with native difficulty scaling: hp="+other.getHealth()+",owner="+owner.position()+",wall="+wall.position()+",target="+other.position());
+            require(walls.stream().allMatch(e->e.getHealth()==30),"wall beam passes through all65 live own tower bodies without self damage");
             service.forget(owner);require(!wall.isRemoved(),"hostile wall persists after author-departure callback");move(other,at.add(10,0,-10));other.setHealth(20);
             clear();require(service.trackedCount()==0,"explicit owned wall retirement removes all native tower riders");
         }

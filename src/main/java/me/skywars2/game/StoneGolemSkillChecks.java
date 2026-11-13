@@ -59,7 +59,7 @@ public final class StoneGolemSkillChecks {
             int elapsed=game.server().getTickCount()-at;
             switch(stage){
                 case 0->{
-                    if(skill.layers(f.owner)==0){require(elapsed<201,"first layer by200 active ticks");require(skill.charge(f.owner)<=9,"ten distinct one-second pulses");return false;}
+                    if(skill.layers(f.owner)==0){require(elapsed<201,"first layer by200 active ticks");require(skill.charge(f.owner)<=9,"ten distinct one-second pulses");if(skill.charge(f.owner)>0)require(game.items().hud(f.owner).getString().contains("\uE205 0"),"zero-layer HUD retains native stone icon and explicit zero during real recharge");return false;}
                     require(skill.layers(f.owner)==1&&elapsed>=199&&elapsed<=201,"exact10 real server seconds for first layer");
                     begin(1);
                 }

@@ -95,7 +95,7 @@ final class LbcTmtCatalog {
                 collected.locations.addAll(entry.getValue().locations());collected.owners.add(entry.getValue().owner());
             }
             if(traits.getStringOr(LbcTmtAbilities.NATIVE,"").equals("skywars2:imba_axe")){
-                all.get(family.id()).events.add(Event.BLOCK);all.get(family.id()).events.add(Event.MELEE);
+                all.get(family.id()).events.add(Event.MINING);all.get(family.id()).events.add(Event.MELEE);
                 all.get(family.id()).owners.add("LbcImbaAxe/LbcTmtTools");
             }
             if(LbcTmtBlockUses.supports(LbcTmtComponents.nativeItem(ability.data()))){all.get(family.id()).events.add(Event.BLOCK);all.get(family.id()).owners.add("LbcTmtBlockUses/native factory");}
@@ -326,7 +326,7 @@ final class LbcTmtCatalog {
         }
 
         Rule selected=nativeId.toString().equals("skywars2:imba_axe")?
-                rule("imba_axe","LbcImbaAxe/LbcTmtTools",Event.BLOCK,Location.MAIN_HAND):null;
+                new Rule("imba_axe","LbcImbaAxe/LbcTmtTools",Set.of(Event.MINING,Event.MELEE),Set.of(Location.MAIN_HAND)):null;
         int mystical=data.getIntOr("mystical",0),legacy=data.getIntOr("mystical_old",0);
         if(mystical!=0||legacy!=0){
             int group=mystical!=0?mystical:legacy,type=data.getIntOr("type",0);

@@ -245,6 +245,7 @@ final class LbcCases {
             if(suffix!=0) { if(!family.isEmpty())throw new IllegalStateException("Ambiguous suffix token");family="suffix";value=suffix; }
             int tier=tier(family,value);
             Token token=new Token(table,seed,n,family,value,tier);
+            if(stacks.get(n).getHoverName().getString().isBlank())throw new IllegalStateException("Unresolved native case title "+table+"/"+family+"/"+value);
             cache.put(token,stacks.get(n).copy());tokens.add(token);
         }
         return List.copyOf(tokens);
@@ -333,7 +334,7 @@ final class LbcCases {
         }
     }
     private void announce(ServerPlayer player,Payout payout,Token winner) {
-        if(payout.message().startsWith("reward."))player.sendSystemMessage(OriginalGuiDesign.sourceMessage(payout.message(),player,profile(player),game.config()));
+        if(payout.message().startsWith("reward."))player.sendSystemMessage(OriginalGuiDesign.sourceMessage(payout.message(),player,profile(player),game.config(),icons.get(player.getUUID()).get(winner)));
         else if(payout.manualClaim())player.sendSystemMessage(Component.translatable("new_drop_request").withStyle(net.minecraft.ChatFormatting.RED,net.minecraft.ChatFormatting.BOLD));
         else player.sendSystemMessage(Component.translatable("new_suffix").append(icons.get(player.getUUID()).get(winner).getHoverName()));
         if(payout.manualClaim()) {

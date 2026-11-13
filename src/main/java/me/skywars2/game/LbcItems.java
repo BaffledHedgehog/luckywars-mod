@@ -784,8 +784,10 @@ public final class LbcItems {
         hudPositive(component," \uE170 ",touhou.bombFragments(),ChatFormatting.WHITE);
         hudPositive(component," \uE171 ",touhou.lifeFragments(),ChatFormatting.WHITE);
         hudPositive(component," \uE172 ",touhou.timeOrbs(),ChatFormatting.WHITE);
-        hudPositive(component,"  \uE205 ",stoneGolemSkill.layers(source),ChatFormatting.WHITE);
-        if(stoneGolemSkill.charge(source)>0)component.append(Component.literal(" | "+stoneGolemSkill.charge(source)).withStyle(ChatFormatting.GRAY));
+        int stoneLayers=stoneGolemSkill.layers(source),stoneCharge=stoneGolemSkill.charge(source);
+        if(stoneLayers>0||stoneCharge>0)component.append(Component.literal("  \uE205 "))
+                .append(Component.literal(Integer.toString(stoneLayers)).withStyle(ChatFormatting.WHITE));
+        if(stoneCharge>0)component.append(Component.literal(" | "+stoneCharge).withStyle(ChatFormatting.GRAY));
         armorSets.techno().appendHud(source,component);component.append(shishEncounter.hud(source));
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_1"),ChatFormatting.WHITE);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_2"),ChatFormatting.WHITE);

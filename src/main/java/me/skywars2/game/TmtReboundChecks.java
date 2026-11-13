@@ -81,12 +81,20 @@ final class TmtReboundChecks {
                 f.owner.removeAllEffects();game.items().mana().maximum(f.owner,10000);game.items().mana().set(f.owner,1000);
                 punch(f,stack(0,bind(artifact(game,2,6),LbcTmtTriggers.Action.MELEE)));
                 require(game.items().mana().get(f.owner)==2000,"MELEE executes native inventory artifact payload on the aimed target");
+                var axeFamily=game.items().tmt().catalog().families().stream().filter(row->row.variants().stream().anyMatch(a->
+                        ((ItemData.IntReader)(Object)a.data()).skywars2$readString(LbcTmtAbilities.NATIVE,"").equals("skywars2:imba_axe"))).findFirst().orElseThrow();
+                require(axeFamily.events().contains(LbcTmtCatalog.Event.MINING)&&!axeFamily.events().contains(LbcTmtCatalog.Event.BLOCK),"axe contact belongs to real mining/melee domains, not a placeable-block factory");
+                int axeJobs=game.items().imbaAxe().count();punch(f,stack(0,bind(axeFamily.variants().getFirst(),LbcTmtTriggers.Action.MELEE)));
+                require(game.items().imbaAxe().count()==axeJobs+1,"rebound tool contact enters the existing finite native axe scheduler exactly once");
                 extra=new CompoundTag();extra.putInt("mystical_old",4);extra.putInt("type",4);unrelated.set(DataComponents.CUSTOM_DATA,CustomData.of(extra));
                 f.owner.getInventory().setItem(9,unrelated);long criteria=game.items().incomingArtifacts().criterionCount();
                 punch(f,stack(0,bind(artifact(game,4,5),LbcTmtTriggers.Action.INCOMING)));
                 require(f.owner.hasEffect(MobEffects.STRENGTH)&&!f.owner.hasEffect(MobEffects.SLOWNESS)
                         &&game.items().incomingArtifacts().criterionCount()==criteria,"INCOMING selects one payload without a fake hurt criterion or ordinary inventory reaction");
                 f.owner.getInventory().setItem(9,ItemStack.EMPTY);f.owner.removeAllEffects();
+                punch(f,stack(0,bind(artifact(game,4,1),LbcTmtTriggers.Action.INCOMING)));
+                require(f.owner.hasEffect(MobEffects.RESISTANCE)&&game.items().incomingArtifacts().criterionCount()==criteria,"rebound shield payload does not require fabricating an incoming attack");
+                f.owner.removeAllEffects();
                 f.move(f.other,f.owner.position().add(15,0,0));
                 var bow=stack(1,bind(flag(game,"double_old"),LbcTmtTriggers.Action.SHOT));
                 var ammo=new ItemStack(Items.ARROW,5);f.owner.getInventory().setItem(9,ammo);

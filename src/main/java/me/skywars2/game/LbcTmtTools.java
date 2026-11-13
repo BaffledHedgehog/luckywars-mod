@@ -43,6 +43,7 @@ public final class LbcTmtTools {
         contactOwners(game,owner,tool,LbcImbaAxe.Trigger.BLOCK_BREAK);
     }
     static void activate(GameController game,ServerPlayer owner,ItemStack tool,BlockPos pos,BlockState before){brokenOwners(game,owner,tool,pos,before);}
+    static void propertyContact(GameController game,ServerPlayer owner,ItemStack tool){contactOwners(game,owner,tool,LbcImbaAxe.Trigger.REAL_MELEE);}
     private static void contactOwners(GameController game,ServerPlayer owner,ItemStack tool,LbcImbaAxe.Trigger trigger){
         game.items().imbaShovel().used(owner,tool);game.items().imbaHoe().used(owner,tool);
         game.items().steampunkBreaker().used(owner,tool);game.items().imbaAxe().activate(owner,tool,trigger);

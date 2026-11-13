@@ -3,6 +3,7 @@
   "package": "me.skywars2.mixin",
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "LegacyLootTextMixin",
     "TmtInputMixin",
     "TmtInputMixin$Thrown",
     "TmtInputMixin$UseModifier",

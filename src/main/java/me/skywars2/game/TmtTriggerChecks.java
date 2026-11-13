@@ -65,6 +65,8 @@ public final class TmtTriggerChecks {
                     require(ItemStack.matches(generated,restored),"binding/native parameter codec roundtrip");
                 }
                 require(carriers.size()==5,"every native transport occurs in the generator");
+                for(var family:game.items().tmt().catalog().families())if(family.events().contains(LbcTmtCatalog.Event.USING))
+                    require(!LbcTmtTriggers.actions(family).contains(LbcTmtTriggers.Action.INCOMING),"sustained native shield condition is not an invented instant incoming action");
                 var metadata=fire(0,LbcTmtTriggers.Input.JUMP);var skin=metadata.get(DataComponents.ITEM_MODEL);
                 LbcTmtAbilities.invoke(metadata,"wand/stfire",()->{
                     var data=metadata.get(DataComponents.CUSTOM_DATA).copyTag();data.remove(LbcTmtTriggers.KEY);data.putInt("mode",3);

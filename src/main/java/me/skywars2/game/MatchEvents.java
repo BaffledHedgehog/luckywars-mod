@@ -437,7 +437,7 @@ public final class MatchEvents {
             }
             case 9 -> giveEffect(victim, "minecraft:darkness", 0, 7);
             case 10 -> {
-                if (victim.distanceTo(attacker) <= 20 && chance(0.50)) lightning(attacker);
+                if (victim.distanceTo(attacker) <= 20 && chance(0.50)) lightning(victim);
             }
             case 11 -> {
                 giveEffect(attacker, "minecraft:regeneration", 1, 5);
@@ -462,7 +462,7 @@ public final class MatchEvents {
                 else if (health <= 15.0F) giveEffect(player, "minecraft:resistance", 1, 3);
             }
             case 7 -> {
-                if (health <= 10.0F) giveEffect(player, "minecraft:strength", 2, 3);
+                if (health <= 10.0F) giveEffect(player, "minecraft:strength", 1, 3);
                 else if (health <= 15.0F) giveEffect(player, "minecraft:strength", 0, 3);
             }
             case 8 -> {
@@ -492,7 +492,9 @@ public final class MatchEvents {
     }
 
     private void giveEffect(ServerPlayer player, String effect, int amplifier, int seconds) {
-        controller.command("effect give " + player.getScoreboardName() + " " + effect + " " + seconds + " " + amplifier + " true");
+        var type=net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.get(Identifier.parse(effect)).orElseThrow();
+        int ticks=type.value().isInstantaneous()?seconds:Math.multiplyExact(seconds,20);
+        player.addEffect(ItemEffectLevels.create(type,ticks,amplifier,false,false,false));
     }
 
     private static Component stageAnnouncement(boolean firstStage, int event) {
@@ -526,8 +528,8 @@ public final class MatchEvents {
     }
 
     private void lightning(ServerPlayer at) {
-        Vec3 position = at.position();
-        controller.command("summon minecraft:lightning_bolt " + position.x + " " + position.y + " " + position.z);
+        var bolt=new net.minecraft.world.entity.LightningBolt(EntityTypes.LIGHTNING_BOLT,at.level());
+        bolt.setPos(at.position());at.level().addFreshEntity(bolt);
     }
 
     private int resolve(int selection, int eventCount) {

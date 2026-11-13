@@ -91,17 +91,17 @@ public final class LbcIncomingArtifacts {
         if(!a.allowed)return;
         game.items().gaaraPot().incoming(owner);
         criteria++;
-        apply(owner,source.getEntity(),a);
+        apply(owner,source.getEntity(),a,false);
     }
     void propertyIncoming(ServerPlayer owner,Entity attacker,net.minecraft.world.item.component.CustomData property){
         if(!admitted(owner,true))return;
         var d=(ItemData.IntReader)(Object)property;int type=d.skywars2$readInt("type",0);if(type<1||type>6)return;
         int current=d.skywars2$readInt("mystical",0)==4?1<<type:0,old=d.skywars2$readInt("mystical_old",0)==4?1<<type:0;
-        apply(owner,attacker,new Admission(owner,true,current,old,true));
+        apply(owner,attacker,new Admission(owner,true,current,old,true),true);
     }
-    private void apply(ServerPlayer owner,Entity attacker,Admission a){
+    private void apply(ServerPlayer owner,Entity attacker,Admission a,boolean rebound){
         // The separate shield criterion admits the source entity's original tag, without a magic gate.
-        if((a.current&2)!=0&&attacker!=null&&attacker.getType().builtInRegistryHolder().is(ATTACKS))shield(owner);
+        if((a.current&2)!=0&&(rebound||attacker!=null&&attacker.getType().builtInRegistryHolder().is(ATTACKS)))shield(owner);
         // container.* outer predicate is narrower than Inventory NBT; armor/offhand alone do not open it.
         if(a.currentContainer&&!game.items().magic().beaconSuppressed(owner.position())){
             if((a.current&4)!=0)explode(owner);

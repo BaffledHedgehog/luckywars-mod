@@ -70,7 +70,7 @@ public final class LbcTmtTriggers {
         for(var action:Action.values())if(family.events().contains(LbcTmtCatalog.Event.valueOf(action.name())))result.add(action);
         // Sustained use and equipped/inventory conditions stay with their native owners.
         // They are conditions, not replacement inputs or fake equip/consume/death events.
-        if(family.events().contains(LbcTmtCatalog.Event.USING)){result.remove(Action.USE);result.remove(Action.SELF);}
+        if(family.events().contains(LbcTmtCatalog.Event.USING)){result.remove(Action.USE);result.remove(Action.SELF);result.remove(Action.INCOMING);}
         if(family.locations().contains(LbcTmtCatalog.Location.EQUIPPED)){result.remove(Action.JUMP);result.remove(Action.SELF);result.remove(Action.INCOMING);}
         for(var property:family.variants())if(flag(property,"feeding")||flag(property,"vampire")||flag(property,"seaguardian")||flag(property,"evolution")||flag(property,"triple_golden_sword")||flag(property,"blazefire_sword"))result.add(Action.MELEE);
         return result;
@@ -159,6 +159,7 @@ public final class LbcTmtTriggers {
                                         case MELEE->{var victim=target instanceof LivingEntity living?living:aimed(owner);if(victim!=null){
                                             var damage=owner.damageSources().playerAttack(owner);
                                             game.items().tmtMelee(owner,victim,damage);
+                                            LbcTmtTools.propertyContact(game,owner,stack);
                                             game.items().reactiveArtifacts().propertyMelee(owner,victim,damage,property.data());
                                             game.items().incomingArtifacts().propertyMelee(owner,victim,property.data());
                                             game.items().reactiveTrinkets().propertyMelee(owner,victim,damage,property.data());

@@ -181,6 +181,13 @@ public final class CaseCosmeticChecks {
                 require(current.phase()==25&&normalized!=null,"fixed normalized payout precedes source award25");checkedPaid=true;var payout=current.payout();
                 require(profile().coins==coinsBefore+payout.coins()&&profile().memcoins==memBefore+payout.memcoins(),"single exact native wallet payout");
                 if(!payout.unlock().isEmpty())require(profile().legacyUnlocks.contains(payout.unlock())&&LbcSourceUnlocks.has(owner,profile(),payout.unlock()),"durable award projects actual source ownership");
+                if(payout.message().startsWith("reward.")){
+                    var winner=cases.renderView(owner).strip().get(2);String name=winner.getHoverName().getString();
+                    require(!name.isBlank()&&packets(client).stream().filter(ClientboundSystemChatPacket.class::isInstance).map(ClientboundSystemChatPacket.class::cast)
+                            .anyMatch(p->p.content().getString().contains(name)),"native committed payout message includes the actual winning item name, without querying a legacy block: kind="+caseKind+", payout="+payout.message()+", name="+name
+                                    +", constructed="+OriginalGuiDesign.sourceMessage(payout.message(),owner,profile(),game.config(),winner).getString()
+                                    +", actual="+packets(client).stream().filter(ClientboundSystemChatPacket.class::isInstance).map(ClientboundSystemChatPacket.class::cast).map(p->p.content().getString()).toList());
+                }
                 String committed=profile().casePending;cases.onLeave(owner);cases.onJoin(owner);require(profile().casePending.equals(committed)&&profile().coins==coinsBefore+payout.coins()&&profile().memcoins==memBefore+payout.memcoins(),"paid rejoin retains receipt and never pays twice");
             }
             if(checkedPaid)require(profile().coins==coinsBefore+current.payout().coins()&&profile().memcoins==memBefore+current.payout().memcoins(),"paid visual phases never repeat payout");
