@@ -103,6 +103,14 @@ public abstract class LobbyInventoryPacketMixin {
             game.items().voidArcanumHandsSwapped(player);
     }
 
+    /** Run the same native equipment pass after the slot mutation has actually committed. */
+    @Inject(method={"handleContainerClick","handleSetCreativeModeSlot"},at=@At("RETURN"))
+    private void skywars2$committedEquipment(CallbackInfo ci){
+        var game=SkyWars2.game();
+        if(game!=null&&game.server().isSameThread()&&!game.balanceLegacy()&&!me.skywars2.game.MatchPlayerCheckpoint.restoring(player))
+            ((ArmorReserveMixin.Equipment)player).skywars2$refreshArmorReserveEquipment();
+    }
+
     @Unique
     private boolean skywars2$rejectStunnedMutation(CallbackInfo ci) {
         var game = SkyWars2.game();
