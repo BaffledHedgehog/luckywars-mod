@@ -69,7 +69,7 @@ public final class LbcDeltaTnt {
     private long next(Actor a){a.random+=0x9e3779b97f4a7c15L;return mix(a.random);}
     public void tick(){
         int now=game.server().getTickCount();if(!running()||lastTick==now)return;lastTick=now;callbacks++;
-        try{for(var a:List.copyOf(actors.values())){
+        try{if(!actors.isEmpty())game.items().cloneSkills().beforeOwnedStep(actors.values().stream().map(a->a.body).toList());for(var a:List.copyOf(actors.values())){
             if(!game.items().currentEpoch(a.epoch)||a.body.level()!=a.level){retire(a);continue;}
             if(a.body.isRemoved()){if(a.body.getRemovalReason()!=Entity.RemovalReason.UNLOADED_TO_CHUNK)retire(a);continue;}
             if(paused(a.level)||game.items().timeStop().frozen(a.body)||!a.level.hasChunkAt(a.body.blockPosition()))continue;

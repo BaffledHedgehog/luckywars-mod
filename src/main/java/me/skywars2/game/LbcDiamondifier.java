@@ -77,6 +77,7 @@ public final class LbcDiamondifier {
         if(restoring||lastTick==now||!game.playing()||game.maps().busy()||game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally())return;
         lastTick=now;callbacks++;
         try{
+            if(!actors.isEmpty())game.items().cloneSkills().beforeOwnedStep(actors.values().stream().map(a->a.body).toList());
             var pulse=Collections.newSetFromMap(new IdentityHashMap<ServerLevel,Boolean>());
             for(var level:List.copyOf(phases.keySet()))if(!paused(level)){int phase=(phases.get(level)+1)%20;phases.put(level,phase);if(phase==0)pulse.add(level);}
             // New children are selected on the following global second, as in the source selector.

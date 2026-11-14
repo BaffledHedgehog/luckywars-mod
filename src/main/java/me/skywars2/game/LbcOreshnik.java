@@ -66,7 +66,10 @@ public final class LbcOreshnik {
     }
     public void tick(){
         if(restoring)return;callbacks++;
-        try{for(var flight:List.copyOf(flights))flight.tick();}finally{callbacks--;}
+        try{
+            if(!flights.isEmpty())game.items().cloneSkills().beforeOwnedStep(flights.stream().map(f->f.display).filter(Objects::nonNull).toList());
+            for(var flight:List.copyOf(flights))flight.tick();
+        }finally{callbacks--;}
     }
     static List<Vec3> offsets(boolean child){
         var result=new ArrayList<Vec3>();result.add(Vec3.ZERO);
@@ -117,7 +120,9 @@ public final class LbcOreshnik {
             if(game.items().timeStop().stopped(level))return;
             if(game.items().magic().mechanismSuppressedAt(level,at)){close();return;}
             var next=at.add(Vec3.directionFromRotation(pitch,yaw));if(!tickets.resident(next,0))return;
-            model();age++;
+            boolean birth=display==null;model();
+            if(birth)game.items().cloneSkills().beforeOwnedStep(List.of(display));
+            age++;
             for(var viewer:game.server().getPlayerList().getPlayers())if(viewer.level()==level)level.sendParticles(viewer,ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,at.x,at.y,at.z,5,.3,.3,.3,.05);
             LbcOverload.sound(level,at,"minecraft:lbcsounds.rocket_power",net.minecraft.sounds.SoundSource.MASTER,1,child?1.5f:1,0,child?.08f:.5f);
             at=next;display.setPos(at);

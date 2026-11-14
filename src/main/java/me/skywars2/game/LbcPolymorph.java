@@ -278,10 +278,7 @@ public final class LbcPolymorph {
         }finally{checkpointDepth--;}
     }
     static Vec3 steer(Vec3 direction,Vec3 toward){
-        var a=direction.normalize();var b=toward.normalize();double dot=Math.max(-1,Math.min(1,a.dot(b))),angle=Math.acos(dot);
-        if(angle<=TURN)return b.scale(SPEED);
-        var perpendicular=b.subtract(a.scale(dot));if(perpendicular.lengthSqr()<1e-12)perpendicular=a.cross(Math.abs(a.y)<.9?new Vec3(0,1,0):new Vec3(1,0,0));
-        return a.scale(Math.cos(TURN)).add(perpendicular.normalize().scale(Math.sin(TURN))).normalize().scale(SPEED);
+        return ProjectileSteering.turn(direction.normalize(),toward,TURN).scale(SPEED);
     }
     public void tick(){
         checkpointDepth++;try{

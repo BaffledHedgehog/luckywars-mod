@@ -68,7 +68,7 @@ public final class LbcFunnyTnt {
     }
     public void tick(){
         int now=game.server().getTickCount();if(!running()||lastTick==now)return;lastTick=now;callbacks++;
-        try{for(var actor:List.copyOf(actors.values())){
+        try{if(!actors.isEmpty())game.items().cloneSkills().beforeOwnedStep(actors.values().stream().map(a->a.body).toList());for(var actor:List.copyOf(actors.values())){
             if(!game.items().currentEpoch(actor.epoch)||actor.body.level()!=actor.level){retire(actor);continue;}
             if(actor.body.isRemoved()){if(actor.body.getRemovalReason()!=Entity.RemovalReason.UNLOADED_TO_CHUNK)retire(actor);continue;}
             if(paused(actor.level)||game.items().timeStop().frozen(actor.body)||!actor.level.hasChunkAt(actor.body.blockPosition()))continue;

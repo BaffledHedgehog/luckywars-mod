@@ -48,7 +48,7 @@ public final class LbcMysticalTree {
     private static long next(Actor actor){long v=(actor.random+=0x9e3779b97f4a7c15L);v=(v^(v>>>30))*0xbf58476d1ce4e5b9L;v=(v^(v>>>27))*0x94d049bb133111ebL;return v^(v>>>31);}
     public void tick(){
         int now=game.server().getTickCount();if(!running()||lastTick==now)return;lastTick=now;callbacks++;
-        try{for(var actor:List.copyOf(actors.values())){
+        try{if(!actors.isEmpty())game.items().cloneSkills().beforeOwnedStep(actors.values().stream().map(a->a.body).toList());for(var actor:List.copyOf(actors.values())){
             if(!game.items().currentEpoch(actor.epoch)){retire(actor);continue;}
             if(actor.body.isRemoved()){if(actor.body.getRemovalReason()!=Entity.RemovalReason.UNLOADED_TO_CHUNK)retire(actor);continue;}
             if(paused(actor.level)||game.items().timeStop().frozen(actor.body)||!actor.level.hasChunkAt(actor.body.blockPosition()))continue;

@@ -39,6 +39,7 @@ import org.joml.Vector3f;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -180,6 +181,7 @@ public final class LbcGodHedgehog {
                 if(!valid(e)||e.boss.isRemoved()&&!resident(e.level,e.boss.position())){retire(e);continue;}
                 if(e.boss.isAlive()&&!e.boss.isRemoved()&&!paused(e.boss))bossTick(e,phase);
             }
+            if(!actors.isEmpty())game.items().cloneSkills().beforeOwnedStep(actors.stream().map(Actor::body).filter(Objects::nonNull).toList());
             // Copy once: descendants start on the following active tick, as in source entity selectors.
             for(var actor:List.copyOf(actors)){
                 if(!valid(actor.encounter)||actor.body()==null||actor.body().isRemoved()||!resident(actor.encounter.level,actor.point)){remove(actor);continue;}

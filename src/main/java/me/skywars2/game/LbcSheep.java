@@ -350,6 +350,7 @@ public final class LbcSheep {
             if(c.entity.isRemoved()||!validOwner(p)||!game.items().currentEpoch(c.epoch)||c.entity.level()!=p.level()
                     ||suppressed((ServerLevel)c.entity.level(),c.entity.position()))remove(c);
         }
+        if(!holes.isEmpty())game.items().cloneSkills().beforeOwnedStep(holes.stream().map(h->h.entity).toList());
         var current=List.copyOf(holes);int size=current.size();
         var active=new ArrayList<Hole>();
         for(int i=0;i<size;i++){

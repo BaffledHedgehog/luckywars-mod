@@ -155,7 +155,7 @@ public final class LbcTrinketArrows {
         game.items().markCurrentItemEpoch(rocket);game.items().spellSources().bind(rocket,source(rocket));game.items().timeStop().prepareFrozen(rocket);
         if(level.addFreshEntity(rocket)){rockets.add(rocket);LbcOverload.sound(level,at,"minecraft:lbcsounds.rocketspell",10,1,0,0);}
     }
-    public void tick(){for(var rocket:List.copyOf(rockets)){
+    public void tick(){game.items().cloneSkills().beforeOwnedStep(rockets);for(var rocket:List.copyOf(rockets)){
         if(rocket.isRemoved()||!currentContext(rocket)){retire(rocket);continue;}
         if(paused(rocket))continue;var level=(ServerLevel)rocket.level();var at=rocket.position();if(!resident(level,at))continue;
         if(game.items().magic().mechanismSuppressedAt(level,at)){retire(rocket);continue;}

@@ -28,7 +28,7 @@ final class CloneActorStates implements LbcCloneSkills.ActorAdapter {
         return e instanceof LbcWtf.Chef||(CloneEncounterStates.recognizes(e)||CloneMobStates.recognizes(e))&&e instanceof net.minecraft.world.entity.LivingEntity;
     }
     public boolean gameplayActor(Entity e){
-        return CloneLateProjectileStates.recognizes(e)||game.items().reactiveTrinkets().defense().cloneRecognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
+        return CloneLateProjectileStates.recognizes(e)||LbcKfcRewards.cloneProjectile(e)||game.items().reactiveTrinkets().defense().cloneRecognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||LbcDanmaku.managed(e)&&!game.items().danmaku().cloneProtected(e)||CloneSimpleProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||CloneComplexProjectileStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)
                 ||e instanceof LbcFpvDrone.Drone||CloneVirtualAbilityStates.recognizes(e)&&!(e instanceof net.minecraft.world.entity.Mob)

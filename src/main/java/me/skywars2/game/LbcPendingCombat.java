@@ -276,6 +276,7 @@ public final class LbcPendingCombat {
                 if(curse.seconds<=1)clearEffects(target);else{curse.seconds--;if(target instanceof ServerPlayer player)game.items().mana().score(player,"effect_gravity_curse").set(curse.seconds);}
             }
         }
+        if(!copies.isEmpty())game.items().cloneSkills().beforeOwnedStep(copies.stream().map(c->c.display).toList());
         var candidates=new IdentityHashMap<ServerPlayer,List<LivingEntity>>();
         for(var copy:List.copyOf(copies)){
             if(copy.display.isRemoved()||!valid(copy.owner)||!game.items().currentEpoch(copy.epoch)){remove(copy);continue;}

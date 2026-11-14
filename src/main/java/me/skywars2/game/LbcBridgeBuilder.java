@@ -103,6 +103,7 @@ public final class LbcBridgeBuilder {
     void tick(){
         if(restoring)return;callbacks++;try{
             int now=game.server().getTickCount();if(lastTick==now)return;lastTick=now;
+            if(!actors.isEmpty())game.items().cloneSkills().beforeOwnedStep(actors.values().stream().map(a->a.body).toList());
             for(var actor:List.copyOf(actors.values())){
                 var body=actor.body;
                 if(!game.playing()||!game.items().currentEpoch(actor.epoch)){remove(actor,true);continue;}

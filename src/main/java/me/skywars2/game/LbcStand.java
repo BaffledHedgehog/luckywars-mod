@@ -482,8 +482,8 @@ public final class LbcStand {
         if(game.items().magic().suppressedAt(fist.level,fist.display.position())) { remove(fist); return; }
         for(int step=0;step<3;step++) {
             var target=nearest(fist);
-            if(target!=null) fist.direction=fist.direction.add(target.getEyePosition()
-                    .subtract(fist.display.position()).normalize().scale(.3)).normalize();
+            if(target!=null) fist.direction=ProjectileSteering.turn(fist.direction,target.getEyePosition()
+                    .subtract(fist.display.position()),Math.atan(.3));
             Vec3 from=fist.display.position(), next=from.add(fist.direction);
             var wall=LbcTerra.wallHit(fist.level,from,next);
             var end=wall==null?next:wall.getLocation();

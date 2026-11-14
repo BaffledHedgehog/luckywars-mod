@@ -136,7 +136,7 @@ public final class LbcReactiveDefense {
         lastTick=now;ticking=true;
         try{
             for(var level:clocks.keySet())if(!paused(level))clocks.put(level,clocks.get(level)+1);
-            drain();int visits=Math.min(128,work.size());
+            drain();game.items().cloneSkills().beforeOwnedStep(actors.keySet());int visits=Math.min(128,work.size());
             while(visits-->0&&!work.isEmpty()){var a=work.removeFirst();if(actors.get(a.body)!=a)continue;
                 if(a.body.isRemoved()||!game.items().currentEpoch(a.epoch)||!game.playing()||game.stage()==GameController.Stage.ENDING){retire(a);continue;}
                 var level=(ServerLevel)a.body.level();long clock=clocks.computeIfAbsent(level,ignored->0L);

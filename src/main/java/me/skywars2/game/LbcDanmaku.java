@@ -166,6 +166,8 @@ public final class LbcDanmaku {
                 if(extras.isEmpty())external.remove(p.getUUID());
             }
         }
+        if(!cards.isEmpty()||!bombs.isEmpty())game.items().cloneSkills().beforeOwnedStep(java.util.stream.Stream.concat(
+                cards.stream().map(c->(Entity)c.display),bombs.stream().map(b->(Entity)b.positive)).toList());
         for(var c:List.copyOf(cards))tick(c);
         for(var b:List.copyOf(bombs))tick(b);
     }
@@ -194,7 +196,7 @@ public final class LbcDanmaku {
                 LivingEntity nearest=null;double ds=Double.POSITIVE_INFINITY;
                 for(var e:candidates)if(e.isAlive()&&!e.isRemoved()&&game.items().wands().target(c.owner,e)){double d=e.distanceToSqr(c.display);if(d<ds){ds=d;nearest=e;}}
                 if(nearest==null){if(c.age>=60)remove(c);return;}
-                c.direction=c.direction.add(nearest.getEyePosition().subtract(c.display.position()).normalize().scale(.06)).normalize();orient(c);
+                c.direction=ProjectileSteering.turn(c.direction,nearest.getEyePosition().subtract(c.display.position()),Math.atan(.06));orient(c);
             }
             var from=c.display.position();var to=from.add(c.direction.scale(.4));var level=(ServerLevel)c.display.level();
             if(!residentSegment(level,from,to)){remove(c);return;}

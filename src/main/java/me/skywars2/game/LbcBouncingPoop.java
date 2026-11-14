@@ -78,7 +78,7 @@ public final class LbcBouncingPoop {
     private boolean target(CompoundTag d,Entity target){return target instanceof LivingEntity&&target.getType().builtInRegistryHolder().is(MOBS)
             &&game.items().wands().validTarget(target)&&!target.getUUID().equals(author(d))
             &&(!(target instanceof ServerPlayer player)||d.getStringOr("team","").isEmpty()||player.getTeam()==null||!player.getTeam().getName().equals(d.getStringOr("team","")));}
-    public void tick(){if(game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally())return;for(var actor:List.copyOf(actors)){
+    public void tick(){if(game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally())return;game.items().cloneSkills().beforeOwnedStep(actors);for(var actor:List.copyOf(actors)){
         var d=state(actor);if(actor.isRemoved()||d==null||!game.playing()||game.stage()==GameController.Stage.ENDING||!game.items().currentEpoch(d.getStringOr("epoch",""))){retire(actor);continue;}
         var level=(ServerLevel)actor.level();if(game.items().timeStop().stopped(level)||actor.entityTags().contains("time_stopped")||!level.hasChunkAt(actor.blockPosition()))continue;
         var before=actor.position();var velocity=actor.getDeltaMovement();

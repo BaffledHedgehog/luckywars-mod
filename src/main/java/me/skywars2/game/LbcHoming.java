@@ -418,21 +418,24 @@ public final class LbcHoming {
     /** Shared skill30 rotation for virtual native adapters. The author is the actual current
      * projectile owner; selection elsewhere never grants control over foreign bodies. */
     Vec3 skillDirection(ServerPlayer owner,ServerLevel level,Vec3 from,Vec3 direction){
-        if(!skillOwner(owner,level)||!owner.getRandom().nextBoolean()
-                ||nearPlayer(level,from,20))return direction;
+        return skillMotion(owner,level,from,direction,false);
+    }
+    private Vec3 skillMotion(ServerPlayer owner,ServerLevel level,Vec3 from,Vec3 motion,boolean arrow){
+        if(!skillOwner(owner,level))return motion;
         var aimed=skillTarget(owner,from);
+        if(aimed==null)return motion;
+        var toward=aimed.getEyePosition().subtract(from);
+        var next=ProjectileSteering.turn(motion,toward,Math.PI/180);
+        // Keep the authored arrow's additive speed; only its turn is replaced by the angular cap.
+        if(arrow)next=next.normalize().scale(motion.add(toward.normalize().scale(.5)).length());
         level.sendParticles(new DustParticleOptions(0xff0000,2),true,false,from.x,from.y,from.z,3,.1,.1,.1,0);
-        return aimed==null?direction:direction.normalize().add(aimed.getEyePosition().subtract(from).normalize().scale(.1)).normalize();
+        return next;
     }
     private boolean skillOwner(ServerPlayer owner,ServerLevel level){
         return owner!=null&&owner.level()==level&&game.playing()&&!game.maps().busy()
                 &&game.canUseGameplayItems(owner)&&!game.isObserver(owner)&&!game.balanceLegacy()
                 &&game.lbc().hasSkill(owner,30)&&!game.items().wands().inputTimeStopped(owner)
                 &&!game.items().timeStop().stopped(level)&&!game.items().magic().suppressed(owner);
-    }
-    private boolean nearPlayer(ServerLevel level,Vec3 from,double distance){
-        return level.players().stream().anyMatch(player->!player.isSpectator()
-                &&player.position().distanceToSqr(from)<=distance*distance);
     }
     private LivingEntity skillTarget(ServerPlayer owner,Vec3 from){
         LivingEntity aimed=null;double best=10000;
@@ -451,19 +454,9 @@ public final class LbcHoming {
                     ||!(game.items().projectileLevelups().projectileOwner(body) instanceof ServerPlayer owner)
                     ||!skillOwner(owner,(ServerLevel)body.level()))continue;
             Vec3 motion=body.getDeltaMovement();if(motion.lengthSqr()<1e-12)continue;
-            Vec3 next;
-            if(projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow){
-                if(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()
-                        ||owner.getRandom().nextFloat()>=.7f||nearPlayer(owner.level(),body.position(),15))continue;
-                var aimed=skillTarget(owner,body.position());
-                if(aimed==null)continue;
-                next=motion.add(aimed.getEyePosition().subtract(body.position()).normalize().scale(.5));
-                owner.level().sendParticles(new DustParticleOptions(0xff0000,2),true,false,
-                        body.getX(),body.getY(),body.getZ(),3,.1,.1,.1,0);
-            }else {
-                Vec3 direction=motion.normalize();var steered=skillDirection(owner,owner.level(),body.position(),direction);
-                if(steered==direction)continue;next=steered.scale(motion.length());
-            }
+            boolean arrow=projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+            if(arrow&&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)projectile).skywars2$isInGround())continue;
+            Vec3 next=skillMotion(owner,owner.level(),body.position(),motion,arrow);
             if(next.equals(motion))continue;
             body.setDeltaMovement(next);body.needsSync=true;LbcShooters.orient(projectile);
         }
@@ -490,8 +483,7 @@ public final class LbcHoming {
                     e->fourierTarget(owner,e) && e.position().distanceToSqr(at)<=1600).stream()
                     .min(java.util.Comparator.comparingDouble(e->e.position().distanceToSqr(at))).orElse(null);
             if(nearest!=null) {
-                Vec3 lookahead=effect.direction.add(nearest.position().subtract(at).normalize().scale(.1));
-                if(lookahead.lengthSqr()>1e-12) effect.direction=lookahead.normalize();
+                effect.direction=ProjectileSteering.turn(effect.direction,nearest.position().subtract(at),Math.atan(.1));
                 Vec3 next=at.add(effect.direction);
                 if(!level.hasChunkAt(BlockPos.containing(next))
                         || Double.isFinite(game.items().magic().suppressionFraction(level,at,next))) {

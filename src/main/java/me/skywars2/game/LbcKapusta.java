@@ -135,6 +135,7 @@ public final class LbcKapusta {
             if(game.items().timeStop().stopped(next.level())||!next.level().hasChunkAt(BlockPos.containing(next.at()))){pending.addLast(next);continue;}
             if(spawn(next.level(),next.at(),next.yaw(),next.pitch(),next.state())==null)pending.addLast(next);
         }
+        game.items().cloneSkills().beforeOwnedStep(flights.keySet());
         int remaining=Math.min(DISPATCH_BUDGET,ready.size());
         while(remaining-->0){var body=ready.removeFirst();var state=flights.get(body);if(state==null)continue;
             if(body.isRemoved()){unloaded(body);continue;}

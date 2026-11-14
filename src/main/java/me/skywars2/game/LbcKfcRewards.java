@@ -472,6 +472,8 @@ public final class LbcKfcRewards {
         };
     }
     static boolean cloneRecognizes(Entity e){return e instanceof CultBat||e instanceof CultItem||e instanceof LooseBolt;}
+    /** Free bow/loose mines are moving weapons; attached payloads remain part of their bat actor. */
+    static boolean cloneProjectile(Entity e){return e instanceof CultItem&&!e.isPassenger();}
     static boolean cloneProtected(Entity e){return false;}
     LbcCloneSkills.ActorImage cloneImage(Entity source){
         if(cloneProtected(source))return null;
