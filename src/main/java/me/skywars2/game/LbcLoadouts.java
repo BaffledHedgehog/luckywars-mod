@@ -571,9 +571,15 @@ public final class LbcLoadouts {
 
     /** Перенесённые loot conditions, включая /loot, читают прежний score; настройкой владеет config. */
     void syncRanked() {
-        var rankedScore = game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("ranked"), "lbc.event");
-        int ranked = config.ranked ? 1 : 0;
-        if (rankedScore.get() != ranked) rankedScore.set(ranked);
+        syncSourceFlag("ranked",config.ranked);
+        syncSourceFlag("halloween",config.eventHalloween);
+        syncSourceFlag("november",config.eventNovember);
+        syncSourceFlag("tournament",config.eventTournament);
+    }
+    /** Imported native loot providers read these holders; config remains the persistent authority. */
+    private void syncSourceFlag(String name,boolean enabled){
+        var score=game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly(name),"lbc.event");
+        int wanted=enabled?1:0;if(score.get()!=wanted)score.set(wanted);
     }
 
     List<net.minecraft.world.item.ItemStack> rollTable(net.minecraft.server.level.ServerLevel level,

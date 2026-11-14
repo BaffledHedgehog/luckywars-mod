@@ -17,7 +17,8 @@ public abstract class ObserverAdvancementMixin {
     /** Копия инвентаря и местоположение камеры не должны открывать наблюдателю достижения цели. */
     @Inject(method = "award", at = @At("HEAD"), cancellable = true)
     private void skywars2$noWatchUnlocks(AdvancementHolder advancement, String criterion, CallbackInfoReturnable<Boolean> ci) {
-        if (SkyWars2.game() != null && SkyWars2.game().isObserver(player)) ci.setReturnValue(false);
+        if (SkyWars2.game() != null && SkyWars2.game().isObserver(player)
+                && !me.skywars2.game.LbcSourceUnlocks.projecting(player,advancement)) ci.setReturnValue(false);
     }
 
     @Inject(method = "award", at = @At("RETURN"))

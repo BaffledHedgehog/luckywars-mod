@@ -38,5 +38,9 @@ final class MatchSettings {
         if(health==null)health=board.addObjective("swrg.hp",ObjectiveCriteria.HEALTH,Component.literal("❤"),ObjectiveCriteria.RenderType.HEARTS,false,null);
         board.setDisplayObjective(DisplaySlot.BELOW_NAME,(config.healthDisplay&1)!=0?health:null);
         board.setDisplayObjective(DisplaySlot.LIST,(config.healthDisplay&2)!=0?health:null);
+        if(config.eventTournament&&!game.playing()&&board.getObjective("tournament_wins")!=null){
+            board.setDisplayObjective(DisplaySlot.SIDEBAR,board.getObjective("tournament_kills"));
+            board.setDisplayObjective(DisplaySlot.LIST,board.getObjective("tournament_wins"));
+        }
     }
 }

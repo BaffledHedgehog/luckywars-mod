@@ -8,6 +8,17 @@ import net.minecraft.server.level.ServerPlayer;
 /** Exact source ownership; ordinary SWRG tags are separate from LBC selections. */
 public final class LbcSourceUnlocks {
     private LbcSourceUnlocks() {}
+    private record Projection(ServerPlayer player, net.minecraft.advancements.AdvancementHolder advancement) {}
+    private static final ThreadLocal<Projection> PROJECTING=new ThreadLocal<>();
+    /** Only a committed canonical cosmetic/case unlock can bypass the spectator camera guard. */
+    public static boolean projecting(ServerPlayer player, net.minecraft.advancements.AdvancementHolder advancement){
+        var value=PROJECTING.get();return value!=null&&value.player()==player&&value.advancement()==advancement;
+    }
+    private static void project(ServerPlayer player,net.minecraft.advancements.AdvancementHolder advancement,String criterion){
+        var previous=PROJECTING.get();PROJECTING.set(new Projection(player,advancement));
+        try{player.getAdvancements().award(advancement,criterion);}
+        finally{if(previous==null)PROJECTING.remove();else PROJECTING.set(previous);}
+    }
     private static final Set<String> ADMINISTRATIVE=administrativeUniverse();
     private static Set<String> administrativeUniverse(){var result=new LinkedHashSet<>(universe());result.removeIf(id->id.startsWith("swrg:rewards/drop_"));return java.util.Collections.unmodifiableSet(result);}
     public static Set<String> administrativeIds(){return ADMINISTRATIVE;}
@@ -68,7 +79,7 @@ public final class LbcSourceUnlocks {
                 var advancement = player.level().getServer().getAdvancements().get(Identifier.parse(key));
                 if (advancement == null) throw new IllegalStateException("Missing source advancement " + key);
                 for (String criterion : player.getAdvancements().getOrStartProgress(advancement).getRemainingCriteria())
-                    player.getAdvancements().award(advancement, criterion);
+                    project(player, advancement, criterion);
             }
         }
     }

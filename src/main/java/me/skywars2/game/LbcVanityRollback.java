@@ -189,6 +189,7 @@ public final class LbcVanityRollback {
         var restoredBodies=image.actors.restoredBodies();
         game.items().grimoireBoss().reindexRestored(restoredBodies);
         game.items().bouncingPoop().reindexRestored(restoredBodies);
+        game.items().seasonal().reindexRestored(restoredBodies);
     }
     private boolean waiting(Set<UUID> players,String owner){
         if(players.isEmpty())return false;waitReason=owner+": "+players;return true;

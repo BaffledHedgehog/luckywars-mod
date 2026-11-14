@@ -337,6 +337,7 @@ public final class LbcItems {
     private final LbcChargedBows chargedBows;
     private final LbcBalance balance;
     private final LbcNovemberLightsabers lightsabers;
+    private final LbcSeasonalEvents seasonal;
     private final LbcPozdmanBot pozdmanBot;
     private final LbcCursedPumpkin cursedPumpkin;
     private final LbcCannedFood cannedFood;
@@ -1250,6 +1251,7 @@ public final class LbcItems {
             public boolean allowsField(ServerLevel level,Vec3 position){return !magic.mechanismSuppressedAt(level,position,20);}
         });
         this.lightsabers=new LbcNovemberLightsabers(game,p->true);
+        this.seasonal=new LbcSeasonalEvents(game);
         this.pozdmanBot=new LbcPozdmanBot(game,p->!magic.mechanismSuppressedAt(p.level(),p.position())&&!magic.artifactSuppressedAt(p.level(),p.position()));
         this.cursedPumpkin=new LbcCursedPumpkin(game);
         this.cannedFood = new LbcCannedFood(game);
@@ -1567,6 +1569,7 @@ public final class LbcItems {
     public LbcChargedBows chargedBows(){return chargedBows;}
     public LbcBalance balance(){return balance;}
     public LbcNovemberLightsabers lightsabers(){return lightsabers;}
+    public LbcSeasonalEvents seasonal(){return seasonal;}
     public LbcPozdmanBot pozdmanBot(){return pozdmanBot;}
     public LbcCursedPumpkin cursedPumpkin(){return cursedPumpkin;}
     public LbcCannedFood cannedFood() { return cannedFood; }
@@ -1707,7 +1710,7 @@ public final class LbcItems {
         voidArcanum.loaded(entity);
         babylon.loaded(entity);
         fartus.loaded(entity);
-        halloweenWind.loaded(entity);
+        halloweenWind.loaded(entity);seasonal.loaded(entity);
         soulless.loaded(entity);
         danmaku.loaded(entity);
         sauvojen.loaded(entity);
@@ -1835,7 +1838,7 @@ public final class LbcItems {
         voidArcanum.unloaded(entity);
         babylon.unloaded(entity);
         fartus.unloaded(entity);
-        halloweenWind.unloaded(entity);
+        halloweenWind.unloaded(entity);seasonal.unloaded(entity);
         soulless.unloaded(entity);
         danmaku.unloaded(entity);
         sauvojen.unloaded(entity);
@@ -2277,7 +2280,7 @@ public final class LbcItems {
         babylonEffects.tick();
         babylon.tick();
         fartus.tick();
-        halloweenWind.tick();
+        halloweenWind.tick();seasonal.tick();
         soulhunter.tick();
         soulless.tick();
         danmaku.tick();
@@ -2569,7 +2572,7 @@ public final class LbcItems {
         radar.stop();
         clockFragments.stop();steampunkRocket.stop();trollBox.stop();tmt.stop();
         railroad.stop();mysticalTree.stop();funnyTnt.stop();deltaTnt.stop();diamondifier.stop();homingArrows.stop();imbaHoe.stop();kapusta.stop();pumpkinator.stop();thrownUtilities.stop();cunny.stop();cunnyTerrain.stop();imbaTerrainUtilities.stop();whiteArrows.stop();mellstroy.stop();mellstroyCrafting.stop();bridgeBuilder.stop();imbaAxe.stop();cinema.stop();phoenix.stop();cosmetics.stop();badApple.stop();rainbowAura.stop();psychblindSkill.stop();projectileLevelups.stop();
-        lightsabers.clear();pozdmanBot.stop();cursedPumpkin.clear();
+        lightsabers.clear();seasonal.stop();pozdmanBot.stop();cursedPumpkin.clear();
         combatRewards.clear();machinegunSkill.clear();zeusSkill.stop();symbioteSkill.stop();cloneSkills.stop();
         containedSkills.stop();fallingHedgehogs.stop();godClaw.stop();stoneGolemSkill.stop();championSkill.stop();expansionSkill.stop();hakureiSkill.stop();touhouCollectibles.stop();
         grimoireRooms.stop();grimoireBoss.stop();uniwand.stop();

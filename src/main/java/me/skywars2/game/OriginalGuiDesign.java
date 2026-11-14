@@ -147,7 +147,11 @@ public final class OriginalGuiDesign {
                 JsonObject source = sourceElement.getAsJsonObject();
                 if (source.has("sourceLootTable")) {
                     // The source page may list gated alternatives; the first native loot item is its stable default.
-                    ItemStack stack = button(player, Identifier.parse(source.get("sourceLootTable").getAsString()), profile, config);
+                    String table=source.get("sourceLootTable").getAsString();
+                    // Paper's seasonal selectors replace these exact source leaves, preserving their prices/keys.
+                    if(config!=null&&config.eventHalloween&&namespace.equals("swrg")
+                            &&(pageId.equals("5000")&&slot==4||pageId.equals("6000")&&slot>=12&&slot<=14))table+="_halloween";
+                    ItemStack stack = button(player, Identifier.parse(table), profile, config);
                     applySourcePageModifiers(stack, entry, player, profile, config);
                     return stack;
                 }

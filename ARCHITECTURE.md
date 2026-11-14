@@ -1,3 +1,11 @@
+## Manual seasonal lifecycle - qualified 14 November 2026
+
+`LbcSeasonalEvents` owns seasonal match start/end and native Halloween bodies. `GameConfig` remains the sole manual persistent flag owner; `LbcLoadouts.syncRanked` projects all event flags into the fixed native loot holders. Seasonal case/key variants reuse `OriginalGuiDesign` and the imported tables. Native bodies and scores own continuation state; the loaded seasonal index is rebuilt from `restoredBodies` after whole-match replay.
+
+Original enormous priority weights are expressed with native alternatives and the unchanged ordinary weighted group, avoiding integer overflow when IMBA and Halloween conditions coincide. Tournament participation/earned cosmetic flags enter canonical profiles and reuse `LbcSourceUnlocks.publish`; its exact player/advancement call scope allows only this trusted projection through the spectator achievement guard. Camera/inventory observation still cannot award achievements. Source November team prefixes preserve membership and colors. The shared finish recipient list owns team currency rewards.
+
+Builds use one worker, no parallel projects, 768 MiB heap and `ActiveProcessorCount=2` in `gradle.properties`; the daemon stops after command-line builds. This changes build resource usage, not the server JVM.
+
 ## Latched match mode and source startup - QUALIFIED, INSTALLED (6 November2026)
 
 [Author decision, startup policy and exact native evidence](agent_notes/MATCH_MODE_START_2026_11_06.md).

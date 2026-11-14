@@ -1422,6 +1422,8 @@ public final class GameChecks {
                                 case "imba-utilities" -> {ImbaUtilityChecks.run(game);return;}
                                 case "imba-utilities-rewind" -> {ImbaUtilityChecks.runRewind(game);return;}
                                 case "cases-cosmetics-rewind" -> {CaseCosmeticChecks.runRewind(game);return;}
+                                case "seasonal-prepare" -> {SeasonalEventChecks.prepare(game);return;}
+                                case "seasonal-events" -> {SeasonalEventChecks.run(game);return;}
                                 case "badapple-imba" -> {BadAppleChecks.run(game);return;}
                                 case "badapple-rewind" -> {BadAppleChecks.runRewind(game);return;}
                                 case "tmt-badapple" -> {BadAppleChecks.runTmt(game);return;}

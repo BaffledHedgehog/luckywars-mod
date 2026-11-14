@@ -250,6 +250,7 @@ public final class GameController {
         this.spectators = new Spectators(this);
         this.attributeHud = new AttributeHud(this);
         this.developerTools = new DeveloperTools(this);
+        this.items.seasonal().settingsChanged();
     }
 
     public void menus(GameMenus menus) { this.menus = menus; }
@@ -860,10 +861,11 @@ public final class GameController {
         return true;
     }
 
-    /** Service event flags are persistent configuration; their seasonal mechanics are a later port. */
+    /** Persistent manual flags feed the same native loot holders and current menu variants immediately. */
     public Component configureLobbyEvent(String event, String value) {
         if (stopped) throw new GameConfig.SettingError(text("message.starting"));
-        return config.setEvent(event, value);
+        var result=config.setEvent(event,value);
+        lbc.syncRanked();items.seasonal().settingsChanged();menus.refreshOpen();return result;
     }
 
     public Component settingsSummary() {
@@ -1182,6 +1184,7 @@ public final class GameController {
         for (ServerPlayer player : alivePlayers()) {
             player.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(" ")));
         }
+        items.seasonal().started();
         updateBar();
     }
 
@@ -1566,6 +1569,7 @@ public final class GameController {
         maps.level().getGameRules().set(GameRules.BLOCK_DROPS, false, server);
         maps.level().getGameRules().set(GameRules.ENTITY_DROPS, false, server);
         maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
+        items.seasonal().finished(rewarded);
         config.gamesPlayed++; config.save(); players.save();
         transition(Stage.ENDING); finishTicks = Math.max(1, config.endingSeconds) * 20;
         // В исходном конце игры первая четвёрка ракет появляется сразу, затем раз в секунду.
