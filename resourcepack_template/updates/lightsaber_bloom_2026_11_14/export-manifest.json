@@ -1,0 +1,10 @@
+{
+  "scope": "Requirement30 event lightsaber bloom; merge-only author-pack addition",
+  "assets": {
+    "assets/minecraft/shaders/core/item.fsh": "16ee3987f216383e4498dd6b75ed7a425e6a95ee6ac0b22f30bd872bff9891cf",
+    "assets/minecraft/shaders/post/bloom_sample.fsh": "6e13add61f3b99d11335e7dbc16d84a8afb05b7a604ecc48b826feea7c87e3f0"
+  },
+  "validation": "GPU_RESULTS.json",
+  "authorPackModified": false,
+  "serverJarChangeRequired": false
+}

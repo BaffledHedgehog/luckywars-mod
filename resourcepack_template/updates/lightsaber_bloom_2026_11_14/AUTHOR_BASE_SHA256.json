@@ -1,0 +1,11 @@
+{
+  "assets/minecraft/shaders/post/bloom_sample.fsh": "7a59c3e9b633e2167fad760f9e7f57935f5106e4c2bfa335e8e7434057dd8687",
+  "assets/minecraft/shaders/core/item.fsh": "885479f4285fb2cb338e227da8ba5dbbf5991cf5ba3c12b8e1ac9a7e298b56de",
+  "assets/minecraft/shaders/core/item.vsh": "2b85038f4b04bd2abe91e9a1df0fc9a36ff33effa482295fff196ddf09ae58bc",
+  "assets/minecraft/shaders/core/entity.fsh": "bbbba3b7afed731a6ce54dd0c5d4ab8f278180ef7c1be613943eff3841c36f91",
+  "assets/minecraft/shaders/post/entity_sobel.fsh": "83bcc9c62af0e9042c4d85b391157590723805fe723fa164985b2c9dc8957d87",
+  "assets/minecraft/shaders/core/rendertype_outline.fsh": "aa423deb27d84a71f2cd673361eafaf631355bd2b94127a06ccb0223e9a4bd3c",
+  "assets/minecraft/post_effect/entity_outline.json": "cade0e066eaad2577a0e9400fcdf923d8b3f297ecb07c815cf61978696feb7b4",
+  "assets/minecraft/textures/item/lightsaber_jedi.png": "89b5ae101e9a55ef60000918c755795177f3c43612ca72f1827a4fd550d3a40b",
+  "assets/minecraft/textures/item/lightsaber_sith.png": "bb7832b636c70945d1145f96c1ae9a4ea381442234660a1632aa5422ae5464e9"
+}

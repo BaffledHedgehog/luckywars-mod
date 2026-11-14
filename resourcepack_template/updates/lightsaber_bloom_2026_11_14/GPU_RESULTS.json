@@ -1,0 +1,188 @@
+{
+  "passed": true,
+  "renderer": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "compiledItemVariants": 8,
+  "actualModels": [
+    {
+      "model": "lightsaber_jedi",
+      "light": 0,
+      "yaw": 0,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 0,
+      "yaw": 45,
+      "baseBloomPixels": 1320,
+      "enchantedBloomPixels": 1320
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 0,
+      "yaw": 90,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 0,
+      "yaw": 180,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 0.3,
+      "yaw": 0,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 0.3,
+      "yaw": 45,
+      "baseBloomPixels": 1320,
+      "enchantedBloomPixels": 1320
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 0.3,
+      "yaw": 90,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 0.3,
+      "yaw": 180,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 1,
+      "yaw": 0,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 1,
+      "yaw": 45,
+      "baseBloomPixels": 1320,
+      "enchantedBloomPixels": 1320
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 1,
+      "yaw": 90,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_jedi",
+      "light": 1,
+      "yaw": 180,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 0,
+      "yaw": 0,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 0,
+      "yaw": 45,
+      "baseBloomPixels": 1320,
+      "enchantedBloomPixels": 1320
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 0,
+      "yaw": 90,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 0,
+      "yaw": 180,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 0.3,
+      "yaw": 0,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 0.3,
+      "yaw": 45,
+      "baseBloomPixels": 1320,
+      "enchantedBloomPixels": 1320
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 0.3,
+      "yaw": 90,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 0.3,
+      "yaw": 180,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 1,
+      "yaw": 0,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 1,
+      "yaw": 45,
+      "baseBloomPixels": 1320,
+      "enchantedBloomPixels": 1320
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 1,
+      "yaw": 90,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    },
+    {
+      "model": "lightsaber_sith",
+      "light": 1,
+      "yaw": 180,
+      "baseBloomPixels": 1056,
+      "enchantedBloomPixels": 1056
+    }
+  ],
+  "bufferFormats": [
+    "RGBA8",
+    "RGBA16F",
+    "RGBA32F"
+  ],
+  "oldBlueHalfFloatFailureReproduced": true,
+  "oldEnchantedBlueFailureReproduced": true,
+  "unchangedNonEmissionMaterials": 6,
+  "vanillaBlockAndSkinTextures": 1318,
+  "sceneColorSamples": 99750,
+  "newlyGlowingSceneSamples": 0,
+  "authorAssetsUntouched": true,
+  "limitations": "Standalone GPU render of actual models/textures/shaders; no physical in-game client capture or full OIT compositor simulation."
+}
