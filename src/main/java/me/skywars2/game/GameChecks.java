@@ -728,6 +728,7 @@ public final class GameChecks {
                                 case "fast-clones" -> { FastCloneChecks.run(game); return; }
                                 case "fast-virtual-clones" -> { FastVirtualCloneChecks.run(game); return; }
                                 case "homing-turn" -> { HomingTurnChecks.run(game); return; }
+                                case "combat-logout" -> { CombatLogoutChecks.run(game); return; }
                                 case "combat-reward-skills" -> { CombatRewardSkillChecks.run(game); return; }
                                 case "machinegun-skill" -> { CombatRewardSkillChecks.runMachinegun(game); return; }
                                 case "combat-reward-player-death" -> { CombatRewardSkillChecks.runPlayerDeath(game); return; }
@@ -1845,6 +1846,7 @@ public final class GameChecks {
             FastCloneChecks.tick(game);
             FastVirtualCloneChecks.tick(game);
             HomingTurnChecks.tick(game);
+            CombatLogoutChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
             PendingSwordChecks.tick(game);

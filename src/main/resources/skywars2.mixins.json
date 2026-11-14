@@ -451,7 +451,8 @@
     "TntTimerMixin",
     "PolymerBlockResourceAccess",
     "PolymerBlockResourceAccess$States",
-    "CarpetBotJumpMixin"
+    "CarpetBotJumpMixin",
+    "CombatLogoutMixin"
   ],
   "injectors": {
     "defaultRequire": 1

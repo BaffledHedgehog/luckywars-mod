@@ -57,6 +57,9 @@ public final class CarpetBotChecks {
             return result;
         }
         ServerPlayer create(String name,Vec3 pos){
+            return create(name,pos,true);
+        }
+        ServerPlayer create(String name,Vec3 pos,boolean botExpected){
             try{
                 var uuid=GameChecks.offlineUuid(name);require(game.server().getPlayerList().getPlayer(uuid)==null,"owned fake identity offline");
                 var profile=new com.mojang.authlib.GameProfile(uuid,name);var type=Class.forName("carpet.patches.EntityPlayerMPFake");
@@ -71,7 +74,7 @@ public final class CarpetBotChecks {
                 p.getAttribute(Attributes.ARMOR).setBaseValue(0);p.setAbsorptionAmount(0);p.setInvulnerableTime(0);p.damageCooldownTime=0;
                 game.server().getScoreboard().removePlayerFromTeam(p.getScoreboardName());
                 move(p,pos,0);p.hasChangedDimension();p.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
-                require(LbcCarpetBots.bot(p)&&p.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),"actual Carpet body/listener without recording substitute");
+                require((!botExpected||LbcCarpetBots.bot(p))&&p.connection.getClass().getName().equals("carpet.patches.NetHandlerPlayServerFake"),"actual Carpet body/listener without recording substitute");
                 return p;
             }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
         }

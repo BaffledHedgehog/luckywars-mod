@@ -981,6 +981,34 @@ public final class LbcIndirectKills {
         } finally { effectTarget=previous; tickingEffect=previousEffect; }
     }
 
+    record LogoutHit(DamageSource source,UUID player) { }
+    /** Inspect real accepted HP damage in the native, already-expiring combat history. */
+    LogoutHit logoutHit(ServerPlayer target){
+        target.getCombatTracker().recheckStatus();
+        var entries=((me.skywars2.mixin.CombatCheckpointAccess.Tracker)target.getCombatTracker()).skywars2$entries();
+        DamageSource newerMob=null;
+        for(int i=entries.size()-1;i>=0;i--){
+            var entry=entries.get(i);if(!(entry.damage()>0))continue;var source=entry.source();
+            if(unownedDamage(source)) {if(newerMob==null)newerMob=source;continue;}
+            var cause=policyCause(target,source);var author=playerSource(source.getEntity());
+            if(author==null&&source.getEntity()==null)author=playerSource(source.getDirectEntity());
+            UUID id=cause!=null?cause.player():author==null?null:author.getUUID();
+            if(id==null){if(newerMob==null&&source.getEntity() instanceof LivingEntity)newerMob=source;continue;}
+            if(id.equals(target.getUUID()))continue;
+            // A more recent hostile mob gets its own kill; an old player must not steal it.
+            if(newerMob!=null)return new LogoutHit(newerMob,null);
+            var accepted=new Owner(id,++order,cause!=null&&cause.friendlyFire(),cause!=null&&cause.projectile());
+            return new LogoutHit(captureDamage(target.damageSources().genericKill(),accepted,game.server().getPlayerList().getPlayer(id)),id);
+        }
+        return null;
+    }
+    void settleLogoutHit(ServerPlayer target,LogoutHit hit){
+        if(hit.player()==null)mobImpact(target,hit.source());
+        else{
+            target.setLastHurtByPlayer(hit.player(),100);
+            target.setLastHurtByMob(game.server().getPlayerList().getPlayer(hit.player()));
+        }
+    }
     public void clear(LivingEntity target) {
         falls.remove(target); statuses.remove(target); removedSupports.remove(target); laterAttacks.remove(target);
         arrivals.remove(target);

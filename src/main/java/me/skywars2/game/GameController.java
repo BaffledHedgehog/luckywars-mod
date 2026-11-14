@@ -698,6 +698,7 @@ public final class GameController {
         cases.onLeave(player);
         vanity.leaving(player);
         if(vanity.busy())return;
+        CombatLogout.forfeit(this,player);
         items.witchClaims().leavingOrDying(player);
         // При отключении снимаем временные бонусы, отмечаем участника выбывшим и сохраняем профиль.
         attributeHud.clear(player);
@@ -1243,28 +1244,30 @@ public final class GameController {
     }
 
     public void died(ServerPlayer player, DamageSource damage) {
-        if(vanity.death(player))return;
+        boolean quitting=CombatLogout.active(player);
+        if(!quitting&&vanity.death(player))return;
         items.projectileLevelups().clear(player.getUUID());
         items.cosmetics().deathSound(player);items.rainbowAura().clear(player);items.psychblindSkill().leaveOrDeath(player);
-        items.oreshek().died(player,damage);
+        if(!quitting)items.oreshek().died(player,damage);
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
         // Compare maximum HP before ordinary death cleanup removes event skill modifiers.
         Entity seasonalKiller=damage.getEntity()!=null?damage.getEntity():player.getKillCredit();
         if(seasonalKiller instanceof ServerPlayer killer)items.lightsabers().onKill(killer,player);
-        boolean vipRespawn=items.containedSkills().protectsDeath(player,damage);
+        boolean vipRespawn=!quitting&&items.containedSkills().protectsDeath(player,damage);
         items.machinegunSkill().clear(player);items.zeusSkill().clear(player);
         items.witchClaims().leavingOrDying(player);
         events.removePlayerSkill(player);
         items.stand().died(player);
         items.mobgun().forget(player);
-        boolean bedDeath=bedwars.mode()&&bedwars.active()&&bedwars.hasBed(player)&&!vipRespawn&&!developerMode();
-        boolean phoenixSelected=items.phoenix().active(player.getUUID());
+        boolean bedDeath=!quitting&&bedwars.mode()&&bedwars.active()&&bedwars.hasBed(player)&&!vipRespawn&&!developerMode();
+        boolean phoenixSelected=!quitting&&items.phoenix().active(player.getUUID());
         boolean phoenixRespawn=phoenixSelected&&items.phoenix().beforeDeath(player);
         if(phoenixSelected&&!phoenixRespawn){bedDeath=false;p.lives=Math.min(p.lives,1);}
-        if(!bedDeath&&!vipRespawn&&!developerMode()&&items.cinema().beforeLastLifeLost(player,p.lives,false))p.lives++;
-        if (developerMode()) p.lives = Math.max(1, p.lives);
+        if(!quitting&&!bedDeath&&!vipRespawn&&!developerMode()&&items.cinema().beforeLastLifeLost(player,p.lives,false))p.lives++;
+        if(quitting)p.lives=0;
+        else if (developerMode()) p.lives = Math.max(1, p.lives);
         else if(!bedDeath&&!vipRespawn&&!phoenixRespawn&&!items.indolenceFingers().prepareDeath(player))p.lives--;
         p.awaitingRespawn = true;
         if(!bedwars.mode()||!bedwars.hasBed(player))player.sendSystemMessage(
@@ -1279,14 +1282,14 @@ public final class GameController {
         lbc.clear(player);
         if (!developerMode()) players.get(player.getUUID()).deaths++;
         Entity attacker = damage.getEntity()!=null ? damage.getEntity() : player.getKillCredit();
-        if (!developerMode() && attacker instanceof ServerPlayer killer && !killer.getUUID().equals(player.getUUID())
-                && participants.containsKey(killer.getUUID())) {
-            players.get(killer.getUUID()).kills++;
-            players.get(killer.getUUID()).coins += 50;
-            command("execute at " + killer.getScoreboardName()
+        UUID killerId=quitting?CombatLogout.killer(player):attacker instanceof ServerPlayer killer?killer.getUUID():null;
+        if (!developerMode() && killerId!=null&&!killerId.equals(player.getUUID())&&participants.containsKey(killerId)) {
+            players.get(killerId).kills++;
+            players.get(killerId).coins += 50;
+            if(attacker instanceof ServerPlayer killer){command("execute at " + killer.getScoreboardName()
                     + " run playsound minecraft:entity.player.levelup master "
                     + killer.getScoreboardName() + " ~ ~ ~ 1 2");
-            killer.sendSystemMessage(rewardText("swrg.reward.kill"));
+            killer.sendSystemMessage(rewardText("swrg.reward.kill"));}
         }
         players.save();
     }
