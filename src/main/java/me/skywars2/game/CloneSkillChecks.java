@@ -41,7 +41,7 @@ public final class CloneSkillChecks {
     public static boolean active(){return running!=null;}
     public static void run(GameController game){
         require(running==null,"exclusive native fixture");var fixture=new Fixture(game);running=fixture;
-        try{fixture.initialize();fixture.menu();fixture.spread();fixture.composition();fixture.wild();fixture.mobs();fixture.relationships();fixture.effects();fixture.protection();fixture.customOwners();fixture.prepareRestoration();}
+        try{fixture.initialize();fixture.menu();fixture.spread();fixture.composition();fixture.wild();fixture.mobs();fixture.relationships();fixture.effects();fixture.protection();fixture.customOwners();fixture.lateOwners();fixture.prepareRestoration();}
         catch(Throwable failure){try{fixture.close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}running=null;throw failure;}
     }
     public static void tick(GameController game){
@@ -175,6 +175,44 @@ public final class CloneSkillChecks {
             var field=game.items().soulless().spawn(owner,at.add(2,2,0),Vec3.ZERO,2);require(field!=null,"real field visual source");actors.add(field.pig);actors.add(field.display);require(!service().copyNow(field.display,17)&&!field.display.isRemoved(),"independent child visual excluded without killing source");
             var trial=new CompoundTag();trial.putInt("upgradable",1);var stack=new ItemStack(Items.CARROT_ON_A_STICK);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(trial));var before=Set.copyOf(game.items().air().snapshot());game.items().air().cast(owner,InteractionHand.MAIN_HAND,0,stack);
             var charge=game.items().air().snapshot().stream().filter(c->!before.contains(c)).findFirst().orElseThrow();actors.add(charge);require(charge.trial&&!service().copyNow(charge,15),"actual academy trial projectile authority excluded");
+        }
+        Object invoke(Object object,String name,Class<?>[] types,Object... arguments){try{var method=object.getClass().getDeclaredMethod(name,types);method.setAccessible(true);return method.invoke(object,arguments);}catch(ReflectiveOperationException error){throw new IllegalStateException("Actual producer "+name,error);}}
+        void lateOwners(){
+            var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());for(var e:owner.level().getAllEntities())before.add(e);
+            var previous=other.position();float yaw=other.getYRot(),pitch=other.getXRot();
+            try{
+                for(int variant=1;variant<=10;variant++){
+                    var source=game.items().hedgehogSpikes().emitLegacy(other,variant,at.add(0,5,0),new Vec3(.01,.02,.03));require(source!=null,"actual legacy transport variant "+variant);actors.add(source);
+                    for(var clone:copy(source,15,label(source))){
+                        require(read(source,"kind")==read(clone,"kind")&&read(source,"legacy").equals(read(clone,"legacy"))&&read(source,"originalAuthor").equals(read(clone,"originalAuthor")),"private spike family, variant and historical author preserved");
+                        require(game.items().hedgehogSpikes().projectiles().contains(clone),"clone is owned by actual spike lifecycle");
+                        if(variant==10)require(read(source,"visual")!=null&&read(clone,"visual")!=null&&read(source,"visual")!=read(clone,"visual"),"independent grenade presentation per physical body");
+                    }
+                }
+                invoke(game.items().pendingSwords(),"branch",new Class<?>[]{ServerPlayer.class,int.class,boolean.class,boolean.class},other,1,false,false);
+                invoke(game.items().shooters(),"helicopterVolley",new Class<?>[]{ServerPlayer.class,double.class,boolean.class},other,.2,false);
+                invoke(game.items().vexSword(),"spawn",new Class<?>[]{ServerPlayer.class,Vec3.class,Vec3.class,double.class,int.class,boolean.class,boolean.class},other,at.add(1,5,0),new Vec3(.03,.02,.01),3d,2,true,true);
+                invoke(game.items().foodLifecycle(),"chorus",new Class<?>[]{ServerPlayer.class},other);
+                invoke(game.items().witchIndolence(),"spawn",new Class<?>[]{ServerPlayer.class,Vec3.class,LbcWitchIndolence.Pattern.class,boolean.class},other,at.add(0,5,1),new LbcWitchIndolence.Pattern(1,0,200,20,true),true);
+                var originals=new ArrayList<Entity>();for(var e:owner.level().getAllEntities())if(!before.contains(e)&&CloneLateProjectileStates.recognizes(e)&&!(e instanceof Arrow a&&LbcHedgehogSpikes.managed(a))){originals.add(e);actors.add(e);}
+                var covered=new HashSet<String>();
+                for(var source:originals){
+                    var clones=copy(source,15,label(source));covered.add(source.getClass().getSimpleName());
+                    for(var clone:clones){
+                        if(LbcFoodLifecycle.cloneRecognizes(source))require(game.items().foodLifecycle().snapshot().contains(clone)&&Objects.equals(game.items().foodLifecycle().cause(source),game.items().foodLifecycle().cause(clone)),"falling pumpkin retains accepted hazard lifecycle and source credit");
+                        if(LbcWitchIndolence.cloneRecognizes(source)){
+                            var sourceState=map(game.items().witchIndolence(),"flights").get(source);var state=map(game.items().witchIndolence(),"flights").get(clone);
+                            require(sourceState!=null&&state!=null&&sourceState!=state&&read(state,"age").equals(read(sourceState,"age"))&&read(state,"lifetime").equals(read(sourceState,"lifetime"))&&read(state,"controlled").equals(read(sourceState,"controlled"))&&read(state,"jitter").equals(read(sourceState,"jitter")),"invisible hand owns independent age/control/lifetime state");
+                            require(((LbcSpellSource.Source)read(state,"source")).emitter().equals(clone.getUUID()),"hand authority emitter rebound to its new body");
+                        }
+                        if(LbcVexSword.cloneRecognizes(source))require(read(source,"groundbreaker").equals(read(clone,"groundbreaker"))&&read(source,"wild").equals(read(clone,"wild")),"Vex sword impact and targeting variants preserved");
+                    }
+                }
+                require(covered.containsAll(Set.of("EpicArrow","HelicopterArrow","VexArrow","Pumpkin","Hand")),"all five later private producers actually emitted source bodies: "+covered);
+            }finally{
+                for(var e:owner.level().getAllEntities())if(!before.contains(e))actors.add(e);
+                require(other.teleportTo(owner.level(),previous.x,previous.y,previous.z,Set.of(),yaw,pitch,true),"restore producer's native spread teleport");audience.acknowledge();
+            }
         }
         void customOwners(){
             // Every source below comes from its actual service spawn/transform path.

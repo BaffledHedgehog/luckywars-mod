@@ -147,6 +147,15 @@ public final class LbcWitchIndolence {
     public void stop(){for(var e:List.copyOf(flights.keySet()))e.discard();flights.clear();unloaded.clear();lastTick=Integer.MIN_VALUE;}
     List<Entity> snapshot(){return List.copyOf(flights.keySet());}
     int age(Entity entity){var state=flights.get(entity);return state==null?-1:state.age;}
+    static boolean cloneRecognizes(Entity entity){return entity instanceof Hand;}
+    LbcCloneSkills.ActorImage cloneImage(Entity entity){
+        var state=flights.get(entity);if(!(entity instanceof Hand)||state==null||!live(state.source.epoch()))return null;
+        var source=state.source;boolean controlled=state.controlled,jitter=state.jitter;int lifetime=state.lifetime,age=state.age;
+        return CloneComplexProjectileStates.image(Hand::new,clone->{
+            var copy=new Flight(new LbcSpellSource.Source(clone.getUUID(),source.author(),source.epoch(),source.cause(),source.excluded(),source.persistent(),source.unownedMobs(),source.nativeEmitter(),source.helmetCredit()),new Pattern(0,0,lifetime,0,controlled),jitter);
+            copy.age=age;flights.put(clone,copy);game.items().spellSources().bind(clone,copy.source);
+        },this::unloaded);
+    }
     void checkpointBoundary(){if(advancing)throw new IllegalStateException("Finish invisible-hand callbacks first");}
     Checkpoint checkpoint(MatchSpellCheckpoint.Links links){return new Checkpoint(links);}
     final class Checkpoint {

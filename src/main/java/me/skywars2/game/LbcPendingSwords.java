@@ -147,4 +147,6 @@ public final class LbcPendingSwords {
     public void unloaded(Entity entity){if(entity instanceof Arrow arrow&&arrows.remove(arrow)&&!arrow.isRemoved())arrow.discard();}
     public void forget(ServerPlayer owner){casts.removeIf(c->c.owner==owner);attacks.remove(owner);for(var arrow:List.copyOf(arrows))if(arrow.getOwner()==owner)unloaded(arrow);}
     public void stop(){casts.clear();attacks.clear();for(var arrow:List.copyOf(arrows))unloaded(arrow);producing=false;ticks=0;}
+    static boolean cloneRecognizes(Entity entity){return entity instanceof EpicArrow;}
+    LbcCloneSkills.ActorImage cloneImage(Entity entity){return entity instanceof EpicArrow?CloneComplexProjectileStates.image(EpicArrow::new,clone->arrows.add((Arrow)clone),this::unloaded):null;}
 }

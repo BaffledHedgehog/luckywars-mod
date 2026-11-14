@@ -231,4 +231,9 @@ public final class LbcFoodLifecycle {
     public int actorCount(){return actors.size();}
 
     public List<Entity> snapshot(){return List.copyOf(actors.keySet());}
+    static boolean cloneRecognizes(Entity actor){return actor instanceof Pumpkin;}
+    LbcCloneSkills.ActorImage cloneImage(Entity actor){
+        if(!(actor instanceof Pumpkin pumpkin)||!live(pumpkin.accepted))return null;var accepted=pumpkin.accepted;
+        return CloneComplexProjectileStates.image(level->new Pumpkin(level,accepted),clone->{actors.put(clone,accepted);causes.put(clone,accepted);},this::unloaded);
+    }
 }

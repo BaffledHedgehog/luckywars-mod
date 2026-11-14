@@ -101,7 +101,30 @@ public final class LuckyGrenadeChecks {
             }
             collecting=true;started=game.server().getTickCount();
         }
-        void initialize(){hands();denied();contactStage(0);}
+        void visual(){
+            reset();var arrow=shot(base.at.add(0,5,0));
+            var polymer=(eu.pb4.polymer.core.api.entity.PolymerEntity)arrow;
+            require(polymer.getPolymerEntityType(null)==EntityTypes.MARKER,"physical native arrow is hidden from vanilla renderer");
+            var raw=new ArrayList<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>>();var nativeValues=arrow.getEntityData().getNonDefaultValues();if(nativeValues!=null)raw.addAll(nativeValues);polymer.modifyRawTrackedData(raw,p,true);require(raw.isEmpty(),"arrow-specific metadata never leaks into marker client carrier");
+            var holder=(eu.pb4.polymer.virtualentity.api.ElementHolder)WoolBucketChecks.read(arrow,"visual");
+            var display=(eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement)WoolBucketChecks.read(arrow,"display");
+            require(holder!=null&&display!=null&&display.getTeleportDuration()==1,"one attached smoothly tracked item display");
+            client.packets().clear();holder.stopWatching(p.connection);holder.startWatching(p.connection);holder.tick();
+            var metadata=client.packets().stream().flatMap(LuckyGrenadeChecks::flatten).filter(net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.class::cast).filter(packet->packet.id()==display.getEntityId()).findFirst().orElseThrow();
+            var decoded=new net.minecraft.world.entity.Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,base.level);decoded.getEntityData().assignValues(metadata.packedItems());
+            require(net.minecraft.resources.Identifier.parse("lbc:luckygrenade").equals(decoded.getItemStack().get(DataComponents.ITEM_MODEL))&&decoded.getItemTransform()==net.minecraft.world.item.ItemDisplayContext.FIXED,"actual emitted native item-display metadata contains canonical grenade model and fixed transform");
+            service.stop();require(holder.getWatchingPlayers().isEmpty(),"retiring grenade removes its visual for every watcher");
+        }
+        void legacyVisual(){
+            reset();require(!game.balanceLegacy(),"ordinary initial visual mode");
+            try{var mode=GameController.class.getDeclaredMethod("balanceLegacy",boolean.class);mode.setAccessible(true);
+                try{mode.invoke(game,true);require(game.balanceLegacy(),"actual true-legacy rule overlay enabled");var arrow=shot(base.at.add(0,5,0));var polymer=(eu.pb4.polymer.core.api.entity.PolymerEntity)arrow;
+                    require(polymer.getPolymerEntityType(null)==EntityTypes.ARROW&&WoolBucketChecks.read(arrow,"visual")==null,"true-legacy retains the authored yellow arrow renderer");
+                    var raw=new ArrayList<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>>();var values=arrow.getEntityData().getNonDefaultValues();if(values!=null)raw.addAll(values);int count=raw.size();polymer.modifyRawTrackedData(raw,p,true);require(count>0&&raw.size()==count,"true-legacy arrow metadata and tint are preserved");
+                }finally{service.stop();mode.invoke(game,false);}
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("Native true-legacy visual overlay",error);}
+        }
+        void initialize(){hands();denied();legacyVisual();visual();contactStage(0);}
         boolean tick(){client.acknowledge();int elapsed=game.server().getTickCount()-started;require(elapsed<=6,"bounded actual scheduled native arrow impact phase="+phase);
             if(!flight.isRemoved())return false;require(elapsed>=1,"impact occurs on a real later server tick");
             if(phase<=1){if(phase==0)require(victim.getHealth()<victim.getMaxHealth()&&!victim.hasEffect(MobEffects.RAID_OMEN),"scheduled accepted physical living hit without Raid");
@@ -113,6 +136,10 @@ public final class LuckyGrenadeChecks {
             for(Runnable action:List.<Runnable>of(()->{for(var m:List.copyOf(fields))remove(m);service.stop();},client::close,base::close,()->saved.restore(game),saved::restoreAttributes,saved::restoreUse,()->{stats.forEach((item,n)->p.getStats().setValue(p,Stats.ITEM_USED.get(item),n));random.restore(base.level.getRandom());playerRandom.restore(p.getRandom());game.items().magic().inventoryChanged(p);game.players().save();}))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             if(failure!=null)throw new IllegalStateException("lucky grenade scoped restore",failure);
         }
+    }
+    private static java.util.stream.Stream<net.minecraft.network.protocol.Packet<?>> flatten(net.minecraft.network.protocol.Packet<?> packet){
+        if(packet instanceof net.minecraft.network.protocol.BundlePacket<?> bundle)return java.util.stream.StreamSupport.stream(bundle.subPackets().spliterator(),false).flatMap(LuckyGrenadeChecks::flatten);
+        return java.util.stream.Stream.of(packet);
     }
     public static void start(GameController game){require(running==null,"exclusive finite trial");if(!observerInstalled){net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity,level)->observe(entity));observerInstalled=true;}
         var fixture=new Fixture(game);running=fixture;try{fixture.initialize();SkyWars2.LOGGER.info("[check] START lucky-grenade");}catch(Throwable error){try{fixture.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}throw error;}}

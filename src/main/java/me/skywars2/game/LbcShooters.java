@@ -102,6 +102,11 @@ public final class LbcShooters {
         HelicopterArrow(ServerLevel level) { super(EntityTypes.ARROW,level); }
         @Override public boolean shouldBeSaved() { return false; }
     }
+    static boolean cloneRecognizes(Entity entity){return entity instanceof HelicopterArrow;}
+    LbcCloneSkills.ActorImage cloneImage(Entity entity){
+        if(!(entity instanceof HelicopterArrow source)||source.retired)return null;
+        return CloneComplexProjectileStates.image(HelicopterArrow::new,clone->arrows.add((Arrow)clone),this::unloaded);
+    }
     private final Map<UUID, Burst> bursts = new HashMap<>();
     private final Map<UUID, PhantomBurst> phantomBursts = new HashMap<>();
     private final Set<Arrow> arrows = new LinkedHashSet<>();

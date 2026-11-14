@@ -89,13 +89,28 @@ public final class LbcHedgehogSpikes {
         if(kind!=SpikeKind.STANDARD){result.set(DataComponents.POTION_CONTENTS,new PotionContents(Optional.empty(),Optional.of(tint),List.of(),Optional.empty()));result.set(DataComponents.POTION_DURATION_SCALE,1f);}
         return result;
     }
-    private final class SpikeArrow extends Arrow {
+    private final class SpikeArrow extends Arrow implements eu.pb4.polymer.core.api.entity.PolymerEntity {
         final SpikeKind kind;final UUID originalAuthor;final int legacy;boolean retired,blockDone,luckyGrenadeDone;
+        eu.pb4.polymer.virtualentity.api.ElementHolder visual;
+        eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement display;
         SpikeArrow(ServerPlayer p,SpikeKind kind){this(p,kind,0);}
-        SpikeArrow(ServerPlayer p,SpikeKind kind,int legacy){super(p.level(),p,pickup(kind,legacy),null);this.kind=kind;this.legacy=legacy;originalAuthor=p.getUUID();
+        SpikeArrow(ServerPlayer p,SpikeKind kind,int legacy){this(p,kind,legacy,p.getUUID());}
+        SpikeArrow(ServerPlayer p,SpikeKind kind,int legacy,UUID originalAuthor){super(p.level(),p,pickup(kind,legacy),null);this.kind=kind;this.legacy=legacy;this.originalAuthor=originalAuthor;
             setBaseDamage(legacy==0?baseDamage(kind):switch(legacy){case 1->3;case 2,6->2.5;case 3->2;case 4->4;case 5->1.8;default->.01;});
             if(kind!=SpikeKind.BOOM||legacy>0)pickup=legacy==3||legacy>=7?AbstractArrow.Pickup.DISALLOWED:AbstractArrow.Pickup.CREATIVE_ONLY;}
         @Override public boolean shouldBeSaved(){return false;}
+        private boolean itemVisual(){return legacy==10&&!game.balanceLegacy();}
+        @Override public net.minecraft.world.entity.EntityType<?> getPolymerEntityType(net.fabricmc.fabric.api.networking.v1.context.PacketContext context){return itemVisual()?net.minecraft.world.entity.EntityTypes.MARKER:net.minecraft.world.entity.EntityTypes.ARROW;}
+        @Override public void modifyRawTrackedData(List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> data,ServerPlayer viewer,boolean initial){if(itemVisual())data.clear();}
+        void attachVisual(){
+            if(!itemVisual()||visual!=null||isRemoved())return;
+            display=new eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement(new ItemStack(LbcGadgetItems.LUCKY_GRENADE));
+            display.setItemDisplayContext(net.minecraft.world.item.ItemDisplayContext.FIXED);display.setTeleportDuration(1);display.setInterpolationDuration(1);display.setShadowRadius(0);display.setShadowStrength(0);
+            visual=new eu.pb4.polymer.virtualentity.api.ElementHolder();visual.addElement(display);
+            new eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment(visual,this,false);syncVisual();
+        }
+        void syncVisual(){if(visual!=null){display.setYaw(getYRot());display.setPitch(getXRot());visual.tick();}}
+        void closeVisual(){if(visual!=null){visual.destroy();visual=null;display=null;}}
         @Override protected boolean canHitEntity(Entity target){
             if(!(getOwner() instanceof ServerPlayer p))return false;
             // Greed must remain a physical contact so the native guard can reflect before any payload.
@@ -105,7 +120,7 @@ public final class LbcHedgehogSpikes {
             if(legacy==0&&game.items().magic().suppressedAt((ServerLevel)level(),position())){retire(this);return;}
             if(legacy==9&&(!game.items().clownKit().smokeAllowed((ServerLevel)level(),position())
                     ||Double.isFinite(game.items().magic().mechanismSuppressionFraction((ServerLevel)level(),position(),position().add(getDeltaMovement()))))){retire(this);return;}
-            super.tick();}
+            super.tick();if(!isRemoved()){attachVisual();syncVisual();}}
         @Override protected void doPostHurtEffects(LivingEntity target){
             // Native AbstractArrow invokes this only after an accepted hurt, including shield admission.
             if(getOwner() instanceof ServerPlayer p){if(legacy>0)legacyImpact(this,target,p,target.position());else accepted(this,target,p);}
@@ -213,13 +228,19 @@ public final class LbcHedgehogSpikes {
     private void resetWitch(LivingEntity target){
         game.items().legacyEffects().resetWitch(target);
     }
-    private void retire(SpikeArrow a){a.retired=true;arrows.remove(a);a.discard();}
+    private void retire(SpikeArrow a){a.retired=true;arrows.remove(a);a.closeVisual();a.discard();}
     public ServerPlayer owner(Entity e){return e instanceof LbcHedgehogSpikes.SpikeArrow a&&a.getOwner() instanceof ServerPlayer p?p:null;}
-    public void loaded(Entity e){if(managed(e)&&!arrows.contains(e))e.discard();}
+    public void loaded(Entity e){if(managed(e)){if(!arrows.contains(e))e.discard();else if(e instanceof SpikeArrow arrow)arrow.attachVisual();}}
     public void unloaded(Entity e){if(e instanceof LbcHedgehogSpikes.SpikeArrow a)retire(a);if(e instanceof LivingEntity l){pending.removeIf(p->p.target==l);water.remove(l);}}
     public void forget(ServerPlayer p){for(var a:List.copyOf(arrows))if(a.getOwner()==p)retire(a);pending.removeIf(e->e.target==p);water.remove(p);}
     public void stop(){for(var a:List.copyOf(arrows))retire(a);pending.clear();water.clear();}
     public int trackedCount(){return arrows.size();}
     public int pendingCount(){return pending.size();}
     public List<Arrow> projectiles(){return List.copyOf(arrows);}
+    static boolean cloneRecognizes(Entity actor){return actor instanceof LbcHedgehogSpikes.SpikeArrow;}
+    LbcCloneSkills.ActorImage cloneImage(Entity actor){
+        if(!(actor instanceof SpikeArrow source)||source.retired||!(source.getOwner() instanceof ServerPlayer owner))return null;
+        var kind=source.kind;int legacy=source.legacy;var author=source.originalAuthor;boolean blockDone=source.blockDone,done=source.luckyGrenadeDone;
+        return CloneComplexProjectileStates.image(level->new SpikeArrow(owner,kind,legacy,author),clone->{var target=(SpikeArrow)clone;target.blockDone=blockDone;target.luckyGrenadeDone=done;arrows.add(target);},this::unloaded);
+    }
 }

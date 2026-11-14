@@ -279,6 +279,12 @@ public final class LbcVexSword {
         return true;
     }
     void unloaded(Entity entity) { if(entity instanceof VexArrow arrow) remove(arrow); }
+    static boolean cloneRecognizes(Entity entity){return entity instanceof LbcVexSword.VexArrow;}
+    LbcCloneSkills.ActorImage cloneImage(Entity entity){
+        if(!(entity instanceof VexArrow source)||source.retired)return null;
+        boolean groundbreaker=source.groundbreaker,wild=source.wild;
+        return CloneComplexProjectileStates.image(level->new VexArrow(level,groundbreaker,wild),clone->arrows.add((VexArrow)clone),this::unloaded);
+    }
     public void purify(ServerPlayer owner) { mana.score(owner,CHARGING).set(0); mana.score(owner,CHARGED).set(0); }
     public void clear(ServerPlayer owner) {
         purify(owner);
