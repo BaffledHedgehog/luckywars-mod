@@ -54,6 +54,32 @@ public final class LbcWitchGluttony {
     public static boolean matches(ItemStack stack){var data=LbcFartus.data(stack);return !stack.isEmpty()&&(data.getIntOr("rabbit",0)==1||data.getIntOr("snake",0)==1||data.getIntOr("whale",0)==1);}
     private boolean live(String epoch,ServerLevel level){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&game.items().currentEpoch(epoch)&&LbcDimensionItems.ordinary(level);}
     private boolean paused(ServerLevel level){return game.items().wands().timeStopped()||game.items().timeStop().stopped(level);}
+    private boolean rabbitTarget(Mob rabbit,LivingEntity target){
+        if(!(target instanceof Mob||target instanceof ServerPlayer)||target==rabbit||target.entityTags().contains("grand_rabbit")
+                ||!game.items().wands().validTarget(target))return false;
+        var owner=game.items().communism().owner(rabbit);
+        return !(target instanceof ServerPlayer)||owner==null||game.items().wands().target(owner,target);
+    }
+    private void rabbitTargets(Entity entity){
+        if(!(entity instanceof net.minecraft.world.entity.animal.rabbit.Rabbit rabbit))return;
+        var goals=((me.skywars2.mixin.SummonTargetAccess)rabbit).skywars2$summonTargets();
+        if(goals.getAvailableGoals().stream().noneMatch(goal->goal.getGoal() instanceof GrandRabbitTarget))
+            goals.addGoal(0,new GrandRabbitTarget(rabbit));
+    }
+    /** Keep native target acquisition cadence, visibility, navigation and melee. Team affiliation does not hide other mobs. */
+    private final class GrandRabbitTarget extends net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<LivingEntity> {
+        private final net.minecraft.world.entity.ai.targeting.TargetingConditions targets;
+        GrandRabbitTarget(Mob rabbit){
+            super(rabbit,LivingEntity.class,10,true,false,null);
+            targets=net.minecraft.world.entity.ai.targeting.TargetingConditions.forNonCombat().selector((candidate,level)->rabbitTarget(rabbit,candidate));
+        }
+        @Override protected void findTarget(){
+            var level=(ServerLevel)mob.level();
+            target=level.getNearestEntity(level.getEntitiesOfClass(LivingEntity.class,getTargetSearchArea(getFollowDistance()),candidate->rabbitTarget(mob,candidate)),
+                    targets.range(getFollowDistance()),mob,mob.getX(),mob.getEyeY(),mob.getZ());
+        }
+        @Override public boolean canContinueToUse(){var current=mob.getTarget();return current!=null&&targets.range(getFollowDistance()).test((ServerLevel)mob.level(),mob,current);}
+    }
     private boolean suppressed(Entity entity){return entity.entityTags().contains("nomagic_active")||game.items().magic().suppressedAt((ServerLevel)entity.level(),entity.position());}
     private List<? extends Entity> select(ServerLevel level,Vec3 at,String literal){try{
         var selector=selectors.get(literal);if(selector==null){selector=new EntitySelectorParser(new StringReader(literal),true).parse();selectors.put(literal,selector);}
@@ -101,6 +127,7 @@ public final class LbcWitchGluttony {
         var source=new LbcSpellSource.Source(entity.getUUID(),author,epoch,cause,exclusions,true);
         actors.put(entity,new Actor(kind,source));game.items().spellSources().bind(entity,source);game.items().timeStop().prepareFrozen(entity);
         var controller=game.server().getPlayerList().getPlayer(author);if(controller!=null)game.items().communism().subjugate(controller,entity,true,true);
+        if(kind==Kind.RABBIT)rabbitTargets(entity);
         if(level.addFreshEntity(entity))return entity;actors.remove(entity);entity.discard();return null;
     }
     private static void velocity(Entity actor,Vec3 direction,double speed){var v=direction.scale(speed);actor.setDeltaMovement(Math.floor(v.x*1000)*.001,Math.floor(v.y*1000)*.001,Math.floor(v.z*1000)*.001);actor.needsSync=true;}
@@ -201,7 +228,7 @@ public final class LbcWitchGluttony {
         public void cancel(){cancelled=true;area.clear();terrain.remove(this);}
         public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){var cells=area.checkpoint();boolean dead=cancelled;return links->{MatchAuthorityCheckpoint.world(game,level);return ()->{cells.restore();cancelled=dead;};};}
     }
-    public void loaded(Entity entity){if(!entity.entityTags().contains(MANAGED))return;var state=actors.get(entity);if(state==null)state=unloaded.remove(entity.getUUID());if(state==null||!live(state.source.epoch(),(ServerLevel)entity.level())){entity.discard();return;}actors.put(entity,state);game.items().spellSources().bind(entity,state.source);game.items().timeStop().prepareFrozen(entity);}
+    public void loaded(Entity entity){if(!entity.entityTags().contains(MANAGED))return;var state=actors.get(entity);if(state==null)state=unloaded.remove(entity.getUUID());if(state==null||!live(state.source.epoch(),(ServerLevel)entity.level())){entity.discard();return;}actors.put(entity,state);if(state.kind==Kind.RABBIT)rabbitTargets(entity);game.items().spellSources().bind(entity,state.source);game.items().timeStop().prepareFrozen(entity);}
     public void unloaded(Entity entity){var state=actors.remove(entity);if(state!=null&&entity.getRemovalReason()==Entity.RemovalReason.UNLOADED_TO_CHUNK)unloaded.put(entity.getUUID(),state);}
     List<Entity> snapshot(){return List.copyOf(actors.keySet());}
     public void stop(){pending.clear();for(var actor:List.copyOf(actors.keySet()))actor.discard();actors.clear();unloaded.clear();for(var work:List.copyOf(terrain))work.cancel();phase=0;lastTick=Integer.MIN_VALUE;}
@@ -217,6 +244,6 @@ public final class LbcWitchGluttony {
         private Actor actor(Image image,IdentityHashMap<Image,Actor> aliases){return aliases.computeIfAbsent(image,i->{var actor=new Actor(i.kind,i.source);actor.ticks=i.ticks;return actor;});}
         Runnable prepare(MatchSpellCheckpoint.Links links){var aliases=new IdentityHashMap<Image,Actor>();var active=new LinkedHashMap<Entity,Actor>();var dormant=new HashMap<UUID,Actor>();
             alive.forEach((ref,image)->active.put(links.get(ref),actor(image,aliases)));asleep.forEach((id,image)->dormant.put(id,actor(image,aliases)));jobs.forEach(j->MatchAuthorityCheckpoint.world(game,j.level));
-            return ()->{actors.clear();actors.putAll(active);unloaded.clear();unloaded.putAll(dormant);pending.clear();pending.addAll(waiting);terrain.clear();terrain.addAll(jobs);phase=cadence;lastTick=clock.last(game);};}
+            return ()->{actors.clear();actors.putAll(active);active.forEach((entity,state)->{if(state.kind==Kind.RABBIT)rabbitTargets(entity);});unloaded.clear();unloaded.putAll(dormant);pending.clear();pending.addAll(waiting);terrain.clear();terrain.addAll(jobs);phase=cadence;lastTick=clock.last(game);};}
     }
 }

@@ -997,6 +997,7 @@ public final class GameChecks {
                                 case "witch-envy" -> { WitchEnvyChecks.run(game); return; }
                                 case "witch-progress" -> { WitchProgressChecks.run(game); return; }
                                 case "witch-gluttony" -> { WitchGluttonyChecks.run(game); return; }
+                                case "grand-rabbit-targets" -> { GrandRabbitTargetChecks.run(game); return; }
                                 case "witch-snake-status" -> { WitchGluttonyChecks.runSnakeStatus(game); return; }
                                 case "witch-indolence" -> { WitchIndolenceChecks.run(game); return; }
                                 case "witch-acquisition" -> { WitchClaimChecks.run(game); return; }
@@ -1837,6 +1838,7 @@ public final class GameChecks {
             InventoryHazardChecks.tick(game);
             LiquidAbyssAreaChecks.tick(game);
             PlayerLatencyChecks.tick(game);
+            GrandRabbitTargetChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
             PendingSwordChecks.tick(game);
