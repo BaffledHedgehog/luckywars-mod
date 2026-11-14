@@ -40,6 +40,7 @@ async def run():
                     if "/api/recommend/item_list" in request.url:
                         authenticated = "sessionid=offline-fixture-only" in request.headers.get("cookie", "")
                         await request_route.fulfill(content_type="application/json", body=json.dumps({"itemList": [
+                            {"id": "44444444", "video": {"ok": True}, "author": None},
                             {"id": "11111111", "video": {"ok": True}, "author": {"uniqueId": "already_seen"}},
                             {"id": "33333333", "video": {"ok": True}, "author": {"uniqueId": "bad/path"}},
                             {"id": "22222222", "video": {"ok": True}, "author": {"uniqueId": "fixture_author"}}
@@ -60,7 +61,8 @@ async def run():
         try:
             with patch("playwright.async_api.async_playwright", fake_playwright):
                 result = await worker.recommendations(cookies, {"11111111"})
-            assert result == {"id": "22222222", "url": "https://www.tiktok.com/@fixture_author/video/22222222"}
+            assert result["id"] == "22222222" and result["url"] == "https://www.tiktok.com/@fixture_author/video/22222222"
+            assert "Chrome" in result["user_agent"]
             assert authenticated and len(requests) == 2
             proof = {"ok": True, "realBrowser": launches, "interceptedPageRequests": len(requests), "remotePageRequests": 0,
                      "authenticatedCookieApplied": authenticated, "excludedVideoSkipped": True, "invalidAuthorSkipped": True,

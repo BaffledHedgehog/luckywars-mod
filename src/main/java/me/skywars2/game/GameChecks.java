@@ -1036,6 +1036,8 @@ public final class GameChecks {
                                 case "bedwars-allies" -> { BedwarsChecks.run(game,suite); return; }
                                 case "bedwars-renewal" -> { BedwarsRenewalChecks.start(game); return; }
                                 case "tiktok-account" -> { TikTokAccountChecks.run(game); return; }
+                                case "tiktok-bulk-import" -> { TikTokBulkImportChecks.run(game); return; }
+                                case "tiktok-playback" -> { TikTokPlaybackChecks.run(game); return; }
                                 case "zaika-passive" -> { ZaikaPassiveChecks.run(game); return; }
                                 case "expansion-skill" -> { ExpansionSkillChecks.start(game); return; }
                                 case "hakurei-skill" -> { HakureiSkillChecks.start(game); return; }
@@ -1934,6 +1936,8 @@ public final class GameChecks {
         TeslaChecks.tick(game);
         TeslaTrafficChecks.tick(game);
         SmokeVolumeChecks.tick(game);
+        TikTokPlaybackChecks.tick(game);
+        TikTokBulkImportChecks.tick(game);
         SmokeEndingChecks.tick(game);
         PotionGroundImpactChecks.tick(game);PolymorphWandChecks.tick(game);
         AwakenedAcidChecks.tick(game);

@@ -8,12 +8,14 @@ import java.nio.file.attribute.PosixFilePermissions;
 
 /** Imported account credentials, isolated from profiles, command arguments and log messages. */
 final class TikTokCookies {
-    // Native custom-dialog replies have a 32 KiB NBT accounting limit (two bytes per char).
-    static final int MAX_INPUT = 14000;
+    static final int MAX_INPUT = 4*1024*1024;
+    // Raw vanilla dialog strings cannot exceed their own 64 KiB UTF-8 packet/string cap.
+    static final int MAX_DIALOG_INPUT = 20000;
     private TikTokCookies() {}
 
     static String normalize(String input) {
-        if (input == null || input.isBlank() || input.length() > MAX_INPUT)
+        if (input == null || input.isBlank() || input.length() > MAX_INPUT
+                || input.getBytes(StandardCharsets.UTF_8).length > MAX_INPUT)
             throw new IllegalArgumentException("cookies_invalid");
         final JsonElement parsed;
         try { parsed = JsonParser.parseString(input); }
@@ -31,25 +33,35 @@ final class TikTokCookies {
                 if (!host.equals("tiktok.com") && !host.endsWith(".tiktok.com")) continue;
                 String name = cookie.get("name").getAsString(), value = cookie.get("value").getAsString();
                 String path = cookie.has("path") ? cookie.get("path").getAsString() : "/";
-                if (name.isBlank() || name.length() > 256 || value.length() > 8192 || !path.startsWith("/")
+                if (domain.length()>253 || name.isBlank() || name.length() > 256 || value.length() > 8192 || !path.startsWith("/") || path.length()>2048
                         || (domain + name + value + path).chars().anyMatch(c -> c < 32 || c == 127))
                     throw new IllegalArgumentException();
                 var clean = new JsonObject();
                 clean.addProperty("domain", domain); clean.addProperty("name", name);
                 clean.addProperty("value", value); clean.addProperty("path", path);
-                clean.addProperty("secure", !cookie.has("secure") || cookie.get("secure").getAsBoolean());
-                clean.addProperty("httpOnly", cookie.has("httpOnly") && cookie.get("httpOnly").getAsBoolean());
-                for (String key : new String[]{"expirationDate", "expires"}) if (cookie.has(key)) {
+                clean.addProperty("secure", !cookie.has("secure") || cookie.get("secure").isJsonNull() || cookie.get("secure").getAsBoolean());
+                clean.addProperty("httpOnly", cookie.has("httpOnly") && !cookie.get("httpOnly").isJsonNull() && cookie.get("httpOnly").getAsBoolean());
+                for (String key : new String[]{"expirationDate", "expires"}) if (cookie.has(key)&&!cookie.get(key).isJsonNull()) {
                     double expires = cookie.get(key).getAsDouble();
                     if (!Double.isFinite(expires)) throw new IllegalArgumentException();
                     clean.addProperty("expires", expires); break;
                 }
-                if (cookie.has("sameSite")) clean.addProperty("sameSite", cookie.get("sameSite").getAsString());
+                if (cookie.has("sameSite")&&!cookie.get("sameSite").isJsonNull()) clean.addProperty("sameSite", cookie.get("sameSite").getAsString());
                 result.add(clean);
             }
         } catch (RuntimeException invalid) { throw new IllegalArgumentException("cookies_invalid"); }
         if (result.isEmpty()) throw new IllegalArgumentException("cookies_invalid");
         return result.toString();
+    }
+
+    static String fromFile(Path file)throws IOException{
+        if(!Files.isRegularFile(file)||Files.size(file)>MAX_INPUT)throw new IOException("cookie_file_invalid");
+        byte[] bytes;
+        try(var stream=Files.newInputStream(file)){bytes=stream.readNBytes(MAX_INPUT+1);}
+        if(bytes.length>MAX_INPUT)throw new IOException("cookie_file_invalid");
+        String input=StandardCharsets.UTF_8.newDecoder().decode(java.nio.ByteBuffer.wrap(bytes)).toString();
+        if(input.startsWith("\ufeff"))input=input.substring(1);
+        return normalize(input);
     }
 
     static void save(Path file, String normalized) throws IOException {

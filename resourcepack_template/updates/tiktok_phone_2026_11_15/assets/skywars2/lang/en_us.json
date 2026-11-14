@@ -13,7 +13,12 @@
   "tiktok.cache_full": "The video cache size limit has been reached.",
   "tiktok.prepare_failed": "Could not prepare a video. Retrying in one minute.",
   "tiktok.preparing": "Preparing the queue.",
+  "tiktok.waiting_for_import": "Waiting for cookie import.",
   "tiktok.ready": "Queue ready.",
   "tiktok.configured": "cookies saved",
-  "tiktok.not_configured": "cookies not imported yet"
+  "tiktok.not_configured": "cookies not imported yet",
+  "tiktok.cookie_file": "Path to the cookie JSON file on the server",
+  "tiktok.import_file": "Import a file (up to 4 MiB)",
+  "tiktok.import_file_hint": "Enter the path to a UTF-8 cookie JSON file on the server computer (up to %s MiB). Spaces and line breaks inside the file are allowed. The file is read in the background.",
+  "tiktok.file_invalid": "Could not import the file. Check its path, UTF-8 JSON format and 4 MiB size limit."
 }

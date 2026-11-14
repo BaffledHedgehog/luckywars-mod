@@ -74,6 +74,9 @@ def main():
         worker.netscape_cookies(cookies, root / "cookies.txt")
         assert "evil.test" not in (root / "cookies.txt").read_text()
         assert "expired" not in (root / "cookies.txt").read_text()
+        candidates=worker.candidates_from_response({"itemList":[{"id":"12345678","video":{"ok":True},"author":None},
+                {"id":"12345679","video":{"ok":True},"author":{"uniqueId":"\u043f\u0440\u0438\u043c\u0435\u0440"}}]},set())
+        assert len(candidates)==1 and candidates[0]["id"]=="12345679" and "%" in candidates[0]["url"]
         result = {"ok": True, "networkAccess": False, "cases": reports,
                   "workerSha256": hashlib.sha256(Path(spec.origin).read_bytes()).hexdigest()}
         (target / "worker-results.json").write_text(json.dumps(result, indent=2))

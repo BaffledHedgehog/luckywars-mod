@@ -13,7 +13,12 @@
   "tiktok.cache_full": "Достигнут лимит кэша видео.",
   "tiktok.prepare_failed": "Не удалось подготовить видео. Повторная попытка через минуту.",
   "tiktok.preparing": "Очередь подготавливается.",
+  "tiktok.waiting_for_import": "Ожидается импорт cookies.",
   "tiktok.ready": "Очередь готова.",
   "tiktok.configured": "cookies сохранены",
-  "tiktok.not_configured": "cookies ещё не импортированы"
+  "tiktok.not_configured": "cookies ещё не импортированы",
+  "tiktok.cookie_file": "Путь к JSON-файлу cookies на сервере",
+  "tiktok.import_file": "Импорт файла (до 4 МиБ)",
+  "tiktok.import_file_hint": "Укажи путь к UTF-8 JSON-файлу cookies на компьютере сервера (до %s МиБ). Удалять пробелы и переносы строк не нужно. Файл читается в фоне.",
+  "tiktok.file_invalid": "Не удалось импортировать файл. Проверь путь, формат UTF-8 JSON и размер — до 4 МиБ."
 }

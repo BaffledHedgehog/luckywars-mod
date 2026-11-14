@@ -21,7 +21,7 @@ public final class LbcSpecialArtifactItems {
             this.id=id;this.definition="/data/lbc/loot_table/"+definition+".json";this.carrier=carrier;
             var properties=LbcUtilityItemPrototypes.deferredProperties("skywars2:"+id,this.definition,carrier,carrier==Items.CARROT_ON_A_STICK||carrier==Items.TOTEM_OF_UNDYING?1:64);
             item=Registry.register(BuiltInRegistries.ITEM,Identifier.parse("skywars2:"+id),
-                    carrier==Items.CARROT_ON_A_STICK?LbcWands.nativeTool(properties,carrier):new SimplePolymerItem(properties,carrier,true));
+                    id.equals("admin_zaika")?new TikTokPhoneItem(properties):carrier==Items.CARROT_ON_A_STICK?LbcWands.nativeTool(properties,carrier):new SimplePolymerItem(properties,carrier,true));
         }
     }
     private LbcSpecialArtifactItems(){}

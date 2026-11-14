@@ -70,13 +70,53 @@ def cookies_for_browser(path: Path) -> list[dict]:
     return out
 
 
-async def recommendations(cookies: Path, excluded: set[str]) -> dict:
+def candidates_from_response(data, excluded: set[str]) -> list[dict]:
+    result = []
+    items = data.get("itemList", []) if isinstance(data, dict) else []
+    if not isinstance(items, list):
+        return result
+    for item in items:
+        if not isinstance(item, dict) or not isinstance(item.get("video"), dict) or not item["video"]:
+            continue
+        ident = str(item.get("id", ""))
+        author = item.get("author")
+        if not re.fullmatch(r"[0-9]{8,24}", ident) or ident in excluded or not isinstance(author, dict):
+            continue
+        author = author.get("uniqueId", "")
+        # Usernames can contain non-Latin letters. An ad/malformed item must not discard the rest of a feed response.
+        if not isinstance(author, str) or not 1 <= len(author) <= 64 or not all(c.isalnum() or c in "_." for c in author):
+            continue
+        candidate = {"id": ident, "url": "https://www.tiktok.com/@" + urllib.parse.quote(author, safe="_.") + "/video/" + ident}
+        video = item.get("video")
+        media = []
+        if isinstance(video, dict):
+            rates = video.get("bitrateInfo") or []
+            if not isinstance(rates, list):
+                rates = []
+            for bitrate in sorted((b for b in rates if isinstance(b, dict)),
+                                  key=lambda b: b.get("Bitrate", 0) if isinstance(b.get("Bitrate", 0), (int, float)) else 0, reverse=True):
+                addr = bitrate.get("PlayAddr", {})
+                if isinstance(addr, dict):
+                    media.extend(u for u in addr.get("UrlList", []) if isinstance(u, str))
+            for key in ("playAddr", "downloadAddr"):
+                value = video.get(key)
+                if isinstance(value, str):
+                    media.append(value)
+            if media:
+                candidate["media"] = list(dict.fromkeys(media))[:6]
+        result.append(candidate)
+    return result
+
+
+async def recommendations(cookies: Path, excluded: set[str], diagnostics: dict | None = None) -> dict:
     """Let TikTok's own page perform/sign its authenticated For You request.
 
     No invented public trending endpoint or unrelated account/profile fallback.
     A fresh isolated browser context has only explicitly imported TikTok cookies.
     """
     from playwright.async_api import async_playwright
+    diagnostics = diagnostics if diagnostics is not None else {}
+    diagnostics.update({"feedResponses": 0, "responseItems": 0, "candidates": 0, "parseErrorTypes": {}, "ssrCandidates": 0})
     async with async_playwright() as api:
         configured = os.environ.get("SKYWARS_TIKTOK_BROWSER")
         channels = [configured] if configured else (["msedge", "chrome", None] if sys.platform == "win32" else ["chrome", None])
@@ -92,7 +132,7 @@ async def recommendations(cookies: Path, excluded: set[str]) -> dict:
         if browser is None:
             raise MediaError("browser_missing")
         try:
-            context = await browser.new_context(viewport={"width": 480, "height": 800})
+            context = await browser.new_context(viewport={"width": 1280, "height": 800})
             await context.add_cookies(cookies_for_browser(cookies))
             page = await context.new_page()
             candidates: list[dict] = []
@@ -100,22 +140,40 @@ async def recommendations(cookies: Path, excluded: set[str]) -> dict:
             async def response(res):
                 host = urllib.parse.urlparse(res.url).hostname or ""
                 if (host == "www.tiktok.com" or host.endswith(".tiktok.com")) and "/api/recommend/item_list" in res.url:
+                    diagnostics["feedResponses"] += 1
                     try:
                         data = await res.json()
-                        for item in data.get("itemList", []):
-                            ident = str(item.get("id", ""))
-                            if re.fullmatch(r"[0-9]{8,24}", ident) and ident not in excluded and item.get("video"):
-                                author = str(item.get("author", {}).get("uniqueId", ""))
-                                if re.fullmatch(r"[A-Za-z0-9_.]{1,64}", author):
-                                    candidates.append({"id": ident, "url": f"https://www.tiktok.com/@{author}/video/{ident}"})
-                    except Exception:
-                        pass  # Response bodies and headers must never become log messages.
+                        items = data.get("itemList", []) if isinstance(data, dict) else []
+                        diagnostics["responseItems"] += len(items) if isinstance(items, list) else 0
+                        parsed = candidates_from_response(data, excluded)
+                        candidates.extend(parsed); diagnostics["candidates"] += len(parsed)
+                    except Exception as error:
+                        # Exception types/counts are safe; messages can contain signed addresses or account data.
+                        kind = type(error).__name__; diagnostics["parseErrorTypes"][kind] = diagnostics["parseErrorTypes"].get(kind, 0) + 1
 
             page.on("response", response)
             await page.goto("https://www.tiktok.com/foryou", wait_until="domcontentloaded", timeout=45000)
             for attempt in range(16):
                 if candidates:
-                    return candidates[0]
+                    candidate = candidates[0]
+                    candidate["user_agent"] = await page.evaluate("navigator.userAgent")
+                    candidate["cookies"] = await context.cookies()
+                    return candidate
+                # Modern For You also hydrates initial recommendations from its own page JSON.
+                # This is the same account/page, not a public trending/profile fallback.
+                if attempt in (1, 5, 10):
+                    try:
+                        hydrated = await page.evaluate("""() => {
+                            const node=document.getElementById('__UNIVERSAL_DATA_FOR_REHYDRATION__');
+                            const scope=JSON.parse(node?.textContent||'{}').__DEFAULT_SCOPE__||{};
+                            const found=[]; const walk=(x,depth)=>{if(!x||typeof x!=='object'||depth>12)return;
+                              if(x.id&&x.video&&x.author)found.push(x);for(const v of Object.values(x))walk(v,depth+1)};
+                            walk(scope,0);return found;
+                        }""")
+                        parsed = candidates_from_response({"itemList": hydrated}, excluded)
+                        diagnostics["ssrCandidates"] += len(parsed); candidates.extend(parsed)
+                    except Exception as error:
+                        kind = type(error).__name__; diagnostics["parseErrorTypes"][kind] = diagnostics["parseErrorTypes"].get(kind, 0) + 1
                 if attempt and attempt % 4 == 0:
                     await page.keyboard.press("ArrowDown")
                 await page.wait_for_timeout(1000)
@@ -147,7 +205,55 @@ def execute(argv: list[str], timeout: int, code: str) -> None:
         raise MediaError(code) from None
 
 
-def download(clip: dict, cookies: Path, stage: Path) -> Path:
+def download(clip: dict, cookies: Path, stage: Path, diagnostics: dict | None = None) -> Path:
+    # Use the signed media addresses from the actual authenticated feed when available.
+    # Stream in bounded chunks: no full video body in RAM and no signed URL in a process command line/log.
+    diagnostics = diagnostics if diagnostics is not None else {}
+    diagnostics["mediaAddressCount"] = len(clip.get("media", []))
+    diagnostics["directAttempts"] = []
+    if clip.get("media"):
+        import requests
+        original = stage / "original.mp4"
+        partial = stage / "original.mp4.part"
+        with requests.Session() as session:
+            for cookie in clip.get("cookies", cookies_for_browser(cookies)):
+                expires = cookie.get("expires", -1)
+                session.cookies.set(cookie["name"], cookie["value"], domain=cookie["domain"], path=cookie["path"],
+                                    secure=cookie["secure"], expires=int(expires) if isinstance(expires, (int, float)) and expires > 0 else None)
+            headers = {"Referer": "https://www.tiktok.com/", "Range": "bytes=0-",
+                       "User-Agent": clip.get("user_agent", "Mozilla/5.0")}
+            for url in clip["media"]:
+                parsed = urllib.parse.urlparse(url)
+                host = parsed.hostname or ""
+                if parsed.scheme != "https" or not any(host == suffix or host.endswith("." + suffix)
+                        for suffix in ("tiktok.com", "tiktokcdn.com", "tiktokcdn-us.com", "tiktokv.com", "muscdn.com")):
+                    continue
+                attempt = {"host": host}; diagnostics["directAttempts"].append(attempt)
+                try:
+                    started = time.monotonic()
+                    with session.get(url, headers=headers, stream=True, timeout=(15, 20)) as response:
+                        attempt["httpStatus"] = response.status_code
+                        if response.status_code not in (200, 206):
+                            continue
+                        if int(response.headers.get("Content-Length", "0")) > MAX_ORIGINAL:
+                            raise MediaError("download_size")
+                        count = 0
+                        with partial.open("wb") as out:
+                            for block in response.iter_content(65536):
+                                count += len(block)
+                                if count > MAX_ORIGINAL or time.monotonic() - started > 120:
+                                    raise MediaError("download_size")
+                                if count == len(block) and b"ftyp" not in block[:64]:
+                                    raise MediaError("download_failed")
+                                out.write(block)
+                        if count:
+                            attempt["downloadedBytes"] = count
+                            os.replace(partial, original)
+                            return original
+                except Exception as error:
+                    attempt["errorType"] = type(error).__name__  # Messages may contain signed addresses.
+                finally:
+                    partial.unlink(missing_ok=True)
     cookie_file = stage / "download-cookies.txt"
     netscape_cookies(cookies, cookie_file)
     try:
@@ -155,7 +261,7 @@ def download(clip: dict, cookies: Path, stage: Path) -> Path:
                  "--cookies", str(cookie_file), "--max-filesize", str(MAX_ORIGINAL), "--socket-timeout", "15",
                  "--retries", "2", "--fragment-retries", "2", "--concurrent-fragments", "1",
                  "--restrict-filenames", "--no-write-info-json", "--no-write-thumbnail", "--no-mtime",
-                 "-f", "best[ext=mp4]/best", "-o", str(stage / "original.%(ext)s"), clip["url"]], 180, "download_failed")
+                 "-f", "best[ext=mp4]/best", "-o", str(stage / "original.%(ext)s"), urllib.parse.unquote(clip["url"])], 180, "download_failed")
     finally:
         cookie_file.unlink(missing_ok=True)
     originals = list(stage.glob("original.*"))
@@ -273,6 +379,7 @@ def main():
     args = parser.parse_args()
     stage = args.stage.resolve()
     stage.mkdir(parents=True, exist_ok=False)
+    diagnostics = {}
     try:
         if args.local:
             original = stage / "original.mp4"
@@ -282,8 +389,8 @@ def main():
             if not args.cookies:
                 raise MediaError("cookies_missing")
             excluded = set(json.loads(args.exclude.read_text(encoding="utf-8"))) if args.exclude else set()
-            clip = asyncio.run(recommendations(args.cookies, excluded))
-            original = download(clip, args.cookies, stage)
+            clip = asyncio.run(recommendations(args.cookies, excluded, diagnostics))
+            original = download(clip, args.cookies, stage, diagnostics)
         result = prepare(original, stage, args.palette)
         result["id"] = clip["id"]
         atomic_json(stage / "manifest.json", result)
@@ -291,6 +398,13 @@ def main():
     except BaseException as error:
         # Sanitized codes ONLY: Playwright/HTTP errors can embed cookies or signed download URLs.
         code = str(error) if isinstance(error, MediaError) else "worker_failed"
+        import traceback
+        diagnostics["failureType"] = type(error).__name__
+        diagnostics["failureLocations"] = [{"file": Path(frame.filename).name, "line": frame.lineno, "function": frame.name}
+                                            for frame in traceback.extract_tb(error.__traceback__)][-6:]
+        diagnostics["networkCodes"] = list(dict.fromkeys(re.findall(r"net::[A-Z_0-9]+", str(error))))
+        if diagnostics:
+            atomic_json(stage / "diagnostics.json", diagnostics)
         print(json.dumps({"ok": False, "error": code}), flush=True)
         raise SystemExit(1) from None
 

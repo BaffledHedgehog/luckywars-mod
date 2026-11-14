@@ -3142,16 +3142,23 @@ latency, TCP segment counts or a full network performance qualification.
 
 ### TikTok account and prepared-media foundation
 
-TikTokAccounts owns the operator-only `/skywars tiktok import` and `status`
+TikTokAccounts owns the operator-only `/skywars tiktok import`, `importfile` and `status`
 commands. Import uses a native dialog, a player-body-bound one-use nonce, the
 native packet-thread boundary, and a 60-second dialog lifetime. Existing cookies
 are never sent back in the dialog. TikTokCookies normalizes only TikTok domains
 and atomically persists credentials outside player profiles under
 `config/skywars2/tiktok/cookies.json`; this path is ignored by Git.
+Native text input accepts 20,000 UTF-16 units within the client's 64 KiB packet
+limit; only this dialog's server decoder raises NBT accounting to 64 KiB.
+File imports accept up to 4 MiB of UTF-8 JSON, including BOM and unminified
+exports, using a bounded read and background normalization. A file dialog and
+`/skywars tiktok importfile <server-path>` both use this path. Final persistence
+and playback reset run on the server thread after rechecking the operator.
 
 TikTokCache retains at most five originals and prepared clips under the world's
 `data/luckywars/tiktok`. A single owned worker process obtains the authenticated
-For You page in an isolated browser context, downloads one original with yt-dlp,
+For You page in an isolated browser context, downloads one original using fresh
+browser cookies and the matching user agent (with a yt-dlp fallback),
 and prepares media with single-threaded ffmpeg. No browser is downloaded. Failed
 and interrupted staging data is retired; queue eviction removes originals and
 derivatives together and respects active-viewer pins. The disk ceiling is
@@ -3160,15 +3167,29 @@ browser/download diagnostics. Shutdown cancels only the worker's process tree.
 
 TikTokMedia reads a bounded frame via its offset index rather than loading an
 entire clip: 64x112 native map colours at 20 FPS, JPEG 256x448, 24 kHz mono PCM,
-and a 24-band envelope for the planned vanilla audio path. This foundation does
-not yet render or play the phone, register a client capability or deliver media
-to a client. Vanilla rendering/audio and optional-client streaming remain open.
+and a 24-band envelope. TikTokPlayback sends recipient-only native item-component
+updates: 2,464 RGB tint entries encode 7,168 palette pixels, decoded only on the
+phone screen by its marker-scoped shader. The first-person model keeps the
+author's phone body and display transforms; other display contexts use the
+original item. Original server components and Polymer roundtrips are preserved.
+TikTokAudio reconstructs the envelope with at most eight private 50 ms noise
+sounds per frame. One bounded I/O reader, one pending read per viewer, Netty
+writability admission and stale-frame dropping prevent catch-up queues.
+Native fixtures qualify private playback, codecs, backpressure and cleanup.
+Optional-client capability/streaming and connected-client audiovisual review
+remain open.
 The current five-minute derivative cap also remains a temporary implementation
 limit to review before completing the feature. Original downloads are uncut.
 
 TikTokAccountChecks exercises the native dialog/reply codecs (including maximum
 Unicode input accounting), actual command/foreign-operator/replay rejection,
 atomic credential reload, account replacement, five-clip eviction and pinning.
+TikTokBulkImportChecks uses actual native operator dialog/command handlers and a
+million-character export without making external requests. TikTokPlaybackChecks
+checks actual phone use, native component/sound/packet codecs, private delivery,
+cooldown, real backpressure, hand changes, pinning and a downloaded clip's media
+records. Offscreen GPU checks compare all 7,168 pixels and ordinary-item raster
+output against the author shader. These do not replace an in-game client test.
 `tools/check_tiktok_worker.py` uses real ffmpeg video/audio and silent inputs;
 `tools/check_tiktok_feed.py` runs a real browser against intercepted local page
 responses with synthetic cookies. Neither test proves live account access.

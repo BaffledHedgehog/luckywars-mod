@@ -20,14 +20,24 @@ public final class TikTokAccountChecks {
         Path temporary=null;
         try{
             temporary=Files.createTempDirectory(game.server().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT),"tiktok-check-");
-            String input="[{\"domain\":\".tiktok.com\",\"name\":\"sessionid\",\"value\":\"synthetic-fixture-value\",\"path\":\"/\",\"expirationDate\":2000000000},"
+            String input="[{\"domain\":\".tiktok.com\",\"name\":\"sessionid\",\"value\":\"synthetic-fixture-value\",\"path\":\"/\",\"sameSite\":null,\"secure\":null,\"httpOnly\":null,\"expirationDate\":2000000000},"
                     +"{\"domain\":\"tiktok.com.evil.test\",\"name\":\"bad\",\"value\":\"never-import\"}]";
             String normalized=TikTokCookies.normalize(input);
+            require(!normalized.contains("sameSite"),"nullable Cookie-Editor fields are omitted rather than rejected");
             require(normalized.contains("sessionid")&&!normalized.contains("evil.test")&&!normalized.contains("never-import"),"only real TikTok cookie domains retained");
             require(TikTokCookies.normalize("{\"cookies\":"+input+"}").equals(normalized),"array and browser-export wrapper accepted identically");
+            String large=input+" ".repeat(TikTokCookies.MAX_INPUT-input.length());
+            require(TikTokCookies.normalize(large).equals(normalized),"full four MiB export accepted without minifying");
+            Path export=temporary.resolve("large cookie export.json");
+            Files.writeString(export,"\ufeff"+large.substring(0,large.length()-3),java.nio.charset.StandardCharsets.UTF_8);
+            require(Files.size(export)==TikTokCookies.MAX_INPUT&&TikTokCookies.fromFile(export).equals(normalized),"four MiB UTF8 BOM file accepted at exact byte boundary");
+            Files.writeString(export," ",java.nio.charset.StandardCharsets.UTF_8,java.nio.file.StandardOpenOption.APPEND);
+            boolean oversizedFile=false;try{TikTokCookies.fromFile(export);}catch(IOException expected){oversizedFile=true;}
+            require(oversizedFile,"oversize export rejected by bounded file read");
+            large=null;
             Path cookies=temporary.resolve("private/cookies.json");TikTokCookies.save(cookies,normalized);
             require(Files.readString(cookies).equals(normalized),"atomic disk persistence across reload");
-            for(String invalid:List.of("", "{}", "[]", "null", "[{}]", "[", "x".repeat(14001),
+            for(String invalid:List.of("", "{}", "[]", "null", "[{}]", "[", input+" ".repeat(TikTokCookies.MAX_INPUT),
                     "[{\"domain\":\"tiktok.com\",\"name\":\"n\",\"value\":\"line\\nsecret\"}]")){
                 boolean rejected=false;try{TikTokCookies.normalize(invalid);}catch(IllegalArgumentException expected){rejected=true;require(!expected.toString().contains("secret"),"credential-free failure");}
                 require(rejected,"malformed/oversize input denied");require(Files.readString(cookies).equals(normalized),"invalid input never mutates durable credentials");
@@ -39,22 +49,27 @@ public final class TikTokAccountChecks {
                 var decoded=(MultiActionDialog)ClientboundShowDialogPacket.CONTEXT_FREE_STREAM_CODEC.decode(bytes).dialog().value();
                 require(decoded.common().inputs().size()==1&&decoded.common().inputs().getFirst().key().equals("cookies"),"native client cookie input");
                 var control=(TextInput)decoded.common().inputs().getFirst().control();
-                require(control.maxLength()==14000&&control.initial().isEmpty(),"no existing credential is ever returned to client dialog");
+                require(control.maxLength()==20000&&control.initial().isEmpty(),"20k character input, no existing credential ever returned to client dialog");
             }finally{bytes.release();}
             bytes=Unpooled.buffer();
             try{
-                var payload=new CompoundTag();payload.putString("cookies","\u0410".repeat(14000));
+                var payload=new CompoundTag();payload.putString("cookies","\u6c34".repeat(20000));
                 var reply=new ServerboundCustomClickActionPacket(Identifier.parse("skywars2:tiktok/import/native-fixture"),Optional.of(payload));
                 ServerboundCustomClickActionPacket.STREAM_CODEC.encode(bytes,reply);
                 require(bytes.readableBytes()<65536,"UTF8 native reply remains below wire cap");
                 var decoded=ServerboundCustomClickActionPacket.STREAM_CODEC.decode(bytes);
-                require(decoded.payload().orElseThrow().equals(payload),"actual native 32KiB NBT accounting accepts maximum input");
+                require(decoded.payload().orElseThrow().equals(payload),"scoped64KiB NBT accounting accepts maximum three-byte UTF8 input using original native encoder");
+                bytes.clear();
+                ServerboundCustomClickActionPacket.STREAM_CODEC.encode(bytes,new ServerboundCustomClickActionPacket(Identifier.parse("skywars2:build/native-fixture"),Optional.of(payload)));
+                boolean ordinaryRejected=false;try{ServerboundCustomClickActionPacket.STREAM_CODEC.decode(bytes);}catch(RuntimeException expected){ordinaryRejected=true;}
+                require(ordinaryRejected,"ordinary dialogs retain original32KiB NBT accounting");
             }finally{bytes.release();}
             Path root=temporary.resolve("cache"),videos=root.resolve("videos");Files.createDirectories(videos);
             for(int i=0;i<6;i++)clip(videos.resolve("1234567"+i));
             Path absentCookies=temporary.resolve("not-configured.json");
             try(var cache=new TikTokCache(root,absentCookies)){
                 require(cache.sizeReady()==5&&!cache.configured(),"exactly five retained clips, no anonymous feed fallback");
+                require(cache.stateKey().equals("tiktok.waiting_for_import"),"unconfigured account status does not pretend to prepare queue");
                 require(!Files.exists(videos.resolve("12345675")),"stale sixth original and derivatives removed together");
                 var first=cache.next("");var next=cache.next(first.id);require(!first.id.equals(next.id),"next clip sequence");
                 var frame=first.frame(1,true);require(frame.map().length==7168&&frame.pcm().length==2400&&frame.bands().length==24&&frame.jpeg().length==4,"bounded per-frame disk read");

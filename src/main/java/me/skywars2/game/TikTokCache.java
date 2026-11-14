@@ -14,6 +14,7 @@ final class TikTokCache implements AutoCloseable {
     static final int CAPACITY=5;
     private static final long MAX_DISK=768L*1024*1024;
     private final Path root, videos, incoming, cookies;
+    private final boolean fillQueue;
     private final ExecutorService worker=Executors.newSingleThreadExecutor(r->{var t=new Thread(r,"skywars-tiktok-prepare");t.setDaemon(true);return t;});
     private final Deque<TikTokMedia> clips=new ArrayDeque<>();
     private Future<Path> pending;
@@ -23,6 +24,10 @@ final class TikTokCache implements AutoCloseable {
     private String error="";
 
     TikTokCache(Path root, Path cookies) throws IOException {
+        this(root,cookies,true);
+    }
+    TikTokCache(Path root, Path cookies,boolean fillQueue) throws IOException {
+        this.fillQueue=fillQueue;
         this.root=root.toAbsolutePath().normalize(); this.cookies=cookies.toAbsolutePath().normalize();
         videos=this.root.resolve("videos"); incoming=this.root.resolve("incoming");
         Files.createDirectories(videos); Files.createDirectories(incoming);
@@ -52,6 +57,7 @@ final class TikTokCache implements AutoCloseable {
     int sizeReady(){return clips.size();}
     String error(){return error;}
     String stateKey(){
+        if(!configured())return "tiktok.waiting_for_import";
         return switch(error){
             case "browser_missing"->"tiktok.browser_missing";
             case "feed_unavailable"->"tiktok.feed_unavailable";
@@ -70,6 +76,9 @@ final class TikTokCache implements AutoCloseable {
 
     void importCookies(String json) throws IOException {
         String normalized=TikTokCookies.normalize(json);
+        applyImportedCookies(normalized);
+    }
+    void applyImportedCookies(String normalized) throws IOException {
         cancel(); TikTokCookies.save(cookies,normalized);
         while(!clips.isEmpty())retire(clips.getFirst().id);
         retryAfter=0; error="";
@@ -95,7 +104,7 @@ final class TikTokCache implements AutoCloseable {
             // A worker never publishes partial output; every failed/obsolete staging directory is disposable.
             try(var entries=Files.list(incoming)){for(var path:entries.toList())remove(path);}catch(IOException ignored){}
         }
-        if(pending==null&&clips.size()<CAPACITY&&configured()&&now>=retryAfter){
+        if(fillQueue&&pending==null&&clips.size()<CAPACITY&&configured()&&now>=retryAfter){
             var excluded=ids();String token=UUID.randomUUID().toString();Path stage=incoming.resolve(token);
             pending=worker.submit(()->prepare(stage,excluded));
         }
