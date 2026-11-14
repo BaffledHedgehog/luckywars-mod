@@ -128,6 +128,7 @@ public final class LbcAllItemPools {
     }
     private final class Catalog {
         final List<Slot> custom,vanilla,union;
+        final Map<String,Slot> logical;
         final Map<String,List<Slot>> typedCustom,typedVanilla,typedUnion;
         final Map<Filter,List<Slot>> vectors=new java.util.concurrent.ConcurrentHashMap<>();
         final Set<Identifier> representedNative;
@@ -190,7 +191,7 @@ public final class LbcAllItemPools {
                 var profiles=new ArrayList<Node>();for(var profile:member.getValue().getAsJsonArray())profiles.add(binding.node(profile.getAsString()));
                 sourceVanilla.put(member.getKey(),new Slot(member.getKey(),List.copyOf(profiles),null,false));
             }
-            var byId=new HashMap<String,Slot>();union.forEach(slot->byId.put(slot.id,slot));
+            var byId=new HashMap<String,Slot>();union.forEach(slot->byId.put(slot.id,slot));logical=Map.copyOf(byId);
             var categories=new TreeMap<String,List<Slot>>();
             for(var value:manifest.getAsJsonObject("typedViews").entrySet()){
                 var row=value.getValue().getAsJsonObject();var members=new ArrayList<Slot>();var original=new HashSet<String>();row.getAsJsonArray("sourceMembers").forEach(id->original.add(id.getAsString()));
@@ -267,19 +268,27 @@ public final class LbcAllItemPools {
         public static final MapCodec<Entry> MAP_CODEC=RecordCodecBuilder.mapCodec(i->i.group(
                 Codec.STRING.fieldOf("domain").forGetter(e->e.domain.name().toLowerCase(Locale.ROOT)),
                 Codec.STRING.optionalFieldOf("item_type").forGetter(e->Optional.<String>empty()),
-                Codec.STRING.listOf().optionalFieldOf("types",List.of()).forGetter(e->e.types)).and(uniformFields(i)).apply(i,Entry::new));
+                Codec.STRING.listOf().optionalFieldOf("types",List.of()).forGetter(e->e.types),
+                Codec.STRING.optionalFieldOf("slot").forGetter(e->e.slot)).and(uniformFields(i)).apply(i,Entry::new));
         private final Domain domain;
         private final List<String> types;
         private final Filter filter;
-        private Entry(String domain,Optional<String> type,List<String> types,int weight,int quality,Optional<Holder<LootItemCondition>> condition,Optional<Holder<LootItemFunction>> modifier){
+        private final Optional<String> slot;
+        private Entry(String domain,Optional<String> type,List<String> types,Optional<String> slot,int weight,int quality,Optional<Holder<LootItemCondition>> condition,Optional<Holder<LootItemFunction>> modifier){
             super(weight,quality,condition,modifier);this.domain=Domain.parse(domain);var names=new ArrayList<>(types);type.ifPresent(names::add);this.types=normalizeTypes(names);
             this.filter=new Filter(this.domain,this.types);
+            this.slot=slot;if(slot.isPresent()&&(this.domain!=Domain.CUSTOM||!this.types.isEmpty()))throw new IllegalArgumentException("An explicit custom slot cannot also select a type/domain lottery");
             var game=me.skywars2.SkyWars2.game();var pools=game==null||game.items()==null?null:game.items().allItemPools();if(pools!=null&&pools.catalog!=null)pools.catalog.prepare(filter);REQUESTED.add(filter);
         }
         @Override public MapCodec<Entry> codec(){return MAP_CODEC;}
         @Override public void createItemStack(Consumer<ItemStack> output,LootContext context){
             var game=me.skywars2.SkyWars2.game();if(game==null)throw new IllegalStateException("Uniform gameplay pool needs its native game owner");
-            var pools=game.items().allItemPools();pools.draw(pools.catalog().prepared(filter),context,output);
+            var pools=game.items().allItemPools();
+            if(slot.isPresent()){
+                var selected=pools.catalog().logical.get(slot.get());
+                if(selected==null||selected.id.startsWith("vanilla/"))throw new IllegalArgumentException("Unknown custom logical slot "+slot.get());
+                pools.materialize(selected,context,output);
+            }else pools.draw(pools.catalog().prepared(filter),context,output);
         }
     }
 }

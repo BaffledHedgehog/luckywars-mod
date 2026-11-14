@@ -27,11 +27,11 @@ dependencies {
 }
 
 processResources {
-    // Keep the public test catalog and packaged tables in agreement; no second manual allowlist.
+    // Public suggestions and packaged internal aliases share one catalog with separate explicit sets.
     def catalogFile = file('src/main/resources/skywars2/loot_test_catalog.json')
     inputs.file(catalogFile)
     def publicLoot = new groovy.json.JsonSlurper().parse(catalogFile)
-    publicLoot.tables.each { id ->
+    (publicLoot.packaged_tables ?: publicLoot.tables).each { id ->
         def parts = id.split(':', 2)
         include "data/${parts[0]}/loot_table/${parts[1]}.json"
     }

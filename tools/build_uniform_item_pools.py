@@ -54,6 +54,8 @@ FUNCTIONAL = {
 
 def logical_identity(entry):
     parts = identity(entry)
+    if ':' not in parts['carrier']:
+        parts['carrier'] = 'minecraft:' + parts['carrier']
     # These dedicated native helpers are implementation primitives. Minecraft's
     # text codec decodes [component] and component identically; retain both raw
     # profiles but never add a second ticket for that serialization difference.
@@ -173,6 +175,9 @@ def boundary(child, owner):
 def build(table_root=TABLES):
     docs, invalid, findings = {}, [], []
     for path in sorted(table_root.rglob('*.json')):
+        # Public stable-slot commands reuse this catalog; they are outputs, not new source profiles.
+        if path.relative_to(table_root).parts[0] == 'items':
+            continue
         name = 'lbc:' + path.relative_to(table_root).as_posix()[:-5]
         try:
             docs[name] = json.loads(path.read_text(encoding='utf-8-sig'))
@@ -550,6 +555,8 @@ if __name__ == '__main__':
             path = TABLES / 'uniform' / (name + '.json')
             content = json.dumps(document, ensure_ascii=False, indent=2) + '\n'
             if args.check: assert path.read_text(encoding='utf-8') == content, 'Regenerate uniform/' + name
-            else: path.parent.mkdir(parents=True, exist_ok=True); path.write_text(content, encoding='utf-8')
+            elif not path.is_file() or path.read_text(encoding='utf-8') != content:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding='utf-8')
         print(json.dumps({'customSlots': len(result['custom']), 'accountedLeaves': len(result['accounting']),
                           'blocked': result['blocked'], 'unparsed': result['unparsedSourceResources']}, ensure_ascii=False))

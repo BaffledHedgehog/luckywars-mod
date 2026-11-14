@@ -3064,3 +3064,12 @@ Unlock IDs have native tab completion: `swrg.kit1` through `swrg.kit20`, `swrg.s
 Edits use checked atomic profile persistence with rollback on write failure. Taking an unlock clears its matching selected kit, skill or cosmetic, and persists an explicit revocation so stale saved tags or impossible-advancement projections cannot restore access at login. A subsequent explicit grant or a new legitimate case award restores ownership. Cosmetic source keys are shared with the existing menu policy.
 
 Native qualification covers the dispatcher and reduced permission source, offline file reload, both currencies, every key slot, overflow and unknown-name controls, all manual unlock families, native tag/advancement projections, stale projection rejection, selected-perk removal, case re-earning, and failed-save rollback. The armor inventory skill also has real hotbar/Shift-click and Nether/End equipment witnesses; the isolated fixture restores all captured dimension files byte for byte.
+
+
+### Public `/loot` item catalog
+
+`tools/refresh_loot_test_catalog.py` derives one public table per logical custom item from `all_item_pools.json`, including complete native defaults and the single fresh TMT factory. Existing unambiguous public IDs stay canonical. Duplicate `ported/` wrappers remain registered for internal references and explicit commands but disappear from suggestions. Aggregate family/type/domain lotteries retain their distributions.
+
+Missing singletons under `lbc:items/` use the existing `skywars2:uniform_item` entry with an optional stable `slot` ID. They preserve source component/random-property construction, overriding only the requested output quantity to one. Catalog `items` and `hidden_aliases` records provide the complete mapping. `lbc:items/govno_raskid` gives the throwing projectile; `lbc:items/tmt` invokes the shared TMT generator. Generated `items/` wrappers are excluded from uniform source discovery to prevent recursive tickets. The refresh tool's `--check` detects stale outputs; native `loot-test-catalog` verifies real completion and every item output.
+
+The separate `packaged_tables` closure retains internal tables even when a duplicate disappears from completions. Conditional actor-drop tables are never selected as public singleton roots: their probabilities remain on the private originals, while unconditional ready tables or the shared factory serve manual item requests. Identity resolution treats unqualified item IDs as the native `minecraft:` namespace, keeping plain vanilla leaves out of the custom domain.

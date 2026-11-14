@@ -16566,6 +16566,7 @@ public final class GameChecks {
                         owner.getInventory().clearContent();
                         for(int slot=0;slot<inventory.size();slot++) owner.getInventory().setItem(slot,inventory.get(slot));
                 }
+                PublicLootCatalogChecks.verify(game,owner,source,suggestions);
                 SkyWars2.LOGGER.info("[check] PASS loot-test-catalog");
         }
 
