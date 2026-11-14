@@ -43,10 +43,11 @@ final class FeedbackInputChecks {
     }
     private static void commands(GameController game){
         var root=game.server().getCommands().getDispatcher().getRoot();var sw=root.getChild("skywars");require(sw!=null,"public skywars root");
-        for(String name:List.of("gallery","developer","mapsave","mapdelete","settings","tps")){
+        for(String name:List.of("gallery","developer","mapsave","mapdelete","settings")){
             require(root.getChild(name)==null,"no unprefixed mod alias "+name);
             if(!name.equals("mapdelete"))require(sw.getChild(name)!=null,"namespaced leaf "+name);
         }
+        require(root.getChild("tps")!=null&&root.getChild("ping")!=null&&root.getChild("player").getChild("spawn")!=null,"explicitly permitted convenience aliases remain public");
         require(root.getChild("sw")==null,"old sw alias removed");
         require(root.getChild("gamemode")!=null&&root.getChild("enchant")!=null,"vanilla roots retained");
         require(SkyWarsFeedbackCommands.effectIds().contains(LbcStaticCharge.COUNTER),"tranquillizer is testable");

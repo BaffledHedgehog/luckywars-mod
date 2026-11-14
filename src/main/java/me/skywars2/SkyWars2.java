@@ -150,6 +150,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(game!=null)game.items().clockFragments().endTick();
             if(game!=null)game.itemQueue().endTick();
             AtlasGlitchSignal.tick(server);
+            me.skywars2.game.PlayerLatency.tick(server);
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;
@@ -183,10 +184,12 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) { game.shutdown(); game = null; }
             AtlasGlitchSignal.stop(server);
             me.skywars2.game.WeaponSpreadVisuals.stop();
+            me.skywars2.game.PlayerLatency.stop();
         });
         ServerPlayerEvents.JOIN.register(player -> { if (game != null) { game.items().mana().initializeResources(player); game.join(player); } me.skywars2.game.SignedEffectVisuals.joined(player); });
         ServerPlayerEvents.LEAVE.register(player -> {
             AtlasGlitchSignal.leaving(player);
+            me.skywars2.game.PlayerLatency.forget(player);
             me.skywars2.game.WeaponSpreadVisuals.forget(player);
             FullInvisibility.cameraChanging(player, null);
             me.skywars2.game.SignedEffectVisuals.clear(player);
@@ -564,6 +567,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             dispatcher.register(root);
             me.skywars2.game.SkyWarsFeedbackCommands.register(dispatcher);
             me.skywars2.game.ServerTickMetrics.register(dispatcher);
+            me.skywars2.game.PlayerLatency.register(dispatcher);
         });
         LOGGER.info("SkyWars game cycle registered");
     }

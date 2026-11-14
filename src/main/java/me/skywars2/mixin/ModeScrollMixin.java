@@ -1,6 +1,7 @@
 package me.skywars2.mixin;
 
 import me.skywars2.game.LbcModeScroll;
+import me.skywars2.game.PlayerLatency;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ModeScrollMixin {
@@ -27,8 +29,15 @@ public abstract class ModeScrollMixin {
         private void skywars2$wheelBarrier(ServerboundPongPacket packet,CallbackInfo ci){
             var listener=(ServerCommonPacketListenerImpl)(Object)this;
             if(listener instanceof ServerGamePacketListenerImpl game){
+                PlayerLatency.pong(game,packet.getId());
                 PacketUtils.ensureRunningOnSameThread(packet,listener,server.packetProcessor());
                 LbcModeScroll.pong(game,packet.getId());
+            }
+        }
+        @Inject(method="latency",at=@At("RETURN"),cancellable=true)
+        private void skywars2$measuredLatency(CallbackInfoReturnable<Integer> ci){
+            if((Object)this instanceof ServerGamePacketListenerImpl listener){
+                int value=PlayerLatency.millis(listener);if(value>=0)ci.setReturnValue(value);
             }
         }
     }

@@ -35,7 +35,6 @@ public final class ServerTickMetrics {
                     tps(60_000_000_000L,now,target),tps(300_000_000_000L,now,target),tps(900_000_000_000L,now,target),server.getAverageTickTimeNanos()/1_000_000d);
             context.getSource().sendSuccess(()->Component.literal(message),false);return 1;
         }));
-        var root=dispatcher.getRoot().getChild("skywars");
-        if(root!=null)root.addChild(Commands.literal("tps").executes(node.getCommand()).build());
+        dispatcher.getRoot().addChild(node);
     }
 }

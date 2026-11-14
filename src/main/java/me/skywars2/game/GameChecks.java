@@ -738,6 +738,7 @@ public final class GameChecks {
                                 case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }
                                 case "personal-settings" -> { PersonalSettingsChecks.run(game); return; }
                                 case "mode-scroll" -> { ModeScrollChecks.run(game); return; }
+                                case "player-latency" -> { PlayerLatencyChecks.run(game); return; }
                                 case "native-item-feedback" -> { NativeItemFeedbackChecks.run(game); return; }
                                 case "academy-interaction" -> { AcademyInteractionChecks.run(game); return; }
                                 case "polymorph-wand" -> { PolymorphWandChecks.run(game); return; }
@@ -1835,6 +1836,7 @@ public final class GameChecks {
             JammerSpellChecks.tick(game);
             InventoryHazardChecks.tick(game);
             LiquidAbyssAreaChecks.tick(game);
+            PlayerLatencyChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
             PendingSwordChecks.tick(game);

@@ -58,7 +58,7 @@ public final class LbcModeScroll {
         }
         listener.send(new ClientboundSetHeldSlotPacket(input.held));
         // The client's ordered Pong identifies exactly when its raw wheel anchor was reset.
-        int barrier=++serial;input.barriers.add(barrier);
+        int barrier=serial=serial==Integer.MAX_VALUE?1:serial+1;input.barriers.add(barrier);
         if(input.barriers.size()>256)input.barriers.clear();
         listener.send(new ClientboundPingPacket(barrier));
         return true;
