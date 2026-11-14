@@ -23,6 +23,11 @@ public abstract class DamageDeathMessageMixin {
     @Inject(method="getLocalizedDeathMessage",at=@At("HEAD"),cancellable=true)
     private void skywars2$ownedDeathMessage(LivingEntity victim,CallbackInfoReturnable<Component> ci) {
         var source=(DamageSource)(Object)this;
+        var game=me.skywars2.SkyWars2.game();
+        if(game!=null){
+            var droneMessage=game.items().fpvDrone().deathMessage(source,victim);
+            if(droneMessage!=null){ci.setReturnValue(droneMessage);return;}
+        }
         if(!SKYWARS2_SINGLE_NAME_MESSAGES.contains(source.getMsgId()) || !(source.getEntity() instanceof LivingEntity owner)) return;
         // Вариант с именованным оружием vanilla уже выбирает сама; template содержит .item.
         if(!owner.getMainHandItem().isEmpty() && owner.getMainHandItem().has(DataComponents.CUSTOM_NAME)) return;

@@ -102,6 +102,7 @@ public final class FpvDroneChecks {
             if(phase==5){if(now-at<3||!attached())return false;attachedPresentation();
                 shortCircuits();
                 sharedElectricalSegments();
+                deathMessages();
                 game.items().fpvDrone().stop();require(game.items().fpvDrone().count()==0&&game.items().fpvDrone().ticketCount()==0,"exact owned stop cleanup");return true;}
             throw new IllegalStateException("phase");
         }
@@ -204,6 +205,31 @@ public final class FpvDroneChecks {
                 if(owner.getTeam()==team)board.removePlayerFromTeam(owner.getScoreboardName(),team);
                 if(previous!=null)board.addPlayerToTeam(owner.getScoreboardName(),previous);board.removePlayerTeam(team);
             }
+        }
+        void deathMessages(){
+            var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(before::add);
+            try{
+                game.items().fpvDrone().stop();launch();
+                // Use the real launched actor and native blast/death pipeline, not a fabricated damage receipt.
+                var victim=new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,level);
+                victim.setNoAi(true);victim.setNoGravity(true);victim.setPos(drone.position().add(2,0,0));
+                victim.setCustomName(net.minecraft.network.chat.Component.literal("DroneBlastVictim"));victim.setHealth(1);
+                require(level.addFreshEntity(victim),"native blast victim admitted");
+                owner.getMainHandItem().set(DataComponents.CUSTOM_NAME,net.minecraft.network.chat.Component.literal("Named controller"));
+                game.items().fpvDrone().explode(drone);
+                require(victim.isDeadOrDying()&&victim.getLastDamageSource()!=null,"actual native drone explosion kills victim");
+                var damage=victim.getLastDamageSource();var message=victim.getCombatTracker().getDeathMessage();
+                require(message.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text
+                        &&text.getKey().equals("death.attack.skywars2.kamikaze_drone"),"actual combat death message uses drone translation key: "+message);
+                require(message.getString().contains("DroneBlastVictim")&&message.getString().contains(owner.getGameProfile().name()),"victim and real player author, even with named controller");
+                require(message.getString().contains("взорван Камикадзе Дроном игрока"),"Russian fallback text survives UTF-8 encoding");
+                require(game.items().indirectKills().policyCause(victim,damage).player().equals(owner.getUUID()),"existing accepted kill author retained");
+                var ordinary=new net.minecraft.world.entity.item.PrimedTnt(level,drone.getX(),drone.getY(),drone.getZ(),owner);
+                var vanilla=net.minecraft.world.level.Explosion.getDefaultDamageSource(level,ordinary).getLocalizedDeathMessage(victim);
+                require(!(vanilla.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text&&text.getKey().startsWith("death.attack.skywars2.kamikaze_drone")),"ordinary TNT keeps its native message");
+                var nonBlast=damage.getDirectEntity().damageSources().source(net.minecraft.world.damagesource.DamageTypes.MAGIC,damage.getDirectEntity(),owner);
+                require(game.items().fpvDrone().deathMessage(nonBlast,victim)==null,"weapon marker does not rename nonexplosive damage");
+            }finally{game.items().fpvDrone().stop();var created=new ArrayList<Entity>();level.getAllEntities().forEach(e->{if(!before.contains(e))created.add(e);});created.forEach(Entity::discard);}
         }
         public void close(){if(closed)return;closed=true;try{if(stopped)game.items().timeStop().end(level);game.items().fpvDrone().stop();game.config().offhandWands=offhand;
             saved.restore(game);otherSaved.restore(game);owner.clearPostEffects();for(var effect:postEffects)owner.addPostEffect(effect);if(client!=null)client.ack();attribution.close();}

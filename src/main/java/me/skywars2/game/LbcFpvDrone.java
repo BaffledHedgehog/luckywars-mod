@@ -47,6 +47,7 @@ import net.minecraft.world.phys.Vec3;
 /** A shootable native actor, packet-only FPV seat and native remote chunk/entity tracking. */
 public final class LbcFpvDrone {
     public static final String TAG="skywars2.fpv_drone";
+    private static final String BLAST_TAG="skywars2.kamikaze_drone_blast";
     public static final EntityType<Drone> TYPE=type();
     private static final TicketType BODY_TICKET=new TicketType(TicketType.NO_TIMEOUT,
             TicketType.FLAG_LOADING|TicketType.FLAG_SIMULATION|TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
@@ -304,9 +305,25 @@ public final class LbcFpvDrone {
         }
         }finally{advancing=false;}
     }
+    /** The marker identifies the weapon; accepted attribution remains the existing independent policy. */
+    public net.minecraft.network.chat.Component deathMessage(DamageSource damage,LivingEntity victim){
+        var direct=damage.getDirectEntity();
+        if(direct==null||!direct.entityTags().contains(BLAST_TAG)||!damage.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION))return null;
+        var cause=game.items().indirectKills().policyCause(victim,damage);
+        UUID author=cause!=null?cause.player():damage.getEntity() instanceof Drone drone?drone.author:null;
+        if(author==null)return net.minecraft.network.chat.Component.translatableWithFallback(
+                "death.attack.skywars2.kamikaze_drone.unowned","%1$s взорван Камикадзе Дроном",victim.getDisplayName());
+        var online=game.server().getPlayerList().getPlayer(author);
+        var profile=game.players().knownProfiles().get(author);
+        var name=online!=null?online.getDisplayName():net.minecraft.network.chat.Component.literal(
+                profile!=null&&profile.username!=null&&!profile.username.isBlank()?profile.username:author.toString());
+        return net.minecraft.network.chat.Component.translatableWithFallback(
+                "death.attack.skywars2.kamikaze_drone","%1$s взорван Камикадзе Дроном игрока %2$s",victim.getDisplayName(),name);
+    }
+
     public void explode(Drone d){if(!live(d))return;d.retired=true;var level=(ServerLevel)d.level();var accepted=source(d);
         try(var scope=game.items().spellSources().scope(accepted,level)){
-            explosions++;game.items().exasperato().encounterBlast(d,level,d.position(),8,tnt->game.items().spellSources().bind(tnt,accepted));
+            explosions++;game.items().exasperato().encounterBlast(d,level,d.position(),8,tnt->{tnt.entityTags().add(BLAST_TAG);game.items().spellSources().bind(tnt,accepted);});
         }finally{retire(d);}
     }
     /** Electrical contact is admission, independent of ordinary damage amount, immunity or hurt cooldown. */
