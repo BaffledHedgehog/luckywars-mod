@@ -158,6 +158,11 @@ public final class LbcQuiver {
         var state=LbcTmtAmmoPayloads.state(arrow);if(state==null||!runtime(arrow)||frozen(arrow)||!game.items().currentEpoch(arrow))return;
         payloadContact(arrow,state,target,LbcIndirectKills.playerSource(arrow),payloadCause(arrow,state));
     }
+    /** All native collision callbacks finish before the legacy terminal tag is consumed. */
+    public static void finishArrowTick(net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow){
+        if(!arrow.isRemoved()&&arrow.entityTags().contains("killedarrow")
+                &&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())arrow.discard();
+    }
     public void ground(net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow){
         if(arrow instanceof Arrow physical){ground(physical);return;}
         var state=LbcTmtAmmoPayloads.state(arrow);if(state==null||frozen(arrow))return;

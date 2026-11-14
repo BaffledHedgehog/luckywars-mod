@@ -91,6 +91,11 @@ public final class HelicopterEncounterChecks {
         MapManager.BlockSnapshot beaconSaved;
         int phase = -3, lastTick, ticks, variant = 1;
         long dispatches;
+        final java.util.Map<net.minecraft.core.BlockPos,MapManager.BlockSnapshot> terminalTerrain=new java.util.LinkedHashMap<>();
+        final ArrayList<net.minecraft.world.entity.projectile.arrow.AbstractArrow> terminalTagged=new ArrayList<>();
+        net.minecraft.world.entity.projectile.arrow.AbstractArrow terminalPlain,terminalAir;
+        int terminalTick;boolean terminalVerified;ItemStack terminalDrop;
+
 
         State(GameController game) {
             this.game = game;
@@ -250,12 +255,39 @@ public final class HelicopterEncounterChecks {
             ticks = 0;
         }
 
+        void terminalBlock(net.minecraft.core.BlockPos pos,net.minecraft.world.level.block.state.BlockState value){
+            force(pos.getX()>>4,pos.getZ()>>4);terminalTerrain.putIfAbsent(pos.immutable(),game.maps().snapshot(level,pos));level.setBlock(pos,value,2|16|32);
+        }
+        void terminalSetup(Arrow real){
+            terminalTick=game.server().getTickCount();var start=new net.minecraft.core.BlockPos(128,310,24);
+            terminalDrop=game.lbc().rollTable(level,Vec3.atCenterOf(start),alpha,"lbc:stand_arrow").getFirst();
+            var ammo=terminalDrop.copy();
+            for(int i=0;i<7;i++){
+                var cell=start.offset(0,0,i*2);for(int x=0;x<4;x++)terminalBlock(cell.offset(x,0,0),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                if(i<6)terminalBlock(cell.offset(2,0,0),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+                net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow=i==0?real:i==2?new net.minecraft.world.entity.projectile.arrow.SpectralArrow(EntityTypes.SPECTRAL_ARROW,level):i==4?new Arrow(level,alpha,ammo,null):new Arrow(EntityTypes.ARROW,level);
+                if(i!=0)arrow.setOwner(alpha);arrow.setNoGravity(true);arrow.setPos(Vec3.atCenterOf(i==3?cell.offset(2,0,0):cell));arrow.setDeltaMovement(i==3||i==6?Vec3.ZERO:new Vec3(4,0,0));fixtures.add(arrow);
+                if(i!=5){arrow.entityTags().add("killedarrow");if(i!=6)terminalTagged.add(arrow);else terminalAir=arrow;}else terminalPlain=arrow;
+                if(i!=0)require(level.addFreshEntity(arrow),"actual native terminal arrow admitted "+i);
+            }
+            require(real.getOwner()==first.hitbox()||real.getOwner()==second.hitbox(),"actual helicopter projectile retains NPC owner through terminal setup");
+        }
+        void terminalObserved(int now){
+            if(terminalTagged.isEmpty()||terminalVerified||now==terminalTick)return;
+            require(now==terminalTick+1,"terminal witnesses execute on first real native physics frame");
+            for(var arrow:terminalTagged)require(arrow.isRemoved(),"tagged native boss/normal/spectral/embedded/payload arrow retires on impact "+arrow.getClass().getSimpleName()+" pos="+arrow.position());
+            require(!terminalPlain.isRemoved()&&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)terminalPlain).skywars2$isInGround(),"ordinary untagged arrow remains embedded with native pickup item");
+            require(!terminalAir.isRemoved()&&!((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)terminalAir).skywars2$isInGround(),"terminal tag never deletes an airborne arrow");
+            require(level.getEntitiesOfClass(ItemEntity.class,new net.minecraft.world.phys.AABB(128,308,30,134,313,35),item->ItemStack.isSameItemSameComponents(item.getItem(),terminalDrop)).size()==1,"actual119 impact publishes its one source drop before terminal cleanup");
+            terminalPlain.discard();terminalAir.discard();terminalVerified=true;
+        }
         boolean step() {
             require(game.playing(), "match remains active");
             int now = game.server().getTickCount();
             if (now == lastTick)
                 return false;
             lastTick = now;
+            terminalObserved(now);
             switch (phase) {
                 case -3 -> {
                     // Nested performCommand queues /give until the enclosing /sw check returns.
@@ -361,7 +393,8 @@ public final class HelicopterEncounterChecks {
                         beta.setGameMode(GameType.SURVIVAL);
                         move(beta, new Vec3(128.5, 279, 24.5));
                     }
-                    if (!shots.isEmpty() && ++ticks >= 3) {
+                    if(terminalTagged.isEmpty()&&!shots.isEmpty())terminalSetup(shots.getFirst());
+                    if (!shots.isEmpty() && ++ticks >= 3 && terminalVerified) {
                         game.items().timeStop().begin(level, 200);
                         ticks = 0;
                         phase = 2;
@@ -525,6 +558,7 @@ public final class HelicopterEncounterChecks {
             service.stop();
             game.items().kfcRewards().stop();
             fixtures.forEach(Entity::discard);
+            for(var entry:terminalTerrain.entrySet())game.maps().restoreSnapshot(entry.getKey(),entry.getValue());
             for (long key : forcedChunks)
                 level.setChunkForced(net.minecraft.world.level.ChunkPos.getX(key),
                         net.minecraft.world.level.ChunkPos.getZ(key), false);

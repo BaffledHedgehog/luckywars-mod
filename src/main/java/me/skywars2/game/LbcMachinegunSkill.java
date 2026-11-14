@@ -161,8 +161,7 @@ public final class LbcMachinegunSkill {
         if(!game.playing()||!game.items().currentEpoch(arrow)||arrow.level()!=game.maps().level()){arrow.discard();return;}
         if(game.items().timeStop().stopped((net.minecraft.server.level.ServerLevel)arrow.level())
                 ||game.items().timeStop().frozen(arrow))return;
-        if(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())arrow.discard();
-        else game.items().lifetimes().advance(arrow,arrow.tickCount);
+        if(!((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())game.items().lifetimes().advance(arrow,arrow.tickCount);
     }
     public void clear(ServerPlayer p){
         if(MatchPlayerCheckpoint.restoring(p))return;

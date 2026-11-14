@@ -30,6 +30,8 @@ public abstract class QuiverNativeMixin {
     public static abstract class Block {
         @Inject(method="tick",at=@At("HEAD"),cancellable=true)
         private void skywars2$extraNativeTick(CallbackInfo ci){var game=SkyWars2.game();var arrow=(AbstractArrow)(Object)this;if(game!=null&&arrow.level() instanceof ServerLevel&&!game.items().quiver().beforePayloadCarrier(arrow))ci.cancel();}
+        @Inject(method="tick",at=@At("RETURN"))
+        private void skywars2$finishNativeArrow(CallbackInfo ci){var arrow=(AbstractArrow)(Object)this;if(arrow.level() instanceof ServerLevel)LbcQuiver.finishArrowTick(arrow);}
         @Inject(method="doPostHurtEffects",at=@At("TAIL"))
         private void skywars2$extraNativeContact(LivingEntity target,CallbackInfo ci){var game=SkyWars2.game();var arrow=(AbstractArrow)(Object)this;if(game!=null&&!(arrow instanceof Arrow)&&arrow.level() instanceof ServerLevel)game.items().quiver().payloadContact(arrow,target);}
         @Inject(method="onHitBlock",at=@At("TAIL"))

@@ -357,8 +357,6 @@ public final class LbcIncomingArtifacts {
         if(!game.playing()||game.stage()==GameController.Stage.ENDING){stop();return;}
         actors.keySet().removeIf(Entity::isRemoved);
         var level=game.maps().level();if(level==null||game.items().timeStop().stopped(level))return;
-        for(var actor:List.copyOf(actors.keySet()))if(actor instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow
-                &&actor.entityTags().contains("killedarrow")&&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())actor.discard();
         for(var column:List.copyOf(columns)){
             if(!game.items().currentEpoch(column.epoch)){columns.remove(column);continue;}
             if(!resident(column.level,column.center,column.center.above(3)))continue;
