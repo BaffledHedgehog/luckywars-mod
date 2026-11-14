@@ -379,12 +379,18 @@ public final class LbcBolts {
             }
         }
         double distance=from.distanceTo(point);
-        for(double d=0;d<=distance;d+=items?.35:.5) {
-            Vec3 p=from.add(direction.scale(d));
-            if(!owner.level().hasChunkAt(BlockPos.containing(p))) return null;
-            double spread=particle==REFORGE_DUST?0:particle==ParticleTypes.END_ROD?.3:.1;
-            owner.level().sendParticles(particle,particle!=ParticleTypes.END_ROD&&particle!=REFORGE_DUST,false,p.x,p.y,p.z,1,spread,spread,spread,0);
-            if(particle==ParticleTypes.CLOUD) owner.level().sendParticles(ParticleTypes.SCULK_SOUL,p.x,p.y,p.z,1,.1,.1,.1,0);
+        double spread=particle==REFORGE_DUST?0:particle==ParticleTypes.END_ROD?.3:.1;
+        boolean force=particle!=ParticleTypes.END_ROD&&particle!=REFORGE_DUST;
+        try(var trail=new LbcParticleBatch.Group(owner.level(),particle,spread,0,force);
+            var soul=particle==ParticleTypes.CLOUD?new LbcParticleBatch.Group(owner.level(),ParticleTypes.SCULK_SOUL,.1,0,false):null){
+            for(double d=0;d<=distance;d+=items?.35:.5) {
+                Vec3 p=from.add(direction.scale(d));
+                if(!owner.level().hasChunkAt(BlockPos.containing(p))) return null;
+                if(game.balanceLegacy()){
+                    owner.level().sendParticles(particle,force,false,p.x,p.y,p.z,1,spread,spread,spread,0);
+                    if(soul!=null) owner.level().sendParticles(ParticleTypes.SCULK_SOUL,p.x,p.y,p.z,1,.1,.1,.1,0);
+                }else{trail.add(p);if(soul!=null)soul.add(p);}
+            }
         }
         if(Double.isFinite(suppressed) && distance>=from.distanceTo(to)-1e-6) return null;
         if(hit==null && !items || !owner.level().hasChunkAt(BlockPos.containing(point))) return null;
@@ -450,10 +456,13 @@ public final class LbcBolts {
         boolean terminal=item!=null || wall!=null && owner.level().hasChunkAt(wall.getBlockPos());
         if(Double.isFinite(suppression) && point.distanceToSqr(from)>=limit.distanceToSqr(from)-1e-9) terminal=false;
         double distance=from.distanceTo(point);
-        for(int sample=0;sample<=20 && sample*.35<=distance+1e-9;sample++) {
-            Vec3 particle=from.add(direction.scale(sample*.35));
-            if(!owner.level().hasChunkAt(BlockPos.containing(particle))) break;
-            owner.level().sendParticles(INFBOLT_DUST,particle.x,particle.y,particle.z,1,.01,.01,.01,0);
+        try(var trail=new LbcParticleBatch.Group(owner.level(),INFBOLT_DUST,.01,0,false)){
+            for(int sample=0;sample<=20 && sample*.35<=distance+1e-9;sample++) {
+                Vec3 particle=from.add(direction.scale(sample*.35));
+                if(!owner.level().hasChunkAt(BlockPos.containing(particle))) break;
+                if(game.balanceLegacy()) owner.level().sendParticles(INFBOLT_DUST,particle.x,particle.y,particle.z,1,.01,.01,.01,0);
+                else trail.add(particle);
+            }
         }
         if(terminal) {
             reforge(owner,point,true);

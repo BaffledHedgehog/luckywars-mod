@@ -1226,6 +1226,8 @@ public final class GameChecks {
                                 case "erecto-stop-probe" -> { ErectoChecks.stopProbe(game); return; }
                                 case "erecto-cleanup" -> { ErectoChecks.cleanup(game); return; }
                                 case "tesla-traffic" -> { TeslaTrafficChecks.run(game); return; }
+                                case "network-transport" -> { NetworkTransportChecks.run(game); return; }
+                                case "tesla-network" -> { TeslaTrafficChecks.runNetwork(game); return; }
                                 case "potion-ground-impact" -> { PotionGroundImpactChecks.run(game); return; }
                                 case "tesla" -> { TeslaChecks.run(game); return; }
                                 case "tesla-stop-probe" -> { TeslaChecks.stopProbe(game); return; }

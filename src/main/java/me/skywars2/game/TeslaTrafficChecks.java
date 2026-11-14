@@ -13,18 +13,20 @@ public final class TeslaTrafficChecks {
     private static Fixture running;
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Tesla traffic: "+why);}
     private static final class Fixture implements AutoCloseable {
-        final GameController game;final WoolBucketChecks.Fixture f;int began;
-        Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);}
+        final GameController game;final WoolBucketChecks.Fixture f;final boolean network;int began,phase;NetworkTransportChecks.Wire nearAudience;
+        Fixture(GameController game){this(game,false);}
+        Fixture(GameController game,boolean network){this.game=game;this.network=network;f=new WoolBucketChecks.Fixture(game,false);}
         void begin(){f.prepareParticipants();require(game.items().wands().electroCount()==0,"exclusive arc fixture");
             f.move(f.owner,f.home.add(0,60,0));f.move(f.other,f.owner.position().add(10,0,0));
             f.owner.setYRot(0);f.owner.setXRot(0);
-            game.items().wands().teslaVolley(f.owner,InteractionHand.MAIN_HAND,new ItemStack(LbcWands.TESLA),false);
-            f.client.packets().clear();began=game.server().getTickCount();
+            for(int i=0;i<(network?4:1);i++)game.items().wands().teslaVolley(f.owner,InteractionHand.MAIN_HAND,new ItemStack(LbcWands.TESLA),false);
+            f.client.packets().clear();f.audience.packets().clear();began=game.server().getTickCount();
         }
         boolean step(){f.client.acknowledge();f.audience.acknowledge();
-            var arcs=game.items().wands().electroSnapshot();require(arcs.size()==4,"same four physical source arcs");
+            var arcs=game.items().wands().electroSnapshot();require(arcs.size()==(network?16:4),"same physical source arcs");
             int age=arcs.getFirst().age;if(age==0)return false;
-            require(age<4&&arcs.stream().allMatch(t->t.age==age),"bounded equally scheduled source traces");
+            require(age<(network?10:4)&&arcs.stream().allMatch(t->t.age==age),"bounded equally scheduled source traces");
+            if(network)return measureNetwork(age);
             int dust=0,sparks=0,particlePackets=0,sounds=0;
             for(var packet:f.client.packets()){
                 if(packet instanceof ClientboundLevelParticlesPacket visual){
@@ -38,8 +40,27 @@ public final class TeslaTrafficChecks {
             SkyWars2.LOGGER.info("[check] PASS tesla-traffic ({} real ticks, {} dust + {} sparks in {} particle packets and {} sound packets; old source {} packets)",age,dust,sparks,particlePackets,sounds,132*age);
             return true;
         }
+        private List<net.minecraft.network.protocol.Packet<?>> graphics(RegenerationBeltChecks.ScheduledClient client){
+            return client.packets().stream().filter(p->p instanceof ClientboundLevelParticlesPacket||p instanceof ClientboundSoundPacket).toList();
+        }
+        boolean measureNetwork(int age){
+            if(age<(phase==0?3:6))return false;
+            var actual=graphics(f.client);int ticks=3;
+            var wire=NetworkTransportChecks.compare(f.owner,actual,256,false);
+            var observer=NetworkTransportChecks.compare(f.other,graphics(f.audience),256,false);
+            if(phase==0){nearAudience=observer;
+                require(wire.frames()>250&&observer.frames()>250,"real sixteen-arc near traffic sample");
+                SkyWars2.LOGGER.info("[check] tesla-network NEAR ticks={} ownerPps={} ownerBytesPerSecond={} audiencePps={} audienceBytesPerSecond={}",ticks,wire.frames()*20.0/ticks,wire.bytes().length*20.0/ticks,observer.frames()*20.0/ticks,observer.bytes().length*20.0/ticks);
+                f.move(f.other,f.other.position().add(0,590,0));f.client.packets().clear();f.audience.packets().clear();phase=1;return false;
+            }
+            require(observer.frames()==0&&observer.bytes().length==0,"distant recipient gets no Tesla graphics");
+            require(wire.frames()>250,"same real arcs still emitting for nearby owner");
+            SkyWars2.LOGGER.info("[check] PASS tesla-network (16 actual arcs, two 3-tick windows; owner packets/s={} bytes/s={}; far audience zero; wire preserves every near packet and exact byte order)",wire.frames()*20.0/ticks,wire.bytes().length*20.0/ticks);
+            return true;
+        }
         public void close(){game.items().wands().stop();f.close();}
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.begin();}catch(Throwable e){running.close();running=null;throw e;}}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;}catch(Throwable e){try{running.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL tesla-traffic",e);}}
+    public static void runNetwork(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game,true);try{running.begin();}catch(Throwable e){running.close();running=null;throw e;}}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;}catch(Throwable e){boolean networkFailure=running.network;try{running.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL "+(networkFailure?"tesla-network":"tesla-traffic"),e);}}
 }

@@ -3095,3 +3095,29 @@ Match-start perk statistics use the same native counter store with a deferred ou
 Respawn island capture reads resident chunks directly and shares immutable state-only images; block entities retain their individual native NBT snapshots. Perk ID lookup uses an immutable index with the original first-entry behavior. World reads and gameplay mutations remain on the server thread.
 
 `ServerTickDurationMixin` measures the whole native tick method, including Fabric end callbacks. Vanilla's internal duration array is tallied before those callbacks and therefore excludes this mod's game/AI work. `/tps` MSPT and population/startup benchmarks read the completed outer duration ring. The native map64 startup check enrolls 23 real Carpet players plus one vanilla ServerPlayer, observes all 24 cages and island references, verifies source chest loot, and checks that the measured release duration contains every controller phase.
+
+
+### Network transport and native particle traffic (14 November 2026)
+
+Remote server Connection serialization installs ServerNetworkTransport's per-channel
+Netty FlushConsolidationHandler(256,true) before framing/encryption. It coalesces
+flush requests within an event-loop turn and drains on read completion, the 256
+request bound, backpressure, close, removal or exception. Local/client-side
+pipelines are excluded. Packet contents, ordering, protocol transitions and native
+compression/encryption are preserved; there is no packet queue or worker thread.
+This reduces flush overhead, not the number or encoded payload of game packets.
+
+LbcBolts' common ray and Infinite Bolt reuse the existing bounded three-sample
+LbcParticleBatch.Group. Particle counts/types, distance, collision, suppression and
+server RNG behavior remain; nearby samples use the existing mean/variance visual
+approximation. True-legacy keeps the original individual sendParticles calls.
+Native tests preserve 21 Infinite Bolt particles with 21->7 packets/1428->476 bytes,
+and 30 cloud/soul particles with 30->10 packets/1680->560 bytes. These byte counts
+include native packet encoding/framing with compression threshold256.
+
+NetworkTransportChecks also validates real PLAY codecs/bundle delimiters,
+compression on/off, AES/CFB8, byte-exact output/order, lifecycle/backpressure and
+bounded flushes (301->2 for the selected native burst). TeslaTrafficChecks samples
+16 real scheduled arcs for nearby and distant recipients and reports packets/s
+and encoded bytes/s. These are selected scene/transport checks, not external WAN
+latency, TCP segment counts or a full network performance qualification.
