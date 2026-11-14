@@ -42,6 +42,7 @@ public final class HazardPropagationMixins {
         private net.minecraft.world.damagesource.DamageSource damageSource;
         @org.spongepowered.asm.mixin.Unique
         private boolean skywars2$skipEmptyBlastBlocks;
+        @org.spongepowered.asm.mixin.Unique private boolean skywars2$ultraponos;
         @org.spongepowered.asm.mixin.injection.Inject(method="<init>",at=@At("TAIL"))
         private void skywars2$identifyWandBlast(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
             var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
@@ -54,6 +55,8 @@ public final class HazardPropagationMixins {
                         || source.entityTags().contains(me.skywars2.game.LbcGodHedgehog.BLAST))
                     ||source!=null&&source.entityTags().contains(me.skywars2.game.LbcChargedBows.BLAST);
             var game=SkyWars2.game();
+            skywars2$ultraponos=game!=null&&game.items().ultraponos().isExplosion(damageSource);
+            skywars2$skipEmptyBlastBlocks|=skywars2$ultraponos;
             if(game!=null) {
                 var authority=game.items().creeperDrops().owner(source);
                 if(authority==null) authority=game.items().spellSources().owner(source);
@@ -95,7 +98,10 @@ public final class HazardPropagationMixins {
             var blast=(ServerExplosion)(Object)this;
             var source=blast.getDirectSourceEntity();
             if(me.skywars2.game.NuclearTerrain.damageOnly(blast))return java.util.List.of();
-            if(!skywars2$skipEmptyBlastBlocks || source.getClass()!=net.minecraft.world.entity.item.PrimedTnt.class
+            // Source-null trap bursts reuse the collector; damage, drops and publication remain native.
+            if(skywars2$ultraponos&&damageCalculator.getClass()==net.minecraft.world.level.ExplosionDamageCalculator.class
+                    && !Boolean.getBoolean("skywars2.disableExplosionCache"))return me.skywars2.game.LbcExasperato.explosionBlocks(blast,damageCalculator);
+            if(!skywars2$skipEmptyBlastBlocks || source==null || source.getClass()!=net.minecraft.world.entity.item.PrimedTnt.class
                     && !me.skywars2.game.LbcExasperato.cacheableNativeBlast(source)
                     && !me.skywars2.game.LbcNukeEvent.cacheableNativeBlast(source)
                     && !source.entityTags().contains(me.skywars2.game.LbcGodHedgehog.BLAST)

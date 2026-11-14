@@ -15,7 +15,7 @@ final class BlastRayTrace {
         float loss(BlockPos pos,BlockState state);
         boolean destroy(BlockPos pos,BlockState state,float power);
     }
-    private static final double[] FIXED=rays(false),NATIVE=rays(true);
+    private static final double[] FIXED=rays(false),NATIVE=rays(true),SPHERICAL=sphericalRays();
     private static final class Cell {
         final BlockPos pos;final BlockState state;final float loss;boolean added;
         Cell(BlockPos pos,BlockState state,float loss){this.pos=pos;this.state=state;this.loss=loss;}
@@ -33,8 +33,22 @@ final class BlastRayTrace {
         }
         return steps;
     }
+    /** Equal solid-angle directions remove the cube-grid bias without adding rays or per-cast trigonometry. */
+    private static double[] sphericalRays(){
+        double[] rays=new double[NATIVE.length];int count=rays.length/3;double golden=Math.PI*(3-Math.sqrt(5));
+        for(int i=0;i<count;i++){
+            double y=1-2*(i+.5)/count,r=Math.sqrt(Math.max(0,1-y*y)),angle=golden*i;
+            rays[i*3]=Math.cos(angle)*r*.3F;rays[i*3+1]=y*.3F;rays[i*3+2]=Math.sin(angle)*r*.3F;
+        }
+        return rays;
+    }
+    static List<BlockPos> traceSpherical(Vec3 origin,float radius,RandomSource random,Cells view){
+        return trace(origin,radius,random,true,SPHERICAL,view);
+    }
     static List<BlockPos> trace(Vec3 origin,float radius,RandomSource random,boolean nativePrecision,Cells view){
-        var rays=nativePrecision?NATIVE:FIXED;
+        return trace(origin,radius,random,nativePrecision,nativePrecision?NATIVE:FIXED,view);
+    }
+    private static List<BlockPos> trace(Vec3 origin,float radius,RandomSource random,boolean nativePrecision,double[] rays,Cells view){
         var result=new it.unimi.dsi.fastutil.objects.ObjectArrayList<BlockPos>();
         var cells=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<Cell>();
         long[] recentKeys=new long[512];java.util.Arrays.fill(recentKeys,Long.MIN_VALUE);Cell[] recentCells=new Cell[512];

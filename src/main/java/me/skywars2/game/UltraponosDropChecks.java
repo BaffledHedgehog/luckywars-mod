@@ -63,6 +63,7 @@ public final class UltraponosDropChecks {
         final boolean skills,griefing;final int skillA,skillB,mobKills;
         boolean retainForStop;
         int phase,warmTicks,pauseTicks,previousRemaining=290,activeBlastTicks;long last=Long.MIN_VALUE;
+        long optimizedBefore;
         Cow blastVictim,greedyVictim;final List<Cow> protectedVictims=new ArrayList<>();
         net.minecraft.world.scores.PlayerTeam blastTeam,oldTeamA,oldTeamB;
         Set<Entity> nativeBefore=Set.of();
@@ -143,6 +144,7 @@ public final class UltraponosDropChecks {
                 var witness=blastCow(point);witness.entityTags().add(role);protectedVictims.add(witness);
             }
             require(game.items().ultraponos().pendingBlasts().stream().allMatch(b->b.remainingTicks()==290&&b.owner()==alpha),"native delay begins290 with captured author");
+            optimizedBefore=LbcExasperato.optimizedBlockSearches();
             nativeBefore=entities();previousRemaining=290;activeBlastTicks=0;phase=1;
         }
         boolean step(){
@@ -168,6 +170,7 @@ public final class UltraponosDropChecks {
                 return false;
             }
             require(previousRemaining==1&&activeBlastTicks==289,"native explosions fire on exact290th active tick");
+            require(LbcExasperato.optimizedBlockSearches()-optimizedBefore==4,"all four source-null bursts use the shared spherical block collector on the same native tick");
             require(blastVictim.isDeadOrDying()&&blastVictim.getKillCredit()==alpha,"actual native explosion retains captured thrower kill credit");
             require(alpha.getHealth()<1000&&beta.getHealth()<1000&&beta.getKillCredit()==alpha,"WILD native blast includes own thrower and allied participant");
             require(greedyVictim.getHealth()==1000&&protectedVictims.stream().allMatch(c->c.getHealth()==1000),"native explosion preserves Greed and all protected roles");

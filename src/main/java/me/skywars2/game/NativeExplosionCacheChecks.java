@@ -13,7 +13,30 @@ import net.minecraft.world.phys.Vec3;
 public final class NativeExplosionCacheChecks {
     private NativeExplosionCacheChecks() { }
     private static void require(boolean ok,String why){if(!ok)throw new IllegalStateException("Native explosion cache: "+why);}
+    /** Observe real ray crossings of an independent Euclidean shell, rather than testing the ray table itself. */
+    private static void sphericalContract(){
+        int[] bins=new int[8*16];int[] crossings={0};var origin=new Vec3(.5,.5,.5);
+        var random=net.minecraft.util.RandomSource.create(73);var oracle=net.minecraft.util.RandomSource.create(73);
+        var blocks=BlastRayTrace.traceSpherical(origin,36,random,new BlastRayTrace.Cells(){
+            public boolean inside(BlockPos pos){
+                var relative=Vec3.atCenterOf(pos).subtract(origin);if(relative.lengthSqr()<12*12)return true;
+                var direction=relative.normalize();int band=Math.min(7,(int)((direction.y+1)*4));
+                int sector=Math.min(15,(int)((Math.atan2(direction.z,direction.x)+Math.PI)/(Math.PI*2)*16));
+                bins[band*16+sector]++;crossings[0]++;return false;
+            }
+            public net.minecraft.world.level.block.state.BlockState state(BlockPos pos){return Blocks.AIR.defaultBlockState();}
+            public float loss(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){return 0;}
+            public boolean destroy(BlockPos pos,net.minecraft.world.level.block.state.BlockState state,float power){throw new AssertionError("Air must never enter native block callbacks");}
+        });
+        require(blocks.isEmpty()&&crossings[0]==BlastRayTrace.rayCount(),"every spherical ray reaches the Euclidean shell; air emits no block callbacks");
+        int min=Arrays.stream(bins).min().orElseThrow(),max=Arrays.stream(bins).max().orElseThrow();
+        require(min>=3&&max<=20,"equal-solid-angle shell coverage avoids cube-corner concentration: min="+min+" max="+max);
+        for(int i=0;i<BlastRayTrace.rayCount();i++)oracle.nextFloat();
+        require(random.nextLong()==oracle.nextLong(),"spherical collection preserves the native one-energy-draw-per-ray RNG budget");
+        SkyWars2.LOGGER.info("[check] spherical-blast geometry: {} shell crossings,128 equal-solid-angle bins,min={},max={}",crossings[0],min,max);
+    }
     public static void run(GameController game){
+        sphericalContract();
         String previous=System.getProperty("skywars2.disableExplosionCache");
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var center=BlockPos.containing(f.home.add(0,55,0));var at=Vec3.atCenterOf(center);

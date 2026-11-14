@@ -886,9 +886,11 @@ public final class LbcExasperato {
             net.minecraft.world.level.ExplosionDamageCalculator calculator) {
         optimizedBlockSearches++;
         var level=blast.level();Vec3 origin=blast.center();
-        boolean nativeShape=blast.getDirectSourceEntity()!=null&&blast.getDirectSourceEntity().getClass()==PrimedTnt.class
+        var game=me.skywars2.SkyWars2.game();
+        boolean spherical=game!=null&&game.items().ultraponos().isExplosion(blast.getDamageSource());
+        boolean nativeShape=spherical||blast.getDirectSourceEntity()!=null&&blast.getDirectSourceEntity().getClass()==PrimedTnt.class
                 ||cacheableNativeBlast(blast.getDirectSourceEntity())||LbcNukeEvent.cacheableNativeBlast(blast.getDirectSourceEntity());
-        boolean residentOnly=LbcNukeEvent.cacheableNativeBlast(blast.getDirectSourceEntity());
+        boolean residentOnly=spherical||LbcNukeEvent.cacheableNativeBlast(blast.getDirectSourceEntity());
         if(emptyBlastVolume(level,origin,blast.radius())){
             if(nativeShape)for(int ray=0;ray<BlastRayTrace.rayCount();ray++)level.getRandom().nextFloat();
             return List.of();
@@ -913,7 +915,8 @@ public final class LbcExasperato {
             }
             public boolean destroy(BlockPos pos,net.minecraft.world.level.block.state.BlockState state,float power){return calculator.shouldBlockExplode(blast,level,pos,state,power);}
         };
-        return BlastRayTrace.trace(origin,blast.radius(),level.getRandom(),nativeShape,view);
+        return spherical?BlastRayTrace.traceSpherical(origin,blast.radius(),level.getRandom(),view)
+                :BlastRayTrace.trace(origin,blast.radius(),level.getRandom(),nativeShape,view);
     }
 
     void instantBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch) {

@@ -19,7 +19,59 @@ final class BotPopulationChecks {
         final List<Long> baseline=new ArrayList<>(),looting=new ArrayList<>(),combat=new ArrayList<>();
         final Map<UUID,Vec3> start=new LinkedHashMap<>();final Set<UUID> acted=new HashSet<>(),preexisting=new HashSet<>();
         final List<BlockPos> starters=new ArrayList<>();PlayerTeam team;int at,spawnedAt,minimumCombat=24;boolean released;
-        Fixture(GameController game){super(game,new Vec3(.5,120,.5));}
+        final boolean eruption,oldSkills,oldGriefing;final String oldCache;
+        final List<Long> eruptionTicks=new ArrayList<>(),burstTicks=new ArrayList<>();final ArrayDeque<Long> recent=new ArrayDeque<>();
+        int eruptionTrial,trialStarted,burstObserved=-1;long cachedAt;
+        Fixture(GameController game,boolean eruption){
+            super(game,new Vec3(.5,120,.5));this.eruption=eruption;oldSkills=game.config().lbcSkills;
+            oldGriefing=base.level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING);
+            oldCache=System.getProperty("skywars2.disableExplosionCache");
+        }
+        void startEruption(){
+            require(game.items().ultraponos().pendingBlastCount()==0&&game.items().ultraponos().emitterCount()==0,"exclusive actual trap queue");
+            game.config().lbcSkills=true;base.level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,true,game.server());
+            System.setProperty("skywars2.disableExplosionCache",eruptionTrial==0?"true":"false");
+            var center=BlockPos.containing(origin);
+            for(int x=-24;x<=75;x++)for(int z=-24;z<=37;z++)base.set(center.offset(x,-1,z),Blocks.STONE.defaultBlockState());
+            for(int i=0;i<actors.size();i++){
+                var actor=actors.get(i);var spot=origin.add((i%8)*10,0,(i/8)*12);
+                // Stress-only HP keeps all24 alive through eight WILD hits; no invulnerability or skipped native damage.
+                actor.getAttribute(Attributes.MAX_HEALTH).setBaseValue(10000);actor.setHealth(10000);actor.setAbsorptionAmount(0);
+                actor.setInvulnerableTime(0);actor.damageCooldownTime=0;actor.setDeltaMovement(Vec3.ZERO);
+                actor.teleportTo(base.level,spot.x,spot.y,spot.z,Set.of(),0,0,true);
+                game.players().get(actor.getUUID()).lbcSkill=i==0?9:0;
+            }
+            var at=origin.add(35,0,12);var amplifier=actors.getFirst();amplifier.teleportTo(base.level,at.x,at.y,at.z,Set.of(),0,0,true);
+            var token=new net.minecraft.world.entity.item.ItemEntity(base.level,at.x,at.y,at.z,
+                    new net.minecraft.world.item.ItemStack(LbcUltraponosDropItem.Kind.NORMAL.item()));
+            token.setNoGravity(true);token.setDeltaMovement(Vec3.ZERO);game.items().markCurrentItemEpoch(token);
+            require(base.level.addFreshEntity(token)&&game.items().specialDrops().spawn(token),"real WILD item dispatch arms the native trap");
+            require(game.items().ultraponos().pendingBlastCount()==8,"actual nearest skill9 player adds all four mega and four base bursts");
+            var bolt=new net.minecraft.world.entity.LightningBolt(net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT,base.level);
+            bolt.setPos(Vec3.atCenterOf(BlockPos.containing(at)));bolt.setSilent(true);bolt.setVisualOnly(false);
+            require(base.level.addFreshEntity(bolt),"real charging lightning");bolt.tick();bolt.discard();
+            require(game.items().ultraponos().pendingBlasts().stream().map(LbcUltraponos.BlastSnapshot::radius).toList()
+                    .equals(List.of(24,28,32,36,12,14,16,18)),"native lightning really arms worst-case charged mega strengths");
+            trialStarted=game.server().getTickCount();cachedAt=LbcExasperato.optimizedBlockSearches();burstObserved=-1;
+            eruptionTicks.clear();burstTicks.clear();recent.clear();
+        }
+        boolean eruptionStep(int now,int live){
+            require(live==24,"all24 real bot bodies remain live and damage-eligible throughout the actual eruption measurement");
+            long completed=previousTick();recent.addLast(completed);while(recent.size()>3)recent.removeFirst();
+            if(game.items().ultraponos().pendingBlastCount()>0){
+                if(now-trialStarted>20)eruptionTicks.add(completed);return false;
+            }
+            if(burstObserved<0){
+                burstObserved=now;burstTicks.addAll(recent);
+                require(LbcExasperato.optimizedBlockSearches()-cachedAt==(eruptionTrial==0?0:8),"all eight bursts use only the selected original/shared collector");
+            }else burstTicks.add(completed);
+            if(now-burstObserved<3)return false;
+            require(eruptionTicks.size()>=260&&burstTicks.size()>=6,"completed native server ticks include the whole burst boundary, not just its Java collector");
+            SkyWars2.LOGGER.info("[check] ultraponos-24 metrics: collector={} liveBots=24 chargedMega=true countdown={} burstWindow={} fullServerTicks=true stressOnlyHp=10000",
+                    eruptionTrial==0?"original":"shared-spherical",metrics(eruptionTicks),metrics(burstTicks));
+            if(++eruptionTrial<2){startEruption();return false;}
+            return true;
+        }
         @Override void setup(){for(var actor:base.level.getAllEntities())preexisting.add(actor.getUUID());super.setup();disconnect(bot);actors.clear();
             if(base.level.getBlockEntity(firstChest) instanceof net.minecraft.world.Container old)old.clearContent();
             base.set(firstChest,Blocks.AIR.defaultBlockState());at=game.server().getTickCount();
@@ -71,9 +123,11 @@ final class BotPopulationChecks {
                 if(elapsed>100)looting.add(previousTick());
                 if(elapsed<400)return false;
                 require(acted.size()==24,"every one of the 24 scheduled bots actually moves, loots or attacks");
+                if(eruption){released=true;startEruption();return false;}
                 for(var actor:actors)game.server().getScoreboard().removePlayerFromTeam(actor.getScoreboardName());released=true;
                 return false;
             }
+            if(eruption)return eruptionStep(now,live);
             minimumCombat=Math.min(minimumCombat,live);combat.add(previousTick());
             if(elapsed<600)return false;
             require(baseline.size()>=75&&looting.size()>=290&&combat.size()>=190,"full native tick sample windows, excluding population startup");
@@ -82,6 +136,11 @@ final class BotPopulationChecks {
             return true;
         }
         @Override public void close(){
+            if(eruption){
+                game.items().ultraponos().stop();game.config().lbcSkills=oldSkills;
+                base.level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,oldGriefing,game.server());
+                if(oldCache==null)System.clearProperty("skywars2.disableExplosionCache");else System.setProperty("skywars2.disableExplosionCache",oldCache);
+            }
             for(var actor:base.level.getAllEntities())if(!(actor instanceof ServerPlayer)&&!preexisting.contains(actor.getUUID())&&actor.position().distanceToSqr(origin)<160*160)base.owned.add(actor.getUUID());
             Throwable failure=null;try{super.close();}catch(Throwable error){failure=error;}
             var board=game.server().getScoreboard();if(team!=null&&board.getPlayerTeam(team.getName())==team)board.removePlayerTeam(team);
@@ -93,10 +152,13 @@ final class BotPopulationChecks {
         return Map.of("samples",sorted.length,"meanMs",Arrays.stream(sorted).average().orElseThrow()/1e6,
                 "p95Ms",sorted[(int)Math.floor((sorted.length-1)*.95)]/1e6,"p99Ms",sorted[(int)Math.floor((sorted.length-1)*.99)]/1e6,"maxMs",sorted[sorted.length-1]/1e6);
     }
-    static void run(GameController game){require(running==null,"exclusive fixture");running=new Fixture(game);try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
+    static void run(GameController game){run(game,false);}
+    static void runUltraponos(GameController game){run(game,true);}
+    private static void run(GameController game,boolean eruption){require(running==null,"exclusive fixture");running=new Fixture(game,eruption);try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
     static void tick(GameController game){
         if(running==null)return;
-        try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS bot-population-24 (actual native 24-player looting and combat, completed full-server tick measurements, scoped cleanup)");}
-        catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL bot-population-24",error);}
+        String suite=running.eruption?"bot-ultraponos-24":"bot-population-24";
+        try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS {} (actual24 bot bodies/full server ticks/scoped cleanup)",suite);}
+        catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL "+suite,error);}
     }
 }
