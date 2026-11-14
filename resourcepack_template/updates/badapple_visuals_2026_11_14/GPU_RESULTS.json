@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "renderer": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "effects": 2,
+  "sceneSamples": 4096,
+  "alphaPreserved": true,
+  "grayscaleAndExactInverse": true,
+  "repeatedSwitchesImmediate": true,
+  "noPersistentTargets": true,
+  "limitation": "Standalone GPU post-shader test; physical client and world-paint frame rate are separate checks."
+}

@@ -846,6 +846,7 @@ public final class GameChecks {
                                 case "bot-combat-feedback" -> { BotCombatFeedbackChecks.run(game); return; }
                                 case "bot-population-24" -> { BotPopulationChecks.run(game); return; }
                                 case "bot-ultraponos-24" -> { BotPopulationChecks.runUltraponos(game); return; }
+                                case "bot-badapple-24" -> { BotPopulationChecks.runBadApple(game); return; }
                                 case "bot-counter" -> { BotRevisionChecks.counter(game); return; }
                                 case "bot-academy-trial" -> { BotRevisionChecks.academy(game); return; }
                                 case "bot-cages" -> { BotCageChecks.run(game); return; }

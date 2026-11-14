@@ -21,8 +21,10 @@ public abstract class ArenaBlockMixin {
         var arena=me.skywars2.game.LbcBedwarsArena.at((Object)this);
         if(arena!=null&&!arena.allowsType((Object)this,pos,state)){callback.setReturnValue(false);return;}
         if(arena!=null)arena.captureUnchanged((Object)this,pos,state);
-        if(game!=null && (Object)this instanceof net.minecraft.server.level.ServerLevel level)
+        if(game!=null && (Object)this instanceof net.minecraft.server.level.ServerLevel level){
+            me.skywars2.game.LbcBadApple.blockChanging(level,pos,state);
             game.items().indirectKills().beforeBlockChange(level,pos,state);
+        }
         // Даже запись одинакового state сообщает, что клетка принадлежит карте под временным лобби.
         if (game != null) game.maps().noteMapBlockWrite((Level)(Object)this, pos);
     }

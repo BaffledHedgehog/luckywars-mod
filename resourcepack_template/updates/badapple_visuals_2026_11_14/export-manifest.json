@@ -1,0 +1,11 @@
+{
+  "scope": "Requirement33 immediate sticky Bad Apple visuals; approved original10FPS media retained",
+  "assets": {
+    "assets/lbc/post_effect/badapple/black.json": "8e799b8d3451d0967c4cd55f1a730c925e85e942d0e3e7f7e98d187cf82cf8d0",
+    "assets/lbc/post_effect/badapple/white.json": "86ae34c5a98f5e43e6b20ad2cb7237a3d5d1348bce3d5794e1a570471f69467a",
+    "assets/lbc/shaders/post/badapple_monochrome.fsh": "f4fcea62e5acc4a1a35a77bd9cc4e292a7d47f5f8a11ec0d83556c4438914089"
+  },
+  "validation": "GPU_RESULTS.json",
+  "authorPackModified": false,
+  "serverLogicChangeRequired": true
+}

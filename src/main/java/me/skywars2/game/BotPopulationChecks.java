@@ -19,13 +19,47 @@ final class BotPopulationChecks {
         final List<Long> baseline=new ArrayList<>(),looting=new ArrayList<>(),combat=new ArrayList<>();
         final Map<UUID,Vec3> start=new LinkedHashMap<>();final Set<UUID> acted=new HashSet<>(),preexisting=new HashSet<>();
         final List<BlockPos> starters=new ArrayList<>();PlayerTeam team;int at,spawnedAt,minimumCombat=24;boolean released;
-        final boolean eruption,oldSkills,oldGriefing;final String oldCache;
+        final boolean eruption,movie,oldSkills,oldGriefing;final String oldCache;
         final List<Long> eruptionTicks=new ArrayList<>(),burstTicks=new ArrayList<>();final ArrayDeque<Long> recent=new ArrayDeque<>();
         int eruptionTrial,trialStarted,burstObserved=-1;long cachedAt;
-        Fixture(GameController game,boolean eruption){
-            super(game,new Vec3(.5,120,.5));this.eruption=eruption;oldSkills=game.config().lbcSkills;
+        Fixture(GameController game,boolean eruption,boolean movie){
+            super(game,new Vec3(.5,120,.5));this.eruption=eruption;this.movie=movie;oldSkills=game.config().lbcSkills;
             oldGriefing=base.level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING);
             oldCache=System.getProperty("skywars2.disableExplosionCache");
+        }
+        int movieStarted,completeFrame=-1;long movieCoalesced;
+        final List<Long> movieTicks=new ArrayList<>();final Set<Integer> movieFrames=new HashSet<>();
+        boolean movieStopping;
+        void startMovie(){
+            var center=BlockPos.containing(origin);
+            for(int x=-114>>4;x<=113>>4;x++)for(int z=-85>>4;z<=85>>4;z++){
+                long key=ChunkPos.pack(x,z);if(!base.level.getForceLoadedChunks().contains(key)){forced.add(key);base.level.setChunkForced(x,z,true);}base.level.getChunk(x,z);
+            }
+            require(game.items().badApple().start(actors.getFirst(),base.level,Vec3.ZERO,game.items().indirectKills().wildCause(actors.getFirst())),"real full-size movie begins after all footprint chunks are resident");
+            movieStarted=game.server().getTickCount();
+        }
+        boolean movieStep(int now,int live){
+            require(live==24,"all24 active bot bodies remain alive throughout the real full-media terrain benchmark");
+            var state=game.items().badApple().view();
+            if(movieStopping){
+                if(getMovieCurrent()!=null)return false;
+                SkyWars2.LOGGER.info("[check] badapple-24 metrics: fullServerTicks={} distinctCompletedFrames={} coalescedFrames={} nativeMedia=228x171 actualFps=10 liveBots=24 surfaceCacheNativeInvalidation=true",
+                        metrics(movieTicks),movieFrames.size(),movieCoalesced);
+                require(movieFrames.size()>=190&&movieCoalesced==0,"at least190 distinct full frames complete across the 20second window, without coalescing");
+                return true;
+            }
+            if(!state.soundStarted())return false;
+            if(state.logicalTicks()>4)movieTicks.add(previousTick());
+            if(state.appliedFrame()>=0&&state.appliedFrame()!=completeFrame){completeFrame=state.appliedFrame();movieFrames.add(completeFrame);}
+            movieCoalesced=state.coalesced();
+            require(state.desiredFrame()-state.appliedFrame()<=1,"each full native movie frame is applied within its two-tick display interval: desired="+state.desiredFrame()+" applied="+state.appliedFrame()+" cursor="+state.columnCursor());
+            if(state.logicalTicks()<400)return false;
+            require(movieTicks.size()>=390,"twenty actual seconds of full native completed-server-tick samples");
+            game.items().badApple().requestStop();movieStopping=true;return false;
+        }
+        Object getMovieCurrent(){
+            try{var field=LbcBadApple.class.getDeclaredField("current");field.setAccessible(true);return field.get(game.items().badApple());}
+            catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
         }
         void startEruption(){
             require(game.items().ultraponos().pendingBlastCount()==0&&game.items().ultraponos().emitterCount()==0,"exclusive actual trap queue");
@@ -123,10 +157,12 @@ final class BotPopulationChecks {
                 if(elapsed>100)looting.add(previousTick());
                 if(elapsed<400)return false;
                 require(acted.size()==24,"every one of the 24 scheduled bots actually moves, loots or attacks");
+                if(movie){released=true;startMovie();return false;}
                 if(eruption){released=true;startEruption();return false;}
                 for(var actor:actors)game.server().getScoreboard().removePlayerFromTeam(actor.getScoreboardName());released=true;
                 return false;
             }
+            if(movie)return movieStep(now,live);
             if(eruption)return eruptionStep(now,live);
             minimumCombat=Math.min(minimumCombat,live);combat.add(previousTick());
             if(elapsed<600)return false;
@@ -136,6 +172,7 @@ final class BotPopulationChecks {
             return true;
         }
         @Override public void close(){
+            if(movie)game.items().badApple().stop();
             if(eruption){
                 game.items().ultraponos().stop();game.config().lbcSkills=oldSkills;
                 base.level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,oldGriefing,game.server());
@@ -152,12 +189,13 @@ final class BotPopulationChecks {
         return Map.of("samples",sorted.length,"meanMs",Arrays.stream(sorted).average().orElseThrow()/1e6,
                 "p95Ms",sorted[(int)Math.floor((sorted.length-1)*.95)]/1e6,"p99Ms",sorted[(int)Math.floor((sorted.length-1)*.99)]/1e6,"maxMs",sorted[sorted.length-1]/1e6);
     }
-    static void run(GameController game){run(game,false);}
-    static void runUltraponos(GameController game){run(game,true);}
-    private static void run(GameController game,boolean eruption){require(running==null,"exclusive fixture");running=new Fixture(game,eruption);try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
+    static void run(GameController game){run(game,false,false);}
+    static void runUltraponos(GameController game){run(game,true,false);}
+    static void runBadApple(GameController game){run(game,false,true);}
+    private static void run(GameController game,boolean eruption,boolean movie){require(running==null,"exclusive fixture");running=new Fixture(game,eruption,movie);try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
     static void tick(GameController game){
         if(running==null)return;
-        String suite=running.eruption?"bot-ultraponos-24":"bot-population-24";
+        String suite=running.movie?"bot-badapple-24":running.eruption?"bot-ultraponos-24":"bot-population-24";
         try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS {} (actual24 bot bodies/full server ticks/scoped cleanup)",suite);}
         catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL "+suite,error);}
     }

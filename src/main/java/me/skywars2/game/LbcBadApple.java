@@ -26,7 +26,24 @@ import net.minecraft.world.phys.Vec3;
 public final class LbcBadApple {
     private static final String ACTOR="skywars2.badapple",DISPLAY="skywars2.badapple_display";
     private static final String SOUND="minecraft:lbcsounds.bad_apple";
-    private static final Identifier MOVIE=Identifier.parse("lbc:badapple/movie");
+    // Weak registration lets the same native block boundary invalidate canonical and scoped movie instances.
+    private static final Set<LbcBadApple> ACTIVE=Collections.newSetFromMap(new WeakHashMap<>());
+    public static void blockChanging(ServerLevel level,BlockPos pos,BlockState wanted){
+        if(ACTIVE.isEmpty())return;
+        for(var service:ACTIVE){
+            if(service.restoring)continue;
+            for(var movie:service.playbacks){
+                if(movie.closed||movie.level!=level)continue;
+                int x=pos.getX()-movie.minX,z=pos.getZ()-movie.minZ;
+                if(x<0||z<0||x>=service.media.width()||z>=service.media.height())continue;
+                int index=z*service.media.width()+x;if(movie.surfaceCounts[index]<0)continue;
+                var chunk=level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4);
+                if(chunk==null){movie.surfaceCounts[index]=-1;continue;}
+                var before=chunk.getBlockState(pos);
+                if(before.isAir()!=wanted.isAir()||before.isSolid()!=wanted.isSolid())movie.surfaceCounts[index]=-1;
+            }
+        }
+    }
     /** Admission and writes remain with the canonical mode/protection/terrain owners. */
     public interface Policy {
         boolean admittedLaunch(ServerPlayer author,ServerLevel level,Vec3 at);
@@ -48,9 +65,9 @@ public final class LbcBadApple {
     private int callbacks,lastTick=Integer.MIN_VALUE;
     private boolean restoring;
     private static final class Visual{
-        final ServerLevel level;int target,elapsed=10;boolean paused;Identifier control;
+        final ServerLevel level;int target;Identifier control;
         Visual(ServerLevel level){this.level=level;}
-        Visual(Visual source){level=source.level;target=source.target;elapsed=source.elapsed;paused=source.paused;}
+        Visual(Visual source){level=source.level;target=source.target;control=source.control;}
     }
 
     public LbcBadApple(GameController game,Policy policy){this.game=game;this.policy=Objects.requireNonNull(policy);media=LbcBadAppleMedia.instance();}
@@ -170,14 +187,14 @@ public final class LbcBadApple {
         callbacks++;try{
             Playback previous=current;
             if(previous!=null){previous.retiring=true;previous.finalFrame=false;}
-            stopSound();
-            var playback=new Playback(author,level,at,cause,previous);current=playback;playbacks.add(playback);
+            clearVisuals();stopSound();
+            var playback=new Playback(author,level,at,cause,previous);current=playback;playbacks.add(playback);ACTIVE.add(this);
             game.items().stonekivi().queuedWork(playback);return true;
         }finally{callbacks--;}
     }
-    public void requestStop(){callbacks++;try{if(current!=null){current.retiring=true;current.finalFrame=false;}stopSound();}finally{callbacks--;}}
+    public void requestStop(){callbacks++;try{if(current!=null){current.retiring=true;current.finalFrame=false;}clearVisuals();stopSound();}finally{callbacks--;}}
     /** Only epoch teardown/whole-coordinator detachment cancels accepted work. Ordinary stop drains. */
-    public void stop(){callbacks++;try{clearVisuals();for(var actor:List.copyOf(actors.values()))remove(actor,true);for(var p:List.copyOf(playbacks))p.cancel();playbacks.clear();current=null;lastTick=Integer.MIN_VALUE;restoring=false;stopSound();}finally{callbacks--;}}
+    public void stop(){callbacks++;try{clearVisuals();for(var actor:List.copyOf(actors.values()))remove(actor,true);for(var p:List.copyOf(playbacks))p.cancel();playbacks.clear();ACTIVE.remove(this);current=null;lastTick=Integer.MIN_VALUE;restoring=false;stopSound();}finally{callbacks--;}}
     private int visualTarget(ServerPlayer player){
         var p=current;
         if(p==null||!p.baselined||p.retiring||p.closed||!p.predecessorDone()||player.level()!=p.level||!player.onGround())return 0;
@@ -187,25 +204,25 @@ public final class LbcBadApple {
     }
     void tickVisuals(){
         var online=new HashSet<UUID>();
+        boolean running=current!=null&&!current.closed&&!current.retiring;
         for(var player:game.server().getPlayerList().getPlayers()){
             var id=player.getUUID();online.add(id);var visual=visuals.get(id);
-            if(!game.playing()||game.stage()==GameController.Stage.ENDING||!player.isAlive()||player.isRemoved()||game.isObserver(player)||!game.canUseGameplayItems(player)
-                    ||visual!=null&&visual.level!=player.level()){clearVisual(player);continue;}
-            int target=visualTarget(player);if(visual==null){if(target==0)continue;visual=new Visual(player.level());visuals.put(id,visual);}
-            boolean paused=game.items().timeStop().stopped(player.level())||game.items().timeStop().frozen(player);
-            if(!paused){if(visual.target!=target){visual.target=target;visual.elapsed=0;}else if(visual.elapsed<10)visual.elapsed++;}
-            visual.paused=paused;
-            if(visual.target==0&&visual.elapsed>=10){clearVisual(player);continue;}
+            if(!running||!game.playing()||game.stage()==GameController.Stage.ENDING||!player.isAlive()||player.isRemoved()
+                    ||game.isObserver(player)||!game.canUseGameplayItems(player)){clearVisual(player);continue;}
+            int target=visualTarget(player);
+            if(visual==null){if(target==0)continue;visual=new Visual(player.level());visuals.put(id,visual);}
+            // Contact changes color immediately; leaving concrete keeps the last color until the movie ends.
+            if(target!=0)visual.target=target;
             synchronizeVisual(player,visual);
         }
         visuals.keySet().retainAll(online);
     }
     private void synchronizeVisual(ServerPlayer player,Visual visual){
-        SignedEffectVisuals.movieNightVision(player,visual.target!=0);
-        var control=Identifier.parse("lbc:badapple/control_"+visual.target+(visual.paused?"_paused":""));
-        if(control.equals(visual.control)&&player.getPostEffects().contains(MOVIE))return;
-        for(var effect:List.copyOf(player.getPostEffects()))if(visualEffect(effect))player.removePostEffect(effect);
-        player.addPostEffect(control);player.addPostEffect(MOVIE);visual.control=control;
+        SignedEffectVisuals.movieNightVision(player,true);
+        var effect=Identifier.parse(visual.target==2?"lbc:badapple/black":"lbc:badapple/white");
+        if(effect.equals(visual.control)&&player.getPostEffects().contains(effect))return;
+        for(var old:List.copyOf(player.getPostEffects()))if(visualEffect(old))player.removePostEffect(old);
+        player.addPostEffect(effect);visual.control=effect;
     }
     private static boolean visualEffect(Identifier effect){return effect.getNamespace().equals("lbc")&&effect.getPath().startsWith("badapple/");}
     private void clearVisual(ServerPlayer player){
@@ -227,6 +244,9 @@ public final class LbcBadApple {
         ServerPlayer author;final ServerLevel level;final String epoch;final LbcIndirectKills.Owner cause;
         final int minX,minZ;final Playback predecessor;
         byte[] applied,desired;
+        // Derived geometry only. Native changes invalidate columns; replay rebuilds from restored world state.
+        final int[] surfaceYs=new int[media.pixelCount()*4];
+        final byte[] surfaceCounts=new byte[media.pixelCount()];
         final LinkedHashMap<Long,MapManager.BlockSnapshot> originals=new LinkedHashMap<>();
         final LinkedHashMap<Long,BlockState> painted=new LinkedHashMap<>();
         final ArrayList<Long> restoreOrder=new ArrayList<>();
@@ -239,7 +259,7 @@ public final class LbcBadApple {
             int x=BlockPos.containing(at).getX(),z=BlockPos.containing(at).getZ();
             if(x>=-192&&x<=192&&z>=-192&&z<=192){x=0;z=0;}
             minX=x-media.width()/2;minZ=z-media.height()/2;
-            applied=new byte[media.frameBytes()];desired=new byte[media.frameBytes()];
+            applied=new byte[media.frameBytes()];desired=new byte[media.frameBytes()];Arrays.fill(surfaceCounts,(byte)-1);
         }
         boolean predecessorDone(){return predecessor==null||predecessor.closed;}
         void baseline(){
@@ -266,9 +286,9 @@ public final class LbcBadApple {
                     if(desiredIndex<target)return false;
                     accepted=target;cursor=0;coalesced+=Math.max(0,target-appliedIndex-1);
                 }
-                long deadline=Math.min(EffectTerrain.deadlineNanos(),System.nanoTime()+350_000);
-                int visits=0,columns=0;
-                while(cursor<media.pixelCount()&&visits++<512&&columns<8){
+                long deadline=Math.min(EffectTerrain.deadlineNanos(),System.nanoTime()+12_000_000);
+                int visits=0;
+                while(cursor<media.pixelCount()&&visits++<media.pixelCount()){
                     if((visits&15)==0&&System.nanoTime()>=deadline)break;
                     int index=cursor;
                     boolean white=media.white(desired,index);
@@ -276,7 +296,8 @@ public final class LbcBadApple {
                     int x=minX+index%media.width(),z=minZ+index/media.width();
                     // Request native manager tickets, then yield without advancing accepted pixels.
                     if(level.getChunkSource().getChunkNow(x>>4,z>>4)==null){game.maps().prepareChunk(level,new ChunkPos(x>>4,z>>4));return false;}
-                    paint(x,z,white);set(applied,index,white);cursor++;columns++;
+                    paint(x,z,white);set(applied,index,white);cursor++;
+                    if(game.items().timeStop().stopped(level))break;
                 }
                 if(cursor==media.pixelCount()){
                     appliedIndex=accepted;accepted=-1;cursor=0;
@@ -286,19 +307,22 @@ public final class LbcBadApple {
             }finally{game.items().stonekivi().endNativeWork();callbacks--;}
         }
         private void paint(int x,int z,boolean white){
-            int top=level.getHeight(Heightmap.Types.WORLD_SURFACE,x,z)-1;
-            if(top<level.getMinY())return;
-            var state=Blocks.CONCRETE.pick(white?net.minecraft.world.item.DyeColor.WHITE:net.minecraft.world.item.DyeColor.BLACK).defaultBlockState();
-            // No cached height/floors: every admitted changed column observes canonical terrain writes.
-            // At most 64 lower cells and four surfaces are touched within this atomic column quantum.
-            write(new BlockPos(x,top,z),state);
-            int found=0,min=Math.max(level.getMinY(),top-64);
-            boolean aboveSolid=level.getBlockState(new BlockPos(x,top-1,z)).isSolid();
-            for(int y=top-2;y>=min&&found<3;y--){
-                var pos=new BlockPos(x,y,z);boolean solid=level.getBlockState(pos).isSolid();
-                if(solid&&!aboveSolid){write(pos,state);found++;}
-                aboveSolid=solid;
+            int index=(z-minZ)*media.width()+x-minX,count=surfaceCounts[index],offset=index*4;
+            if(count<0){
+                count=0;int top=level.getHeight(Heightmap.Types.WORLD_SURFACE,x,z)-1;
+                if(top>=level.getMinY()){
+                    surfaceYs[offset+count++]=top;
+                    var chunk=level.getChunkSource().getChunkNow(x>>4,z>>4);var probe=new BlockPos.MutableBlockPos();
+                    int min=Math.max(level.getMinY(),top-64);probe.set(x,top-1,z);boolean aboveSolid=chunk.getBlockState(probe).isSolid();
+                    for(int y=top-2;y>=min&&count<4;y--){
+                        probe.set(x,y,z);boolean solid=chunk.getBlockState(probe).isSolid();
+                        if(solid&&!aboveSolid)surfaceYs[offset+count++]=y;aboveSolid=solid;
+                    }
+                }
+                surfaceCounts[index]=(byte)count;
             }
+            var state=Blocks.CONCRETE.pick(white?net.minecraft.world.item.DyeColor.WHITE:net.minecraft.world.item.DyeColor.BLACK).defaultBlockState();
+            for(int n=0;n<count;n++)write(new BlockPos(x,surfaceYs[offset+n],z),state);
         }
         private void write(BlockPos pos,BlockState state){
             if(!policy.admittedCell(author,level,pos)||level.getBlockState(pos).equals(state))return;
@@ -308,8 +332,8 @@ public final class LbcBadApple {
             painted.put(key,state);writes++;
         }
         private boolean restore(){
-            long deadline=Math.min(EffectTerrain.deadlineNanos(),System.nanoTime()+350_000);int visits=0;
-            while(restoreCursor<restoreOrder.size()&&visits++<32){
+            long deadline=Math.min(EffectTerrain.deadlineNanos(),System.nanoTime()+2_000_000);int visits=0;
+            while(restoreCursor<restoreOrder.size()&&visits++<1024){
                 if((visits&7)==0&&System.nanoTime()>=deadline)return false;
                 long key=restoreOrder.get(restoreCursor);var pos=BlockPos.of(key);
                 if(level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null){game.maps().prepareChunk(level,new ChunkPos(pos.getX()>>4,pos.getZ()>>4));return false;}
@@ -319,8 +343,8 @@ public final class LbcBadApple {
             if(restoreCursor<restoreOrder.size())return false;
             finish();return true;
         }
-        private void finish(){closed=true;originals.clear();painted.clear();restoreOrder.clear();playbacks.remove(this);if(current==this){current=null;stopSound();}}
-        public void cancel(){closed=true;playbacks.remove(this);if(current==this)current=null;}
+        private void finish(){closed=true;originals.clear();painted.clear();restoreOrder.clear();playbacks.remove(this);if(playbacks.isEmpty())ACTIVE.remove(LbcBadApple.this);if(current==this){clearVisuals();current=null;stopSound();}}
+        public void cancel(){closed=true;playbacks.remove(this);if(playbacks.isEmpty())ACTIVE.remove(LbcBadApple.this);if(current==this)current=null;}
         public MatchQueuedWorkCheckpoint.Image checkpoint(MatchQueuedWorkCheckpoint.Graph graph){
             checkpointBoundary();var owner=graph.links.key(author);
             byte[] savedApplied=applied.clone(),savedDesired=desired.clone();
@@ -332,16 +356,16 @@ public final class LbcBadApple {
             return links->{checkpointBoundary();MatchAuthorityCheckpoint.world(game,level);var rebound=(ServerPlayer)links.get(owner);
                 return ()->{author=rebound;applied=savedApplied.clone();desired=savedDesired.clone();logical=savedLogical;nextDesired=savedNext;desiredIndex=savedDesiredIndex;
                     accepted=savedAccepted;cursor=savedCursor;appliedIndex=savedAppliedIndex;baselined=savedBaseline;soundStarted=savedSound;retiring=savedRetiring;finalFrame=savedFinal;closed=savedClosed;writes=savedWrites;coalesced=savedCoalesced;
-                    originals.clear();savedOriginals.forEach((key,value)->originals.put(key,copy(value)));painted.clear();painted.putAll(savedPainted);restoreOrder.clear();restoreOrder.addAll(savedOrder);restoreCursor=savedRestore;};};
+                    originals.clear();savedOriginals.forEach((key,value)->originals.put(key,copy(value)));painted.clear();painted.putAll(savedPainted);restoreOrder.clear();restoreOrder.addAll(savedOrder);restoreCursor=savedRestore;Arrays.fill(surfaceCounts,(byte)-1);};};
         }
     }
     private static MapManager.BlockSnapshot copy(MapManager.BlockSnapshot snapshot){return new MapManager.BlockSnapshot(snapshot.state(),snapshot.entity()==null?null:snapshot.entity().copy());}
     private static void set(byte[] bits,int index,boolean value){int mask=1<<(index&7);if(value)bits[index>>>3]|=(byte)mask;else bits[index>>>3]&=(byte)~mask;}
 
     void checkpointBoundary(){if(callbacks!=0)throw new IllegalStateException("Finish Bad Apple native quantum before capture/replay");}
-    void prepareFrozen(){checkpointBoundary();restoring=true;clearVisuals();stopSound();actors=new LinkedHashMap<>();playbacks=new LinkedHashSet<>();current=null;}
+    void prepareFrozen(){checkpointBoundary();restoring=true;clearVisuals();stopSound();actors=new LinkedHashMap<>();playbacks=new LinkedHashSet<>();ACTIVE.remove(this);current=null;}
     void publishFrozen(){
-        checkpointBoundary();boolean publish=restoring;restoring=false;lastTick=game.server().getTickCount();
+        checkpointBoundary();boolean publish=restoring;restoring=false;if(!playbacks.isEmpty())ACTIVE.add(this);lastTick=game.server().getTickCount();
         // Vanilla has no seek packet. A restored active track starts at zero once; the saved movie
         // clock/cursor stays exact. Capturing alone never stops or replays presentation.
         if(publish&&current!=null&&!current.closed&&!current.retiring&&current.soundStarted)playSound();
