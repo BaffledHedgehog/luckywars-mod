@@ -844,6 +844,8 @@ public final class GameChecks {
                                 case "carpet-bot-ai" -> { CarpetBotChecks.run(game); return; }
                                 case "bot-revision" -> { BotRevisionChecks.run(game); return; }
                                 case "bot-combat-feedback" -> { BotCombatFeedbackChecks.run(game); return; }
+                                case "bot-full-inventory" -> { BotMovementFeedbackChecks.run(game,false); return; }
+                                case "bot-edge-feedback" -> { BotMovementFeedbackChecks.run(game,true); return; }
                                 case "bot-population-24" -> { BotPopulationChecks.run(game); return; }
                                 case "bot-startup-prepare" -> { MatchStartup24Checks.prepare(game); return; }
                                 case "bot-startup-24" -> { MatchStartup24Checks.run(game); return; }
@@ -1795,6 +1797,7 @@ public final class GameChecks {
             CarpetBotChecks.tick(game);
             BotRevisionChecks.tick(game);
             BotCombatFeedbackChecks.tick(game);
+        BotMovementFeedbackChecks.tick(game);
             BotPopulationChecks.tick(game);
             MatchStartup24Checks.tick(game);
             NuclearQueuedChecks.tick(game);

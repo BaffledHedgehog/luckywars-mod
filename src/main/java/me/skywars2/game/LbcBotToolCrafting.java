@@ -154,7 +154,10 @@ final class LbcBotToolCrafting {
             ready=true;preparing=false;return false;
         }
         if(player.containerMenu!=player.inventoryMenu&&!(preparing&&player.containerMenu instanceof CraftingMenu))return false;
-        if(player.isUsingItem()||!player.containerMenu.getCarried().isEmpty()||player.getInventory().getFreeSlot()<0)return false;
+        if(player.isUsingItem()||!player.containerMenu.getCarried().isEmpty())return false;
+        // No free output slot is a temporary crafting constraint, not a movement lock.
+        // The regular five-tick admission retries when inventory capacity returns.
+        if(player.getInventory().getFreeSlot()<0){ready=true;preparing=false;return false;}
         String desired=stone?"stone_pickaxe":"wooden_pickaxe";
         var target=recipe(desired);
         if(count(Items.STICK)<2){

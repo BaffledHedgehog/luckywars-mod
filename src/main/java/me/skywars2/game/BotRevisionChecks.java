@@ -21,6 +21,7 @@ final class BotRevisionChecks {
         final List<BlockPos> starters=new ArrayList<>();
         final Set<UUID> preexisting=new HashSet<>();
         int phase,at,lastInventory,lastSignature,startedUse=-1,minimumCharge;
+        final Set<UUID> reflectionMisses=new HashSet<>();int reflectionAmmo;float reflectionHealth;
         float targetHealth,botHealth;boolean sawCharge,sawShot,checkpointCraft;int hits;net.minecraft.world.entity.Interaction teacher;
         net.minecraft.world.phys.Vec3 drawStart;net.minecraft.world.entity.projectile.arrow.Arrow defended;
         net.minecraft.world.entity.monster.zombie.Husk meleeMob;
@@ -47,8 +48,18 @@ final class BotRevisionChecks {
             defended.setPos(bot.getEyePosition().add(12,0,0));defended.setDeltaMovement(-.45,0,0);defended.setNoGravity(true);defended.setBaseDamage(8);
             require(base.level.addFreshEntity(defended),"real incoming damaging arrow");base.owned.add(defended.getUUID());botHealth=bot.getHealth();next(11);
         }
+        void clearRangedCorridor(){
+            // The positive charge/collision scene is independent of workstations left by starter crafting.
+            var center=BlockPos.containing(origin);
+            for(int x=1;x<=15;x++)for(int z=-1;z<=1;z++)for(int y=0;y<=3;y++){
+                var pos=center.offset(x,y,z);var value=base.level.getBlockState(pos);if(value.isAir())continue;
+                SkyWars2.LOGGER.info("[check] Prior fixture block in positive ranged corridor pos={} state={}",pos,value);
+                if(base.level.getBlockEntity(pos) instanceof net.minecraft.world.Container container)container.clearContent();
+                base.set(pos,Blocks.AIR.defaultBlockState());
+            }
+        }
         void ranged(boolean quick){
-            isolated();var bow=new ItemStack(Items.CROSSBOW);
+            isolated();clearRangedCorridor();var bow=new ItemStack(Items.CROSSBOW);
             if(quick)bow.enchant(game.server().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE),3);
             bot.getInventory().setItem(0,bow);bot.getInventory().setItem(1,new ItemStack(Items.ARROW));
             base.move(base.other,origin.add(13,0,0));base.other.setHealth(base.other.getMaxHealth());base.other.setInvulnerableTime(0);base.other.damageCooldownTime=0;
@@ -102,6 +113,10 @@ final class BotRevisionChecks {
                 }
                 case 2,3->{
                     require(now-at<140,"native crossbow fires instead of cycling incomplete charges phase "+phase);
+                    if((now-at)%20==0)SkyWars2.LOGGER.info("[check] Native crossbow frame={} phase={} ammo={} targetHealth={} targetAbsorption={} targetDamage={} arrows={}",now-at,phase,
+                            bot.getInventory().countItem(Items.ARROW),base.other.getHealth(),base.other.getAbsorptionAmount(),base.other.getLastDamageSource(),
+                            base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(24),arrow->arrow.getOwner()==bot).stream()
+                                    .map(arrow->arrow.position()+"/ground="+((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()+"/block="+WoolBucketChecks.read(arrow,"lastState")).toList());
                     if(bot.isUsingItem()&&startedUse<0)startedUse=now;
                     if(CrossbowItem.isCharged(bot.getMainHandItem())){sawCharge=true;require(bot.getInventory().countItem(Items.ARROW)==0,"last ammunition really loads into crossbow");}
                     for(var arrow:base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(20),e->e.getOwner()==bot)){sawShot=true;base.owned.add(arrow.getUUID());}
@@ -137,7 +152,7 @@ final class BotRevisionChecks {
                 case 15->{
                     require(now-at<180,"native melee resumes after actual thorns gear is removed");
                     if(game.carpetBots().observation(bot).hits()==hits)return false;
-                    isolated();bot.getInventory().setItem(0,new ItemStack(Items.BOW));bot.getInventory().setItem(1,new ItemStack(Items.ARROW,4));
+                    isolated();clearRangedCorridor();bot.getInventory().setItem(0,new ItemStack(Items.BOW));bot.getInventory().setItem(1,new ItemStack(Items.ARROW,4));
                     base.move(base.other,origin.add(12,0,0));
                     var plate=new ItemStack(Items.DIAMOND_CHESTPLATE);plate.enchant(game.server().registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.THORNS),10);
                     base.other.setItemSlot(EquipmentSlot.CHEST,plate);next(16);
@@ -148,13 +163,24 @@ final class BotRevisionChecks {
                             bot.getInventory().countItem(Items.ARROW),game.carpetBots().observation(bot),bot.getHealth(),bot.getLastDamageSource(),
                             base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(32)).stream()
                                     .map(arrow->arrow.position()+"/"+arrow.getDeltaMovement()+"/owner="+(arrow.getOwner()==bot)).toList(),game.carpetBots().diagnostics(bot));
+                    for(var arrow:base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(32),e->e.getOwner()==bot)){
+                        if(((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround()&&reflectionMisses.add(arrow.getUUID()))
+                            SkyWars2.LOGGER.info("[check] Native grounded miss before thorns learning pos={} block={}",arrow.position(),WoolBucketChecks.read(arrow,"lastState"));
+                    }
                     var state=state();if(state==null||!((LbcBotDefense)WoolBucketChecks.read(state,"defense")).thorns(base.other))return false;
-                    require(game.carpetBots().observation(bot).hits()==0&&bot.getInventory().countItem(Items.ARROW)==3,
-                            "one actual arrow shot, no melee observation, learns reflected damage: "+game.carpetBots().observation(bot)+" ammo="+bot.getInventory().countItem(Items.ARROW));next(17);
+                    var damage=bot.getLastDamageSource();
+                    require(damage!=null&&damage.is(net.minecraft.world.damagesource.DamageTypes.THORNS)&&damage.getEntity()==base.other,"the actual ranged hit returns native thorns damage from the target");
+                    reflectionAmmo=bot.getInventory().countItem(Items.ARROW);reflectionHealth=bot.getHealth()+bot.getAbsorptionAmount();
+                    require(game.carpetBots().observation(bot).hits()==0&&4-reflectionAmmo==reflectionMisses.size()+1,
+                            "exact native ammunition debt: one actual reflected hit plus explicitly grounded misses, no melee observation; misses="+reflectionMisses.size()+" ammo="+reflectionAmmo);next(17);
                 }
                 case 17->{
-                    require(bot.getInventory().countItem(Items.ARROW)==3,"remembered ranged reflection prevents repeated self-damaging shots");
+                    require(bot.getInventory().countItem(Items.ARROW)==reflectionAmmo,"remembered ranged reflection prevents any further shots");
+                    require(bot.getHealth()+bot.getAbsorptionAmount()>=reflectionHealth,"learning the reflected hit prevents further self-inflicted health loss");
                     if(now-at<60)return false;
+                    // The next recipe scene owns an empty output slot. Retire only the
+                    // proved native misses after the complete reflection-observation window.
+                    for(var arrow:base.level.getEntitiesOfClass(AbstractArrow.class,bot.getBoundingBox().inflate(32),e->reflectionMisses.contains(e.getUUID())))base.discard(arrow);
                     base.other.setItemSlot(EquipmentSlot.CHEST,ItemStack.EMPTY);
                     base.move(base.other,origin.add(84,8,0));isolated();
                     for(int slot=0;slot<35;slot++)if(slot!=34)bot.getInventory().setItem(slot,new ItemStack(Items.DIRT));

@@ -80,7 +80,10 @@ final class LbcBotDefense {
             for(double length:new double[]{2.5,1.25,.65})for(int turn=0;turn<8;turn++){
                 var vector=direction.yRot((float)(turn*Math.PI/4));var candidate=player.position().add(vector.scale(length));
                 if(!survival.safeStep(candidate))continue;
-                double score=vector.dot(direction)*length+survival.brain.retreatMargin(candidate)*.85+length*.15;
+                // During a short melee cooldown, gain room for real knockback before
+                // maximizing separation. Urgent long escapes retain their distance priority.
+                double marginWeight=watchThreat?3:.85;
+                double score=vector.dot(direction)*length+survival.brain.retreatMargin(candidate)*marginWeight+length*.15;
                 if(score>best){best=score;point=candidate;}
             }
             if(point==null)return false;

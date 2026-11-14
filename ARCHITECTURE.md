@@ -1,3 +1,9 @@
+## Bot progress with full inventories and melee edge safety
+
+`LbcBotToolCrafting` treats a full inventory as a temporary lack of output capacity, allowing movement and combat to continue. The ordinary five-tick crafting admission retries when space becomes available; items are neither deleted nor created to unblock the bot. `LbcBotDefense` gives supported inland footing more weight during short melee cooldown retreats. Urgent long escapes retain their existing distance priority, and movement still uses the bounded camera and native input/physics path.
+
+`BotMovementFeedbackChecks` exercises seven real Carpet players with full inventories and a separate melee retreat beside a void edge, followed by an actual player attack packet and native knockback. The original behavior is retained as a failed baseline on the unchanged installed191 runtime; the fix is validated alongside combat, route and actual-island checks. ML feasibility and possible offline experiments are documented separately from the scripted behavior; no training process or untrained policy is part of the server.
+
 ## Conservative air bounds in the shared explosion collector
 
 `LbcExasperato` derives an occupied vertical envelope from resident chunk sections for blasts of power 8–64, scanning at most 256 horizontal chunks. `BlastRayTrace` stops an outward ray once it has passed every occupied section. The remaining ray arithmetic, energy loss and random draws stay unchanged. Unknown chunks fall back to the full-height trace unless that blast already uses the existing resident-only policy. Damage, knockback, loot and terrain application retain their original owners.
