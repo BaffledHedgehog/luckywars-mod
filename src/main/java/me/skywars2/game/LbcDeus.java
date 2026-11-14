@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 /** Scoreboard sustained cast with deterministic, distance-based curves between successive targets. */
 public final class LbcDeus {
     private static final String CLOCK="deus_cd";
-    private static final double REACH=28, STEP=.2, PULL=.4;
+    private static final double REACH=28, STEP=.2, PULL=.4, TURN_PER_BLOCK=Math.toRadians(20)/.5;
     private final GameController game;
     // Diagnostics only: never consulted by cast, target selection, clocks or replay.
     private record Frame(List<Vec3> path,List<UUID> hits,Map<UUID,Vec3> tangents,List<UUID> accepted) {}
@@ -84,7 +84,7 @@ public final class LbcDeus {
         return selected;
     }
     private void whip(ServerPlayer owner,boolean pulse,int age){
-        Vec3 origin=owner.getEyePosition();
+        Vec3 origin=LbcLaserMinigun.muzzle(owner);
         // One broadphase per attempt. Neither curve samples nor target chaining query entities.
         var bodies=owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(origin,origin).inflate(REACH+1),
                 target->eligible(owner,target));
@@ -107,16 +107,17 @@ public final class LbcDeus {
         Curve curve=curve(point,direction,target==null?point.add(direction.scale(REACH)):target.getBoundingBox().getCenter());
         double progress=0;
         // Both geometry and particles have a fixed per-caster upper bound; no per-tick randomness.
-        try(var deusVisual=new LbcParticleBatch.Group(owner.level(),ParticleTypes.ELECTRIC_SPARK,0,0,false)){
-for(int sample=0;sample<160&&spent<REACH-1e-8;sample++){
+        for(int sample=0;sample<160&&spent<REACH-1e-8;sample++){
             double nextProgress=Math.min(1,progress+STEP/Math.max(STEP,curve.tangent(progress).length()));
             Vec3 next=curve.at(nextProgress);
             for(int refine=0;refine<8&&point.distanceToSqr(next)>STEP*STEP;refine++){
                 nextProgress=progress+(nextProgress-progress)*Math.min(.99,STEP/point.distanceTo(next)*.99);next=curve.at(nextProgress);
             }
-            double remaining=REACH-spent,length=point.distanceTo(next);
-            if(length>remaining)next=point.lerp(next,remaining/length);
-            Vec3 tangent=next.subtract(point).normalize();
+            double length=Math.min(STEP,Math.min(REACH-spent,point.distanceTo(next)));
+            if(length<1e-10)break;
+            // The spline is the guide; difficult short links cannot introduce a sharp corner.
+            Vec3 tangent=ProjectileSteering.turn(direction,next.subtract(point),TURN_PER_BLOCK*length).normalize();
+            next=point.add(tangent.scale(length));
             double limit=game.items().magic().mechanismSuppressionFraction(owner.level(),point,next);
             for(var center:artifacts)limit=Math.min(limit,sphereEntry(point,next,center));
             boolean jammed=limit<=1;
@@ -133,10 +134,13 @@ for(int sample=0;sample<160&&spent<REACH-1e-8;sample++){
                     contactBody=body;contact=intersection;first=distance;
                 }
             }
-            if(contact!=null){next=contact;hits.add(contactBody.getUUID());tangents.put(contactBody.getUUID(),tangent);}
+            if(contact!=null){next=contact;if(point.distanceToSqr(next)<1e-16)tangent=direction;hits.add(contactBody.getUUID());tangents.put(contactBody.getUUID(),tangent);}
             spent+=point.distanceTo(next);path.add(next);
             if(sample%3==0||contact!=null||jammed){
-                deusVisual.add(next);lastVisual=next;
+                // Gaussian batching necessarily spreads positions away from the spline.
+                // This bounded visual uses exact native points with zero position/speed offsets.
+                if(lastVisual==null)owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,origin.x,origin.y,origin.z,1,0,0,0,0);
+                owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,next.x,next.y,next.z,1,0,0,0,0);lastVisual=next;
             }
             point=next;progress=nextProgress;direction=tangent;
             if(contact!=null){
@@ -149,24 +153,57 @@ for(int sample=0;sample<160&&spent<REACH-1e-8;sample++){
                 target=nearest(bodies,hits,point,REACH-spent);
                 if(target==null)break;
                 curve=curve(point,direction,target.getBoundingBox().getCenter());progress=0;
-            }else if(progress>=1||jammed)break;
+            }else if(jammed||progress>=1&&point.distanceToSqr(curve.d)<1e-12)break;
         }
-}
         if(path.size()>1&&!point.equals(lastVisual))
             owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,0,0,0,0);
         frames.put(owner.getUUID(),new Frame(List.copyOf(path),List.copyOf(hits),Map.copyOf(tangents),List.copyOf(accepted)));
     }
-    /** Fixed control points depend only on endpoints and incoming tangent, never tick age or RNG. */
-    private record Curve(Vec3 a,Vec3 b,Vec3 c,Vec3 d){
-        Vec3 tangent(double t){double u=1-t;return b.subtract(a).scale(3*u*u).add(c.subtract(b).scale(6*u*t)).add(d.subtract(c).scale(3*t*t));}
-        Vec3 at(double t){double u=1-t;return a.scale(u*u*u).add(b.scale(3*u*u*t)).add(c.scale(3*u*t*t)).add(d.scale(t*t*t));}
+    /** A piecewise cubic spline with a smooth quartic bow on almost-straight links. */
+    private record Cubic(Vec3 a,Vec3 b,Vec3 c,Vec3 d,Vec3 bow){
+        Vec3 tangent(double t){double u=1-t;return b.subtract(a).scale(3*u*u).add(c.subtract(b).scale(6*u*t)).add(d.subtract(c).scale(3*t*t)).add(bow.scale(32*t*u*(1-2*t)));}
+        Vec3 at(double t){double u=1-t;return a.scale(u*u*u).add(b.scale(3*u*u*t)).add(c.scale(3*u*t*t)).add(d.scale(t*t*t)).add(bow.scale(16*t*t*u*u));}
+    }
+    private record Curve(List<Cubic> parts,Vec3 d){
+        Vec3 at(double t){double value=Math.clamp(t,0,1)*parts.size();int index=Math.min(parts.size()-1,(int)value);return parts.get(index).at(value-index);}
+        Vec3 tangent(double t){double value=Math.clamp(t,0,1)*parts.size();int index=Math.min(parts.size()-1,(int)value);return parts.get(index).tangent(value-index).scale(parts.size());}
     }
     private static Curve curve(Vec3 start,Vec3 incoming,Vec3 end){
         Vec3 delta=end.subtract(start);double distance=delta.length();Vec3 forward=distance<1e-8?incoming:delta.scale(1/distance);
-        Vec3 side=forward.cross(Math.abs(forward.y)<.9?new Vec3(0,1,0):new Vec3(1,0,0)).normalize();
-        Vec3 up=side.cross(forward).normalize();double bend=Math.min(3,distance*.18);
-        return new Curve(start,start.add(incoming.scale(distance*.3)).add(side.scale(bend)),
-                end.subtract(forward.scale(distance*.3)).add(up.scale(bend*.5)),end);
+        if(incoming.dot(forward)>=Math.cos(Math.toRadians(15))){
+            var side=forward.cross(Math.abs(forward.y)<.9?new Vec3(0,1,0):new Vec3(1,0,0)).normalize();
+            double bend=Math.min(5,distance*distance*TURN_PER_BLOCK/64);
+            return new Curve(List.of(new Cubic(start,start.add(incoming.scale(distance/3)),end.subtract(forward.scale(distance/3)),end,side.scale(bend))),end);
+        }
+        // A point inside the current turning circle cannot be reached by repeatedly steering at it.
+        // Pick the shorter legal circle-to-tangent route, then represent its arcs as C1 cubic pieces.
+        var lateral=delta.subtract(incoming.scale(delta.dot(incoming)));
+        if(lateral.lengthSqr()<1e-16)lateral=incoming.cross(Math.abs(incoming.y)<.9?new Vec3(0,1,0):new Vec3(1,0,0));
+        lateral=lateral.normalize();double radius=Math.max(1.6,Math.min(4,distance*.2));
+        Vec3 selectedSide=null;double selectedAngle=0,best=Double.POSITIVE_INFINITY;
+        for(int sign:new int[]{-1,1}){
+            var side=lateral.scale(sign);var relative=end.subtract(start.add(side.scale(radius)));double length=relative.length();if(length<radius-1e-9)continue;
+            double phase=Math.atan2(relative.dot(incoming),-relative.dot(side)),offset=Math.acos(Math.clamp(radius/length,-1,1));
+            for(int branch:new int[]{-1,1}){
+                double angle=(phase+branch*offset)%(Math.PI*2);if(angle<0)angle+=Math.PI*2;
+                var join=start.add(incoming.scale(radius*Math.sin(angle))).add(side.scale(radius*(1-Math.cos(angle))));
+                var tangent=incoming.scale(Math.cos(angle)).add(side.scale(Math.sin(angle)));var remaining=end.subtract(join);
+                if(remaining.dot(tangent)<-1e-8)continue;double cost=radius*angle+remaining.length();
+                if(cost<best){best=cost;selectedSide=side;selectedAngle=angle;}
+            }
+        }
+        if(selectedSide==null)return new Curve(List.of(new Cubic(start,start.add(incoming.scale(distance/3)),end.subtract(forward.scale(distance/3)),end,Vec3.ZERO)),end);
+        var parts=new ArrayList<Cubic>();int segments=Math.max(1,(int)Math.ceil(selectedAngle/(Math.PI/2)));var point=start;
+        for(int i=0;i<segments;i++){
+            double from=selectedAngle*i/segments,to=selectedAngle*(i+1)/segments;
+            var finish=start.add(incoming.scale(radius*Math.sin(to))).add(selectedSide.scale(radius*(1-Math.cos(to))));
+            var first=incoming.scale(Math.cos(from)).add(selectedSide.scale(Math.sin(from)));var last=incoming.scale(Math.cos(to)).add(selectedSide.scale(Math.sin(to)));
+            double handle=4d/3*radius*Math.tan((to-from)/4);
+            if(finish.distanceToSqr(point)>1e-16)parts.add(new Cubic(point,point.add(first.scale(handle)),finish.subtract(last.scale(handle)),finish,Vec3.ZERO));point=finish;
+        }
+        if(point.distanceToSqr(end)>1e-16){var third=end.subtract(point).scale(1d/3);parts.add(new Cubic(point,point.add(third),end.subtract(third),end,Vec3.ZERO));}
+        if(parts.isEmpty())parts.add(new Cubic(start,start,end,end,Vec3.ZERO));
+        return new Curve(List.copyOf(parts),end);
     }
     private void pull(ServerPlayer owner,LivingEntity target,Vec3 incoming){
         if(!target.isAlive()||LbcGreed.active(target)||game.items().timeStop().frozen(target))return;
