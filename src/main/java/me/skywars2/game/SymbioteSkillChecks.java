@@ -39,8 +39,8 @@ public final class SymbioteSkillChecks {
         });
     }
     public static void run(GameController game){
-        try(var f=new Fixture(game)){f.prepare();f.shares();f.nativeFeedback();f.indirectSource();f.index();f.clones();f.timeStop();f.acquisitionAndPause();f.bypass();}
-        SkyWars2.LOGGER.info("[check] PASS symbiote-skills (actual native damage and raw bridge; exact fractional equal shares, terminal protection, fallback, direct mob hits, source-score distant membership, source changes/removal, cross-dimension exclusion, native reactions, paused acquisition and unjammed MAG/TECH; no reverse transfer)");
+        try(var f=new Fixture(game)){f.prepare();f.shares();f.reverse();f.nativeFeedback();f.indirectSource();f.index();f.clones();f.timeStop();f.acquisitionAndPause();f.bypass();}
+        SkyWars2.LOGGER.info("[check] PASS symbiote-skills (actual native damage and raw bridge; exact fractional equal shares, terminal protection, fallback, reverse direct/self/raw subordinate hits, dead-owner and disabled-skill controls, source-score distant membership, source changes/removal, cross-dimension exclusion, native reactions, paused acquisition and unjammed MAG/TECH)");
     }
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ServerPlayer owner,other;
@@ -93,11 +93,25 @@ public final class SymbioteSkillChecks {
             require(a.hurtTime>0&&b.hurtTime>0,"pets use native hurt presentation");
             hitOwner(.5f);near(a.getHealth(),8.25f,"no minimum1");near(b.getHealth(),8.25f,"fractional equal shares");
             ready(a);require(a.hurtServer(owner.level(),a.damageSources().playerAttack(other),2),"direct pet hit accepted");
-            near(a.getHealth(),6.25f,"direct pet hit ordinary HP");near(b.getHealth(),8.25f,"direct hit not redistributed");near(owner.getHealth(),hp,"no reverse owner transfer");
-            require(BlackHoleDamage.apply(game,owner,hit(),1),"actual raw bridge admitted");near(a.getHealth(),5.75f,"raw bridge half1");near(b.getHealth(),7.75f,"raw bridge half2");
+            near(a.getHealth(),8.25f,"direct pet hit leaves subordinate HP intact");near(b.getHealth(),8.25f,"direct hit not redistributed");near(owner.getHealth(),hp-2,"direct pet hit transfers accepted debit to owner");
+            require(BlackHoleDamage.apply(game,owner,hit(),1),"actual raw bridge admitted");near(a.getHealth(),7.75f,"raw bridge half1");near(b.getHealth(),7.75f,"raw bridge half2");
             clearMobs();var last=cow(at.add(5,0,0));bind(last);last.setHealth(.25f);hitOwner(20);
-            require(last.isDeadOrDying(),"real pet death");near(owner.getHealth(),hp,"terminal share still protects entire hit");
-            clearMobs();owner.setAbsorptionAmount(0);hitOwner(3);near(owner.getHealth(),hp-3,"no pets fallback");
+            require(last.isDeadOrDying(),"real pet death");near(owner.getHealth(),hp-2,"terminal share still protects entire hit");
+            clearMobs();owner.setAbsorptionAmount(0);hitOwner(3);near(owner.getHealth(),hp-5,"no pets fallback");
+        }
+        void reverse(){
+            var pet=cow(at.add(5,0,0));var sibling=cow(at.add(-5,0,0));bind(pet);bind(sibling);float hp=owner.getHealth();
+            ready(pet);require(pet.hurtServer(owner.level(),hit(),2),"actual direct subordinate hit");
+            near(pet.getHealth(),10,"native subordinate damage redirected before HP debit");near(sibling.getHealth(),10,"reverse hit does not bounce into another pet");near(owner.getHealth(),hp-2,"owner pays entire accepted subordinate hit once");
+            require(owner.getLastDamageSource()!=null&&owner.getLastDamageSource().getEntity()==other,"reverse transfer retains actual attacker credit");
+            ready(pet);require(pet.hurtServer(owner.level(),pet.damageSources().playerAttack(owner),3),"owner can actually strike own subordinate");
+            near(pet.getHealth(),10,"own attack cannot kill protected subordinate");near(owner.getHealth(),hp-5,"own attack still costs owner real HP");
+            require(BlackHoleDamage.apply(game,pet,hit(),1.5f),"actual raw-HP subordinate damage admitted");near(pet.getHealth(),10,"raw bridge also protects subordinate");near(owner.getHealth(),hp-6.5f,"raw bridge inverse transfer paid once");
+            float remaining=owner.getHealth();owner.setHealth(0);
+            try{ready(pet);require(pet.hurtServer(owner.level(),hit(),2),"native hit with dead owner admitted");near(pet.getHealth(),8,"dead owner cannot protect subordinate");}finally{owner.setHealth(remaining);}
+            game.players().get(owner.getUUID()).lbcSkill=0;
+            try{ready(pet);require(pet.hurtServer(owner.level(),hit(),1),"native hit after skill removal admitted");near(pet.getHealth(),7,"disabled skill restores ordinary subordinate damage");near(owner.getHealth(),remaining,"no reverse protection after skill removal");}finally{game.players().get(owner.getUUID()).lbcSkill=20;}
+            clearMobs();
         }
         void nativeFeedback(){
             var a=cow(at.add(5,0,0));var b=cow(at.add(-5,0,0));bind(a);bind(b);

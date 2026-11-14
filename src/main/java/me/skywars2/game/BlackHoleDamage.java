@@ -59,8 +59,8 @@ final class BlackHoleDamage {
     private static boolean accepted(GameController game,LivingEntity target,DamageSource source,float amount,ServerLevel level,boolean physical){
         ServerPlayer recipient=target instanceof ServerPlayer player?player:game.items().polymorph().playerOfBody(target);
         float reactionAmount=amount;
+        amount=game.items().symbioteSkill().absorb(target,source,amount);
         if(target instanceof ServerPlayer player){
-            amount=game.items().symbioteSkill().absorb(player,source,amount);
             amount=LbcArmorReserveSkill.apply(game,player,source,amount);
         }
         // Bypass mitigation/physical hit response, while publishing the ordinary damage events.

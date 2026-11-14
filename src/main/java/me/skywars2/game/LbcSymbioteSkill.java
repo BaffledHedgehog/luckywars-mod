@@ -13,13 +13,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
-/** Native skill20 acquisition and accepted owner damage distribution. */
+/** Native skill20 acquisition and bidirectional accepted damage transfer. */
 public final class LbcSymbioteSkill {
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,
             Identifier.parse("minecraft:mobs"));
     private static final Set<String> SERVICE_TAGS=Set.of("spectator","strict_map_object","magic_academy");
     private final GameController game;
     private final Set<ServerPlayer> distributing=Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Set<ServerPlayer> receiving=Collections.newSetFromMap(new IdentityHashMap<>());
 
     public LbcSymbioteSkill(GameController game){this.game=game;}
 
@@ -56,9 +57,23 @@ public final class LbcSymbioteSkill {
      * and absorption/HP debit. Return zero without cancelling the enclosing native hit.
      * No distance check here; the entire current same-dimension cohort gets equal shares.
      */
-    public float absorb(ServerPlayer owner,DamageSource source,float damage){
-        if(!(damage>0)||!Float.isFinite(damage)
-                ||MatchPlayerCheckpoint.restoring(owner)||!game.lbc().hasSkill(owner,20)||paused(owner))return damage;
+    public float absorb(LivingEntity target,DamageSource source,float damage){
+        if(!(damage>0)||!Float.isFinite(damage))return damage;
+        if(!(target instanceof ServerPlayer owner)){
+            var master=game.items().communism().owner(target);
+            if(master==null||!master.isAlive()||master.isRemoved()||master.level()!=target.level()
+                    ||!combatMob(target)||!game.lbc().hasSkill(master,20)||paused(master)
+                    ||MatchActorCheckpoint.restoring(target)||distributing.contains(master))return damage;
+            if(receiving.contains(master))return 0;
+            receiving.add(master);
+            try{BlackHoleDamage.transferAccepted(game,master,game.items().indirectKills().transferDamage(source),damage);}
+            finally{receiving.remove(master);}
+            return 0;
+        }
+        // This is the already accepted debit from a directly struck subordinate,
+        // not another attack to distribute back into that same subordinate cohort.
+        if(receiving.contains(owner))return damage;
+        if(MatchPlayerCheckpoint.restoring(owner)||!game.lbc().hasSkill(owner,20)||paused(owner))return damage;
         var cohort=new ArrayList<LivingEntity>();
         // Existing canonical owner authority and derived native score index; never a world scan.
         for(var actor:game.items().communism().controlledActors(owner.getUUID()))
@@ -79,9 +94,9 @@ public final class LbcSymbioteSkill {
         return 0;
     }
 
-    public void clear(ServerPlayer owner){distributing.remove(owner);}
-    public void stop(){distributing.clear();}
+    public void clear(ServerPlayer owner){distributing.remove(owner);receiving.remove(owner);}
+    public void stop(){distributing.clear();receiving.clear();}
     void checkpointBoundary(){
-        if(!distributing.isEmpty())throw new IllegalStateException("Cannot snapshot during Symbiote redistribution");
+        if(!distributing.isEmpty()||!receiving.isEmpty())throw new IllegalStateException("Cannot snapshot during Symbiote redistribution");
     }
 }

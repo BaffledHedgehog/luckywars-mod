@@ -18,9 +18,11 @@ public interface ArmorReserveMixin {
         @Inject(method="getDamageAfterMagicAbsorb",at=@At("RETURN"),cancellable=true)
         private void skywars2$armorReserve(DamageSource source,float original,CallbackInfoReturnable<Float> result){
             var game=SkyWars2.game();
-            if(game!=null&&(Object)this instanceof ServerPlayer player)
-                result.setReturnValue(LbcArmorReserveSkill.apply(game,player,source,
-                        game.items().symbioteSkill().absorb(player,source,result.getReturnValueF())));
+            if(game!=null){
+                var target=(LivingEntity)(Object)this;
+                float damage=game.items().symbioteSkill().absorb(target,source,result.getReturnValueF());
+                result.setReturnValue(target instanceof ServerPlayer player?LbcArmorReserveSkill.apply(game,player,source,damage):damage);
+            }
         }
     }
     @Mixin(LivingEntity.class)
