@@ -305,7 +305,7 @@ public final class LbcLoadouts {
         var entry=byId(Kind.SKILLS,skill);
         if(!skillsEnabled()||(skill!=4&&skill!=8&&skill!=11)||entry==null||!allowed(player,entry)
                 ||!game.playing()||game.stage()==GameController.Stage.ENDING||!player.isAlive()||player.isRemoved()
-                ||player.level()!=game.maps().level()||!game.canUseGameplayItems(player)||game.isObserver(player)
+                ||!game.canUseGameplayItems(player)||game.isObserver(player)
                 ||!LbcDimensionItems.ordinary(player)||!game.items().wands().validRoleTarget(player,false)){
             pendingInventorySkills.remove(id);return;
         }

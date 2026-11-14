@@ -32,6 +32,7 @@ public final class SkyWarsFeedbackCommands {
     public static Set<String> effectIds(){return STATUSES.keySet();}
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
         LbcDropRequests.register(dispatcher);
+        SkyWarsAdminCommands.register(dispatcher);
         var glitch=Commands.literal("atlasglitch").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .executes(ctx->atlasGlitch(ctx.getSource(),List.of(ctx.getSource().getPlayerOrException()),"toggle"));
         for(String mode:List.of("on","off","toggle"))glitch.then(Commands.literal(mode)

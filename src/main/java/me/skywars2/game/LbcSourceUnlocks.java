@@ -8,6 +8,9 @@ import net.minecraft.server.level.ServerPlayer;
 /** Exact source ownership; ordinary SWRG tags are separate from LBC selections. */
 public final class LbcSourceUnlocks {
     private LbcSourceUnlocks() {}
+    private static final Set<String> ADMINISTRATIVE=administrativeUniverse();
+    private static Set<String> administrativeUniverse(){var result=new LinkedHashSet<>(universe());result.removeIf(id->id.startsWith("swrg:rewards/drop_"));return java.util.Collections.unmodifiableSet(result);}
+    public static Set<String> administrativeIds(){return ADMINISTRATIVE;}
 
     /** Load only the finite impossible flags used by permanent case rewards. */
     public static boolean caseAdvancement(Identifier id) {
@@ -25,6 +28,7 @@ public final class LbcSourceUnlocks {
     }
 
     static boolean has(ServerPlayer player, PlayerStore.Profile profile, String key) {
+        if(profile!=null&&profile.revokedLegacyUnlocks.contains(key))return false;
         if (profile != null && (profile.legacyUnlocks.contains(key) || profile.lbcUnlocks.contains(key))) return true;
         if (player == null) return false;
         if (!key.contains(":")) return player.entityTags().contains(key);
@@ -45,6 +49,10 @@ public final class LbcSourceUnlocks {
 
     /** Projections are repaired after durable commit/rejoin, never used as the payout journal. */
     static void publish(ServerPlayer player, PlayerStore.Profile profile) {
+        for(String key:profile.revokedLegacyUnlocks){
+            if(!key.contains(":"))player.entityTags().remove(key);
+            else{var flag=player.level().getServer().getAdvancements().get(Identifier.parse(key));if(flag!=null)for(String criterion:flag.value().criteria().keySet())player.getAdvancements().revoke(flag,criterion);}
+        }
         for (String id : profile.dropRequestOverrides) {
             String key = LbcDropRequests.fulfilledKey(Integer.parseInt(id));
             if (profile.legacyUnlocks.contains(key)) continue;
@@ -53,6 +61,7 @@ public final class LbcSourceUnlocks {
                 player.getAdvancements().revoke(advancement, criterion);
         }
         for (String key : profile.legacyUnlocks) {
+            if(profile.revokedLegacyUnlocks.contains(key))continue;
             if (!valid(key)) throw new IllegalStateException("Invalid source unlock " + key);
             if (!key.contains(":")) player.entityTags().add(key);
             else {

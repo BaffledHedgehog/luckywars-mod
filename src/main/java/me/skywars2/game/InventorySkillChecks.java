@@ -147,17 +147,24 @@ public final class InventorySkillChecks {
         profile.lbcSkill=8;var locked=decorated(owner,Items.DIAMOND_HELMET);owner.setItemSlot(EquipmentSlot.HEAD,locked);var untouched=locked.copy();net.minecraft.advancements.triggers.CriteriaTriggers.INVENTORY_CHANGED.trigger(owner,owner.getInventory(),locked);require(ItemStack.matches(untouched,owner.getItemBySlot(EquipmentSlot.HEAD)),"real inventory event preserves original achievement unlock gate");
         for(var gate:gates){var advancement=game.server().getAdvancements().get(Identifier.parse(gate));for(var criterion:advancement.value().criteria().keySet())owner.getAdvancements().award(advancement,criterion);}
         // Native hotbar right-click must work without inventing an inventory criterion event.
-        profile.lbcSkill=4;
         try(var client=new RegenerationBeltChecks.ScheduledClient(game,owner)){
-        for(int i=0;i<ARMOR.length;i++){
-            clearArmor(owner);equipment(owner);owner.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(PIECES[i]));
-            client.acknowledge();
-            owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(net.minecraft.world.InteractionHand.MAIN_HAND,100+i,owner.getYRot(),owner.getXRot()));
-            var worn=owner.getItemBySlot(ARMOR[i]);
-            require(!worn.isEmpty(),"actual hotbar right-click packet equips "+ARMOR[i]);
-            require(worn.has(DataComponents.UNBREAKABLE)&&ItemData.contains(worn,"tanner_upgraded"),"right-click equipment receives skill4 without GUI events: "+ARMOR[i]);
-            equipment(owner);require(owner.getAttributeValue(Attributes.ARMOR_TOUGHNESS)>=3,"native equipment attributes include the actual upgrade");
-        }}
+            for(int selected:new int[]{4,8}){profile.lbcSkill=selected;
+                for(int i=0;i<ARMOR.length;i++){
+                    clearArmor(owner);equipment(owner);var source=decorated(owner,PIECES[i]);var expected=source.copy();owner.setItemSlot(EquipmentSlot.MAINHAND,source);client.acknowledge();
+                    owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(net.minecraft.world.InteractionHand.MAIN_HAND,100+selected*4+i,owner.getYRot(),owner.getXRot()));
+                    var worn=owner.getItemBySlot(ARMOR[i]);require(!worn.isEmpty(),"actual hotbar right-click packet equips "+ARMOR[i]);
+                    if(selected==4){require(worn.has(DataComponents.UNBREAKABLE)&&ItemData.contains(worn,"tanner_upgraded"),"right-click equipment receives skill4 without GUI events: "+ARMOR[i]);equipment(owner);require(owner.getAttributeValue(Attributes.ARMOR_TOUGHNESS)>=3,"native equipment attributes include actual upgrade");}
+                    else armoryImmediately(owner,expected,worn,"native hotbar right-click "+ARMOR[i]);
+                }
+            }
+            profile.lbcSkill=8;
+            for(int i=0;i<ARMOR.length;i++){
+                clearArmor(owner);equipment(owner);var source=decorated(owner,PIECES[i]);var expected=source.copy();owner.getInventory().setItem(9,source);client.acknowledge();var menu=owner.containerMenu;
+                owner.connection.handleContainerClick(new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(menu.containerId,menu.getStateId(),(short)9,(byte)0,net.minecraft.world.inventory.ContainerInput.QUICK_MOVE,it.unimi.dsi.fastutil.ints.Int2ObjectMaps.emptyMap(),net.minecraft.network.HashedStack.EMPTY));
+                armoryImmediately(owner,expected,owner.getItemBySlot(ARMOR[i]),"native Shift-click equipment "+ARMOR[i]);
+            }
+            ordinaryDimensionEquipment(game,owner,client);
+        }
         for(int skill:new int[]{4,8,11})for(var tag:List.of("", "stopper_magic", "stopper")){
             net.minecraft.world.entity.Marker jammer=null;
             try{
@@ -169,6 +176,23 @@ public final class InventorySkillChecks {
             }finally{if(jammer!=null){game.items().magic().unloaded(jammer);jammer.discard();}}
         }
         profile.lbcSkill=0;var ordinary=decorated(owner,Items.DIAMOND_HELMET);owner.setItemSlot(EquipmentSlot.HEAD,ordinary);var expected=ordinary.copy();net.minecraft.advancements.triggers.CriteriaTriggers.INVENTORY_CHANGED.trigger(owner,owner.getInventory(),ordinary);require(ItemStack.matches(expected,owner.getItemBySlot(EquipmentSlot.HEAD)),"unselected inventory event never grants a skill mutation");
+    }
+    private static void armoryImmediately(ServerPlayer owner,ItemStack before,ItemStack worn,String why){
+        require(!worn.isEmpty()&&ItemData.contains(worn,"armory_upgraded"),why+" is upgraded before another tick");
+        for(var key:TEN)require(worn.getEnchantments().getLevel(enchant(owner,key))==1,why+" source armor enchantment "+key.identifier());
+        require(worn.getEnchantments().getLevel(enchant(owner,Enchantments.MENDING))==9&&worn.getEnchantments().getLevel(enchant(owner,Enchantments.SHARPNESS))==7,why+" preserves unrelated enchantments");
+        preserved(before,worn,Set.of(DataComponents.ENCHANTMENTS,DataComponents.CUSTOM_DATA));var image=worn.copy();require(!LbcInventorySkills.apply(owner,8)&&ItemStack.matches(image,worn),why+" cannot upgrade twice");
+    }
+    private static void ordinaryDimensionEquipment(GameController game,ServerPlayer owner,RegenerationBeltChecks.ScheduledClient client){
+        var home=owner.level();var at=owner.position();float yaw=owner.getYRot(),pitch=owner.getXRot();
+        try{
+            for(var key:List.of(net.minecraft.world.level.Level.NETHER,net.minecraft.world.level.Level.END)){
+                var world=Objects.requireNonNull(game.server().getLevel(key));require(owner.teleportTo(world,.5,260,.5,Set.of(),0,0,true),"native ordinary dimension travel");owner.setNoGravity(true);owner.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);client.acknowledge();
+                require(owner.level()==world&&game.server().getPlayerList().getPlayer(owner.getUUID())==owner&&game.canUseGameplayItems(owner),"same actual participant is active in "+key.identifier());
+                clearArmor(owner);equipment(owner);var source=decorated(owner,Items.DIAMOND_CHESTPLATE);var expected=source.copy();owner.setItemSlot(EquipmentSlot.CHEST,source);
+                armoryImmediately(owner,expected,owner.getItemBySlot(EquipmentSlot.CHEST),"native equipment in "+key.identifier());
+            }
+        }finally{require(owner.teleportTo(home,at.x,at.y,at.z,Set.of(),yaw,pitch,true),"return from dimension equipment fixture");client.acknowledge();}
     }
     private static void selectionAndPause(GameController game,ServerPlayer owner){
         clearArmor(owner);owner.setItemSlot(EquipmentSlot.MAINHAND,ItemStack.EMPTY);owner.setItemSlot(EquipmentSlot.OFFHAND,ItemStack.EMPTY);

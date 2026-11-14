@@ -160,6 +160,8 @@ public final class PlayerStore {
         public boolean modeScroll = true;
         // Exact SWRG tags/advancements, separate from LBC achievement unlocks.
         public Set<String> legacyUnlocks = new HashSet<>();
+        // Prevent stale offline tags/impossible-advancement projections from undoing a manual revoke.
+        public Set<String> revokedLegacyUnlocks = new HashSet<>();
         // Explicit administrator decisions override stale offline advancement files on login.
         public Set<String> dropRequestOverrides = new HashSet<>();
         // Immutable typed LbcCases.Pending serialized as one scalar. MatchValueSnapshot
@@ -206,6 +208,10 @@ public final class PlayerStore {
             if (legacyUnlocks != null) for (String unlock : legacyUnlocks)
                 if (LbcSourceUnlocks.valid(unlock)) normalizedLegacy.add(unlock);
             legacyUnlocks = normalizedLegacy;
+            Set<String> normalizedRevokes = new HashSet<>();
+            if(revokedLegacyUnlocks!=null)for(String id:revokedLegacyUnlocks)
+                if(LbcSourceUnlocks.administrativeIds().contains(id))normalizedRevokes.add(id);
+            revokedLegacyUnlocks=normalizedRevokes;legacyUnlocks.removeAll(revokedLegacyUnlocks);
             Set<String> normalizedRequests = new HashSet<>();
             if (dropRequestOverrides != null) for (String id : dropRequestOverrides)
                 if (id != null && id.matches("[1-3]")) normalizedRequests.add(id);

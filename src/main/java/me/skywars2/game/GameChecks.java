@@ -703,6 +703,7 @@ public final class GameChecks {
                                 case "black-hole-contact" -> { BlackHolePlayerChecks.run(game); return; }
                                 case "combat-feedback" -> { CombatFeedbackChecks.run(game); return; }
                                 case "inventory-skills" -> { InventorySkillChecks.run(game); return; }
+                                case "admin-commands" -> { AdminCommandChecks.run(game); return; }
                                 case "looper" -> { LbcLooperChecks.run(game); return; }
                                 case "reactive-skills" -> { ReactiveSkillChecks.run(game); return; }
                                 case "parasite" -> { ParasiteChecks.run(game); return; }

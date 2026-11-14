@@ -3044,3 +3044,23 @@ fake players отключаются после смерти и не подход
 победу/ничью, сброс и повторный матч, отмену стадийных задач. Проверки используют
 обычные методы контроллера и серверные сущности; их результаты записываются
 отдельно от документации исходного поведения.
+
+## Operator profile administration (14 November 2026)
+
+`/skywars admin` requires the native gamemaster permission (operator level 2) and also works from the console. Targets are existing canonical player names, including offline players. Names are case insensitive; unknown or ambiguous names are rejected without creating a profile.
+
+```text
+/skywars admin coins <player> [add|remove|set <amount>]
+/skywars admin memcoins <player> [add|remove|set <amount>]
+/skywars admin keys <player> [<case 0..4> [add|remove|set <amount>]]
+/skywars admin unlock <player> give <id>
+/skywars admin unlock <player> take <id>
+```
+
+Omitting the operation queries the balance. Key indices identify the existing five case families (`case0` through `case4`); omitting the index shows all five counts. Amounts are nonnegative integers. Removal stops at zero; addition rejects integer overflow and preserves the existing balance.
+
+Unlock IDs have native tab completion: `swrg.kit1` through `swrg.kit20`, `swrg.skill1` through `swrg.skill11`, `swrg.sound1` through `swrg.sound13`, `swrg.bars1` through `swrg.bars20`, `swrg:rewards/suffix_1` through `suffix_26`, `swrg:rewards/turnir/trophy1` through `trophy3`, and `swrg:rewards/turnir/killer`. Gameplay achievement gates and the separate drop-request completion workflow keep their own commands.
+
+Edits use checked atomic profile persistence with rollback on write failure. Taking an unlock clears its matching selected kit, skill or cosmetic, and persists an explicit revocation so stale saved tags or impossible-advancement projections cannot restore access at login. A subsequent explicit grant or a new legitimate case award restores ownership. Cosmetic source keys are shared with the existing menu policy.
+
+Native qualification covers the dispatcher and reduced permission source, offline file reload, both currencies, every key slot, overflow and unknown-name controls, all manual unlock families, native tag/advancement projections, stale projection rejection, selected-perk removal, case re-earning, and failed-save rollback. The armor inventory skill also has real hotbar/Shift-click and Nether/End equipment witnesses; the isolated fixture restores all captured dimension files byte for byte.

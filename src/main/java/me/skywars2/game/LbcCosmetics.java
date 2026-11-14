@@ -58,13 +58,17 @@ public final class LbcCosmetics {
     public LbcNameplates nameplates(){return nameplates;}
     public boolean unlocked(ServerPlayer player,Kind kind,int id){
         if(id==0)return true;if(id<0)return false;
-        String key=switch(kind){
+        String key=unlockKey(kind,id);return key!=null&&policy.has(player,key);
+    }
+    static String unlockKey(Kind kind,int id){
+        if(id<=0)return null;
+        return switch(kind){
             case SOUND -> id<=13?"swrg.sound"+id:null;
             case CAGE -> id<=20?"swrg.bars"+id:null;
             case SUFFIX -> id<=26?"swrg:rewards/suffix_"+id:id<=29?"swrg:rewards/turnir/trophy"+(id-26):null;
             case WIN -> id==1?"lbc:true_advancements/event/pumpkin_sword":id==2?"swrg:rewards/turnir/trophy1":null;
             case KILL -> id==1?"lbc:true_advancements/event/soulcorrupt_wand_upgraded":id==2?"lbc:true_advancements/event/soulhunter_mace":id==3?"swrg:rewards/turnir/killer":null;
-        };return key!=null&&policy.has(player,key);
+        };
     }
     int choice(ServerPlayer p,Kind kind){
         if(game.balanceLegacy()&&(kind==Kind.SUFFIX||kind==Kind.WIN||kind==Kind.KILL))return 0;

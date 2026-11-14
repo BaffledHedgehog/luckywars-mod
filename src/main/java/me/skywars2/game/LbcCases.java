@@ -330,6 +330,7 @@ final class LbcCases {
         profile.memcoins=Math.addExact(profile.memcoins,payout.memcoins());
         if(!payout.unlock().isEmpty()) {
             if(!LbcSourceUnlocks.valid(payout.unlock()))throw new IllegalStateException("Invalid normalized payout");
+            profile.revokedLegacyUnlocks.remove(payout.unlock());
             profile.legacyUnlocks.add(payout.unlock());
         }
     }
