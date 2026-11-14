@@ -1084,6 +1084,7 @@ public final class GameChecks {
                                 case "shulker-armor-stop-probe" -> { ShulkerArmorChecks.stopProbe(game); return; }
                                 case "shulker-armor-cleanup" -> { ShulkerArmorChecks.cleanup(game); return; }
                                 case "inventory-hazards" -> { InventoryHazardChecks.run(game); return; }
+                                case "liquid-abyss-area" -> { LiquidAbyssAreaChecks.run(game); return; }
                                 case "passive-consumables" -> { PassiveConsumableChecks.run(game); return; }
                                 case "pending-combat" -> { PendingCombatChecks.run(game); return; }
                                 case "pending-swords" -> { PendingSwordChecks.run(game); return; }
@@ -1833,6 +1834,7 @@ public final class GameChecks {
             WeaponSuppressionChecks.tick(game);
             JammerSpellChecks.tick(game);
             InventoryHazardChecks.tick(game);
+            LiquidAbyssAreaChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
             PendingSwordChecks.tick(game);

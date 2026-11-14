@@ -33,6 +33,8 @@ public final class LbcInventoryHazards {
     static final String ORIGIN="skywars2_inventory_hazard_origin";
     public static final String MANAGED="skywars2_inventory_hazard_actor";
     private static final CompoundTag LIQUID=tag("liquidvoid",1),INSTANT=tag("instantitem",1),BOMB=tag("penis_bomb",1);
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.entity.EntityType<?>> UNHOLY=
+            net.minecraft.tags.TagKey.create(Registries.ENTITY_TYPE,Identifier.withDefaultNamespace("unholy_monsters"));
     private static final CompoundTag[] VARIANTS={null,tag("penis_num",1),tag("penis_num",2),tag("penis_num",3),tag("penis_num",4),tag("penis_num",5),tag("penis_num",6)};
     private final GameController game;
     private int phase;
@@ -109,6 +111,18 @@ public final class LbcInventoryHazards {
     }
     private void liquid(ServerPlayer player){
         if(!legacy()&&armored(player)&&!hands(player,LIQUID))return;
+        if(!legacy()){
+            // Lucky_Block_2.0_imba/other/liquidvoiddamage: two hidden native instant
+            // effects, with the author's new four-block radius. The 1.20.4 branch below
+            // deliberately retains its different counted outside-border self damage.
+            var origin=player.position();
+            for(var target:player.level().getEntitiesOfClass(LivingEntity.class,player.getBoundingBox().inflate(4),
+                    e->e.position().distanceToSqr(origin)<=16&&game.items().wands().validTarget(e))){
+                var effect=target.is(UNHOLY)?net.minecraft.world.effect.MobEffects.INSTANT_HEALTH:net.minecraft.world.effect.MobEffects.INSTANT_DAMAGE;
+                target.addEffect(new net.minecraft.world.effect.MobEffectInstance(effect,1,0,false,false,false));
+            }
+            return;
+        }
         int count=player.getInventory().clearOrCountMatchingItems(stack->matches(stack,LIQUID),true,0,player.inventoryMenu.getCraftSlots());
         // ExecuteCommand's int store scales in double then saturates; int multiplication would wrap.
         int amount=(int)(count*4d);if(amount<=0||game.items().mana().hudValue(player,"void_resistance")>=1)return;
