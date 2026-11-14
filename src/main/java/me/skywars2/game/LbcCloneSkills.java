@@ -2,11 +2,13 @@ package me.skywars2.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.ToIntFunction;
 import me.skywars2.SkyWars2;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -105,6 +107,28 @@ public final class LbcCloneSkills {
                 scanned++;cloneActor(actor,15,false,Integer.MAX_VALUE);
             }
         }
+    }
+    /** Native carriers moved by an ability rather than Entity.tick need the same birth-frame intake. */
+    void beforeOwnedStep(Collection<? extends Entity> actors){
+        if(actors.isEmpty()||cloning||!ready()||!game.playing()||game.maps().busy()||game.vanity().busy()
+                ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
+        var sources=List.copyOf(actors);
+        for(var holder:List.copyOf(game.server().getPlayerList().getPlayers()))if(admitted(holder,15))
+            for(var actor:sources)if(actor.level()==holder.level()&&!actor.entityTags().contains("doubled")
+                    &&actor.position().distanceToSqr(holder.position())<=100&&baseEligible(actor)&&projectile(actor)){
+                scanned++;cloneActor(actor,15,false,Integer.MAX_VALUE);
+            }
+    }
+    /** Each logical flight owner calls this before taking its movement snapshot, including same-frame births. */
+    void beforeVirtualStep(ToIntFunction<ServerPlayer> duplicate){
+        if(cloning||!ready()||!game.playing()||game.maps().busy()||game.vanity().busy()
+                ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
+        cloning=true;
+        try{
+            for(var holder:List.copyOf(game.server().getPlayerList().getPlayers()))if(admitted(holder,15)){
+                int made=duplicate.applyAsInt(holder);bodies+=made;operations+=made;
+            }
+        }finally{cloning=false;}
     }
     /** Rotate admitted holders; native resident spatial queries never request or enumerate world chunks. */
     public void tick(){

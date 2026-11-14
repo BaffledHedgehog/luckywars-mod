@@ -619,6 +619,7 @@ public final class LbcDuplicating {
             }
             // Snapshot acquisition postpones new producer work while already accepted writes drain.
             if(checkpointDraining)return;
+            if(!markers.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
             var pulls=new IdentityHashMap<Entity,PullSample>();
             for(var marker:List.copyOf(markers)) {
                 if(marker.retainedOwner)continue;

@@ -81,6 +81,7 @@ public final class LbcPumpkinator {
     public void tick(){
         int tick=game.server().getTickCount();
         if(restoring||lastTick==tick||!game.playing()||game.maps().busy()||game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally())return;
+        if(!actors.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Integer.MAX_VALUE,Long.MAX_VALUE).bodies());
         lastTick=tick;callbacks++;
         try{for(var actor:List.copyOf(actors.values())){
             if(!game.items().currentEpoch(actor.epoch)){actors.remove(actor.id);continue;}

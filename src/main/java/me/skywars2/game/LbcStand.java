@@ -442,6 +442,7 @@ public final class LbcStand {
             burst.owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,true,false));
             createFist(burst.owner);
         }
+        if(!fists.isEmpty())game.items().cloneSkills().beforeOwnedStep(fists.stream().map(fist->fist.display).toList());
         for(var fist:List.copyOf(fists)) tickFist(fist);
         tickTargets.clear();
     }

@@ -67,6 +67,7 @@ public final class LbcWhiteArrows {
     }
     public void tick(){
         int tick=game.server().getTickCount();if(restoring||lastTick==tick||!game.playing()||game.maps().busy()||game.server().tickRateManager().isFrozen()||!game.server().tickRateManager().runsNormally())return;lastTick=tick;
+        if(!shots.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Integer.MAX_VALUE,Long.MAX_VALUE).bodies());
         long deadline=Math.min(EffectTerrain.deadlineNanos(),System.nanoTime()+2_000_000);int available=Math.min(128,shots.size());long accepted=sequence;
         callbacks++;try{for(int visited=0;visited<available&&!shots.isEmpty()&&System.nanoTime()<deadline;visited++){
             var next=shots.higherEntry(turn);if(next==null||next.getKey()>accepted)next=shots.firstEntry();turn=next.getKey();var shot=next.getValue();

@@ -121,6 +121,7 @@ public final class LbcSauvojen {
     }
     public void tick(){
         meditation.tick();stars.tick();
+        if(!drones.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         for(var drone:snapshot()){
             if(!drones.containsKey(drone.carrier))continue;
             if(drone.carrier.isRemoved()||!validOwner(drone.owner)||drone.owner.level()!=drone.carrier.level()

@@ -120,6 +120,7 @@ final class SauvojenStars {
         }
     }
     void tick(){
+        if(!actors.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         for(var actor:List.copyOf(actors.values())){
             var owner=actor.owner;var marker=actor.carrier;var level=owner.level();
             if(marker.isRemoved()||!validOwner(owner)||marker.level()!=level||!game.items().currentEpoch(actor.epoch)

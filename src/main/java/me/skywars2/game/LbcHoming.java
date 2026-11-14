@@ -404,6 +404,8 @@ public final class LbcHoming {
     }
 
     public void tick() {
+        if(!rains.isEmpty()||!destinies.isEmpty()||!fouriers.isEmpty())
+            game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         ++inProgress;try {
             ++ticks;
             tickEffects(rains,true); tickEffects(destinies,false);

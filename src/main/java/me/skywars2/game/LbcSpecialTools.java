@@ -264,7 +264,9 @@ public final class LbcSpecialTools {
             }
         }else player.connection.disconnect(reason);
     }
-    void tick(){for(var h:List.copyOf(hammers)){
+    void tick(){
+        if(!hammers.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
+        for(var h:List.copyOf(hammers)){
         if(!game.items().currentEpoch(h.epoch)||!game.playing()||game.stage()==GameController.Stage.ENDING){h.destroy();continue;}
         h.viewers();if(game.items().timeStop().stopped(h.level)||!h.residentColumn())continue;
         if(!h.impacted)h.fall();

@@ -155,6 +155,7 @@ public final class LbcVoidArcanum {
             if(off&&!state.off)state.off=activate(owner);
         }
         hands.keySet().removeIf(id->!present.contains(id));
+        if(!holes.isEmpty())game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         for(var hole:List.copyOf(holes)){
             hole.members.removeIf(member->{var owner=owner(member);return !valid(owner)||!held(owner)||suppressed(owner);});
             if(hole.members.isEmpty()||!game.items().currentEpoch(hole.epoch)||hole.marker.isRemoved()

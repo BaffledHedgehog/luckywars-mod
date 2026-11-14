@@ -1457,6 +1457,7 @@ for(int i=0;i<=1000 && i*.1<=distance;i++) if(owner.getRandom().nextFloat()<.35f
     /** Вызывается общим item tick; snapshot устойчив к stop/death callbacks во время hurtServer. */
     void tick() {
         if(electroTraces.isEmpty()) return;
+        game.items().cloneSkills().beforeVirtualStep(holder->cloneNearby(holder,15,Integer.MAX_VALUE,Long.MAX_VALUE));
         boolean timeStopped=timeStopped();
         electroBatch.addAll(electroTraces);
         try {

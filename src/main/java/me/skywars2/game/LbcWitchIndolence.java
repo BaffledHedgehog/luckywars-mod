@@ -95,6 +95,7 @@ public final class LbcWitchIndolence {
             var objective=game.server().getScoreboard().getObjective("indolence_cd");var score=objective==null?null:game.server().getScoreboard().getPlayerScoreInfo(p,objective);
             if(score!=null&&score.value()>0)game.items().mana().score(p,"indolence_cd").set(score.value()-1);
         }
+        game.items().cloneSkills().beforeOwnedStep(flights.keySet());
         for(var entry:List.copyOf(flights.entrySet())){
             var marker=entry.getKey();var state=entry.getValue();var level=(ServerLevel)marker.level();
             if(marker.isRemoved()){flights.remove(marker);continue;}

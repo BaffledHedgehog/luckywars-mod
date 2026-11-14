@@ -726,6 +726,7 @@ public final class GameChecks {
                                 case "planetoid-skills" -> { PlanetoidSkillChecks.run(game); return; }
                                 case "clone-skills" -> { CloneSkillChecks.run(game); return; }
                                 case "fast-clones" -> { FastCloneChecks.run(game); return; }
+                                case "fast-virtual-clones" -> { FastVirtualCloneChecks.run(game); return; }
                                 case "combat-reward-skills" -> { CombatRewardSkillChecks.run(game); return; }
                                 case "machinegun-skill" -> { CombatRewardSkillChecks.runMachinegun(game); return; }
                                 case "combat-reward-player-death" -> { CombatRewardSkillChecks.runPlayerDeath(game); return; }
@@ -1841,6 +1842,7 @@ public final class GameChecks {
             PlayerLatencyChecks.tick(game);
             GrandRabbitTargetChecks.tick(game);
             FastCloneChecks.tick(game);
+            FastVirtualCloneChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
             PendingSwordChecks.tick(game);
