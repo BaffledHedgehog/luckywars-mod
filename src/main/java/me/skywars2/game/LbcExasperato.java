@@ -880,6 +880,29 @@ public final class LbcExasperato {
     /** Идеи Paper/Moonrise: готовые лучи, локальные чтения и кэш сопротивления.
      * (user) Точная случайная форма кратера не обязательна: сила каждого луча равна radius.
      * Меняется только поиск блоков; native damage, owner, loot и применение разрушений остаются снаружи. */
+    record BlastHeightBounds(int minY,int maxY) {}
+    private static final BlastHeightBounds FULL_BLAST_HEIGHT=new BlastHeightBounds(Integer.MIN_VALUE,Integer.MAX_VALUE);
+    /** Conservative resident section envelope; never generates chunks or changes ray arithmetic. */
+    static BlastHeightBounds blastHeightBounds(ServerLevel level,Vec3 point,float power,boolean residentOnly){
+        if(!(power>=8&&power<=64)||Boolean.getBoolean("skywars2.disableExplosionBounds"))return FULL_BLAST_HEIGHT;
+        int reach=(int)Math.ceil(power*2);var center=BlockPos.containing(point);
+        int minX=(center.getX()-reach)>>4,maxX=(center.getX()+reach)>>4;
+        int minZ=(center.getZ()-reach)>>4,maxZ=(center.getZ()+reach)>>4;
+        if((maxX-minX+1)*(maxZ-minZ+1)>256)return FULL_BLAST_HEIGHT;
+        int lowY=Math.max(level.getMinY(),center.getY()-reach),highY=Math.min(level.getMaxY()-1,center.getY()+reach);
+        if(lowY>highY)return FULL_BLAST_HEIGHT;
+        int bottom=Integer.MAX_VALUE,top=Integer.MIN_VALUE;
+        for(int x=minX;x<=maxX;x++)for(int z=minZ;z<=maxZ;z++){
+            var chunk=level.getChunkSource().getChunkNow(x,z);
+            if(chunk==null){if(!residentOnly)return FULL_BLAST_HEIGHT;continue;}
+            for(int section=chunk.getSectionIndex(lowY);section<=chunk.getSectionIndex(highY);section++){
+                if(chunk.getSection(section).hasOnlyAir())continue;
+                int y=level.getSectionYFromSectionIndex(section)<<4;
+                bottom=Math.min(bottom,y);top=Math.max(top,y+15);
+            }
+        }
+        return bottom<=top?new BlastHeightBounds(bottom,top):FULL_BLAST_HEIGHT;
+    }
     private static long optimizedBlockSearches;
     static long optimizedBlockSearches(){return optimizedBlockSearches;}
     public static List<BlockPos> explosionBlocks(net.minecraft.world.level.ServerExplosion blast,
@@ -895,10 +918,13 @@ public final class LbcExasperato {
             if(nativeShape)for(int ray=0;ray<BlastRayTrace.rayCount();ray++)level.getRandom().nextFloat();
             return List.of();
         }
+        var height=blastHeightBounds(level,origin,blast.radius(),residentOnly);
         var view=new BlastRayTrace.Cells(){
             final it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<net.minecraft.world.level.chunk.LevelChunk> chunks=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<>();
             net.minecraft.world.level.chunk.LevelChunk last;int lastX=Integer.MIN_VALUE,lastZ=Integer.MIN_VALUE;
             public boolean inside(BlockPos pos){return level.isInWorldBounds(pos);}
+            public int minY(){return height.minY();}
+            public int maxY(){return height.maxY();}
             public net.minecraft.world.level.block.state.BlockState state(BlockPos pos){
                 int cx=pos.getX()>>4,cz=pos.getZ()>>4;
                 if(cx!=lastX||cz!=lastZ){

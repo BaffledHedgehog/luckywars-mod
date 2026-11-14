@@ -11,6 +11,8 @@ final class BlastRayTrace {
     private BlastRayTrace(){}
     interface Cells {
         boolean inside(BlockPos pos);
+        default int minY(){return Integer.MIN_VALUE;}
+        default int maxY(){return Integer.MAX_VALUE;}
         BlockState state(BlockPos pos);
         float loss(BlockPos pos,BlockState state);
         boolean destroy(BlockPos pos,BlockState state,float power);
@@ -53,6 +55,7 @@ final class BlastRayTrace {
         var cells=new it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap<Cell>();
         long[] recentKeys=new long[512];java.util.Arrays.fill(recentKeys,Long.MIN_VALUE);Cell[] recentCells=new Cell[512];
         var probe=new BlockPos.MutableBlockPos();
+        int minY=view.minY(),maxY=view.maxY();
         for(int ray=0;ray<rays.length;ray+=3){
             double x=origin.x,y=origin.y,z=origin.z,dx=rays[ray],dy=rays[ray+1],dz=rays[ray+2];
             float power=radius*(nativePrecision?.7F+random.nextFloat()*.6F:1F),loss=0;
@@ -60,6 +63,8 @@ final class BlastRayTrace {
             while(power>0){
                 int bx=net.minecraft.util.Mth.floor(x),by=net.minecraft.util.Mth.floor(y),bz=net.minecraft.util.Mth.floor(z);long key=BlockPos.asLong(bx,by,bz);
                 if(key!=previous){
+                    // Beyond the occupied vertical envelope, an outward ray cannot hit a block.
+                    if(by<minY&&dy<=0||by>maxY&&dy>=0)break;
                     probe.set(bx,by,bz);if(!view.inside(probe))break;
                     int slot=(bx&7)|((by&7)<<3)|((bz&7)<<6);
                     if(recentKeys[slot]==key){cell=recentCells[slot];loss=cell==null?0:cell.loss;}

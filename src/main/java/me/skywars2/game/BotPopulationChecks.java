@@ -19,13 +19,14 @@ final class BotPopulationChecks {
         final List<Long> baseline=new ArrayList<>(),looting=new ArrayList<>(),combat=new ArrayList<>();
         final Map<UUID,Vec3> start=new LinkedHashMap<>();final Set<UUID> acted=new HashSet<>(),preexisting=new HashSet<>();
         final List<BlockPos> starters=new ArrayList<>();PlayerTeam team;int at,spawnedAt,minimumCombat=24;boolean released;
-        final boolean eruption,movie,oldSkills,oldGriefing;final String oldCache;
+        final boolean eruption,movie,oldSkills,oldGriefing;final String oldCache,oldBounds;
         final List<Long> eruptionTicks=new ArrayList<>(),burstTicks=new ArrayList<>();final ArrayDeque<Long> recent=new ArrayDeque<>();
         int eruptionTrial,trialStarted,burstObserved=-1;long cachedAt;
         Fixture(GameController game,boolean eruption,boolean movie){
             super(game,new Vec3(.5,120,.5));this.eruption=eruption;this.movie=movie;oldSkills=game.config().lbcSkills;
             oldGriefing=base.level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING);
             oldCache=System.getProperty("skywars2.disableExplosionCache");
+            oldBounds=System.getProperty("skywars2.disableExplosionBounds");
         }
         int movieStarted,completeFrame=-1;long movieCoalesced;
         final List<Long> movieTicks=new ArrayList<>();final Set<Integer> movieFrames=new HashSet<>();
@@ -65,6 +66,7 @@ final class BotPopulationChecks {
             require(game.items().ultraponos().pendingBlastCount()==0&&game.items().ultraponos().emitterCount()==0,"exclusive actual trap queue");
             game.config().lbcSkills=true;base.level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,true,game.server());
             System.setProperty("skywars2.disableExplosionCache",eruptionTrial==0?"true":"false");
+            System.setProperty("skywars2.disableExplosionBounds",eruptionTrial==1?"true":"false");
             var center=BlockPos.containing(origin);
             for(int x=-24;x<=75;x++)for(int z=-24;z<=37;z++)base.set(center.offset(x,-1,z),Blocks.STONE.defaultBlockState());
             for(int i=0;i<actors.size();i++){
@@ -102,8 +104,8 @@ final class BotPopulationChecks {
             if(now-burstObserved<3)return false;
             require(eruptionTicks.size()>=260&&burstTicks.size()>=6,"completed native server ticks include the whole burst boundary, not just its Java collector");
             SkyWars2.LOGGER.info("[check] ultraponos-24 metrics: collector={} liveBots=24 chargedMega=true countdown={} burstWindow={} fullServerTicks=true stressOnlyHp=10000",
-                    eruptionTrial==0?"original":"shared-spherical",metrics(eruptionTicks),metrics(burstTicks));
-            if(++eruptionTrial<2){startEruption();return false;}
+                    eruptionTrial==0?"original":eruptionTrial==1?"cached-unbounded":"shared-height-bounds",metrics(eruptionTicks),metrics(burstTicks));
+            if(++eruptionTrial<3){startEruption();return false;}
             return true;
         }
         @Override void setup(){for(var actor:base.level.getAllEntities())preexisting.add(actor.getUUID());super.setup();disconnect(bot);actors.clear();
@@ -177,6 +179,7 @@ final class BotPopulationChecks {
                 game.items().ultraponos().stop();game.config().lbcSkills=oldSkills;
                 base.level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,oldGriefing,game.server());
                 if(oldCache==null)System.clearProperty("skywars2.disableExplosionCache");else System.setProperty("skywars2.disableExplosionCache",oldCache);
+                if(oldBounds==null)System.clearProperty("skywars2.disableExplosionBounds");else System.setProperty("skywars2.disableExplosionBounds",oldBounds);
             }
             for(var actor:base.level.getAllEntities())if(!(actor instanceof ServerPlayer)&&!preexisting.contains(actor.getUUID())&&actor.position().distanceToSqr(origin)<160*160)base.owned.add(actor.getUUID());
             Throwable failure=null;try{super.close();}catch(Throwable error){failure=error;}

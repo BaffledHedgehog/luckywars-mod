@@ -1,3 +1,9 @@
+## Conservative air bounds in the shared explosion collector
+
+`LbcExasperato` derives an occupied vertical envelope from resident chunk sections for blasts of power 8–64, scanning at most 256 horizontal chunks. `BlastRayTrace` stops an outward ray once it has passed every occupied section. The remaining ray arithmetic, energy loss and random draws stay unchanged. Unknown chunks fall back to the full-height trace unless that blast already uses the existing resident-only policy. Damage, knockback, loot and terrain application retain their original owners.
+
+`NativeExplosionCacheChecks` compares selected blocks and RNG against the native collector and checks sparse terrain from above, below and within its occupied heights. `BotPopulationChecks` measures complete native ticks with 24 live Carpet players, comparing the original collector, the unbounded cached collector and the bounded collector in one runtime.
+
 ## Physical grenade smoke and derived shader volumes
 
 `LbcReactiveArtifacts` remains the sole owner of smoke gameplay and its five-block, 1,200-tick lifetime. Modern grenades use an unowned, transient native `ItemEntity` for gravity, support loss, fluid motion and explosion knockback. Owner cleansing/disconnection does not remove a placed source. Unloaded bodies retain their original deadline and resume only when their chunk naturally ticks again. TimeStop pauses the deadline; celebration continues physical visuals without gameplay until lobby cleanup. The old smoke particle path remains separate.

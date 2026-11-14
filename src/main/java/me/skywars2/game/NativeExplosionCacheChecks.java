@@ -35,6 +35,50 @@ public final class NativeExplosionCacheChecks {
         require(random.nextLong()==oracle.nextLong(),"spherical collection preserves the native one-energy-draw-per-ray RNG budget");
         SkyWars2.LOGGER.info("[check] spherical-blast geometry: {} shell crossings,128 equal-solid-angle bins,min={},max={}",crossings[0],min,max);
     }
+    /** Real resident terrain, conservative section bounds, exact block/RNG controls in both directions. */
+    private static void heightContract(WoolBucketChecks.Fixture f){
+        var home=BlockPos.containing(f.home);
+        var floor=new BlockPos((home.getX()>>4)*16+8,f.level.getMaxY()-81,(home.getZ()>>4)*16+8);
+        for(int x=-4;x<=4;x++)for(int z=-4;z<=4;z++)f.set(floor.offset(x,0,z),Blocks.STONE.defaultBlockState());
+        f.set(floor.offset(2,1,0),Blocks.WATER.defaultBlockState());
+        f.set(floor.offset(-2,0,0),Blocks.OBSIDIAN.defaultBlockState());
+        long plainReads=0,boundedReads=0;int cases=0;
+        for(int delta:new int[]{1,12,-8}){
+            var at=Vec3.atCenterOf(floor.above(delta));float radius=12;
+            var height=LbcExasperato.blastHeightBounds(f.level,at,radius,true);
+            require(height.minY()<=floor.getY()&&height.maxY()>=floor.getY()+1,"resident section envelope includes stone, water and high resistance");
+            require(height.minY()>floor.getY()-24&&height.maxY()<floor.getY()+25,"actual sparse high scene has a finite occupied height envelope");
+            var blast=new ServerExplosion(f.level,null,null,null,at,radius,false,Explosion.BlockInteraction.DESTROY);
+            var calculator=new ExplosionDamageCalculator();
+            class HeightView implements BlastRayTrace.Cells {
+                final boolean bounded;long reads;
+                HeightView(boolean bounded){this.bounded=bounded;}
+                public int minY(){return bounded?height.minY():Integer.MIN_VALUE;}
+                public int maxY(){return bounded?height.maxY():Integer.MAX_VALUE;}
+                public boolean inside(BlockPos pos){return f.level.isInWorldBounds(pos);}
+                public net.minecraft.world.level.block.state.BlockState state(BlockPos pos){
+                    reads++;var chunk=f.level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4);
+                    return chunk==null?Blocks.AIR.defaultBlockState():chunk.getBlockState(pos);
+                }
+                public float loss(BlockPos pos,net.minecraft.world.level.block.state.BlockState state){
+                    var resistance=calculator.getBlockExplosionResistance(blast,f.level,pos,state,state.getFluidState());
+                    return resistance.isEmpty()?0:(resistance.get()+.3F)*.3F;
+                }
+                public boolean destroy(BlockPos pos,net.minecraft.world.level.block.state.BlockState state,float power){return calculator.shouldBlockExplode(blast,f.level,pos,state,power);}
+            }
+            for(int seed:new int[]{73,91}){
+                var originalRandom=net.minecraft.util.RandomSource.create(seed);var actualRandom=net.minecraft.util.RandomSource.create(seed);
+                var originalView=new HeightView(false);var actualView=new HeightView(true);
+                var original=BlastRayTrace.traceSpherical(at,radius,originalRandom,originalView);
+                var actual=BlastRayTrace.traceSpherical(at,radius,actualRandom,actualView);
+                require(!original.isEmpty()&&new HashSet<>(actual).equals(new HashSet<>(original)),"exact sparse-scene blocks for upward/downward/inside origins delta="+delta+" seed="+seed);
+                require(originalRandom.nextLong()==actualRandom.nextLong(),"early air termination preserves every native ray's random draw");
+                plainReads+=originalView.reads;boundedReads+=actualView.reads;cases++;
+            }
+        }
+        require(boundedReads<plainReads*.8,"at least20percent fewer state reads in the real sparse height scene: "+plainReads+" -> "+boundedReads);
+        SkyWars2.LOGGER.info("[check] blast-height bounds: {} exact sparse-terrain block/RNG cases, stateReads={} -> {}",cases,plainReads,boundedReads);
+    }
     public static void run(GameController game){
         sphericalContract();
         String previous=System.getProperty("skywars2.disableExplosionCache");
@@ -42,26 +86,32 @@ public final class NativeExplosionCacheChecks {
             f.prepareParticipants();var center=BlockPos.containing(f.home.add(0,55,0));var at=Vec3.atCenterOf(center);
             var method=ServerExplosion.class.getDeclaredMethod("calculateExplodedPositions");method.setAccessible(true);
             var tnt=new PrimedTnt(EntityTypes.TNT,f.level);tnt.setPos(at);
-            long begin=LbcExasperato.optimizedBlockSearches(),slowNanos=0,fastNanos=0;int cases=0;
+            for(int x=(center.getX()-24)>>4;x<=(center.getX()+24)>>4;x++)
+                for(int z=(center.getZ()-24)>>4;z<=(center.getZ()+24)>>4;z++)f.level.getChunk(x,z);
+            long begin=LbcExasperato.optimizedBlockSearches(),slowNanos=0,fastNanos=0;int cases=0,boundedNativeCases=0;
             for(int scene=0;scene<3;scene++){
                 for(var pos:BlockPos.betweenClosed(center.offset(-6,-6,-6),center.offset(6,6,6))) {
                     int pick=Math.floorMod(pos.getX()*17+pos.getY()*31+pos.getZ()*7,7);
                     var block=scene==0?Blocks.AIR:scene==1?Blocks.STONE:pick==0?Blocks.OBSIDIAN:pick<3?Blocks.WATER:pick==3?Blocks.OAK_PLANKS:Blocks.STONE;
                     f.set(pos,block.defaultBlockState());
                 }
-                for(int seed=0;seed<5;seed++){
+                for(float radius:new float[]{4,12})for(int seed=0;seed<5;seed++){
                     System.setProperty("skywars2.disableExplosionCache","true");f.level.getRandom().setSeed(seed);
                     long start=System.nanoTime();
-                    var original=(List<BlockPos>)method.invoke(new ServerExplosion(f.level,tnt,null,null,at,4,false,Explosion.BlockInteraction.DESTROY));
+                    var original=(List<BlockPos>)method.invoke(new ServerExplosion(f.level,tnt,null,null,at,radius,false,Explosion.BlockInteraction.DESTROY));
                     slowNanos+=System.nanoTime()-start;long expectedRandom=f.level.getRandom().nextLong();
                     System.setProperty("skywars2.disableExplosionCache","false");f.level.getRandom().setSeed(seed);start=System.nanoTime();
-                    var actual=(List<BlockPos>)method.invoke(new ServerExplosion(f.level,tnt,null,null,at,4,false,Explosion.BlockInteraction.DESTROY));
+                    var actual=(List<BlockPos>)method.invoke(new ServerExplosion(f.level,tnt,null,null,at,radius,false,Explosion.BlockInteraction.DESTROY));
                     fastNanos+=System.nanoTime()-start;
+                    if(LbcExasperato.blastHeightBounds(f.level,at,radius,false).minY()!=Integer.MIN_VALUE)boundedNativeCases++;
                     require(new HashSet<>(actual).equals(new HashSet<>(original)),"exact native selected blocks in air/stone/fluids/high-resistance scene="+scene+" seed="+seed);
                     require(f.level.getRandom().nextLong()==expectedRandom,"native random stream consumption preserved");cases++;
                 }
             }
+            require(boundedNativeCases>=10,"large ordinary native TNT really exercises the finite-height branch");
+            heightContract(f);
             require(LbcExasperato.optimizedBlockSearches()-begin==cases,"ordinary TNT really enters optimized collection, including lightshoot column TNT");
+            SkyWars2.LOGGER.info("[check] native finite-height oracle cases={}",boundedNativeCases);
             SkyWars2.LOGGER.info("[check] PASS native-explosion-cache ({} seeded native/original block sets+RNG identical; block-search benchmark native={}ms optimized={}ms; damage/drop pipeline unchanged)",cases,slowNanos/1e6,fastNanos/1e6);
         }catch(ReflectiveOperationException e){throw new IllegalStateException(e);}
         finally{if(previous==null)System.clearProperty("skywars2.disableExplosionCache");else System.setProperty("skywars2.disableExplosionCache",previous);}
