@@ -100,16 +100,17 @@ public final class NativeTestReportCombatChecks {
             reset(f.owner);f.move(f.owner,f.home);f.move(f.other,f.home.add(25,0,0));
             var cow=new Cow(EntityTypes.COW,f.level);cow.setPos(f.home.add(5,0,0));cow.setNoAi(true);cow.setNoGravity(true);cow.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);cow.setHealth(100);require(f.level.addFreshEntity(cow),"real living impact control");f.own(cow);
             var pipe=launchPipe();var context=net.fabricmc.fabric.api.networking.v1.context.PacketContext.get();
-            require(eu.pb4.polymer.core.api.entity.PolymerEntity.get(pipe).getPolymerEntityType(context)==EntityTypes.MARKER,"thrown body hidden behind aligned display");
+            var polymer=eu.pb4.polymer.core.api.entity.PolymerEntity.get(pipe);require(polymer==null||polymer.getPolymerEntityType(context)==EntityTypes.ITEM,"thrown pipe is a real visible native item, sharing ordinary ground rendering");
             pipe.setPos(cow.position().add(-2,1,0));pipe.setDeltaMovement(Vec3.ZERO);game.items().metalPipe().tick();
             pipe.setPos(cow.position().add(.5,1,0));game.items().metalPipe().tick();
+            require((Integer)WoolBucketChecks.read(pipe,"pickupDelay")==32767,"airborne living impact cannot start a pickup delay before ground contact");
             require(cow.getHealth()<100&&cow.getDeltaMovement().x>0,"native living contact damages and knocks away from impact left of victim, independently of distant thrower: hp="+cow.getHealth()+" motion="+cow.getDeltaMovement()+" cow="+cow.position()+" pipe="+pipe.position()+" tags="+pipe.entityTags());
             f.move(f.owner,f.home.add(12,0,0));reset(f.owner);
             pipe.setPos(f.owner.position().add(-2,1,0));pipe.setDeltaMovement(Vec3.ZERO);game.items().metalPipe().tick();
             pipe.setPos(f.owner.position().add(.5,1,0));game.items().metalPipe().tick();
             require(f.owner.getHealth()<1000&&f.owner.getDeltaMovement().x>0,"armed pipe can strike its own thrower with impact-centered knockback: hp="+f.owner.getHealth()+" motion="+f.owner.getDeltaMovement()+" owner="+f.owner.position()+" pipe="+pipe.position()+" tags="+pipe.entityTags());f.discard(pipe);f.discard(cow);
             var ordinary=new ItemEntity(f.level,f.home.x,f.home.y,f.home.z,f.loot("lbc:metal_pipe"));ordinary.setDeltaMovement(.3,.2,.1);require(f.level.addFreshEntity(ordinary),"ordinary source pipe control");f.own(ordinary);
-            require(!ordinary.entityTags().contains(LbcMetalPipe.THROWN)&&eu.pb4.polymer.core.api.entity.PolymerEntity.get(ordinary).getPolymerEntityType(context)==EntityTypes.ITEM,"ordinary physical pipe retains native item rendering");f.discard(ordinary);
+            require(!ordinary.entityTags().contains(LbcMetalPipe.THROWN)&&(eu.pb4.polymer.core.api.entity.PolymerEntity.get(ordinary)==null||eu.pb4.polymer.core.api.entity.PolymerEntity.get(ordinary).getPolymerEntityType(context)==EntityTypes.ITEM),"ordinary physical pipe retains native item rendering");f.discard(ordinary);
         }
         int positions(){int count=0;for(var packet:packets(f.client)){
             if(packet instanceof ClientboundEntityPositionSyncPacket sync&&sync.id()==fire.getId())count++;

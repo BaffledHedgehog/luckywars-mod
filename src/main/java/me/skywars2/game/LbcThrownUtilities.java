@@ -97,7 +97,7 @@ public final class LbcThrownUtilities {
         if(output.size()!=1||!LbcMetalPipe.matches(output.getFirst()))return false;
         var stack=output.getFirst();LbcInventoryHazards.recordProducer(stack,owner.getUUID(),game.items().epoch());
         var item=new ItemEntity(owner.level(),at.x,at.y,at.z,stack);item.setDeltaMovement(velocity);item.setThrower(owner);
-        item.entityTags().add(LbcMetalPipe.THROWN);item.setPickUpDelay(10);game.items().markCurrentItemEpoch(item);
+        item.entityTags().add(LbcMetalPipe.THROWN);item.setPickUpDelay(32767);game.items().markCurrentItemEpoch(item);
         if(!owner.level().addFreshEntity(item))return false;
         game.items().metalPipe().loaded(item);return true;
     }
