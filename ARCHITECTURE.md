@@ -1,3 +1,9 @@
+## Physical grenade smoke and derived shader volumes
+
+`LbcReactiveArtifacts` remains the sole owner of smoke gameplay and its five-block, 1,200-tick lifetime. Modern grenades use an unowned, transient native `ItemEntity` for gravity, support loss, fluid motion and explosion knockback. Owner cleansing/disconnection does not remove a placed source. Unloaded bodies retain their original deadline and resume only when their chunk naturally ticks again. TimeStop pauses the deadline; celebration continues physical visuals without gameplay until lobby cleanup. The old smoke particle path remains separate.
+
+`SmokeVisuals` projects at most 16 nearby main/trail volumes into private native item displays using the existing manual visual tracker. Movement leaves short expanding, fading volumes at previous positions. Settled sources send no periodic display updates. The standalone `smoke_volume_2026_11_14` resource-pack addition transports radius/density through outline rows 59–74 and applies a depth-clipped analytic density integral. It preserves the existing outline channels and scene alpha; no particle stream or ray-march loop is required. `SmokeVolumeChecks` covers actual physics, metadata, idle traffic and the full lifetime; `SmokeEndingChecks` exercises real match finalization. `tools/check_smoke_volume_shader.py` validates the shaders on an offscreen GPU, separately from a connected Minecraft client.
+
 ## Manual seasonal lifecycle - qualified 14 November 2026
 
 `LbcSeasonalEvents` owns seasonal match start/end and native Halloween bodies. `GameConfig` remains the sole manual persistent flag owner; `LbcLoadouts.syncRanked` projects all event flags into the fixed native loot holders. Seasonal case/key variants reuse `OriginalGuiDesign` and the imported tables. Native bodies and scores own continuation state; the loaded seasonal index is rebuilt from `restoredBodies` after whole-match replay.

@@ -1227,6 +1227,8 @@ public final class GameChecks {
                                 case "erecto-cleanup" -> { ErectoChecks.cleanup(game); return; }
                                 case "tesla-traffic" -> { TeslaTrafficChecks.run(game); return; }
                                 case "network-transport" -> { NetworkTransportChecks.run(game); return; }
+                                case "smoke-volume" -> { SmokeVolumeChecks.run(game); return; }
+                                case "smoke-ending" -> { SmokeEndingChecks.run(game); return; }
                                 case "tesla-network" -> { TeslaTrafficChecks.runNetwork(game); return; }
                                 case "potion-ground-impact" -> { PotionGroundImpactChecks.run(game); return; }
                                 case "tesla" -> { TeslaChecks.run(game); return; }
@@ -1927,6 +1929,8 @@ public final class GameChecks {
         ErectoChecks.tick(game);
         TeslaChecks.tick(game);
         TeslaTrafficChecks.tick(game);
+        SmokeVolumeChecks.tick(game);
+        SmokeEndingChecks.tick(game);
         PotionGroundImpactChecks.tick(game);PolymorphWandChecks.tick(game);
         AwakenedAcidChecks.tick(game);
         GaycasterChecks.tick(game);

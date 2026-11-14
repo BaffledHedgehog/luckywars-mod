@@ -2235,7 +2235,7 @@ public final class LbcItems {
     public void tick() {
         LbcTmtTriggers.tick(game);
         // Keep accepted ability graphs visible until the real lobby transition retires them.
-        if(game.stage()==GameController.Stage.ENDING){rifleZoom.tick();return;}
+        if(game.stage()==GameController.Stage.ENDING){rifleZoom.tick();reactiveArtifacts.tickEnding();return;}
         radar.begin();
         hedgehogDimensions.tickReturns();
         steampunkRocket.tick();trollBox.tick();
@@ -2259,7 +2259,7 @@ public final class LbcItems {
             armorSets.chaos().pausedMaintenance();
             exasperato.tickSearchesWhileMapStopped();exasperato.blastTick();
             // Исключения Stand: кулаки двигаются, ножи лишь выпускаются и ждут native thaw.
-            blackHoleVisuals.tick();
+            blackHoleVisuals.tick();reactiveArtifacts.tick();
             stand.tick(); shooters.tickPhantomBursts();
             return;
         }
