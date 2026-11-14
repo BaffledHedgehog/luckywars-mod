@@ -220,8 +220,9 @@ public final class LbcChaosArmor {
     }
     private void rescue(ServerPlayer p){
         rescueCount++;self(p,MobEffects.RESISTANCE,20,4);
-        teleport(p,game.config().noBorders?p.position():Vec3.ZERO,190,125);
-        game.items().chaosTraps().spawnArmor(p,new Vec3(p.getX(),100,p.getZ()));
+        boolean moved=teleport(p,game.config().noBorders?p.position():Vec3.ZERO,190,125);
+        if(game.balanceLegacy())game.items().chaosTraps().spawnArmor(p,new Vec3(p.getX(),100,p.getZ()));
+        else if(moved)game.items().chaosTraps().spawnArmor(p,p.position());
     }
     private void replace(ServerPlayer p,int radius,Block block,TagKey<Block> replace,boolean strict){
         var level=p.level();var center=p.blockPosition();var from=center.offset(-radius,-radius,-radius);var to=center.offset(radius,radius,radius);
