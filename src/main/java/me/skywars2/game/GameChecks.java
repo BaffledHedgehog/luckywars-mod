@@ -1388,6 +1388,8 @@ public final class GameChecks {
                                 case "bridge-builder-bedwars" -> {BridgeBuilderChecks.runBedwars(game);return;}
                                 case "cases-native" -> {CaseCosmeticChecks.runCases(game);return;}
                                 case "cosmetics-native" -> {CaseCosmeticChecks.runCosmetics(game);return;}
+                                case "draw-fireworks" -> {CaseCosmeticChecks.runFireworks(game,true);return;}
+                                case "default-victory-fireworks" -> {CaseCosmeticChecks.runFireworks(game,false);return;}
                                 case "nameplates-native" -> {IndividualNameplateChecks.run(game);return;}
                                 case "nameplates-rewind" -> {IndividualNameplateChecks.runRewind(game);return;}
                                 case "time-fragment-native" -> {TimeFragmentSprintChecks.run(game);return;}

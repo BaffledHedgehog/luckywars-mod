@@ -1142,10 +1142,8 @@ public final class GameController {
             else if (--lastAliveTicks <= 0) finish();
         } else if (stage == Stage.ENDING) {
             items.stonekivi().tick();
-            if (victoryWinner != null) {
-                ServerPlayer winner = server.getPlayerList().getPlayer(victoryWinner);
-                if (winner != null && finishTicks > 1) events.victoryTick(winner, finishTicks - 1);
-            }
+            ServerPlayer winner= victoryWinner==null?null:server.getPlayerList().getPlayer(victoryWinner);
+            if(finishTicks>1&&(victoryWinner==null||winner!=null))events.victoryTick(winner,finishTicks-1);
             if (--finishTicks <= 0) restoreLobby();
         }
         if (lifetimeTicks % 600 == 0) players.save();
@@ -1571,7 +1569,8 @@ public final class GameController {
         config.gamesPlayed++; config.save(); players.save();
         transition(Stage.ENDING); finishTicks = Math.max(1, config.endingSeconds) * 20;
         // В исходном конце игры первая четвёрка ракет появляется сразу, затем раз в секунду.
-        if (winner != null) {items.cosmetics().winner(winner,gameTicks);events.victoryTick(winner, finishTicks);}
+        if(winner!=null)items.cosmetics().winner(winner,gameTicks);
+        events.victoryTick(winner,finishTicks);
     }
 
     private void restoreLobby() {

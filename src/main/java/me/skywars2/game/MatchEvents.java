@@ -355,9 +355,9 @@ public final class MatchEvents {
 
     /** Uses the source spreadplayers layout and emits the default win effect once per ending second. */
     public void victoryTick(ServerPlayer winner, int endingTicksRemaining) {
-        if (winner == null || endingTicksRemaining < 0 || endingTicksRemaining % TICKS_PER_SECOND != 0
-                || !controller.balanceLegacy()&&players.get(winner.getUUID()).winEffect != 0) return;
-        ensureVictoryMarkers(winner);
+        if (endingTicksRemaining < 0 || endingTicksRemaining % TICKS_PER_SECOND != 0
+                || winner!=null&&!controller.balanceLegacy()&&players.get(winner.getUUID()).winEffect != 0) return;
+        ensureVictoryMarkers(winner==null?maps.look():winner.position());
         if (victoryMarkers.size() != 4) return;
         controller.command("spreadplayers 0 0 20 192 false @e[type=minecraft:marker,tag="
                 + victoryMarkerTag + "]");
@@ -367,13 +367,13 @@ public final class MatchEvents {
         }
     }
 
-    private void ensureVictoryMarkers(ServerPlayer winner) {
+    private void ensureVictoryMarkers(Vec3 origin) {
         if (!victoryMarkers.isEmpty()) return;
         victoryMarkerTag = "skywars2_victory_" + UUID.randomUUID().toString().replace("-", "");
         for (int i = 0; i < 4; i++) {
             Marker marker = new Marker(EntityTypes.MARKER, maps.level());
             marker.entityTags().add(victoryMarkerTag);
-            marker.setPos(winner.getX(), winner.getY(), winner.getZ());
+            marker.setPos(origin);
             if (maps.level().addFreshEntity(marker)) victoryMarkers.add(marker);
             else marker.discard();
         }
@@ -397,9 +397,14 @@ public final class MatchEvents {
                 + ",colors:[I;" + firstColor + "],fade_colors:[I;" + fadeColor + "]}";
         String explosionB = "{shape:\"" + shape + "\",has_trail:0b,has_twinkle:" + (twinkle ? "1b" : "0b")
                 + ",colors:[I;" + secondColor + "],fade_colors:[I;" + fadeColor + "]}";
-        controller.command("summon minecraft:firework_rocket " + x + " " + y + " " + z
-                + " {LifeTime:" + lifetime + ",FireworksItem:{id:\"minecraft:firework_rocket\",components:{\"minecraft:fireworks\":{explosions:["
-                + explosionA + "," + explosionB + "]}},count:1}}");
+        try {
+            var data=net.minecraft.nbt.TagParser.parseCompoundFully("{LifeTime:"+lifetime+",FireworksItem:{id:\"minecraft:firework_rocket\",components:{\"minecraft:fireworks\":{explosions:["+explosionA+","+explosionB+"]}},count:1}}");
+            var rocket=new net.minecraft.world.entity.projectile.FireworkRocketEntity(EntityTypes.FIREWORK_ROCKET,maps.level());
+            rocket.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,maps.level().registryAccess(),data));
+            rocket.setPos(x,y,z);if(!maps.level().addFreshEntity(rocket))rocket.discard();
+        } catch(com.mojang.brigadier.exceptions.CommandSyntaxException error) {
+            throw new IllegalStateException("Native victory firework payload",error);
+        }
     }
 
     private static int randomFireworkColor() {

@@ -80,9 +80,10 @@ public final class CaseCosmeticChecks {
         require(rejected,"ambiguous stored names cannot administer another player's prize");
     }
     public static void runCosmetics(GameController game){start(game,1);}
+    public static void runFireworks(GameController game,boolean draw){start(game,draw?3:4);}
     public static void runRewind(GameController game){start(game,2);}
     private static void start(GameController game,int kind){require(running==null,"exclusive native fixture");var f=new Fixture(game,kind);running=f;try{f.begin();}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{require(f.game==game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.kind==0?"actual keys/source27 cards/Slot2/one debit/payout/paid resume and native source ownership":f.kind==1?"actual cosmetic GUI gates, tracked cages/individual TAB and chat suffixes with shared teams preserved, causal death bodies and source postgame work":"nonempty native profiles/strip/private cosmetic work/RNG whole coordinator replay");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
+    public static void tick(GameController game){if(running==null)return;var f=running;try{require(f.game==game,"same controller");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS {} ({})",f.name(),f.kind==0?"actual keys/source27 cards/Slot2/one debit/payout/paid resume and native source ownership":f.kind==1?"actual cosmetic GUI gates, tracked cages/individual TAB and chat suffixes with shared teams preserved, causal death bodies and source postgame work":f.kind>=3?"canonical native finish and ending ticks, four actual two-explosion rockets immediately and each second, exact draw/winner rewards":"nonempty native profiles/strip/private cosmetic work/RNG whole coordinator replay");}catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL "+f.name(),error);}}
 
     private static final class Fixture implements AutoCloseable {
         final GameController game;final int kind;final ServerPlayer owner;ServerPlayer other;
@@ -109,7 +110,7 @@ public final class CaseCosmeticChecks {
             policy=(LbcCosmetics.Policy)get(cosmetics,"policy");level.getAllEntities().forEach(e->original.add(e.getUUID()));origin=new Vec3(owner.getX(),Math.min(240,level.getMaxY()-40),owner.getZ());started=game.server().getTickCount();
             client=new RegenerationBeltChecks.ScheduledClient(game,owner);audience=new RegenerationBeltChecks.ScheduledClient(game,other);
         }
-        String name(){return kind==0?"cases-native":kind==1?"cosmetics-native":"cases-cosmetics-rewind";}
+        String name(){return kind==0?"cases-native":kind==1?"cosmetics-native":kind==3?"draw-fireworks":kind==4?"default-victory-fireworks":"cases-cosmetics-rewind";}
         PlayerStore.Profile profile(){return game.players().get(owner.getUUID());}
         PlayerStore.Profile otherProfile(){return game.players().get(other.getUUID());}
         LbcCases.Pending pending(){return JSON.fromJson(profile().casePending,LbcCases.Pending.class);}
@@ -129,7 +130,7 @@ public final class CaseCosmeticChecks {
                 else if(method.getName().equals("cageWrite"))remember((BlockPos)args[1]);
                 try{return method.invoke(policy,args);}catch(InvocationTargetException e){throw e.getCause();}
             }));
-            if(kind==0){keyShop();ordinaryMapping();ioFailure();beginCase(0);}else if(kind==1){cosmeticMenus();cages();suffixes();sounds();startKills();}else beginReplay();
+            if(kind==0){keyShop();ordinaryMapping();ioFailure();beginCase(0);}else if(kind==1){cosmeticMenus();cages();suffixes();sounds();startKills();}else if(kind>=3)next(49);else beginReplay();
         }
         void clearOwnership(ServerPlayer p){var row=game.players().get(p.getUUID());row.legacyUnlocks.clear();row.lbcUnlocks.clear();row.casePending="";row.killSound=row.cage=row.suffix=row.winEffect=row.killEffect=0;p.entityTags().removeIf(s->s.startsWith("swrg.kit")||s.startsWith("swrg.skill")||s.startsWith("swrg.sound")||s.startsWith("swrg.bars"));for(var a:game.server().getAdvancements().getAllAdvancements())if(a.id().toString().startsWith("swrg:rewards/")||Set.of("lbc:true_advancements/event/pumpkin_sword","lbc:true_advancements/event/soulcorrupt_wand_upgraded","lbc:true_advancements/event/soulhunter_mace").contains(a.id().toString()))for(var criterion:a.value().criteria().keySet())p.getAdvancements().revoke(a,criterion);}
         void grant(ServerPlayer p,String key){var row=game.players().get(p.getUUID());if(LbcSourceUnlocks.valid(key)){row.legacyUnlocks.add(key);LbcSourceUnlocks.publish(p,row);}else{row.lbcUnlocks.add(key);game.items().mana().award(p,key);}require(LbcSourceUnlocks.has(p,row,key),"canonical source ownership "+key);}
@@ -382,6 +383,23 @@ public final class CaseCosmeticChecks {
             require(effectJobs("HAMMER").size()==1,"final-kill hammer remains the same accepted job");hammer=effectJobs("HAMMER").getFirst();
             require(effectJobs("WINNER").size()==1,"actual canonical winner transition enrolls one golden source producer");move(owner,origin);owner.setYRot(0);owner.setXRot(0);endingAge=(int)get(effectJobs("WINNER").getFirst(),"age");next(40);
         }
+        final Set<UUID> celebrationRockets=new HashSet<>();
+        void beginFireworks(){
+            profile().winEffect=kind==3?2:0;game.config().endingSeconds=60;
+            var rewards=new LinkedHashMap<UUID,long[]>();for(var p:game.server().getPlayerList().getPlayers()){var row=game.players().get(p.getUUID());rewards.put(p.getUUID(),new long[]{row.coins,row.wins,Arrays.stream(row.keys).asLongStream().sum()});}
+            @SuppressWarnings("unchecked") var members=(Map<UUID,Object>)get(game,"participants");for(var e:members.entrySet())set(e.getValue(),"lives",kind==4&&e.getKey().equals(owner.getUUID())?1:0);
+            endingStarted=true;invoke(game,"finish",new Class<?>[0]);require(game.stage()==GameController.Stage.ENDING&&Objects.equals(get(game,"victoryWinner"),kind==3?null:owner.getUUID()),"canonical finish selects the actual draw/default-winner branch");
+            for(var e:rewards.entrySet()){var row=game.players().get(e.getKey());int award=kind==4&&e.getKey().equals(owner.getUUID())?1:0;require(row.coins==e.getValue()[0]+100*award&&row.wins==e.getValue()[1]+award&&Arrays.stream(row.keys).asLongStream().sum()==e.getValue()[2]+award,"draw cannot award a false winner; normal winner keeps exact reward");}
+            require(jobs().isEmpty(),"default/draw fireworks never enroll a selected winner cosmetic");observeFireworks();require(celebrationRockets.size()==4,"canonical finish immediately creates four real rockets");next(50);
+        }
+        void observeFireworks(){
+            for(var e:level.getAllEntities())if(e instanceof net.minecraft.world.entity.projectile.FireworkRocketEntity rocket&&!original.contains(e.getUUID())){
+                var data=rocket.getItem().get(DataComponents.FIREWORKS);require(data!=null&&data.explosions().size()==2,"actual native victory rocket retains both authored explosions");celebrationRockets.add(e.getUUID());
+            }
+        }
+        boolean fireworksStep(int elapsed){
+            require(game.stage()==GameController.Stage.ENDING,"real ending scheduler remains active");observeFireworks();require(celebrationRockets.size()==(elapsed<20?4:8),"four native fireworks per ending second, no intervening extra wave; elapsed="+elapsed+" seen="+celebrationRockets.size());return elapsed>=21;
+        }
         boolean cosmeticStep(int elapsed){
             if(stage==30){if(effectJobs("SOUL").isEmpty()){require(elapsed<8,"native causal souls published on next source tick");return false;}require(effectJobs("SOUL").size()<=4,"four original item/XP age buckets bound native souls");cosmetics.stop();playerDeath(2);next(31);return false;}
             if(stage==31){respawn();next(32);return false;}
@@ -439,13 +457,13 @@ public final class CaseCosmeticChecks {
             if(other.isAlive()&&!(endingStarted&&other==retired))audience.acknowledge();
             require(game.server().getTickCount()-started<1200,"bounded scheduled fixture "+name()+" stage="+stage);int elapsed=game.server().getTickCount()-when;
             if(restoring&&game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
-            if(kind==0)return stage==2?manualStep():caseStep();if(kind==1)return cosmeticStep(elapsed);return rewindStep(elapsed);
+            if(kind==0)return stage==2?manualStep():caseStep();if(kind==1)return cosmeticStep(elapsed);if(kind>=3){if(stage==49){beginFireworks();return false;}return fireworksStep(elapsed);}return rewindStep(elapsed);
         }
         @Override public void close(){
             if(closed)return;closed=true;Throwable failure=null;
             for(Runnable action:List.<Runnable>of(
                     ()->{if(offline){game.server().getPlayerList().getPlayersByUUID().put(owner.getUUID(),owner);offline=false;}},
-                    ()->{if(kind==2)game.vanity().stop();},()->{cosmetics.stop();if(!endingHoleActors.isEmpty())game.items().sheep().forget(owner.getUUID());if(stopped){game.items().timeStop().end(level);stopped=false;}},
+                    ()->{if(kind==2)game.vanity().stop();},()->{cosmetics.stop();if(kind>=3)invoke(game.events(),"clearVictoryMarkers",new Class<?>[0]);if(!endingHoleActors.isEmpty())game.items().sheep().forget(owner.getUUID());if(stopped){game.items().timeStop().end(level);stopped=false;}},
                     ()->{if(retired!=null&&!other.isAlive())respawn();},
                     ()->{
                         owner.closeContainer();other.closeContainer();
@@ -466,7 +484,7 @@ public final class CaseCosmeticChecks {
                         core.restoreFrozen();world.restoreFrozen();random.restoreFrozen();
                     },
                     ()->{saved.restoreAttributes();otherSaved.restoreAttributes();saved.restore(game);otherSaved.restore(game);saved.restoreUse();otherSaved.restoreUse();ownerRandom.restore(owner.getRandom());otherRandom.restore(other.getRandom());owner.getStats().setValue(owner,net.minecraft.stats.Stats.ENTITY_KILLED.get(EntityTypes.PLAYER),playerKills);other.getStats().setValue(other,net.minecraft.stats.Stats.ENTITY_KILLED_BY.get(EntityTypes.PLAYER),playerKilledBy);},
-                    ()->{set(cosmetics,"policy",policy);cases.restored();game.players().save();if(kind==1)game.config().save();},
+                    ()->{set(cosmetics,"policy",policy);cases.restored();game.players().save();if(kind==1||kind>=3)game.config().save();},
                     ()->{game.items().magic().inventoryChanged(owner);game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();},
                     client::close,()->audience.close(),()->game.server().tickRateManager().setFrozen(frozen)))
                 try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
