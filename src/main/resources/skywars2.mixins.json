@@ -4,6 +4,7 @@
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
     "LegacyLootTextMixin",
+    "CloneProjectileTickMixin",
     "TmtInputMixin",
     "TmtInputMixin$Thrown",
     "TmtInputMixin$UseModifier",

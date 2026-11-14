@@ -92,6 +92,20 @@ public final class LbcCloneSkills {
         return game.lbc().hasSkill(player,skill)&&!game.items().wands().inputTimeStopped(player)
                 &&!game.items().timeStop().stopped(player.level());
     }
+    /** Intake after block producers, before EntityTickList snapshots its iteration: short-lived originals cannot outrun the aura. */
+    public void beforeNativeEntities(ServerLevel level){
+        if(cloning||!ready()||!game.playing()||game.maps().busy()||game.vanity().busy()
+                ||!game.server().tickRateManager().runsNormally()||game.server().tickRateManager().isFrozen())return;
+        for(var owner:List.copyOf(level.players())){
+            if(!admitted(owner,15))continue;
+            var candidates=new ArrayList<Entity>();
+            level.getEntities(EntityTypeTest.forClass(Entity.class),new AABB(owner.position(),owner.position()).inflate(10+1.0e-6),
+                    actor->!actor.entityTags().contains("doubled")&&actor.position().distanceToSqr(owner.position())<=100&&baseEligible(actor)&&projectile(actor),candidates,Integer.MAX_VALUE);
+            for(var actor:candidates)if(!actor.entityTags().contains("doubled")&&baseEligible(actor)&&actor.position().distanceToSqr(owner.position())<=100){
+                scanned++;cloneActor(actor,15,false,Integer.MAX_VALUE);
+            }
+        }
+    }
     /** Rotate admitted holders; native resident spatial queries never request or enumerate world chunks. */
     public void tick(){
         if(!ready()||!game.playing()||game.maps().busy()||!game.server().tickRateManager().runsNormally()
