@@ -505,7 +505,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             root.then(Commands.literal("stop").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(ctx -> {
                 if (game != null) game.stopMatch(); return 1;
             }));
-            root.then(Commands.literal("check").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+            root.then(Commands.literal("check").requires(source->source.getEntity()==null&&Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source))
                     .then(Commands.argument("suite", StringArgumentType.word()).executes(ctx -> {
                         if (game != null) GameChecks.run(game, StringArgumentType.getString(ctx, "suite")); return 1;
                     })));

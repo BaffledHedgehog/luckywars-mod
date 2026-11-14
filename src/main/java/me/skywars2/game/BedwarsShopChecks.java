@@ -84,6 +84,20 @@ public final class BedwarsShopChecks {
                 }
             }finally{game.config().gameMode=next;clear();open();}
         }
+        void previewTransfers(){
+            clear();open();player.getInventory().setItem(0,new ItemStack(Items.STONE,3));player.containerMenu.setCarried(new ItemStack(Items.STICK,2));
+            var expected=new ArrayList<ItemStack>();for(int n=0;n<player.getInventory().getContainerSize();n++)expected.add(player.getInventory().getItem(n).copy());var cursor=player.containerMenu.getCarried().copy();var before=new HashSet<UUID>();drops().forEach(e->before.add(e.getUUID()));
+            for(int slot:new int[]{0,8,9,18,38,54})for(var input:List.of(ContainerInput.SWAP,ContainerInput.THROW,ContainerInput.CLONE,ContainerInput.PICKUP_ALL,ContainerInput.QUICK_CRAFT,ContainerInput.QUICK_MOVE)){
+                if(slot>=54&&(input==ContainerInput.SWAP||input==ContainerInput.THROW||input==ContainerInput.CLONE))continue;
+                for(byte button:new byte[]{0,1,2,8,40}){
+                    packet(slot,button,input);
+                    for(int n=0;n<expected.size();n++)require(ItemStack.matches(expected.get(n),player.getInventory().getItem(n)),"native forged "+input+"/"+slot+"/"+button+" cannot move GUI preview into inventory slot "+n);
+                    require(ItemStack.matches(cursor,player.containerMenu.getCarried()),"native forged transfer cannot replace the cursor");
+                    require(drops().stream().allMatch(e->before.contains(e.getUUID())),"native forged transfer cannot throw a usable GUI icon");
+                }
+            }
+            clear();open();
+        }
         void begin(){
             require(player.position().distanceToSqr(npc.position())<=64,"root places enrolled player within shop reach");
             boolean lucky=game.gameMode()==4;
@@ -91,7 +105,7 @@ public final class BedwarsShopChecks {
             for(int n=0;n<expected.length;n++){var offers=shop.offers(player,LbcBedwarsShop.Category.values()[n]);require(offers.size()==expected[n],"source finite category count "+n);total+=offers.size();var slots=new HashSet<Integer>();for(var offer:offers)require(offer.slot()>=18&&offer.slot()<54&&slots.add(offer.slot())&&!offer.item().isEmpty(),"unique stocked source slot");}
             require(total==(lucky?80:77),"complete source finite graph");clear();var menu=open();require((menu.getGuiElement(6)!=null)==lucky,"Lucky tab appears only in the active Lucky BedWars match");
             require(menu.getGuiElement(9).getItemStack().is(Items.PALE_HANGING_MOSS)&&menu.getGuiElement(9).getItemStack().get(DataComponents.TOOLTIP_DISPLAY).hideTooltip(),"actual source separator differs from stale VINE comment");
-            luckyOffers();
+            luckyOffers();previewTransfers();
             // Mixed currency rejection must leave BOTH currencies, output and cursor untouched.
             coins(Items.IRON_INGOT,5);category(1);click(23);require(count(Items.IRON_INGOT)==5&&count(Items.IRON_SWORD)==0&&player.containerMenu.getCarried().isEmpty(),"missing gold cannot partially debit iron");
             coins(Items.GOLD_INGOT,3);click(23);require(count(Items.IRON_INGOT)==0&&count(Items.GOLD_INGOT)==0&&count(Items.IRON_SWORD)==1,"exact real multicurrency purchase");

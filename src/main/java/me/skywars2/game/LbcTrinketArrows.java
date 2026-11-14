@@ -95,6 +95,8 @@ public final class LbcTrinketArrows {
         // Shared ordinary-arrow deletion remains authoritative; electrical auras have no MAG check.
         if(game.items().magic().mechanismSuppressedAt(level,at)){arrow.discard();return false;}
         if((mask&COCKTAIL)!=0){
+            if(!(arrow instanceof AbstractArrow grounded&&((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)grounded).skywars2$isInGround()))
+                level.sendParticles(ParticleTypes.ELECTRIC_SPARK,at.x,at.y,at.z,1,.05,.05,.05,0);
             var nearby=level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(4),e->mob(e)&&e.position().distanceToSqr(at)<=16);
             if(!nearby.isEmpty()){
                 for(var target:nearby)if(target(arrow,target)&&!game.items().magic().mechanismSuppressedAt(level,target.position())){

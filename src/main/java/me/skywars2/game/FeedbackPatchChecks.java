@@ -41,6 +41,9 @@ public final class FeedbackPatchChecks {
                     &&pointer.target().orElseThrow().dimension().equals(f.other.level().dimension()),"actual chest locator tracks nearest live player");
             require(compass.get(DataComponents.CUSTOM_NAME).getString().equals(f.other.getName().getString()),"actual locator includes target nickname");
             var source=f.owner.createCommandSourceStack();
+            var commandRoot=game.server().getCommands().getDispatcher().getRoot().getChild("skywars");
+            require(commandRoot.getChild("check")!=null&&!commandRoot.getChild("check").canUse(source)&&commandRoot.getChild("check").canUse(game.server().createCommandSourceStack()),"internal native checks are console-only and absent from every player's command suggestions");
+            require(commandRoot.getChild("inventory").canUse(source)&&commandRoot.getChild("detach").canUse(source),"legitimate spectator inventory and camera exit remain user commands");
             try{
                 require(game.server().getCommands().getDispatcher().getRoot().getChild("tps")!=null
                         &&game.server().getCommands().getDispatcher().execute("tps",source)==1

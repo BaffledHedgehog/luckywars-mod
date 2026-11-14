@@ -304,7 +304,10 @@ public final class CaseCosmeticChecks {
                 // credit and even a sword in hand cannot turn this electrical spell into melee.
                 var bolt=new net.minecraft.world.damagesource.DamageSource(level.registryAccess()
                         .lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
+                int otherSoundStart=packets(audience).size();
                 require(other.hurtServer(level,bolt,1)&&other.isAlive(),"actual nonlethal Tesla damage source");
+                for(var window:List.of(packets(client).subList(soundStart,packets(client).size()),packets(audience).subList(otherSoundStart,packets(audience).size())))
+                    require(window.stream().filter(ClientboundSoundPacket.class::isInstance).map(ClientboundSoundPacket.class::cast).noneMatch(p->p.getSound().value().location().toString().equals("minecraft:entity.witch.celebrate")),"nonlethal hit never publishes selected death sound to either listener");
                 require(mana.get(owner)==0&&mana.get(other)==500,"nonlethal Tesla neither grants nor steals mana");
                 require(game.items().chargedSwords().blazeCharges(owner)==charges,"nonlethal Tesla cannot charge a held sword");
                 other.setInvulnerableTime(0);other.damageCooldownTime=0;
