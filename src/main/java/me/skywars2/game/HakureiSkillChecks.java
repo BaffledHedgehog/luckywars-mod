@@ -37,6 +37,7 @@ public final class HakureiSkillChecks {
             game.config().ranked=true;game.config().lbcSkills=true;game.players().get(f.owner.getUUID()).lbcSkill=28;game.players().get(f.other.getUUID()).lbcSkill=0;
             f.move(f.owner,f.at);f.move(f.other,f.at.add(8,0,0));client.acknowledge();audience.acknowledge();
             presentation();lifeBase=game.lives(f.other.getUUID());regenBase=f.mana.baseRegen(f.other);coinBase=game.players().get(f.other.getUUID()).coins;attackBase=f.other.getAttributeValue(Attributes.ATTACK_DAMAGE);f.mana.maximum(f.other,10000);f.mana.set(f.other,0);
+            client.packets().clear();audience.packets().clear();
             for(int id=1;id<=10;id++)touch(id,1);
             at=game.server().getTickCount();
         }
@@ -48,6 +49,9 @@ public final class HakureiSkillChecks {
                 int[] expected={800,100,3,1000,1,10,200,100,10,10,1000};int total=0;require(entries.size()==11,"all source outcomes including nested bomb");for(int n=0;n<expected.length;n++){int weight=entries.get(n).getAsJsonObject().get("weight").getAsInt();require(weight==expected[n],"source exact weight "+n);total+=weight;}require(total==3234,"source total3234");
             }catch(java.io.IOException error){throw new IllegalStateException(error);}
         }
+        List<net.minecraft.network.protocol.game.ClientboundSoundPacket> sounds(RegenerationBeltChecks.ScheduledClient viewer,String id){return viewer.packets().stream().filter(net.minecraft.network.protocol.game.ClientboundSoundPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundSoundPacket.class::cast).filter(p->p.getSound().value().location().toString().equals(id)).toList();}
+        void sound(RegenerationBeltChecks.ScheduledClient viewer,String id,net.minecraft.sounds.SoundSource category,float volume,float pitch,int count){var packets=sounds(viewer,id);require(packets.size()==count,"exact native sound audience/count "+id+" expected="+count+" actual="+packets.size());for(var p:packets)require(p.getSource()==category&&p.getVolume()==volume&&p.getPitch()==pitch,"source category/volume/pitch "+id);}
+        void noOrbSubtitle(){require(audience.packets().stream().noneMatch(net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket.class::isInstance),"orb counts stay in actionbar, never a subtitle");}
         long inventoryFlag(String flag){long result=0;for(int i=0;i<f.other.getInventory().getContainerSize();i++){var stack=f.other.getInventory().getItem(i);if(LbcFartus.data(stack).getIntOr(flag,0)==1)result+=stack.getCount();}return result;}
         Set<Entity> nativeDrops(){
             var result=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
@@ -93,6 +97,8 @@ public final class HakureiSkillChecks {
             if(game.vanity().busy())for(var p:game.server().getPlayerList().getPlayers())if(p.connection instanceof MatchPlayerCheckpoint.SimulatedAcknowledgement ack)ack.skywars2$acknowledgeRestore();
             if(stage==0){
                 if(elapsed<2)return false;
+                noOrbSubtitle();var titles=audience.packets().stream().filter(net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket.class::isInstance).map(net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket.class::cast).toList();require(titles.size()==1&&titles.getFirst().text().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents text&&text.getKey().equals("full_power_mode")&&titles.getFirst().text().getStyle().isBold()&&titles.getFirst().text().getStyle().getColor().getValue()==0xffaa00,"full-power title retained without blank orb title overwriting it");
+                sound(audience,"minecraft:item.honey_bottle.drink",net.minecraft.sounds.SoundSource.PLAYERS,.5f,2,1);sound(audience,"minecraft:lbcsounds.coin",net.minecraft.sounds.SoundSource.PLAYERS,1,1,1);require(sounds(client,"minecraft:item.honey_bottle.drink").isEmpty()&&sounds(client,"minecraft:lbcsounds.coin").isEmpty(),"private collection sounds never reach nearby owner");
                 require(intake.counters(f.other).equals(new LbcTouhouCollectibles.Counters(150,1,1,1)),"all ten IDs consumed by actual picker with skill0");require(game.lives(f.other.getUUID())==lifeBase+1&&f.mana.baseRegen(f.other)==regenBase+1&&game.players().get(f.other.getUUID()).coins==coinBase+2&&f.mana.get(f.other)>=100,"native lives/mana/faith/coins");
                 near(f.other.getAttributeValue(Attributes.ATTACK_DAMAGE),attackBase+8,"all six power attack modifiers");near(f.other.getAttributeValue(Attributes.MAX_HEALTH),36,"four source multiplied-base health modifiers");
                 f.block(f.center.offset(4,0,4),LbcMagic.MAGIC_BEACON_BLOCK);f.move(f.other,f.at.add(4,0,4));audience.acknowledge();require(game.items().magic().suppressed(f.other),"actual MAG field positive control");
@@ -100,7 +106,7 @@ public final class HakureiSkillChecks {
             }
             if(stage==1){
                 if(elapsed<2)return false;
-                require(intake.counters(f.other).equals(new LbcTouhouCollectibles.Counters(150,75,95,90)),"99-unit large stacks convert each threshold ONCE under source unjammed intake");require(inventoryFlag("time_stopper")==1&&inventoryFlag("bomb_item")==1&&game.lives(f.other.getUUID())==lifeBase+2,"one output each, counters retain overflow");
+                noOrbSubtitle();require(intake.counters(f.other).equals(new LbcTouhouCollectibles.Counters(150,75,95,90)),"99-unit large stacks convert each threshold ONCE under source unjammed intake");require(inventoryFlag("time_stopper")==1&&inventoryFlag("bomb_item")==1&&game.lives(f.other.getUUID())==lifeBase+2,"one output each, counters retain overflow");
                 if(elapsed<5)return false;require(intake.counters(f.other).bombFragments()==95,"no autonomous repeated conversion after drain");
                 var held=f.other.getMainHandItem().copy();
                 for(String table:List.of("bomb_item","time_stopper")){
@@ -131,16 +137,19 @@ public final class HakureiSkillChecks {
             if(stage==5){
                 if(skill.pendingCount()!=0)return false;
                 require(f.owner.level().getEntity(unrelated) instanceof ItemEntity item&&item.getItem().getCount()==17,"unrelated newborn not selected by reward");
+                for(var viewer:List.of(client,audience)){var chimes=sounds(viewer,"minecraft:block.amethyst_block.chime");require(!chimes.isEmpty(),"real reward publishes audible chime to both nearby players");for(var p:chimes)require(p.getSource()==net.minecraft.sounds.SoundSource.BLOCKS&&p.getVolume()==.5f&&p.getPitch()==2&&new Vec3(p.getX(),p.getY(),p.getZ()).distanceToSqr(f.at)<20*20,"reward chime retains source category, pitch and actual death area");viewer.packets().clear();}
                 f.other.getInventory().clearContent();var bomb=game.lbc().rollTable(f.other.level(),f.other.position(),f.other,"lbc:bomb_item").getFirst();f.other.setItemInHand(InteractionHand.MAIN_HAND,bomb.copyWithCount(2));
                 require(f.other.gameMode.useItem(f.other,f.other.level(),f.other.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction()&&f.other.getMainHandItem().getCount()==1,"any picker actual bomb input debits exactly one");
+                for(var viewer:List.of(client,audience))sound(viewer,"minecraft:lbcsounds.bomb",net.minecraft.sounds.SoundSource.MASTER,2,1,1);
                 require(game.items().danmaku().bombs().stream().anyMatch(b->b.owner==f.other),"native shared fast bomb owned by actual picker");stage=6;at=game.server().getTickCount();return false;
             }
             if(stage==6){
-                if(elapsed<4)return false;var clock=game.lbc().rollTable(f.other.level(),f.other.position(),f.other,"lbc:time_stopper").getFirst();f.other.setItemInHand(InteractionHand.MAIN_HAND,clock.copyWithCount(2));
+                if(elapsed<4)return false;client.packets().clear();audience.packets().clear();var clock=game.lbc().rollTable(f.other.level(),f.other.position(),f.other,"lbc:time_stopper").getFirst();f.other.setItemInHand(InteractionHand.MAIN_HAND,clock.copyWithCount(2));
                 require(f.other.gameMode.useItem(f.other,f.other.level(),f.other.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction()&&f.other.getMainHandItem().getCount()==1&&game.items().timeStop().stopped(f.other.level()),"real source clock input enters shared stop with one debit");
                 require(!game.items().timeStop().frozen(f.other),"caster exemption survives consumable debit");
                 require(f.other.gameMode.useItem(f.other,f.other.level(),f.other.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction()&&f.other.getMainHandItem().isEmpty()
                         &&game.items().timeStop().remaining(f.other.level())==440,"second clock adds11seconds to same stop with one further debit");
+                for(var viewer:List.of(client,audience))sound(viewer,"minecraft:lbcsounds.zawardo",net.minecraft.sounds.SoundSource.MASTER,.5f,1,2);
                 stage=7;at=game.server().getTickCount();return false;
             }
             if(elapsed<3)return false;require(game.items().timeStop().stopped(f.other.level())&&!game.items().timeStop().frozen(f.other),"caster remains immune on later clock ticks");return true;

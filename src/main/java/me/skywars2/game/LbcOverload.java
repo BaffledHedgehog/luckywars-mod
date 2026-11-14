@@ -232,6 +232,10 @@ public final class LbcOverload {
     }
     public void clearEffects(ServerPlayer p) { armor.clear(p); }
     public void reset(ServerPlayer p) { clearEffects(p); p.entityTags().remove("obtained_crux"); }
+    static void notifySound(ServerPlayer player,String id,SoundSource category,float volume,float pitch) {
+        var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id)));
+        player.connection.send(new ClientboundSoundPacket(sound,category,player.getX(),player.getY(),player.getZ(),volume,pitch,player.getRandom().nextLong()));
+    }
     /** @a выбирает всех, но native playsound затем отсекает другое измерение и неслышимую дистанцию. */
     static void sound(ServerPlayer p,String id,float volume,float pitch,double radius) {
         sound(p,p.position(),id,volume,pitch,radius);

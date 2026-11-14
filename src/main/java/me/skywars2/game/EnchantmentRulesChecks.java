@@ -51,6 +51,40 @@ public final class EnchantmentRulesChecks {
         require(player.experienceLevel==before-cost && menu.getSlot(0).getItem().isEmpty() && menu.getSlot(1).getItem().isEmpty(),
                 "native take spends exact XP cost and consumes both inputs");return output;
     }
+    private static void swordProperties(GameController game,ServerPlayer player,BlockPos center){
+        int count=0;com.google.gson.JsonObject catalog;
+        try(var stream=EnchantmentRulesChecks.class.getResourceAsStream("/skywars2/loot_test_catalog.json")){
+            require(stream!=null,"complete public sword domain");catalog=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+        }catch(java.io.IOException error){throw new IllegalStateException(error);}
+        var enchantments=List.of(Enchantments.SHARPNESS,Enchantments.SMITE,Enchantments.BANE_OF_ARTHROPODS,Enchantments.FIRE_ASPECT,Enchantments.KNOCKBACK,Enchantments.LOOTING,Enchantments.SWEEPING_EDGE,Enchantments.UNBREAKING,Enchantments.MENDING,Enchantments.VANISHING_CURSE);
+        for(var row:catalog.getAsJsonArray("items"))for(var stack:game.lbc().rollTable(player.level(),player.position(),player,row.getAsJsonObject().get("table").getAsString()))if(LbcSwordTools.sword(stack)&&!LbcTmtAbilities.active(stack)){
+            count++;require(stack.is(net.minecraft.tags.ItemTags.SWORDS),"every authored sword participates in native sweep: "+stack);
+            for(var type:List.of(DataComponents.TOOL,DataComponents.ENCHANTABLE,DataComponents.REPAIRABLE,DataComponents.WEAPON))require(stack.has(type),"all native sword components supplied: "+type+" on "+stack);
+            for(var key:enchantments){var enchantment=holder(player,key).value();require(enchantment.isSupportedItem(stack),"all native sword enchantments supported: "+key+" on "+stack);if(enchantment.isPrimaryItem(new ItemStack(Items.IRON_SWORD)))require(enchantment.isPrimaryItem(stack),"sword is primary input for native table: "+key);}
+        }
+        require(count>20,"full public catalog supplies a broad authored sword domain; got "+count);
+        var rod=new ItemStack(Items.CARROT_ON_A_STICK);require(!rod.is(net.minecraft.tags.ItemTags.SWORDS)&&!holder(player,Enchantments.SWEEPING_EDGE).value().isSupportedItem(rod),"ordinary carrot tool remains outside sword rules");
+        for(String id:List.of("lbc:ported/lightsaber_jedi","lbc:ported/lightsaber_sith","lbc:ported/blazefire_sword","lbc:ported/piston_sword")){
+            var stack=game.lbc().rollTable(player.level(),player.position(),player,id).getFirst();stack.set(DataComponents.ENCHANTMENTS,ItemEnchantments.EMPTY);var attributes=stack.get(DataComponents.ATTRIBUTE_MODIFIERS);var shield=stack.get(DataComponents.BLOCKS_ATTACKS);
+            require(stack.isEnchantable(),"real named sword is a table input: "+id);var table=new EnchantmentMenu(45,player.getInventory(),ContainerLevelAccess.create(player.level(),center));table.getSlot(0).set(stack.copy());table.getSlot(1).set(new ItemStack(Items.LAPIS_LAZULI,3));int before=player.experienceLevel;
+            require(table.costs[2]==30&&table.clickMenuButton(player,2),"real native table enchants named sword "+id);var result=table.getSlot(0).getItem();require(!result.getEnchantments().isEmpty()&&player.experienceLevel==before-3&&table.getSlot(1).getItem().isEmpty(),"table commits result and exact lapis/XP debit");require(Objects.equals(attributes,result.get(DataComponents.ATTRIBUTE_MODIFIERS))&&Objects.equals(shield,result.get(DataComponents.BLOCKS_ATTACKS)),"native enchanting preserves authored damage/speed and shield behavior");
+            var combined=combine(player,center,stack,book(player,List.of(Enchantments.SHARPNESS,Enchantments.SWEEPING_EDGE),2));require(level(player,combined,Enchantments.SHARPNESS)==2&&level(player,combined,Enchantments.SWEEPING_EDGE)==2,"real anvil sword result retains both sword enchantments "+id);
+        }
+        SkyWars2.LOGGER.info("[check] native sword coverage: {} authored swords, full enchantment domain and four actual table/anvil inputs",count);
+    }
+    private static void swordSweep(ServerPlayer player,BlockPos center){
+        var level=player.level();var actors=new ArrayList<Cow>();boolean ground=player.onGround(),sprint=player.isSprinting();var known=player.getKnownMovement();double falling=player.fallDistance;float speed=player.getSpeed();
+        var stats=new LinkedHashMap<net.minecraft.stats.Stat<?>,Integer>();for(var stat:List.of(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.DAMAGE_DEALT),net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.DAMAGE_DEALT_ABSORBED),net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.DAMAGE_DEALT_RESISTED),net.minecraft.stats.Stats.ITEM_USED.get(Items.STICK)))stats.put(stat,player.getStats().getValue(stat));
+        java.lang.reflect.Field clock;try{clock=net.minecraft.world.entity.LivingEntity.class.getDeclaredField("attackStrengthTicker");clock.setAccessible(true);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}int previous;try{previous=clock.getInt(player);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
+        try{
+            player.setOnGround(true);player.setSprinting(false);player.setSpeed((float)player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED));player.setKnownMovement(net.minecraft.world.phys.Vec3.ZERO);player.fallDistance=0;
+            var typed=new ItemStack(Items.STICK);var tag=new net.minecraft.nbt.CompoundTag();tag.putString("type","sword");typed.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(tag));
+            for(var weapon:List.of(new ItemStack(Items.STICK),typed)){
+                for(var old:actors)old.discard();actors.clear();for(int i=0;i<2;i++){var cow=new Cow(EntityTypes.COW,level);cow.setPos(center.getX()+.5+i*.8,270,center.getZ()-.5);cow.setNoAi(true);cow.setNoGravity(true);cow.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);cow.setHealth(100);require(level.addFreshEntity(cow),"actual native sweep target");actors.add(cow);}
+                player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,weapon);try{clock.setInt(player,1000);}catch(IllegalAccessException error){throw new IllegalStateException(error);}player.attack(actors.getFirst());require(actors.getFirst().getHealth()<100,"native primary hit accepted");require((actors.getLast().getHealth()<100)==LbcSwordTools.sword(weapon),"actual native sweep only for sword stack, ordinary shared carrier remains single-target");
+            }
+        }finally{actors.forEach(actor->actor.discard());player.setOnGround(ground);player.setSprinting(sprint);player.setKnownMovement(known);player.fallDistance=falling;player.setSpeed(speed);stats.forEach((stat,value)->player.getStats().setValue(player,stat,value));try{clock.setInt(player,previous);}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
+    }
     public static void run(GameController game) {
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         require(game.playing() && player!=null && game.allowDamage(player),"actual live match participant");
@@ -103,6 +137,7 @@ public final class EnchantmentRulesChecks {
             level.setBlock(center,Blocks.ENCHANTING_TABLE.defaultBlockState(),818);
             for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)if(Math.abs(x)==2 || Math.abs(z)==2)
                 for(int y=0;y<=1;y++)level.setBlock(center.offset(x,y,z),Blocks.BOOKSHELF.defaultBlockState(),818);
+            swordProperties(game,player,center);swordSweep(player,center);
             var table=new EnchantmentMenu(44,player.getInventory(),ContainerLevelAccess.create(level,center));
             boolean mixed=false;
             for(int trial=1;trial<=128;trial++) {

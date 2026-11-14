@@ -67,17 +67,16 @@ public final class LbcTouhouCollectibles {
             if(lives>=10){lives-=10;gainedLives=add(gainedLives,1);}
             var value=new Counters(power,orbs,bombs,lives);states.put(player.getUUID(),value);publish(player,value);modifiers(player,power);
             if(old.power<150&&power==150)player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(Component.translatable("full_power_mode").withStyle(net.minecraft.ChatFormatting.GOLD,net.minecraft.ChatFormatting.BOLD)));
-            if(counts[6]>0){player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(Component.literal(" ")));player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(Component.literal(Integer.toString(orbs)).withStyle(net.minecraft.ChatFormatting.AQUA)));}
             var mana=game.items().mana();
             if(mana.get(player)<mana.maximum(player)){
                 mana.set(player,(int)Math.min(mana.maximum(player),(long)mana.get(player)+100*counts[4]));
-                LbcOverload.sound(player,"minecraft:item.honey_bottle.drink",.5f,2,0);
+                LbcOverload.notifySound(player,"minecraft:item.honey_bottle.drink",net.minecraft.sounds.SoundSource.PLAYERS,.5f,2);
             }
             if(gainedLives>0){game.addRuneLives(player,gainedLives);player.sendSystemMessage(Component.empty().append(Component.translatable("you_gain").withColor(0xffbfff)).append(Integer.toString(gainedLives)).append(Component.translatable("lives")));}
             if(counts[9]>0)mana.baseRegen(player,add(mana.baseRegen(player),counts[9]));
             if(counts[10]>0){
                 int coins=add(0,2*counts[10]);var profile=game.players().get(player.getUUID());profile.coins=add(profile.coins,coins);
-                LbcOverload.sound(player,"minecraft:lbcsounds.coin",1,1,0);
+                LbcOverload.notifySound(player,"minecraft:lbcsounds.coin",net.minecraft.sounds.SoundSource.PLAYERS,1,1);
                 player.sendSystemMessage(Component.literal("+"+coins).withStyle(net.minecraft.ChatFormatting.GOLD).append(Component.translatable("coins_added")));
             }
             inventory.setChanged();player.containerMenu.broadcastChanges();

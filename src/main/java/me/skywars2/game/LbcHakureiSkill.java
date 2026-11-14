@@ -45,7 +45,7 @@ public final class LbcHakureiSkill {
             // An accepted reward is independent of a subsequent skill selection. Epoch/lifecycle owns cancellation.
             if(!game.items().currentEpoch(reward.epoch)||owner==null||owner.isRemoved())continue;
             if(paused(owner,reward.level)||!reward.level.hasChunkAt(net.minecraft.core.BlockPos.containing(reward.at))){rewards.addLast(reward);continue;}
-            if(!reward.announced){reward.level.sendParticles(ParticleTypes.END_ROD,reward.at.x,reward.at.y,reward.at.z,4,0,0,0,0);LbcOverload.sound(owner,reward.at,"minecraft:block.amethyst_block.chime",.5f,2,0);reward.announced=true;}
+            if(!reward.announced){reward.level.sendParticles(ParticleTypes.END_ROD,reward.at.x,reward.at.y,reward.at.z,4,.1,.1,.1,0);LbcOverload.sound(reward.level,reward.at,"minecraft:block.amethyst_block.chime",net.minecraft.sounds.SoundSource.BLOCKS,.5f,2,0,0);reward.announced=true;}
             if(reward.outputs.isEmpty()&&reward.remaining>0){
                 var table=game.server().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:touhou_item")));
                 var params=new LootParams.Builder(reward.level).withOptionalParameter(LootContextParams.THIS_ENTITY,owner).withParameter(LootContextParams.ORIGIN,reward.at).create(LootContextParamSets.COMMAND);

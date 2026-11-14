@@ -32,6 +32,12 @@ public final class EnchantmentRulesMixin {
 
     @Mixin(Enchantment.class)
     public abstract static class Compatibility {
+        @WrapOperation(method={"isSupportedItem","isPrimaryItem"},at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/core/HolderSet;)Z"))
+        private boolean skywars2$authoredSword(ItemStack stack,net.minecraft.core.HolderSet<net.minecraft.world.item.Item> items,Operation<Boolean> original){
+            return original.call(stack,items)||me.skywars2.game.LbcSwordTools.sword(stack)&&items.contains(net.minecraft.world.item.Items.IRON_SWORD.builtInRegistryHolder());
+        }
+
         @Inject(method="areCompatible",at=@At("HEAD"),cancellable=true)
         private static void skywars2$distinctEnchantments(Holder<Enchantment> first,Holder<Enchantment> second,
                                                         CallbackInfoReturnable<Boolean> cir) {
