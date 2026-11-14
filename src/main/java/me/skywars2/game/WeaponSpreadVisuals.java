@@ -26,11 +26,16 @@ public final class WeaponSpreadVisuals {
     private WeaponSpreadVisuals() { }
 
     static Aim sample(GameController game,ServerPlayer player) {
-        if(player.isRemoved()||!player.isAlive()||player.isSpectator()
+        if(game.balanceLegacy()||game.isObserver(player)||player.isRemoved()||!player.isAlive()||player.isSpectator()
                 ||game.items().polymorph().masked(player)||game.items().fpvDrone().controlling(player)
                 ||game.items().rifleZoom().scopeVisible(player))return null;
+        var active=player.getUsedItemHand();
+        if(game.items().machinegunSkill().overridesAim(player,active))
+            return new Aim((float)game.items().machinegunSkill().aimDegrees(player),CONE,active);
         Aim main=held(game,player,InteractionHand.MAIN_HAND);
-        return main!=null?main:game.config().offhandWands?held(game,player,InteractionHand.OFF_HAND):null;
+        if(main!=null)return main;
+        var off=held(game,player,InteractionHand.OFF_HAND);
+        return game.config().offhandWands||LbcGunAccuracy.nativeWeapon(player.getOffhandItem())?off:null;
     }
     private static Aim held(GameController game,ServerPlayer player,InteractionHand hand) {
         var stack=player.getItemInHand(hand);
@@ -39,7 +44,8 @@ public final class WeaponSpreadVisuals {
         if(LbcAk47.isAk47(stack))return new Aim((float)LbcGunAccuracy.ak47Degrees(player),CONE,hand);
         if(LbcLaserMinigun.isMinigun(stack))
             return new Aim((float)LbcGunAccuracy.minigunNextShotDegrees(game,player),EULER,hand);
-        return null;
+        double nativeSpread=LbcGunAccuracy.nativeDegrees(player,stack);
+        return nativeSpread<0?null:new Aim((float)nativeSpread,CONE,hand);
     }
     public static void synchronize(GameController game,ServerPlayer player) {
         if(player.connection==null)return;

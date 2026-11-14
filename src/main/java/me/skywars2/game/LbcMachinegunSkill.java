@@ -42,14 +42,19 @@ public final class LbcMachinegunSkill {
     public static int arrowsPerBurst(int progress,int burstsPerAdditionalArrow){
         return (int)Math.min(Integer.MAX_VALUE,1L+Math.max(0L,(long)progress-19)/Math.max(1,burstsPerAdditionalArrow));
     }
-    /** Preserve the authored late discontinuity instead of silently adding a speed cap. */
-    public static double speed(int charge){return (long)charge+200>=10000?10:((long)charge+200)*.005;}
-    public static int spread(int charge){return (int)Math.max(0L,Math.min(Integer.MAX_VALUE,2000L-charge));}
+    /** Retain the initial linear growth for the entire native draw. */
+    public static double speed(int charge){return (Math.max(0L,(long)charge)+200)*.005;}
+    /** Actual accepted arrows, rather than elapsed draw ticks, narrow the next shot. */
+    public static int spread(int shots){return 2000-20*Math.clamp(shots,0,100);}
     public static double component(double direction,int charge,int jitter){
         return (Math.floor(direction*speed(charge)*10000)+jitter)*.0001;
     }
     int charge(ServerPlayer p){return game.items().mana().score(p,"bow_charge").get();}
     int progress(ServerPlayer p){return game.items().mana().score(p,"bow_charge_sub").get();}
+    int shots(ServerPlayer p){return Math.max(0,game.items().mana().score(p,"machinegun_shots").get());}
+    boolean overridesAim(ServerPlayer p,InteractionHand hand){return game.playing()&&game.lbc().hasSkill(p,14)&&p.isUsingItem()
+            &&p.getUsedItemHand()==hand&&p.getUseItem().getItem() instanceof BowItem&&shots(p)>0;}
+    double aimDegrees(ServerPlayer p){return LbcGunAccuracy.additiveDegrees(spread(shots(p))*.0001,speed(charge(p)));}
     int pending(ServerPlayer p){var draw=draws.get(p.getUUID());return draw==null?0:draw.remaining;}
     private boolean paused(ServerPlayer p){return game.server().tickRateManager().isFrozen()
             ||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(p.level())
@@ -119,9 +124,9 @@ public final class LbcMachinegunSkill {
     private boolean shoot(ServerPlayer p){
         var weapon=weapon(p);var ammo=ammo(p,weapon);if(ammo==null)return false;
         var fired=weapon.copy();
-        int q=charge(p),spread=spread(q);var random=p.getRandom();var direction=p.getLookAngle();
+        int q=charge(p),spread=spread(shots(p));var random=p.getRandom();var direction=p.getLookAngle();
         // q is nonnegative for real draws: spread is at most 2000 and nextInt cannot overflow.
-        var motion=new Vec3(component(direction.x,q,random.nextInt(spread*2+1)-spread),
+        var motion=spread==0?direction.scale(speed(q)):new Vec3(component(direction.x,q,random.nextInt(spread*2+1)-spread),
                 component(direction.y,q,random.nextInt(spread*2+1)-spread),
                 component(direction.z,q,random.nextInt(spread*2+1)-spread));
         var arrow=((ArrowItem)ammo.getItem()).createArrow(p.level(),ammo,p,fired);double damage=2;
@@ -131,21 +136,11 @@ public final class LbcMachinegunSkill {
         LbcShooters.orient(arrow);game.items().markCurrentItemEpoch(arrow);
         game.items().timeStop().prepareFrozen(arrow);
         if(!p.level().addFreshEntity(arrow))return false;
+        arrow.applyOnProjectileSpawned(p.level(),ammo.copyWithCount(1));
         game.items().lifetimes().track(arrow);
-        if(random.nextBoolean()){ammo.shrink(1);p.getInventory().setChanged();}
-        boolean traitsRolled=false;
-        if(ItemData.intValue(fired,"explosive",0)==1){
-            var ballistic=java.util.List.<net.minecraft.world.entity.projectile.Projectile>of(arrow);game.items().trinkets().shot(p,ballistic);traitsRolled=true;
-            if(game.items().balance().explosiveBow(p,fired,ballistic))return true;
-        }
-        if(LbcChargedBows.matches(fired)){
-            var ballistic=java.util.List.<net.minecraft.world.entity.projectile.Projectile>of(arrow);if(!traitsRolled)game.items().trinkets().shot(p,ballistic);
-            game.items().chargedBows().release(p,fired,p.getTicksUsingItem(),ballistic);return true;
-        }
-        var oldFamily=game.items().balance().augment(p,fired,java.util.List.of(arrow));
-        var family=game.items().shulkerBow().augment(p,fired,oldFamily);
-        game.items().madokaBow().augment(p,fired,family);
-        if(!traitsRolled)game.items().trinkets().shot(p,family);
+        var accepted=game.items().mana().score(p,"machinegun_shots");if(accepted.get()<Integer.MAX_VALUE)accepted.add(1);
+        if(random.nextBoolean()&&!LbcInfiniteAmmo.conserves(ammo)){ammo.shrink(1);p.getInventory().setChanged();}
+        LbcRangedShots.accepted(game,p,p.getUsedItemHand(),weapon,fired,java.util.List.of(arrow));
         return true;
     }
     public static boolean managed(Entity actor){return actor!=null&&actor.entityTags().contains(TAG);}
@@ -168,9 +163,10 @@ public final class LbcMachinegunSkill {
         var draw=draws.remove(p.getUUID());
         if(draw==null&&!game.lbc().hasSkill(p,14))return;
         if(draw!=null)lanes.remove(draw);
-        game.items().mana().score(p,"bow_charge").set(0);game.items().mana().score(p,"bow_charge_sub").set(0);
+        game.items().mana().score(p,"bow_charge").set(0);game.items().mana().score(p,"bow_charge_sub").set(0);game.items().mana().score(p,"machinegun_shots").set(0);
     }
-    public void clear(){for(var draw:java.util.List.copyOf(draws.values()))clear(draw.owner);}
+    public void clear(){for(var draw:java.util.List.copyOf(draws.values()))clear(draw.owner);
+        for(var p:game.server().getPlayerList().getPlayers())game.items().mana().score(p,"machinegun_shots").set(0);}
     /** Core restores canonical scoreboard phase; short unfinished emissions may be canceled. */
     public void clearTransient(){draws.clear();lanes.clear();}
 }

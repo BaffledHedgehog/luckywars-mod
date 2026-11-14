@@ -8,6 +8,46 @@ import net.minecraft.world.phys.Vec3;
 final class LbcGunAccuracy {
     static final double HIP_DEGREES=5, MAX_DEGREES=20, FULL_PENALTY_SPEED=.3;
     private LbcGunAccuracy() { }
+    /** Native Projectile#getMovementToShoot adds independent bounded triangular XYZ errors. */
+    static double vanillaDegrees(double uncertainty){return additiveDegrees(.0172275*uncertainty,1);}
+    /** Conservative angular envelope of an additive XYZ cube, without sampling any RNG. */
+    static double additiveDegrees(double axisError,double speed){
+        if(axisError<=0)return 0;
+        return Math.toDegrees(Math.asin(Math.clamp(Math.sqrt(3)*axisError/Math.max(1e-12,speed),0,1)));
+    }
+
+    /** Real native item classes also cover authored Polymer subclasses and TMT bases. */
+    static boolean nativeWeapon(net.minecraft.world.item.ItemStack stack){
+        var item=stack.getItem();return item instanceof net.minecraft.world.item.ProjectileWeaponItem
+                ||item instanceof net.minecraft.world.item.SnowballItem||item instanceof net.minecraft.world.item.EggItem
+                ||item instanceof net.minecraft.world.item.EnderpearlItem||item instanceof net.minecraft.world.item.WindChargeItem
+                ||item instanceof net.minecraft.world.item.ThrowablePotionItem||item instanceof net.minecraft.world.item.TridentItem
+                ||item instanceof net.minecraft.world.item.ExperienceBottleItem||item instanceof net.minecraft.world.item.FishingRodItem
+                ||stack.is(LbcPursuitItems.BOUNCING_POOP)||stack.is(LbcImbaNativeItems.FIREWORK)
+                ||LbcSteampunkRocket.matches(stack)||ItemData.intValue(stack,"metasola",0)==1
+                ||ItemData.intValue(stack,"special",0)==1&&(LbcHedgehogItems.spike(stack)!=null||LbcHedgehogSpikes.legacyThrow(stack)>0);
+    }
+    static double nativeDegrees(ServerPlayer player,net.minecraft.world.item.ItemStack stack){
+        if(stack.isEmpty()||!nativeWeapon(stack))return -1;
+        // These source abilities copy the player's rotation, not the discarded snowball's motion.
+        if(LbcKapusta.matches(stack)||ItemData.intValue(stack,"govno_raskid",0)==1||LbcBridgeBuilder.recognized(stack)
+                ||LbcSteampunkRocket.matches(stack)||stack.is(LbcImbaNativeItems.FIREWORK))return 0;
+        var kind=LbcImbaCrossbows.kind(stack);
+        if(kind!=null){
+            if(kind==LbcImbaCrossbows.Kind.SNIPER)return 0;
+            if(kind==LbcImbaCrossbows.Kind.SUPER)return Math.toDegrees(Math.acos(Math.cos(Math.toRadians(30))*Math.cos(Math.toRadians(30))));
+            if(kind==LbcImbaCrossbows.Kind.GATLING)return Math.toDegrees(Math.acos(Math.cos(Math.toRadians(30))*Math.cos(Math.toRadians(5))));
+            if(kind==LbcImbaCrossbows.Kind.SHOTGUN)return additiveDegrees(.5,5);
+            if(kind==LbcImbaCrossbows.Kind.FAST)return additiveDegrees(.4,7);
+        }
+        double spread=vanillaDegrees(1);
+        if(stack.getItem() instanceof net.minecraft.world.item.ProjectileWeaponItem){
+            var multishot=player.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                    .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.MULTISHOT);
+            if(net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(multishot,stack)>0)spread+=10;
+        }
+        return spread;
+    }
 
     static double movementDegrees(ServerPlayer player) {
         double speed=Math.max(speed(player.getKnownMovement(),player.onGround()),

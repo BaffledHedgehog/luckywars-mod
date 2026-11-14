@@ -120,6 +120,53 @@ public final class WeaponSpreadChecks {
                 require(display().getScale().x()==0&&gun.spread(owner)==0,"purified next-shot spread stays exactly zero");
             }catch(IllegalAccessException error){throw new IllegalStateException(error);}finally{random.restore(owner.getRandom());gun.forget(owner);}
         }
+        void nativeWeapons(){
+            boolean off=game.config().offhandWands;game.config().offhandWands=false;
+            try{
+                var random=MatchRandomState.capture(owner.getRandom());long expected=owner.getRandom().nextLong();random.restore(owner.getRandom());
+                var nativeItems=new ArrayList<net.minecraft.world.item.Item>(List.of(Items.BOW,Items.CROSSBOW,Items.SNOWBALL,Items.EGG,Items.ENDER_PEARL,Items.WIND_CHARGE,Items.TRIDENT,Items.SPLASH_POTION,Items.LINGERING_POTION,Items.EXPERIENCE_BOTTLE,Items.FISHING_ROD));
+                nativeItems.addAll(LbcWoolTrailItems.tokens().values());
+                nativeItems.addAll(List.of(LbcThrownUtilityItems.RUCHKA,LbcThrownUtilityItems.HONEW,LbcThrownUtilityItems.THROWABLE_METAL_PIPE,LbcThrownUtilityItems.BUCKET_PROJECTILE,LbcThrownUtilityItems.THROWABLE_PUMPKIN,LbcClownItems.SMOKE_BOMB,LbcSoulless.METASOLA_1,LbcSoulless.METASOLA_6));
+                for(var kind:LbcHedgehogItems.SpikeKind.values())nativeItems.add(kind.item());
+                for(var item:nativeItems)for(var hand:InteractionHand.values()){
+                    var stack=new ItemStack(item);held(hand==InteractionHand.MAIN_HAND?stack:ItemStack.EMPTY,hand==InteractionHand.OFF_HAND?stack:ItemStack.EMPTY);
+                    aim((float)LbcGunAccuracy.vanillaDegrees(1),WeaponSpreadVisuals.CONE,hand);display();
+                }
+                for(var item:List.of(LbcKapustaItem.ITEM,LbcKapustaItem.JACK,LbcPursuitItems.BOUNCING_POOP,LbcBridgeBuilderItem.TOKEN,LbcSteampunkRocket.TOKEN,LbcImbaNativeItems.FIREWORK)){
+                    held(new ItemStack(item),ItemStack.EMPTY);aim(0,WeaponSpreadVisuals.CONE,InteractionHand.MAIN_HAND);
+                }
+                for(var kind:LbcImbaCrossbows.Kind.values()){
+                    var stack=new ItemStack(kind.item);held(stack,ItemStack.EMPTY);var aim=WeaponSpreadVisuals.sample(game,owner);
+                    require(aim!=null&&Math.abs(aim.degrees()-LbcGunAccuracy.nativeDegrees(owner,stack))<1e-5,"authored crossbow geometry "+kind);
+                }
+                require(owner.getRandom().nextLong()==expected,"all native/throwable previews consume no owner RNG");random.restore(owner.getRandom());
+                held(new ItemStack(Items.BOW),ItemStack.EMPTY);var crossbow=owner.getMainHandItem();crossbow.enchant(owner.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).getOrThrow(net.minecraft.world.item.enchantment.Enchantments.MULTISHOT),1);
+                aim((float)(10+LbcGunAccuracy.vanillaDegrees(1)),WeaponSpreadVisuals.CONE,InteractionHand.MAIN_HAND);
+            }finally{game.config().offhandWands=off;}
+        }
+        void nativeScatter(){
+            boolean levelups=game.config().lbcLevelups;game.config().lbcLevelups=false;
+            var baseline=Collections.newSetFromMap(new IdentityHashMap<net.minecraft.world.entity.Entity,Boolean>());
+            owner.level().getAllEntities().forEach(baseline::add);var created=new ArrayList<net.minecraft.world.entity.Entity>();
+            try{
+                held(new ItemStack(Items.SNOWBALL,16),ItemStack.EMPTY);owner.setYRot(37);owner.setXRot(-19);owner.setKnownMovement(Vec3.ZERO);owner.setDeltaMovement(Vec3.ZERO);owner.setOnGround(true);
+                aim((float)LbcGunAccuracy.vanillaDegrees(1),WeaponSpreadVisuals.CONE,InteractionHand.MAIN_HAND);
+                for(int n=0;n<64;n++){
+                    if(n%16==0)owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.SNOWBALL,16));
+                    require(owner.gameMode.useItem(owner,owner.level(),owner.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction(),"real native snowball throw "+n);
+                }
+                var distinct=new HashSet<Vec3>();double largest=0;
+                for(var entity:owner.level().getAllEntities())if(!baseline.contains(entity)){
+                    created.add(entity);
+                    if(entity instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball shot&&shot.getOwner()==owner){
+                        var velocity=shot.getDeltaMovement();distinct.add(velocity);
+                        double angle=Math.toDegrees(Math.acos(Math.clamp(velocity.normalize().dot(owner.getLookAngle()),-1,1)));
+                        require(angle<=LbcGunAccuracy.vanillaDegrees(1)+.0001,"private cone contains actual native bounded scatter");largest=Math.max(largest,angle);
+                    }
+                }
+                require(distinct.size()==64&&largest>.01,"64 actual throws retain native nonzero randomized motion");
+            }finally{for(var entity:created)entity.discard();game.config().lbcLevelups=levelups;}
+        }
         void wire(){
             held(loot("magnum"),ItemStack.EMPTY);WeaponSpreadVisuals.forget(owner);
             base.recording.packets.clear();betaRecording.packets.clear();var display=display();
@@ -181,7 +228,7 @@ public final class WeaponSpreadChecks {
         try{var field=type.getDeclaredField(name);field.setAccessible(true);return field;}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
     }
     public static void run(GameController game){
-        try(var f=new Fixture(game)){f.weapons();f.readOnly();f.wire();f.lifecycle();}
+        try(var f=new Fixture(game)){f.weapons();f.readOnly();f.nativeWeapons();f.nativeScatter();f.wire();f.lifecycle();}
         SkyWars2.LOGGER.info("[check] PASS weapon-spread (actual loot/AK flags, shared next-shot geometry and camera independence, minigun no-init/no-RNG, private native wire, scope and dimension/lifecycle cleanup)");
     }
 }

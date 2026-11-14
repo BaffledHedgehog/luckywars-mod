@@ -77,10 +77,10 @@ public final class CombatRewardSkillChecks {
         void factory(){
             select(14);owner.getInventory().setSelectedSlot(0);owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.BOW));owner.getInventory().setItem(9,new ItemStack(Items.ARROW,10));
             var source=owner.getInventory().getItem(9);source.set(DataComponents.CUSTOM_NAME,Component.literal("factory supplied components"));
-            game.items().mana().score(owner,"bow_charge").set(2300);
+            game.items().mana().score(owner,"bow_charge").set(2300);game.items().mana().score(owner,"machinegun_shots").set(100);
             try{var randomField=field(owner,"random");var original=randomField.get(owner);var shoot=LbcMachinegunSkill.class.getDeclaredMethod("shoot",ServerPlayer.class);shoot.setAccessible(true);
-                for(boolean consume:new boolean[]{false,true}){int[] rolls={0};var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(before::add);int count=source.getCount();randomField.set(owner,java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{if(method.getName().equals("nextBoolean")){rolls[0]++;return consume;}try{return method.invoke(original,args);}catch(java.lang.reflect.InvocationTargetException error){throw error.getCause();}}));try{require((Boolean)shoot.invoke(game.items().machinegunSkill(),owner),"actual automatic arrow factory publishes");}finally{randomField.set(owner,original);}require(rolls[0]==1&&source.getCount()==count-(consume?1:0),"one source50percent boolean ammo decision per successful pulse");Arrow result=null;for(var e:level.getAllEntities())if(!before.contains(e)&&e instanceof Arrow arrow){require(result==null,"one automatic factory arrow");result=arrow;actors.add(arrow);}require(result!=null&&result.getOwner()==owner&&!result.isCritArrow(),"fresh noncritical native owned arrow");require(ItemStack.matches(result.getPickupItemStackOrigin(),source.copyWithCount(1)),"factory preserves exact supplied normal arrow components");require(ItemStack.matches(result.getWeaponItem(),owner.getMainHandItem()),"factory preserves actual current native weapon snapshot");var direction=owner.getLookAngle();near(result.getDeltaMovement().x,LbcMachinegunSkill.component(direction.x,2300,0),"source quantized X motion");near(result.getDeltaMovement().y,LbcMachinegunSkill.component(direction.y,2300,0),"source quantized Y motion");near(result.getDeltaMovement().z,LbcMachinegunSkill.component(direction.z,2300,0),"source quantized Z motion");result.discard();}
-            }catch(ReflectiveOperationException error){throw new IllegalStateException("Native automatic arrow factory",error);}finally{game.items().mana().score(owner,"bow_charge").set(0);game.items().mana().score(owner,"bow_charge_sub").set(0);}
+                for(boolean consume:new boolean[]{false,true}){int[] rolls={0};var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(before::add);int count=source.getCount();randomField.set(owner,java.lang.reflect.Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{if(method.getName().equals("nextBoolean")){rolls[0]++;return consume;}try{return method.invoke(original,args);}catch(java.lang.reflect.InvocationTargetException error){throw error.getCause();}}));try{require((Boolean)shoot.invoke(game.items().machinegunSkill(),owner),"actual automatic arrow factory publishes");}finally{randomField.set(owner,original);}require(rolls[0]==1&&source.getCount()==count-(consume?1:0),"one source50percent boolean ammo decision per successful pulse");Arrow result=null;for(var e:level.getAllEntities())if(!before.contains(e)&&e instanceof Arrow arrow){require(result==null,"one automatic factory arrow");result=arrow;actors.add(arrow);}require(result!=null&&result.getOwner()==owner&&!result.isCritArrow(),"fresh noncritical native owned arrow");require(ItemStack.matches(result.getPickupItemStackOrigin(),source.copyWithCount(1)),"factory preserves exact supplied normal arrow components");require(ItemStack.matches(result.getWeaponItem(),owner.getMainHandItem()),"factory preserves actual current native weapon snapshot");var direction=owner.getLookAngle();near(result.getDeltaMovement().x,direction.x*LbcMachinegunSkill.speed(2300),"zero-spread exact X motion");near(result.getDeltaMovement().y,direction.y*LbcMachinegunSkill.speed(2300),"zero-spread exact Y motion");near(result.getDeltaMovement().z,direction.z*LbcMachinegunSkill.speed(2300),"zero-spread exact Z motion");result.discard();}
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("Native automatic arrow factory",error);}finally{game.items().mana().score(owner,"bow_charge").set(0);game.items().mana().score(owner,"bow_charge_sub").set(0);game.items().mana().score(owner,"machinegun_shots").set(0);}
         }
         void specialAmmo(){
             int limit=game.config().lbcTrinketLimit;game.config().lbcTrinketLimit=99;
@@ -120,11 +120,85 @@ public final class CombatRewardSkillChecks {
             }catch(ReflectiveOperationException error){throw new IllegalStateException("Native automatic special arrow factory",error);}
             finally{owner.stopUsingItem();owner.getInventory().clearContent();game.config().lbcTrinketLimit=limit;game.items().machinegunSkill().clear(owner);}
         }
+        void sharedContinuations(){
+            select(14);owner.stopUsingItem();owner.getInventory().clearContent();owner.getInventory().setSelectedSlot(0);
+            int limit=game.config().lbcTrinketLimit;game.config().lbcTrinketLimit=99;
+            try{
+                var shoot=LbcMachinegunSkill.class.getDeclaredMethod("shoot",ServerPlayer.class);shoot.setAccessible(true);
+                for(boolean tmt:List.of(false,true)){
+                    var weapon=tmt?LbcTmtItems.prototype(1):new ItemStack(Items.BOW);var data=new net.minecraft.nbt.CompoundTag();
+                    if(tmt){data.putInt("tmt_item",1);var abilities=new ArrayList<LbcTmtAbilities.Ability>();
+                        for(var flag:List.of("double_old","madoka_bow")){var property=new net.minecraft.nbt.CompoundTag();property.putInt(flag,1);
+                            abilities.add(new LbcTmtAbilities.Ability("native/check_"+flag,net.minecraft.world.item.component.CustomData.of(property)));}
+                        LbcTmtAbilities.write(data,abilities);
+                    }else data.putInt("fastfired",1);
+                    weapon.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));
+                    owner.setItemInHand(InteractionHand.MAIN_HAND,weapon);var ammo=new ItemStack(Items.ARROW,64);
+                    ammo.set(DataComponents.CUSTOM_NAME,Component.literal("shared automatic native ammo"));owner.getInventory().setItem(9,ammo);
+                    owner.getInventory().setItem(10,new ItemStack(LbcTrinkets.BEDROCK_BALLS,99));
+                    require(owner.gameMode.useItem(owner,level,weapon,InteractionHand.MAIN_HAND).consumesAction(),"actual shared-continuation bow draw");
+                    var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(before::add);
+                    require((Boolean)shoot.invoke(game.items().machinegunSkill(),owner),"actual automatic accepted continuation");
+                    var family=new ArrayList<Projectile>();for(var e:level.getAllEntities())if(!before.contains(e)){
+                        actors.add(e);if(e instanceof Projectile shot&&!e.isRemoved())family.add(shot);
+                    }
+                    if(tmt){require(family.size()==2,"TMT automatic accepted volley expands through native double owner");
+                        for(var shot:family)require(shot instanceof AbstractArrow arrow&&LbcMadokaBow.recognizes(arrow)
+                                &&shot.getOwner()==owner&&shot.entityTags().contains("bedrock_arrow")
+                                &&ItemStack.matches(arrow.getPickupItemStackOrigin(),ammo.copyWithCount(1)),
+                                "both TMT outputs retain independent Madoka, once-rolled trinket and exact ammo");
+                        require(LbcTmtAbilities.read(weapon).size()==2,"automatic continuation retains both private TMT properties");
+                    }else require(family.size()==1&&family.getFirst() instanceof net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball
+                            &&family.getFirst().getOwner()==owner,"automatic legacy bow converts its accepted arrow to the real fireball");
+                    family.forEach(Entity::discard);owner.stopUsingItem();game.items().machinegunSkill().clear(owner);owner.getInventory().clearContent();
+                }
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("Shared automatic bow continuations",error);}
+            finally{owner.stopUsingItem();game.items().machinegunSkill().clear(owner);owner.getInventory().clearContent();game.config().lbcTrinketLimit=limit;}
+        }
+        void acceptedShots(){
+            select(14);owner.stopUsingItem();owner.getInventory().clearContent();owner.getInventory().setSelectedSlot(0);
+            var service=game.items().machinegunSkill();service.clear(owner);
+            var weapon=new ItemStack(Items.BOW);owner.setItemInHand(InteractionHand.MAIN_HAND,weapon);
+            owner.getInventory().setItem(9,new ItemStack(Items.ARROW,64));owner.getInventory().setItem(10,new ItemStack(Items.ARROW,64));
+            require(owner.gameMode.useItem(owner,level,weapon,InteractionHand.MAIN_HAND).consumesAction(),"actual draw for accepted-arrow telemetry");
+            owner.setYRot(37);owner.setXRot(-19);game.items().mana().score(owner,"bow_charge").set(200);
+            var first=WeaponSpreadVisuals.sample(game,owner);require(first!=null&&Math.abs(first.degrees()-LbcGunAccuracy.vanillaDegrees(1))<1e-5,"ordinary bow indicator before first automatic shot");
+            var known=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(known::add);
+            try{var method=LbcMachinegunSkill.class.getDeclaredMethod("shoot",ServerPlayer.class);method.setAccessible(true);
+                for(int n=1;n<=100;n++){
+                    require((Boolean)method.invoke(service,owner)&&service.shots(owner)==n,"actual accepted arrow counter "+n);
+                    int count=0;for(var e:level.getAllEntities())if(known.add(e)&&e instanceof AbstractArrow arrow){actors.add(arrow);count++;}
+                    require(count==1,"one real published pulse for the hundred-arrow progression");
+                    var aim=WeaponSpreadVisuals.sample(game,owner);require(aim!=null&&Math.abs(aim.degrees()-service.aimDegrees(owner))<1e-5,"machinegun overrides ordinary bow from first accepted arrow "+n);
+                }
+                require(service.aimDegrees(owner)==0,"exact zero reticle after100 actual arrows");
+                game.items().mana().score(owner,"bow_charge").set(10000);
+                weapon.enchant(level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).getOrThrow(net.minecraft.world.item.enchantment.Enchantments.FLAME),1);
+                require((Boolean)method.invoke(service,owner),"actual late linear-speed arrow");
+                AbstractArrow last=null;for(var e:level.getAllEntities())if(known.add(e)&&e instanceof AbstractArrow arrow){actors.add(arrow);require(last==null,"single late native arrow");last=arrow;}
+                require(last!=null&&last.getDeltaMovement().distanceTo(owner.getLookAngle().scale(51))<1e-10,"late speed51 and truly straight zero-spread flight");
+                require(last.isOnFire(),"automatic arrows run native projectile-spawn enchantment callbacks");
+                owner.stopUsingItem();owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.BOW));owner.setItemInHand(InteractionHand.OFF_HAND,weapon);
+                require(owner.gameMode.useItem(owner,level,weapon,InteractionHand.OFF_HAND).consumesAction(),"actual offhand automatic draw beside a mainhand bow");
+                require((Boolean)method.invoke(service,owner),"first accepted arrow of the new offhand draw");
+                var offhandAim=WeaponSpreadVisuals.sample(game,owner);
+                require(offhandAim!=null&&offhandAim.hand()==InteractionHand.OFF_HAND&&Math.abs(offhandAim.degrees()-service.aimDegrees(owner))<1e-5,
+                        "active offhand automatic indicator overrides idle mainhand bow from its first shot");
+                owner.stopUsingItem();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);owner.setItemInHand(InteractionHand.MAIN_HAND,weapon);
+                require(owner.gameMode.useItem(owner,level,weapon,InteractionHand.MAIN_HAND).consumesAction(),"resume native mainhand draw");
+                owner.getInventory().clearContent();owner.setItemInHand(InteractionHand.MAIN_HAND,weapon);owner.getInventory().setItem(9,new ItemStack(LbcImbaNativeItems.INFINITE_ARROW));
+                for(int n=0;n<12;n++)require((Boolean)method.invoke(service,owner)&&owner.getInventory().getItem(9).getCount()==1,"only selected infinite arrow stays free");
+                for(var e:level.getAllEntities())if(known.add(e)&&e instanceof AbstractArrow arrow)actors.add(arrow);
+                owner.getInventory().setItem(9,ItemStack.EMPTY);int count=service.shots(owner);
+                require(!(Boolean)method.invoke(service,owner)&&service.shots(owner)==count,"failed no-ammo pulse does not count as a shot");
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("Actual hundred-arrow progression",error);}
+            finally{owner.stopUsingItem();service.clear(owner);owner.getInventory().clearContent();}
+        }
         void begin(){
-            specialAmmo();
+            specialAmmo();sharedContinuations();acceptedShots();
             for(int p=0;p<=100;p++){require(LbcMachinegunSkill.interval(p)==Math.max(1,20-p),"safe declining burst interval"+p);require(LbcMachinegunSkill.arrowsPerBurst(p)==1+Math.max(0,p-19)/20,"terminal burst count grows linearly per20 completed saturated bursts"+p);}
-            near(LbcMachinegunSkill.speed(200),2,"source velocity formula");near(LbcMachinegunSkill.spread(1000),1000,"source XYZ integer spread");near(LbcMachinegunSkill.spread(2100),0,"source spread stops at zero");
-            near(LbcMachinegunSkill.speed(9799),49.995,"source high-charge velocity retained");near(LbcMachinegunSkill.speed(9800),10,"source late speed discontinuity retained");for(String tag:List.of("stopper_magic","stopper")){var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(owner.position());marker.entityTags().add(tag);require(level.addFreshEntity(marker),"native machinegun suppression marker");actors.add(marker);game.items().magic().loaded(marker);}other.getInventory().setItem(9,new ItemStack(LbcMagic.MYSTICAL_ARTIFACT));game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();require(game.items().magic().suppressed(owner)&&game.items().magic().mechanismSuppressed(owner),"MAG/TECH/strong artifact active throughout native automatic draw");factory();
+            near(LbcMachinegunSkill.speed(200),2,"source velocity formula");near(LbcMachinegunSkill.spread(50),1000,"halfway accepted-arrow XYZ spread");near(LbcMachinegunSkill.spread(100),0,"spread stops after100 accepted arrows");
+            near(LbcMachinegunSkill.speed(9799),49.995,"source high-charge velocity retained");near(LbcMachinegunSkill.speed(9800),50,"linear speed continues above old discontinuity");for(String tag:List.of("stopper_magic","stopper")){var marker=new Marker(EntityTypes.MARKER,level);marker.setPos(owner.position());marker.entityTags().add(tag);require(level.addFreshEntity(marker),"native machinegun suppression marker");actors.add(marker);game.items().magic().loaded(marker);}other.getInventory().setItem(9,new ItemStack(LbcMagic.MYSTICAL_ARTIFACT));game.items().magic().inventoryChanged(other);game.items().magic().flushCleansing();require(game.items().magic().suppressed(owner)&&game.items().magic().mechanismSuppressed(owner),"MAG/TECH/strong artifact active throughout native automatic draw");factory();
             select(14);game.items().machinegunSkill().clear(owner);owner.getInventory().setSelectedSlot(0);bow=new ItemStack(Items.BOW);owner.setItemInHand(InteractionHand.MAIN_HAND,bow);var ammo=new ItemStack(Items.ARROW,64);ammo.set(DataComponents.CUSTOM_NAME,Component.literal("ordinary id custom components"));owner.getInventory().setItem(9,ammo);previous=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(previous::add);updates=client.updates();started=game.server().getTickCount();stage=0;
         }
         void draw(){require(owner.gameMode.useItem(owner,level,bow,InteractionHand.MAIN_HAND).consumesAction()&&owner.isUsingItem(),"actual native survival bow use");updates=client.updates();}
