@@ -146,7 +146,8 @@ public final class LbcInfinity {
             }
             case 13->{
                 for(var attr:List.of("scale","attack_damage","explosion_knockback_resistance","jump_strength","knockback_resistance","max_health","movement_efficiency","movement_speed","safe_fall_distance","step_height","water_movement_efficiency","block_break_speed","mining_efficiency","gravity"))
-                    modifier(p,attr,LARGE,16,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+                    if(game.balanceLegacy()||!(attr.equals("movement_speed")||attr.equals("gravity"))||!attribute(p,"scale").hasModifier(SMALL))
+                        modifier(p,attr,LARGE,16,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
                 modifier(p,"attack_knockback",LARGE,16,AttributeModifier.Operation.ADD_VALUE);
                 modifier(p,"fall_damage_multiplier",LARGE,-.9375,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
                 modifier(p,"block_interaction_range",LARGE,32,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
@@ -157,7 +158,11 @@ public final class LbcInfinity {
                 modifier(p,"scale",SMALL,-.9375,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
                 modifier(p,"safe_fall_distance",SMALL,10000,AttributeModifier.Operation.ADD_VALUE);
                 modifier(p,"fall_damage_multiplier",SMALL,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-                modifier(p,"gravity",LARGE,-.8125,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+                if(game.balanceLegacy())modifier(p,"gravity",LARGE,-.8125,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+                else for(var name:List.of("movement_speed","gravity")){
+                    // Cancel only Infinity's large-body compensation; ordinary gear/perks stay intact.
+                    var attr=attribute(p,name);if(attr!=null)attr.removeModifier(LARGE);
+                }
             }
             default->throw new IllegalArgumentException("Infinity branch "+branch);
         }
