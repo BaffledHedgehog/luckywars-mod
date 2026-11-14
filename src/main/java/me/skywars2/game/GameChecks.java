@@ -845,6 +845,8 @@ public final class GameChecks {
                                 case "bot-revision" -> { BotRevisionChecks.run(game); return; }
                                 case "bot-combat-feedback" -> { BotCombatFeedbackChecks.run(game); return; }
                                 case "bot-population-24" -> { BotPopulationChecks.run(game); return; }
+                                case "bot-startup-prepare" -> { MatchStartup24Checks.prepare(game); return; }
+                                case "bot-startup-24" -> { MatchStartup24Checks.run(game); return; }
                                 case "bot-ultraponos-24" -> { BotPopulationChecks.runUltraponos(game); return; }
                                 case "bot-badapple-24" -> { BotPopulationChecks.runBadApple(game); return; }
                                 case "bot-counter" -> { BotRevisionChecks.counter(game); return; }
@@ -1790,6 +1792,7 @@ public final class GameChecks {
             BotRevisionChecks.tick(game);
             BotCombatFeedbackChecks.tick(game);
             BotPopulationChecks.tick(game);
+            MatchStartup24Checks.tick(game);
             NuclearQueuedChecks.tick(game);
             BotCageChecks.tick(game);
             BotTrapChecks.tick(game);
@@ -2025,8 +2028,11 @@ public final class GameChecks {
                                 .get(DataComponents.ENCHANTMENT_GLINT_OVERRIDE)),
                                 "Selected levelup retains source selection indicator");
                 inventoryClick(player, 15, 0, ContainerInput.PICKUP);
-                require(p.levelups[0] == 43 && p.levelups[3] == 43 && p.lbcLevelupSlot == 1,
-                                "Fifth selection replaces first slot; repeated IDs allowed");
+                require(java.util.Arrays.equals(java.util.Arrays.copyOf(p.levelups, 4), new int[] { 3, 5, 33, 43 })
+                                && p.lbcLevelupSlot == 0, "Duplicate upgrade leaves all four choices and cursor unchanged");
+                inventoryClick(player, 6, 0, ContainerInput.PICKUP); // distinct natural armor +4
+                require(java.util.Arrays.equals(java.util.Arrays.copyOf(p.levelups, 4), new int[] { 34, 5, 33, 43 })
+                                && p.lbcLevelupSlot == 1, "Fifth distinct upgrade replaces first cyclic slot without stacking");
                 p.levelups[0] = 3;
                 p.lbcLevelupSlot = 0;
                 game.players().save();
@@ -18981,8 +18987,22 @@ public final class GameChecks {
                         require(Math.abs(respawned.getMaxHealth() - 27.6) < 0.001
                                         && itemCount(respawned, Items.GOLDEN_SWORD) == 1,
                                         "Respawn reapplies loadout exactly once");
-                        require(respawned.getEffect(MobEffects.RESISTANCE).getAmplifier() == 3,
-                                        "Respawn restores hidden-tier skill");
+                        var protection = respawned.getEffect(MobEffects.RESISTANCE);
+                        require(protection != null && protection.getAmplifier() == 4
+                                        && protection.getDuration() > 0 && protection.getDuration() <= 60,
+                                        "Native three-second Resistance V protects the new life");
+                        var hidden = ((EffectLayers.Access)protection).skywars2$layerHidden();
+                        for (int amplifier = 3; amplifier >= 0; amplifier--) {
+                                int maximum = (50 - amplifier * 10) * 20;
+                                require(hidden != null && hidden.getAmplifier() == amplifier
+                                                && hidden.getDuration() >= maximum - 60 && hidden.getDuration() <= maximum,
+                                                "Respawn retains native hidden skill tier " + amplifier + " below temporary protection: " + hidden);
+                                hidden = ((EffectLayers.Access)hidden).skywars2$layerHidden();
+                        }
+                        var falling = respawned.getEffect(MobEffects.SLOW_FALLING);
+                        require(falling != null && falling.getAmplifier() == 0
+                                        && falling.getDuration() > 0 && falling.getDuration() <= 160,
+                                        "Native respawn retains source slow-falling protection");
                         SkyWars2.LOGGER.info("[check] PASS lbc-loadout");
                 };
         }

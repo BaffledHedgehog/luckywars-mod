@@ -138,7 +138,7 @@ final class BotPopulationChecks {
             require(actors.size()==24&&actors.stream().allMatch(p->p.isAlive()&&game.allowDamage(p)&&LbcCarpetBots.bot(p)),"24 native live participants with ordinary HP");
             spawnedAt=game.server().getTickCount();
         }
-        long previousTick(){int tick=game.server().getTickCount()-1;return game.server().getTickTimesNanos()[Math.floorMod(tick,100)];}
+        long previousTick(){int tick=game.server().getTickCount()-1;long value=ServerTickMetrics.completedTickNanos(game.server(),tick);require(value>0,"completed outer native tick includes Fabric end callbacks");return value;}
         @Override boolean step(){
             base.client.acknowledge();base.audience.acknowledge();int now=game.server().getTickCount();
             if(start.isEmpty()){

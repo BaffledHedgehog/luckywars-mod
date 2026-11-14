@@ -35,6 +35,7 @@ public final class LbcLoadouts {
     private record Entry(int id, int page, int slot, String table, String gate,
                          String lockedKey, List<Modifier> modifiers) {}
     private static final EnumMap<Kind, List<Entry>> CATALOG = readCatalog();
+    private static final EnumMap<Kind, Map<Integer,Entry>> BY_ID = indexIds();
     private static final Map<String, UnlockNotification> UNLOCK_NOTIFICATIONS = readUnlockNotifications();
     private final GameController game;
     private final GameConfig config;
@@ -213,9 +214,15 @@ public final class LbcLoadouts {
         }
     }
 
-    private static Entry byId(Kind kind, int id) {
-        return CATALOG.get(kind).stream().filter(entry -> entry.id == id).findFirst().orElse(null);
+    private static EnumMap<Kind,Map<Integer,Entry>> indexIds(){
+        var index=new EnumMap<Kind,Map<Integer,Entry>>(Kind.class);
+        for(var kind:Kind.values()){
+            var ids=new HashMap<Integer,Entry>();for(var entry:CATALOG.get(kind))ids.putIfAbsent(entry.id,entry);
+            index.put(kind,Map.copyOf(ids));
+        }
+        return index;
     }
+    private static Entry byId(Kind kind, int id) {return BY_ID.get(kind).get(id);}
 
     private static Entry bySlot(Kind kind, int page, int slot) {
         return CATALOG.get(kind).stream().filter(entry -> entry.page == page && entry.slot == slot).findFirst().orElse(null);

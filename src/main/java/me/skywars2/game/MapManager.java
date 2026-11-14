@@ -912,15 +912,19 @@ public final class MapManager {
     void captureRespawnIslands() {
         respawnIslands.clear();
         if(level==null)return;
+        var plain=new java.util.IdentityHashMap<BlockState,BlockSnapshot>();
         for(var spawn:spawns){
-            var center=BlockPos.containing(spawn.position());
-            var cells=new HashMap<BlockPos,BlockSnapshot>();
+            var center=BlockPos.containing(spawn.position());var cells=new HashMap<BlockPos,BlockSnapshot>();
             int low=Math.max(level.getMinY(),center.getY()-20),high=Math.min(level.getMaxY()-1,center.getY()+10);
-            for(int x=(center.getX()-10)>>4;x<=(center.getX()+10)>>4;x++)
-                for(int z=(center.getZ()-10)>>4;z<=(center.getZ()+10)>>4;z++)level.getChunk(x,z);
-            for(var pos:BlockPos.betweenClosed(new BlockPos(center.getX()-10,low,center.getZ()-10),
-                    new BlockPos(center.getX()+10,high,center.getZ()+10))){
-                if(!level.getBlockState(pos).isAir())cells.put(pos.immutable(),snapshot(pos));
+            for(int x=(center.getX()-10)>>4;x<=(center.getX()+10)>>4;x++)for(int z=(center.getZ()-10)>>4;z<=(center.getZ()+10)>>4;z++){
+                var chunk=level.getChunk(x,z);
+                int minX=Math.max(center.getX()-10,x<<4),maxX=Math.min(center.getX()+10,(x<<4)+15);
+                int minZ=Math.max(center.getZ()-10,z<<4),maxZ=Math.min(center.getZ()+10,(z<<4)+15);
+                for(var pos:BlockPos.betweenClosed(new BlockPos(minX,low,minZ),new BlockPos(maxX,high,maxZ))){
+                    var state=chunk.getBlockState(pos);if(state.isAir())continue;
+                    var image=state.hasBlockEntity()?snapshot(pos):plain.computeIfAbsent(state,key->new BlockSnapshot(key,null));
+                    cells.put(pos.immutable(),image);
+                }
             }
             respawnIslands.put(center,Map.copyOf(cells));
         }

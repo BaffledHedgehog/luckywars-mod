@@ -1154,15 +1154,21 @@ public final class GameController {
     private void startPlaying() {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < (developerMode() ? 1 : 2)) { restoreLobby(); return; }
+        MatchStartup24Checks.phase(this,"enter");
         perkChoices.clear();
         LbcGayradar.resetRound(this);
         lbc.resetLevelupMatch();
         LbcPhdCrafting.matchStarted(this);
         luckyModifiers.startMatch();
-        if(!bedwars.mode()){maps.cages(false); maps.captureRespawnIslands(); maps.fillChests(false);}
+        MatchStartup24Checks.phase(this,"reset");
+        if(!bedwars.mode()){
+            maps.cages(false);MatchStartup24Checks.phase(this,"cages");
+            maps.captureRespawnIslands();MatchStartup24Checks.phase(this,"islands");
+            maps.fillChests(false);MatchStartup24Checks.phase(this,"chests");
+        }
         transition(Stage.PLAYING); gameTicks = 0;
         events.start();
-        try(var statisticsBatch=LbcPerkStatistics.get(server).batch()){
+        try(var statisticsBatch=LbcPerkStatistics.get(server).batchDeferred()){
         for (ServerPlayer player : alivePlayers()) {
             player.setGameMode(GameType.SURVIVAL); player.setHealth(player.getMaxHealth());
             if (config.vanillaKits) events.giveKit(player);
@@ -1178,6 +1184,7 @@ public final class GameController {
             items.stand().matchStarted(player);
         }
         }
+        MatchStartup24Checks.phase(this,"kits_and_statistics");
         maps.level().getGameRules().set(GameRules.BLOCK_DROPS, true, server);
         maps.level().getGameRules().set(GameRules.ENTITY_DROPS, true, server);
         maps.level().getGameRules().set(GameRules.MOB_DROPS, true, server);
@@ -1186,6 +1193,7 @@ public final class GameController {
         }
         items.seasonal().started();
         updateBar();
+        MatchStartup24Checks.phase(this,"finish");
     }
 
     /** Match membership, including real pending vanilla/BedWars respawns; no second lives registry. */

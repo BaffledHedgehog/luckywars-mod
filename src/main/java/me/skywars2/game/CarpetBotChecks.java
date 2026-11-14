@@ -17,6 +17,17 @@ import net.minecraft.world.phys.Vec3;
 public final class CarpetBotChecks {
     private CarpetBotChecks(){}
     private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Carpet bot: "+why);}
+    static ServerPlayer connect(GameController game,String name,net.minecraft.server.level.ServerLevel world,
+            net.minecraft.server.level.ClientInformation information) throws ReflectiveOperationException {
+        var uuid=GameChecks.offlineUuid(name);require(game.server().getPlayerList().getPlayer(uuid)==null,"owned fake identity offline");
+        var profile=new com.mojang.authlib.GameProfile(uuid,name);var type=Class.forName("carpet.patches.EntityPlayerMPFake");
+        var p=(ServerPlayer)type.getMethod("respawnFake",net.minecraft.server.MinecraftServer.class,net.minecraft.server.level.ServerLevel.class,
+                com.mojang.authlib.GameProfile.class,net.minecraft.server.level.ClientInformation.class).invoke(null,game.server(),world,profile,information);
+        var connection=(net.minecraft.network.Connection)Class.forName("carpet.patches.FakeClientConnection")
+                .getConstructor(net.minecraft.network.protocol.PacketFlow.class).newInstance(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
+        game.server().getPlayerList().placeNewPlayer(connection,p,new net.minecraft.server.network.CommonListenerCookie(profile,0,p.clientInformation(),false));
+        return p;
+    }
     private static Fixture running;
     static class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture base;
@@ -61,13 +72,7 @@ public final class CarpetBotChecks {
         }
         ServerPlayer create(String name,Vec3 pos,boolean botExpected){
             try{
-                var uuid=GameChecks.offlineUuid(name);require(game.server().getPlayerList().getPlayer(uuid)==null,"owned fake identity offline");
-                var profile=new com.mojang.authlib.GameProfile(uuid,name);var type=Class.forName("carpet.patches.EntityPlayerMPFake");
-                var p=(ServerPlayer)type.getMethod("respawnFake",net.minecraft.server.MinecraftServer.class,net.minecraft.server.level.ServerLevel.class,
-                        com.mojang.authlib.GameProfile.class,net.minecraft.server.level.ClientInformation.class).invoke(null,game.server(),base.level,profile,base.owner.clientInformation());
-                var connection=(net.minecraft.network.Connection)Class.forName("carpet.patches.FakeClientConnection")
-                        .getConstructor(net.minecraft.network.protocol.PacketFlow.class).newInstance(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);
-                game.server().getPlayerList().placeNewPlayer(connection,p,new net.minecraft.server.network.CommonListenerCookie(profile,0,p.clientInformation(),false));actors.add(p);
+                var p=connect(game,name,base.level,base.owner.clientInformation());actors.add(p);
                 require(game.returnFromGameModeCommand(p,GameType.SURVIVAL),"real Carpet fake enrolls through existing native roster owner");p.setGameMode(GameType.SURVIVAL);
                 p.getInventory().clearContent();p.removeAllEffects();p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);p.setHealth(100);
                 game.items().mana().resetResources(p);

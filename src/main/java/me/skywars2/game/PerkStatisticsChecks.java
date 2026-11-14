@@ -29,6 +29,7 @@ public final class PerkStatisticsChecks {
             counters(fixture.resolve("counters.json"));
             weightedTrinkets(fixture.resolve("trinkets.json"));
             batchedPicks(fixture.resolve("batch.json"));
+            deferredPicks(fixture.resolve("deferred.json"));
             migration(fixture.resolve("migration.json"));
             rejectedImport(fixture.resolve("blocked.json"));
             malformedStore(fixture.resolve("malformed.json"));
@@ -40,6 +41,30 @@ public final class PerkStatisticsChecks {
         }
     }
 
+    private static void diskTask(Runnable work){
+        var thread=new Thread(work,"owned-perk-disk-check");thread.setDaemon(true);thread.start();
+        try{thread.join(10000);}catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException(error);}
+        require(!thread.isAlive(),"owned worker finished before file assertions and cleanup");
+    }
+    private static void deferredPicks(Path file) throws IOException {
+        var tasks=new java.util.ArrayList<Runnable>();var store=new LbcPerkStatistics(file,tasks::add);
+        store.migrateLegacy(new CompoundTag(),()->{});var before=Files.readAllBytes(file);
+        try(var batch=store.batchDeferred()){store.recordPicks("deferred/A","AsyncA",Map.of("kit",List.of(1)));}
+        require(java.util.Arrays.equals(before,Files.readAllBytes(file))&&store.value("AsyncA","pick_count_kit[0]").equals("1"),
+                "native counters visible immediately while deferred boundary performs no disk write");
+        try(var batch=store.batchDeferred()){store.recordPicks("deferred/B","AsyncB",Map.of("kit",List.of(1)));}
+        require(tasks.size()==1&&java.util.Arrays.equals(before,Files.readAllBytes(file)),"two pending full images share one queued worker");
+        diskTask(tasks.removeFirst());store.flush();var loaded=new LbcPerkStatistics(file);
+        require(loaded.value("AsyncA","pick_count_kit[0]").equals("1")&&loaded.value("AsyncB","pick_count_kit[0]").equals("1"),
+                "latest coalesced snapshot durably retains every accepted event");
+        Files.delete(file);Files.createDirectory(file);var sentinel=file.resolve("preserve.txt");Files.writeString(sentinel,"keep");
+        try(var batch=store.batchDeferred()){store.recordPicks("deferred/C","AsyncC",Map.of("kit",List.of(1)));}
+        require(tasks.size()==1,"one owned failed-write task");diskTask(tasks.removeFirst());store.flush();
+        require(Files.readString(sentinel).equals("keep")&&store.value("AsyncC","pick_count_kit[0]").equals("1"),
+                "failed async and synchronous retry preserve accepted memory counters and unrelated path contents");
+        Files.delete(sentinel);Files.delete(file);store.flush();
+        require(new LbcPerkStatistics(file).value("AsyncC","pick_count_kit[0]").equals("1"),"shutdown-style fence retries the failed latest snapshot");
+    }
     private static void counters(Path file) throws IOException {
         var store = new LbcPerkStatistics(file);
         var cleanup = new AtomicInteger();

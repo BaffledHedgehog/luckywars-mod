@@ -39,6 +39,14 @@ final class LbcPerkStatistics {
     private static final BigInteger TRINKET_UNITS=BigInteger.valueOf(27720);
     private final Map<String,BigInteger> personalTrinketWins=new LinkedHashMap<>();
     private int batchDepth;
+    private static final java.util.concurrent.Executor WRITER=java.util.concurrent.Executors.newSingleThreadExecutor(r->{
+        var thread=new Thread(r,"skywars2-perk-statistics-io");thread.setDaemon(true);return thread;
+    });
+    private final java.util.concurrent.Executor writer;
+    private final Object diskLock=new Object();
+    private byte[] queuedPayload;
+    private boolean writing;
+    private java.util.concurrent.CompletableFuture<Void> pending=java.util.concurrent.CompletableFuture.completedFuture(null);
     private final Set<String> receipts = new LinkedHashSet<>();
     private final Path file;
     private boolean imported;
@@ -47,8 +55,9 @@ final class LbcPerkStatistics {
     private String legacySnapshot = "";
 
     /** Isolated fixture stores use the same persistence and migration code as production. */
-    LbcPerkStatistics(Path file) throws IOException {
-        this.file = file.toAbsolutePath().normalize();
+    LbcPerkStatistics(Path file) throws IOException {this(file,WRITER);}
+    LbcPerkStatistics(Path file,java.util.concurrent.Executor writer) throws IOException {
+        this.file = file.toAbsolutePath().normalize();this.writer=writer;
         load();
     }
 
@@ -144,7 +153,8 @@ final class LbcPerkStatistics {
 
     /** Runtime disk failures retain pending counters for the next accepted event or shutdown. */
     void flush() {
-        if (!dirty||batchDepth>0) return;
+        if(batchDepth>0)return;
+        awaitWrites();if(!dirty)return;
         try {
             save();
             dirty = false;
@@ -154,10 +164,40 @@ final class LbcPerkStatistics {
     }
 
     /** One durable write for the accepted players of the same match, including exceptional exits. */
-    Batch batch(){batchDepth++;return new Batch();}
+    Batch batch(){batchDepth++;return new Batch(false);}
+    /** Match-start counters are immediately visible; only the immutable disk image is deferred. */
+    Batch batchDeferred(){batchDepth++;return new Batch(true);}
     final class Batch implements AutoCloseable {
-        private boolean closed;
-        @Override public void close(){if(!closed){closed=true;if(--batchDepth==0)flush();}}
+        private boolean closed;private final boolean deferred;
+        Batch(boolean deferred){this.deferred=deferred;}
+        @Override public void close(){if(!closed){closed=true;if(--batchDepth==0){if(deferred)flushDeferred();else flush();}}}
+    }
+    private void flushDeferred(){
+        if(batchDepth>0||!dirty)return;
+        byte[] payload=payload();
+        synchronized(diskLock){
+            queuedPayload=payload;
+            if(!writing){
+                writing=true;
+                pending=java.util.concurrent.CompletableFuture.runAsync(this::drain,writer).whenComplete((unused,error)->{
+                    if(error!=null)me.skywars2.SkyWars2.LOGGER.error("Deferred perk-statistics write failed; counters retained for retry",error);
+                });
+            }
+        }
+        dirty=false;
+    }
+    /** One writer plus one latest snapshot: rapid restarts cannot accumulate old JSON images. */
+    private void drain(){
+        for(;;){
+            byte[] next;
+            synchronized(diskLock){next=queuedPayload;queuedPayload=null;if(next==null){writing=false;return;}}
+            try{write(next);}catch(IOException error){synchronized(diskLock){writing=false;}throw new java.util.concurrent.CompletionException(error);}
+        }
+    }
+    /** Synchronous/import/shutdown boundaries fence older images before replacing the file. */
+    private void awaitWrites(){
+        try{pending.join();}catch(java.util.concurrent.CompletionException error){dirty=true;}
+        synchronized(diskLock){queuedPayload=null;pending=java.util.concurrent.CompletableFuture.completedFuture(null);}
     }
 
     private void increment(String key) {
@@ -210,7 +250,8 @@ final class LbcPerkStatistics {
         }
     }
 
-    private void save() throws IOException {
+    private void save() throws IOException {awaitWrites();write(payload());}
+    private byte[] payload() {
         var root = new JsonObject();
         root.addProperty("version", 1);
         root.addProperty("legacyImported", imported);
@@ -222,7 +263,9 @@ final class LbcPerkStatistics {
         counters.forEach(values::addProperty);
         root.add("counters", values);
         var trinkets=new JsonObject();personalTrinketWins.forEach(trinkets::addProperty);root.add("personalTrinketWinUnits",trinkets);
-        byte[] payload = new GsonBuilder().setPrettyPrinting().create().toJson(root).getBytes(StandardCharsets.UTF_8);
+        return new GsonBuilder().setPrettyPrinting().create().toJson(root).getBytes(StandardCharsets.UTF_8);
+    }
+    private void write(byte[] payload) throws IOException {
         Path temporary = file.resolveSibling(file.getFileName() + ".tmp");
         try {
             Files.createDirectories(file.getParent());
