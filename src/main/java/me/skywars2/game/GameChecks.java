@@ -1035,6 +1035,7 @@ public final class GameChecks {
                                 case "bedwars-victory" -> { BedwarsChecks.run(game,suite); return; }
                                 case "bedwars-allies" -> { BedwarsChecks.run(game,suite); return; }
                                 case "bedwars-renewal" -> { BedwarsRenewalChecks.start(game); return; }
+                                case "tiktok-account" -> { TikTokAccountChecks.run(game); return; }
                                 case "zaika-passive" -> { ZaikaPassiveChecks.run(game); return; }
                                 case "expansion-skill" -> { ExpansionSkillChecks.start(game); return; }
                                 case "hakurei-skill" -> { HakureiSkillChecks.start(game); return; }

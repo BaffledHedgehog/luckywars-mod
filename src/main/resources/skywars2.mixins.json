@@ -20,6 +20,7 @@
     "ModeScrollMixin",
     "ModeScrollMixin$Pong",
     "BuildDialogMixin",
+    "TikTokDialogMixin",
     "LobbyRaidCleanupMixin",
     "LegacyVanillaStateMixin$Attribute",
     "LegacyVanillaStateMixin$Visibility",

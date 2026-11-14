@@ -30,3 +30,6 @@ Thumbs.db
 /*.hprof
 /*.jfr
 /.serena/cache/
+
+# Private TikTok account credentials; media is kept under the server world's data/luckywars/tiktok.
+/config/skywars2/tiktok/

@@ -3139,3 +3139,36 @@ bounded flushes (301->2 for the selected native burst). TeslaTrafficChecks sampl
 16 real scheduled arcs for nearby and distant recipients and reports packets/s
 and encoded bytes/s. These are selected scene/transport checks, not external WAN
 latency, TCP segment counts or a full network performance qualification.
+
+### TikTok account and prepared-media foundation
+
+TikTokAccounts owns the operator-only `/skywars tiktok import` and `status`
+commands. Import uses a native dialog, a player-body-bound one-use nonce, the
+native packet-thread boundary, and a 60-second dialog lifetime. Existing cookies
+are never sent back in the dialog. TikTokCookies normalizes only TikTok domains
+and atomically persists credentials outside player profiles under
+`config/skywars2/tiktok/cookies.json`; this path is ignored by Git.
+
+TikTokCache retains at most five originals and prepared clips under the world's
+`data/luckywars/tiktok`. A single owned worker process obtains the authenticated
+For You page in an isolated browser context, downloads one original with yt-dlp,
+and prepares media with single-threaded ffmpeg. No browser is downloaded. Failed
+and interrupted staging data is retired; queue eviction removes originals and
+derivatives together and respects active-viewer pins. The disk ceiling is
+768 MiB. Runtime dependency errors expose fixed codes, never credential-bearing
+browser/download diagnostics. Shutdown cancels only the worker's process tree.
+
+TikTokMedia reads a bounded frame via its offset index rather than loading an
+entire clip: 64x112 native map colours at 20 FPS, JPEG 256x448, 24 kHz mono PCM,
+and a 24-band envelope for the planned vanilla audio path. This foundation does
+not yet render or play the phone, register a client capability or deliver media
+to a client. Vanilla rendering/audio and optional-client streaming remain open.
+The current five-minute derivative cap also remains a temporary implementation
+limit to review before completing the feature. Original downloads are uncut.
+
+TikTokAccountChecks exercises the native dialog/reply codecs (including maximum
+Unicode input accounting), actual command/foreign-operator/replay rejection,
+atomic credential reload, account replacement, five-clip eviction and pinning.
+`tools/check_tiktok_worker.py` uses real ffmpeg video/audio and silent inputs;
+`tools/check_tiktok_feed.py` runs a real browser against intercepted local page
+responses with synthetic cookies. Neither test proves live account access.

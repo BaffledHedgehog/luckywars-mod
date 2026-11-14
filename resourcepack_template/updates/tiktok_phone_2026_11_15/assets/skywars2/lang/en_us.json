@@ -1,0 +1,19 @@
+{
+  "tiktok.loading": "The video is still loading. Please wait!",
+  "tiktok.import": "TikTok — import cookies",
+  "tiktok.cookies": "TikTok cookies JSON",
+  "tiktok.import_hint": "Paste cookies exported for tiktok.com as JSON (up to %s characters). Stored only on the server. Uses your For You feed.",
+  "tiktok.imported": "Cookies saved. Preparing a queue of five For You videos.",
+  "tiktok.cookies_invalid": "Could not read TikTok cookies. Paste a JSON cookie array for the tiktok.com domain.",
+  "tiktok.save_failed": "Could not save TikTok cookies.",
+  "tiktok.unavailable": "TikTok video preparation is currently unavailable.",
+  "tiktok.status": "TikTok: %s/%s videos ready; account: %s. %s",
+  "tiktok.browser_missing": "No browser is available for preparing the feed.",
+  "tiktok.feed_unavailable": "Could not load For You. Cookies may have expired, or TikTok may require a browser login.",
+  "tiktok.cache_full": "The video cache size limit has been reached.",
+  "tiktok.prepare_failed": "Could not prepare a video. Retrying in one minute.",
+  "tiktok.preparing": "Preparing the queue.",
+  "tiktok.ready": "Queue ready.",
+  "tiktok.configured": "cookies saved",
+  "tiktok.not_configured": "cookies not imported yet"
+}

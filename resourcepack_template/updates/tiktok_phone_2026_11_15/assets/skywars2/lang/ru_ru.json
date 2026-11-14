@@ -1,0 +1,19 @@
+{
+  "tiktok.loading": "Видео ещё загружается. Подожди немного!",
+  "tiktok.import": "TikTok — импорт cookies",
+  "tiktok.cookies": "JSON cookies TikTok",
+  "tiktok.import_hint": "Вставь JSON, экспортированный для tiktok.com (до %s символов). Сохраняется только на сервере. Используется лента «Для вас».",
+  "tiktok.imported": "Cookies сохранены. Готовится очередь из пяти видео «Для вас».",
+  "tiktok.cookies_invalid": "Не удалось прочитать cookies TikTok. Нужен JSON-массив cookies с доменом tiktok.com.",
+  "tiktok.save_failed": "Не удалось сохранить cookies TikTok.",
+  "tiktok.unavailable": "Подготовка видео TikTok сейчас недоступна.",
+  "tiktok.status": "TikTok: готово %s/%s видео; аккаунт: %s. %s",
+  "tiktok.browser_missing": "Не найден браузер для подготовки ленты.",
+  "tiktok.feed_unavailable": "Не удалось получить рекомендации. Возможно, cookies устарели или TikTok требует входа в браузере.",
+  "tiktok.cache_full": "Достигнут лимит кэша видео.",
+  "tiktok.prepare_failed": "Не удалось подготовить видео. Повторная попытка через минуту.",
+  "tiktok.preparing": "Очередь подготавливается.",
+  "tiktok.ready": "Очередь готова.",
+  "tiktok.configured": "cookies сохранены",
+  "tiktok.not_configured": "cookies ещё не импортированы"
+}

@@ -27,6 +27,8 @@ dependencies {
 }
 
 processResources {
+    // Executable media helpers are resources; local Python import caches are not.
+    exclude '**/__pycache__/**', '**/*.pyc', '**/*.pyo'
     // Public suggestions and packaged internal aliases share one catalog with separate explicit sets.
     def catalogFile = file('src/main/resources/skywars2/loot_test_catalog.json')
     inputs.file(catalogFile)
