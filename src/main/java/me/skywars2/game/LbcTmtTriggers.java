@@ -26,6 +26,9 @@ public final class LbcTmtTriggers {
     private static final ThreadLocal<Selection> selection=new ThreadLocal<>();
     private static final ThreadLocal<Integer> dispatchDepth=ThreadLocal.withInitial(()->0);
     private static final ThreadLocal<ServerPlayer> inputOwner=new ThreadLocal<>();
+    static ItemStack enchantmentSource(ServerPlayer player){
+        var active=selection.get();return inputOwner.get()==player&&active!=null?active.source:ItemStack.EMPTY;
+    }
     private static final ThreadLocal<Input> origin=new ThreadLocal<>();
     private record HeldView(ServerPlayer owner,InteractionHand hand,ItemStack source){}
     private static final ThreadLocal<HeldView> heldView=new ThreadLocal<>();

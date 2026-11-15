@@ -35,7 +35,8 @@ public final class LbcTmtItems {
     public static boolean active(ItemStack stack){return LbcTmtAbilities.active(stack);}
     private static Item.Properties properties(String name){
         var data=new CompoundTag();data.putInt("tmt_item",1);
-        return new Item.Properties().setId(ResourceKey.create(Registries.ITEM,Identifier.parse(name))).component(DataComponents.CUSTOM_DATA,CustomData.of(data));
+        var properties=new Item.Properties().setId(ResourceKey.create(Registries.ITEM,Identifier.parse(name))).component(DataComponents.CUSTOM_DATA,CustomData.of(data));
+        return name.equals("skywars2:tmt_token")?properties:properties.enchantable(1);
     }
     private static Item token(){
         var data=new CompoundTag();data.putInt("tmt",1);data.putInt("drop",1);

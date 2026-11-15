@@ -69,7 +69,8 @@ public final class LbcChargedSwords {
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private final GameController game;
     private final Set<ThrownSword> swords=new LinkedHashSet<>();
-    private IdentityHashMap<ServerPlayer,String> firing=new IdentityHashMap<>();
+    private record Firing(String epoch,LbcIndirectKills.Owner cause){}
+    private IdentityHashMap<ServerPlayer,Firing> firing=new IdentityHashMap<>();
     private final Set<Pulse> pulses=new LinkedHashSet<>();
     private int clock,visualClock;
     private int callbackDepth;
@@ -143,7 +144,7 @@ public final class LbcChargedSwords {
         if(isBlaze(held))game.items().mana().score(owner,BLAZE_CHARGE).set((int)Math.min(Integer.MAX_VALUE,(long)blazeCharges(owner)+1));
     }
     public boolean use(ServerPlayer owner,InteractionHand hand){
-        callbackDepth++;try{
+        callbackDepth++;try(var weapon=WeaponEnchantments.using(owner,owner.getItemInHand(hand))){
         if(!admitted(owner)||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands)return false;
         var held=owner.getItemInHand(hand);
         if(isTriple(held)){
@@ -153,13 +154,15 @@ public final class LbcChargedSwords {
             for(int yaw:new int[]{10,0,-10})spawn(owner,origin,owner.getYRot()+yaw,owner.getXRot());
             game.items().mana().score(owner,TRIPLE_CHARGE).add(-1);return true;
         }
-        if(isBlaze(held)&&blazeCharges(owner)>=5){firing.put(owner,game.items().epoch());owner.entityTags().add(FIRING);return true;}
+        if(isBlaze(held)&&blazeCharges(owner)>=5){firing.put(owner,new Firing(game.items().epoch(),game.items().indirectKills().coldCause(owner,true)));owner.entityTags().add(FIRING);return true;}
         return false;
 
         }finally{callbackDepth--;}
     }
     public static final class ThrownSword extends Projectile implements PolymerEntity {
-        int age;boolean grounded;ElementHolder holder;ItemDisplayElement display;BlockPos embeddedBlock;
+        int age,groundedTicks;boolean grounded;ElementHolder holder;ItemDisplayElement display;BlockPos embeddedBlock;
+        LbcIndirectKills.Owner cause;
+        @Override public ItemStack getWeaponItem(){return cause==null?super.getWeaponItem():cause.enchantmentWeapon();}
         ThrownSword(EntityType<? extends ThrownSword> type,Level level){super(type,level);}
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder){}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
@@ -185,6 +188,7 @@ public final class LbcChargedSwords {
     }
     private void spawn(ServerPlayer owner,Vec3 origin,float yaw,float pitch){
         var sword=new ThrownSword(TYPE,owner.level());sword.setOwner(owner);sword.setPos(origin);sword.setNoGravity(true);
+        sword.cause=game.items().indirectKills().coldCause(owner,true);
         sword.setYRot(yaw);sword.setXRot(pitch);sword.setDeltaMovement(Vec3.directionFromRotation(pitch,yaw).normalize().scale(1.2));
         sword.entityTags().addAll(List.of("thromn_sword","slowraycast","player","magic"));game.items().markCurrentItemEpoch(sword);
         if(owner.level().addFreshEntity(sword)){swords.add(sword);if(sword.holder==null)sword.attach();}else sword.discard();
@@ -247,9 +251,9 @@ public final class LbcChargedSwords {
         if(!level.hasChunkAt(BlockPos.containing(from))||magic&&game.items().magic().suppressedAt(level,from)){remove(sword);return;}
         ++sword.age;
         if(sword.grounded){
-            var ahead=BlockPos.containing(from.add(forward.scale(.5)));
+            var ahead=sword.embeddedBlock==null?BlockPos.containing(from.add(forward.scale(.5))):sword.embeddedBlock;
             if(!level.hasChunkAt(ahead)){remove(sword);return;}
-            if(level.getBlockState(ahead).is(AIRS)||(hostile?level.getRandom():owner.getRandom()).nextInt(100)==0||sword.age>=100)breakSword(sword,owner);
+            if(++sword.groundedTicks>=20||level.getBlockState(ahead).is(AIRS))breakSword(sword,owner);
             else sword.sync(from);
             return;
         }
@@ -266,7 +270,7 @@ public final class LbcChargedSwords {
         }
         if(hit!=null){
             sword.setPos(hit.getLocation());var policy=game.items().spellSources().source(sword);
-            var cause=hostile?(policy==null?null:policy.cause()):game.items().indirectKills().coldCause(owner,true);
+            var cause=policy!=null?policy.cause():hostile?null:sword.cause!=null?sword.cause:game.items().indirectKills().coldCause(owner,true);
             var damage=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),sword,hostile?sword.getOwner():owner);
             hit.getEntity().hurtServer(level,game.items().indirectKills().captureDamage(damage,cause),4);
             if(!swords.contains(sword)||sword.isRemoved())return;
@@ -285,7 +289,7 @@ public final class LbcChargedSwords {
             // Source teleport/interpolation targets the completed step; prediction could cross a future entity or suppression contact.
             sword.sync(to);
         }
-        if(sword.age>=100)breakSword(sword,owner);
+        if(!sword.grounded&&sword.age>=100)breakSword(sword,owner);
     }
     private final class Pulse implements LbcExasperato.ReplayableRay {
         ServerPlayer owner;final String epoch;final ServerLevel level;final Vec3 origin,direction;
@@ -331,7 +335,7 @@ public final class LbcChargedSwords {
     }
     private void pulse(ServerPlayer owner){
         callbackDepth++;try{
-        var pulse=new Pulse(owner,game.items().epoch(),game.items().indirectKills().coldCause(owner,true));pulses.add(pulse);
+        var firingSource=firing.get(owner);var pulse=new Pulse(owner,game.items().epoch(),firingSource==null?game.items().indirectKills().coldCause(owner,true):firingSource.cause);pulses.add(pulse);
         LbcOverload.sound(owner,owner.position(),"minecraft:item.firecharge.use",1,1,16,.2f);
         sample(pulse,pulse.origin);pulse.nextSample=1;
         if(!live(pulse))return;
@@ -371,7 +375,7 @@ public final class LbcChargedSwords {
             if((hostile?game.items().timeStop().stopped((ServerLevel)sword.level()):paused(owner))||game.items().timeStop().frozen(sword)||sword.entityTags().contains("time_stopped")){sword.sync(sword.position());continue;}
             if(!hostile&&suppressed(owner)){remove(sword);continue;}step(sword,hostile?null:owner);
         }
-        for(var owner:List.copyOf(firing.keySet()))if(!valid(owner)||!game.items().currentEpoch(firing.get(owner))||suppressed(owner))cancel(owner);
+        for(var owner:List.copyOf(firing.keySet()))if(!valid(owner)||!game.items().currentEpoch(firing.get(owner).epoch)||suppressed(owner))cancel(owner);
         for(var pulse:List.copyOf(pulses))if(!live(pulse))cancelPulse(pulse);
         if(game.items().wands().timeStopped())return;
         if(++clock%2!=0)return;
@@ -444,17 +448,17 @@ public final class LbcChargedSwords {
         }
     }
     final class Checkpoint {
-        private record SwordImage(MatchDamageSources.Ref actor,int age,boolean grounded,BlockPos embedded,ModelImage model) { }
+        private record SwordImage(MatchDamageSources.Ref actor,int age,boolean grounded,int groundedTicks,BlockPos embedded,LbcIndirectKills.Owner cause,ModelImage model) { }
         private record FinishImage(MatchDamageSources.Ref owner,String epoch,ServerLevel level,Vec3 position,int removeAt,ModelImage model) { }
         private final List<SwordImage> actors=new ArrayList<>();
         private final List<FinishImage> models=new ArrayList<>();
         private final List<PulseImage> rays=new ArrayList<>();
-        private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,String> firingImage;
+        private final MatchSpellCheckpoint.IdentityImage<ServerPlayer,Firing> firingImage;
         private final int savedClock=clock,savedVisualClock=visualClock;
         Checkpoint(MatchSpellCheckpoint.Links links){
             checkpointBoundary();if(rewinding)throw new IllegalStateException("Publish charged-sword presentation before capture");
             firingImage=new MatchSpellCheckpoint.IdentityImage<>(firing,links);
-            for(var sword:swords)actors.add(new SwordImage(links.key(sword),sword.age,sword.grounded,sword.embeddedBlock,
+            for(var sword:swords)actors.add(new SwordImage(links.key(sword),sword.age,sword.grounded,sword.groundedTicks,sword.embeddedBlock,sword.cause,
                     sword.holder==null?null:new ModelImage(sword.display,links)));
             for(var model:finishing)models.add(new FinishImage(links.key(model.owner),model.epoch,model.level,model.position,model.removeAt,new ModelImage(model.display,links)));
             for(var pulse:pulses)rays.add(new PulseImage(pulse,links));
@@ -472,7 +476,7 @@ public final class LbcChargedSwords {
                 swords.clear();finishing.clear();presentationWatchers.clear();firing=restoredFiring;pulses.clear();
                 clock=savedClock;visualClock=savedVisualClock;
                 for(int i=0;i<actors.size();i++){
-                    var image=actors.get(i);var sword=currentActors.get(i);sword.age=image.age;sword.grounded=image.grounded;sword.embeddedBlock=image.embedded;
+                    var image=actors.get(i);var sword=currentActors.get(i);sword.age=image.age;sword.grounded=image.grounded;sword.groundedTicks=image.groundedTicks;sword.embeddedBlock=image.embedded;sword.cause=image.cause;
                     sword.destroy();sword.display=null;
                     if(image.model!=null){var model=actorModels.get(i);sword.display=model.image.create();sword.holder=new ElementHolder();sword.holder.addElement(sword.display);presentationWatchers.put(sword.holder,model.watchers);}
                     swords.add(sword);

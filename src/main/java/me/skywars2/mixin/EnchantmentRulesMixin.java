@@ -35,7 +35,7 @@ public final class EnchantmentRulesMixin {
         @WrapOperation(method={"isSupportedItem","isPrimaryItem"},at=@At(value="INVOKE",target=
                 "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/core/HolderSet;)Z"))
         private boolean skywars2$authoredSword(ItemStack stack,net.minecraft.core.HolderSet<net.minecraft.world.item.Item> items,Operation<Boolean> original){
-            return original.call(stack,items)||me.skywars2.game.LbcSwordTools.sword(stack)&&items.contains(net.minecraft.world.item.Items.IRON_SWORD.builtInRegistryHolder());
+            return original.call(stack,items)||EnchantmentRules.supports(stack,items,(Enchantment)(Object)this);
         }
 
         @Inject(method="areCompatible",at=@At("HEAD"),cancellable=true)
@@ -51,6 +51,36 @@ public final class EnchantmentRulesMixin {
             var color=enchantment.is(EnchantmentTags.CURSE)?ChatFormatting.RED:ChatFormatting.GRAY;
             var name=ComponentUtils.mergeStyles(enchantment.value().description().copy(),Style.EMPTY.withColor(color));
             cir.setReturnValue(name.append(Component.literal(" "+level)));
+        }
+    }
+
+    @Mixin(net.minecraft.world.inventory.EnchantmentMenu.class)
+    public abstract static class TablePool {
+        @WrapOperation(method="getEnchantmentList",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;selectEnchantment(Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/item/ItemStack;ILjava/util/stream/Stream;)Ljava/util/List;"))
+        private java.util.List<net.minecraft.world.item.enchantment.EnchantmentInstance> skywars2$allTmtEnchantments(
+                net.minecraft.util.RandomSource random,ItemStack stack,int cost,java.util.stream.Stream<Holder<Enchantment>> originalPool,
+                Operation<java.util.List<net.minecraft.world.item.enchantment.EnchantmentInstance>> original,
+                @Local(argsOnly=true) net.minecraft.core.RegistryAccess registries){
+            return original.call(random,stack,cost,EnchantmentRules.tmt(stack)
+                    ?registries.lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT).listElements():originalPool);
+        }
+    }
+    @Mixin(net.minecraft.world.item.enchantment.EnchantmentHelper.class)
+    public abstract static class TmtTableCosts {
+        @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="getAvailableEnchantmentResults")
+        private static java.util.List<net.minecraft.world.item.enchantment.EnchantmentInstance> skywars2$tmtCosts(int cost,ItemStack stack,
+                java.util.stream.Stream<Holder<Enchantment>> pool,Operation<java.util.List<net.minecraft.world.item.enchantment.EnchantmentInstance>> original){
+            try(var scope=EnchantmentRules.table(stack)){return original.call(cost,stack,pool);}
+        }
+        // Treasure enchantments whose first level normally starts above table level 30 must remain reachable.
+        @WrapOperation(method="lambda$getAvailableEnchantmentResults$1",at=@At(value="INVOKE",target="Lnet/minecraft/world/item/enchantment/Enchantment;getMinCost(I)I"))
+        private static int skywars2$tmtMinCost(Enchantment enchantment,int level,Operation<Integer> original){
+            return original.call(enchantment,level)-EnchantmentRules.tableCostOffset(enchantment);
+        }
+        @WrapOperation(method="lambda$getAvailableEnchantmentResults$1",at=@At(value="INVOKE",target="Lnet/minecraft/world/item/enchantment/Enchantment;getMaxCost(I)I"))
+        private static int skywars2$tmtMaxCost(Enchantment enchantment,int level,Operation<Integer> original){
+            return original.call(enchantment,level)-EnchantmentRules.tableCostOffset(enchantment);
         }
     }
 

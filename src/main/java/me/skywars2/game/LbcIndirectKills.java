@@ -42,7 +42,24 @@ public final class LbcIndirectKills {
                     && !old.isSuffocating(level,pos)) stonePlaced(level,pos,owner);
         }
     }
-    record Owner(UUID player, long order, boolean friendlyFire, boolean projectile) { }
+    record Owner(UUID player,long order,boolean friendlyFire,boolean projectile,net.minecraft.world.item.ItemStack enchantmentWeapon,boolean weaponAction) {
+        Owner(UUID player,long order,boolean friendlyFire,boolean projectile){this(player,order,friendlyFire,projectile,WeaponEnchantments.retained(player,order));}
+        private Owner(UUID player,long order,boolean friendlyFire,boolean projectile,WeaponEnchantments.Capture capture){
+            this(player,order,friendlyFire,projectile,capture.item(),capture.action());
+        }
+        Owner(UUID player,long order,boolean friendlyFire,boolean projectile,net.minecraft.world.item.ItemStack enchantmentWeapon){
+            this(player,order,friendlyFire,projectile,enchantmentWeapon,WeaponEnchantments.itemAction(player));
+        }
+        Owner(UUID player,long order,boolean friendlyFire,boolean projectile,net.minecraft.world.item.ItemStack enchantmentWeapon,boolean weaponAction){
+            this.player=player;this.order=order;this.friendlyFire=friendlyFire;this.projectile=projectile;
+            this.enchantmentWeapon=enchantmentWeapon.copyWithCount(1);this.weaponAction=weaponAction;WeaponEnchantments.remember(this);
+        }
+        @Override public net.minecraft.world.item.ItemStack enchantmentWeapon(){return enchantmentWeapon.copy();}
+        // Causal identity remains the original four fields; snapshots are auxiliary metadata.
+        @Override public boolean equals(Object value){return value instanceof Owner other&&java.util.Objects.equals(player,other.player)
+                &&order==other.order&&friendlyFire==other.friendlyFire&&projectile==other.projectile;}
+        @Override public int hashCode(){return java.util.Objects.hash(player,order,friendlyFire,projectile);}
+    }
     private record TrapFrame(Owner owner, ServerLevel level, Map<BlockPos,BlockState> candidates) { }
     private static final class Fall {
         final Owner owner;
@@ -55,6 +72,7 @@ public final class LbcIndirectKills {
     private record Hazard(Owner owner, BlockState state) { }
     private record Arrival(Owner owner,ServerLevel level,Map<BlockPos,BlockState> cells) { }
     private final GameController game;
+    private final Map<LivingEntity,Owner> lootOwners=new java.util.WeakHashMap<>();
     // Ссылки на выгруженных мобов не удерживают сущности/чанки в памяти.
     private final Map<LivingEntity,Fall> falls = new WeakHashMap<>();
     private final Map<LivingEntity,Map<Holder<MobEffect>,Status>> statuses = new WeakHashMap<>();
@@ -204,8 +222,31 @@ public final class LbcIndirectKills {
     LbcIndirectKills(GameController game) { this.game=game; }
     private Owner owner(ServerPlayer player) { return owner(player,false); }
     private Owner owner(ServerPlayer player,boolean friendlyFire) {
-        var source=game.items().spellSources().current();if(source!=null&&(player==null||source.author().equals(player.getUUID())))return source.cause();
-        return player==null?null:new Owner(player.getUUID(),++order,friendlyFire,false);
+        var source=game.items().spellSources().current();if(source!=null&&(player==null||java.util.Objects.equals(source.author(),player.getUUID())))return source.cause();
+        return player==null?null:fresh(player,friendlyFire,false);
+    }
+    private Owner fresh(ServerPlayer player,boolean friendlyFire,boolean projectile){
+        return new Owner(player.getUUID(),++order,friendlyFire,projectile,WeaponEnchantments.snapshot(player));
+    }
+    public net.minecraft.world.item.ItemStack enchantmentWeapon(DamageSource source){
+        if(source instanceof CapturedDamage captured&&captured.cause!=null)return captured.cause.enchantmentWeapon();
+        if(source instanceof InheritedKill inherited&&inherited.cause!=null)return inherited.cause.enchantmentWeapon();
+        if(source instanceof TransferredDamage transferred)return enchantmentWeapon(transferred.original);
+        return net.minecraft.world.item.ItemStack.EMPTY;
+    }
+    net.minecraft.world.item.ItemStack damageWeapon(DamageSource source){
+        if(LbcSpellSource.unownedHazard(source.getDirectEntity())||game.items().spellSources().lootProjectile(source.getDirectEntity()))return net.minecraft.world.item.ItemStack.EMPTY;
+        Owner cause=source instanceof CapturedDamage captured?captured.cause:source instanceof InheritedKill inherited?inherited.cause:null;
+        if(cause!=null&&cause.weaponAction()&&source.getEntity() instanceof ServerPlayer player&&player.getUUID().equals(cause.player()))
+            return cause.enchantmentWeapon();
+        if(source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile shot&&shot.getOwner() instanceof ServerPlayer player
+                &&source.getEntity()==player){var weapon=shot.getWeaponItem();if(weapon!=null&&!weapon.isEmpty())return weapon.copyWithCount(1);}
+        if(source instanceof TransferredDamage transferred)return damageWeapon(transferred.original);
+        return net.minecraft.world.item.ItemStack.EMPTY;
+    }
+    public net.minecraft.world.item.ItemStack lootWeapon(LivingEntity victim){
+        var cause=lootOwners.get(victim);var marker=victim.getLastHurtByPlayer();
+        return cause!=null&&marker!=null&&cause.player.equals(marker.getUUID())?cause.enchantmentWeapon():net.minecraft.world.item.ItemStack.EMPTY;
     }
 
     /** WILD totem Wither keeps its author and allegiance policy through real effect ticks. */
@@ -236,9 +277,10 @@ public final class LbcIndirectKills {
     boolean inheritedExecution(LivingEntity target,Owner cause){return game.items().wtf().erase(target)||inheritedKill(target,cause);}
     boolean inheritedKill(LivingEntity target,Owner cause){return target.hurtServer((ServerLevel)target.level(),new InheritedKill(target,cause),Float.MAX_VALUE);}
     void manaLost(LivingEntity target,Owner cause){if(cause!=null)manaDebts.put(target,newer(manaDebts.get(target),cause));}
-    Owner coldCause(ServerPlayer player,boolean projectile){return new Owner(player.getUUID(),++order,false,projectile);}
+    Owner coldCause(ServerPlayer player,boolean projectile){return fresh(player,false,projectile);}
     Owner restoreColdCause(UUID player,long stamp,boolean projectile){
-        if(stamp<=0)stamp=++order;else order=Math.max(order,stamp);
+        if(stamp<=0)return new Owner(player,++order,false,projectile,WeaponEnchantments.snapshot(player));
+        order=Math.max(order,stamp);
         return new Owner(player,stamp,false,projectile);
     }
     void coldEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
@@ -383,7 +425,7 @@ public final class LbcIndirectKills {
             effectRemoved(target,effect);
             if(player!=null && player!=target) statuses.computeIfAbsent(target,ignored->new HashMap<>())
                     .put(effect.getEffect(),new Status(effect.is(MobEffects.CONDUIT_POWER)?
-                            new Owner(player.getUUID(),++order,false,true):owner(player,LbcTotems.managed(source)),effect));
+                            fresh(player,false,true):owner(player,LbcTotems.managed(source)),effect));
         }
         if(effect.is(MobEffects.RAID_OMEN) && effect.getAmplifier()==20) {
             pendingMana.remove(target);
@@ -606,7 +648,7 @@ public final class LbcIndirectKills {
         var player=playerSource(source);
         var inherited=SauvojenMeditation.cause(source);
         if(inherited==null)inherited=game.items().babylonEffects().cause(source);
-        blockWrites(level,inherited!=null ? inherited : player==null ? null : new Owner(player.getUUID(),++order,friendlyFire,
+        blockWrites(level,inherited!=null ? inherited : player==null ? null : fresh(player,friendlyFire,
                 source instanceof Projectile || source instanceof net.minecraft.world.entity.LightningBolt),writes);
     }
     /** Moving terrain effects retain the original cast order across their child columns. */
@@ -770,7 +812,7 @@ public final class LbcIndirectKills {
         if(cause!=null && target.isAlive() && target.isOnFire()) burning.put(target,newer(burning.get(target),cause));
     }
     public void projectileIgnited(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
-        if(target.isAlive() && target.isOnFire()) burning.put(target,new Owner(player.getUUID(),++order,friendlyFire,true));
+        if(target.isAlive() && target.isOnFire()) burning.put(target,fresh(player,friendlyFire,true));
     }
     public void poisoned(LivingEntity target, ServerPlayer player) {
         var effect=target.getEffect(MobEffects.POISON);
@@ -918,6 +960,7 @@ public final class LbcIndirectKills {
 
     /** Вызывается до нативного die: mob loot/XP, vanilla kill score и статистика мода видят автора. */
     public void dying(LivingEntity target, DamageSource damage) {
+        lootOwners.remove(target);
         // Lethal callbacks run before AFTER_DAMAGE: settle native/indirect credit now.
         if(npcSource(damage)||LbcSpellSource.unownedHazard(damage.getDirectEntity())||LbcSpellSource.unownedHazard(damage.getEntity())){mobImpact(target,damage);return;}
         var babylon=causeTarget==target&&activeCause!=null ? activeCause : babylonCause(damage);
@@ -962,6 +1005,7 @@ public final class LbcIndirectKills {
         if(player==null || player==target) return;
         target.setLastHurtByPlayer(player,100);
         target.setLastHurtByMob(player);
+        lootOwners.put(target,cause);
     }
 
     /** Контекст только нативного poison tick: другой magic-урон не становится кислотным. */
@@ -997,7 +1041,8 @@ public final class LbcIndirectKills {
             if(id.equals(target.getUUID()))continue;
             // A more recent hostile mob gets its own kill; an old player must not steal it.
             if(newerMob!=null)return new LogoutHit(newerMob,null);
-            var accepted=new Owner(id,++order,cause!=null&&cause.friendlyFire(),cause!=null&&cause.projectile());
+            var accepted=new Owner(id,++order,cause!=null&&cause.friendlyFire(),cause!=null&&cause.projectile(),
+                    cause==null?WeaponEnchantments.snapshot(id):cause.enchantmentWeapon());
             return new LogoutHit(captureDamage(target.damageSources().genericKill(),accepted,game.server().getPlayerList().getPlayer(id)),id);
         }
         return null;
@@ -1031,6 +1076,7 @@ public final class LbcIndirectKills {
         target.setLastHurtByMob(actor instanceof net.minecraft.world.entity.player.Player?null:actor);
     }
     public void stop() {
+        lootOwners.clear();WeaponEnchantments.clear();
         falls.clear(); statuses.clear(); removedSupports.clear(); laterAttacks.clear(); stone.clear();
         pendingMana.clear(); manaDrains.clear(); manaDebts.clear();
         hazards.clear(); burning.clear(); arrivals.clear(); hungerDebts.clear();

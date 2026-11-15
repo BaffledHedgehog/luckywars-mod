@@ -137,7 +137,7 @@ public final class EnchantmentRulesChecks {
             level.setBlock(center,Blocks.ENCHANTING_TABLE.defaultBlockState(),818);
             for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)if(Math.abs(x)==2 || Math.abs(z)==2)
                 for(int y=0;y<=1;y++)level.setBlock(center.offset(x,y,z),Blocks.BOOKSHELF.defaultBlockState(),818);
-            swordProperties(game,player,center);swordSweep(player,center);
+            swordProperties(game,player,center);swordSweep(player,center);WeaponEnchantmentChecks.run(game,player,center);
             var table=new EnchantmentMenu(44,player.getInventory(),ContainerLevelAccess.create(level,center));
             boolean mixed=false;
             for(int trial=1;trial<=128;trial++) {

@@ -409,13 +409,16 @@ public final class LbcWands {
     }
     /** Native authored tools share the same admission and ray input as existing wands. */
     static Item nativeTool(Item.Properties properties,Item proxy){
-        return new SimplePolymerItem(properties,proxy,true){
-            @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
-                var game=SkyWars2.game();
-                return game!=null&&player instanceof ServerPlayer owner&&game.items().wands().use(owner,hand)
-                        ?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            }
-        };
+        return new NativeTool(properties,proxy);
+    }
+    /** Shared native wand/gun/tool admission and enchantability, independent of its client carrier. */
+    public static final class NativeTool extends SimplePolymerItem {
+        NativeTool(Item.Properties properties,Item proxy){super(properties,proxy,true);}
+        @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
+            var game=SkyWars2.game();
+            return game!=null&&player instanceof ServerPlayer owner&&game.items().wands().use(owner,hand)
+                    ?InteractionResult.SUCCESS:InteractionResult.FAIL;
+        }
     }
     /** The donor keeps native egg placement and consumption; only its client representation is Polymer. */
     private static final class LightningEgg extends net.minecraft.world.item.SpawnEggItem implements eu.pb4.polymer.core.api.item.PolymerItem {
@@ -607,6 +610,9 @@ public final class LbcWands {
     }
 
     boolean cast(ServerPlayer player,InteractionHand hand) {
+        try(var scope=WeaponEnchantments.using(player,player.getItemInHand(hand))){return castScoped(player,hand);}
+    }
+    private boolean castScoped(ServerPlayer player,InteractionHand hand) {
         if(LbcTmtItems.matches(player.getItemInHand(hand))&&!LbcTmtAbilities.active(player.getItemInHand(hand)))return game.items().tmt().rightClick(player,hand);
         if(!LbcDimensionItems.ordinary(player))return false;
         if(game.items().actionsBlocked(player)) return false;

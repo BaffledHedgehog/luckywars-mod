@@ -119,11 +119,15 @@ final class CloneSimpleProjectileStates {
         }
         if(actor instanceof LbcChargedSwords.ThrownSword source) {
             var age=source.age;
+            var cause=source.cause;
             var grounded=source.grounded;
+            var groundedTicks=source.groundedTicks;
             var embeddedBlock=source.embeddedBlock;
             return image(clone->{var target=(LbcChargedSwords.ThrownSword)clone;
                 target.age=age;
+                target.cause=cause;
                 target.grounded=grounded;
+                target.groundedTicks=groundedTicks;
                 target.embeddedBlock=embeddedBlock;
             },clone->game.items().chargedSwords().unloaded(clone));
         }

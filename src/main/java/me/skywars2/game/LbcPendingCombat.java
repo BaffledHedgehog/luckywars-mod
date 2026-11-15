@@ -53,7 +53,7 @@ public final class LbcPendingCombat {
     long pistonWrites(){return pistonWrites;}
     static final class Copy {
         final ServerPlayer owner;final Display.ItemDisplay display;final String epoch;final LbcIndirectKills.Owner cause;
-        Vec3 direction;boolean grounded;
+        Vec3 direction;boolean grounded;int groundedTicks;
         Copy(ServerPlayer owner,Display.ItemDisplay display,String epoch,LbcIndirectKills.Owner cause,Vec3 direction){this.owner=owner;this.display=display;this.epoch=epoch;this.cause=cause;this.direction=direction;}
     }
     private static final class Curse {
@@ -239,7 +239,7 @@ public final class LbcPendingCombat {
         copy.direction=game.items().homing().skillDirection(copy.owner,level,from,copy.direction);
         if(copy.grounded){var ahead=BlockPos.containing(from.add(copy.direction.scale(.5)));
             if(!resident(level,ahead)){remove(copy);return;}
-            if(level.getBlockState(ahead).isAir()||copy.owner.getRandom().nextInt(100)==0)broken(copy);return;}
+            if(++copy.groundedTicks>=20||level.getBlockState(ahead).isAir())broken(copy);return;}
         if(!level.getBlockState(cell).isAir()){
             // Traverse the original backward ray to the first literal air sample, with resident/world bounds as the only limit.
             var backed=from;do{backed=backed.subtract(copy.direction.scale(.1));if(!resident(level,BlockPos.containing(backed))){remove(copy);return;}}
@@ -296,11 +296,11 @@ public final class LbcPendingCombat {
         var copy=copies.stream().filter(c->c.display==source).findFirst().orElse(null);
         if(curse==null&&copy==null)return null;
         var owner=curse==null?null:curse.owner;var epoch=curse==null?null:curse.epoch;var cause=curse==null?null:curse.cause;int seconds=curse==null?0:curse.seconds;
-        var emitter=copy==null?null:copy.owner;var copyEpoch=copy==null?null:copy.epoch;var copyCause=copy==null?null:copy.cause;var direction=copy==null?null:copy.direction;boolean ground=copy!=null&&copy.grounded;
+        var emitter=copy==null?null:copy.owner;var copyEpoch=copy==null?null:copy.epoch;var copyCause=copy==null?null:copy.cause;var direction=copy==null?null:copy.direction;boolean ground=copy!=null&&copy.grounded;int groundTicks=copy==null?0:copy.groundedTicks;
         return new LbcCloneSkills.ActorImage(){
             public void install(Entity original,Entity clone,Map<Entity,Entity> family){
                 if(owner!=null){var c=new Curse(owner,epoch,cause);c.seconds=seconds;curses.put((LivingEntity)clone,c);}
-                if(emitter!=null){var c=new Copy(emitter,(Display.ItemDisplay)clone,copyEpoch,copyCause,direction);c.grounded=ground;copies.add(c);}
+                if(emitter!=null){var c=new Copy(emitter,(Display.ItemDisplay)clone,copyEpoch,copyCause,direction);c.grounded=ground;c.groundedTicks=groundTicks;copies.add(c);}
             }
             public void rollback(Entity clone){curses.remove(clone);copies.removeIf(c->c.display==clone);}
         };

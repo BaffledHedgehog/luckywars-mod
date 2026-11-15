@@ -13,9 +13,11 @@ public final class LbcSwordTools {
                 ||ItemData.intValue(stack,"blazefire_sword",0)==1||ItemData.intValue(stack,"triple_golden_sword",0)==1);
     }
     public static void repair(ItemStack stack){
-        if(!sword(stack)||LbcTmtAbilities.active(stack)||Items.IRON_SWORD==null)return;
-        supply(stack,DataComponents.TOOL);supply(stack,DataComponents.ENCHANTABLE);supply(stack,DataComponents.REPAIRABLE);
-        supply(stack,DataComponents.WEAPON);supply(stack,DataComponents.ENCHANTMENTS);
+        if(sword(stack)&&!LbcTmtAbilities.active(stack)&&Items.IRON_SWORD!=null){
+            supply(stack,DataComponents.TOOL);supply(stack,DataComponents.ENCHANTABLE);supply(stack,DataComponents.REPAIRABLE);
+            supply(stack,DataComponents.WEAPON);supply(stack,DataComponents.ENCHANTMENTS);
+        }
+        EnchantmentRules.prepare(stack);
     }
     private static <T> void supply(ItemStack stack,DataComponentType<T> type){
         if(!stack.has(type)){var value=Items.IRON_SWORD.components().get(type);if(value!=null)stack.set(type,value);}

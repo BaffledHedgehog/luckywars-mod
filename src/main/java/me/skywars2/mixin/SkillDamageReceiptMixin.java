@@ -37,7 +37,11 @@ public abstract class SkillDamageReceiptMixin {
         @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="hurtServer")
         private boolean skywars2$receiptLifetime(net.minecraft.server.level.ServerLevel level,DamageSource source,float amount,
                 com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original){
-            try{return original.call(level,source,amount);}
+            try(var damage=me.skywars2.game.WeaponEnchantments.damage(level,(LivingEntity)(Object)this,source,amount)){
+                boolean accepted=original.call(level,source,damage.amount());
+                if(accepted)damage.accepted();
+                return accepted;
+            }
             finally{me.skywars2.game.LbcAcceptedHits.finished((LivingEntity)(Object)this);}
         }
     }

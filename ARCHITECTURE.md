@@ -3193,3 +3193,12 @@ output against the author shader. These do not replace an in-game client test.
 `tools/check_tiktok_worker.py` uses real ffmpeg video/audio and silent inputs;
 `tools/check_tiktok_feed.py` runs a real browser against intercepted local page
 responses with synthetic cookies. Neither test proves live account access.
+
+
+## Custom-weapon enchantments and embedded sword lifetimes ? 15 November 2026
+
+All five TMT transports support the full enchantment registry at native tables and anvils, including treasure enchantments. Other authored weapons and wands use the native sword enchantment profile where applicable. Source weapon snapshots retain enchantments after consumption or a hand swap. Looting uses accepted kill provenance; physical projectile control, the damage attacker and native entity loot predicates remain separate. Native damage preprocessing and post-attack enchantments run once; a zero-damage ability cannot acquire positive damage from Sharpness. These runtime extensions respect the true-legacy gate.
+
+Chaos Sword of Swords and Triple Golden Sword copies expire after twenty active grounded ticks. Time Stop pauses that counter; clones and match checkpoints preserve it and the source weapon. Triple copies test their actual embedded block, including thin collision shapes. Native checks cover all43 enchantments on five TMT types,52 authored sword templates, real table/anvil costs, offhand source capture, deterministic Looting100 after switching hands, both sword lifetimes and Chaos copies outside world height.
+
+Qualification: stable-batch-210-qualification.json in build/verification/bot-revision-2026-11-10. One fresh enchantment suite and nine suites carried from byte-identical runtime209; both fixture trees restored normally. TikTok Q-drop cleanup is native-tested; updated sound attenuation still needs a connected-client check. HD media, an independent playback clock and the optional client remain open.

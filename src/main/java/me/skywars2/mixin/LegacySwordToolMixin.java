@@ -16,7 +16,7 @@ public abstract class LegacySwordToolMixin {
     private void skywars2$swordCreated(CallbackInfo ci){LbcSwordTools.repair((ItemStack)(Object)this);}
     @Inject(method="set",at=@At("RETURN"))
     private <T> void skywars2$swordData(DataComponentType<T> type,T value,CallbackInfoReturnable<T> cir){
-        if(type==DataComponents.CUSTOM_DATA)LbcSwordTools.repair((ItemStack)(Object)this);
+        if(type==DataComponents.CUSTOM_DATA||type==DataComponents.ATTRIBUTE_MODIFIERS)LbcSwordTools.repair((ItemStack)(Object)this);
     }
     // 26.3 inherits this method from TypedInstance. Declare the ItemStack override,
     // keeping ordinary holder membership for every tag and every other stack.

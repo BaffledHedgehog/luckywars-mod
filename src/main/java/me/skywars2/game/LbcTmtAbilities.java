@@ -24,6 +24,15 @@ public final class LbcTmtAbilities {
     private static final ThreadLocal<java.util.Map<ItemStack,net.minecraft.world.item.Item>> NATIVE_SCOPES=new ThreadLocal<>();
     private static final java.util.concurrent.atomic.AtomicInteger NATIVE_DEPTH=new java.util.concurrent.atomic.AtomicInteger();
     static boolean active(ItemStack stack){var scopes=SCOPES.get();return scopes!=null&&scopes.containsKey(stack);}
+    static ItemStack enchantmentSource(net.minecraft.server.level.ServerPlayer player){
+        var scopes=SCOPES.get();if(scopes==null)return ItemStack.EMPTY;
+        for(var source:scopes.keySet()){
+            for(int slot=0;slot<player.getInventory().getContainerSize();slot++)
+                if(player.getInventory().getItem(slot)==source)return outerCopy(source);
+            if(player.getOffhandItem()==source)return outerCopy(source);
+        }
+        return ItemStack.EMPTY;
+    }
     /** Inventory refunds preserve the full item; projectile captures deliberately use ordinary copy(). */
     static ItemStack outerCopy(ItemStack stack){
         return outerCopy(stack,scopeSource(stack));

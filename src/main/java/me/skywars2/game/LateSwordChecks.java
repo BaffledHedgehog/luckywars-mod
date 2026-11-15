@@ -226,6 +226,17 @@ public final class LateSwordChecks {
             var central=swords.snapshot().get(1);BlockPos wall=BlockPos.containing(from.add(0,0,1));set(wall,Blocks.IRON_BARS.defaultBlockState());
             swords.tick();require(central.entity().grounded&&central.entity().embeddedBlock!=null,"native swept thin bars collision embeds source display");
             near(central.entity().position().z,wall.getZ()+.4375+.4,"native thin-shape boundary plus source.4 embedding");
+            for(int tick=0;tick<7;tick++)swords.tick();
+            var clone=new LbcChargedSwords.ThrownSword(LbcChargedSwords.TYPE,base.owner.level());
+            var image=CloneSimpleProjectileStates.capture(game,central.entity());image.install(central.entity(),clone,Map.of(central.entity(),clone));
+            require(clone.grounded&&clone.groundedTicks==7&&clone.cause==central.entity().cause,"Triple clone preserves remaining ground lifetime and launching weapon");clone.discard();
+            game.items().timeStop().begin(base.owner.level(),40);
+            try{for(int tick=0;tick<5;tick++)swords.tick();require(central.entity().groundedTicks==7&&!central.entity().isRemoved(),"Triple ground timer pauses under TimeStop");}
+            finally{game.items().timeStop().end(base.owner.level());}
+            for(int tick=0;tick<12;tick++)swords.tick();require(central.entity().groundedTicks==19&&!central.entity().isRemoved(),"embedded Triple survives nineteen active ticks");
+            swords.tick();require(central.entity().isRemoved(),"embedded Triple expires on twentieth active tick");clearActors();
+            held("triple_golden_sword",InteractionHand.MAIN_HAND);score("swordcharged8",1);input(InteractionHand.MAIN_HAND);central=swords.snapshot().get(1);swords.tick();
+            require(central.entity().grounded,"second actual Triple embedding for support-removal case");
             set(wall,Blocks.AIR.defaultBlockState());swords.tick();require(central.entity().isRemoved(),"embedded carrier breaks when forward space opens");clearActors();restoreTerrain();
         }
         void settle(){for(int i=0;i<128&&swords.blazePulses(base.owner)>0;i++)game.items().exasperato().tick();require(swords.blazePulses(base.owner)==0,"source loaded Blaze search settles");}
