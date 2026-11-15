@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.ByteBuffer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -11,9 +12,33 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 
-/** Sixteen native sounds per 16.67 ms maximum, each approximating three independent envelope bands. */
+/** Native private stereo tones; old envelope fallback remains usable during local cache migration. */
 final class TikTokAudio {
     private TikTokAudio(){}
+    private static final List<Holder<SoundEvent>> TONES=tones();
+    private static List<Holder<SoundEvent>> tones(){
+        var result=new ArrayList<Holder<SoundEvent>>(111*16*2);
+        for(int base=0;base<111;base++)for(int phase=0;phase<16;phase++)for(int side=0;side<2;side++)
+            result.add(Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse("skywars2:tiktok.v3.tone_"+base+"_"+phase+"_"+side))));
+        return List.copyOf(result);
+    }
+    static List<Packet<? super ClientGamePacketListener>> spectralPackets(ServerPlayer player,byte[] record,long serial){
+        if(record.length!=TikTokMedia.SPECTRAL_BYTES)throw new IllegalArgumentException("spectral_size");
+        var bytes=ByteBuffer.wrap(record);int count=Short.toUnsignedInt(bytes.getShort());
+        if(count>TikTokMedia.SPECTRAL_PARTIALS)throw new IllegalArgumentException("spectral_count");
+        var result=new ArrayList<Packet<? super ClientGamePacketListener>>(count);
+        for(int i=0;i<count;i++){
+            int key=Short.toUnsignedInt(bytes.getShort()),gain=Short.toUnsignedInt(bytes.getShort());
+            int bin=key>>>5,phase=(key>>>1)&15,side=key&1;
+            if(bin<2||bin>=1150)throw new IllegalArgumentException("spectral_frequency");
+            if(gain<2)continue;
+            double frequency=bin*10.;int base=(int)Math.round(12*Math.log(frequency/20)/Math.log(2));
+            float pitch=(float)(frequency/(20*Math.pow(2,base/12.)));
+            var sound=TONES.get((base*16+phase)*2+side);
+            result.add(new ClientboundSoundEntityPacket(sound,SoundSource.RECORDS,player,gain/65535f,pitch,serial^key));
+        }
+        return result;
+    }
     record Mixture(int index,float volume){}
     static Mixture mixture(int a,int b,int c){
         int total=a+b+c;if(total<6)return null;

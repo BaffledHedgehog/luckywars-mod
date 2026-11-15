@@ -30,6 +30,7 @@ public final class TikTokPlaybackChecks {
     private static final class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;
         final Path directory;final TikTokCache cache;final TikTokPlayback playback,previous;
+        final TikTokCache migrationCache;
         final java.lang.reflect.Field playbackField,channelField;final Object previousChannel;
         final EmbeddedChannel channel=new EmbeddedChannel();final ItemStack authored;
         final List<net.minecraft.world.entity.item.ItemEntity> dropped=new ArrayList<>();
@@ -38,7 +39,9 @@ public final class TikTokPlaybackChecks {
             this.game=game;f=new WoolBucketChecks.Fixture(game,false);f.prepareParticipants();
             directory=Files.createTempDirectory(game.server().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT),"tiktok-stream-");
             for(int i=0;i<2;i++)clip(directory.resolve("cache/videos/1234567"+i),i);
-            cache=new TikTokCache(directory.resolve("cache"),directory.resolve("no-cookies.json"));
+            cache=new TikTokCache(directory.resolve("cache"),directory.resolve("no-cookies.json"),false);
+            clip(directory.resolve("migration/videos/12345672"),2);
+            migrationCache=new TikTokCache(directory.resolve("migration"),directory.resolve("no-migration-cookies.json"));
             playback=new TikTokPlayback(game.server(),cache);
             playbackField=TikTokAccounts.class.getDeclaredField("playback");playbackField.setAccessible(true);
             previous=(TikTokPlayback)playbackField.get(null);require(previous!=null,"registered real lifecycle service");playbackField.set(null,playback);
@@ -104,9 +107,29 @@ public final class TikTokPlaybackChecks {
                     require(decoded.getId()==f.owner.getId()&&decoded.getSound().value().location().getPath().startsWith("tiktok.v2.noise_"),"actual native direct custom sound event/entity codec");
                 }finally{buf.release();}
             }
+            for(int bin:new int[]{2,16,100,500,1149})for(int phase=0;phase<16;phase++)for(int side=0;side<2;side++){
+                var record=ByteBuffer.allocate(TikTokMedia.SPECTRAL_BYTES);
+                record.putShort((short)1).putShort((short)((bin<<5)|(phase<<1)|side)).putShort((short)32768);
+                var tones=TikTokAudio.spectralPackets(f.owner,record.array(),17);
+                require(tones.size()==1,"one source coefficient is one native event");
+                var tone=(ClientboundSoundEntityPacket)tones.getFirst();
+                require(tone.getVolume()>0&&tone.getVolume()<=1&&tone.getPitch()>.97f&&tone.getPitch()<1.03f,"native gain/pitch clamps cannot change basis");
+                require(tone.getSound().value().location().getPath().endsWith("_"+phase+"_"+side),"phase and signed stereo identity retained");
+                var buf=new RegistryFriendlyByteBuf(Unpooled.buffer(),f.owner.registryAccess());try{
+                    ClientboundSoundEntityPacket.STREAM_CODEC.encode(buf,tone);
+                    var decoded=ClientboundSoundEntityPacket.STREAM_CODEC.decode(buf);
+                    require(decoded.getId()==f.owner.getId()&&decoded.getSound().value().location().equals(tone.getSound().value().location())
+                            &&decoded.getVolume()==tone.getVolume()&&decoded.getPitch()==tone.getPitch(),"actual native spectral event/volume/pitch codec");
+                }finally{buf.release();}
+            }
+            require(TikTokAudio.spectralPackets(f.owner,new byte[TikTokMedia.SPECTRAL_BYTES],0).isEmpty(),"spectral silence emits no events");
+            var invalid=ByteBuffer.allocate(TikTokMedia.SPECTRAL_BYTES).putShort((short)89).array();
+            boolean rejected=false;try{TikTokAudio.spectralPackets(f.owner,invalid,0);}catch(IllegalArgumentException expected){rejected=true;}
+            require(rejected,"malformed sidecar cannot create an unbounded sound burst");
         }
         boolean step()throws Exception{
             now=System.nanoTime();int tick=game.server().getTickCount(),elapsed=tick-when;
+            migrationCache.tick(tick,Set.of());
             require(tick-began<400,"bounded asynchronous native fixture");
             if(phase==0){
                 if(now-windowStarted<1_200_000_000L)return false;
@@ -141,10 +164,27 @@ public final class TikTokPlaybackChecks {
             if(phase==3){
                 if(now-started<5_200_000_000L)return false;
                 use();require(((TikTokMedia)((Map<?,?>)WoolBucketChecks.read(playback,"views")).values().stream().map(v->WoolBucketChecks.read(v,"clip")).findFirst().orElseThrow()).id.equals("12345671"),"real right click advances after five seconds");
+                var clock=(TikTokSoundClock)WoolBucketChecks.read(playback,"audioClock");long before=clock.emittedSlices.get();
+                Thread.sleep(220);long emitted=clock.emittedSlices.get()-before;
+                require(emitted>=3&&emitted<=6,"20Hz stereo clock advances independently through actual tick stall: "+emitted);
                 next(4);return false;
             }
             if(phase==4){
-                if(elapsed<6)return false;
+                // Catch-up ticks after the deliberate220ms stall do not measure
+                // wall-clock sound cadence. Keep an actual300ms observation.
+                long observed=now-windowStarted;
+                if(elapsed<6||observed<300_000_000L)return false;
+                var upgraded=migrationCache.next("");
+                require(upgraded!=null&&upgraded.hasSpectral()&&migrationCache.error().isEmpty(),"actual single background worker migrates old cache without cookies");
+                require(Files.size(directory.resolve("migration/videos/12345672/original.mp4"))==1
+                        &&Files.size(directory.resolve("migration/videos/12345672/clip.idx"))==160,"migration retains cached original/video index");
+                var tones=SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSoundEntityPacket.class::isInstance).map(ClientboundSoundEntityPacket.class::cast)
+                        .filter(p->p.getSound().value().location().getPath().startsWith("tiktok.v3.tone_")).toList();
+                long expected=observed/(1_000_000_000L/TikTokMedia.FPS);
+                require(tones.size()>=2*(expected-2)&&tones.size()<=2*(expected+2),
+                        "actual20Hz stereo transport, no60Hz duplicates: events="+tones.size()+" elapsedMs="+observed/1_000_000+" expectedFrames="+expected);
+                require(SmokeVolumeChecks.flatten(f.audience.packets()).stream().filter(ClientboundSoundEntityPacket.class::isInstance).map(ClientboundSoundEntityPacket.class::cast)
+                        .noneMatch(p->p.getSound().value().location().getPath().startsWith("tiktok.v3.tone_")),"stereo tones private to viewer");
                 require(!Files.exists(directory.resolve("cache/videos/12345670"))&&Files.exists(directory.resolve("cache/videos/12345671/original.mp4")),"watched clip plus original removed only after its reader/view pin released");
                 f.owner.getInventory().setItem(1,authored.copy());f.owner.getInventory().setSelectedSlot(1);next(5);return false;
             }
@@ -183,7 +223,7 @@ public final class TikTokPlaybackChecks {
             require(SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSetPlayerInventoryPacket.class::isInstance)
                     .map(ClientboundSetPlayerInventoryPacket.class::cast).anyMatch(p->p.slot()==1&&p.contents().isEmpty()),"Q explicitly restores authoritative empty client slot");
             enhanced();
-            SkyWars2.LOGGER.info("[check] PASS tiktok-playback (native480p20FPS/60Hz fallback plus real Fabric Hello/version/channel gate, enhanced independent20Hz JPEG/48k stereo PCM, native shared codecs/JPEG bomb bound, no vanilla pixels/vocoder on enhanced path, private stream, TimeStop, Q/Stop/empty-slot ordering; {} compressed vanilla bytes/frame, realForYouBinary={})",wireBytes,realReference);
+            SkyWars2.LOGGER.info("[check] PASS tiktok-playback (native480p20FPS/60Hz old fallback,20Hz spectral stereo, actual cookie-free background cache upgrade; real Fabric Hello/version/channel gate, enhanced independent20Hz JPEG/48k stereo PCM, native shared codecs/JPEG bomb bound, no vanilla pixels/tones on enhanced path, private stream, TimeStop, Q/Stop/empty-slot ordering; {} compressed vanilla bytes/frame, realForYouBinary={})",wireBytes,realReference);
             return true;
         }
         void enhanced()throws Exception{
@@ -209,7 +249,7 @@ public final class TikTokPlaybackChecks {
         }
         public void close(){
             if(closing)return;closing=true;
-            try{playback.close();playbackField.set(null,previous);channelField.set(f.client.connection,previousChannel);channel.finishAndReleaseAll();cache.close();dropped.forEach(net.minecraft.world.entity.Entity::discard);}
+            try{playback.close();playbackField.set(null,previous);channelField.set(f.client.connection,previousChannel);channel.finishAndReleaseAll();cache.close();migrationCache.close();dropped.forEach(net.minecraft.world.entity.Entity::discard);}
             catch(Exception error){throw new IllegalStateException("TikTok fixture service restore",error);}
             finally{
                 f.close();try(var files=Files.walk(directory)){for(var path:files.sorted(Comparator.reverseOrder()).toList())Files.delete(path);}
@@ -232,6 +272,17 @@ public final class TikTokPlaybackChecks {
             data.write(new byte[TikTokMedia.AUDIO_BYTES]);data.write(new byte[]{(byte)255,(byte)216,(byte)255,(byte)217});
         }
         Files.write(path.resolve("clip.tkp"),output.toByteArray());Files.write(path.resolve("clip.idx"),indices.array());
+        if(seed==1){
+            var spectral=ByteBuffer.allocate(16+frames*TikTokMedia.SPECTRAL_BYTES);
+            spectral.putInt(0x544b4131).putInt(frames).putInt(20).putInt(88);
+            for(int i=0;i<frames;i++){
+                int position=spectral.position();spectral.putShort((short)2);
+                spectral.putShort((short)(100<<5)).putShort((short)4096);
+                spectral.putShort((short)((200<<5)|1)).putShort((short)2048);
+                spectral.position(position+TikTokMedia.SPECTRAL_BYTES);
+            }
+            Files.write(path.resolve("clip.tka"),spectral.array());
+        }
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");try{running=new Fixture(game);running.begin();}catch(Exception error){if(running!=null)running.close();running=null;throw new IllegalStateException("TikTok playback setup",error);}}
     public static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL tiktok-playback",error);}}

@@ -2,6 +2,7 @@ package me.skywars2.game;
 
 import io.netty.channel.Channel;
 import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -9,13 +10,15 @@ import me.skywars2.mixin.MediaTransportAccess;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 
-/** A 60 Hz wall clock; reads only prepared envelopes and immutable recipient identity, never world state. */
+/** Independent wall clock:20Hz stereo tones,60Hz old-cache fallback, no world state or backlog. */
 final class TikTokSoundClock implements AutoCloseable {
     private static final long PERIOD=1_000_000_000L/TikTokMedia.AUDIO_FPS;
     private static final class Stream {
         final ServerPlayer identity;final ServerGamePacketListenerImpl listener;final Channel channel;
-        final TikTokMedia clip;final long started;volatile boolean active=true;long last=-1;
+        final TikTokMedia clip;final long started;volatile boolean active=true;long last=-1,lastSpectral=-1;
         Stream(ServerPlayer player,TikTokMedia clip,long started){
             identity=player;listener=player.connection;this.clip=clip;this.started=started;
             var connection=((MediaTransportAccess.Listener)listener).skywars2$mediaConnection();
@@ -39,9 +42,13 @@ final class TikTokSoundClock implements AutoCloseable {
             if(!stream.active||stream.channel==null||!stream.channel.isActive()||!stream.channel.isWritable()||TimeStopView.frozen(stream.identity))continue;
             pin.accept(stream.clip.id);
             try{
-                var bands=stream.clip.audio(serial);
                 // These constructors read only getId()/getUUID(), not mutable entity position or inventory.
-                var packets=TikTokAudio.packets(stream.identity,bands,serial);
+                List<Packet<? super ClientGamePacketListener>> packets;
+                if(stream.clip.hasSpectral()){
+                    long frame=serial/TikTokMedia.SLICES;
+                    if(frame==stream.lastSpectral)continue;stream.lastSpectral=frame;
+                    packets=TikTokAudio.spectralPackets(stream.identity,stream.clip.spectralAudio(frame),frame);
+                }else packets=TikTokAudio.packets(stream.identity,stream.clip.audio(serial),serial);
                 if(stream.active&&!packets.isEmpty()&&stream.channel.isWritable()){
                     stream.listener.send(new ClientboundBundlePacket(packets));emittedSlices.incrementAndGet();
                 }

@@ -14,12 +14,14 @@ final class TikTokMedia implements AutoCloseable {
     static final int JPEG_WIDTH=720,JPEG_HEIGHT=1280;
     static final int AUDIO_FPS=60, SLICES=AUDIO_FPS/FPS, BAND_BYTES=BANDS*SLICES;
     static final int AUDIO_BYTES=RATE/FPS*4, MAX_JPEG=131072, MAX_COMPRESSED=PIXELS+1024;
+    static final int SPECTRAL_PARTIALS=88, SPECTRAL_BYTES=2+4*SPECTRAL_PARTIALS;
     record Frame(byte[] map, byte[] bands, byte[] pcm, byte[] jpeg) {}
     final String id;
     final Path directory;
     final int frames;
     private final FileChannel video;
     private final long[] offsets;
+    private volatile FileChannel spectral;
 
     TikTokMedia(String id, Path directory) throws IOException {
         if (!id.matches("[0-9]{8,24}|local")) throw new IOException("clip_invalid");
@@ -46,6 +48,7 @@ final class TikTokMedia implements AutoCloseable {
                 if (offsets[0]!=28) throw new IOException("index_invalid");
             }
             video=channel;
+            openSpectral();
         } catch (Throwable error) { channel.close(); throw error; }
     }
     private int[] sizes(int number) throws IOException {
@@ -81,8 +84,28 @@ final class TikTokMedia implements AutoCloseable {
         int number=(int)((serial/SLICES)%frames),slice=(int)(serial%SLICES);var sizes=sizes(number);
         var bytes=ByteBuffer.allocate(BANDS);read(video,bytes,offsets[number]+8L+sizes[0]+slice*BANDS);return bytes.array();
     }
+    /** Optional independently prepared audio; old video/PCM files stay valid. */
+    boolean openSpectral() {
+        if(spectral!=null)return true;
+        FileChannel channel=null;
+        try{
+            channel=FileChannel.open(directory.resolve("clip.tka"),StandardOpenOption.READ);
+            var header=ByteBuffer.allocate(16);read(channel,header,0);header.flip();
+            if(header.getInt()!=0x544b4131||header.getInt()!=frames||header.getInt()!=FPS
+                    ||header.getInt()!=SPECTRAL_PARTIALS||channel.size()!=16L+frames*SPECTRAL_BYTES)
+                throw new IOException("spectral_invalid");
+            spectral=channel;return true;
+        }catch(IOException invalid){if(channel!=null)try{channel.close();}catch(IOException ignored){}return false;}
+    }
+    boolean hasSpectral(){return spectral!=null;}
+    byte[] spectralAudio(long serial) throws IOException {
+        if(serial<0)throw new IOException("frame_invalid");
+        var channel=spectral;if(channel==null)throw new IOException("spectral_missing");
+        var bytes=ByteBuffer.allocate(SPECTRAL_BYTES);
+        read(channel,bytes,16L+(serial%frames)*SPECTRAL_BYTES);return bytes.array();
+    }
     private static void read(FileChannel file, ByteBuffer buffer, long offset) throws IOException {
         while (buffer.hasRemaining()) { int count=file.read(buffer,offset); if(count<1)throw new IOException("clip_truncated"); offset+=count; }
     }
-    @Override public void close() throws IOException {video.close();}
+    @Override public void close() throws IOException {try{video.close();}finally{var audio=spectral;if(audio!=null)audio.close();}}
 }

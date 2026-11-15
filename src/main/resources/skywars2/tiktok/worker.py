@@ -35,6 +35,14 @@ HEADER = struct.Struct(">4sIIIIII")  # TKP3, frames, fps, palette width/height, 
 BANDS = 48
 
 
+def spectral_module():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('skywars_spectral', Path(__file__).with_name('spectral.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 class MediaError(Exception):
     """Only a fixed code crosses the worker/server boundary."""
 
@@ -367,16 +375,18 @@ def prepare(original: Path, stage: Path, palette: Path, ffmpeg="ffmpeg") -> dict
     with (stage / "clip.idx").open("wb") as index:
         for offset in offsets:
             index.write(struct.pack(">Q", offset))
+    spectral = spectral_module().prepare_pcm(pcm, frames, stage / "clip.tka")
     for p in (mjpeg, pcm):
         p.unlink(missing_ok=True)
     return {"format": 3, "frames": frames, "fps": FPS, "width": WIDTH, "height": HEIGHT,
-            "rate": RATE, "channels": CHANNELS, "jpeg_width": JPEG_WIDTH, "jpeg_height": JPEG_HEIGHT, "bands": BANDS, "audio_fps": AUDIO_FPS, "original": original.name, "duration": frames / FPS}
+            "rate": RATE, "channels": CHANNELS, "jpeg_width": JPEG_WIDTH, "jpeg_height": JPEG_HEIGHT, "bands": BANDS, "audio_fps": AUDIO_FPS, "spectral": spectral, "original": original.name, "duration": frames / FPS}
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", type=Path, required=True)
-    parser.add_argument("--palette", type=Path, required=True)
+    parser.add_argument("--palette", type=Path)
+    parser.add_argument("--spectral-source", type=Path, help="Upgrade prepared audio locally without account or video conversion")
     parser.add_argument("--cookies", type=Path)
     parser.add_argument("--exclude", type=Path)
     parser.add_argument("--local", type=Path, help="Offline qualification input; never downloads or opens an account")
@@ -385,6 +395,13 @@ def main():
     stage.mkdir(parents=True, exist_ok=False)
     diagnostics = {}
     try:
+        if args.spectral_source:
+            result = spectral_module().migrate(args.spectral_source, stage)
+            atomic_json(stage / "manifest.json", result)
+            print(json.dumps({"ok": True, "audioOnly": True}), flush=True)
+            return
+        if not args.palette:
+            raise MediaError("palette_missing")
         if args.local:
             original = stage / "original.mp4"
             shutil.copyfile(args.local, original)

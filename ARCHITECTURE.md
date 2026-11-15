@@ -3221,7 +3221,7 @@ derivatives together and respects active-viewer pins. The disk ceiling is
 768 MiB. Runtime dependency errors expose fixed codes, never credential-bearing
 browser/download diagnostics. Shutdown cancels only the worker's process tree.
 
-TikTokMedia reads bounded, independently compressed indexed TKP3 records: native palette480x854 at20FPS, JPEG720x1280,48kHz stereo PCM and three48-band envelopes per frame. Vanilla playback packs136640 RGB tint entries into a private item projection, decoded by the marker-scoped core/item shader before lighting. A separate60Hz wall clock reconstructs sound with at most16 events per slice. The optional client uses JPEG/PCM directly and its own20Hz server publisher. Both paths preserve the original phone, authoritative components and Polymer roundtrip. Bounded I/O, Netty admission, stale-frame dropping and lifecycle cleanup prevent unbounded catch-up queues. Prepared playback currently covers up to five minutes per clip; originals are retained uncut within the five-clip/disk limits.
+TikTokMedia reads bounded, independently compressed indexed TKP3 records: native palette480x854 at20FPS, JPEG720x1280,48kHz stereo PCM and three48-band envelopes per frame. Vanilla playback packs136640 RGB tint entries into a private item projection, decoded by the marker-scoped core/item shader before lighting. Its independent wall clock reads an optional TKA1 audio sidecar: at most88 stereo spectral coefficients per20Hz frame, using a shared phase-preserving selector with high-frequency reservations and an adaptive mid/side budget. A bank of3552 short stereo Vorbis atoms uses nearby semitone bases plus native pitch;96ms windows limit ideal-cadence overlap to176 voices. Client frame dispatch jitter can overlap more and still affects perceived sound. The old16-event/60Hz noise bank remains a fallback while a single worker upgrades cached PCM locally, without cookies, redownloading originals or rewriting video. The optional client uses the unchanged JPEG/PCM directly and its own20Hz server publisher. Both paths preserve the original phone, authoritative components and Polymer roundtrip. Bounded I/O, Netty admission, stale-frame dropping and lifecycle cleanup prevent unbounded catch-up queues. Prepared playback currently covers up to five minutes per clip; originals are retained uncut within the five-clip/disk limits.
 
 TikTokAccountChecks exercises the native dialog/reply codecs (including maximum
 Unicode input accounting), actual command/foreign-operator/replay rejection,
@@ -3235,6 +3235,14 @@ output against the author shader. These do not replace an in-game client test.
 `tools/check_tiktok_worker.py` uses real ffmpeg video/audio and silent inputs;
 `tools/check_tiktok_feed.py` runs a real browser against intercepted local page
 responses with synthetic cookies. Neither test proves live account access.
+
+Stereo audio is qualified in247: fresh native playback/cookie-free cache migration,
+exact JPEG/PCM reader checks on40 new and249 existing frames, and actual Minecraft
+LWJGL Vorbis/OpenAL loopback playback of20 seconds of speech. Account, TimeStop
+and network suites passed on246; all packaged bytes except the playback fixture
+are identical in247. A failed246 cadence assertion used catch-up game ticks after
+an intentional stall;247 measures a real300ms window and checks20Hz against it.
+The generated bank is merge-only RP content; the author pack is not modified.
 
 
 ## Custom-weapon enchantments and embedded sword lifetimes ? 15 November 2026

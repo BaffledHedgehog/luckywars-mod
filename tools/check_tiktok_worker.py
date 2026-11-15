@@ -69,10 +69,24 @@ def main():
                     maximum = max(maximum, length)
                 assert inp.read() == b""
             assert len(video) > 30 and nonzero != silent and envelope != silent
+            spectral = worker.spectral_module()
+            sidecar = (stage/'clip.tka').read_bytes()
+            assert spectral.HEADER.unpack_from(sidecar) == (b'TKA1',40,20,88)
+            assert len(sidecar)==16+40*spectral.RECORD_BYTES
+            counts=[struct.unpack_from('>H',sidecar,16+i*spectral.RECORD_BYTES)[0] for i in range(40)]
+            assert max(counts)<=88 and (any(counts) != silent)
+            # Migration works from prepared PCM and does not touch video or the
+            # original; no cookies/account/ffmpeg/video decode is needed.
+            upgrade=root/('upgrade-silent' if silent else 'upgrade-audio');upgrade.mkdir()
+            guarded={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (original,stage/'clip.tkp',stage/'clip.idx')}
+            spectral.migrate(stage,upgrade)
+            assert (upgrade/'clip.tka').read_bytes()==sidecar
+            assert guarded=={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (original,stage/'clip.tkp',stage/'clip.idx')}
+            assert not (upgrade/'audio.pcm').exists()
             assert not any((stage / p).exists() for p in ("map.rgb", "audio.pcm", "video.mjpeg"))
             if not silent:
-                reference=target/'hd-reference';reference.mkdir(exist_ok=True)
-                for name in ['clip.tkp','clip.idx']:shutil.copyfile(stage/name,reference/name)
+                reference=target/'worker-reference';reference.mkdir(exist_ok=True)
+                for name in ['clip.tkp','clip.idx','clip.tka']:shutil.copyfile(stage/name,reference/name)
             reports.append({"silent": silent, "frames": 40, "differentFrames": len(video), "maxJpeg": maximum,
                             "audio": nonzero, "envelope": envelope, "originalSha256": before})
         cookies = root / "cookies.json"

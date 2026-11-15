@@ -46,3 +46,6 @@ Thumbs.db
 /media-client/build/
 /media-client/run/
 /media-client/logs/
+
+# Reproducible stereo spectral bank; generated with build_tiktok_spectral_audio.py.
+/resourcepack_template/updates/tiktok_audio_2026_11_16/assets/skywars2/sounds/tiktok/v3/*.ogg

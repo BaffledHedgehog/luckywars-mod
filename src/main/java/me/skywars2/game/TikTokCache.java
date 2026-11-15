@@ -18,6 +18,8 @@ final class TikTokCache implements AutoCloseable {
     private final ExecutorService worker=Executors.newSingleThreadExecutor(r->{var t=new Thread(r,"skywars-tiktok-prepare");t.setDaemon(true);return t;});
     private final Deque<TikTokMedia> clips=new ArrayDeque<>();
     private Future<Path> pending;
+    private String pendingAudioId="";
+    private final Set<String> attemptedAudio=new HashSet<>();
     private volatile Process process;
     private volatile boolean closed;
     private long retryAfter;
@@ -32,10 +34,11 @@ final class TikTokCache implements AutoCloseable {
         videos=this.root.resolve("videos"); incoming=this.root.resolve("incoming");
         Files.createDirectories(videos); Files.createDirectories(incoming);
         try(var entries=Files.list(incoming)){for(var path:entries.toList())remove(path);}
-        try(var resource=TikTokCache.class.getResourceAsStream("/skywars2/tiktok/worker.py")){
-            if(resource==null)throw new IOException("worker_missing");
-            Files.copy(resource,this.root.resolve("worker.py"),StandardCopyOption.REPLACE_EXISTING);
-        }
+        for(String name:List.of("worker.py","spectral.py"))
+            try(var resource=TikTokCache.class.getResourceAsStream("/skywars2/tiktok/"+name)){
+                if(resource==null)throw new IOException("worker_missing");
+                Files.copy(resource,this.root.resolve(name),StandardCopyOption.REPLACE_EXISTING);
+            }
         var palette=new JsonArray();
         for(int i=0;i<256;i++){
             int color=MapColor.getColorFromPackedId(i);var rgb=new JsonArray();
@@ -89,37 +92,60 @@ final class TikTokCache implements AutoCloseable {
         if(pending!=null&&pending.isDone()){
             try {
                 Path prepared=pending.get();
-                var manifest=JsonParser.parseString(Files.readString(prepared.resolve("manifest.json"))).getAsJsonObject();
-                String id=manifest.get("id").getAsString();
-                if(!id.matches("[0-9]{8,24}")||ids().contains(id))throw new IOException("clip_invalid");
-                if(size()+directorySize(prepared)>MAX_DISK)throw new IOException("cache_full");
-                Path target=videos.resolve(id);
-                Files.move(prepared,target,StandardCopyOption.ATOMIC_MOVE);
-                clips.addLast(new TikTokMedia(id,target));error="";
+                if(!pendingAudioId.isEmpty()){
+                    for(var clip:clips)if(clip.id.equals(pendingAudioId)){
+                        long bytes=Files.size(prepared.resolve("clip.tka"));
+                        if(size()+bytes>MAX_DISK)throw new IOException("cache_full");
+                        Files.move(prepared.resolve("clip.tka"),clip.directory.resolve("clip.tka"),
+                                StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);
+                        if(!clip.openSpectral())throw new IOException("spectral_invalid");
+                        break;
+                    }
+                    error="";
+                }else{
+                    var manifest=JsonParser.parseString(Files.readString(prepared.resolve("manifest.json"))).getAsJsonObject();
+                    String id=manifest.get("id").getAsString();
+                    if(!id.matches("[0-9]{8,24}")||ids().contains(id))throw new IOException("clip_invalid");
+                    if(size()+directorySize(prepared)>MAX_DISK)throw new IOException("cache_full");
+                    Path target=videos.resolve(id);
+                    Files.move(prepared,target,StandardCopyOption.ATOMIC_MOVE);
+                    clips.addLast(new TikTokMedia(id,target));error="";
+                }
             } catch(Exception failure){
                 Throwable cause=failure instanceof ExecutionException&&failure.getCause()!=null?failure.getCause():failure;
                 error=safeCode(cause.getMessage());retryAfter=now+1200;
             }
-            pending=null;
+            pending=null;pendingAudioId="";
             // A worker never publishes partial output; every failed/obsolete staging directory is disposable.
             try(var entries=Files.list(incoming)){for(var path:entries.toList())remove(path);}catch(IOException ignored){}
         }
+        if(fillQueue&&pending==null&&now>=retryAfter){
+            for(var clip:clips)if(!clip.hasSpectral()&&attemptedAudio.add(clip.id)){
+                pendingAudioId=clip.id;
+                var source=clip.directory;var stage=incoming.resolve(UUID.randomUUID().toString());
+                pending=worker.submit(()->prepare(stage,List.of(),source));break;
+            }
+        }
         if(fillQueue&&pending==null&&clips.size()<CAPACITY&&configured()&&now>=retryAfter){
             var excluded=ids();String token=UUID.randomUUID().toString();Path stage=incoming.resolve(token);
-            pending=worker.submit(()->prepare(stage,excluded));
+            pending=worker.submit(()->prepare(stage,excluded,null));
         }
     }
 
     void watched(String id, Set<String> inUse) {
-        if(!id.isEmpty()&&!inUse.contains(id)&&clips.size()>1)retire(id);
+        if(!id.isEmpty()&&!id.equals(pendingAudioId)&&!inUse.contains(id)&&clips.size()>1)retire(id);
     }
 
-    private Path prepare(Path stage,List<String> excluded) throws IOException,InterruptedException {
-        Path exclude=root.resolve("exclude.json");
-        Files.writeString(exclude,new Gson().toJson(excluded),StandardCharsets.UTF_8);
+    private Path prepare(Path stage,List<String> excluded,Path audioSource) throws IOException,InterruptedException {
         String python=System.getenv().getOrDefault("SKYWARS_TIKTOK_PYTHON","python");
-        var builder=new ProcessBuilder(python,"-u",root.resolve("worker.py").toString(),"--stage",stage.toString(),
-                "--palette",root.resolve("palette.json").toString(),"--cookies",cookies.toString(),"--exclude",exclude.toString());
+        var command=new ArrayList<>(List.of(python,"-u",root.resolve("worker.py").toString(),"--stage",stage.toString()));
+        if(audioSource!=null)command.addAll(List.of("--spectral-source",audioSource.toString()));
+        else{
+            Path exclude=root.resolve("exclude.json");
+            Files.writeString(exclude,new Gson().toJson(excluded),StandardCharsets.UTF_8);
+            command.addAll(List.of("--palette",root.resolve("palette.json").toString(),"--cookies",cookies.toString(),"--exclude",exclude.toString()));
+        }
+        var builder=new ProcessBuilder(command);
         builder.redirectError(ProcessBuilder.Redirect.DISCARD);
         // Only fixed status codes are read; subprocess/library diagnostics never reach server logs.
         Process owned=builder.start();process=owned;
@@ -168,7 +194,7 @@ final class TikTokCache implements AutoCloseable {
     }
     private void cancel(){
         var owned=process;if(owned!=null)destroy(owned);
-        if(pending!=null){pending.cancel(true);pending=null;}
+        if(pending!=null){pending.cancel(true);pending=null;}pendingAudioId="";
     }
     @Override public void close(){
         closed=true;cancel();worker.shutdownNow();
