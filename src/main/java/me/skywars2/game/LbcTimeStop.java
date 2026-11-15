@@ -124,7 +124,7 @@ public final class LbcTimeStop {
                 || game.items().magic().suppressedAt(player.level(),player.getEyePosition())) return false;
         cooldowns.put(player.getUUID(),new Cooldown(player.level()));
         begin(player.level(),(int)Math.min(Integer.MAX_VALUE,(long)remaining(player.level())+STOP_TICKS));
-        LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",1,1,0,.5f);
+        TimeStopView.activation(()->LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",1,1,0,.5f));
         return true;
     }
 
@@ -135,7 +135,7 @@ public final class LbcTimeStop {
                 ||frozen(player)||game.items().wands().inputTimeStopped(player)||game.items().magic().suppressed(player))return false;
         touhouCasters.computeIfAbsent(player.level(),key->new HashSet<>()).add(player.getUUID());
         begin(player.level(),(int)Math.min(Integer.MAX_VALUE,(long)remaining(player.level())+220));
-        LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",.5f,1,0,.5f);
+        TimeStopView.activation(()->LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",.5f,1,0,.5f));
         return true;
     }
 
@@ -185,6 +185,7 @@ public final class LbcTimeStop {
             if(entity.getVehicle()!=null && !frozen(entity.getVehicle())) entity.stopRiding();
             for(var passenger:List.copyOf(entity.getPassengers())) if(!frozen(passenger)) passenger.stopRiding();
             if(entity instanceof ServerPlayer player) {
+                TimeStopView.publish(player,true);
                 player.setLastClientInput(Input.EMPTY);
                 player.gameMode.tick(); // существующий actionsBlocked-hook отменяет начатое копание
             }
@@ -308,6 +309,7 @@ public final class LbcTimeStop {
         ((ServerLevel)entity.level()).getChunkSource().sendToTrackingPlayersAndSelf(entity,packet);
     }
     private void restore(Entity entity,Frozen state) {
+        if(entity instanceof ServerPlayer player)TimeStopView.clear(player);
         releaseContact(state);
         if(entity instanceof LivingEntity living)LbcFrozenMotion.release(living,LbcFrozenMotion.TIME);
         if(entity.isRemoved() || !entity.isAlive()) return;
@@ -320,6 +322,8 @@ public final class LbcTimeStop {
     }
     void end(ServerLevel level) {
         if(stops.remove(level)==null) return;
+        // Presentation may precede the body's first frozen physics tick (join/immunity loss).
+        for(var player:level.players())TimeStopView.clear(player);
         touhouCasters.remove(level);
         var trail=trails.remove(level);
         if(trail!=null&&game.items().currentEpoch(trail.epoch)){
@@ -389,6 +393,7 @@ public final class LbcTimeStop {
         }
     }
     void forget(ServerPlayer player) {
+        TimeStopView.clear(player);
         var state=frozen.remove(player); if(state!=null) restore(player,state);
         exemptions.remove(player); cooldowns.remove(player.getUUID());
         for(var casters:touhouCasters.values())casters.remove(player.getUUID());

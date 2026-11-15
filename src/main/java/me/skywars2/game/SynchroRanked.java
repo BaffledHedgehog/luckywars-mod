@@ -11,6 +11,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.item.ItemStack;
+import java.util.function.Consumer;
 
 /** One match seed; each recipient advances independently through each logical loot table. */
 public final class SynchroRanked {
@@ -22,6 +24,7 @@ public final class SynchroRanked {
     private final Map<UUID,Map<Identifier,Long>> positions=new HashMap<>();
     private HolderGetter.Provider resolver;
     private final Map<LootTable,Identifier> tableIds=new IdentityHashMap<>();
+    private final SynchroLuckyDraws lucky=new SynchroLuckyDraws(this);
     record State(boolean enabled,long seed,Map<UUID,Map<Identifier,Long>> positions){}
     SynchroRanked(GameController game){this.game=game;}
     void begin(){begin(game.config().synchroRanked,java.util.concurrent.ThreadLocalRandom.current().nextLong());}
@@ -38,14 +41,24 @@ public final class SynchroRanked {
         if(game!=null&&game.server()==context.getLevel().getServer())random=game.synchroRanked().random(table,context);
         state.skywars2$synchroPrepare(random);
     }
-    private RandomSource random(LootTable table,LootContext context){
-        if(!enabled||table==LootTable.EMPTY||!game.server().isSameThread()||game.stage()==GameController.Stage.LOBBY||game.stage()==GameController.Stage.LOADING)return null;
+    public static boolean logical(LootTable table,LootContext context,Consumer<ItemStack> output){var game=SkyWars2.game();return game!=null&&game.server()==context.getLevel().getServer()&&game.synchroRanked().lucky.draw(table,context,output);}
+    boolean admitted(LootContext context){return enabled&&game.server()==context.getLevel().getServer()&&game.server().isSameThread()&&game.stage()!=GameController.Stage.LOBBY&&game.stage()!=GameController.Stage.LOADING;}
+    Identifier tableId(LootTable table,LootContext context){
         if(resolver!=context.getResolver()){
-            resolver=context.getResolver();tableIds.clear();
+            resolver=context.getResolver();tableIds.clear();lucky.clear();
             game.server().reloadableRegistries().lookup().lookupOrThrow(Registries.LOOT_TABLE).listElements().forEach(holder->tableIds.put(holder.value(),holder.key().identifier()));
         }
-        var id=tableIds.get(table);if(id==null||id.getPath().startsWith("gui/")||id.getPath().contains("/gui/"))return null;
+        return tableIds.get(table);
+    }
+    private RandomSource random(LootTable table,LootContext context){
+        if(!admitted(context)||table==LootTable.EMPTY)return null;
+        var id=tableId(table,context);if(id==null||id.getPath().startsWith("gui/")||id.getPath().contains("/gui/"))return null;
+        // A lucky block can ask for several logical draws; each advances its own family cursor below.
+        if(id.getNamespace().equals("lbc")&&(id.getPath().startsWith("native_lucky/")||SynchroLuckyDraws.family(id)!=null))return null;
         id=Identifier.parse(LbcAllItemPools.uniformTable(id.toString()));
+        return next(context,id);
+    }
+    RandomSource next(LootContext context,Identifier id){
         UUID recipient=RECIPIENT.get();
         if(recipient==null){
             var self=context.getOptional(LootContextParams.THIS_ENTITY);var killer=context.getOptional(LootContextParams.LAST_DAMAGE_PLAYER);

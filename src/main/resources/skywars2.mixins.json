@@ -3,8 +3,11 @@
   "package": "me.skywars2.mixin",
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "TimeStopViewMixin$Listener",
+    "TimeStopViewMixin$Transport",
     "SynchroRankedMixin$Table",
     "SynchroRankedMixin$Context",
+    "SynchroRankedMixin$Pools",
     "FixedArrowDamageMixin",
     "ServerTickDurationMixin",
     "NetworkTransportMixin",

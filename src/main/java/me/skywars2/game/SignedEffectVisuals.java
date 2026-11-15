@@ -105,6 +105,7 @@ public final class SignedEffectVisuals {
         player.sendPostEffects();
     }
     public static void clear(ServerPlayer player) {
+        TimeStopView.clear(player);
         movieNightVision(player,false);
         SignedGlowVisuals.forget(player);
         for (var id : List.copyOf(player.getPostEffects())) if (owned(id)) player.removePostEffect(id);
@@ -116,13 +117,14 @@ public final class SignedEffectVisuals {
         SignedGlowVisuals.stop();
     }
     public static void removed(Entity entity) {
+        if(entity instanceof ServerPlayer player)TimeStopView.clear(player);
         if(entity instanceof ServerPlayer player)MOVIE_NIGHT_VISION.remove(player.getUUID());
         PRESENTATIONS.remove(entity.getId()); ENTITIES.remove(entity.getId());
         if (entity instanceof LivingEntity living) SignedGlowVisuals.removed(living);
         if (entity instanceof ServerPlayer player) REVEAL.remove(player.getUUID());
     }
     public static boolean owned(Identifier id) {
-        return id.equals(NEXUS) || id.equals(IMPRINTED) || id.equals(SKILL_ISSUE) || id.getNamespace().equals("lbc") && id.getPath().startsWith(PREFIX);
+        return id.equals(TimeStopView.EFFECT) || id.equals(NEXUS) || id.equals(IMPRINTED) || id.equals(SKILL_ISSUE) || id.getNamespace().equals("lbc") && id.getPath().startsWith(PREFIX);
     }
     /** Self-only cosmetic lightmap projection. Never grants or removes an authoritative effect. */
     public static void movieNightVision(ServerPlayer player,boolean enabled){
@@ -163,6 +165,10 @@ public final class SignedEffectVisuals {
         var result = new ArrayList<Identifier>();
         if (dimension.equals("minecraft:nexus")) result.add(NEXUS);
         if (dimension.equals("minecraft:imprinted")) result.add(IMPRINTED);
+        if(entity instanceof ServerPlayer player){
+            var owner=me.skywars2.SkyWars2.game();boolean frozen=player.isAlive()&&!player.isRemoved()&&owner!=null&&owner.items()!=null&&owner.items().timeStop().frozen(player);
+            TimeStopView.publish(player,frozen);if(frozen)result.add(TimeStopView.EFFECT);
+        }
         if(!VanillaExpansionRules.enabled())return result;
         // This is the authoritative timed disorder, not a score-only or actionbar projection.
         var game=me.skywars2.SkyWars2.game();

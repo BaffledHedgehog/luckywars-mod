@@ -6,9 +6,10 @@ import net.minecraft.util.RandomSource;
 public interface SynchroLootContext {
     boolean skywars2$synchroPrepared();
     void skywars2$synchroPrepare(RandomSource random);
+    RandomSource skywars2$synchroRandom();
     boolean skywars2$synchroActive();
     Integer skywars2$synchroSlab();
-    void skywars2$synchroSlab(int value);
+    void skywars2$synchroSlab(Integer value);
     void skywars2$synchroEnter();
     void skywars2$synchroExit();
 }

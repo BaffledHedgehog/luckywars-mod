@@ -1,0 +1,65 @@
+{
+  "targets": {
+    "time_world_frame": {
+      "width": 3840,
+      "height": 2160,
+      "persistent": true,
+      "clear_color": 0
+    },
+    "time_world_ready": {
+      "width": 1,
+      "height": 1,
+      "persistent": true,
+      "clear_color": 0
+    },
+    "time_world_gate": {
+      "width": 1,
+      "height": 1
+    }
+  },
+  "passes": [
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "lbc:post/time_world_gate",
+      "inputs": [
+        {
+          "sampler_name": "History",
+          "target": "time_world_ready"
+        }
+      ],
+      "output": "time_world_gate"
+    },
+    {
+      "vertex_shader": "lbc:post/time_capture",
+      "fragment_shader": "lbc:post/time_capture",
+      "inputs": [
+        {
+          "sampler_name": "Gate",
+          "target": "time_world_gate"
+        },
+        {
+          "sampler_name": "Scene",
+          "target": "minecraft:main"
+        }
+      ],
+      "output": "time_world_frame"
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "lbc:post/time_one",
+      "inputs": [],
+      "output": "time_world_ready"
+    },
+    {
+      "vertex_shader": "minecraft:core/screenquad",
+      "fragment_shader": "lbc:post/time_world",
+      "inputs": [
+        {
+          "sampler_name": "Frame",
+          "target": "time_world_frame"
+        }
+      ],
+      "output": "minecraft:main"
+    }
+  ]
+}

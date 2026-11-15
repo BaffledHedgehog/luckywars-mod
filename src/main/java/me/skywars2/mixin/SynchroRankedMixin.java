@@ -11,6 +11,7 @@ import net.minecraft.world.level.storage.loot.*;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.*;
+import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.function.Consumer;
 
 public final class SynchroRankedMixin {
@@ -22,9 +23,11 @@ public final class SynchroRankedMixin {
         @WrapMethod(method="getRandomItemsRaw(Lnet/minecraft/world/level/storage/loot/LootContext;Ljava/util/function/Consumer;)V")
         private void skywars2$directContext(LootContext context,Consumer<ItemStack> output,Operation<Void> original){
             var state=(SynchroLootContext)context;state.skywars2$synchroEnter();
-            try{SynchroRanked.prepare((LootTable)(Object)this,context);original.call(context,output);}finally{state.skywars2$synchroExit();}
+            try{SynchroRanked.prepare((LootTable)(Object)this,context);if(!SynchroRanked.logical((LootTable)(Object)this,context,output))original.call(context,output);}finally{state.skywars2$synchroExit();}
         }
     }
+    @Mixin(LootTable.class)
+    public interface Pools { @Accessor("pools") java.util.List<LootPool> skywars2$pools(); }
     @Mixin(LootContext.class)
     public abstract static class Context implements SynchroLootContext {
         @Unique private boolean skywars2$synchroPrepared;
@@ -34,9 +37,10 @@ public final class SynchroRankedMixin {
         @Unique private boolean skywars2$synchroConsumed;
         @Override public boolean skywars2$synchroPrepared(){return skywars2$synchroPrepared;}
         @Override public void skywars2$synchroPrepare(RandomSource random){skywars2$synchroPrepared=true;skywars2$synchroRandom=random;}
+        @Override public RandomSource skywars2$synchroRandom(){return skywars2$synchroRandom;}
         @Override public boolean skywars2$synchroActive(){return skywars2$synchroRandom!=null;}
         @Override public Integer skywars2$synchroSlab(){return skywars2$synchroSlab;}
-        @Override public void skywars2$synchroSlab(int value){skywars2$synchroSlab=value;}
+        @Override public void skywars2$synchroSlab(Integer value){skywars2$synchroSlab=value;}
         @Override public void skywars2$synchroEnter(){if(skywars2$synchroDepth++==0){if(skywars2$synchroConsumed){skywars2$synchroPrepared=false;skywars2$synchroRandom=null;skywars2$synchroSlab=null;}skywars2$synchroConsumed=true;}}
         @Override public void skywars2$synchroExit(){skywars2$synchroDepth--;}
         @Inject(method="getRandom",at=@At("HEAD"),cancellable=true)

@@ -795,6 +795,7 @@ public final class GameChecks {
                                 case "time-stop-menu" -> checkTimeStopMenu(game);
                                 case "time-stop-crafting" -> checkTimeStopCrafting(game);
                                 case "time-stop" -> checkTimeStop(game);
+                                case "time-stop-view" -> { TimeStopViewChecks.run(game); return; }
                                 case "time-stop-contacts" -> { TimeStopContactChecks.run(game); return; }
                                 case "time-stop-contacts-stop-probe" -> { TimeStopContactChecks.stopProbe(game); return; }
                                 case "time-stop-contacts-cleanup" -> { TimeStopContactChecks.cleanup(game); return; }
@@ -1040,6 +1041,7 @@ public final class GameChecks {
                                 case "tiktok-playback" -> { TikTokPlaybackChecks.run(game); return; }
                                 case "music-staff" -> { MusicStaffChecks.run(game); return; }
                                 case "synchro-ranked" -> { SynchroRankedChecks.run(game); return; }
+                                case "synchro-lucky" -> { SynchroLuckyChecks.run(game); return; }
                                 case "zaika-passive" -> { ZaikaPassiveChecks.run(game); return; }
                                 case "expansion-skill" -> { ExpansionSkillChecks.start(game); return; }
                                 case "hakurei-skill" -> { HakureiSkillChecks.start(game); return; }
