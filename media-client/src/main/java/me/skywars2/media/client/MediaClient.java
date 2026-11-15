@@ -33,6 +33,7 @@ public final class MediaClient implements ClientModInitializer {
     private static final class Session {
         final UUID id;final int rate,channels;final MediaTimeline timeline=new MediaTimeline();
         volatile ChannelAccess.ChannelHandle sound;
+        volatile float volume;
         volatile boolean active=true;
         boolean opening;long shown=-1,received,last=-1;
         Session(MediaPackets.Frame p){id=p.session();rate=p.rate();channels=p.channels();}
@@ -89,6 +90,8 @@ public final class MediaClient implements ClientModInitializer {
         synchronized(LOCK){
             var s=session;if(s==null)return;
             if(System.nanoTime()-s.received>2_000_000_000L){close(false);return;}
+            float volume=Minecraft.getInstance().options.getFinalSoundSourceVolume(SoundSource.RECORDS);
+            if(s.sound!=null&&s.volume!=volume){s.volume=volume;s.sound.execute(channel->channel.setVolume(volume));}
             if(s.timeline.primed()&&!s.opening){s.opening=true;openAudio(s);}
             long target=s.timeline.presented(System.nanoTime());Decoded selected=null;
             while(decoded.peek()!=null&&decoded.peek().serial<=target){
@@ -104,6 +107,7 @@ public final class MediaClient implements ClientModInitializer {
     }
     private static void openAudio(Session s){
         var mc=Minecraft.getInstance();
+        s.volume=mc.options.getFinalSoundSourceVolume(SoundSource.RECORDS);
         var engine=((MediaSoundAccess.Manager)mc.getSoundManager()).skywars2$engine();
         var access=((MediaSoundAccess.Engine)engine).skywars2$channels();
         access.createHandle(Library.Pool.STREAMING).thenAccept(handle->{
@@ -112,7 +116,7 @@ public final class MediaClient implements ClientModInitializer {
             handle.execute(channel->{
                 if(!s.active){channel.stop();return;}
                 channel.setRelative(true);channel.disableAttenuation();channel.setPitch(1);channel.setLooping(false);
-                channel.setVolume(mc.options.getSoundSourceVolume(SoundSource.RECORDS)*mc.options.getSoundSourceVolume(SoundSource.MASTER));
+                channel.setVolume(s.volume);
                 s.timeline.start(System.nanoTime());
                 channel.attachBufferStream(new PcmStream(s.timeline,s.rate,s.channels));
                 channel.play();

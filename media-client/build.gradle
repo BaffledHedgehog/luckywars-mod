@@ -35,3 +35,10 @@ tasks.register('checkNativeAudio', JavaExec) {
     jvmArgs '-Xmx128m', '-XX:ActiveProcessorCount=2'
 }
 tasks.named('check') { dependsOn 'checkNativeAudio' }
+tasks.register('checkPhoneGeometry', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'me.skywars2.media.client.PhoneGeometryChecks'
+    jvmArgs '-Xmx128m', '-XX:ActiveProcessorCount=2'
+}
+tasks.named('check') { dependsOn 'checkPhoneGeometry' }
