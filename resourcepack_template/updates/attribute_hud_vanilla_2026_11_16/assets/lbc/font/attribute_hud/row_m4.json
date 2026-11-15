@@ -1,0 +1,410 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/life_item_fragment.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue171"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/heart.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue210"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/max_absorption.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue211"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/gravity.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue212"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/armor.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue213"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/armor_toughness.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue214"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/luck.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue215"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/iron_sword.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue216"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/attack_knockback.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue217"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/attack_speed.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue218"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_pickaxe.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue219"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/submerged_mining_speed.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue220"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/movement_efficiency.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue221"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/movement_speed.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue222"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/air_drag.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue223"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/below_name_distance.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue224"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/block_interaction_range.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue225"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/bounciness.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue226"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/burning_time.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue227"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/camera_distance.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue228"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/entity_interaction_range.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue229"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/explosion_knockback_resistance.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue230"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/fall_damage_multiplier.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue231"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/friction_modifier.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue232"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/jump_strength.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue233"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/knockback_resistance.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue234"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/mining_efficiency.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue235"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/name_tag_distance.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue236"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/oxygen_bonus.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue237"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/safe_fall_distance.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue238"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/scale.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue239"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/sneaking_speed.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue240"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/step_height.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue241"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/sweeping_damage_ratio.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue242"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/water_walking_efficiency.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue243"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/waypoint_receive_range.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue244"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/icons/waypoint_transmit_range.png",
+      "ascent": -10,
+      "height": 9,
+      "chars": [
+        "\ue245"
+      ]
+    },
+    {
+      "type": "space",
+      "advances": {
+        "\udbb8\ude10": 0,
+        "\udbb8\ude11": 0,
+        "\udbb8\ude12": 1,
+        "\udbb8\ude13": 0,
+        "\udbb8\ude14": 0,
+        "\udbb8\ude15": 0,
+        "\udbb8\ude16": 0,
+        "\udbb8\ude17": 0,
+        "\udbb8\ude18": 1,
+        "\udbb8\ude19": 1,
+        "\udbb8\ude20": 0,
+        "\udbb8\ude21": 0,
+        "\udbb8\ude22": 0,
+        "\udbb8\ude23": 1,
+        "\udbb8\ude24": 0,
+        "\udbb8\ude25": 0,
+        "\udbb8\ude26": 1,
+        "\udbb8\ude27": 0,
+        "\udbb8\ude28": 0,
+        "\udbb8\ude29": 0,
+        "\udbb8\ude30": 0,
+        "\udbb8\ude31": 1,
+        "\udbb8\ude32": 1,
+        "\udbb8\ude33": 1,
+        "\udbb8\ude34": 1,
+        "\udbb8\ude35": 0,
+        "\udbb8\ude36": 1,
+        "\udbb8\ude37": 1,
+        "\udbb8\ude38": 1,
+        "\udbb8\ude39": 0,
+        "\udbb8\ude40": 0,
+        "\udbb8\ude41": 1,
+        "\udbb8\ude42": 1,
+        "\udbb8\ude43": 0,
+        "\udbb8\ude44": 1,
+        "\udbb8\ude45": 1,
+        "\udbb8\udd71": 0
+      }
+    },
+    {
+      "type": "space",
+      "advances": {
+        " ": 4,
+        "\u200c": 0
+      }
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:font/ascii.png",
+      "ascent": -11,
+      "chars": [
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+        " !\"#$%&'()*+,-./",
+        "0123456789:;<=>?",
+        "@ABCDEFGHIJKLMNO",
+        "PQRSTUVWXYZ[\\]^_",
+        "`abcdefghijklmno",
+        "pqrstuvwxyz{|}~\u0000",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u00a3\u0000\u0000\u0192",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u00aa\u00ba\u0000\u0000\u00ac\u0000\u0000\u0000\u00ab\u00bb",
+        "\u2591\u2592\u2593\u2502\u2524\u2561\u2562\u2556\u2555\u2563\u2551\u2557\u255d\u255c\u255b\u2510",
+        "\u2514\u2534\u252c\u251c\u2500\u253c\u255e\u255f\u255a\u2554\u2569\u2566\u2560\u2550\u256c\u2567",
+        "\u2568\u2564\u2565\u2559\u2558\u2552\u2553\u256b\u256a\u2518\u250c\u2588\u2584\u258c\u2590\u2580",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u2205\u2208\u0000",
+        "\u2261\u00b1\u2265\u2264\u2320\u2321\u00f7\u2248\u00b0\u2219\u0000\u221a\u207f\u00b2\u25a0\u0000"
+      ],
+      "height": 8
+    }
+  ]
+}
