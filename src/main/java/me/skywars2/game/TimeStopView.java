@@ -40,6 +40,7 @@ public final class TimeStopView {
             return new ClientboundPostEffectsPacket(List.copyOf(ordered));
         }
         if(!frozen(player))return packet;
+        if(packet instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket custom&&custom.payload() instanceof me.skywars2.media.MediaPackets.Frame)return null;
         if(packet instanceof ClientboundSoundPacket sound)return start(sound.getSound().value().location())?packet:null;
         if(packet instanceof ClientboundSoundEntityPacket sound)return start(sound.getSound().value().location())?packet:null;
         if(packet instanceof ClientboundLevelEventPacket)return null; // Native block events also play sounds locally.

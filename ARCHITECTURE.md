@@ -1,8 +1,18 @@
+## Optional full-colour media client
+
+The isolated `media-client` Fabric26.3 project shares only `media-protocol` with the server. A supported Hello plus actual Fabric Frame/Stop receive-channel advertisement enables enhanced playback for the exact current connection. Vanilla and incompatible clients keep the native phone. The client announces after channel registration, including when it arrives after JOIN.
+
+The enhanced path reads JPEG720x1280 and48kHz stereo PCM directly from the indexed TKP3 cache, skipping palette inflation and item tint encoding. Its independent20Hz clock uses immutable recipient/connection state, Netty backpressure and a per-stream send/Stop gate. Main-thread held-item lifecycle remains authoritative. The unique first-person model combines the original phone/hand transform with one fullbright dynamic-texture quad; original server item components remain unchanged.
+
+The client uses one low-priority latest-frame decoder and bounded image/PCM buffers, with four50ms audio buffers primed against a shared presentation clock. JPEG SOF bounds precede STB allocation; NativeImage.read is PNG-only in26.3. Actual native JPEG tests verify bright RGB/alpha and repeated decode/free. PCM uses Minecraft's existing SoundEngine streaming channel; a null-output OpenAL test verifies real buffer priming/play/pause/stop/release without opening the user's audio device. Stop, disconnect and TimeStop clear state. No account credentials, downloads or video files are stored on the client.
+
+Native tests verify the actual Fabric registration/Hello handler, incompatible/vanilla negative controls, shared codecs, independent delivery through a280ms main-thread stall, private delivery, absence of duplicate vocoder playback, TimeStop and ordered Stop/empty-slot restoration. The seven wire classes are byte-identical between the server and client JAR. Connected-client visual placement and perceived sound remain manual verification; see `media-client/README_RU.md`.
+
 ## Twilight coast and native HD phone
 
 Twilight flight spreads the legacy one-unit/two-tick displacement budget into smooth half-unit ticks. When the boost ends in air, the existing non-player control seat remains until landing or dismount: native gravity, drag and collisions preserve the remaining impulse without handing it to client walking input. The native trinket fixture observes actual post-expiry movement and the coordinator rewind.
 
-The 480x854 phone uses the actual Minecraft 26.3 core/item pipeline. Its exact sprite signature is decoded before lighting; only video bypasses light, hurt overlay, fog and glint. Spare existing varyings carry the data, keeping the current shader interface within sixteen locations. Prepared TKP2 frames are independently compressed; video packing runs on the bounded reader. A separate 60 Hz clock reads only small 48-band envelopes and immutable recipient identity, drops stale/unwritable work and stops with the view. The queue remains five clips and 768 MiB, with originals and derivatives retired together. Reproducible large meshes/noise files are ignored; generators, manifests and the mergeable tiktok_hd_2026_11_15 addon document reconstruction.
+The 480x854 phone uses the actual Minecraft 26.3 core/item pipeline. Its exact sprite signature is decoded before lighting; only video bypasses light, hurt overlay, fog and glint. Spare existing varyings carry the data, keeping the current shader interface within sixteen locations. Prepared TKP3 frames are independently compressed; video packing runs on the bounded reader. A separate 60 Hz clock reads only small 48-band envelopes and immutable recipient identity, drops stale/unwritable work and stops with the view. The queue remains five clips and 768 MiB, with originals and derivatives retired together. Reproducible large meshes/noise files are ignored; generators, manifests and the mergeable tiktok_hd_2026_11_15 addon document reconstruction.
 
 ## Original requester attribution
 
@@ -3201,21 +3211,7 @@ derivatives together and respects active-viewer pins. The disk ceiling is
 768 MiB. Runtime dependency errors expose fixed codes, never credential-bearing
 browser/download diagnostics. Shutdown cancels only the worker's process tree.
 
-TikTokMedia reads a bounded frame via its offset index rather than loading an
-entire clip: 64x112 native map colours at 20 FPS, JPEG 256x448, 24 kHz mono PCM,
-and a 24-band envelope. TikTokPlayback sends recipient-only native item-component
-updates: 2,464 RGB tint entries encode 7,168 palette pixels, decoded only on the
-phone screen by its marker-scoped shader. The first-person model keeps the
-author's phone body and display transforms; other display contexts use the
-original item. Original server components and Polymer roundtrips are preserved.
-TikTokAudio reconstructs the envelope with at most eight private 50 ms noise
-sounds per frame. One bounded I/O reader, one pending read per viewer, Netty
-writability admission and stale-frame dropping prevent catch-up queues.
-Native fixtures qualify private playback, codecs, backpressure and cleanup.
-Optional-client capability/streaming and connected-client audiovisual review
-remain open.
-The current five-minute derivative cap also remains a temporary implementation
-limit to review before completing the feature. Original downloads are uncut.
+TikTokMedia reads bounded, independently compressed indexed TKP3 records: native palette480x854 at20FPS, JPEG720x1280,48kHz stereo PCM and three48-band envelopes per frame. Vanilla playback packs136640 RGB tint entries into a private item projection, decoded by the marker-scoped core/item shader before lighting. A separate60Hz wall clock reconstructs sound with at most16 events per slice. The optional client uses JPEG/PCM directly and its own20Hz server publisher. Both paths preserve the original phone, authoritative components and Polymer roundtrip. Bounded I/O, Netty admission, stale-frame dropping and lifecycle cleanup prevent unbounded catch-up queues. Prepared playback currently covers up to five minutes per clip; originals are retained uncut within the five-clip/disk limits.
 
 TikTokAccountChecks exercises the native dialog/reply codecs (including maximum
 Unicode input accounting), actual command/foreign-operator/replay rejection,
@@ -3224,7 +3220,7 @@ TikTokBulkImportChecks uses actual native operator dialog/command handlers and a
 million-character export without making external requests. TikTokPlaybackChecks
 checks actual phone use, native component/sound/packet codecs, private delivery,
 cooldown, real backpressure, hand changes, pinning and a downloaded clip's media
-records. Offscreen GPU checks compare all 7,168 pixels and ordinary-item raster
+records. Offscreen GPU checks compare all409920 pixels and ordinary-item raster
 output against the author shader. These do not replace an in-game client test.
 `tools/check_tiktok_worker.py` uses real ffmpeg video/audio and silent inputs;
 `tools/check_tiktok_feed.py` runs a real browser against intercepted local page
@@ -3237,4 +3233,4 @@ All five TMT transports support the full enchantment registry at native tables a
 
 Chaos Sword of Swords and Triple Golden Sword copies expire after twenty active grounded ticks. Time Stop pauses that counter; clones and match checkpoints preserve it and the source weapon. Triple copies test their actual embedded block, including thin collision shapes. Native checks cover all43 enchantments on five TMT types,52 authored sword templates, real table/anvil costs, offhand source capture, deterministic Looting100 after switching hands, both sword lifetimes and Chaos copies outside world height.
 
-Qualification: stable-batch-210-qualification.json in build/verification/bot-revision-2026-11-10. One fresh enchantment suite and nine suites carried from byte-identical runtime209; both fixture trees restored normally. TikTok Q-drop cleanup is native-tested; updated sound attenuation still needs a connected-client check. HD media, an independent playback clock and the optional client remain open.
+Qualification: stable-batch-210-qualification.json in build/verification/bot-revision-2026-11-10. One fresh enchantment suite and nine suites carried from byte-identical runtime209; both fixture trees restored normally. TikTok Q-drop cleanup is native-tested; updated sound attenuation still needs a connected-client check. HD native rendering and independent sound are qualified in231; optional-client JPEG/PCM transport and native client image/audio checks are qualified in233. Connected-client audiovisual review remains manual.

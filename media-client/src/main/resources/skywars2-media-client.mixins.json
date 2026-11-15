@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "me.skywars2.media.client.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "MediaSoundAccess$Manager",
+    "MediaSoundAccess$Engine",
+    "MediaPauseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -41,6 +41,7 @@ public final class TikTokAccounts {
     private TikTokAccounts(){}
 
     public static void register(){
+        TikTokClientSupport.register();
         CommandRegistrationCallback.EVENT.register((dispatcher,registries,environment)->commands(dispatcher));
         ServerLifecycleEvents.SERVER_STARTED.register(TikTokAccounts::start);
         ServerLifecycleEvents.SERVER_STOPPING.register(ignored->stop());

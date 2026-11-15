@@ -10,9 +10,10 @@ import java.util.zip.DataFormatException;
 
 /** Seekable 480p palette frames, independently compressed on disk; bounded positional reads. */
 final class TikTokMedia implements AutoCloseable {
-    static final int WIDTH=480, HEIGHT=854, PIXELS=WIDTH*HEIGHT, FPS=20, RATE=24000, BANDS=48;
+    static final int WIDTH=480, HEIGHT=854, PIXELS=WIDTH*HEIGHT, FPS=20, RATE=48000, BANDS=48;
+    static final int JPEG_WIDTH=720,JPEG_HEIGHT=1280;
     static final int AUDIO_FPS=60, SLICES=AUDIO_FPS/FPS, BAND_BYTES=BANDS*SLICES;
-    static final int AUDIO_BYTES=RATE/FPS*2, MAX_JPEG=48000, MAX_COMPRESSED=PIXELS+1024;
+    static final int AUDIO_BYTES=RATE/FPS*4, MAX_JPEG=131072, MAX_COMPRESSED=PIXELS+1024;
     record Frame(byte[] map, byte[] bands, byte[] pcm, byte[] jpeg) {}
     final String id;
     final Path directory;
@@ -26,7 +27,7 @@ final class TikTokMedia implements AutoCloseable {
         var channel=FileChannel.open(directory.resolve("clip.tkp"),StandardOpenOption.READ);
         try {
             var header=ByteBuffer.allocate(28); read(channel,header,0); header.flip();
-            if (header.getInt()!=0x544b5032) throw new IOException("clip_invalid");
+            if (header.getInt()!=0x544b5033) throw new IOException("clip_invalid");
             frames=header.getInt();
             if (frames<1 || frames>6000 || header.getInt()!=FPS || header.getInt()!=WIDTH
                     || header.getInt()!=HEIGHT || header.getInt()!=RATE || header.getInt()!=BANDS)
@@ -67,6 +68,13 @@ final class TikTokMedia implements AutoCloseable {
             if(count!=map.length||!inflater.finished()||inflater.getRemaining()!=0)throw new IOException("frame_invalid");
         }catch(DataFormatException error){throw new IOException("frame_invalid",error);}finally{inflater.end();}
         return new Frame(map,bands,pcm,jpeg);
+    }
+    /** The enhanced path skips both the palette bytes and decompression/tint allocation. */
+    Frame clientFrame(int number) throws IOException {
+        var sizes=sizes(number);var bytes=ByteBuffer.allocate(AUDIO_BYTES+sizes[1]);
+        read(video,bytes,offsets[number]+8L+sizes[0]+BAND_BYTES);bytes.flip();
+        byte[] pcm=new byte[AUDIO_BYTES],jpeg=new byte[sizes[1]];bytes.get(pcm);bytes.get(jpeg);
+        return new Frame(new byte[0],new byte[0],pcm,jpeg);
     }
     /** The 60 Hz sound clock reads only its own small envelope, never decodes a video frame. */
     byte[] audio(long serial) throws IOException {

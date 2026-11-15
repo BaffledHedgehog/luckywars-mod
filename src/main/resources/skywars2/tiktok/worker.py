@@ -25,11 +25,13 @@ import urllib.parse
 for _name in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
     os.environ[_name] = "1"
 
-FPS, WIDTH, HEIGHT, RATE = 20, 480, 854, 24000
+FPS, WIDTH, HEIGHT, RATE = 20, 480, 854, 48000
+JPEG_WIDTH, JPEG_HEIGHT, CHANNELS = 720, 1280, 2
+ANALYSIS_RATE = 24000
 AUDIO_FPS, SLICES, WINDOW = 60, 3, 2400
 SAMPLES = RATE // FPS
-MAX_SECONDS, MAX_ORIGINAL, MAX_JPEG = 300, 64 * 1024 * 1024, 48000
-HEADER = struct.Struct(">4sIIIIII")  # TKP2, frames, fps, palette width/height, rate, bands
+MAX_SECONDS, MAX_ORIGINAL, MAX_JPEG = 300, 64 * 1024 * 1024, 131072
+HEADER = struct.Struct(">4sIIIIII")  # TKP3, frames, fps, palette width/height, rate, bands
 BANDS = 48
 
 
@@ -313,12 +315,12 @@ def prepare(original: Path, stage: Path, palette: Path, ffmpeg="ffmpeg") -> dict
     import zlib
     mjpeg, pcm = (stage / n for n in ("video.mjpeg", "audio.pcm"))
     # One JPEG stream bounds staging disk instead of an uncompressed multi-gigabyte RGB movie.
-    filters = f"fps={FPS},scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=decrease,pad={WIDTH}:{HEIGHT}:(ow-iw)/2:(oh-ih)/2:black"
+    filters = f"fps={FPS},scale={JPEG_WIDTH}:{JPEG_HEIGHT}:force_original_aspect_ratio=decrease,pad={JPEG_WIDTH}:{JPEG_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black"
     probe = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=index",
                             "-of", "csv=p=0", str(original)], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                            stderr=subprocess.DEVNULL, timeout=20, check=True,
                            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0)
-    audio_args = (["-map", "0:a:0", "-t", str(MAX_SECONDS), "-threads", "1", "-ac", "1", "-ar", str(RATE),
+    audio_args = (["-map", "0:a:0", "-t", str(MAX_SECONDS), "-threads", "1", "-ac", str(CHANNELS), "-ar", str(RATE),
                    "-c:a", "pcm_s16le", "-f", "s16le", str(pcm)] if probe.stdout.strip() else [])
     if not audio_args:
         pcm.touch()
@@ -327,30 +329,31 @@ def prepare(original: Path, stage: Path, palette: Path, ffmpeg="ffmpeg") -> dict
              "-c:v", "mjpeg", "-q:v", "4", "-f", "image2pipe", str(mjpeg), *audio_args], 240, "transcode_failed")
     lut = palette_lut(json.loads(palette.read_text(encoding="utf-8")))
     edges = np.geomspace(90, 10000, BANDS + 1)
-    frequencies = np.fft.rfftfreq(WINDOW, 1 / RATE)
+    frequencies = np.fft.rfftfreq(WINDOW, 1 / ANALYSIS_RATE)
     masks = [(frequencies >= edges[i]) & (frequencies < edges[i + 1]) for i in range(BANDS)]
     window = np.hanning(WINDOW)
     offsets = []
     with pcm.open("rb") as audio, (stage / "clip.tkp").open("w+b") as out:
-        out.write(HEADER.pack(b"TKP2", 0, FPS, WIDTH, HEIGHT, RATE, BANDS))
+        out.write(HEADER.pack(b"TKP3", 0, FPS, WIDTH, HEIGHT, RATE, BANDS))
         for frame, jpeg in enumerate(jpeg_frames(mjpeg)):
             if frame >= MAX_SECONDS * FPS: raise MediaError("duration_invalid")
             offsets.append(out.tell())
             image = Image.open(io.BytesIO(jpeg)).convert("RGB")
-            if image.size != (WIDTH, HEIGHT): raise MediaError("frame_size")
-            pixels = np.asarray(image, dtype=np.uint8).reshape(-1, 3).astype(np.uint16)
+            if image.size != (JPEG_WIDTH, JPEG_HEIGHT): raise MediaError("frame_size")
+            pixels = np.asarray(image.resize((WIDTH, HEIGHT), Image.Resampling.LANCZOS), dtype=np.uint8).reshape(-1, 3).astype(np.uint16)
             indices = ((pixels[:, 0] >> 3) << 10) | ((pixels[:, 1] >> 3) << 5) | (pixels[:, 2] >> 3)
             mapped = zlib.compress(lut[indices].tobytes(), 3)
             levels = bytearray()
             for part in range(SLICES):
-                begin = frame * SAMPLES + part * (RATE // AUDIO_FPS) - WINDOW // 2
-                audio.seek(max(0, begin) * 2)
-                missing = max(0, -begin) * 2
-                segment = (b"\0" * missing + audio.read(WINDOW * 2 - missing)).ljust(WINDOW * 2, b"\0")
-                wave = np.frombuffer(segment, dtype="<i2").astype(np.float32) / 32768
-                spectrum = np.abs(np.fft.rfft(wave * window)) / (WINDOW / 2)
-                levels.extend(min(255, round(float(np.sqrt(np.square(spectrum[m]).sum())) * 255 * 2)) for m in masks)
-            audio.seek(frame * SAMPLES * 2);samples = audio.read(SAMPLES * 2).ljust(SAMPLES * 2, b"\0")
+                begin = frame * SAMPLES + part * (RATE // AUDIO_FPS) - WINDOW
+                audio.seek(max(0, begin) * 4)
+                missing = max(0, -begin) * 4
+                segment = (b"\0" * missing + audio.read(WINDOW * 8 - missing)).ljust(WINDOW * 8, b"\0")
+                # Analyze channels independently: opposite stereo phases must not cancel the vanilla fallback.
+                wave = np.frombuffer(segment, dtype="<i2").reshape(-1, 2)[::2].astype(np.float32) / 32768
+                power = np.square(np.abs(np.fft.rfft(wave * window[:, None], axis=0)) / (WINDOW / 2)).mean(axis=1)
+                levels.extend(min(255, round(float(np.sqrt(power[m].sum())) * 255 * 2)) for m in masks)
+            audio.seek(frame * SAMPLES * 4);samples = audio.read(SAMPLES * 4).ljust(SAMPLES * 4, b"\0")
             if len(jpeg) > MAX_JPEG:
                 for quality in (65, 45, 25, 15):
                     encoded = io.BytesIO();image.save(encoded, "JPEG", quality=quality);jpeg = encoded.getvalue()
@@ -360,14 +363,14 @@ def prepare(original: Path, stage: Path, palette: Path, ffmpeg="ffmpeg") -> dict
             if out.tell() > 640 * 1024 * 1024: raise MediaError("cache_full")
         frames = len(offsets)
         if not frames: raise MediaError("duration_invalid")
-        out.seek(0);out.write(HEADER.pack(b"TKP2", frames, FPS, WIDTH, HEIGHT, RATE, BANDS))
+        out.seek(0);out.write(HEADER.pack(b"TKP3", frames, FPS, WIDTH, HEIGHT, RATE, BANDS))
     with (stage / "clip.idx").open("wb") as index:
         for offset in offsets:
             index.write(struct.pack(">Q", offset))
     for p in (mjpeg, pcm):
         p.unlink(missing_ok=True)
-    return {"format": 2, "frames": frames, "fps": FPS, "width": WIDTH, "height": HEIGHT,
-            "rate": RATE, "bands": BANDS, "audio_fps": AUDIO_FPS, "original": original.name, "duration": frames / FPS}
+    return {"format": 3, "frames": frames, "fps": FPS, "width": WIDTH, "height": HEIGHT,
+            "rate": RATE, "channels": CHANNELS, "jpeg_width": JPEG_WIDTH, "jpeg_height": JPEG_HEIGHT, "bands": BANDS, "audio_fps": AUDIO_FPS, "original": original.name, "duration": frames / FPS}
 
 
 def main():

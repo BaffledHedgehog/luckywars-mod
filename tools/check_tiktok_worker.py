@@ -50,7 +50,7 @@ def main():
             assert len(offsets) == 40 and offsets[0] == worker.HEADER.size
             maximum, nonzero, video, envelope = 0, False, set(), False
             with (stage / "clip.tkp").open("rb") as inp:
-                assert worker.HEADER.unpack(inp.read(worker.HEADER.size)) == (b"TKP2", 40, 20, 480, 854, 24000, 48)
+                assert worker.HEADER.unpack(inp.read(worker.HEADER.size)) == (b"TKP3", 40, 20, 480, 854, 48000, 48)
                 for offset in offsets:
                     assert inp.tell() == offset
                     compressed,length = struct.unpack(">II", inp.read(8))
@@ -60,9 +60,12 @@ def main():
                     video.add(hashlib.sha256(low).hexdigest())
                     assert max(max(palette[code]) for code in set(low)) >= 240, "bright source colors must survive palette conversion"
                     bands = inp.read(144); envelope |= any(bands)
-                    pcm = inp.read(2400); nonzero |= any(pcm)
+                    pcm = inp.read(9600); nonzero |= any(pcm)
                     jpeg = inp.read(length)
                     assert jpeg.startswith(b"\xff\xd8") and jpeg.endswith(b"\xff\xd9")
+                    import io
+                    from PIL import Image
+                    assert Image.open(io.BytesIO(jpeg)).size == (720, 1280)
                     maximum = max(maximum, length)
                 assert inp.read() == b""
             assert len(video) > 30 and nonzero != silent and envelope != silent

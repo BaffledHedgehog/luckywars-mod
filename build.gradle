@@ -5,6 +5,9 @@ plugins {
 version = project.mod_version
 group = project.maven_group
 
+// The optional client compiles this same small wire contract independently.
+sourceSets.main.java.srcDir('media-protocol/src/main/java')
+
 base {
     archivesName = project.archives_base_name
 }

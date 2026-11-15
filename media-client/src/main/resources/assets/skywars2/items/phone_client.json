@@ -1,0 +1,35 @@
+{
+  "hand_animation_on_swap": false,
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:display_context",
+    "cases": [
+      {
+        "when": [
+          "firstperson_righthand",
+          "firstperson_lefthand"
+        ],
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "lbc:item/zaika"
+            },
+            {
+              "type": "minecraft:special",
+              "base": "lbc:item/zaika",
+              "model": {
+                "type": "skywars2:phone_video"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "lbc:item/zaika"
+    }
+  }
+}

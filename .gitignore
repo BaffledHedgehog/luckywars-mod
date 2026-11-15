@@ -38,3 +38,9 @@ Thumbs.db
 /resourcepack_template/updates/tiktok_hd_2026_11_15/assets/skywars2/models/item/tiktok_screen.json
 /resourcepack_template/updates/tiktok_hd_2026_11_15/assets/lbc/items/zaika_video.json
 /resourcepack_template/updates/tiktok_hd_2026_11_15/assets/skywars2/sounds/tiktok/v2/*.ogg
+
+# Optional media client uses its own Loom workspace.
+/media-client/.gradle/
+/media-client/build/
+/media-client/run/
+/media-client/logs/

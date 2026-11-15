@@ -82,7 +82,7 @@ public final class TikTokPlaybackChecks {
                     for(int frame:List.of(0,actual.frames/2,actual.frames-1)){
                         var payload=actual.frame(frame,true);var colours=TikTokPixels.encode(payload.map());
                         require(colours.colors().size()==TikTokPixels.TINTS&&payload.jpeg().length>4&&payload.jpeg()[0]==(byte)255&&payload.jpeg()[1]==(byte)216,"real worker binary/header/index/JPEG native reader compatibility");
-                        require(payload.pcm().length==2400&&payload.bands().length==TikTokMedia.BAND_BYTES,"real worker audiovisual frame layout");
+                        require(payload.pcm().length==TikTokMedia.AUDIO_BYTES&&payload.bands().length==TikTokMedia.BAND_BYTES,"real worker audiovisual frame layout");
                     }
                 }
                 realReference=true;
@@ -182,8 +182,30 @@ public final class TikTokPlaybackChecks {
             require(playback.screen(f.owner)==null&&frames(f.client.packets()).isEmpty(),"Q stops video and cannot republish stale frame");
             require(SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSetPlayerInventoryPacket.class::isInstance)
                     .map(ClientboundSetPlayerInventoryPacket.class::cast).anyMatch(p->p.slot()==1&&p.contents().isEmpty()),"Q explicitly restores authoritative empty client slot");
-            SkyWars2.LOGGER.info("[check] PASS tiktok-playback (actual native phone use/private480p20FPS moving item colours and60Hz16-sound limit, 5sec cooldown rednonitalic key, exact original NBT roundtrip, native full/component/sound codecs, {} compressed bytes/frame, actual Netty unwritable admission/latest resume, watched original purge, hotbar/offhand and unheld cleanup; realForYouBinary={})",wireBytes,realReference);
+            enhanced();
+            SkyWars2.LOGGER.info("[check] PASS tiktok-playback (native480p20FPS/60Hz fallback plus real Fabric Hello/version/channel gate, enhanced independent20Hz JPEG/48k stereo PCM, native shared codecs/JPEG bomb bound, no vanilla pixels/vocoder on enhanced path, private stream, TimeStop, Q/Stop/empty-slot ordering; {} compressed vanilla bytes/frame, realForYouBinary={})",wireBytes,realReference);
             return true;
+        }
+        void enhanced()throws Exception{
+            require(SmokeVolumeChecks.flatten(f.client.packets()).stream().noneMatch(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Frame),"unmodified client never receives unsupported media payloads");
+            MediaProtocolChecks.codecs(f.owner);MediaProtocolChecks.negotiate(f.owner);
+            playback.reset();f.owner.setItemInHand(InteractionHand.MAIN_HAND,authored.copy());f.client.packets().clear();f.audience.packets().clear();
+            use();require(playback.screen(f.owner).enhanced(),"negotiated connection selects enhanced projection");
+            var proxy=PolymerItemUtils.getPolymerItemStack(authored,TooltipFlag.NORMAL,((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)f.client.connection).getPacketContext(),f.owner.registryAccess());
+            require(TikTokPlayback.CLIENT_MODEL.equals(proxy.get(DataComponents.ITEM_MODEL))&&!proxy.has(DataComponents.CUSTOM_MODEL_DATA),"enhanced renderer uses one quad and no per-frame tint NBT");
+            Thread.sleep(280);var packets=SmokeVolumeChecks.flatten(f.client.packets());
+            var video=packets.stream().filter(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Frame).map(p->(me.skywars2.media.MediaPackets.Frame)((net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket)p).payload()).toList();
+            require(video.size()>=4&&video.size()<=7,"enhanced20Hz clock advances through actual280ms world stall");
+            require(video.stream().allMatch(p->p.width()==720&&p.height()==1280&&p.pcm().length==9600&&p.rate()==48000&&p.channels()==2),"bounded720p/48k stereo contract");
+            require(packets.stream().noneMatch(ClientboundSoundEntityPacket.class::isInstance),"enhanced path never doubles PCM with vanilla vocoder");
+            require(SmokeVolumeChecks.flatten(f.audience.packets()).stream().noneMatch(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Frame),"enhanced video remains recipient-only");
+            f.client.packets().clear();TimeStopView.publish(f.owner,true);Thread.sleep(120);
+            require(SmokeVolumeChecks.flatten(f.client.packets()).stream().noneMatch(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Frame),"frozen client receives no future frames/PCM");
+            TimeStopView.clear(f.owner);f.client.packets().clear();f.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);playback.tick();Thread.sleep(130);
+            packets=SmokeVolumeChecks.flatten(f.client.packets());
+            require(packets.stream().anyMatch(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Stop),"unheld stops exact client session");
+            require(packets.stream().noneMatch(p->p instanceof net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket c&&c.payload() instanceof me.skywars2.media.MediaPackets.Frame),"Stop gate prevents late frames after authoritative empty slot");
+            require(playback.screen(f.owner)==null&&ItemStack.matches(authored,PolymerItemUtils.getRealItemStack(proxy,((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)f.client.connection).getPacketContext(),f.owner.registryAccess())),"enhanced stream preserves exact server item/NBT and cleans screen");
         }
         public void close(){
             if(closing)return;closing=true;
@@ -199,7 +221,7 @@ public final class TikTokPlaybackChecks {
         Files.createDirectories(path);Files.write(path.resolve("original.mp4"),new byte[]{1});
         int frames=20;
         var output=new java.io.ByteArrayOutputStream();var data=new java.io.DataOutputStream(output);
-        data.writeInt(0x544b5032);data.writeInt(frames);data.writeInt(TikTokMedia.FPS);data.writeInt(TikTokMedia.WIDTH);data.writeInt(TikTokMedia.HEIGHT);data.writeInt(TikTokMedia.RATE);data.writeInt(TikTokMedia.BANDS);
+        data.writeInt(0x544b5033);data.writeInt(frames);data.writeInt(TikTokMedia.FPS);data.writeInt(TikTokMedia.WIDTH);data.writeInt(TikTokMedia.HEIGHT);data.writeInt(TikTokMedia.RATE);data.writeInt(TikTokMedia.BANDS);
         var indices=ByteBuffer.allocate(frames*8);var random=new Random(43+seed);
         for(int i=0;i<frames;i++){
             indices.putLong(output.size());byte[] pixels=new byte[TikTokMedia.PIXELS];
