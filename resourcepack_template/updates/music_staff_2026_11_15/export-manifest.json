@@ -1,0 +1,13 @@
+{
+  "files": {
+    "assets/lbc/items/music_staff/arrow.json": "208730d98345d3e2b07def14cacae5722826161f3ff200eb71d3dbf57f61a4bd",
+    "assets/lbc/items/music_staff/staff.json": "ea1ce13415d42ff3a028e4df06b1a76b503deabf9a8d4304dadd7275f82e62c5",
+    "assets/lbc/models/item/music_staff/arrow.json": "43cbef7f20d80b6f4b523c203f4e5b696400182b8f855144ce3a681131053439",
+    "assets/lbc/models/item/music_staff/staff.json": "9e965a71c65985d997b3a2f60d05aa5b57b47c37ce84b5fdcae38cf0c72d06a8",
+    "assets/skywars2/lang/en_us.json": "06ba7b48748b53737a14cc946c38abe381fdef69305b8c47b1d2c7e3f3adfcac",
+    "assets/skywars2/lang/ru_ru.json": "6b9fedb9f1b3950c8d87bef361d0b083fbea8118aa11969633d527c1211ca87e",
+    "assets/skywars2/sounds.json": "2cee17b98bdcef18deb4d8469ea3d5d382c0a39355d0885d2b729fdc5b3ef262",
+    "README_RU.txt": "2483c2650b4b840b42988782ac8f20f3f46f2618744b5d8e046f65ead8147ecd"
+  },
+  "authorResourcePackWritten": false
+}

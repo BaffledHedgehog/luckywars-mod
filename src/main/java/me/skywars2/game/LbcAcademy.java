@@ -51,6 +51,7 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        MUSIC("music_staff",LbcMusicStaff.ITEM,LbcMusicStaff.ACADEMY,"a","upgrade_condition_music_staff","upgrade_succesful_music_staff"),
         SAUVOJEN("sauvojen_wand",LbcWands.SAUVOJEN,LbcWands.ACADEMY_SAUVOJEN,"x","upgrade_condition_sauvojen_wand","upgrade_succesful_sauvojen_wand"),
         HEDGEHOG("baffledhedgehog",LbcHedgehogItems.WAND,LbcHedgehogItems.ACADEMY,"s","upgrade_condition_baffledhedgehog","upgrade_succesful_baffledhedgehog"),
         SHEEP("sheepwand",LbcSheep.ITEM,LbcSheep.ACADEMY_ITEM,"x","upgrade_condition_sheepwand","upgrade_succesful_sheepwand"),
@@ -276,6 +277,10 @@ public final class LbcAcademy {
                 upgraded.set(DataComponents.LORE,presentation.getOrDefault(DataComponents.LORE,ItemLore.EMPTY));
                 upgraded.set(DataComponents.ITEM_MODEL,presentation.get(DataComponents.ITEM_MODEL));
                 upgraded.set(DataComponents.ATTRIBUTE_MODIFIERS,presentation.get(DataComponents.ATTRIBUTE_MODIFIERS));
+            }else if(wand==Wand.MUSIC){
+                var presentation=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/academy_music_staff").getFirst();
+                upgraded.set(DataComponents.LORE,presentation.getOrDefault(DataComponents.LORE,ItemLore.EMPTY));
+                upgraded.set(DataComponents.ITEM_MODEL,presentation.get(DataComponents.ITEM_MODEL));
             }else{
                 upgraded.set(DataComponents.LORE, stack.getOrDefault(DataComponents.LORE, ItemLore.EMPTY)
                         .withLineAdded(Component.translatable("upgraded_item").withStyle(style ->

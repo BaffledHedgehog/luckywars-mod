@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 final class CloneSimpleProjectileStates {
     private CloneSimpleProjectileStates() { }
     static boolean recognizes(Entity actor) {
-        return actor instanceof LbcAir.Charge
+        return actor instanceof LbcMusicStaff.Shot || actor instanceof LbcAir.Charge
                 || actor instanceof LbcBlind.Charge
                 || actor instanceof LbcRuby.Charge
                 || actor instanceof LbcStone.Charge
@@ -27,6 +27,10 @@ final class CloneSimpleProjectileStates {
     }
     static LbcCloneSkills.ActorImage capture(GameController game,Entity actor) {
         if(protectedActor(actor)) return null;
+        if(actor instanceof LbcMusicStaff.Shot source){
+            int damage=source.damage;var weapon=source.weapon.copy();
+            return image(clone->{var shot=(LbcMusicStaff.Shot)clone;shot.damage=damage;shot.weapon=weapon.copy();},clone->game.items().musicStaff().unloaded(clone));
+        }
         if(actor instanceof LbcAir.Charge source) {
             var age=source.age;
             var sourceLifetime=source.sourceLifetime;

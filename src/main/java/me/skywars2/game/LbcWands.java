@@ -540,6 +540,7 @@ public final class LbcWands {
     private record NativeUse(java.util.function.Predicate<ItemStack> matches,NativeAction action) {}
     private java.util.List<NativeUse> nativeUses(){
         return java.util.List.of(
+                new NativeUse(stack->LbcMusicStaff.matches(stack), (player,hand,stack)->game.items().musicStaff().use(player,hand)),
                 new NativeUse(stack->LbcDeus.matches(stack), (player,hand,stack)->game.items().deus().use(player,hand)),
                 new NativeUse(stack->LbcKitUtilities.matches(stack), (player,hand,stack)->LbcKitUtilities.use(game,player,hand)),
                 new NativeUse(stack->LbcSteampunkHook.matches(stack), (player,hand,stack)->game.items().steampunkHook().use(player,hand)),

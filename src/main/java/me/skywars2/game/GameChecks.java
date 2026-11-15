@@ -1038,6 +1038,7 @@ public final class GameChecks {
                                 case "tiktok-account" -> { TikTokAccountChecks.run(game); return; }
                                 case "tiktok-bulk-import" -> { TikTokBulkImportChecks.run(game); return; }
                                 case "tiktok-playback" -> { TikTokPlaybackChecks.run(game); return; }
+                                case "music-staff" -> { MusicStaffChecks.run(game); return; }
                                 case "zaika-passive" -> { ZaikaPassiveChecks.run(game); return; }
                                 case "expansion-skill" -> { ExpansionSkillChecks.start(game); return; }
                                 case "hakurei-skill" -> { HakureiSkillChecks.start(game); return; }
@@ -1937,6 +1938,7 @@ public final class GameChecks {
         TeslaTrafficChecks.tick(game);
         SmokeVolumeChecks.tick(game);
         TikTokPlaybackChecks.tick(game);
+        MusicStaffChecks.tick(game);
         TikTokBulkImportChecks.tick(game);
         SmokeEndingChecks.tick(game);
         PotionGroundImpactChecks.tick(game);PolymorphWandChecks.tick(game);

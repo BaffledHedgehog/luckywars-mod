@@ -1075,6 +1075,7 @@
     "lbc:ported/academy_hedgehog_wand",
     "lbc:ported/academy_ice_wand",
     "lbc:ported/academy_lightning_bolts_wand",
+    "lbc:ported/academy_music_staff",
     "lbc:ported/academy_neutral_wand",
     "lbc:ported/academy_omega_flag",
     "lbc:ported/academy_ruby_wand",
@@ -1612,6 +1613,7 @@
     "lbc:ported/multiply_4",
     "lbc:ported/multiply_5",
     "lbc:ported/muravei_spawn_egg",
+    "lbc:ported/music_staff",
     "lbc:ported/mystical_artifact",
     "lbc:ported/mystical_artifact_arrows",
     "lbc:ported/mystical_artifact_clear",
@@ -2633,6 +2635,12 @@
       "slot": "custom/03c95bf6e9e037ff05a5",
       "carrier": "minecraft:panda_spawn_egg",
       "generated": true
+    },
+    {
+      "table": "lbc:ported/academy_music_staff",
+      "slot": "custom/03eb96f51f39c70d227a",
+      "carrier": "skywars2:academy_music_staff",
+      "generated": false
     },
     {
       "table": "lbc:items/stick__0402194519",
@@ -7523,6 +7531,12 @@
       "slot": "custom/6a1c8e42ee652bcf5323",
       "carrier": "minecraft:bone",
       "generated": true
+    },
+    {
+      "table": "lbc:ported/music_staff",
+      "slot": "custom/6a32fa8d876572ef3fe9",
+      "carrier": "skywars2:music_staff",
+      "generated": false
     },
     {
       "table": "lbc:ported/exasperato_chaos_grimoire",
@@ -15899,6 +15913,7 @@
     "lbc:ported/academy_hedgehog_wand",
     "lbc:ported/academy_ice_wand",
     "lbc:ported/academy_lightning_bolts_wand",
+    "lbc:ported/academy_music_staff",
     "lbc:ported/academy_neutral_wand",
     "lbc:ported/academy_omega_flag",
     "lbc:ported/academy_ruby_wand",
@@ -16476,6 +16491,7 @@
     "lbc:ported/multiply_4",
     "lbc:ported/multiply_5",
     "lbc:ported/muravei_spawn_egg",
+    "lbc:ported/music_staff",
     "lbc:ported/mystical_artifact",
     "lbc:ported/mystical_artifact_arrows",
     "lbc:ported/mystical_artifact_clear",
@@ -17005,5 +17021,5 @@
     "lbc:white_arrow",
     "lbc:wtf_item"
   ],
-  "all_item_manifest_sha256": "d76e3ec5b3041f760b78fd89ec695218995fdf7ebad1caff28f1a9dbd229cb7b"
+  "all_item_manifest_sha256": "0dfe3acae464b301b53b039abdc67b503a19138b31483632222d8a72a742ce86"
 }

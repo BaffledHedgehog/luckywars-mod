@@ -1,0 +1,10 @@
+{
+  "music_staff": {
+    "sounds": [
+      {
+        "name": "minecraft:music_disc.cat",
+        "type": "event"
+      }
+    ]
+  }
+}

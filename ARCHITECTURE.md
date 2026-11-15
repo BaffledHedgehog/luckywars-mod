@@ -1,3 +1,9 @@
+## Held-music staff and native custom-model arrows
+
+`LbcMusicStaff` owns one server-wide sound session and per-holder, per-stack continuous Academy study (1040 ticks). Both hands participate independently of casting; loss, death and reset stop the appropriate session. Native `Arrow` physics and collision retain physical ownership, WILD damage provenance, enchantments and shields. `FixedArrowDamage` replaces only the native speed multiplier/base hit for opted-in arrows; `ProjectileModel` attaches the authored model through Polymer tracking. Cloning captures the arrow's damage and launch weapon without duplicating flight logic.
+
+Canonical presentation is `lbc:ported/music_staff` / `lbc:ported/academy_music_staff`; the loli lucky table adds one weighted branch. Assets, translations and a replaceable Cat sound alias are in `resourcepack_template/updates/music_staff_2026_11_15`. The author's resource pack is not written. Cast defaults are 52 mana, 10 ticks cooldown and MAG suppression; held music is independent of these checks.
+
 ## Bot progress with full inventories and melee edge safety
 
 `LbcBotToolCrafting` treats a full inventory as a temporary lack of output capacity, allowing movement and combat to continue. The ordinary five-tick crafting admission retries when space becomes available; items are neither deleted nor created to unblock the bot. `LbcBotDefense` gives supported inland footing more weight during short melee cooldown retreats. Urgent long escapes retain their existing distance priority, and movement still uses the bounded camera and native input/physics path.

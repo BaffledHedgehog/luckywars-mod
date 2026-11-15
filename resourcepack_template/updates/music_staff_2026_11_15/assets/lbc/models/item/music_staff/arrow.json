@@ -1,0 +1,90 @@
+{
+  "textures": {
+    "arrow": "minecraft:entity/projectiles/arrow"
+  },
+  "elements": [
+    {
+      "from": [
+        6,
+        8,
+        0
+      ],
+      "to": [
+        10,
+        8,
+        16
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ],
+          "texture": "#arrow"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ],
+          "texture": "#arrow"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        6,
+        0
+      ],
+      "to": [
+        8,
+        10,
+        16
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ],
+          "texture": "#arrow"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            5
+          ],
+          "texture": "#arrow"
+        }
+      }
+    }
+  ],
+  "display": {
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    }
+  }
+}

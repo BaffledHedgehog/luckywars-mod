@@ -464,6 +464,7 @@ final class LbcTmtCatalog {
     private static Map<String,Rule> rules(){
         // Ordered by actual event owners; selectors remain inside these complete payloads.
         var result=new LinkedHashMap<String,Rule>();
+        result.put("music_staff",new Rule("music_staff","LbcMusicStaff",Set.of(Event.USE,Event.HELD),Set.of(Location.USED_HAND)));
         // Legacy TMT rolls these achievement labels; neither flag converts its carrier to a trident.
         flags(result,"Native player_killed_entity/lbc:true_advancements/tridents/harpoon",Event.KILL,Location.MAIN_HAND,"harpoon");
         flags(result,"Native using_item/lbc:true_advancements/tridents/sea_legend",Event.USING,Location.USED_HAND,"sea_legend");
