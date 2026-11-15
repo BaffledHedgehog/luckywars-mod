@@ -44,17 +44,18 @@ public final class NetworkTransportChecks {
         var channel = new EmbeddedChannel();
         try {
             Connection.configureSerialization(channel.pipeline(), PacketFlow.SERVERBOUND, false, null);
-            var installed = channel.pipeline().get(ServerNetworkTransport.HANDLER);
-            require(installed != null && channel.pipeline().names().indexOf(ServerNetworkTransport.HANDLER)
-                < channel.pipeline().names().indexOf("prepender"), "remote hook precedes native frame encoding: " + channel.pipeline().names());
-            ServerNetworkTransport.configure(channel.pipeline(), PacketFlow.SERVERBOUND, false);
-            require(channel.pipeline().get(ServerNetworkTransport.HANDLER) == installed, "idempotent, per-channel handler");
-            if (!optimized) channel.pipeline().remove(ServerNetworkTransport.HANDLER);
+            require(channel.pipeline().get(ServerNetworkTransport.HANDLER)==null,"initial negotiation must flush immediately");
             connection.configurePacketHandler(channel.pipeline());
             // EmbeddedChannel is already active before these native handlers are attached.
             connection.channelActive(channel.pipeline().context(connection));
             require(connection.isConnected() && channel.isActive(), "active native test connection");
             connection.setupOutboundProtocol(GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(player.registryAccess())));
+            var installed = channel.pipeline().get(ServerNetworkTransport.HANDLER);
+            require(installed != null && channel.pipeline().names().indexOf(ServerNetworkTransport.HANDLER)
+                < channel.pipeline().names().indexOf("prepender"), "PLAY hook precedes native frame encoding: " + channel.pipeline().names());
+            ServerNetworkTransport.configure(channel.pipeline(), PacketFlow.SERVERBOUND, false,ConnectionProtocol.PLAY);
+            require(channel.pipeline().get(ServerNetworkTransport.HANDLER) == installed, "idempotent, per-channel handler");
+            if (!optimized) channel.pipeline().remove(ServerNetworkTransport.HANDLER);
             connection.setupCompression(compression, true);
             if (encrypted) connection.setEncryptionKey(
                 net.minecraft.util.Crypt.getCipher(javax.crypto.Cipher.DECRYPT_MODE, new javax.crypto.spec.SecretKeySpec(new byte[16], "AES")),
@@ -119,13 +120,17 @@ public final class NetworkTransportChecks {
             var channel = new EmbeddedChannel();
             try {
                 Connection.configureSerialization(channel.pipeline(), receiving, local, null);
-                require((channel.pipeline().get(ServerNetworkTransport.HANDLER) != null) == (!local && receiving == PacketFlow.SERVERBOUND), "only remote server transports");
+                require(channel.pipeline().get(ServerNetworkTransport.HANDLER)==null,"initial protocol never coalesces");
+                for(var protocol:ConnectionProtocol.values()){
+                    ServerNetworkTransport.configure(channel.pipeline(),receiving,local,protocol);
+                    require((channel.pipeline().get(ServerNetworkTransport.HANDLER)!=null)==(!local&&receiving==PacketFlow.SERVERBOUND&&protocol==ConnectionProtocol.PLAY),"only remote server PLAY transports: "+protocol);
+                }
             } finally { channel.finishAndReleaseAll(); }
         }
         for (String boundary : List.of("idle", "read", "limit", "remove", "close", "backpressure", "exception")) {
             var counter = new Counter(); var channel = new EmbeddedChannel();
             try {
-                ServerNetworkTransport.configure(channel.pipeline(), PacketFlow.SERVERBOUND, false);
+                ServerNetworkTransport.configure(channel.pipeline(), PacketFlow.SERVERBOUND, false,ConnectionProtocol.PLAY);
                 // The observation handler must be downstream of the flush consolidator.
                 channel.pipeline().addFirst("counter", counter);
                 int size = boundary.equals("limit") ? 257 : 7;
@@ -157,6 +162,56 @@ public final class NetworkTransportChecks {
                 require(channel.readOutbound() == null, "no duplicate bytes at " + boundary);
             } finally { channel.finishAndReleaseAll(); }
         }
+    }
+
+    /** Real native LOGIN codecs and SetCompression write-completion ordering. */
+    private static void loginCompression() {
+        for(boolean oldBoundary:new boolean[]{true,false}){
+            var connection=new Connection(PacketFlow.SERVERBOUND);var server=new EmbeddedChannel();
+            byte[] wire;
+            try{
+                Connection.configureSerialization(server.pipeline(),PacketFlow.SERVERBOUND,false,null);
+                connection.configurePacketHandler(server.pipeline());connection.channelActive(server.pipeline().context(connection));
+                connection.setupOutboundProtocol(net.minecraft.network.protocol.login.LoginProtocols.CLIENTBOUND);
+                require(server.pipeline().get(ServerNetworkTransport.HANDLER)==null,"LOGIN protocol keeps immediate flush semantics");
+                // Negative control reinstalls the exact old optimization. It must
+                // reproduce the user's invalid zlib stream, not merely differ.
+                if(oldBoundary)server.pipeline().addFirst(ServerNetworkTransport.HANDLER,new io.netty.handler.flush.FlushConsolidationHandler(256,true));
+                burst(server,()->{
+                    connection.send(new net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket(256),
+                        PacketSendListener.thenRun(()->connection.setupCompression(256,true)));
+                    connection.send(new net.minecraft.network.protocol.login.ClientboundHelloPacket("",new byte[4096],new byte[4],false));
+                    connection.send(new net.minecraft.network.protocol.login.ClientboundLoginFinishedPacket(
+                        new com.mojang.authlib.GameProfile(new UUID(1,2),"TransportProbe"),new UUID(3,4)));
+                });
+                server.checkException();var collected=new ByteArrayOutputStream();ByteBuf data;
+                while((data=server.readOutbound())!=null){try{byte[] bytes=new byte[data.readableBytes()];data.readBytes(bytes);collected.writeBytes(bytes);}finally{data.release();}}
+                wire=collected.toByteArray();
+            }catch(Exception failure){throw new IllegalStateException("LOGIN wire production",failure);}
+            finally{server.finishAndReleaseAll();}
+            var decoded=new ArrayList<Packet<?>>();var client=new EmbeddedChannel();boolean invalid=false;
+            try{
+                client.pipeline().addLast("splitter",new Varint21FrameDecoder(null));
+                client.pipeline().addLast("login",new ChannelInboundHandlerAdapter(){
+                    @Override public void channelRead(ChannelHandlerContext ctx,Object message){
+                        var buffer=(ByteBuf)message;
+                        try{
+                            var packet=net.minecraft.network.protocol.login.LoginProtocols.CLIENTBOUND.codec().decode(buffer);
+                            require(!buffer.isReadable(),"complete native LOGIN payload");decoded.add(packet);
+                            if(packet instanceof net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket compression)
+                                ctx.pipeline().addBefore("login","decompress",new CompressionDecoder(compression.getCompressionThreshold(),false));
+                        }finally{buffer.release();}
+                    }
+                });
+                client.writeInbound(Unpooled.wrappedBuffer(wire));client.checkException();
+            }catch(Exception failure){
+                for(Throwable cause=failure;cause!=null;cause=cause.getCause())if(cause instanceof java.util.zip.DataFormatException)invalid=true;
+                if(!oldBoundary||!invalid)throw new IllegalStateException("LOGIN native client decode",failure);
+            }finally{client.finishAndReleaseAll();}
+            if(oldBoundary)require(invalid,"old deferred LOGIN flush must reproduce invalid compression");
+            else require(!invalid&&decoded.size()==3&&decoded.getLast() instanceof net.minecraft.network.protocol.login.ClientboundLoginFinishedPacket,"native compressed LOGIN succeeds through LoginFinished");
+        }
+        SkyWars2.LOGGER.info("[check] native-login-wire PASS: original flush race reproduces DataFormatException; fixed SetCompression plus large/small LOGIN payloads decode");
     }
 
     private static void rayTraffic(GameController game) {
@@ -215,13 +270,13 @@ public final class NetworkTransportChecks {
     }
 
     public static void run(GameController game) {
-        boundaries();
+        boundaries();loginCompression();
         var player = Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
         List<Packet<?>> packets = new ArrayList<>();
         for (int i = 0; i < 300; i++) packets.add(new ClientboundSystemChatPacket(Component.literal("native-packet-" + i + "-" + "payload".repeat(i % 4 == 0 ? 100 : 1)), false));
         packets.add(new ClientboundBundlePacket(List.of(new ClientboundSystemChatPacket(Component.literal("bundle-a"), false), new ClientboundSystemChatPacket(Component.literal("bundle-b"), false))));
         for (int threshold : new int[]{-1, 256}) for (boolean encrypted : new boolean[]{false, true}) compare(player, packets, threshold, encrypted);
         rayTraffic(game);
-        SkyWars2.LOGGER.info("[check] PASS network-transport (native PLAY protocol, compression/encryption/bundles, byte-exact order, idle/read/limit/close/backpressure/removal/exception)");
+        SkyWars2.LOGGER.info("[check] PASS network-transport (native LOGIN compression transition with negative control; PLAY compression/encryption/bundles, byte-exact order, idle/read/limit/close/backpressure/removal/exception)");
     }
 }

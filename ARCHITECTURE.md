@@ -3167,8 +3167,14 @@ Respawn island capture reads resident chunks directly and shares immutable state
 
 ### Network transport and native particle traffic (14 November 2026)
 
-Remote server Connection serialization installs ServerNetworkTransport's per-channel
-Netty FlushConsolidationHandler(256,true) before framing/encryption. It coalesces
+Remote server PLAY connections install ServerNetworkTransport's per-channel
+Netty FlushConsolidationHandler(256,true) before framing/encryption. LOGIN and
+CONFIGURATION keep immediate flush semantics: SetCompression changes the codec
+from its write-completion callback, so deferring that flush can encode the next
+LOGIN packet with the wrong compression format. Protocol switches drain/remove
+the handler before rebinding. Native wire tests reproduce the original zlib
+failure as a negative control and decode both large/small LOGIN packets after
+the fix. It coalesces
 flush requests within an event-loop turn and drains on read completion, the 256
 request bound, backpressure, close, removal or exception. Local/client-side
 pipelines are excluded. Packet contents, ordering, protocol transitions and native
