@@ -19,7 +19,8 @@ public final class FeedbackPatchChecks {
             for(int mode=0;mode<4;mode++){
                 game.configureLobbySetting(f.owner,"healthDisplay",Integer.toString(mode));
                 require((board.getDisplayObjective(DisplaySlot.BELOW_NAME)!=null)==((mode&1)!=0),"below-name setting "+mode);
-                require((board.getDisplayObjective(DisplaySlot.LIST)!=null)==((mode&2)!=0),"TAB setting "+mode);
+                require(board.getDisplayObjective(DisplaySlot.LIST).getName().equals(PlayerLatency.TAB_OBJECTIVE),"TAB ping remains in the native right-hand column "+mode);
+                require((PlayerLatency.tabHealth(f.owner)>=0)==((mode&2)!=0),"TAB health setting "+mode);
             }
             for(int mode=0;mode<7;mode++){
                 game.configureLobbySetting(f.owner,"imbaDropChance",Integer.toString(mode));

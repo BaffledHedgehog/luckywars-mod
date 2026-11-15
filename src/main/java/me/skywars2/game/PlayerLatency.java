@@ -11,14 +11,21 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.numbers.FixedFormat;
+import net.minecraft.network.chat.numbers.NumberFormat;
+import net.minecraft.network.chat.numbers.StyledFormat;
 import net.minecraft.network.protocol.common.ClientboundPingPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
 /** Small vanilla Ping/Pong probes. Arrival is measured on the network thread, publication on the server thread. */
 public final class PlayerLatency {
+    static final String TAB_OBJECTIVE="skywars2.ping";
     private static final long INTERVAL=5_000_000_000L,STALE=15_000_000_000L;
     private static final AtomicInteger NONCE=new AtomicInteger(-1);
     private static final ConcurrentHashMap<ServerGamePacketListenerImpl,Sample> SAMPLES=new ConcurrentHashMap<>();
@@ -30,6 +37,7 @@ public final class PlayerLatency {
         volatile Reading reading;
         long lastSent;
         int published=Integer.MIN_VALUE;
+        int publishedHealth=Integer.MIN_VALUE;
     }
     private PlayerLatency(){}
     private static boolean realClient(ServerPlayer player){return !player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake");}
@@ -55,23 +63,30 @@ public final class PlayerLatency {
         return reading==null||System.nanoTime()-reading.received()>STALE?-1:reading.millis();
     }
     static String label(ServerPlayer player){int value=millis(player.connection);return (value<0?"\u2014":Integer.toString(value))+" ms";}
+    static int tabHealth(ServerPlayer player){var game=me.skywars2.SkyWars2.game();return game!=null&&(game.config().healthDisplay&2)!=0?(int)Math.ceil(player.getHealth()+player.getAbsorptionAmount()):-1;}
     public static Component displayName(ServerPlayer player,Component original){
-        return original.copy().append(Component.literal(" ["+label(player)+"]").withStyle(ChatFormatting.GRAY));
+        int health=tabHealth(player);return health<0?original:original.copy().append(Component.literal(" \u2665 "+health).withStyle(ChatFormatting.RED));
     }
+    static Objective tabObjective(MinecraftServer server){var board=server.getScoreboard();var objective=board.getObjective(TAB_OBJECTIVE);return objective!=null?objective:board.addObjective(TAB_OBJECTIVE,ObjectiveCriteria.DUMMY,Component.literal("Ping"),ObjectiveCriteria.RenderType.INTEGER,false,format(1));}
+    static NumberFormat format(int value){return value<0?new FixedFormat(Component.literal("\u2014").withStyle(ChatFormatting.GRAY)):new StyledFormat(Style.EMPTY.withColor(value<150?ChatFormatting.GREEN:value<300?ChatFormatting.YELLOW:ChatFormatting.RED));}
+    private static int colorBand(int value){return value<0?0:value<150?1:value<300?2:3;}
     public static void tick(MinecraftServer server){
         if(owner!=server){SAMPLES.clear();owner=server;}
         SAMPLES.keySet().removeIf(listener->listener.player.connection!=listener||server.getPlayerList().getPlayer(listener.player.getUUID())!=listener.player);
-        long now=System.nanoTime();var changed=new ArrayList<ServerPlayer>();
+        long now=System.nanoTime();var changed=new ArrayList<ServerPlayer>();var names=new ArrayList<ServerPlayer>();var objective=tabObjective(server);var board=server.getScoreboard();
         for(var player:server.getPlayerList().getPlayers()){
-            var listener=player.connection;if(listener==null||!realClient(player)||!listener.hasClientLoaded())continue;
+            var listener=player.connection;if(listener==null||!listener.hasClientLoaded())continue;
             var sample=SAMPLES.computeIfAbsent(listener,key->new Sample());
-            if(sample.lastSent==0||now-sample.lastSent>=INTERVAL)request(listener);
-            int value=millis(listener);if(sample.published!=value){sample.published=value;changed.add(player);}
+            if(realClient(player)&&(sample.lastSent==0||now-sample.lastSent>=INTERVAL))request(listener);
+            int value=millis(listener);boolean missing=board.getPlayerScoreInfo(player,objective)==null;
+            if(sample.published!=value||missing){var score=board.getOrCreatePlayerScore(player,objective);if(missing||sample.published==Integer.MIN_VALUE||colorBand(sample.published)!=colorBand(value))score.numberFormatOverride(format(value));score.set(value);sample.published=value;changed.add(player);}
+            int health=tabHealth(player);if(sample.publishedHealth!=health){sample.publishedHealth=health;names.add(player);}
         }
         if(!changed.isEmpty())server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(
-                EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),changed));
+                EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY),changed));
+        if(!names.isEmpty())server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),names));
     }
-    public static void forget(ServerPlayer player){SAMPLES.keySet().removeIf(listener->listener.player==player);}
+    public static void forget(ServerPlayer player){SAMPLES.keySet().removeIf(listener->listener.player==player);var board=player.level().getServer().getScoreboard();var objective=board.getObjective(TAB_OBJECTIVE);if(objective!=null)board.resetSinglePlayerScore(player,objective);}
     public static void stop(){SAMPLES.clear();owner=null;}
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
         var node=SkyWarsCommandTree.add(dispatcher,Commands.literal("ping")

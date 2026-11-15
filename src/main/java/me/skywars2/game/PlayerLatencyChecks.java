@@ -6,6 +6,7 @@ import me.skywars2.SkyWars2;
 import net.minecraft.network.protocol.common.ClientboundPingPacket;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundSetScorePacket;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.server.permissions.PermissionSet;
 
@@ -22,7 +23,9 @@ final class PlayerLatencyChecks {
         int latest(RegenerationBeltChecks.ScheduledClient client){return client.packets().stream().filter(ClientboundPingPacket.class::isInstance).map(ClientboundPingPacket.class::cast).filter(p->p.getId()<0).reduce((a,b)->b).orElseThrow().getId();}
         void setup(){
             f.prepareParticipants();commands();chat=f.owner.getDisplayName().getString();
-            require(PlayerLatency.millis(f.owner.connection)<0&&f.owner.getTabListDisplayName().getString().equals(chat+" [\u2014 ms]"),"new connection shows unknown, never fabricated0ms; chat name is unchanged");
+            require(PlayerLatency.millis(f.owner.connection)<0&&f.owner.getTabListDisplayName().getString().equals(PlayerLatency.displayName(f.owner,f.owner.getDisplayName()).getString())&&!f.owner.getTabListDisplayName().getString().contains(" ms]"),"TAB names contain no bracketed ping; new connection has no fabricated0ms");
+            require(game.server().getScoreboard().getDisplayObjective(net.minecraft.world.scores.DisplaySlot.LIST).getName().equals(PlayerLatency.TAB_OBJECTIVE),"native numeric column immediately before the ping icon");
+            require(PlayerLatency.format(-1).format(-1).getString().equals("\u2014"),"unknown ping is a dash, not zero");
             f.client.packets().clear();sent=System.nanoTime();PlayerLatency.request(f.owner.connection);id=latest(f.client);at=game.server().getTickCount();
             f.owner.connection.handlePong(new ServerboundPongPacket(id-50));require(PlayerLatency.millis(f.owner.connection)<0,"unmatched Pong cannot supply a reading");
         }
@@ -54,9 +57,13 @@ final class PlayerLatencyChecks {
             }
             if(stage==2){
                 boolean published=f.audience.packets().stream().filter(ClientboundPlayerInfoUpdatePacket.class::isInstance).map(ClientboundPlayerInfoUpdatePacket.class::cast)
-                        .filter(p->p.actions().containsAll(java.util.EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY,ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME)))
-                        .flatMap(p->p.entries().stream()).anyMatch(e->e.profileId().equals(f.owner.getUUID())&&e.latency()==measured&&e.displayName()!=null&&e.displayName().getString().equals(chat+" ["+measured+" ms]"));
-                require(published&&f.owner.getDisplayName().getString().equals(chat),"actual native PlayerInfo contains measured number and both wire actions; chat cosmetic name unchanged");
+                        .filter(p->p.actions().contains(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY))
+                        .flatMap(p->p.entries().stream()).anyMatch(e->e.profileId().equals(f.owner.getUUID())&&e.latency()==measured);
+                boolean column=f.audience.packets().stream().filter(ClientboundSetScorePacket.class::isInstance).map(ClientboundSetScorePacket.class::cast).anyMatch(p->p.owner().equals(f.owner.getScoreboardName())&&p.objectiveName().equals(PlayerLatency.TAB_OBJECTIVE)&&p.score()==measured&&p.numberFormat().orElseThrow().format(measured).getString().equals(Integer.toString(measured)));
+                require(published&&column&&f.owner.getDisplayName().getString().equals(chat),"real PlayerInfo icon latency and right-aligned score both use measured RTT; chat name unchanged");
+                var board=game.server().getScoreboard();var objective=PlayerLatency.tabObjective(game.server());var before=board.getPlayerScoreInfo(f.owner,objective).value();
+                f.audience.packets().clear();PlayerLatency.tick(game.server());require(f.audience.packets().stream().noneMatch(p->p instanceof ClientboundSetScorePacket||p instanceof ClientboundPlayerInfoUpdatePacket),"unchanged latency and health produce no extra TAB traffic");
+                if(PlayerLatency.tabHealth(f.owner)>=0){float hp=f.owner.getHealth();f.owner.setHealth(Math.max(1,hp-1));PlayerLatency.tick(game.server());require(f.owner.getTabListDisplayName().getString().equals(chat+" \u2665 "+PlayerLatency.tabHealth(f.owner))&&board.getPlayerScoreInfo(f.owner,objective).value()==before,"health changes update only HP beside name, never replace ping column");f.owner.setHealth(hp);}
                 PlayerLatency.request(f.client.listener);obsolete=latest(f.client);f.client.close();replacement=new RegenerationBeltChecks.ScheduledClient(game,f.owner);
                 require(PlayerLatency.millis(f.owner.connection)<0,"reconnection never inherits a stale sample");
                 PlayerLatency.tick(game.server());id=latest(replacement);f.client.listener.handlePong(new ServerboundPongPacket(obsolete));
@@ -68,5 +75,5 @@ final class PlayerLatencyChecks {
         @Override public void close(){if(closed)return;closed=true;try{if(reply!=null)reply.join();}finally{try{PlayerLatency.forget(f.owner);if(replacement!=null)replacement.close();}finally{f.close();}}}
     }
     static void run(GameController game){require(running==null,"exclusive native scene");running=new Scene(game);try{running.setup();}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;throw error;}}
-    static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS player-latency (actual delayed network-thread Ping/Pong RTT, native latency and TAB wire values, unknown/reconnected/duplicate/late responses, public TPS/Ping and permission-preserving bulk spawn aliases)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL player-latency",error);}}
+    static void tick(GameController game){if(running==null)return;try{if(!running.step())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS player-latency (real delayed network-thread RTT and native right-aligned TAB score packets, HP beside name, no unchanged-state traffic, unknown/reconnected/duplicate/late responses, public TPS/Ping and bulk spawn permissions)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL player-latency",error);}}
 }

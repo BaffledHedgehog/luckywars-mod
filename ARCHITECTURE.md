@@ -1,3 +1,7 @@
+## Native TAB ping column
+
+`PlayerLatency` publishes measured RTT to an integer LIST objective (`skywars2.ping`), which vanilla renders right-aligned immediately before its connection bars. The old gray name suffix is removed. Unknown readings use a dash; live values use green below150ms, yellow below300ms and red thereafter. Native latency packets keep the bars consistent with the numeric sample. Only changed readings publish score/latency updates; only changed health or health visibility republishes names. The existing `healthDisplay` TAB bit retains HP as a red heart and number beside the cosmetic name, while overhead HP remains native. Tournament standings keep their existing lobby LIST priority. Vanilla omits LIST scores for spectators. No resource pack or client mod is required.
+
 ## Optional synchronized ranked loot order
 
 `SynchroRanked` latches the independent `synchroRanked` setting at match start. One match seed plus canonical table ID and per-recipient ordinal derive a local native RNG; nested tables reuse their parent's context. Both native item generation and container slot splitting use that RNG. No emitted stack history is retained. UUID cursors survive death/reconnect, clear at the lobby boundary and participate in the core rollback snapshot. Forced starter-chest generation uses virtual island recipients; central/unattributed world loot has its own cursor. Ranked's ten original score conditions are unchanged.
