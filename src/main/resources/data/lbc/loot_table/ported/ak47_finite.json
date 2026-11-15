@@ -47,7 +47,21 @@
                   "translate": "ak47lore.1",
                   "italic": false,
                   "color": "white"
-                }
+                },
+                [
+                  {
+                    "text": "morgenshtern ",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": "Beta Server Harem event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
               ],
               "type": "minecraft:set_lore"
             },

@@ -31489,7 +31489,19 @@
         "translate": "moisei_boots.lore",
         "italic": false,
         "color": "aqua"
-      }
+      },
+      [
+        {
+          "text": "Nightmare_23",
+          "color": "green",
+          "italic": false
+        },
+        {
+          "text": " Baffled Lifestory Event",
+          "color": "dark_gray",
+          "italic": false
+        }
+      ]
     ]
   },
   "killer_shovel": {

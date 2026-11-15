@@ -72,7 +72,9 @@ public final class MoiseiBootsChecks {
             require(Identifier.parse("lbc:armors/moisei_boots").equals(boots.get(DataComponents.ITEM_MODEL))&&Identifier.parse("lbc:tier_ss").equals(boots.get(DataComponents.TOOLTIP_STYLE)),"source exact item model/tier");
             var equipment=boots.get(DataComponents.EQUIPPABLE);require(equipment!=null&&equipment.slot()==EquipmentSlot.FEET&&equipment.assetId().orElseThrow().identifier().equals(Identifier.parse("lbc:moisei")),"source equipment asset");
             var attrs=boots.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers();require(attrs.size()==1&&attrs.getFirst().attribute().equals(Attributes.ARMOR)&&attrs.getFirst().modifier().amount()==2&&attrs.getFirst().modifier().id().equals(Identifier.parse("minecraft:gehrththc55yyyyyharmor")),"source only armor2 native component");
-            require(boots.get(DataComponents.LORE).lines().size()==2&&boots.get(DataComponents.CUSTOM_NAME).getStyle().getColor().getValue()==0x632f19,"source name color/two lore rows");
+            require(boots.get(DataComponents.LORE).lines().size()==3&&boots.get(DataComponents.CUSTOM_NAME).getStyle().getColor().getValue()==0x632f19,"source name color and restored event credit row");
+            var credit=boots.get(DataComponents.LORE).lines().get(2);
+            require(credit.getString().equals("Nightmare_23 Baffled Lifestory Event")&&credit.getStyle().getColor().getValue()==0x55FF55&&credit.getSiblings().stream().anyMatch(c->c.getString().equals(" Baffled Lifestory Event")&&c.getStyle().getColor().getValue()==0x555555),"original green requester and dark-gray event text");
         }
         @SuppressWarnings("unchecked") <T>T weighted(Supplier<T> action){
             var table=game.server().reloadableRegistries().getLootTable(net.minecraft.resources.ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:transformables_boots_all")));
@@ -90,10 +92,21 @@ public final class MoiseiBootsChecks {
                 try{T value=action.get();require(calls[0]==1,"one native boots-all weighted selection without retries");return value;}finally{random.set(owner.level(),original);}
             }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
         }
+        <T>T uniform(Supplier<T> action){
+            var slots=game.items().allItemPools().slots(LbcAllItemPools.Domain.CUSTOM,List.of("boots_all"));
+            int selected=slots.indexOf("custom/da0f84fd7fb613a8ca8d");require(selected>=0,"Moisei logical identity in current uniform ULTRA boots pool");
+            var random=field(owner.level(),"random");Object original;
+            try{original=random.get(owner.level());int[] calls={0};
+                random.set(owner.level(),Proxy.newProxyInstance(net.minecraft.util.RandomSource.class.getClassLoader(),new Class<?>[]{net.minecraft.util.RandomSource.class},(proxy,method,args)->{
+                    if(method.getName().equals("nextInt")&&args!=null&&args.length==1&&args[0].equals(slots.size())){calls[0]++;return selected;}
+                    try{return method.invoke(original,args);}catch(InvocationTargetException error){throw error.getCause();}}));
+                try{T value=action.get();require(calls[0]==1,"one current uniform ULTRA boots draw without retries");return value;}finally{random.set(owner.level(),original);}
+            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+        }
         void acquisition(){
             var rolled=weighted(()->loot("lbc:transformables_boots_all"));require(ItemStack.matches(rolled,boots),"actual original boots-all source table produces exact native item");
             var donor=new ItemEntity(owner.level(),at.x,at.y,at.z,boots.copy());donor.setNoGravity(true);require(owner.level().addFreshEntity(donor),"actual ULTRA donor resident");
-            var outputs=new ArrayList<ItemStack>();try{weighted(()->{try{var method=LbcBolts.class.getDeclaredMethod("reforgeInput",ItemEntity.class,LbcBolts.ReforgeFamily.class,int.class,ServerPlayer.class,java.util.function.Consumer.class);method.setAccessible(true);
+            var outputs=new ArrayList<ItemStack>();try{uniform(()->{try{var method=LbcBolts.class.getDeclaredMethod("reforgeInput",ItemEntity.class,LbcBolts.ReforgeFamily.class,int.class,ServerPlayer.class,java.util.function.Consumer.class);method.setAccessible(true);
                 var work=(LbcStonekivi.Work)method.invoke(game.items().bolts(),donor,LbcBolts.ReforgeFamily.ULTRA,1,owner,(java.util.function.Consumer<ItemStack>)outputs::add);require(work!=null&&work.step(),"actual existing ULTRA work completes");return true;}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}});
                 require(donor.isRemoved()&&outputs.size()==1&&ItemStack.matches(outputs.getFirst(),boots),"ordinary existing ULTRA source route consumes donor and supplies original boots");
             }finally{donor.discard();}

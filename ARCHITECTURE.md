@@ -1,3 +1,7 @@
+## Original requester attribution
+
+Moisei Boots keep the original `Nightmare_23` / ` Baffled Lifestory Event` lore row, including its green/dark-gray styling. It existed in the inline 1.21.1 Loli reward but not the separate boots table; the later reference-only reward inherited that omission. The working `ported/moisei_boots` table and default authored presentation now retain it for every acquisition route. An audit of 26 original attribution rows also restored the AK-47 creator on its finite variant and the Crowbar creator on its separate Loli payload. Only credit rows change; names, gameplay components and existing lore remain intact. Generated uniform profiles are refreshed from these canonical definitions.
+
 ## Native TAB ping column
 
 `PlayerLatency` publishes measured RTT to an integer LIST objective (`skywars2.ping`), which vanilla renders right-aligned immediately before its connection bars. The old gray name suffix is removed. Unknown readings use a dash; live values use green below150ms, yellow below300ms and red thereafter. Native latency packets keep the bars consistent with the numeric sample. Only changed readings publish score/latency updates; only changed health or health visibility republishes names. Tournament standings keep their existing lobby LIST priority. Vanilla omits LIST scores for spectators.
