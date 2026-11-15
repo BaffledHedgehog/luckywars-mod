@@ -57,6 +57,15 @@ public final class LbcSourceConfig {
                 // Derived display prices cannot diverge from their actual charge cadence.
                 candidate.put(entry.getKey(),Math.multiplyExact(candidate.get(rule.get("source").getAsString()),rule.get("multiplier").getAsInt()));
             }
+            // New item prices must also be visible in an existing editable configuration.
+            boolean expanded=false;
+            for(var entry:defaults.getAsJsonObject("values").entrySet())if(!configured.has(entry.getKey())){configured.add(entry.getKey(),entry.getValue().deepCopy());expanded=true;}
+            if(expanded){
+                var temporary=FILE.resolveSibling(FILE.getFileName()+".writing");
+                Files.writeString(temporary,new GsonBuilder().setPrettyPrinting().create().toJson(document)+"\n",StandardCharsets.UTF_8);
+                try{Files.move(temporary,FILE,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}
+                catch(AtomicMoveNotSupportedException unsupported){Files.move(temporary,FILE,StandardCopyOption.REPLACE_EXISTING);}
+            }
             var board=server.getScoreboard();var objective=board.getObjective("lbc.math");
             if(objective==null)objective=board.addObjective("lbc.math",ObjectiveCriteria.DUMMY,Component.literal("lbc.math"),ObjectiveCriteria.RenderType.INTEGER,false,null);
             for(var entry:candidate.entrySet())board.getOrCreatePlayerScore(ScoreHolder.forNameOnly(entry.getKey()),objective).set(entry.getValue());

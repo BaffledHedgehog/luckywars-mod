@@ -2637,12 +2637,6 @@
       "generated": true
     },
     {
-      "table": "lbc:ported/academy_music_staff",
-      "slot": "custom/03eb96f51f39c70d227a",
-      "carrier": "skywars2:academy_music_staff",
-      "generated": false
-    },
-    {
       "table": "lbc:items/stick__0402194519",
       "slot": "custom/0402194519a8fcb2372a",
       "carrier": "minecraft:stick",
@@ -6129,6 +6123,12 @@
       "generated": true
     },
     {
+      "table": "lbc:ported/music_staff",
+      "slot": "custom/4c202f335a9d1ea620e1",
+      "carrier": "skywars2:music_staff",
+      "generated": false
+    },
+    {
       "table": "lbc:ported/legacy_ender_sword",
       "slot": "custom/4c29dff92b9e0354e20b",
       "carrier": "minecraft:netherite_sword",
@@ -7531,12 +7531,6 @@
       "slot": "custom/6a1c8e42ee652bcf5323",
       "carrier": "minecraft:bone",
       "generated": true
-    },
-    {
-      "table": "lbc:ported/music_staff",
-      "slot": "custom/6a32fa8d876572ef3fe9",
-      "carrier": "skywars2:music_staff",
-      "generated": false
     },
     {
       "table": "lbc:ported/exasperato_chaos_grimoire",
@@ -12699,6 +12693,12 @@
       "generated": true
     },
     {
+      "table": "lbc:ported/academy_music_staff",
+      "slot": "custom/de82e4a5f31287fe37e6",
+      "carrier": "skywars2:academy_music_staff",
+      "generated": false
+    },
+    {
       "table": "lbc:ported/false_grave",
       "slot": "custom/df05d148d95f73021db7",
       "carrier": "skywars2:false_grave",
@@ -17021,5 +17021,5 @@
     "lbc:white_arrow",
     "lbc:wtf_item"
   ],
-  "all_item_manifest_sha256": "0dfe3acae464b301b53b039abdc67b503a19138b31483632222d8a72a742ce86"
+  "all_item_manifest_sha256": "137fb234cd42a9fe4ad1b2930dd38b406a396d8ec348957e129c7da0f3c14b63"
 }

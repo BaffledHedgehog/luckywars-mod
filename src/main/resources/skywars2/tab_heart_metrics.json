@@ -1,0 +1,110 @@
+{
+  "glyphs": [
+    {
+      "char": "\ue000",
+      "advance": 10,
+      "texture": "assets/minecraft/textures/gui/sprites/hud/heart/container.png",
+      "sha256": "b92355b32f566dd5ec209dcf6f25ddd239fdf967a70af42308ef9607aab3b194",
+      "source": "native"
+    },
+    {
+      "char": "\ue001",
+      "advance": 9,
+      "texture": "assets/minecraft/textures/gui/sprites/hud/heart/full.png",
+      "sha256": "acb11da7611dc8239d4da2fe500cca2fe88a2c4facccf42fa7207c0e9dba4a16",
+      "source": "native"
+    },
+    {
+      "char": "\ue002",
+      "advance": 6,
+      "texture": "assets/minecraft/textures/gui/sprites/hud/heart/half.png",
+      "sha256": "98d1fca665a309879c19c06b0658ba5407520f13a02d4bf7321b060534491efc",
+      "source": "native"
+    },
+    {
+      "char": "\ue003",
+      "advance": 9,
+      "texture": "assets/minecraft/textures/gui/sprites/hud/heart/absorbing_full_blinking.png",
+      "sha256": "4afb2035139c659ff7ed2fbf16bb4c4cc12158c664e422cbb964d4c926f40844",
+      "source": "native"
+    },
+    {
+      "char": "\ue004",
+      "advance": 6,
+      "texture": "assets/minecraft/textures/gui/sprites/hud/heart/absorbing_half_blinking.png",
+      "sha256": "ab37c9a7b3ded346b5ab125a6a87045ff6b599a8e1f1796290aae344d8f6189b",
+      "source": "native"
+    }
+  ],
+  "numbers": [
+    {
+      "char": "0",
+      "glyph": "\ue100",
+      "advance": 6
+    },
+    {
+      "char": "1",
+      "glyph": "\ue101",
+      "advance": 6
+    },
+    {
+      "char": "2",
+      "glyph": "\ue102",
+      "advance": 6
+    },
+    {
+      "char": "3",
+      "glyph": "\ue103",
+      "advance": 6
+    },
+    {
+      "char": "4",
+      "glyph": "\ue104",
+      "advance": 6
+    },
+    {
+      "char": "5",
+      "glyph": "\ue105",
+      "advance": 6
+    },
+    {
+      "char": "6",
+      "glyph": "\ue106",
+      "advance": 6
+    },
+    {
+      "char": "7",
+      "glyph": "\ue107",
+      "advance": 6
+    },
+    {
+      "char": "8",
+      "glyph": "\ue108",
+      "advance": 6
+    },
+    {
+      "char": "9",
+      "glyph": "\ue109",
+      "advance": 6
+    },
+    {
+      "char": ".",
+      "glyph": "\ue10a",
+      "advance": 2
+    },
+    {
+      "char": "-",
+      "glyph": "\ue10b",
+      "advance": 6
+    }
+  ],
+  "numberCell": 6,
+  "numberTexture": {
+    "texture": "assets/minecraft/textures/font/ascii.png",
+    "sha256": "e8646f1ed1f4bfd597d262cca3d8fac88ceaaa62807bbd5e607b2e3fe41c928a",
+    "source": "native"
+  },
+  "ascent": 7,
+  "height": 9,
+  "nativeAdvance": "floor(actual rightmost alpha width * height / texture height + 0.5) + 1"
+}

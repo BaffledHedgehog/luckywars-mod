@@ -64,30 +64,29 @@ public final class PlayerLatency {
     }
     static String label(ServerPlayer player){int value=millis(player.connection);return (value<0?"\u2014":Integer.toString(value))+" ms";}
     static int tabHealth(ServerPlayer player){var game=me.skywars2.SkyWars2.game();return game!=null&&(game.config().healthDisplay&2)!=0?(int)Math.ceil(player.getHealth()+player.getAbsorptionAmount()):-1;}
-    public static Component displayName(ServerPlayer player,Component original){
-        int health=tabHealth(player);return health<0?original:original.copy().append(Component.literal(" \u2665 "+health).withStyle(ChatFormatting.RED));
-    }
     static Objective tabObjective(MinecraftServer server){var board=server.getScoreboard();var objective=board.getObjective(TAB_OBJECTIVE);return objective!=null?objective:board.addObjective(TAB_OBJECTIVE,ObjectiveCriteria.DUMMY,Component.literal("Ping"),ObjectiveCriteria.RenderType.INTEGER,false,format(1));}
     static NumberFormat format(int value){return value<0?new FixedFormat(Component.literal("\u2014").withStyle(ChatFormatting.GRAY)):new StyledFormat(Style.EMPTY.withColor(value<150?ChatFormatting.GREEN:value<300?ChatFormatting.YELLOW:ChatFormatting.RED));}
-    private static int colorBand(int value){return value<0?0:value<150?1:value<300?2:3;}
     public static void tick(MinecraftServer server){
         if(owner!=server){SAMPLES.clear();owner=server;}
         SAMPLES.keySet().removeIf(listener->listener.player.connection!=listener||server.getPlayerList().getPlayer(listener.player.getUUID())!=listener.player);
-        long now=System.nanoTime();var changed=new ArrayList<ServerPlayer>();var names=new ArrayList<ServerPlayer>();var objective=tabObjective(server);var board=server.getScoreboard();
+        long now=System.nanoTime();var changed=new ArrayList<ServerPlayer>();var objective=tabObjective(server);var board=server.getScoreboard();
         for(var player:server.getPlayerList().getPlayers()){
             var listener=player.connection;if(listener==null||!listener.hasClientLoaded())continue;
             var sample=SAMPLES.computeIfAbsent(listener,key->new Sample());
             if(realClient(player)&&(sample.lastSent==0||now-sample.lastSent>=INTERVAL))request(listener);
-            int value=millis(listener);boolean missing=board.getPlayerScoreInfo(player,objective)==null;
-            if(sample.published!=value||missing){var score=board.getOrCreatePlayerScore(player,objective);if(missing||sample.published==Integer.MIN_VALUE||colorBand(sample.published)!=colorBand(value))score.numberFormatOverride(format(value));score.set(value);sample.published=value;changed.add(player);}
-            int health=tabHealth(player);if(sample.publishedHealth!=health){sample.publishedHealth=health;names.add(player);}
+            int value=millis(listener),health=tabHealth(player);var previous=board.getPlayerScoreInfo(player,objective);
+            if(sample.published!=value||sample.publishedHealth!=health||previous==null||previous.value()!=value){
+                var score=board.getOrCreatePlayerScore(player,objective);if(previous==null||previous.value()!=value)score.set(value);
+                score.numberFormatOverride(health<0?format(value):new FixedFormat(TabPresentation.score(health,value)));sample.publishedHealth=health;
+            }
+            if(sample.published!=value){sample.published=value;changed.add(player);}
         }
         if(!changed.isEmpty())server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(
                 EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LATENCY),changed));
-        if(!names.isEmpty())server.getPlayerList().broadcastAll(new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_DISPLAY_NAME),names));
+        TabPresentation.tick(server);
     }
-    public static void forget(ServerPlayer player){SAMPLES.keySet().removeIf(listener->listener.player==player);var board=player.level().getServer().getScoreboard();var objective=board.getObjective(TAB_OBJECTIVE);if(objective!=null)board.resetSinglePlayerScore(player,objective);}
-    public static void stop(){SAMPLES.clear();owner=null;}
+    public static void forget(ServerPlayer player){SAMPLES.keySet().removeIf(listener->listener.player==player);TabPresentation.forget(player);var board=player.level().getServer().getScoreboard();var objective=board.getObjective(TAB_OBJECTIVE);if(objective!=null)board.resetSinglePlayerScore(player,objective);}
+    public static void stop(){SAMPLES.clear();owner=null;TabPresentation.stop();}
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
         var node=SkyWarsCommandTree.add(dispatcher,Commands.literal("ping")
                 .executes(context->report(context.getSource(),context.getSource().getPlayerOrException()))

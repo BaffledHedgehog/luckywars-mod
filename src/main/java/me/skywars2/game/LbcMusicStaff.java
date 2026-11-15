@@ -22,7 +22,8 @@ public final class LbcMusicStaff {
     public static final String FLAG="music_staff";
     public static final Identifier MUSIC=Identifier.parse("skywars2:music_staff");
     public static final Identifier ARROW_MODEL=Identifier.parse("lbc:music_staff/arrow");
-    static final int STUDY_TICKS=52*20,DEFAULT_MANA_COST=52,DEFAULT_COOLDOWN=10;
+    static final int STUDY_TICKS=52*20;
+    static final String BASE_MANA="music_staff_mana_use",ACADEMY_MANA="academy_music_staff_mana_use";
     public static final Item ITEM=item(false),ACADEMY=item(true);
     public static final EntityType<Shot> TYPE=type();
     private final GameController game;
@@ -92,16 +93,17 @@ public final class LbcMusicStaff {
                 ||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands||player.getCooldowns().isOnCooldown(stack))return false;
         var cell=net.minecraft.core.BlockPos.containing(player.getEyePosition());
         if(player.level().isOutsideBuildHeight(cell)||!player.level().hasChunkAt(cell))return false;
-        int cost=Math.max(0,ItemData.intValue(stack,"mana_cost",DEFAULT_MANA_COST));
+        boolean improved=upgraded(stack);
+        int cost=Math.max(0,game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly(improved?ACADEMY_MANA:BASE_MANA),"lbc.math").get());
         if(!game.items().mana().trySpendWand(player,cost))return false;
-        boolean improved=upgraded(stack);int count=improved&&player.getRandom().nextInt(100)<52?2:1;
+        int count=improved&&player.getRandom().nextInt(100)<52?2:1;
         int spawned=0;
         try(var use=WeaponEnchantments.using(player,stack)){
             var wild=game.items().indirectKills().wildCause(player);
             var cause=new LbcIndirectKills.Owner(wild.player(),wild.order(),true,true,wild.enchantmentWeapon(),true);
             for(int i=0;i<count;i++){
                 var shot=new Shot(TYPE,player.level());shot.damage=improved?16:8;shot.weapon=stack.copyWithCount(1);
-                shot.setOwner(player);shot.setPos(player.getEyePosition());shot.getSlot(0).set(new ItemStack(Items.ARROW));shot.pickup=Shot.Pickup.DISALLOWED;
+                shot.setOwner(player);shot.setPos(count==2?LbcBalanceExtras.doubleArrowOrigin(player,i==0?-1:1,true):player.getEyePosition());shot.getSlot(0).set(new ItemStack(Items.ARROW));shot.pickup=Shot.Pickup.DISALLOWED;
                 var direction=player.getLookAngle();shot.shoot(direction.x,direction.y,direction.z,3,1);shot.setCritArrow(false);
                 game.items().markCurrentItemEpoch(shot);game.items().spellSources().bind(shot,new LbcSpellSource.Source(player.getUUID(),player.getUUID(),game.items().epoch(),cause,Set.of()));
                 game.items().timeStop().prepareFrozen(shot);
@@ -109,7 +111,6 @@ public final class LbcMusicStaff {
             }
         }
         if(spawned==0){game.items().mana().add(player,cost);return false;}
-        int delay=Math.max(0,ItemData.intValue(stack,"cast_cooldown_ticks",DEFAULT_COOLDOWN));if(delay>0)player.getCooldowns().addCooldown(stack,delay);
         game.items().wands().wandCasted(player);return true;
     }
     public static final class Shot extends Arrow implements PolymerEntity,FixedArrowDamage {

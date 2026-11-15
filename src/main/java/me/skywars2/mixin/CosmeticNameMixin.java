@@ -30,7 +30,7 @@ public final class CosmeticNameMixin {
             var player=(ServerPlayer)(Object)this;
             Component original=ci.getReturnValue();
             var name=original==null?player.getDisplayName():game.items().cosmetics().displayName(player,original);
-            ci.setReturnValue(me.skywars2.game.PlayerLatency.displayName(player,name));
+            ci.setReturnValue(name);
         }
     }
 }

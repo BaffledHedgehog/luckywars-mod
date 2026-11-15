@@ -97,7 +97,9 @@
     "cfgarcm": 1,
     "infbolt_wand_mana_use": 0,
     "academy_wall_wand_mana_use": 500,
-    "academy_baffled_wand_mana_use": 1000
+    "academy_baffled_wand_mana_use": 1000,
+    "music_staff_mana_use": 52,
+    "academy_music_staff_mana_use": 52
   },
   "derived": {
     "void_arcanum_mana_tick_sec": {

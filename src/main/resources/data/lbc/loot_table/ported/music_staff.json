@@ -44,6 +44,22 @@
                 ],
                 [
                   {
+                    "score": {
+                      "name": "music_staff_mana_use",
+                      "objective": "lbc.math"
+                    },
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "score"
+                  },
+                  {
+                    "translate": "mana_on_activate",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
                     "text": "8 ",
                     "color": "aqua",
                     "italic": false
@@ -59,26 +75,25 @@
                   "color": "red",
                   "italic": false
                 },
-                {
-                  "translate": "music_staff.lore.music",
-                  "color": "white",
-                  "italic": false
-                },
-                {
-                  "translate": "music_staff.lore.mana",
-                  "color": "aqua",
-                  "italic": false
-                },
-                {
-                  "translate": "music_staff.lore.cooldown",
-                  "color": "aqua",
-                  "italic": false
-                }
+                [
+                  {
+                    "text": "Aslan",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": "| Halloween 2026 Roulette",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
               ]
             },
             {
               "type": "minecraft:set_custom_data",
-              "tag": "{music_staff:1,magicwand:1,staff:1,transformable:1,spellwithcooldown:1,mana_cost:52,cast_cooldown_ticks:10}"
+              "tag": "{music_staff:1,magicwand:1,staff:1,transformable:1}"
             }
           ]
         }

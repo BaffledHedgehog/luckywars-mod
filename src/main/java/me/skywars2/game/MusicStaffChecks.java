@@ -18,7 +18,7 @@ public final class MusicStaffChecks {
     public static void run(GameController game){require(running==null,"exclusive fixture");var fixture=new Fixture(game);running=fixture;try{fixture.begin();}catch(Throwable error){running=null;fixture.close();throw error;}}
     public static void tick(GameController game){
         if(running==null)return;var f=running;
-        try{require(f.game==game,"same native game");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS music-staff (native camera launch/independent bow spread, fixed8/16 WILD allied hits, full-volume million-height server music, multiple holders/offhand/loss/death, actual1040tick continuous Academy trial and promotion)");}
+        try{require(f.game==game,"same native game");if(!f.step())return;running=null;f.close();SkyWars2.LOGGER.info("[check] PASS music-staff (live source-config prices and aqua score lore, no cooldown including stale item tags, shared double-bow offsets/independent spread, fixed8/16 WILD allied hits, global music lifecycle, actual1040tick Academy trial)");}
         catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL music-staff",error);}
     }
     private static final class Fixture implements AutoCloseable {
@@ -41,15 +41,37 @@ public final class MusicStaffChecks {
             var prior=Collections.newSetFromMap(new IdentityHashMap<LbcMusicStaff.Shot,Boolean>());prior.addAll(service.arrows());
             require(base.owner.gameMode.useItem(base.owner,base.level,item,InteractionHand.MAIN_HAND).consumesAction(),"real native staff use");
             var fresh=service.arrows().stream().filter(s->!prior.contains(s)).toList();require(!fresh.isEmpty()&&fresh.size()<=2,"one or two arrows");
-            for(var shot:fresh){base.own(shot);require(shot.getOwner()==base.owner&&shot.position().distanceToSqr(base.owner.getEyePosition())<1e-10,"exact camera origin and real controller");
+            var eye=base.owner.getEyePosition();var forward=base.owner.getLookAngle().scale(.3);var side=Vec3.directionFromRotation(0,base.owner.getYRot()-90).scale(.4);
+            for(var shot:fresh){base.own(shot);require(shot.getOwner()==base.owner,"real physical controller");
+                require(fresh.size()==1?shot.position().distanceToSqr(eye)<1e-10:Math.min(shot.position().distanceToSqr(eye.add(forward).add(side)),shot.position().distanceToSqr(eye.add(forward).subtract(side)))<1e-10,"single camera origin or original double-bow .4 side/.3 forward geometry");
                 require(shot.getDeltaMovement().length()>2.8&&shot.getDeltaMovement().length()<3.2,"native bow launch speed with vanilla triangular spread");require(shot.model!=null&&shot.model.display()!=null,"tracked authored arrow model");
                 require(game.items().spellSources().source(shot).cause().friendlyFire(),"captured WILD cause");}
-            return fresh;
+            if(fresh.size()==2)require(fresh.get(0).position().distanceToSqr(fresh.get(1).position())>.63,"two distinct opposite muzzle positions");return fresh;
         }
-        ItemStack withoutCooldown(ItemStack item){var result=item.copy();var data=result.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();data.putInt("cast_cooldown_ticks",0);result.set(DataComponents.CUSTOM_DATA,CustomData.of(data));return result;}
+        void manaConfiguration(){
+            var path=LbcSourceConfig.FILE;byte[] original;
+            try{original=java.nio.file.Files.readAllBytes(path);}catch(java.io.IOException error){throw new IllegalStateException(error);}
+            try{
+                var document=com.google.gson.JsonParser.parseString(new String(original,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();var values=document.getAsJsonObject("values");
+                values.remove(LbcMusicStaff.BASE_MANA);values.remove(LbcMusicStaff.ACADEMY_MANA);java.nio.file.Files.writeString(path,document.toString());game.items().mana().sourceConfig().reload();
+                var expanded=com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path)).getAsJsonObject().getAsJsonObject("values");
+                require(expanded.get(LbcMusicStaff.BASE_MANA).getAsInt()==52&&expanded.get(LbcMusicStaff.ACADEMY_MANA).getAsInt()==52,"new editable prices are persisted into an existing configuration");
+                for(var previous:values.entrySet())require(previous.getValue().equals(expanded.get(previous.getKey())),"expansion preserves authored setting "+previous.getKey());
+                values.addProperty(LbcMusicStaff.BASE_MANA,37);values.addProperty(LbcMusicStaff.ACADEMY_MANA,73);java.nio.file.Files.writeString(path,document.toString());
+                require(game.server().getCommands().getDispatcher().execute("skywars reloadconfig",game.server().createCommandSourceStack())>0,"actual source-config reload");
+                for(var name:List.of("music_staff","academy_music_staff")){
+                    int price=name.startsWith("academy")?73:37;var item=base.leaf(name);var line=LbcTooltipScores.resolve(game,base.owner,item.get(DataComponents.LORE).lines().get(1));
+                    require(line.getString().startsWith(Integer.toString(price))&&line.getStyle().getColor()!=null&&line.getStyle().getColor().getValue()==0x55FFFF,"actual score-based aqua mana lore follows configured "+name);
+                    require(ItemData.intValue(item,"spellwithcooldown",0)==0&&item.get(DataComponents.USE_COOLDOWN)==null,"fresh staff has no cooldown declaration");
+                    var stale=item.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();stale.putInt("mana_cost",1);stale.putInt("cast_cooldown_ticks",999);stale.putInt("spellwithcooldown",1);item.set(DataComponents.CUSTOM_DATA,CustomData.of(stale));
+                    for(int cast=0;cast<2;cast++){var arrows=shoot(item);require(game.items().mana().get(base.owner)==5000-price&&!base.owner.getCooldowns().isOnCooldown(item),"same-tick native casts use config and ignore obsolete stack tuning");arrows.forEach(base::discard);}
+                }
+            }catch(Exception error){throw new IllegalStateException(error);}
+            finally{try{java.nio.file.Files.write(path,original);game.items().mana().sourceConfig().reload();}catch(java.io.IOException error){throw new IllegalStateException(error);}}
+        }
         void aim(){base.move(base.owner,base.home.add(0,12,0));base.move(base.other,base.owner.position().add(0,0,6));base.owner.setYRot(0);base.owner.setXRot(0);base.other.setInvulnerableTime(0);base.other.damageCooldownTime=0;base.other.setHealth(1000);health=base.other.getHealth();}
         void begin(){
-            require(staff.is(LbcMusicStaff.ITEM)&&!LbcMusicStaff.upgraded(staff),"base canonical leaf");aim();var shots=shoot(withoutCooldown(staff));require(shots.size()==1,"base always emits one");next(0);
+            require(staff.is(LbcMusicStaff.ITEM)&&!LbcMusicStaff.upgraded(staff),"base canonical leaf");aim();manaConfiguration();var shots=shoot(staff);require(shots.size()==1,"base always emits one");next(0);
         }
         boolean step(){
             require(game.server().getTickCount()-began<1800,"bounded native52second fixture");int elapsed=game.server().getTickCount()-when;
@@ -57,12 +79,15 @@ public final class MusicStaffChecks {
                 if(elapsed<8)return false;require(base.other.getHealth()==health-8,"actual allied native fixed8 hit, HP="+base.other.getHealth());
                 require(service.playing()&&songs(base.client).size()==1&&songs(base.audience).size()==1,"one common track for holder and other player");
                 var sound=songs(base.client).getFirst();require(sound.getY()==1_000_000&&sound.getVolume()==Float.MAX_VALUE,"exact requested height and finite maximum volume");
-                aim();var improved=withoutCooldown(base.leaf("academy_music_staff"));var shots=shoot(improved);for(int i=1;i<shots.size();i++)base.discard(shots.get(i));next(1);return false;
+                aim();var improved=base.leaf("academy_music_staff");var shots=shoot(improved);for(int i=1;i<shots.size();i++)base.discard(shots.get(i));
+                // The double-bow muzzles are wider than a player's central hitbox: test damage on the chosen arrow's lane.
+                var offset=shots.getFirst().position().subtract(base.owner.getEyePosition());base.move(base.other,base.other.position().add(offset.x,0,offset.z));next(1);return false;
             }
             if(phase==1){
                 if(elapsed<8)return false;require(base.other.getHealth()==health-16,"actual upgraded native fixed16 hit, HP="+base.other.getHealth());
-                base.move(base.other,base.home.add(20,12,0));var improved=withoutCooldown(base.leaf("academy_music_staff"));int doubles=0;
+                base.move(base.other,base.home.add(20,12,0));var improved=base.leaf("academy_music_staff");int doubles=0;
                 for(int cast=0;cast<100;cast++){
+                    base.owner.setYRot(cast*17);base.owner.setXRot((cast%13-6)*7);
                     var shots=shoot(improved);if(shots.size()==2){doubles++;require(shots.get(0).getDeltaMovement().distanceToSqr(shots.get(1).getDeltaMovement())>1e-12,"double arrows have independently sampled spread");}
                     shots.forEach(base::discard);
                 }
