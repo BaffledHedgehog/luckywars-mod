@@ -3,6 +3,8 @@
   "package": "me.skywars2.mixin",
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
+    "SynchroRankedMixin$Table",
+    "SynchroRankedMixin$Context",
     "FixedArrowDamageMixin",
     "ServerTickDurationMixin",
     "NetworkTransportMixin",

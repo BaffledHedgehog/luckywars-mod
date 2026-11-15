@@ -1,3 +1,9 @@
+## Optional synchronized ranked loot order
+
+`SynchroRanked` latches the independent `synchroRanked` setting at match start. One match seed plus canonical table ID and per-recipient ordinal derive a local native RNG; nested tables reuse their parent's context. Both native item generation and container slot splitting use that RNG. No emitted stack history is retained. UUID cursors survive death/reconnect, clear at the lobby boundary and participate in the core rollback snapshot. Forced starter-chest generation uses virtual island recipients; central/unattributed world loot has its own cursor. Personal eligibility and luck modifiers remain native. Ranked's ten original score conditions are unchanged.
+
+`SynchroRankedMixin` opts in newly created/direct native loot contexts; ordinary RNG identity and explicit seeds remain untouched when disabled. `LegacySlabRandom` keeps its source one-second behavior normally and uses one shared context sample under synchronization. Command validation, persistence, suggestions and summary share `GameConfig`; changes take effect next match. The small `synchro_ranked_2026_11_15` asset addition only translates the new setting.
+
 ## Held-music staff and native custom-model arrows
 
 `LbcMusicStaff` owns one server-wide sound session and per-holder, per-stack continuous Academy study (1040 ticks). Both hands participate independently of casting; loss, death and reset stop the appropriate session. Native `Arrow` physics and collision retain physical ownership, WILD damage provenance, enchantments and shields. `FixedArrowDamage` replaces only the native speed multiplier/base hit for opted-in arrows; `ProjectileModel` attaches the authored model through Polymer tracking. Cloning captures the arrow's damage and launch weapon without duplicating flight logic.

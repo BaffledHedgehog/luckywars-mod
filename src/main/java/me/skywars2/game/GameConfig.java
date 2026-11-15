@@ -44,6 +44,8 @@ public final class GameConfig {
     /** 0 SFW, 1 NSFW, 2 mixed, 3 none, 4 source cosmetic-prefix placeholder. */
     public int prefixes = 3;
     public boolean ranked = false;
+    /** Independent per-player loot cursors over shared match/pool sequences; latched at match start. */
+    public boolean synchroRanked = false;
     public boolean eventHalloween = false;
     public boolean eventNovember = false;
     public boolean eventTournament = false;
@@ -169,6 +171,7 @@ public final class GameConfig {
             case "imbadropchance" -> { configured = imbaDropChance = integer(key,value,0,6); canonical="imbaDropChance"; }
             case "prefixes" -> { configured = prefixes = integer(key,value,0,4); canonical="prefixes"; }
             case "ranked" -> { configured = ranked = bool(key, value); canonical = "ranked"; }
+            case "synchroranked" -> { configured = synchroRanked = bool(key, value); canonical = "synchroRanked"; }
             case "vanillakits" -> { configured = vanillaKits = bool(key, value); canonical = "vanillaKits"; }
             case "vanillaskills" -> { configured = vanillaSkills = bool(key, value); canonical = "vanillaSkills"; }
             case "lbckits" -> { configured = lbcKits = bool(key, value); canonical = "lbcKits"; }

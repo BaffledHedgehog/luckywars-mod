@@ -81,6 +81,7 @@ public final class GameController {
         private final Component mapFailure;
         private final String readyMap;
         private final int activeGameMode;
+        private final SynchroRanked.State synchroLoot;
         private final long selectionVersion;
         private final net.minecraft.nbt.Tag barName;
         private final BossEvent.BossBarColor color;
@@ -99,6 +100,7 @@ public final class GameController {
             pending=Set.copyOf(g.pendingLobby);unloads=List.copyOf(g.nativeEntityUnloads);
             stage=g.stage;host=g.host;pendingStarter=g.pendingStarter;victoryWinner=g.victoryWinner;
             activeGameMode=g.activeGameMode;
+            synchroLoot=g.synchroRanked.checkpoint();
             countdownTicks=g.countdownTicks;gameTicks=g.gameTicks;finishTicks=g.finishTicks;lastAliveTicks=g.lastAliveTicks;
             lifetimeTicks=g.lifetimeTicks;lastCountdownTitleSeconds=g.lastCountdownTitleSeconds;
             lobbyReady=g.lobbyReady;stopped=g.stopped;fallEnabled=g.fallEnabled;readyBroken=g.readyBroken;
@@ -137,6 +139,7 @@ public final class GameController {
         runeRestartPending=false;
         cunnyRestart=null;
         activeGameMode=image.activeGameMode;
+        synchroRanked.restore(image.synchroLoot);
         supernovaMap=image.renewal;
         balanceMap=image.balanceRenewal;balanceLegacy(image.legacy);
         balancePendingReset.clear();balancePendingReset.addAll(image.balanceResets);
@@ -166,6 +169,7 @@ public final class GameController {
     private final MapManager maps;
     private final MatchEvents events;
     private final LbcLoadouts lbc;
+    private final SynchroRanked synchroRanked;
     private final LbcItems items;
     private final LbcBedwars bedwars;
     private final LbcCases cases;
@@ -237,6 +241,7 @@ public final class GameController {
 
     public GameController(MinecraftServer server, GameConfig config, PlayerStore players, MapManager maps) {
         this.server = server; this.config = config; this.players = players; this.maps = maps;
+        this.synchroRanked = new SynchroRanked(this);
         LbcPerkStatistics.initialize(server);
         this.teamColors = new LbcTeamColors(server.getScoreboard());
         this.zoneBarrier = new ZoneBarrier(this);
@@ -303,6 +308,7 @@ public final class GameController {
     void beginMatchMode(int mode) {
         if(mode<1||mode>4)throw new IllegalArgumentException("Match mode must be1..4");
         activeGameMode=mode;
+        synchroRanked.begin();
         LbcMatchReset.all(this);
         LbcWitchStatistics.beginMatch(this);
     }
@@ -482,6 +488,7 @@ public final class GameController {
             if (player.isAlive() && (member==null || member.lives<=0 || member.disconnected || isObserver(player)))
                 teleport(player,maps.look(),0,0);
         }
+        synchroRanked.begin();
         config.mapId=intent.map(); config.broken=intent.broken();
         readyMap=intent.map();readyBroken=intent.broken();mapFailure=Component.empty();
         itemQueue.clearRoundStart(maps.level());
@@ -597,6 +604,7 @@ public final class GameController {
             var member=participants.get(player.getUUID());
             if(player.isAlive()&&(member==null||member.lives<=0||member.disconnected||isObserver(player)))teleport(player,maps.look(),0,0);
         }
+        synchroRanked.begin();
         balanceLegacy(true);balanceMap=null;readyMap=null;mapFailure=Component.empty();
         itemQueue.clearRoundStart(maps.level());
         if(!bedwars.mode()){maps.cages(false);maps.captureRespawnIslands();maps.fillChests(false);}
@@ -630,6 +638,7 @@ public final class GameController {
     public PlayerStore players() { return players; }
     public GameMenus menus() { return menus; }
     public LbcLoadouts lbc() { return lbc; }
+    public SynchroRanked synchroRanked() { return synchroRanked; }
     public LbcItems items() { return items; }
     public LbcCarpetBots carpetBots() { return carpetBots; }
     public LbcItemQueue itemQueue() { return itemQueue; }
@@ -883,6 +892,7 @@ public final class GameController {
                 {"day", config.day},
                 {"healthDisplay",config.healthDisplay},{"imbaDropChance",config.imbaDropChance},{"prefixes",config.prefixes},
                 {"ranked", config.ranked},
+                {"synchroRanked", config.synchroRanked},
                 {"vanillaKits", config.vanillaKits},
                 {"vanillaSkills", config.vanillaSkills},
                 {"noBorders", config.noBorders},
@@ -893,6 +903,7 @@ public final class GameController {
                 case "healthDisplay"->Component.translatableWithFallback("skywars2.settings.label.healthDisplay","Health display");
                 case "imbaDropChance"->Component.translatableWithFallback("skywars2.settings.label.imbaDropChance","IMBA drop chance index");
                 case "prefixes"->Component.translatableWithFallback("skywars2.settings.label.prefixes","Team prefixes");
+                case "synchroRanked"->Component.translatableWithFallback("skywars2.settings.label.synchroRanked","Synchronized loot order (next match)");
                 default->text("settings.label."+row[0]);
             };
             summary.append(text("settings.line", label, value));
@@ -1586,6 +1597,7 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        synchroRanked.clear();
         perkChoices.clear();
         cunnyRestart=null;
         vanity.stop();

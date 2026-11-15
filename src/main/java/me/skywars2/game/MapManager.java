@@ -896,7 +896,8 @@ public final class MapManager {
                 container.setLootTableSeed(level.getRandom().nextLong());
                 // The legacy chest refill forces lazy generation, then moves
                 // its synthetic minecraft:count modifier into stack count.
-                container.getItem(0);
+                var game=SkyWars2.game();
+                try(var synchro=game==null?null:game.synchroRanked().island(marker.position(),spawns,"center".equals(table))){container.getItem(0);}
                 int[] normalized = normalizeLootCounts(container);
                 generatedChests++;
                 encodedCounts += normalized[0];
