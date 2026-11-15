@@ -82,6 +82,12 @@ public final class LbcMetalPipe {
     private boolean contact(ItemEntity item,State state){
         if(!item.entityTags().contains(THROWN))return false;
         var from=state.previous==null?item.position():state.previous;state.previous=item.position();
+        // Walking over a resting pipe is pickup, not another projectile impact.
+        // Keep airborne/rolling/blast-displaced contacts, including the thrower.
+        if(item.onGround()&&state.grounded&&from.distanceToSqr(item.position())<1e-6){
+            item.entityTags().removeIf(tag->tag.startsWith(CONTACT+"."));
+            return false;
+        }
         var bounds=new net.minecraft.world.phys.AABB(from,item.position()).inflate(.125);
         var owner=resolve(state.producer);boolean ownerArmed=item.entityTags().contains(LEFT_OWNER);
         // The launch segment still starts inside its thrower. Arming its endpoint must not retroactively admit that segment.

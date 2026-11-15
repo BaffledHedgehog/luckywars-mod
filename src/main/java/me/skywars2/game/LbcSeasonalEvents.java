@@ -57,16 +57,18 @@ public final class LbcSeasonalEvents {
             LbcOverload.notifySound(player,"lbcsounds.halloween",SoundSource.MASTER,.5f,1);
         }
         for(int i=0;i<25;i++){
+            // game.command executes later. Moving the initial actors by .01 before
+            // spreadplayers ran excluded them from its distance=..0.01 selector.
+            // Resolve the real resident terrain first; never leave a trap at Y100.
+            var at=LbcSurfaceTeleport.destination(level,Vec3.ZERO,190,level.getMaxY(),level.getRandom());
+            if(at==null)break;
             var actor=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,level);actor.entityTags().add(SCREAMER);
             var item=new ItemStack(Items.STICK);item.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:strangeness"));actor.setItemStack(item);
             actor.setShadowRadius(0);actor.setShadowStrength(0);actor.setViewRange(1000);
             actor.setBrightnessOverride(new net.minecraft.util.Brightness(15,15));
             actor.setTransformation(new Transformation(new Vector3f(),new Quaternionf(),new Vector3f(2,1,2),new Quaternionf()));
-            insert(actor,new Vec3(0,100,0));
+            insert(actor,at.add(0,.01,0));
         }
-        // Native spreadplayers supplies the same top-surface selection and safety test as the source.
-        game.command("execute in "+level.dimension().identifier()+" positioned 0 100 0 run spreadplayers 0 0 0 190 false @e[type=item_display,tag="+SCREAMER+",distance=..0.01,limit=25]");
-        for(var actor:actors)if(actor.entityTags().contains(SCREAMER))actor.setPos(actor.position().add(0,.01,0));
     }
     public void tick(){
         if(!game.playing()||!game.server().tickRateManager().runsNormally())return;

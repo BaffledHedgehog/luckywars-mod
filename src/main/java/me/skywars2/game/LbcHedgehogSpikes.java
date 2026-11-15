@@ -99,12 +99,14 @@ public final class LbcHedgehogSpikes {
             setBaseDamage(legacy==0?baseDamage(kind):switch(legacy){case 1->3;case 2,6->2.5;case 3->2;case 4->4;case 5->1.8;default->.01;});
             if(kind!=SpikeKind.BOOM||legacy>0)pickup=legacy==3||legacy>=7?AbstractArrow.Pickup.DISALLOWED:AbstractArrow.Pickup.CREATIVE_ONLY;}
         @Override public boolean shouldBeSaved(){return false;}
-        private boolean itemVisual(){return legacy==10&&!game.balanceLegacy();}
+        private boolean itemVisual(){return (legacy==10||legacy==7)&&!game.balanceLegacy();}
         @Override public net.minecraft.world.entity.EntityType<?> getPolymerEntityType(net.fabricmc.fabric.api.networking.v1.context.PacketContext context){return itemVisual()?net.minecraft.world.entity.EntityTypes.MARKER:net.minecraft.world.entity.EntityTypes.ARROW;}
         @Override public void modifyRawTrackedData(List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> data,ServerPlayer viewer,boolean initial){if(itemVisual())data.clear();}
         void attachVisual(){
             if(!itemVisual()||visual!=null||isRemoved())return;
-            display=new eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement(new ItemStack(LbcGadgetItems.LUCKY_GRENADE));
+            var item=legacy==10?new ItemStack(LbcGadgetItems.LUCKY_GRENADE):new ItemStack(Items.SNOWBALL);
+            if(legacy==7)item.set(net.minecraft.core.component.DataComponents.ITEM_MODEL,net.minecraft.resources.Identifier.parse("lbc:smokegrenade"));
+            display=new eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement(item);
             display.setItemDisplayContext(net.minecraft.world.item.ItemDisplayContext.FIXED);display.setTeleportDuration(1);display.setInterpolationDuration(1);display.setShadowRadius(0);display.setShadowStrength(0);
             visual=new eu.pb4.polymer.virtualentity.api.ElementHolder();visual.addElement(display);
             new eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment(visual,this,false);syncVisual();

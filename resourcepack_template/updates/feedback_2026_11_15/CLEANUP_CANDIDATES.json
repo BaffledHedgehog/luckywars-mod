@@ -1,0 +1,166 @@
+{
+  "authorPackWritten": false,
+  "missingShaderDependencies": 0,
+  "candidates": [
+    {
+      "path": "assets/lbc/shaders/include/black_hole_resolve.glsl",
+      "sha256": "1cda0d37e23a46bcb083fc69b688cde4301ba85f1e0f6ba54e4ba999969f1a78",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/include/black_hole_trace.glsl",
+      "sha256": "bd5f1bb24e30268515aefa34da57ab02c9487cc9254f0949815e80b9f4969e21",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole.fsh",
+      "sha256": "8c5383aaf6f22a32264e67c4e75d2b3141722ee4a4a66cc8caf125670c2bf7d1",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole.vsh",
+      "sha256": "954b5d72b98cf2f62090afd6721fac0937f36d14d4a4d2df53ee0302f97f7b3f",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_coarse.vsh",
+      "sha256": "76e0d274fd4538db0709a66cab5b792095eefaee1ba7459a785e53646e314ef7",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_coarse_fast.vsh",
+      "sha256": "a44518a6f7cac8af78041ef560f41c28952c1002fa59874ba59a2f8c6f02c443",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_coarse_many.vsh",
+      "sha256": "5d1f95e02bd1a676f437585f401ef97b8e2891de0bf2d969cab8ebd8559ff5af",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_far.fsh",
+      "sha256": "fba706f02394877e9e37ea5b68cfc8208a834b11c4a5f8c4d28428dd8adfcf88",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_far.vsh",
+      "sha256": "e8d2c07dd38ae0a96b0b0acb85e752d2dc4c4e84636720a9bb5b3e5bfc44602d",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_far_fast.fsh",
+      "sha256": "358c6646999b97a7a06c4e22f8d6367a610cea7970c3c5ce370ccd32675db03b",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_far_fast.vsh",
+      "sha256": "00173fdf6094cf42fa9e986b3888205249c9a1ec7691a1f1352e22a5e43636cb",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_far_many.vsh",
+      "sha256": "e081cf76da30a5b8f02832e8a1fe63ee1d1b3750ee9c217cd432a7e1d436cb16",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_fast.fsh",
+      "sha256": "f18d9ebfaf156159726a7f61f9250daec627ad25e50c24b306412d8b118e1501",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_geometry.fsh",
+      "sha256": "c7b989cd0008f14716f08f63cda58941f8925ee49d87e0108bad7d42fc08e5c1",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_late.vsh",
+      "sha256": "a9964b22163c1ea7167655d674a45591158b079a57512c3c6ed82c71ba559c1e",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_late_resolve.fsh",
+      "sha256": "ea3e70a73a08941e15ebfde1f561af365c91427e83552c6677e31367461fab03",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_near.fsh",
+      "sha256": "3fe683d90b48dcd3eb5e19ce699c9b86f8712c79e9a26178aa3e7bcd9a375767",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_near.vsh",
+      "sha256": "c0f8e7445836d93f8f00b3a349fdfef635d3c83a018cd8697818ae8680212658",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_near_fast.fsh",
+      "sha256": "609eaeb63ff1eedb5c9e214e92d35bd92511922afbee3b25c309e8fbe3f6fc8b",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_near_fast.vsh",
+      "sha256": "7f45692e804866b94eb81109b7faf6a2d9b28156739d73944a72ae1c75ab7d19",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_near_many.vsh",
+      "sha256": "da023295bc9ce2a29202f77214b27f321921c05a07066a1bc483b58465d0ef44",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/black_hole_resolve.fsh",
+      "sha256": "67a8f82eff6b2368b3be1f17950395a6182dfa42fd5a20cf1b7d3d9d7ef9a4a2",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/shaders/post/polymorph_bloom_sample.fsh",
+      "sha256": "22a59dfe132d9c3639e0ab1ace6164f19e3c32759855064f26f9db8914a3a49d",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/minecraft/shaders/post/backup__bloom.fsh",
+      "sha256": "b8e250910a64c86a1ee2e74d556537f799c9cffa587ac10bdf5e84cbd126dc78",
+      "reason": "No incoming reference from any active post chain or native core shader/import graph; retain if used manually by an external shader loader."
+    },
+    {
+      "path": "assets/lbc/post_effect/badapple/control_0.json",
+      "sha256": "53841395a433734341d453f400a7f9f730eb8f34f6712a024a199e57ad9024a8",
+      "reason": "Legacy Bad Apple transport. Current server selects only black/white; old files retained for manual review."
+    },
+    {
+      "path": "assets/lbc/post_effect/badapple/control_0_paused.json",
+      "sha256": "9480cfacfb949a55eb209daa72df7402f26a5ee2d990c7ea5599e7317b681ce4",
+      "reason": "Legacy Bad Apple transport. Current server selects only black/white; old files retained for manual review."
+    },
+    {
+      "path": "assets/lbc/post_effect/badapple/control_1.json",
+      "sha256": "57f0a2bb32b015e44b4cf8f1210186593569df4bbeef3a5b5b9db91f34fe9dba",
+      "reason": "Legacy Bad Apple transport. Current server selects only black/white; old files retained for manual review."
+    },
+    {
+      "path": "assets/lbc/post_effect/badapple/control_1_paused.json",
+      "sha256": "165d148640407828c5a3a177ea7c580a66c36b3a5ca341bf95eba603baea33b3",
+      "reason": "Legacy Bad Apple transport. Current server selects only black/white; old files retained for manual review."
+    },
+    {
+      "path": "assets/lbc/post_effect/badapple/control_2.json",
+      "sha256": "b3d1a0f2599a88e174af61492ec4a965286e7291608ef0ff44e076dcab3fc820",
+      "reason": "Legacy Bad Apple transport. Current server selects only black/white; old files retained for manual review."
+    },
+    {
+      "path": "assets/lbc/post_effect/badapple/control_2_paused.json",
+      "sha256": "85738aa4af1f751df623a1595a20e330d34b2a53aafa31db60d6c89079ebe2ce",
+      "reason": "Legacy Bad Apple transport. Current server selects only black/white; old files retained for manual review."
+    },
+    {
+      "path": "assets/lbc/post_effect/badapple/movie.json",
+      "sha256": "518397d403df0cd6cd179476042d8cabdf897db1ca2c788bd5e7020a1b3dea04",
+      "reason": "Legacy Bad Apple transport. Current server selects only black/white; old files retained for manual review."
+    }
+  ],
+  "keptExternalEntryPoints": [
+    "assets/sodium/shaders/blocks/block_layer_opaque.vsh",
+    "assets/sodium/shaders/blocks/block_layer_opaque.fsh"
+  ],
+  "policy": "Audit only; no automatic deletion. Unloaded shaders consume disk, not GPU time."
+}

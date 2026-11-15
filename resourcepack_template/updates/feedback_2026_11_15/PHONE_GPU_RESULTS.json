@@ -1,0 +1,81 @@
+{
+  "passed": true,
+  "renderer": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "checks": [
+    {
+      "case": "entire real prepared480x854 frame",
+      "palettePixels": 409920,
+      "quads": 136640,
+      "maximumError": 7.1443763434153595e-06,
+      "gpuMs": 0.151552
+    },
+    {
+      "case": "actual native item pipeline variants",
+      "compiledVariants": 8,
+      "opaqueCutoutPixelsExact": true
+    },
+    {
+      "case": "whole original phone/body/status bar +136640 pixel quads",
+      "resolution": [
+        560,
+        1280
+      ],
+      "depthTest": true,
+      "nativeOpaqueItemShader": true
+    },
+    {
+      "case": "subpixel minification",
+      "width": 160,
+      "active": 0.2001418239326133,
+      "candidate": 0.005020166074697861
+    },
+    {
+      "case": "subpixel minification",
+      "width": 240,
+      "active": 0.23364013737258463,
+      "candidate": 0.028318113937326233
+    },
+    {
+      "case": "subpixel minification",
+      "width": 320,
+      "active": 0.20014182393261323,
+      "candidate": 0.04731543812569395
+    },
+    {
+      "case": "native opaque material selection",
+      "oldMarkerAlpha": 211,
+      "newMarkerAlpha": 255,
+      "nativeMaterialUsesSpriteTransparency": true,
+      "videoTop": 29.5,
+      "letterboxTop": 29.55,
+      "originalFaceTop": 31
+    }
+  ],
+  "shaderDependenciesSha256": {
+    "candidate:assets/lbc/shaders/include/phone_hd_pixels.glsl": "e17163f407e90fe99d0f50b517df8fd0b3b9f6d700fc2704c10b98a73da4f5c0",
+    "active:assets/minecraft/shaders/core/item.vsh": "0ffb7736374c97fddc05f8f68e6c707fc88c8f9f5af720219e9f99b870ff2455",
+    "native:assets/minecraft/shaders/include/light.glsl": "57364b31f9a361aba051e38a9a36e87890ab39798d88aadad0620d6768bc0401",
+    "native:assets/minecraft/shaders/include/fog.glsl": "c96edf62b3dca66b2dc314516b0cd74f2e12fbe7514342e28a5440ad8dfc49be",
+    "native:assets/minecraft/shaders/include/dynamictransforms.glsl": "13db01aebd7ceeabf7769b1d60d0d5691f88072f302350ca2499f5d962237c7a",
+    "native:assets/minecraft/shaders/include/projection.glsl": "54ad58fcd6b3811992a9432628dba49900b2d9d33e075424224b0e7f0603818e",
+    "active:assets/minecraft/shaders/include/sample_lightmap.glsl": "60376a10ac378739c566610c795c990d19615635396ebd396cb6411f7ba7e0f8",
+    "active:assets/lbc/shaders/include/atlas_glitch.glsl": "15699f693aecab3068369e548e8df16281bb6fb5e776a77108b4c10ed63ab0ad",
+    "active:assets/lbc/shaders/include/atlas_glitch_directory.glsl": "7c96efde7dd2da6767e84f3f0cbda8bfa4824a2f6ed5ddf934e0eefdfd790cfb",
+    "active:assets/lbc/shaders/include/zone_data.glsl": "323d54ba8e0e68a1895015617b9de95216d45685bbd654f6b02bc8370cb98553",
+    "active:assets/lbc/shaders/include/zone_window.glsl": "f866e8180caa49cb6e160ed42fb4c09f8e26a662071e73e5c681ec74e042a90b",
+    "active:assets/lbc/shaders/include/black_hole_data.glsl": "2303157551f9737e136a98ae4d24f8b98ee5187afaa866306a3e4a23fa1c2137",
+    "active:assets/lbc/shaders/include/nuclear_data.glsl": "477e031bea4d1421c6e425c36175267a49ea79f776422e28c10c9056c12c4ead",
+    "active:assets/lbc/shaders/include/tmt_atlas.glsl": "11a5a33a4a174fcb9d4dd06d5a16ddb97dd08e2d07ed653c71c576e410a8991e",
+    "active:assets/minecraft/shaders/core/item.fsh": "f9fcb86522720effc43fec6514ed4d4e0e12436cafc67d4f625055d4fe041626",
+    "native:assets/minecraft/shaders/include/globals.glsl": "85784f154ace14501ff33310a69b48e6d01f3af30b52444ce6192b9049be1060",
+    "native:assets/minecraft/shaders/include/oit.glsl": "d90c5f454fffff35e81673b9806531d468d9597557a2bf7d9e37ed5cd7c18989",
+    "native:assets/minecraft/shaders/include/oit_common.glsl": "bd5f404aea0c8b75f32471e763332fdfa81a30106dfd1318a3fec0a82e1c7720",
+    "native:assets/minecraft/shaders/include/oit_depth_sample.glsl": "fcf65ad828e0a079652096ceea20da9367ef38c53d77e88da74a7f00718e8b90",
+    "native:assets/minecraft/shaders/include/oit_depth_bounds.glsl": "892f076e405e784f44da5f1a59c4aedeffe45b6a1b56ef733ff515c3218c4a04",
+    "native:assets/minecraft/shaders/include/oit_add_transmittance.glsl": "79f5b662a4550428757bac08b9e725dae775d9efc73416b96940009c8ae2a8f4",
+    "native:assets/minecraft/shaders/include/oit_sample.glsl": "92c2735235ac4c7122230baeac027b24784d0d2d4cc0b3740c2ca97855832b90",
+    "active:assets/lbc/shaders/include/meditation_warning.glsl": "24102eb55b9b2220c3147d479862cae2825aae7da9384d338efde073b1ef6707",
+    "active:assets/lbc/shaders/include/phone_hd_pixels.glsl": "9a41e0b567237ce369493b4567600f79c978289d27de9143475b12dde6fed061"
+  },
+  "scope": "Whole native-tint mesh, fullbright exact palette and fractional minification. Not a connected client capture; remaining vertical/perspective aliasing requires playtest."
+}

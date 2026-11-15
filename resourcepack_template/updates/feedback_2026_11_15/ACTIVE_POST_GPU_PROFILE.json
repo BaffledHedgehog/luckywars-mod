@@ -1,0 +1,566 @@
+{
+  "renderer": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "passes": [
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 0,
+      "fragment": "lbc:post/zone_border",
+      "output": "zone_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.01024,
+      "samplesGpuMs": [
+        0.01024,
+        0.01024,
+        0.01024
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 1,
+      "fragment": "lbc:post/zone_damage",
+      "output": "zone_damage_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.01024,
+      "samplesGpuMs": [
+        0.01024,
+        0.01024,
+        0.011264
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 2,
+      "fragment": "lbc:post/signed_glow",
+      "output": "signed_glow_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.011264,
+      "samplesGpuMs": [
+        0.011264,
+        0.011264,
+        0.012288
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 3,
+      "fragment": "lbc:post/smoke_volume",
+      "output": "smoke_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.014336,
+      "samplesGpuMs": [
+        0.014336,
+        0.014336,
+        0.014336
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 4,
+      "fragment": "lbc:post/weapon_spread",
+      "output": "spread_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.009216,
+      "samplesGpuMs": [
+        0.009216,
+        0.009216,
+        0.01024
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 5,
+      "fragment": "lbc:post/polymorph_outline_bloom_sample",
+      "output": "polymorph_bloom_h",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.008192,
+      "samplesGpuMs": [
+        0.008192,
+        0.008192,
+        0.009216
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 6,
+      "fragment": "minecraft:post/bloom",
+      "output": "polymorph_bloom_v",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.028672,
+      "samplesGpuMs": [
+        0.028672,
+        0.028672,
+        0.028672
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 7,
+      "fragment": "lbc:post/polymorph_outline_bloom",
+      "output": "minecraft:main",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.029696,
+      "samplesGpuMs": [
+        0.029696,
+        0.029696,
+        0.031744
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 8,
+      "fragment": "minecraft:post/entity_sobel",
+      "output": "swap",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.008192,
+      "samplesGpuMs": [
+        0.008192,
+        0.008192,
+        0.009216
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/entity_outline.json",
+      "pass": 9,
+      "fragment": "minecraft:post/blit",
+      "output": "minecraft:entity_outline",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.009216,
+      "samplesGpuMs": [
+        0.008192,
+        0.009216,
+        0.009216
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 0,
+      "fragment": "lbc:post/weapon_spread_resolve",
+      "output": "reticle_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.01024,
+      "samplesGpuMs": [
+        0.01024,
+        0.01024,
+        0.01024
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 1,
+      "fragment": "minecraft:post/blit",
+      "output": "minecraft:main",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.008192,
+      "samplesGpuMs": [
+        0.008192,
+        0.008192,
+        0.009216
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 2,
+      "fragment": "lbc:post/time_gate",
+      "output": "time_gate",
+      "outputSize": [
+        1,
+        1
+      ],
+      "medianGpuMs": 0.002048,
+      "samplesGpuMs": [
+        0.002048,
+        0.002048,
+        0.002048
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 3,
+      "fragment": "minecraft:post/blit",
+      "output": "time_previous",
+      "outputSize": [
+        1,
+        1
+      ],
+      "medianGpuMs": 0.002048,
+      "samplesGpuMs": [
+        0.002048,
+        0.001024,
+        0.002048
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 4,
+      "fragment": "lbc:post/effect_state",
+      "output": "effect_state",
+      "outputSize": [
+        171,
+        68
+      ],
+      "medianGpuMs": 0.017408,
+      "samplesGpuMs": [
+        0.017408,
+        0.016384,
+        0.018432
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 5,
+      "fragment": "minecraft:post/blit",
+      "output": "effect_history",
+      "outputSize": [
+        171,
+        68
+      ],
+      "medianGpuMs": 0.001024,
+      "samplesGpuMs": [
+        0.002048,
+        0.001024,
+        0.001024
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 6,
+      "fragment": "minecraft:post/bloom_sample",
+      "output": "bloomh",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.009216,
+      "samplesGpuMs": [
+        0.009216,
+        0.009216,
+        0.009216
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 7,
+      "fragment": "minecraft:post/bloom",
+      "output": "bloomv",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.028672,
+      "samplesGpuMs": [
+        0.028672,
+        0.028672,
+        0.028672
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 8,
+      "fragment": "minecraft:post/bloom",
+      "output": "black_hole_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.03072,
+      "samplesGpuMs": [
+        0.03072,
+        0.03072,
+        0.03072
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 9,
+      "fragment": "lbc:post/nuclear",
+      "output": "nuclear_volume",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.01024,
+      "samplesGpuMs": [
+        0.01024,
+        0.01024,
+        0.01024
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 10,
+      "fragment": "lbc:post/nuclear_many",
+      "output": "nuclear_volume",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.00512,
+      "samplesGpuMs": [
+        0.00512,
+        0.004096,
+        0.00512
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 11,
+      "fragment": "lbc:post/nuclear_resolve",
+      "output": "nuclear_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.0256,
+      "samplesGpuMs": [
+        0.024576,
+        0.026624,
+        0.0256
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 12,
+      "fragment": "lbc:post/nuclear_resolve_many",
+      "output": "nuclear_scene",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.00512,
+      "samplesGpuMs": [
+        0.00512,
+        0.00512,
+        0.00512
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 13,
+      "fragment": "lbc:post/black_hole_image_fast",
+      "output": "black_hole_trace",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.018432,
+      "samplesGpuMs": [
+        0.018432,
+        0.018432,
+        0.018432
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 14,
+      "fragment": "lbc:post/black_hole_image",
+      "output": "black_hole_trace",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.006144,
+      "samplesGpuMs": [
+        0.006144,
+        0.006144,
+        0.006144
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 15,
+      "fragment": "lbc:post/nuclear_heat",
+      "output": "minecraft:main",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.013312,
+      "samplesGpuMs": [
+        0.013312,
+        0.013312,
+        0.014336
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 16,
+      "fragment": "lbc:post/nuclear_heat_many",
+      "output": "minecraft:main",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.00512,
+      "samplesGpuMs": [
+        0.00512,
+        0.00512,
+        0.00512
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 17,
+      "fragment": "lbc:post/time_capture",
+      "output": "time_frame",
+      "outputSize": [
+        3840,
+        2160
+      ],
+      "medianGpuMs": 0.0,
+      "samplesGpuMs": [
+        0.0,
+        0.0,
+        0.001024
+      ]
+    },
+    {
+      "chain": "assets/minecraft/post_effect/end_of_frame.json",
+      "pass": 18,
+      "fragment": "lbc:post/time_present",
+      "output": "minecraft:main",
+      "outputSize": [
+        1920,
+        1080
+      ],
+      "medianGpuMs": 0.0,
+      "samplesGpuMs": [
+        0.001024,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "sumMedianMs": 0.33792,
+  "shaderDependenciesSha256": {
+    "candidate:assets/lbc/shaders/post/weapon_spread.vsh": "395df4fa1f6b1c9f2e1581e5b59062c4b9078183bbcc0320a013fb4e8db2207a",
+    "active:assets/lbc/shaders/include/weapon_spread_data.glsl": "26f3bb62dd9a9ec35dffd9579d237f345b673ba9548c3290792d070e0e7cf7e1",
+    "candidate:assets/lbc/shaders/post/weapon_spread.fsh": "fd40487ad8ef21a5cfd336d0a68f039cc9819e0006b651e8e94a369872f292ed",
+    "candidate:assets/lbc/shaders/include/reticle_header.glsl": "9f3a06eb518de0467568d480a945ffd25f804a57a499775b61e7c69fcb83864c",
+    "candidate:assets/lbc/shaders/post/weapon_spread_resolve.vsh": "48f2c307d2ace26b2fd363c80b6ff78c42403801d8193ee748c4e51fc91bf25c",
+    "candidate:assets/lbc/shaders/post/weapon_spread_resolve.fsh": "25155213e59d3389f0d25f849dbbe027d5a086d96e68ff458be9ee2dbbe871d9",
+    "active:assets/minecraft/shaders/core/position_tex_color.vsh": "17c51494cd7788e531313b60c31d4b1e4fec26148ae7ae4dab001efa229952d4",
+    "candidate:assets/minecraft/shaders/core/position_tex_color.fsh": "1cd86b2b897054257cac328243902ab05a23997fb93efb6fb1e9c9b8dc80abf2",
+    "native:assets/minecraft/textures/gui/sprites/hud/crosshair.png": "5dc5e55cd66df2f27fefbd98bb97770844b0d2c24aaada16fe271b35b071e65e",
+    "candidate:assets/minecraft/shaders/core/particle.vsh": "7b6e04d388a0f301f9b7ddfc73e96719129ac8d5cbfc1d93e806a8104c52070f",
+    "native:assets/minecraft/shaders/include/fog.glsl": "c96edf62b3dca66b2dc314516b0cd74f2e12fbe7514342e28a5440ad8dfc49be",
+    "native:assets/minecraft/shaders/include/dynamictransforms.glsl": "13db01aebd7ceeabf7769b1d60d0d5691f88072f302350ca2499f5d962237c7a",
+    "native:assets/minecraft/shaders/include/projection.glsl": "54ad58fcd6b3811992a9432628dba49900b2d9d33e075424224b0e7f0603818e",
+    "active:assets/minecraft/shaders/include/sample_lightmap.glsl": "60376a10ac378739c566610c795c990d19615635396ebd396cb6411f7ba7e0f8",
+    "candidate:assets/minecraft/shaders/core/particle.fsh": "8a0e08e8e2256478272e6cd7b1ea878abf33243128e2e2f82464bf3c6c11333b",
+    "native:assets/minecraft/shaders/include/oit.glsl": "d90c5f454fffff35e81673b9806531d468d9597557a2bf7d9e37ed5cd7c18989",
+    "native:assets/minecraft/shaders/include/oit_common.glsl": "bd5f404aea0c8b75f32471e763332fdfa81a30106dfd1318a3fec0a82e1c7720",
+    "native:assets/minecraft/shaders/include/oit_depth_sample.glsl": "fcf65ad828e0a079652096ceea20da9367ef38c53d77e88da74a7f00718e8b90",
+    "native:assets/minecraft/shaders/include/oit_depth_bounds.glsl": "892f076e405e784f44da5f1a59c4aedeffe45b6a1b56ef733ff515c3218c4a04",
+    "native:assets/minecraft/shaders/include/oit_add_transmittance.glsl": "79f5b662a4550428757bac08b9e725dae775d9efc73416b96940009c8ae2a8f4",
+    "native:assets/minecraft/shaders/include/oit_sample.glsl": "92c2735235ac4c7122230baeac027b24784d0d2d4cc0b3740c2ca97855832b90",
+    "active:assets/minecraft/post_effect/entity_outline.json": "45e9f0bb4cffa23d4dad71ccf8d6c857e80c0632f7b359357e9daa6af4133303",
+    "active:assets/lbc/shaders/post/zone_border.vsh": "cf77653b22b6c934177b3305e2a8e2e637cd9e650da57642fb86c6b7de849d84",
+    "active:assets/lbc/shaders/post/zone_border.fsh": "be29d4b784c903be27c8666f327f4f92419a38260a7802d2a88dd98d4bf167da",
+    "native:assets/minecraft/shaders/include/globals.glsl": "85784f154ace14501ff33310a69b48e6d01f3af30b52444ce6192b9049be1060",
+    "active:assets/lbc/shaders/include/zone_border.glsl": "d716c81c78d2fca41dc7fecbcbd620b11b8e6c7d6c9e723a30b12c620e313d37",
+    "active:assets/lbc/shaders/include/zone_window.glsl": "f866e8180caa49cb6e160ed42fb4c09f8e26a662071e73e5c681ec74e042a90b",
+    "active:assets/lbc/shaders/post/zone_damage.fsh": "f7b1448b7b2a4fb1dbdeecc73fe3f0e6de8de9596869cac944beec501191c19f",
+    "active:assets/lbc/shaders/include/zone_damage.glsl": "7a3b375d4a65daeb70d5e3fe7e69de9bf5a1f6694169b1375a8ea4faf22622bc",
+    "active:assets/lbc/shaders/include/black_hole_transfer.glsl": "f9b02061e4ca976c99e0f82ac99ded850be76bb7c21cd4b9fccd124b162aa4c6",
+    "active:assets/lbc/shaders/include/black_hole_data.glsl": "2303157551f9737e136a98ae4d24f8b98ee5187afaa866306a3e4a23fa1c2137",
+    "active:assets/lbc/shaders/include/nuclear_transfer.glsl": "6329734d918af2d7f6ecbc4127070b36b0f8634b92a2d5af6fc9c48141a1abb8",
+    "active:assets/lbc/shaders/include/nuclear_data.glsl": "477e031bea4d1421c6e425c36175267a49ea79f776422e28c10c9056c12c4ead",
+    "active:assets/lbc/shaders/include/effect_camera_transfer.glsl": "4f41123e0c592ac0da8d26c0aea82c3816f716108ec0089517df037cc766fb1b",
+    "active:assets/lbc/shaders/post/signed_glow.vsh": "256699358b133f257f0f62c618a1972ea07f327ea03eef94f295c0954dbdf396",
+    "active:assets/lbc/shaders/include/signed_glow_data.glsl": "b7ae4f64cfbf8122e497e7baf00350a418c3425c21991384c4fae30226c46018",
+    "active:assets/lbc/shaders/post/signed_glow.fsh": "3d36eda1c9654ea7d5a385ddd71cf57e01fd0dd1133c60895872f7b3c1b34a45",
+    "active:assets/lbc/shaders/post/smoke_volume.vsh": "6bbdd425137d8c5c11c537e2a4a43eee872e783c8bcb8293eabfbbba3132f27b",
+    "active:assets/lbc/shaders/include/smoke_data.glsl": "fbe0a59e9661331a475ca0de90cbf38728ceb6047ef049f68029bee5b8dceab9",
+    "active:assets/lbc/shaders/post/smoke_volume.fsh": "8b95250988985d961cc7a3eb3d721d2394aa091c9254ad6f64a6e6f58aeb37bf",
+    "active:assets/lbc/shaders/post/weapon_spread.vsh": "6c5c369cb156b1973e093be6742c8f231e47f8d2cdf1d1c076a4e346150c6310",
+    "active:assets/lbc/shaders/post/weapon_spread.fsh": "7809761c80b06cbfc1def2062a02c889bb8e1132052893adb4a478354770bb0d",
+    "active:assets/lbc/shaders/include/reticle_header.glsl": "9f3a06eb518de0467568d480a945ffd25f804a57a499775b61e7c69fcb83864c",
+    "native:assets/minecraft/shaders/core/screenquad.vsh": "b47ff78239a84617b6b90246f9d6164516d492b7e3abbe391b02221b41aee68c",
+    "active:assets/lbc/shaders/post/polymorph_outline_bloom_sample.fsh": "2521abc7a84b9c855bbc14dedbb7288d8204b7e4b4ca10f19f1d817e424d0550",
+    "active:assets/lbc/shaders/include/exoperso_bloom.glsl": "98da18438820da9055e45962288a120985b347f8c5d47c110cff7b8c5036d953",
+    "active:assets/minecraft/shaders/post/bloom.fsh": "db777bbb76c61cdef5296b2eba94d227683c44f9ba8914226bf1669a76769e4d",
+    "active:assets/lbc/shaders/include/bloom_blur.glsl": "bde08c9e8a98ffc287c1d73334c222280eff57e4da6f58055dc540287c55167d",
+    "active:assets/lbc/shaders/post/polymorph_outline_bloom.fsh": "958b9ef94ecbafe9d654c19db0bed2482747059ce874483ac4fc78997edd6986",
+    "active:assets/minecraft/shaders/post/entity_sobel.fsh": "83bcc9c62af0e9042c4d85b391157590723805fe723fa164985b2c9dc8957d87",
+    "native:assets/minecraft/shaders/post/blit.fsh": "b04677a5788afe8cc6489f596f353488769830b2dde9e8e3c3cc079c09f27f5f",
+    "active:assets/minecraft/post_effect/end_of_frame.json": "d237bd72359b582e83f891a1adc4025ea05e4e8232e73f8d2e24a864078069a0",
+    "active:assets/lbc/shaders/post/weapon_spread_resolve.vsh": "85dbd924015a9afe0328ce87cc3a2573c2355fc89b8a374cfeb0fb8a93c5e87b",
+    "active:assets/lbc/shaders/post/weapon_spread_resolve.fsh": "02d5cc954277e4c1daca871936335fe473e07a628b81813570509ff951d30688",
+    "active:assets/lbc/shaders/post/time_gate.fsh": "cdfc3fb04d237c14897df144897006afcc1bff4e41248e5c0a4974d96901fe54",
+    "active:assets/lbc/shaders/post/effect_state.fsh": "5ac8097bd3f4f6a78434faa6266169c140fc54625181f72d5aa4cfe0fa9a5672",
+    "active:assets/minecraft/shaders/post/bloom_sample.fsh": "6e13add61f3b99d11335e7dbc16d84a8afb05b7a604ecc48b826feea7c87e3f0",
+    "active:assets/lbc/shaders/post/nuclear.vsh": "1b8b915c554170bbf69f9ef7f376c69c53210008c6828575418e305406061d10",
+    "active:assets/lbc/shaders/include/nuclear_vertex.glsl": "0760c50ff25d035aa53362c20f12c45e8603c3b3bd02cc35c497b3e8fc2af28a",
+    "active:assets/lbc/shaders/include/nuclear_volume.glsl": "eb5deee0b1a7634c37c1fa30e1bedaef553c289b7e11e10d21cb39fcf86cf687",
+    "active:assets/lbc/shaders/post/nuclear.fsh": "4408a0ed426d67e2bd0d89a344fde87e6d362a7dd511d0650ed20d511978ce4b",
+    "active:assets/lbc/shaders/include/nuclear_pass.glsl": "1ccc3ed7c3776d1f7941dcb4d863aadbcba2c7fde75c28e60ca9edbb27144ce2",
+    "active:assets/lbc/shaders/include/nuclear_inputs.glsl": "742f32deef078111aa689623ecb538a8e22ff0757d12f4e9ed113d360ac7480d",
+    "active:assets/lbc/shaders/include/nuclear_trace.glsl": "fb7561f54d3dc77f87f853b63110bb8edd75098950dc4e5e47de666385a4d954",
+    "active:assets/lbc/shaders/post/nuclear_many.vsh": "1d3a6175a0afde69071ab401332c3428c3e75f6f1bdf5953ca739781330dbfde",
+    "active:assets/lbc/shaders/post/nuclear_many.fsh": "acd299c8f6006974069d6eb0267060f981a337c03b128a11e5e5c854ad5e7541",
+    "active:assets/lbc/shaders/post/nuclear_full.vsh": "4c25b565ac317e73189d3b6296e94c004dab1e33eadb092b7085f0bf02703149",
+    "active:assets/lbc/shaders/post/nuclear_resolve.fsh": "cdffe5b4f0a4298a669b7738fb65fce10386742dbcdd0e56f6cea2d72cf7080a",
+    "active:assets/lbc/shaders/include/nuclear_resolve_pass.glsl": "7c4d7fdb1480829fb13ac6e47b1d05b4e3fbb27ddef13ac4a572b2eec901a24d",
+    "active:assets/lbc/shaders/post/nuclear_many_full.vsh": "87505e8e4c8519eee04dd2a73dcbba8134ddb409a469030015dc68518c34f62e",
+    "active:assets/lbc/shaders/post/nuclear_resolve_many.fsh": "ec5adb2ae023288026d04d55f94241b8e3cb9a167c267c0ffe6ffd0618e2c77b",
+    "active:assets/lbc/shaders/post/black_hole_image_fast.vsh": "d890f612d90720fea8dc9187967834d369df28d6d5db081a6849aa3ee53a82f7",
+    "active:assets/lbc/shaders/include/black_hole_vertex.glsl": "75660d8c7b94c2ba8824bdf96af0cb25c5b0d0bfbbf210c2b3823360c089ba06",
+    "active:assets/lbc/shaders/include/black_hole_sampling.glsl": "9f33496acf82b7d2ae59b841a3bd1db5587e203c1d4dc217f836ea6e570273d2",
+    "active:assets/lbc/shaders/post/black_hole_image_fast.fsh": "8bf6c4fd3ec5758eb8641243c689f99ca59d8dec5ec98e228cceef0095116f87",
+    "active:assets/lbc/shaders/include/black_hole_image.glsl": "223a0156f3c1c676746fbd71db6decf91f2de4d39879bddbffe82448c3815d6b",
+    "active:assets/lbc/shaders/include/black_hole_disk.glsl": "dcf60808a579ce2c44250f5228c08e0a926fb992911d7a38038c9850ea9b16fa",
+    "active:assets/lbc/shaders/include/black_hole_gravity.glsl": "f99b90a59405abf81a98f81a886aa97cfe43e393ac487b26a14d1aebd462b3f1",
+    "active:assets/lbc/shaders/post/black_hole_image_many.vsh": "8e41180af6c0a60b07663b16617e04b028c6c8f58b2d3720abf3b2abb691fb7e",
+    "active:assets/lbc/shaders/post/black_hole_image.fsh": "83a4a439d3d1dd9fabba4fad7b4beafca9f3bab721669dfd8795888454f8f7ab",
+    "active:assets/lbc/shaders/post/nuclear_heat.vsh": "1a70da9878b95d093998567413884283552ee3933650ed19fad419fc09887230",
+    "active:assets/lbc/shaders/post/nuclear_heat.fsh": "9b5b7f8274dd66fe0aa4e1adee216941b9ffff53cf01fadb5625351c08383f46",
+    "active:assets/lbc/shaders/include/nuclear_heat_pass.glsl": "66f71ce260c5eaf7c5b9f81198ca54afc1b71a5a16e2e4ca3cdd618e18c761c4",
+    "active:assets/lbc/shaders/post/nuclear_heat_many.vsh": "b464c348c4cc993c9524551b9abfb9b4d101e9b74421a86342aa7afff0ed54a4",
+    "active:assets/lbc/shaders/post/nuclear_heat_many.fsh": "c3366154eefd4536d43f55f91cfdebaf8dbdd16acb7cbe076cf00a4704d57394",
+    "active:assets/lbc/shaders/post/time_capture.vsh": "7705ee8bd3d01dfbf6279689cb6ad86f65d3a1df650a688f8d49a201e2074aae",
+    "active:assets/lbc/shaders/post/time_capture.fsh": "175502983c6731b20061d96cc01a8a94e76476938673e89d616f396c6e9ebb95",
+    "active:assets/lbc/shaders/post/time_present.vsh": "6ab422e89b8c6a1bd555e2b4121151b3399c5567015445a106fc8995ceb3609d",
+    "active:assets/lbc/shaders/post/time_present.fsh": "228f04d2bdfb40427d19ee4daf9ce95cffa33ad25b13c5cd0f9a2febf322eb16"
+  },
+  "scope": "Isolated actual active RP postprocessing, three GPU timer-query samples/pass after warmup, no effect markers or world geometry. This does not measure the complete Minecraft frame/CPU cost."
+}

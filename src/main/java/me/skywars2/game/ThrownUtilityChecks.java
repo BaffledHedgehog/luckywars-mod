@@ -139,7 +139,7 @@ public final class ThrownUtilityChecks {
                 move(other,pipe.position());pipe.playerTouch(other);require(!pipe.isRemoved(),"actual native overlap cannot collect on landing");next(5);return false;
             }
             if(phase==5){int elapsed=game.server().getTickCount()-when;
-                if(elapsed<5){require(!pipe.isRemoved()&&pipe.onGround()&&(Integer)read(pipe,"pickupDelay")==5-elapsed,"native five-tick ground delay at "+elapsed);pipe.playerTouch(other);require(!pipe.isRemoved(),"actual native pickup stays blocked before fifth ground tick");
+                if(elapsed<5){require(!pipe.isRemoved()&&pipe.onGround()&&(Integer)read(pipe,"pickupDelay")==5-elapsed,"native five-tick ground delay at "+elapsed+" actual="+read(pipe,"pickupDelay")+" ground="+pipe.onGround()+" removed="+pipe.isRemoved()+" motion="+pipe.getDeltaMovement());pipe.playerTouch(other);require(!pipe.isRemoved(),"actual native pickup stays blocked before fifth ground tick");
                     if(elapsed==2){game.items().timeStop().begin(level,100);stopped=true;next(6);}return false;}
                 require(elapsed==5,"native pickup boundary has no deferred extra ticks");if(!pipe.isRemoved())pipe.playerTouch(other);
                 require(pipe.isRemoved()&&other.getInventory().countItem(pickedPrototype.getItem())==pickedCountBefore+pickedPrototype.getCount(),"fifth active ground tick permits native collection of the whole original pipe");

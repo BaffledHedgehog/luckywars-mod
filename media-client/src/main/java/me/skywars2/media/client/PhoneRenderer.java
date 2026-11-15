@@ -14,17 +14,17 @@ import org.joml.*;
 public final class PhoneRenderer implements SpecialModelRenderer<Identifier> {
     // FaceBakery uses model coordinates /16; both composite layers share the same hand transform.
     private static final float X0=.15f/16,X1=13.85f/16;
-    private static final float Y0=(15-13.7f*1280/720/2)/16,Y1=(15+13.7f*1280/720/2)/16,Z=2.015f/16;
+    private static final float Y1=29.5f/16,Y0=Y1-13.7f*1280/720/16,Z=2.2f/16;
     @Override public Identifier extractArgument(ItemStack stack){return MediaClient.texture();}
     @Override public void getExtents(Consumer<Vector3fc> output){
-        output.accept(new Vector3f(0,-1f/16,2.003f/16));output.accept(new Vector3f(14f/16,31f/16,2.003f/16));
+        output.accept(new Vector3f(0,-1f/16,2.1f/16));output.accept(new Vector3f(14f/16,29.55f/16,2.1f/16));
         output.accept(new Vector3f(X0,Y0,Z));output.accept(new Vector3f(X1,Y1,Z));
     }
     @Override public void submit(Identifier texture,PoseStack pose,SubmitNodeCollector collector,int light,int overlay,boolean foil,int outline){
         if(texture==null)return;
         collector.submitCustomGeometry(pose,RenderTypes.text(texture),(p,b)->{
-            // Cover the old screen artwork behind the letterboxed video, keeping the original frame.
-            quad(p,b,0,-1f/16,14f/16,31f/16,2.003f/16,0xff000000);
+            // Keep the original status bar/time/battery above29.55 visible.
+            quad(p,b,0,-1f/16,14f/16,29.55f/16,2.1f/16,0xff000000);
             quad(p,b,X0,Y0,X1,Y1,Z,-1);
         });
     }

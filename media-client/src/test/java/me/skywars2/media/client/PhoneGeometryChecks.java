@@ -19,8 +19,12 @@ public final class PhoneGeometryChecks {
         for(var p:vertices){
             if(p.x()<min.x-1e-6f||p.x()>max.x+1e-6f||p.y()<min.y-1e-6f||p.y()>max.y+1e-6f)
                 throw new AssertionError("screen outside original native phone face: "+p+" versus "+min+".."+max);
-            if(p.z()<=max.z||p.z()-max.z>.002f)throw new AssertionError("screen must lie just in front of original face: "+p);
+            if(p.z()<=max.z||p.z()-max.z>.02f)throw new AssertionError("screen must lie in front of original face: "+p);
+            if(p.y()>29.55f/16+1e-6f)throw new AssertionError("screen covers original status bar: "+p);
         }
-        System.out.println("PASS PhoneGeometry: native SOUTH cuboid coordinates, face bounds, front-plane depth; same shared hand transform");
+        var videoMin=vertices.get(vertices.size()-2);var videoMax=vertices.getLast();
+        if(Math.abs(videoMax.y()-29.5f/16)>1e-6f||Math.abs((videoMax.y()-videoMin.y())/(videoMax.x()-videoMin.x())-1280f/720)>1e-5f)
+            throw new AssertionError("video top and uncropped aspect must fit below status bar");
+        System.out.println("PASS PhoneGeometry: native SOUTH cuboid bounds, original status bar retained, video raised without aspect change, separated front-plane depth; same shared hand transform");
     }
 }

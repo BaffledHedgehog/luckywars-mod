@@ -16,7 +16,7 @@ public final class SmokeEndingChecks {
     private static final class Fixture implements AutoCloseable {
         final GameController game;final WoolBucketChecks.Fixture f;final LbcReactiveArtifacts smoke;
         final boolean blocks,entities,mobs;
-        ItemEntity carrier;Object cloud;Vec3 start;int began,expiry,displayId;boolean closed;
+        ItemEntity carrier;Object cloud;Vec3 start;int began,expiry;boolean closed;
         Fixture(GameController game){
             this.game=game;f=new WoolBucketChecks.Fixture(game,false);smoke=game.items().reactiveArtifacts();
             var rules=f.level.getGameRules();blocks=rules.get(GameRules.BLOCK_DROPS);entities=rules.get(GameRules.ENTITY_DROPS);mobs=rules.get(GameRules.MOB_DROPS);
@@ -42,7 +42,7 @@ public final class SmokeEndingChecks {
             require(smoke.cloudCount()==1&&!carrier.isRemoved(),"purification and owner unload during ENDING also retain world smoke");
             // Keep the native test participants in this already resident scene during celebration.
             f.move(f.owner,position.add(-3,0,0));f.move(f.other,position.add(3,0,0));
-            displayId=smoke.smokeDisplays(f.owner).getFirst().getEntityId();f.client.packets().clear();
+            require(!SmokeVolumeChecks.shaderMarker(f.client.packets()),"no fullscreen smoke shader source");f.client.packets().clear();
             start=carrier.position();carrier.push(.35,.15,0);began=game.server().getTickCount();
         }
         boolean step(){
@@ -50,15 +50,13 @@ public final class SmokeEndingChecks {
             require(game.stage()==GameController.Stage.ENDING&&!carrier.isRemoved(),"world source retained throughout actual celebration");
             if(elapsed<12)return false;
             require(carrier.position().distanceToSqr(start)>.01,"physical body continues native movement during celebration");
-            require(((Vec3)WoolBucketChecks.read(cloud,"center")).distanceToSqr(carrier.position())<1e-8,"actual ending item tick keeps shader source aligned");
-            require(!smoke.smokeDisplays(f.owner).isEmpty(),"observer also receives world smoke after real end cleansing");
-            require(SmokeVolumeChecks.flatten(f.client.packets()).stream().anyMatch(packet->
-                packet instanceof net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket p&&p.id()==displayId
-                ||packet instanceof net.minecraft.network.protocol.game.ClientboundMoveEntityPacket&&(Integer)WoolBucketChecks.read(packet,"entityId")==displayId),
-                "actual outgoing native movement packet advances the shader source");
+            require(((Vec3)WoolBucketChecks.read(cloud,"center")).distanceToSqr(carrier.position())<1e-8,"actual ending item tick keeps particle source aligned");
+            require(SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.class::isInstance)
+                .map(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.class::cast)
+                .anyMatch(p->SmokeVisuals.particle(p.particle())),"observer receives public custom puffs during celebration");
             int held=(Integer)WoolBucketChecks.read(cloud,"expires")-expiry;
             require(held>=elapsed&&held<=elapsed+1,"accepted gameplay lifetime pauses during celebration while physical visuals continue");
-            SkyWars2.LOGGER.info("[check] PASS smoke-ending (real finalization/cleansing/ENDING, {} native ticks, physical movement retained, shader follows, graph lifetime held)",elapsed);
+            SkyWars2.LOGGER.info("[check] PASS smoke-ending (real finalization/cleansing/ENDING, {} native ticks, physical movement retained, public puff emission follows, graph lifetime held)",elapsed);
             return true;
         }
         public void close(){

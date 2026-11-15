@@ -39,20 +39,34 @@ def main():
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pack", type=Path, required=True)
+    parser.add_argument("--overlay", type=Path, action="append", default=[], help="Read-only addon overlay, last wins")
+    parser.add_argument("--chain", action="append", default=[], help="Additional post-effect JSON asset path")
+    parser.add_argument("--shader", action="append", default=[], help="Additional .vsh/.fsh asset path")
+    parser.add_argument("--output", type=Path, help="Separate verification output directory")
     args = parser.parse_args()
     pack = args.pack.resolve()
     addon = root / "resourcepack_template/updates/timestop_glsl_2026_11_15"
-    out = root / "build/verification/timestop-shaderc-2026-11-15"
+    out = args.output or root / "build/verification/timestop-shaderc-2026-11-15"
     out.mkdir(parents=True, exist_ok=True)
     source_jar = next((root / ".gradle/loom-cache/minecraftMaven").rglob("*26.3-sources.jar"))
     jar = source_jar.with_name(source_jar.name.replace("-sources.jar", ".jar"))
     if not jar.is_file():
         raise FileNotFoundError(jar)
     relative = "assets/lbc/shaders/post/time_gate.fsh"
-    patched = (addon / relative).read_bytes()
+    if (addon / relative).is_file():
+        patched = (addon / relative).read_bytes()
+        patch_manifest = json.loads((addon / "export-manifest.json").read_text(encoding="utf-8"))
+    else:
+        # Applied addons are removed by the author. Reproduce the reserved-word
+        # error by changing only that identifier in the actual current shader;
+        # do not restore deleted assets or rely on a particular Git revision.
+        patched = (pack / relative).read_bytes()
+        if not re.search(rb"\bfreezeActive\b",patched):
+            raise AssertionError("Current TimeStop shader has no freezeActive control identifier")
+        baseline=re.sub(rb"\bfreezeActive\b",b"active",patched)
+        patch_manifest={"assets":[{"author_base_sha256":hashlib.sha256(baseline).hexdigest()}]}
     original = re.sub(rb"\bfreezeActive\b", b"active", patched)
     current = (pack / relative).read_bytes()
-    patch_manifest = json.loads((addon / "export-manifest.json").read_text(encoding="utf-8"))
     if hashlib.sha256(original).hexdigest() != patch_manifest["assets"][0]["author_base_sha256"]:
         raise AssertionError("Original shader does not match the recorded failure")
     if current not in (original, patched):
@@ -63,7 +77,7 @@ def main():
     def read(name):
         if name in files:
             return files[name]
-        for base in (addon, pack):
+        for base in (*reversed(args.overlay), addon, pack):
             path = base / name
             if path.is_file():
                 data = path.read_bytes()
@@ -85,13 +99,17 @@ def main():
         return re.sub(r'^\s*#(?:moj_import|include)\s*[<\"]([^>\"]+)[>\"]\s*$', include, text, flags=re.M)
 
     stages = {}
-    for chain in ("assets/minecraft/post_effect/end_of_frame.json", "assets/lbc/post_effect/time_stop_freeze.json"):
+    for chain in ("assets/minecraft/post_effect/end_of_frame.json", "assets/lbc/post_effect/time_stop_freeze.json", *args.chain):
         for entry in json.loads(read(chain))["passes"]:
             for key, extension, kind in (("vertex_shader", "vsh", 0), ("fragment_shader", "fsh", 1)):
                 identifier = entry[key]
                 namespace, path = identifier.split(":", 1)
                 name = f"assets/{namespace}/shaders/{path}.{extension}"
                 stages[name] = kind
+    for name in args.shader:
+        if not name.endswith((".fsh", ".vsh")):
+            raise ValueError("Shader must be a .vsh/.fsh asset")
+        stages[name] = 1 if name.endswith(".fsh") else 0
     rows = []
     negative = out / "original-time_gate.fsh"
     negative.write_bytes(original)

@@ -40,7 +40,7 @@ public final class LbcReactiveArtifacts {
         public double radius(){return visualRadius;}
         public double density(){return density;}
         Cloud(ServerPlayer p,String e){this(p,e,p.position(),7,0,100,0);}
-        Cloud(ServerPlayer p,String e,Vec3 center,double radius,int amplifier,int life,int visual){owner=p;level=p.level();epoch=e;this.center=center;this.radius=radius;this.visualRadius=radius;this.amplifier=amplifier;this.visual=visual;expires=p.level().getServer().getTickCount()+life;}
+        Cloud(ServerPlayer p,String e,Vec3 center,double radius,int amplifier,int life,int visual){owner=p;level=p.level();epoch=e;this.center=center;this.radius=radius;this.visualRadius=visual==1?.15:radius;density=visual==1?.1:1;this.amplifier=amplifier;this.visual=visual;expires=p.level().getServer().getTickCount()+life;}
     }
     /** Vanilla item physics owns support loss, fluid flow and explosion knockback. */
     private static final class SmokeCarrier extends net.minecraft.world.entity.item.ItemEntity {
@@ -237,8 +237,8 @@ public final class LbcReactiveArtifacts {
                 cloud.moving=true;cloud.stillTicks=0;
             }else if(cloud.moving&&++cloud.stillTicks>=4)cloud.moving=false;
             cloud.motionPoint=at;
-            double desiredRadius=cloud.radius*(cloud.moving?.85:1),desiredDensity=cloud.moving?.8:1;
-            cloud.visualRadius+=(desiredRadius-cloud.visualRadius)*.25;cloud.density+=(desiredDensity-cloud.density)*.25;
+            double desiredRadius=7.5*(cloud.moving?.85:1),desiredDensity=cloud.moving?.8:1;
+            cloud.visualRadius+=(desiredRadius-cloud.visualRadius)*.06;cloud.density+=(desiredDensity-cloud.density)*.07;
             if(Math.abs(cloud.visualRadius-desiredRadius)<.001)cloud.visualRadius=desiredRadius;
             if(Math.abs(cloud.density-desiredDensity)<.001)cloud.density=desiredDensity;
         }
@@ -248,7 +248,6 @@ public final class LbcReactiveArtifacts {
         var volumes=new ArrayList<SmokeVisuals.Volume>();for(var cloud:clouds)if(cloud.visual==1)volumes.add(cloud);
         volumes.addAll(smokeTrails);smokeVisuals.synchronize(volumes);
     }
-    List<eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement> smokeDisplays(ServerPlayer viewer){return smokeVisuals.displays(viewer);}
     public void tick(){if(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(game.maps().level())){for(var state:blind.values())state.lastTick=game.server().getTickCount();for(var cloud:clouds)cloud.expires++;synchronizeSmokeVisuals();return;}updateSmoke(true);}
     public void loaded(Entity entity){if(entity instanceof LivingEntity target&&!reduced.contains(target)){var range=target.getAttribute(Attributes.FOLLOW_RANGE);if(range!=null)range.removeModifier(RANGE);}}
     public void unloaded(Entity entity){if(entity instanceof LivingEntity target){var state=blind.remove(target);if(state!=null)restoreBlindness(target,state);var range=target.getAttribute(Attributes.FOLLOW_RANGE);if(reduced.remove(target)&&range!=null)range.removeModifier(RANGE);}}

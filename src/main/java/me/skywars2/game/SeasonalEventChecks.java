@@ -46,7 +46,16 @@ public final class SeasonalEventChecks {
         for(var name:List.of("halloween","november","tournament"))require(game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly(name),"lbc.event").get()==1,"actual native loot holder "+name);
         var screamers=new ArrayList<Entity>();for(var entity:level.getAllEntities())if(entity.entityTags().contains(LbcSeasonalEvents.SCREAMER))screamers.add(entity);
         require(screamers.size()==25&&service.count()==25,"actual match start places exactly source25 native screamers");
-        for(var entity:screamers){require(entity instanceof Display.ItemDisplay d&&d.getItemStack().get(DataComponents.ITEM_MODEL).toString().equals("lbc:strangeness"),"source screamer model");require(Math.abs(entity.getX())<=190&&Math.abs(entity.getZ())<=190,"source scatter bounds");}
+        var columns=new HashSet<Long>();
+        for(var entity:screamers){
+            require(entity instanceof Display.ItemDisplay d&&d.getItemStack().get(DataComponents.ITEM_MODEL).toString().equals("lbc:strangeness"),"source screamer model");
+            require(Math.abs(entity.getX())<=190&&Math.abs(entity.getZ())<=190,"source scatter bounds");
+            var floor=entity.blockPosition().below();var support=level.getBlockState(floor);
+            require(!support.getCollisionShape(level,floor).isEmpty()&&support.getFluidState().isEmpty(),"each screamer actually stands on map terrain");
+            require(Math.abs(entity.getY()-(floor.getY()+1.01))<.00001,"source .01 height above actual support");
+            columns.add(net.minecraft.world.level.ChunkPos.pack(floor.getX(),floor.getZ()));
+        }
+        require(columns.size()>=5,"screamers are scattered across real map columns, not stacked at0,100,0");
         require(player.getTeam()!=null&&player.getTeam().getPlayerPrefix().getString().contains("\u0414\u0436\u0435\u0434\u0430\u0439"),"actual delayed November prefix");
         var caseButton=OriginalGuiDesign.button(player,"swrg",5000,4,game.players().get(player.getUUID()),game.config());
         require(caseButton.is(Items.JACK_O_LANTERN)&&key(caseButton.getHoverName(),"case_halloween"),"actual seasonal Jack case source GUI");

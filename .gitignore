@@ -38,6 +38,8 @@ Thumbs.db
 /resourcepack_template/updates/tiktok_hd_2026_11_15/assets/skywars2/models/item/tiktok_screen.json
 /resourcepack_template/updates/tiktok_hd_2026_11_15/assets/lbc/items/zaika_video.json
 /resourcepack_template/updates/tiktok_hd_2026_11_15/assets/skywars2/sounds/tiktok/v2/*.ogg
+# Reproducible full-resolution mesh; regenerate with build_feedback_2026_11_15_assets.py.
+/resourcepack_template/updates/feedback_2026_11_15/assets/skywars2/models/item/tiktok_screen.json
 
 # Optional media client uses its own Loom workspace.
 /media-client/.gradle/
