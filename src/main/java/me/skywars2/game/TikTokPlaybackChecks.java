@@ -32,6 +32,7 @@ public final class TikTokPlaybackChecks {
         final Path directory;final TikTokCache cache;final TikTokPlayback playback,previous;
         final java.lang.reflect.Field playbackField,channelField;final Object previousChannel;
         final EmbeddedChannel channel=new EmbeddedChannel();final ItemStack authored;
+        final List<net.minecraft.world.entity.item.ItemEntity> dropped=new ArrayList<>();
         long started;int began,phase,when;long now,wireBytes;boolean closing,realReference;
         Fixture(GameController game)throws Exception{
             this.game=game;f=new WoolBucketChecks.Fixture(game,false);f.prepareParticipants();
@@ -155,14 +156,34 @@ public final class TikTokPlaybackChecks {
                 require(frames(f.client.packets()).stream().anyMatch(p->p.slot()==40),"offhand phone gets its real inventory slot");
                 f.owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);next(7);return false;
             }
+            if(phase==7){
+                if(elapsed<6)return false;
+                require(playback.screen(f.owner)==null&&playback.pins().isEmpty()&&frames(f.client.packets()).isEmpty(),"no held phone stops display/audio/I/O pins");
+                f.owner.setItemInHand(InteractionHand.MAIN_HAND,authored.copy());next(8);return false;
+            }
+            if(phase==8){
+                if(now-started<10_400_000_000L)return false;
+                use();next(9);return false;
+            }
+            if(phase==9){
+                if(elapsed<4)return false;
+                require(!frames(f.client.packets()).isEmpty(),"real moving phone before Q drop");
+                var before=Collections.newSetFromMap(new IdentityHashMap<net.minecraft.world.entity.Entity,Boolean>());f.level.getAllEntities().forEach(before::add);
+                f.owner.drop(false);
+                for(var entity:f.level.getAllEntities())if(!before.contains(entity)&&entity instanceof net.minecraft.world.entity.item.ItemEntity item)dropped.add(item);
+                require(f.owner.getMainHandItem().isEmpty()&&dropped.size()==1&&ItemStack.matches(dropped.getFirst().getItem(),authored),"native Q creates original server phone without projected frame components");
+                next(10);return false;
+            }
             if(elapsed<6)return false;
-            require(playback.screen(f.owner)==null&&playback.pins().isEmpty()&&frames(f.client.packets()).isEmpty(),"no held phone stops display/audio/I/O pins");
+            require(playback.screen(f.owner)==null&&frames(f.client.packets()).isEmpty(),"Q stops video and cannot republish stale frame");
+            require(SmokeVolumeChecks.flatten(f.client.packets()).stream().filter(ClientboundSetPlayerInventoryPacket.class::isInstance)
+                    .map(ClientboundSetPlayerInventoryPacket.class::cast).anyMatch(p->p.slot()==1&&p.contents().isEmpty()),"Q explicitly restores authoritative empty client slot");
             SkyWars2.LOGGER.info("[check] PASS tiktok-playback (actual native phone use/private20FPS moving item colours and8-sound limit, 5sec cooldown rednonitalic key, exact original NBT roundtrip, native full/component/sound codecs, {} compressed bytes/frame, actual Netty unwritable admission/latest resume, watched original purge, hotbar/offhand and unheld cleanup; realForYouBinary={})",wireBytes,realReference);
             return true;
         }
         public void close(){
             if(closing)return;closing=true;
-            try{playback.close();playbackField.set(null,previous);channelField.set(f.client.connection,previousChannel);channel.finishAndReleaseAll();cache.close();}
+            try{playback.close();playbackField.set(null,previous);channelField.set(f.client.connection,previousChannel);channel.finishAndReleaseAll();cache.close();dropped.forEach(net.minecraft.world.entity.Entity::discard);}
             catch(Exception error){throw new IllegalStateException("TikTok fixture service restore",error);}
             finally{
                 f.close();try(var files=Files.walk(directory)){for(var path:files.sorted(Comparator.reverseOrder()).toList())Files.delete(path);}

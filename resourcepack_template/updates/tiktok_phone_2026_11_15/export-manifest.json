@@ -249,13 +249,13 @@
     "assets/skywars2/sounds/tiktok/v1/triad_7_8_1.ogg": "a136c83ae52aea9ea5b4abfd6a38e3be4bcb76658d8e3ad1d9e2301946b60a35",
     "assets/skywars2/sounds/tiktok/v1/triad_7_9_0.ogg": "676cfa51dc12cbe22aa781075e15a02f1d2224dad85f4c6eaeb37e844771b6b1",
     "assets/skywars2/sounds/tiktok/v1/triad_7_9_1.ogg": "df20b3a09778f19cb8bd1c2edfd9a30d18f18eb751f44a37d2070a3d3f21bf89",
-    "assets/skywars2/sounds.json": "0933e83bad4262587b4c8401c80e698246536f1ca7b4201ad51e8e4bdf34ba8e",
+    "assets/skywars2/sounds.json": "ad158a2fbf06de931a691733a6ab63126aff69d6c196044ea26661847609745c",
     "assets/skywars2/textures/item/tiktok_black.png": "abc58d5127d7cdf313beb9ec8ee839860a9c6bfbc48c8b8eb6a3f7d8bb63de6f",
     "assets/skywars2/textures/item/tiktok_pixels.png": "ba299fe49a0a92d5e2d59affc4ef692dc6d2d401732d55ef2d7bcc8662ff71b9",
     "AUDIO_BANK.json": "14e5e6bb86351fe91dcd58eb83782f29fceda5698e3efc823508b5f81d137c15",
     "PHONE_AUTHOR_BASE_SHA256.json": "ca8a6b47c226ce2a2334282a9c2ed1965f6267d471631933a706952aae948baa",
     "PHONE_BASELINE/entity.fsh": "bbbba3b7afed731a6ce54dd0c5d4ab8f278180ef7c1be613943eff3841c36f91",
     "PHONE_BASELINE/entity.vsh": "8a95e6836d13a21e1717f3b7da961d74736154bd878c0b012d1eebd6c303b1e7",
-    "README_RU.txt": "13177cf85ff7ee789a451a13ef3d62c9086fadccccda6dcadeba90e41a5c6afe"
+    "README_RU.txt": "117ae85b470090236e581b87d99231f5b7aaaddde613c00e9708b2f64484539a"
   }
 }

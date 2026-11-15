@@ -50,7 +50,7 @@ def main():
                                         '-c:a','libvorbis','-q:a','3','-threads','1',str(output/(name+'.ogg'))],
                                        stdin=subprocess.DEVNULL,check=True,timeout=15,
                                        creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
-                        variants.append({'name':'skywars2:tiktok/v1/'+name,'attenuation_distance':1,'preload':True})
+                        variants.append({'name':'skywars2:tiktok/v1/'+name,'attenuation_distance':16,'preload':True})
                     sounds[key]={'sounds':variants};entries+=1;index+=1
     (ADDON/'assets/skywars2/sounds.json').write_text(json.dumps(sounds,separators=(',',':'))+'\n')
     result={'events':entries,'clips':entries*args.variants,'bands':24,'groupsPerFrame':8,'fps':20,'maxEventsPerSecond':160,

@@ -84,9 +84,11 @@ public final class TikTokPlayback implements AutoCloseable {
         else if(!packets.isEmpty())player.connection.send(new ClientboundBundlePacket(packets));
     }
     private static void original(ServerPlayer player,int slot){
-        var stack=player.getInventory().getItem(slot);if(!phone(stack))return;
+        var stack=player.getInventory().getItem(slot);
         var context=((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)player.connection).getPacketContext();
-        var proxy=eu.pb4.polymer.core.api.item.PolymerItemUtils.createItemStack(stack,net.minecraft.world.item.TooltipFlag.NORMAL,context,player.registryAccess());
+        var proxy=stack.isEmpty()?ItemStack.EMPTY:phone(stack)
+                ?eu.pb4.polymer.core.api.item.PolymerItemUtils.createItemStack(stack,net.minecraft.world.item.TooltipFlag.NORMAL,context,player.registryAccess())
+                :eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(stack,net.minecraft.world.item.TooltipFlag.NORMAL,context,player.registryAccess());
         player.connection.send(new ClientboundSetPlayerInventoryPacket(slot,proxy));
     }
 
@@ -98,7 +100,8 @@ public final class TikTokPlayback implements AutoCloseable {
             var entry=iterator.next();var player=entry.getKey();var view=entry.getValue();
             var current=slots(player);
             if(server.getPlayerList().getPlayer(player.getUUID())!=player||current.isEmpty()||!cache.ids().contains(view.clip.id)){
-                screens.remove(player.getUUID());publish(player,view.slots);retire.add(view.clip.id);iterator.remove();continue;
+                screens.remove(player.getUUID());for(int slot:view.slots)original(player,slot);
+                retire.add(view.clip.id);iterator.remove();continue;
             }
             if(!view.slots.equals(current)){
                 var prior=view.slots;view.slots=current;
