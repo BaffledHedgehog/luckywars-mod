@@ -90,6 +90,8 @@ public final class MediaClient implements ClientModInitializer {
         synchronized(LOCK){
             var s=session;if(s==null)return;
             if(System.nanoTime()-s.received>2_000_000_000L){close(false);return;}
+            // Re-prime from fresh frames after a device reload or an audio-buffer underrun.
+            if(s.sound!=null&&s.sound.isStopped()){close(false);return;}
             float volume=Minecraft.getInstance().options.getFinalSoundSourceVolume(SoundSource.RECORDS);
             if(s.sound!=null&&s.volume!=volume){s.volume=volume;s.sound.execute(channel->channel.setVolume(volume));}
             if(s.timeline.primed()&&!s.opening){s.opening=true;openAudio(s);}
