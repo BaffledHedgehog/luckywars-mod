@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "gpu": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "checks": [
+    "original and new actual core/item compile/link including native cutout, glint, glint-special and OIT",
+    "all409920real480p pixels exact under dark lightmap/red hurt overlay, atlas (0, 0)",
+    "all409920real480p pixels exact under dark lightmap/red hurt overlay, atlas (17, 19)",
+    "bright full native palette stays unlit across every item pipeline variant",
+    "100 ordinary/forged-marker actual original/new raster comparisons byte-exact"
+  ],
+  "palettePixels": 409920,
+  "packedTintCount": 136640,
+  "nativePipeline": "core/item",
+  "compiledVariantsPerVersion": 8,
+  "ordinaryRasterComparisons": 100,
+  "connectedMinecraftClientTested": false,
+  "authorInputsUnchangedDuringCheck": 15,
+  "authorAlreadyMergedPhoneShader": false,
+  "shaderSha256": "b94759c95a0c55944d8bcf92a190d15b336a6babbf6792fdd5b7057f3d360ed1"
+}

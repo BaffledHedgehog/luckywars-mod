@@ -18,7 +18,7 @@ public final class TikTokPlayback implements AutoCloseable {
     static final Identifier VIDEO_MODEL=Identifier.parse("lbc:zaika_video");
     private static final long FRAME_NANOS=50_000_000L, COOLDOWN=5_000_000_000L;
     public record Screen(CustomModelData colors,int frame,long serial){}
-    private record Read(long serial,int frame,TikTokMedia.Frame data){}
+    private record Read(long serial,int frame,CustomModelData colors){}
     private static final class View {
         final TikTokMedia clip;final long started;
         long lastRead=-1;Future<Read> pending;
@@ -36,6 +36,7 @@ public final class TikTokPlayback implements AutoCloseable {
     private final ExecutorService reader=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64),
             r->{var t=new Thread(r,"skywars-tiktok-frames");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
     private boolean closed;
+    private final TikTokSoundClock audioClock=new TikTokSoundClock(id->inFlight.merge(id,1,Integer::sum),this::release);
     TikTokPlayback(MinecraftServer server,TikTokCache cache){this.server=server;this.cache=cache;}
     Screen screen(ServerPlayer player){return screens.get(player.getUUID());}
     static boolean phone(ItemStack stack){return stack.is(LbcSpecialArtifactItems.Kind.ADMIN_ZAIKA.item);}
@@ -48,7 +49,7 @@ public final class TikTokPlayback implements AutoCloseable {
         var clip=cache.next(history.getOrDefault(player,""));
         if(clip==null){loading(player);return true;}
         var view=new View(clip,now);view.slots=held;
-        views.put(player,view);history.put(player,clip.id);cooldowns.put(player,now+COOLDOWN);
+        views.put(player,view);audioClock.play(player,clip,now);history.put(player,clip.id);cooldowns.put(player,now+COOLDOWN);
         screens.put(player.getUUID(),new Screen(TikTokPixels.encode(new byte[TikTokMedia.PIXELS]),0,-1));
         publish(player,view.slots);if(old!=null&&old.clip!=clip)retire.add(old.clip.id);
         return true;
@@ -79,7 +80,7 @@ public final class TikTokPlayback implements AutoCloseable {
             var proxy=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(stack,net.minecraft.world.item.TooltipFlag.NORMAL,context,player.registryAccess());
             packets.add(new ClientboundSetPlayerInventoryPacket(slot,proxy));
         }
-        if(bands!=null)packets.addAll(TikTokAudio.packets(player,bands,serial));
+        // Sound has its own 60 Hz wall clock and never waits for a video publication.
         if(packets.size()==1)player.connection.send(packets.getFirst());
         else if(!packets.isEmpty())player.connection.send(new ClientboundBundlePacket(packets));
     }
@@ -99,8 +100,8 @@ public final class TikTokPlayback implements AutoCloseable {
         while(iterator.hasNext()){
             var entry=iterator.next();var player=entry.getKey();var view=entry.getValue();
             var current=slots(player);
-            if(server.getPlayerList().getPlayer(player.getUUID())!=player||current.isEmpty()||!cache.ids().contains(view.clip.id)){
-                screens.remove(player.getUUID());for(int slot:view.slots)original(player,slot);
+            if(server.getPlayerList().getPlayer(player.getUUID())!=player||!player.isAlive()||player.isRemoved()||current.isEmpty()||!cache.ids().contains(view.clip.id)){
+                audioClock.stop(player);screens.remove(player.getUUID());for(int slot:view.slots)original(player,slot);
                 retire.add(view.clip.id);iterator.remove();continue;
             }
             if(!view.slots.equals(current)){
@@ -114,8 +115,8 @@ public final class TikTokPlayback implements AutoCloseable {
                 try{
                     var result=view.pending.get();
                     if(serial-result.serial<=2){
-                        screens.put(player.getUUID(),new Screen(TikTokPixels.encode(result.data.map()),result.frame,result.serial));
-                        publish(player,current,result.data.bands(),result.serial);
+                        screens.put(player.getUUID(),new Screen(result.colors,result.frame,result.serial));
+                        publish(player,current);
                     }
                 }catch(Exception error){screens.remove(player.getUUID());publish(player,current);}
                 view.pending=null;
@@ -126,7 +127,7 @@ public final class TikTokPlayback implements AutoCloseable {
                 inFlight.merge(view.clip.id,1,Integer::sum);
                 try{
                     view.pending=reader.submit(()->{
-                        try{return new Read(serial,frame,view.clip.frame(frame,false));}
+                        try{return new Read(serial,frame,TikTokPixels.encode(view.clip.frame(frame,false).map()));}
                         finally{release(view.clip.id);}
                     });
                 }catch(RejectedExecutionException busy){release(view.clip.id);}
@@ -142,8 +143,8 @@ public final class TikTokPlayback implements AutoCloseable {
     }
     private void release(String id){inFlight.computeIfPresent(id,(key,count)->count==1?null:count-1);}
     void reset(){
-        screens.clear();for(var entry:views.entrySet())publish(entry.getKey(),entry.getValue().slots);
+        audioClock.clear();screens.clear();for(var entry:views.entrySet())publish(entry.getKey(),entry.getValue().slots);
         views.clear();cooldowns.clear();history.clear();retire.clear();
     }
-    @Override public void close(){if(closed)return;closed=true;reset();reader.shutdownNow();}
+    @Override public void close(){if(closed)return;closed=true;reset();audioClock.close();reader.shutdownNow();}
 }

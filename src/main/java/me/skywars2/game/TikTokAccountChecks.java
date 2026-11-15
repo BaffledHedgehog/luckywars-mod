@@ -72,7 +72,7 @@ public final class TikTokAccountChecks {
                 require(cache.stateKey().equals("tiktok.waiting_for_import"),"unconfigured account status does not pretend to prepare queue");
                 require(!Files.exists(videos.resolve("12345675")),"stale sixth original and derivatives removed together");
                 var first=cache.next("");var next=cache.next(first.id);require(!first.id.equals(next.id),"next clip sequence");
-                var frame=first.frame(1,true);require(frame.map().length==7168&&frame.pcm().length==2400&&frame.bands().length==24&&frame.jpeg().length==4,"bounded per-frame disk read");
+                var frame=first.frame(1,true);require(frame.map().length==TikTokMedia.PIXELS&&frame.pcm().length==2400&&frame.bands().length==TikTokMedia.BAND_BYTES&&frame.jpeg().length==4,"bounded per-frame disk read");
                 require(first.frame(0,false).jpeg().length==0,"vanilla read does not allocate/decode high-quality image");
                 cache.watched(first.id,Set.of(first.id));require(cache.sizeReady()==5,"active viewers pin original and derivatives");
                 cache.watched(first.id,Set.of());require(cache.sizeReady()==4&&!Files.exists(first.directory),"irrelevant clip retired after last viewer releases it");
@@ -118,9 +118,10 @@ public final class TikTokAccountChecks {
     }
     private static void clip(Path folder)throws IOException{
         Files.createDirectories(folder);Files.write(folder.resolve("original.mp4"),new byte[]{1});
-        int record=4+TikTokMedia.PIXELS+TikTokMedia.BANDS+TikTokMedia.AUDIO_BYTES+4;
-        var data=ByteBuffer.allocate(28+record*2);data.putInt(0x544b5031).putInt(2).putInt(20).putInt(64).putInt(112).putInt(24000).putInt(24);
-        for(int i=0;i<2;i++){data.putInt(4);data.put(new byte[TikTokMedia.PIXELS+TikTokMedia.BANDS+TikTokMedia.AUDIO_BYTES]);data.put(new byte[]{(byte)255,(byte)216,(byte)255,(byte)217});}
+        var packed=new java.io.ByteArrayOutputStream();try(var deflate=new java.util.zip.DeflaterOutputStream(packed)){deflate.write(new byte[TikTokMedia.PIXELS]);}
+        int record=8+packed.size()+TikTokMedia.BAND_BYTES+TikTokMedia.AUDIO_BYTES+4;
+        var data=ByteBuffer.allocate(28+record*2);data.putInt(0x544b5032).putInt(2).putInt(TikTokMedia.FPS).putInt(TikTokMedia.WIDTH).putInt(TikTokMedia.HEIGHT).putInt(TikTokMedia.RATE).putInt(TikTokMedia.BANDS);
+        for(int i=0;i<2;i++){data.putInt(packed.size()).putInt(4).put(packed.toByteArray());data.put(new byte[TikTokMedia.BAND_BYTES+TikTokMedia.AUDIO_BYTES]);data.put(new byte[]{(byte)255,(byte)216,(byte)255,(byte)217});}
         Files.write(folder.resolve("clip.tkp"),data.array());
         Files.write(folder.resolve("clip.idx"),ByteBuffer.allocate(16).putLong(28).putLong(28+record).array());
     }

@@ -154,7 +154,7 @@ public final class LbcReactiveDefense {
     private void horse(Actor a,int elapsed){
         if(a.remaining<=0)return;
         a.remaining=Math.max(0,a.remaining-elapsed);mirror(a);
-        if(a.remaining==0){releaseSeat(a,true);return;}
+        if(a.remaining==0){coast(a);return;}
         var rider=rider(a);
         if(rider!=null&&rider.getRandom().nextFloat()<.1f)
             LbcOverload.sound((ServerLevel)a.body.level(),a.body.position(),"minecraft:entity.ender_dragon.flap",SoundSource.NEUTRAL,1,1.5f,0,0);
@@ -183,14 +183,21 @@ public final class LbcReactiveDefense {
         if(rider!=null&&!a.body.isRemoved()&&a.body.isAlive()&&rider.startRiding(a.body,true,false)&&preserveMotion)
             TeleportMomentum.handoffVehicle(rider,a.body,motion);
     }
+    private void coast(Actor a){
+        // Keep server authority while airborne: a newly local horse zeros its motion in travelRidden.
+        // Native gravity, drag and collision continue; there is no gaze thrust after the boost expires.
+        if(rider(a)==null||a.body.onGround())releaseSeat(a,true);
+    }
     private void fly(Actor a){
-        if(a.remaining<=0)return;
+        if(a.remaining<=0){coast(a);return;}
         // A non-player first passenger keeps the vanilla client from predicting a walking horse.
         // An empty display is only a passenger seat; the real horse owns collision and tracking.
         flightSeat(a);var rider=rider(a);if(rider==null)return;
         var direction=rider.getLookAngle();
         a.body.setYRot(rider.getYRot());a.body.setXRot(rider.getXRot());
-        a.body.setDeltaMovement(new Vec3(quantized(direction.x),quantized(direction.y),quantized(direction.z)));
+        // Legacy issues one look-unit on the two-tick phase. Spread that displacement budget
+        // across both ticks instead of applying a full unit every tick.
+        a.body.setDeltaMovement(new Vec3(quantized(direction.x*.5),quantized(direction.y*.5),quantized(direction.z*.5)));
         a.body.needsSync=true;
     }
     private static double quantized(double value){return Math.floor(value*10000)*.0001;}

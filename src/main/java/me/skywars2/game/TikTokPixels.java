@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.RandomAccess;
 import net.minecraft.world.item.component.CustomModelData;
 
-/** Three native map-colour indices per RGB tint; one immutable 9.6 KiB array per displayed frame. */
+/** Three native map-colour indices per RGB tint; one immutable bounded array per displayed frame. */
 final class TikTokPixels {
     static final int GROUPS_PER_ROW=(TikTokMedia.WIDTH+2)/3, TINTS=GROUPS_PER_ROW*TikTokMedia.HEIGHT;
     private TikTokPixels(){}

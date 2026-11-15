@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import re
 import struct
+import zlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -48,15 +50,16 @@ def main():
             assert len(offsets) == 40 and offsets[0] == worker.HEADER.size
             maximum, nonzero, video, envelope = 0, False, set(), False
             with (stage / "clip.tkp").open("rb") as inp:
-                assert worker.HEADER.unpack(inp.read(worker.HEADER.size)) == (b"TKP1", 40, 20, 64, 112, 24000, 24)
+                assert worker.HEADER.unpack(inp.read(worker.HEADER.size)) == (b"TKP2", 40, 20, 480, 854, 24000, 48)
                 for offset in offsets:
                     assert inp.tell() == offset
-                    length, = struct.unpack(">I", inp.read(4))
+                    compressed,length = struct.unpack(">II", inp.read(8))
                     assert 0 < length <= worker.MAX_JPEG
-                    low = inp.read(64 * 112)
-                    assert len(low) == 7168 and min(low) >= 4 and max(low) < 248
+                    low = zlib.decompress(inp.read(compressed))
+                    assert len(low) == 409920 and min(low) >= 4 and max(low) < 248
                     video.add(hashlib.sha256(low).hexdigest())
-                    bands = inp.read(24); envelope |= any(bands)
+                    assert max(max(palette[code]) for code in set(low)) >= 240, "bright source colors must survive palette conversion"
+                    bands = inp.read(144); envelope |= any(bands)
                     pcm = inp.read(2400); nonzero |= any(pcm)
                     jpeg = inp.read(length)
                     assert jpeg.startswith(b"\xff\xd8") and jpeg.endswith(b"\xff\xd9")
@@ -64,6 +67,9 @@ def main():
                 assert inp.read() == b""
             assert len(video) > 30 and nonzero != silent and envelope != silent
             assert not any((stage / p).exists() for p in ("map.rgb", "audio.pcm", "video.mjpeg"))
+            if not silent:
+                reference=target/'hd-reference';reference.mkdir(exist_ok=True)
+                for name in ['clip.tkp','clip.idx']:shutil.copyfile(stage/name,reference/name)
             reports.append({"silent": silent, "frames": 40, "differentFrames": len(video), "maxJpeg": maximum,
                             "audio": nonzero, "envelope": envelope, "originalSha256": before})
         cookies = root / "cookies.json"

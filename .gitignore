@@ -33,3 +33,8 @@ Thumbs.db
 
 # Private TikTok account credentials; media is kept under the server world's data/luckywars/tiktok.
 /config/skywars2/tiktok/
+
+# Reproducible HD phone mesh and vocoder bank; regenerate with tools/build_tiktok_*.py.
+/resourcepack_template/updates/tiktok_hd_2026_11_15/assets/skywars2/models/item/tiktok_screen.json
+/resourcepack_template/updates/tiktok_hd_2026_11_15/assets/lbc/items/zaika_video.json
+/resourcepack_template/updates/tiktok_hd_2026_11_15/assets/skywars2/sounds/tiktok/v2/*.ogg

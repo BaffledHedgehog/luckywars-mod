@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 
-/** Eight native sounds per 50 ms maximum, each approximating three independent envelope bands. */
+/** Sixteen native sounds per 16.67 ms maximum, each approximating three independent envelope bands. */
 final class TikTokAudio {
     private TikTokAudio(){}
     record Mixture(int index,float volume){}
@@ -25,12 +25,12 @@ final class TikTokAudio {
         return new Mixture(index,volume);
     }
     static List<Packet<? super ClientGamePacketListener>> packets(ServerPlayer player,byte[] bands,long serial){
-        if(bands.length!=24)throw new IllegalArgumentException("audio_bands");
-        var result=new ArrayList<Packet<? super ClientGamePacketListener>>(8);
-        for(int group=0;group<8;group++){
+        if(bands.length!=TikTokMedia.BANDS)throw new IllegalArgumentException("audio_bands");
+        var result=new ArrayList<Packet<? super ClientGamePacketListener>>(TikTokMedia.BANDS/3);
+        for(int group=0;group<TikTokMedia.BANDS/3;group++){
             var mix=mixture(Byte.toUnsignedInt(bands[group*3]),Byte.toUnsignedInt(bands[group*3+1]),Byte.toUnsignedInt(bands[group*3+2]));
             if(mix==null)continue;
-            var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse("skywars2:tiktok.v1.noise_"+group+"_"+mix.index)));
+            var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse("skywars2:tiktok.v2.noise_"+group+"_"+mix.index)));
             long seed=player.getUUID().getLeastSignificantBits()^(serial*0x9e3779b97f4a7c15L)^group;
             result.add(new ClientboundSoundEntityPacket(sound,SoundSource.RECORDS,player,mix.volume,1,seed));
         }

@@ -1,3 +1,9 @@
+## Twilight coast and native HD phone
+
+Twilight flight spreads the legacy one-unit/two-tick displacement budget into smooth half-unit ticks. When the boost ends in air, the existing non-player control seat remains until landing or dismount: native gravity, drag and collisions preserve the remaining impulse without handing it to client walking input. The native trinket fixture observes actual post-expiry movement and the coordinator rewind.
+
+The 480x854 phone uses the actual Minecraft 26.3 core/item pipeline. Its exact sprite signature is decoded before lighting; only video bypasses light, hurt overlay, fog and glint. Spare existing varyings carry the data, keeping the current shader interface within sixteen locations. Prepared TKP2 frames are independently compressed; video packing runs on the bounded reader. A separate 60 Hz clock reads only small 48-band envelopes and immutable recipient identity, drops stale/unwritable work and stops with the view. The queue remains five clips and 768 MiB, with originals and derivatives retired together. Reproducible large meshes/noise files are ignored; generators, manifests and the mergeable tiktok_hd_2026_11_15 addon document reconstruction.
+
 ## Original requester attribution
 
 Moisei Boots keep the original `Nightmare_23` / ` Baffled Lifestory Event` lore row, including its green/dark-gray styling. It existed in the inline 1.21.1 Loli reward but not the separate boots table; the later reference-only reward inherited that omission. The working `ported/moisei_boots` table and default authored presentation now retain it for every acquisition route. An audit of 26 original attribution rows also restored the AK-47 creator on its finite variant and the Crowbar creator on its separate Loli payload. Only credit rows change; names, gameplay components and existing lore remain intact. Generated uniform profiles are refreshed from these canonical definitions.

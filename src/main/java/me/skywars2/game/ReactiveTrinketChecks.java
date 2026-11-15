@@ -164,7 +164,7 @@ public final class ReactiveTrinketChecks {
                 var pos=new BlockPos(x,y,z);require(level.hasChunkAt(pos),"source absolute-zero teleport columns resident");terrain.putIfAbsent(pos,game.maps().snapshot(level,pos));require(level.setBlock(pos,Blocks.STONE.defaultBlockState(),2)||level.getBlockState(pos).is(Blocks.STONE),"actual native source surface fixture");
             }
         }
-        Vec3 flightStart,lastFlight;double flightDistance;UUID expiryHorse;int expiryPackets;
+        Vec3 flightStart,lastFlight;double flightDistance;UUID expiryHorse;int expiryPackets;Vec3 coastStart;int coastTick;
         void flatten(Packet<?> packet,List<Packet<?>> out){if(packet instanceof ClientboundBundlePacket bundle)for(var child:bundle.subPackets())flatten(child,out);else out.add(packet);}
         void beginDefense(){
             target.discard();empty();move(origin);platform();equip(LbcTrinkets.BANANGAY,99);health(owner);
@@ -223,10 +223,10 @@ public final class ReactiveTrinketChecks {
                     var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(LbcReactiveDefense.BodyView::horse).findFirst().orElseThrow();
                     double moved=horse.body().position().distanceTo(lastFlight);flightDistance+=moved;lastFlight=horse.body().position();
                     require(((Horse)horse.body()).getControllingPassenger()==null,"client never owns flight movement");
-                    if(elapsed>=3)require(moved>.5&&moved<1.3,"steady native flight displacement each tick: "+moved);
+                    if(elapsed>=3)require(moved>.2&&moved<.8,"steady native flight displacement each tick: "+moved);
                     if(elapsed==8){owner.setYRot(0);owner.setXRot(-20);}
                     if(elapsed<16)return false;
-                    require(flightDistance>12&&horse.body().getZ()>flightStart.z+4,"source-speed flight turns toward rider gaze without teleporting");
+                    require(flightDistance>6&&flightDistance<11&&horse.body().getZ()>flightStart.z+2,"source-speed flight turns toward rider gaze without teleporting");
                     require(horse.remaining()<100&&horse.remaining()>=90,"fixed active two-tick horse clock");
                     owner.stopRiding();horse.body().setDeltaMovement(Vec3.ZERO);phase=4;when=game.server().getTickCount();
                 }
@@ -243,18 +243,16 @@ public final class ReactiveTrinketChecks {
                     require(elapsed<230,"natural occupied flight expires without artificial clock changes");
                     var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(v->v.body().getUUID().equals(expiryHorse)).findFirst().orElseThrow();
                     if(horse.remaining()>0)return false;
-                    require(!horse.body().isRemoved()&&owner.getVehicle()==horse.body()&&horse.body().getControllingPassenger()==owner,"native client riding controller receives the same surviving horse");
-                    var packets=new ArrayList<Packet<?>>();for(var packet:client.packets().subList(expiryPackets,client.packets().size()))flatten(packet,packets);
-                    int passenger=-1,motion=-1;Vec3 momentum=Vec3.ZERO;
-                    for(int i=0;i<packets.size();i++){
-                        var packet=packets.get(i);
-                        if(packet instanceof ClientboundSetPassengersPacket changed&&changed.getVehicle()==horse.body().getId()
-                                &&Arrays.equals(changed.getPassengers(),new int[]{owner.getId()}))passenger=i;
-                        if(passenger>=0&&packet instanceof ClientboundSetEntityMotionPacket changed&&changed.id()==horse.body().getId()){
-                            motion=i;momentum=changed.movement();break;
-                        }
-                    }
-                    require(passenger>=0&&motion>passenger&&momentum.y>.5&&momentum.length()<1.2,"actual wire transfers passenger ownership before preserving the existing upward impulse: "+momentum);
+                    require(!horse.body().isRemoved()&&owner.getRootVehicle()==horse.body()&&horse.body().getControllingPassenger()==null,"expired airborne horse retains server authority to avoid client zeroing its impulse");
+                    coastStart=horse.body().position();coastTick=game.server().getTickCount();phase=6;return false;
+                }
+                case 6->{
+                    var horse=game.items().reactiveTrinkets().defense().snapshot().stream().filter(v->v.body().getUUID().equals(expiryHorse)).findFirst().orElseThrow();
+                    require(horse.remaining()==0&&owner.getRootVehicle()==horse.body()&&horse.body().getControllingPassenger()==null,"airborne coast has no new thrust or local walking controller");
+                    require(horse.body().getDeltaMovement().y>-.1&&horse.body().getDeltaMovement().y<.5,"native gravity/drag continue through the natural apex after expiry");
+                    if(game.server().getTickCount()-coastTick<=2)require(horse.body().getDeltaMovement().y>.15,"upward impulse remains during the first real post-expiry ticks");
+                    if(game.server().getTickCount()-coastTick<8)return false;
+                    require(horse.body().position().y>coastStart.y+1,"actual continued native movement for eight ticks after the timer ends");
                     return true;
                 }
                 case 10->{
