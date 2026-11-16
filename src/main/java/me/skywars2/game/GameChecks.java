@@ -950,6 +950,7 @@ public final class GameChecks {
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
                                 case "railroad" -> { RailroadChecks.run(game); return; }
                                 case "map-replacement" -> { MapReplacementChecks.run(game); return; }
+                                case "map-journal" -> { MapJournalChecks.run(game); return; }
                                 case "map-imprinted" -> { MapReplacementChecks.imprinted(game); return; }
                                 case "map-streaming" -> { MapStreamingChecks.run(game); return; }
                                 case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
@@ -1888,7 +1889,7 @@ public final class GameChecks {
             ReactiveArtifactChecks.tick(game);
             FragmentKnowledgeChecks.tick(game);
             InitialChunkSendChecks.tick(game);MapLightingChecks.tick(game);
-            RailroadChecks.tick(game);MapReplacementChecks.tick(game);MapStreamingChecks.tick(game);
+            RailroadChecks.tick(game);MapReplacementChecks.tick(game);MapJournalChecks.tick(game);MapStreamingChecks.tick(game);
             ImbaAxeChecks.tick(game);PhoenixSkillChecks.tick(game);
             IndividualNameplateChecks.tick(game);TimeFragmentSprintChecks.tick(game);
             TmtIntakeChecks.tick(game);

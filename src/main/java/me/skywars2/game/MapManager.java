@@ -51,10 +51,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -199,6 +197,10 @@ public final class MapManager {
         return thread;
     });
     private final Path boundsJournal;
+    private final BoundsJournalWriter journalWriter;
+    private CompletableFuture<Boolean> lastBoundsWrite;
+    private record JournalWait(CompletableFuture<Boolean> saved, Runnable next, Component failure, long generation) { }
+    private JournalWait journalWait;
     private final BobaRegionPhysics rotationPhysics;
     public BobaRegionPhysics rotationPhysics(){return rotationPhysics;}
     private final Map<String, Manifest> manifests = new HashMap<>();
@@ -347,10 +349,12 @@ public final class MapManager {
         // replay its cleanup coordinates against an existing legacy overworld.
         this.boundsJournal = server.getWorldPath(LevelResource.ROOT)
                 .resolve("data/luckywars/overworld-bounds.json");
+        this.journalWriter = new BoundsJournalWriter(Set.of(boundsJournal, imprintedJournal()));
         this.rotationPhysics=new BobaRegionPhysics(boundsJournal.resolveSibling("boba-regions.csv"));
         this.catalog = new ArrayList<>(readCatalog());
         readLocalCatalog();
         activeBoxes.addAll(readBoundsJournal());
+        imprintedBounds = readBoundsJournal(imprintedJournal(), LbcHedgehogDimensions.IMPRINTED);
         diagnoseChestLootTables();
     }
 
@@ -447,6 +451,11 @@ public final class MapManager {
             catch(RuntimeException failure) {
                 update.cancel();overlayLighting.remove();LOGGER.error("Lobby lighting refresh failed",failure);
             }
+        }
+        if (journalWait != null) {
+            pollJournal();
+            maintainLobbyOverlay();
+            return;
         }
         if (++ticksSinceBoundsFlush >= 20) flushChangedBlockBounds();
         if (!busy) { maintainLobbyOverlay(); return; }
@@ -597,21 +606,25 @@ public final class MapManager {
         var source=manifest.brokenAvailable&&!manifest.brokenPlacements.isEmpty()?manifest.brokenPlacements:manifest.placements;
         return source.stream().map(p->new Placement(p.template,p.origin,.75f,p.seed)).toList();
     }
-    private void addImprintedWork(Manifest manifest){
+    private record ImprintedPlan(ServerLevel world, List<Placement> placements, List<BoundingBox> old,
+                                 List<BoundingBox> target, List<BoundingBox> recovery) { }
+    private ImprintedPlan prepareImprinted(Manifest manifest){
         var world=server.getLevel(LbcHedgehogDimensions.IMPRINTED);
         if(world==null)throw new IllegalStateException("Missing Imprinted dimension");
-        if(imprintedBounds==null)imprintedBounds=readBoundsJournal(imprintedJournal(),LbcHedgehogDimensions.IMPRINTED);
         if(!boundsJournalValid)throw new IllegalStateException("Unreadable Imprinted recovery journal");
         var placements=imprintedPlacements(manifest);var target=boundsFor(placements);
         var recovery=combineBounds(imprintedBounds,target);
-        if(!writeBoundsJournal(recovery,imprintedJournal(),LbcHedgehogDimensions.IMPRINTED))throw new IllegalStateException("Cannot persist Imprinted recovery bounds");
-        var game=SkyWars2.game();if(game!=null&&game.maps()==this)game.itemQueue().terrainReplaced(world,imprintedBounds);
+        return new ImprintedPlan(world, placements, List.copyOf(imprintedBounds), target, recovery);
+    }
+    private void addImprintedWork(ImprintedPlan plan){
+        var world=plan.world;var recovery=plan.recovery;
+        var game=SkyWars2.game();if(game!=null&&game.maps()==this)game.itemQueue().terrainReplaced(world,plan.old);
         var retired=new ArrayList<Entity>();
         for(var entity:world.getAllEntities())if(!(entity instanceof net.minecraft.server.level.ServerPlayer)&&insideAny(entity.blockPosition(),recovery))retired.add(entity);
         retired.forEach(Entity::discard);
-        addClearWork(imprintedBounds,false,world);
-        imprintedBounds=recovery;pendingImprintedBounds=target;
-        addPasteWork(placements,world);
+        addClearWork(plan.old,false,world);
+        imprintedBounds=recovery;pendingImprintedBounds=plan.target;
+        addPasteWork(plan.placements,world);
     }
     /** Supersession abandons the current CPU job without interrupting Minecraft's shared ZipFS read. */
     public boolean cancelSelectionLoad(){
@@ -619,6 +632,7 @@ public final class MapManager {
         preparationGeneration++;
         if(preparation!=null)preparation.cancel(false);
         completion=null;afterPreparation=null;preparation=null;reading=false;busy=false;selectingMap=false;
+        journalWait=null;
         work.clear();preparedTemplates=Map.of();pendingMap=null;
         cancelMapLighting();releaseChunkTickets();
         return true;
@@ -672,11 +686,18 @@ public final class MapManager {
             return;
         }
         List<BoundingBox> recoveryBounds = combineBounds(activeBoxes, targetBounds);
-        if (!writeBoundsJournal(recoveryBounds)) {
-            fail(Component.translatable("skywars2.map.error.save_bounds"));
+        final ImprintedPlan imprinted;
+        try { imprinted=prepareImprinted(manifest); }
+        catch (RuntimeException error) {
+            fail(Component.translatable("skywars2.map.error.prepare_map", id, error.getMessage()));
             return;
         }
-
+        var saved = writeBoundsJournal(recoveryBounds).thenCombine(
+                writeBoundsJournal(imprinted.recovery, imprintedJournal(), LbcHedgehogDimensions.IMPRINTED),
+                (overworldSaved, imprintedSaved) -> overworldSaved && imprintedSaved);
+        awaitJournal(saved, () -> {
+        // Native mutations continued while IO was pending: include any new outer bounds first.
+        if (blockBoundsDirty) { loadPrepared(id, broken); return; }
         var queueGame=me.skywars2.SkyWars2.game();
         if(queueGame!=null&&queueGame.maps()==this)queueGame.itemQueue().terrainReplaced(level,mapBounds);
 
@@ -697,12 +718,13 @@ public final class MapManager {
         replaceActiveBounds(recoveryBounds);
         try {
             addPasteWork(placements);
-            addImprintedWork(manifest);
+            addImprintedWork(imprinted);
         } catch (RuntimeException error) {
             fail(Component.translatable("skywars2.map.error.prepare_map", id, error.getMessage()));
             return;
         }
         if (work.isEmpty()) finishPlacement();
+        }, Component.translatable("skywars2.map.error.save_bounds"));
     }
 
     public void lobby(Consumer<Result> completion) {
@@ -742,11 +764,8 @@ public final class MapManager {
             return;
         }
         List<BoundingBox> recoveryBounds = combineBounds(activeBoxes, targetBounds);
-        if (!writeBoundsJournal(recoveryBounds)) {
-            fail(Component.translatable("skywars2.map.error.save_bounds"));
-            return;
-        }
-
+        awaitJournal(writeBoundsJournal(recoveryBounds), () -> {
+        if (blockBoundsDirty) { lobbyPrepared(); return; }
         pendingMap = null;
         pendingBounds = targetBounds;
         placementExternalBounds = List.of();
@@ -773,6 +792,7 @@ public final class MapManager {
             return;
         }
         if (work.isEmpty()) finishPlacement();
+        }, Component.translatable("skywars2.map.error.save_bounds"));
     }
 
     public List<Spawn> spawns() {
@@ -1171,6 +1191,7 @@ public final class MapManager {
 
     public void shutdown() {
         closed = true;
+        journalWait = null;
         if(rotation!=null)rotation.cancel();
         resetLobbyEntityCleanup();
         // Interrupting ZipFS reads closes Minecraft's shared resource-pack channel.
@@ -1185,6 +1206,11 @@ public final class MapManager {
             Thread.currentThread().interrupt();
         }
         flushChangedBlockBounds();
+        if (boundsJournalValid) {
+            writeBoundsJournal(activeBoxes);
+            writeBoundsJournal(imprintedBounds, imprintedJournal(), LbcHedgehogDimensions.IMPRINTED);
+        }
+        if (!journalWriter.shutdown()) LOGGER.error("Arena journal worker did not drain before shutdown.");
         work.clear();
         preparedTemplates = Map.of();
         pristineTemplates=Map.of();pristinePlacements=List.of();pristineRotations.clear();
@@ -1212,6 +1238,8 @@ public final class MapManager {
             }
             return;
         }
+        // Destruction/flow inside the existing recovery envelope adds no cleanup area.
+        if (insideAny(pos, activeBoxes)) return;
         int chunkX = x >> 4, chunkZ = z >> 4, yBand = y >> 7;
         // Keep each journal cuboid small even if edits in one chunk span a
         // large vertical range: 11 bits each for bounded chunk coordinates,
@@ -1229,7 +1257,12 @@ public final class MapManager {
 
     private void flushChangedBlockBounds() {
         ticksSinceBoundsFlush = 0;
-        if (!blockBoundsDirty || !boundsJournalValid) return;
+        if (!boundsJournalValid) return;
+        if (!blockBoundsDirty) {
+            if (lastBoundsWrite != null && lastBoundsWrite.isDone() && !lastBoundsWrite.getNow(false))
+                writeBoundsJournal(activeBoxes);
+            return;
+        }
         List<BoundingBox> expanded = new ArrayList<>(activeBoxes);
         expanded.addAll(changedBlockBounds.values());
         expanded = compactBounds(expanded);
@@ -1243,15 +1276,32 @@ public final class MapManager {
                 return;
             }
         }
-        if (writeBoundsJournal(expanded)) {
-            // The next replacement clears mapBounds, not just the recovery journal.
-            var edits = new ArrayList<>(changedBlockBounds.values());
-            mapBounds = combineBounds(mapBounds, edits);
-            if (suspendsFluidTicks()) placementExternalBounds = combineBounds(placementExternalBounds, edits);
-            activeBoxes.clear();
-            activeBoxes.addAll(expanded);
-            changedBlockBounds.clear();
-            blockBoundsDirty = false;
+        // Publish the runtime envelope immediately. IO failure cannot lose these bounds;
+        // a subsequent replacement awaits their combined recovery snapshot before clearing.
+        var edits = new ArrayList<>(changedBlockBounds.values());
+        mapBounds = combineBounds(mapBounds, edits);
+        if (suspendsFluidTicks()) placementExternalBounds = combineBounds(placementExternalBounds, edits);
+        activeBoxes.clear();
+        activeBoxes.addAll(expanded);
+        changedBlockBounds.clear();
+        blockBoundsDirty = false;
+        writeBoundsJournal(expanded);
+    }
+
+    private void awaitJournal(CompletableFuture<Boolean> saved, Runnable next, Component failure) {
+        if (journalWait != null) throw new IllegalStateException("Overlapping map journal continuations");
+        journalWait = new JournalWait(saved, next, failure, preparationGeneration);
+    }
+
+    private void pollJournal() {
+        var wait = journalWait;
+        if (!wait.saved.isDone()) return;
+        journalWait = null;
+        if (closed || !busy || wait.generation != preparationGeneration) return;
+        if (!wait.saved.getNow(false)) { fail(wait.failure); return; }
+        try { wait.next.run(); }
+        catch (RuntimeException error) {
+            fail(Component.translatable("skywars2.map.error.placement", error.getMessage()));
         }
     }
 
@@ -1262,6 +1312,7 @@ public final class MapManager {
         completedLightingBatches=0;
         completion = callback == null ? ignored -> { } : callback;
         work.clear();
+        journalWait = null;
         pendingImprintedBounds=List.of();
     }
 
@@ -1580,39 +1631,16 @@ public final class MapManager {
         }
     }
 
-    /** Writes recovery bounds before any clearing or placement, then atomically replaces the journal. */
-    private boolean writeBoundsJournal(List<BoundingBox> bounds) {
+    /** Main thread snapshots coordinates; the dedicated worker serializes/closes/replaces files. */
+    private CompletableFuture<Boolean> writeBoundsJournal(List<BoundingBox> bounds) {
         return writeBoundsJournal(bounds,boundsJournal,Level.OVERWORLD);
     }
-    private boolean writeBoundsJournal(List<BoundingBox> bounds,Path journal,net.minecraft.resources.ResourceKey<Level> dimension) {
-        JsonObject root = new JsonObject();
-        root.addProperty("version", 2);
-        root.addProperty("dimension", dimension.identifier().toString());
-        JsonArray entries = new JsonArray();
-        for (BoundingBox box : compactBounds(bounds)) {
-            JsonArray values = new JsonArray();
-            values.add(box.minX()); values.add(box.minY()); values.add(box.minZ());
-            values.add(box.maxX()); values.add(box.maxY()); values.add(box.maxZ());
-            entries.add(values);
-        }
-        root.add("bounds", entries);
-        Path temporary = journal.resolveSibling(journal.getFileName() + ".tmp");
-        try {
-            Files.createDirectories(journal.getParent());
-            Files.writeString(temporary, root.toString() + System.lineSeparator(), StandardCharsets.UTF_8);
-            try {
-                Files.move(temporary, journal, StandardCopyOption.REPLACE_EXISTING,
-                        StandardCopyOption.ATOMIC_MOVE);
-            } catch (AtomicMoveNotSupportedException ignored) {
-                Files.move(temporary, journal, StandardCopyOption.REPLACE_EXISTING);
-            }
-            boundsJournalValid = true;
-            return true;
-        } catch (IOException error) {
-            LOGGER.error("Could not write arena bounds journal {}: {}", journal, error.getMessage());
-            try { Files.deleteIfExists(temporary); } catch (IOException ignored) { }
-            return false;
-        }
+    private CompletableFuture<Boolean> writeBoundsJournal(List<BoundingBox> bounds,Path journal,net.minecraft.resources.ResourceKey<Level> dimension) {
+        var regions = compactBounds(bounds).stream().map(box -> new BoundsJournalWriter.Region(
+                box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ())).toList();
+        var saved = journalWriter.submit(journal, new BoundsJournalWriter.Snapshot(dimension.identifier().toString(), regions));
+        if (journal.equals(boundsJournal)) lastBoundsWrite = saved;
+        return saved;
     }
 
     private void addPasteWork(List<Placement> placements) {
@@ -1788,23 +1816,27 @@ public final class MapManager {
         } else {
             mapBounds = combineBounds(pendingBounds, placementExternalBounds);
             imprintedBounds=List.copyOf(pendingImprintedBounds);
-            if(!writeBoundsJournal(imprintedBounds,imprintedJournal(),LbcHedgehogDimensions.IMPRINTED)){
-                fail(Component.literal("Could not compact Imprinted recovery journal"));return;
-            }
             residentMapIds.clear();
             residentMapIds.add(pendingMap);
         }
         replaceActiveBounds(combineBounds(lobbyBounds, mapBounds));
-        if (blockBoundsDirty) {
-            flushChangedBlockBounds();
-        } else if (!writeBoundsJournal(activeBoxes)) {
-            LOGGER.error("Could not compact arena bounds journal after placement; retaining the recovery envelope.");
-        }
+        commitPlacementBounds(entities);
+    }
+
+    private void commitPlacementBounds(List<Entity> entities) {
+        flushChangedBlockBounds();
+        if (blockBoundsDirty) { fail(Component.translatable("skywars2.map.error.persist_changes")); return; }
+        var saved = writeBoundsJournal(activeBoxes);
+        if (pendingMap != null) saved = saved.thenCombine(
+                writeBoundsJournal(imprintedBounds, imprintedJournal(), LbcHedgehogDimensions.IMPRINTED), (a,b) -> a && b);
+        awaitJournal(saved, () -> {
+        if (blockBoundsDirty) { commitPlacementBounds(entities); return; }
         if(pendingMap!=null&&bedwars(pendingMap)){var game=me.skywars2.SkyWars2.game();if(game!=null&&game.maps()==this)game.bedwars().mapReady(entities);}
         pendingBounds = List.of();
         complete(new Result(true, pendingMap == null
                 ? Component.translatable("skywars2.map.ready.lobby")
                 : Component.translatable("skywars2.map.ready.map", pendingMap)));
+        }, Component.translatable("skywars2.map.error.save_bounds"));
     }
 
     private void forceMarkerChunks(List<Entity> entities) {
@@ -2063,6 +2095,7 @@ public final class MapManager {
     private void complete(Result result) {
         Consumer<Result> callback = completion;
         completion = null;
+        journalWait = null;
         selectingMap=false;
         cancelMapLighting();
         busy = false;
