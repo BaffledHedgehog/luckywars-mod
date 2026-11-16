@@ -1,0 +1,88 @@
+package me.skywars2.game;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.level.pathfinder.Path;
+
+/** Original native selector identities and reviewed melee continuation; no goal lifecycle callbacks on replay. */
+final class MatchMobGoals {
+    private final Mob owner;
+    private final long worldTime;
+    private final List<Selector> selectors=new ArrayList<>();
+    private final Map<Goal,EnumSet<Goal.Flag>> flags=new IdentityHashMap<>();
+    private final Map<MeleeAttackGoal,Melee> attacks=new IdentityHashMap<>();
+
+    MatchMobGoals(Mob mob) {
+        owner=mob;worldTime=mob.level().getGameTime();
+        selectors.add(new Selector((GoalSelector)read(mob,Mob.class,"goalSelector")));
+        selectors.add(new Selector((GoalSelector)read(mob,Mob.class,"targetSelector")));
+    }
+    void restore() {
+        // stop() can erase a restored route/target; start() resets attack timers and can repeat side effects.
+        for(var selector:selectors)selector.retireFuture();
+        flags.forEach((goal,saved)->{var live=goal.getFlags();live.clear();live.addAll(saved);});
+        long delta=owner.level().getGameTime()-worldTime;
+        attacks.values().forEach(attack->attack.restore(delta));
+        selectors.forEach(Selector::restore);
+    }
+    private final class Selector {
+        final Set<WrappedGoal> available;
+        final List<WrappedGoal> ordered;
+        final Map<Goal.Flag,WrappedGoal> locked,savedLocked=new EnumMap<>(Goal.Flag.class);
+        final EnumSet<Goal.Flag> disabled,savedDisabled;
+        final Map<WrappedGoal,Boolean> running=new IdentityHashMap<>();
+        @SuppressWarnings("unchecked") Selector(GoalSelector selector) {
+            available=selector.getAvailableGoals();ordered=List.copyOf(available);
+            locked=(Map<Goal.Flag,WrappedGoal>)read(selector,GoalSelector.class,"lockedFlags");savedLocked.putAll(locked);
+            disabled=(EnumSet<Goal.Flag>)read(selector,GoalSelector.class,"disabledFlags");savedDisabled=disabled.clone();
+            var all=Collections.newSetFromMap(new IdentityHashMap<WrappedGoal,Boolean>());
+            all.addAll(ordered);all.addAll(locked.values());
+            for(var wrapper:all) {
+                running.put(wrapper,wrapper.isRunning());Goal goal=wrapper.getGoal();
+                flags.computeIfAbsent(goal,key->key.getFlags().clone());
+                if(goal instanceof MeleeAttackGoal attack)attacks.computeIfAbsent(attack,Melee::new);
+            }
+        }
+        void retireFuture() {
+            for(var wrapper:available)if(!running.containsKey(wrapper))write(wrapper,WrappedGoal.class,"isRunning",false);
+            for(var wrapper:locked.values())if(!running.containsKey(wrapper))write(wrapper,WrappedGoal.class,"isRunning",false);
+        }
+        void restore() {
+            available.clear();available.addAll(ordered);
+            running.forEach((wrapper,active)->write(wrapper,WrappedGoal.class,"isRunning",active));
+            locked.clear();locked.putAll(savedLocked);disabled.clear();disabled.addAll(savedDisabled);
+        }
+    }
+    private static final class Melee {
+        final MeleeAttackGoal goal;
+        final Map<Field,Object> values=new LinkedHashMap<>();
+        final long lastCheck;
+        final MatchMobNavigation.Route route;
+        Melee(MeleeAttackGoal goal) {
+            this.goal=goal;
+            for(String name:List.of("path","pathedTargetX","pathedTargetY","pathedTargetZ","ticksUntilNextPathRecalculation","ticksUntilNextAttack")) {
+                Field field=field(MeleeAttackGoal.class,name);values.put(field,get(field,goal));
+            }
+            lastCheck=(Long)read(goal,MeleeAttackGoal.class,"lastCanUseCheck");
+            Path path=(Path)read(goal,MeleeAttackGoal.class,"path");route=path==null?null:new MatchMobNavigation.Route(path);
+        }
+        void restore(long delta) {
+            if(route!=null)route.restore();values.forEach((field,value)->set(field,goal,value));
+            write(goal,MeleeAttackGoal.class,"lastCanUseCheck",Math.addExact(lastCheck,delta));
+        }
+    }
+    private static Field field(Class<?> type,String name) {
+        try{var field=type.getDeclaredField(name);field.setAccessible(true);return field;}
+        catch(ReflectiveOperationException error){throw new IllegalStateException("Review native goal checkpoint "+type.getName()+"."+name,error);}
+    }
+    private static Object read(Object target,Class<?> type,String name){return get(field(type,name),target);}
+    private static Object get(Field field,Object target) {
+        try{return field.get(target);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
+    }
+    private static void write(Object target,Class<?> type,String name,Object value){set(field(type,name),target,value);}
+    private static void set(Field field,Object target,Object value) {
+        try{field.set(target,value);}catch(IllegalAccessException error){throw new IllegalStateException(error);}
+    }
+}

@@ -5,8 +5,18 @@
 mutable Node graph and cursor in place, including aliases retained by native goals.
 Base move/look/jump/body controls, navigation policies, path costs and relative
 world-clock timestamps return with it. An idle image removes a future route. No
-extra AI tick loop or whole-world scan is introduced. Brain, running goal state and
-species-specific control extensions remain separate parts of the broader audit.
+extra AI tick loop or whole-world scan is introduced.
+
+`MatchMobGoals` retains both native selectors' original ordered wrappers, running
+flags, control locks and disabled-control sets, plus the underlying goal flags.
+Restore retires future wrappers and installs these values without invoking goal
+start/stop callbacks. The reviewed `MeleeAttackGoal` adapter restores its attack and
+path-recalculation counters, target coordinates, world-relative eligibility stamp
+and goal-owned Path using the same path image implementation as navigation. Native
+checks observe a real hit before capture, a later hit only after the saved delay,
+and the same behavior after a second restore. Other goal-specific continuations,
+Brain/sensor/behavior state and species-specific control extensions remain parts
+of the broader audit.
 
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners

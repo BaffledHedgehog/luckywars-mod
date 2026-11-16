@@ -74,7 +74,7 @@ final class MatchMobNavigation {
     }
 
     /** Path.copy shares its node list. Restore that list and the original nodes in place for goal aliases. */
-    private static final class Route {
+    static final class Route {
         final Path path;final int cursor;final NodeList nodes;
         final Path.DebugData debug;final NodeList open,closed;
         final Set<Target> debugTargets;
