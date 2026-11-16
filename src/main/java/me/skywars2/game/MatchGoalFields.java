@@ -95,7 +95,7 @@ final class MatchGoalFields {
         });
     }
     void captureReferences(MatchDamageSources sources){
-        values.forEach((field,value)->{if(Entity.class.isAssignableFrom(field.getType()))references.put(field,sources.bodyRef((Entity)value));});
+        values.forEach((field,value)->{if(Entity.class.isAssignableFrom(field.getType()))references.put(field,sources.dependencyRef((Entity)value));});
         flockLeaderRef=sources.dependencyRef(flockLeader);
         referencesCaptured=true;
     }

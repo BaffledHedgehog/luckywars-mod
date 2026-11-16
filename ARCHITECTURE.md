@@ -118,6 +118,15 @@ different future leaders, repeated restoration, the exact remaining task ticks
 before recalculating a path, omitted leaders/members and historical same-UUID
 aliases. The school image uses the same OFF-by-default goal experiment.
 
+Native goal caches and raw `Mob.target` use the shared AI dependency resolver.
+A captured body excluded at capture is an absent dependency; a genuinely older
+removed body with the same UUID remains historical. Ranged, common, target and
+breeding adapters retire absent dependencies before task ticks can inspect empty
+caches. Native checks cover five admitted task types, repeated initial-capture
+omission, historical same-UUID aliases, and restoration of the full original
+state afterward. Accepted damage history keeps its physical author independently
+of AI target omission; combat-source reference rules remain unchanged.
+
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners
 restore and publish those abilities afterward. A retained offline rocket-boot

@@ -161,7 +161,7 @@ final class MatchMobGoals {
             }
         }
         void restore(){values.forEach((field,value)->set(field,goal,value));}
-        void captureReferences(MatchDamageSources sources){targetRef=sources.bodyRef(target);referencesCaptured=true;}
+        void captureReferences(MatchDamageSources sources){targetRef=sources.dependencyRef(target);referencesCaptured=true;}
         void absent(){write(goal,RangedAttackGoal.class,"target",null);write(goal,RangedAttackGoal.class,"attackTime",-1);write(goal,RangedAttackGoal.class,"seeTime",0);}
     }
     /** Reviewed target base, nearest-search cache and body-local retaliation stamp; not arbitrary subclasses. */
@@ -181,7 +181,7 @@ final class MatchMobGoals {
         void save(Class<?> type,String name){Field field=field(type,name);values.put(field,get(field,goal));}
         void body(Class<?> type,String name){save(type,name);Field field=field(type,name);bodies.put(field,(LivingEntity)get(field,goal));}
         void restore(){values.forEach((field,value)->set(field,goal,value));}
-        void captureReferences(MatchDamageSources sources){bodies.forEach((field,body)->references.put(field,sources.bodyRef(body)));referencesCaptured=true;}
+        void captureReferences(MatchDamageSources sources){bodies.forEach((field,body)->references.put(field,sources.dependencyRef(body)));referencesCaptured=true;}
         boolean restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending){
             if(!referencesCaptured)return false;
             boolean absent=false;
@@ -210,7 +210,7 @@ final class MatchMobGoals {
             this.goal=goal;partner=(Animal)read(goal,BreedGoal.class,"partner");loveTime=(Integer)read(goal,BreedGoal.class,"loveTime");
         }
         void restore(){write(goal,BreedGoal.class,"partner",partner);write(goal,BreedGoal.class,"loveTime",loveTime);}
-        void captureReferences(MatchDamageSources sources){partnerRef=sources.bodyRef(partner);referencesCaptured=true;}
+        void captureReferences(MatchDamageSources sources){partnerRef=sources.dependencyRef(partner);referencesCaptured=true;}
         void absent(){write(goal,BreedGoal.class,"partner",null);write(goal,BreedGoal.class,"loveTime",0);}
     }
     private static Field field(Class<?> type,String name) {

@@ -65,7 +65,7 @@ public final class MatchActorCheckpoint {
                 angular=leashed.getLeashData().angularMomentum;
             }
             var image=new Image(actor,actor.getId(),actor.getUUID(),state,passengers,
-                    target==null||result.omitted.contains(target.getUUID())?null:result.damageSources.bodyRef(target),ownerId,owner!=null,
+                    result.damageSources.dependencyRef(target),ownerId,owner!=null,
                     actor instanceof net.minecraft.world.entity.projectile.FishingHook hook&&hook.getHookedIn()!=null?hook.getHookedIn().getUUID():null,
                     leash,leashHolder,angular);
             if(result.images.put(image.uuid,image)!=null)throw new IllegalStateException("Duplicate native actor UUID at capture");
