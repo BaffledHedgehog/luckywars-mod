@@ -41,6 +41,9 @@ public final class TmtCurrentContentChecks {
         void changed(){f.owner.getInventory().setChanged();game.items().mana().inventoryChanged(f.owner);game.items().nexusWires().inventoryChanged(f.owner);game.items().shishEncounter().inventoryChanged(f.owner);}
         void next(int value){phase=value;when=game.server().getTickCount();}
         void begin(){f.prepareParticipants();started=game.server().getTickCount();require(game.items().apocalypseEvents().pendingSnapshot().isEmpty()&&game.items().apocalypseEvents().snapshot().isEmpty()&&game.items().apocalypseEvents().terrainCount()==0,"no preexisting event owned by this fixture");
+            require(game.items().allItemPools().excludedNativeItems().containsKey(net.minecraft.resources.Identifier.parse(LbcClockFragments.ID)),"author-cancelled time fragments excluded from all-item lotteries");
+            for(var family:game.items().tmt().catalog().families())for(var property:family.variants())
+                require(LbcTmtComponents.nativeItem(property.data())!=LbcClockFragments.ITEM,"author-cancelled time fragments excluded from TMT generation");
             f.set(BlockPos.containing(f.home).below(),Blocks.STAINED_GLASS.pick(DyeColor.BLUE).defaultBlockState());game.items().mana().score(f.owner,"november").set(0);
             held=mixed(property("lightsaberrc"));expected=held.copy();require(input(held),"real selector native RMB input");
             require(f.owner.getMainHandItem()==held&&held.getCount()==1&&ItemData.intValue(held,"lightsaberrc",0)==0&&LbcTmtAbilities.read(held).equals(List.of(sibling)),"selector spends only its property and retains physical carrier/sibling");

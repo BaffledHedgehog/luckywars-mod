@@ -800,22 +800,6 @@
     "lbc:items/termit",
     "lbc:items/throwable_jack_lantern",
     "lbc:items/time_clocks",
-    "lbc:items/time_fragment__117c3a4bc9",
-    "lbc:items/time_fragment__1c507e4c70",
-    "lbc:items/time_fragment__275a7827ab",
-    "lbc:items/time_fragment__31e8390396",
-    "lbc:items/time_fragment__4c1b205ee2",
-    "lbc:items/time_fragment__566ed9c2ef",
-    "lbc:items/time_fragment__7be174d40b",
-    "lbc:items/time_fragment__8874066042",
-    "lbc:items/time_fragment__9b018166cf",
-    "lbc:items/time_fragment__9deda4b184",
-    "lbc:items/time_fragment__abbf1e3ff9",
-    "lbc:items/time_fragment__c6bec141c5",
-    "lbc:items/time_fragment_jump__0c1b5b9006",
-    "lbc:items/time_fragment_jump__b7bc66fd51",
-    "lbc:items/time_fragment_jump__b9ac03bc3b",
-    "lbc:items/time_fragment_jump__c691d606eb",
     "lbc:items/tiny_skeleton_spawn_egg",
     "lbc:items/tiny_skull",
     "lbc:items/tmt",
@@ -2967,12 +2951,6 @@
       "generated": true
     },
     {
-      "table": "lbc:items/time_fragment_jump__0c1b5b9006",
-      "slot": "custom/0c1b5b900638fc4a9679",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
-    },
-    {
       "table": "lbc:ported/pills/pill_141",
       "slot": "custom/0c42d5a633f5f164688c",
       "carrier": "skywars2:phd_pill",
@@ -3204,12 +3182,6 @@
       "table": "lbc:items/item.minecraft.potion.effect.chain_lightning",
       "slot": "custom/115c1ba0adff3c5218dc",
       "carrier": "minecraft:potion",
-      "generated": true
-    },
-    {
-      "table": "lbc:items/time_fragment__117c3a4bc9",
-      "slot": "custom/117c3a4bc959a0d634e9",
-      "carrier": "skywars2:clock_fragment",
       "generated": true
     },
     {
@@ -3795,12 +3767,6 @@
       "generated": false
     },
     {
-      "table": "lbc:items/time_fragment__1c507e4c70",
-      "slot": "custom/1c507e4c70b899629a40",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
-    },
-    {
       "table": "lbc:ported/cunny_jungle",
       "slot": "custom/1c59b5b816357aaa8a71",
       "carrier": "skywars2:cunny_jungle_slab",
@@ -4309,12 +4275,6 @@
       "slot": "custom/274d144881c15956baa9",
       "carrier": "skywars2:phd_pill",
       "generated": false
-    },
-    {
-      "table": "lbc:items/time_fragment__275a7827ab",
-      "slot": "custom/275a7827ab539e8013c9",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
     },
     {
       "table": "lbc:items/potion__277d5c6586",
@@ -4866,12 +4826,6 @@
       "table": "lbc:items/item.minecraft.lingering_potion.effect.big_boom",
       "slot": "custom/31e8019bfcbaf53dbbf1",
       "carrier": "minecraft:lingering_potion",
-      "generated": true
-    },
-    {
-      "table": "lbc:items/time_fragment__31e8390396",
-      "slot": "custom/31e8390396765ca63c0b",
-      "carrier": "skywars2:clock_fragment",
       "generated": true
     },
     {
@@ -6117,12 +6071,6 @@
       "generated": true
     },
     {
-      "table": "lbc:items/time_fragment__4c1b205ee2",
-      "slot": "custom/4c1b205ee231b1a1d0f6",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
-    },
-    {
       "table": "lbc:ported/music_staff",
       "slot": "custom/4c202f335a9d1ea620e1",
       "carrier": "skywars2:music_staff",
@@ -6624,12 +6572,6 @@
       "table": "lbc:items/cunny_3",
       "slot": "custom/565f5dea4c9b27f8bd80",
       "carrier": "skywars2:cunny_3",
-      "generated": true
-    },
-    {
-      "table": "lbc:items/time_fragment__566ed9c2ef",
-      "slot": "custom/566ed9c2ef90723ca8f7",
-      "carrier": "skywars2:clock_fragment",
       "generated": true
     },
     {
@@ -8325,12 +8267,6 @@
       "generated": false
     },
     {
-      "table": "lbc:items/time_fragment__7be174d40b",
-      "slot": "custom/7be174d40b5d164c77df",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
-    },
-    {
       "table": "lbc:items/fragment_sword__7c08663c1d",
       "slot": "custom/7c08663c1dff8d694a99",
       "carrier": "skywars2:fragment_sword",
@@ -8851,12 +8787,6 @@
       "slot": "custom/886545ff5a98a17bc093",
       "carrier": "skywars2:duplicating_expand_grimoire",
       "generated": false
-    },
-    {
-      "table": "lbc:items/time_fragment__8874066042",
-      "slot": "custom/88740660420aaaa3dbf8",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
     },
     {
       "table": "lbc:items/repeating_command_block__88c5acaea8",
@@ -9657,12 +9587,6 @@
       "generated": false
     },
     {
-      "table": "lbc:items/time_fragment__9b018166cf",
-      "slot": "custom/9b018166cf1a6fadad65",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
-    },
-    {
       "table": "lbc:ported/pills/pill_17",
       "slot": "custom/9b06ffd8749057a0c691",
       "carrier": "skywars2:phd_pill",
@@ -9835,12 +9759,6 @@
       "slot": "custom/9dd3e0978bc8e36944e5",
       "carrier": "skywars2:wool_trail_white",
       "generated": false
-    },
-    {
-      "table": "lbc:items/time_fragment__9deda4b184",
-      "slot": "custom/9deda4b1842065e0abc3",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
     },
     {
       "table": "lbc:items/barrier__9e0cf8a0b5",
@@ -10419,12 +10337,6 @@
       "generated": false
     },
     {
-      "table": "lbc:items/time_fragment__abbf1e3ff9",
-      "slot": "custom/abbf1e3ff9904d7e39e6",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
-    },
-    {
       "table": "lbc:ported/acid_corruption_reverse_grimoire",
       "slot": "custom/ac2f0ea99debbd9d139d",
       "carrier": "skywars2:acid_corruption_reverse_grimoire",
@@ -10959,12 +10871,6 @@
       "generated": true
     },
     {
-      "table": "lbc:items/time_fragment_jump__b7bc66fd51",
-      "slot": "custom/b7bc66fd51bd3f9736f8",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
-    },
-    {
       "table": "lbc:ported/pills/pill_139",
       "slot": "custom/b7d121bc13003ca5f6c3",
       "carrier": "skywars2:phd_pill",
@@ -11016,12 +10922,6 @@
       "table": "lbc:items/aimbob_spear",
       "slot": "custom/b9a10d827596f3528423",
       "carrier": "minecraft:iron_spear",
-      "generated": true
-    },
-    {
-      "table": "lbc:items/time_fragment_jump__b9ac03bc3b",
-      "slot": "custom/b9ac03bc3be0c8259f27",
-      "carrier": "skywars2:clock_fragment",
       "generated": true
     },
     {
@@ -11605,18 +11505,6 @@
       "slot": "custom/c684576ca7120d04ae2e",
       "carrier": "skywars2:boltbolt_watering_grimoire",
       "generated": false
-    },
-    {
-      "table": "lbc:items/time_fragment_jump__c691d606eb",
-      "slot": "custom/c691d606ebe0462f3ef3",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
-    },
-    {
-      "table": "lbc:items/time_fragment__c6bec141c5",
-      "slot": "custom/c6bec141c56c424cffbd",
-      "carrier": "skywars2:clock_fragment",
-      "generated": true
     },
     {
       "table": "lbc:items/barrier__c6c29c61c5",
@@ -15628,22 +15516,6 @@
     "lbc:items/termit",
     "lbc:items/throwable_jack_lantern",
     "lbc:items/time_clocks",
-    "lbc:items/time_fragment__117c3a4bc9",
-    "lbc:items/time_fragment__1c507e4c70",
-    "lbc:items/time_fragment__275a7827ab",
-    "lbc:items/time_fragment__31e8390396",
-    "lbc:items/time_fragment__4c1b205ee2",
-    "lbc:items/time_fragment__566ed9c2ef",
-    "lbc:items/time_fragment__7be174d40b",
-    "lbc:items/time_fragment__8874066042",
-    "lbc:items/time_fragment__9b018166cf",
-    "lbc:items/time_fragment__9deda4b184",
-    "lbc:items/time_fragment__abbf1e3ff9",
-    "lbc:items/time_fragment__c6bec141c5",
-    "lbc:items/time_fragment_jump__0c1b5b9006",
-    "lbc:items/time_fragment_jump__b7bc66fd51",
-    "lbc:items/time_fragment_jump__b9ac03bc3b",
-    "lbc:items/time_fragment_jump__c691d606eb",
     "lbc:items/tiny_skeleton_spawn_egg",
     "lbc:items/tiny_skull",
     "lbc:items/tmt",
@@ -17021,5 +16893,5 @@
     "lbc:white_arrow",
     "lbc:wtf_item"
   ],
-  "all_item_manifest_sha256": "a7b52ef4c42fc17244728509664cfb55375b67f2cc7d7fa5f7ea225f3af1a4bb"
+  "all_item_manifest_sha256": "4f778a4593b50fe988b4b390019fbb5904e46356d2abfb22e3dd7ef894db7aba"
 }

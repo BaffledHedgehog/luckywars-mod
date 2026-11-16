@@ -18,7 +18,8 @@ from canonicalize_lbc_loot import identity, modifiers, packed, standalone
 ROOT = Path(__file__).resolve().parents[1]
 TABLES = ROOT / 'src/main/resources/data/lbc/loot_table'
 OUTPUT = ROOT / 'src/main/resources/skywars2/all_item_pools.json'
-EXCLUDED_NATIVE = {'skywars2:dev_tools': 'Developer UI'}
+EXCLUDED_NATIVE = {'skywars2:dev_tools': 'Developer UI',
+                   'skywars2:clock_fragment': 'Time-acceleration fragments cancelled by the author; archived source only'}
 TMT_NATIVE = {'skywars2:tmt_token', 'skywars2:tmt_carrot_on_a_stick', 'skywars2:tmt_bow',
               'skywars2:tmt_snowball', 'skywars2:tmt_crossbow', 'skywars2:tmt_golden_apple'}
 QUALIFIED_ACADEMY = '4aa9601b:src/main/java/me/skywars2/game/LbcAcademy.java'

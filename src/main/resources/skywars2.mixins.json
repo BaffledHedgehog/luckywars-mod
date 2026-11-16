@@ -461,8 +461,6 @@
     "TmtShotCompletionMixin$Bow",
     "TmtShotCompletionMixin$Crossbow",
     "ItemCostCacheMixin",
-    "ClockFragmentSprintAccess",
-    "ClockFragmentSprintMixin",
     "PolymerMiningCadenceMixin",
     "MobLootAccess",
     "LegacySlabValueMixin",

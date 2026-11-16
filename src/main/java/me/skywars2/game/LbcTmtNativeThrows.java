@@ -11,7 +11,6 @@ final class LbcTmtNativeThrows {
         if(LbcGayradar.matches(stack))return LbcGayradar.TOKEN;
         if(LbcSteampunkRocket.matches(stack))return LbcSteampunkRocket.TOKEN;
         if(LbcTrollBox.matches(stack))return LbcTrollBox.TOKEN;
-        if(LbcClockFragments.duration(stack)>0)return LbcClockFragments.ITEM;
         if(LbcKillButton.matches(stack))return LbcKillButton.TOKEN;
         if(LbcBucksTrader.matches(stack))return LbcBucksTrader.TOKEN;
         var color=LbcBalanceExtras.woolColor(stack);

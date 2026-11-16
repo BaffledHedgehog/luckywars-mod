@@ -147,6 +147,12 @@ awaited disposal after actual composter block discovery in Overworld and Nexus.
 This restores logical native data, not byte-identical region allocation; it does
 not qualify complete native AI, abrupt process termination or client performance.
 
+Time-acceleration fragments were cancelled by the author on 16 November. Their
+tick-sprint owner, END_SERVER_TICK maintenance, sprint mixins and old gameplay
+checks have been removed. The inert registry ID only lets archived internal loot
+decode; all sixteen profiles are excluded from uniform pools, public item commands
+and TMT generation. Separate working time-stop clocks retain their existing owner.
+
 Native checks cover look expiry/direction, parent/owner/mob route phases and water
 costs changed by real future lifecycle calls, temptation cooldown, avoidance path
 identity/cursor, and repeated delayed arrows from a real skeleton and pillager.
@@ -485,7 +491,7 @@ Testb6757ac2 /productionc5a6dfd2:15groups in14 isolated match scenarios
 all ZIP bytes verified, retained3115class references checked. Both build/libs
 updated; main updated with5b16c4e0 rollback, no main stop/start.
 RP unchanged; no physical-client/audio/peakTPS/extreme-range teleport claim.
-Disabled time fragments/individual overhead suffixes pending; TMT LAST.
+Individual overhead suffixes pending; TMT LAST. Time fragments were subsequently cancelled by the author (16 November).
 Modes2/4,skill2/full rewind release gates unchanged. Exact evidence:
 build/verification/cunny-2026-11-04/qualification.json.
 
@@ -504,7 +510,7 @@ pass exact archive.11freshJavafamilies/4resources,10022otherinputs/275authorpath
 guarded, all ZIP entries verified, retained3122class references checked. Both
 build/libs/main updated,e0e4a4ee rollback,restarted:false; no main stop/start.
 RP unchanged; no physical-client/audio/peakTPS/crash-kill claim. Music restarts at0
-on rewind. Cunny, disabled time fragments and individual overhead suffixes pending;
+on rewind. Cunny and individual overhead suffixes pending; time fragments subsequently cancelled by the author;
 TMT LAST, modes2/4,skill2/full rewind gates unchanged. Exact evidence:
 build/verification/mellstroy-2026-11-04/qualification.json.
 
@@ -521,7 +527,7 @@ Touhou, reactive/gem/aura, unique Tatam/Gravitas and BedWars reward/protection r
 applied. Accepted case result fixed; three offline-safe manual drop requests.
 Individual suffixes in TAB/chat only: overhead names still pending. Bad Apple
 restores native terrain and uses owned movie shading; author applied RP additions,
-removed templates preserved. Mellstroy/Cunny/disabled time fragments remain pending.
+removed templates preserved. Mellstroy/Cunny remained pending at this stage; time fragments were subsequently cancelled by the author.
 
 Teste0e4a4ee /production452e1b38:33groups/33actual matches (28mode1,5mode3)
 pass exact archive.74freshJavafamilies/16resources,9940otherinputs/275authorpaths
