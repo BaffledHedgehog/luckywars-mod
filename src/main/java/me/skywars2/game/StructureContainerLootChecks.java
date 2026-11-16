@@ -46,7 +46,7 @@ public final class StructureContainerLootChecks {
                 for(int i=0;i<actual.size();i++)require(ItemStack.matches(actual.get(i),original.get(i)),"all source functions/counts/weights/conditions match native codec "+id+" output"+i);
                 require(!actual.isEmpty(),"real source wrapper produces rewards "+id);
                 if(List.of("27_acessories","27_potions","27_rofls").contains(id))
-                    require(actual.stream().allMatch(stack->stack.getCount()==64&&stack.getMaxStackSize()==64&&!stack.has(DataComponents.MAX_DAMAGE)),"native64 count/max-stack/durability removal modifiers actually run "+id);
+                    require(actual.stream().allMatch(stack->stack.getCount()==64&&ItemStack.validateStrict(stack.copyWithCount(1)).error().isEmpty()),"native64 count retains original item component invariants "+id);
                 if(id.equals("27_slabs"))require(actual.size()>=27&&actual.stream().allMatch(stack->stack.getCount()==64),"every nested slab reward applies64 count while retaining its own variable rolls");
                 if(id.equals("27_grimoires"))require(actual.stream().mapToInt(ItemStack::getCount).sum()==27*99,"native27 grimoire rolls really apply99 count before splitting");
                 if(id.equals("random_grimoire")){

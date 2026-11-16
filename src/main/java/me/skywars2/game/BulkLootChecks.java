@@ -1,0 +1,135 @@
+package me.skywars2.game;
+
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
+import java.util.*;
+import me.skywars2.SkyWars2;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.*;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.loot.*;
+import net.minecraft.world.level.storage.loot.parameters.*;
+
+/** Native oversized quantities retain standalone components, storage and ordinary transfer limits. */
+public final class BulkLootChecks {
+    private BulkLootChecks(){}
+    private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Bulk loot: "+why);}
+    private static LootTable mass(GameController game,int count){
+        var json=JsonParser.parseString("""
+            {"pools":[{"rolls":1,"entries":[{"type":"minecraft:loot_table","value":"lbc:ported/terra_sword",
+            "modifier":[{"type":"minecraft:set_count","count":%d}]}]},
+            {"rolls":1,"entries":[{"type":"minecraft:item","name":"minecraft:apple"}]}]}
+            """.formatted(count));
+        return LootTable.DIRECT_CODEC.parse(game.server().reloadableRegistries().lookup().createSerializationContext(JsonOps.INSTANCE),json).getOrThrow();
+    }
+    private static int swordSlot(Container container,int count,ItemStack original){
+        int sword=-1,occupied=0,apples=0;
+        for(int slot=0;slot<container.getContainerSize();slot++){
+            var stack=container.getItem(slot);if(stack.isEmpty())continue;occupied++;
+            if(stack.is(original.getItem())){
+                require(sword<0,"bulk swords occupy exactly one slot");sword=slot;
+                require(stack.getCount()==count&&ItemStack.isSameItemSameComponents(stack,original),"one complete sword stack retains every original component: container="+container.getClass().getName()+" expected="+count+" actual="+stack.getCount()+" componentsEqual="+ItemStack.isSameItemSameComponents(stack,original));
+            }else if(stack.is(Items.APPLE))apples+=stack.getCount();else require(false,"no unexpected filler item");
+        }
+        require(occupied==2&&apples==1&&sword>=0,"bulk quantity leaves another loot entry its own slot");return sword;
+    }
+    public static void run(GameController game){
+        var owner=Objects.requireNonNull(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha")));
+        var saved=new RegenerationBeltChecks.Snapshot(game,owner);var level=owner.level();var pos=owner.blockPosition().above(5);var upper=pos.above();
+        require(level.hasChunkAt(pos)&&level.hasChunkAt(upper),"resident storage fixture");var before=game.maps().snapshot(level,pos);var above=game.maps().snapshot(level,upper);
+        try(var client=new RegenerationBeltChecks.ScheduledClient(game,owner)){
+            owner.stopUsingItem();game.players().get(owner.getUUID()).lbcSkill=0;
+            var params=new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN,owner.position()).withOptionalParameter(LootContextParams.THIS_ENTITY,owner).create(LootContextParamSets.CHEST);
+            var standalone=game.server().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE,Identifier.parse("lbc:ported/terra_sword")));
+            var original=standalone.getRandomItems(params,52).getFirst();
+            require(original.getMaxStackSize()==1&&original.has(DataComponents.MAX_DAMAGE)&&!original.has(DataComponents.UNBREAKABLE),"real standalone Terra sword keeps native breakability and max1");
+            for(int count:List.of(64,99)){
+                var table=mass(game,count);
+                clientStorage(owner,original,count);
+                for(long seed=0;seed<8;seed++){
+                    var result=table.getRandomItems(params,seed);require(result.size()==2,"public loot does not split mass sword quantity");
+                    var stack=result.stream().filter(s->s.is(original.getItem())).findFirst().orElseThrow();
+                    require(stack.getCount()==count&&ItemStack.isSameItemSameComponents(stack,original),"outer count alone preserves native standalone source");
+                }
+                var simple=new SimpleContainer(27);table.fill(simple,params,52);swordSlot(simple,count,original);
+                for(var block:List.of(Blocks.CHEST,Blocks.BARREL,Blocks.SHULKER_BOX,Blocks.HOPPER,Blocks.FURNACE)){
+                    clear(level,pos);level.setBlock(pos,block.defaultBlockState(),2|16|32);
+                    var entity=Objects.requireNonNull(level.getBlockEntity(pos));require(entity instanceof Container,"actual native storage block");var container=(Container)entity;
+                    table.fill(container,params,52);int slot=swordSlot(container,count,original);
+                    var encoded=entity.saveWithFullMetadata(level.registryAccess());container.clearContent();
+                    entity.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),encoded));swordSlot(container,count,original);
+                    container.setItem(slot,container.getItem(slot).copy());swordSlot(container,count,original);
+                    var damaged=container.getItem(slot).copy();damaged.hurtAndBreak(1,level,null,broken->{});
+                    require(damaged.getCount()==count&&damaged.getDamageValue()==original.getDamageValue()+1,"bulk swords still take native durability damage");
+                    var brokenItems=new ArrayList<ItemStack>();damaged.hurtAndBreak(damaged.getMaxDamage(),level,null,brokenItems::add);
+                    require(damaged.getCount()==count-1&&damaged.getDamageValue()==0,"native break consumes only one sword from the bulk stack");
+                    require(brokenItems.size()==1&&brokenItems.getFirst().getCount()==1&&brokenItems.getFirst().isBroken(),"native break callback receives exactly one broken item with its original components");
+                    if(block==Blocks.CHEST){
+                        owner.getInventory().clearContent();owner.closeContainer();require(owner.openMenu((ChestBlockEntity)entity).isPresent(),"actual native chest menu opens");
+                        client.acknowledge();var menu=owner.containerMenu;
+                        // quickMoveStack performs ONE move. The real input handler owns
+                        // repeated moves until the player slots fill or the source empties.
+                        owner.connection.handleContainerClick(new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(menu.containerId,menu.getStateId(),(short)slot,(byte)0,net.minecraft.world.inventory.ContainerInput.QUICK_MOVE,it.unimi.dsi.fastutil.ints.Int2ObjectMaps.emptyMap(),net.minecraft.network.HashedStack.EMPTY));
+                        int moved=0;
+                        for(int index=0;index<owner.getInventory().getContainerSize();index++){
+                            var item=owner.getInventory().getItem(index);if(item.isEmpty())continue;
+                            require(item.is(original.getItem())&&item.getCount()<=item.getMaxStackSize()&&ItemStack.isSameItemSameComponents(item,original),"player transfer uses original max1 and every source component");moved+=item.getCount();
+                        }
+                        require(moved==36&&container.getItem(slot).getCount()==count-moved,"native Shift-click conserves swords and fills36 legal player slots: moved="+moved+" remainder="+container.getItem(slot).getCount());
+                        owner.getInventory().clearContent();owner.closeContainer();
+                    }
+                }
+                var cart=net.minecraft.world.entity.EntityTypes.CHEST_MINECART.create(level,net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+                require(cart instanceof Container,"actual native chest cart");
+                try{table.fill((Container)cart,params,52);swordSlot((Container)cart,count,original);}finally{cart.discard();}
+            }
+            clear(level,pos);clear(level,upper);level.setBlock(pos,Blocks.HOPPER.defaultBlockState(),2|16|32);level.setBlock(upper,Blocks.CHEST.defaultBlockState(),2|16|32);
+            var hopper=(HopperBlockEntity)level.getBlockEntity(pos);var chest=(ChestBlockEntity)level.getBlockEntity(upper);chest.setItem(0,original.copyWithCount(64));
+            require(HopperBlockEntity.suckInItems(level,hopper)&&chest.getItem(0).getCount()==63&&hopper.getItem(0).getCount()==1,"real hopper extracts one native-max sword without losing the oversized remainder");
+            var ordinary=new ArrayList<ItemStack>();LootTable.createStackSplitter(level,ordinary::add).accept(original.copyWithCount(200));
+            require(ordinary.size()==200&&ordinary.stream().allMatch(s->s.getCount()==1&&ItemStack.isSameItemSameComponents(s,original)),"quantities beyond native persistent count99 retain ordinary safe splitting");
+            SkyWars2.LOGGER.info("[check] PASS bulk-loot (count64/99, original Terra components/durability, native chest/barrel/shulker/hopper save-load, legal Shift-click and hopper transfer)");
+        }finally{
+            owner.closeContainer();
+            clear(level,pos);clear(level,upper);game.maps().restoreSnapshot(level,upper,above);game.maps().restoreSnapshot(level,pos,before);
+            saved.restore(game);saved.restoreAttributes();saved.restoreUse();game.players().save();
+        }
+    }
+    private static void clientStorage(net.minecraft.server.level.ServerPlayer owner,ItemStack original,int count){
+        try{
+            // Load the UNTRANSFORMED native client container, not the patched server
+            // class. Shared ItemStack/Container types still come from the live JVM.
+            var name=SimpleContainer.class.getName();byte[] bytes;
+            try(var input=SimpleContainer.class.getResourceAsStream("SimpleContainer.class")){require(input!=null,"original vanilla class resource");bytes=input.readAllBytes();}
+            var loader=new ClassLoader(SimpleContainer.class.getClassLoader()){
+                @Override protected Class<?> loadClass(String wanted,boolean resolve)throws ClassNotFoundException{
+                    if(!wanted.equals(name))return super.loadClass(wanted,resolve);
+                    synchronized(getClassLoadingLock(wanted)){
+                        var type=findLoadedClass(wanted);if(type==null)type=defineClass(wanted,bytes,0,bytes.length);if(resolve)resolveClass(type);return type;
+                    }
+                }
+            };
+            var vanilla=(Container)loader.loadClass(name).getConstructor(int.class).newInstance(27);
+            vanilla.setItem(0,original.copyWithCount(count));require(vanilla.getItem(0).getCount()==1,"unpatched vanilla client really clamps original max1");
+            var source=original.copyWithCount(count);source.setDamageValue(1);var before=source.copy();
+            var context=owner.connection.getPacketContext();
+            net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext((net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)owner.connection,()->{
+                var projected=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(source,TooltipFlag.NORMAL,context,owner.registryAccess());
+                vanilla.setItem(0,projected);
+                require(vanilla.getItem(0).getCount()==count&&projected.getMaxDamage()==original.getMaxDamage()&&projected.getDamageValue()==1,"vanilla client storage retains visible count and durability");
+                require(ItemStack.matches(before,source)&&ItemStack.matches(source,eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(projected,context,owner.registryAccess())),"display projection restores exact real max1/count/durability/components");
+            });
+        }catch(ReflectiveOperationException|java.io.IOException error){throw new IllegalStateException("Unmodified vanilla container witness",error);}
+    }
+    private static void clear(net.minecraft.server.level.ServerLevel level,net.minecraft.core.BlockPos pos){
+        var entity=level.getBlockEntity(pos);if(entity instanceof RandomizableContainerBlockEntity random)random.setLootTable(null);if(entity instanceof Container container)container.clearContent();
+    }
+}

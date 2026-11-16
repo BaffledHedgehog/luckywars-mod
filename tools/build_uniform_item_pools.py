@@ -523,7 +523,6 @@ def selector_resources(result):
         for count in (64, 99):
             resources[domain + '_' + str(count)] = table(domain, modifier=[
                 {'type': 'minecraft:set_count', 'count': count},
-                {'type': 'minecraft:set_components', 'components': {'minecraft:max_stack_size': 99, '!minecraft:max_damage': {}}},
                 {'type': 'minecraft:limit_count', 'limit': {'max': 99}}])
     resources['vanilla_no_recursive_shulker'] = table('vanilla', ('no_recursive_shulker',))
     for short, types in FUNCTIONAL.items():
@@ -533,7 +532,25 @@ def selector_resources(result):
             extras = [{key: value for key, value in row.items() if key not in {'type', 'name', 'value', 'weight', 'quality'}} for row in original]
             if any(value != extras[0] for value in extras[1:]):
                 raise ValueError('Functional category branches have different caller wrappers: ' + short)
-            pool['entries'] = [{**entry('union' if short == '27_random_items' else 'custom', types), **extras[0]}]
+            caller = extras[0]
+            functions = caller.get('modifier', [])
+            def bulk_count(function):
+                if not isinstance(function, dict) or function.get('type') != 'minecraft:set_count': return False
+                value = function.get('count')
+                return isinstance(value, (int, float)) and value > 1 or isinstance(value, dict) and isinstance(value.get('max'), (int, float)) and value['max'] > 1
+            if any(bulk_count(function) for function in functions):
+                # Keep the historical source snapshot intact. Native storage now
+                # supports these quantities without changing each item's traits.
+                count_only = []
+                for function in functions:
+                    if isinstance(function, dict) and function.get('type') == 'minecraft:set_components':
+                        components = function['components']
+                        for key in list(components):
+                            if key.lstrip('!').split(':')[-1] in {'max_stack_size', 'unbreakable', 'max_damage', 'damage'}: del components[key]
+                        if not components: continue
+                    count_only.append(function)
+                caller['modifier'] = count_only
+            pool['entries'] = [{**entry('union' if short == '27_random_items' else 'custom', types), **caller}]
         resources[short] = document
     return resources
 

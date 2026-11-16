@@ -12,13 +12,6 @@
               "count": 99
             },
             {
-              "type": "minecraft:set_components",
-              "components": {
-                "minecraft:max_stack_size": 99,
-                "!minecraft:max_damage": {}
-              }
-            },
-            {
               "type": "minecraft:limit_count",
               "limit": {
                 "max": 99

@@ -14,13 +14,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -35,13 +28,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -56,13 +42,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -77,13 +56,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -98,13 +70,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -119,13 +84,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -140,13 +98,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -161,13 +112,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -182,13 +126,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -203,13 +140,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -224,13 +154,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -245,13 +168,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -266,13 +182,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -287,13 +196,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -308,13 +210,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -329,13 +224,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -350,13 +238,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -371,13 +252,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -392,13 +266,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -413,13 +280,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -434,13 +294,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -455,13 +308,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -476,13 +322,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -497,13 +336,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -518,13 +350,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -539,13 +364,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         },
@@ -560,13 +378,6 @@
                 "type": "minecraft:uniform"
               },
               "type": "minecraft:set_count"
-            },
-            {
-              "components": {
-                "minecraft:max_stack_size": 64,
-                "!minecraft:max_damage": {}
-              },
-              "type": "minecraft:set_components"
             }
           ]
         }

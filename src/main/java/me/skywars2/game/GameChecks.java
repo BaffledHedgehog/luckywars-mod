@@ -1534,6 +1534,7 @@ public final class GameChecks {
                                 case "tmt-native-identities" -> {TmtNativeIdentityChecks.run(game);return;}
                                 case "current-lucky-spawner" -> {CurrentSpawnerChecks.run(game);return;}
                                 case "uniform-item-pools" -> {UniformItemPoolChecks.run(game);return;}
+                                case "bulk-loot" -> {BulkLootChecks.run(game);return;}
                                 case "bucks-trader" -> {BucksTraderChecks.run(game);return;}
                                 case "tmt-mana-potions" -> {TmtManaPotionChecks.run(game);return;}
                                 case "tmt-hylian-shield" -> {TmtShieldChecks.run(game);return;}

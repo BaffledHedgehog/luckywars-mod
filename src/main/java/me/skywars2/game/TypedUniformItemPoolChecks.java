@@ -68,15 +68,17 @@ public final class TypedUniformItemPoolChecks {
                     }
                 }else require(stack.isEmpty()||slots.stream().anyMatch(candidate->candidate.startsWith("custom/")?BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(net.minecraft.resources.Identifier.parse(find(manifest,candidate).getAsJsonObject("identity").get("carrier").getAsString())):candidate.startsWith("native/")&&BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(net.minecraft.resources.Identifier.parse(candidate.substring(7)))),"blocked source falls back within the same typed membership: "+name);
                 // An outer native modifier must restore a legitimate zero quantity too.
-                var wrapped=entrySource.deepCopy();wrapped.add("modifier",JsonParser.parseString("[{\"type\":\"minecraft:set_count\",\"count\":64},{\"type\":\"minecraft:set_components\",\"components\":{\"minecraft:max_stack_size\":99,\"!minecraft:max_damage\":{}}}]") );
+                var wrapped=entrySource.deepCopy();wrapped.add("modifier",JsonParser.parseString("[{\"type\":\"minecraft:set_count\",\"count\":64}]") );
                 var positive=emit(LootPoolEntries.CODEC.parse(ops,wrapped).getOrThrow(),context(params,new FirstIndexRandom(slots.size(),index)));
-                require(positive.size()==output.size()&&positive.stream().allMatch(s->s.getCount()==64&&s.getMaxStackSize()==99&&!s.has(DataComponents.MAX_DAMAGE)&&ItemStack.validateStrict(s).error().isEmpty()),
-                        "every source callback survives native count64/max99 wrapper: "+name+"/"+slot);
+                require(positive.size()==output.size()&&positive.stream().allMatch(s->s.getCount()==64&&ItemStack.validateStrict(s.copyWithCount(1)).error().isEmpty()),
+                        "every source callback survives native count64 count-only wrapper: "+name+"/"+slot);
+                for(int callback=0;callback<output.size();callback++)if(!output.get(callback).isEmpty())
+                    require(ItemStack.isSameItemSameComponents(output.get(callback),positive.get(callback)),"bulk quantity retains ALL original callback components: "+name+"/"+slot+"/"+callback);
                 checked++;
             }
-            var max99=entrySource.deepCopy();max99.add("modifier",JsonParser.parseString("[{\"type\":\"minecraft:set_count\",\"count\":99},{\"type\":\"minecraft:set_components\",\"components\":{\"minecraft:max_stack_size\":99,\"!minecraft:max_damage\":{}}}]") );
+            var max99=entrySource.deepCopy();max99.add("modifier",JsonParser.parseString("[{\"type\":\"minecraft:set_count\",\"count\":99}]") );
             var output99=emit(LootPoolEntries.CODEC.parse(ops,max99).getOrThrow(),context(params,new FirstIndexRandom(slots.size(),0)));
-            require(!output99.isEmpty()&&output99.size()==callbacks(name,output99.getFirst())&&output99.stream().allMatch(s->s.getCount()==99&&ItemStack.validateStrict(s).error().isEmpty()),"typed count99/max99 native wrapper "+name);
+            require(!output99.isEmpty()&&output99.size()==callbacks(name,output99.getFirst())&&output99.stream().allMatch(s->s.getCount()==99&&ItemStack.validateStrict(s.copyWithCount(1)).error().isEmpty()),"typed count99 count-only native wrapper "+name);
         }
         for(var combination:manifest.getAsJsonArray("typedCombinations")){
             var types=new ArrayList<String>();combination.getAsJsonArray().forEach(e->types.add(e.getAsString()));
@@ -93,6 +95,7 @@ public final class TypedUniformItemPoolChecks {
                 var originalEntry=before.getAsJsonArray("pools").get(poolIndex).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().deepCopy();
                 var replacementEntry=after.getAsJsonArray("pools").get(poolIndex).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().deepCopy();
                 for(String field:List.of("type","name","value","weight","quality","domain","types","item_type")){originalEntry.remove(field);replacementEntry.remove(field);}
+                if(List.of("27_acessories","27_potions","27_rofls").contains(name))removeLegacyBulkComponents(originalEntry);
                 require(originalEntry.equals(replacementEntry),"functional native entry wrapper conditions/modifiers retained in order: "+name);
             }
             for(var pool:before.getAsJsonArray("pools"))pool.getAsJsonObject().remove("entries");
@@ -126,6 +129,16 @@ public final class TypedUniformItemPoolChecks {
         }
         fallback(game,params);
         SkyWars2.LOGGER.info("[check] PASS typed-uniform-item-pools (34 source views, {} exact-index native draws/wrappers, deduplicated OR views, 12 actual 27-roll callers, vanilla source isolation, four full helper authorities and condition fallback)",checked);
+    }
+    private static void removeLegacyBulkComponents(JsonObject entry){
+        if(!entry.has("modifier"))return;var functions=entry.getAsJsonArray("modifier");
+        functions.asList().removeIf(value->{
+            if(!value.isJsonObject())return false;var function=value.getAsJsonObject();
+            if(!function.has("type")||!function.get("type").getAsString().equals("minecraft:set_components"))return false;
+            var components=function.getAsJsonObject("components");
+            for(String key:List.of("minecraft:max_stack_size","minecraft:unbreakable","!minecraft:max_damage","!minecraft:damage"))components.remove(key);
+            return components.isEmpty();
+        });
     }
     private static JsonObject find(JsonObject manifest,String id){for(var value:manifest.getAsJsonArray("custom"))if(value.getAsJsonObject().get("id").getAsString().equals(id))return value.getAsJsonObject();throw new IllegalStateException(id);}
     private static int callbacks(String type,ItemStack primary){

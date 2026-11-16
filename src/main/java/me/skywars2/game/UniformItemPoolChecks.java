@@ -126,13 +126,15 @@ public final class UniformItemPoolChecks {
         LootTable.createStackSplitter(level,materialized::add).accept(raw.copy());
         long sum=0;
         for(var stack:materialized){
-            require(ItemStack.validateStrict(stack).error().isEmpty(),"native public split output is strictly valid: "+label+" error="+ItemStack.validateStrict(stack).error());
+            require(ItemStack.validateStrict(stack.copyWithCount(1)).error().isEmpty(),"native public output preserves valid components: "+label);
+            if(!oversized||count>99)require(ItemStack.validateStrict(stack).error().isEmpty(),"ordinary public split output remains strictly valid: "+label);
             require(ItemStack.isSameItemSameComponents(raw,stack),"native splitter preserves exact source item and every component: "+label);
             if(count>0)require(!stack.isEmpty()&&stack.getCount()>0,"positive source quantity cannot produce empty public stacks: "+label);
             else require(stack.isEmpty()&&stack.getCount()==0,"zero source callback retains native empty-output semantics: "+label);
             sum+=stack.getCount();
         }
         require(sum==count,"native splitter preserves complete authored quantity: "+label+" raw="+count+" final="+sum);
+        if(oversized&&count<=99)require(materialized.size()==1&&materialized.getFirst().getCount()==count,"persistable oversized loot remains one stack without component overrides: "+label);
         require(raw.getCount()==count&&raw.getMaxStackSize()==maximum,"validation never mutates source raw quantity/components: "+label);
     }
     private static void shockQuantityBoundary(GameController game,JsonObject manifest,LootParams params){
@@ -168,25 +170,25 @@ public final class UniformItemPoolChecks {
     private static void allCustomWrappers(GameController game,LootParams params,List<String> custom){
         var ops=game.server().reloadableRegistries().lookup().createSerializationContext(JsonOps.INSTANCE);
         for(int count:List.of(64,99)){
-            var source=JsonParser.parseString("{\"type\":\"skywars2:uniform_item\",\"domain\":\"custom\",\"modifier\":[{\"type\":\"minecraft:set_count\",\"count\":"+count+"},{\"type\":\"minecraft:set_components\",\"components\":{\"minecraft:max_stack_size\":99,\"!minecraft:max_damage\":{}}},{\"type\":\"minecraft:limit_count\",\"limit\":{\"max\":99}}]}");
+            var source=JsonParser.parseString("{\"type\":\"skywars2:uniform_item\",\"domain\":\"custom\",\"modifier\":[{\"type\":\"minecraft:set_count\",\"count\":"+count+"},{\"type\":\"minecraft:limit_count\",\"limit\":{\"max\":99}}]}");
             var entry=LootPoolEntries.CODEC.parse(ops,source).getOrThrow();
             for(int index=0;index<custom.size();index++){
                 var actual=new LootContext.Builder(params).withOptionalRandomSource(new FirstIndexRandom(custom.size(),index)).create(Optional.empty());
                 var expanded=new ArrayList<LootPoolEntry>();require(entry.expand(actual,expanded::add)&&expanded.size()==1,"native full custom wrapper expands once");
                 var output=new ArrayList<ItemStack>();expanded.getFirst().createItemStack(output::add,actual);
                 require(output.size()==1&&!output.getFirst().isEmpty()&&output.getFirst().getCount()==count
-                        &&output.getFirst().getMaxStackSize()==99&&!output.getFirst().has(DataComponents.MAX_DAMAGE),"every custom logical index materializes through count"+count+"/max99: "+custom.get(index));
-                require(ItemStack.validateStrict(output.getFirst()).error().isEmpty(),"native wrapped component invariants for "+custom.get(index));
+                        &&ItemStack.validateStrict(output.getFirst().copyWithCount(1)).error().isEmpty(),"every custom logical index materializes through count"+count+"/max99: "+custom.get(index));
+                require(ItemStack.validateStrict(output.getFirst().copyWithCount(1)).error().isEmpty(),"native wrapped component invariants for "+custom.get(index));
             }
         }
     }
     private static void wrappers(GameController game,LootContext context,LootParams params,int factory,int customSize){
         var ops=game.server().reloadableRegistries().lookup().createSerializationContext(JsonOps.INSTANCE);
         for(int count:List.of(64,99)){
-            var source=JsonParser.parseString("{\"type\":\"skywars2:uniform_item\",\"domain\":\"vanilla\",\"modifier\":[{\"type\":\"minecraft:set_count\",\"count\":"+count+"},{\"type\":\"minecraft:set_components\",\"components\":{\"minecraft:max_stack_size\":99,\"!minecraft:max_damage\":{}}},{\"type\":\"minecraft:limit_count\",\"limit\":{\"max\":99}}]}");
+            var source=JsonParser.parseString("{\"type\":\"skywars2:uniform_item\",\"domain\":\"vanilla\",\"modifier\":[{\"type\":\"minecraft:set_count\",\"count\":"+count+"},{\"type\":\"minecraft:limit_count\",\"limit\":{\"max\":99}}]}");
             var entry=LootPoolEntries.CODEC.parse(ops,source).getOrThrow();var expanded=new ArrayList<LootPoolEntry>();require(entry.expand(context,expanded::add)&&expanded.size()==1,"real native registered uniform entry expands once");
             var output=new ArrayList<ItemStack>();expanded.getFirst().createItemStack(output::add,context);
-            require(output.size()==1&&output.getFirst().getCount()==count&&output.getFirst().getMaxStackSize()==99&&!output.getFirst().has(DataComponents.MAX_DAMAGE),"native outer count"+count+"/max99/removal wrappers survive selection");
+            require(output.size()==1&&output.getFirst().getCount()==count&&ItemStack.validateStrict(output.getFirst().copyWithCount(1)).error().isEmpty(),"native outer count"+count+" count-only wrappers survive selection");
             var roundtrip=LootPoolEntries.CODEC.parse(ops,LootPoolEntries.CODEC.encodeStart(ops,entry).getOrThrow()).getOrThrow();require(roundtrip instanceof LbcAllItemPools.Entry,"custom entry MapCodec native roundtrip");
             var factorySource=source.deepCopy().getAsJsonObject();factorySource.addProperty("domain","custom");
             var factoryContext=new LootContext.Builder(params).withOptionalRandomSource(new FirstIndexRandom(customSize,factory)).create(Optional.empty());
@@ -194,8 +196,8 @@ public final class UniformItemPoolChecks {
             require(nativeFactory.expand(factoryContext,factoryEntries::add)&&factoryEntries.size()==1,"real uniform factory entry expands once");
             var generated=new ArrayList<ItemStack>();factoryEntries.getFirst().createItemStack(generated::add,factoryContext);
             require(generated.size()==1&&LbcTmtItems.matches(generated.getFirst())&&generated.getFirst().getCount()==count
-                    &&generated.getFirst().getMaxStackSize()==99&&!LbcTmtAbilities.read(generated.getFirst()).isEmpty()&&LbcTmtAbilities.read(generated.getFirst()).size()<=7,
-                    "native count"+count+"/max99 wrappers retain full freshly generated TMT private components");
+                    &&ItemStack.validateStrict(generated.getFirst().copyWithCount(1)).error().isEmpty()&&!LbcTmtAbilities.read(generated.getFirst()).isEmpty()&&LbcTmtAbilities.read(generated.getFirst()).size()<=7,
+                    "native count"+count+" count-only wrappers retain full freshly generated TMT private components");
         }
     }
     private static final class FirstIndexRandom extends net.minecraft.world.level.levelgen.LegacyRandomSource {

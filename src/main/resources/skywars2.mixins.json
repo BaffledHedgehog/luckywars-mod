@@ -5,6 +5,10 @@
   "mixins": [
     "PoiJournalMixin",
     "InventoryPublicationMixin",
+    "OversizedLootMixin",
+    "OversizedLootMixin$Storage",
+    "OversizedLootMixin$Durability",
+    "OversizedLootMixin$Vehicle",
     "TimeStopViewMixin$Listener",
     "TimeStopViewMixin$Transport",
     "SynchroRankedMixin$Table",
