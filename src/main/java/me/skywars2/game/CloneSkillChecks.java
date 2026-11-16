@@ -243,6 +243,7 @@ public final class CloneSkillChecks {
                 require(form!=null&&form!=originalForm,"independent copied temporary form");
                 var hidden=(LivingEntity)read(form,"original");actors.add(hidden);
                 require(hidden!=original&&!(hidden instanceof ServerPlayer),"fresh suspended nonplayer body");
+                PolymorphWandChecks.absent(hidden);
                 require(read(form,"effects")!=read(originalForm,"effects"),"independent saved restoration effects");
                 restoringCopies.add(new PolymorphCopy(clone,hidden,form));
             }
@@ -265,6 +266,7 @@ public final class CloneSkillChecks {
                 require(!map(game.items().polymorph(),"bodies").containsKey(copy.sheep),"native form removal finishes copied form on next actual tick");
                 require(!map(game.items().polymorph(),"forms").containsKey(hidden),"copied hidden original leaves form owner map");
                 require(!hidden.isRemoved()&&!hidden.isInvisible(),"copied original restored on actual removal");
+                require(owner.level().getEntity(hidden.getUUID())==hidden,"copied original re-registered after sheep removal");
                 near(hidden.getHealth(),17,"restored copied native HP");
                 require(hidden.getMainHandItem().is(Items.EMERALD)&&hidden.getMainHandItem().getCount()==4&&hidden.hasEffect(MobEffects.HASTE),"saved gear and effects restored on copied original");
                 require(polymorphPoisonCause.equals(game.items().indirectKills().effectCauses(hidden).get(MobEffects.POISON)),"restored copied poison keeps original causal author");

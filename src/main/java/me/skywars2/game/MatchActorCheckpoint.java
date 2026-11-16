@@ -21,7 +21,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 
-/** Registered native actor bodies and relationships, including hidden sections. Private queues remain separate. */
+/** Native actors plus explicitly offworld polymorph identities. Private queues remain separate. */
 public final class MatchActorCheckpoint {
     private static final ThreadLocal<GameController> RESTORING=new ThreadLocal<>();
     public static boolean restoring(Entity entity) {
@@ -29,7 +29,7 @@ public final class MatchActorCheckpoint {
     }
     private record Link(UUID id,net.minecraft.world.entity.Pose pose) { }
     private record Image(Entity actor,int id,UUID uuid,MatchEntityState state,List<Link> passengers,
-                         MatchDamageSources.Ref target,UUID owner,boolean ownerResolved,UUID hooked,Tag leash,UUID leashHolder,double angularMomentum) { }
+                         MatchDamageSources.Ref target,UUID owner,boolean ownerResolved,UUID hooked,Tag leash,UUID leashHolder,double angularMomentum,boolean detached) { }
     private final GameController game;
     private final String epoch;
     private final Map<UUID,Image> images=new LinkedHashMap<>();
@@ -71,7 +71,7 @@ public final class MatchActorCheckpoint {
             var image=new Image(actor,actor.getId(),actor.getUUID(),state,passengers,
                     result.damageSources.dependencyRef(target),ownerId,owner!=null,
                     actor instanceof net.minecraft.world.entity.projectile.FishingHook hook&&hook.getHookedIn()!=null?hook.getHookedIn().getUUID():null,
-                    leash,leashHolder,angular);
+                    leash,leashHolder,angular,game.items().polymorph().detached(actor));
             if(result.images.put(image.uuid,image)!=null)throw new IllegalStateException("Duplicate native actor UUID at capture");
         }
         result.playerLinks=new MatchPlayerLinks(game,id->{var image=result.images.get(id);return image==null?null:image.actor;});
@@ -106,6 +106,7 @@ public final class MatchActorCheckpoint {
         }
         return ready;
     }
+    /** Canonical checkpoint identities; offworld bodies are never exposed as gameplay selectors. */
     private List<Entity> registered() {
         var actors=new ArrayList<Entity>();for(var level:game.server().getAllLevels()) {
             var manager=((ActorCheckpointAccess.LevelEntities)level).skywars2$manager();
@@ -115,6 +116,7 @@ public final class MatchActorCheckpoint {
                     if(!(entity instanceof ServerPlayer)&&!entity.isRemoved())actors.add(entity);
                 }));
         }
+        actors.addAll(game.items().polymorph().detachedBodies());
         return actors;
     }
     private void validate(){validate(omitted);}
@@ -155,6 +157,7 @@ public final class MatchActorCheckpoint {
                 actor.setRemoved(savedIdentity?Entity.RemovalReason.CHANGED_DIMENSION:Entity.RemovalReason.DISCARDED);
                 game.cancelQueuedEntityUnload(actor);
             }
+            game.items().polymorph().clearDetachedForCheckpoint();
             for(var image:images.values()) {
                 if(omitted.contains(image.uuid)){
                     // Accepted sources may retain this historical object. Restore its data only;
@@ -167,7 +170,8 @@ public final class MatchActorCheckpoint {
                 var actor=image.actor;var access=(ActorCheckpointAccess.Body)actor;
                 access.skywars2$level(image.state.level);access.skywars2$revive();
                 image.state.load(actor);
-                if(!image.state.level.addFreshEntity(actor)||actor.isRemoved())throw new IllegalStateException("Native actor registration rejected checkpoint body "+image.uuid);
+                if(image.detached)game.items().polymorph().retainUnpublished(actor);
+                else if(!image.state.level.addFreshEntity(actor)||actor.isRemoved())throw new IllegalStateException("Native actor registration rejected checkpoint body "+image.uuid);
                 image.state.finishRandom(actor);
                 game.cancelQueuedEntityUnload(actor);
             }

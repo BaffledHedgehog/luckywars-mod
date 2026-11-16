@@ -214,13 +214,13 @@ public final class LbcCloneSkills {
         private final List<Node> nodes;private final Map<Entity,Entity> family;private boolean retired;
         Auxiliary(List<Node> nodes,Map<Entity,Entity> family){this.nodes=nodes;this.family=family;}
         Entity root(){return family.get(nodes.getFirst().source);}
-        void rollback(){if(!retired){retired=true;discard(nodes,family);}}
+        void rollback(){if(!retired){retired=true;discard(nodes,family);family.values().forEach(game.items().polymorph()::releaseDetached);}}
     }
     Auxiliary copyAuxiliary(Entity original,Consumer<Entity> beforePublish){
         if(!cloning)throw new IllegalStateException("Auxiliary clone outside actor transaction");
         var nodes=snapshot(original);var family=construct(nodes,Vec3.ZERO,null,0);
         var handle=new Auxiliary(nodes,family);
-        try{beforePublish.accept(handle.root());install(nodes,family);publish(nodes,family);return handle;}
+        try{beforePublish.accept(handle.root());install(nodes,family);publish(nodes,family,!game.items().polymorph().detached(original));return handle;}
         catch(RuntimeException failure){try{handle.rollback();}catch(RuntimeException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
     private Map<Entity,Entity> construct(List<Node> nodes,Vec3 offset,String marker,int skill){
@@ -253,10 +253,14 @@ public final class LbcCloneSkills {
         }
     }
     private void publish(List<Node> nodes,Map<Entity,Entity> family){
+        publish(nodes,family,true);
+    }
+    private void publish(List<Node> nodes,Map<Entity,Entity> family,boolean register){
         for(var node:nodes){
             var clone=family.get(node.source);copyScores(node.source,clone,mob(node.source)?MOB_SCORES:PROJECTILE_SCORES);
             if(node.source.getTeam()!=null)game.server().getScoreboard().addPlayerToTeam(clone.getStringUUID(),node.source.getTeam());
-            if(!((ServerLevel)clone.level()).addFreshEntity(clone)||clone.isRemoved())throw new IllegalStateException("Clone native publication rejected");
+            if(!register)game.items().polymorph().retainUnpublished(clone);
+            else if(!((ServerLevel)clone.level()).addFreshEntity(clone)||clone.isRemoved())throw new IllegalStateException("Clone native publication rejected");
         }
     }
     private void discard(List<Node> nodes,Map<Entity,Entity> family){

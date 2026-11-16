@@ -154,6 +154,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;
+            if (game != null && game.items().polymorph().nativeTransition(entity)) return;
             if(game!=null) game.cancelQueuedEntityUnload(entity);
             // Вход с сохранённым эффектом: active_effects загружается без onEffectAdded.
             if (entity instanceof ServerPlayer player) FullInvisibility.effectsChanged(player);
@@ -162,6 +163,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
             if (MatchActorCheckpoint.restoring(entity)) return;
+            if (game != null && game.items().polymorph().nativeTransition(entity)) return;
             if (game != null && entity instanceof net.minecraft.world.entity.LivingEntity living)
                 game.items().indirectKills().clear(living);
             if (game != null) { game.itemQueue().unloaded(entity); game.queueEntityUnload(entity); }

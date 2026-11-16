@@ -157,6 +157,7 @@ public final class LbcCrocodildo {
     void unloaded(Entity e){if(e instanceof ItemEntity item)pending.remove(item);}
     void stop(){for(var a:List.copyOf(actors))retire(a);pending.clear();for(var b:bars.values())b.removeAllPlayers();bars.clear();}
     List<LivingEntity> bodies(){return actors.stream().map(a->a.body).toList();}
+    List<Entity> polymorphVisuals(Entity body){return actors.stream().filter(a->a.body==body).map(a->(Entity)a.visual).toList();}
     int age(Entity body){return actors.stream().filter(a->a.body==body).mapToInt(a->a.age).findFirst().orElse(-1);}
     boolean captureReady(){return depth==0&&!frozen;}
     void checkpointBoundary(){if(depth!=0)throw new IllegalStateException("Finish Crocodildo callback before checkpoint");}

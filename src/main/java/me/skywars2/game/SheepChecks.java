@@ -101,7 +101,7 @@ public final class SheepChecks {
             oldOwnerTeam=owner.getTeam();oldOtherTeam=other.getTeam();team=game.server().getScoreboard().addPlayerTeam("sheep_fixture");team.setAllowFriendlyFire(false);
             owner.level().getAllEntities().forEach(before::add);
             base=new BlockPos((owner.blockPosition().getX()>>4)*16+2,240,(owner.blockPosition().getZ()>>4)*16+2);
-            bounds=new BoundingBox(base.getX(),base.getY(),base.getZ(),base.getX()+11,base.getY()+18,base.getZ()+13);
+            bounds=new BoundingBox(base.getX(),base.getY(),base.getZ(),base.getX()+11,base.getY()+18,base.getZ()+24);
             at=Vec3.atLowerCornerOf(base).add(6,14,6);holeAt=at.add(80,0,0);
             var h=BlockPos.containing(holeAt);holeBounds=new BoundingBox(h.getX()-32,h.getY()-32,h.getZ()-32,h.getX()+32,h.getY()+32,h.getZ()+32);
         }
@@ -118,7 +118,7 @@ public final class SheepChecks {
             require(holeBounds.maxY()<owner.level().getMaxY(),"hole sphere below native ceiling");
             require(before.stream().noneMatch(e->!(e instanceof ServerPlayer)&&(e.position().distanceToSqr(at)<55*55||e.position().distanceToSqr(holeAt)<55*55)),"isolated school and destructive-hole regions exclude unrelated entities");
             resident(bounds);resident(holeBounds);
-            for(var p:BlockPos.betweenClosed(base,base.offset(11,18,13)))blocks.put(p.immutable(),game.maps().snapshot(owner.level(),p));
+            for(var p:BlockPos.betweenClosed(base,base.offset(11,18,24)))blocks.put(p.immutable(),game.maps().snapshot(owner.level(),p));
             for(var p:BlockPos.betweenClosed(new BlockPos(holeBounds.minX(),holeBounds.minY(),holeBounds.minZ()),new BlockPos(holeBounds.maxX(),holeBounds.maxY(),holeBounds.maxZ())))require(owner.level().getBlockState(p).isAir(),"destructive fixture requires empty air sphere and margin at "+p);
             game.config().offhandWands=true;game.config().ranked=false;game.config().lbcSkills=false;mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("sheep_wand_mana_use"),"lbc.math").set(500);
             for(var p:List.of(owner,other)){
@@ -162,12 +162,20 @@ public final class SheepChecks {
             try{require(!input(InteractionHand.MAIN_HAND)&&mana.get(owner)==500,"dimension Time Stop cast admission");}finally{game.items().timeStop().end(owner.level());}
             var marker=new Marker(EntityTypes.MARKER,owner.level());marker.setPos(at);marker.entityTags().add("stopper_magic");add(marker);game.items().magic().loaded(marker);
             try{require(!input(InteractionHand.MAIN_HAND)&&mana.get(owner)==500,"real antimagic field cast admission");}finally{game.items().magic().unloaded(marker);marker.discard();game.items().magic().flushCleansing();}
+            // The genuine Academy has a random rotation. Its roof must not become an
+            // accidental wall in the independent two-target piercing witness.
+            var rayFrom=owner.getEyePosition();var rayTo=rayFrom.add(0,0,12);
+            var fixtureWall=LbcTerra.wallHit(owner.level(),rayFrom,rayTo);
+            if(fixtureWall!=null)SkyWars2.LOGGER.info("[check] Sheep fixture clears randomized Academy ray obstruction at {}",fixtureWall.getBlockPos());
+            for(var cell:BlockPos.betweenClosed(BlockPos.containing(at.add(-1,0,0)),BlockPos.containing(at.add(1,3,12))))place(cell,Blocks.AIR);
+            require(LbcTerra.wallHit(owner.level(),rayFrom,rayTo)==null,"native piercing fixture ray has twelve clear resident blocks");
             var first=cow(at.add(0,.5,4));var second=cow(at.add(0,.5,8));var sentinel=new ItemEntity(owner.level(),at.x,at.y+1.5,at.z+2,new ItemStack(Items.DIAMOND));sentinel.setNoGravity(true);add(sentinel);
             other.getInventory().setItem(2,new ItemStack(Items.EMERALD,7));move(other,at.add(0,0,2));mana.set(owner,500);owner.setYRot(0);owner.setXRot(0);
-            require(input(InteractionHand.MAIN_HAND)&&mana.get(owner)==0&&game.items().polymorph().active(first)&&game.items().polymorph().active(second),"one native input transforms both pierced targets");
+            boolean accepted=input(InteractionHand.MAIN_HAND);
+            require(accepted&&mana.get(owner)==0&&game.items().polymorph().active(first)&&game.items().polymorph().active(second),"one native input transforms both pierced targets: accepted="+accepted+" mana="+mana.get(owner)+" active="+game.items().polymorph().active(first)+"/"+game.items().polymorph().active(second)+" caster="+owner.position()+" first="+first.position()+" second="+second.position()+" ray="+owner.getLookAngle()+" magic="+game.items().magic().suppressed(owner)+" stopped="+game.items().timeStop().stopped(owner.level())+" tags="+owner.entityTags());
             var replacement=sheepEntity();require(replacement instanceof net.minecraft.world.entity.animal.sheep.Sheep,"actual vanilla sheep replacement");
             var living=(net.minecraft.world.entity.LivingEntity)replacement;
-            require(living.getHealth()==8&&living.getMaxHealth()==8&&replacement.getCustomName()!=null&&replacement.getCustomName().getString().equals("jeb_")&&living.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE).getBaseValue()==20,"source jeb_ health8 and resistance20");
+            require(living.getHealth()==100&&living.getMaxHealth()==100&&replacement.getCustomName()!=null&&replacement.getCustomName().getString().equals("jeb_")&&living.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE).getBaseValue()==0,"jeb_ health100 and native knockback resistance0");
             require(sentinel.isAlive()&&other.isAlive()&&other.getInventory().getItem(2).is(Items.EMERALD)&&other.getInventory().getItem(2).getCount()==7,"player exclusion preserves hotbar and ordinary item selector exclusion");
             require(owner.level().getEntities(owner,new net.minecraft.world.phys.AABB(first.position(),first.position()).inflate(2),e->e instanceof ItemEntity&&!owned.contains(e)).isEmpty(),"original replacement discards without original death loot");
             int remaining=game.items().polymorph().remaining(first);for(int i=0;i<240;i++)sheep.tick();require(!replacement.isRemoved()&&second.isAlive()&&game.items().polymorph().remaining(first)==remaining,"reentrant non-clock calls cannot expire temporary polymorph");

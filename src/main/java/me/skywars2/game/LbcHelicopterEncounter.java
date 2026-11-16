@@ -163,6 +163,7 @@ public final class LbcHelicopterEncounter {
         }
         for(var pair:List.copyOf(pairs)) {
             var d=pair.display;var level=(ServerLevel)d.level();
+            if(game.items().polymorph().suspended(pair.hitbox))continue;
             if(pair.terminal) continue;
             if(!game.items().currentEpoch(pair.epoch) || game.stage()==GameController.Stage.ENDING) { terminal(pair,false);continue; }
             if(d.isRemoved() || pair.hitbox.isRemoved()) { terminal(pair,false);continue; }
@@ -339,6 +340,7 @@ public final class LbcHelicopterEncounter {
     int activeCount() {return pairs.size();}
     List<View> snapshot() {return pairs.stream().map(p->new View(p.display,p.hitbox,p.phase,p.frame,p.dispatches)).toList();}
     List<Entity> attackSnapshot() {return List.copyOf(attacks);}
+    List<Entity> polymorphVisuals(Entity body){return pairs.stream().filter(p->p.hitbox==body).map(p->(Entity)p.display).toList();}
     private static void shotSound(ServerLevel level,Vec3 selectorOrigin,Vec3 at,float pitch) {
         // The selector is centered at the command context, independently of the local sound offset.
         var sound=net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.FIREWORK_ROCKET_BLAST);

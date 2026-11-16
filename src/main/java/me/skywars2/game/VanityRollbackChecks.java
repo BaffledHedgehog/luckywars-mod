@@ -26,6 +26,7 @@ public final class VanityRollbackChecks {
         final ServerGamePacketListenerImpl alphaConnection,betaConnection;
         ElementalGrimoireChecks.Recording alphaWire,betaWire;
         Cow saved,future,morphed;
+        net.minecraft.world.entity.Display.ItemDisplay morphVisual;
         net.minecraft.world.entity.animal.sheep.Sheep sheep;
         LbcVoidArcanum.Hole hole;
         LbcWtf.Chef chef;
@@ -99,7 +100,11 @@ public final class VanityRollbackChecks {
             base.owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(LbcVoidArcanum.ITEM));
             game.items().mana().set(base.owner,100000);base.owner.entityTags().add("time_stopped");
             hole=game.items().voidArcanum().spawn(base.owner,base.at.add(0,8,0));require(hole!=null,"actual long-lived black-hole source");game.items().voidArcanum().updateVisual(hole,base.owner);
-            morphed=base.cow(base.at.add(-5,2,4));sheep=game.items().polymorph().transform(morphed,game.items().indirectKills().coldCause(base.owner,false));
+            morphed=base.cow(base.at.add(-5,2,4));
+            morphVisual=new net.minecraft.world.entity.Display.ItemDisplay(net.minecraft.world.entity.EntityTypes.ITEM_DISPLAY,base.owner.level());
+            morphVisual.setPos(morphed.position());morphVisual.setItemStack(new ItemStack(Items.STONE));
+            require(base.owner.level().addFreshEntity(morphVisual)&&morphVisual.startRiding(morphed,true,true),"actual native attached visual before polymorph capture");
+            sheep=game.items().polymorph().transform(morphed,game.items().indirectKills().coldCause(base.owner,false));
             require(sheep!=null,"actual temporary polymorph source");
             chef=base.spawn(base.owner,base.cow(base.at.add(4,2,5)));chef.entityTags().add("time_stopped");
             wealthField=new net.minecraft.world.entity.Marker(net.minecraft.world.entity.EntityTypes.MARKER,base.owner.level());
@@ -297,6 +302,8 @@ public final class VanityRollbackChecks {
             require(hole.visual!=null&&game.items().blackHoleVisuals().count()>0,"black-hole display holder is republished after actual rewind");
             require(game.items().voidArcanum().snapshot().contains(hole)&&!hole.marker.isRemoved()&&hole.point.distanceToSqr(holePoint)<.001,"same functional black-hole owner and body return");
             require(game.items().polymorph().active(morphed)&&!sheep.isRemoved()&&game.items().polymorph().remaining(morphed)>=formRemaining-2,"temporary form resumes its saved duration");
+            PolymorphWandChecks.absent(morphed);
+            PolymorphWandChecks.absent(morphVisual);require(morphVisual.getVehicle()==morphed,"restored offworld visual retains its native riding graph");
             require(game.items().wtf().snapshot().contains(chef)&&!chef.isRemoved(),"same Chef returns with its private owner state");
             for(int n=0;n<12;n++)require(base.owner.level().getBlockState(base.center.offset(-8+n,0,-4)).is(Blocks.DIAMOND_BLOCK),"entire accepted structure belongs to the point");
             if(++round<2){mutate();return false;}
@@ -321,6 +328,7 @@ public final class VanityRollbackChecks {
                     for(var entry:pulsarOriginal.entrySet())game.maps().restoreSnapshot(pulsarLevel,entry.getKey(),entry.getValue());
                 }
                 base.owner.entityTags().remove("time_stopped");base.owner.entityTags().remove("vanity_fixture");base.owner.connection=alphaConnection;base.other.connection=betaConnection;
+                if(morphVisual!=null&&!morphVisual.isRemoved())morphVisual.discard();
                 base.close();originalCore.restoreFrozen();for(var player:originalPlayers)player.restoreFrozen();
             }finally{game.server().tickRateManager().setFrozen(frozen);}
         }

@@ -243,9 +243,13 @@ public final class LbcSheep {
     private Sheep permanent(ServerPlayer p,Entity original){
         var replacement=new MagicSheep(p.level());
         try{replacement.load(TagValueInput.create(ProblemReporter.DISCARDING,p.registryAccess(),TagParser.parseCompoundFully(
-                "{DeathLootTable:'minecraft:empty',CustomName:'jeb_',CustomNameVisible:0b,attributes:[{id:'minecraft:knockback_resistance',base:20}]}")));}
+                "{DeathLootTable:'minecraft:empty',CustomName:'jeb_',CustomNameVisible:0b}")));}
         catch(Exception e){throw new IllegalStateException("Cannot create magical sheep",e);}
         replacement.setCustomName(Component.literal("jeb_"));replacement.setCustomNameVisible(false);
+        float health=game.balanceLegacy()?8:100;
+        replacement.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(health);replacement.setHealth(health);
+        if(game.balanceLegacy())replacement.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.KNOCKBACK_RESISTANCE).setBaseValue(20);
+        replacement.setDeltaMovement(original.getDeltaMovement());replacement.setYRot(original.getYRot());replacement.setXRot(original.getXRot());
         replacement.setPos(original.position());replacement.entityTags().addAll(List.of(TAG,"magicalsheep","magic"));
         game.items().markCurrentItemEpoch(replacement);game.items().timeStop().prepareFrozen(replacement);
         var c=new Converted(replacement,p.getUUID(),game.items().indirectKills().coldCause(p,false),game.items().epoch());sheep.add(c);

@@ -80,13 +80,18 @@ public final class ProjectileLifetimes {
     }
 
     public void loaded(Entity entity) {
-        if (stopped || entity.level() != game.maps().level()) return;
+        if (stopped || entity.level() != game.maps().level() || game.items().polymorph().detached(entity)) return;
         if (entity instanceof LivingEntity living && targets.add(living)) targetRevision++;
     }
 
     public void unloaded(Entity entity) {
         if (entity instanceof LivingEntity living && targets.remove(living)) targetRevision++;
         if (entity instanceof Projectile projectile) forget(projectile);
+    }
+    /** Visibility changes do not cancel accepted projectile reviews or their private clocks. */
+    void polymorphVisibility(Entity entity,boolean visible){
+        if(visible){loaded(entity);return;}
+        if(entity instanceof LivingEntity living&&targets.remove(living))targetRevision++;
     }
 
     public void track(Projectile projectile) {
@@ -136,6 +141,7 @@ public final class ProjectileLifetimes {
             var review = queue.removeFirst();
             var projectile = review.projectile;
             if (tracked.get(projectile) != review) continue;
+            if(game.items().polymorph().suspended(projectile)){queue.addLast(review);continue;}
             if (projectile.isRemoved() || projectile.level() != game.maps().level()
                     || !(projectile.getOwner() instanceof ServerPlayer owner)
                     || owner.isRemoved() || !owner.isAlive() || owner.level() != projectile.level()) {

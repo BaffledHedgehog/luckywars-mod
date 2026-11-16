@@ -16867,7 +16867,7 @@ public final class GameChecks {
                         require(stop.cooldownTicks(owner)==800,"Clocks cooldown pauses during own stopped interval");
                         other.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(LbcStand.CLOCKS));
                         int before=stop.remaining(level); stop.useClocks(other,net.minecraft.world.InteractionHand.MAIN_HAND);
-                        require(stop.remaining(level)==400 && stop.cooldownTicks(other)==800,"Second clocks reset the remaining stop to 400 ticks");
+                        require(stop.remaining(level)==before+400 && stop.cooldownTicks(other)==800,"Second clocks add400 ticks without losing the remaining stop");
                         owner.teleportTo(level,.5,281,50.5,java.util.Set.of(),0,0,true);
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(LbcStand.ORAORA));
                         owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,new ItemStack(LbcShooters.PHANTOM_KNIVES));

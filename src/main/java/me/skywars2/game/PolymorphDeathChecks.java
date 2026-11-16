@@ -15,8 +15,8 @@ public final class PolymorphDeathChecks {
         int lives=game.lives(player.getUUID()),deaths=game.players().get(player.getUUID()).deaths,kills=game.players().get(author.getUUID()).kills;
         var body=service.transform(player,game.items().indirectKills().wildCause(author));
         try{
-            require(body!=null&&player.getHealth()==8&&player.getMaxHealth()==8,"native participant starts with actual sheep HP");
-            require(body.hurtServer(player.level(),player.damageSources().generic(),2)&&body.getHealth()==6&&player.getHealth()==6,"accepted body damage is immediately visible on the human HP bar");
+            require(body!=null&&player.getHealth()==100&&player.getMaxHealth()==100,"native participant starts with actual sheep HP");
+            require(body.hurtServer(player.level(),player.damageSources().generic(),2)&&body.getHealth()==98&&player.getHealth()==98,"accepted body damage is immediately visible on the human HP bar");
             body.setInvulnerableTime(0);body.damageCooldownTime=0;
             require(body.hurtServer(player.level(),player.damageSources().playerAttack(author),100),"native lethal body damage accepted");
             require(body.isRemoved()&&!service.active(player)&&player.isDeadOrDying()&&player.getHealth()==0

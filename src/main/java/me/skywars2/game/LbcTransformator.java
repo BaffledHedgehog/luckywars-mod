@@ -133,6 +133,7 @@ public final class LbcTransformator {
                 || game.stage()==GameController.Stage.ENDING) {attacks.remove(attack);attack.discard();}
         for(var pair:List.copyOf(pairs)) {
             var actor=pair.actor;var level=(ServerLevel)actor.level();
+            if(game.items().polymorph().suspended(actor))continue;
             if(!game.items().currentEpoch(pair.epoch) || !game.playing() || game.stage()==GameController.Stage.ENDING
                     || actor.isRemoved() || !actor.isAlive() || pair.text!=null && pair.text.isRemoved()
                     || !resident(level,actor.blockPosition())) {terminal(pair);continue;}
@@ -143,6 +144,7 @@ public final class LbcTransformator {
     }
     /** The producer is mechanism-driven; magic-only beacons do not suppress it. */
     void pulse(Zombie actor) {
+        if(game.items().polymorph().suspended(actor))return;
         var pair=find(actor);
         if(pair==null || !actor.isAlive() || game.items().timeStop().stopped((ServerLevel)actor.level())
                 || game.items().magic().mechanismSuppressedAt((ServerLevel)actor.level(),actor.position())) return;
@@ -165,6 +167,7 @@ public final class LbcTransformator {
         if(health<=440) explode(pair);
     }
     void burst(Zombie actor) {
+        if(game.items().polymorph().suspended(actor))return;
         if(find(actor)==null || !actor.isAlive() || game.items().timeStop().stopped((ServerLevel)actor.level())
                 || game.items().magic().mechanismSuppressedAt((ServerLevel)actor.level(),actor.position())) return;
         var level=(ServerLevel)actor.level(); var origin=actor.position().add(0,1,0);
@@ -258,6 +261,7 @@ public final class LbcTransformator {
     }
     List<View> snapshot() {return pairs.stream().map(pair->new View(pair.actor,pair.text,pair.ticks)).toList();}
     List<Entity> attackSnapshot() {return List.copyOf(attacks);}
+    List<Entity> polymorphVisuals(Entity body){return pairs.stream().filter(p->p.actor==body&&p.text!=null).map(p->(Entity)p.text).toList();}
     int activeCount() {return pairs.size();}
 
     static boolean cloneProtected(Entity actor){return actor instanceof Label || actor.entityTags().contains(TEXT);}

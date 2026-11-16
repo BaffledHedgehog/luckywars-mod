@@ -1771,6 +1771,7 @@ for(int i=0;i<=100 && i<boundary;i++) {
         return validRoleTarget(entity,allowDying,false);
     }
     boolean validRoleTarget(Entity entity,boolean allowDying,boolean allowSauvojen) {
+        if(game.items().polymorph().detached(entity))return false;
         if(LbcBedwarsRoleGuards.shop(entity))return false;
         return (allowDying || entity.isAlive()) && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
                 && !entity.entityTags().contains("rcdenyalways") && (allowSauvojen||!entity.entityTags().contains("sauvojen_tuntija"))

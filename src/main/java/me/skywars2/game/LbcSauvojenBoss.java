@@ -92,6 +92,7 @@ public final class LbcSauvojenBoss {
         var level=game.maps().level();if(level==null||game.items().timeStop().stopped(level))return;
         phase=(phase+1)%240;
         for(var boss:List.copyOf(actors.keySet())){
+            if(game.items().polymorph().suspended(boss))continue;
             var state=actors.get(boss);
             if(boss.isRemoved()||!game.items().currentEpoch(state.epoch())||boss.level()!=level){
                 actors.remove(boss);if(!boss.isRemoved())boss.discard();continue;

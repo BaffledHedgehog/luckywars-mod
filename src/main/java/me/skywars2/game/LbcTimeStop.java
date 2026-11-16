@@ -153,6 +153,7 @@ public final class LbcTimeStop {
     }
 
     public boolean frozen(Entity entity) {
+        if(game.items().polymorph().suspended(entity))return true;
         if(rewinding!=null)return false;
         if(!(entity.level() instanceof ServerLevel level) || !stopped(level) || entity.isRemoved()) return false;
         var casters=touhouCasters.get(level);
@@ -173,6 +174,7 @@ public final class LbcTimeStop {
 
     /** AI/NBT не переписываются; синхронный gravity-флаг удерживает также клиентский полёт. */
     public void prepareFrozen(Entity entity) {
+        if(game.items().polymorph().suspended(entity))return;
         if(!frozen(entity)) return;
         var state=frozen.get(entity);
         if(state!=null && entity.level()!=state.level) {
@@ -341,6 +343,7 @@ public final class LbcTimeStop {
 
     /** RAW amount сохраняется до electric/TNT/armor модификаторов, которые выполнятся один раз при replay. */
     public boolean queueDamage(LivingEntity target,ServerLevel level,DamageSource source,float amount) {
+        if(game.items().polymorph().suspended(target))return false;
         if(replaying(source) || !frozen(target) || !target.isAlive() || !(amount>0)
                 || target.level()!=level || !game.items().allowDamage(target,source)) return false;
         source=game.items().indirectKills().inheritDamage(target,source);

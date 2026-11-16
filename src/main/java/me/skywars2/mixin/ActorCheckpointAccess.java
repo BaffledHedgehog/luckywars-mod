@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public final class ActorCheckpointAccess {
     private ActorCheckpointAccess() { }
     @Mixin(Entity.class) public interface Body {
+        @Accessor("levelCallback") net.minecraft.world.level.entity.EntityInLevelCallback skywars2$levelCallback();
         @Invoker("unsetRemoved") void skywars2$revive();
         @Invoker("setLevel") void skywars2$level(Level level);
         @Accessor("passengers") void skywars2$passengers(ImmutableList<Entity> passengers);

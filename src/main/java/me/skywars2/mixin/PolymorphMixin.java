@@ -25,11 +25,13 @@ public final class PolymorphMixin {
         @Inject(method="hurtServer",at=@At("HEAD"),cancellable=true)
         private void polymorphDamage(ServerLevel level,DamageSource source,float amount,CallbackInfoReturnable<Boolean> cir){
             var g=SkyWars2.game();var entity=(LivingEntity)(Object)this;
-            if(g!=null&&g.items().polymorph().active(entity)){cir.setReturnValue(g.items().polymorph().redirectDamage(entity,level,source,amount));}
+            if(g!=null&&g.items().polymorph().active(entity)){cir.setReturnValue(entity instanceof ServerPlayer&&g.items().polymorph().redirectDamage(entity,level,source,amount));}
         }
     }
     @Mixin(LivingEntity.class)
     public static abstract class Effects {
+        @Inject(method="canBeSeenByAnyone",at=@At("HEAD"),cancellable=true)
+        private void polymorphAbsent(CallbackInfoReturnable<Boolean> cir){var g=SkyWars2.game();if(g!=null&&g.items().polymorph().suspended((Entity)(Object)this))cir.setReturnValue(false);}
         @Inject(method="updateInvisibilityStatus",at=@At("HEAD"),cancellable=true)
         private void polymorphHidden(CallbackInfo ci){var g=SkyWars2.game();if(g!=null&&g.items().polymorph().active((Entity)(Object)this)){((Entity)(Object)this).setInvisible(true);ci.cancel();}}
         @Inject(method="heal",at=@At("HEAD"),cancellable=true)
@@ -47,7 +49,7 @@ public final class PolymorphMixin {
     @Mixin(Entity.class)
     public static abstract class Collision {
         @Inject(method="push(Lnet/minecraft/world/entity/Entity;)V",at=@At("HEAD"),cancellable=true)
-        private void polymorphNoPush(Entity other,CallbackInfo ci){var g=SkyWars2.game();if(g!=null&&(g.items().polymorph().concealed((Entity)(Object)this)||g.items().polymorph().concealed(other)))ci.cancel();}
+        private void polymorphNoPush(Entity other,CallbackInfo ci){var g=SkyWars2.game();if(g!=null&&(g.items().polymorph().suspended((Entity)(Object)this)||g.items().polymorph().suspended(other)))ci.cancel();}
     }
     @Mixin(net.minecraft.world.entity.item.ItemEntity.class)
     public static abstract class Pickup {
