@@ -9,14 +9,17 @@ import java.util.*;
 import java.util.concurrent.*;
 import net.minecraft.world.level.material.MapColor;
 
-/** Five originals + prepared clips, one owned background preparation process, no tick-thread transcode. */
+/** Bounded originals + prepared clips, one owned background preparation process, no tick-thread transcode. */
 final class TikTokCache implements AutoCloseable {
-    static final int CAPACITY=5;
-    private static final long MAX_DISK=768L*1024*1024;
+    static final int CAPACITY=20;
+    private static final long MAX_DISK=3L*1024*1024*1024;
+    @FunctionalInterface interface Preparation { Path run(Path stage,List<String> excluded,Path audioSource) throws Exception; }
+    private final Preparation preparation;
     private final Path root, videos, incoming, cookies;
     private final boolean fillQueue;
     private final ExecutorService worker=Executors.newSingleThreadExecutor(r->{var t=new Thread(r,"skywars-tiktok-prepare");t.setDaemon(true);return t;});
     private final Deque<TikTokMedia> clips=new ArrayDeque<>();
+    private final LinkedHashSet<String> recent=new LinkedHashSet<>();
     private Future<Path> pending;
     private String pendingAudioId="";
     private final Set<String> attemptedAudio=new HashSet<>();
@@ -29,10 +32,19 @@ final class TikTokCache implements AutoCloseable {
         this(root,cookies,true);
     }
     TikTokCache(Path root, Path cookies,boolean fillQueue) throws IOException {
+        this(root,cookies,fillQueue,null);
+    }
+    TikTokCache(Path root, Path cookies,boolean fillQueue,Preparation preparation) throws IOException {
         this.fillQueue=fillQueue;
+        this.preparation=preparation==null?this::prepare:preparation;
         this.root=root.toAbsolutePath().normalize(); this.cookies=cookies.toAbsolutePath().normalize();
         videos=this.root.resolve("videos"); incoming=this.root.resolve("incoming");
         Files.createDirectories(videos); Files.createDirectories(incoming);
+        Path history=this.root.resolve("recent.json");
+        if(Files.isRegularFile(history))try{
+            for(var id:JsonParser.parseString(Files.readString(history)).getAsJsonArray())
+                if(id.isJsonPrimitive()&&id.getAsString().matches("[0-9]{8,24}"))remember(id.getAsString());
+        }catch(RuntimeException invalid){recent.clear();}
         try(var entries=Files.list(incoming)){for(var path:entries.toList())remove(path);}
         for(String name:List.of("worker.py","spectral.py"))
             try(var resource=TikTokCache.class.getResourceAsStream("/skywars2/tiktok/"+name)){
@@ -84,11 +96,13 @@ final class TikTokCache implements AutoCloseable {
     void applyImportedCookies(String normalized) throws IOException {
         cancel(); TikTokCookies.save(cookies,normalized);
         while(!clips.isEmpty())retire(clips.getFirst().id);
+        recent.clear();saveRecent();
         retryAfter=0; error="";
     }
 
     void tick(long now, Set<String> inUse) {
         if(closed)return;
+        long wallNow=System.nanoTime();
         if(pending!=null&&pending.isDone()){
             try {
                 Path prepared=pending.get();
@@ -113,22 +127,24 @@ final class TikTokCache implements AutoCloseable {
                 }
             } catch(Exception failure){
                 Throwable cause=failure instanceof ExecutionException&&failure.getCause()!=null?failure.getCause():failure;
-                error=safeCode(cause.getMessage());retryAfter=now+1200;
+                error=safeCode(cause.getMessage());retryAfter=wallNow+TimeUnit.SECONDS.toNanos(60);
             }
             pending=null;pendingAudioId="";
             // A worker never publishes partial output; every failed/obsolete staging directory is disposable.
             try(var entries=Files.list(incoming)){for(var path:entries.toList())remove(path);}catch(IOException ignored){}
         }
-        if(fillQueue&&pending==null&&now>=retryAfter){
+        if(fillQueue&&pending==null&&wallNow>=retryAfter){
             for(var clip:clips)if(!clip.hasSpectral()&&attemptedAudio.add(clip.id)){
                 pendingAudioId=clip.id;
                 var source=clip.directory;var stage=incoming.resolve(UUID.randomUUID().toString());
-                pending=worker.submit(()->prepare(stage,List.of(),source));break;
+                pending=worker.submit(()->preparation.run(stage,List.of(),source));break;
             }
         }
-        if(fillQueue&&pending==null&&clips.size()<CAPACITY&&configured()&&now>=retryAfter){
-            var excluded=ids();String token=UUID.randomUUID().toString();Path stage=incoming.resolve(token);
-            pending=worker.submit(()->prepare(stage,excluded,null));
+        if(fillQueue&&pending==null&&clips.size()<CAPACITY&&configured()&&wallNow>=retryAfter){
+            var excluded=new LinkedHashSet<>(recent);excluded.addAll(ids());
+            String token=UUID.randomUUID().toString();Path stage=incoming.resolve(token);
+            var snapshot=List.copyOf(excluded);
+            pending=worker.submit(()->preparation.run(stage,snapshot,null));
         }
     }
 
@@ -167,8 +183,16 @@ final class TikTokCache implements AutoCloseable {
         var iterator=clips.iterator();
         while(iterator.hasNext()){
             var clip=iterator.next();if(!clip.id.equals(id))continue;
-            iterator.remove();try{clip.close();remove(clip.directory);}catch(IOException ignored){}return;
+            iterator.remove();remember(id);saveRecent();
+            try{clip.close();remove(clip.directory);}catch(IOException ignored){}return;
         }
+    }
+    private void remember(String id){
+        recent.remove(id);recent.add(id);
+        while(recent.size()>CAPACITY*5)recent.remove(recent.iterator().next());
+    }
+    private void saveRecent(){
+        try{Files.writeString(root.resolve("recent.json"),new Gson().toJson(recent));}catch(IOException ignored){}
     }
     private long size() throws IOException {return directorySize(videos);}
     private static long directorySize(Path directory) throws IOException {

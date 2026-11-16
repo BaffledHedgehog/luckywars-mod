@@ -839,6 +839,7 @@ public final class GameChecks {
                                 case "feedback-patch" -> { FeedbackPatchChecks.run(game); return; }
                                 case "menu-chest" -> { GameMenuChestChecks.run(game); return; }
                                 case "build-manager" -> { GameBuildChecks.run(game); return; }
+                                case "combat-feedback-nov16" -> { CombatFeedbackNov16Checks.run(game); return; }
                                 case "sight-effects" -> { SightEffectChecks.run(game); return; }
                                 case "fireball-presentation" -> { FireballPresentationChecks.run(game); return; }
                                 case "potion-carriers" -> { PotionCarrierChecks.run(game); return; }

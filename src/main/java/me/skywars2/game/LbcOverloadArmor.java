@@ -18,6 +18,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -107,8 +110,15 @@ public final class LbcOverloadArmor {
         slamTicks += 2;
         slam.set(slamTicks);
 
-        if (player.onGround() || !player.level().getBlockState(player.blockPosition().below()).is(SOURCE_AIRS))
-            impact(player, slamTicks);
+        // A non-air cell below is only a broad phase: feet can still be almost a block above it.
+        // Use the actual collision/fluid surface for both the impact and its visual origin.
+        var feet = player.position();
+        if (player.onGround() || !player.level().getBlockState(player.blockPosition().below()).is(SOURCE_AIRS)) {
+            var hit = player.level().clip(new ClipContext(feet.add(0, .02, 0), feet.add(0, -1.02, 0),
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player));
+            if (hit.getType() == HitResult.Type.BLOCK && feet.y - hit.getLocation().y <= .06)
+                impact(player, slamTicks, hit.getLocation());
+        }
     }
 
     /** Remove transient timers, the owned jump effect, and the one gravity modifier owned by this ability. */
@@ -172,7 +182,7 @@ public final class LbcOverloadArmor {
         return true;
     }
 
-    private void impact(ServerPlayer player, int accumulatedTicks) {
+    private void impact(ServerPlayer player, int accumulatedTicks, Vec3 origin) {
         // Legacy computes damage from the original squared counter, then applies its unusual radius clamp.
         int squared = accumulatedTicks * accumulatedTicks;
         int damage = (int) Math.floor(squared * .04);
@@ -181,18 +191,18 @@ public final class LbcOverloadArmor {
         int particleCount = (int) (radiusScore * .1) * 100;
         ServerLevel level = (ServerLevel) player.level();
         double radiusSquared = radius * (double) radius;
-        AABB area = new AABB(player.position(), player.position()).inflate(radius);
+        AABB area = new AABB(origin, origin).inflate(radius);
         var damageSource = new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(DamageTypes.OUTSIDE_BORDER), player);
 
         for (Entity entity : level.getEntities((Entity) null, area, target -> isDamageTarget(player, target))) {
-            double distance = entity.getBoundingBox().distanceToSqr(player.position());
+            double distance = entity.getBoundingBox().distanceToSqr(origin);
             if (distance > radiusSquared) continue;
             if (entity instanceof LivingEntity living)
                 living.hurtServer(level, damageSource, damage);
         }
 
-        level.sendParticles(PowerParticleOption.create(ParticleTypes.DRAGON_BREATH,1), player.getX(), player.getY(), player.getZ(),
+        level.sendParticles(PowerParticleOption.create(ParticleTypes.DRAGON_BREATH,1), origin.x, origin.y, origin.z,
                 particleCount, radius, 0, radius, .05);
         LbcOverload.sound(player, "minecraft:lbcsounds.overload_impact", 1, 1, 0);
         mana.add(player, radius * 100);

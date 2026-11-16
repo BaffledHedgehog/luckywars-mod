@@ -53,6 +53,15 @@ public final class NetworkTransportChecks {
             var installed = channel.pipeline().get(ServerNetworkTransport.HANDLER);
             require(installed != null && channel.pipeline().names().indexOf(ServerNetworkTransport.HANDLER)
                 < channel.pipeline().names().indexOf("prepender"), "PLAY hook precedes native frame encoding: " + channel.pipeline().names());
+            require(ServerNetworkTransport.mediaClientTicks(channel)==-1,"media pacing waits for actual client tick evidence");
+            var pacing=channel.pipeline().context("skywars2_media_ticks");
+            require(pacing!=null,"PLAY installs the decoded inbound media tick observer");
+            channel.pipeline().addAfter("skywars2_media_ticks","media_tick_probe",new ChannelInboundHandlerAdapter(){
+                @Override public void channelRead(ChannelHandlerContext ctx,Object message){ }
+            });
+            ((ChannelInboundHandlerAdapter)pacing.handler()).channelRead(pacing,new ServerboundClientTickEndPacket());
+            require(ServerNetworkTransport.mediaClientTicks(channel)==0,"real native client tick supplies one pacing credit");
+            channel.pipeline().remove("media_tick_probe");
             ServerNetworkTransport.configure(channel.pipeline(), PacketFlow.SERVERBOUND, false,ConnectionProtocol.PLAY);
             require(channel.pipeline().get(ServerNetworkTransport.HANDLER) == installed, "idempotent, per-channel handler");
             if (!optimized) channel.pipeline().remove(ServerNetworkTransport.HANDLER);

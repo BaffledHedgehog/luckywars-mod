@@ -123,6 +123,12 @@ public final class TikTokPlaybackChecks {
                 }finally{buf.release();}
             }
             require(TikTokAudio.spectralPackets(f.owner,new byte[TikTokMedia.SPECTRAL_BYTES],0).isEmpty(),"spectral silence emits no events");
+            var busy=ByteBuffer.allocate(TikTokMedia.SPECTRAL_BYTES).putShort((short)88);
+            for(int i=0;i<88;i++)busy.putShort((short)(((2+i*13)<<5)|(i%2))).putShort((short)(200+i));
+            var bounded=TikTokAudio.spectralPackets(f.owner,busy.array(),0,72);
+            require(bounded.size()==72&&bounded.stream().map(p->(ClientboundSoundEntityPacket)p)
+                    .anyMatch(p->p.getSound().value().location().getPath().endsWith("_1")),"runtime voice budget retains signed stereo");
+            require(bounded.stream().map(p->(ClientboundSoundEntityPacket)p).anyMatch(p->p.getSound().value().location().getPath().contains("tone_10")),"runtime voice budget keeps high-frequency detail");
             var invalid=ByteBuffer.allocate(TikTokMedia.SPECTRAL_BYTES).putShort((short)89).array();
             boolean rejected=false;try{TikTokAudio.spectralPackets(f.owner,invalid,0);}catch(IllegalArgumentException expected){rejected=true;}
             require(rejected,"malformed sidecar cannot create an unbounded sound burst");

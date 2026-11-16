@@ -19,6 +19,7 @@ final class TikTokSoundClock implements AutoCloseable {
     private static final class Stream {
         final ServerPlayer identity;final ServerGamePacketListenerImpl listener;final Channel channel;
         final TikTokMedia clip;final long started;volatile boolean active=true;long last=-1,lastSpectral=-1;
+        long lastClientTick=Long.MIN_VALUE;
         Stream(ServerPlayer player,TikTokMedia clip,long started){
             identity=player;listener=player.connection;this.clip=clip;this.started=started;
             var connection=((MediaTransportAccess.Listener)listener).skywars2$mediaConnection();
@@ -47,7 +48,13 @@ final class TikTokSoundClock implements AutoCloseable {
                 if(stream.clip.hasSpectral()){
                     long frame=serial/TikTokMedia.SLICES;
                     if(frame==stream.lastSpectral)continue;stream.lastSpectral=frame;
-                    packets=TikTokAudio.spectralPackets(stream.identity,stream.clip.spectralAudio(frame),frame);
+                    // Vanilla releases finished OpenAL sources on client ticks. Never
+                    // pile up several old audio frames while that client is stalled.
+                    // This signal is collected on Netty, independently of server TPS.
+                    long clientTick=ServerNetworkTransport.mediaClientTicks(stream.channel);
+                    if(clientTick>=0&&clientTick==stream.lastClientTick)continue;
+                    stream.lastClientTick=clientTick;
+                    packets=TikTokAudio.spectralPackets(stream.identity,stream.clip.spectralAudio(frame),frame,72);
                 }else packets=TikTokAudio.packets(stream.identity,stream.clip.audio(serial),serial);
                 if(stream.active&&!packets.isEmpty()&&stream.channel.isWritable()){
                     stream.listener.send(new ClientboundBundlePacket(packets));emittedSlices.incrementAndGet();

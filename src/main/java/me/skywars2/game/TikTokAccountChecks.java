@@ -65,25 +65,26 @@ public final class TikTokAccountChecks {
                 require(ordinaryRejected,"ordinary dialogs retain original32KiB NBT accounting");
             }finally{bytes.release();}
             Path root=temporary.resolve("cache"),videos=root.resolve("videos");Files.createDirectories(videos);
-            for(int i=0;i<6;i++)clip(videos.resolve("1234567"+i));
+            for(int i=0;i<=TikTokCache.CAPACITY;i++)clip(videos.resolve(Integer.toString(12345670+i)));
             Path absentCookies=temporary.resolve("not-configured.json");
             try(var cache=new TikTokCache(root,absentCookies)){
-                require(cache.sizeReady()==5&&!cache.configured(),"exactly five retained clips, no anonymous feed fallback");
+                require(cache.sizeReady()==20&&!cache.configured(),"exactly twenty retained clips, no anonymous feed fallback");
                 require(cache.stateKey().equals("tiktok.waiting_for_import"),"unconfigured account status does not pretend to prepare queue");
-                require(!Files.exists(videos.resolve("12345675")),"stale sixth original and derivatives removed together");
+                require(!Files.exists(videos.resolve("12345690")),"stale twenty-first original and derivatives removed together");
                 var first=cache.next("");var next=cache.next(first.id);require(!first.id.equals(next.id),"next clip sequence");
                 var frame=first.frame(1,true);require(frame.map().length==TikTokMedia.PIXELS&&frame.pcm().length==TikTokMedia.AUDIO_BYTES&&frame.bands().length==TikTokMedia.BAND_BYTES&&frame.jpeg().length==4,"bounded per-frame disk read");
                 require(first.frame(0,false).jpeg().length==0,"vanilla read does not allocate/decode high-quality image");
-                cache.watched(first.id,Set.of(first.id));require(cache.sizeReady()==5,"active viewers pin original and derivatives");
-                cache.watched(first.id,Set.of());require(cache.sizeReady()==4&&!Files.exists(first.directory),"irrelevant clip retired after last viewer releases it");
-                cache.tick(1,Set.of());require(cache.sizeReady()==4,"unconfigured cache never launches browser/download process");
+                cache.watched(first.id,Set.of(first.id));require(cache.sizeReady()==20,"active viewers pin original and derivatives");
+                cache.watched(first.id,Set.of());require(cache.sizeReady()==19&&!Files.exists(first.directory),"irrelevant clip retired after last viewer releases it");
+                cache.tick(1,Set.of());require(cache.sizeReady()==19,"unconfigured cache never launches browser/download process");
                 cache.importCookies(input);
                 require(cache.configured()&&cache.sizeReady()==0&&Files.readString(absentCookies).equals(normalized),"new account atomically persists and retires old account's complete media queue");
             }
+            refill(temporary.resolve("refill"),cookies);
             nativeDialog(game);
         }catch(IOException error){throw new IllegalStateException("TikTok account fixture I/O",error);}
         finally{if(temporary!=null)try(var files=Files.walk(temporary)){for(var p:files.sorted(Comparator.reverseOrder()).toList())Files.delete(p);}catch(IOException failure){throw new IllegalStateException("TikTok fixture cleanup",failure);}}
-        SkyWars2.LOGGER.info("[check] PASS tiktok-account (actual operator command/import dialog and authenticated nonce/foreign/replay denial, native reply max Unicode accounting, credential-free invalid input/atomic persistence, five-clip eviction/pin/release/account replacement and bounded frame reads; offline, no account/network)");
+        SkyWars2.LOGGER.info("[check] PASS tiktok-account (native authenticated import; twenty-clip eviction/pin/release; automatic refill with nineteen remaining; bounded recent exclusions; offline, no account/network)");
     }
     private static void nativeDialog(GameController game){
         try(var f=new WoolBucketChecks.Fixture(game,false)){
@@ -124,5 +125,39 @@ public final class TikTokAccountChecks {
         for(int i=0;i<2;i++){data.putInt(packed.size()).putInt(4).put(packed.toByteArray());data.put(new byte[TikTokMedia.BAND_BYTES+TikTokMedia.AUDIO_BYTES]);data.put(new byte[]{(byte)255,(byte)216,(byte)255,(byte)217});}
         Files.write(folder.resolve("clip.tkp"),data.array());
         Files.write(folder.resolve("clip.idx"),ByteBuffer.allocate(16).putLong(28).putLong(28+record).array());
+        var audio=ByteBuffer.allocate(16+2*TikTokMedia.SPECTRAL_BYTES);
+        audio.putInt(0x544b4131).putInt(2).putInt(20).putInt(TikTokMedia.SPECTRAL_PARTIALS);
+        Files.write(folder.resolve("clip.tka"),audio.array());
+    }
+
+    private static void refill(Path folder,Path syntheticCookies)throws IOException{
+        var jobs=new java.util.concurrent.atomic.AtomicInteger();
+        var excluded=new java.util.concurrent.atomic.AtomicReference<List<String>>(List.of());
+        try(var cache=new TikTokCache(folder,syntheticCookies,true,(stage,skip,audio)->{
+            require(audio==null,"ready clips do not block fetching with migration work");
+            int number=jobs.incrementAndGet();excluded.set(skip);
+            clip(stage);Files.writeString(stage.resolve("manifest.json"),"{\"id\":\""+(22345670+number)+"\"}");
+            return stage;
+        })){
+            for(int i=0;i<20;i++)complete(cache,i);
+            require(cache.sizeReady()==20&&jobs.get()==20,"one worker continuously fills all twenty slots");
+            require(WoolBucketChecks.read(cache,"pending")==null,"full queue stops preparation");
+            var first=cache.next("");var pinned=new HashSet<>(cache.ids());pinned.remove(first.id);
+            cache.watched(first.id,pinned);require(cache.sizeReady()==19,"nineteen ready/playing clips remain");
+            cache.tick(100,pinned);
+            var future=(java.util.concurrent.Future<?>)WoolBucketChecks.read(cache,"pending");
+            require(future!=null,"refill starts immediately after one clip is consumed");
+            try{future.get(3,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception error){throw new IOException(error);}
+            cache.tick(101,pinned);
+            require(cache.sizeReady()==20&&jobs.get()==21&&excluded.get().contains(first.id),
+                    "refill completes without exhausting queue and excludes just-watched clip");
+        }
+    }
+    private static void complete(TikTokCache cache,int tick)throws IOException{
+        if(WoolBucketChecks.read(cache,"pending")==null)cache.tick(tick,Set.of());
+        var future=(java.util.concurrent.Future<?>)WoolBucketChecks.read(cache,"pending");
+        require(future!=null,"automatic queue preparation scheduled");
+        try{future.get(3,java.util.concurrent.TimeUnit.SECONDS);}catch(Exception error){throw new IOException(error);}
+        cache.tick(tick,Set.of());
     }
 }

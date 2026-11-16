@@ -1,0 +1,14 @@
+{
+  "before": {
+    "nonVideoPixels": 8128,
+    "pixels": 16384
+  },
+  "after": {
+    "nonVideoPixels": 0,
+    "pixels": 16384
+  },
+  "passed": true,
+  "renderer": "NVIDIA GeForce RTX 4080 SUPER/PCIe/SSE2",
+  "exactAtlasBoundary": true,
+  "nativeSource": "26.3 FaceBakery bakeVertex uses TextureAtlasSprite.getU/getV without UV inset"
+}

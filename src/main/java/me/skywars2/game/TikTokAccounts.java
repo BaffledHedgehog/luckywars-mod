@@ -63,7 +63,7 @@ public final class TikTokAccounts {
                         importFile(ctx.getSource().getPlayerOrException(),com.mojang.brigadier.arguments.StringArgumentType.getString(ctx,"path"));return 1;
                     })))
                 .then(Commands.literal("status").executes(ctx->{
-                    ctx.getSource().sendSuccess(()->Component.translatable("tiktok.status",cache==null?0:cache.sizeReady(),5,
+                    ctx.getSource().sendSuccess(()->Component.translatable("tiktok.status",cache==null?0:cache.sizeReady(),TikTokCache.CAPACITY,
                             Component.translatable(cache!=null&&cache.configured()?"tiktok.configured":"tiktok.not_configured"),
                             Component.translatable(cache==null?"tiktok.unavailable":cache.stateKey())),false);return 1;
                 })));

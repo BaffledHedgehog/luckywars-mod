@@ -50,6 +50,9 @@ public final class LbcAcceptedHits {
         // Match the native criterion's empty parent-spell scope; keep every source,
         // ownership, team, target, suppression and live-owner filter in the skill owner.
         try(var scope=game.items().spellSources().scope((LbcSpellSource.Source)null)){
+            if(source.getEntity() instanceof ServerPlayer attacker&&LbcDamage.isMeleeAttack(source,attacker))
+                LbcTmtTriggers.input(attacker,LbcTmtTriggers.Input.HIT,victim,null,null);
+            game.items().outgoingHit(victim,source);
             game.items().championSkill().damaged(victim,source);
             game.items().manaVampireSkill().damaged(victim,source);
         }
@@ -64,15 +67,11 @@ public final class LbcAcceptedHits {
     private static void dispatch(LivingEntity victim,DamageSource source,float amount,boolean living,boolean nativeHit){
         var game=SkyWars2.game();if(game==null)return;
         game.items().academy().damaged(victim,source);
-        if(nativeHit&&source.getEntity() instanceof ServerPlayer attacker&&LbcDamage.isMeleeAttack(source,attacker))
-            LbcTmtTriggers.input(attacker,LbcTmtTriggers.Input.HIT,victim,null,null);
         if(nativeHit&&victim instanceof ServerPlayer hurt)LbcTmtTriggers.input(hurt,LbcTmtTriggers.Input.HURT,source.getEntity(),null,null);
         // Fatal native credit was settled by acceptedDamage/beforeDeath already.
         if(living)game.items().indirectKills().damaged(victim,source);
         game.items().damaged(victim,source);
         game.items().vexSword().damaged(victim,source,amount);
-        if(source.getEntity() instanceof ServerPlayer owner)game.items().tmt().withHeldTraits(source,()->game.items().fartus().melee(owner,victim,source));
-        game.items().tmt().withHeldTraits(source,()->game.items().wtf().melee(victim,source));
         if(victim instanceof ServerPlayer player){
             game.hurtForSkill(player);game.items().ak47().receivedDamage(player,amount);game.damaged(player,source,amount);
         }

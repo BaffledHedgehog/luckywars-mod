@@ -161,8 +161,6 @@ public final class LbcItems {
         reactiveSkills.damaged(victim,source);
         LbcParasite.damaged(victim,source);
         grimoireRooms.damaged(victim);
-        if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->LbcChaosRewardItems.damaged(game,victim,source));
-        else LbcChaosRewardItems.damaged(game,victim,source);
         witchPassives.damaged(victim,source);
         shishEncounter.damaged(victim,source);shishEncounter.incoming(victim);
         armorSets.phantom().damaged(victim,source);
@@ -170,16 +168,23 @@ public final class LbcItems {
         stand.onAcceptedDamage(victim,source);
         summons.damaged(victim,source);
         syringe.damaged(victim,source);
-        if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->{specialTools.melee(victim,source);cursedPumpkin.damaged(victim,source);});
-        else {specialTools.melee(victim,source);cursedPumpkin.damaged(victim,source);}
         shooters.damaged(victim,source);
         sauvojen.meditation().damaged(victim,source);
-        if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->heldMeleeOwners(victim,source));
-        else heldMeleeOwners(victim,source);
         incomingArtifacts.damaged(victim,source);
         reactiveArtifacts.damaged(victim,source);
+    }
+    /** The legacy player_hurt_entity criterion includes contacts whose HP damage was resisted. */
+    void outgoingHit(LivingEntity victim, DamageSource source) {
+        if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->LbcChaosRewardItems.damaged(game,victim,source));
+        else LbcChaosRewardItems.damaged(game,victim,source);
+        if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->{specialTools.melee(victim,source);cursedPumpkin.damaged(victim,source);});
+        else {specialTools.melee(victim,source);cursedPumpkin.damaged(victim,source);}
+        if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->heldMeleeOwners(victim,source));
+        else heldMeleeOwners(victim,source);
         if(tmt.heldTraitsNeeded(source))tmt.withHeldTraits(source,()->heldMeleeTail(victim,source));
         else heldMeleeTail(victim,source);
+        if(source.getEntity() instanceof ServerPlayer owner)tmt.withHeldTraits(source,()->fartus.melee(owner,victim,source));
+        tmt.withHeldTraits(source,()->wtf.melee(victim,source));
     }
     private void heldMeleeOwners(LivingEntity victim,DamageSource source){
         fevgaleaStar.damaged(victim,source);

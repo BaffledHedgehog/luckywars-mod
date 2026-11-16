@@ -126,7 +126,7 @@ public final class LbcVoidArcanum {
     private boolean activate(ServerPlayer owner){
         Vec3 at=owner.position().add(owner.getLookAngle().normalize().scale(4));
         if(!resident(owner.level(),at)||game.items().magic().suppressedAt(owner.level(),at)
-                ||!game.items().mana().trySpendWand(owner,config("void_arcanum_mana_activate")))return false;
+                ||!game.items().mana().trySpend(owner,config("void_arcanum_mana_activate")))return false;
         if(spawn(owner,at)==null)return false;
         game.items().armorSets().phantom().activity(owner);
         game.items().mana().award(owner,"lbc:true_advancements/arcanums/black_hole");
@@ -172,7 +172,7 @@ public final class LbcVoidArcanum {
         for(var entry:costs.entrySet()){
             var player=game.server().getPlayerList().getPlayer(entry.getKey());
             if(player==null||paused(player))continue;
-            if(!game.items().mana().trySpendWand(player,entry.getValue())){
+            if(!game.items().mana().trySpend(player,entry.getValue())){
                 var state=hands.get(entry.getKey());if(state!=null){state.main=false;state.off=false;}
                 removeOwner(entry.getKey());
             }else game.items().armorSets().phantom().activity(player);

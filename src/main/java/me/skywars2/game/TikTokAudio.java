@@ -23,15 +23,47 @@ final class TikTokAudio {
         return List.copyOf(result);
     }
     static List<Packet<? super ClientGamePacketListener>> spectralPackets(ServerPlayer player,byte[] record,long serial){
+        return spectralPackets(player,record,serial,TikTokMedia.SPECTRAL_PARTIALS);
+    }
+    private record Tone(int key,int gain){
+        int side(){return key&1;}
+        int bin(){return key>>>5;}
+        double priority(){return gain*Math.pow(Math.max(.15,bin()/100.),.45);}
+    }
+    static List<Packet<? super ClientGamePacketListener>> spectralPackets(ServerPlayer player,byte[] record,long serial,int limit){
+        if(limit<1||limit>TikTokMedia.SPECTRAL_PARTIALS)throw new IllegalArgumentException("spectral_limit");
         if(record.length!=TikTokMedia.SPECTRAL_BYTES)throw new IllegalArgumentException("spectral_size");
         var bytes=ByteBuffer.wrap(record);int count=Short.toUnsignedInt(bytes.getShort());
         if(count>TikTokMedia.SPECTRAL_PARTIALS)throw new IllegalArgumentException("spectral_count");
-        var result=new ArrayList<Packet<? super ClientGamePacketListener>>(count);
+        var tones=new ArrayList<Tone>(count);
         for(int i=0;i<count;i++){
             int key=Short.toUnsignedInt(bytes.getShort()),gain=Short.toUnsignedInt(bytes.getShort());
             int bin=key>>>5,phase=(key>>>1)&15,side=key&1;
             if(bin<2||bin>=1150)throw new IllegalArgumentException("spectral_frequency");
             if(gain<2)continue;
+            tones.add(new Tone(key,gain));
+        }
+        if(tones.size()>limit){
+            var selected=new ArrayList<Tone>(limit);
+            int sides=(int)tones.stream().filter(t->t.side()==1).count();
+            int sideBudget=Math.min(sides,Math.min(limit,Math.max(sides>0?4:0,Math.round((float)limit*sides/tones.size()))));
+            for(int channel=0;channel<2;channel++){
+                int side=channel,budget=channel==1?sideBudget:limit-sideBudget;
+                var candidates=tones.stream().filter(t->t.side()==side).sorted(java.util.Comparator.comparingDouble(Tone::priority).reversed()).toList();
+                var chosen=new java.util.LinkedHashSet<Tone>();
+                int[] edges={2,25,50,100,200,400,800,1150};
+                for(int band=0;band<edges.length-1&&chosen.size()<budget;band++){
+                    int lo=edges[band],hi=edges[band+1];
+                    candidates.stream().filter(t->t.bin()>=lo&&t.bin()<hi).findFirst().ifPresent(chosen::add);
+                }
+                for(var tone:candidates){if(chosen.size()>=budget)break;chosen.add(tone);}
+                selected.addAll(chosen);
+            }
+            tones=selected;
+        }
+        var result=new ArrayList<Packet<? super ClientGamePacketListener>>(tones.size());
+        for(var tone:tones){
+            int key=tone.key,gain=tone.gain,bin=tone.bin(),phase=(key>>>1)&15,side=tone.side();
             double frequency=bin*10.;int base=(int)Math.round(12*Math.log(frequency/20)/Math.log(2));
             float pitch=(float)(frequency/(20*Math.pow(2,base/12.)));
             var sound=TONES.get((base*16+phase)*2+side);

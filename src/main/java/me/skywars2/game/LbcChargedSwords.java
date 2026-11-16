@@ -121,10 +121,11 @@ public final class LbcChargedSwords {
             ||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition());}
     private boolean admitted(ServerPlayer owner){return valid(owner)&&!game.items().actionsBlocked(owner)&&!paused(owner)&&!suppressed(owner)
             &&owner.level().hasChunkAt(BlockPos.containing(owner.getEyePosition()));}
-    /** Called only for accepted, unblocked positive damage, including the native fatal-damage hook. */
+    /** Legacy charges on the unblocked outgoing criterion, even when resistance absorbs all HP damage. */
     public void damaged(LivingEntity victim,DamageSource source){
         callbackDepth++;try{
-        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!admitted(owner)||source.is(ARROW_ONLY)
+        if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)||!valid(owner)
+                ||game.items().actionsBlocked(owner)||paused(owner)||source.is(ARROW_ONLY)
                 ||!game.items().wands().validRoleTarget(victim,true))return;
         var dimension=owner.level().dimension().identifier();
         if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))return;

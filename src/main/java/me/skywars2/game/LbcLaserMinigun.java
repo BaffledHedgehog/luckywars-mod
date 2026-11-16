@@ -161,7 +161,7 @@ public final class LbcLaserMinigun {
     private void shoot(Spool spool,InteractionHand hand) {
         var owner=spool.owner;
         if(!current(spool) || !isMinigun(owner.getItemInHand(hand))
-                || !game.items().mana().trySpendWand(owner,100)) return;
+                || !game.items().mana().trySpend(owner,100)) return;
         spool.spread=LbcGunAccuracy.minigunNextShotSpread(spool.spread);
         spool.shots++;
         game.items().armorSets().phantom().activity(owner);

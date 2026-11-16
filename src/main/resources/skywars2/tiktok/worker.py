@@ -383,6 +383,24 @@ def prepare(original: Path, stage: Path, palette: Path, ffmpeg="ffmpeg") -> dict
 
 
 def main():
+    # A20-video queue must not turn background preparation into a CPU/IO spike.
+    # Children (ffmpeg/browser) inherit the worker's CPU affinity and priority.
+    if os.name == "nt":
+        import ctypes
+        k=ctypes.WinDLL("kernel32",use_last_error=True);nt=ctypes.WinDLL("ntdll")
+        handle,number=ctypes.c_void_p,ctypes.c_ulong
+        k.GetCurrentProcess.restype=handle
+        k.SetPriorityClass.argtypes=[handle,number];k.SetProcessAffinityMask.argtypes=[handle,ctypes.c_size_t]
+        k.SetProcessInformation.argtypes=[handle,ctypes.c_int,handle,number]
+        nt.NtSetInformationProcess.argtypes=[handle,ctypes.c_int,handle,number]
+        process=k.GetCurrentProcess();cores=os.cpu_count() or 1
+        affinity=(1<<(cores-1))|(1<<max(0,cores-3));memory,io=number(4),number(1)
+        if not (k.SetPriorityClass(process,0x40) and k.SetProcessAffinityMask(process,affinity)
+                and k.SetProcessInformation(process,0,ctypes.byref(memory),ctypes.sizeof(memory))
+                and nt.NtSetInformationProcess(process,33,ctypes.byref(io),ctypes.sizeof(io))==0):
+            raise MediaError("resource_limits")
+    elif hasattr(os,"sched_getaffinity"):
+        os.nice(10);available=sorted(os.sched_getaffinity(0));os.sched_setaffinity(0,available[-2:])
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", type=Path, required=True)
     parser.add_argument("--palette", type=Path)

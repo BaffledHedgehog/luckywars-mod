@@ -53,6 +53,13 @@ public final class GameBuildChecks {
                 var main=dialog(f.client);require(main.actions().size()==48&&main.columns()==6,"24 source slots and delete buttons, six columns");
                 var open=id(main,0);click(f,open,null);var save=dialog(f.client);
                 require(save.common().inputs().size()==1&&save.common().inputs().getFirst().key().equals("build_name"),"empty slot opens native naming input");
+                var rows=save.common().body();
+                require(rows.size()==5&&rows.stream().allMatch(net.minecraft.server.dialog.body.ItemBody.class::isInstance),"kit, two upgrades and two distinct trinkets have native item icons");
+                var twice=(net.minecraft.server.dialog.body.ItemBody)rows.get(3);
+                var label=twice.description().orElseThrow().contents();
+                require(label.getString().startsWith("x2 ")&&label.getSiblings().getFirst().getStyle().getColor().getValue()==0x55ff55,"duplicate trinket is one row with green count on the left");
+                require(!twice.item().create().isEmpty(),"item icon survives actual dialog network codec");
+                require(save.exitAction().orElseThrow().button().label().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents close&&close.getKey().equals("close"),"close button remains translatable");
                 var saveId=id(save,0);var payload=new CompoundTag();payload.putString("build_name","Fixture build");
                 f.audience.listener.handleCustomClickAction(new ServerboundCustomClickActionPacket(saveId,Optional.of(payload)));
                 require(game.players().get(f.other.getUUID()).savedBuilds.isEmpty()&&p.savedBuilds.isEmpty(),"foreign connection cannot use owner's token");

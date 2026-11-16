@@ -14,9 +14,11 @@ import net.minecraft.server.dialog.action.CustomAll;
 import net.minecraft.server.dialog.action.StaticAction;
 import net.minecraft.server.dialog.body.DialogBody;
 import net.minecraft.server.dialog.body.PlainMessage;
+import net.minecraft.server.dialog.body.ItemBody;
 import net.minecraft.server.dialog.input.TextInput;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 /** The original 24 personal build slots, using native client dialogs and the canonical player store. */
 public final class GameBuilds {
@@ -77,18 +79,25 @@ public final class GameBuilds {
                     20, action(session, "delete", slot)));
         }
         player.openDialog(Holder.direct(new MultiActionDialog(common("build_manager", List.of(), List.of()),
-                actions, Optional.of(button(Component.translatable("close"), null, 150, action(session, "back", 0))), 6)));
+                actions, Optional.of(button(Component.translatableWithFallback("close", "Close"), null, 150, action(session, "back", 0))), 6)));
     }
 
     private void saveDialog(ServerPlayer player, int slot) {
         var session = session(player, slot); var build = capture(player, "");
-        var body = List.<DialogBody>of(new PlainMessage(preview(player, build), 300));
+        var body = new ArrayList<DialogBody>();
+        for (var row : rows(player, build)) {
+            // Native dialog item rows render the original model, including custom kit icons.
+            var icon = eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(row.item,
+                    net.minecraft.world.item.TooltipFlag.NORMAL, player.connection.getPacketContext(), player.registryAccess());
+            body.add(new ItemBody(ItemStackTemplate.fromNonEmptyStack(icon, 1),
+                    Optional.of(new PlainMessage(row.label(), 280)), false, true, 16, 16));
+        }
         var input = new Input("build_name", new TextInput(300, Component.translatable("build_name"), true,
                 "", 64, Optional.empty()));
         var save = new ActionButton(new CommonButtonData(Component.translatable("save"), 120),
                 Optional.of(new CustomAll(action(session, "save", slot), Optional.empty())));
         player.openDialog(Holder.direct(new MultiActionDialog(common("build_manager_save", body, List.of(input)),
-                List.of(save), Optional.of(button(Component.translatable("close"), null, 150, action(session, "main", 0))), 1)));
+                List.of(save), Optional.of(button(Component.translatableWithFallback("close", "Close"), null, 150, action(session, "main", 0))), 1)));
     }
 
     /** Handles only an action from the currently issued personal dialog, once. */
@@ -171,17 +180,34 @@ public final class GameBuilds {
 
     private Component preview(ServerPlayer player, Build build) {
         var result = Component.empty();
-        append(result, OriginalGuiDesign.button(player, "swrg", 3000, build.kit - 1));
-        append(result, OriginalGuiDesign.button(player, "swrg", 4000, build.skill - 1));
-        append(result, game.lbc().preview(player, LbcLoadouts.Kind.KITS, build.lbcKit));
-        append(result, game.lbc().preview(player, LbcLoadouts.Kind.SKILLS, build.lbcSkill));
-        if (build.levelups != null) for (int id : build.levelups) if (id != 0) append(result, game.lbc().preview(player, LbcLoadouts.Kind.LEVELUPS, id));
-        if (build.trinkets != null) for (int id : build.trinkets) if (id != 0) append(result, game.lbc().preview(player, LbcLoadouts.Kind.TRINKETS, id));
+        for (var row : rows(player, build)) result.append(row.label()).append("\n");
         return result;
     }
 
-    private static void append(net.minecraft.network.chat.MutableComponent text, ItemStack item) {
-        if (item != null && !item.isEmpty()) text.append(item.getDisplayName()).append("\n");
+    private record Row(ItemStack item, int count, boolean trinket) {
+        Component label() {
+            var label = Component.empty();
+            if (trinket) label.append(Component.literal("x" + count + " ").withColor(0x55ff55));
+            return label.append(item.getDisplayName());
+        }
+    }
+
+    private List<Row> rows(ServerPlayer player, Build build) {
+        var rows = new ArrayList<Row>();
+        if (build.kit > 0) add(rows, OriginalGuiDesign.button(player, "swrg", 3000, build.kit - 1), 1, false);
+        if (build.skill > 0) add(rows, OriginalGuiDesign.button(player, "swrg", 4000, build.skill - 1), 1, false);
+        if (build.lbcKit > 0) add(rows, game.lbc().preview(player, LbcLoadouts.Kind.KITS, build.lbcKit), 1, false);
+        if (build.lbcSkill > 0) add(rows, game.lbc().preview(player, LbcLoadouts.Kind.SKILLS, build.lbcSkill), 1, false);
+        if (build.levelups != null) for (int id : build.levelups) if (id != 0)
+            add(rows, game.lbc().preview(player, LbcLoadouts.Kind.LEVELUPS, id), 1, false);
+        var counts = new LinkedHashMap<Integer, Integer>();
+        if (build.trinkets != null) for (int id : build.trinkets) if (id != 0) counts.merge(id, 1, Integer::sum);
+        counts.forEach((id, count) -> add(rows, game.lbc().preview(player, LbcLoadouts.Kind.TRINKETS, id), count, true));
+        return rows;
+    }
+
+    private static void add(List<Row> rows, ItemStack item, int count, boolean trinket) {
+        if (item != null && !item.isEmpty()) rows.add(new Row(item, count, trinket));
     }
 
     private static void failure(ServerPlayer player, Exception error) {
