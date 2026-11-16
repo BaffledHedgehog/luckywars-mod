@@ -59,6 +59,8 @@ public final class OperatorSettingsChecks {
                     "operator controls preserve approved full signed effect storage");
             var modeRoot=game.server().getCommands().getDispatcher().getRoot().getChild("skywars").getChild("gamemode");
             for(String number:List.of("0","1","2","3"))require(modeRoot.getChild(number) instanceof com.mojang.brigadier.tree.LiteralCommandNode<?>,"numeric alias is a vanilla-client-readable literal: "+number);
+            var vanillaModeRoot=game.server().getCommands().getDispatcher().getRoot().getChild("gamemode");
+            for(String number:List.of("0","1","2","3"))require(vanillaModeRoot.getChild(number) instanceof com.mojang.brigadier.tree.LiteralCommandNode<?>,"unprefixed numeric alias merges with vanilla tree: "+number);
             require(command(game,alpha,"skywars settings",true)==1,"operator can read settings during a real match");
             var dispatcher=game.server().getCommands().getDispatcher();
             var source=alpha.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS);
@@ -72,7 +74,7 @@ public final class OperatorSettingsChecks {
                 require(names.stream().noneMatch(alias[0]::equalsIgnoreCase),"removed duplicate is absent from completion: "+alias[0]);
                 require(command(game,alpha,"skywars settings "+alias[0]+" "+alias[1],true)==0,"removed duplicate is not an accepted setting: "+alias[0]);
             }
-            for(String denied:List.of("skywars settings","skywars settings health 19","skywars settings event halloween true","skywars gamemode 0","gamemode creative TestBeta"))
+            for(String denied:List.of("skywars settings","skywars settings health 19","skywars settings event halloween true","skywars gamemode 0","gamemode 0","gamemode 1 TestAlpha","gamemode creative TestBeta"))
                 require(command(game,beta,denied,false)==-1,"native permission rejects nonoperator command "+denied);
             String[][] changes={{"lives","4"},{"health","19"},{"countdownSeconds","6"},{"stageOneSeconds","700"},{"stageTwoSeconds","1400"},{"endingSeconds","3"},{"stageOneEvent","2"},{"stageTwoEvent","2"},{"pvpMode","1"},{"tntProtection","3"},{"gameMode","2"},{"bedwarsDirectBedBreaking","false"},{"luckyModifier","5"},{"day","2"},{"ranked","true"},{"vanillaKits","true"},{"vanillaSkills","true"},{"lbcKits","true"},{"lbcSkills","true"},{"lbcLevelups","true"},{"lbcChallenges","true"},{"offhandWands","true"},{"lbcLevelupLimit","7"},{"lbcTrinketLimit","6"},{"noBorders","true"}};
             for(var pair:changes)require(command(game,alpha,"skywars settings "+pair[0]+" "+pair[1],true)==1,"operator can change "+pair[0]+" during match");
@@ -110,6 +112,13 @@ public final class OperatorSettingsChecks {
             game.spectators().tick();require(beta.gameMode()==expected&&!game.isObserver(beta),"next observer tick cannot revert returned player");
         }
         void gamemodes(){
+            for(String prefix:List.of("gamemode ","skywars gamemode ")){
+                for(var entry:Map.of("0",GameType.SURVIVAL,"1",GameType.CREATIVE,"2",GameType.ADVENTURE).entrySet()){
+                    observer();require(command(game,beta,prefix+entry.getKey(),true)==1,"actual numeric self alias "+prefix+entry.getKey());returned(entry.getValue());
+                }
+                observer();require(command(game,alpha,prefix+"1 TestBeta",true)==1,"numeric target alias");returned(GameType.CREATIVE);
+                observer();require(command(game,beta,prefix+"3",true)==1&&game.isObserver(beta),"numeric spectator alias preserves observer role");
+            }
             for(var entry:Map.of("2",GameType.ADVENTURE,"0",GameType.SURVIVAL,"1",GameType.CREATIVE,"adventure",GameType.ADVENTURE,"survival",GameType.SURVIVAL,"creative",GameType.CREATIVE).entrySet()){
                 observer();require(command(game,beta,(entry.getKey().matches("[0-3]")?"skywars gamemode ":"gamemode ")+entry.getKey(),true)==1,"actual self command restores "+entry.getKey());returned(entry.getValue());
             }

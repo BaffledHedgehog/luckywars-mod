@@ -20,6 +20,7 @@ final class TikTokSoundClock implements AutoCloseable {
         final ServerPlayer identity;final ServerGamePacketListenerImpl listener;final Channel channel;
         final TikTokMedia clip;final long started;volatile boolean active=true;long last=-1,lastSpectral=-1;
         long lastClientTick=Long.MIN_VALUE;
+        final TikTokVoiceBudget voices=new TikTokVoiceBudget();
         Stream(ServerPlayer player,TikTokMedia clip,long started){
             identity=player;listener=player.connection;this.clip=clip;this.started=started;
             var connection=((MediaTransportAccess.Listener)listener).skywars2$mediaConnection();
@@ -45,18 +46,23 @@ final class TikTokSoundClock implements AutoCloseable {
             try{
                 // These constructors read only getId()/getUUID(), not mutable entity position or inventory.
                 List<Packet<? super ClientGamePacketListener>> packets;
+                long clientTick=ServerNetworkTransport.mediaClientTicks(stream.channel);
                 if(stream.clip.hasSpectral()){
                     long frame=serial/TikTokMedia.SLICES;
                     if(frame==stream.lastSpectral)continue;stream.lastSpectral=frame;
                     // Vanilla releases finished OpenAL sources on client ticks. Never
                     // pile up several old audio frames while that client is stalled.
                     // This signal is collected on Netty, independently of server TPS.
-                    long clientTick=ServerNetworkTransport.mediaClientTicks(stream.channel);
                     if(clientTick>=0&&clientTick==stream.lastClientTick)continue;
                     stream.lastClientTick=clientTick;
-                    packets=TikTokAudio.spectralPackets(stream.identity,stream.clip.spectralAudio(frame),frame,72);
-                }else packets=TikTokAudio.packets(stream.identity,stream.clip.audio(serial),serial);
+                    int limit=Math.min(72,stream.voices.available(now,clientTick));if(limit<=0)continue;
+                    packets=TikTokAudio.spectralPackets(stream.identity,stream.clip.spectralAudio(frame),frame,limit);
+                }else {
+                    packets=TikTokAudio.packets(stream.identity,stream.clip.audio(serial),serial);
+                    if(packets.size()>stream.voices.available(now,clientTick))continue;
+                }
                 if(stream.active&&!packets.isEmpty()&&stream.channel.isWritable()){
+                    stream.voices.emitted(System.nanoTime(),clientTick,packets.size());
                     stream.listener.send(new ClientboundBundlePacket(packets));emittedSlices.incrementAndGet();
                 }
             }catch(Exception ignored){/* A retired/closed clip or connection has no sound backlog. */}

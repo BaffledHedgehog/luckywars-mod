@@ -92,6 +92,7 @@ public final class TikTokPlaybackChecks {
             }
         }
         void audio(){
+            TikTokVoiceBudget.verify();
             require(TikTokAudio.mixture(0,0,0)==null,"silence emits no audio");
             for(int a=0;a<=4;a++)for(int b=0;b<=4-a;b++){
                 int c=4-a-b;var mix=TikTokAudio.mixture(a*63,b*63,c*63);

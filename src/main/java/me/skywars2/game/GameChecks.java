@@ -1044,6 +1044,7 @@ public final class GameChecks {
                                 case "tiktok-account" -> { TikTokAccountChecks.run(game); return; }
                                 case "tiktok-bulk-import" -> { TikTokBulkImportChecks.run(game); return; }
                                 case "tiktok-playback" -> { TikTokPlaybackChecks.run(game); return; }
+                                case "tiktok-network" -> { TikTokNetworkChecks.run(game); return; }
                                 case "music-staff" -> { MusicStaffChecks.run(game); return; }
                                 case "synchro-ranked" -> { SynchroRankedChecks.run(game); return; }
                                 case "synchro-lucky" -> { SynchroLuckyChecks.run(game); return; }
@@ -1945,6 +1946,7 @@ public final class GameChecks {
         TeslaTrafficChecks.tick(game);
         SmokeVolumeChecks.tick(game);
         TikTokPlaybackChecks.tick(game);
+        TikTokNetworkChecks.tick(game);
         MusicStaffChecks.tick(game);
         SynchroRankedChecks.tick(game);
         TikTokBulkImportChecks.tick(game);

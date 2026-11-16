@@ -62,6 +62,9 @@ public abstract class OperatorGameModeMixin {
                                     EntityArgument.getPlayers(context, "target"), mode))));
         }
         me.skywars2.game.SkyWarsCommandTree.add(dispatcher,root);
+        // Explicit user exception to the /skywars-only command policy. Merge numeric
+        // children with vanilla's root; native named modes and permissions remain its own.
+        dispatcher.register(root);
     }
 
     @Mixin(GameModeCommand.class)
