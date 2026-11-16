@@ -49,7 +49,9 @@ public abstract class MovementLimitsMixin {
         if(game==null||!game.server().isSameThread()){original.call(packet);return;}
         boolean before=player.getLastClientInput().jump();
         original.call(packet);
-        if(!before&&player.getLastClientInput().jump())game.items().rocketJumpPressed(player);
+        if(!before&&player.getLastClientInput().jump()){
+            if(!game.items().shulkerArmor().jumpPressed(player))game.items().rocketJumpPressed(player);
+        }
     }
 
     /** 26.3 already performs travel in doTick; normally this snap discards its server position. */

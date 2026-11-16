@@ -66,12 +66,14 @@ public final class EnchantmentRules {
             // restoration metadata. Only native client components need their constructor-safe bound.
             sanitize(projected,DataComponents.ENCHANTMENTS);
             sanitize(projected,DataComponents.STORED_ENCHANTMENTS);
+            if(LbcArmorTooltips.aimbobBoots(original))LbcArmorTooltips.groupFeet(projected);
             return projected;
         });
     }
 
     private static boolean needsProjection(ItemInstance stack) {
-        return numeric(stack.get(DataComponents.ENCHANTMENTS)) || numeric(stack.get(DataComponents.STORED_ENCHANTMENTS));
+        return numeric(stack.get(DataComponents.ENCHANTMENTS)) || numeric(stack.get(DataComponents.STORED_ENCHANTMENTS))
+                ||LbcArmorTooltips.aimbobBoots(stack);
     }
     private static boolean numeric(ItemEnchantments enchantments) {
         return enchantments!=null && enchantments.entrySet().stream().anyMatch(entry->entry.getIntValue()>10);

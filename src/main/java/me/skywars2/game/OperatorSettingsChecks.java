@@ -63,6 +63,9 @@ public final class OperatorSettingsChecks {
             for(String number:List.of("0","1","2","3"))require(vanillaModeRoot.getChild(number) instanceof com.mojang.brigadier.tree.LiteralCommandNode<?>,"unprefixed numeric alias merges with vanilla tree: "+number);
             require(command(game,alpha,"skywars settings",true)==1,"operator can read settings during a real match");
             var dispatcher=game.server().getCommands().getDispatcher();
+            require(dispatcher.getRoot().getChild("sw").getRedirect()==dispatcher.getRoot().getChild("skywars"),"short root redirects to the canonical command tree");
+            require(command(game,alpha,"sw settings",true)==1,"short root executes actual settings");
+            require(command(game,beta,"sw settings health 19",false)==-1,"short root preserves child permissions");
             var source=alpha.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS);
             var names=dispatcher.getCompletionSuggestions(dispatcher.parse("skywars settings ",source)).join()
                     .getList().stream().map(com.mojang.brigadier.suggestion.Suggestion::getText).toList();
@@ -112,7 +115,7 @@ public final class OperatorSettingsChecks {
             game.spectators().tick();require(beta.gameMode()==expected&&!game.isObserver(beta),"next observer tick cannot revert returned player");
         }
         void gamemodes(){
-            for(String prefix:List.of("gamemode ","skywars gamemode ")){
+            for(String prefix:List.of("gamemode ","skywars gamemode ","sw gamemode ")){
                 for(var entry:Map.of("0",GameType.SURVIVAL,"1",GameType.CREATIVE,"2",GameType.ADVENTURE).entrySet()){
                     observer();require(command(game,beta,prefix+entry.getKey(),true)==1,"actual numeric self alias "+prefix+entry.getKey());returned(entry.getValue());
                 }

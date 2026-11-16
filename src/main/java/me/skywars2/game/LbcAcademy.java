@@ -170,11 +170,15 @@ public final class LbcAcademy {
     }
     public static void publishInteraction(Entity entity){if(transparentInteraction(entity))TRANSPARENT.add(entity.getId());}
 
-    /** Client hitboxes are transparent; only actual wand use asks the native academy owner. */
+    private static boolean teachingItem(ItemStack stack) {
+        return wand(stack)!=null || LbcChaosRewardItems.book(stack)
+                || data(stack).getIntOr("staff",0)==1 || data(stack).getIntOr("magicwand",0)==1;
+    }
+    /** A wand click belongs exclusively to the teacher, including rejected/finished upgrades. */
     public boolean tryUse(ServerPlayer player,InteractionHand hand){
-        if(hand!=InteractionHand.MAIN_HAND||LbcModeScroll.scrolling()||LbcTmtAbilities.active(player.getMainHandItem())
+        if(LbcModeScroll.scrolling()
                 ||!active(player)||game.items().actionsBlocked(player)
-                ||wand(player.getMainHandItem())==null&&!LbcChaosRewardItems.book(player.getMainHandItem()))return false;
+                ||!teachingItem(player.getItemInHand(hand)))return false;
         var from=player.getEyePosition();var to=from.add(player.getLookAngle().scale(player.entityInteractionRange()));
         var wall=player.level().clip(new net.minecraft.world.level.ClipContext(from,to,net.minecraft.world.level.ClipContext.Block.OUTLINE,
                 net.minecraft.world.level.ClipContext.Fluid.NONE,player));
@@ -183,7 +187,9 @@ public final class LbcAcademy {
             var box=target.getBoundingBox();var hit=box.contains(from)?java.util.Optional.of(from):box.clip(from,to);
             if(hit.isPresent()&&from.distanceToSqr(hit.get())<=nearest){nearest=from.distanceToSqr(hit.get());selected=target;}
         }
-        return selected!=null&&interact(player,hand,selected);
+        if(selected==null)return false;
+        interact(player,hand,selected);
+        return true;
     }
     private final Set<ItemEntity> drops = new LinkedHashSet<>();
     private final Set<Entity> entities = new HashSet<>();
@@ -236,7 +242,8 @@ public final class LbcAcademy {
     /** Съедаем также offhand callback: нажатие по NPC не должно одновременно кастовать жезл. */
     public boolean interact(ServerPlayer player, InteractionHand hand, Entity target) {
         if (!target.entityTags().contains("magic_academy")) return false;
-        if(wand(player.getMainHandItem())==null&&!LbcChaosRewardItems.book(player.getMainHandItem()))return false;
+        if(!teachingItem(player.getItemInHand(hand)))return false;
+        if(hand!=InteractionHand.MAIN_HAND)return true;
         var academy = singleUse.get(target.getUUID());
         if (target.isRemoved() || !target.isAlive() || academy != null && academy.spent) return true;
         if (target.entityTags().contains(BUILDING_TAG)) return true;

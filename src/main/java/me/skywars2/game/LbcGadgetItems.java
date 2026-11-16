@@ -20,7 +20,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.Level;
 
-/** Snowball is only the client carrier for immediate gadgets; the grenade uses the shared arrow transport. */
+/** Charged gadgets use an inert client carrier; the grenade uses the shared arrow transport. */
 public final class LbcGadgetItems {
     public static final Item ISLAND_TELEPORTER=create("island_teleporter","lbc:islandtp",false);
     public static final Item SWAPPER=create("swapper","lbc:swapper",false);
@@ -41,7 +41,7 @@ public final class LbcGadgetItems {
         properties.component(DataComponents.CUSTOM_DATA,CustomData.of(flags)).component(DataComponents.CUSTOM_NAME,title)
                 .component(DataComponents.TOOLTIP_STYLE,Identifier.parse(name.equals("swapper")?"lbc:tier_a":"lbc:tier_b"))
                 .component(DataComponents.LORE,new ItemLore(lore.stream().map(k->(Component)Component.translatable(k).withStyle(s->s.withColor(0xffffff).withItalic(false))).toList()));
-        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(properties,Items.SNOWBALL,true){
+        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(properties,name.equals("swapper")?Items.PAPER:Items.SNOWBALL,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
                 var game=me.skywars2.SkyWars2.game();
                 if(game==null||!(player instanceof ServerPlayer owner))return InteractionResult.FAIL;

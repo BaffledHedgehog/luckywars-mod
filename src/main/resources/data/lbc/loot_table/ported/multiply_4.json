@@ -27,11 +27,13 @@
               "lore": [
                 {
                   "translate": "multiply_by_4.lore",
-                  "italic": false
+                  "italic": false,
+                  "color": "white"
                 },
                 {
                   "translate": "multiply.lore",
-                  "italic": false
+                  "italic": false,
+                  "color": "white"
                 }
               ],
               "type": "minecraft:set_lore"

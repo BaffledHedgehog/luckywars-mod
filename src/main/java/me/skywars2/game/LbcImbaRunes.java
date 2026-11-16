@@ -83,9 +83,7 @@ public final class LbcImbaRunes {
     /** The cast alone has the source same-team predicate; Greed is not an attribute-modifier gate. */
     private boolean harmful(ServerPlayer owner,LivingEntity target){return game.items().wands().validRoleTarget(target,false)
         &&!target.entityTags().contains("strict_map_object")&&!sameTeam(owner,target);}
-    private boolean sameTeam(ServerPlayer owner,LivingEntity target){var board=game.server().getScoreboard();var objective=board.getObjective("team_number");
-        if(objective!=null){var a=board.getPlayerScoreInfo(owner,objective);var b=board.getPlayerScoreInfo(target,objective);if(a!=null&&b!=null&&a.value()==b.value())return true;}
-        return target instanceof ServerPlayer p&&owner.isAlliedTo(p);}
+    private boolean sameTeam(ServerPlayer owner,LivingEntity target){return LbcTeams.allied(game,owner,target);}
     static void modifiers(LivingEntity target,boolean positive){for(String name:positive?POS:NEG){var a=target.getAttribute(BuiltInRegistries.ATTRIBUTE.get(Identifier.withDefaultNamespace(name)).orElseThrow());if(a==null)continue;
         var id=positive?POSITIVE:NEGATIVE;if(a.hasModifier(id))continue;
         double amount=positive?(name.equals("fall_damage_multiplier")?-.5:name.endsWith("interaction_range")?2:1)

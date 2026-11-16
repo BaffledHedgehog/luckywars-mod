@@ -19,6 +19,7 @@ import java.util.function.BooleanSupplier;
 /** Worn source Shulker armor, with shared projectile, interception and surface-search owners. */
 public final class LbcShulkerArmor {
     static final Identifier SPEED=Identifier.parse("minecraft:shulker_armor");
+    static final Identifier JUMP=Identifier.parse("skywars2:shulker_no_jump");
     private static final EquipmentSlot[] SLOTS={EquipmentSlot.FEET,EquipmentSlot.LEGS,EquipmentSlot.CHEST,EquipmentSlot.HEAD};
     private final GameController game;
     private final Set<UUID> slowed=new HashSet<>();
@@ -40,6 +41,7 @@ public final class LbcShulkerArmor {
         phase=(phase+1)%200;
         for(var p:game.server().getPlayerList().getPlayers()){
             validate(p);
+            syncJump(p);
             if(!admitted(p))continue;
             boolean helmet=piece(p,EquipmentSlot.HEAD),legs=piece(p,EquipmentSlot.LEGS),complete=full(p);
             // Author correction: the source omitted the stopper gate on helmet/leggings.
@@ -89,7 +91,22 @@ public final class LbcShulkerArmor {
         p.level().sendParticles(type,at.x,at.y+1,at.z,100,0,1,0,1);
     }
     public void jump(ServerPlayer p){
-        if(admitted(p)&&full(p)&&magic(p))teleport(p,p.position().add(p.getLookAngle().scale(5)),3);
+        // Logical input already owns this press, including airborne presses. The ground
+        // callback remains a fallback for server-driven jumps without a client input edge.
+        if(p.getLastClientInput().jump())return;
+        jumpPressed(p);
+    }
+    public boolean jumpPressed(ServerPlayer p){
+        if(!admitted(p)||!full(p)||!magic(p))return false;
+        teleport(p,p.position().add(p.getLookAngle().scale(5)),3);
+        return true;
+    }
+    private void syncJump(ServerPlayer p){
+        var jump=p.getAttribute(Attributes.JUMP_STRENGTH);if(jump==null)return;
+        if(full(p)&&p.isAlive()&&p.level()==game.maps().level()&&game.canUseGameplayItems(p)){
+            if(!jump.hasModifier(JUMP))jump.addTransientModifier(new AttributeModifier(JUMP,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            slowed.add(p.getUUID());
+        }else jump.removeModifier(JUMP);
     }
     private static void teleport(ServerPlayer p,Vec3 center,int radius){
         int ceiling=p.level().dimension().equals(Level.NETHER)?120:p.level().getMaxY()+1;
@@ -100,9 +117,10 @@ public final class LbcShulkerArmor {
     private void validate(ServerPlayer p){
         if(!full(p)||!p.isAlive()||p.level()!=game.maps().level()||!game.canUseGameplayItems(p)||!LbcDimensionItems.ordinary(p))forget(p);
     }
-    public void inventoryChanged(ServerPlayer p){forget(p);}
+    public void inventoryChanged(ServerPlayer p){forget(p);syncJump(p);}
     public void forget(ServerPlayer p){
         var speed=p.getAttribute(Attributes.MOVEMENT_SPEED);if(speed!=null)speed.removeModifier(SPEED);
+        var jump=p.getAttribute(Attributes.JUMP_STRENGTH);if(jump!=null)jump.removeModifier(JUMP);
         slowed.remove(p.getUUID());
     }
     public void stop(){for(var id:Set.copyOf(slowed)){var p=game.server().getPlayerList().getPlayer(id);if(p!=null)forget(p);}slowed.clear();phase=0;}

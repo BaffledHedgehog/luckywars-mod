@@ -1831,6 +1831,20 @@ public final class MapManager {
                 writeBoundsJournal(imprintedBounds, imprintedJournal(), LbcHedgehogDimensions.IMPRINTED), (a,b) -> a && b);
         awaitJournal(saved, () -> {
         if (blockBoundsDirty) { commitPlacementBounds(entities); return; }
+        if (pendingMap != null) {
+            // Native structures can contain loose authoring items, and chest contents can
+            // drop while the parts are pasted. Retire them after ALL placement work, before
+            // publishing readiness; clearing only at match start leaves a dirty lobby map.
+            var game = SkyWars2.game();
+            if (game != null && game.maps() == this) {
+                game.itemQueue().clearRoundStart(level);
+                var mirror = server.getLevel(LbcHedgehogDimensions.IMPRINTED);
+                if (mirror != null) game.itemQueue().clearRoundStart(mirror);
+            } else {
+                for (var entity : allArenaEntities())
+                    if (entity instanceof net.minecraft.world.entity.item.ItemEntity) entity.discard();
+            }
+        }
         if(pendingMap!=null&&bedwars(pendingMap)){var game=me.skywars2.SkyWars2.game();if(game!=null&&game.maps()==this)game.bedwars().mapReady(entities);}
         pendingBounds = List.of();
         complete(new Result(true, pendingMap == null

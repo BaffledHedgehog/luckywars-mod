@@ -169,9 +169,10 @@ for(int i=0;i<samples;i++) {
         counterOwners.put(owner.getUUID(),owner);
         game.items().mana().score(owner,"hitbullet").set(amount);
     }
-    /** One source damage event grants one round, independent of its size beyond the threshold. */
-    public void receivedDamage(ServerPlayer owner,float acceptedDamage) {
-        if(valid(owner) && Math.round(acceptedDamage*10)>=35) setAmmo(owner,ammo(owner)+1);
+    /** Every positive accepted hit grants one round; burning over time cannot farm ammunition. */
+    public void receivedDamage(ServerPlayer owner,DamageSource source,float acceptedDamage) {
+        if(valid(owner) && acceptedDamage>0 && Float.isFinite(acceptedDamage)
+                && !source.is(DamageTypes.ON_FIRE)) setAmmo(owner,ammo(owner)+1);
     }
     void addPlayerCounters(ServerPlayer owner) { setAmmo(owner,ammo(owner)+1); }
     public void forget(ServerPlayer owner) {

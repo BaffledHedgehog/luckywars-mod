@@ -225,6 +225,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcTmtItems.matches(owner.getItemInHand(hand))&&!me.skywars2.game.LbcTmtItems.active(owner.getItemInHand(hand)))
                 return game.vanity().blocked(owner)||!game.items().tmt().admitted(owner)?InteractionResult.FAIL:InteractionResult.PASS;
             var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
@@ -402,6 +403,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().tryUse(owner,hand))return InteractionResult.SUCCESS;
             var bw=bedwarsUse(player,hand,hit);if(bw!=InteractionResult.PASS)return bw;
             var touhou=touhouUse(player,hand);if(touhou!=InteractionResult.PASS)return touhou;
             var nx=nexusToolUse(player,hand);if(nx!=InteractionResult.PASS)return nx;
@@ -440,6 +442,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if(game!=null&&player instanceof ServerPlayer owner&&game.items().academy().interact(owner,hand,entity))return InteractionResult.SUCCESS;
             if(player instanceof ServerPlayer owner)me.skywars2.game.LbcTmtTriggers.input(owner,me.skywars2.game.LbcTmtTriggers.Input.RIGHT_CLICK);
             if(me.skywars2.game.LbcBedwars.shopRole(entity))return game!=null&&player instanceof ServerPlayer owner&&hand==net.minecraft.world.InteractionHand.MAIN_HAND&&game.bedwars().shop().open(owner,entity)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             var bw=bedwarsUse(player,hand,null);if(bw!=InteractionResult.PASS)return bw;
@@ -458,8 +461,6 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if(game!=null && player instanceof ServerPlayer serverPlayer && player.isShiftKeyDown()
                     && me.skywars2.game.LbcSummons.commandItem(player.getItemInHand(hand)))
                 return game.items().wands().use(serverPlayer,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
-            if (game != null && player instanceof ServerPlayer serverPlayer
-                    && game.items().academy().interact(serverPlayer, hand, entity)) return InteractionResult.SUCCESS;
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
                     && entity.entityTags().contains("swrg.quickstart")) {
                 game.requestStart(serverPlayer, true); return InteractionResult.SUCCESS;

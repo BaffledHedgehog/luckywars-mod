@@ -29,6 +29,7 @@ public final class NativeItemFeedbackChecks {
     public static void run(GameController game){
         try(var f=new WoolBucketChecks.Fixture(game,false)){
             f.prepareParticipants();var p=f.owner;
+            aimbobBoots(game,p);
             for(var id:List.of("blazefire_sword","triple_golden_sword","devil_sword")){
                 var loot=game.lbc().rollTable(f.level,p.position(),p,"lbc:ported/"+id);
                 require(!loot.isEmpty(),"real source sword "+id);var sword=loot.getFirst();
@@ -56,5 +57,35 @@ public final class NativeItemFeedbackChecks {
                     &&saved.getFloatOr("Health",0)==31&&saved.get("attributes").equals(entityTag.get("attributes"))&&saved.get("equipment").equals(entityTag.get("equipment")),"full egg NBT enters real spawner data");
         }catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new IllegalStateException(e);}
         SkyWars2.LOGGER.info("[check] PASS native-item-feedback (source swords mine cobweb, transformable drops resist damage, immediate helmet immunity and complete survival spawner egg NBT)");
+    }
+
+    private static void aimbobBoots(GameController game,net.minecraft.server.level.ServerPlayer player){
+        var loot=game.lbc().rollTable(player.level(),player.position(),player,
+                "lbc:item_defs/minecraft/iron_boots__bf5a87fdd04f");
+        require(loot.size()==1&&LbcArmorTooltips.aimbobBoots(loot.getFirst()),"actual Aimbob boots source");
+        var boots=loot.getFirst();var before=boots.copy();
+        var tooltip=boots.getTooltipLines(net.minecraft.world.item.Item.TooltipContext.of(player.level()),player,
+                net.minecraft.world.item.TooltipFlag.NORMAL);
+        require(tooltip.stream().anyMatch(line->LbcArmorTooltips.key(line,"item.modifiers.armor"))
+                &&tooltip.stream().anyMatch(line->LbcArmorTooltips.key(line,"item.modifiers.feet")),
+                "native enchantment armor group reproduces the split tooltip");
+        var provider=(net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)player.connection;
+        net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(provider,()->{
+            var proxy=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(boots,
+                    net.minecraft.world.item.TooltipFlag.NORMAL,provider.getPacketContext(),player.registryAccess());
+            var lines=proxy.get(DataComponents.LORE).lines();
+            require(lines.stream().filter(line->LbcArmorTooltips.key(line,"item.modifiers.feet")).count()==1
+                    &&lines.stream().noneMatch(line->LbcArmorTooltips.key(line,"item.modifiers.armor")),
+                    "client sees a single feet group for all Aimbob boot attributes");
+            require(!proxy.getOrDefault(DataComponents.TOOLTIP_DISPLAY,net.minecraft.world.item.component.TooltipDisplay.DEFAULT)
+                    .shows(DataComponents.ATTRIBUTE_MODIFIERS),"native client does not duplicate projected attribute rows");
+            require(ItemStack.matches(before,boots)&&ItemStack.matches(boots,
+                    eu.pb4.polymer.core.api.item.PolymerItemUtils.getRealItemStack(proxy,provider.getPacketContext(),player.registryAccess())),
+                    "projection preserves real enchantments, attribute slots and the exact restored stack");
+            for(var line:tooltip)if(LbcArmorTooltips.key(line,"attribute.modifier.plus.0")
+                    ||LbcArmorTooltips.key(line,"attribute.modifier.plus.1")||LbcArmorTooltips.key(line,"attribute.modifier.take.1"))
+                require(lines.stream().anyMatch(row->row.toFlatList(eu.pb4.polymer.core.api.item.PolymerItemUtils.CLEAN_STYLE)
+                        .equals(line.toFlatList(eu.pb4.polymer.core.api.item.PolymerItemUtils.CLEAN_STYLE))),"exact native attribute text/value retained");
+        });
     }
 }

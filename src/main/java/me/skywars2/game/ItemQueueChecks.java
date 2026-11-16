@@ -53,6 +53,11 @@ public final class ItemQueueChecks {
                 require(queue.dormant(level)==count-1001,"unrelated map replacement leaves dormant loot intact");
                 var at=newestHidden.blockPosition();queue.terrainReplaced(level,List.of(new net.minecraft.world.level.levelgen.structure.BoundingBox(at.getX()-1,at.getY()-1,at.getZ()-1,at.getX()+1,at.getY()+1,at.getZ()+1)));
                 require(queue.dormant(level)==0,"same-round replacement retires sleeping loot from the old terrain");
+                queue.restore(saved);require(queue.dormant(level)>0,"real dormant debris exists before map-load cleanup");
+                queue.clearRoundStart(level);
+                require(queue.active(level)==0&&queue.dormant(level)==0,"map-load cleanup removes both real loose bodies and their dormant archive");
+                queue.endTick();
+                require(queue.active(level)==0&&queue.dormant(level)==0,"cleaned map debris cannot return on the next queue tick");
             }catch(ReflectiveOperationException|java.io.IOException error){throw new IllegalStateException(error);}finally{
                 game.server().tickRateManager().setFrozen(true);
                 try{actors.restoreBodiesFrozen();require(actors.restoreLinksFrozen().isEmpty(),"native pre-fixture bodies restored");queue.restore(old);}

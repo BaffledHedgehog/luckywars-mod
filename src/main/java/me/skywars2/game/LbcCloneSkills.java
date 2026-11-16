@@ -318,7 +318,7 @@ public final class LbcCloneSkills {
         NativeImage(Entity source){
             var out=TagValueOutput.createWithContext(ProblemReporter.DISCARDING,source.registryAccess());source.saveWithoutId(out);
             nbt=out.buildResult().copy();nbt.remove("UUID");nbt.remove("uuid");nbt.remove("Passengers");
-            position=source.position();motion=source.getDeltaMovement();runtime=new MatchEntityRuntime(source);
+            position=source.position();motion=source.getDeltaMovement();runtime=new MatchEntityRuntime(source,false);
             projectileOwner=source instanceof Projectile shot?shot.getOwner():null;target=source instanceof Mob mob?mob.getTargetUnchecked():null;
             leashHolder=source instanceof Leashable leash?leash.getLeashHolder():null;hooked=source instanceof FishingHook hook?hook.getHookedIn():null;
             var values=new ArrayList<net.minecraft.world.entity.ai.attributes.AttributeInstance>();

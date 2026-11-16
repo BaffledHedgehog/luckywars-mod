@@ -73,7 +73,7 @@ public final class LbcAcceptedHits {
         game.items().damaged(victim,source);
         game.items().vexSword().damaged(victim,source,amount);
         if(victim instanceof ServerPlayer player){
-            game.hurtForSkill(player);game.items().ak47().receivedDamage(player,amount);game.damaged(player,source,amount);
+            game.hurtForSkill(player);game.items().ak47().receivedDamage(player,source,amount);game.damaged(player,source,amount);
         }
     }
 }

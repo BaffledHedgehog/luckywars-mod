@@ -224,12 +224,12 @@ public final class DanmakuChecks {
             shot=card(Vec3.atLowerCornerOf(wall).add(.2,.2,-.3),new Vec3(0,0,1),false);danmaku.tick();require(shot.display.isRemoved(),"non-air replaceable grass still intercepts source card");
             owner.level().setBlock(wall,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),3);owner.level().setBlock(wall.below(),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),3);clear();
             var target=cow(origin.add(0,0,2));game.server().getScoreboard().addPlayerToTeam(target.getScoreboardName(),team);mana.score(owner,"danmaku_score").set(0);
-            shot=card(target.position().add(-.3,.3,-.5),new Vec3(0,0,1),false);float health=target.getHealth();var movement=target.getDeltaMovement();danmaku.tick();near(health-target.getHealth(),.65,"friendly mob receives generic0.65 source damage");
+            shot=card(target.position().add(-.3,.3,-.5),new Vec3(0,0,1),false);float health=target.getHealth();var movement=target.getDeltaMovement();danmaku.tick();near(health-target.getHealth(),.325,"card receives the author's half-damage balance change");
             require(shot.display.isRemoved()&&mana.score(owner,"danmaku_score").get()==3,"single accepted collision consumes card and scores3");
             require(target.getDeltaMovement().equals(movement),"attackerless source card preserves motion without an added knockback impulse");
             require(target.damageCooldownTime>10&&target.getLastDamageSource().is(net.minecraft.tags.DamageTypeTags.BYPASSES_COOLDOWN),"first native card establishes a real hurt cooldown and uses imported generic cooldown bypass");
-            health=target.getHealth();shot=card(target.position().add(-.3,.3,-.5),new Vec3(0,0,1),false);danmaku.tick();near(health-target.getHealth(),.65,"imported generic damage tag bypasses native hurt invulnerability");require(mana.score(owner,"danmaku_score").get()==6,"each accepted generic hit adds source score3 despite existing hurt cooldown");
-            target.setHealth(.5f);var existing=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());owner.level().getAllEntities().forEach(existing::add);
+            health=target.getHealth();shot=card(target.position().add(-.3,.3,-.5),new Vec3(0,0,1),false);danmaku.tick();near(health-target.getHealth(),.325,"imported generic damage tag bypasses native hurt invulnerability");require(mana.score(owner,"danmaku_score").get()==6,"each accepted generic hit adds source score3 despite existing hurt cooldown");
+            target.setHealth(.25f);var existing=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());owner.level().getAllEntities().forEach(existing::add);
             card(target.position().add(-.3,.3,-.5),new Vec3(0,0,1),false);danmaku.tick();
             for(var e:owner.level().getAllEntities())if(!existing.contains(e))owned.add(e);
             require(target.isDeadOrDying()&&target.getKillCredit()==owner,"lethal attackerless card inherits its caster's actual native kill credit");
@@ -255,10 +255,10 @@ public final class DanmakuChecks {
             move(other,center);float allyHealth=other.getHealth(),victimHealth=victim.getHealth(),roleHealth=role.getHealth(),greedHealth=greed.getHealth();
             var hostile=new net.minecraft.world.entity.projectile.arrow.Arrow(EntityTypes.ARROW,owner.level());hostile.setOwner(victim);hostile.setPos(center);add(hostile);
             var friendly=new net.minecraft.world.entity.projectile.arrow.Arrow(EntityTypes.ARROW,owner.level());friendly.setOwner(owner);friendly.setPos(center);add(friendly);
-            bomb.age=16;danmaku.tick();near(victim.getHealth(),victimHealth-1,"source bomb native magic1 impact");require(victim.getLastHurtByMob()==owner,"bomb attributes real damage to stable owner");
+            bomb.age=16;danmaku.tick();near(victim.getHealth(),victimHealth-.5,"normal bomb receives the author's half-damage balance change");require(victim.getLastHurtByMob()==owner,"bomb attributes real damage to stable owner");
             near(role.getHealth(),roleHealth,"bomb protects technical mob");near(greed.getHealth(),greedHealth,"bomb protects active Greed");near(other.getHealth(),allyHealth,"bomb protects allied player");
             require(hostile.isRemoved()&&!friendly.isRemoved(),"bomb clears hostile native projectile and preserves owner's projectile");
-            danmaku.tick();near(victim.getHealth(),victimHealth-1,"bomb repeats respect native hurt invulnerability");
+            danmaku.tick();near(victim.getHealth(),victimHealth-.5,"bomb repeats respect native hurt invulnerability");
             require(!victim.entityTags().contains("nodmg")&&!victim.entityTags().contains("nodmg1"),"bomb does not leak legacy global no-damage tags to mobs");
             victim.discard();role.discard();greed.discard();friendly.discard();move(other,at.add(0,20,0));
             int age=bomb.age;game.items().timeStop().begin(owner.level(),40);try{danmaku.tick();require(bomb.age==age,"Time Stop freezes bomb captured lifetime");}finally{game.items().timeStop().end(owner.level());}

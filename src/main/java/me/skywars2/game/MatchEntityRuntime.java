@@ -21,8 +21,12 @@ final class MatchEntityRuntime {
     private final Long angerEndTime;
 
     MatchEntityRuntime(Entity entity) {
-        navigation=entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobNavigation(mob):null;
-        goals=MatchMobGoals.enabled()&&entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobGoals(mob):null;
+        this(entity,true);
+    }
+    /** Clones keep scalar runtime state, with fresh navigation/goals bound to their own body. */
+    MatchEntityRuntime(Entity entity,boolean sameBody) {
+        navigation=sameBody&&entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobNavigation(mob):null;
+        goals=sameBody&&MatchMobGoals.enabled()&&entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobGoals(mob):null;
         angerEndTime=entity instanceof net.minecraft.world.entity.NeutralMob neutral?neutral.getPersistentAngerEndTime():null;
         if(goals!=null)capture(Entity.class,entity,"horizontalCollision","verticalCollision","verticalCollisionBelow","minorHorizontalCollision");
         if(goals!=null&&entity instanceof net.minecraft.world.entity.monster.Creeper)

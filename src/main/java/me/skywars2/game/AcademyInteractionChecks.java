@@ -47,6 +47,24 @@ public final class AcademyInteractionChecks {
             var wand=new ItemStack(LbcWands.FIRE_WAND);p.setItemInHand(InteractionHand.MAIN_HAND,wand);game.items().mana().set(p,5000);int before=game.items().mana().get(p);
             require(p.gameMode.useItem(p,f.level,wand,InteractionHand.MAIN_HAND).consumesAction()
                     &&LbcFartus.data(p.getMainHandItem()).getIntOr("upgradable",0)==1&&game.items().mana().get(p)==before,"looking at teacher with an upgradeable wand still assigns the real trial without casting");
+            var tag=LbcFartus.data(p.getMainHandItem());tag.putInt("upgrade_available",1);
+            p.getMainHandItem().set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(tag));
+            try {
+                var clicks=LbcAcademy.class.getDeclaredField("lastInteractions");clicks.setAccessible(true);
+                ((java.util.Map<?,?>)clicks.get(game.items().academy())).remove(p.getUUID());
+            }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            var projectiles=new java.util.HashSet<java.util.UUID>();
+            for(var entity:f.level.getAllEntities())if(entity instanceof net.minecraft.world.entity.projectile.Projectile)projectiles.add(entity.getUUID());
+            require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(p,f.level,InteractionHand.MAIN_HAND).consumesAction()
+                    &&p.getMainHandItem().is(LbcWands.ACADEMY_FIRE)&&game.items().mana().get(p)==before,
+                    "actual registered air-use callback promotes without also casting the old or promoted wand");
+            require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(p,f.level,InteractionHand.MAIN_HAND).consumesAction()
+                    &&game.items().mana().get(p)==before,"finished upgrade consumes repeated click before native wand dispatch");
+            p.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcWands.ACADEMY_FIRE));
+            require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(p,f.level,InteractionHand.OFF_HAND).consumesAction()
+                    &&game.items().mana().get(p)==before,"offhand wand over teacher cannot cast");
+            for(var entity:f.level.getAllEntities())if(entity instanceof net.minecraft.world.entity.projectile.Projectile)
+                require(projectiles.contains(entity.getUUID()),"teacher click never creates a fireball through a second callback");
         }catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new IllegalStateException(e);}
         SkyWars2.LOGGER.info("[check] PASS academy-interaction (actual encoded transparent client bounds, intact native teacher bounds, food/block native use and real wand trial routing)");
     }

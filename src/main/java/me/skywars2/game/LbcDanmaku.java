@@ -230,7 +230,8 @@ public final class LbcDanmaku {
         // Bomb magic explicitly names the caster in the original damage command.
         var source=magic?new DamageSource(type,direct,owner):new DamageSource(type);
         var cause=game.items().indirectKills().coldCause(owner,true);
-        game.items().indirectKills().withCause(victim,cause,()->victim.hurtServer((ServerLevel)victim.level(),source,amount));
+        float dealt=game.balanceLegacy()?amount:amount*.5f;
+        game.items().indirectKills().withCause(victim,cause,()->victim.hurtServer((ServerLevel)victim.level(),source,dealt));
     }
 
     private void tick(Bomb b){

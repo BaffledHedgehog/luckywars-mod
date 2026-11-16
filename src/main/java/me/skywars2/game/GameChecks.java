@@ -17387,7 +17387,12 @@ public final class GameChecks {
                         require(lore.size()==2 && lore.get(0).toFlatList(net.minecraft.network.chat.Style.EMPTY).equals(expected.toFlatList(net.minecraft.network.chat.Style.EMPTY))
                                 && lore.get(1).toFlatList(net.minecraft.network.chat.Style.EMPTY).equals(attribution.toFlatList(net.minecraft.network.chat.Style.EMPTY)),"AK lore preserves exact text, component order, colours and italics");
                         var finiteLore=finite.get(DataComponents.LORE).lines();
-                        require(finiteLore.size()==3 && shooterPairKey(finiteLore.get(1),"ak47lore") && shooterPairKey(finiteLore.get(2),"ak47lore.1"),"Finite AK keeps its two original translation keys");
+                        require(finiteLore.size()==3 && shooterPairKey(finiteLore.get(1),"ak47lore") && shooterPairKey(finiteLore.get(2),"ak47lore.1"),
+                                "Skill AK keeps both translation keys without the boss reward's event attribution");
+                        var skillLoot=game.lbc().rollTable(level,owner.position(),owner,"lbc:stalin_ak_finite");
+                        require(skillLoot.size()==1&&LbcAk47.isFinite(skillLoot.getFirst())
+                                &&skillLoot.getFirst().get(DataComponents.LORE).lines().equals(finiteLore),
+                                "Actual Absolute Cinema Stalin reward has the same author-free skill description");
                         requirePolymerStack(owner,stack,Items.CARROT_ON_A_STICK,"Native AK source presentation");
                         var legacy=stack.transmuteCopy(Items.CARROT_ON_A_STICK);
                         require(LbcAk47.isAk47(legacy) && legacy.get(DataComponents.LORE).equals(stack.get(DataComponents.LORE)),"Legacy AK retains source components and recognition");
@@ -17460,10 +17465,20 @@ public final class GameChecks {
                         require(slrUse(other,main) && game.items().shooters().stunned(owner),"Native aimed SLR shot establishes actual AK owner's stun"
                                 +" scoped="+game.items().rifleZoom().scoped(other)+" movement="+LbcGunAccuracy.movementDegrees(other));
                         pineUsePacket(owner,off); require(second.getHealth()==10,"Actual SLR stun blocks AK activation"); game.items().shooters().clearStun(owner);
-                        gun.setAmmo(owner,0); gun.receivedDamage(owner,3.44f); require(gun.ammo(owner)==0,"Below35 native damage-stat units grants no round");
-                        gun.receivedDamage(owner,3.45f); gun.receivedDamage(owner,100); require(gun.ammo(owner)==2,"Native stat quantization and large hits grant one round per event");
+                        gun.setAmmo(owner,0);
+                        for(float hit:new float[]{.001f,.1f,.99f,3.44f,3.45f,100})gun.receivedDamage(owner,owner.damageSources().generic(),hit);
+                        require(gun.ammo(owner)==6,"Every positive accepted damage event grants one round regardless of size");
+                        for(float hit:new float[]{0,-1,Float.NaN,Float.POSITIVE_INFINITY})gun.receivedDamage(owner,owner.damageSources().generic(),hit);
+                        gun.receivedDamage(owner,owner.damageSources().onFire(),1);
+                        require(gun.ammo(owner)==6,"Zero, rejected/nonfinite damage and burning ticks do not grant rounds");
                         owner.setAbsorptionAmount(0); owner.setHealth(owner.getMaxHealth()); owner.damageCooldownTime=0; owner.setInvulnerableTime(0);
                         int ammo=gun.ammo(owner); require(owner.hurtServer(level,owner.damageSources().generic(),4) && gun.ammo(owner)==ammo+1,"Actual accepted native damage callback grants exactly one AK round");
+                        for(float hit:new float[]{.01f,.1f,.99f}){
+                            owner.setHealth(owner.getMaxHealth());owner.damageCooldownTime=0;owner.setInvulnerableTime(0);ammo=gun.ammo(owner);
+                            require(owner.hurtServer(level,owner.damageSources().generic(),hit)&&gun.ammo(owner)==ammo+1,"Actual fractional native damage grants exactly one round: "+hit);
+                        }
+                        owner.damageCooldownTime=0;owner.setInvulnerableTime(0);ammo=gun.ammo(owner);
+                        require(owner.hurtServer(level,owner.damageSources().onFire(),1)&&gun.ammo(owner)==ammo,"Actual accepted burning damage grants no round");
                         ammo=gun.ammo(owner); game.items().kfcFood().applyOutcome(owner,7); require(gun.ammo(owner)==ammo+1,"Real KFC counter outcome increments shared AK ammunition once");
                         gun.forget(owner); require(gun.ammo(owner)==0,"Owner lifecycle forget clears shared rounds");
                         gun.setAmmo(owner,23); gun.stop(); require(gun.ammo(owner)==0,"Service stop clears retained player rounds");

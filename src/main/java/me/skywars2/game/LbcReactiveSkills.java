@@ -95,24 +95,7 @@ public final class LbcReactiveSkills {
                 ||!(entity instanceof Projectile||entity.getType().builtInRegistryHolder().is(PROJECTILES))
                 ||entity.entityTags().contains("time_stopped")||game.items().timeStop().frozen(entity)
                 ||entity instanceof AbstractArrow arrow&&((WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$isInGround())return false;
-        var owner=LbcIndirectKills.playerSource(entity);
-        if(owner!=null)return owner!=observer&&!owner.isAlliedTo(observer);
-        // Natural mob shots have native ownership without player IDs or legacy scoreboard metadata.
-        // Resolve attributed summons above first, so their player's alliance remains authoritative.
-        if(entity instanceof Projectile projectile&&projectile.getOwner()!=null){
-            var nativeOwner=projectile.getOwner();
-            return nativeOwner!=observer&&!nativeOwner.isAlliedTo(observer);
-        }
-        // Resident source actors can retain only legacy scoreboard ownership. Read without creating scores.
-        Integer foreign=score(entity,"lbcID2"),own=score(observer,"lbcID2");
-        if(foreign==null||own==null||foreign.equals(own))return false;
-        Integer foreignTeam=score(entity,"team_number"),ownTeam=score(observer,"team_number");
-        return foreignTeam==null||ownTeam==null||!foreignTeam.equals(ownTeam);
-    }
-    private Integer score(Entity entity,String name){
-        var board=game.server().getScoreboard();var objective=board.getObjective(name);
-        var score=objective==null?null:board.getPlayerScoreInfo(entity,objective);
-        return score==null?null:score.value();
+        return !LbcTeams.allied(game,observer,entity);
     }
     boolean teleport(ServerPlayer player,int radius){
         int ceiling=player.level().dimension().equals(Level.NETHER)?120:player.level().getMaxY()+1;

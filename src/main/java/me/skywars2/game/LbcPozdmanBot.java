@@ -110,8 +110,9 @@ public final class LbcPozdmanBot {
     private ServerPlayer controller(Entity dolphin,Actor actor){var owner=game.items().communism().owner(dolphin);return owner!=null?owner:game.server().getPlayerList().getPlayer(actor.owner);}
     private boolean eligible(Entity source,LivingEntity target){
         if(target.level()!=source.level()||!target.getType().builtInRegistryHolder().is(MOBS)||!game.items().wands().validTarget(target))return false;
-        // Source same_team is an exact team_number score comparison, including nonplayer mobs.
-        var board=game.items().mana();return board.score(source,"team_number").get()!=board.score(target,"team_number").get();
+        // Match teams and summon ownership replace legacy team_number. Uninitialized legacy
+        // scores are all zero in the new game and must not turn every enemy into an ally.
+        return !LbcTeams.allied(game,source,target);
     }
     LivingEntity nearest(Entity dolphin){
         LivingEntity result=null;double distance=40000;
@@ -169,8 +170,6 @@ public final class LbcPozdmanBot {
     }
     private void orient(Coin coin,Actor state){
         var display=state.display;if(display==null||display.isRemoved())return;display.snapTo(coin.getX(),coin.getY(),coin.getZ(),state.yaw,90);
-        var v=coin.getDeltaMovement();if(v.lengthSqr()>1e-6)display.setTransformation(new com.mojang.math.Transformation(new org.joml.Vector3f(),
-                new org.joml.Quaternionf().rotateY((float)Math.atan2(v.x,v.z)).rotateX((float)-Math.atan2(v.y,v.horizontalDistance())),new org.joml.Vector3f(2),new org.joml.Quaternionf()));
     }
     boolean coinContact(Coin coin){
         var state=actors.get(coin);if(state==null)return false;var owner=coin.getOwner() instanceof ServerPlayer player?player:game.server().getPlayerList().getPlayer(state.owner);

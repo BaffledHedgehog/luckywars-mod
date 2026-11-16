@@ -58,6 +58,7 @@ public final class LbcTeleportGadgets {
 
     private static final class Charge {
         final InteractionHand hand;final ItemStack stack;final Vec3 origin;final ServerLevel level;final String epoch;
+        final List<ServerPlayer> listeners=new ArrayList<>();
         final int createdTick;int remaining=10;
         Charge(ServerPlayer owner,InteractionHand hand,String epoch){this.hand=hand;stack=owner.getItemInHand(hand);origin=owner.position();level=owner.level();this.epoch=epoch;createdTick=level.getServer().getTickCount();}
     }
@@ -101,11 +102,9 @@ public final class LbcTeleportGadgets {
         if(kind==1){if(!island(player))return false;debit(player,stack);return true;}
         // Held use and the other hand cannot restart an existing charge.
         if(charges.containsKey(player))return false;
-        charges.put(player,new Charge(player,hand,game.items().epoch()));
-        // The client carrier predicts a snowball debit. The server retains the item until completion.
-        player.containerMenu.broadcastFullState();
-        // Owner-local sound avoids one cancellation stopping a neighbour's identical sound.
-        sound(player,CHARGE_SOUND);
+        var charge=new Charge(player,hand,game.items().epoch());
+        charges.put(player,charge);
+        startSound(player,charge);
         return true;
     }
     private void debit(ServerPlayer player,ItemStack stack){
@@ -133,7 +132,7 @@ public final class LbcTeleportGadgets {
             if(game.items().actionsBlocked(player)){cancel(player,true);continue;}
             if(game.server().getTickCount()==charge.createdTick)continue;
             if(--charge.remaining>0)continue;
-            charges.remove(player);stopSound(player);
+            charges.remove(player);stopSound(charge);
             if(swap(player))debit(player,charge.stack);else failure(player);
         }
     }
@@ -159,10 +158,22 @@ public final class LbcTeleportGadgets {
     private static void particles(ServerLevel level,Vec3 at,net.minecraft.core.particles.ParticleOptions kind){
         level.sendParticles(kind,at.x,at.y+1,at.z,50,.2,.4,.2,.3);
     }
-    private static void stopSound(ServerPlayer player){player.connection.send(new ClientboundStopSoundPacket(CHARGE_SOUND,SoundSource.MASTER));}
+    private static void startSound(ServerPlayer owner,Charge charge){
+        var packet=new ClientboundSoundPacket(Holder.direct(SoundEvent.createVariableRangeEvent(CHARGE_SOUND)),
+                SoundSource.MASTER,charge.origin.x,charge.origin.y,charge.origin.z,1,1,owner.getRandom().nextLong());
+        for(var listener:charge.level.players())if(!listener.hasDisconnected()
+                &&LbcFpvDrone.viewpoint(listener).distanceToSqr(charge.origin)<=16*16){
+            charge.listeners.add(listener);listener.connection.send(packet);
+        }
+    }
+    private void stopSound(Charge charge){
+        for(var listener:charge.listeners)if(!listener.hasDisconnected()
+                &&charges.values().stream().noneMatch(other->other.listeners.contains(listener)))
+            listener.connection.send(new ClientboundStopSoundPacket(CHARGE_SOUND,SoundSource.MASTER));
+    }
     private static void sound(ServerPlayer player,Identifier id){player.connection.send(new ClientboundSoundPacket(Holder.direct(SoundEvent.createVariableRangeEvent(id)),SoundSource.MASTER,player.getX(),player.getY(),player.getZ(),1,1,player.getRandom().nextLong()));}
     private static void failure(ServerPlayer player){player.sendSystemMessage(Component.translatable(FAILURE_KEY).withStyle(ChatFormatting.RED));}
-    private void cancel(ServerPlayer player,boolean report){if(charges.remove(player)!=null){stopSound(player);if(report&&player.isAlive()&&!player.hasDisconnected()){player.containerMenu.broadcastFullState();failure(player);}}}
+    private void cancel(ServerPlayer player,boolean report){var charge=charges.remove(player);if(charge!=null){stopSound(charge);if(report&&player.isAlive()&&!player.hasDisconnected()){player.containerMenu.broadcastFullState();failure(player);}}}
     public void forget(ServerPlayer player){cancel(player,false);if(restoring||MatchPlayerCheckpoint.restoring(player))return;
         imbaDelays.remove(player.getUUID());player.entityTags().remove("syn_shlyhi");}
     /** Native packet completion catches moving away and back between two item-service ticks. */

@@ -157,11 +157,8 @@ public final class LbcLegacySlabs {
                     if(actor.kind==Kind.BLOOD&&game.items().magic().suppressedAt(level,marker.position())){remove(actor);continue;}
                     if(actor.kind==Kind.BLOOD&&move.accelerate){
                         todo.addFirst(new Move(actor,false));
-                        var score=game.server().getScoreboard().getObjective("team_number");
-                        var mine=score==null?null:game.server().getScoreboard().getPlayerScoreInfo(marker,score);
                         for(var other:level.getEntitiesOfClass(Marker.class,marker.getBoundingBox().inflate(16),e->e!=marker&&e.entityTags().contains("blood_slab")&&e.distanceToSqr(marker)>=.01&&e.distanceToSqr(marker)<=256)){
-                            var theirs=score==null?null:game.server().getScoreboard().getPlayerScoreInfo(other,score);
-                            var found=actors.get(other.getUUID());if(found!=null&&(mine==null||theirs==null||mine.value()!=theirs.value())&&random.nextFloat()<.3f)todo.addFirst(new Move(found,false));
+                            var found=actors.get(other.getUUID());if(found!=null&&!LbcTeams.allied(game,marker,other)&&random.nextFloat()<.3f)todo.addFirst(new Move(found,false));
                         }continue;
                     }
                     try(var scope=game.items().spellSources().scope(actor.source,level)){if(actor.kind==Kind.BLOOD)blood(actor,random);else white(actor);}

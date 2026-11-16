@@ -69,8 +69,29 @@ public final class TeleportGadgetChecks {
         }
         void begin(int next,boolean raw){reset();phase=next;stack=held("swapper",raw?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND,raw);field("stopper_magic");
             require(input(raw?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND,raw)&&service.chargingCount()==1&&stack.getCount()==2,"charge accepted without early debit");
-            require(ownerPackets.stream().anyMatch(packet->packet instanceof ClientboundSoundPacket sound&&sound.getSound().value().location().toString().equals("minecraft:lbcsounds.swap_charge")),"private charge sound starts");
-            require(betaPackets.stream().noneMatch(packet->packet instanceof ClientboundSoundPacket sound&&sound.getSound().value().location().toString().equals("minecraft:lbcsounds.swap_charge")),"charge sound stays private");started=game.server().getTickCount();}
+            require(ownerPackets.stream().anyMatch(State::chargeSound),"owner hears the spatial charge sound");
+            require(betaPackets.stream().anyMatch(State::chargeSound),"nearby player hears charge sound");started=game.server().getTickCount();}
+        static boolean chargeSound(net.minecraft.network.protocol.Packet<?> packet){return packet instanceof ClientboundSoundPacket sound&&sound.getSound().value().location().equals(LbcTeleportGadgets.CHARGE_SOUND);}
+        static boolean chargeStop(net.minecraft.network.protocol.Packet<?> packet){return packet instanceof ClientboundStopSoundPacket stop&&LbcTeleportGadgets.CHARGE_SOUND.equals(stop.getName());}
+        void spatialSound(){
+            reset();var source=held("swapper",InteractionHand.MAIN_HAND,false);
+            var provider=(net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)p.connection;
+            net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(provider,()->{
+                var proxy=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(source,net.minecraft.world.item.TooltipFlag.NORMAL,provider.getPacketContext(),p.registryAccess());
+                require(proxy.is(Items.PAPER)&&proxy.getCount()==2&&proxy.get(DataComponents.ITEM_MODEL).equals(source.get(DataComponents.ITEM_MODEL)),"swapper has an inert paper client carrier and the original model/count");
+            });
+            require(input(InteractionHand.MAIN_HAND,false),"first nearby charge");
+            beta.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcGadgetItems.SWAPPER,2));
+            require(beta.gameMode.useItem(beta,base.level,beta.getMainHandItem(),InteractionHand.MAIN_HAND).consumesAction(),"second nearby charge");
+            ownerPackets.clear();betaPackets.clear();service.forget(p);
+            require(ownerPackets.stream().noneMatch(State::chargeStop)&&betaPackets.stream().noneMatch(State::chargeStop),"cancelling one charge preserves another audible charge");
+            service.forget(beta);
+            require(ownerPackets.stream().anyMatch(State::chargeStop)&&betaPackets.stream().anyMatch(State::chargeStop),"last charge stops for its original audience");
+            reset();move(beta,origin.add(32,0,0));held("swapper",InteractionHand.MAIN_HAND,false);
+            require(input(InteractionHand.MAIN_HAND,false)&&ownerPackets.stream().anyMatch(State::chargeSound)
+                    &&betaPackets.stream().noneMatch(State::chargeSound),"charge sound does not reach outside its16 block radius");
+            reset();
+        }
         void failed(){require(service.chargingCount()==0&&stack.getCount()==2,"cancel/no-target has no item debit");
             require(ownerPackets.stream().anyMatch(packet->packet instanceof ClientboundSystemChatPacket chat&&key(chat.content())&&Objects.equals(chat.content().getStyle().getColor(),net.minecraft.network.chat.TextColor.fromRgb(0xff5555))),"red translated charge_failed feedback");
             require(ownerPackets.stream().anyMatch(packet->packet instanceof ClientboundStopSoundPacket stop&&stop.getName()!=null&&stop.getName().toString().equals("minecraft:lbcsounds.swap_charge")),"failure stops own charge sound");require(ownerPackets.stream().noneMatch(packet->packet instanceof ClientboundSoundPacket sound&&sound.getSound().value().location().toString().equals("minecraft:lbcsounds.swap_go")),"cancel never plays success sound");for(var field:List.copyOf(fields))remove(field);world();}
@@ -92,12 +113,12 @@ public final class TeleportGadgetChecks {
             }
         }
         void restoreTargetTags(){tags.forEach((who,before)->{who.entityTags().clear();who.entityTags().addAll(before);});}
-        void initialize(){islands();begin(0,false);}
+        void initialize(){spatialSound();islands();begin(0,false);}
         public void close(){if(closed)return;closed=true;Throwable failure=null;
-            for(Runnable action:List.<Runnable>of(()->{service.forget(p);if(paused)game.items().timeStop().end(base.level);for(var f:List.copyOf(fields))remove(f);restoreTargetTags();},()->{var board=game.server().getScoreboard();board.removePlayerFromTeam(p.getScoreboardName(),team);board.removePlayerFromTeam(beta.getScoreboardName(),team);board.removePlayerTeam(team);if(oldTeam!=null)board.addPlayerToTeam(p.getScoreboardName(),oldTeam);if(oldBetaTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBetaTeam);},client::close,audience::close,base::close,()->saved.restore(game),saved::restoreAttributes,saved::restoreUse,()->betaSaved.restore(game),betaSaved::restoreAttributes,betaSaved::restoreUse,()->{stats.forEach((item,n)->p.getStats().setValue(p,Stats.ITEM_USED.get(item),n));random.restore(base.level.getRandom());ownerRandom.restore(p.getRandom());betaRandom.restore(beta.getRandom());game.items().magic().inventoryChanged(p);game.items().magic().inventoryChanged(beta);restoreTargetTags();game.players().save();}))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+            for(Runnable action:List.<Runnable>of(()->{service.forget(p);service.forget(beta);if(paused)game.items().timeStop().end(base.level);for(var f:List.copyOf(fields))remove(f);restoreTargetTags();},()->{var board=game.server().getScoreboard();board.removePlayerFromTeam(p.getScoreboardName(),team);board.removePlayerFromTeam(beta.getScoreboardName(),team);board.removePlayerTeam(team);if(oldTeam!=null)board.addPlayerToTeam(p.getScoreboardName(),oldTeam);if(oldBetaTeam!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldBetaTeam);},client::close,audience::close,base::close,()->saved.restore(game),saved::restoreAttributes,saved::restoreUse,()->betaSaved.restore(game),betaSaved::restoreAttributes,betaSaved::restoreUse,()->{stats.forEach((item,n)->p.getStats().setValue(p,Stats.ITEM_USED.get(item),n));random.restore(base.level.getRandom());ownerRandom.restore(p.getRandom());betaRandom.restore(beta.getRandom());game.items().magic().inventoryChanged(p);game.items().magic().inventoryChanged(beta);restoreTargetTags();game.players().save();}))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             if(failure!=null)throw new IllegalStateException("teleport gadget scoped restore",failure);
         }
     }
     public static void start(GameController game){require(running==null,"exclusive finite trial");var state=new State(game);try{state.initialize();running=state;SkyWars2.LOGGER.info("[check] START teleport-gadgets");}catch(Throwable error){try{state.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}throw error;}}
-    public static void tick(GameController game){if(running==null)return;try{if(!running.tick())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS teleport-gadgets (native/raw hands, actual island spawns/60 Slow Falling, real10 active tick swap, free camera/allies, movement/slot/TECH/artifact/no-target cancel without debit, private charge sound/failure stop/red translated feedback, completion target sampling, scheduled time-stop pause, no terrain edits)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL teleport-gadgets",error);}}
+    public static void tick(GameController game){if(running==null)return;try{if(!running.tick())return;running.close();running=null;SkyWars2.LOGGER.info("[check] PASS teleport-gadgets (native/raw hands, actual island spawns/60 Slow Falling, real10 active tick swap, free camera/allies, movement/slot/TECH/artifact/no-target cancel without debit, spatial16 charge sound/concurrent cancellation/failure stop/red translated feedback, completion target sampling, scheduled time-stop pause, no terrain edits)");}catch(Throwable error){try{running.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}finally{running=null;}SkyWars2.LOGGER.error("[check] FAIL teleport-gadgets",error);}}
 }

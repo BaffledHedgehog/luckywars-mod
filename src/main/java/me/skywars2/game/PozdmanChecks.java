@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Marker;
@@ -64,9 +65,10 @@ public final class PozdmanChecks {
             var living=(LivingEntity)dolphin;require(living.getAttributeValue(Attributes.SCALE)==2&&living.getMaxHealth()==50&&game.items().communism().owner(dolphin)==owner,"source scale/maxHP and actual subjugated owner");
             int team=game.items().mana().score(owner,"team_number").get();var origin=dolphin.position();
             var enemy=new Cow(EntityTypes.COW,level);enemy.setNoAi(true);enemy.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);enemy.setHealth(100);enemy.setPos(origin.add(0,0,10));nativeActors.add(enemy);require(level.addFreshEntity(enemy),"native enemy admission");
-            game.items().mana().score(enemy,"team_number").set(team+1);service.loaded(enemy);
+            game.items().mana().score(enemy,"team_number").set(team);service.loaded(enemy);
             var ally=new Cow(EntityTypes.COW,level);ally.setNoAi(true);ally.setPos(origin.add(0,0,2));nativeActors.add(ally);require(level.addFreshEntity(ally),"native ally admission");game.items().mana().score(ally,"team_number").set(team);service.loaded(ally);
-            require(service.nearest(dolphin)==enemy,"pursuit uses1..200 exact team score and excludes nearer allied mob");
+            game.items().communism().subjugate(owner,ally,true,true);
+            require(service.nearest(dolphin)==enemy,"pursuit uses1..200 and actual ownership, even with equal obsolete team scores; nearer allied mob excluded");
             service.dolphinTick(dolphin);require(Math.abs(dolphin.position().distanceTo(origin)-1)<1e-9,"native pursuit advances exactly one horizontal source block");
             var coin=service.spawnCoin(dolphin);require(coin!=null&&coin.getOwner()==owner,"physical coin inherits actual controller");nativeActors.add(coin);DisplayTransformChecks.pose(service.state(coin).display(),0,0,0,2,2,2);
             coin.setPos(enemy.position());coin.setDeltaMovement(Vec3.ZERO);
@@ -77,9 +79,15 @@ public final class PozdmanChecks {
             var block=BlockPos.containing(safe.position().add(0,1,0));terrain.put(block,game.maps().snapshot(level,block));level.setBlock(block,Blocks.STONE.defaultBlockState(),3);
             service.coinTick(safe);require(safe.isRemoved(),"source nonair block one above executes complete bonk/discard closure");
             var age=service.spawnCoin(dolphin);nativeActors.add(age);age.setPos(origin.add(6,10,0));age.setDeltaMovement(new Vec3(.2,0,.1));
+            float spin=service.state(age).display().getYRot();service.coinTick(age);
+            require(!age.isRemoved()&&service.state(age).display().getYRot()==spin+20&&service.state(age).display().getXRot()==90,"coin spins exactly20degrees independently of its physical trajectory");
+            var visual=service.state(age).display();var rotation=Display.class.getDeclaredField("DATA_LEFT_ROTATION_ID");rotation.setAccessible(true);
+            @SuppressWarnings("unchecked") var rotationKey=(net.minecraft.network.syncher.EntityDataAccessor<org.joml.Quaternionfc>)rotation.get(null);
+            require(visual.getEntityData().get(rotationKey).equals(new org.joml.Quaternionf()),"physical velocity never adds a second orientation quaternion");
+            age.setDeltaMovement(new Vec3(.2,0,.1));
             LbcPhysicalObjects.step(age,1,1,.8,1,(a,b)->false,(a,b)->false);require(Math.abs(age.getDeltaMovement().y+.08)<1e-9&&Math.abs(age.getDeltaMovement().x-.2)<1e-9,"shared physical .08 gravity and exact air friction1");
             var denied=new LbcPozdmanBot(game,p->false);require(!denied.use(owner,InteractionHand.MAIN_HAND,100)&&denied.count()==0,"injected author TECH gate blocks before waiting/spawn");
-        }finally{
+        }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}finally{
             service.stop();for(var actor:nativeActors){actor.discard();game.server().getScoreboard().resetAllPlayerScores(actor);}
             for(var entry:terrain.entrySet())game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue());saved.restore(game);
         }
@@ -101,8 +109,9 @@ public final class PozdmanChecks {
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ChefChecks.Fixture base;final LbcPozdmanBot service;
         final Map<ServerPlayer,Integer> teams=new IdentityHashMap<>();
-        RegenerationBeltChecks.ScheduledClient client,audience;Marker mag;BlockPos techPos;
-        Entity dolphin;LbcPozdmanBot.Coin coin;PrimedTnt bomb;
+        RegenerationBeltChecks.ScheduledClient client,audience;Marker mag;BlockPos techPos,actorTechPos;
+        final Map<BlockPos,MapManager.BlockSnapshot> actorTechSnapshots=new LinkedHashMap<>();
+        Entity dolphin,pursuitWitness;LbcPozdmanBot.Coin coin;PrimedTnt bomb;
         UUID dolphinId,coinId,displayId;Vec3 dolphinAt,coinAt,tntContact;int coinAge,dolphinActions,stage,when,start,sequence,updates;boolean closed;
         Fixture(GameController game){this.game=game;service=game.items().pozdmanBot();require(service.count()==0&&!game.vanity().busy()&&!game.vanity().hasSnapshot(),"exclusive native actors and full coordinator");base=new ChefChecks.Fixture(game);for(var p:List.of(base.owner,base.other))teams.put(p,game.items().mana().score(p,"team_number").get());}
         void begin(int next){stage=next;when=game.server().getTickCount();}
@@ -129,6 +138,16 @@ public final class PozdmanChecks {
         @SuppressWarnings("unchecked") List<net.minecraft.network.protocol.Packet<?>> packets(){try{var connection=RegenerationBeltChecks.ScheduledClient.class.getDeclaredField("connection");connection.setAccessible(true);var wire=connection.get(client);var field=wire.getClass().getDeclaredField("packets");field.setAccessible(true);return (List<net.minecraft.network.protocol.Packet<?>>)field.get(wire);}catch(ReflectiveOperationException error){throw new IllegalStateException(error);}}
         boolean text(String key){return packets().stream().anyMatch(packet->packet instanceof ClientboundSystemChatPacket message&&message.content().getContents() instanceof TranslatableContents content&&content.getKey().equals(key));}
         void positionParents(){dolphin.setPos(base.at.add(0,7,0));((Mob)dolphin).setNoAi(true);dolphin.setDeltaMovement(Vec3.ZERO);coin.setPos(base.at.add(6,8,0));coin.setDeltaMovement(new Vec3(.1,.02,.05));}
+        void coverActorWithTech(){
+            // A genuinely homing dolphin leaves a stationary20-block field. Keep a second
+            // real beacon beneath its current route for the complete native pulse test.
+            var next=BlockPos.containing(dolphin.position()).below(4);if(next.equals(actorTechPos))return;
+            removeActorTech();actorTechPos=next;
+            require(base.owner.level().hasChunkAt(next),"moving TECH field stays in real loaded terrain");
+            actorTechSnapshots.computeIfAbsent(next,key->game.maps().snapshot(base.owner.level(),key));
+            base.owner.level().setBlock(next,LbcMagic.MECHANISM_BEACON_BLOCK.defaultBlockState(),3);
+        }
+        void removeActorTech(){if(actorTechPos!=null&&!actorTechPos.equals(techPos))game.maps().restoreSnapshot(base.owner.level(),actorTechPos,actorTechSnapshots.get(actorTechPos));actorTechPos=null;}
         void cloneBodies(){
             var beforeCoin=Set.copyOf(service.snapshot());require(game.items().cloneSkills().copyNow(coin,15),"actual installed x2 adapter accepts native physical coin");
             var copies=service.snapshot().stream().filter(e->!beforeCoin.contains(e)).toList();require(copies.size()==1&&copies.getFirst() instanceof LbcPozdmanBot.Coin,"exactly one native coin clone");
@@ -147,6 +166,12 @@ public final class PozdmanChecks {
                 case 0->{if(service.waiting(base.owner)){require(elapsed<=21,"original second phase clears on actual registered ticks");return false;}
                     base.owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);base.owner.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcPozdmanBot.ITEM));input(InteractionHand.OFF_HAND,true,100);
                     require(text("akyla_privet")&&service.count()==1,"actual offhand UseBlock emits rare native result under MAG");dolphin=service.snapshot().getFirst();dolphinId=dolphin.getUUID();coin=service.spawnCoin(dolphin);require(coin!=null,"native physical coin before clone/full capture");coinId=coin.getUUID();positionParents();cloneBodies();
+                    pursuitWitness=base.cow(dolphin.position().add(0,0,8));game.items().mana().score(pursuitWitness,"team_number").set(0);
+                    require(service.nearest(dolphin)==pursuitWitness,"actual scheduler target with the same obsolete zero team score");dolphinAt=dolphin.position();dolphin.setYRot(0);dolphin.setXRot(0);begin(8);}
+                case 8->{if(elapsed<3)return false;
+                    require(!dolphin.isRemoved()&&dolphin.position().distanceToSqr(dolphinAt)>4,"registered native dolphin genuinely moves toward a target over real server ticks");
+                    pursuitWitness.entityTags().add("strict_map_object");
+                    for(var extra:service.snapshot())if(extra!=coin&&extra!=dolphin)service.removed(extra);
                     displayId=service.state(coin).display().getUUID();coinAge=service.state(coin).age();coinAt=coin.position();dolphinAt=dolphin.position();game.items().timeStop().begin(base.owner.level(),1000);begin(1);}
                 case 1->{require(service.state(coin).age()==coinAge&&coin.position().equals(coinAt)&&dolphin.position().equals(dolphinAt)&&service.waiting(base.owner),"real world TimeStop freezes coin age/motion, native dolphin and global wait");if(elapsed<6)return false;
                     require(game.vanity().requestCapture(base.owner,false),"real full coordinator capture with native coin+dolphin+display+wait");begin(2);}
@@ -159,11 +184,11 @@ public final class PozdmanChecks {
                     require(coin.position().equals(coinAt)&&dolphin.position().equals(dolphinAt)&&service.waiting(base.owner)&&game.items().timeStop().stopped(level),"full replay restores exact stopped geometry and pending global wait");
                     client.acknowledge();audience.acknowledge();game.vanity().stop();game.items().timeStop().end(level);begin(4);}
                 case 4->{if(elapsed<3)return false;require(!coin.isRemoved()&&service.state(coin).age()>coinAge,"native registered actor scheduler resumes after TimeStop/replay");
-                    techPos=BlockPos.containing(base.at.add(0,3,-4));base.block(techPos,LbcMagic.MECHANISM_BEACON_BLOCK);coin.setPos(base.at.add(6,8,0));coin.setDeltaMovement(new Vec3(0,.4,0));coinAge=service.state(coin).age();dolphinActions=service.state(dolphin).age();begin(5);}
-                case 5->{if(elapsed<25)return false;require(game.items().magic().mechanismSuppressed(base.owner)&&game.items().magic().mechanismSuppressedAt(base.owner.level(),dolphin.position()),"positive TECH covers actual owner and native actor");
+                    techPos=BlockPos.containing(base.at.add(0,3,-4));base.block(techPos,LbcMagic.MECHANISM_BEACON_BLOCK);coverActorWithTech();coin.setPos(base.at.add(6,8,0));coin.setDeltaMovement(new Vec3(0,.4,0));coinAge=service.state(coin).age();dolphinActions=service.state(dolphin).age();begin(5);}
+                case 5->{coverActorWithTech();if(elapsed<25)return false;require(game.items().magic().mechanismSuppressed(base.owner)&&game.items().magic().mechanismSuppressedAt(base.owner.level(),dolphin.position()),"positive TECH covers actual owner and native actor");
                     require(!coin.isRemoved()&&!dolphin.isRemoved()&&service.state(coin).age()>coinAge&&service.state(dolphin).age()>dolphinActions,"native dolphin actions and physical coin survive full common TECH pulse and keep ticking");
                     if(service.waiting(base.owner))return false;int beforeCount=service.count();input(InteractionHand.OFF_HAND,false,null);require(!service.waiting(base.owner)&&service.count()==beforeCount,"positive TECH blocks actual cast before wait or new actor");
-                    base.block(techPos,Blocks.AIR);require(!game.items().magic().mechanismSuppressedAt(base.owner.level(),dolphin.position()),"removed native TECH block unindexes its exact field");techPos=null;removeMarker(mag);mag=null;var solid=base.center.offset(0,6,0);base.block(solid,Blocks.STONE);tntContact=Vec3.atCenterOf(solid);dolphin.setPos(tntContact);dolphin.setDeltaMovement(Vec3.ZERO);
+                    removeActorTech();base.block(techPos,Blocks.AIR);require(!game.items().magic().mechanismSuppressedAt(base.owner.level(),dolphin.position()),"removed native TECH block unindexes its exact field");techPos=null;removeMarker(mag);mag=null;var solid=base.center.offset(0,6,0);base.block(solid,Blocks.STONE);tntContact=Vec3.atCenterOf(solid);dolphin.setPos(tntContact);dolphin.setDeltaMovement(Vec3.ZERO);
                     var pursuit=base.cow(base.at.add(.5,6.5,6.5));game.items().mana().score(pursuit,"team_number").set(1);dolphin.setYRot(0);dolphin.setXRot(0);dolphinActions=service.state(dolphin).age();
                     require(service.nearest(dolphin)==pursuit&&base.owner.level().getBlockState(solid).is(LbcPozdmanBot.SOLID),"native source starts inside actual solid tag with eligible pursuit out of contact cell");begin(6);}
                 case 6->{
@@ -183,7 +208,7 @@ public final class PozdmanChecks {
         @Override public void close(){
             if(closed)return;closed=true;Throwable failure=null;
             for(Runnable action:List.<Runnable>of(()->game.vanity().stop(),()->game.items().timeStop().end(base.owner.level()),service::stop,
-                    ()->{removeMarker(mag);if(techPos!=null)base.block(techPos,Blocks.AIR);if(bomb!=null)bomb.discard();},
+                    ()->{removeMarker(mag);removeActorTech();if(techPos!=null)base.block(techPos,Blocks.AIR);for(var saved:actorTechSnapshots.entrySet())game.maps().restoreSnapshot(base.owner.level(),saved.getKey(),saved.getValue());if(bomb!=null)bomb.discard();},
                     ()->{if(client!=null)client.close();if(audience!=null)audience.close();},base::close,
                     ()->teams.forEach((p,value)->game.items().mana().score(p,"team_number").set(value))))try{action.run();}catch(Throwable error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             if(failure!=null)throw new IllegalStateException("Pozdman scheduled scoped restoration",failure);

@@ -36,7 +36,7 @@ final class TabPresentation {
     private static void space(StringBuilder text,int pixels){while(pixels!=0){int step=Math.max(-16,Math.min(16,pixels));text.append((char)(0xE200+step+16));pixels-=step;}}
     private static Component spacing(int width){var text=new StringBuilder();space(text,width);return Component.literal(text.toString()).setStyle(HEART_STYLE);}
     private static Component number(String value,int color){var text=new StringBuilder();for(int i=0;i<value.length();i++){int digit=DIGITS.indexOf(value.charAt(i));if(digit<0)throw new IllegalArgumentException(value);text.append((char)(0xE100+digit));space(text,NUMBER_CELL-NUMBER_ADVANCES[digit]);}return Component.literal(text.toString()).setStyle(HEART_STYLE.withColor(color));}
-    private static String healthNumber(int score){return score/2+((score&1)==0?".0":".5");}
+    private static String healthNumber(int score){return Integer.toString(score/2+score%2);}
     private static int heartWidth(int score){if(score<=0)return 0;int slots=Math.max(score,20)/2,step=Math.min(86/slots,9);return step<=3?healthNumber(score).length()*NUMBER_CELL:(Math.max((score+1)/2,slots)-1)*step+9;}
     static Component score(int health,int ping){
         var result=hearts(health).copy().append(spacing(90-heartWidth(health)+4));String value=ping<0?"-":Integer.toString(ping);

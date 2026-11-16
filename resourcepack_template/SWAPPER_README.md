@@ -6,10 +6,13 @@ these are suggested placeholder translations for your wording. Failure key:
 
 Add sound event `minecraft:lbcsounds.swap_charge` to your sound definitions
 and supply the charging audio (nominal charge is0.5 seconds).
-Only the charging player hears it. Add `minecraft:lbcsounds.swap_go` for successful
+Players within 16 blocks in the same dimension hear it at the charging position.
+The client carrier is paper, so vanilla does not predict throwing/debiting a snowball.
+Add `minecraft:lbcsounds.swap_go` for successful
 swaps; it is sent once to each of the two participants after success. Failure, success, item/role/life retirement
-and match stop send StopSound for this event/category MASTER. This avoids one
-player cancelling another player's charging sound. No audio asset is supplied.
+and match stop send StopSound to the original listeners for this event/category
+MASTER. A listener hearing another active charge keeps that sound until the last
+charge ends. No audio asset is supplied.
 
 Swapper changes no blocks. Ten active ticks stationary; camera rotation allowed.
 Moving, changing the held stack or entering TECH/strong antimagic cancels without
