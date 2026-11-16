@@ -58,6 +58,10 @@ final class MatchGoalFields {
         if(goal instanceof NearestHealableRaiderTargetGoal<?>)image.save(NearestHealableRaiderTargetGoal.class,"cooldown");
         if(goal instanceof NearestAttackableWitchTargetGoal<?>)image.save(NearestAttackableWitchTargetGoal.class,"canAttack");
         if(goal instanceof FollowFlockLeaderGoal)image.save(FollowFlockLeaderGoal.class,"timeToRecalcPath","nextStartTick");
+        if(goal instanceof BegGoal)image.save(BegGoal.class,"player","lookTime");
+        if(goal instanceof DolphinJumpGoal)image.save(DolphinJumpGoal.class,"breached");
+        if(goal instanceof FollowPlayerRiddenEntityGoal)image.save(FollowPlayerRiddenEntityGoal.class,"timeToRecalcPath","following","currentGoal");
+        if(goal instanceof ZombieAttackGoal)image.save(ZombieAttackGoal.class,"raiseArmTicks");
         return image.values.isEmpty()?null:image;
     }
     private MatchGoalFields(Mob owner,Goal goal){
@@ -133,6 +137,7 @@ final class MatchGoalFields {
             owner.setPathfindingMalus(PathType.WATER,(Float)values.get(field(type,"oldWaterCost")));
         }
         if(wasRunning&&goal instanceof OcelotAttackGoal)owner.getNavigation().stop();
+        if(wasRunning&&goal instanceof BegGoal)((net.minecraft.world.entity.animal.wolf.Wolf)owner).setIsInterested(false);
     }
     private static Field field(Class<?> type,String name){
         try{var result=type.getDeclaredField(name);result.setAccessible(true);return result;}

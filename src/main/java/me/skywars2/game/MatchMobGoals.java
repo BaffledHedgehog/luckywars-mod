@@ -24,6 +24,7 @@ final class MatchMobGoals {
     private final Map<TargetGoal,Target> targets=new IdentityHashMap<>();
     private final Map<BreedGoal,Breeding> breeding=new IdentityHashMap<>();
     private final Map<Goal,MatchGoalFields> common=new IdentityHashMap<>();
+    private final Map<SpearUseGoal<?>,MatchSpearGoal> spears=new IdentityHashMap<>();
     private final MatchRetainedGoals retained;
 
     MatchMobGoals(Mob mob) {
@@ -38,6 +39,7 @@ final class MatchMobGoals {
         if(goal instanceof RangedAttackGoal attack)ranged.computeIfAbsent(attack,Ranged::new);
         if(goal instanceof TargetGoal target)targets.computeIfAbsent(target,Target::new);
         if(goal instanceof BreedGoal task)breeding.computeIfAbsent(task,Breeding::new);
+        if(goal instanceof SpearUseGoal<?> spear)spears.computeIfAbsent(spear,key->new MatchSpearGoal(owner,key)).wasRunning|=running;
         var task=common.computeIfAbsent(goal,key->MatchGoalFields.capture(owner,key));
         if(task!=null)task.wasRunning|=running;
     }
@@ -52,6 +54,7 @@ final class MatchMobGoals {
         targets.values().forEach(Target::restore);
         breeding.values().forEach(Breeding::restore);
         common.values().forEach(MatchGoalFields::restore);
+        spears.values().forEach(MatchSpearGoal::restore);
         selectors.forEach(Selector::restore);
     }
     void captureReferences(MatchDamageSources sources){
@@ -59,6 +62,7 @@ final class MatchMobGoals {
         targets.values().forEach(target->target.captureReferences(sources));
         breeding.values().forEach(task->task.captureReferences(sources));
         common.values().forEach(task->task.captureReferences(sources));
+        spears.values().forEach(task->task.captureReferences(sources));
     }
     void restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending) {
         for(var attack:ranged.values()) {
@@ -91,6 +95,9 @@ final class MatchMobGoals {
             write(task.goal,BreedGoal.class,"partner",resolved);
         }
         for(var task:common.values())if(task.restoreReferences(lookup,pending)){
+            task.absent();for(var selector:selectors)selector.retire(task.goal);
+        }
+        for(var task:spears.values())if(task.restoreReferences(lookup,pending)){
             task.absent();for(var selector:selectors)selector.retire(task.goal);
         }
     }

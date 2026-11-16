@@ -219,7 +219,6 @@ public final class MatchActorCheckpoint {
                     var target=MatchDamageSources.resolve(image.target,this::resolve,pending);
                     ((ActorCheckpointAccess.Target)actor).skywars2$target(target instanceof LivingEntity living?living:null);
                 }
-                image.state.restoreGoalReferences(this::resolve,pending);
                 if(actor instanceof Projectile shot) {
                     var owner=MatchDamageSources.resolveNative(image.owner,image.ownerResolved,this::resolve,pending);
                     if(image.owner==null||owner!=null)shot.setOwner(owner);
@@ -268,6 +267,8 @@ public final class MatchActorCheckpoint {
             }
             if(omitted.isEmpty())playerLinks.restore(this::resolve,pending);else restorePlayerLedgers(pending);
             combat.restore(this::resolve,pending);
+            // Task absence may clear active use/kinetic state. Finish it AFTER the native combat image.
+            for(var image:images.values())if(!omitted.contains(image.uuid))image.state.restoreGoalReferences(this::resolve,pending);
             views.restore(this::resolve,pending);
         }));
         return Set.copyOf(pending);

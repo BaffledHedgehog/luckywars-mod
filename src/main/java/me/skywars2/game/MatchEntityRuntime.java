@@ -28,7 +28,8 @@ final class MatchEntityRuntime {
         worldTime=entity.level().getGameTime();using=entity instanceof LivingEntity living&&living.isUsingItem();
         usedHand=entity instanceof LivingEntity living?living.getUsedItemHand():net.minecraft.world.InteractionHand.MAIN_HAND;
         capture(Entity.class,entity,"tickCount","remainingFireTicks","invulnerableTime","portalCooldown","fallDistance",
-                "onGround","onGroundNoBlocks","noPhysics","firstTick","xRotO","yRotO","moveDist","flyDist","nextStep","hasVisualFire","boardingCooldown");
+                "onGround","onGroundNoBlocks","noPhysics","firstTick","xRotO","yRotO","moveDist","flyDist","nextStep","hasVisualFire","boardingCooldown",
+                "lastKnownSpeed","lastKnownPosition");
         if(entity instanceof LivingEntity) {
             capture(LivingEntity.class,entity,"attackStrengthTicker","itemSwapTicker","hurtTime","hurtDuration","deathTime","damageCooldownTime",
                 "dead","noActionTime","lastHurt","jumping","xxa","yya","zza","speed","noJumpDelay","fallFlyTicks","useItemRemaining",

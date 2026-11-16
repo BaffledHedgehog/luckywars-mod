@@ -88,7 +88,7 @@ review; recording a retained task reference alone does not close those owners.
 
 Ten further schemas cover door interaction, movement to blocks and through
 villages, owner retaliation/assistance, and selected anger/raider target phases.
-The common table now names 84 simple fields across 29 classes, plus an explicit
+The common table now names 91 simple fields across 33 classes, plus an explicit
 village position-history container. Mutable block positions restore their saved
 coordinates on the original object; position histories restore their original
 list and member aliases. No arbitrary collection or object graph is traversed.
@@ -126,6 +126,27 @@ caches. Native checks cover five admitted task types, repeated initial-capture
 omission, historical same-UUID aliases, and restoration of the full original
 state afterward. Accepted damage history keeps its physical author independently
 of AI target omission; combat-source reference rules remain unchanged.
+
+Common task images also retain wolf begging duration/target, dolphin breach state,
+boat-rider following target/direction phase and zombie arm timing. The body image
+preserves native last-known speed and position, which control recent-movement
+admission independently of current delta movement. Native checks exercise the
+same remaining pose durations, one-time breach sound, a real controlling boat
+passenger with changed motion history, and an accepted zombie hit followed by
+the same delayed raised-arm transition.
+
+`MatchSpearGoal` preserves the original native `SpearUseState` instance and its
+four reviewed fields: engagement time, fleeing time, immutable retreat vector and
+completion flag. Native active-use data and kinetic hit history remain owned by
+the existing body/combat images. Task dependency replay runs after combat replay
+so retirement for an omitted target can clear use state and the kinetic ledger
+without a later image overwriting those stop values. Retirement writes native
+data directly instead of emitting an item-use finish vibration. Checks mutate
+the original state through native retreat, restart into a different state object,
+restore the original alias twice, and verify active use, accepted stab history,
+absence cleanup and zero replayed finish events. The event-control fixture enables
+the item vibration component explicitly; ordinary spear defaults do not emit it.
+These task adapters remain under the OFF-by-default native goal experiment.
 
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners
