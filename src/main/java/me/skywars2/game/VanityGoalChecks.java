@@ -45,6 +45,7 @@ public final class VanityGoalChecks {
         VanityDoorGoalChecks doors;
         VanitySpeciesGoalChecks species;
         VanityPoiStorageChecks poiStorage;
+        VanityPoiCoordinatorChecks poiCoordinator;
         float health;boolean closed;
         Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);}
         void begin(){
@@ -68,7 +69,8 @@ public final class VanityGoalChecks {
             when=game.server().getTickCount();
         }
         boolean step(){
-            if(poiStorage!=null)return poiStorage.step();
+            if(poiCoordinator!=null)return poiCoordinator.step();
+            if(poiStorage!=null){if(!poiStorage.step())return false;poiCoordinator=new VanityPoiCoordinatorChecks(game,f);return false;}
             if(species!=null){if(!species.step())return false;poiStorage=new VanityPoiStorageChecks(game,f);return false;}
             if(doors!=null){if(!doors.step())return false;species=new VanitySpeciesGoalChecks(game,f);return false;}
             if(creeper!=null){if(!creeper.step())return false;doors=new VanityDoorGoalChecks(game,f);return false;}
@@ -124,6 +126,6 @@ public final class VanityGoalChecks {
             require(WoolBucketChecks.read(melee,"path")==goalPath,"original goal-owned path reference restored");
             require((Long)WoolBucketChecks.read(melee,"lastCanUseCheck")==lastCheck+f.level.getGameTime()-capturedAt,"native can-use timestamp retains world-clock age");
         }
-        @Override public void close(){if(closed)return;closed=true;try{if(poiStorage!=null)poiStorage.close();}finally{try{if(species!=null)species.close();}finally{try{if(doors!=null)doors.close();}finally{f.close();}}}}
+        @Override public void close(){if(closed)return;closed=true;try{if(poiCoordinator!=null)poiCoordinator.close();}finally{try{if(poiStorage!=null)poiStorage.close();}finally{try{if(species!=null)species.close();}finally{try{if(doors!=null)doors.close();}finally{f.close();}}}}}
     }
 }

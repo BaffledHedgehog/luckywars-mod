@@ -12,7 +12,7 @@ import net.minecraft.world.level.lighting.DynamicGraphMinFixedPoint;
 import net.minecraft.world.level.lighting.LeveledPriorityQueue;
 
 /** Memory phase only. Cold POI storage and I/O must be restored/settled by their separate owner first.
- * Not wired into actor replay until that persistent-storage phase is implemented. */
+ * Composed by MatchPoiCheckpoint with its persistent-storage phases. */
 final class MatchPoiMemory {
     private final ServerLevel level;
     private final PoiManager owner;

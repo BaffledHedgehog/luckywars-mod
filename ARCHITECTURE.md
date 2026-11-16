@@ -98,7 +98,7 @@ replays, saved-data codec output, original containers, RNG, UI packets and both
 omission cases. Village POI services and Brain continuation remain under audit;
 this does not enable the unfinished goal-image experiment.
 
-`MatchPoiMemory` implements a separate, currently unconnected POI memory phase.
+`MatchPoiMemory` implements the memory phase of `MatchPoiCheckpoint`.
 It retains the original section table and optional rows, ordered dirty queue,
 both native loaded/validation-request sets, original sections and their position
 and type indexes/sets, record identities/free tickets and callback bindings.
@@ -111,9 +111,10 @@ original lock; outstanding futures are neither copied nor cancelled. Native test
 use registration, ticket take/release, replacement, real prefetch and validation,
 then resume the distance consumer after three memory restores. They preserve the
 native distinction between an unknown node (7) and a touched removed center (6).
-This is not yet connected to actor replay. Its storage partner below still needs
-coordinator and source/reset lifecycle integration. No village block-discovery,
-complete actor/POI rollback or `StrollThroughVillageGoal` admission is claimed here.
+The full coordinator composes it with the storage partner below. Actual block
+discovery, occupied tickets and disk/cache agreement are checked through repeated
+full rewinds in two dimensions. This is not complete village AI/Brain continuation
+or `StrollThroughVillageGoal` admission.
 
 `MatchPoiStorage` journals the first subsequent write to a chunk that was cold at
 capture by enqueueing a native old-tag read before the native store on the same
@@ -127,13 +128,24 @@ Intermediate automatic writes are acknowledged only after resuming and their
 suppliers are not evaluated. Frozen server frames poll actual asynchronous cold
 writes/flushes, restore and encode loaded memory, flush and settle pending parses,
 then restore memory again. Caller-controlled resume follows the remaining world
-phases. `closeAsync` detaches the journal and drains owned I/O before lifecycle
-replacement; callers must await it before replacing the owner/world.
+phases. `closeAsync` detaches the journal, prevents any later restore continuation
+from enqueueing old writes and drains already queued I/O. It releases the restore
+lease immediately so subsequent reset/map writes enter the native FIFO normally.
+Previously discarded intermediate saves are acknowledged after the drain.
 
 Native file/codec checks cover independent points, repeated rewinds, unknown tag
 fields, originally absent chunks, actual cache reload and deferred Supplier saves.
-This restores logical native data, not byte-identical region allocation. Integration
-with full actor capture/restore, source disposal and reset remains unfinished.
+`MatchPoiCheckpoint` owns these images in every existing dimension, gated by the
+unfinished native-goal experiment. Snapshot capture attaches journals last and
+waits for a stable pending-load/lease boundary. After terrain replay the frozen
+coordinator polls POI I/O across frames, restores native cache/storage, then restores
+bodies and publishes views. Its final memory replay runs immediately before
+resuming simulation, covering POI changes made by body load callbacks. Replacing
+or stopping a point disposes its journals; later captures await retired drains.
+The native full-coordinator fixture checks three rewinds, point replacement and
+awaited disposal after actual composter block discovery in Overworld and Nexus.
+This restores logical native data, not byte-identical region allocation; it does
+not qualify complete native AI, abrupt process termination or client performance.
 
 Native checks cover look expiry/direction, parent/owner/mob route phases and water
 costs changed by real future lifecycle calls, temptation cooldown, avoidance path

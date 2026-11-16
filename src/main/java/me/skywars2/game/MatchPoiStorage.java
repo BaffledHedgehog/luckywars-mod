@@ -12,7 +12,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.*;
 
-/** Logical POI write journal and asynchronous storage/memory phases. Actor coordinator integration is separate. */
+/** Logical POI write journal and asynchronous storage/memory phases for a reusable save point. */
 public final class MatchPoiStorage {
     private static final Object REGISTRY_LOCK=new Object();
     private static final Map<IOWorker,Set<MatchPoiStorage>> OWNERS=new IdentityHashMap<>();
@@ -32,9 +32,16 @@ public final class MatchPoiStorage {
     private Restore restoring;
     private CompletableFuture<Void> closing;
 
+    static boolean captureReady(ServerLevel level){
+        if(!MatchPoiMemory.ready(level))return false;
+        var storage=read(level.getPoiManager(),SectionStorage.class,"simpleRegionStorage");
+        var worker=read(storage,SimpleRegionStorage.class,"worker");
+        synchronized(REGISTRY_LOCK){return !RESTORES.containsKey(worker);}
+    }
     MatchPoiStorage(ServerLevel level){
         this.level=level;requireThread(false);
         if(!MatchMobGoals.enabled())throw new IllegalStateException("POI checkpoint storage belongs to the unfinished native goal experiment");
+        if(!captureReady(level))throw new IllegalStateException("Native POI storage is not ready for a new point");
         owner=level.getPoiManager();memory=new MatchPoiMemory(level);known=memory.loadedChunkKeys();
         storage=(SimpleRegionStorage)read(owner,SectionStorage.class,"simpleRegionStorage");worker=(IOWorker)read(storage,SimpleRegionStorage.class,"worker");
         synchronized(REGISTRY_LOCK){OWNERS.computeIfAbsent(worker,key->Collections.newSetFromMap(new IdentityHashMap<>())).add(this);tracking=true;}
@@ -105,6 +112,13 @@ public final class MatchPoiStorage {
             }
         }
         /** Caller invokes this only after all remaining frozen world/body phases have finished. */
+        boolean readyToResumeFrozen(){
+            requireThread(true);validate();
+            synchronized(MatchPoiStorage.this){
+                requireActive();if(phase!=2)throw new IllegalStateException("Finish POI storage phases before resuming writes");
+                owner.tick(()->false);return MatchPoiMemory.ready(level);
+            }
+        }
         boolean resumeFrozen(){
             requireThread(true);
             synchronized(MatchPoiStorage.this){
@@ -123,6 +137,10 @@ public final class MatchPoiStorage {
         closing=wait.handle((value,error)->null).thenCompose(ignored->storage.synchronize(restoring!=null)).whenComplete((value,error)->{
             synchronized(MatchPoiStorage.this){releaseLease();if(restoring!=null){if(error==null)restoring.completion.complete(null);else restoring.completion.completeExceptionally(error);}}
         });
+        // The CLOSED guard and this monitor prevent any later restore continuation from
+        // queuing old writes. Already queued stores precede all subsequent native stores.
+        // Release now so map/reset writes are never discarded behind a retired point's lease.
+        releaseLease();
         return closing;
     }
     private void releaseLease(){synchronized(REGISTRY_LOCK){RESTORES.remove(worker,this);tracking=!OWNERS.isEmpty()||!RESTORES.isEmpty();}}

@@ -8,13 +8,14 @@ import java.util.UUID;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.concurrent.CompletableFuture;
 import me.skywars2.SkyWars2;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 /** Match-scoped save point, driven after normal simulation, never recursively from a death callback. */
 public final class LbcVanityRollback {
-    private enum Phase { IDLE, REQUESTED, TERRAIN, BODIES, PUBLICATION, LOGIN, REBINDING, FAILED }
+    private enum Phase { IDLE, REQUESTED, TERRAIN, POI, BODIES, PUBLICATION, LOGIN, REBINDING, FAILED }
     private final GameController game;
     private final Map<UUID,MatchPlayerCheckpoint> pendingPlayers=new LinkedHashMap<>();
     private final Set<UUID> restoringLogins=new LinkedHashSet<>();
@@ -25,6 +26,8 @@ public final class LbcVanityRollback {
     private MatchRollbackSnapshot image;
     private MatchRollbackSnapshot captureFrom;
     private MatchTerrainCheckpoint.Restore terrain;
+    private MatchPoiCheckpoint.Restore poiRestore;
+    private final List<CompletableFuture<Void>> retiredPois=new ArrayList<>();
     private MatchRuntimeRebind rebind;
     private UUID requested;
     private boolean claim,granted,previousFreeze,privateInstalled,scheduledCapture;
@@ -41,6 +44,7 @@ public final class LbcVanityRollback {
             ||phase==Phase.REQUESTED&&granted&&player.getUUID().equals(requested);}
     public boolean hasSnapshot(){return image!=null&&game.items().currentEpoch(image.epoch);}
     public String status(){return phase+(!waitReason.isEmpty()?": "+waitReason:"");}
+    CompletableFuture<Void> poiRetirement(){return CompletableFuture.allOf(retiredPois.toArray(CompletableFuture[]::new));}
     VanityCheckpointSchedule.State scheduleState(){return schedule==null?null:schedule.state();}
     VanityCheckpointSchedule.State scheduleAfterCapture(){return schedule==null?null:schedule.afterCapture();}
     void restoreSchedule(VanityCheckpointSchedule.State state){schedule=state==null?null:new VanityCheckpointSchedule(state);}
@@ -95,7 +99,11 @@ public final class LbcVanityRollback {
                 boolean done;
                 do{done=terrain.step(131072);}while(!done&&System.nanoTime()<deadline);
                 if(!done)return;
-                terrain.close();terrain=null;restoreBodies();phase=Phase.PUBLICATION;
+                terrain.close();terrain=null;poiRestore=image.pois.beginRestoreFrozen();phase=Phase.POI;
+            }
+            if(phase==Phase.POI){
+                if(!poiRestore.tickFrozen()){waitReason="waiting for native POI storage";return;}
+                restoreBodies();phase=Phase.PUBLICATION;
             }
             if(phase==Phase.PUBLICATION)publish();
             if((phase==Phase.IDLE||phase==Phase.LOGIN)&&!restoringLogins.isEmpty())restoreLogins();
@@ -129,6 +137,8 @@ public final class LbcVanityRollback {
         game.items().stonekivi().tick();
         if(!independentTerrainReady()){waitReason="waiting for structure writes to finish";return;}
         if(!MatchActorCheckpoint.prepareResident(game)){waitReason="waiting for native actor chunks";return;}
+        retiredPois.removeIf(work->{if(!work.isDone())return false;work.join();return true;});
+        if(!retiredPois.isEmpty()||!MatchPoiCheckpoint.ready(game)){waitReason="waiting for native POI capture boundary";return;}
         // First establish a usable save point; granting below is a separate entry boundary.
         if(claim&&!granted){
             // Admission does not copy the terrain. The point is captured once, after the
@@ -141,6 +151,7 @@ public final class LbcVanityRollback {
         var candidate=privateData(()->new MatchRollbackSnapshot(game,captureFrom));
         pendingPlayers.forEach(candidate.players::putIfAbsent);
         if(captureFrom!=null)candidate.levelups=candidate.levelups.withPending(captureFrom.levelups,pendingPlayers.keySet());
+        if(captureFrom!=null)retiredPois.add(captureFrom.pois.closeAsync());
         image=candidate;captureFrom=null;image.terrain.retain(game);restoreSchedule(image.vanitySchedule);
         restoringLogins.clear();requested=null;claim=false;granted=false;waitReason="";phase=Phase.IDLE;
         game.items().duplicating().endCheckpointDrain();
@@ -219,6 +230,8 @@ public final class LbcVanityRollback {
             if(!game.isObserver(player)&&player.getCamera() instanceof LbcFpvDrone.Drone&&!game.items().fpvDrone().controlling(player))player.setCamera(player);
         game.items().duplicating().endCheckpointDrain();game.players().save();game.config().save();
         restoreSchedule(image.vanitySchedule);
+        if(poiRestore!=null&&!poiRestore.resumeFrozen()){waitReason="waiting for final native POI reads";return;}
+        poiRestore=null;
         phase=Phase.IDLE;waitReason="";game.server().tickRateManager().setFrozen(previousFreeze);
         SkyWars2.LOGGER.info("[vanity] Rewind finished in {} ms; {} offline player images retained",
                 (System.nanoTime()-restoreStarted)/1_000_000.0,pendingPlayers.size());
@@ -302,6 +315,9 @@ public final class LbcVanityRollback {
             }
         }
         if(terrain!=null){terrain.close();terrain=null;}
+        if(image!=null)retiredPois.add(image.pois.closeAsync());
+        if(captureFrom!=null&&captureFrom!=image)retiredPois.add(captureFrom.pois.closeAsync());
+        poiRestore=null;
         image=null;captureFrom=null;schedule=null;scheduledCapture=false;requested=null;claim=false;granted=false;privateInstalled=false;pendingPlayers.clear();restoringLogins.clear();waitReason="";
         retainedBodies.clear();logoutBodies.clear();awaitingRebind.clear();rebind=null;preparedOffline.clear();
         game.items().duplicating().endCheckpointDrain();

@@ -16,6 +16,7 @@ final class MatchRollbackSnapshot {
     final MatchWorldCheckpoint world;
     final LbcBedwarsAuxiliaries.StorageImage bedwarsStorage;
     final MatchWorldRandomCheckpoint random;
+    final MatchPoiCheckpoint pois;
     final MatchActorCheckpoint actors;
     final Map<UUID,MatchPlayerCheckpoint> players=new LinkedHashMap<>();
     final LbcTimeStop.Checkpoint timeStop;
@@ -70,6 +71,8 @@ final class MatchRollbackSnapshot {
         core=new MatchCoreCheckpoint(game);world=new MatchWorldCheckpoint(game);
         for(var player:game.server().getPlayerList().getPlayers())players.put(player.getUUID(),new MatchPlayerCheckpoint(game,player));
         terrain=MatchTerrainCheckpoint.captureLoaded(game);random=new MatchWorldRandomCheckpoint(game);
+        // Attach persistent journals last: failures in the other capture owners cannot leak them.
+        pois=new MatchPoiCheckpoint(game);
         captureNanos=System.nanoTime()-start;
         SkyWars2.LOGGER.info("[vanity] Captured {} chunks, {} actors and {} players in {} ms",
                 terrain.chunks(),actors.size(),players.size(),captureNanos/1_000_000.0);
@@ -78,8 +81,10 @@ final class MatchRollbackSnapshot {
     /** Pending offline rows belong to this reusable point, including rows inherited through earlier replacements. */
     MatchRollbackSnapshot(GameController game,MatchRollbackSnapshot previous){
         this(game);if(previous==null)return;
-        polymorph=polymorph.withPending(previous.polymorph);fields=fields.withPending(previous.fields);
-        auras=auras.withPending(previous.auras);aim=aim.withPending(previous.aim);
+        try{
+            polymorph=polymorph.withPending(previous.polymorph);fields=fields.withPending(previous.fields);
+            auras=auras.withPending(previous.auras);aim=aim.withPending(previous.aim);
+        }catch(Throwable failure){pois.closeAsync();throw failure;}
     }
 
     void prepareFrozen(GameController game){
