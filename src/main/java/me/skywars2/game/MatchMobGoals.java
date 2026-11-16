@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.*;
 import net.minecraft.world.level.pathfinder.Path;
 
 /** Original native selector identities and reviewed melee continuation; no goal lifecycle callbacks on replay. */
@@ -19,6 +20,7 @@ final class MatchMobGoals {
     private final Map<Goal,EnumSet<Goal.Flag>> flags=new IdentityHashMap<>();
     private final Map<MeleeAttackGoal,Melee> attacks=new IdentityHashMap<>();
     private final Map<RangedAttackGoal,Ranged> ranged=new IdentityHashMap<>();
+    private final Map<TargetGoal,Target> targets=new IdentityHashMap<>();
 
     MatchMobGoals(Mob mob) {
         owner=mob;worldTime=mob.level().getGameTime();
@@ -32,9 +34,13 @@ final class MatchMobGoals {
         long delta=owner.level().getGameTime()-worldTime;
         attacks.values().forEach(attack->attack.restore(delta));
         ranged.values().forEach(Ranged::restore);
+        targets.values().forEach(Target::restore);
         selectors.forEach(Selector::restore);
     }
-    void captureReferences(MatchDamageSources sources){ranged.values().forEach(attack->attack.captureReferences(sources));}
+    void captureReferences(MatchDamageSources sources){
+        ranged.values().forEach(attack->attack.captureReferences(sources));
+        targets.values().forEach(target->target.captureReferences(sources));
+    }
     void restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending) {
         for(var attack:ranged.values()) {
             if(!attack.referencesCaptured)continue;
@@ -49,6 +55,9 @@ final class MatchMobGoals {
             }
             if(resolved!=null&&!(resolved instanceof LivingEntity))throw new IllegalStateException("Native ranged target resolved to a non-living body");
             write(attack.goal,RangedAttackGoal.class,"target",resolved);
+        }
+        for(var target:targets.values())if(target.restoreReferences(lookup,pending)){
+            target.absent();for(var selector:selectors)selector.retire(target.goal);
         }
     }
     private final class Selector {
@@ -68,6 +77,7 @@ final class MatchMobGoals {
                 flags.computeIfAbsent(goal,key->key.getFlags().clone());
                 if(goal instanceof MeleeAttackGoal attack)attacks.computeIfAbsent(attack,Melee::new);
                 if(goal instanceof RangedAttackGoal attack)ranged.computeIfAbsent(attack,Ranged::new);
+                if(goal instanceof TargetGoal target)targets.computeIfAbsent(target,Target::new);
             }
         }
         void retireFuture() {
@@ -117,6 +127,43 @@ final class MatchMobGoals {
         void restore(){values.forEach((field,value)->set(field,goal,value));}
         void captureReferences(MatchDamageSources sources){targetRef=sources.bodyRef(target);referencesCaptured=true;}
         void absent(){write(goal,RangedAttackGoal.class,"target",null);write(goal,RangedAttackGoal.class,"attackTime",-1);write(goal,RangedAttackGoal.class,"seeTime",0);}
+    }
+    /** Reviewed target base, nearest-search cache and body-local retaliation stamp; not arbitrary subclasses. */
+    private static final class Target {
+        final TargetGoal goal;
+        final Map<Field,Object> values=new LinkedHashMap<>();
+        final Map<Field,LivingEntity> bodies=new LinkedHashMap<>();
+        final Map<Field,MatchDamageSources.Ref> references=new LinkedHashMap<>();
+        boolean referencesCaptured;
+        Target(TargetGoal goal){
+            this.goal=goal;
+            for(String name:List.of("reachCache","reachCacheTime","unseenTicks","unseenMemoryTicks"))save(TargetGoal.class,name);
+            body(TargetGoal.class,"targetMob");
+            if(goal instanceof NearestAttackableTargetGoal<?>)body(NearestAttackableTargetGoal.class,"target");
+            if(goal instanceof HurtByTargetGoal)save(HurtByTargetGoal.class,"timestamp");
+        }
+        void save(Class<?> type,String name){Field field=field(type,name);values.put(field,get(field,goal));}
+        void body(Class<?> type,String name){save(type,name);Field field=field(type,name);bodies.put(field,(LivingEntity)get(field,goal));}
+        void restore(){values.forEach((field,value)->set(field,goal,value));}
+        void captureReferences(MatchDamageSources sources){bodies.forEach((field,body)->references.put(field,sources.bodyRef(body)));referencesCaptured=true;}
+        boolean restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending){
+            if(!referencesCaptured)return false;
+            boolean absent=false;
+            for(var entry:references.entrySet()){
+                var ref=entry.getValue();Entity resolved=MatchDamageSources.resolve(ref,lookup,pending);
+                if(ref!=null&&resolved==null){
+                    if(!MatchDamageSources.intentionallyAbsent(ref.id()))continue;
+                    absent=true;
+                }
+                if(resolved!=null&&!(resolved instanceof LivingEntity))throw new IllegalStateException("Native target task resolved to a non-living body");
+                set(entry.getKey(),goal,resolved);
+            }
+            return absent;
+        }
+        void absent(){
+            bodies.keySet().forEach(field->set(field,goal,null));
+            for(String name:List.of("reachCache","reachCacheTime","unseenTicks"))write(goal,TargetGoal.class,name,0);
+        }
     }
     private static Field field(Class<?> type,String name) {
         try{var field=type.getDeclaredField(name);field.setAccessible(true);return field;}

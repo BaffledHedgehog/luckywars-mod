@@ -33,6 +33,16 @@ callbacks, so it cannot run with an empty cache. Native tests cover two actual
 delayed volleys, real player death/replacement, pending and intentionally absent
 players, repeated link replay and real login. This remains an experimental subset.
 
+The target-task image also retains `TargetGoal`'s reach cache, remaining sight
+memory and fallback target, the separate `NearestAttackableTargetGoal` cache and
+`HurtByTargetGoal`'s consumed damage timestamp. That timestamp follows the restored
+body's local tick count; it is not rebased onto world time. Target references use
+the same actor link phase and absent-player policy as ranged attacks. Native
+checks cover search through actual occlusion, identical remaining expiry after
+two restores, no duplicate retaliation for restored damage, and player-body
+replacement/login. Other target subclasses' private fields remain unreviewed,
+and the experiment remains OFF by default.
+
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners
 restore and publish those abilities afterward. A retained offline rocket-boot

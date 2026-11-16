@@ -68,6 +68,7 @@ public final class VanityActorChecks {
         Skeleton skeleton;
         net.minecraft.world.entity.animal.golem.SnowGolem rangedMob;
         net.minecraft.world.entity.ai.goal.RangedAttackGoal rangedGoal;
+        net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<ServerPlayer> playerTarget;
         int rangedDelay,rangedVisibility;
         Snowball shot;
         Snowball unowned;
@@ -137,7 +138,10 @@ public final class VanityActorChecks {
                 rangedMob=add(new net.minecraft.world.entity.animal.golem.SnowGolem(EntityTypes.SNOW_GOLEM,base.owner.level()),at.add(0,0,7));
                 var selector=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"goalSelector");
                 selector.removeAllGoals(goal->true);
-                ((net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"targetSelector")).removeAllGoals(goal->true);
+                var targets=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"targetSelector");targets.removeAllGoals(goal->true);
+                playerTarget=new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<>(rangedMob,ServerPlayer.class,0,false,false,(entity,level)->entity.getUUID().equals(id));
+                targets.addGoal(1,playerTarget);targets.tick();
+                require(WoolBucketChecks.read(playerTarget,"target")==gamma,"native target search really caches the current player");
                 rangedGoal=new net.minecraft.world.entity.ai.goal.RangedAttackGoal(rangedMob,1,20,20,10);
                 selector.addGoal(1,rangedGoal);rangedMob.setTarget(gamma);selector.tick();
                 require(WoolBucketChecks.read(rangedGoal,"target")==gamma&&selector.getAvailableGoals().iterator().next().isRunning(),"actual native ranged goal caches the real captured player body");
@@ -258,6 +262,8 @@ public final class VanityActorChecks {
             require(skeleton.getTargetUnchecked()==gamma&&shot.getOwner()==gamma&&cow.getLeashHolder()==gamma&&cow.getLeashData().angularMomentum==.37,"mob target/projectile owner/leash resolve current UUID session");
             if(rangedMob!=null)require(rangedMob.getTargetUnchecked()==gamma&&WoolBucketChecks.read(rangedGoal,"target")==gamma,
                     "ranged private cache follows the genuine replacement player body, not the removed captured body");
+            if(playerTarget!=null)require(WoolBucketChecks.read(playerTarget,"target")==gamma,
+                    "native target-search cache follows the genuine replacement and login body");
             if(rangedMob!=null)require((Integer)WoolBucketChecks.read(rangedGoal,"attackTime")==rangedDelay&&
                     (Integer)WoolBucketChecks.read(rangedGoal,"seeTime")==rangedVisibility,"canonical target binding does not restart native ranged counters");
             require(tethered.getLeashHolder()==knot&&tethered.getLeashData().angularMomentum==.19,"native fence-pos leash codec rebinds original knot immediately, without manufacturing another knot");
@@ -289,6 +295,9 @@ public final class VanityActorChecks {
                     require(rangedMob.getTargetUnchecked()==null&&WoolBucketChecks.read(rangedGoal,"target")==null&&
                             selector.getAvailableGoals().stream().noneMatch(goal->goal.getGoal()==rangedGoal&&goal.isRunning()),
                             "absent target cache is cleared only with its running task retired");
+                    var targets=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"targetSelector");
+                    require(WoolBucketChecks.read(playerTarget,"target")==null&&targets.getAvailableGoals().stream().noneMatch(goal->goal.getGoal()==playerTarget&&goal.isRunning()),
+                            "intentional player absence also retires native target selection and its cached player");
                     selector.tickRunningGoals(false);
                     require((Integer)WoolBucketChecks.read(rangedGoal,"attackTime")==-1,"absent task cannot shoot on the native half-step");
                 }

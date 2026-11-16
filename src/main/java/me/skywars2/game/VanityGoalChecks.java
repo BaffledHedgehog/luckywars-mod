@@ -27,8 +27,8 @@ public final class VanityGoalChecks {
     public static void tick(GameController game){
         if(running==null)return;var f=running;
         try{
-            require(f.game==game,"same match");if(!f.step())return;running=null;f.close();
-            SkyWars2.LOGGER.info("[check] PASS vanity-goals (actual native melee hit; selector/lock/flag/wrapper identity; no start/stop replay; saved melee cooldown/path/world age; repeated restoration and native delayed attacks)");
+            require(f.game==game,"same match");if(!f.step())return;VanityTargetGoalChecks.verify(game,f.f);running=null;f.close();
+            SkyWars2.LOGGER.info("[check] PASS vanity-goals (actual native melee hit; selector/lock/flag/wrapper identity; no start/stop replay; saved melee cooldown/path/world age; repeated delayed attacks; native target search, remaining sight-memory expiry and accepted-hurt deduplication)");
         }catch(Throwable error){running=null;try{f.close();}catch(Throwable cleanup){error.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL vanity-goals",error);}
     }
     private static int count(Object goal,String name){return (Integer)WoolBucketChecks.read(goal,name);}
