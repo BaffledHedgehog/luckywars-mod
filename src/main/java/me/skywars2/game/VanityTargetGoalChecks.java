@@ -6,6 +6,7 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
@@ -63,6 +64,52 @@ final class VanityTargetGoalChecks {
             require(WoolBucketChecks.read(retaliation,"targetMob")==cow,"restored native retaliation cache retains actual attacker");
             require(!retaliation.canUse(),"restored damage must not be treated as a new retaliation or alert");
         }
+        verifyRetaliationFilters(game,f,zombie,cow,selector);
+    }
+
+    private static void verifyRetaliationFilters(GameController game,WoolBucketChecks.Fixture f,Zombie zombie,Cow cow,GoalSelector selector){
+        selector.removeAllGoals(g->true);zombie.setTarget(null);
+        var neighbor=new Zombie(EntityTypes.ZOMBIE,f.level);neighbor.setPos(zombie.position().add(0,0,3));neighbor.setNoAi(true);
+        require(f.level.addFreshEntity(neighbor),"registered native neighbor for actual retaliation alerts");f.own(neighbor);
+        Class<?>[] damageTypes={Cow.class},alertTypes={Zombie.class};
+        var retaliation=new HurtByTargetGoal(zombie,damageTypes);selector.addGoal(1,retaliation);
+        zombie.tickCount+=10;zombie.damageCooldownTime=0;
+        require(zombie.hurtServer(f.level,zombie.damageSources().mobAttack(cow),1),"accepted native hit before damage filter selection");
+        require(!retaliation.canUse(),"constructor's caller-owned class array really prevents retaliation against cow");
+        var disabled=MatchActorCheckpoint.captureRegistered(game);
+        retaliation.setAlertOthers(alertTypes);
+        var enabled=MatchActorCheckpoint.captureRegistered(game);
+        var wrapper=selector.getAvailableGoals().iterator().next();
+        // A real later public call replaces the alert array; mutations of both originals must also rewind.
+        damageTypes[0]=Pig.class;alertTypes[0]=Pig.class;retaliation.setAlertOthers(Pig.class);
+        selector.tick();
+        require(wrapper.isRunning()&&zombie.getTargetUnchecked()==cow&&neighbor.getTargetUnchecked()==cow,
+                "future mutation admits actual native retaliation and alerts a nearby zombie");
+        for(int replay=0;replay<3;replay++){
+            restore(game,enabled);
+            require(WoolBucketChecks.read(retaliation,"toIgnoreDamage")==damageTypes&&damageTypes[0]==Cow.class,
+                    "final damage filter retains original caller array and saved contents");
+            require(WoolBucketChecks.read(retaliation,"toIgnoreAlert")==alertTypes&&alertTypes[0]==Zombie.class
+                    &&Boolean.TRUE.equals(WoolBucketChecks.read(retaliation,"alertSameType")),
+                    "enabled alert policy restores original replaced array, contents and flag");
+            require(!wrapper.isRunning()&&zombie.getTargetUnchecked()==null&&neighbor.getTargetUnchecked()==null&&!retaliation.canUse(),
+                    "replay clears future targets without re-alerting or admitting the ignored hit");
+            damageTypes[0]=Pig.class;selector.tick();
+            require(wrapper.isRunning()&&zombie.getTargetUnchecked()==cow&&neighbor.getTargetUnchecked()==null,
+                    "restored alert class filter suppresses actual native neighbor recruitment");
+            wrapper.stop();zombie.setTarget(null);zombie.tickCount+=10;zombie.damageCooldownTime=0;
+            alertTypes[0]=Pig.class;retaliation.setAlertOthers(Pig.class);
+            require(zombie.hurtServer(f.level,zombie.damageSources().mobAttack(cow),1),"fresh accepted hit for future recruitment");
+            selector.tick();
+            require(wrapper.isRunning()&&neighbor.getTargetUnchecked()==cow,"future public policy change really recruits neighbor again");
+        }
+        restore(game,disabled);
+        require(WoolBucketChecks.read(retaliation,"toIgnoreAlert")==null
+                &&Boolean.FALSE.equals(WoolBucketChecks.read(retaliation,"alertSameType"))
+                &&WoolBucketChecks.read(retaliation,"toIgnoreDamage")==damageTypes&&damageTypes[0]==Cow.class,
+                "earlier checkpoint restores null/disabled alert policy and same final caller array");
+        require(!wrapper.isRunning()&&!retaliation.canUse()&&neighbor.getTargetUnchecked()==null,
+                "earlier disabled image remains reusable after three enabled-policy replays");
     }
     private static void tick(Zombie mob,GoalSelector selector){mob.getSensing().tick();selector.tick();}
     private static int expire(Zombie mob,GoalSelector selector,WrappedGoal wrapper){

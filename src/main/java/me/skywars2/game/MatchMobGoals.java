@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
 import net.minecraft.world.entity.Entity;
@@ -175,6 +176,7 @@ final class MatchMobGoals {
     private static final class Target {
         final TargetGoal goal;
         final Map<Field,Object> values=new LinkedHashMap<>();
+        final Map<Class<?>[],Class<?>[]> classArrays=new IdentityHashMap<>();
         final Map<Field,LivingEntity> bodies=new LinkedHashMap<>();
         final Map<Field,MatchDamageSources.Ref> references=new LinkedHashMap<>();
         boolean referencesCaptured;
@@ -183,11 +185,29 @@ final class MatchMobGoals {
             for(String name:List.of("reachCache","reachCacheTime","unseenTicks","unseenMemoryTicks"))save(TargetGoal.class,name);
             body(TargetGoal.class,"targetMob");
             if(goal instanceof NearestAttackableTargetGoal<?>)body(NearestAttackableTargetGoal.class,"target");
-            if(goal instanceof HurtByTargetGoal)save(HurtByTargetGoal.class,"timestamp");
+            if(goal instanceof HurtByTargetGoal){
+                save(HurtByTargetGoal.class,"timestamp");
+                save(HurtByTargetGoal.class,"alertSameType");
+                classArray("toIgnoreDamage");classArray("toIgnoreAlert");
+            }
         }
         void save(Class<?> type,String name){Field field=field(type,name);values.put(field,get(field,goal));}
+        void classArray(String name){
+            save(HurtByTargetGoal.class,name);
+            var array=(Class<?>[])get(field(HurtByTargetGoal.class,name),goal);
+            if(array!=null)classArrays.computeIfAbsent(array,key->key.clone());
+        }
         void body(Class<?> type,String name){save(type,name);Field field=field(type,name);bodies.put(field,(LivingEntity)get(field,goal));}
-        void restore(){values.forEach((field,value)->set(field,goal,value));}
+        void restore(){
+            // Native constructors/setAlertOthers retain caller-owned arrays, including the final damage filter.
+            // Restore their contents in place so other holders retain the original aliases.
+            classArrays.forEach((array,saved)->System.arraycopy(saved,0,array,0,saved.length));
+            values.forEach((field,value)->{
+                if(Modifier.isFinal(field.getModifiers())){
+                    if(get(field,goal)!=value)throw new IllegalStateException("Final native target value identity changed: "+field);
+                }else set(field,goal,value);
+            });
+        }
         void captureReferences(MatchDamageSources sources){bodies.forEach((field,body)->references.put(field,sources.dependencyRef(body)));referencesCaptured=true;}
         boolean restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending){
             if(!referencesCaptured)return false;

@@ -43,6 +43,12 @@ two restores, no duplicate retaliation for restored damage, and player-body
 replacement/login. Target subclasses beyond the explicit adapters still need
 review, and the experiment remains OFF by default.
 
+The retaliation adapter also records the native alert policy and both class-filter
+arrays. Native construction and `setAlertOthers` retain caller-owned arrays, so
+replay restores their contents in place and rebinds the original nullable alert
+array. The final damage-filter reference is checked for identity rather than
+rewritten. This preserves aliases held by callers without invoking alert callbacks.
+
 The reviewed `BreedGoal` image retains its chosen animal partner and elapsed
 courtship. Partner references resolve through the existing actor body/link phases;
 an intentionally omitted partner clears and retires the task without callbacks.
