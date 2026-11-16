@@ -22,6 +22,8 @@ final class MatchEntityRuntime {
     MatchEntityRuntime(Entity entity) {
         navigation=entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobNavigation(mob):null;
         goals=MatchMobGoals.enabled()&&entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobGoals(mob):null;
+        if(goals!=null&&entity instanceof net.minecraft.world.entity.monster.Creeper)
+            capture(net.minecraft.world.entity.monster.Creeper.class,entity,"oldSwell","swell","maxSwell","explosionRadius","droppedSkulls");
         worldTime=entity.level().getGameTime();using=entity instanceof LivingEntity living&&living.isUsingItem();
         usedHand=entity instanceof LivingEntity living?living.getUsedItemHand():net.minecraft.world.InteractionHand.MAIN_HAND;
         capture(Entity.class,entity,"tickCount","remainingFireTicks","invulnerableTime","portalCooldown","fallDistance",
@@ -59,6 +61,7 @@ final class MatchEntityRuntime {
     private static Object read(Object target,Class<?> type,String name) {
         try{return field(type,name).get(target);}catch(IllegalAccessException e){throw new IllegalStateException(e);}
     }
+    void prepareLoad(Entity entity){if(navigation!=null)navigation.requireOwner(entity);if(goals!=null)goals.prepareLoad();}
     void captureGoalReferences(MatchDamageSources sources){if(goals!=null)goals.captureReferences(sources);}
     void restoreGoalReferences(java.util.function.Function<java.util.UUID,Entity> lookup,java.util.Set<java.util.UUID> pending){if(goals!=null)goals.restoreReferences(lookup,pending);}
     void restore(Entity entity) {

@@ -30,6 +30,15 @@ final class MatchGoalFields {
         if(goal instanceof AvoidEntityGoal<?>)image.save(AvoidEntityGoal.class,"toAvoid","path");
         if(goal instanceof RangedBowAttackGoal<?>)image.save(RangedBowAttackGoal.class,"attackIntervalMin","attackTime","seeTime","strafingClockwise","strafingBackwards","strafingTime");
         if(goal instanceof RangedCrossbowAttackGoal<?>)image.save(RangedCrossbowAttackGoal.class,"crossbowState","seeTime","attackDelay","updatePathDelay");
+        if(goal instanceof RandomStrollGoal)image.save(RandomStrollGoal.class,"wantedX","wantedY","wantedZ","interval","forceTrigger");
+        if(goal instanceof PanicGoal)image.save(PanicGoal.class,"posX","posY","posZ","isRunning");
+        if(goal instanceof FleeSunGoal)image.save(FleeSunGoal.class,"wantedX","wantedY","wantedZ");
+        if(goal instanceof MoveTowardsTargetGoal)image.save(MoveTowardsTargetGoal.class,"target","wantedX","wantedY","wantedZ");
+        if(goal instanceof MoveTowardsRestrictionGoal)image.save(MoveTowardsRestrictionGoal.class,"wantedX","wantedY","wantedZ");
+        if(goal instanceof LeapAtTargetGoal)image.save(LeapAtTargetGoal.class,"target");
+        if(goal instanceof SwellGoal)image.save(SwellGoal.class,"target");
+        if(goal instanceof EatBlockGoal)image.save(EatBlockGoal.class,"eatAnimationTick");
+        if(goal instanceof OcelotAttackGoal)image.save(OcelotAttackGoal.class,"target","attackTime");
         return image.values.isEmpty()?null:image;
     }
     private MatchGoalFields(Mob owner,Goal goal){this.owner=owner;this.goal=goal;}
@@ -76,6 +85,7 @@ final class MatchGoalFields {
             Class<?> type=goal instanceof FollowOwnerGoal?FollowOwnerGoal.class:FollowMobGoal.class;
             owner.setPathfindingMalus(PathType.WATER,(Float)values.get(field(type,"oldWaterCost")));
         }
+        if(wasRunning&&goal instanceof OcelotAttackGoal)owner.getNavigation().stop();
     }
     private static Field field(Class<?> type,String name){
         try{var result=type.getDeclaredField(name);result.setAccessible(true);return result;}

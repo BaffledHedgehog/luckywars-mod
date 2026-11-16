@@ -67,6 +67,25 @@ The cached-player fixture also exercises genuine death/replacement/login/absence
 Other task families, species-held detached goals and Brain state remain unreviewed;
 the unfinished native goal-image module stays OFF by default.
 
+`MatchRetainedGoals` records 21 native task-reference slots on 13 mob classes.
+Retained tasks join the same flag/value/reference images even when absent from
+both selectors; mutable owner slots return to their original task instances.
+Before native NBT/equipment loaders run, current wrappers are suspended directly
+so reassessment cannot replay `stop()` callbacks. The captured wrappers and locks
+resume only after all body data and retained task references have been restored.
+This suspension is confined to the unfinished goal-image experiment.
+
+The common schemas also cover nine simple roaming, panic, pursuit, leap, swelling,
+eating and attack tasks. Creeper fuse progress and its full-width fuse/radius and
+skull-drop flag are captured alongside that experimental native task state.
+Native checks activate a skeleton's previously detached bow/melee tasks through
+real weapon reassessment, verify their counters after two replays and instrument
+loader lifecycle callbacks. A separate creeper completes three actual native
+explosions with the same remaining fuse after replay. Roaming trigger/destination,
+panic route and delayed attack probes use native task APIs and accepted damage.
+Species-specific task bodies, remaining task families and Brain state still need
+review; recording a retained task reference alone does not close those owners.
+
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners
 restore and publish those abilities afterward. A retained offline rocket-boot

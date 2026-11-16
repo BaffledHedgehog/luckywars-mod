@@ -24,15 +24,27 @@ final class MatchMobGoals {
     private final Map<TargetGoal,Target> targets=new IdentityHashMap<>();
     private final Map<BreedGoal,Breeding> breeding=new IdentityHashMap<>();
     private final Map<Goal,MatchGoalFields> common=new IdentityHashMap<>();
+    private final MatchRetainedGoals retained;
 
     MatchMobGoals(Mob mob) {
         owner=mob;worldTime=mob.level().getGameTime();
         selectors.add(new Selector((GoalSelector)read(mob,Mob.class,"goalSelector")));
         selectors.add(new Selector((GoalSelector)read(mob,Mob.class,"targetSelector")));
+        retained=new MatchRetainedGoals(mob,goal->capture(goal,false));
     }
+    private void capture(Goal goal,boolean running){
+        flags.computeIfAbsent(goal,key->key.getFlags().clone());
+        if(goal instanceof MeleeAttackGoal attack)attacks.computeIfAbsent(attack,Melee::new);
+        if(goal instanceof RangedAttackGoal attack)ranged.computeIfAbsent(attack,Ranged::new);
+        if(goal instanceof TargetGoal target)targets.computeIfAbsent(target,Target::new);
+        if(goal instanceof BreedGoal task)breeding.computeIfAbsent(task,Breeding::new);
+        var task=common.computeIfAbsent(goal,key->MatchGoalFields.capture(owner,key));
+        if(task!=null)task.wasRunning|=running;
+    }
+    void prepareLoad(){selectors.forEach(Selector::suspend);}
     void restore() {
         // stop() can erase a restored route/target; start() resets attack timers and can repeat side effects.
-        for(var selector:selectors)selector.retireFuture();
+        retained.restore();for(var selector:selectors)selector.retireFuture();
         flags.forEach((goal,saved)->{var live=goal.getFlags();live.clear();live.addAll(saved);});
         long delta=owner.level().getGameTime()-worldTime;
         attacks.values().forEach(attack->attack.restore(delta));
@@ -96,14 +108,13 @@ final class MatchMobGoals {
             all.addAll(ordered);all.addAll(locked.values());
             for(var wrapper:all) {
                 running.put(wrapper,wrapper.isRunning());Goal goal=wrapper.getGoal();
-                flags.computeIfAbsent(goal,key->key.getFlags().clone());
-                if(goal instanceof MeleeAttackGoal attack)attacks.computeIfAbsent(attack,Melee::new);
-                if(goal instanceof RangedAttackGoal attack)ranged.computeIfAbsent(attack,Ranged::new);
-                if(goal instanceof TargetGoal target)targets.computeIfAbsent(target,Target::new);
-                if(goal instanceof BreedGoal task)breeding.computeIfAbsent(task,Breeding::new);
-                var task=common.computeIfAbsent(goal,key->MatchGoalFields.capture(owner,key));
-                if(task!=null)task.wasRunning|=wrapper.isRunning();
+                capture(goal,wrapper.isRunning());
             }
+        }
+        void suspend(){
+            // Native NBT/equipment loaders may remove tasks before restore(); never replay stop() there.
+            for(var wrapper:available)write(wrapper,WrappedGoal.class,"isRunning",false);
+            for(var wrapper:locked.values())write(wrapper,WrappedGoal.class,"isRunning",false);
         }
         void retireFuture() {
             for(var wrapper:available)if(!running.containsKey(wrapper))write(wrapper,WrappedGoal.class,"isRunning",false);
