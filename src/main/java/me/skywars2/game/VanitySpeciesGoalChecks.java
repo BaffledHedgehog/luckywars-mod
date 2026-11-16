@@ -36,7 +36,7 @@ final class VanitySpeciesGoalChecks implements AutoCloseable {
     VanitySpeciesGoalChecks(GameController game,WoolBucketChecks.Fixture f){
         this.game=game;this.f=f;player=new MatchPlayerCheckpoint(game,f.owner);before=MatchActorCheckpoint.captureRegistered(game);
         try{
-            shoulder();horses();caravan();flower();defend();VanityRaidChecks.verify(game,f);
+            shoulder();horses();caravan();flower();defend();VanityRaidChecks.verify(game,f);VanityPoiMemoryChecks.verify(game,f);
             neutral=add(new IronGolem(EntityTypes.IRON_GOLEM,f.level),origin(36,80));
             neutral.setPersistentAngerEndTime(f.level.getGameTime()+200);capturedWorld=f.level.getGameTime();anger=MatchActorCheckpoint.captureRegistered(game);when=game.server().getTickCount();
         }catch(Throwable failure){try{close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}throw failure;}

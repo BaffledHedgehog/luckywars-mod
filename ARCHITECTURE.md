@@ -98,6 +98,23 @@ replays, saved-data codec output, original containers, RNG, UI packets and both
 omission cases. Village POI services and Brain continuation remain under audit;
 this does not enable the unfinished goal-image experiment.
 
+`MatchPoiMemory` implements a separate, currently unconnected POI memory phase.
+It retains the original section table and optional rows, ordered dirty queue,
+both native loaded/validation-request sets, original sections and their position
+and type indexes/sets, record identities/free tickets and callback bindings.
+The village-distance image also retains the levels/default, computed levels,
+work flag and original priority queue/array/set identities, entry order and cursor.
+It does not recompute this pending phase or replay ticket callbacks.
+
+Capture and frozen restoration require an empty native pending-load map under its
+original lock; outstanding futures are neither copied nor cancelled. Native tests
+use registration, ticket take/release, replacement, real prefetch and validation,
+then resume the distance consumer after three memory restores. They preserve the
+native distinction between an unknown node (7) and a touched removed center (6).
+This is not yet connected to actor replay: cold POI persistence and asynchronous
+read/write coordination must be implemented first. No village block-discovery,
+complete POI rollback or `StrollThroughVillageGoal` admission is claimed here.
+
 Native checks cover look expiry/direction, parent/owner/mob route phases and water
 costs changed by real future lifecycle calls, temptation cooldown, avoidance path
 identity/cursor, and repeated delayed arrows from a real skeleton and pillager.
