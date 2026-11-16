@@ -111,9 +111,29 @@ original lock; outstanding futures are neither copied nor cancelled. Native test
 use registration, ticket take/release, replacement, real prefetch and validation,
 then resume the distance consumer after three memory restores. They preserve the
 native distinction between an unknown node (7) and a touched removed center (6).
-This is not yet connected to actor replay: cold POI persistence and asynchronous
-read/write coordination must be implemented first. No village block-discovery,
-complete POI rollback or `StrollThroughVillageGoal` admission is claimed here.
+This is not yet connected to actor replay. Its storage partner below still needs
+coordinator and source/reset lifecycle integration. No village block-discovery,
+complete actor/POI rollback or `StrollThroughVillageGoal` admission is claimed here.
+
+`MatchPoiStorage` journals the first subsequent write to a chunk that was cold at
+capture by enqueueing a native old-tag read before the native store on the same
+foreground FIFO. Loaded chunks instead use the captured memory image and the
+native section encoder. Both tag and Supplier writes pass through `PoiJournalMixin`;
+without active points its hook performs only a volatile false check.
+
+Several points can observe one worker, with one exclusive restore lease. A point's
+own restore updates the other recording points while preserving its own originals.
+Intermediate automatic writes are acknowledged only after resuming and their
+suppliers are not evaluated. Frozen server frames poll actual asynchronous cold
+writes/flushes, restore and encode loaded memory, flush and settle pending parses,
+then restore memory again. Caller-controlled resume follows the remaining world
+phases. `closeAsync` detaches the journal and drains owned I/O before lifecycle
+replacement; callers must await it before replacing the owner/world.
+
+Native file/codec checks cover independent points, repeated rewinds, unknown tag
+fields, originally absent chunks, actual cache reload and deferred Supplier saves.
+This restores logical native data, not byte-identical region allocation. Integration
+with full actor capture/restore, source disposal and reset remains unfinished.
 
 Native checks cover look expiry/direction, parent/owner/mob route phases and water
 costs changed by real future lifecycle calls, temptation cooldown, avoidance path

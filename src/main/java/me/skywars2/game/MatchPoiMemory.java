@@ -22,6 +22,7 @@ final class MatchPoiMemory {
     private final Longs dirty,loaded,validationRequests;
     private final Map<PoiSection,Section> sections=new IdentityHashMap<>();
     private final Graph graph;
+    Set<Long> loadedChunkKeys(){var result=new HashSet<Long>();for(long key:loaded.saved)result.add(key);return Set.copyOf(result);}
     static boolean ready(ServerLevel level){
         Object owner=level.getPoiManager(),lock=read(owner,SectionStorage.class,"loadLock");
         synchronized(lock){return ((Map<?,?>)read(owner,SectionStorage.class,"pendingLoads")).isEmpty();}
