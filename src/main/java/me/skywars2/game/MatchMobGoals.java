@@ -23,6 +23,7 @@ final class MatchMobGoals {
     private final Map<RangedAttackGoal,Ranged> ranged=new IdentityHashMap<>();
     private final Map<TargetGoal,Target> targets=new IdentityHashMap<>();
     private final Map<BreedGoal,Breeding> breeding=new IdentityHashMap<>();
+    private final Map<Goal,MatchGoalFields> common=new IdentityHashMap<>();
 
     MatchMobGoals(Mob mob) {
         owner=mob;worldTime=mob.level().getGameTime();
@@ -38,12 +39,14 @@ final class MatchMobGoals {
         ranged.values().forEach(Ranged::restore);
         targets.values().forEach(Target::restore);
         breeding.values().forEach(Breeding::restore);
+        common.values().forEach(MatchGoalFields::restore);
         selectors.forEach(Selector::restore);
     }
     void captureReferences(MatchDamageSources sources){
         ranged.values().forEach(attack->attack.captureReferences(sources));
         targets.values().forEach(target->target.captureReferences(sources));
         breeding.values().forEach(task->task.captureReferences(sources));
+        common.values().forEach(task->task.captureReferences(sources));
     }
     void restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending) {
         for(var attack:ranged.values()) {
@@ -75,6 +78,9 @@ final class MatchMobGoals {
             if(resolved!=null&&!(resolved instanceof Animal))throw new IllegalStateException("Native breeding partner resolved to a non-animal body");
             write(task.goal,BreedGoal.class,"partner",resolved);
         }
+        for(var task:common.values())if(task.restoreReferences(lookup,pending)){
+            task.absent();for(var selector:selectors)selector.retire(task.goal);
+        }
     }
     private final class Selector {
         final Set<WrappedGoal> available;
@@ -95,6 +101,8 @@ final class MatchMobGoals {
                 if(goal instanceof RangedAttackGoal attack)ranged.computeIfAbsent(attack,Ranged::new);
                 if(goal instanceof TargetGoal target)targets.computeIfAbsent(target,Target::new);
                 if(goal instanceof BreedGoal task)breeding.computeIfAbsent(task,Breeding::new);
+                var task=common.computeIfAbsent(goal,key->MatchGoalFields.capture(owner,key));
+                if(task!=null)task.wasRunning|=wrapper.isRunning();
             }
         }
         void retireFuture() {

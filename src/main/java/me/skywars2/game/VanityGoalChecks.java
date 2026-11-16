@@ -39,6 +39,7 @@ public final class VanityGoalChecks {
         Map<?,?> locks;EnumSet<?> disabled;EnumSet<Goal.Flag> flags;
         MatchEntityState image,victim;Path goalPath;int cooldown,phase,when;long capturedAt,lastCheck;
         VanityBreedingGoalChecks breeding;
+        VanityCommonGoalChecks common;
         float health;boolean closed;
         Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);}
         void begin(){
@@ -62,7 +63,8 @@ public final class VanityGoalChecks {
             when=game.server().getTickCount();
         }
         boolean step(){
-            if(breeding!=null)return breeding.step();
+            if(common!=null)return common.step();
+            if(breeding!=null){if(!breeding.step())return false;common=new VanityCommonGoalChecks(game,f);return false;}
             f.client.acknowledge();f.audience.acknowledge();int elapsed=game.server().getTickCount()-when;
             require(elapsed<100,"bounded native scene phase="+phase+", HP="+cow.getHealth());
             if(phase==0){

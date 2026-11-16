@@ -69,6 +69,7 @@ public final class VanityActorChecks {
         net.minecraft.world.entity.animal.golem.SnowGolem rangedMob;
         net.minecraft.world.entity.ai.goal.RangedAttackGoal rangedGoal;
         net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<ServerPlayer> playerTarget;
+        net.minecraft.world.entity.ai.goal.TemptGoal cachedTempt;
         int rangedDelay,rangedVisibility;
         Snowball shot;
         Snowball unowned;
@@ -150,6 +151,12 @@ public final class VanityActorChecks {
             shot=add(new Snowball(EntityTypes.SNOWBALL,base.owner.level()),at.add(0,1,2));shot.setOwner(gamma);shot.setDeltaMovement(motion);
             unowned=add(new Snowball(EntityTypes.SNOWBALL,base.owner.level()),at.add(1,2,2));unowned.setDeltaMovement(Vec3.ZERO);
             gamma.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(Items.FISHING_ROD));
+            if(rangedMob!=null){
+                var tempted=add(new Cow(EntityTypes.COW,base.owner.level()),at.add(0,0,6));
+                cachedTempt=new net.minecraft.world.entity.ai.goal.TemptGoal(tempted,1,stack->stack.is(Items.FISHING_ROD),false);
+                var selector=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(tempted,"goalSelector");selector.removeAllGoals(goal->true);selector.addGoal(1,cachedTempt);
+                require(cachedTempt.canUse()&&WoolBucketChecks.read(cachedTempt,"player")==gamma,"actual native temptation caches only the player holding the qualifying rod");
+            }
             pearl=add(new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(EntityTypes.ENDER_PEARL,base.owner.level()),at.add(0,2,2));
             pearl.setOwner(gamma);pearl.setDeltaMovement(Vec3.ZERO);field(pearl,"ticketTimer",37L);
             distantPearl=add(new net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl(EntityTypes.ENDER_PEARL,game.server().getLevel(Level.NETHER)),new Vec3(.5,200,.5));
@@ -264,6 +271,8 @@ public final class VanityActorChecks {
                     "ranged private cache follows the genuine replacement player body, not the removed captured body");
             if(playerTarget!=null)require(WoolBucketChecks.read(playerTarget,"target")==gamma,
                     "native target-search cache follows the genuine replacement and login body");
+            if(cachedTempt!=null)require(WoolBucketChecks.read(cachedTempt,"player")==gamma,
+                    "shared task-field reference binding follows the genuine player replacement and login body");
             if(rangedMob!=null)require((Integer)WoolBucketChecks.read(rangedGoal,"attackTime")==rangedDelay&&
                     (Integer)WoolBucketChecks.read(rangedGoal,"seeTime")==rangedVisibility,"canonical target binding does not restart native ranged counters");
             require(tethered.getLeashHolder()==knot&&tethered.getLeashData().angularMomentum==.19,"native fence-pos leash codec rebinds original knot immediately, without manufacturing another knot");
@@ -298,6 +307,7 @@ public final class VanityActorChecks {
                     var targets=(net.minecraft.world.entity.ai.goal.GoalSelector)WoolBucketChecks.read(rangedMob,"targetSelector");
                     require(WoolBucketChecks.read(playerTarget,"target")==null&&targets.getAvailableGoals().stream().noneMatch(goal->goal.getGoal()==playerTarget&&goal.isRunning()),
                             "intentional player absence also retires native target selection and its cached player");
+                    require(WoolBucketChecks.read(cachedTempt,"player")==null&&!cachedTempt.isRunning(),"intentional player absence clears the common task's cached player safely");
                     selector.tickRunningGoals(false);
                     require((Integer)WoolBucketChecks.read(rangedGoal,"attackTime")==-1,"absent task cannot shoot on the native half-step");
                 }

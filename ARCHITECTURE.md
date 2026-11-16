@@ -51,6 +51,22 @@ restoration, checks identical remaining birth timing, removes discarded offsprin
 and birth XP, and proves the same image remains usable after partner omission.
 This adds no separate breeding simulation and does not enable generic AI replay.
 
+`MatchGoalFields` adds explicit schemas for nine common look, follow, tempt, avoid,
+bow and crossbow tasks. It admits only reviewed primitive/enum values, typed
+entity references and goal-owned paths; paths reuse `MatchMobNavigation.Route`.
+The shared actor link phase binds current bodies and checks the declared field
+type. Retiring a task for an intentionally absent target restores native stop
+values directly. Inactive stale caches never cancel another task's navigation.
+Following tasks' temporary water costs are coordinated with the existing native
+navigation image. No goal start/stop callbacks run during replay.
+
+Native checks cover look expiry/direction, parent/owner/mob route phases and water
+costs changed by real future lifecycle calls, temptation cooldown, avoidance path
+identity/cursor, and repeated delayed arrows from a real skeleton and pillager.
+The cached-player fixture also exercises genuine death/replacement/login/absence.
+Other task families, species-held detached goals and Brain state remain unreviewed;
+the unfinished native goal-image module stays OFF by default.
+
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners
 restore and publish those abilities afterward. A retained offline rocket-boot
