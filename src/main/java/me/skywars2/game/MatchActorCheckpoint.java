@@ -42,6 +42,7 @@ public final class MatchActorCheckpoint {
     private MatchCombatCheckpoint combat;
     private MatchDamageSources damageSources;
     private MatchPlayerViews views;
+    private MatchFishSchools fishSchools;
 
     private MatchActorCheckpoint(GameController game) {this.game=game;epoch=game.items().epoch();}
     static MatchActorCheckpoint captureRegistered(GameController game) {return captureRegistered(game,Set.of());}
@@ -49,6 +50,7 @@ public final class MatchActorCheckpoint {
         if(!game.server().isSameThread()||!game.playing()||game.maps().busy())throw new IllegalStateException("Capture a stable native match on its server thread");
         var result=new MatchActorCheckpoint(game);result.omitted=Set.copyOf(omitted);
         var registered=result.registered();result.damageSources=new MatchDamageSources(game,registered,omitted);
+        if(MatchMobGoals.enabled())result.fishSchools=new MatchFishSchools(registered,result.damageSources);
         for(var actor:registered) {
             var passengers=actor.getPassengers().stream().map(e->new Link(e.getUUID(),e.getPose())).toList();
             var target=actor instanceof Mob mob?mob.getTargetUnchecked():null;
@@ -206,6 +208,7 @@ public final class MatchActorCheckpoint {
         for(var image:images.values())if(!omitted.contains(image.uuid)&&(!current.contains(image.actor)||image.actor.level()!=image.state.level))throw new IllegalStateException("Actor body left its restored native registry before links");
         var pending=pendingExcept(absent);
         MatchDamageSources.withAbsent(absent,()->scoped(()->{
+            if(fishSchools!=null)fishSchools.restore(this::resolve,pending,omitted);
             playerLinks.clear();
             for(var image:images.values())if(!omitted.contains(image.uuid))detachLinks(image.actor);
             for(var image:images.values()) {

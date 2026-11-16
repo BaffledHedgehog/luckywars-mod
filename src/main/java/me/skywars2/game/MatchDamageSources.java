@@ -1,6 +1,7 @@
 package me.skywars2.game;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,16 +28,19 @@ final class MatchDamageSources {
     private final Map<UUID,Entity> registered=new LinkedHashMap<>();
     private final Map<DamageSource,Image> images=new IdentityHashMap<>();
     private final Set<UUID> omitted;
+    private final Set<Entity> omittedBodies=Collections.newSetFromMap(new IdentityHashMap<>());
     MatchDamageSources(GameController game,Collection<? extends Entity> actors){this(game,actors,Set.of());}
     MatchDamageSources(GameController game,Collection<? extends Entity> actors,Set<UUID> omitted){
         this.omitted=Set.copyOf(omitted);
-        for(var actor:actors)if(!omitted.contains(actor.getUUID()))registered.put(actor.getUUID(),actor);
+        for(var actor:actors)if(!omitted.contains(actor.getUUID()))registered.put(actor.getUUID(),actor);else omittedBodies.add(actor);
         for(var player:game.server().getPlayerList().getPlayers())registered.put(player.getUUID(),player);
     }
     boolean omitted(Entity entity){return entity!=null&&omitted.contains(entity.getUUID());}
     Ref ref(Entity entity){return entity==null?null:new Ref(entity.getUUID(),((entity instanceof ServerPlayer?registered.get(entity.getUUID()) instanceof ServerPlayer:registered.get(entity.getUUID())==entity)||MatchOfflinePlayers.retained(entity))?null:entity);}
     /** Ledger/victim keys follow a captured body; an older body with the same UUID stays historical. */
     Ref bodyRef(Entity entity){return entity==null?null:new Ref(entity.getUUID(),(registered.get(entity.getUUID())==entity||MatchOfflinePlayers.alias(entity)||MatchOfflinePlayers.retained(entity))?null:entity);}
+    /** A captured omitted actor is an absent AI dependency, while an older alias remains historical. */
+    Ref dependencyRef(Entity entity){return omittedBodies.contains(entity)?new Ref(entity.getUUID(),null):bodyRef(entity);}
     Image capture(DamageSource value){
         if(value==null)return null;var image=images.get(value);if(image!=null)return image;
         image=new Image(value,ref(value.getDirectEntity()),ref(value.getEntity()),capture(parent(value)));images.put(value,image);return image;

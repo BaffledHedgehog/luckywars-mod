@@ -88,7 +88,7 @@ review; recording a retained task reference alone does not close those owners.
 
 Ten further schemas cover door interaction, movement to blocks and through
 villages, owner retaliation/assistance, and selected anger/raider target phases.
-The common table now names 82 simple fields across 28 classes, plus an explicit
+The common table now names 84 simple fields across 29 classes, plus an explicit
 village position-history container. Mutable block positions restore their saved
 coordinates on the original object; position histories restore their original
 list and member aliases. No arbitrary collection or object graph is traversed.
@@ -101,6 +101,22 @@ breaking after the same remaining native task ticks. The village history probe
 supplies its POI input explicitly; it does not prove live village pathfinding.
 Door probes supply saved terrain before actor replay; the coordinator separately
 owns full terrain restoration. This remains part of the OFF-by-default experiment.
+
+`MatchFishSchools` restores native schooling-fish leader references and school
+sizes as one group before task links resume. The follow task also retains its
+search and path-recalculation countdowns. Replay writes saved fields directly;
+it never rejoins a school or repeats native join/leave callbacks. Repeated link
+replay starts from saved counts, so an intentionally omitted member is deducted
+once. Omitting a leader clears followers and retires their tasks without calling
+`stopFollowing()` against an empty leader. The saved route remains intact, as it
+does after the native follow task stops.
+
+AI dependency references distinguish an intentionally omitted captured body from
+an older removed body sharing its UUID. Historical combat-source reference rules
+remain unchanged. Native Cod checks exercise real school formation and departure,
+different future leaders, repeated restoration, the exact remaining task ticks
+before recalculating a path, omitted leaders/members and historical same-UUID
+aliases. The school image uses the same OFF-by-default goal experiment.
 
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners

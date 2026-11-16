@@ -24,6 +24,8 @@ final class MatchGoalFields {
     private final Map<BlockPos.MutableBlockPos,BlockPos> positions=new IdentityHashMap<>();
     private final Map<List<BlockPos>,List<BlockPos>> positionLists=new IdentityHashMap<>();
     private boolean referencesCaptured;
+    private final net.minecraft.world.entity.animal.fish.AbstractSchoolingFish flockLeader;
+    private MatchDamageSources.Ref flockLeaderRef;
 
     static MatchGoalFields capture(Mob owner,Goal goal){
         var image=new MatchGoalFields(owner,goal);
@@ -55,9 +57,13 @@ final class MatchGoalFields {
         if(goal instanceof ResetUniversalAngerTargetGoal<?>)image.save(ResetUniversalAngerTargetGoal.class,"lastHurtByPlayerTimestamp");
         if(goal instanceof NearestHealableRaiderTargetGoal<?>)image.save(NearestHealableRaiderTargetGoal.class,"cooldown");
         if(goal instanceof NearestAttackableWitchTargetGoal<?>)image.save(NearestAttackableWitchTargetGoal.class,"canAttack");
+        if(goal instanceof FollowFlockLeaderGoal)image.save(FollowFlockLeaderGoal.class,"timeToRecalcPath","nextStartTick");
         return image.values.isEmpty()?null:image;
     }
-    private MatchGoalFields(Mob owner,Goal goal){this.owner=owner;this.goal=goal;}
+    private MatchGoalFields(Mob owner,Goal goal){
+        this.owner=owner;this.goal=goal;
+        flockLeader=goal instanceof FollowFlockLeaderGoal&&owner instanceof net.minecraft.world.entity.animal.fish.AbstractSchoolingFish fish?MatchFishSchools.leader(fish):null;
+    }
     private void save(Class<?> type,String... names){
         for(String name:names){
             Field field=field(type,name);Class<?> valueType=field.getType();Object value=read(field);
@@ -90,11 +96,16 @@ final class MatchGoalFields {
     }
     void captureReferences(MatchDamageSources sources){
         values.forEach((field,value)->{if(Entity.class.isAssignableFrom(field.getType()))references.put(field,sources.bodyRef((Entity)value));});
+        flockLeaderRef=sources.dependencyRef(flockLeader);
         referencesCaptured=true;
     }
     boolean restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending){
         if(!referencesCaptured)return false;
         boolean absent=false;
+        if(flockLeaderRef!=null){
+            var leader=MatchDamageSources.resolve(flockLeaderRef,lookup,pending);
+            if(leader==null&&MatchDamageSources.intentionallyAbsent(flockLeaderRef.id()))absent=true;
+        }
         for(var entry:references.entrySet()){
             var ref=entry.getValue();Entity resolved=MatchDamageSources.resolve(ref,lookup,pending);
             if(ref!=null&&resolved==null){
