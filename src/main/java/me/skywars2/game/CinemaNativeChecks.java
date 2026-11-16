@@ -98,10 +98,42 @@ final class CinemaNativeChecks {
         @SuppressWarnings("unchecked") List<Object> blastJobs(){return new ArrayList<>((Set<Object>)get(rockets,"blasts"));}
         Map<String,Object> image(Object flight){var result=new LinkedHashMap<String,Object>();for(String key:List.of("at","age","closed","child","owner","cause","epoch"))result.put(key,get(flight,key));return result;}
         void loadedRegion(Vec3 point,int reach){var p=BlockPos.containing(point);for(int x=(p.getX()-reach)>>4;x<=(p.getX()+reach)>>4;x++)for(int z=(p.getZ()-reach)>>4;z<=(p.getZ()+reach)>>4;z++)level.getChunk(x,z);}
+        void smokePackets(){
+            loadedRegion(remote,3);rockets.tick();
+            var expected=new ArrayList<Vec3>();
+            for(var flight:flights()){
+                var display=(Display.ItemDisplay)get(flight,"display");require(display!=null,"all split models published before smoke witness");
+                var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess());
+                display.saveWithoutId(output);
+                var transform=net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),output.buildResult())
+                        .read("transformation",com.mojang.math.Transformation.EXTENDED_CODEC).orElseThrow();
+                // Independent renderer matrix from the actual native display's serialized transform.
+                var point=new org.joml.Matrix4f().rotateY((float)(-Math.PI/180)*display.getYRot()).rotateX((float)(Math.PI/180)*display.getXRot())
+                        .mul(transform.getMatrix()).rotateY((float)Math.PI).translate(-.5f,-.5f,-.5f)
+                        .transformPosition(new org.joml.Vector3f(.5f,0,1));
+                expected.add(display.position().add(point.x,point.y,point.z));
+            }
+            require(expected.size()==24,"two native parents and twenty-two native split rockets witnessed");
+            move(owner,remote.add(0,0,8));owner.client.packets().clear();rockets.tick();
+            var packets=owner.client.packets().stream().filter(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.class::isInstance)
+                    .map(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.class::cast)
+                    .filter(p->p.particle()==net.minecraft.core.particles.ParticleTypes.CAMPFIRE_SIGNAL_SMOKE).toList();
+            require(packets.size()==expected.size(),"one actual smoke packet per flight for nearby native listener");
+            for(var packet:packets){
+                var point=new Vec3(packet.x(),packet.y(),packet.z());int matched=-1;
+                for(int i=0;i<expected.size();i++)if(expected.get(i).distanceToSqr(point)<1e-8){matched=i;break;}
+                require(matched>=0,"smoke originates at rendered nozzle, not entity pivot: "+point);expected.remove(matched);
+                require(packet.overrideLimiter()&&!packet.alwaysShow()&&packet.count()==5,"source visibility flags and five particles retained");
+                near(packet.xDist(),.3,"source smoke X spread");near(packet.yDist(),.3,"source smoke Y spread");near(packet.zDist(),.3,"source smoke Z spread");
+                near(packet.xMaxSpeed(),.05,"source smoke speed");
+            }
+            require(expected.isEmpty(),"every parent and child nozzle has exactly one emission");
+            SkyWars2.LOGGER.info("[check] Cinema smoke: actual24 nozzle-aligned packets, native serialized transforms and all source particle parameters preserved");
+        }
         boolean rewindStep(){
             if(stage==20){if(flights().isEmpty()||get(flights().getFirst(),"display")==null)return false;pause();picture=image(flights().getFirst());next(21);return false;}
             if(stage==21){require(image(flights().getFirst()).equals(picture),"TimeStop holds actual Oreshnik flight");if(game.server().getTickCount()-when<3)return false;thaw();var display=(Entity)get(flights().getFirst(),"display");require(game.items().cloneSkills().copyNow(display,15)&&rockets.flightCount()==2,"native x2 reconstructs one causal flight rather than inert display");next(22);return false;}
-            if(stage==22){if(flights().stream().filter(f->(boolean)get(f,"child")).count()<22)return false;require(rockets.flightCount()==24&&flights().stream().filter(f->!(boolean)get(f,"child")).count()==2,"both actual parents continue and each source age40 creates eleven children");rockets.stop();
+            if(stage==22){if(flights().stream().filter(f->(boolean)get(f,"child")).count()<22)return false;require(rockets.flightCount()==24&&flights().stream().filter(f->!(boolean)get(f,"child")).count()==2,"both actual parents continue and each source age40 creates eleven children");smokePackets();rockets.stop();
                 level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,true,game.server());var block=BlockPos.containing(remote.add(0,-1,0));loadedRegion(remote,24);for(var pos:BlockPos.betweenClosed(block.offset(-24,-24,-24),block.offset(24,24,24)))require(level.getBlockState(pos).isAir(),"supporting blast kernel has an empty, isolated terrain footprint");terrain.put(block,game.maps().snapshot(level,block));level.setBlock(block,Blocks.STONE.defaultBlockState(),3);
                 require(rockets.launch(owner.p,remote),"supporting parent kernel launch");rockets.tick();require(rockets.blastCount()==19,"real native collision accepts nineteen immutable blast sites");accepted=blastJobs().getFirst();require(((LbcStonekivi.Work)accepted).step()==false&&(int)get(accepted,"cursor")==1&&level.getBlockState(block).isAir(),"one actual native radius10 explosion advances the accepted cursor");
                 require(rockets.launch(owner.p,remote.add(40,20,0)),"live flight accompanies partial accepted blast snapshot");loadedRegion(remote.add(40,20,0),0);rockets.tick();pause();picture=image(flights().getFirst());remaining=rockets.blastCount();require(remaining==18,"partial supporting native blast journal");require(game.vanity().requestCapture(owner.p,false),"actual whole coordinator captures nonempty flight and partial native blast cursor");next(23);return false;

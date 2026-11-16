@@ -77,6 +77,14 @@ public final class LbcOreshnik {
         if(!child)result.addAll(List.of(new Vec3(4,4,0),new Vec3(4,0,4),new Vec3(0,4,4),new Vec3(-4,-4,0),new Vec3(-4,0,-4),new Vec3(0,-4,-4)));
         return List.copyOf(result);
     }
+    static Vec3 exhaustOffset(float yaw,float pitch,boolean child){
+        float scale=child?5:8;
+        // Authored nozzle center (8,0,16): item centering, ItemDisplay's Y half-turn,
+        // display scale/translation, then FIXED billboard orientation, in renderer order.
+        var offset=new org.joml.Vector3f(0,4.5f-scale*.5f,-scale*.5f)
+                .rotate(new org.joml.Quaternionf().rotationYXZ((float)(-Math.PI/180)*yaw,(float)(Math.PI/180)*pitch,0));
+        return new Vec3(offset.x,offset.y,offset.z);
+    }
     private final class Tickets {
         final ServerLevel level;final Set<ChunkPos> held=new LinkedHashSet<>();Tickets(ServerLevel level){this.level=level;}
         boolean resident(Vec3 point,int reach){
@@ -100,10 +108,10 @@ public final class LbcOreshnik {
         void close(){for(var chunk:List.copyOf(held))release(chunk);}
     }
     private final class Flight {
-        final ServerLevel level;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;final boolean child;final float yaw,pitch;final Tickets tickets;
+        final ServerLevel level;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;final boolean child;final float yaw,pitch;final Tickets tickets;final Vec3 exhaust;
         Vec3 at;int age;Display.ItemDisplay display;boolean closed;
         Flight(ServerLevel level,UUID owner,LbcIndirectKills.Owner cause,String epoch,Vec3 at,float yaw,float pitch,int age,boolean child){
-            this.level=level;this.owner=owner;this.cause=cause;this.epoch=epoch;this.at=at;this.yaw=yaw;this.pitch=pitch;this.age=age;this.child=child;tickets=new Tickets(level);
+            this.level=level;this.owner=owner;this.cause=cause;this.epoch=epoch;this.at=at;this.yaw=yaw;this.pitch=pitch;this.age=age;this.child=child;tickets=new Tickets(level);exhaust=exhaustOffset(yaw,pitch,child);
         }
         void model(){
             if(display!=null&&!display.isRemoved())return;
@@ -123,7 +131,8 @@ public final class LbcOreshnik {
             boolean birth=display==null;model();
             if(birth)game.items().cloneSkills().beforeOwnedStep(List.of(display));
             age++;
-            for(var viewer:game.server().getPlayerList().getPlayers())if(viewer.level()==level)level.sendParticles(viewer,ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,at.x,at.y,at.z,5,.3,.3,.3,.05);
+            var smoke=at.add(exhaust);
+            for(var viewer:game.server().getPlayerList().getPlayers())if(viewer.level()==level)level.sendParticles(viewer,ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,true,false,smoke.x,smoke.y,smoke.z,5,.3,.3,.3,.05);
             LbcOverload.sound(level,at,"minecraft:lbcsounds.rocket_power",net.minecraft.sounds.SoundSource.MASTER,1,child?1.5f:1,0,child?.08f:.5f);
             at=next;display.setPos(at);
             if(!child&&age==40)for(int n=0;n<11;n++){
