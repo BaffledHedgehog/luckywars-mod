@@ -66,6 +66,13 @@ values directly. Inactive stale caches never cancel another task's navigation.
 Following tasks' temporary water costs are coordinated with the existing native
 navigation image. No goal start/stop callbacks run during replay.
 
+The block-removal adapter retains `RemoveBlockGoal`'s elapsed destruction counter
+alongside its inherited block-search phase. Terrain returns before the actor phase.
+Native checks start from genuine search/admission, observe actual block removal
+after the same remaining goal ticks on three replays, and restore a completed
+inactive image over a later destruction cycle. They do not fabricate progress or
+the reached-target flag, and do not claim a physical-client timing measurement.
+
 Native checks cover look expiry/direction, parent/owner/mob route phases and water
 costs changed by real future lifecycle calls, temptation cooldown, avoidance path
 identity/cursor, and repeated delayed arrows from a real skeleton and pillager.

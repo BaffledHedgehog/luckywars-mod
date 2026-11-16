@@ -50,6 +50,7 @@ final class MatchGoalFields {
         if(goal instanceof DoorInteractGoal)image.save(DoorInteractGoal.class,"mob","doorPos","hasDoor","passed","doorOpenDirX","doorOpenDirZ");
         if(goal instanceof OpenDoorGoal)image.save(OpenDoorGoal.class,"forgetTime");
         if(goal instanceof BreakDoorGoal)image.save(BreakDoorGoal.class,"breakTime","lastBreakProgress","doorBreakTime");
+        if(goal instanceof RemoveBlockGoal)image.save(RemoveBlockGoal.class,"ticksSinceReachedGoal");
         if(goal instanceof MoveToBlockGoal)image.save(MoveToBlockGoal.class,"nextStartTick","tryTicks","maxStayTicks","blockPos","reachedTarget","verticalSearchStart");
         if(goal instanceof MoveThroughVillageGoal){image.save(MoveThroughVillageGoal.class,"path","poiPos");image.savePositions(MoveThroughVillageGoal.class,"visited");}
         if(goal instanceof OwnerHurtByTargetGoal)image.save(OwnerHurtByTargetGoal.class,"ownerLastHurtBy","timestamp");
