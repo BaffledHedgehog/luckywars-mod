@@ -24,8 +24,8 @@ final class MatchGoalFields {
     private final Map<BlockPos.MutableBlockPos,BlockPos> positions=new IdentityHashMap<>();
     private final Map<List<BlockPos>,List<BlockPos>> positionLists=new IdentityHashMap<>();
     private boolean referencesCaptured;
-    private final net.minecraft.world.entity.animal.fish.AbstractSchoolingFish flockLeader;
-    private MatchDamageSources.Ref flockLeaderRef;
+    private final List<Entity> dependencies=new ArrayList<>();
+    private List<MatchDamageSources.Ref> dependencyRefs=List.of();
 
     static MatchGoalFields capture(Mob owner,Goal goal){
         var image=new MatchGoalFields(owner,goal);
@@ -62,11 +62,21 @@ final class MatchGoalFields {
         if(goal instanceof DolphinJumpGoal)image.save(DolphinJumpGoal.class,"breached");
         if(goal instanceof FollowPlayerRiddenEntityGoal)image.save(FollowPlayerRiddenEntityGoal.class,"timeToRecalcPath","following","currentGoal");
         if(goal instanceof ZombieAttackGoal)image.save(ZombieAttackGoal.class,"raiseArmTicks");
+        if(goal instanceof LlamaFollowCaravanGoal)image.save(LlamaFollowCaravanGoal.class,"speedModifier","distCheckCounter");
+        if(goal instanceof OfferFlowerGoal)image.save(OfferFlowerGoal.class,"entity","tick");
+        if(goal instanceof RandomStandGoal)image.save(RandomStandGoal.class,"nextStand");
+        if(goal instanceof RunAroundLikeCrazyGoal)image.save(RunAroundLikeCrazyGoal.class,"posX","posY","posZ");
+        if(goal instanceof LandOnOwnersShoulderGoal)image.save(LandOnOwnersShoulderGoal.class,"isSittingOnShoulder");
+        if(goal instanceof DefendVillageTargetGoal)image.save(DefendVillageTargetGoal.class,"potentialTarget");
         return image.values.isEmpty()?null:image;
     }
     private MatchGoalFields(Mob owner,Goal goal){
         this.owner=owner;this.goal=goal;
-        flockLeader=goal instanceof FollowFlockLeaderGoal&&owner instanceof net.minecraft.world.entity.animal.fish.AbstractSchoolingFish fish?MatchFishSchools.leader(fish):null;
+        if(goal instanceof FollowFlockLeaderGoal&&owner instanceof net.minecraft.world.entity.animal.fish.AbstractSchoolingFish fish){var leader=MatchFishSchools.leader(fish);if(leader!=null)dependencies.add(leader);}
+        if(goal instanceof LlamaFollowCaravanGoal&&owner instanceof net.minecraft.world.entity.animal.equine.Llama llama){
+            var seen=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
+            for(var head=llama.getCaravanHead();head!=null&&dependencies.size()<9&&seen.add(head);head=head.getCaravanHead())dependencies.add(head);
+        }
     }
     private void save(Class<?> type,String... names){
         for(String name:names){
@@ -100,15 +110,15 @@ final class MatchGoalFields {
     }
     void captureReferences(MatchDamageSources sources){
         values.forEach((field,value)->{if(Entity.class.isAssignableFrom(field.getType()))references.put(field,sources.dependencyRef((Entity)value));});
-        flockLeaderRef=sources.dependencyRef(flockLeader);
+        dependencyRefs=dependencies.stream().map(sources::dependencyRef).toList();
         referencesCaptured=true;
     }
     boolean restoreReferences(Function<UUID,Entity> lookup,Set<UUID> pending){
         if(!referencesCaptured)return false;
         boolean absent=false;
-        if(flockLeaderRef!=null){
-            var leader=MatchDamageSources.resolve(flockLeaderRef,lookup,pending);
-            if(leader==null&&MatchDamageSources.intentionallyAbsent(flockLeaderRef.id()))absent=true;
+        for(var ref:dependencyRefs){
+            var body=MatchDamageSources.resolve(ref,lookup,pending);
+            if(body==null&&MatchDamageSources.intentionallyAbsent(ref.id()))absent=true;
         }
         for(var entry:references.entrySet()){
             var ref=entry.getValue();Entity resolved=MatchDamageSources.resolve(ref,lookup,pending);
@@ -138,6 +148,12 @@ final class MatchGoalFields {
         }
         if(wasRunning&&goal instanceof OcelotAttackGoal)owner.getNavigation().stop();
         if(wasRunning&&goal instanceof BegGoal)((net.minecraft.world.entity.animal.wolf.Wolf)owner).setIsInterested(false);
+        if(wasRunning&&goal instanceof LlamaFollowCaravanGoal){MatchLlamaCaravans.leave((net.minecraft.world.entity.animal.equine.Llama)owner);write(field(LlamaFollowCaravanGoal.class,"speedModifier"),2.1);}
+        if(wasRunning&&goal instanceof OfferFlowerGoal)clearFlower((net.minecraft.world.entity.animal.golem.IronGolem)owner);
+    }
+    private static void clearFlower(net.minecraft.world.entity.animal.golem.IronGolem golem){
+        try{var value=net.minecraft.world.entity.animal.golem.IronGolem.class.getDeclaredField("offerFlowerTick");value.setAccessible(true);value.setInt(golem,0);}
+        catch(ReflectiveOperationException e){throw new IllegalStateException("Review native flower phase",e);}
     }
     private static Field field(Class<?> type,String name){
         try{var result=type.getDeclaredField(name);result.setAccessible(true);return result;}

@@ -43,6 +43,7 @@ public final class MatchActorCheckpoint {
     private MatchDamageSources damageSources;
     private MatchPlayerViews views;
     private MatchFishSchools fishSchools;
+    private MatchLlamaCaravans caravans;
 
     private MatchActorCheckpoint(GameController game) {this.game=game;epoch=game.items().epoch();}
     static MatchActorCheckpoint captureRegistered(GameController game) {return captureRegistered(game,Set.of());}
@@ -51,6 +52,7 @@ public final class MatchActorCheckpoint {
         var result=new MatchActorCheckpoint(game);result.omitted=Set.copyOf(omitted);
         var registered=result.registered();result.damageSources=new MatchDamageSources(game,registered,omitted);
         if(MatchMobGoals.enabled())result.fishSchools=new MatchFishSchools(registered,result.damageSources);
+        if(MatchMobGoals.enabled())result.caravans=new MatchLlamaCaravans(registered,result.damageSources);
         for(var actor:registered) {
             var passengers=actor.getPassengers().stream().map(e->new Link(e.getUUID(),e.getPose())).toList();
             var target=actor instanceof Mob mob?mob.getTargetUnchecked():null;
@@ -209,6 +211,7 @@ public final class MatchActorCheckpoint {
         var pending=pendingExcept(absent);
         MatchDamageSources.withAbsent(absent,()->scoped(()->{
             if(fishSchools!=null)fishSchools.restore(this::resolve,pending,omitted);
+            if(caravans!=null)caravans.restore(this::resolve,pending);
             playerLinks.clear();
             for(var image:images.values())if(!omitted.contains(image.uuid))detachLinks(image.actor);
             for(var image:images.values()) {

@@ -88,7 +88,7 @@ review; recording a retained task reference alone does not close those owners.
 
 Ten further schemas cover door interaction, movement to blocks and through
 villages, owner retaliation/assistance, and selected anger/raider target phases.
-The common table now names 91 simple fields across 33 classes, plus an explicit
+The common table now names 101 simple fields across 39 classes, plus an explicit
 village position-history container. Mutable block positions restore their saved
 coordinates on the original object; position histories restore their original
 list and member aliases. No arbitrary collection or object graph is traversed.
@@ -147,6 +147,26 @@ restore the original alias twice, and verify active use, accepted stab history,
 absence cleanup and zero replayed finish events. The event-control fixture enables
 the item vibration component explicitly; ordinary spear defaults do not emit it.
 These task adapters remain under the OFF-by-default native goal experiment.
+
+Species tasks also retain caravan catch-up speed/timeout, flower recipient/timer,
+random rearing interval, wild-horse route coordinates, shoulder-landing state and
+village-defense candidate. Native horse pose counters/interpolation values,
+llama spit state, bird shoulder cooldown and golem flower/attack counters join the
+experimental body image. `MatchLlamaCaravans` restores both head and tail links
+without joining through callbacks. A missing ancestor retires affected followers
+and repairs their active edges using direct native leave values.
+
+Native checks restore the same caravan after middle/root omission, return the
+original bird from serialized player-shoulder NBT, resume horse rearing and an
+ejected rider's wild-horse route, remove discarded flower gifts, and restore the
+same village-defense target selected through real gossip. Flower cancellation
+preserves the inactive task counter exactly as native early stop does. These are
+server-state checks; they do not prove exact physical-client animation phase.
+
+The ordinary body image also rebases `NeutralMob`'s absolute anger deadline onto
+the current world clock. Native NBT alone stores the old `anger_end_time`, which
+would shorten the restored duration. Three real five-tick advances and repeated
+actor restoration verify the same remaining duration. No anger event is replayed.
 
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners

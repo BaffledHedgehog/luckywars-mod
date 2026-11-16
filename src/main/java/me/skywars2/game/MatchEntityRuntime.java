@@ -18,13 +18,21 @@ final class MatchEntityRuntime {
     private final net.minecraft.world.InteractionHand usedHand;
     private final MatchMobNavigation navigation;
     private final MatchMobGoals goals;
+    private final Long angerEndTime;
 
     MatchEntityRuntime(Entity entity) {
         navigation=entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobNavigation(mob):null;
         goals=MatchMobGoals.enabled()&&entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobGoals(mob):null;
+        angerEndTime=entity instanceof net.minecraft.world.entity.NeutralMob neutral?neutral.getPersistentAngerEndTime():null;
         if(goals!=null)capture(Entity.class,entity,"horizontalCollision","verticalCollision","verticalCollisionBelow","minorHorizontalCollision");
         if(goals!=null&&entity instanceof net.minecraft.world.entity.monster.Creeper)
             capture(net.minecraft.world.entity.monster.Creeper.class,entity,"oldSwell","swell","maxSwell","explosionRadius","droppedSkulls");
+        if(goals!=null&&entity instanceof net.minecraft.world.entity.animal.equine.AbstractHorse)
+            capture(net.minecraft.world.entity.animal.equine.AbstractHorse.class,entity,"eatingCounter","mouthCounter","standCounter","tailCounter","sprintCounter",
+                    "playerJumpPendingScale","allowStandSliding","eatAnim","eatAnimO","standAnim","standAnimO","mouthAnim","mouthAnimO","canGallop","gallopSoundCounter");
+        if(goals!=null&&entity instanceof net.minecraft.world.entity.animal.equine.Llama)capture(net.minecraft.world.entity.animal.equine.Llama.class,entity,"didSpit");
+        if(goals!=null&&entity instanceof net.minecraft.world.entity.animal.parrot.ShoulderRidingEntity)capture(net.minecraft.world.entity.animal.parrot.ShoulderRidingEntity.class,entity,"rideCooldownCounter");
+        if(goals!=null&&entity instanceof net.minecraft.world.entity.animal.golem.IronGolem)capture(net.minecraft.world.entity.animal.golem.IronGolem.class,entity,"attackAnimationTick","offerFlowerTick");
         worldTime=entity.level().getGameTime();using=entity instanceof LivingEntity living&&living.isUsingItem();
         usedHand=entity instanceof LivingEntity living?living.getUsedItemHand():net.minecraft.world.InteractionHand.MAIN_HAND;
         capture(Entity.class,entity,"tickCount","remainingFireTicks","invulnerableTime","portalCooldown","fallDistance",
@@ -82,6 +90,7 @@ final class MatchEntityRuntime {
             }
             if(goals!=null)goals.restore();
             if(navigation!=null)navigation.restore();
+            if(angerEndTime!=null)((net.minecraft.world.entity.NeutralMob)entity).setPersistentAngerEndTime(angerEndTime<0?angerEndTime:Math.addExact(angerEndTime,entity.level().getGameTime()-worldTime));
         }catch(IllegalAccessException e){throw new IllegalStateException(e);}
     }
 }
