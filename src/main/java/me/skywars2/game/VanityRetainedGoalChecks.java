@@ -31,6 +31,8 @@ final class VanityRetainedGoalChecks {
     VanityRetainedGoalChecks(GameController game,WoolBucketChecks.Fixture f){
         this.game=game;this.f=f;
         VanityRoamingGoalChecks.verify(game,f);
+        VanityPositionGoalChecks.verify(game,f);
+        VanityPetGoalChecks.verify(game,f);
         var at=Vec3.atCenterOf(BlockPos.containing(f.home).above(3)).add(3,8,3);
         target=new Cow(EntityTypes.COW,f.level);target.setPos(at.add(10,0,0));target.setNoGravity(true);target.setNoAi(true);
         target.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100);target.setHealth(100);target.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(1);

@@ -42,6 +42,7 @@ public final class VanityGoalChecks {
         VanityCommonGoalChecks common;
         VanityRetainedGoalChecks retained;
         VanityCreeperGoalChecks creeper;
+        VanityDoorGoalChecks doors;
         float health;boolean closed;
         Fixture(GameController game){this.game=game;f=new WoolBucketChecks.Fixture(game,false);}
         void begin(){
@@ -65,7 +66,8 @@ public final class VanityGoalChecks {
             when=game.server().getTickCount();
         }
         boolean step(){
-            if(creeper!=null)return creeper.step();
+            if(doors!=null)return doors.step();
+            if(creeper!=null){if(!creeper.step())return false;doors=new VanityDoorGoalChecks(game,f);return false;}
             if(retained!=null){if(!retained.step())return false;creeper=new VanityCreeperGoalChecks(game,f);return false;}
             if(common!=null){if(!common.step())return false;retained=new VanityRetainedGoalChecks(game,f);return false;}
             if(breeding!=null){if(!breeding.step())return false;common=new VanityCommonGoalChecks(game,f);return false;}
@@ -118,6 +120,6 @@ public final class VanityGoalChecks {
             require(WoolBucketChecks.read(melee,"path")==goalPath,"original goal-owned path reference restored");
             require((Long)WoolBucketChecks.read(melee,"lastCanUseCheck")==lastCheck+f.level.getGameTime()-capturedAt,"native can-use timestamp retains world-clock age");
         }
-        @Override public void close(){if(closed)return;closed=true;f.close();}
+        @Override public void close(){if(closed)return;closed=true;try{if(doors!=null)doors.close();}finally{f.close();}}
     }
 }

@@ -22,6 +22,7 @@ final class MatchEntityRuntime {
     MatchEntityRuntime(Entity entity) {
         navigation=entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobNavigation(mob):null;
         goals=MatchMobGoals.enabled()&&entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobGoals(mob):null;
+        if(goals!=null)capture(Entity.class,entity,"horizontalCollision","verticalCollision","verticalCollisionBelow","minorHorizontalCollision");
         if(goals!=null&&entity instanceof net.minecraft.world.entity.monster.Creeper)
             capture(net.minecraft.world.entity.monster.Creeper.class,entity,"oldSwell","swell","maxSwell","explosionRadius","droppedSkulls");
         worldTime=entity.level().getGameTime();using=entity instanceof LivingEntity living&&living.isUsingItem();

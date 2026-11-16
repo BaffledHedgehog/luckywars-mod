@@ -40,8 +40,8 @@ body's local tick count; it is not rebased onto world time. Target references us
 the same actor link phase and absent-player policy as ranged attacks. Native
 checks cover search through actual occlusion, identical remaining expiry after
 two restores, no duplicate retaliation for restored damage, and player-body
-replacement/login. Other target subclasses' private fields remain unreviewed,
-and the experiment remains OFF by default.
+replacement/login. Target subclasses beyond the explicit adapters still need
+review, and the experiment remains OFF by default.
 
 The reviewed `BreedGoal` image retains its chosen animal partner and elapsed
 courtship. Partner references resolve through the existing actor body/link phases;
@@ -85,6 +85,22 @@ explosions with the same remaining fuse after replay. Roaming trigger/destinatio
 panic route and delayed attack probes use native task APIs and accepted damage.
 Species-specific task bodies, remaining task families and Brain state still need
 review; recording a retained task reference alone does not close those owners.
+
+Ten further schemas cover door interaction, movement to blocks and through
+villages, owner retaliation/assistance, and selected anger/raider target phases.
+The common table now names 82 simple fields across 28 classes, plus an explicit
+village position-history container. Mutable block positions restore their saved
+coordinates on the original object; position histories restore their original
+list and member aliases. No arbitrary collection or object graph is traversed.
+Previous-movement collision flags join this experimental image because native
+door admission reads them before the next movement step recomputes them.
+
+Native checks exercise real block search, history append/prune, accepted owner
+attacks, collision-admitted door opening, repeated close timing and actual door
+breaking after the same remaining native task ticks. The village history probe
+supplies its POI input explicitly; it does not prove live village pathfinding.
+Door probes supply saved terrain before actor replay; the coordinator separately
+owns full terrain restoration. This remains part of the OFF-by-default experiment.
 
 Checkpoint player inventory loads bypass ordinary equipment refresh while the
 exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners

@@ -46,6 +46,6 @@ final class VanityCreeperGoalChecks {
         finally{game.server().tickRateManager().setFrozen(frozen);}
         require(!creeper.isRemoved()&&creeper.isAlive()&&count("swell")==swell&&count("oldSwell")==oldSwell&&count("maxSwell")==12,
                 "original creeper body and exact native fuse phase restored after real explosion");
-        if(phase++<3){when=now;return false;}return true;
+        if(phase++<3){when=now;return false;}creeper.discard();return true;
     }
 }

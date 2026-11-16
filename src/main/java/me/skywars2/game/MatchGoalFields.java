@@ -1,13 +1,17 @@
 package me.skywars2.game;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.*;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.phys.Vec3;
 
 /** Explicit native task schemas; never traverses arbitrary goal, server or callback object graphs. */
 final class MatchGoalFields {
@@ -17,6 +21,8 @@ final class MatchGoalFields {
     private final Map<Field,Object> values=new LinkedHashMap<>();
     private final Map<Field,MatchDamageSources.Ref> references=new LinkedHashMap<>();
     private final Map<Path,MatchMobNavigation.Route> routes=new IdentityHashMap<>();
+    private final Map<BlockPos.MutableBlockPos,BlockPos> positions=new IdentityHashMap<>();
+    private final Map<List<BlockPos>,List<BlockPos>> positionLists=new IdentityHashMap<>();
     private boolean referencesCaptured;
 
     static MatchGoalFields capture(Mob owner,Goal goal){
@@ -39,19 +45,49 @@ final class MatchGoalFields {
         if(goal instanceof SwellGoal)image.save(SwellGoal.class,"target");
         if(goal instanceof EatBlockGoal)image.save(EatBlockGoal.class,"eatAnimationTick");
         if(goal instanceof OcelotAttackGoal)image.save(OcelotAttackGoal.class,"target","attackTime");
+        if(goal instanceof DoorInteractGoal)image.save(DoorInteractGoal.class,"mob","doorPos","hasDoor","passed","doorOpenDirX","doorOpenDirZ");
+        if(goal instanceof OpenDoorGoal)image.save(OpenDoorGoal.class,"forgetTime");
+        if(goal instanceof BreakDoorGoal)image.save(BreakDoorGoal.class,"breakTime","lastBreakProgress","doorBreakTime");
+        if(goal instanceof MoveToBlockGoal)image.save(MoveToBlockGoal.class,"nextStartTick","tryTicks","maxStayTicks","blockPos","reachedTarget","verticalSearchStart");
+        if(goal instanceof MoveThroughVillageGoal){image.save(MoveThroughVillageGoal.class,"path","poiPos");image.savePositions(MoveThroughVillageGoal.class,"visited");}
+        if(goal instanceof OwnerHurtByTargetGoal)image.save(OwnerHurtByTargetGoal.class,"ownerLastHurtBy","timestamp");
+        if(goal instanceof OwnerHurtTargetGoal)image.save(OwnerHurtTargetGoal.class,"ownerLastHurt","timestamp");
+        if(goal instanceof ResetUniversalAngerTargetGoal<?>)image.save(ResetUniversalAngerTargetGoal.class,"lastHurtByPlayerTimestamp");
+        if(goal instanceof NearestHealableRaiderTargetGoal<?>)image.save(NearestHealableRaiderTargetGoal.class,"cooldown");
+        if(goal instanceof NearestAttackableWitchTargetGoal<?>)image.save(NearestAttackableWitchTargetGoal.class,"canAttack");
         return image.values.isEmpty()?null:image;
     }
     private MatchGoalFields(Mob owner,Goal goal){this.owner=owner;this.goal=goal;}
     private void save(Class<?> type,String... names){
         for(String name:names){
             Field field=field(type,name);Class<?> valueType=field.getType();Object value=read(field);
-            if(!valueType.isPrimitive()&&!valueType.isEnum()&&!Entity.class.isAssignableFrom(valueType)&&valueType!=Path.class)
+            if(!valueType.isPrimitive()&&!valueType.isEnum()&&!Entity.class.isAssignableFrom(valueType)&&valueType!=Path.class&&!BlockPos.class.isAssignableFrom(valueType)&&valueType!=Vec3.class)
                 throw new IllegalStateException("Review native task field value semantics: "+field);
+            if(value instanceof BlockPos pos)position(pos);
+            if(value instanceof Vec3&&value.getClass()!=Vec3.class)throw new IllegalStateException("Review mutable native vector subtype: "+field);
             values.put(field,value);
             if(value instanceof Path path)routes.computeIfAbsent(path,MatchMobNavigation.Route::new);
         }
     }
-    void restore(){routes.values().forEach(MatchMobNavigation.Route::restore);values.forEach(this::write);}
+    private void position(BlockPos value){
+        if(value instanceof BlockPos.MutableBlockPos mutable)positions.computeIfAbsent(mutable,BlockPos::immutable);
+        else if(value.getClass()!=BlockPos.class)throw new IllegalStateException("Review native position subtype: "+value.getClass());
+    }
+    @SuppressWarnings("unchecked") private void savePositions(Class<?> type,String name){
+        Field field=field(type,name);Object value=read(field);
+        if(!(value instanceof List<?> list))throw new IllegalStateException("Review native position history: "+field);
+        for(var item:list)if(item instanceof BlockPos pos)position(pos);else if(item!=null)throw new IllegalStateException("Review native position history element: "+field);
+        var original=(List<BlockPos>)list;positionLists.put(original,Collections.unmodifiableList(new ArrayList<>(original)));values.put(field,original);
+    }
+    void restore(){
+        positions.forEach((position,saved)->position.set(saved));
+        positionLists.forEach((list,saved)->{list.clear();list.addAll(saved);});
+        routes.values().forEach(MatchMobNavigation.Route::restore);
+        values.forEach((field,value)->{
+            if(Modifier.isFinal(field.getModifiers())){if(read(field)!=value)throw new IllegalStateException("Final native task value identity changed: "+field);}
+            else write(field,value);
+        });
+    }
     void captureReferences(MatchDamageSources sources){
         values.forEach((field,value)->{if(Entity.class.isAssignableFrom(field.getType()))references.put(field,sources.bodyRef((Entity)value));});
         referencesCaptured=true;
