@@ -4,6 +4,7 @@
   "plugin": "me.skywars2.mixin.SkyWarsMixinPlugin",
   "mixins": [
     "PoiJournalMixin",
+    "InventoryPublicationMixin",
     "TimeStopViewMixin$Listener",
     "TimeStopViewMixin$Transport",
     "SynchroRankedMixin$Table",

@@ -15,7 +15,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LbcInventoryTriggerMixin {
     @Inject(method = "trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/item/ItemStack;)V", at = @At("TAIL"))
     private void skywars2$inventory(ServerPlayer player, Inventory inventory, ItemStack changed, CallbackInfo ci) {
-        me.skywars2.game.LbcPendingSwords.canonicalizeAntimagic(changed);
+        // The criterion receives a menu snapshot, not the actual slot stack.
+        // Canonicalize real inventory items so packet and server data agree.
+        if(me.skywars2.game.ItemData.intValue(changed,"antimagic",0)==1)
+            for(int slot=0;slot<inventory.getContainerSize();slot++)
+                me.skywars2.game.LbcPendingSwords.canonicalizeAntimagic(inventory.getItem(slot));
         var game = SkyWars2.game();
         if (game != null) {
             game.lbc().inventoryChanged(player);

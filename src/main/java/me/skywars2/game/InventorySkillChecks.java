@@ -148,20 +148,26 @@ public final class InventorySkillChecks {
         for(var gate:gates){var advancement=game.server().getAdvancements().get(Identifier.parse(gate));for(var criterion:advancement.value().criteria().keySet())owner.getAdvancements().award(advancement,criterion);}
         // Native hotbar right-click must work without inventing an inventory criterion event.
         try(var client=new RegenerationBeltChecks.ScheduledClient(game,owner)){
+            menuPublication(game,owner,client);
+            var remote=new RemoteInventory();owner.inventoryMenu.sendAllDataToRemote();remote.read(client);
             for(int selected:new int[]{4,8}){profile.lbcSkill=selected;
                 for(int i=0;i<ARMOR.length;i++){
                     clearArmor(owner);equipment(owner);var source=decorated(owner,PIECES[i]);var expected=source.copy();owner.setItemSlot(EquipmentSlot.MAINHAND,source);client.acknowledge();
-                    owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(net.minecraft.world.InteractionHand.MAIN_HAND,100+selected*4+i,owner.getYRot(),owner.getXRot()));
+                    owner.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
+                    owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(net.minecraft.world.InteractionHand.MAIN_HAND,200+selected*4+i,owner.getYRot(),owner.getXRot()));
                     var worn=owner.getItemBySlot(ARMOR[i]);require(!worn.isEmpty(),"actual hotbar right-click packet equips "+ARMOR[i]);
                     if(selected==4){require(worn.has(DataComponents.UNBREAKABLE)&&ItemData.contains(worn,"tanner_upgraded"),"right-click equipment receives skill4 without GUI events: "+ARMOR[i]);equipment(owner);require(owner.getAttributeValue(Attributes.ARMOR_TOUGHNESS)>=3,"native equipment attributes include actual upgrade");}
                     else armoryImmediately(owner,expected,worn,"native hotbar right-click "+ARMOR[i]);
+                    owner.inventoryMenu.broadcastChanges();remote.read(client);remote.requireSlots(owner,"hotbar equipment "+selected+"/"+ARMOR[i]);
                 }
             }
             profile.lbcSkill=8;
             for(int i=0;i<ARMOR.length;i++){
                 clearArmor(owner);equipment(owner);var source=decorated(owner,PIECES[i]);var expected=source.copy();owner.getInventory().setItem(9,source);client.acknowledge();var menu=owner.containerMenu;
+                owner.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
                 owner.connection.handleContainerClick(new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(menu.containerId,menu.getStateId(),(short)9,(byte)0,net.minecraft.world.inventory.ContainerInput.QUICK_MOVE,it.unimi.dsi.fastutil.ints.Int2ObjectMaps.emptyMap(),net.minecraft.network.HashedStack.EMPTY));
                 armoryImmediately(owner,expected,owner.getItemBySlot(ARMOR[i]),"native Shift-click equipment "+ARMOR[i]);
+                owner.inventoryMenu.broadcastChanges();remote.read(client);remote.requireSlots(owner,"Shift-click equipment "+ARMOR[i]);
             }
             ordinaryDimensionEquipment(game,owner,client);
         }
@@ -176,6 +182,57 @@ public final class InventorySkillChecks {
             }finally{if(jammer!=null){game.items().magic().unloaded(jammer);jammer.discard();}}
         }
         profile.lbcSkill=0;var ordinary=decorated(owner,Items.DIAMOND_HELMET);owner.setItemSlot(EquipmentSlot.HEAD,ordinary);var expected=ordinary.copy();net.minecraft.advancements.triggers.CriteriaTriggers.INVENTORY_CHANGED.trigger(owner,owner.getInventory(),ordinary);require(ItemStack.matches(expected,owner.getItemBySlot(EquipmentSlot.HEAD)),"unselected inventory event never grants a skill mutation");
+    }
+    /** Model only packets received by a client; never seed it from current server inventory. */
+    private static final class RemoteInventory {
+        private final List<ItemStack> slots=new ArrayList<>();private int cursor,full,updates;
+        void read(RegenerationBeltChecks.ScheduledClient client){
+            var packets=client.packets();
+            while(cursor<packets.size()){
+                var packet=packets.get(cursor++);
+                if(packet instanceof net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket p&&p.containerId()==0){slots.clear();p.items().forEach(item->slots.add(item.copy()));full++;}
+                else if(packet instanceof net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket p&&p.getContainerId()==0&&p.getSlot()>=0&&p.getSlot()<slots.size()){slots.set(p.getSlot(),p.getItem().copy());updates++;}
+                else if(packet instanceof net.minecraft.network.protocol.game.ClientboundSetPlayerInventoryPacket p){int n=p.slot(),slot=n<9?36+n:n<36?n:n<40?44-n:45;if(slot>=0&&slot<slots.size())slots.set(slot,p.contents().copy());}
+            }
+        }
+        void requireSlots(ServerPlayer owner,String why){
+            require(slots.size()==owner.inventoryMenu.slots.size(),why+" received native menu baseline");
+            for(int slot=0;slot<slots.size();slot++)require(ItemStack.matches(slots.get(slot),owner.inventoryMenu.getSlot(slot).getItem()),why+" slot "+slot+" client="+slots.get(slot).getComponents()+" server="+owner.inventoryMenu.getSlot(slot).getItem().getComponents());
+        }
+    }
+    private static void menuPublication(GameController game,ServerPlayer owner,RegenerationBeltChecks.ScheduledClient client){
+        var profile=game.players().get(owner.getUUID());profile.lbcSkill=0;owner.getInventory().clearContent();clearArmor(owner);equipment(owner);
+        var remote=new RemoteInventory();owner.inventoryMenu.broadcastChanges();owner.inventoryMenu.sendAllDataToRemote();remote.read(client);remote.requireSlots(owner,"plain empty baseline");int full=remote.full;
+        // Equip before selecting the skill: the actual menu listener must perform the in-place upgrade.
+        var plain=decorated(owner,Items.DIAMOND_HELMET);owner.setItemSlot(EquipmentSlot.HEAD,plain);require(!ItemData.contains(plain,"armory_upgraded"),"plain armor before native inventory callback");profile.lbcSkill=8;
+        owner.inventoryMenu.broadcastChanges();remote.read(client);
+        require(ItemData.contains(owner.getItemBySlot(EquipmentSlot.HEAD),"armory_upgraded"),"native menu callback really upgraded armor");
+        int firstUpdates=remote.updates;boolean firstMatch=ItemStack.matches(remote.slots.get(5),owner.getItemBySlot(EquipmentSlot.HEAD));
+        for(int i=0;i<5;i++){owner.inventoryMenu.broadcastChanges();remote.read(client);}
+        SkyWars2.LOGGER.info("[check] inventory-publication firstMatch={} finalMatch={} firstUpdates={} finalUpdates={} fullResends={}",firstMatch,ItemStack.matches(remote.slots.get(5),owner.getItemBySlot(EquipmentSlot.HEAD)),firstUpdates,remote.updates,remote.full-full);
+        require(firstMatch,"first armor packet contains properties added by its actual inventory callback");remote.requireSlots(owner,"repeated native inventory broadcasts");
+        require(remote.full==full,"component publication does not require a full inventory resend");require(remote.updates==firstUpdates,"stable component publication does not resend slots repeatedly");
+        profile.lbcSkill=0;
+        var antimagic=new ItemStack(Items.STICK);var marker=new net.minecraft.nbt.CompoundTag();marker.putInt("antimagic",1);antimagic.set(DataComponents.CUSTOM_DATA,CustomData.of(marker));antimagic.set(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_a"));owner.getInventory().setItem(9,antimagic);
+        owner.inventoryMenu.broadcastChanges();remote.read(client);
+        require(Identifier.parse("lbc:tier_s").equals(antimagic.get(DataComponents.TOOLTIP_STYLE)),"inventory callback canonicalizes actual antimagic item, not notification copy");remote.requireSlots(owner,"canonical tooltip properties");
+        int stableUpdates=remote.updates;
+        for(int i=0;i<5;i++){owner.inventoryMenu.broadcastChanges();remote.read(client);}
+        require(remote.full==full&&remote.updates==stableUpdates,"canonical tooltip remains stable without repeated slot or full updates");
+        owner.getInventory().clearContent();owner.inventoryMenu.broadcastChanges();remote.read(client);remote.requireSlots(owner,"clear after menu mutation fixture");
+        var nut=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:oreshki_10").stream().filter(LbcOreshek::matches).findFirst().orElseThrow();
+        for(var hand:net.minecraft.world.InteractionHand.values()){
+            owner.setItemInHand(hand,nut.copy());owner.inventoryMenu.broadcastChanges();remote.read(client);remote.requireSlots(owner,"nut delivered to "+hand);
+            int slot=hand==net.minecraft.world.InteractionHand.OFF_HAND?45:36+owner.getInventory().getSelectedSlot();var received=remote.slots.get(slot);
+            var projected=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(received,TooltipFlag.NORMAL,owner.connection.getPacketContext(),owner.registryAccess());
+            require(projected.has(DataComponents.CONSUMABLE)&&projected.get(DataComponents.CONSUMABLE).equals(nut.get(DataComponents.CONSUMABLE))&&projected.get(DataComponents.FOOD).canAlwaysEat(),"received nut has native client food/use properties in "+hand);
+            // Polymer coalesces both hands until the real client announces tick end.
+            // These are independent later clicks, not two hands from one input frame.
+            owner.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
+            owner.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(hand,180+hand.ordinal(),owner.getYRot(),owner.getXRot()));
+            require(owner.isUsingItem()&&owner.getUsedItemHand()==hand&&owner.getUseItem()==owner.getItemInHand(hand),"received nut starts native eating without touching an inventory slot in "+hand);owner.stopUsingItem();owner.setItemInHand(hand,ItemStack.EMPTY);
+        }
+        owner.inventoryMenu.broadcastChanges();remote.read(client);remote.requireSlots(owner,"native nut hand cleanup");
     }
     private static void armoryImmediately(ServerPlayer owner,ItemStack before,ItemStack worn,String why){
         require(!worn.isEmpty()&&ItemData.contains(worn,"armory_upgraded"),why+" is upgraded before another tick");
