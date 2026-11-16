@@ -73,6 +73,31 @@ after the same remaining goal ticks on three replays, and restore a completed
 inactive image over a later destruction cycle. They do not fabricate progress or
 the reached-target flag, and do not claim a physical-client timing measurement.
 
+The experimental actor image also owns native world raids through `MatchRaids`.
+It retains each level's original `Raids` service and ID map, the original `Raid`
+objects, wave membership maps/sets and leader links, hero UUIDs, native counters,
+RNG/Gaussian state and boss events. The ID allocator and service clock return with
+the image, and restored saved-data owners are marked dirty so future disk saves
+cannot retain the discarded timeline. Detached raids reachable from actor/member
+references join the same image without replacing historical bodies.
+
+World raid values return before actor loading. Experimental actor replay removes
+only the deferred `RaidId` from its copied NBT input: native Raider loading would
+otherwise rejoin the raid and change leadership. The body/link phase restores raid
+pointers, wave/join/outside counters and original member containers afterward.
+Boss-event data and audience use native repair packets and current player bodies.
+An explicitly omitted member leaves both sides using native leave-like health/bar
+values; an older removed body sharing that UUID remains a historical reference.
+`PathfindToRaidGoal`'s recruitment deadline follows the restored body's tick clock.
+Data replay runs once per body-restore phase. Later link-only passes rebind the
+current boss audience to current player bodies without rewinding counters,
+membership or HUD changes, or resurrecting a raid that has since stopped. Native
+`Raid.updatePlayers` continues to own later audience arrivals and departures.
+Native checks cover real raid creation/recruitment/removal, three owner/body
+replays, saved-data codec output, original containers, RNG, UI packets and both
+omission cases. Village POI services and Brain continuation remain under audit;
+this does not enable the unfinished goal-image experiment.
+
 Native checks cover look expiry/direction, parent/owner/mob route phases and water
 costs changed by real future lifecycle calls, temptation cooldown, avoidance path
 identity/cursor, and repeated delayed arrows from a real skeleton and pillager.

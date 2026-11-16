@@ -36,7 +36,7 @@ final class VanitySpeciesGoalChecks implements AutoCloseable {
     VanitySpeciesGoalChecks(GameController game,WoolBucketChecks.Fixture f){
         this.game=game;this.f=f;player=new MatchPlayerCheckpoint(game,f.owner);before=MatchActorCheckpoint.captureRegistered(game);
         try{
-            shoulder();horses();caravan();flower();defend();
+            shoulder();horses();caravan();flower();defend();VanityRaidChecks.verify(game,f);
             neutral=add(new IronGolem(EntityTypes.IRON_GOLEM,f.level),origin(36,80));
             neutral.setPersistentAngerEndTime(f.level.getGameTime()+200);capturedWorld=f.level.getGameTime();anger=MatchActorCheckpoint.captureRegistered(game);when=game.server().getTickCount();
         }catch(Throwable failure){try{close();}catch(Throwable cleanup){failure.addSuppressed(cleanup);}throw failure;}
@@ -84,6 +84,11 @@ final class VanitySpeciesGoalChecks implements AutoCloseable {
         var untamed=add(new Horse(EntityTypes.HORSE,f.level),at.add(2,0,3));require(f.owner.startRiding(untamed,true,false),"real player riding untamed native horse");
         var run=new RunAroundLikeCrazyGoal(untamed,1);selector(untamed).addGoal(1,run);var running=selector(untamed).getAvailableGoals().iterator().next();
         for(int attempt=0;attempt<1024&&!running.isRunning();attempt++)selector(untamed).tick();require(running.isRunning()&&untamed.getNavigation().getPath()!=null,"native wild horse route admission");
+        // Admission also ticks the task: it can already eject this rider and raise temper.
+        // Establish an untamed, zero-temper rider scene before capturing the actual future ejection.
+        require(!untamed.isTamed(),"fresh horse did not tame during its initial native admission");untamed.modifyTemper(-untamed.getTemper());
+        if(!untamed.isVehicle())require(f.owner.startRiding(untamed,true,false),"restore real rider after early native admission ejection");
+        require(f.owner.getVehicle()==untamed,"native wild-horse image starts with its actual rider");
         var route=untamed.getNavigation().getPath();var pos=List.of(WoolBucketChecks.read(run,"posX"),WoolBucketChecks.read(run,"posY"),WoolBucketChecks.read(run,"posZ"));
         int temper=untamed.getTemper();var owner=new MatchPlayerCheckpoint(game,f.owner);var riding=MatchActorCheckpoint.captureRegistered(game);
         for(int replay=0;replay<2;replay++){

@@ -56,7 +56,11 @@ final class MatchEntityState {
         runtime.prepareLoad(target);
         if(original instanceof LivingEntity living&&!MatchOfflinePlayers.alias(original))game.items().ownedEffects().forget(living);
         if(target instanceof LivingEntity living){game.items().ownedEffects().forget(living);living.removeAllEffects();}
-        target.load(TagValueInput.create(ProblemReporter.DISCARDING,target.registryAccess(),nbt.copy()));
+        var input=nbt.copy();
+        // Native Raider loading joins the current Raid and changes its leader map. The world owner
+        // and body graph are restored separately during experimental actor replay.
+        if(MatchMobGoals.enabled()&&MatchActorCheckpoint.restoring(target)&&target instanceof net.minecraft.world.entity.raid.Raider)input.remove("RaidId");
+        target.load(TagValueInput.create(ProblemReporter.DISCARDING,target.registryAccess(),input));
         if(target instanceof LivingEntity living){living.getAttributes().assignAllValues(attributes);ShadowAbsorption.reconcile(living,false);}
         target.getEntityData().assignValues(metadata());
         // Pose/scale callbacks may refresh dimensions; the checkpoint owns the final position.
