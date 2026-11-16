@@ -16,8 +16,10 @@ final class MatchEntityRuntime {
     private final long worldTime;
     private final boolean using;
     private final net.minecraft.world.InteractionHand usedHand;
+    private final MatchMobNavigation navigation;
 
     MatchEntityRuntime(Entity entity) {
+        navigation=entity instanceof net.minecraft.world.entity.Mob mob?new MatchMobNavigation(mob):null;
         worldTime=entity.level().getGameTime();using=entity instanceof LivingEntity living&&living.isUsingItem();
         usedHand=entity instanceof LivingEntity living?living.getUsedItemHand():net.minecraft.world.InteractionHand.MAIN_HAND;
         capture(Entity.class,entity,"tickCount","remainingFireTicks","invulnerableTime","portalCooldown","fallDistance",
@@ -56,6 +58,7 @@ final class MatchEntityRuntime {
         try{return field(type,name).get(target);}catch(IllegalAccessException e){throw new IllegalStateException(e);}
     }
     void restore(Entity entity) {
+        if(navigation!=null)navigation.requireOwner(entity);
         try {
             for(var entry:values.entrySet()) {
                 Object value=entry.getValue();String name=entry.getKey().getName();
@@ -68,6 +71,7 @@ final class MatchEntityRuntime {
                 for(var entry:swing.entrySet())entry.getKey().set(state,entry.getValue());
                 field(LivingEntity.class,"useItem").set(entity,using?living.getItemInHand(usedHand):ItemStack.EMPTY);
             }
+            if(navigation!=null)navigation.restore();
         }catch(IllegalAccessException e){throw new IllegalStateException(e);}
     }
 }

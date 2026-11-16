@@ -22,7 +22,8 @@ public abstract class LbcEquipmentMixin {
     /** Normalize old miniguns before vanilla snapshots and applies equipment attribute modifiers. */
     @Inject(method = "onEquipItem", at = @At("HEAD"))
     private void skywars2$minigunEquipment(EquipmentSlot slot, ItemStack previous, ItemStack next, CallbackInfo ci) {
-        if ((Object)this instanceof ServerPlayer) me.skywars2.game.LbcMinigunMovement.ensureStack(next);
+        if ((Object)this instanceof ServerPlayer player && !me.skywars2.game.MatchPlayerCheckpoint.restoring(player))
+            me.skywars2.game.LbcMinigunMovement.ensureStack(next);
     }
     /** RETURN покрывает ранние выходы vanilla (firstTick/observer), в том числе начальную экипировку. */
     @Inject(method = "onEquipItem", at = @At("RETURN"))
@@ -45,6 +46,8 @@ public abstract class LbcEquipmentMixin {
         try{skywars2$refreshEquipment(player,head,feet);}finally{skywars2$refreshingEquipment=false;}
     }
     @Unique private static void skywars2$refreshEquipment(ServerPlayer player,boolean head,boolean feet){
+        // Native checkpoint loading passes through partial equipment; its typed owners publish afterward.
+        if(me.skywars2.game.MatchPlayerCheckpoint.restoring(player))return;
         var game=SkyWars2.game();if(game==null)return;
         game.items().mana().inventoryChanged(player);
         game.lbc().inventoryChanged(player);

@@ -1,3 +1,24 @@
+## Native mob navigation during rollback
+
+`MatchEntityRuntime` delegates the original mob body's navigation/control image to
+`MatchMobNavigation`. The image restores the same native Path, its shared node list,
+mutable Node graph and cursor in place, including aliases retained by native goals.
+Base move/look/jump/body controls, navigation policies, path costs and relative
+world-clock timestamps return with it. An idle image removes a future route. No
+extra AI tick loop or whole-world scan is introduced. Brain, running goal state and
+species-specific control extensions remain separate parts of the broader audit.
+
+Checkpoint player inventory loads bypass ordinary equipment refresh while the
+exact player's `MatchPlayerCheckpoint.restoring` scope is active. Typed owners
+restore and publish those abilities afterward. A retained offline rocket-boot
+state also survives a different login body's early equipment callbacks until
+private state is rebound. Ordinary equip/unequip, charge regeneration, death reset
+and kit reissuance retain their existing native handlers.
+
+Native verification covers real route movement before and after two restores,
+shared node-list identity, idle restoration, full actor/core/coordinator replay,
+repeated offline points with real reconnect, and normal equipment/rocket boots.
+
 ## Optional full-colour media client
 
 The isolated `media-client` Fabric26.3 project shares only `media-protocol` with the server. A supported Hello plus actual Fabric Frame/Stop receive-channel advertisement enables enhanced playback for the exact current connection. Vanilla and incompatible clients keep the native phone. The client announces after channel registration, including when it arrives after JOIN.

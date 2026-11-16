@@ -594,6 +594,9 @@ public final class LbcItems {
 
     /** onEquipItem бывает вызван до записи слота: изменяем переданный новый стек, не читаем старые ноги. */
     public void rocketEquipment(ServerPlayer player, ItemStack boots) {
+        // Login may load equipment before the retained ability is rebound to this new body.
+        var retained=rockets.get(player.getUUID());
+        if(retained!=null&&retained.retainedOffline&&retained.owner!=player)return;
         if(isRocketBoots(boots))syncRocketGlider(boots,false);
         if (!active(player) || !isRocketBoots(boots)) { resetRocket(player); return; }
         RocketState state = rockets.computeIfAbsent(player.getUUID(), ignored -> new RocketState(player));

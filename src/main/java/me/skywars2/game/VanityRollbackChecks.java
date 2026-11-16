@@ -256,7 +256,10 @@ public final class VanityRollbackChecks {
             verifyAcquisition();
             if(phase==3){
                 if(!gamma.getInventory().getItem(4).is(Items.EMERALD))return false;
-                require(game.items().curseTicks(gamma)>=curseRemaining-3&&game.items().rocketJumps(gamma)==2,"private curse and rocket state bind to the real reconnect body");
+                require(game.items().curseTicks(gamma)>=curseRemaining-3&&game.items().rocketJumps(gamma)==2,
+                        "private curse and rocket state bind to the real reconnect body: curse="+game.items().curseTicks(gamma)+
+                        ", saved="+curseRemaining+", jumps="+game.items().rocketJumps(gamma)+", alive="+gamma.isAlive()+
+                        ", allowed="+game.canUseGameplayItems(gamma)+", boots="+gamma.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET));
                 require(gamma.getInventory().getItem(4).getCount()==13,"offline native player image applies on real login");
                 discardAcquisition();
                 require(gamma.hurtServer(gamma.level(),gamma.damageSources().genericKill(),10000),"actual holder death enters native death handling");phase=4;return false;
@@ -268,7 +271,10 @@ public final class VanityRollbackChecks {
                 if(!game.vanity().status().startsWith("IDLE"))return false;
                 formRemaining=game.items().polymorph().remaining(morphed);
                 if(offlineRecaptures<2){require(game.vanity().requestCapture(base.owner,false),"second replacement point with a genuinely absent player");offlineRecaptures++;return false;}
-                gamma=GameChecks.createBot(game,gammaName);gammaWire=wire(gamma);phase=3;return false;
+                require(game.items().rocketJumps(gamma)==2,"repeated offline captures retain the charged rocket ability");
+                gamma=GameChecks.createBot(game,gammaName);
+                require(game.items().rocketJumps(gamma)==2,"native login equipment does not erase retained rocket charges");
+                gammaWire=wire(gamma);phase=3;return false;
             }
             require(!game.server().tickRateManager().isFrozen(),"native tick rate restored");
             var restoredClock=game.vanity().scheduleState();
